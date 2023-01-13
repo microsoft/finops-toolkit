@@ -8,10 +8,9 @@ assignees: ''
 
 <!--
 ⚠️⚠️⚠️ BEFORE YOU SUBMIT ⚠️⚠️⚠️
-1. Does this require API changes? If so, use https://aka.ms/costmgmt/feedback.
-2. Confirm there isn't an issue already. If so, vote it up (👍) and add comments.
-3. Complete all TODO items below and remove the TODO lines (including stars) after.
-4. Internal: Add applicable labels: Type, Micro PR, Area, Feature
+1. Confirm there isn't an issue already. If so, vote it up (👍) and add comments.
+2. Complete all TODO items below and remove the TODO lines after.
+3. Internal: Add applicable labels: Type, Micro PR, Area
 -->
 
 ## ⚠️ Problem
@@ -22,7 +21,3 @@ TODO: Add a clear and concise description of what you want to happen. Focus on t
 
 ## ℹ️ Additional context
 TODO: Add any other context or screenshots about the change request, including alternative solutions you considered and why you ruled them out.
-
-## 💬 Customer feedback (internal only)
-TODO: Add any applicable quotes from users to add context. Add the **Area: Satisfaction** if this was from a sat review. Add **Area: Supportability** if from a support request. Do not include any identifiable information, like names, IDs, or contact info!
-- "Quote from a user" (date of the quote)
