@@ -13,8 +13,8 @@ assignees: ''
 3. Internal: Add applicable labels: Type, Micro PR, Area
 -->
 
-## ⚠️ Problem
-TODO: Add a clear and concise description of what the problem is and why you feel the feature is needed. Is it always required or only in some situations?
+## 📝 Scenario
+As a **<TODO: What persona is this for?>**, I need to **<TODO: What action does the user need to perform?>** in order to **<TODO: What is the goal? Why is this needed?>**
 
 ## 💎 Solution
 TODO: Add a clear and concise description of what you want to happen. Focus on the outcome, not the implementation details. 
