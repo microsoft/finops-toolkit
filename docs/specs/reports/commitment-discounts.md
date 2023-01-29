@@ -1,0 +1,158 @@
+![Status: Not started](https://img.shields.io/badge/status-not%20started-red) &nbsp;<sup>→</sup>&nbsp;
+[![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/1)](https://github.com/microsoft/cloud-hubs/issues/1)
+
+# FinOps hubs Commitment discounts report
+
+The **Commitment discounts report** summarizes existing and potential savings from commitment-based discounts, like reservations and savings plans. This report enables you to:
+
+- Review Azure Hybrid Benefit usage.
+- Identify and resolve any under-utilized commitments (aka utilization).
+- Identify opportunity to save with more commitment-based discounts (aka coverage).
+- Determine which resources used commitment-based discounts (aka chargeback).
+- Summarize cost savings from commitment-based discounts.
+
+> 🚩 **Important**<br>FinOps hubs uses amortized costs. Amortization breaks reservation and savings plan purchases down and allocates costs to the resources that received the benefit. Due to this, amortized costs will not show purchase costs and will not match your invoice. Please use Cost Management to review invoice charges.
+
+On this page:
+
+- [Common page layout](#common-page-layout)
+- [Get started](#get-started)
+- [Hybrid Benefit](#hybrid-benefit)
+- [Commitments](#commitments)
+- [Coverage](#coverage)
+- [Pricesheet](#pricesheet)
+- [See also](#see-also)
+- [Future considerations](#future-considerations)
+
+---
+
+## Common page layout
+
+Most report pages follow a standard layout with filters, summary numbers (or KPIs), one or more charts, and a table.
+
+### Filters
+
+Filters differ on each page, but may include one or more of the following:
+
+- Date range
+- Subscription
+- Resource group
+- Commitment (e.g., reservation, savings plan)
+- Service/Tier (meter category/subcategory)
+- Currency
+
+Note the currency must be single-select to ensure costs in different currencies aren't mixed.
+
+### Key performance indicators (KPIs)
+
+KPIs differ on each page, but may include one or more of the following:
+
+- Amortized cost
+- Commitment savings
+
+Both numbers represent the sum for the entire period.
+
+### Charts
+
+The charts section provides a visual summary of the page. Charts differ on each page.
+
+### Table
+
+The table shows a breakdown of the cost or recommendations, depending on the purpose of the page.
+
+<br>
+
+## Get started
+
+The **Get started** page includes a basic introduction to the report with additional links to learn more.
+
+<br>
+
+## Hybrid Benefit
+
+<!-- NOTE: This page is duplicated in the cost-summary.md. Please keep both updated at the same time. -->
+
+The **Hybrid Benefit** page shows Azure Hybrid Benefit (AHB) usage for Windows Server virtual machines (VMs). The page uses the standard filters, but differs with the other sections.
+
+Instead of cost KPIs, the page shows how many VMs are currently enabled and how many vCPUs are used.
+
+There are 3 charts on the page:
+
+1. SKU names and number of VMs currently using less than 8 vCPUs. These are under-utilizing AHB.
+2. SKU names and number of VMs with 8+ vCPUs that are not currently using AHB.
+3. Daily breakdown of AHB and non-AHB usage (excluding those where AHB is not supported).
+
+The table shows a list of VMs that are currently using or could be using AHB with their vCPU count, AHB vCPU count, resource group, subscription, cost and quantity.
+
+<br>
+
+## Commitments
+
+<!-- NOTE: This page is duplicated in the cost-summary.md. Please keep both updated at the same time. -->
+
+The **Commitments** page serves 3 primary purposes:
+
+1. Determine if there are any under-utilized commitments.
+2. Facilitate chargeback at a subscription, resource group, or resource level.
+3. Summarize cost savings obtained from commitment-based discounts.
+
+This page uses the standard layout with a breakdown of commitment-based discounts in the chart and table.
+
+In addition to cost and savings KPIs, there is also a utilization KPI for the amount of commitment-based discounts that have been utilized during the period. Low utilization will result in lost savings potential, so this number is one of the most important KPIs on the page.
+
+The chart breaks down the cost of used (utilized) vs. unused charges. Unused charges are split out by commitment type (e.g., reservation, savings plan).
+
+The table shows resource usage against commitment-based discounts with columns for resource name, resource group, subscription, and commitment. Use the table for chargeback and savings calculations.
+
+This page filters usage down to only show charges related to commitment-based discounts, which means the total cost on the Commitments page won't match other pages, which aren't filtered by default.
+
+### 🛠️ Customization tips
+
+- Consider changing the columns in the table based on your chargeback needs.
+
+<br>
+
+## Coverage
+
+The **Coverage** page helps you identify any places where you could potentially save even more based on your historical usage patterns. The page uses the standard layout, but is optimized to show recommendations rather than focusing on cost, so sections differ from other pages.
+
+Most of the common cost filters are not available, since this page is focused future usage. The following filters are available for recommendations:
+
+- Term – Length of time for a commitment-based discount.
+- Scope – Indicates how broadly commitments should be shared (i.e., Billing account, Management group, Subscription, Resource group).
+- Lookback – Period of historical time to use when recommending future commitments (e.g., 7-day, 30-day).
+
+The KPIs on this page cover:
+
+- Potential savings (from recommendations)
+- On-demand cost (based on the date range)
+
+There are 2 charts on the page that offer a breakdown of location, instance size flexibility group, and size; and, cost over time.
+
+This page filters usage down to only show service charges that can be pre-committed to. If commitment-based discounts are not available for the service, it won't be visible on the page. This means the total cost on the Coverage page won't match other pages, which aren't filtered by default.
+
+<br>
+
+## Pricesheet
+
+The **Pricesheet** page includes detailed unit prices for all usage meters. Use this page to understand the price per unit (e.g., hour, GB) for each service. You can use this data to produce custom recommendations.
+
+Pricing filters are different from cost filters and include:
+
+- Offer ID – Determines the types of base prices (e.g., production vs. dev/test).
+- Service (meter category)
+- Tier (meter subcategory)
+
+The table shows the list of prices with meter details.
+
+<br>
+
+## See also
+
+- [Common terms](./terms.md)
+
+---
+
+## Future considerations
+
+For related ideas, see the [`Power BI: Commitment discounts` or `Area: Power BI`](https://github.com/microsoft/cloud-hubs/issues?q=is%3Aissue+is%3Aopen+label%3A%22Power+BI%3A+Commitment+discounts%22%2C%22Area%3A+Power+BI%22) labels.
