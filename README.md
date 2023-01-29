@@ -1,20 +1,14 @@
-# Microsoft Cloud FinOps hubs
+# Microsoft Cloud FinOps toolkit
 
 <sup> ℹ️ _This project is in the early concept phase. If interested, please contact micflan@microsoft.com._</sup>
 
-A Microsoft Cloud FinOps hub is a **virtual command center** for leaders throughout the organization to report on, monitor, and optimize cost based on their organizational needs. FinOps hubs focus on 3 core design principles:
+The FinOps toolkit is a collection of customizable ARM templates used to build and deploy various cost management and optimization solutions. The main focus of the FinOps toolkit is to build an reliable, trustworthy platform for cost analytics, insights, and optimization, which we call **FinOps hubs**.
+
+FinOps hubs are **virtual command centers** for leaders throughout the organization to report on, monitor, and optimize cost based on their organizational needs. FinOps hubs focus on 3 core design principles:
 
 - **Be the standard**<br>_<sup>Strive to be the principal embodiment of the FinOps Framework.</sup>_
 - **Built for scale**<br>_<sup>Designed to support the largest accounts and organizations.</sup>_
 - **Open and extensible**<br>_<sup>Embrace the ecosystem and prioritize enabling the platform.</sup>_
-
-Our goal is to deliver a reliable, trustworthy platform for cost analytics, insights, and optimization that enables organizations to achieve more with less through community, partner, and homegrown solutions.
-
-<br>
-
-## FinOps toolkit
-
-The FinOps toolkit is a collection of customizable ARM templates used to deploy various cost management and optimization solutions, including FinOps hubs.
 
 <br>
 
