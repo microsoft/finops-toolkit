@@ -12,7 +12,7 @@ On this page:
 - [Reviewing code changes](#Reviewing-code-changes)
 - [Making code changes](#Making-code-changes)
 
-<br>
+---
 
 ## Asking questions
 
