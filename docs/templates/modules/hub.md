@@ -21,13 +21,13 @@ On this page:
 ## Resources
 
 - Storage account (Data Lake Storage v2) – Used for data storage.
-  - **storageAccountName** = `parameters:hubName + "store"`
+  - **storageAccountName** = `param:hubName + "store"`
   - containers – Create the following nested containers:
     - **config** – Used for configuration settings. Include the following files within the template:
       - [metadata.json](#metadatajson)
     - **ms-cm-exports** – Used for Cost Management exports that have not been transformed.
 - Data factory – Used for data ingestion and processing. Depends on: Storage account.
-  - **dataFactoryName** = `parameters:hubName + "-engine"`
+  - **dataFactoryName** = `param:hubName + "-engine"`
   - pipelines – Create the following nested pipelines:
     - **ms-cm-exports_RemoveOldFiles** – Removes all old files in the same directory when a new file is added to the ms-cm-exports container.
 

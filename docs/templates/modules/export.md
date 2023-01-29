@@ -38,6 +38,7 @@ Note the following parameter values must be set for FinOps hubs to work as desig
 ## Resources
 
 - Export
+  - (See [Parameters](#parameters))
 
 ## Outputs
 
