@@ -1,0 +1,10 @@
+{
+    "cSpell.words": [
+        "Quickstart"
+    ],
+    "markdown.preview.typographer": false,
+    "markdown.extension.italic.indicator": "_",
+    "markdown.extension.toc.levels": "2..2",
+    "markdown.extension.toc.orderedList": false,
+    "markdown.updateLinksOnFileMove.enabled": "prompt"
+}
