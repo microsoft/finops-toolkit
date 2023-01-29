@@ -1,6 +1,6 @@
 # Microsoft Cloud FinOps hubs
 
-> ℹ️ _This project is in the early concept phase. If interested, please contact micflan@microsoft.com._
+<sup> ℹ️ _This project is in the early concept phase. If interested, please contact micflan@microsoft.com._</sup>
 
 A Microsoft Cloud FinOps hub is a **virtual command center** for leaders throughout the organization to report on, monitor, and optimize cost based on their organizational needs. FinOps hubs focus on 3 core design principles:
 
