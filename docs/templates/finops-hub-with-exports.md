@@ -28,10 +28,10 @@ On this page:
 
 ## Modules
 
-- **[hub.bicep](../../modules/hub.md)** – Create the FinOps hub instance first to ensure the storage account is in place.
+- **[hub.bicep](./modules/hub.md)** – Create the FinOps hub instance first to ensure the storage account is in place.
   - **hubName** = `param:hubName`
   - **location** = `param:location`
-- **[export.bicep](../../modules/export.md)** – Exports should be created as nested template deployments. Depends on: hub.bicep. Parameters:
+- **[export.bicep](./modules/export.md)** – Exports should be created as nested template deployments. Depends on: hub.bicep. Parameters:
   - **exportName** = `"FinOpsHubs_" + param:hubName + "_" + param:subscription`
     > _**NOTE:** The FinOpsHubs prefix is used as a standard to indicate the purpose of the export. The subscription ID enables exporting to multiple hub instances and act as a pointer to raise awareness of where exported data is being used._
   - **amortize** = `true`

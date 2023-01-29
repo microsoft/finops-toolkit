@@ -1,6 +1,6 @@
-# FinOps hubs templates
+# FinOps toolkit templates
 
-FinOps hubs are deployed using [Azure Resource Manager (ARM) templates](https://learn.microsoft.com/azure/azure-resource-manager/templates/). Our templates use [Bicep](https://learn.microsoft.com/azure/azure-resource-manager/bicep), a domain-specific language that uses declarative syntax to define and deploy Azure resources. For a guided learning experience, start with the [Fundamentals of Bicep](https://learn.microsoft.com/training/paths/fundamentals-bicep/).
+The FinOps toolkit uses [Azure Resource Manager (ARM) templates](https://learn.microsoft.com/azure/azure-resource-manager/templates/). Our templates use [Bicep modules](./modules) for reuse across templates.
 
 Please refer to [Creating templates](#Creating-templates) below for template requirements.
 

@@ -28,7 +28,7 @@ On this page:
 
 ## Modules
 
-- **[hub.bicep](../../modules/hub.md)** – Create the FinOps hub instance first to ensure the storage account is in place.
+- **[hub.bicep](./modules/hub.md)** – Create the FinOps hub instance first to ensure the storage account is in place.
   - **hubName** = `param:hubName`
   - **location** = `param:location`
 

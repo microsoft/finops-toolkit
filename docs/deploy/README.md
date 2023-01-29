@@ -3,33 +3,22 @@
 ![Status: Not started](https://img.shields.io/badge/status-not%20started-red) &nbsp;<sup>→</sup>&nbsp;
 [![#1](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/1)](https://github.com/microsoft/cloud-hubs/issues/1)
 
+The FinOps toolkit includes multiple ARM templates depending on your needs. We recommend using the **FinOps hub with exports** template to streamline your setup process. All the examples below refer to this template. You may select a different template, which will change the available options.
+
+For more details about toolkit options, refer to the [available templates](../templates).
+
+> ### ⚠️ Important
+>
+> The FinOps toolkit will change over time. We highly recommend saving a parameter file to ensure you can re-deploy new versions of the template with the same parameters.\_
+
 On this page:
 
-- [Summary](#summary)
 - [Using custom deployment in the Azure portal](#using-custom-deployment-in-the-azure-portal)
 - [Deploy from Microsoft Learn code samples](#deploy-from-microsoft-learn-code-samples)
 - [Deploy from Azure Quickstart Templates](#deploy-from-azure-quickstart-templates)
 - [Future considerations](#future-considerations)
 
 ---
-
-## Summary
-
-FinOps toolkit supports the following deployment options:
-
-- **[FinOps hub with exports](../specs/templates/finops-hub-with-exports.md)** – Creates a FinOps hub instance and configures a Cost Management export to ingest cost details.
-- **[FinOps hub](../specs/templates/finops-hub.md)** – Creates a FinOps hub instance only.
-  > ℹ️ _Cost Management exports must be configured separately in order for this solution to be complete._
-
-> ⚠️ **Important**<br>_The FinOps toolkit will change over time. We highly recommend saving a parameter file to ensure you can re-deploy new versions of the template with the same parameters._
-
-### Note about instructions on this page
-
-We recommend using the **FinOps hub with exports** template to streamline your setup process. All the examples below will assume this template. You may select a different template, which will change the available options.
-
-For more details about toolkit options, refer to the [available templates](../specs/templates).
-
-<br>
 
 ## Using custom deployment in the Azure portal
 
