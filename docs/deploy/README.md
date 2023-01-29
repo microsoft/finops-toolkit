@@ -9,7 +9,7 @@ For more details about toolkit options, refer to the [available templates](../te
 
 > ### ⚠️ Important
 >
-> The FinOps toolkit will change over time. We highly recommend saving a parameter file to ensure you can re-deploy new versions of the template with the same parameters.\_
+> _The FinOps toolkit will change over time. We highly recommend saving a parameter file to ensure you can re-deploy new versions of the template with the same parameters._
 
 On this page:
 
