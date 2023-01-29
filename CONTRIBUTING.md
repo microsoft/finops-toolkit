@@ -1,18 +1,23 @@
-# Contributing to FinOps hubs
+# Contributing to the FinOps toolkit
 
-Welcome, and thank you for your interest in contributing to Microsoft Cloud FinOps hubs! Your time and effort is greatly appreciated, no matter how big or small the contribution is.
+Welcome, and thank you for your interest in contributing to the FinOps toolkit! Your time and effort is greatly appreciated, no matter how big or small the contribution is.
 
 There are many ways in which you can contribute, beyond writing code. The goal of this document is to provide a high-level overview of how you can get involved.
 
+
+On this page:
+- [Asking questions](#Asking-questions)
+- [Suggesting features and reporting bugs](#Suggesting-features-and-reporting-bugs)
+- [Reviewing code changes](#Reviewing-code-changes)
+- [Making code changes](#Making-code-changes)
+
 <br>
 
-<!--
 ## Asking questions
 
 Have a question? Please ask in [Discussions](../../discussions). Avoid asking questions in issues to keep issues clean and focused on product improvements. If not sure, start a discussion and create an issue based on that discussion later, if needed.
 
 <br>
--->
 
 ## Suggesting features and reporting bugs
 
@@ -41,8 +46,6 @@ If you want to contribute code changes, but aren't sure where to start, scan thr
 If you find an issue that's assigned to someone, add a comment to check their status – there's a chance they may not have started yet. If you find an issue that isn't assigned, you are welcome to open a PR with a fix.
 
 <!--
-If you'd like to make a change to the design, please add a comment with your intended design changes. We strive to align to Microsoft Fluent design standards, balancing aspects of both the Azure portal and Microsoft 365 admin center design standards. Open communication will help streamline the process. We can also collaborate on designs for a feature you'd like to contribute. Let us know how we can help!
-
 For details about contributing code changes and submitting pull requests, see [How to contribute](../../wiki/How-to-contribute).
 -->
 
