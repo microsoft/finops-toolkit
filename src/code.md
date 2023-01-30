@@ -14,8 +14,11 @@ We strive to auto-enforce coding standards as much as possible and follow common
 Here's a quick run-down of the main points:
 
 - Install the recommended extensions in VS Code to apply guidelines and auto-format code on save.
-- Add inline comments to all code blocks.
-- Resolve all lint errors before submitting your PR.
+- Document everything.
+- Documentation should be inline, with the code.
+- Every folder should have a README.
+- Add inline comments to all major code blocks.
+- Resolve all lint errors before submitting PRs.
 
 For details about Bicep lint rules, see [Use Bicep linter](https://learn.microsoft.com/azure/azure-resource-manager/bicep/linter).
 

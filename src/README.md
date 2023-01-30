@@ -1,4 +1,27 @@
-# FinOps toolkit
+# FinOps toolkit source
+
+**Welcome aboard!** 🎉 If this is your first time to our repo, here are a few tips:
+
+- Every folder has a README that explains its purpose.
+- For public docs and specs, start in [docs](../docs).
+- For code and dev docs, start in [src](../src) &nbsp; **← YOU ARE HERE**
+- Read about our [architecture](architecture.md) for context on structure.
+- Review our [coding guidelines](code.md) before you write/review code.
+- Review the guidance below for how to contribute code.
+
+<br>
+
+On this page:
+
+- [Get started](#get-started)
+- [Prerequisites](#prerequisites)
+- [Build and run](#build-and-run)
+- [Test and verify](#test-and-verify)
+- [Pull requests](#pull-requests)
+
+---
+
+## Get started
 
 There are many ways to contribute to the FinOps toolkit project, like reporting issues, suggesting features, and submitting or reviewing pull requests. For an overview, refer to the [contribution guide](../CONTRIBUTING.md). This page covers how to contribute to the code.
 
@@ -10,15 +33,6 @@ After cloning and building the repo, check out the [issues list](../issues):
 If an issue is assigned, please contact the assignee before starting to work on the issue.
 
 <br>
-
-On this page:
-
-- [Prerequisites](#prerequisites)
-- [Build and run](#build-and-run)
-- [Test and verify](#test-and-verify)
-- [Pull requests](#pull-requests)
-
----
 
 ## Prerequisites
 
