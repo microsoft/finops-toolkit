@@ -6,5 +6,8 @@
     "markdown.extension.italic.indicator": "_",
     "markdown.extension.toc.levels": "2..2",
     "markdown.extension.toc.orderedList": false,
-    "markdown.updateLinksOnFileMove.enabled": "prompt"
+    "markdown.updateLinksOnFileMove.enabled": "prompt",
+    "markdownlint.config": {
+        "no-inline-html": false
+    }
 }

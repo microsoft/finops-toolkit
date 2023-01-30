@@ -1,6 +1,9 @@
 {
     "recommendations": [
+        "bierner.markdown-preview-github-styles",
+        "esbenp.prettier-vscode",
+        "davidanson.vscode-markdownlint",
         "ms-azuretools.vscode-bicep",
-        "esbenp.prettier-vscode"
+        "yzhang.markdown-all-in-one"
     ]
 }

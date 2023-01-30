@@ -7,10 +7,11 @@ There are many ways in which you can contribute, beyond writing code. The goal o
 <br>
 
 On this page:
-- [Asking questions](#Asking-questions)
-- [Suggesting features and reporting bugs](#Suggesting-features-and-reporting-bugs)
-- [Reviewing code changes](#Reviewing-code-changes)
-- [Making code changes](#Making-code-changes)
+
+- [Asking questions](#asking-questions)
+- [Suggesting features and reporting bugs](#suggesting-features-and-reporting-bugs)
+- [Reviewing code changes](#reviewing-code-changes)
+- [Making code changes](#making-code-changes)
 
 ---
 
@@ -52,7 +53,7 @@ For details about contributing code changes and submitting pull requests, see [H
 
 <br>
 
-# Thank you!
+# Thank you! <!-- markdownlint-disable-line single-h1 -->
 
 Your contributions to open source, large or small, make projects like this possible. Thank you for taking the time to contribute.
 
