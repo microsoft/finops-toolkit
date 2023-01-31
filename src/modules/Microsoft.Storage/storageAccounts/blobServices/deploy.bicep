@@ -143,8 +143,6 @@ module blobServices_container 'containers/deploy.bicep' = [for (container, index
     blobServicesName: blobServices.name
     name: container.name
     publicAccess: contains(container, 'publicAccess') ? container.publicAccess : 'None'
-    roleAssignments: contains(container, 'roleAssignments') ? container.roleAssignments : []
-    immutabilityPolicyProperties: contains(container, 'immutabilityPolicyProperties') ? container.immutabilityPolicyProperties : {}
     enableDefaultTelemetry: enableReferencedModulesTelemetry
   }
 }]
