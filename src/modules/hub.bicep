@@ -9,7 +9,7 @@ param hubName string
 var storageAccountSuffix = 'store'
 var storageAccountName = '${substring(replace(toLower(hubName), '-', ''), 0, 24 - length(storageAccountSuffix))}${storageAccountSuffix}'
 
-@description('Specifies the location for resources. See https://aka.ms/azureregions.')
+@description('Optional. Azure location where all resources should be created. See https://aka.ms/azureregions. Default: (resource group location).')
 param location string = resourceGroup().location
 
 @allowed([
