@@ -68,7 +68,7 @@ output name string = hubName
 @description('Azure resource location resources were deployed to.')
 output location string = location
 
-@description('The resource ID of the deployed storage account.')
+@description('Resource ID of the storage account created for the hub instance. This must be used when creating the Cost Management export.')
 output storageAccountId string = storageAccount.outputs.resourceId
 
 @description('Primary blob endpoint reference for the storage account.')
