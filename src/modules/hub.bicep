@@ -65,7 +65,7 @@ module storageAccount 'Microsoft.Storage/storageAccounts/deploy.bicep' = {
 @description('Name of the deployed hub instance.')
 output name string = hubName
 
-@description('The location the resource was deployed into.')
+@description('Azure resource location resources were deployed to.')
 output location string = location
 
 @description('The resource ID of the deployed storage account.')
