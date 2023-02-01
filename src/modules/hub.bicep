@@ -2,7 +2,7 @@
  * Parameters
  */
 
-@description('Name of the hub. Used to ensure unique resource names.')
+@description('Optional. Name of the hub. Used to ensure unique resource names. Default: "finops-hub".')
 param hubName string
 
 // Generate unique storage account name
