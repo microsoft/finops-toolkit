@@ -24,14 +24,6 @@ param tags object = {}
  * Resources
  */
 
-// TODO: How can we add the cm-resource-parent tag to the resource group?
-// resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-//   name: hubName
-//   location: location
-//   tags: resourceTags
-//   properties: {}
-// }
-
 module hub '../../modules/hub.bicep' = {
   name: 'hub'
   params: {

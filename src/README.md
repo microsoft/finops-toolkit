@@ -98,7 +98,8 @@ Set-Location "<cloud-hubs-root>/src/scripts"
 # Deploy the desired template. Optional parameters:
 #   -ResourceGroup <name>       # Default: ftk-<alias>-<machine>
 #   -Location <azure-location>  # Default: westus
-#   -Template <template-name    # Defualt: finops-hubs
+#   -Template <template-name    # Default: finops-hubs
+#   -WhatIf                     # Use to validate template
 ./Deploy-Toolkit
 ```
 
