@@ -2,8 +2,9 @@
 QuickstartPath: quickstarts/microsoft.costmanagement/finops-hub
 ---
 
-![Status: Not started](https://img.shields.io/badge/status-not%20started-red) &nbsp;<sup>→</sup>&nbsp;
+![Status: In progress](https://img.shields.io/badge/status-in%20progress-blue) &nbsp;<sup>→</sup>&nbsp;
 [![#1](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/1)](https://github.com/microsoft/cloud-hubs/issues/1)
+[![#21](https://img.shields.io/github/pulls/detail/state/microsoft/cloud-hubs/21)](https://github.com/microsoft/cloud-hubs/pulls/21)
 
 # FinOps hub template
 
@@ -23,17 +24,23 @@ On this page:
 
 ## Parameters
 
-- **hubName** (string) – Name of the resource group and name prefix for all resources. Default: `"finops-hub"`.
-- **location** (string) – Azure location where all resources should be created.
+- **hubName** (string) – Optional. Name of the resource group and name prefix for all resources. Default: `"finops-hub"`.
+- **location** (string) – Optional. Azure location where all resources should be created. Default: (resource group location).
+- **storageSku** (string) – Optional. Storage SKU to use. Allowed: `Premium_LRS`, `Premium_ZRS`. Default: `Premium_LRS`.
+- **tags** (object) – Optional. Tags to apply to all resources. Default: `cm-resource-parent: <rg-scope>/providers/Microsoft.Cloud/hubs/<params:hubName>` (merged with user-defined tags).
 
 ## Modules
 
 - **[hub.bicep](./modules/hub.md)** – Create the FinOps hub instance first to ensure the storage account is in place.
   - **hubName** = `param:hubName`
   - **location** = `param:location`
+  - **storageSku** = `param:storageSku`
+  - **tags** = `param:tags`
 
 ## Outputs
 
-- **resourceGroup** (string) – Name of the resource group the hub was deployed to.
-- **storageAccountId** (string) – Storage account resource ID that was created for the hub instance. This must be used when creating the Cost Management export.
+- **name** (string) – Name of the deployed hub instance.
+- **location** (string) – Azure resource location resources were deployed to.
+- **storageAccountId** (string) – Resource ID of the storage account created for the hub instance. This must be used when creating the Cost Management export.
+- **primaryBlobEndpoint** (string) – Primary blob endpoint reference for the storage account.
 - **pbix** (string) – URL for the Power BI file to use for this template.
