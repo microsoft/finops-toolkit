@@ -17,5 +17,6 @@
         "line-length": false,
         "no-bare-urls": false,
         "no-inline-html": false
-    }
+    },
+    "powershell.codeFormatting.newLineAfterCloseBrace": false
 }

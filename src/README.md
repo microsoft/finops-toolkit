@@ -15,7 +15,8 @@ On this page:
 
 - [Get started](#get-started)
 - [Prerequisites](#prerequisites)
-- [Build and run](#build-and-run)
+- [Fork and clone](#fork-and-clone)
+- [Deploy](#deploy)
 - [Test and verify](#test-and-verify)
 - [Pull requests](#pull-requests)
 
@@ -40,6 +41,25 @@ If an issue is assigned, please contact the assignee before starting to work on 
   - Microsoft employees: Please [link your GitHub account](https://repos.opensource.microsoft.com/link) (new or existing) to your MS account and [join the Microsoft org](https://repos.opensource.microsoft.com/orgs/microsoft).
 - Install [Git](https://git-scm.com/)
 - Install [Visual Studio Code](https://code.visualstudio.com/)
+- Install recommended extensions (you should see a prompt in the bottom-right corner)
+- Install [PowerShell](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) or confirm you have v7.1.3 or later:
+
+  ```powershell
+  $PSVersionTable.PSVersion
+  ```
+
+- Enable running local scripts (for automation)
+
+  ```powershell
+  Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+  ```
+
+- Install Azure PowerShell and Bicep
+
+  ```powershell
+  Set-Location "<cloud-hubs-root>/src/scripts"
+  ./Init-Repo
+  ```
 
 ### Git setup
 
@@ -52,21 +72,34 @@ git config --global user.email "youremail@yourdomain.com"
 
 > <sup>ℹ️ _Microsoft employees: please set this to your Microsoft email_</sup>
 
-### Optional: VS Code setup
+## Fork and clone
 
-Consider installing the following recommended extensions:
+Fork the repository from the web and then clone your fork locally:
 
-- [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+```cmd
+git clone https://github.com/<your-github-account>/cloud-hubs.git
+cd cloud-hubs
+```
 
 <br>
 
-## Build and run
+## Deploy
 
-First, fork the repository and clone your fork locally:
+```powershell
+# Sign in and optionally specify a tenant ID, if needed
+Connect-AzAccount [-Tenant <tenant-id>]
 
-```console
-git clone https://github.com/<your-github-account>/cloud-hubs.git
-cd cloud-hubs
+# Set the default subscription (or specify subscription below)
+Set-AzContext -Subscription <subscription-id>
+
+# Switch to the src/scripts directory
+Set-Location "<cloud-hubs-root>/src/scripts"
+
+# Deploy the desired template. Optional parameters:
+#   -ResourceGroup <name>       # Default: ftk-<alias>-<machine>
+#   -Location <azure-location>  # Default: westus
+#   -Template <template-name    # Defualt: finops-hubs
+./Deploy-Toolkit
 ```
 
 <br>

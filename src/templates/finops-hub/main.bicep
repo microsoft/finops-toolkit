@@ -2,39 +2,35 @@
  * Parameters
  */
 
-targetScope = 'subscription'
+targetScope = 'resourceGroup'
 
 @description('Name of the hub. Used for the resource group and to guarrantee globally unique resource names.')
 param hubName string
 
 @description('Optional. Location of the resources. Default: Same as deployment. See https://aka.ms/azureregions.')
-param location string = deployment().location
+param location string = resourceGroup().location
 
 @description('Optional. Tags for all resources.')
 param tags object = {}
 
-var resourceTags = union(tags, {
-    'cm-resource-parent': '${resourceGroup(subscription().id, hubName)}/providers/Microsoft.Cloud/hubs/${hubName}'
-  })
-
 /**
-* Resources
-*/
+ * Resources
+ */
 
-resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: hubName
-  location: location
-  tags: resourceTags
-  properties: {}
-}
+// TODO: How can we add the cm-resource-parent tag to the resource group?
+// resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+//   name: hubName
+//   location: location
+//   tags: resourceTags
+//   properties: {}
+// }
 
-module hub 'hub.bicep' = {
+module hub '../../modules/hub.bicep' = {
   name: 'hub'
-  scope: rg
   params: {
     hubName: hubName
     location: location
-    tags: resourceTags
+    tags: tags
   }
 }
 
@@ -47,9 +43,6 @@ output name string = hubName
 
 @description('The location the resources wer deployed to.')
 output location string = location
-
-@description('The resource ID of the resource group.')
-output resourceGroupId string = rg.id
 
 @description('The resource ID of the deployed storage account.')
 output storageAccountId string = hub.outputs.storageAccountId
