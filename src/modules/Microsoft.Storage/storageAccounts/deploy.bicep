@@ -10,17 +10,11 @@ param name string
 param location string = resourceGroup().location
 
 @allowed([
-  'Standard_LRS'
-  'Standard_GRS'
-  'Standard_RAGRS'
-  'Standard_ZRS'
   'Premium_LRS'
   'Premium_ZRS'
-  'Standard_GZRS'
-  'Standard_RAGZRS'
 ])
 @description('Optional. Storage Account Sku Name.')
-param storageAccountSku string = 'Standard_GRS'
+param storageAccountSku string = 'Premium_LRS'
 
 @allowed([
   'Hot'
@@ -29,21 +23,11 @@ param storageAccountSku string = 'Standard_GRS'
 @description('Optional. Storage Account Access Tier.')
 param storageAccountAccessTier string = 'Hot'
 
-@allowed([
-  'Disabled'
-  'Enabled'
-])
-@description('Optional. Allow large file shares if sets to \'Enabled\'. It cannot be disabled once it is enabled. Only supported on locally redundant and zone redundant file shares. It cannot be set on FileStorage storage accounts (storage accounts for premium file shares).')
-param largeFileSharesState string = 'Disabled'
-
 @description('Optional. Configuration details for private endpoints. For security reasons, it is recommended to use private endpoints whenever possible.')
 param privateEndpoints array = []
 
 @description('Optional. Networks ACLs, this value contains IPs to whitelist and/or Subnet information. For security reasons, it is recommended to set the DefaultAction Deny.')
 param networkAcls object = {}
-
-@description('Optional. A Boolean indicating whether or not the service applies a secondary layer of encryption with platform managed keys for data at rest. For security reasons, it is recommended to set it to true.')
-param requireInfrastructureEncryption bool = true
 
 @description('Optional. Blob service and containers to deploy.')
 param blobServices object = {}
@@ -59,31 +43,11 @@ param allowBlobPublicAccess bool = false
 @description('Optional. Set the minimum TLS version on request to storage.')
 param minimumTlsVersion string = 'TLS1_2'
 
-@description('Conditional. If true, enables Hierarchical Namespace for the storage account. Required if enableSftp or enableNfsV3 is set to true.')
-param enableHierarchicalNamespace bool = false
-
 @description('Optional. If true, enables Secure File Transfer Protocol for the storage account. Requires enableHierarchicalNamespace to be true.')
 param enableSftp bool = false
 
 @description('Optional. If true, enables NFS 3.0 support for the storage account. Requires enableHierarchicalNamespace to be true.')
 param enableNfsV3 bool = false
-
-@description('Optional. Specifies the number of days that logs will be kept for; a value of 0 will retain data indefinitely.')
-@minValue(0)
-@maxValue(365)
-param diagnosticLogsRetentionInDays int = 365
-
-@description('Optional. Resource ID of the diagnostic storage account.')
-param diagnosticStorageAccountId string = ''
-
-@description('Optional. Resource ID of the diagnostic log analytics workspace.')
-param diagnosticWorkspaceId string = ''
-
-@description('Optional. Resource ID of the diagnostic event hub authorization rule for the Event Hubs namespace in which the event hub should be created or streamed to.')
-param diagnosticEventHubAuthorizationRuleId string = ''
-
-@description('Optional. Name of the diagnostic event hub within the namespace to which logs are streamed. Without this, an event hub is created for each log category.')
-param diagnosticEventHubName string = ''
 
 @description('Optional. Tags of the resource.')
 param tags object = {}
@@ -102,27 +66,6 @@ param publicNetworkAccess string = ''
 @description('Optional. Allows HTTPS traffic only to storage service if sets to true.')
 param supportsHttpsTrafficOnly bool = true
 
-@description('Optional. The name of metrics that will be streamed.')
-@allowed([
-  'Transaction'
-])
-param diagnosticMetricsToEnable array = [
-  'Transaction'
-]
-
-@description('Optional. The name of the diagnostic setting, if deployed.')
-param diagnosticSettingsName string = '${name}-diagnosticSettings'
-
-var diagnosticsMetrics = [for metric in diagnosticMetricsToEnable: {
-  category: metric
-  timeGrain: null
-  enabled: true
-  retentionPolicy: {
-    enabled: true
-    days: diagnosticLogsRetentionInDays
-  }
-}]
-
 var enableReferencedModulesTelemetry = false
 
 resource defaultTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (enableDefaultTelemetry) {
@@ -137,7 +80,7 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (ena
   }
 }
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: name
   location: location
   kind: 'BlockBlobStorage'
@@ -146,25 +89,11 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
   }
   tags: tags
   properties: {
-    encryption: {
-      services: {
-        blob: { enabled: true }
-        file: null
-        table: {
-          enabled: true
-        }
-        queue: {
-          enabled: true
-        }
-      }
-      requireInfrastructureEncryption: requireInfrastructureEncryption
-    }
     accessTier: storageAccountAccessTier
     supportsHttpsTrafficOnly: supportsHttpsTrafficOnly
-    isHnsEnabled: enableHierarchicalNamespace ? enableHierarchicalNamespace : null
+    isHnsEnabled: true
     isSftpEnabled: enableSftp
     isNfsV3Enabled: enableNfsV3
-    largeFileSharesState: (storageAccountSku == 'Standard_LRS') || (storageAccountSku == 'Standard_ZRS') ? largeFileSharesState : null
     minimumTlsVersion: minimumTlsVersion
     networkAcls: !empty(networkAcls) ? {
       bypass: contains(networkAcls, 'bypass') ? networkAcls.bypass : null
@@ -175,18 +104,6 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-09-01' = {
     allowBlobPublicAccess: allowBlobPublicAccess
     publicNetworkAccess: !empty(publicNetworkAccess) ? any(publicNetworkAccess) : (!empty(privateEndpoints) && empty(networkAcls) ? 'Disabled' : null)
   }
-}
-
-resource storageAccount_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if ((!empty(diagnosticStorageAccountId)) || (!empty(diagnosticWorkspaceId)) || (!empty(diagnosticEventHubAuthorizationRuleId)) || (!empty(diagnosticEventHubName))) {
-  name: diagnosticSettingsName
-  properties: {
-    storageAccountId: !empty(diagnosticStorageAccountId) ? diagnosticStorageAccountId : null
-    workspaceId: !empty(diagnosticWorkspaceId) ? diagnosticWorkspaceId : null
-    eventHubAuthorizationRuleId: !empty(diagnosticEventHubAuthorizationRuleId) ? diagnosticEventHubAuthorizationRuleId : null
-    eventHubName: !empty(diagnosticEventHubName) ? diagnosticEventHubName : null
-    metrics: diagnosticsMetrics
-  }
-  scope: storageAccount
 }
 
 // Containers

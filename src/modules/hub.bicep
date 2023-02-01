@@ -5,20 +5,29 @@
 @description('Name of the hub. Used to ensure unique resource names.')
 param hubName string
 
+// Generate unique storage account name
+var storageAccountSuffix = 'store'
+var storageAccountName = '${substring(replace(toLower(hubName), '-', ''), 0, 24 - length(storageAccountSuffix))}${storageAccountSuffix}'
+
 @description('Specifies the location for resources. See https://aka.ms/azureregions.')
 param location string = resourceGroup().location
 
+@allowed([
+  'Premium_LRS'
+  'Premium_ZRS'
+])
+@description('Optional. Storage account SKU. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage.')
+param storageSku string = 'Premium_LRS'
+
 @description('Optional. Tags for all resources.')
 param tags object = {}
-
-@description('Optional. Enable telemetry via a Globally Unique Identifier (GUID).')
-param enableDefaultTelemetry bool = true
-
-var telemetryId = '00f120b5-40b5-0000-0000-000000000000'
-var storageAccountName = '${replace(toLower(hubName), '-', '')}store'
 var resourceTags = union(tags, {
     'cm-resource-parent': '${resourceGroup().id}/providers/Microsoft.Cloud/hubs/${hubName}'
   })
+
+@description('Optional. Enable telemetry via a Globally Unique Identifier (GUID).')
+param enableDefaultTelemetry bool = true
+var telemetryId = '00f120b5-40b5-0000-0000-000000000000'
 
 /**
  * Resources
@@ -26,9 +35,8 @@ var resourceTags = union(tags, {
 
 // Telemetry used anonymously to count the number of times the template has been deployed.
 // No information about you or your cost data is collected.
-resource defaultTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (enableDefaultTelemetry) {
+resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefaultTelemetry) {
   name: 'pid-${telemetryId}-${uniqueString(deployment().name, location)}'
-  location: location
   properties: {
     mode: 'Incremental'
     template: {
@@ -41,13 +49,12 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2021-04-01' = if (ena
 
 // ADLSv2 storage account for staging and archive
 module storageAccount 'Microsoft.Storage/storageAccounts/deploy.bicep' = {
-  name: 'pid-${telemetryId}-${uniqueString(deployment().name, location)}'
+  name: 'storage'
   params: {
     name: storageAccountName
     location: location
-    storageAccountSku: 'Standard_LRS'
+    storageAccountSku: storageSku
     tags: resourceTags
-    enableHierarchicalNamespace: true
   }
 }
 
@@ -55,14 +62,11 @@ module storageAccount 'Microsoft.Storage/storageAccounts/deploy.bicep' = {
  * Outputs
  */
 
-@description('The name of the deployed storage account.')
+@description('The name of the deployed hub instance.')
 output name string = hubName
 
 @description('The location the resource was deployed into.')
 output location string = location
-
-@description('The resource group of the deployed storage account.')
-output resourceGroupName string = resourceGroup().name
 
 @description('The resource ID of the deployed storage account.')
 output storageAccountId string = storageAccount.outputs.resourceId
