@@ -16,7 +16,7 @@ param location string = resourceGroup().location
   'Premium_LRS'
   'Premium_ZRS'
 ])
-@description('Optional. Storage account SKU. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage.')
+@description('Optional. Storage account SKU. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Default: Premium_LRS.')
 param storageSku string = 'Premium_LRS'
 
 @description('Optional. Tags for all resources.')
