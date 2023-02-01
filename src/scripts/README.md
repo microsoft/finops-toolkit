@@ -27,3 +27,18 @@ Parameters:
 - ResourceGroup (Default: "ftk-<username>-<computername>")
 - Location (Default: "westus")
 - Template (Default: "finops-hub")
+- WhatIf (flag)
+
+Examples:
+
+- Basic template deployment validation (requires resource group to exist)
+
+  ```powershell
+  ./Deploy-Toolkit -WhatIf
+  ```
+
+- Deploy a specific template
+
+  ```powershell
+  ./Deploy-Toolkit -Template "finops-hub"
+  ```
