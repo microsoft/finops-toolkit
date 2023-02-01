@@ -25,7 +25,7 @@ var resourceTags = union(tags, {
     'cm-resource-parent': '${resourceGroup().id}/providers/Microsoft.Cloud/hubs/${hubName}'
   })
 
-@description('Optional. Enable telemetry via a Globally Unique Identifier (GUID).')
+@description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
 var telemetryId = '00f120b5-40b5-0000-0000-000000000000'
 
