@@ -10,6 +10,13 @@ param hubName string
 @description('Optional. Location of the resources. Default: Same as deployment. See https://aka.ms/azureregions.')
 param location string = resourceGroup().location
 
+@allowed([
+  'Premium_LRS'
+  'Premium_ZRS'
+])
+@description('Optional. Storage account SKU. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage.')
+param storageSku string = 'Premium_LRS'
+
 @description('Optional. Tags for all resources.')
 param tags object = {}
 
@@ -30,6 +37,7 @@ module hub '../../modules/hub.bicep' = {
   params: {
     hubName: hubName
     location: location
+    storageSku: storageSku
     tags: tags
   }
 }
