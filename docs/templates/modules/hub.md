@@ -1,8 +1,8 @@
+# hub.bicep
+
 ![Status: Not started](https://img.shields.io/badge/status-in%20progress-blue) &nbsp;<sup>→</sup>&nbsp;
 [![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/1)](https://github.com/microsoft/cloud-hubs/issues/1)
 [![#21](https://img.shields.io/github/pulls/detail/state/microsoft/cloud-hubs/21)](https://github.com/microsoft/cloud-hubs/pulls/21)
-
-# hub.bicep
 
 This module deploys a **FinOps hub** instance into a resource group.
 
