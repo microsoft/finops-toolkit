@@ -2,6 +2,9 @@
 
 <sup>Copied from [Microsoft.Storage/storageAccounts](https://github.com/Azure/ResourceModules/tree/main/modules/Microsoft.Storage/resourceTypes) - **CARML v0.9** (Feb 1, 2023)</sup>
 
+<!-- markdownlint-disable -->
+<!-- spell-checker:disable -->
+
 This module is used to deploy a storage account, with the ability to deploy 1 or more blob containers, file shares, tables and queues. Optional ACLs can be configured on the storage account and optional RBAC can be assigned on the storage account and on each child resource.
 
 ## Navigation

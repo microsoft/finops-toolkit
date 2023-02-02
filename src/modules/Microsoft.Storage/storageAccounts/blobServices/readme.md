@@ -2,6 +2,9 @@
 
 <sup>Copied from [Microsoft.Storage/storageAccounts/blobServices](https://github.com/Azure/ResourceModules/tree/main/modules/Microsoft.Storage/storageAccounts/blobServices) - **CARML v0.9** (Feb 1, 2023)</sup>
 
+<!-- markdownlint-disable -->
+<!-- spell-checker:disable -->
+
 This module can be used to deploy a blob service into a storage account.
 
 ## Navigation

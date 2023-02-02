@@ -28,7 +28,14 @@ FinOps toolkit modules utilize publicly shared modules from the [Common Azure Re
 
    ```markdown
    <sup>Copied from [<resource-type>](https://github.com/Azure/ResourceModules/tree/main/modules/<resource-type>) - **CARML v<version>** (<copy-date:Mmm d, yyyy>)</sup>
+
+   <!-- markdownlint-disable -->
+   <!-- spell-checker:disable -->
    ```
+
+   <!-- The next 2 lines re-enable MDlint and the spell checker for the rest of the file -->
+   <!-- markdownlint-restore -->
+   <!-- spell-checker:enable -->
 
 5. Add the following at the top of each deploy.bicep file:
 

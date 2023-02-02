@@ -2,6 +2,9 @@
 
 <sup>Copied from [Microsoft.Storage/storageAccounts/blobServices/containers](https://github.com/Azure/ResourceModules/tree/main/modules/Microsoft.Storage/storageAccounts/blobServices/containers) - **CARML v0.9** (Feb 1, 2023)</sup>
 
+<!-- markdownlint-disable -->
+<!-- spell-checker:disable -->
+
 This module deploys a blob container
 
 ## Navigation
