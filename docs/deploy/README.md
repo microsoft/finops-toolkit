@@ -75,7 +75,7 @@ To deploy a quickstart template:
 
 1. Open the [FinOps hub with exports template](https://github.com/Azure/azure-quickstart-templates/tree/master/template-deployments/finops-hub-with-exports).
 2. Select the **Deploy to Azure** button towards the top of the page.
-3. Complete [steps 5 and beyond](#edit-params) from the custom deployment steps above.
+3. Complete [steps 4 and beyond](#edit-params) from the custom deployment steps above.
 
 <br>
 
