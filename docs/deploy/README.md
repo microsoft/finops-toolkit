@@ -73,7 +73,7 @@ We do not currently have any subscription or management group templates.
 
 To deploy a quickstart template:
 
-1. Open the [FinOps hub template folder](https://github.com/Azure/azure-quickstart-templates/tree/master/quickstarts/microsoft.costmanagement/finops-hub-with-exports).
+1. Open the [FinOps hub with exports template](https://github.com/Azure/azure-quickstart-templates/tree/master/template-deployments/finops-hub-with-exports).
 2. Select the **Deploy to Azure** button towards the top of the page.
 3. Complete [steps 5 and beyond](#edit-params) from the custom deployment steps above.
 
