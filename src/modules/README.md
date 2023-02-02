@@ -17,6 +17,7 @@ FinOps toolkit modules utilize publicly shared modules from the [Common Azure Re
 
 > _**NOTE:** Each the readme file in each folder is not updated and may have broken links. They are kept for reference only._
 
+- [Microsoft.DataFactory/factories](./Microsoft.DataFactory/factories)
 - [Microsoft.Storage/storageAccounts](./Microsoft.Storage/storageAccounts)
 
 ### Adding and updating modules
