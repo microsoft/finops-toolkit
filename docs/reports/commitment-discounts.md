@@ -1,7 +1,7 @@
+# Commitment discounts report
+
 ![Status: Not started](https://img.shields.io/badge/status-not%20started-red) &nbsp;<sup>→</sup>&nbsp;
 [![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/1)](https://github.com/microsoft/cloud-hubs/issues/1)
-
-# FinOps hubs Commitment discounts report
 
 The **Commitment discounts report** summarizes existing and potential savings from commitment-based discounts, like reservations and savings plans. This report enables you to:
 
@@ -20,7 +20,6 @@ On this page:
 - [Hybrid Benefit](#hybrid-benefit)
 - [Commitments](#commitments)
 - [Coverage](#coverage)
-- [Pricesheet](#pricesheet)
 - [See also](#see-also)
 - [Future considerations](#future-considerations)
 
@@ -130,20 +129,6 @@ The KPIs on this page cover:
 There are 2 charts on the page that offer a breakdown of location, instance size flexibility group, and size; and, cost over time.
 
 This page filters usage down to only show service charges that can be pre-committed to. If commitment-based discounts are not available for the service, it won't be visible on the page. This means the total cost on the Coverage page won't match other pages, which aren't filtered by default.
-
-<br>
-
-## Pricesheet
-
-The **Pricesheet** page includes detailed unit prices for all usage meters. Use this page to understand the price per unit (e.g., hour, GB) for each service. You can use this data to produce custom recommendations.
-
-Pricing filters are different from cost filters and include:
-
-- Offer ID – Determines the types of base prices (e.g., production vs. dev/test).
-- Service (meter category)
-- Tier (meter subcategory)
-
-The table shows the list of prices with meter details.
 
 <br>
 

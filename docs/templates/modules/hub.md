@@ -8,11 +8,9 @@ This module deploys a **FinOps hub** instance into a resource group.
 
 On this page:
 
-- [hub.bicep](#hubbicep)
-  - [Parameters](#parameters)
-  - [Resources](#resources)
-    - [metadata.json](#metadatajson)
-  - [Outputs](#outputs)
+- [Parameters](#parameters)
+- [Resources](#resources)
+- [Outputs](#outputs)
 
 ---
 
@@ -21,7 +19,7 @@ On this page:
 - **hubName** (string) – Optional. Name of the hub. Used to ensure unique resource names. Default: `"finops-hub"`.
 - **location** (string) – Optional. Azure location where all resources should be created. See https://aka.ms/azureregions. Default: (resource group location).
 - **storageSku** (string) – Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: `Premium_LRS`, `Premium_ZRS`. Default: `Premium_LRS`.
-- **tags** (object) – Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.
+- **tags** (object) – Optional. Tags to apply to all resources. We will also add the `cm-resource-parent` tag for improved cost roll-ups in Cost Management.
 
 ## Resources
 
@@ -56,5 +54,3 @@ The **metadata.json** file is used to identify the toolkit version.
 - **name** (string) – Name of the deployed hub instance.
 - **location** (string) – Azure resource location resources were deployed to.
 - **storageAccountId** (string) – Resource ID of the storage account created for the hub instance. This must be used when creating the Cost Management export.
-- **primaryBlobEndpoint** (string) – Primary blob endpoint reference for the storage account.
-- **pbix** (string) – URL for the Power BI file to use for this template.

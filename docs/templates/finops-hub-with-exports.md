@@ -2,10 +2,10 @@
 QuickstartPath: tenant-deployments/finops-hub-with-exports
 ---
 
+# FinOps hub with exports template
+
 ![Status: Not started](https://img.shields.io/badge/status-not%20started-red) &nbsp;<sup>→</sup>&nbsp;
 [![#1](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/1)](https://github.com/microsoft/cloud-hubs/issues/1)
-
-# FinOps hub with exports template
 
 This template creates a new **FinOps hub** instance and a Cost Management export to ingest cost details.
 
@@ -42,5 +42,7 @@ On this page:
 
 ## Outputs
 
-- **resourceGroup** (string) – Name of the resource group the hub was deployed to.
-- **pbix** (string) – URL for the Power BI file to use for this template.
+- **name** (string) – Name of the deployed hub instance.
+- **resourceGroupId** (string) – Resource ID of the resource group resources were deployed to.
+- **location** (string) – Azure resource location resources were deployed to.
+- **storageAccountId** (string) – Resource ID of the storage account created for the hub instance. This must be used when creating the Cost Management export.

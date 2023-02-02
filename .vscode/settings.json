@@ -1,6 +1,11 @@
 {
     "cSpell.words": [
-        "Quickstart"
+        "CARML",
+        "chargeback",
+        "CostManagement",
+        "FinOps",
+        "Quickstart",
+        "quickstarts"
     ],
     "markdown.preview.typographer": false,
     "markdown.extension.italic.indicator": "_",
@@ -8,6 +13,8 @@
     "markdown.extension.toc.orderedList": false,
     "markdown.updateLinksOnFileMove.enabled": "prompt",
     "markdownlint.config": {
+        "line-length": false,
+        "no-bare-urls": false,
         "no-inline-html": false
     }
 }
