@@ -56,7 +56,7 @@ Microsoft Learn hosts all templates available from the Azure Quickstart Template
 
 1. Open the [FinOps hub code sample](https://learn.microsoft.com/en-us/samples/azure/azure-quickstart-templates/finops-hub-with-exports).
 2. Select the **Deploy to Azure** button towards the top of the page.
-3. Complete [steps 5 and beyond](#edit-params) from the custom deployment steps above.
+3. Complete [steps 4 and beyond](#edit-params) from the custom deployment steps above.
 
 <br>
 
