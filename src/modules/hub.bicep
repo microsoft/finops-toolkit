@@ -70,6 +70,3 @@ output location string = location
 
 @description('Resource ID of the storage account created for the hub instance. This must be used when creating the Cost Management export.')
 output storageAccountId string = storageAccount.outputs.resourceId
-
-@description('Primary blob endpoint reference for the storage account.')
-output primaryBlobEndpoint string = storageAccount.outputs.primaryBlobEndpoint

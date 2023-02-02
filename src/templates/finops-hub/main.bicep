@@ -46,6 +46,3 @@ output location string = location
 
 @description('The resource ID of the deployed storage account.')
 output storageAccountId string = hub.outputs.storageAccountId
-
-@description('The primary blob endpoint reference if blob services are deployed.')
-output primaryBlobEndpoint string = hub.outputs.primaryBlobEndpoint
