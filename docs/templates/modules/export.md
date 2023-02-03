@@ -35,12 +35,18 @@ Note the following parameter values must be set for FinOps hubs to work as desig
 - **amortize** must be `true`
 - **storageAccountContainer** must be `ms-cm-exports`
 
+<br>
+
 ## Resources
 
 - Export
   - (See [Parameters](#parameters))
 
+<br>
+
 ## Outputs
 
 - **exportId** (string) – Resource ID of the export that was created.
 - **exportDestinationUrl** (string) – URL to the folder where exported files will be sent.
+
+<br>

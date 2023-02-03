@@ -26,6 +26,8 @@ On this page:
 - **location** (string) – Azure location where all resources should be created.
 - **exportScopes** (array) – Optional. List of scope IDs to create exports for.
 
+<br>
+
 ## Modules
 
 - **[hub.bicep](./modules/hub.md)** – Create the FinOps hub instance first to ensure the storage account is in place.
@@ -40,9 +42,13 @@ On this page:
     > _**NOTE:** Using this name as we think ahead to future releases where CM exports will need special processing before ingested into the data store._
   - **storageAccountPath** = (scope ID from `exportScopes` without the first "/")
 
+<br>
+
 ## Outputs
 
 - **name** (string) – Name of the deployed hub instance.
 - **resourceGroupId** (string) – Resource ID of the resource group resources were deployed to.
 - **location** (string) – Azure resource location resources were deployed to.
 - **storageAccountId** (string) – Resource ID of the storage account created for the hub instance. This must be used when creating the Cost Management export.
+
+<br>
