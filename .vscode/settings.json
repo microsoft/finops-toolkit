@@ -1,23 +1,26 @@
 {
-    "cSpell.words": [
-        "CARML",
-        "chargeback",
-        "CostManagement",
-        "FinOps",
-        "Lookback",
-        "MOSA",
-        "Quickstart",
-        "quickstarts"
-    ],
-    "markdown.preview.typographer": false,
-    "markdown.extension.italic.indicator": "_",
-    "markdown.extension.toc.levels": "2..2",
-    "markdown.extension.toc.orderedList": false,
-    "markdown.updateLinksOnFileMove.enabled": "prompt",
-    "markdownlint.config": {
-        "line-length": false,
-        "no-bare-urls": false,
-        "no-inline-html": false
-    },
-    "powershell.codeFormatting.newLineAfterCloseBrace": false
+  "cSpell.words": [
+    "ADLS",
+    "CARML",
+    "chargeback",
+    "compat",
+    "CostManagement",
+    "FinOps",
+    "Lookback",
+    "MOSA",
+    "PBIX",
+    "Quickstart",
+    "quickstarts"
+  ],
+  "markdown.preview.typographer": false,
+  "markdown.extension.italic.indicator": "_",
+  "markdown.extension.toc.levels": "2..2",
+  "markdown.extension.toc.orderedList": false,
+  "markdown.updateLinksOnFileMove.enabled": "prompt",
+  "markdownlint.config": {
+    "line-length": false,
+    "no-bare-urls": false,
+    "no-inline-html": false
+  },
+  "powershell.codeFormatting.newLineAfterCloseBrace": false
 }
