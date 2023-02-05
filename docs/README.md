@@ -7,3 +7,4 @@ For more details, see:
 - [How to deploy](./deploy)
 - [Power BI reports](./reports)
 - [Templates](./templates)
+- [Changelog](./changelog.md)
