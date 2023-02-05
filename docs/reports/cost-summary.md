@@ -1,7 +1,7 @@
 # Cost summary report
 
-![Status: Not started](https://img.shields.io/badge/status-not%20started-red) &nbsp;<sup>→</sup>&nbsp;
-[![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/1)](https://github.com/microsoft/cloud-hubs/issues/1)
+![Status: Pending release](https://img.shields.io/badge/status-pending_release-blueviolet) &nbsp;<sup>→</sup>&nbsp;
+[![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/24)](https://github.com/microsoft/cloud-hubs/issues/24)
 
 The **Cost summary report** provides an overview of amortized costs with a few common breakdowns that enable you to:
 
