@@ -1,0 +1,50 @@
+name: "\U0001F41B Bug report"
+description: Report a problem to improve the product
+title: ''
+labels: ["Needs: Triage \U0001F50D, Type: Bug \U0001F41B"]
+assignees:
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+
+        ⚠️ Please confirm there isn't an issue already.
+        If there is, vote it up (👍) and add comments.
+  - type: markdown
+    attributes:
+      value: '## 🐛 Problem'
+  - type: textarea
+    attributes:
+      label: '🐛 Problem'
+      description: 'Add a clear and concise description of what the bug is.'
+    validation:
+      required: true
+  - type: textarea
+    attributes:
+      label: '👣 Repro steps'
+      description: |
+        Add repro steps below:
+        1. 
+        2. 
+        3. 
+        ...
+    validation:
+      required: true
+  - type: textarea
+    attributes:
+      label: '🤔 Expected'
+      description: 'Add a clear and concise description of what you expected to happen.'
+  - type: textarea
+    attributes:
+      label: '📷 Screenshots'
+      description: 'If applicable, add screenshots to help explain your problem. Remove if not applicable.'
+  - type: textarea
+    attributes:
+      label: 'ℹ️ Additional context'
+      description: 'Add any other context about the problem here. Remove if not applicable.'
+  - type: markdown
+    attributes:
+      value: |
+        ## ☝️ Internal only
+        Don't forget to add applicable labels for Type, Micro PR, Area, etc.
