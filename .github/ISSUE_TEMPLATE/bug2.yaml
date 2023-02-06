@@ -17,8 +17,6 @@ body:
     attributes:
       label: '🐛 Problem'
       description: 'Add a clear and concise description of what the bug is.'
-    validation:
-      required: true
   - type: textarea
     attributes:
       label: '👣 Repro steps'
@@ -28,8 +26,6 @@ body:
         2. 
         3. 
         ...
-    validation:
-      required: true
   - type: textarea
     attributes:
       label: '🤔 Expected'
