@@ -8,18 +8,14 @@ body:
       value: |
         Thanks for taking the time to fill out this bug report!
 
-        ⚠️ Please confirm there isn't an issue already.
-        If there is, vote it up (👍) and add comments.
-  - type: markdown
-    attributes:
-      value: '## 🐛 Problem'
+        ⚠️ Please confirm there isn't an issue already. If there is, vote it up (👍) and add comments.
   - type: textarea
     attributes:
-      label: '🐛 Problem'
+      label: '## 🐛 Problem'
       description: 'Add a clear and concise description of what the bug is.'
   - type: textarea
     attributes:
-      label: '👣 Repro steps'
+      label: '## 👣 Repro steps'
       description: |
         Add repro steps below:
         1. 
@@ -28,18 +24,19 @@ body:
         ...
   - type: textarea
     attributes:
-      label: '🤔 Expected'
+      label: '## 🤔 Expected'
       description: 'Add a clear and concise description of what you expected to happen.'
   - type: textarea
     attributes:
-      label: '📷 Screenshots'
+      label: '## 📷 Screenshots'
       description: 'If applicable, add screenshots to help explain your problem. Remove if not applicable.'
   - type: textarea
     attributes:
-      label: 'ℹ️ Additional context'
+      label: '## ℹ️ Additional context'
       description: 'Add any other context about the problem here. Remove if not applicable.'
   - type: markdown
     attributes:
       value: |
+        ---
         ## ☝️ Internal only
         Don't forget to add applicable labels for Type, Micro PR, Area, etc.
