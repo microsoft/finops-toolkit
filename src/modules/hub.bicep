@@ -7,7 +7,9 @@ param hubName string
 
 // Generate unique storage account name
 var storageAccountSuffix = 'store'
+var dataFactorySuffix = 'factory'
 var storageAccountName = '${substring(replace(toLower(hubName), '-', ''), 0, 24 - length(storageAccountSuffix))}${storageAccountSuffix}'
+var dataFactoryName = '${substring(replace(toLower(hubName), '-', ''), 0, 24 - length(dataFactorySuffix))}${dataFactorySuffix}'
 
 @description('Optional. Azure location where all resources should be created. See https://aka.ms/azureregions. Default: (resource group location).')
 param location string = resourceGroup().location
@@ -58,6 +60,15 @@ module storageAccount 'Microsoft.Storage/storageAccounts/deploy.bicep' = {
   }
 }
 
+module dataFactory 'Microsoft.DataFactory/factories/deploy.bicep' = {
+  name: 'factory'
+  params: {
+    name: dataFactoryName
+    location: location
+    tags: resourceTags
+  }
+}
+
 /**
  * Outputs
  */
@@ -70,3 +81,6 @@ output location string = location
 
 @description('Resource ID of the storage account created for the hub instance. This must be used when creating the Cost Management export.')
 output storageAccountId string = storageAccount.outputs.resourceId
+
+@description('The Resource ID of the Data factory.')
+output dataFactoryId string = dataFactory.outputs.resourceId
