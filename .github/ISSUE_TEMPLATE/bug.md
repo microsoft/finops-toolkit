@@ -31,3 +31,9 @@ TODO: If applicable, add screenshots to help explain your problem. Remove if not
 
 ## ℹ️ Additional context
 TODO: Add any other context about the problem here. Remove if not applicable.
+
+## 🙋‍♀️ Ask for the community
+<!-- TODO: Customize this section to let the community know how they can help. -->
+We could use your help:
+1. Please vote this issue up (👍) to prioritize it.
+2. Leave comments to help us solidify the vision.

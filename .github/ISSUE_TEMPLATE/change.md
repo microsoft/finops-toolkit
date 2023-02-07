@@ -21,3 +21,9 @@ TODO: Add a clear and concise description of what you want to happen. Focus on t
 
 ## ℹ️ Additional context
 TODO: Add any other context or screenshots about the change request, including alternative solutions you considered and why you ruled them out.
+
+## 🙋‍♀️ Ask for the community
+<!-- TODO: Customize this section to let the community know how they can help. -->
+We could use your help:
+1. Please vote this issue up (👍) to prioritize it.
+2. Leave comments to help us solidify the vision.
