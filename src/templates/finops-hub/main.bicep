@@ -46,6 +46,3 @@ output location string = location
 
 @description('The resource ID of the deployed storage account.')
 output storageAccountId string = hub.outputs.storageAccountId
-
-@description('The Resource ID of the Data factory.')
-output dataFactoryId string = hub.outputs.dataFactoryId
