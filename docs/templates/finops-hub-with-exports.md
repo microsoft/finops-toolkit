@@ -23,6 +23,7 @@ On this page:
 
 - **subscription** (string) – ID of the subscription to deploy the hub instance to.
 - **hubName** (string) – Name of the resource group and name prefix for all resources. Default: `"finops-hub"`.
+- **dataFactoryName** (string) – Optional. Name of the data factory. Used to ensure unique resource names. Default: `"finops-hub-engine"`. Minimum Characters: `3`. Maximum Characters: `63`.
 - **location** (string) – Azure location where all resources should be created.
 - **exportScopes** (array) – Optional. List of scope IDs to create exports for.
 
@@ -32,6 +33,7 @@ On this page:
 
 - **[hub.bicep](./modules/hub.md)** – Create the FinOps hub instance first to ensure the storage account is in place.
   - **hubName** = `param:hubName`
+  - **dataFactoryName** = `param:dataFactoryName`
   - **location** = `param:location`
 - **[export.bicep](./modules/export.md)** – Exports should be created as nested template deployments. Depends on: hub.bicep. Parameters:
   - **exportName** = `"FinOpsHubs_" + param:hubName + "_" + param:subscription`

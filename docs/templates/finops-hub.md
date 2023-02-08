@@ -26,6 +26,7 @@ On this page:
 ## Parameters
 
 - **hubName** (string) – Optional. Name of the hub. Used to ensure unique resource names. Default: `"finops-hub"`.
+- **dataFactoryName** (string) – Optional. Name of the data factory. Used to ensure unique resource names. Default: `"finops-hub-engine"`. Minimum Characters: `3`. Maximum Characters: `63`.
 - **location** (string) – Optional. Azure location where all resources should be created. See https://aka.ms/azureregions. Default: (resource group location).
 - **storageSku** (string) – Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: `Premium_LRS`, `Premium_ZRS`. Default: `Premium_LRS`.
 - **tags** (object) – Optional. Tags to apply to all resources. We will also add the `cm-resource-parent` tag for improved cost roll-ups in Cost Management.
@@ -36,6 +37,7 @@ On this page:
 
 - **[hub.bicep](./modules/hub.md)** – Create the FinOps hub instance first to ensure the storage account is in place.
   - **hubName** = `param:hubName`
+  - **dataFactoryName** = `param:dataFactoryName`
   - **location** = `param:location`
   - **storageSku** = `param:storageSku`
   - **tags** = `param:tags`
