@@ -5,14 +5,13 @@
 @description('Optional. Name of the hub. Used to ensure unique resource names. Default: "finops-hub".')
 param hubName string
 
-@minLength(3)
-@maxLength(63)
-@description('Optional. Name of the data factory. Used to ensure unique resource names. Default: "finops-hub-engine".')
-param dataFactoryName string
-
 // Generate unique storage account name
 var storageAccountSuffix = 'store'
 var storageAccountName = '${substring(replace(toLower(hubName), '-', ''), 0, 24 - length(storageAccountSuffix))}${storageAccountSuffix}'
+
+// Data factory naming requirements: Min 3, Max 63, can only contain letters, numbers and non-repeating dashes 
+var dataFactorySuffix = '-engine'
+var dataFactoryName = '${take(hubName, 63 - length(dataFactorySuffix))}${dataFactorySuffix}'
 
 @description('Optional. Azure location where all resources should be created. See https://aka.ms/azureregions. Default: (resource group location).')
 param location string = resourceGroup().location
