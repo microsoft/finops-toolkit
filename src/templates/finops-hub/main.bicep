@@ -28,7 +28,7 @@ module hub '../../modules/hub.bicep' = {
   name: 'hub'
   params: {
     hubName: hubName
-    dataFactoryName: '${toLower(hubName)}-engine'
+    dataFactoryName: '${hubName}-engine'
     location: location
     storageSku: storageSku
     tags: tags
