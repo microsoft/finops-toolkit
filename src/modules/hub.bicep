@@ -9,6 +9,10 @@ param hubName string
 var storageAccountSuffix = 'store'
 var storageAccountName = '${substring(replace(toLower(hubName), '-', ''), 0, 24 - length(storageAccountSuffix))}${storageAccountSuffix}'
 
+// Data factory naming requirements: Min 3, Max 63, can only contain letters, numbers and non-repeating dashes 
+var dataFactorySuffix = '-engine'
+var dataFactoryName = '${take(hubName, 63 - length(dataFactorySuffix))}${dataFactorySuffix}'
+
 @description('Optional. Azure location where all resources should be created. See https://aka.ms/azureregions. Default: (resource group location).')
 param location string = resourceGroup().location
 
@@ -54,6 +58,15 @@ module storageAccount 'Microsoft.Storage/storageAccounts/deploy.bicep' = {
     name: storageAccountName
     location: location
     storageAccountSku: storageSku
+    tags: resourceTags
+  }
+}
+
+module dataFactory 'Microsoft.DataFactory/factories/deploy.bicep' = {
+  name: 'dataFactory'
+  params: {
+    name: dataFactoryName
+    location: location
     tags: resourceTags
   }
 }

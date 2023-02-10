@@ -4,7 +4,7 @@
 
 targetScope = 'resourceGroup'
 
-@description('Name of the hub. Used for the resource group and to guarrantee globally unique resource names.')
+@description('Name of the hub. Used for the resource group and to guarantee globally unique resource names.')
 param hubName string
 
 @description('Optional. Location of the resources. Default: Same as deployment. See https://aka.ms/azureregions.')
