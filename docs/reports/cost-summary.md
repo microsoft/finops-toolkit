@@ -64,6 +64,8 @@ The table shows a breakdown of the cost, usually with columns for the months. Th
 
 The **Get started** page includes a basic introduction to the report with additional links to learn more.
 
+![Screenshot of the Get started page](https://user-images.githubusercontent.com/399533/216882617-5f5f5590-d2f8-4f55-923f-b77a39c4eb0b.png)
+
 <br>
 
 ## Summary
@@ -71,6 +73,8 @@ The **Get started** page includes a basic introduction to the report with additi
 The **Summary** page shows the running total (or accumulated cost) for the selected period. This is helpful in determining what your cost trends are.
 
 The page uses the standard layout with cost, negotiated discount savings, and commitment-based discount savings in the chart and the subscription hierarchy with resource groups and resources in the table.
+
+![Screenshot of the Summary page](https://user-images.githubusercontent.com/399533/216882658-45f026f1-c895-48ca-81e2-35765af8e29e.png)
 
 <br>
 
@@ -80,6 +84,8 @@ The **Services** page offers a breakdown of cost by service. This is useful for 
 
 The page uses the standard layout with a breakdown of services (meter category) in the chart and table. The table has a further breakdown by tier (meter subcategory), meter, and product.
 
+![Screenshot of the Services page](https://user-images.githubusercontent.com/399533/216882700-4e04b589-0580-4e49-9b40-9f5948792975.png)
+
 <br>
 
 ## Subscriptions
@@ -87,6 +93,8 @@ The page uses the standard layout with a breakdown of services (meter category) 
 The **Subscriptions** page includes a breakdown of cost by subscription. This is useful for building a chargeback report and determining which departments/teams/environments (depending on how you use subscriptions) are accruing the most cost.
 
 The page uses the standard layout with a breakdown of subscriptions in the chart and table. The table has a further breakdown by resource group and resource.
+
+![Screenshot of the Subscriptions page](https://user-images.githubusercontent.com/399533/217999411-6494c982-9e11-4cfa-b58b-1ddb566e5b5f.png)
 
 <br>
 
@@ -96,6 +104,8 @@ The **Resource groups** page includes a breakdown of cost by resource group. Thi
 
 The page uses the standard layout with a breakdown of resource groups in the chart and table. The table has a further breakdown by resource.
 
+![Screenshot of the Resource groups page](https://user-images.githubusercontent.com/399533/217999483-f0e7c64b-a046-41b3-a8e0-8487bf4375b4.png)
+
 <br>
 
 ## Resources
@@ -103,6 +113,8 @@ The page uses the standard layout with a breakdown of resource groups in the cha
 The **Resources** page includes a breakdown of cost by resource. This is useful for determining which resources are accruing the most cost.
 
 The page uses the standard layout with a breakdown of resources in the chart and table. Instead of a hierarchy, The table includes columns about the resource location, resource group, subscription, and tags.
+
+![Screenshot of the Resources page](https://user-images.githubusercontent.com/399533/216882840-ca908024-84f6-4930-b44c-9eeca6add758.png)
 
 <br>
 
@@ -126,6 +138,8 @@ The table shows resource usage against commitment-based discounts with columns f
 
 This page filters usage down to only show charges related to commitment-based discounts, which means the total cost on the Commitments page won't match other pages, which aren't filtered by default.
 
+![Screenshot of the Commitment-based discounts page](https://user-images.githubusercontent.com/399533/216882916-bb7ecfa3-d092-4ae2-88e1-7a0425c14dca.png)
+
 <br>
 
 ## Hybrid Benefit
@@ -143,6 +157,8 @@ There are 3 charts on the page:
 3. Daily breakdown of AHB and non-AHB usage (excluding those where AHB is not supported).
 
 The table shows a list of VMs that are currently using or could be using AHB with their vCPU count, AHB vCPU count, resource group, subscription, cost and quantity.
+
+![Screenshot of the Hybrid Benefit page](https://user-images.githubusercontent.com/399533/216882954-a83d0c8a-fe6d-4d55-8e8b-45b3df3914a9.png)
 
 <br>
 

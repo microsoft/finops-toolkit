@@ -65,6 +65,8 @@ The table shows a breakdown of the cost or recommendations, depending on the pur
 
 The **Get started** page includes a basic introduction to the report with additional links to learn more.
 
+![Screenshot of the Get started page](https://user-images.githubusercontent.com/399533/216883194-47ac6f41-c57f-491b-8b56-dfc2b1ef02f5.png)
+
 <br>
 
 ## Hybrid Benefit
@@ -82,6 +84,8 @@ There are 3 charts on the page:
 3. Daily breakdown of AHB and non-AHB usage (excluding those where AHB is not supported).
 
 The table shows a list of VMs that are currently using or could be using AHB with their vCPU count, AHB vCPU count, resource group, subscription, cost and quantity.
+
+![Screenshot of the Hybrid Benefit page](https://user-images.githubusercontent.com/399533/216882954-a83d0c8a-fe6d-4d55-8e8b-45b3df3914a9.png)
 
 <br>
 
@@ -104,6 +108,8 @@ The chart breaks down the cost of used (utilized) vs. unused charges. Unused cha
 The table shows resource usage against commitment-based discounts with columns for resource name, resource group, subscription, and commitment. Use the table for chargeback and savings calculations.
 
 This page filters usage down to only show charges related to commitment-based discounts, which means the total cost on the Commitments page won't match other pages, which aren't filtered by default.
+
+![Screenshot of the Commitment-based discounts page](https://user-images.githubusercontent.com/399533/216882916-bb7ecfa3-d092-4ae2-88e1-7a0425c14dca.png)
 
 ### 🛠️ Customization tips
 
