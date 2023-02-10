@@ -2,7 +2,7 @@
 
 The FinOps toolkit hosts data in [Azure Data Lake Storage](https://learn.microsoft.com/azure/storage/blobs/data-lake-storage-introduction). You can use any tool to query and report on your cost data in storage. As an example, we've included the following Power BI reports to get you started. We recommend customizing them to keep what works, edit and augment reports with your own data, and remove anything that isn't needed.
 
-> ℹ️ _The Power BI reports (PBIX files) are a starter kit. Keep in mind you won't be able to upgrade a customized report as the toolkit evolves._
+> ℹ️ _The Power BI reports (PBIX files) are starter templates. Keep in mind you won't be able to upgrade a customized report as the toolkit evolves._
 
 - [Cost summary](./cost-summary.md)
 - [Commitment discounts](./commitment-discounts.md)
@@ -13,6 +13,7 @@ On this page:
 
 - [How to setup Power BI](#how-to-setup-power-bi)
 - [Queries and datasets](#queries-and-datasets)
+- [Tips for customizing Power BI reports](#tips-for-customizing-power-bi-reports)
 
 Related:
 
@@ -161,3 +162,11 @@ Note the following columns are new in this release. These columns were not previ
 - **benefitName**
 
 This dataset is hidden from the list of tables. To see it, right-click any table and select **Unhide all**.
+
+<br>
+
+## Tips for customizing Power BI reports
+
+FinOps toolkit Power BI reports are starter templates that we encourage you to customize. Changing visuals, columns, and measures should not break in future releases outside of potential schema changes, which are usually easy to fix by changing column names. The main issue to be careful of is changing the out-of-the-box queries. Out-of-the-box queries can change in future releases, which will make it harder for you to upgrade. If you need to modify a query, we recommend confining updates to the **CostDetails** dataset, which references the internal datasets we use for schema versioning. We will keep our updates to those internal datasets to avoid conflicting with your customizations.
+
+If you run into any issues, please let us know in [Discussions](https://github.com/microsoft/cloud-hubs/discussions).
