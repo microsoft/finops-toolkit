@@ -47,5 +47,7 @@ On this page:
 - **name** (string) – Name of the deployed hub instance.
 - **location** (string) – Azure resource location resources were deployed to.
 - **storageAccountId** (string) – Resource ID of the storage account created for the hub instance. This must be used when creating the Cost Management export.
+- **storageAccountName** (string) – Name of the storage account created for the hub instance. This must be used when connecting FinOps toolkit Power BI reports to your data.
+- **storageUrlForPowerBI** (string) – URL to use when connecting custom Power BI reports to your data.
 
 <br>

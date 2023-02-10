@@ -70,3 +70,9 @@ output location string = location
 
 @description('Resource ID of the storage account created for the hub instance. This must be used when creating the Cost Management export.')
 output storageAccountId string = storageAccount.outputs.resourceId
+
+@description('Name of the storage account created for the hub instance. This must be used when connecting FinOps toolkit Power BI reports to your data.')
+output storageAccountName string = storageAccount.outputs.name
+
+@description('URL to use when connecting custom Power BI reports to your data.')
+output storageUrlForPowerBI string = 'https://${storageAccount.outputs.name}.dfs.${environment().suffixes.storage}/ms-cm-exports'
