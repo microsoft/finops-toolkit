@@ -11,7 +11,7 @@ The FinOps toolkit includes multiple ARM templates depending on your needs. We r
 For more details about toolkit options, refer to the [available templates](../templates).
 -->
 
-> ### ⚠️ Important
+> ### ⚠️ Important <!-- markdownlint-disable-line -->
 >
 > _The FinOps toolkit will change over time. We highly recommend saving a parameter file to ensure you can re-deploy new versions of the template with the same parameters._
 
@@ -30,7 +30,7 @@ The Azure portal includes a **Custom deployment** option that supports all templ
 
 1. Open [Custom deployment](https://portal.azure.com/#create/Microsoft.Template)
 2. In the **Quickstart template** dropdown, select `quickstarts/microsoft.costmanagement/finops-hub`.
-   <!--> ℹ️ _Replace this template as desired. Note parameters below may differ slightly._-->
+   <!-- > ℹ️ _Replace this template as desired. Note parameters below may differ slightly._-->
 3. Select the **Select template** button.
 4. <a name="edit-params"></a>Are you updating an existing deployment?
    1. If so, use a parameters file:
@@ -42,6 +42,8 @@ The Azure portal includes a **Custom deployment** option that supports all templ
       ----------|------|------------
       **hubName** | String | Name of the resource group and name prefix for all resources. Default: `finops-hub`.
       **location** | String | Azure location where all resources should be created. Default: (resource group location).
+      **storageSku** | String | SKU (`LRS` or `ZRS`) for the storage account.
+      **tags** | String | Optional. Tags to apply to all resources.
       <!--
       **subscription** | String | ID of the subscription to deploy the hub instance to.
       **exportScopes** | Array | Optional. List of scope IDs to create exports for.
