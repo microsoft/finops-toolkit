@@ -68,7 +68,7 @@ At this point, you have the core data from the FinOps toolkit reports, extended 
 
 1. In the FinOps toolkit report, expand the **CMExports** table in the **Data** pane on the right.
 2. Select a custom column or measure, then copy the formula from the editor at the top of the window, under the toolbar.
-   > ℹ️ _Be sure to make note if this is a column or a measure. Measures have a table icon with a sigma symbol and columns have a calculator icon._ > ![Screenshot of the measure and calculated column icons in Power BI](https://user-images.githubusercontent.com/399533/216805396-96abae2d-473a-4136-8943-cac4ddd74dce.png)
+   > ℹ️ _Be sure to make note if this is a column or a measure. Columns have a table icon with a sigma or "fx" symbol and measures have a calculator icon._ > ![Screenshot of the calculated column and measure icons in Power BI](https://user-images.githubusercontent.com/399533/216805396-96abae2d-473a-4136-8943-cac4ddd74dce.png)
 3. In your report, right click the **CMExports** table and select **New measure** or **New column** based on what you just copied.
 4. When the formula editor is shown, paste the formula using <kbd>Ctrl+V</kbd> or <kbd>Cmd+V</kbd>.
 5. Repeat steps 2-4 for each desired column and measure.
@@ -160,8 +160,21 @@ Note the following columns are new in this release. These columns were not previ
 - **CostAllocationRuleName**
 - **benefitId**
 - **benefitName**
-
-This dataset is hidden from the list of tables. To see it, right-click any table and select **Unhide all**.
+- **Month**
+- **CPUHours**
+- **CommitmentNameUnique**
+- **ResourceNameUnique**
+- **ResourceGroupNameUnique**
+- **SubscriptionNameUnique**
+- **CommitmentType**
+- **CommitmentUtilizationAmount**
+- **CommitmentUtilizationPotential**
+- **RetailPrice**
+- **RetailCost**
+- **OnDemandCost**
+- **CommitmentSavings**
+- **DiscountSavings**
+- **NegotiatedSavings**
 
 <br>
 
