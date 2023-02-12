@@ -1,3 +1,5 @@
+# See https://eng.ms/docs/more/github-inside-microsoft/policies/fabricbot
+
 name: Issue needs triage
 description: Add Needs Triage label to new issues
 resource: repository
@@ -6,7 +8,7 @@ configuration:
   fabricBotConfiguration:
     eventResponderTasks:
       - if:
-          - payloadType: Issue
+          - payloadType: Issues
           - isAction:
               action: 'opened'
           - not:
