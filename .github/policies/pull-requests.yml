@@ -2,6 +2,7 @@ name: PR needs review
 description: Assign Needs Review label to new/updated PRs
 resource: repository
 
+# See https://eng.ms/docs/more/github-inside-microsoft/policies/fabricbot
 configuration:
   fabricBotConfiguration:
     eventResponderTasks:
