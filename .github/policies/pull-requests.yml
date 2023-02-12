@@ -10,7 +10,7 @@ configuration:
           - payloadType: Pull_Request
           - and:
               - targetsBranch:
-                  branchName: main
+                  branch: main
               - isOpen
               - or:
                   - isAction:
