@@ -10,7 +10,7 @@ configuration:
           - payloadType: Issues
           - and:
               - isAction:
-                  action: 'opened'
+                  action: opened
               - not:
                   - isPartOfProject
               - not:
@@ -19,4 +19,4 @@ configuration:
                   - isLabeled
         then:
           - addLabel:
-              label: 'Needs: Triage 🔍'
+              label: 'Needs: Triage :mag:'
