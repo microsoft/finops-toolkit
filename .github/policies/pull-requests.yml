@@ -7,16 +7,16 @@ configuration:
   fabricBotConfiguration:
     eventResponderTasks:
       - if:
-          and:
-            - payloadType: Pull_Request
-            - prTargetsBranch:
-                branchName: main
-            - isOpen
-            - or:
-                - isAction:
-                    action: review_requested
-                - isAction:
-                    action: synchronize
+          - and:
+              - payloadType: Pull_Request
+              - prTargetsBranch:
+                  branchName: main
+              - isOpen
+              - or:
+                  - isAction:
+                      action: review_requested
+                  - isAction:
+                      action: synchronize
         then:
           - addLabel:
               label: 'Needs: Triage 🔍'
