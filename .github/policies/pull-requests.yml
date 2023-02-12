@@ -14,9 +14,9 @@ configuration:
               - isOpen
               - or:
                   - isAction:
-                      action: review_requested
+                      action: Review_Requested
                   - isAction:
-                      action: synchronize
+                      action: Synchronize
         then:
           - addLabel:
               label: 'Needs: Triage :mag:'
