@@ -9,7 +9,7 @@ configuration:
       - if:
           - payloadType: Pull_Request
           - and:
-              - prTargetsBranch:
+              - targetsBranch:
                   branchName: main
               - isOpen
               - or:
