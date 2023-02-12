@@ -12,11 +12,9 @@ configuration:
               - isAction:
                   action: opened
               - not:
-                  - isPartOfProject
-              - not:
-                  - isAssignedToSomeone
-              - not:
-                  - isLabeled
+                  - or:
+                      - isPartOfProject
+                      - isAssignedToSomeone
         then:
           - addLabel:
               label: 'Needs: Triage :mag:'
