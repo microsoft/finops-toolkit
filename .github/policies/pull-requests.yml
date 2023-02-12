@@ -19,4 +19,4 @@ configuration:
                       action: synchronize
         then:
           - addLabel:
-              label: 'Needs: Triage 🔍'
+              label: 'Needs: Triage :mag:'
