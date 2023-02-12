@@ -9,12 +9,11 @@ configuration:
       - if:
           - payloadType: Issues
           - and:
-              - isAction:
-                  action: opened
+              - isOpen
               - not:
-                  - or:
-                      - isPartOfProject
-                      - isAssignedToSomeone
+                  and:
+                    - isAssignedToSomeone
+                    - isLabeled
         then:
           - addLabel:
               label: 'Needs: Triage :mag:'
