@@ -1,11 +1,11 @@
-name: Issue needs triage
-description: Add Needs Triage label to new issues
+name: Issue triage policies
 resource: repository
 
 # See https://eng.ms/docs/more/github-inside-microsoft/policies/fabricbot
 configuration:
   fabricBotConfiguration:
     eventResponderTasks:
+      # Add Needs Triage label to new issues
       - if:
           - payloadType: Issues
           - and:
@@ -17,3 +17,21 @@ configuration:
         then:
           - addLabel:
               label: 'Needs: Triage :mag:'
+
+      # Replace Needs Info label with Needs Triage when the author comments on an issue
+      - if:
+          - payloadType: Issue_Comment
+          - and:
+              - isAction:
+                  action: Created
+              - isActivitySender:
+                  user:
+                    type: Author
+              - hasLabel:
+                  label: 'Needs: Information'
+              - isOpen:
+        then:
+          - addLabel:
+              label: 'Needs: Triage :mag:'
+          - removeLabel:
+              label: 'Needs: Information'
