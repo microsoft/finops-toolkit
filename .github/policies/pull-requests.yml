@@ -3,6 +3,12 @@ description: Assign Needs Review label to new/updated PRs
 resource: repository
 
 # See https://eng.ms/docs/more/github-inside-microsoft/policies/fabricbot
+# isAction (Pull_Request) = Opened, Reopened, Synchronize, Closed, Labeled, Assigned
+# isAction (Pull_Request_Review) = Submitted, Dismissed
+# isAction (Pull_Request_Review_Comment) = Created, Updated
+# isAction (Issue_Comment) = Created, Deleted, Updated, Reopened, Edited
+# isAction (Issues) = Opened, Assigned, Labeled, Reopened, Closed, Edited, Deleted, Unassigned, Unlabeled, Locked, Unlocked
+# isAction (Workflow_Run) = Completed, Requested
 configuration:
   fabricBotConfiguration:
     eventResponderTasks:
@@ -19,4 +25,4 @@ configuration:
                       action: Synchronize
         then:
           - addLabel:
-              label: 'Needs: Triage :mag:'
+              label: 'Needs: Review 👀'
