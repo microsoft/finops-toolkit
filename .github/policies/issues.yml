@@ -1,9 +1,8 @@
-# See https://eng.ms/docs/more/github-inside-microsoft/policies/fabricbot
-
 name: Issue needs triage
 description: Add Needs Triage label to new issues
 resource: repository
 
+# See https://eng.ms/docs/more/github-inside-microsoft/policies/fabricbot
 configuration:
   fabricBotConfiguration:
     eventResponderTasks:
