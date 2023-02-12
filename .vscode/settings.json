@@ -1,19 +1,5 @@
 {
-  "cSpell.words": [
-    "ADLS",
-    "CARML",
-    "chargeback",
-    "compat",
-    "CostManagement",
-    "FinOps",
-    "Lookback",
-    "MOSA",
-    "PBIX",
-    "Quickstart",
-    "quickstarts",
-    "Roadmap",
-    "Unhide"
-  ],
+  "cSpell.words": ["ADLS", "CARML", "chargeback", "compat", "CostManagement", "FinOps", "Lookback", "MOSA", "PBIX", "Quickstart", "quickstarts", "Roadmap", "startswith", "Unhide"],
   "markdown.preview.typographer": false,
   "markdown.extension.italic.indicator": "_",
   "markdown.extension.toc.levels": "2..2",
