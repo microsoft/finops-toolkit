@@ -14,7 +14,7 @@ configuration:
               - isOpen
               - or:
                   - isAction:
-                      action: Review_Requested
+                      action: Requested
                   - isAction:
                       action: Synchronize
         then:
