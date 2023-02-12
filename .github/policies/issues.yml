@@ -8,14 +8,15 @@ configuration:
     eventResponderTasks:
       - if:
           - payloadType: Issues
-          - isAction:
-              action: 'opened'
-          - not:
-              - isPartOfProject
-          - not:
-              - isAssignedToSomeone
-          - not:
-              - isLabeled
+          - and:
+              - isAction:
+                  action: 'opened'
+              - not:
+                  - isPartOfProject
+              - not:
+                  - isAssignedToSomeone
+              - not:
+                  - isLabeled
         then:
           - addLabel:
               label: 'Needs: Triage 🔍'

@@ -7,8 +7,8 @@ configuration:
   fabricBotConfiguration:
     eventResponderTasks:
       - if:
+          - payloadType: Pull_Request
           - and:
-              - payloadType: Pull_Request
               - prTargetsBranch:
                   branchName: main
               - isOpen
