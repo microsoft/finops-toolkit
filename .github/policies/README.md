@@ -18,69 +18,67 @@ On this page:
 - if:
     # `payloadType` = Event that triggers the action
     - payloadType: 'Issue_Comment, Issues, Pull_Request, Pull_Request_Review_Comment'
-    - and:
-        - or:
-            - not:
-                # About the event
-                - activitySenderHasAssociation:
-                    association: 'NONE, COLLABORATOR, CONTRIBUTOR, FIRST_TIMER, FIRST_TIME_CONTRIBUTOR, MANNEQUIN, MEMBER, OWNER'
-                - activitySenderHasPermission:
-                    permission: 'none, read, write, admin'
-                - commentContains:
-                    pattern: '{text}'
-                    isRegex: true # Optional
-                - isAction:
-                    action: '{action}'
-                    # Pull_Request = Opened, Reopened, Synchronize, Closed, Labeled, Assigned
-                    # Pull_Request_Review = Submitted, Dismissed
-                    # Pull_Request_Review_Comment = Created, Updated
-                    # Issue_Comment = Created, Deleted, Updated, Reopened, Edited
-                    # Issues = Opened, Assigned, Labeled, Reopened, Closed, Edited, Deleted, Unassigned, Unlabeled, Locked, Unlocked
-                    # Workflow_Run = Completed, Requested
-                - isActivitySender:
-                    user: 'TODO'
-                    issueAuthor: true # Optional
-                - labelAdded:
-                    label: '{label}'
-                - labelRemoved:
-                    label: '{label}'
+    - and: # can also be "or" or "not"
+        # About the event
+        - activitySenderHasAssociation:
+            association: 'NONE, COLLABORATOR, CONTRIBUTOR, FIRST_TIMER, FIRST_TIME_CONTRIBUTOR, MANNEQUIN, MEMBER, OWNER'
+        - activitySenderHasPermission:
+            permission: 'none, read, write, admin'
+        - commentContains:
+            pattern: '{text}'
+            isRegex: true # Optional
+        - isAction:
+            action: '{action}'
+            # Pull_Request = Opened, Reopened, Synchronize, Closed, Labeled, Assigned
+            # Pull_Request_Review = Submitted, Dismissed
+            # Pull_Request_Review_Comment = Created, Updated
+            # Issue_Comment = Created, Deleted, Updated, Reopened, Edited
+            # Issues = Opened, Assigned, Labeled, Reopened, Closed, Edited, Deleted, Unassigned, Unlabeled, Locked, Unlocked
+            # Workflow_Run = Completed, Requested
+        - isActivitySender:
+            user: 'TODO'
+            issueAuthor: true # Optional
+        - labelAdded:
+            label: '{label}'
+        - labelRemoved:
+            label: '{label}'
 
-                # About issues only
-                - isInProject
-                    project: 'TODO'
-                - issueBodyContains:
-                    pattern: '{text}'
-                    isRegex: true # Optional
+        # About issues only
+        - isInProject
+            project: 'TODO'
+        - issueBodyContains:
+            pattern: '{text}'
+            isRegex: true # Optional
 
-                # About PRs only
-                - filesMatchPattern:
-                    pattern: '{regex}'
-                    excludeFiles: 'TODO'
-                - includesModifiedFile:
-                    file: 'TODO'
-                - includesModifiedFiles:
-                    files: 'TODO'
-                    excludeFiles: 'TODO'
-                - pullRequestBodyContains:
-                    pattern: '{text}'
-                    isRegex: true # Optional
-                - targetsBranch:
-                    branch: '{branch}'
+        # About PRs only
+        - filesMatchPattern:
+            pattern: '{regex}'
+            excludeFiles: 'TODO'
+        - includesModifiedFile:
+            file: 'TODO'
+        - includesModifiedFiles:
+            files: 'TODO'
+            excludeFiles: 'TODO'
+        - pullRequestBodyContains:
+            pattern: '{text}'
+            isRegex: true # Optional
+        - targetsBranch:
+            branch: '{branch}'
 
-                # About issues or PRs
-                - hasLabel:
-                    label: '{label}'
-                - isAssignedToSomeone
-                - isAssignedToUser:
-                    user: 'TODO'
-                - isInMilestone:
-                    milestone: 'TODO'
-                - isLabeled
-                - isLocked
-                - isOpen
-                - titleContains:
-                    pattern: '{text}'
-                    isRegex: true # Optional
+        # About issues or PRs
+        - hasLabel:
+            label: '{label}'
+        - isAssignedToSomeone
+        - isAssignedToUser:
+            user: 'TODO'
+        - isInMilestone:
+            milestone: 'TODO'
+        - isLabeled
+        - isLocked
+        - isOpen
+        - titleContains:
+            pattern: '{text}'
+            isRegex: true # Optional
   # `then` = Action to perform
   then:
     # Optional conditional logic to the actions
