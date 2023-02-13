@@ -13,7 +13,7 @@ On this page:
 
 <!-- spell-checker:disable -->
 
-```yaml
+```text
 # `if` = Condition that must be satisfied
 - if:
     # `payloadType` = Event that triggers the action
@@ -139,7 +139,7 @@ For details on allowed regex, see the [.NET Regex class](https://learn.microsoft
 
 <!-- spell-checker:disable -->
 
-```yaml
+```text
 - frequencies:
     - hourly:
         hour: 12 # Indicates how often to recur (e.g., every 12 hours)
