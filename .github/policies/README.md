@@ -17,19 +17,19 @@ On this page:
 # `if` = Condition that must be satisfied
 - if:
     # `payloadType` = Event that triggers the action
-    - payloadType: Issue_Comment|Issues|Pull_Request|Pull_Request_Review_Comment
+    - payloadType: 'Issue_Comment|Issues|Pull_Request|Pull_Request_Review_Comment'
     - and|or|not:
         - and|or|not:
             # About the event
             - activitySenderHasAssociation:
-                association: NONE|COLLABORATOR|CONTRIBUTOR|FIRST_TIMER|FIRST_TIME_CONTRIBUTOR|MANNEQUIN|MEMBER|OWNER
+                association: 'NONE|COLLABORATOR|CONTRIBUTOR|FIRST_TIMER|FIRST_TIME_CONTRIBUTOR|MANNEQUIN|MEMBER|OWNER'
             - activitySenderHasPermission:
-                permission: none|read|write|admin
+                permission: 'none|read|write|admin'
             - commentContains:
                 pattern: '<text>'
                 isRegex: true # Optional
             - isAction:
-                action: <action>
+                action: '<action>'
                 # Pull_Request = Opened, Reopened, Synchronize, Closed, Labeled, Assigned
                 # Pull_Request_Review = Submitted, Dismissed
                 # Pull_Request_Review_Comment = Created, Updated
@@ -38,7 +38,7 @@ On this page:
                 # Workflow_Run = Completed, Requested
             - isActivitySender:
                 user: 'TODO'
-                issueAuthor: true|false # Optional
+                issueAuthor: true # Optional
             - labelAdded:
                 label: '<label>'
             - labelRemoved:
@@ -64,7 +64,7 @@ On this page:
                 pattern: '<text>'
                 isRegex: true # Optional
             - targetsBranch:
-                branch: branch
+                branch: '<branch>'
 
             # About issues or PRs
             - hasLabel:
@@ -99,7 +99,7 @@ On this page:
         - assignTo:
             user: 'TODO'
             users: ['TODO', 'TODO']
-            prAuthor: true|false # Optional
+            prAuthor: true # Optional
         - assignToGitHubUserGroup:
             groupId: '<id>'
         - cleanEmailReply
@@ -147,7 +147,7 @@ For details on allowed regex, see the [.NET Regex class](https://learn.microsoft
         hours: 1 # Optional
         minutes: 0 # Optional
     - weekday:
-        day: Monday
+        day: 'Monday|Tuesday|...|Sunday'
         time: 12:00 # Optional
         hours: [0, 1, 2] # Optional
         timezoneOffset: -7 # Optional
