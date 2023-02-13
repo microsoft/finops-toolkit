@@ -60,7 +60,7 @@ configuration:
           - payloadType: Pull_Request
           - and:
               - isActivitySender:
-                  prAuthor: true
+                  issueAuthor: true
               - isAction:
                   action: Synchronize
               - hasLabel:
@@ -76,7 +76,7 @@ configuration:
       #     - payloadType: Pull_Request_Review
       #     - and:
       #         - isActivitySender:
-      #             prAuthor: true
+      #             issueAuthor: true
       #         - isAction:
       #             action: Dismissed
       #         - hasLabel:
@@ -92,7 +92,7 @@ configuration:
           - payloadType: Pull_Request_Review_Comment
           - and:
               - isActivitySender:
-                  prAuthor: true
+                  issueAuthor: true
               - isAction:
                   action: Updated
               - hasLabel:
