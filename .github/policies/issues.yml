@@ -14,20 +14,20 @@ configuration:
           - and:
               - isOpen
               - not:
-                  - and:
-                      - isAssignedToSomeone
-                      - hasLabel:
-                          label: 'Needs: Information'
-                      - hasLabel:
-                          label: 'Status: ✍️ Spec in progress'
-                      - hasLabel:
-                          label: 'Status: 🔭 Spec review'
-                      - hasLabel:
-                          label: 'Status: ▶️ Ready'
-                      - hasLabel:
-                          label: 'Status: 🔄️ In progress'
-                      - hasLabel:
-                          label: 'Status: 🔬 Code review'
+                  and:
+                    - isAssignedToSomeone
+                    - hasLabel:
+                        label: 'Needs: Information'
+                    - hasLabel:
+                        label: 'Status: ✍️ Spec in progress'
+                    - hasLabel:
+                        label: 'Status: 🔭 Spec review'
+                    - hasLabel:
+                        label: 'Status: ▶️ Ready'
+                    - hasLabel:
+                        label: 'Status: 🔄️ In progress'
+                    - hasLabel:
+                        label: 'Status: 🔬 Code review'
         then:
           - addLabel:
               label: 'Needs: Triage 🔍'
@@ -74,8 +74,7 @@ configuration:
           - payloadType: Issue_Comment
           - and:
               - isClosed
-              - not:
-                  - isCloseAndComment
+              - not: isCloseAndComment
               - isAction:
                   action: Created
               - isActivitySender:
@@ -87,8 +86,8 @@ configuration:
               - hasLabel:
                   label: 'Resolution: No activity'
               - not:
-                  - noActivitySince:
-                      days: 7
+                  noActivitySince:
+                    days: 7
         then:
           - removeLabel:
               label: 'Needs: Information'
@@ -103,8 +102,7 @@ configuration:
           - payloadType: Issue_Comment
           - and:
               - isClosed
-              - not:
-                  - isCloseAndComment
+              - not: isCloseAndComment
               - isAction:
                   action: Created
               - hasLabel:
