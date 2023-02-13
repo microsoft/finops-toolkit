@@ -38,22 +38,22 @@ configuration:
               reviewer: flanakin
 
       # 2. #Review > #Attention when changes are requested
-      - if:
-          - payloadType: Pull_Request_Review
-          - and:
-              - targetsBranch:
-                  branch: main
-              - isAction:
-                  action: Submitted
-              - isReviewState:
-                  state: Changes_requested
-              - hasLabel:
-                  label: 'Needs: Review 👀'
-        then:
-          - removeLabel:
-              label: 'Needs: Review 👀'
-          - addLabel:
-              label: 'Needs: Attention 👋'
+      # - if:
+      #     - payloadType: Pull_Request_Review
+      #     - and:
+      #         - targetsBranch:
+      #             branch: main
+      #         - isAction:
+      #             action: Submitted
+      #         - isReviewState:
+      #             state: Changes_requested
+      #         - hasLabel:
+      #             label: 'Needs: Review 👀'
+      #   then:
+      #     - removeLabel:
+      #         label: 'Needs: Review 👀'
+      #     - addLabel:
+      #         label: 'Needs: Attention 👋'
 
       # 3a. #Attenton > #Review when PR updated
       - if:
@@ -72,20 +72,20 @@ configuration:
               label: 'Needs: Review 👀'
 
       # 3b. #Attenton > #Review when PR review dismissed
-      - if:
-          - payloadType: Pull_Request_Review
-          - and:
-              - isActivitySender:
-                  prAuthor: true
-              - isAction:
-                  action: Dismissed
-              - hasLabel:
-                  label: 'Needs: Attention 👋'
-        then:
-          - removeLabel:
-              label: 'Needs: Attention 👋'
-          - addLabel:
-              label: 'Needs: Review 👀'
+      # - if:
+      #     - payloadType: Pull_Request_Review
+      #     - and:
+      #         - isActivitySender:
+      #             prAuthor: true
+      #         - isAction:
+      #             action: Dismissed
+      #         - hasLabel:
+      #             label: 'Needs: Attention 👋'
+      #   then:
+      #     - removeLabel:
+      #         label: 'Needs: Attention 👋'
+      #     - addLabel:
+      #         label: 'Needs: Review 👀'
 
       # 3c. #Attenton > #Review when PR comment updated
       - if:
