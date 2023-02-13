@@ -13,24 +13,24 @@ On this page:
 
 <!-- spell-checker:disable -->
 
-```text
+```yaml
 # `if` = Condition that must be satisfied
 - if:
     # `payloadType` = Event that triggers the action
-    - payloadType: 'Issue_Comment|Issues|Pull_Request|Pull_Request_Review_Comment'
+    - payloadType: 'Issue_Comment, Issues, Pull_Request, Pull_Request_Review_Comment'
     - and:
         - or:
             - not:
                 # About the event
                 - activitySenderHasAssociation:
-                    association: 'NONE|COLLABORATOR|CONTRIBUTOR|FIRST_TIMER|FIRST_TIME_CONTRIBUTOR|MANNEQUIN|MEMBER|OWNER'
+                    association: 'NONE, COLLABORATOR, CONTRIBUTOR, FIRST_TIMER, FIRST_TIME_CONTRIBUTOR, MANNEQUIN, MEMBER, OWNER'
                 - activitySenderHasPermission:
-                    permission: 'none|read|write|admin'
+                    permission: 'none, read, write, admin'
                 - commentContains:
-                    pattern: '<text>'
+                    pattern: '{text}'
                     isRegex: true # Optional
                 - isAction:
-                    action: '<action>'
+                    action: '{action}'
                     # Pull_Request = Opened, Reopened, Synchronize, Closed, Labeled, Assigned
                     # Pull_Request_Review = Submitted, Dismissed
                     # Pull_Request_Review_Comment = Created, Updated
@@ -41,20 +41,20 @@ On this page:
                     user: 'TODO'
                     issueAuthor: true # Optional
                 - labelAdded:
-                    label: '<label>'
+                    label: '{label}'
                 - labelRemoved:
-                    label: '<label>'
+                    label: '{label}'
 
                 # About issues only
                 - isInProject
                     project: 'TODO'
                 - issueBodyContains:
-                    pattern: '<text>'
+                    pattern: '{text}'
                     isRegex: true # Optional
 
                 # About PRs only
                 - filesMatchPattern:
-                    pattern: '<regex>'
+                    pattern: '{regex}'
                     excludeFiles: 'TODO'
                 - includesModifiedFile:
                     file: 'TODO'
@@ -62,14 +62,14 @@ On this page:
                     files: 'TODO'
                     excludeFiles: 'TODO'
                 - pullRequestBodyContains:
-                    pattern: '<text>'
+                    pattern: '{text}'
                     isRegex: true # Optional
                 - targetsBranch:
-                    branch: '<branch>'
+                    branch: '{branch}'
 
                 # About issues or PRs
                 - hasLabel:
-                    label: '<label>'
+                    label: '{label}'
                 - isAssignedToSomeone
                 - isAssignedToUser:
                     user: 'TODO'
@@ -79,7 +79,7 @@ On this page:
                 - isLocked
                 - isOpen
                 - titleContains:
-                    pattern: '<text>'
+                    pattern: '{text}'
                     isRegex: true # Optional
   # `then` = Action to perform
   then:
@@ -88,11 +88,11 @@ On this page:
         # See conditions above
       then:
         - addLabel:
-            label: '<label>'
+            label: '{label}'
         - addReply:
-            reply: '<text>'
+            reply: '{text}'
         - approvePullRequest:
-            comment: '<text>'
+            comment: '{text}'
         - assignIcmUsers:
             teamId: 'TODO'
             primary: 'TODO'
@@ -102,7 +102,7 @@ On this page:
             users: ['TODO', 'TODO']
             prAuthor: true # Optional
         - assignToGitHubUserGroup:
-            groupId: '<id>'
+            groupId: '{id}'
         - cleanEmailReply
         - closeIssue
         - createPullRequest:
@@ -112,19 +112,19 @@ On this page:
             body: 'TODO'
         - enableAutoMerge
         - inPrLabel:
-            label: '<label>'
+            label: '{label}'
         - labelSync:
-            pattern: '<regex>'
+            pattern: '{regex}'
         - lockIssue
         - mentionUsers:
             mentionees: ['TODO', 'TODO']
             replyTemplate: 'TODO'
             assignMentionees: ['TODO', 'TODO']
         - removeLabel:
-            label: '<label>'
+            label: '{label}'
         - reopenIssue
         - requestReview:
-            reviewer: '<user>'
+            reviewer: '{user}'
             teamReviewer: 'TODO'
         - unlockIssue
 ```
@@ -139,7 +139,7 @@ For details on allowed regex, see the [.NET Regex class](https://learn.microsoft
 
 <!-- spell-checker:disable -->
 
-```text
+```yaml
 - frequencies:
     - hourly:
         hour: 12 # Indicates how often to recur (e.g., every 12 hours)
@@ -148,7 +148,7 @@ For details on allowed regex, see the [.NET Regex class](https://learn.microsoft
         hours: 1 # Optional
         minutes: 0 # Optional
     - weekday:
-        day: 'Monday|Tuesday|...|Sunday'
+        day: 'Monday, Tuesday, ..., Sunday'
         time: 12:00 # Optional
         hours: [0, 1, 2] # Optional
         timezoneOffset: -7 # Optional
@@ -156,10 +156,10 @@ For details on allowed regex, see the [.NET Regex class](https://learn.microsoft
     - assignedTo:
         user: 'TODO'
     - created:
-        before: '<iso-date-time>'
-        after: '<iso-date-time>'
+        before: '{iso-date-time}'
+        after: '{iso-date-time}'
     - haslabel:
-        label: '<label>'
+        label: '{label}'
     - haslabelSet:
         labels: ['<label>', '<label>']
     - hasNoLabel
@@ -180,7 +180,7 @@ For details on allowed regex, see the [.NET Regex class](https://learn.microsoft
     - notAssigned
     - notInAnyMilestone
     - notLabeledWith:
-        label: '<label>'
+        label: '{label}'
   actions:
     # Same actions as eventResponderTasks
 ```
