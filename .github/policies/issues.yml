@@ -1,37 +1,350 @@
-name: Issue triage policies
+name: Issue lifecycle policies
+description: Applies the issue lifecycle policies for labeling, commenting, etc.
 resource: repository
 
-# See https://eng.ms/docs/more/github-inside-microsoft/policies/fabricbot
+# See ./README.md for a cheat sheet
+# spell-checker:disable
 configuration:
   fabricBotConfiguration:
-    eventResponderTasks:
-      # Add Needs Triage label to new issues
-      - if:
-          - payloadType: Issues
-          - and:
-              - isOpen
-              - not:
-                  and:
-                    - isAssignedToSomeone
-                    - isLabeled
-        then:
-          - addLabel:
-              label: 'Needs: Triage :mag:'
+    - scheduledSearches:
+        # 2a1. +#Attention when no activity
+        - frequencies:
+            - daily:
+                time: 01:00
+          searchTerms:
+            - isIssue
+            - isOpen
+            - hasLabel:
+                label: 'Needs: Information'
+            - not:
+                - hasLabel:
+                    label: 'Needs: Attention 👋'
+            - noActivitySince:
+                days: 14
+          actions:
+            - addLabel:
+                label: 'Needs: Attention 👋'
+            - addReply: # spell-checker:enable
+                reply: "Hey, there! 👋 Looks like you haven't checked in for a while. (14 days, but who's counting? )<br><br>We need a bit more information in order to address the feedback. Please take a moment to share the requested details or let us know if you need clarification and we'll check back in later."
+                # spell-checker:disable
 
-      # Replace Needs Info label with Needs Triage when the author comments on an issue
-      - if:
-          - payloadType: Issue_Comment
-          - and:
-              - isAction:
-                  action: Created
-              - isActivitySender:
-                  user:
-                    type: Author
-              - hasLabel:
-                  label: 'Needs: Information'
-              - isOpen:
-        then:
-          - addLabel:
-              label: 'Needs: Triage :mag:'
-          - removeLabel:
-              label: 'Needs: Information'
+        # 2a2. #Attention > Close when no activity
+        - frequencies:
+            - daily:
+                time: 01:00
+          searchTerms:
+            - isIssue
+            - isOpen
+            - hasLabel:
+                label: 'Needs: Information'
+            - hasLabel:
+                label: 'Needs: Attention 👋'
+            - noActivitySince:
+                days: 14
+          actions:
+            - closeIssue
+            - addLabel:
+                label: 'Resolution: No activity'
+            - addReply: # spell-checker:enable
+                reply: "Well, here we are again... It's been a month since we last saw you. (Okay, 28 days.) We weren't able to get the details we need to take the next steps, so we're going to close this issue for now. Please create a new issue with the extra details if you'd like us to consider this for a future release. Thanks!"
+                # spell-checker:disable
+
+        # 2b1. #Duplicate > Close when no activity
+        - frequencies:
+            - daily:
+                time: 01:00
+          searchTerms:
+            - isIssue
+            - isOpen
+            - hasLabel:
+                label: 'Resolution: Duplicate'
+            - noActivitySince:
+                days: 7
+          actions:
+            - closeIssue
+            - addReply: # spell-checker:enable
+                reply: "We noticed this issue was flagged as a duplicate over a week ago. Since we haven't heard from anyone, we're going to close it. Please file a new issue if you believe this is a unique issue and not a duplicate."
+                # spell-checker:disable
+
+    - eventResponderTasks:
+        # 1. #Triage when new issues are created
+        # TODO: Consider adding a comment to teach reviewer about what they can do: "@author, thanks for the issue! Please make sure all relevant details are included. @reviewer, please triage this issue. If you need more details, leave a comment with #needs-info..."
+        - if:
+            - payloadType: Issues
+            - and:
+                - isOpen
+                - not:
+                    - and:
+                        - isAssignedToSomeone
+                        - hasLabel:
+                            label: 'Needs: Information'
+                        - hasLabel:
+                            label: 'Status: ✍️ Spec in progress'
+                        - hasLabel:
+                            label: 'Status: 🔭 Spec review'
+                        - hasLabel:
+                            label: 'Status: ▶️ Ready'
+                        - hasLabel:
+                            label: 'Status: 🔄️ In progress'
+                        - hasLabel:
+                            label: 'Status: 🔬 Code review'
+          then:
+            - addLabel:
+                label: 'Needs: Triage 🔍'
+            - assignTo:
+                user: flanakin
+
+        # 2. #Triage > #Info when comment includes "#needs-info" in a comment
+        # TODO: Assign to author
+        - if:
+            - payloadType: Issue_Comment
+            - and:
+                - isOpen
+                - isAction:
+                    action: Created
+                - commentContains:
+                    pattern: '#needs-info'
+                - or:
+                    - isActivitySender:
+                        user: ankur-ms
+                    - isActivitySender:
+                        user: flanakin
+                    - isActivitySender:
+                        user: tsilvers-ms
+          then:
+            - addLabel:
+                label: 'Needs: Information'
+            - removeLabel:
+                label: 'Needs: Triage 🔍'
+            - assignTo:
+                prAuthor: true
+
+        # 2b. -#Attention when activity
+        - if:
+            - payloadType: Issue_Comment
+            - and:
+                - hasLabel:
+                    label: 'Needs: Attention 👋'
+          then:
+            - removeLabel:
+                label: 'Needs: Attention 👋'
+
+        # 2c. Reopen when updated within 7d of closing
+        - if:
+            - payloadType: Issue_Comment
+            - and:
+                - isClosed
+                - not:
+                    - isCloseAndComment
+                - isAction:
+                    action: Created
+                - isActivitySender:
+                    issueAuthor: true
+                - hasLabel:
+                    label: 'Needs: Information'
+                - hasLabel:
+                    label: 'Needs: Attention 👋'
+                - hasLabel:
+                    label: 'Resolution: No activity'
+                - not:
+                    - noActivitySince:
+                        days: 7
+          then:
+            - removeLabel:
+                label: 'Needs: Information'
+            - removeLabel:
+                label: 'Needs: Attention 👋'
+            - removeLabel:
+                label: 'Resolution: No activity'
+            - reopenIssue
+
+        # 2d. Ask to create a new issue when after 7d of closing
+        - if:
+            - payloadType: Issue_Comment
+            - and:
+                - isClosed
+                - not:
+                    - isCloseAndComment
+                - isAction:
+                    action: Created
+                - hasLabel:
+                    label: 'Resolution: No activity'
+                - noActivitySince:
+                    days: 7
+                - activitySenderHasPermissions:
+                    permissions: none
+          then:
+            - addReply: # spell-checker:enable
+                comment: 'Thanks for your interest in this issue! Since this issue has been closed for over a week, please create a new issue with all the relevant details and link to this one to ensure better visibility of your comment.'
+                # spell-checker:disable
+
+        # 3. #Info > #Triage when author comments
+        - if:
+            - payloadType: Issue_Comment
+            - and:
+                - isOpen
+                - isAction:
+                    action: Created
+                - isActivitySender:
+                    issueAuthor: true
+                - hasLabel:
+                    label: 'Needs: Information'
+          then:
+            - removeLabel:
+                label: 'Needs: Information'
+            - addLabel:
+                label: 'Needs: Triage 🔍'
+            - assignTo:
+                user: flanakin
+
+        # 4. -#Triage when "#approved" comment
+        - if:
+            - payloadType: Issue_Comment
+            - and:
+                - isOpen
+                - isAction:
+                    action: Created
+                - commentContains:
+                    pattern: '#approved'
+                - or:
+                    - isActivitySender:
+                        user: ankur-ms
+                    - isActivitySender:
+                        user: flanakin
+                    - isActivitySender:
+                        user: tsilvers-ms
+                - hasLabel:
+                    label: 'Needs: Triage 🔍'
+          then:
+            - removeLabel:
+                label: 'Needs: Triage 🔍'
+            - assignTo:
+                user: ''
+            - if:
+                commentContains:
+                  pattern: '#ADF'
+              then:
+                addLabel:
+                  label: 'Area: Data factory'
+            - if:
+                commentContains:
+                  pattern: '#ARM'
+              then:
+                addLabel:
+                  label: 'Area: ARM'
+            - if:
+                commentContains:
+                  pattern: '#PBI'
+              then:
+                addLabel:
+                  label: 'Area: Power BI'
+
+        # 6. #Spec in progress > #Spec review when "Spec review:" PR created
+        # TODO: How can we auto-trigger this?
+        - if:
+            - payloadType: Issues
+            - and:
+                - isOpen
+                - isAction:
+                    action: Labeled
+                - hasLabel:
+                    label: 'Status: ✍️ Spec in progress'
+                - labelAdded:
+                    label: 'Status: 🔭 Spec review'
+          then:
+            - removeLabel:
+                label: 'Status: ✍️ Spec in progress'
+
+        # 7. #Spec review > #Ready when "Spec review:" PR closes
+        # TODO: How can we auto-trigger this?
+        - if:
+            - payloadType: Issues
+            - and:
+                - isOpen
+                - isAction:
+                    action: Labeled
+                - hasLabel:
+                    label: 'Status: 🔭 Spec review'
+                - labelAdded:
+                    label: 'Status: ▶️ Ready'
+          then:
+            - removeLabel:
+                label: 'Status: 🔭 Spec review'
+
+        # 8. #Ready > #In progress when dev assigned
+        - if:
+            - payloadType: Issues
+            - and:
+                - isOpen
+                - hasLabel:
+                    label: 'Status: ▶️ Ready'
+                - isAction:
+                    action: Assigned
+                - or:
+                    - isAssignedToUser:
+                        user: 'ankur-ms'
+                    - isAssignedToUser:
+                        user: 'tsilvers-ms'
+          then:
+            - removeLabel:
+                label: 'Status: ▶️ Ready'
+            - addLabel:
+                label: 'Status: 🔄️ In progress'
+
+        # 9. #In progress > #Code review when dev creates PR
+        - if:
+            - payloadType: Pull_Request
+            - and:
+                - isOpen
+                - isAction:
+                    action: Opened
+                - hasLabel:
+                    label: 'Status: 🔄️ In progress'
+          then:
+            - inPrLabel:
+                label: 'Status: 🔬 Code review'
+            - labelSync:
+                pattern: '^(Area:|Breaking|Good first issue|Help wanted|Micro PR|Type:) .*'
+        - if:
+            - payloadType: Issues
+            - and:
+                - hasLabel: 'Status: 🔄️ In progress'
+                - labelAdded:
+                    label: 'Status: 🔬 Code review'
+          then:
+            - removeLabel:
+                label: 'Status: 🔄️ In progress'
+
+        # 10. #Code review > #Pending release when PR closes linked issue
+        - if:
+            - payloadType: Issues
+            - and:
+                - isOpen
+                - hasLabel:
+                    label: 'Status: 🔬 Code review'
+                - isAction:
+                    action: Closed
+          then:
+            - removeLabel:
+                label: 'Status: 🔬 Code review'
+            - addLabel:
+                label: 'Status: 📦 Pending release'
+
+        # 11. #Pending release > #Released when issue is included in a release
+        # TODO: How can we auto-add the "Released in v#.#" comment?
+        - if:
+            - payloadType: Issue_Comment
+            - and:
+                - isClosed
+                - hasLabel:
+                    label: 'Status: 📦 Pending release'
+                - or:
+                    - commentContains:
+                        pattern: 'Released in v'
+                    - commentContains:
+                        pattern: 'released in v'
+          then:
+            - removeLabel:
+                label: 'Status: 📦 Pending release'
+            - addLabel:
+                label: 'Status: ✅ Released'
