@@ -123,7 +123,7 @@ On this page:
             label: '<label>'
         - reopenIssue
         - requestReview:
-            reviewer: 'TODO'
+            reviewer: '<user>'
             teamReviewer: 'TODO'
         - unlockIssue
 ```
