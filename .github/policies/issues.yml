@@ -18,9 +18,9 @@ configuration:
           # DEBUG:       days: 14
           - hasLabel:
               label: 'Needs: Information'
-        # DEBUG:   - not:
-        # DEBUG:       hasLabel:
-        # DEBUG:         label: 'Needs: Attention 👋'
+          - not:
+              hasLabel:
+                label: 'Needs: Attention 👋'
         actions:
           - addLabel:
               label: 'Needs: Information'
