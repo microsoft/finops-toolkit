@@ -17,14 +17,6 @@ configuration:
                   and:
                     - isAssignedToSomeone
                     - hasLabel:
-                        label: 'Status: ✍️ Spec in progress'
-                    - hasLabel:
-                        label: 'Status: 🔭 Spec review'
-                    - hasLabel:
-                        label: 'Status: ▶️ Ready'
-                    - hasLabel:
-                        label: 'Status: 🔄️ In progress'
-                    - hasLabel:
                         label: 'Status: 🔬 Code review'
         then:
           - addLabel:
