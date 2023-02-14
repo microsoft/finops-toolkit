@@ -2,7 +2,7 @@ name: PR needs review
 description: Assign Needs Review label to new/updated PRs
 resource: repository
 
-# See ./README.md for a cheat sheet
+# Cheat sheet: https://github.com/microsoft/cloud-hubs/tree/main/.github/README.md#fabricbot-policies-cheat-sheet
 # spell-checker:disable
 configuration:
   fabricBotConfiguration:
