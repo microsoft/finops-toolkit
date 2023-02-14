@@ -7,21 +7,20 @@ resource: repository
 configuration:
   fabricBotConfiguration:
     scheduledSearches:
-      # 2a1. +#Attention when no activity
-      - id: 211
+      - id: 211 # 2a1. +#Attention when no activity
         frequencies:
           - daily:
               time: 01:00
         filters:
           - isIssue
           - isOpen
+          - noActivitySince:
+              days: 14
           - hasLabel:
               label: 'Needs: Information'
           - not:
               hasLabel:
                 label: 'Needs: Attention 👋'
-          - noActivitySince:
-              days: 14
         actions:
           - addLabel:
               label: 'Needs: Attention 👋'
