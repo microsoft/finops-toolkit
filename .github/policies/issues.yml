@@ -8,7 +8,8 @@ configuration:
   fabricBotConfiguration:
     scheduledSearches:
       # 2a1. +#Attention when no activity
-      - frequencies:
+      - id: 211
+        frequencies:
           - daily:
               time: 01:00
         filters:
@@ -29,7 +30,8 @@ configuration:
               # spell-checker:disable
 
       # 2a2. #Attention > Close when no activity
-      - frequencies:
+      - id: 212
+        frequencies:
           - daily:
               time: 01:00
         filters:
@@ -50,7 +52,8 @@ configuration:
               # spell-checker:disable
 
       # 2b1. #Duplicate > Close when no activity
-      - frequencies:
+      - id: 221
+        frequencies:
           - daily:
               time: 01:00
         filters:
