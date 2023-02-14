@@ -15,9 +15,9 @@ configuration:
               - isOpen
               - not:
                   and:
-                    - isAssignedToSomeone
                     - hasLabel:
                         label: 'Status: 🔬 Code review'
+                    - isAssignedToSomeone
         then:
           - addLabel:
               label: 'Needs: Triage 🔍'
