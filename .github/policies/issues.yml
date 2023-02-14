@@ -250,7 +250,7 @@ configuration:
       - if:
           - payloadType: Issues
           - and:
-              - hasLabel:" Status: 🔄️ In progress"
+              - hasLabel: 'Status: 🔄️ In progress'
               - labelAdded:
                   label: 'Status: 🔬 Code review'
         then:
