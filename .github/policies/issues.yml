@@ -73,7 +73,7 @@ configuration:
       - if:
           - payloadType: Issue_Comment
           - and:
-              - isClosed
+              - not: isOpen
               # TODO: - not: isCloseAndComment
               - isAction:
                   action: Created
@@ -101,8 +101,8 @@ configuration:
       - if:
           - payloadType: Issue_Comment
           - and:
-              - isClosed
-              - not: isCloseAndComment
+              - not: isOpen
+              # TODO: - not: isCloseAndComment
               - isAction:
                   action: Created
               - hasLabel:
@@ -273,7 +273,8 @@ configuration:
       - if:
           - payloadType: Issue_Comment
           - and:
-              - isClosed
+              - not: isOpen
+              # TODO: - not: isCloseAndComment
               - hasLabel:
                   label: 'Status: 📦 Pending release'
               - or:
