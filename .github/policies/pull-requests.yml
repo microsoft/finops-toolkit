@@ -9,21 +9,6 @@ configuration:
     eventResponderTasks:
       # PR lifecycle: (New) > #Review > #Attenton > #Review > Close
 
-      - if:
-          - payloadType: Issues
-          - and:
-              - isOpen
-              - not:
-                  and:
-                    - hasLabel:
-                        label: 'Status: 🔬 Code review'
-                    - isAssignedToSomeone
-        then:
-          - addLabel:
-              label: 'Needs: Triage 🔍'
-          - assignTo:
-              user: flanakin
-
       # 1. (New) > #Review when opened
       - if:
           - payloadType: Pull_Request

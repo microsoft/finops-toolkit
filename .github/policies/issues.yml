@@ -74,7 +74,7 @@ configuration:
           - payloadType: Issue_Comment
           - and:
               - isClosed
-              - not: isCloseAndComment
+              # TODO: - not: isCloseAndComment
               - isAction:
                   action: Created
               - isActivitySender:
