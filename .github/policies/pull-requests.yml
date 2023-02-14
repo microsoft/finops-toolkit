@@ -10,12 +10,29 @@ configuration:
       # PR lifecycle: (New) > #Review > #Attenton > #Review > Close
 
       - if:
-          - payloadType: Issue_Comment
-          - hasLabel:
-              label: 'Needs: Information'
+          - payloadType: Issues
+          - and:
+              - isOpen
+              - not:
+                  and:
+                    - isAssignedToSomeone
+                    - hasLabel:
+                        label: 'Needs: Information'
+                    - hasLabel:
+                        label: 'Status: ✍️ Spec in progress'
+                    - hasLabel:
+                        label: 'Status: 🔭 Spec review'
+                    - hasLabel:
+                        label: 'Status: ▶️ Ready'
+                    - hasLabel:
+                        label: 'Status: 🔄️ In progress'
+                    - hasLabel:
+                        label: 'Status: 🔬 Code review'
         then:
           - addLabel:
-              label: 'Needs: Information'
+              label: 'Needs: Triage 🔍'
+          - assignTo:
+              user: flanakin
 
       # 1. (New) > #Review when opened
       - if:
