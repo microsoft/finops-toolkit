@@ -70,51 +70,52 @@ configuration:
               label: 'Needs: Attention 👋'
 
       # 2c. Reopen when updated within 7d of closing
-      - if:
-          - payloadType: Issue_Comment
-          - and:
-              - not: isOpen
-              # TODO: - not: isCloseAndComment
-              - isAction:
-                  action: Created
-              - isActivitySender:
-                  issueAuthor: true
-              - hasLabel:
-                  label: 'Needs: Information'
-              - hasLabel:
-                  label: 'Needs: Attention 👋'
-              - hasLabel:
-                  label: 'Resolution: No activity'
-              - not:
-                  noActivitySince:
-                    days: 7
-        then:
-          - removeLabel:
-              label: 'Needs: Information'
-          - removeLabel:
-              label: 'Needs: Attention 👋'
-          - removeLabel:
-              label: 'Resolution: No activity'
-          - reopenIssue
+      # TODO: Need noActivitySince filter
+      #   - if:
+      #       - payloadType: Issue_Comment
+      #       - and:
+      #           - not: isOpen
+      #           - not: isCloseAndComment
+      #           - isAction:
+      #               action: Created
+      #           - isActivitySender:
+      #               issueAuthor: true
+      #           - hasLabel:
+      #               label: 'Needs: Information'
+      #           - hasLabel:
+      #               label: 'Needs: Attention 👋'
+      #           - hasLabel:
+      #               label: 'Resolution: No activity'
+      #           - not:
+      #               noActivitySince:
+      #                 days: 7
+      #     then:
+      #       - removeLabel:
+      #           label: 'Needs: Information'
+      #       - removeLabel:
+      #           label: 'Needs: Attention 👋'
+      #       - removeLabel:
+      #           label: 'Resolution: No activity'
+      #       - reopenIssue
 
       # 2d. Ask to create a new issue when after 7d of closing
-      - if:
-          - payloadType: Issue_Comment
-          - and:
-              - not: isOpen
-              # TODO: - not: isCloseAndComment
-              - isAction:
-                  action: Created
-              - hasLabel:
-                  label: 'Resolution: No activity'
-              - noActivitySince:
-                  days: 7
-              - activitySenderHasPermissions:
-                  permissions: none
-        then:
-          - addReply: # spell-checker:enable
-              comment: 'Thanks for your interest in this issue! Since this issue has been closed for over a week, please create a new issue with all the relevant details and link to this one to ensure better visibility of your comment.'
-              # spell-checker:disable
+      #   - if:
+      #       - payloadType: Issue_Comment
+      #       - and:
+      #           - not: isOpen
+      #           # TODO: - not: isCloseAndComment
+      #           - isAction:
+      #               action: Created
+      #           - hasLabel:
+      #               label: 'Resolution: No activity'
+      #           - noActivitySince:
+      #               days: 7
+      #           - activitySenderHasPermissions:
+      #               permissions: none
+      #     then:
+      #       - addReply: # spell-checker:enable
+      #           comment: 'Thanks for your interest in this issue! Since this issue has been closed for over a week, please create a new issue with all the relevant details and link to this one to ensure better visibility of your comment.'
+      #           # spell-checker:disable
 
       # 3. #Info > #Triage when author comments
       - if:
