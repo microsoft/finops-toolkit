@@ -13,8 +13,9 @@ configuration:
           - payloadType: Issue_Comment
           - hasLabel:
               label: 'Needs: Information'
-      - removeLabel:
-          label: 'Needs: Triage 🔍'
+        then:
+          - addLabel:
+              label: 'Needs: Information'
 
       # 1. (New) > #Review when opened
       - if:
