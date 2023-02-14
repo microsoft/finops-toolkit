@@ -9,6 +9,13 @@ configuration:
     eventResponderTasks:
       # PR lifecycle: (New) > #Review > #Attenton > #Review > Close
 
+      - if:
+          - payloadType: Issue_Comment
+          - hasLabel:
+              label: 'Needs: Information'
+      - removeLabel:
+          label: 'Needs: Triage 🔍'
+
       # 1. (New) > #Review when opened
       - if:
           - payloadType: Pull_Request

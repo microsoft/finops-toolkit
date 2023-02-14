@@ -16,7 +16,8 @@ configuration:
               - not:
                   and:
                     - isAssignedToSomeone
-                    - hasLabel: { label: 'Needs: Information' }
+                    - hasLabel:
+                        label: 'Needs: Information'
                     - hasLabel:
                         label: 'Status: ✍️ Spec in progress'
                     - hasLabel:
