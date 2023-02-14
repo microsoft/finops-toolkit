@@ -17,8 +17,6 @@ configuration:
                   and:
                     - isAssignedToSomeone
                     - hasLabel:
-                        label: 'Needs: Information'
-                    - hasLabel:
                         label: 'Status: ✍️ Spec in progress'
                     - hasLabel:
                         label: 'Status: 🔭 Spec review'
