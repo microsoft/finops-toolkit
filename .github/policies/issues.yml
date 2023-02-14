@@ -17,8 +17,8 @@ configuration:
           - hasLabel:
               label: 'Needs: Information'
           - not:
-              - hasLabel:
-                  label: 'Needs: Attention 👋'
+              hasLabel:
+                label: 'Needs: Attention 👋'
           - noActivitySince:
               days: 14
         actions:
