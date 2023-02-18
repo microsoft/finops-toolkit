@@ -336,11 +336,11 @@ configuration:
 
       # 11. #Pending release > #Released when issue is included in a release
       # TODO: How can we auto-add the "Released in v#.#" comment?
+      # TODO: - not: isCloseAndComment
       - if:
           - payloadType: Issue_Comment
           - and:
               - not: isOpen
-              # TODO: - not: isCloseAndComment
               - hasLabel:
                   label: 'Status: 📦 Pending release'
               - or:
