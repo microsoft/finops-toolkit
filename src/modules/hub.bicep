@@ -31,7 +31,9 @@ var resourceTags = union(tags, {
 
 @description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
-var telemetryId = '00f120b5-40b5-0000-0000-000000000000'
+// The last segment of the telemetryId is used to identify this module
+var telemetryId = '00f120b5-2007-6120-0000-40b000000000'
+var finOpsToolkitVersion = '0.0.1'
 
 /**
  * Resources
@@ -46,6 +48,12 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (ena
     template: {
       '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
       contentVersion: '1.0.0.0'
+      metadata: {
+        _generator: {
+          name: 'FinOps toolkit'
+          version: finOpsToolkitVersion
+        }
+      }
       resources: []
     }
   }
