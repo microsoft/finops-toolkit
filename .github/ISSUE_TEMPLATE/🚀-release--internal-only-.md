@@ -1,7 +1,7 @@
 ---
 name: "\U0001F680 Release (internal only)"
 about: Track progress towards a release
-title: 'v0.0.0 – '
+title: 'v0.x – '
 labels: "Type: Release \U0001F680"
 assignees: flanakin
 
