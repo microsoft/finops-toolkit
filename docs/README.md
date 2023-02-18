@@ -81,7 +81,7 @@ FinOps toolkit is intended to be customized. Here are a few pointers to get you 
 
 We track the short-term roadmap for FinOps toolkit as [releases](https://github.com/microsoft/cloud-hubs/labels/Type%3A%20Release%20%F0%9F%9A%80). Each release includes overarching goals, tasks broken down into sub-releases, links to discussions for each sub-release, and tentative stretch tasks.
 
-Please use discussions if you have questions, comments, concerns, or requests for any specific release. This will ensure everything gets triaged and not lost.
+Please use discussions if you have questions, comments, or requests for any specific release. This will ensure everything gets triaged and not lost.
 
 <br>
 
