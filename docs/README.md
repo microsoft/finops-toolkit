@@ -44,7 +44,7 @@ Once deployed, you can create new exports in Cost Management and use out of the 
 
 ## Creating a new FinOps hub
 
-1. [Deploy the finops-hub template](./deploy).
+1. [Deploy the **finops-hub** template](./deploy).
 2. [Create a new cost export](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data?tabs=azure-portal) using the following settings:
    - **Metric** = `Amortized cost`
    - **Export type** = `Daily export of month-to-date costs`
@@ -61,6 +61,10 @@ Once deployed, you can create new exports in Cost Management and use out of the 
    - [Cost summary](./reports/cost-summary.md) for standard cost roll-ups.
    - [Commitment discounts](./reports/commitment-discounts.md) for commitment-based savings utilization and coverage.
 5. [Connect Power BI to your hub](./reports/README.md#setup-a-finops-toolkit-report)
+
+> ![Version 0.0.2](https://img.shields.io/badge/version-0.0.2-lightgrey) &nbsp; ![Status: Proposed](https://img.shields.io/badge/status-proposed-lightgrey) &nbsp;<sup>→</sup>&nbsp; [![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/60)](https://github.com/microsoft/cloud-hubs/issues/60)
+>
+> 🆕 _Remove steps 2 and 3 when we have self-managed exports._
 
 <br>
 
