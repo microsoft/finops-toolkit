@@ -5,6 +5,22 @@
 - Feature branches (`features/<feature-name>`) are used for any in-progress features that are not yet ready for release.
 - Personal branches (`<your-github-account>/<feature-name>`) are intended for a single developer and typically not shared. Use these for small changes that can easily be integrated into the next release.
 
+```mermaid
+gitGraph
+  commit tag: "v1.0"
+  branch dev
+  commit
+  branch features/new-feature
+  checkout features/new-feature
+  commit
+  commit
+  checkout dev
+  merge features/new-feature
+  commit
+  checkout main
+  merge dev tag: "v2.0"
+```
+
 On this page:
 
 - [Tips for external contributors](#tips-for-external-contributors)
