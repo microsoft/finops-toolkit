@@ -60,7 +60,8 @@ On this page:
 >   "type": "HubInstance",
 >   "version": "0.0.1",
 >   "learnMore": "https://aka.ms/finops/toolkit",
->   "exportScopes": <param:exportScopes>
+>   "exportScopes": <param:exportScopes>,
+>   "dataRetentionInMonths": 3
 > }
 > ```
 >
@@ -75,7 +76,7 @@ On this page:
 >
 > 🆕 _Add the following ADF pipelines:_
 >
-> - **ms-cm-exports_Setup** – Monitors the **config/settings.json** file for changes and creates, updates, or deletes exports I based on changes. Also handles data backfill when needed for new scopes. Exports are created using the following settings:
+> - **ms-cm-exports_Setup** – Monitors the **config/settings.json** file for changes and creates, updates, or deletes exports based on changes. Also handles data backfill when needed for new scopes based on the data retention setting. Exports are created using the following settings:
 >   - **name** = `"FinOpsHubs_" + param:hubName + "_" + param:subscription`
 >   - **amortize** = `true`
 >   - **storageAccountId** = (use the `storageAccountId` output from hub.bicep)
