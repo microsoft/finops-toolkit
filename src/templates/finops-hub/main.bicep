@@ -20,6 +20,9 @@ param storageSku string = 'Premium_LRS'
 @description('Optional. Tags for all resources.')
 param tags object = {}
 
+@description('Optional. List of scope IDs to create exports for.')
+param exportScopes array
+
 /**
  * Resources
  */
@@ -31,6 +34,7 @@ module hub '../../modules/hub.bicep' = {
     location: location
     storageSku: storageSku
     tags: tags
+    exportScopes: exportScopes
   }
 }
 

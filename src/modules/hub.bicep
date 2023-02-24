@@ -31,9 +31,14 @@ var resourceTags = union(tags, {
 
 @description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
+
+@description('Optional. List of scope IDs to create exports for.')
+param exportScopes array
+
 // The last segment of the telemetryId is used to identify this module
 var telemetryId = '00f120b5-2007-6120-0000-40b000000000'
 var finOpsToolkitVersion = '0.0.1'
+var containerNames = ['config', 'ms-cm-exports', 'ingestion']
 
 /**
  * Resources
@@ -78,6 +83,19 @@ module dataFactory 'Microsoft.DataFactory/factories/deploy.bicep' = {
     tags: resourceTags
   }
 }
+
+resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2021-06-01' = {
+  name: '${storageAccount.name}/default'
+}
+
+resource containers 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' = [for containerName in containerNames: {
+  parent: blobService
+  name: toLower(containerName)
+  properties: {
+    publicAccess: 'None'
+    metadata: {}
+  }
+}]
 
 /**
  * Outputs
