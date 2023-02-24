@@ -1,0 +1,7 @@
+{
+    "$schema": "https://aka.ms/finops/toolkit/settings-schema",
+    "type": "HubInstance",
+    "version": "0.0.1",
+    "learnMore": "https://aka.ms/finops/toolkit",
+    "exportScopes": "$exportScopes"
+}

@@ -21,7 +21,7 @@ param storageSku string = 'Premium_LRS'
 param tags object = {}
 
 @description('Optional. List of scope IDs to create exports for.')
-param exportScopes array
+param exportScopes array = []
 
 /**
  * Resources

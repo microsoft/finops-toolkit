@@ -39,6 +39,9 @@ param exportScopes array
 var telemetryId = '00f120b5-2007-6120-0000-40b000000000'
 var finOpsToolkitVersion = '0.0.1'
 var containerNames = ['config', 'ms-cm-exports', 'ingestion']
+var fileName = 'settings.json'
+var fileContent = loadTextContent(fileName)
+var updatedFileContent = replace(fileContent, '$exportScopes', join(exportScopes, ','))
 
 /**
  * Resources
@@ -84,8 +87,13 @@ module dataFactory 'Microsoft.DataFactory/factories/deploy.bicep' = {
   }
 }
 
+resource storageAccountLookup 'Microsoft.Storage/storageAccounts@2021-06-01' existing = {
+  name: storageAccount.name
+}
+
 resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2021-06-01' = {
-  name: '${storageAccount.name}/default'
+  parent: storageAccountLookup
+  name: 'default'
 }
 
 resource containers 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' = [for containerName in containerNames: {
@@ -96,6 +104,42 @@ resource containers 'Microsoft.Storage/storageAccounts/blobServices/containers@2
     metadata: {}
   }
 }]
+
+resource uploadSettingsJson 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: 'updateSettingsJson'
+  kind: 'AzurePowerShell'
+  location: location
+  dependsOn: [
+    containers
+  ]
+  properties: {
+    azPowerShellVersion: '8.0'
+    retentionInterval: 'PT1H'
+    environmentVariables: [
+      {
+        name: 'updatedFileContent'
+        value: updatedFileContent
+      }
+      {
+        name: 'storageAccountKey'
+        value: storageAccountLookup.listKeys().keys[0].value
+      }
+      {
+        name: 'storageAccountName'
+        value: storageAccount.name
+      }
+      {
+        name: 'fileName'
+        value: fileName
+      }
+      {
+        name: 'containerName'
+        value: 'config'
+      }
+    ]
+    scriptContent: loadTextContent('./scripts/Copy-FileToAzureBlob.ps1')
+  }
+}
 
 /**
  * Outputs
