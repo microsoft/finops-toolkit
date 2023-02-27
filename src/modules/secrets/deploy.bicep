@@ -47,7 +47,7 @@ resource storageAccountRef 'Microsoft.Storage/storageAccounts@2022-05-01' existi
   scope: resourceGroup(resourceGroup().name)
 }
 
-module storageAccountSecret '../../Microsoft.KeyVault/vaults/secrets/deploy.bicep' = {
+module storageAccountSecret '../Microsoft.KeyVault/vaults/secrets/deploy.bicep' = {
   name: secretName
   dependsOn: [
     storageAccountRef
