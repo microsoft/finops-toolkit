@@ -26,7 +26,7 @@ On this page:
 >
 > 🆕 _Add the following parameters:_
 >
-> - **dataRetentionInMonths** (int) – Optional. Number of months of cost data to retain. Default: 3 months.
+> - **dataRetentionInMonths** (int) – Optional. Number of months of cost data to retain. Default: 13 months.
 
 <br>
 
