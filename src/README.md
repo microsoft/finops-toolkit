@@ -16,6 +16,7 @@ On this page:
 - [Get started](#get-started)
 - [Prerequisites](#prerequisites)
 - [Fork and clone](#fork-and-clone)
+- [Select a branch](#select-a-branch)
 - [Deploy](#deploy)
 - [Test and verify](#test-and-verify)
 - [Pull requests](#pull-requests)
@@ -83,6 +84,34 @@ cd cloud-hubs
 
 <br>
 
+## Select a branch
+
+> ℹ️ _Creating branches is only applicable for Microsoft contributors. We recommend external contributors use the same guidance within their fork but this is optional._
+
+If creating a new feature, create a new feature branch:
+
+```cmd
+git checkout -b features/<feature-name>
+git branch --set-upstream-to=origin/dev
+```
+
+If working on an existing feature, switch to the feature branch:
+
+```cmd
+git checkout features/<feature-name>
+```
+
+If you have a single-commit change, you can create a dev branch and submit a PR from there:
+
+```cmd
+git checkout -b <your-github-account>/<feature-name>
+git branch --set-upstream-to=origin/dev
+```
+
+For more details, refer to the [branching strategy](./process.md).
+
+<br>
+
 ## Deploy
 
 ```powershell
@@ -120,24 +149,25 @@ Every PR is expected to include some sort of verification:
 Please do the following before submitting a pull request:
 
 1. Sign a [Contributor License Agreement (CLA)](./CLA.md) (one-time requirement).
-2. Ensure you have the latest changes from the upstream (official) repository:
+2. Review the [branching strategy](branching.md) and ensure you submit PRs against the correct branch.
+3. Ensure you have the latest changes from the upstream (official) repository:
 
    ```console
-   git checkout main
-   git pull https://github.com/microsoft/cloud-hubs.git main
+   git checkout <branch-name>
+   git pull https://github.com/microsoft/cloud-hubs.git <branch-name>
    ```
 
    Resolve any merge conflicts, commit them, and then push them to your fork.
 
-3. Only address 1 issue per pull request and [link the issue in the pull request](https://github.com/blog/957-introducing-issue-mentions).
-4. Be sure to follow our [coding guidelines](./code.md) and keep code changes as small as possible.
-5. Validate changes by running locally and running [[unit tests]].
-6. Enable the checkbox to [allow maintainer edits](https://docs.github.com/github/collaborating-with-issues-and-pull-requests/allowing-changes-to-a-pull-request-branch-created-from-a-fork) so the branch can be updated for a merge.
-7. Do all of the above before publishing your PR. You are welcome to create a draft PR to share and discuss ideas, but only publish when all code is committed, tested, and ready for review.
-8. If you are working with others (especially internal teams), have 2 of your peers review your PRs. This will ensure a quicker turnaround as it is more likely that issues will be addressed before we review the PR.
-9. INTERNAL ONLY: When your PR is ready to be reviewed, add the **Needs: Review** label. We only review PRs with this label. We strive to review these PRs at least once per business day (Pacific time, excluding US holidays). We will remove the label after reviewed.
-10. As you update your PR and apply changes, mark each conversation as [resolved](https://docs.github.com/github/collaborating-with-issues-and-pull-requests/commenting-on-a-pull-request#resolving-conversations). After all comments are addressed, add the **Needs: Review** label again to signify that it is ready to review.
-11. If you run into any merge issues, checkout this [Git tutorial](https://github.com/skills/resolve-merge-conflicts) to help you resolve merge conflicts and other issues.
+4. Only address 1 issue per pull request and [link the issue in the pull request](https://github.com/blog/957-introducing-issue-mentions).
+5. Be sure to follow our [coding guidelines](./code.md) and keep code changes as small as possible.
+6. Validate changes by running locally and running [[unit tests]].
+7. Enable the checkbox to [allow maintainer edits](https://docs.github.com/github/collaborating-with-issues-and-pull-requests/allowing-changes-to-a-pull-request-branch-created-from-a-fork) so the branch can be updated for a merge.
+8. Do all of the above before publishing your PR. You are welcome to create a draft PR to share and discuss ideas, but only publish when all code is committed, tested, and ready for review.
+9. If you are working with others (especially internal teams), have 2 of your peers review your PRs. This will ensure a quicker turnaround as it is more likely that issues will be addressed before we review the PR.
+10. INTERNAL ONLY: When your PR is ready to be reviewed, add the `Needs: Review` label. We only review PRs with this label. We strive to review these PRs at least once per business day (Pacific time, excluding US holidays). We will remove the label after reviewed.
+11. As you update your PR and apply changes, mark each conversation as [resolved](https://docs.github.com/github/collaborating-with-issues-and-pull-requests/commenting-on-a-pull-request#resolving-conversations). After all comments are addressed, add the **Needs: Review** label again to signify that it is ready to review.
+12. If you run into any merge issues, checkout this [Git tutorial](https://github.com/skills/resolve-merge-conflicts) to help you resolve merge conflicts and other issues.
 
 As a reminder, smaller PRs are closed quicker. If your PR has less than 20 lines of code changed, apply the **Micro PR** label (internal only). We will prioritize these to ensure they are closed quickly.
 
