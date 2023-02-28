@@ -35,13 +35,11 @@ param enableDefaultTelemetry bool = true
 @description('Optional. List of scope IDs to create exports for.')
 param exportScopes array
 
+var containerNames = ['config', 'ms-cm-exports', 'ingestion']
+
 // The last segment of the telemetryId is used to identify this module
 var telemetryId = '00f120b5-2007-6120-0000-40b000000000'
 var finOpsToolkitVersion = '0.0.1'
-var containerNames = ['config', 'ms-cm-exports', 'ingestion']
-var fileName = 'settings.json'
-var fileContent = loadTextContent(fileName)
-var updatedFileContent = replace(fileContent, '$exportScopes', join(exportScopes, ','))
 
 /**
  * Resources
@@ -69,7 +67,7 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (ena
 
 // ADLSv2 storage account for staging and archive
 module storageAccount 'Microsoft.Storage/storageAccounts/deploy.bicep' = {
-  name: 'storage'
+  name: storageAccountName
   params: {
     name: storageAccountName
     location: location
@@ -117,8 +115,8 @@ resource uploadSettingsJson 'Microsoft.Resources/deploymentScripts@2020-10-01' =
     retentionInterval: 'PT1H'
     environmentVariables: [
       {
-        name: 'updatedFileContent'
-        value: updatedFileContent
+        name: 'exportScopes'
+        value: join(exportScopes, '|')
       }
       {
         name: 'storageAccountKey'
@@ -127,10 +125,6 @@ resource uploadSettingsJson 'Microsoft.Resources/deploymentScripts@2020-10-01' =
       {
         name: 'storageAccountName'
         value: storageAccount.name
-      }
-      {
-        name: 'fileName'
-        value: fileName
       }
       {
         name: 'containerName'

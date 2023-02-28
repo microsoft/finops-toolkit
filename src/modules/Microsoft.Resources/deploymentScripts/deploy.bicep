@@ -7,18 +7,14 @@ param userAssignedIdentities object = {}
 @description('Optional. Location for all resources.')
 param location string = resourceGroup().location
 
-@description('Optional. Type of the script. AzurePowerShell, AzureCLI.')
+@description('Optional. Type of the script. AzurePowerShell.')
 @allowed([
   'AzurePowerShell'
-  'AzureCLI'
 ])
 param kind string = 'AzurePowerShell'
 
 @description('Optional. Azure PowerShell module version to be used.')
-param azPowerShellVersion string = '3.0'
-
-@description('Optional. Azure CLI module version to be used.')
-param azCliVersion string = ''
+param azPowerShellVersion string = '8.0'
 
 @description('Optional. Script body. Max length: 32000 characters. To run an external script, use primaryScriptURI instead.')
 param scriptContent string = ''
@@ -58,14 +54,6 @@ param timeout string = 'PT1H'
 @description('Generated. Do not provide a value! This date value is used to make sure the script run every time the template is deployed.')
 param baseTime string = utcNow('yyyy-MM-dd-HH-mm-ss')
 
-@allowed([
-  ''
-  'CanNotDelete'
-  'ReadOnly'
-])
-@description('Optional. Specify the type of lock.')
-param lock string = ''
-
 @description('Optional. Tags of the resource.')
 param tags object = {}
 
@@ -100,10 +88,9 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   location: location
   tags: tags
   identity: identity
-  kind: any(kind)
+  kind: kind
   properties: {
-    azPowerShellVersion: kind == 'AzurePowerShell' ? azPowerShellVersion : null
-    azCliVersion: kind == 'AzureCLI' ? azCliVersion : null
+    azPowerShellVersion: azPowerShellVersion
     containerSettings: empty(containerGroupName) ? null : containerSettings
     arguments: arguments
     environmentVariables: empty(environmentVariables) ? null : environmentVariables
@@ -115,15 +102,6 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     retentionInterval: retentionInterval
     timeout: timeout
   }
-}
-
-resource deploymentScript_lock 'Microsoft.Authorization/locks@2020-05-01' = if (!empty(lock)) {
-  name: '${deploymentScript.name}-${lock}-lock'
-  properties: {
-    level: any(lock)
-    notes: lock == 'CanNotDelete' ? 'Cannot delete resource or child resources.' : 'Cannot modify the resource or child resources.'
-  }
-  scope: deploymentScript
 }
 
 @description('The resource ID of the deployment script.')
