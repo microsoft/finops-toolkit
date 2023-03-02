@@ -79,6 +79,12 @@ FinOps toolkit is intended to be customized. Here are a few pointers to get you 
 | Storage account | Data is ingested into the `ms-cm-exports` container. Do not store anything other than Cost Management exports in this container. In v0.0.2 and earlier, you can modify files, but this will need to happen after the built-in pipelines are run. Don't remove or rename columns, as that will break Power BI reports. |
 | Templates       | We recommend not changing the template directly. Instead, create a new bicep module and reference `finops-hub/main.bicep` or `hub.bicep` directly. If you need to change `hub.bicep`, be sure to track those changes and re-apply them when upgrading to the latest release. [Learn more](./templates).               |
 
+> ![Version 0.0.2](https://img.shields.io/badge/version-0.0.2-lightgrey) &nbsp; ![Status: Proposed](https://img.shields.io/badge/status-proposed-lightgrey) &nbsp;<sup>→</sup>&nbsp; [![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/60)](https://github.com/microsoft/cloud-hubs/issues/60)
+>
+> 🆕 _Change the notes for storage to: Data is ingested into the `ms-cm-exports` container and transformed when moved into the `ingestion` container. Do not store use the `ms-cm-exports` container for anything other than Cost Management exports. If manipulating data, please do that in the `ingestion` container after the transform pipeline completes. Don't remove or rename columns, as that can break Power BI reports._
+
+If you access data in storage or are creating or customizing Power BI reports, please refer to the [data dictionary](data.md) for details about the available columns.
+
 <br>
 
 ## Roadmap
