@@ -1,9 +1,10 @@
 {
-    "recommendations": [
-        "bierner.markdown-preview-github-styles",
-        "esbenp.prettier-vscode",
-        "davidanson.vscode-markdownlint",
-        "ms-azuretools.vscode-bicep",
-        "yzhang.markdown-all-in-one"
-    ]
+  "recommendations": [
+    "bierner.markdown-preview-github-styles",
+    "esbenp.prettier-vscode",
+    "davidanson.vscode-markdownlint",
+    "ms-azuretools.vscode-bicep",
+    "yzhang.markdown-all-in-one",
+    "bierner.markdown-mermaid"
+  ]
 }
