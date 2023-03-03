@@ -80,11 +80,17 @@ After deploying a hub instance, there are several ways for you to get started:
 
    If you'd like to create your own reports or add cost data to an existing report, you can either [copy queries from a toolkit report](./reports/README.md#setup-a-finops-toolkit-report) or [connect manually](./reports/README.md#connect-manually) using the Azure Data Lake Storage Gen2 connector.
 
+   <!-- NOTE TO CONTRIBUTORS: Keep this info note in sync with the same one under #3 below. -->
+
+   > ℹ️ _Note we are planning to change the schema multiple times in upcoming releases. We will ensure Power BI reports have backwards compatibility, but if you access data directly, you may run into breaking changes with new releases. Familiarize yourself with [upcoming releases](https://aka.ms/finops/toolkit/roadmap) and review the [changelog](changelog.md) for breaking changes before you update._
+
 3. Access the cost data from custom tools.
 
    Cost data is stored in an Azure Data Lake Storage Gen2 account. You can use any tool that supports [Azure Data Lake Storage Gen2](https://aka.ms/finops/toolkit/adls) to access the data.
 
-   > ℹ️ _Note we are planning to change the schema multiple times in upcoming releases. We will ensure Power BI reports have backwards compatibility, but if you access data directly, you may run into breaking changes with new releases. Familiarize yourself with [upcoming FinOps toolkit releases](https://aka.ms/finops/toolkit/roadmap) and review the [changelog](changelog.md) for breaking changes before you update._
+   <!-- NOTE TO CONTRIBUTORS: Keep this info note in sync with the same one under #2 above. -->
+
+   > ℹ️ _Note we are planning to change the schema multiple times in upcoming releases. We will ensure Power BI reports have backwards compatibility, but if you access data directly, you may run into breaking changes with new releases. Familiarize yourself with [upcoming releases](https://aka.ms/finops/toolkit/roadmap) and review the [changelog](changelog.md) for breaking changes before you update._
 
 4. Apply cost allocation logic, augment, or manipulate your cost data using Data Factory.
 
