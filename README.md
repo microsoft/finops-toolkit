@@ -12,6 +12,12 @@ FinOps hubs are **virtual command centers** for leaders throughout the organizat
 
 <br>
 
+## Get started
+
+Looking to learn more about FinOps toolkit and how to get started? See [FinOps toolkit documentation](./docs).
+
+<br>
+
 ## Contributing
 
 There are many ways to participate. From reporting bugs and requesting features to reviewing or even making code changes. Please see the [contribution guide](./CONTRIBUTING.md) to get started.
