@@ -82,7 +82,7 @@ After deploying a hub instance, there are several ways for you to get started:
 
 3. Access the cost data from custom tools.
 
-   Cost data is stored in an Azure Data Lake Storage Gen2 account. You can use any tool that supports Azure Data Lake Storage Gen2 to access the data. [Learn more](https://aka.ms/finops/toolkit/adls).
+   Cost data is stored in an Azure Data Lake Storage Gen2 account. You can use any tool that supports [Azure Data Lake Storage Gen2](https://aka.ms/finops/toolkit/adls) to access the data.
 
    > ℹ️ _Note we are planning to change the schema multiple times in upcoming releases. We will ensure Power BI reports have backwards compatibility, but if you access data directly, you may run into breaking changes with new releases. Familiarize yourself with [upcoming FinOps toolkit releases](https://aka.ms/finops/toolkit/roadmap) and review the [changelog](changelog.md) for breaking changes before you update._
 
