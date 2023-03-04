@@ -83,7 +83,7 @@ FinOps toolkit is intended to be customized. Here are a few pointers to get you 
 >
 > 🆕 _Change the notes for storage to: Data is ingested into the `ms-cm-exports` container and transformed when moved into the `ingestion` container. Do not store use the `ms-cm-exports` container for anything other than Cost Management exports. If manipulating data, please do that in the `ingestion` container after the transform pipeline completes. Don't remove or rename columns, as that can break Power BI reports._
 
-If you access data in storage or are creating or customizing Power BI reports, please refer to the [data dictionary](data.md) for details about the available columns.
+If you access data in storage or are creating or customizing Power BI reports, please refer to the [data dictionary](data-dictionary.md) for details about the available columns.
 
 <br>
 
