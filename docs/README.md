@@ -86,7 +86,7 @@ After deploying a hub instance, there are several ways for you to get started:
 
 3. Access the cost data from custom tools.
 
-   Cost data is stored in an [Azure Data Lake Storage Gen2](https://aka.ms/finops/toolkit/adls) account. You can use any tool that supports Azure Data Lake Storage Gen2 to access the data.
+   Cost data is stored in an [Azure Data Lake Storage Gen2](https://learn.microsoft.com/azure/storage/blobs/data-lake-storage-introduction) account. You can use any tool that supports Azure Data Lake Storage Gen2 to access the data.
 
    <!-- NOTE TO CONTRIBUTORS: Keep this info note in sync with the same one under #2 above. -->
 
@@ -94,7 +94,7 @@ After deploying a hub instance, there are several ways for you to get started:
 
 4. Apply cost allocation logic, augment, or manipulate your cost data using Data Factory.
 
-   [Data Factory](https://aka.ms/finops/toolkit/datafactory) is used to ingest and transform data. We recommend using Data Factory as a cost-efficient solution to apply custom logic to your cost data. Use a consistent prefix for custom pipelines to ensure they don't overlap with new pipelines.
+   [Data Factory](https://learn.microsoft.com/azure/data-factory/introduction) is used to ingest and transform data. We recommend using Data Factory as a cost-efficient solution to apply custom logic to your cost data. Use a consistent prefix for custom pipelines to ensure they don't overlap with new pipelines.
 
    > ⚠️ _Keep in mind this is the primary area we are planning to evolve in [upcoming FinOps toolkit releases](https://aka.ms/finops/toolkit/roadmap). Please familiarize yourself with our roadmap to avoid conflicts with future updates. Consider [contributing to the project](../CONTRIBUTING.md) to add support for new scenarios to avoid conflicts._
    >
@@ -106,7 +106,7 @@ After deploying a hub instance, there are several ways for you to get started:
 
 5. Generate custom alerts using Power Automate.
 
-   You have many options for generating custom alerts. [Power Automate](https://aka.ms/finops/toolkit/powerautomate) is a great option for people who are new to automation but you can also use [Data Factory](https://aka.ms/finops/toolkit/datafactory), [Functions](https://aka.ms/finops/toolkit/functions), or any other service that supports custom code or direct access to data in Azure Data Lake Storage Gen2.
+   You have many options for generating custom alerts. [Power Automate](https://powerautomate.microsoft.com/connectors/details/shared_azureblob/azure-blob-storage) is a great option for people who are new to automation but you can also use [Data Factory](https://learn.microsoft.com/azure/data-factory/introduction), [Functions](https://learn.microsoft.com/azure/azure-functions/functions-overview), or any other service that supports custom code or direct access to data in Azure Data Lake Storage Gen2.
 
 No matter what you choose to do, we recommend creating a new bicep module to support updating your solution. You can reference `finops-hub/main.bicep` or `hub.bicep` directly to ensure you can apply new updates as they're released.
 
