@@ -82,7 +82,7 @@ After deploying a hub instance, there are several ways for you to get started:
 
    <!-- NOTE TO CONTRIBUTORS: Keep this info note in sync with the same one under #3 below. -->
 
-   > ℹ️ _Note we are planning to change the schema multiple times in upcoming releases. We will ensure Power BI reports have backwards compatibility, but if you access data directly, you may run into breaking changes with new releases. Familiarize yourself with [upcoming releases](https://aka.ms/finops/toolkit/roadmap) and review the [changelog](changelog.md) for breaking changes before you update._
+   > ℹ️ _The schema may change multiple times before the 0.1 release. We will ensure Power BI reports have backwards compatibility, but if you access data directly, you may run into breaking changes with new releases. Familiarize yourself with [upcoming releases](https://aka.ms/finops/toolkit/roadmap) and review the [changelog](changelog.md) for breaking changes before you update._
 
 3. Access the cost data from custom tools.
 
@@ -90,7 +90,7 @@ After deploying a hub instance, there are several ways for you to get started:
 
    <!-- NOTE TO CONTRIBUTORS: Keep this info note in sync with the same one under #2 above. -->
 
-   > ℹ️ _Note we are planning to change the schema multiple times in upcoming releases. We will ensure Power BI reports have backwards compatibility, but if you access data directly, you may run into breaking changes with new releases. Familiarize yourself with [upcoming releases](https://aka.ms/finops/toolkit/roadmap) and review the [changelog](changelog.md) for breaking changes before you update._
+   > ℹ️ _The schema may change multiple times before the 0.1 release. We will ensure Power BI reports have backwards compatibility, but if you access data directly, you may run into breaking changes with new releases. Familiarize yourself with [upcoming releases](https://aka.ms/finops/toolkit/roadmap) and review the [changelog](changelog.md) for breaking changes before you update._
 
 4. Apply cost allocation logic, augment, or manipulate your cost data using Data Factory.
 
