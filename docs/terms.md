@@ -13,7 +13,7 @@ On this page:
 
 See also:
 
-- [Data dictionary](../data-dictionary.md)
+- [Data dictionary](./data-dictionary.md)
 
 ---
 
