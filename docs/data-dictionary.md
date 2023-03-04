@@ -1,6 +1,6 @@
 # Data dictionary
 
-<sup>_Quick links:
+_<sup>Quick links:
 &nbsp; [A](#a)
 &nbsp; [B](#b)
 &nbsp; [C](#c)
@@ -18,7 +18,7 @@
 &nbsp; [T](#t)
 &nbsp; [U](#u)
 &nbsp; [V](#v)
-_</sup>
+</sup>_
 
 The following table describes the columns available within the exported data:
 
