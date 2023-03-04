@@ -15,10 +15,6 @@ On this page:
 - [Queries and datasets](#queries-and-datasets)
 - [Tips for customizing Power BI reports](#tips-for-customizing-power-bi-reports)
 
-Related:
-
-- [Common terms](./terms.md)
-
 ---
 
 ## How to setup Power BI
