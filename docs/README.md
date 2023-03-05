@@ -86,7 +86,7 @@ After deploying a hub instance, there are several ways for you to get started:
 
 3. Access the cost data from custom tools.
 
-   Cost data is stored in an [Azure Data Lake Storage Gen2](https://learn.microsoft.com/azure/storage/blobs/data-lake-storage-introduction) account. You can use any tool that supports Azure Data Lake Storage Gen2 to access the data.
+   Cost data is stored in an [Azure Data Lake Storage Gen2](https://learn.microsoft.com/azure/storage/blobs/data-lake-storage-introduction) account. You can use any tool that supports Azure Data Lake Storage Gen2 to access the data. Refer to the [data dictionary](./data-dictionary.md) for details about available columns.
 
    <!-- NOTE TO CONTRIBUTORS: Keep this info note in sync with the same one under #2 above. -->
 
@@ -94,7 +94,7 @@ After deploying a hub instance, there are several ways for you to get started:
 
 4. Apply cost allocation logic, augment, or manipulate your cost data using Data Factory.
 
-   [Data Factory](https://learn.microsoft.com/azure/data-factory/introduction) is used to ingest and transform data. We recommend using Data Factory as a cost-efficient solution to apply custom logic to your cost data. Use a consistent prefix for custom pipelines to ensure they don't overlap with new pipelines.
+   [Data Factory](https://learn.microsoft.com/azure/data-factory/introduction) is used to ingest and transform data. We recommend using Data Factory as a cost-efficient solution to apply custom logic to your cost data. Use a consistent prefix for custom pipelines to ensure they don't overlap with new pipelines. Refer to [data processing](./data-processing.md) for details about how data is processed.
 
    > ⚠️ _Keep in mind this is the primary area we are planning to evolve in [upcoming FinOps toolkit releases](https://aka.ms/finops/toolkit/roadmap). Please familiarize yourself with our roadmap to avoid conflicts with future updates. Consider [contributing to the project](../CONTRIBUTING.md) to add support for new scenarios to avoid conflicts._
    >
