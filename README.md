@@ -1,8 +1,8 @@
-# Microsoft Cloud FinOps toolkit
+# 🛠️ Microsoft Cloud FinOps toolkit
 
 <sup> ℹ️ _This project is in the early concept phase. If interested, please contact micflan@microsoft.com._</sup>
 
-The FinOps toolkit is a collection of customizable ARM templates used to build and deploy various cost management and optimization solutions. The main focus of the FinOps toolkit is to build an reliable, trustworthy platform for cost analytics, insights, and optimization, which we call **FinOps hubs**.
+The FinOps toolkit is a collection of customizable ARM templates used to build and deploy various cost management and optimization solutions. The main focus of the FinOps toolkit is to build a reliable, trustworthy platform for cost analytics, insights, and optimization, which we call **FinOps hubs**.
 
 FinOps hubs are **virtual command centers** for leaders throughout the organization to report on, monitor, and optimize cost based on their organizational needs. FinOps hubs focus on 3 core design principles:
 
@@ -12,15 +12,15 @@ FinOps hubs are **virtual command centers** for leaders throughout the organizat
 
 <br>
 
-## Get started
+## 📗 Get started
 
-Looking to learn more about FinOps toolkit and how to get started? See [FinOps toolkit documentation](./docs).
+Looking to learn more about FinOps toolkit and how to get started? See [FinOps toolkit documentation ➡️](./docs)
 
 <br>
 
-## Contributing
+## 👨‍💻 Contributing
 
-There are many ways to participate. From reporting bugs and requesting features to reviewing or even making code changes. Please see the [contribution guide](./CONTRIBUTING.md) to get started.
+There are many ways to participate. From reporting bugs and requesting features to reviewing or even making code changes. See the [contribution guide ➡️](./CONTRIBUTING.md)
 
 <br>
 
@@ -28,7 +28,7 @@ There are many ways to participate. From reporting bugs and requesting features 
 
 <br>
 
-## Legal stuff
+## ⚖️ Legal stuff
 
 ### Code of conduct
 
