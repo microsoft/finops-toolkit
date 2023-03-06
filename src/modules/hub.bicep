@@ -67,7 +67,7 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (ena
 
 // ADLSv2 storage account for staging and archive
 module storageAccount 'Microsoft.Storage/storageAccounts/deploy.bicep' = {
-  name: storageAccountName
+  name: 'storage'
   params: {
     name: storageAccountName
     location: location
