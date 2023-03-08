@@ -58,14 +58,6 @@ The **settings.json** file is used to store any configuration settings for the h
 }
 ```
 
-> ![Version 0.0.1](https://img.shields.io/badge/version-0.0.1-lightgrey) &nbsp; ![Status: Proposed](https://img.shields.io/badge/status-proposed-lightgrey) &nbsp;<sup>→</sup>&nbsp; [![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/34)](https://github.com/microsoft/cloud-hubs/issues/34)
->
-> 🆕 _Add the following settings:_
->
-> ```json
->  "dataRetentionInMonths": <param:dataRetentionInMonths>
-> ```
->
 > ![Version 0.0.1](https://img.shields.io/badge/version-0.0.1-lightgrey) &nbsp; ![Status: Proposed](https://img.shields.io/badge/status-proposed-lightgrey) &nbsp;<sup>→</sup>&nbsp; [![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/59)](https://github.com/microsoft/cloud-hubs/issues/59)
 >
 > 🆕 _Add the following to the ADF instance:_

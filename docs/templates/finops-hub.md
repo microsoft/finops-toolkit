@@ -35,12 +35,6 @@ On this page:
 - **exportRetentionInDays** (int) – Optional. Number of days of cost data to retain in the ms-cm-exports container. Default: 0.
 - **ingestionRetentionInMonths** (int) – Optional. Number of months of cost data to retain in the ingestion container. Default: 13.
 
-> ![Version 0.0.1](https://img.shields.io/badge/version-0.0.1-lightgrey) &nbsp;<sup>→</sup>&nbsp; [![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/34)](https://github.com/microsoft/cloud-hubs/issues/34)
->
-> 🆕 _Add the following parameters:_
->
-> - **dataRetentionInMonths** (int) – Optional. Number of months of cost data to retain. Default: 13 months.
-
 <br>
 
 ## Modules
