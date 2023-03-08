@@ -20,12 +20,7 @@ On this page:
 - **location** (string) – Optional. Azure location where all resources should be created. See https://aka.ms/azureregions. Default: (resource group location).
 - **storageSku** (string) – Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: `Premium_LRS`, `Premium_ZRS`. Default: `Premium_LRS`.
 - **tags** (object) – Optional. Tags to apply to all resources. We will also add the `cm-resource-parent` tag for improved cost roll-ups in Cost Management.
-
-> ![Version 0.0.1](https://img.shields.io/badge/version-0.0.2-lightgrey) &nbsp; ![Status: Proposed](https://img.shields.io/badge/status-proposed-lightgrey) &nbsp;<sup>→</sup>&nbsp; [![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/34)](https://github.com/microsoft/cloud-hubs/issues/34)
->
-> 🆕 _Add the following parameters:_
->
-> - **exportScopes** (array) – Optional. List of scope IDs to create exports for.
+- **exportScopes** (array) – Optional. List of scope IDs to create exports for.
 
 <br>
 
@@ -35,36 +30,29 @@ On this page:
   - **name** = `param:hubName + "store"`
   - **sku** = `param:storageSku`
   - **tags** = `param:tags`
+  - containers – Create the following nested containers:
+    - **config** – Used for configuration settings. Include the following files within the template:
+      - [settings.json](#settingsjson)
+    - **ms-cm-exports** – Used for Cost Management exports that have not been transformed.
+    - **ingestion** – Used for Cost Management exports that have not been transformed.
 - Data factory – Used for data ingestion and processing. Depends on: Storage account.
   - **dataFactoryName** = `param:hubName + "-engine"`
 
-> ![Version 0.0.1](https://img.shields.io/badge/version-0.0.1-lightgrey) &nbsp; ![Status: Proposed](https://img.shields.io/badge/status-proposed-lightgrey) &nbsp;<sup>→</sup>&nbsp; [![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/34)](https://github.com/microsoft/cloud-hubs/issues/34)
->
-> 🆕 _Add the following to the storage account:_
->
-> - containers – Create the following nested containers:
->   - **config** – Used for configuration settings. Include the following files within the template:
->     - [settings.json](#settingsjson)
->   - **ms-cm-exports** – Used for Cost Management exports that have not been transformed.
->   - **ingestion** – Used for Cost Management exports that have not been transformed.
->
-> 🆕 _Add the following section:_
->
-> ### settings.json
->
-> The **settings.json** file is used to store any configuration settings for the hub instance.
->
-> ```json
-> {
->   "$schema": "https://aka.ms/finops/toolkit/settings-schema",
->   "type": "HubInstance",
->   "version": "0.0.1",
->   "learnMore": "https://aka.ms/finops/toolkit",
->   "exportScopes": <param:exportScopes>,
->   "dataRetentionInMonths": 3
-> }
-> ```
->
+### settings.json
+
+The **settings.json** file is used to store any configuration settings for the hub instance.
+
+```json
+{
+  "$schema": "https://aka.ms/finops/toolkit/settings-schema",
+  "type": "HubInstance",
+  "version": "0.0.1",
+  "learnMore": "https://aka.ms/finops/toolkit",
+  "exportScopes": <param:exportScopes>,
+  "dataRetentionInMonths": 3
+}
+```
+
 > ![Version 0.0.1](https://img.shields.io/badge/version-0.0.1-lightgrey) &nbsp; ![Status: Proposed](https://img.shields.io/badge/status-proposed-lightgrey) &nbsp;<sup>→</sup>&nbsp; [![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/59)](https://github.com/microsoft/cloud-hubs/issues/59)
 >
 > 🆕 _Add the following to the ADF instance:_
