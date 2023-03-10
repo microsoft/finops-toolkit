@@ -74,28 +74,28 @@ MG (Aug 2022):
 
 > ℹ️ _The table assumes all fields are Pascal-cased (first letter of each word capitalized)._
 
-| Column                     | Type   | Value                                                                                                         | Notes                                                   |
-| -------------------------- | ------ | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| Date                       | Date   | Date \|\| UsageDateTime                                                                                       |
-| Provider                   | String | Provider == null<br>or Provider == "Azure"<br>? "Microsoft" : Provider                                        | Default to "Microsoft" for classic accounts.            |
-| BillingAccountId           | String | BillingAccountId \|\| null                                                                                    |
-| BillingAccountName         | String | BillingAccountName \|\| null                                                                                  |
-| ResourceId                 | String | ResourceId \|\| InstanceId                                                                                    |
-| ResourceName               | String | ([parse](#how-to-parse-resourceid))                                                                           | Do not use value from exports since it is not accurate. |
-| ResourceType               | String | ([parse](#how-to-parse-resourceid))                                                                           | Do not use value from exports since it is not accurate. |
+| Column                     | Type   | Value                                                                                                       | Notes                                                   |
+| -------------------------- | ------ | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Date                       | Date   | Date \|\| UsageDateTime                                                                                     |
+| Provider                   | String | Provider == null<br>or Provider == "Azure"<br>? "Microsoft" : Provider                                      | Default to "Microsoft" for classic accounts.            |
+| BillingAccountId           | String | BillingAccountId \|\| null                                                                                  |
+| BillingAccountName         | String | BillingAccountName \|\| null                                                                                |
+| ResourceId                 | String | ResourceId \|\| InstanceId                                                                                  |
+| ResourceName               | String | ([parse](#how-to-parse-resourceid))                                                                         | Do not use value from exports since it is not accurate. |
+| ResourceType               | String | ([parse](#how-to-parse-resourceid))                                                                         | Do not use value from exports since it is not accurate. |
 | ConsumedService            | String |
-| ResourceLocation           | String | ResourceLocation \|\| Location                                                                                |
-| Tags                       | Object | Tags startswith "{"<br>? parsejson("\{{Tags}\}") : parsejson(Tags)                                            |
-| ResourceGroupName          | String | ResourceGroup == "$system"<br>? ([parse])(#how-to-parse-resourceid)<br>: ResourceGroup                        |
-| SubscriptionId             | String | SubscriptionId \|\| SubscriptionGuid                                                                          |
+| ResourceLocation           | String | ResourceLocation \|\| Location                                                                              |
+| Tags                       | Object | Tags startswith "{"<br>? parsejson("\{{Tags}\}") : parsejson(Tags)                                          |
+| ResourceGroup              | String | ResourceGroup == "$system"<br>? ([parse])(#how-to-parse-resourceid)<br>: ResourceGroup                      |
+| SubscriptionId             | String | SubscriptionId \|\| SubscriptionGuid                                                                        |
 | SubscriptionName           | String |
-| ProductOrderId             | String | ProductOrderId \|\| OfferId                                                                                   |
-| ProductOrderName           | String | ProductOrderName \|\| OfferName                                                                               |
+| ProductOrderId             | String | ProductOrderId \|\| OfferId                                                                                 |
+| ProductOrderName           | String | ProductOrderName \|\| OfferName                                                                             |
 | CostCenter                 | String |
 | AccountOwnerId             | String |
 | AccountName                | String |
 | InvoiceSectionId           | String |
-| InvoiceSectionName         | String | InvoiceSectionName \|\| InvoiceSection \|\| DepartmentName                                                    |
+| InvoiceSectionName         | String | InvoiceSectionName \|\| InvoiceSection \|\| DepartmentName                                                  |
 | BillingProfileId           | String |
 | BillingProfileName         | String |
 | CustomerTenantId           | String |
@@ -105,28 +105,28 @@ MG (Aug 2022):
 | PartnerTenantId            | String |
 | PartnerName                | String |
 | PartnerEarnedCreditRate    | Number |
-| PartnerEarnedCreditApplied | Bool   | tolower(tostring(PartnerEarnedCreditApplied)) == "true"                                                       | Handle both string and boolean values.                  |
-| PublisherType              | String | PublisherType \|\| "Azure"                                                                                    | Default to "Azure" for classic accounts.                |
+| PartnerEarnedCreditApplied | Bool   | tolower(tostring(PartnerEarnedCreditApplied)) == "true"                                                     | Handle both string and boolean values.                  |
+| PublisherType              | String | PublisherType \|\| "Azure"                                                                                  | Default to "Azure" for classic accounts.                |
 | PublisherId                | String |
-| PublisherName              | String | PublisherName \|\| "Microsoft"                                                                                | Default to "Microsoft" for classic accounts.            |
+| PublisherName              | String | PublisherName \|\| "Microsoft"                                                                              | Default to "Microsoft" for classic accounts.            |
 | PlanName                   | String |
 | ServiceFamily              | String |
-| MeterCategory              | String | ServiceName \|\| MeterCategory                                                                                | Prefer ServiceName for EA.                              |
-| MeterSubCategory           | String | ServiceTier \|\| MeterSubCategory \|\| MeterSubcategory                                                       | Prefer ServiceTier for EA.                              |
+| MeterCategory              | String | ServiceName \|\| MeterCategory                                                                              | Prefer ServiceName for EA.                              |
+| MeterSubCategory           | String | ServiceTier \|\| MeterSubCategory \|\| MeterSubcategory                                                     | Prefer ServiceTier for EA.                              |
 | ProductId                  | String |
-| ProductName                | String | ProductName \|\| Product                                                                                      |
-| MeterId                    | String | MeterId \|\| ResourceGuid                                                                                     |
+| ProductName                | String | ProductName \|\| Product                                                                                    |
+| MeterId                    | String | MeterId \|\| ResourceGuid                                                                                   |
 | MeterName                  | String |
 | PartNumber                 | String |
 | MeterRegion                | String |
-| AdditionalInfo             | Object | AdditionalInfo startswith "{"<br>? parsejson("\{{AdditionalInfo}\}")<br>: parsejson(AdditionalInfo)           |
+| AdditionalInfo             | Object | AdditionalInfo startswith "{"<br>? parsejson("\{{AdditionalInfo}\}")<br>: parsejson(AdditionalInfo)         |
 | ServiceInfo1               | String |
 | ServiceInfo2               | String |
-| IsAzureCreditEligible      | Bool   | tolower(tostring(IsAzureCreditEligible \|\| IsCreditEligible)) == "true"                                      | Handle both string and boolean values.                  |
-| ChargeType                 | String | ChargeType \|\| "Usage"                                                                                       | Default to "Usage" for classic accounts.                |
-| PricingModel               | String | PricingModel \|\| "OnDemand"                                                                                  | Default to "OnDemand" for classic accounts.             |
-| BenefitId                  | String | BenefitId == null<br>? ReservationId : BenefitId                                                              |
-| BenefitName                | String | BenefitName == null<br>? ReservationName : BenefitName                                                        |
+| IsAzureCreditEligible      | Bool   | tolower(tostring(IsAzureCreditEligible \|\| IsCreditEligible)) == "true"                                    | Handle both string and boolean values.                  |
+| ChargeType                 | String | ChargeType \|\| "Usage"                                                                                     | Default to "Usage" for classic accounts.                |
+| PricingModel               | String | PricingModel \|\| "OnDemand"                                                                                | Default to "OnDemand" for classic accounts.             |
+| BenefitId                  | String | BenefitId == null<br>? ReservationId : BenefitId                                                            |
+| BenefitName                | String | BenefitName == null<br>? ReservationName : BenefitName                                                      |
 | Term                       | String |
 | Frequency                  | String |
 | CostAllocationRuleName     | String |
@@ -136,18 +136,18 @@ MG (Aug 2022):
 | BillingPeriodEndDate       | Date   |
 | ServicePeriodStartDate     | Date   |
 | ServicePeriodEndDate       | Date   |
-| Quantity                   | Number | Quantity \|\| UsageQuantity                                                                                   |
-| UnitPrice                  | Number | UnitPrice \|\| ResourceRate                                                                                   |
-| EffectivePrice             | Number | EffectivePrice \|\| UnitPrice                                                                                 |
-| RetailPrice                | Number | RetailPrice \|\| PayGPrice \|\| UnitPrice                                                                     |
+| Quantity                   | Number | Quantity \|\| UsageQuantity                                                                                 |
+| UnitPrice                  | Number | UnitPrice \|\| ResourceRate                                                                                 |
+| EffectivePrice             | Number | EffectivePrice \|\| UnitPrice                                                                               |
+| PayGPrice                  | Number | PayGPrice \|\| UnitPrice                                                                                    |
 | UnitOfMeasure              | String |
-| BillingCurrency            | String | BillingCurrency \|\| BillingCurrencyCode \|\| Currency                                                        |
-| Cost                       | Number | Cost \|\| CostInBillingCurrency \|\| PreTaxCost                                                               |
-| CostUSD                    | Number | Currency == "USD"<br>? Cost<br>: (CostUSD \|\| CostInUsd \|\| CostInPricingCurrency)                          |
-| RetailCost                 | Number | RetailCost == null<br>and RetailPrice == UnitPrice<br>? Cost<br>: (RetailCost \|\| PaygCostInBillingCurrency) |
-| RetailCostUSD              | Number | Currency == "USD"<br>? RetailCost : (RetailCostUSD \|\| PaygCostInUsd)                                        |
-| ExchangeRate               | Number | Currency == "USD"<br>? 1<br>: ExchangeRate \|\| ExchangeRatePricingToBilling                                  |
-| ExchangeRateDate           | Date   | ExchangeRateDate \|\| startofmonth(Date)                                                                      |
+| BillingCurrency            | String | BillingCurrency \|\| BillingCurrencyCode \|\| Currency                                                      |
+| Cost                       | Number | Cost \|\| CostInBillingCurrency \|\| PreTaxCost                                                             |
+| CostUSD                    | Number | Currency == "USD"<br>? Cost<br>: (CostUSD \|\| CostInUsd \|\| CostInPricingCurrency)                        |
+| RetailCost                 | Number | RetailCost == null<br>and PayGPrice == UnitPrice<br>? Cost<br>: (RetailCost \|\| PaygCostInBillingCurrency) |
+| RetailCostUSD              | Number | Currency == "USD"<br>? RetailCost : (RetailCostUSD \|\| PaygCostInUsd)                                      |
+| ExchangeRate               | Number | Currency == "USD"<br>? 1<br>: ExchangeRate \|\| ExchangeRatePricingToBilling                                |
+| ExchangeRateDate           | Date   | ExchangeRateDate \|\| startofmonth(Date)                                                                    |
 
 Note the following fields have been removed:
 
