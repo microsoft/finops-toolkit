@@ -16,7 +16,7 @@ param linkedServiceName string
 param linkedServiceType string
 
 @description('The name of the service to link to.')
-param storageAccountName string = 'none'
+param storageAccountName string
 
 @description('The name of the service to link to.')
 param keyVaultName string
