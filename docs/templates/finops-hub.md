@@ -4,16 +4,18 @@ QuickstartPath: quickstarts/microsoft.costmanagement/finops-hub
 
 # FinOps hub template
 
-![Status: In progress](https://img.shields.io/badge/status-in%20progress-blue) &nbsp;<sup>→</sup>&nbsp;
+![Version 0.0.1](https://img.shields.io/badge/version-0.0.1-blue) &nbsp;
+![Status: In progress](https://img.shields.io/badge/status-in_progress-blue) &nbsp;<sup>→</sup>&nbsp;
 [![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/1)](https://github.com/microsoft/cloud-hubs/issues/1)
-[![Go to PR](https://img.shields.io/github/pulls/detail/state/microsoft/cloud-hubs/21)](https://github.com/microsoft/cloud-hubs/pulls/21)
-[![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/23)](https://github.com/microsoft/cloud-hubs/issues/23)
-
 This template creates a new **FinOps hub** instance.
 
-FinOps hubs include Data Lake storage to host the export and a Data Factory instance with a pipeline to clean up duplicated cost data after each export is processed.
+FinOps hubs include Data Lake storage to host cloud data and a Data Factory instance for data processing and orchestration.
 
-> **Important:** This template does not include a Cost Management export. In order to ingest cost details, a Cost Management export must be created and configured to push data to the included storage account and into the `ms-cm-exports` container.
+To use this template, you will need to create a Cost Management export that publishes cost data to the `ms-cm-exports` container in the included storage account.
+
+> ![Version 0.0.2](https://img.shields.io/badge/version-0.0.2-lightgrey) &nbsp;<sup>→</sup>&nbsp; [![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/60)](https://github.com/microsoft/cloud-hubs/issues/60)
+>
+> 🆕 _Remove the comment about needing to setup Cost Management exports when exports are self-managed._
 
 On this page:
 
@@ -29,16 +31,19 @@ On this page:
 - **location** (string) – Optional. Azure location where all resources should be created. See https://aka.ms/azureregions. Default: (resource group location).
 - **storageSku** (string) – Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: `Premium_LRS`, `Premium_ZRS`. Default: `Premium_LRS`.
 - **tags** (object) – Optional. Tags to apply to all resources. We will also add the `cm-resource-parent` tag for improved cost roll-ups in Cost Management.
+- **exportScopes** (array) – Optional. List of scope IDs to create exports for.
 
 <br>
 
 ## Modules
 
 - **[hub.bicep](./modules/hub.md)** – Create the FinOps hub instance first to ensure the storage account is in place.
+
   - **hubName** = `param:hubName`
   - **location** = `param:location`
   - **storageSku** = `param:storageSku`
   - **tags** = `param:tags`
+  - **exportScopes** = `param:exportScopes`
 
 <br>
 

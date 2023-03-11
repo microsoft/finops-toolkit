@@ -31,6 +31,12 @@ var resourceTags = union(tags, {
 
 @description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
+
+@description('Optional. List of scope IDs to create exports for.')
+param exportScopes array
+
+var containerNames = ['config', 'ms-cm-exports', 'ingestion']
+
 // The last segment of the telemetryId is used to identify this module
 var telemetryId = '00f120b5-2007-6120-0000-40b000000000'
 var finOpsToolkitVersion = '0.0.1'
@@ -76,6 +82,56 @@ module dataFactory 'Microsoft.DataFactory/factories/deploy.bicep' = {
     name: dataFactoryName
     location: location
     tags: resourceTags
+  }
+}
+
+resource storageAccountLookup 'Microsoft.Storage/storageAccounts@2021-06-01' existing = {
+  name: storageAccount.name
+}
+
+resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2021-06-01' = {
+  parent: storageAccountLookup
+  name: 'default'
+}
+
+resource containers 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' = [for containerName in containerNames: {
+  parent: blobService
+  name: toLower(containerName)
+  properties: {
+    publicAccess: 'None'
+    metadata: {}
+  }
+}]
+
+resource uploadSettingsJson 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: 'updateSettingsJson'
+  kind: 'AzurePowerShell'
+  location: location
+  dependsOn: [
+    containers
+  ]
+  properties: {
+    azPowerShellVersion: '8.0'
+    retentionInterval: 'PT1H'
+    environmentVariables: [
+      {
+        name: 'exportScopes'
+        value: join(exportScopes, '|')
+      }
+      {
+        name: 'storageAccountKey'
+        value: storageAccountLookup.listKeys().keys[0].value
+      }
+      {
+        name: 'storageAccountName'
+        value: storageAccount.name
+      }
+      {
+        name: 'containerName'
+        value: 'config'
+      }
+    ]
+    scriptContent: loadTextContent('./scripts/Copy-FileToAzureBlob.ps1')
   }
 }
 
