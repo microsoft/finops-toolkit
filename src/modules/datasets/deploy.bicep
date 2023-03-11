@@ -28,7 +28,6 @@ resource dataset 'Microsoft.DataFactory/factories/datasets@2018-06-01' =  {
   name: datasetName
   parent: dataFactoryRef
   properties: {
-    description: 'string'
     annotations: []
     parameters: {
       fileName: {
