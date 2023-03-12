@@ -2,20 +2,15 @@
 // Date: 2023-02-02
 // Version: 
 
-@description('Conditional. The name of the parent Azure Data Factory. Required if the template is used in a standalone deployment.')
+@description('Required. The name of the parent Azure Data Factory. Required if the template is used in a standalone deployment.')
 param dataFactoryName string
 
-@description('Required. The name of the dataset.')
-param PipelineName string
-
-@description('Required. The name of the dataset.')
+@description('Required. The ID of the storage account.')
 param storageAccountId string
 
-@description('Required. The name of the dataset.')
-param BlobContainerName string
-
-@description('Required. The name of the dataset.')
-param triggerName string
+var PipelineName = 'extract_parquet'
+var BlobContainerName = 'ms-cm-exports'
+var triggerName = 'ms_cm_exports_trigger'
 
 resource dataFactoryRef 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   name: dataFactoryName
