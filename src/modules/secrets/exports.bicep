@@ -2,14 +2,13 @@
 // Date: 2023-02-27
 // Version: 
 
- @description('The KeyVault to store the secret in.')
+ @description('Required. The KeyVault to store the secret in.')
 param keyVaultName string
 
-@description('The name of the storage account to create the secret for.')
+@description('Required. The name of the storage account to create the secret for.')
 param storageAccountName string
 
-@description('The name of the secret to be created')
-param secretName string
+var secretName = 'ms_cm_exports'
 
 resource storageAccountRef 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
   name: storageAccountName
