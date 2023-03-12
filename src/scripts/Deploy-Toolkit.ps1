@@ -22,6 +22,7 @@ Param(
     [Parameter(Position = 0)][string]$Template = "finops-hub",
     [string]$ResourceGroup,
     [string]$Location = "westus",
+    [string[]]$ExportScopes = @(),
     [switch]$WhatIf
 )
 
@@ -36,7 +37,7 @@ If ([string]::IsNullOrEmpty($ResourceGroup)) {
 }
 
 # Create resource group if it doesn't exist
-$rg = Get-AzResourceGroup $ResourceGroup
+$rg = Get-AzResourceGroup $ResourceGroup -erroraction SilentlyContinue
 If ($null -eq $rg) {
     New-AzResourceGroup `
         -Name $ResourceGroup `
@@ -45,9 +46,19 @@ If ($null -eq $rg) {
 }
 
 # Start deployment
-$params = @{ hubName = $ResourceGroup };
-New-AzResourceGroupDeployment `
+$params = @{ 
+    hubName = $ResourceGroup
+    ExportScopes = $ExportScopes
+};
+$hub = New-AzResourceGroupDeployment `
     -TemplateFile "../templates/$Template/main.bicep" `
     -TemplateParameterObject $params `
     -ResourceGroupName $ResourceGroup `
     -WhatIf:$WhatIf
+
+Start-AzDataFactoryV2Trigger `
+    -ResourceGroupName $ResourceGroup `
+    -DataFactoryName $hub.Outputs.dataFactorytName.Value `
+    -Name $hub.Outputs.storageAccountTriggerName.Value -Force -ErrorAction SilentlyContinue | Out-Null
+
+return $hub
