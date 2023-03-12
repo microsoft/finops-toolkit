@@ -5,11 +5,8 @@
 @description('Required. The name of the parent Azure Data Factory..')
 param dataFactoryName string
 
-@description('Required. The name of the parent Azure Data Factory..')
-param pipelineName string
-
-@description('Required. The name of the parent Azure Data Factory..')
-param pipelineToExecute string
+var pipelineName = 'extract_parquet'
+var pipelineToExecute = 'transform_parquet'
 
 resource dataFactoryRef 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   name: dataFactoryName

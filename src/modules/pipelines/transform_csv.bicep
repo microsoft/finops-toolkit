@@ -5,18 +5,9 @@
 @description('Required. The name of the parent Azure Data Factory..')
 param dataFactoryName string
 
-@description('Required. The name of the parent Azure Data Factory..')
-param pipelineName string
-
-@description('Required. The name of the parent Azure Data Factory..')
-param sourceDataset string
-
-@description('Required. The name of the parent Azure Data Factory..')
-param sinkDataset string
-
-param fileExtension string
-
-param containerName string
+var pipelineName = 'transform_csv' 
+var sourceDataset = 'exports'
+var sinkDataset = 'ingestion_csv'
 
 resource dataFactoryRef 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   name: dataFactoryName
@@ -203,7 +194,7 @@ resource pipeline 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =  {
         typeProperties: {
           variableName: 'destinationFolder'
           value: {
-            value: '@concat(\'${containerName}/\',variables(\'scope\'),\'/\',variables(\'date\'),\'/\',variables(\'metric\'))'
+            value: '@replace(concat(variables(\'scope\'),variables(\'date\'),\'/\',variables(\'metric\')),\'//\',\'/\')'
             type: 'Expression'
           }
         }
@@ -224,7 +215,7 @@ resource pipeline 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =  {
         typeProperties: {
           variableName: 'destinationFile'
           value: {
-            value: '@replace(pipeline().parameters.fileName, \'.csv\', \'${fileExtension}\')'
+            value: '@replace(pipeline().parameters.fileName, \'.csv\', \'.csv.gz\')'
             type: 'Expression'
           }
         }
@@ -244,7 +235,7 @@ resource pipeline 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =  {
         typeProperties: {
           variableName: 'date'
           value: {
-            value: '@split(pipeline().parameters.folderName, \'/\')[3]'
+            value: '@split(pipeline().parameters.folderName, \'/\')[sub(length(split(pipeline().parameters.folderName, \'/\')), 3)]'
             type: 'Expression'
           }
         }
@@ -264,7 +255,7 @@ resource pipeline 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =  {
         typeProperties: {
           variableName: 'metric'
           value: {
-            value: '@last(split(split(pipeline().parameters.folderName, \'/\')[2], \'-\'))'
+            value: '@first(split(split(pipeline().parameters.folderName, \'/\')[sub(length(split(pipeline().parameters.folderName, \'/\')), 4)], \'-\'))'
             type: 'Expression'
           }
         }
@@ -284,7 +275,7 @@ resource pipeline 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =  {
         typeProperties: {
           variableName: 'scope'
           value: {
-            value: '@split(pipeline().parameters.folderName, \'/\')[1]'
+            value: '@replace(split(pipeline().parameters.folderName,split(pipeline().parameters.folderName, \'/\')[sub(length(split(pipeline().parameters.folderName, \'/\')), 4)])[0],\'ms-cm-exports\',\'ingestion\')'
             type: 'Expression'
           }
         }
