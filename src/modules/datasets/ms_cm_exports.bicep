@@ -2,23 +2,16 @@
 // Date: 2023-02-02
 // Version: 
 
-@description('Conditional. The name of the parent Azure Data Factory. Required if the template is used in a standalone deployment.')
+@description('Required. The name of the parent Azure Data Factory.')
 param dataFactoryName string
 
-@description('Required. The name of the dataset.')
-param datasetName string
-
-@description('Required. The name of the dataset linked service.')
+@description('Required. The storage account where the data resides.')
 param linkedServiceName string
 
-@description('Required. The type of dataset.')
-param datasetType string
-
-@description('Required. The type of dataset.')
-param locationType string = 'AzureBlobFSLocation'
-
-@description('Optional. The type of dataset.')
-param compressionCodec string = 'none'
+var datasetName = 'exports'
+var datasetType = 'DelimitedText'
+var locationType = 'AzureBlobFSLocation'
+var compressionCodec = 'none'
 
 resource dataFactoryRef 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   name: dataFactoryName
@@ -42,7 +35,7 @@ resource dataset 'Microsoft.DataFactory/factories/datasets@2018-06-01' =  {
       columnDelimiter: ','
       compressionCodec: compressionCodec
       compressionLevel: 'Optimal'
-      escapeChar: '\\'
+      escapeChar: '"'
       firstRowAsHeader: true
       quoteChar: '"'
       location: {
