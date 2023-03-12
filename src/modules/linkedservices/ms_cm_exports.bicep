@@ -5,21 +5,14 @@
 @description('Conditional. The name of the parent Azure Data Factory. Required if the template is used in a standalone deployment.')
 param dataFactoryName string
 
-@description('The name of the service to link to.')
-param linkedServiceName string
-
-@allowed([
-  'AzureBlobFS'
-  'AzureKeyVault'
-])
-@description('Required. The type of Linked Service.')
-param linkedServiceType string
-
-@description('The name of the service to link to.')
+@description('The name of the storage account.')
 param storageAccountName string
 
-@description('The name of the service to link to.')
+@description('The name of the keyvault.')
 param keyVaultName string
+
+var linkedServiceName = storageAccountName
+var linkedServiceType = 'AzureBlobFS'
 
 resource dataFactoryRef 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   name: dataFactoryName
@@ -33,9 +26,7 @@ resource linkedService 'Microsoft.DataFactory/factories/linkedservices@2018-06-0
     annotations: []
     parameters: {}
     type: linkedServiceType
-    typeProperties: linkedServiceType == 'AzureKeyVault' ? {
-        baseurl: reference('Microsoft.KeyVault/vaults/${keyVaultName}', '2022-11-01').vaultUri
-      } : linkedServiceType == 'AzureBlobFS' ? {
+    typeProperties: {
         url: reference('Microsoft.Storage/storageAccounts/${storageAccountName}', '2019-04-01').primaryEndpoints.dfs
         accountKey: {
           type: 'AzureKeyVaultSecret'
@@ -43,10 +34,9 @@ resource linkedService 'Microsoft.DataFactory/factories/linkedservices@2018-06-0
             referenceName: keyVaultName
             type: 'LinkedServiceReference'
           }
-          secretName: storageAccountName
+          secretName: linkedServiceName
         }
-      } : {}
-    
+      }
   }
 }
 
