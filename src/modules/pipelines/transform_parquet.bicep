@@ -2,7 +2,7 @@
 param dataFactoryName string
 
 var pipelineName = 'transform_parquet' 
-var sourceDataset = 'exports'
+var sourceDataset = 'ms-cm-exports'
 var sinkDataset = 'ingestion_parquet'
 
 resource dataFactoryRef 'Microsoft.DataFactory/factories@2018-06-01' existing = {
