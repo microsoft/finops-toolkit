@@ -1,8 +1,4 @@
-// Source: 
-// Date: 2023-02-27
-// Version: 
-
- @description('Required. The KeyVault to store the secret in.')
+@description('Required. The KeyVault to store the secret in.')
 param keyVaultName string
 
 @description('Required. The name of the storage account to create the secret for.')

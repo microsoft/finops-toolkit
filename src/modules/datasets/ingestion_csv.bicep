@@ -1,7 +1,3 @@
-// Source: 
-// Date: 2023-02-02
-// Version: 
-
 @description('Required. The name of the parent Azure Data Factory.')
 param dataFactoryName string
 
