@@ -58,9 +58,6 @@ resource dataset 'Microsoft.DataFactory/factories/datasets@2018-06-01' =  {
   }
 }
 
-@description('The name of the Resource Group the linked service was created in.')
-output resourceGroupName string = resourceGroup().name
-
 @description('The name of the linked service.')
 output name string = dataset.name
 
