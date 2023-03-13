@@ -156,6 +156,7 @@ function Set-CostManagementExport {
   }
 }
 
+# Configure daily and monthly recurring exports
 if ($Future) {
   Write-Host ("{0}    {1}" -f (get-date), "Set Recurring Exports")
   $today = Get-Date
@@ -205,6 +206,7 @@ if ($Future) {
   Set-CostManagementExport -ExportParams $Params -Start $true  
 }
 
+# Export historical data
 if ($History) {
   Write-Host ("{0}    {1}" -f (get-date), "Historical Exports")
 
