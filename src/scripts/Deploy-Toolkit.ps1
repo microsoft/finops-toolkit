@@ -56,6 +56,7 @@ $hub = New-AzResourceGroupDeployment `
     -ResourceGroupName $ResourceGroup `
     -WhatIf:$WhatIf
 
+# TODO: determine a better way to do this
 Start-AzDataFactoryV2Trigger `
     -ResourceGroupName $ResourceGroup `
     -DataFactoryName $hub.Outputs.dataFactorytName.Value `
