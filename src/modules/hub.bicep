@@ -230,7 +230,7 @@ module linkedService_storageAccount 'linkedservices/ms_cm_exports.bicep' = {
 }
 
 module dataset_exports 'datasets/ms_cm_exports.bicep' = {
-  name: 'dataset_exports'
+  name: 'ms-cm-exports'
   dependsOn: [
     linkedService_storageAccount
     linkedService_keyVault
