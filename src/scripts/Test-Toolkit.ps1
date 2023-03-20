@@ -1,8 +1,8 @@
 param (
     [string]$ResourceGroup,
     [string][ValidateSet('Deploy', 'Test', 'Clean', 'Full')]$Mode = 'Full',
-    [string[]]$ExportScopes = @("providers/Microsoft.Billing/billingAccounts/8611537",
-                                "subscriptions/64e355d7-997c-491d-b0c1-8414dccfcf42"),
+    [string[]]$ExportScopes = @("/providers/Microsoft.Billing/billingAccounts/8611537",
+                                "subscriptions/64e355d7-997c-491d-b0c1-8414dccfcf42"),  # Test case to cater for scopes which don't start with '/'
     [switch]$WhatIf
 )
 
@@ -56,8 +56,11 @@ if ($Mode -eq 'Test' -or $Mode -eq 'Full') {
     $sa = Get-AzStorageAccount -ResourceGroupName $ResourceGroup -ErrorAction SilentlyContinue
     foreach ($exportScope in $ExportScopes)
     {
+        if(!$exportScope.StartsWith('/')) {
+            $exportScope = '/' + $exportScope
+        }
         Write-Host ("{0}    Add Export Scope {1}" -f (Get-Date), $exportScope)
-        .\Add-Scope.ps1 -hubName $ResourceGroup -StorageAccountId $sa.id -Scope $exportScope -TimeOutMinutes 0 -numberOfMonths 6
+        .\Add-Scope.ps1 -hubName $ResourceGroup -StorageAccountId $sa.id -Scope $exportScope -TimeOutMinutes 0 -numberOfMonths 3
     }
     Write-Host ("{0}    Test Complete" -f (Get-Date))
     Write-Host ''

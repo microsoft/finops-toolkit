@@ -20,6 +20,9 @@ if($numberOfMonths -lt 2) {$GetHistoricalData = $false}
 [datetime]$EndDate = $today.AddDays(-$today.Day + 1).AddMonths(-1).AddDays(-1)
 $env = Get-AzEnvironment -Name $Cloud
 
+if($FolderName.StartsWith('/')) {$FolderName = $FolderName.Substring(1)}
+if(!$Scope.StartsWith('/')) {$Scope = '/' + $Scope}
+
 function Write-DebugInfo {
   param (
     $DebugParams
