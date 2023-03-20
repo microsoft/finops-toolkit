@@ -2,7 +2,7 @@
 param dataFactoryName string
 
 var pipelineName = 'transform_csv' 
-var sourceDataset = 'ms-cm-exports'
+var sourceDataset = 'ms_cm_exports'
 var sinkDataset = 'ingestion_csv'
 
 resource dataFactoryRef 'Microsoft.DataFactory/factories@2018-06-01' existing = {
