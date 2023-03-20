@@ -6,17 +6,19 @@ param(
   [string]$ContainerName = "ms-cm-exports",
   [string]$FolderName = $Scope,
   [string]$Metric = "amortizedcost",
+  [string][ValidateSet('AzureCloud', 'AzureUSGovernment')]$Cloud = 'AzureCloud',
   [int]$TimeOutMinutes = 15,
   [int]$SleepInterval = 10
 )
 
 $ErrorActionPreference = "Stop"
-[bool]$Future = $true
-[bool]$History = $true
-if($numberOfMonths -lt 2) {$History = $false}
+[bool]$SetRecurringExports = $true
+[bool]$GetHistoricalData = $true
+if($numberOfMonths -lt 2) {$GetHistoricalData = $false}
 [datetime]$today = Get-Date
 [datetime]$StartDate = $today.AddDays(-$today.Day + 1).AddMonths(-$numberOfMonths)
 [datetime]$EndDate = $today.AddDays(-$today.Day + 1).AddMonths(-1).AddDays(-1)
+$env = Get-AzEnvironment -Name $Cloud
 
 function Write-DebugInfo {
   param (
@@ -26,12 +28,12 @@ function Write-DebugInfo {
   Write-Host ("{0}    {1}    {2}" -f (Get-Date), $DebugParams.Name, $DebugParams.DefinitionTimeframe)
 }
 
-function Set-CostManagementApi {
+function Invoke-CostManagementRestApi {
   param (
     $ApiParams
   )
 
-  $uri = "https://management.azure.com/{0}/providers/Microsoft.CostManagement/exports/{1}?api-version=2021-10-01" -f $ApiParams.Scope, $ApiParams.Name
+  $uri = "{0}{1}/providers/Microsoft.CostManagement/exports/{2}?api-version=2021-10-01" -f $env.ResourceManagerUrl, $ApiParams.Scope, $ApiParams.Name
   Remove-AzCostManagementExport -Name $ApiParams.Name -Scope $ApiParams.Scope -ErrorAction SilentlyContinue
   
   if ([string]$ApiParams.DefinitionTimeframe.ToLowerInvariant() -eq 'custom') {
@@ -132,7 +134,7 @@ function Set-CostManagementExport {
   )
 
   Write-DebugInfo $ExportParams
-  Set-CostManagementApi -ApiParams $ExportParams
+  Invoke-CostManagementRestApi -ApiParams $ExportParams
   if ($Start) {
     Start-Sleep -Seconds $SleepInterval
     Invoke-AzCostManagementExecuteExport -ExportName $ExportParams.Name -Scope $ExportParams.Scope
@@ -157,7 +159,7 @@ function Set-CostManagementExport {
 }
 
 # Configure daily and monthly recurring exports
-if ($Future) {
+if ($SetRecurringExports) {
   Write-Host ("{0}    {1}" -f (get-date), "Set Recurring Exports")
   $today = Get-Date
   $nextMonth = $today.AddDays(-$today.Day + 5).AddMonths(1)
@@ -207,7 +209,7 @@ if ($Future) {
 }
 
 # Export historical data
-if ($History) {
+if ($GetHistoricalData) {
   Write-Host ("{0}    {1}" -f (get-date), "Historical Exports")
 
   [string]$dateFrom = "{0}-{1}-{2}T00:00:00Z" -f $StartDate.Year, $StartDate.Month, $StartDate.Day
