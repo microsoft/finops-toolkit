@@ -1,8 +1,11 @@
 @description('Required. The name of the parent Azure Data Factory..')
 param dataFactoryName string
 
-var pipelineName = 'extract_csv'
-var pipelineToExecute = 'transform_csv'
+@description('Required. Name.')
+param pipelineName string
+
+@description('Required. The name of the transform pipeline to execute.')
+param pipelineToExecute string
 
 resource dataFactoryRef 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   name: dataFactoryName
