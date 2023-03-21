@@ -1,9 +1,21 @@
-@description('Required. The name of the parent Azure Data Factory..')
+@description('Required. The name of the parent Azure Data Factory.')
 param dataFactoryName string
 
-var pipelineName = 'transform_csv' 
-var sourceDataset = 'ms_cm_exports'
-var sinkDataset = 'ingestion_csv'
+@description('Required. Name.')
+param pipelineName string
+
+@description('Required. The name of the source dataset.')
+param sourceDataset string
+
+@description('Required. The name of the sink dataset.')
+param sinkDataset string
+
+@allowed([
+  'csv'
+  'parquet'
+])
+@description('Required. Output format.')
+param outputFormat string = 'parquet'
 
 resource dataFactoryRef 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   name: dataFactoryName
@@ -45,15 +57,26 @@ resource pipeline 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =  {
               type: 'DelimitedTextReadSettings'
             }
           }
-          sink: {
+          sink: outputFormat == 'parquet' ? {
             type: 'DelimitedTextSink'
             storeSettings: {
               type: 'AzureBlobFSWriteSettings'
             }
             formatSettings: {
               type: 'ParquetWriteSettings'
+              fileExtension: '.parquet'
             }
-          }
+          } : {
+            type: 'DelimitedTextSink'
+            storeSettings: {
+              type: 'AzureBlobFSWriteSettings'
+            }
+            formatSettings: {
+              type: 'DelimitedTextWriteSettings'
+              quoteAllText: true
+              fileExtension: '.csv.gz'
+            }
+          }           
           enableStaging: false
           parallelCopies: 1
           validateDataConsistency: false
@@ -211,7 +234,7 @@ resource pipeline 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =  {
         typeProperties: {
           variableName: 'destinationFile'
           value: {
-            value: '@replace(pipeline().parameters.fileName, \'.csv\', \'.csv.gz\')'
+            value: outputFormat == 'parquet' ? '@replace(pipeline().parameters.fileName, \'.csv\', \'.parquet\')' : '@replace(pipeline().parameters.fileName, \'.csv\', \'.csv.gz\')'
             type: 'Expression'
           }
         }
