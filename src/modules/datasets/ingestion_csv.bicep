@@ -4,7 +4,9 @@ param dataFactoryName string
 @description('Required. The storage account where the data resides.')
 param linkedServiceName string
 
-var datasetName = 'ingestion_csv'
+@description('Required. Name.')
+param datasetName string
+
 var datasetType = 'DelimitedText'
 var locationType = 'AzureBlobFSLocation'
 var compressionCodec = 'gzip'

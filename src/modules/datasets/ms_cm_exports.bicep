@@ -4,7 +4,9 @@ param dataFactoryName string
 @description('Required. The storage account where the data resides.')
 param linkedServiceName string
 
-var datasetName = 'ms_cm_exports'
+@description('Required. Name.')
+param datasetName string
+
 var datasetType = 'DelimitedText'
 var locationType = 'AzureBlobFSLocation'
 var compressionCodec = 'none'

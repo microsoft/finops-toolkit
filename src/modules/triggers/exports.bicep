@@ -4,9 +4,14 @@ param dataFactoryName string
 @description('Required. The ID of the storage account.')
 param storageAccountId string
 
-var PipelineName = 'extract_parquet'
-var BlobContainerName = 'ms-cm-exports'
-var triggerName = 'ms_cm_exports_trigger'
+@description('Required. The name of the transform pipeline to execute.')
+param PipelineName string
+
+@description('Required. Exports container.')
+param BlobContainerName string
+
+@description('Required. Name.')
+param triggerName string
 
 resource dataFactoryRef 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   name: dataFactoryName

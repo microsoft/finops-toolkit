@@ -230,7 +230,7 @@ module linkedService_storageAccount 'linkedservices/ms_cm_exports.bicep' = {
 }
 
 module dataset_exports 'datasets/ms_cm_exports.bicep' = {
-  name: 'ms-cm-exports'
+  name: 'ms_cm_exports'
   dependsOn: [
     linkedService_storageAccount
     linkedService_keyVault
@@ -238,11 +238,12 @@ module dataset_exports 'datasets/ms_cm_exports.bicep' = {
   params: {
     dataFactoryName: dataFactoryName
     linkedServiceName: storageAccountName
+    datasetName: 'ms_cm_exports'
   }
 }
 
-module dataset_csv 'datasets/ingestion_csv.bicep' = {
-  name: 'dataset_csv'
+module ingestion_csv 'datasets/ingestion_csv.bicep' = {
+  name: 'ingestion_csv'
   dependsOn: [
     linkedService_storageAccount
     linkedService_keyVault
@@ -250,11 +251,12 @@ module dataset_csv 'datasets/ingestion_csv.bicep' = {
   params: {
     dataFactoryName: dataFactoryName
     linkedServiceName: storageAccountName
+    datasetName: 'ingestion_csv'
   }
 }
 
-module dataset_parquet 'datasets/ingestion_parquet.bicep' = {
-  name: 'dataset_parquet'
+module ingestion_parquet 'datasets/ingestion_parquet.bicep' = {
+  name: 'ingestion_parquet'
   dependsOn: [
     linkedService_storageAccount
     linkedService_keyVault
@@ -262,48 +264,59 @@ module dataset_parquet 'datasets/ingestion_parquet.bicep' = {
   params: {
     dataFactoryName: dataFactoryName
     linkedServiceName: storageAccountName
+    datasetName: 'ingestion_parquet'
   }
 }
 
-module transform_parquet 'pipelines/transform_parquet.bicep' = {
-  name: 'transform_parquet'
+module transform_parquet 'pipelines/transform_ms_cm_exports.bicep' = {
+  name: 'transform_ms_cm_exports_parquet'
   dependsOn: [
     dataset_exports
-    dataset_parquet
+    ingestion_parquet
   ]
   params: {
     dataFactoryName: dataFactoryName
+    pipelineName: 'transform_ms_cm_exports_parquet'
+    sinkDataset: 'ingestion_parquet'
+    sourceDataset:  'ms_cm_exports'
   }
 }
 
-module transform_csv 'pipelines/transform_csv.bicep' = {
-  name: 'transform_csv'
+module transform_csv 'pipelines/transform_ms_cm_exports.bicep' = {
+  name: 'transform_ms_cm_exports_csv'
   dependsOn: [
     dataset_exports
-    dataset_csv
+    ingestion_csv
   ]
   params: {
     dataFactoryName: dataFactoryName
+    pipelineName: 'transform_ms_cm_exports_csv'
+    sinkDataset: 'ingestion_csv'
+    sourceDataset: 'ms_cm_exports'
   }
 }
 
-module extract_parquet 'pipelines/extract_parquet.bicep' = {
-  name: 'extract_parquet'
+module extract_parquet 'pipelines/extract_ms_cm_exports.bicep' = {
+  name: 'extract_ms_cm_exports_parquet'
   dependsOn: [
     transform_parquet
   ]
   params: {
     dataFactoryName: dataFactoryName
+    pipelineName: 'extract_ms_cm_exports_parquet'
+    pipelineToExecute: 'transform_ms_cm_exports_parquet'
   }
 }
 
-module extract_csv 'pipelines/extract_csv.bicep' = {
-  name: 'extract_csv'
+module extract_csv 'pipelines/extract_ms_cm_exports.bicep' = {
+  name: 'extract_ms_cm_exports_csv'
   dependsOn: [
-    transform_csv
+    transform_parquet
   ]
   params: {
     dataFactoryName: dataFactoryName
+    pipelineName: 'extract_ms_cm_exports_csv'
+    pipelineToExecute: 'transform_ms_cm_exports_csv'
   }
 }
 
@@ -315,6 +328,9 @@ module trigger 'triggers/exports.bicep' = {
   params: {
     dataFactoryName: dataFactoryName
     storageAccountId: storageAccount.id
+    BlobContainerName: 'ms-cm-exports'
+    PipelineName: 'extract_ms_cm_exports_parquet'
+    triggerName: 'ms_cm_exports_trigger'
   }
 }
 
