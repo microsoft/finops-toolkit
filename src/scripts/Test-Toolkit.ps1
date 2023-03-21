@@ -6,6 +6,8 @@ param (
     [switch]$WhatIf
 )
 
+$ErrorActionPreference = 'Stop'
+
 Write-Host ("{0}    Mode = {1}" -f (Get-Date), $Mode)
 
 If ([string]::IsNullOrEmpty($ResourceGroup)) {
@@ -26,8 +28,11 @@ if ($Mode -eq 'Clean' -or $Mode -eq 'Full') {
         Write-Host ("{0}    Remove Existing Deployment" -f (Get-Date))
         $kv = Get-AzKeyVault -ResourceGroupName $ResourceGroup
         Remove-AzResourceGroup -Name $ResourceGroup -Force
-        Remove-AzKeyVault -InRemovedState -VaultName $kv.VaultName -Force -Location $rg.Location
-        # Get-AzKeyVault -InRemovedState | Remove-AzKeyVault -InRemovedState
+        if ($null -ne $kv)
+        {
+            Remove-AzKeyVault -InRemovedState -VaultName $kv.VaultName -Force -Location $rg.Location
+            # Get-AzKeyVault -InRemovedState | Remove-AzKeyVault -InRemovedState
+        }
     }
 
     Write-Host ("{0}    Cleanup Complete" -f (Get-Date))
@@ -43,7 +48,7 @@ if($Mode -eq 'Deploy' -or $Mode -eq 'Full') {
             -ResourceGroupName $ResourceGroup `
             -DataFactoryName $df.DataFactoryName `
             -Name $sa.StorageAccountName -Force -ErrorAction SilentlyContinue | Out-Null
-    }`
+    }
     
     Write-Host ("{0}    Start Deployment" -f (Get-Date))
     $result = .\Deploy-Toolkit.ps1 -ResourceGroup $ResourceGroup -exportScopes $ExportScopes -WhatIf:$WhatIf
