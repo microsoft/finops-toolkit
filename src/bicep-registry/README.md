@@ -140,7 +140,7 @@ Our templating language supports "scope directives" that enable you to:
 
 ### Scope directives
 
-Scope directives are single-line comments that reference one or more Bicep-supported scopes. Scopes are prefixed with `@` and are separated by spaces. Do not include additional characters after the scope directive.
+Scope directives are single-line comments that reference one or more Bicep-supported scopes (i.e., `resourceGroup`, `subscription`, `managementGroup`, `tenant`). Scopes are prefixed with `@` and are separated by spaces. Do not include additional characters after the scope directive.
 
 The following example references only the resource group scope:
 
