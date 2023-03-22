@@ -136,7 +136,7 @@ Our templating language supports "scope directives" that enable you to:
 1. Leverage existing Bicep developer tooling for the primary scope.
 2. Target multiple scopes.
 3. Conditionally include a single line.
-4. Conditionally include a multiple lines.
+4. Conditionally include multiple lines.
 
 ### Scope directives
 
