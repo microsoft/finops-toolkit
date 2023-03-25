@@ -158,15 +158,12 @@ Refer to the sections below for how to use scope directives.
 
 ### Targeting multiple scopes
 
-Modules are designed to work with a single scope. To target multiple scopes, include a scope directive at the top of the file followed by an empty line. Both lines are removed during the build process.
+Modules are designed to work with a single scope. To target multiple scopes, use scope directives to indicate which lines and/or blocks of code should be included in (or excluded from) each scope. The build script will generate modules targeting each scope identified by scope directives used within your module.
 
-The following example tells the build script to generate modules targeted at resource groups, subscriptions, and management groups:
+If you don't have any conditional logic, add a scope directive on the `targetScope` line that includes all supported scopes. For instance, the following example supports all scopes:
 
 ```bicep
-// @resourceGroup @subscription @managementGroup
-
-@description('The name of the object.')
-param name string
+targetScope = 'subscription' // @resourceGroup @subscription @managementGroup @tenant
 ```
 
 ### Conditional lines

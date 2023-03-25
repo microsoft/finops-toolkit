@@ -28,7 +28,8 @@ Param (
 $Debug = $DebugPreference -eq "Continue"
 
 $outdir = "../../release"
-$scopeDirective = '//(\s*@(subscription|resourceGroup|managementGroup|tenant))+';
+$scopeList = '(subscription|resourceGroup|managementGroup|tenant)';
+$scopeDirective = "//(\s*@$scopeList)+";
 $dir = Get-Item $Module;
 
 # List of supported scopes to be updated later
@@ -36,12 +37,17 @@ $script:scopes = @()
 
 # Generates modules for each supported scope
 function Build-Modules([string] $Path, [switch] $CopySupportingFiles) {
+    # Confirm path
+    if (-not (Test-Path (Join-Path $Module $Path))) {
+        return;
+    }
+    
     # Read code from the bicep file
     $lines = (Get-Content (Join-Path $Module $Path));
 
     # Get the supported scopes
-    $script:scopes = [regex]::Matches($lines[0], "^$scopeDirective\s*$").Groups[2].Captures `
-    | ForEach-Object { $_.Value } `
+    $script:scopes = [regex]::Matches([regex]::Matches($lines, $scopeDirective).Value, $scopeList).Value `
+    | Sort-Object -Unique `
     | Where-Object { $_.ToLower() -eq $Scope.ToLower() -or [string]::IsNullOrWhitespace($Scope) }
 
     # Loop thru each scope
