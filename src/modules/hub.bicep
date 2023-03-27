@@ -269,54 +269,54 @@ module ingestion_parquet 'datasets/ingestion_parquet.bicep' = {
 }
 
 module transform_parquet 'pipelines/transform_ms_cm_exports.bicep' = {
-  name: 'transform_ms_cm_exports_parquet'
+  name: 'ms_cm_exports_transform_parquet'
   dependsOn: [
     dataset_exports
     ingestion_parquet
   ]
   params: {
     dataFactoryName: dataFactoryName
-    pipelineName: 'transform_ms_cm_exports_parquet'
+    pipelineName: 'ms_cm_exports_transform_parquet'
     sinkDataset: 'ingestion_parquet'
     sourceDataset:  'ms_cm_exports'
   }
 }
 
 module transform_csv 'pipelines/transform_ms_cm_exports.bicep' = {
-  name: 'transform_ms_cm_exports_csv'
+  name: 'ms_cm_exports_transform_csv'
   dependsOn: [
     dataset_exports
     ingestion_csv
   ]
   params: {
     dataFactoryName: dataFactoryName
-    pipelineName: 'transform_ms_cm_exports_csv'
+    pipelineName: 'ms_cm_exports_transform_csv'
     sinkDataset: 'ingestion_csv'
     sourceDataset: 'ms_cm_exports'
   }
 }
 
 module extract_parquet 'pipelines/extract_ms_cm_exports.bicep' = {
-  name: 'extract_ms_cm_exports_parquet'
+  name: 'ms_cm_exports_extract_parquet'
   dependsOn: [
     transform_parquet
   ]
   params: {
     dataFactoryName: dataFactoryName
-    pipelineName: 'extract_ms_cm_exports_parquet'
-    pipelineToExecute: 'transform_ms_cm_exports_parquet'
+    pipelineName: 'ms_cm_exports_extract_parquet'
+    pipelineToExecute: 'ms_cm_exports_transform_parquet'
   }
 }
 
 module extract_csv 'pipelines/extract_ms_cm_exports.bicep' = {
-  name: 'extract_ms_cm_exports_csv'
+  name: 'ms_cm_exports_extract_csv'
   dependsOn: [
     transform_parquet
   ]
   params: {
     dataFactoryName: dataFactoryName
-    pipelineName: 'extract_ms_cm_exports_csv'
-    pipelineToExecute: 'transform_ms_cm_exports_csv'
+    pipelineName: 'ms_cm_exports_extract_csv'
+    pipelineToExecute: 'ms_cm_exports_transform_csv'
   }
 }
 
@@ -329,7 +329,7 @@ module trigger 'triggers/exports.bicep' = {
     dataFactoryName: dataFactoryName
     storageAccountId: storageAccount.id
     BlobContainerName: 'ms-cm-exports'
-    PipelineName: 'extract_ms_cm_exports_parquet'
+    PipelineName: 'ms_cm_exports_extract_parquet'
     triggerName: 'ms_cm_exports_trigger'
   }
 }
