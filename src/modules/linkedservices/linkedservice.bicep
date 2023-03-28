@@ -13,7 +13,7 @@ param linkedServiceName string
 @description('Required. The type of the linked service.')
 param linkedServiceType string
 
-@description('Required. The type of the linked service.')
+@description('Required. The type properties object for the linked service.')
 param linkedServiceTypeProperties object
 
 resource dataFactoryRef 'Microsoft.DataFactory/factories@2018-06-01' existing = {
