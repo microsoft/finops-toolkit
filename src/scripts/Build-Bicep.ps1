@@ -69,9 +69,9 @@ function Build-Modules([string] $Path, [switch] $CopySupportingFiles) {
             Write-Host "".PadLeft($moduleName.Length, "=")
         }
   
-        # Start on second line to get past the supported scope directive
-        $i = 1
-        $script:lastLineEmpty = $true
+        # Use custom iterator to peek at multiple lines
+        $i = 0
+        $script:lastLineEmpty = $lines.Count -le $i -or [string]::IsNullOrWhiteSpace($lines[$i])
         while ($i -lt ($lines.Count)) {
             # Helper functions
             $script:isNewLine = $true
@@ -89,8 +89,8 @@ function Build-Modules([string] $Path, [switch] $CopySupportingFiles) {
                 # Do nothing, skip line
             }
             # Handle targetScope
-            elseif ($line -match '^\s*targetScope\s*=\s*''(resourceGroup|subscription|managementGroup|tenant)''\s*$') {
-                append ($line -creplace "'(resourceGroup|subscription|managementGroup|tenant)'", "'$currentScope'")
+            elseif ($line -match "^\s*targetScope\s*=\s*'(resourceGroup|subscription|managementGroup|tenant)'\s*($scopeDirective)?\s*$") {
+                append "targetScope = '$currentScope'"
             }
             # Handle conditional lines
             elseif ($line -match "[^\s]+\s*$scopeDirective" -and $line.Substring(0, $line.LastIndexOf("//")).Trim().Length -gt 0) {
