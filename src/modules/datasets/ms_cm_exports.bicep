@@ -1,3 +1,5 @@
+// Description: An Azure Data Factory dataset for delimited text files in Azure Blob Storage
+
 @description('Required. The name of the parent Azure Data Factory.')
 param dataFactoryName string
 
