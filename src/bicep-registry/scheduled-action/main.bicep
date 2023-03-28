@@ -38,8 +38,8 @@ param kind string = 'Email'
 @allowed([
   ''
   'AccumulatedCosts'
+  'CostByService'
   'DailyCosts'
-  'InvoiceDetails'
 ])
 param builtInView string = ''
 
@@ -71,10 +71,55 @@ param emailSubject string = ''
 param emailMessage string = ''
 
 @description('The language that will be used for the email template.')
+@allowed([
+  'en'
+  'cs'
+  'de'
+  'es'
+  'fr'
+  'hu'
+  'id'
+  'it'
+  'ja'
+  'ko'
+  'nl'
+  'pl'
+  'pt-br'
+  'pt-pt'
+  'ru'
+  'sv'
+  'tr'
+  'zh-hans'
+  'zh-hant'
+])
 param emailLanguage string = 'en'
 
 @description('The regional format that will be used for dates, times, and numbers.')
-param emailRegionalFormat string = 'en-US'
+@allowed([
+  'cs-cz'
+  'da-dk'
+  'de-de'
+  'en-gb'
+  'en-us'
+  'es-es'
+  'fr-fr'
+  'hu-hu'
+  'id-id'
+  'it-it'
+  'ja-jp'
+  'ko-kr'
+  'nb-no'
+  'nl-nl'
+  'pl-pl'
+  'pt-br'
+  'pt-pt'
+  'ru-ru'
+  'sv-se'
+  'tr-tr'
+  'zh-cn'
+  'zh-tw'
+])
+param emailRegionalFormat string = 'en-us'
 
 @description('Indicates whether to include a link to a CSV file with the backing data for the chart. Ignored if kind is "InsightAlert".')
 param includeCsv bool = false
