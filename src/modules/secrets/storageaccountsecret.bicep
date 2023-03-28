@@ -6,7 +6,7 @@ param keyVaultName string
 @description('Required. The name of the storage account to create the secret for.')
 param storageAccountName string
 
-@description('Required. The name of the storage account to create the secret for.')
+@description('Required. The name of the secret.')
 param secretName string
 
 resource storageAccountRef 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
