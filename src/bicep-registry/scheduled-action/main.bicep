@@ -1,5 +1,3 @@
-// @resourceGroup @subscription @tenant
-
 // See https://learn.microsoft.com/rest/api/cost-management/scheduled-actions/create-or-update
 
 //===| Parameters |============================================================
@@ -17,8 +15,24 @@ param name string
 param kind string = 'Email'
 
 // @tenant
-//   @description('The Azure resource ID for the billing scope to use. This is the full resource ID of a billing account, billing profile, department, etc. Do not use the GUID only.')
-//   param scope string
+//   @description('The full Azure resource ID for the scope to use for a private scheduled action that only you can see and manage. To create a shared scheduled action, use other billing scope parameters in this module or a subscription or resoure group module.')
+//   param privateScope string = ''
+//   @description('Unique ID for the billingAccount this scheduled action should be created for. Only applicable for MCA or EA billing account scopes.')
+//   param billingAccountId string = ''
+//   @description('Unique ID for the billingProfile this scheduled action should be created for. Requires billingAccountId to be set.')
+//   param billingProfileId string = ''
+//   @description('Unique ID for the invoiceSection this scheduled action should be created for. Requires billingAccountId and billingProfileId to be set.')
+//   param invoiceSectionId string = ''
+//   @description('Unique ID for the customer this scheduled action should be created for. Requires billingAccountId to be set.')
+//   param customerId string = ''
+//   @description('Unique ID for the department this scheduled action should be created for. Requires billingAccountId to be set to the EA enrollment number.')
+//   param departmentId string = ''
+//   @description('Unique ID for the enrollmentAccount this scheduled action should be created for. Requires billingAccountId to be set to the EA enrollment number. departmentId is also required, if applicable.')
+//   param enrollmentAccountId string = ''
+//   @description('Unique ID for the AWS management account (aka external billing account) this scheduled action should be created for. Requires account to be setup with Connectors for AWS.')
+//   param externalBillingAccountId string = ''
+//   @description('Unique ID for the AWS member account (aka external subscription) this scheduled action should be created for. Requires account to be setup with Connectors for AWS.')
+//   param externalSubscriptionId string = ''
 
 @description('Specifies which built-in view to use. This is a shortcut for the full view ID.')
 @allowed([
@@ -93,14 +107,56 @@ param scheduleEndDate string = ''
 var scope = subscription().id
 // @resourceGroup
 //   var scope = resourceGroup().id
+// @tenant
+//   var useBillingAccount = !empty(billingAccountId) && empty(billingProfileId) && empty(customerId) && empty(departmentId) && empty(enrollmentAccountId)
+//   var useBillingProfile = !empty(billingAccountId) && !empty(billingProfileId) && empty(invoiceSectionId)
+//   var useInvoiceSection = !empty(billingAccountId) && !empty(billingProfileId) && !empty(invoiceSectionId)
+//   var useCustomer = !empty(billingAccountId) && !empty(customerId)
+//   var useDepartment = !empty(billingAccountId) && empty(billingProfileId) && empty(customerId) && !empty(departmentId) && empty(enrollmentAccountId)
+//   var useEnrollmentAccount = !empty(billingAccountId) && empty(billingProfileId) && empty(customerId) && !empty(enrollmentAccountId)
+//   var useExternalBillingAccount = empty(billingAccountId) && !empty(externalBillingAccountId)
+//   var useExternalSubscription = empty(billingAccountId) && empty(externalBillingAccountId) && !empty(externalSubscriptionId)
+//   var scope = !empty(privateScope) ? privateScope : useBillingAccount ? ba.id : useBillingProfile ? bp.id : useInvoiceSection ? is.id : useCustomer ? cust.id : useDepartment ? dept.id : useEnrollmentAccount ? ea.id : useExternalBillingAccount ? eba.id : useExternalSubscription ? es.id : tenant().tenantId
 
 var internalViewId = builtInView == null ? viewId : '${scope}/providers/Microsoft.CostManagement/views/ms:${builtInView}'
 
 //===| Resources |=============================================================
 
+// @tenant
+//   resource ba 'Microsoft.Billing/billingAccounts@2020-05-01' existing = if (useBillingAccount) {
+//     name: billingAccountId
+//   }
+//   resource bp 'Microsoft.Billing/billingAccounts/billingProfiles@2020-05-01' existing = if (useBillingProfile) {
+//     #disable-next-line use-parent-property // Would add extra complexity
+//     name: '${billingAccountId}/${billingProfileId}'
+//   }
+//   resource is 'Microsoft.Billing/billingAccounts/billingProfiles/invoiceSections@2020-05-01' existing = if (useInvoiceSection) {
+//     #disable-next-line use-parent-property // Would add extra complexity
+//     name: '${billingAccountId}/${billingProfileId}/${invoiceSectionId}'
+//   }
+//   resource cust 'Microsoft.Billing/billingAccounts/customers@2020-05-01' existing = if (useCustomer) {
+//     #disable-next-line use-parent-property // Would add extra complexity
+//     name: '${billingAccountId}/${customerId}'
+//   }
+//   resource dept 'Microsoft.Billing/billingAccounts/departments@2019-10-01-preview' existing = if (useDepartment) {
+//     #disable-next-line use-parent-property // Would add extra complexity
+//     name: '${billingAccountId}/${departmentId}'
+//   }
+//   resource ea 'Microsoft.Billing/billingAccounts/enrollmentAccounts@2019-10-01-preview' existing = if (useEnrollmentAccount) {
+//     #disable-next-line use-parent-property // Would add extra complexity
+//     name: '${billingAccountId}/${enrollmentAccountId}'
+//   }
+//   resource eba 'Microsoft.CostManagement/externalBillingAccounts@2019-03-01-preview' existing = if (useExternalBillingAccount) {
+//     name: externalBillingAccountId
+//   }
+//   resource es 'Microsoft.CostManagement/externalSubscriptions@2019-03-01-preview' existing = if (useExternalSubscription) {
+//     name: externalSubscriptionId
+//   }
+
 resource sa 'Microsoft.CostManagement/scheduledActions@2022-10-01' = {
   name: name
   kind: kind
+  //scope: !empty(privateScope) ? tenant() : useBillingAccount ? ba : useBillingProfile ? bp : useInvoiceSection ? is : useCustomer ? cust : useDepartment ? dept : useEnrollmentAccount ? ea : useExternalBillingAccount ? eba : useExternalSubscription ? es : tenant() // @tenant
   properties: {
     scope: scope
     displayName: displayName
