@@ -1,4 +1,4 @@
-// Description: An Azure Data Factory dataset for delimited text files in Azure Blob Storage
+// Description: An Azure Data Factory dataset for parquet or delimited text files in Azure Blob Storage
 
 @description('Required. The name of the parent Azure Data Factory.')
 param dataFactoryName string
@@ -20,7 +20,7 @@ param datasetType string
   'none'
   'gzip'
 ])
-@description('Required. Type of the dataset.')
+@description('Required. Compression codec to use.')
 param compressionCodec string
 
 var csvProps = {       
