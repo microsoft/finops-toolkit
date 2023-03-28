@@ -6,7 +6,8 @@ param keyVaultName string
 @description('Required. The name of the storage account to create the secret for.')
 param storageAccountName string
 
-var secretName = 'ms_cm_exports'
+@description('Required. The name of the storage account to create the secret for.')
+param secretName string
 
 resource storageAccountRef 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
   name: storageAccountName
