@@ -111,7 +111,7 @@ function Build-Modules([string] $Path, [switch] $CopySupportingFiles) {
                 $isCurrentScopeBlock = $line.Substring($line.LastIndexOf("//")) -match "@$currentScope"
   
                 # Loop thru next lines until we find a directive or empty line
-                while (-not ($lines[$i + 1] -match "^\s*$scopeDirective\s*$") -and $lines[$i + 1].Trim().Length -gt 0) {
+                while ($lines.Count -gt $i + 1 -and -not ($lines[$i + 1] -match "^\s*$scopeDirective\s*$") -and $lines[$i + 1].Trim().Length -gt 0) {
                     # If current scope, uncomment; otherwise, skip line
                     if ($isCurrentScopeBlock) {
                         append ([regex]'//\s*').Replace($lines[++$i], '', 1)
@@ -137,10 +137,15 @@ function Build-Modules([string] $Path, [switch] $CopySupportingFiles) {
             $sb.ToString() | Out-File (Join-Path $outdir $moduleName $Path)
         }
 
-        # Write supporting files
+        # Write supporting files, if available
         if ($CopySupportingFiles -and -not $Debug) {
             @('main.json', 'metadata.json', 'README.md', 'version.json') `
-            | ForEach-Object { Copy-Item (Join-Path $Module $_) (Join-Path $outdir $moduleName) }
+            | ForEach-Object { 
+                $sourceFile = Join-Path $Module $_
+                if (Test-Path $sourceFile) {
+                    Copy-Item $sourceFile (Join-Path $outdir $moduleName)
+                }
+            }
         }
     }
 }

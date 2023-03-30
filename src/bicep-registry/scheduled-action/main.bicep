@@ -201,9 +201,9 @@ var internalViewId = builtInView == null ? viewId : '${scope}/providers/Microsof
 resource sa 'Microsoft.CostManagement/scheduledActions@2022-10-01' = {
   name: name
   kind: kind
-  //scope: !empty(privateScope) ? tenant() : useBillingAccount ? ba : useBillingProfile ? bp : useInvoiceSection ? is : useCustomer ? cust : useDepartment ? dept : useEnrollmentAccount ? ea : useExternalBillingAccount ? eba : useExternalSubscription ? es : tenant() // @tenant
+  // scope: !empty(privateScope) ? tenant() : useBillingAccount ? ba : useBillingProfile ? bp : useInvoiceSection ? is : useCustomer ? cust : useDepartment ? dept : useEnrollmentAccount ? ea : useExternalBillingAccount ? eba : useExternalSubscription ? es : tenant() // @tenant
   properties: {
-    scope: scope
+    // scope: !empty(privateScope) ? scope : '' // @tenant
     displayName: displayName
     viewId: kind == 'InsightAlert' ? '${scope}/providers/Microsoft.CostManagement/views/ms:DailyAnomalyByResourceGroup' : internalViewId
     notificationEmail: notificationEmail

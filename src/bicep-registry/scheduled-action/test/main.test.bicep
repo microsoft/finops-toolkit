@@ -21,9 +21,9 @@ module dailyCostsAlert '../main.bicep' = {
 //   module privateAlert '../main.bicep' = {
 //     name: 'privateAlert'
 //     params: {
-//       name: 'DailyCostsAlert'
-//       displayName: 'My schedule'
-//       privateScope: '/subscriptions/64e355d7-997c-491d-b0c1-8414dccfcf42'
+//       name: 'PrivateAlert'
+//       displayName: 'My private schedule'
+//       privateScope: '/providers/Microsoft.Billing/billingAccounts/8611537'
 //       builtInView: 'DailyCosts'
 //       emailRecipients: [ 'ema@contoso.com' ]
 //       scheduleFrequency: 'Weekly'

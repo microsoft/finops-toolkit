@@ -33,8 +33,8 @@ Get-ChildItem ..\templates\*\main.bicep `
 
     Write-Host "Generating $tmpName template..."
     bicep build $bicep --outfile "$tmpDir/azuredeploy.json"
-    Write-Host ''    
+    Write-Host ''
     Write-Host "Generating $tmpName parameters..."
     bicep generate-params $bicep --outfile "$tmpDir/azuredeploy.json"
-    Write-Host ''    
+    Write-Host ''
 }
