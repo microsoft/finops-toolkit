@@ -122,10 +122,10 @@ param emailLanguage string = 'en'
 ])
 param emailRegionalFormat string = 'en-us'
 
-@description('Indicates whether to include a link to a CSV file with the backing data for the chart. Ignored if kind is "InsightAlert".')
+@description('Indicates whether to include a link to a CSV file with the backing data for the chart. Ignored if kind is "InsightAlert". Default: false.')
 param includeCsv bool = false
 
-@description('The frequency at which the scheduled action will run.')
+@description('The frequency at which the scheduled action will run. Default: Daily for "Email" and Weekly for "InsightAlert".')
 @allowed([
   'Daily'
   'Weekly'
@@ -133,18 +133,18 @@ param includeCsv bool = false
 ])
 param scheduleFrequency string = kind == 'InsightAlert' ? 'Daily' : 'Weekly'
 
-@description('Required if kind is "Email" and scheduleFrequency is "Weekly". List of days of the week that emails should be delivered. Allowed: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday.')
-param scheduleDaysOfWeek array = [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday' ]
+@description('Required if kind is "Email" and scheduleFrequency is "Weekly". List of days of the week that emails should be delivered. Allowed: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday. Default: Monday.')
+param scheduleDaysOfWeek array = [ 'Monday' ]
 
-@description('Required if kind is "Email" and scheduleFrequency is "Monthly". The day of the month that emails should be delivered. Note monthly cost is not final until the 3rd of the month. This or scheduleWeeksOfMonth is required if scheduleFrequency is "Monthly".')
+@description('Required if kind is "Email" and scheduleFrequency is "Monthly". The day of the month that emails should be delivered. Note monthly cost is not final until the 3rd of the month. This or scheduleWeeksOfMonth is required if scheduleFrequency is "Monthly". Default: 0 (not set).')
 @allowed([ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31 ])
 param scheduleDayOfMonth int = 0
 
-@description('List of weeks of the month that emails should be delivered. This or scheduleDayOfMonth is required if scheduleFrequency is "Monthly". Allowed: First, Second, Third, Fourth, Last.')
+@description('List of weeks of the month that emails should be delivered. This or scheduleDayOfMonth is required if scheduleFrequency is "Monthly". Allowed: First, Second, Third, Fourth, Last. Default [] (not set).)')
 param scheduleWeeksOfMonth array = []
 
-@description('The first day the schedule should run. Use the time to indicate when you want to receive emails. Must be in the format yyyy-MM-ddTHH:miZ. Default = Today')
-param scheduleStartDate string = utcNow('yyyy-MM-ddTHH:mm:ssZ')
+@description('The first day the schedule should run. Use the time to indicate when you want to receive emails. Must be in the format yyyy-MM-ddTHH:miZ. Default = Now.')
+param scheduleStartDate string = utcNow('yyyy-MM-ddTHH:00Z')
 
 @description('The last day the schedule should run. Must be in the format yyyy-MM-dd. Default = 1 year from start date.')
 param scheduleEndDate string = ''
