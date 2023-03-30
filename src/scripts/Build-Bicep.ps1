@@ -69,9 +69,9 @@ function Build-Modules([string] $Path, [switch] $CopySupportingFiles) {
             Write-Host "".PadLeft($moduleName.Length, "=")
         }
   
-        # Start on second line to get past the supported scope directive
-        $i = 1
-        $script:lastLineEmpty = $true
+        # Use custom iterator to peek at multiple lines
+        $i = 0
+        $script:lastLineEmpty = $lines.Count -le $i -or [string]::IsNullOrWhiteSpace($lines[$i])
         while ($i -lt ($lines.Count)) {
             # Helper functions
             $script:isNewLine = $true
@@ -89,8 +89,8 @@ function Build-Modules([string] $Path, [switch] $CopySupportingFiles) {
                 # Do nothing, skip line
             }
             # Handle targetScope
-            elseif ($line -match '^\s*targetScope\s*=\s*''(resourceGroup|subscription|managementGroup|tenant)''\s*$') {
-                append ($line -creplace "'(resourceGroup|subscription|managementGroup|tenant)'", "'$currentScope'")
+            elseif ($line -match "^\s*targetScope\s*=\s*'(resourceGroup|subscription|managementGroup|tenant)'\s*($scopeDirective)?\s*$") {
+                append "targetScope = '$currentScope'"
             }
             # Handle conditional lines
             elseif ($line -match "[^\s]+\s*$scopeDirective" -and $line.Substring(0, $line.LastIndexOf("//")).Trim().Length -gt 0) {
@@ -111,7 +111,7 @@ function Build-Modules([string] $Path, [switch] $CopySupportingFiles) {
                 $isCurrentScopeBlock = $line.Substring($line.LastIndexOf("//")) -match "@$currentScope"
   
                 # Loop thru next lines until we find a directive or empty line
-                while (-not ($lines[$i + 1] -match "^\s*$scopeDirective\s*$") -and $lines[$i + 1].Trim().Length -gt 0) {
+                while ($lines.Count -gt $i + 1 -and -not ($lines[$i + 1] -match "^\s*$scopeDirective\s*$") -and $lines[$i + 1].Trim().Length -gt 0) {
                     # If current scope, uncomment; otherwise, skip line
                     if ($isCurrentScopeBlock) {
                         append ([regex]'//\s*').Replace($lines[++$i], '', 1)
@@ -137,10 +137,15 @@ function Build-Modules([string] $Path, [switch] $CopySupportingFiles) {
             $sb.ToString() | Out-File (Join-Path $outdir $moduleName $Path)
         }
 
-        # Write supporting files
+        # Write supporting files, if available
         if ($CopySupportingFiles -and -not $Debug) {
             @('main.json', 'metadata.json', 'README.md', 'version.json') `
-            | ForEach-Object { Copy-Item (Join-Path $Module $_) (Join-Path $outdir $moduleName) }
+            | ForEach-Object { 
+                $sourceFile = Join-Path $Module $_
+                if (Test-Path $sourceFile) {
+                    Copy-Item $sourceFile (Join-Path $outdir $moduleName)
+                }
+            }
         }
     }
 }

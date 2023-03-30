@@ -62,6 +62,9 @@ $defaultParameters = @{
     "finops-hub/test" = @{ uniqueName = Get-UniqueName }
 }
 
+# Reset global debug variable
+$global:ftkDeployment = $null
+
 # Find bicep file (templates first)
 @("../templates", "../bicep-registry", "../../release") `
 | ForEach-Object { Get-Item (Join-Path $_ $Template (iff $Test test/main.test.bicep main.bicep)) -ErrorAction SilentlyContinue } `
@@ -99,12 +102,15 @@ $defaultParameters = @{
                 }
 
                 # Start deployment
-                New-AzResourceGroupDeployment `
+                $global:ftkDeployment = New-AzResourceGroupDeployment `
                     -TemplateFile $templateFile `
                     -TemplateParameterObject $Parameters `
                     -ResourceGroupName $ResourceGroup `
                     -WhatIf:$WhatIf
+                $global:ftkDeployment
             }
+
+            return "https://portal.azure.com/subscriptions/$((Get-AzContext).Subscription.Id)/resourceGroups/$ResourceGroup"
 
         }
         "subscription" {
@@ -115,12 +121,15 @@ $defaultParameters = @{
             if ($Debug) {
                 Write-Host "          $templateFile"
             } else {
-                New-AzSubscriptionDeployment `
+                $global:ftkDeployment = New-AzSubscriptionDeployment `
                     -TemplateFile $templateFile `
                     -TemplateParameterObject $Parameters `
                     -Location $Location `
                     -WhatIf:$WhatIf
+                $global:ftkDeployment
             }
+
+            return "https://portal.azure.com/subscriptions/$((Get-AzContext).Subscription.Id)"
 
         }
         "managementGroup" {
@@ -135,16 +144,19 @@ $defaultParameters = @{
             if ($Debug) {
                 Write-Host "             $templateFile"
             } else {
-                New-AzTenantDeployment `
+                $global:ftkDeployment = New-AzTenantDeployment `
                     -TemplateFile $templateFile `
                     -TemplateParameterObject $Parameters `
                     -Location $Location `
                     -WhatIf:$WhatIf
+                $global:ftkDeployment
             }
+
+            return "https://portal.azure.com/$((Get-AzContext).Tenant.Id)"
 
         }
         default { Write-Error "Unsupported target scope: $targetScope"; return }
     }
 
     Write-Host ''
-}    
+}
