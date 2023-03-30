@@ -7,14 +7,14 @@ targetScope = 'subscription'
 @description('Name of the scheduled action used in the resource ID.')
 param name string
 
-@description('Indicates the kind of scheduled action.')
+@description('Indicates the kind of scheduled action. Default: Email.')
 @allowed([
   'Email'
   'InsightAlert' // @subscription
 ])
 param kind string = 'Email'
 
-@description('Indicates whether the scheduled action is private and only editable by the current user. If false, the scheduled action will be shared with other users in the same scope. Ignored if kind is "InsightAlert".')
+@description('Indicates whether the scheduled action is private and only editable by the current user. If false, the scheduled action will be shared with other users in the same scope. Ignored if kind is "InsightAlert". Default: false.')
 param private bool = false
 
 // @tenant
@@ -47,35 +47,35 @@ param builtInView string = ''
 @description('Required if kind is "Email" and builtInView is not set. The resource ID of the view to which the scheduled action will send. The view must either be private (tenant level) or owned by the same scope as the scheduled action. Ignored if kind is "InsightAlert" or if builtInView is set.')
 param viewId string = ''
 
-@description('The display name to show in the portal when viewing the list of scheduled actions.')
+@description('The display name to show in the portal when viewing the list of scheduled actions. Default: (scheduled action name).')
 param displayName string = name
 
-@description('The status of the scheduled action.')
+@description('The status of the scheduled action. Default: Enabled.')
 @allowed([
   'Enabled'
   'Disabled'
 ])
 param status string = 'Enabled'
 
-@description('Email address of the person or team responsible for this scheduled action. This email address will be included in emails.')
+@description('Email address of the person or team responsible for this scheduled action. This email address will be included in emails. Default: (email address of user deploying the template).')
 param notificationEmail string = ''
 
 @description('List of email addresses that should receive emails. At least one valid email address is required.')
 param emailRecipients array
 
-@description('The subject of the email that will be sent to the email recipients.')
+@description('The subject of the email that will be sent to the email recipients. Default: (view name).')
 @maxLength(70)
 param emailSubject string = ''
 
-@description('Include a message for recipients to add context about why they are getting the email, what to do, and/or who to contact.')
+@description('Include a message for recipients to add context about why they are getting the email, what to do, and/or who to contact. Default: "" (no message).')
 @maxLength(250)
 param emailMessage string = ''
 
-@description('The language that will be used for the email template.')
+@description('The language that will be used for the email template. Default: en.')
 @allowed([
-  'en'
   'cs'
   'de'
+  'en'
   'es'
   'fr'
   'hu'
@@ -95,7 +95,7 @@ param emailMessage string = ''
 ])
 param emailLanguage string = 'en'
 
-@description('The regional format that will be used for dates, times, and numbers.')
+@description('The regional format that will be used for dates, times, and numbers. Default: en-us.')
 @allowed([
   'cs-cz'
   'da-dk'
