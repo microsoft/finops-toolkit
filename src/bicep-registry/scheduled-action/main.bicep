@@ -14,9 +14,10 @@ param name string
 ])
 param kind string = 'Email'
 
+@description('Indicates whether the scheduled action is private and only editable by the current user. If false, the scheduled action will be shared with other users in the same scope. Ignored if kind is "InsightAlert".')
+param private bool = false
+
 // @tenant
-//   @description('The full Azure resource ID for the scope to use for a private scheduled action that only you can see and manage. To create a shared scheduled action, use other billing scope parameters in this module or a subscription or resoure group module.')
-//   param privateScope string = ''
 //   @description('Unique ID for the billingAccount this scheduled action should be created for. Only applicable for MCA or EA billing account scopes.')
 //   param billingAccountId string = ''
 //   @description('Unique ID for the billingProfile this scheduled action should be created for. Requires billingAccountId to be set.')
@@ -201,9 +202,11 @@ var internalViewId = builtInView == null ? viewId : '${scope}/providers/Microsof
 resource sa 'Microsoft.CostManagement/scheduledActions@2022-10-01' = {
   name: name
   kind: kind
-  // scope: !empty(privateScope) ? tenant() : useBillingAccount ? ba : useBillingProfile ? bp : useInvoiceSection ? is : useCustomer ? cust : useDepartment ? dept : useEnrollmentAccount ? ea : useExternalBillingAccount ? eba : useExternalSubscription ? es : tenant() // @tenant
+  scope: private ? tenant() : subscription() // @subscription
+  // scope: private ? tenant() : resourceGroup() // @resourceGroup
+  // scope: private ? tenant() : useBillingAccount ? ba : useBillingProfile ? bp : useInvoiceSection ? is : useCustomer ? cust : useDepartment ? dept : useEnrollmentAccount ? ea : useExternalBillingAccount ? eba : useExternalSubscription ? es : tenant() // @tenant
   properties: {
-    // scope: !empty(privateScope) ? scope : '' // @tenant
+    scope: private ? scope : ''
     displayName: displayName
     viewId: kind == 'InsightAlert' ? '${scope}/providers/Microsoft.CostManagement/views/ms:DailyAnomalyByResourceGroup' : internalViewId
     notificationEmail: notificationEmail
