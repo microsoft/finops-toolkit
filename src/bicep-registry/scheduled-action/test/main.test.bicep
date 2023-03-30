@@ -5,7 +5,7 @@ param startTime string = utcNow('yyyy-MM-dd')
 var scheduleStartDate = '${dateTimeAdd(startTime, 'P1M', 'yyyy-MM-dd')}T08:00Z'
 var scheduleEndDate = '${dateTimeAdd(startTime, 'P1M1D', 'yyyy-MM-dd')}T08:00Z'
 
-// Test 1 - Create a shared scheduled action for the DailyCosts built-in view.
+// Test 1 - Creates a shared scheduled action for the DailyCosts built-in view.
 module dailyCostsAlert '../main.bicep' = {
   name: 'dailyCostsAlert'
   params: {
@@ -16,12 +16,10 @@ module dailyCostsAlert '../main.bicep' = {
     emailRecipients: [ 'ema@contoso.com' ]
     scheduleFrequency: 'Weekly'
     scheduleDaysOfWeek: [ 'Monday' ]
-    scheduleStartDate: scheduleStartDate
-    scheduleEndDate: scheduleEndDate
   }
 }
 
-// Test 2 - Creating a private scheduled action for the DailyCosts built-in view.
+// Test 2 - Creates a private scheduled action for the DailyCosts built-in view with custom start/end dates.
 module privateAlert '../main.bicep' = {
   name: 'privateAlert'
   params: {
@@ -39,7 +37,7 @@ module privateAlert '../main.bicep' = {
 }
 
 // @subscription
-//// Test 3 - Creating an anomaly alert.
+//// Test 3 - Creates an anomaly alert.
 module anomalyAlert '../main.bicep' = {
   name: 'anomalyAlert'
   params: {
