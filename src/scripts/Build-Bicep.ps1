@@ -28,6 +28,7 @@ Param (
 $Debug = $DebugPreference -eq "Continue"
 
 $outdir = "../../release"
+$templateDir = "../bicep-registry/.module-template"
 $scopeList = '(subscription|resourceGroup|managementGroup|tenant)';
 $scopeDirective = "//(\s*@$scopeList)+";
 $dir = Get-Item $Module;
@@ -137,15 +138,52 @@ function Build-Modules([string] $Path, [switch] $CopySupportingFiles) {
             $sb.ToString() | Out-File (Join-Path $outdir $moduleName $Path)
         }
 
-        # Write supporting files, if available
-        if ($CopySupportingFiles -and -not $Debug) {
+        # Write template files, if metadata.json exists
+        $buildParamsFile = Join-Path $Module module.json
+        if ($CopySupportingFiles -and -not $Debug -and (Test-Path $buildParamsFile)) {
             @('main.json', 'metadata.json', 'README.md', 'version.json') `
             | ForEach-Object { 
-                $sourceFile = Join-Path $Module $_
+                $sourceFile = Join-Path $templateDir $_
                 if (Test-Path $sourceFile) {
                     Copy-Item $sourceFile (Join-Path $outdir $moduleName)
                 }
             }
+
+            function formatString($text) {
+                $formatParams = @{
+                    resourceGroup   = @{ scopeLowerPlural = "resource groups" }
+                    subscription    = @{ scopeLowerPlural = "subscriptions" }
+                    managementGroup = @{ scopeLowerPlural = "management groups" }
+                    tenant          = @{ scopeLowerPlural = "billing accounts" }
+                }[$currentScope]
+                $formatParams.Keys `
+                | ForEach-Object { $text = $text.Replace("{$_}", $formatParams[$_]) }
+                return $text
+            }
+            $moduleParams = Get-Content $buildParamsFile | ConvertFrom-Json
+
+            # Update metadata.json
+            $metadataFile = Join-Path $outdir $moduleName metadata.json
+            $metadata = Get-Content $metadataFile | ConvertFrom-Json
+            $metadata.name = formatString $moduleParams.name
+            $metadata.summary = formatString ($moduleParams.text | Where-Object { $_.scopes.Contains($currentScope) }).summary
+            $metadata | ConvertTo-Json -Depth 100 | Set-Content $metadataFile
+            if ($metadata.summary.Length -gt 120) {
+                Write-Error 'Summary in metadata.json cannot be longer than 120 characters.'
+            }
+
+            # Update version.json
+            $versionFile = Join-Path $outdir $moduleName version.json
+            $version = Get-Content $versionFile | ConvertFrom-Json
+            $version.version = $moduleParams.version
+            $version | ConvertTo-Json -Depth 100 | Set-Content $versionFile
+
+            # Update README.md
+            $readmeFile = Join-Path $outdir $moduleName README.md
+            $readme = Get-Content $readmeFile
+            $desc = formatString (Get-Content (Join-Path $Module README.md))
+            ("# $($metadata.name)", '', $metadata.summary, '', '## Description', '', $desc, '', $readMe) `
+            | Set-Content $readmeFile
         }
     }
 }
