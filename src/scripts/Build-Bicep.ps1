@@ -14,187 +14,212 @@
     Renders main module and test bicep code to the console instead of generating files.
 .PARAMETER Module
     Path to the module to build.
-.PARAMETER Scope
+.PARAMETER Scopes
     Optional. Scope to build. If not specified, all scopes will be built.
 .PARAMETER Debug
     Optional. Renders main module and test bicep code to the console instead of generating files. Line numbers map to original file.
 #>
-Param (
-    [Parameter(Position = 0)][string] $Module,
-    [string] $Scope
+[CmdletBinding()]
+param
+(
+    [Parameter(Mandatory = $true)]
+    [ValidateScript({Test-Path -Path $_})]
+    [string]
+    $Module,
+
+    [Parameter()]
+    [ValidateSet('Subscription', 'ResourceGroup', 'ManagementGroup', 'Tenant')]
+    [string[]]
+    $Scopes,
+
+    [Parameter()]
+    [switch]
+    $CopySupportingFiles,
+
+    [Parameter()]
+    [string]
+    $OutputPath ="../../release"
 )
 
-# Use the debug flag from common parameters to determine whether to run in debug mode
-$Debug = $DebugPreference -eq "Continue"
-
-$outdir = "../../release"
-$scopeList = '(subscription|resourceGroup|managementGroup|tenant)';
-$scopeDirective = "//(\s*@$scopeList)+";
-$dir = Get-Item $Module;
-
-# List of supported scopes to be updated later
-$script:scopes = @()
-
-# Generates modules for each supported scope
-function Build-Modules([string] $Path, [switch] $CopySupportingFiles) {
-    # Confirm path
-    if (-not (Test-Path (Join-Path $Module $Path))) {
-        return;
-    }
-    
-    # Read code from the bicep file
-    $lines = (Get-Content (Join-Path $Module $Path));
-
-    # Get the supported scopes
-    $script:scopes = [regex]::Matches([regex]::Matches($lines, $scopeDirective).Value, $scopeList).Value `
-    | Sort-Object -Unique `
-    | Where-Object { $_.ToLower() -eq $Scope.ToLower() -or [string]::IsNullOrWhitespace($Scope) }
-
-    # Loop thru each scope
-    $script:scopes `
-    | ForEach-Object { 
-        $currentScope = $_
-        $moduleName = "$($currentScope.ToLower())-$($dir.Name)"
-  
-        if ($CopySupportingFiles) {
-            Write-Host "  $currentScope..."
-        }
-
-        # Init string builder for the scope output
-        $sb = [System.Text.StringBuilder]::new()
-  
-        # Write debug header
-        if ($Debug) {
-            Write-Host $moduleName
-            Write-Host "".PadLeft($moduleName.Length, "=")
-        }
-  
-        # Use custom iterator to peek at multiple lines
-        $i = 0
-        $script:lastLineEmpty = $lines.Count -le $i -or [string]::IsNullOrWhiteSpace($lines[$i])
-        while ($i -lt ($lines.Count)) {
-            # Helper functions
-            $script:isNewLine = $true
-            function append([string] $Text, [switch] $NoNewLine) {
-                if ($Debug -and $script:isNewLine) { [void]$sb.Append("$($i.ToString().PadLeft(3, ' '))|  ") }
-                if ($NoNewLine) { [void]$sb.Append($Text) } else { [void]$sb.AppendLine($Text) }
-                $script:isNewLine = -not $NoNewLine
-                $script:lastLineEmpty = $Text.Trim() -eq ''
-            }
-  
-            $line = $lines[$i]
-  
-            # Remove empty lines before content starts
-            if ($line.Trim() -eq '' -and $script:lastLineEmpty) {
-                # Do nothing, skip line
-            }
-            # Handle targetScope
-            elseif ($line -match "^\s*targetScope\s*=\s*'(resourceGroup|subscription|managementGroup|tenant)'\s*($scopeDirective)?\s*$") {
-                append "targetScope = '$currentScope'"
-            }
-            # Handle conditional lines
-            elseif ($line -match "[^\s]+\s*$scopeDirective" -and $line.Substring(0, $line.LastIndexOf("//")).Trim().Length -gt 0) {
-                # If current scope, remove directive; otherwise, remove line
-                if ($line.Substring($line.LastIndexOf("//")) -match "@$currentScope") {
-                    # If line is commented, uncomment it
-                    if ($line -match '^\s*//') { $line = ([regex]'//\s*').Replace($line, '', 1) }
-
-                    # Append line without directive
-                    append ($line.TrimEnd() -creplace "$scopeDirective$", '')
-                } else {
-                    # Do nothing, skip line
-                }
-            }
-            # Handle conditional blocks
-            elseif ($line -match "^\s*$scopeDirective\s*$") {
-                # Check to see if the directive is for the current scope
-                $isCurrentScopeBlock = $line.Substring($line.LastIndexOf("//")) -match "@$currentScope"
-  
-                # Loop thru next lines until we find a directive or empty line
-                while ($lines.Count -gt $i + 1 -and -not ($lines[$i + 1] -match "^\s*$scopeDirective\s*$") -and $lines[$i + 1].Trim().Length -gt 0) {
-                    # If current scope, uncomment; otherwise, skip line
-                    if ($isCurrentScopeBlock) {
-                        append ([regex]'//\s*').Replace($lines[++$i], '', 1)
-                    } else {
-                        $i++
-                    }
-                }
-            }
-            # Append standard code
-            else {
-                append $line
-            }
- 
-            # Move to next line
-            $i++
-        }
-  
-        # Write main file
-        ./New-Directory (Join-Path $outdir $moduleName (Split-Path $Path))
-        if ($Debug) { 
-            $sb.ToString()
-        } else {
-            $sb.ToString() | Out-File (Join-Path $outdir $moduleName $Path)
-        }
-
-        # Write supporting files, if available
-        if ($CopySupportingFiles -and -not $Debug) {
-            @('main.json', 'metadata.json', 'README.md', 'version.json') `
-            | ForEach-Object { 
-                $sourceFile = Join-Path $Module $_
-                if (Test-Path $sourceFile) {
-                    Copy-Item $sourceFile (Join-Path $outdir $moduleName)
-                }
-            }
-        }
-    }
+# Run against all scopes if none specified
+$allScopes = 'Subscription', 'ResourceGroup', 'ManagementGroup', 'Tenant'
+if (-not $Scopes)
+{
+    $Scopes = $allScopes
 }
 
-# Generate module and test code
-Build-Modules main.bicep -CopySupportingFiles
-Build-Modules (Join-Path test main.test.bicep)
+$moduleName = [System.IO.Path]::GetFileNameWithoutExtension($Module)
+$parentFolderPath = Split-Path -Path $Module -Parent
+$parentFolderName = Split-Path -Path $parentFolderPath -Leaf
+$lines = Get-Content -Path $module
+
+# Matches any scope
+$genericScopeString = "\/\/\s*@($($allScopes -join '|'))+"
+
+# Matches commented out line
+$scopeContentString = "\/\/*"
+foreach ($scope in $scopes)
+{
+    # Setup output directory
+    $outputDirectory = Join-Path -Path $OutputPath -ChildPath "$Scope-$parentFolderName"
+    if (-not (Test-Path -Path $outputDirectory))
+    {
+        $outputDirectory = (New-Item -Path $outputDirectory -ItemType 'Directory').FullName
+    }
+    $outputFileName = Join-Path -Path $outputDirectory -ChildPath "$moduleName.bicep"
+    
+    # Matches only the current scope
+    $scopeMatchString = "\/\/(\s*@$scope)+"
+    $outputString = [System.Text.StringBuilder]::new()
+    $i = 0
+
+    while ($i -lt $lines.Count)
+    {
+        $line = $lines[$i]
+        $i++
+
+        # Match current scope
+        if ($line -match $scopeMatchString)
+        {
+            # Only append if string is not empty
+            $appendString = $line -replace $scopeMatchString
+            if(-not [string]::IsNullOrEmpty($appendString))
+            {
+                $null = $outputString.AppendLine($line -replace $scopeMatchString)
+            }
+
+            Write-Debug -Message ("MATCH: Scope: Line {0}: {1}" -f ($i - 1), $line)
+            for ($x = $i; $x -lt $lines.Count; $x++)
+            {
+                # Check to see if next line matches any scopes. Re-evaluate same line if it does.
+                if ($lines[$x] -match $genericScopeString)
+                {
+                    Write-Debug -Message ("RE-EVALUATE MATCH: AnyScope: Line {0}: {1}" -f $x, $lines[$x])
+                    $i = $x
+                    break
+                }
+
+                # Check to see if next line is commented, assume its part of current scope if it is.
+                elseif ($lines[$x] -match $scopeContentString)
+                {
+                    Write-Debug -Message ("MATCH: ScopeContent: Line {0}: {1}" -f $x, $lines[$x])
+                    $null = $outputString.AppendLine($lines[$x].Replace('//', ''))
+                }
+
+                # Add line and continue to next line.
+                else
+                {
+                    Write-Debug -Message ("NO MATCH: ScopeContent: Line {0}: {1}" -f $x, $lines[$x])
+                    $null = $outputString.AppendLine($lines[$x])
+                    $x++
+                    $i = $x
+                    break
+                }
+            }
+
+            continue
+        }
+
+        # Line matches any scope
+        elseif ($line -match $genericScopeString)
+        {
+            Write-Debug -Message ("MATCH: AnyScope: Line {0}: {1}" -f ($i - 1), $line)
+
+            $i++
+            for ($x = $i; $x -lt $lines.Count; $x++)
+            {
+                # Line matches current scope and needs to be re-evaluated, restart loop with same index.
+                if ($lines[$x] -match $scopeMatchString)
+                {
+                    Write-Debug -Message ("RE-EVALUATE MATCH: AnyScope: Line {0}: {1}" -f $x, $lines[$x])
+                    $i = $x
+                    break
+                }
+
+                # Line does not start with comments, so we assume it needs to be added.
+                elseif ($lines[$x] -notmatch $scopeContentString)
+                {
+                    Write-Debug -Message ("NO MATCH: ScopeContent: Line {0}: {1}" -f ($x - 1), $lines[$x - 1])
+
+                    $null = $outputString.AppendLine($lines[$x])
+                    $x++
+                    $i = $x
+                    break
+                }
+
+                # Line starts with comments, so we assume it is part of the scope content and skip it.
+                else
+                {
+                    Write-Debug -Message ("MATCH: ScopeContent: Line {0}: {1}" -f ($x - 1), $lines[$x - 1])
+                }
+            }
+
+            continue
+        }
+
+        # Line does not match a scope, add it.
+        else
+        {
+            Write-Debug -Message ("NO MATCH: Line {0}: {1}" -f ($i - 1), $line)
+            $null = $outputString.AppendLine($line)
+        }
+    }
+
+    $outputString.ToString() | Out-File -FilePath $outputFileName
+}
+
+# Copy supporting files.
+if ($CopySupportingFiles)
+{
+    Get-ChildItem -Path $parentFolderPath -Exclude (Split-Path -Path $Module -Leaf) -Recurse | Copy-Item -Destination $outputDirectory
+}
 
 # Copy tests to README.md examples
-if (-not $Debug) {    
-    Get-ChildItem (Join-Path $outdir * test main.test.bicep) `
-    | Where-Object { $_.Directory.Parent.Name -match "-$($dir.Name)$" } `
-    | ForEach-Object {
-        $testFile = $_
+$testPath = Join-Path -Path $parentFolderPath -ChildPath 'Test'
+if (Test-Path -Path $testPath)
+{
+    $tests = (Get-ChildItem -Path $testPath -Filter '*test.bicep').FullName
+    foreach ($test in $tests)
+    {
         $sb = [System.Text.StringBuilder]::new()
         $writingModule = $false
-        
-        Get-Content $testFile `
-        | ForEach-Object {
-            $line = $_
+        $lines = Get-Content -Path $test
+        foreach ($line in $lines)
+        {
             # If test comment, write example header
-            if ($line -match '^\s*//\s*Test\s') {
+            if ($line -match '^\s*//\s*Test\s')
+            {
                 # Parse test number and description
-                $regex = [regex]::Matches($line.Trim(), '^//\s*Test\s*([0-9]+)\s*-\s*(.*)');
+                $regex = [regex]::Matches($line.Trim(), '^//\s*Test\s*([0-9]+)\s*-\s*(.*)')
                 $number = $regex.Groups[1].Value
                 $text = $regex.Groups[2].Value
-    
+
                 [void]$sb.AppendLine().AppendLine("### Example $number").AppendLine()
                 [void]$sb.AppendLine($text).AppendLine()
                 [void]$sb.AppendLine('```bicep')
             }
             # If module, adjust the target destination
-            elseif ($line -match '^module\s*' -and $line -match '../main.bicep') {
-                $line = $line -replace "../main.bicep", "br/public:cost/$($testFile.Directory.Parent.Name):1.0"
+            elseif ($line -match '^module\s*' -and $line -match '../main.bicep')
+            {
+                $line = $line -replace "../main.bicep", "br/public:cost/$($parentFolderName):1.0"
                 [void]$sb.AppendLine($line)
                 $writingModule = $true
             }
             # If module body, append code
-            elseif ($writingModule -and -not ($line -match '^}$')) {
+            elseif ($writingModule -and -not ($line -match '^}$'))
+            {
                 [void]$sb.AppendLine($line)
             }
             # If end of module, close code block
-            elseif ($writingModule -and $line -eq '}') {
+            elseif ($writingModule -and $line -eq '}')
+            {
                 [void]$sb.AppendLine($line).AppendLine('```')
+                [void]$sb.AppendLine($line).AppendLine('')
                 $writingModule = $false
             }
         }
-    
+
         # Append examples to README file
-        $sb.ToString() | Out-File (Join-Path (Split-Path $testFile -Parent) '..' 'README.md') -Append
+        $sb.ToString() | Out-File (Join-Path -Path $parentFolderPath -ChildPath 'README.md') -Append
     }
 }

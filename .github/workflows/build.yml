@@ -1,0 +1,27 @@
+name: 'AzureBicepDeploy'
+
+on:
+  pull_request
+ 
+jobs:
+  AzureBicepDeploy:
+    name: 'AzureBicepDeploy'
+    runs-on: ubuntu-latest
+    env:
+      ResourceGroupLocation: "westus"
+      PR_NUMBER: ${{ github.event.number }}
+ 
+    steps:
+ 
+    - uses: actions/checkout@v2
+ 
+    - uses: azure/actions/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Az CLI Create Resource Group
+      uses: Azure/CLI@v1
+      with:
+        inlineScript: |
+          #!/bin/bash
+          az group create --name BuildTest --location ${{ env.ResourceGroupLocation }}

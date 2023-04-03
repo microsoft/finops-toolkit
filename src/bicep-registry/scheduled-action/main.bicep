@@ -150,7 +150,7 @@ param scheduleStartDate string = utcNow('yyyy-MM-ddTHH:00Z')
 param scheduleEndDate string = ''
 
 // @subscription
-var scope = subscription().id
+//   var scope = subscription().id
 // @resourceGroup
 //   var scope = resourceGroup().id
 // @tenant
