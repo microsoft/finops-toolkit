@@ -6,7 +6,7 @@
         Path to the module to build.
 
     .PARAMETER Scopes
-    Optional. Scope to build. If not specified, all scopes will be built.
+        Optional. Scope to build. If not specified, all scopes will be built.
 
     .PARAMETER CopySupportingFiles
         Optional. Copies supporting files to the output directory.
@@ -48,6 +48,30 @@ param
     $OutputPath = "../Release"
 )
 
+
+function Get-NextEndRegionIndex
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [psobject[]]
+        $Content,
+
+        [Parameter(Mandatory = $true)]
+        [int]
+        $StartingIndex
+    )
+
+    for ($i = $StartingIndex; $i -lt $Content.Count; $i++)
+    {
+        if ($Content[$i] -match '//endregion')
+        {
+            return $i
+        }
+    }
+}
+
 $moduleName = [System.IO.Path]::GetFileNameWithoutExtension($Module)
 $parentFolderPath = Split-Path -Path $Module -Parent
 $parentFolderName = Split-Path -Path $parentFolderPath -Leaf
@@ -55,12 +79,11 @@ $lines = Get-Content -Path $module
 
 # Matches any scope
 $allScopes = 'Subscription', 'ResourceGroup', 'ManagementGroup', 'Tenant'
-$genericScopeString = "\/\/\s*@($($allScopes -join '|'))+"
 
-# Matches commented out line
-$scopeContentString = "\/\/*"
 foreach ($scope in $scopes)
 {
+    $genericScopeString = "\/\/region\s@($($allScopes.Where({$_ -ne $scope}) -join '|'))+"
+
     # Setup output directory
     $outputDirectory = Join-Path -Path $OutputPath -ChildPath "$Scope-$parentFolderName"
     if (-not (Test-Path -Path $outputDirectory))
@@ -70,99 +93,35 @@ foreach ($scope in $scopes)
     $outputFileName = Join-Path -Path $outputDirectory -ChildPath "$moduleName.bicep"
     
     # Matches only the current scope
-    $scopeMatchString = "\/\/(\s*@$scope)+"
+    $scopeMatchString = "\/\/(region\s@$scope)+"
     $outputString = [System.Text.StringBuilder]::new()
     $i = 0
-
     while ($i -lt $lines.Count)
     {
         $line = $lines[$i]
-        $i++
 
         # Match current scope
         if ($line -match $scopeMatchString)
         {
-            # Only append if string is not empty
-            $appendString = $line -replace $scopeMatchString
-            if(-not [string]::IsNullOrEmpty($appendString))
-            {
-                $null = $outputString.AppendLine($line -replace $scopeMatchString)
-            }
-
+            $i++
+            $stopIndex = Get-NextEndRegionIndex -Content $lines -StartingIndex $i
             Write-Debug -Message ("MATCH: Scope: Line {0}: {1}" -f ($i - 1), $line)
-            for ($x = $i; $x -lt $lines.Count; $x++)
+            for ($x = $i; $x -lt $stopIndex; $x++)
             {
-                # Check to see if next line matches any scopes. Re-evaluate same line if it does.
-                if ($lines[$x] -match $genericScopeString)
-                {
-                    Write-Debug -Message ("RE-EVALUATE MATCH: AnyScope: Line {0}: {1}" -f $x, $lines[$x])
-                    $i = $x
-                    break
-                }
-
-                # Check to see if next line is commented, assume its part of current scope if it is.
-                elseif ($lines[$x] -match $scopeContentString)
-                {
-                    Write-Debug -Message ("MATCH: ScopeContent: Line {0}: {1}" -f $x, $lines[$x])
-                    $null = $outputString.AppendLine($lines[$x].Replace('//', ''))
-                }
-
-                # Add line and continue to next line.
-                else
-                {
-                    Write-Debug -Message ("NO MATCH: ScopeContent: Line {0}: {1}" -f $x, $lines[$x])
-                    $null = $outputString.AppendLine($lines[$x])
-                    $x++
-                    $i = $x
-                    break
-                }
+                $null = $outputString.AppendLine($lines[$x].Replace('//', ''))
             }
-
-            continue
+            
+            $i = $stopIndex + 1
         }
-
-        # Line matches any scope
         elseif ($line -match $genericScopeString)
         {
-            Write-Debug -Message ("MATCH: AnyScope: Line {0}: {1}" -f ($i - 1), $line)
-
-            $i++
-            for ($x = $i; $x -lt $lines.Count; $x++)
-            {
-                # Line matches current scope and needs to be re-evaluated, restart loop with same index.
-                if ($lines[$x] -match $scopeMatchString)
-                {
-                    Write-Debug -Message ("RE-EVALUATE MATCH: AnyScope: Line {0}: {1}" -f $x, $lines[$x])
-                    $i = $x
-                    break
-                }
-
-                # Line does not start with comments, so we assume it needs to be added.
-                elseif ($lines[$x] -notmatch $scopeContentString)
-                {
-                    Write-Debug -Message ("NO MATCH: ScopeContent: Line {0}: {1}" -f ($x - 1), $lines[$x - 1])
-
-                    $null = $outputString.AppendLine($lines[$x])
-                    $x++
-                    $i = $x
-                    break
-                }
-
-                # Line starts with comments, so we assume it is part of the scope content and skip it.
-                else
-                {
-                    Write-Debug -Message ("MATCH: ScopeContent: Line {0}: {1}" -f ($x - 1), $lines[$x - 1])
-                }
-            }
-
-            continue
+            $stopIndex = Get-NextEndRegionIndex -Content $lines -StartingIndex $i
+            $i = $stopIndex + 1
         }
-
-        # Line does not match a scope, add it.
         else
         {
-            Write-Debug -Message ("NO MATCH: Line {0}: {1}" -f ($i - 1), $line)
             $null = $outputString.AppendLine($line)
+            $i++
         }
     }
 

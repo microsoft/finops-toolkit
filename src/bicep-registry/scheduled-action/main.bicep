@@ -10,31 +10,40 @@ param name string
 @description('Indicates the kind of scheduled action. Default: Email.')
 @allowed([
   'Email'
-  'InsightAlert' // @subscription
+  //region @subscription
+  'InsightAlert'
+  //endregion
 ])
 param kind string = 'Email'
 
 @description('Indicates whether the scheduled action is private and only editable by the current user. If false, the scheduled action will be shared with other users in the same scope. Ignored if kind is "InsightAlert". Default: false.')
 param private bool = false
 
-// @tenant
+//region @tenant
 //   @description('Unique ID for the billingAccount this scheduled action should be created for. Only applicable for MCA or EA billing account scopes.')
 //   param billingAccountId string = ''
+//   
 //   @description('Unique ID for the billingProfile this scheduled action should be created for. Requires billingAccountId to be set.')
 //   param billingProfileId string = ''
+//   
 //   @description('Unique ID for the invoiceSection this scheduled action should be created for. Requires billingAccountId and billingProfileId to be set.')
 //   param invoiceSectionId string = ''
+//   
 //   @description('Unique ID for the customer this scheduled action should be created for. Requires billingAccountId to be set.')
 //   param customerId string = ''
+//   
 //   @description('Unique ID for the department this scheduled action should be created for. Requires billingAccountId to be set to the EA enrollment number.')
 //   param departmentId string = ''
+//   
 //   @description('Unique ID for the enrollmentAccount this scheduled action should be created for. Requires billingAccountId to be set to the EA enrollment number. departmentId is also required, if applicable.')
 //   param enrollmentAccountId string = ''
+//   
 //   @description('Unique ID for the AWS management account (aka external billing account) this scheduled action should be created for. Requires account to be setup with Connectors for AWS.')
 //   param externalBillingAccountId string = ''
+//   
 //   @description('Unique ID for the AWS member account (aka external subscription) this scheduled action should be created for. Requires account to be setup with Connectors for AWS.')
 //   param externalSubscriptionId string = ''
-
+//endregion
 @description('Specifies which built-in view to use. This is a shortcut for the full view ID.')
 @allowed([
   ''
@@ -149,11 +158,13 @@ param scheduleStartDate string = utcNow('yyyy-MM-ddTHH:00Z')
 @description('The last day the schedule should run. Must be in the format yyyy-MM-dd. Default = 1 year from start date.')
 param scheduleEndDate string = ''
 
-// @subscription
+//region @subscription
 //   var scope = subscription().id
-// @resourceGroup
+//endregion
+//region @resourceGroup
 //   var scope = resourceGroup().id
-// @tenant
+//endregion
+//region @tenant
 //   var useBillingAccount = !empty(billingAccountId) && empty(billingProfileId) && empty(customerId) && empty(departmentId) && empty(enrollmentAccountId)
 //   var useBillingProfile = !empty(billingAccountId) && !empty(billingProfileId) && empty(invoiceSectionId)
 //   var useInvoiceSection = !empty(billingAccountId) && !empty(billingProfileId) && !empty(invoiceSectionId)
@@ -163,12 +174,13 @@ param scheduleEndDate string = ''
 //   var useExternalBillingAccount = empty(billingAccountId) && !empty(externalBillingAccountId)
 //   var useExternalSubscription = empty(billingAccountId) && empty(externalBillingAccountId) && !empty(externalSubscriptionId)
 //   var scope = !empty(privateScope) ? privateScope : useBillingAccount ? ba.id : useBillingProfile ? bp.id : useInvoiceSection ? is.id : useCustomer ? cust.id : useDepartment ? dept.id : useEnrollmentAccount ? ea.id : useExternalBillingAccount ? eba.id : useExternalSubscription ? es.id : tenant().tenantId
+//endregion
 
 var internalViewId = builtInView == null ? viewId : '${scope}/providers/Microsoft.CostManagement/views/ms:${builtInView}'
 
 //===| Resources |=============================================================
 
-// @tenant
+//region @tenant
 //   resource ba 'Microsoft.Billing/billingAccounts@2020-05-01' existing = if (useBillingAccount) {
 //     name: billingAccountId
 //   }
@@ -198,13 +210,20 @@ var internalViewId = builtInView == null ? viewId : '${scope}/providers/Microsof
 //   resource es 'Microsoft.CostManagement/externalSubscriptions@2019-03-01-preview' existing = if (useExternalSubscription) {
 //     name: externalSubscriptionId
 //   }
+//endregion
 
 resource sa 'Microsoft.CostManagement/scheduledActions@2022-10-01' = {
   name: name
   kind: kind
-  scope: private ? tenant() : subscription() // @subscription
-  // scope: private ? tenant() : resourceGroup() // @resourceGroup
-  // scope: private ? tenant() : useBillingAccount ? ba : useBillingProfile ? bp : useInvoiceSection ? is : useCustomer ? cust : useDepartment ? dept : useEnrollmentAccount ? ea : useExternalBillingAccount ? eba : useExternalSubscription ? es : tenant() // @tenant
+  //region @subscription
+  scope: private ? tenant() : subscription()
+  //endregion
+  //region @resourceGroup
+  //scope: private ? tenant() : resourceGroup()
+  //endregion
+  //region @tenant
+  //scope: private ? tenant() : useBillingAccount ? ba : useBillingProfile ? bp : useInvoiceSection ? is : useCustomer ? cust : useDepartment ? dept : useEnrollmentAccount ? ea : useExternalBillingAccount ? eba : useExternalSubscription ? es : tenant()
+  //endregion
   properties: {
     scope: private ? scope : ''
     displayName: displayName
