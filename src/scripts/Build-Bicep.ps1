@@ -1,23 +1,30 @@
 <#
-.SYNOPSIS
-    Builds all toolkit templates for publishing to Azure Quickstart Templates.
-.DESCRIPTION
-    Run this from the /src/scripts folder.
-.EXAMPLE
-    ./Build-Bicep ../bicep-registry/module-name
-    Generates separate modules for each supported scope for the specified module.
-.EXAMPLE
-    ./Build-Bicep ../bicep-registry/module-name -Scope subscription
-    Generates the module for only one scope (subscription in this case).
-.EXAMPLE
-    ./Build-Bicep ../bicep-registry/module-name -Scope subscription -Debug
-    Renders main module and test bicep code to the console instead of generating files.
-.PARAMETER Module
-    Path to the module to build.
-.PARAMETER Scopes
+    .SYNOPSIS
+        Builds all toolkit templates for publishing to Azure Quickstart Templates.
+
+    .PARAMETER Module
+        Path to the module to build.
+
+    .PARAMETER Scopes
     Optional. Scope to build. If not specified, all scopes will be built.
-.PARAMETER Debug
-    Optional. Renders main module and test bicep code to the console instead of generating files. Line numbers map to original file.
+
+    .PARAMETER CopySupportingFiles
+        Optional. Copies supporting files to the output directory.
+
+    .PARAMETER OutputPath
+        Path to save resulting templates. Defaults to ../Release.
+
+    .EXAMPLE
+        ./Build-Bicep ../bicep-registry/module-name
+        Generates separate modules for each supported scope for the specified module.
+
+    .EXAMPLE
+        ./Build-Bicep ../bicep-registry/module-name -Scope subscription
+        Generates the module for only one scope (subscription in this case).
+
+    .EXAMPLE
+        ./Build-Bicep ../bicep-registry/module-name -Scope subscription -CopySupportingFiles
+        Generates module for the subscription scope and copies associated files.
 #>
 [CmdletBinding()]
 param
@@ -30,7 +37,7 @@ param
     [Parameter()]
     [ValidateSet('Subscription', 'ResourceGroup', 'ManagementGroup', 'Tenant')]
     [string[]]
-    $Scopes,
+    $Scopes = ('Subscription', 'ResourceGroup', 'ManagementGroup', 'Tenant'),
 
     [Parameter()]
     [switch]
@@ -38,15 +45,8 @@ param
 
     [Parameter()]
     [string]
-    $OutputPath ="../../release"
+    $OutputPath = "../Release"
 )
-
-# Run against all scopes if none specified
-$allScopes = 'Subscription', 'ResourceGroup', 'ManagementGroup', 'Tenant'
-if (-not $Scopes)
-{
-    $Scopes = $allScopes
-}
 
 $moduleName = [System.IO.Path]::GetFileNameWithoutExtension($Module)
 $parentFolderPath = Split-Path -Path $Module -Parent
@@ -54,6 +54,7 @@ $parentFolderName = Split-Path -Path $parentFolderPath -Leaf
 $lines = Get-Content -Path $module
 
 # Matches any scope
+$allScopes = 'Subscription', 'ResourceGroup', 'ManagementGroup', 'Tenant'
 $genericScopeString = "\/\/\s*@($($allScopes -join '|'))+"
 
 # Matches commented out line
