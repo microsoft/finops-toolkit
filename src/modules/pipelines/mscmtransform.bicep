@@ -61,26 +61,20 @@ resource pipeline 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =  {
               type: 'DelimitedTextReadSettings'
             }
           }
-          sink: outputFormat == 'parquet' ? {
+          sink: {
             type: 'DelimitedTextSink'
             storeSettings: {
               type: 'AzureBlobFSWriteSettings'
             }
-            formatSettings: {
+            formatSettings: outputFormat == 'parquet' ? {
               type: 'ParquetWriteSettings'
               fileExtension: '.parquet'
-            }
-          } : {
-            type: 'DelimitedTextSink'
-            storeSettings: {
-              type: 'AzureBlobFSWriteSettings'
-            }
-            formatSettings: {
+            } : {
               type: 'DelimitedTextWriteSettings'
               quoteAllText: true
               fileExtension: '.csv.gz'
             }
-          }           
+          }        
           enableStaging: false
           parallelCopies: 1
           validateDataConsistency: false
