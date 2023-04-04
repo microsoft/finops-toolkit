@@ -68,7 +68,7 @@ function Get-NextEndRegionIndex
 
     for ($i = $StartingIndex; $i -lt $Content.Count; $i++)
     {
-        if ($Content[$i] -match '//endregion')
+        if ($Content[$i] -match '\*\/')
         {
             return $i
         }
@@ -79,13 +79,14 @@ $moduleName = [System.IO.Path]::GetFileNameWithoutExtension($Module)
 $parentFolderPath = Split-Path -Path $Module -Parent
 $parentFolderName = Split-Path -Path $parentFolderPath -Leaf
 $lines = Get-Content -Path $module
+$closingComment = "\*\/"
 
 # Matches any scope
 $allScopes = 'Subscription', 'ResourceGroup', 'ManagementGroup', 'Tenant'
 
 foreach ($scope in $scopes)
 {
-    $genericScopeString = "\/\/region\s@($($allScopes.Where({$_ -ne $scope}) -join '|'))+"
+    $genericScopeString = "\/\*\s@($($allScopes.Where({$_ -ne $scope}) -join '|'))+"
 
     # Setup output directory
     $outputDirectory = Join-Path -Path $OutputPath -ChildPath "$Scope-$parentFolderName"
@@ -96,7 +97,7 @@ foreach ($scope in $scopes)
     $outputFileName = Join-Path -Path $outputDirectory -ChildPath "$moduleName.bicep"
     
     # Matches only the current scope
-    $scopeMatchString = "\/\/(region\s@$scope)+"
+    $scopeMatchString = "\/\*\s@$scope+"
     $outputString = [System.Text.StringBuilder]::new()
     $i = 0
     while ($i -lt $lines.Count)
@@ -110,7 +111,7 @@ foreach ($scope in $scopes)
             $stopIndex = Get-NextEndRegionIndex -Content $lines -StartingIndex $i
             for ($x = $i; $x -lt $stopIndex; $x++)
             {
-                $null = $outputString.AppendLine($lines[$x].Replace('//', ''))
+                $null = $outputString.AppendLine($lines[$x])
             }
             
             $i = $stopIndex + 1
@@ -119,6 +120,10 @@ foreach ($scope in $scopes)
         {
             $stopIndex = Get-NextEndRegionIndex -Content $lines -StartingIndex $i
             $i = $stopIndex + 1
+        }
+        elseif ($line -match $closingComment)
+        {
+            $i++
         }
         else
         {
@@ -156,9 +161,9 @@ if ($IncludeTests)
                 }
 
                 $outputFileName = Join-Path -Path $outputDirectory -ChildPath "$moduleName.test.bicep"   
-                $testOtherScopeString = "\/\/region\s@($($allScopes.Where({$_ -ne $scope}) -join '|'))+"
-                $testString = '\/\/Test:'
-                $testScopeMatchString = "\/\/(region\s@$scope)+"
+                $testOtherScopeString = "\/\*\s@($($allScopes.Where({$_ -ne $scope}) -join '|'))+"
+                $testString = 'Test:'
+                $testScopeMatchString = "\/\*\s@$scope+"
                 $outputString = [System.Text.StringBuilder]::new()
                 $readmeOutput = [System.Text.StringBuilder]::new()
                 $i = 0
@@ -183,10 +188,10 @@ if ($IncludeTests)
                             }
                             else
                             {
-                                $null = $outputString.AppendLine($testLines[$x].Replace('//', ''))
+                                $null = $outputString.AppendLine($testLines[$x])
                                 if ($isModule)
                                 {
-                                    $null = $readmeOutput.AppendLine($testLines[$x].Replace('//', ''))
+                                    $null = $readmeOutput.AppendLine($testLines[$x])
                                 }
                             }
 
@@ -202,6 +207,10 @@ if ($IncludeTests)
                     {
                         $stopIndex = Get-NextEndRegionIndex -Content $testLines -StartingIndex $i
                         $i = $stopIndex + 1
+                    }
+                    elseif ($line -match $closingComment)
+                    {
+                        $i++
                     }
                     else
                     {
