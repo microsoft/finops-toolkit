@@ -5,14 +5,17 @@
 @description('Required. The name of the parent Azure Data Factory.')
 param dataFactoryName string
 
-@description('Required. Name.')
-param pipelineName string
-
 @description('Required. The name of the source dataset.')
 param sourceDataset string
 
 @description('Required. The name of the sink dataset.')
 param sinkDataset string
+
+@description('Required. Ingestion container.')
+param ingestionContainerName string
+
+@description('Required. Export container.')
+param exportContainerName string
 
 @allowed([
   'csv'
@@ -20,6 +23,8 @@ param sinkDataset string
 ])
 @description('Required. Output format.')
 param outputFormat string = 'parquet'
+
+var pipelineName = replace('${exportContainerName}_transform_${outputFormat}', '-', '_') // Pilepine names in ADF cannot contain a hyphen
 
 resource dataFactoryRef 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   name: dataFactoryName
@@ -292,7 +297,7 @@ resource pipeline 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =  {
         typeProperties: {
           variableName: 'scope'
           value: {
-            value: '@replace(split(pipeline().parameters.folderName,split(pipeline().parameters.folderName, \'/\')[sub(length(split(pipeline().parameters.folderName, \'/\')), 4)])[0],\'ms-cm-exports\',\'ingestion\')'
+            value: '@replace(split(pipeline().parameters.folderName,split(pipeline().parameters.folderName, \'/\')[sub(length(split(pipeline().parameters.folderName, \'/\')), 4)])[0],\'${exportContainerName}\',\'${ingestionContainerName}\')'
             type: 'Expression'
           }
         }
