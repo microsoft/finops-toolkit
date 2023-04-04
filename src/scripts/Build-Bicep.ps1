@@ -44,10 +44,13 @@ param
     $CopySupportingFiles,
 
     [Parameter()]
+    [switch]
+    $IncludeTests,
+
+    [Parameter()]
     [string]
     $OutputPath = "../Release"
 )
-
 
 function Get-NextEndRegionIndex
 {
@@ -105,7 +108,6 @@ foreach ($scope in $scopes)
         {
             $i++
             $stopIndex = Get-NextEndRegionIndex -Content $lines -StartingIndex $i
-            Write-Debug -Message ("MATCH: Scope: Line {0}: {1}" -f ($i - 1), $line)
             for ($x = $i; $x -lt $stopIndex; $x++)
             {
                 $null = $outputString.AppendLine($lines[$x].Replace('//', ''))
@@ -134,52 +136,83 @@ if ($CopySupportingFiles)
     Get-ChildItem -Path $parentFolderPath -Exclude (Split-Path -Path $Module -Leaf) -Recurse | Copy-Item -Destination $outputDirectory
 }
 
-# Copy tests to README.md examples
-$testPath = Join-Path -Path $parentFolderPath -ChildPath 'Test'
-if (Test-Path -Path $testPath)
+if ($IncludeTests)
 {
-    $tests = (Get-ChildItem -Path $testPath -Filter '*test.bicep').FullName
-    foreach ($test in $tests)
+    $testPath = Join-Path -Path $parentFolderPath -ChildPath 'Test'
+    if (Test-Path -Path $testPath)
     {
-        $sb = [System.Text.StringBuilder]::new()
-        $writingModule = $false
-        $lines = Get-Content -Path $test
-        foreach ($line in $lines)
+        $tests = (Get-ChildItem -Path $testPath -Filter '*test.bicep').FullName
+        foreach ($test in $tests)
         {
-            # If test comment, write example header
-            if ($line -match '^\s*//\s*Test\s')
+            $testLines = Get-Content -Path $test
+            $testNumber = 1
+            foreach ($scope in $scopes)
             {
-                # Parse test number and description
-                $regex = [regex]::Matches($line.Trim(), '^//\s*Test\s*([0-9]+)\s*-\s*(.*)')
-                $number = $regex.Groups[1].Value
-                $text = $regex.Groups[2].Value
+                # Setup output directory
+                $outputDirectory = Join-Path -Path $OutputPath -ChildPath "$Scope-$parentFolderName\Test"
+                if (-not (Test-Path -Path $outputDirectory))
+                {
+                    $outputDirectory = (New-Item -Path $outputDirectory -ItemType 'Directory').FullName
+                }
 
-                [void]$sb.AppendLine().AppendLine("### Example $number").AppendLine()
-                [void]$sb.AppendLine($text).AppendLine()
-                [void]$sb.AppendLine('```bicep')
-            }
-            # If module, adjust the target destination
-            elseif ($line -match '^module\s*' -and $line -match '../main.bicep')
-            {
-                $line = $line -replace "../main.bicep", "br/public:cost/$($parentFolderName):1.0"
-                [void]$sb.AppendLine($line)
-                $writingModule = $true
-            }
-            # If module body, append code
-            elseif ($writingModule -and -not ($line -match '^}$'))
-            {
-                [void]$sb.AppendLine($line)
-            }
-            # If end of module, close code block
-            elseif ($writingModule -and $line -eq '}')
-            {
-                [void]$sb.AppendLine($line).AppendLine('```')
-                [void]$sb.AppendLine($line).AppendLine('')
-                $writingModule = $false
-            }
+                $outputFileName = Join-Path -Path $outputDirectory -ChildPath "$moduleName.test.bicep"   
+                $testOtherScopeString = "\/\/region\s@($($allScopes.Where({$_ -ne $scope}) -join '|'))+"
+                $testString = '\/\/Test:'
+                $testScopeMatchString = "\/\/(region\s@$scope)+"
+                $outputString = [System.Text.StringBuilder]::new()
+                $readmeOutput = [System.Text.StringBuilder]::new()
+                $i = 0
+                while ($i -lt $testLines.Count)
+                {
+                    $line = $testLines[$i]
+                    $isModule = $false
+                    if ($line -match $testScopeMatchString)
+                    {
+                        $i++
+                        $stopIndex = Get-NextEndRegionIndex -Content $testLines -StartingIndex $i
+                        for ($x = $i; $x -lt $stopIndex; $x++)
+                        {
+                            if ($testLines[$x] -match $testString)
+                            {
+                                $cleanString = $testLines[$x] -replace $testString
+                                $null = $readmeOutput.AppendLine().AppendLine("### Example $testNumber").AppendLine('')
+                                $null = $readmeOutput.AppendLine($cleanString)
+                                $null = $readmeOutput.AppendLine('```bicep')
+                                $isModule = $true
+                                $testNumber++
+                            }
+                            else
+                            {
+                                $null = $outputString.AppendLine($testLines[$x].Replace('//', ''))
+                                if ($isModule)
+                                {
+                                    $null = $readmeOutput.AppendLine($testLines[$x].Replace('//', ''))
+                                }
+                            }
+
+                            if ($x -eq $stopIndex - 1 -and $isModule)
+                            {
+                                $null = $readmeOutput.AppendLine('```')
+                            }
+                        }
+                        
+                        $i = $stopIndex + 1
+                    }
+                    elseif ($line -match $testOtherScopeString)
+                    {
+                        $stopIndex = Get-NextEndRegionIndex -Content $testLines -StartingIndex $i
+                        $i = $stopIndex + 1
+                    }
+                    else
+                    {
+                        $null = $outputString.AppendLine($line)
+                        $i++
+                    }
+                }
+
+                $outputString.ToString() | Out-File -FilePath $outputFileName
+                $readmeOutput.ToString() | Out-File (Join-Path -Path $parentFolderPath -ChildPath 'README.md') -Append
+            }        
         }
-
-        # Append examples to README file
-        $sb.ToString() | Out-File (Join-Path -Path $parentFolderPath -ChildPath 'README.md') -Append
     }
 }
