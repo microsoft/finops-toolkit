@@ -6,8 +6,8 @@ param dataFactoryName string
 @description('Required. The storage account where the data resides.')
 param linkedServiceName string
 
-@description('Required. Name of the dataset.')
-param datasetName string
+@description('Required. The storage account where the data resides.')
+param containerName string
 
 @allowed([
   'DelimitedText'
@@ -22,6 +22,9 @@ param datasetType string
 ])
 @description('Required. Compression codec to use.')
 param compressionCodec string
+
+@description('Required. Name of the dataset.')
+var datasetName = replace('${containerName}_${datasetType}', '-', '_') // ADLS Gen2 object names can't have hyphens
 
 var csvProps = {       
                   columnDelimiter: ','
@@ -77,7 +80,6 @@ resource dataset 'Microsoft.DataFactory/factories/datasets@2018-06-01' =  {
     }
   }
 }
-
 @description('The name of the linked service.')
 output name string = dataset.name
 
