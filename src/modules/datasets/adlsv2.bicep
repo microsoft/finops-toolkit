@@ -6,7 +6,7 @@ param dataFactoryName string
 @description('Required. The storage account where the data resides.')
 param linkedServiceName string
 
-@description('Required. The storage account where the data resides.')
+@description('Required. The container where the data resides.')
 param containerName string
 
 @allowed([
