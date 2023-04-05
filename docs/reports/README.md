@@ -80,7 +80,7 @@ If you don't need any of the custom columns and measures provided by the FinOps 
 1. Open your desired report in Power BI Desktop.
 2. Select **Get data** in the toolbar.
 3. Search for `lake` and select **Azure Data Lake Storage Gen2**
-4. Set the URL to `https://<storage-name>.dfs.core.windows.net/ms-cm-exports` and select the **OK** button.
+4. Set the URL to `https://<storage-name>.dfs.core.windows.net/msexports` and select the **OK** button.
 
    - You can copy this value from the deployment outputs.
 

@@ -11,7 +11,7 @@ This template creates a new **FinOps hub** instance.
 
 FinOps hubs include Data Lake storage to host cloud data and a Data Factory instance for data processing and orchestration.
 
-To use this template, you will need to create a Cost Management export that publishes cost data to the `ms-cm-exports` container in the included storage account.
+To use this template, you will need to create a Cost Management export that publishes cost data to the `msexports` container in the included storage account.
 
 > ![Version 0.0.2](https://img.shields.io/badge/version-0.0.2-lightgrey) &nbsp;<sup>→</sup>&nbsp; [![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/60)](https://github.com/microsoft/cloud-hubs/issues/60)
 >
