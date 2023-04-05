@@ -1,6 +1,4 @@
-/**
- * Parameters
- */
+// Parameters
 
 @description('Optional. Name of the hub. Used to ensure unique resource names. Default: "finops-hub".')
 param hubName string
@@ -46,9 +44,7 @@ param enableDefaultTelemetry bool = true
 var telemetryId = '00f120b5-2007-6120-0000-40b000000000'
 var finOpsToolkitVersion = '0.0.1'
 
-/**
- * Resources
- */
+// Resources
 
 // Telemetry used anonymously to count the number of times the template has been deployed.
 // No information about you or your cost data is collected.
@@ -144,9 +140,7 @@ resource uploadSettingsJson 'Microsoft.Resources/deploymentScripts@2020-10-01' =
   }
 }
 
-/**
- * Outputs
- */
+// Outputs
 
 @description('Name of the deployed hub instance.')
 output name string = hubName
@@ -161,4 +155,4 @@ output storageAccountId string = storageAccount.outputs.resourceId
 output storageAccountName string = storageAccount.outputs.name
 
 @description('URL to use when connecting custom Power BI reports to your data.')
-output storageUrlForPowerBI string = 'https://${storageAccount.outputs.name}.dfs.${environment().suffixes.storage}/ms-cm-exports'
+output storageUrlForPowerBI string = 'https://${storageAccount.outputs.name}.dfs.${environment().suffixes.storage}/msexports'

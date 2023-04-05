@@ -1,13 +1,13 @@
 # Data processing
 
-1. Cost Management exports raw cost details to the **ms-cm-exports** container.
-2. Power BI reads cost data from the **ms-cm-exports** container.
+1. Cost Management exports raw cost details to the **msexports** container.
+2. Power BI reads cost data from the **msexports** container.
 
 > ![Version 0.0.1](https://img.shields.io/badge/version-0.0.1-lightgrey) &nbsp; ![Status: In progress](https://img.shields.io/badge/status-in_progress-blue) &nbsp;<sup>→</sup>&nbsp; [![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/59)](https://github.com/microsoft/cloud-hubs/issues/59)
 >
 > 🆕 _Replace step 2 with the following:_
 >
-> 1. The **ms-cm-exports_Transform** pipeline saves the raw data in parquet format to the **ingestion** container.
+> 1. The **msexports_Transform** pipeline saves the raw data in parquet format to the **ingestion** container.
 > 2. Power BI reads cost data from the **ingestion** container.
 >
 > ![Version 0.0.3](https://img.shields.io/badge/version-0.0.3-lightgrey) &nbsp; ![Status: Proposed](https://img.shields.io/badge/status-proposed-lightgrey) &nbsp;<sup>→</sup>&nbsp; [![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/81)](https://github.com/microsoft/cloud-hubs/issues/81)
@@ -18,13 +18,13 @@
 >
 > ```mermaid
 > sequenceDiagram
->     Cost Management->>ms-cm-exports: ① Export amortized costs
->     ms-cm-exports->>ingestion: ② ms-cm-exports_Transform
+>     Cost Management->>msexports: ① Export amortized costs
+>     msexports->>ingestion: ② msexports_Transform
 >     Power BI-->>ingestion: ③ Read data
 > ```
 >
 > 🆕 _Replace step 2 with the following:_
 >
-> 1. The **ms-cm-exports_Transform** pipeline transforms the raw data to the normalized schema and saves it in parquet format to the **ingestion** container. For details about the transformation, see the [dev docs](../src/modules/pipelines).
+> 1. The **msexports_Transform** pipeline transforms the raw data to the normalized schema and saves it in parquet format to the **ingestion** container. For details about the transformation, see the [dev docs](../src/modules/pipelines).
 
 <br>
