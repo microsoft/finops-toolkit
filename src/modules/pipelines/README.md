@@ -2,12 +2,12 @@
 
 On this page:
 
-- [ms-cm-exports_Setup](#ms-cm-exports_setup)
-- [ms-cm-exports_Transform](#ms-cm-exports_transform)
+- [msexports_Setup](#msexports_setup)
+- [msexports_Transform](#msexports_transform)
 
 ---
 
-## ms-cm-exports_Setup
+## msexports_Setup
 
 > ![Version 0.0.2](https://img.shields.io/badge/version-0.0.2-lightgrey) &nbsp; ![Status: Proposed](https://img.shields.io/badge/status-proposed-lightgrey) &nbsp;<sup>→</sup>&nbsp; [![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/60)](https://github.com/microsoft/cloud-hubs/issues/60)
 >
@@ -19,25 +19,25 @@ On this page:
   - **name** = `"FinOpsHubs_" + hubName + "_" + subscriptionId`
   - **amortize** = `true`
   - **storageAccountId** = (use the `storageAccountId` output from hub.bicep)
-  - **storageAccountContainer** = `ms-cm-exports`
+  - **storageAccountContainer** = `msexports`
   - **storageAccountPath** = (scope ID from `exportScopes` without the first "/")
 - Back-fills data based on the data retention setting when scopes are added to `exportScopes`.
 - Deletes exports when scopes are removed from `exportScopes`.
 
 <br>
 
-## ms-cm-exports_Transform
+## msexports_Transform
 
 > ![Version 0.0.1](https://img.shields.io/badge/version-0.0.1-lightgrey) &nbsp; ![Status: In progress](https://img.shields.io/badge/status-in_progress-blue) &nbsp;<sup>→</sup>&nbsp; [![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/59)](https://github.com/microsoft/cloud-hubs/issues/59)
 >
 > 🆕 _This pipeline is new in v0.0.1_
 
-**Trigger**: New files added to the **ms-cm-exports** container.
+**Trigger**: New files added to the **msexports** container.
 
 **Steps**:
 
 - Overwrite data in the **ingestion** container for the specified month.
-- If the data retention policy for the **ms-cm-exports** container is set to 0, delete export CSV files from **ms-cm-exports**.
+- If the data retention policy for the **msexports** container is set to 0, delete export CSV files from **msexports**.
 
 > ![Version 0.0.3](https://img.shields.io/badge/version-0.0.3-lightgrey) &nbsp; ![Status: Proposed](https://img.shields.io/badge/status-proposed-lightgrey) &nbsp;<sup>→</sup>&nbsp; [![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/81)](https://github.com/microsoft/cloud-hubs/issues/81)
 >
