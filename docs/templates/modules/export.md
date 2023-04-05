@@ -33,7 +33,7 @@ On this page:
 Note the following parameter values must be set for FinOps hubs to work as designed. Changing these will require additional changes to ensure reporting is accurate.
 
 - **amortize** must be `true`
-- **storageAccountContainer** must be `ms-cm-exports`
+- **storageAccountContainer** must be `msexports`
 
 <br>
 

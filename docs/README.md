@@ -50,7 +50,7 @@ Once deployed, you can create new exports in Cost Management and use out of the 
    - **Export type** = `Daily export of month-to-date costs`
      > 💡 _**Tip:** Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range._
    - **Storage account** = (Use subscription/resource from step 1)
-   - **Container** = `ms-cm-exports`
+   - **Container** = `msexports`
    - **Directory** = (Use the resource ID of the scope you're exporting, but remove the first "/")
      > ℹ️ _You are welcome to use any directory name you want. Using the scope ID is how we plan to do it in order to avoid collisions. You will see this added in a future release._
 3. Run your export.
@@ -102,7 +102,7 @@ After deploying a hub instance, there are several ways for you to get started:
    >
    > 🆕 _Add the following sentences to the description (before "Use a consistent prefix"):_
    >
-   > Do not modify built-in pipelines or data in the **ms-cm-exports** container. Create a custom pipeline that monitors new data in the **ingestion** container.
+   > Do not modify built-in pipelines or data in the **msexports** container. Create a custom pipeline that monitors new data in the **ingestion** container.
 
 5. Generate custom alerts using Power Automate.
 
@@ -114,7 +114,7 @@ If you need to change `hub.bicep`, be sure to track those changes and re-apply t
 
 > ![Version 0.0.2](https://img.shields.io/badge/version-0.0.2-lightgrey) &nbsp; ![Status: Proposed](https://img.shields.io/badge/status-proposed-lightgrey) &nbsp;<sup>→</sup>&nbsp; [![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/60)](https://github.com/microsoft/cloud-hubs/issues/60)
 >
-> 🆕 _Change the notes for storage to: Data is ingested into the `ms-cm-exports` container and transformed when moved into the `ingestion` container. Do not store use the `ms-cm-exports` container for anything other than Cost Management exports. If manipulating data, please do that in the `ingestion` container after the transform pipeline completes. Don't remove or rename columns, as that can break Power BI reports._
+> 🆕 _Change the notes for storage to: Data is ingested into the `msexports` container and transformed when moved into the `ingestion` container. Do not store use the `msexports` container for anything other than Cost Management exports. If manipulating data, please do that in the `ingestion` container after the transform pipeline completes. Don't remove or rename columns, as that can break Power BI reports._
 
 If you access data in storage or are creating or customizing Power BI reports, please refer to the [data dictionary](data-dictionary.md) for details about the available columns.
 
