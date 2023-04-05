@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Builds all toolkit templates for publishing to Azure Quickstart Templates.
+    Builds all Bicep modules for publishing to the Bicep Registry.
 .DESCRIPTION
     Run this from the /src/scripts folder.
 .EXAMPLE
@@ -27,8 +27,8 @@ Param (
 # Use the debug flag from common parameters to determine whether to run in debug mode
 $Debug = $DebugPreference -eq "Continue"
 
-$outdir = "../../release"
-$templateDir = "../bicep-registry/.module-template"
+$outdir = Join-Path .. .. release
+$scaffoldDir = Join-Path .. bicep-registry .scaffold
 $scopeList = '(subscription|resourceGroup|managementGroup|tenant)';
 $scopeDirective = "//(\s*@$scopeList)+";
 $dir = Get-Item $Module;
@@ -139,11 +139,11 @@ function Build-Modules([string] $Path, [switch] $CopySupportingFiles) {
         }
 
         # Write template files, if metadata.json exists
-        $buildParamsFile = Join-Path $Module module.json
-        if ($CopySupportingFiles -and -not $Debug -and (Test-Path $buildParamsFile)) {
+        $scaffoldInputsFile = Join-Path $Module scaffold.json
+        if ($CopySupportingFiles -and -not $Debug -and (Test-Path $scaffoldInputsFile)) {
             @('main.json', 'metadata.json', 'README.md', 'version.json') `
             | ForEach-Object { 
-                $sourceFile = Join-Path $templateDir $_
+                $sourceFile = Join-Path $scaffoldDir $_
                 if (Test-Path $sourceFile) {
                     Copy-Item $sourceFile (Join-Path $outdir $moduleName)
                 }
@@ -160,13 +160,13 @@ function Build-Modules([string] $Path, [switch] $CopySupportingFiles) {
                 | ForEach-Object { $text = $text.Replace("{$_}", $formatParams[$_]) }
                 return $text
             }
-            $moduleParams = Get-Content $buildParamsFile | ConvertFrom-Json
+            $scaffoldInputs = Get-Content $scaffoldInputsFile | ConvertFrom-Json
 
             # Update metadata.json
             $metadataFile = Join-Path $outdir $moduleName metadata.json
             $metadata = Get-Content $metadataFile | ConvertFrom-Json
-            $metadata.name = formatString $moduleParams.name
-            $metadata.summary = formatString ($moduleParams.text | Where-Object { $_.scopes.Contains($currentScope) }).summary
+            $metadata.name = formatString $scaffoldInputs.name
+            $metadata.summary = formatString ($scaffoldInputs.text | Where-Object { $_.scopes.Contains($currentScope) }).summary
             $metadata | ConvertTo-Json -Depth 100 | Set-Content $metadataFile
             if ($metadata.summary.Length -gt 120) {
                 Write-Error 'Summary in metadata.json cannot be longer than 120 characters.'
@@ -175,7 +175,7 @@ function Build-Modules([string] $Path, [switch] $CopySupportingFiles) {
             # Update version.json
             $versionFile = Join-Path $outdir $moduleName version.json
             $version = Get-Content $versionFile | ConvertFrom-Json
-            $version.version = $moduleParams.version
+            $version.version = $scaffoldInputs.version
             $version | ConvertTo-Json -Depth 100 | Set-Content $versionFile
 
             # Update README.md

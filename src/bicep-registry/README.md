@@ -18,20 +18,33 @@ On this page:
 
 ## Creating a new module
 
+Bicep Registry modules in the FinOps toolkit reuse common scaffolding in the `.scaffold` folder to generate the files needed when publishing. Use the following steps to create a new module:
+
 1. Create a folder for the module using kebab casing (e.g., `my-resource`). Module names should be:
    - Singular (e.g., `my-resource` instead of `my-resources`).
    - Named after the resource type (e.g., `virtual-machine` for `virtualMachines`).
-2. Run `brm generate` to create placeholder files for the module. [Learn more](https://github.com/Azure/bicep-registry-modules/blob/main/CONTRIBUTING.md#generating-module-files).
-3. Update the following files:
+2. Create a `README.md` file that includes a description of the module. Do not add sections. This will be merged with the final README as the "Description" section.
+3. Create a `scaffold.json` file:
 
-   - `metadata.json` – Set the name, summary, and owner (should be `cost-management-contrib`).
-   - `version.json` – Set version to `1.0`.
-   - `README.md` – Add a title and description only. Do not set parameters, outputs, or examples.
+   1. Start with the following sample:
 
-   > _Note: Do not update main.json._
+      ```json
+      {
+        "version": "1.0",
+        "name": "Cost Management <resource type> for {scopeLowerPlural}",
+        "text": [
+          {
+            "summary": "<summary>",
+            "scopes": ["<scope 1>", "<scope 2>"]
+          }
+        ]
+      }
+      ```
 
-4. Implement the module in `main.bicep` using the templating language below.
-5. Implement tests in `test/main.test.bicep` also using the templating language.
+   2. Set `<resource type>` to the lowercase friendly resource type name (e.g., "virtual machine").
+   3. Use the `text` array to apply scope-specific strings.
+      - Set the `<summary>` to a short description under 120 characters.
+      - Set the `scopes` array to the supported scopes for this text.
 
 <br>
 
@@ -72,7 +85,7 @@ Connect-AzContext
 Set-AzContext -Subscription "Trey Research R&D Playground"
 ```
 
-> ℹ️ _**Microsoft contributors:** We recommend using the Trey Research R&D Playground subscription () for subscription deployments and the FinOps Toolkit tenant (38a09d9b-84be-4c40-8aef-99ebeed474ff) for tenant deployments. Contact @flanakin to request access._
+> ℹ️ _**Microsoft contributors:** We recommend using the Trey Research R&D Playground subscription (64e355d7-997c-491d-b0c1-8414dccfcf42) for subscription deployments and the FinOps Toolkit tenant (38a09d9b-84be-4c40-8aef-99ebeed474ff) for tenant deployments. Contact @flanakin to request access._
 >
 > To sign in to the FinOps Toolkit tenant, run:
 >

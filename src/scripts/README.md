@@ -1,11 +1,13 @@
 # FinOps toolkit scripts
 
-FinOps toolkit scripts are used for local development and testing only.
+FinOps toolkit scripts are used for local development, testing, and publishing only.
 
 On this page:
 
 - [Init-Repo](#init-repo)
+- [Build-Toolkit](#build-toolkit)
 - [Deploy-Toolkit](#deploy-toolkit)
+- [New-Directory](#new-directory)
 
 ---
 
@@ -18,27 +20,69 @@ On this page:
 
 <br>
 
+## Build-Toolkit
+
+[Build-Toolkit.ps1](./Build-Toolkit.ps1) builds toolkit modules and templates for local testing and and to prepare them for publishing.
+
+Example:
+
+```powershell
+./Build-Toolkit
+```
+
+Build-Toolkit runs the following scripts internally:
+
+- [Build-Bicep](./Build-Bicep.ps1) for Bicep Registry modules
+
+<br>
+
 ## Deploy-Toolkit
 
 [Deploy-Toolkit.ps1](./Deploy-Toolkit.ps1) deploys toolkit templates for local testing purposes.
 
 Parameters:
 
-- ResourceGroup (Default: "ftk-<username>-<computername>")
-- Location (Default: "westus")
-- Template (Default: "finops-hub")
-- WhatIf (flag)
+| Parameter        | Description                                                                                                                        |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `-Template`      | Required. Name of the template or module to deploy. Default = finops-hub.                                                          |
+| `-ResourceGroup` | Optional. Name of the resource group to deploy to. Will be created if it doesn't exist. Default = `ftk-<username>-<computername>`. |
+| `-Location`      | Optional. Azure location to execute the deployment from. Default = `westus`.                                                       |
+| `-Parameters`    | Optional. Parameters to pass thru to the deployment. Defaults per template/module are configured in the script.                    |
+| `-Build`         | Optional. Indicates whether the the `Build-Toolkit` command should be executed first. Default = `false`.                           |
+| `-Test`          | Optional. Indicates whether to run the template or module test instead of the template or module itself. Default = `false`.        |
+| `-Debug`         | Optional. Writes script execution troubleshooting details to console. Does not execute deployment.                                 |
+| `-WhatIf`        | Optional. Validates the deployment without executing it or changing resources.                                                     |
 
 Examples:
 
-- Basic template deployment validation (requires resource group to exist)
+- Basic template deployment validation (requires resource group to exist):
 
   ```powershell
   ./Deploy-Toolkit -WhatIf
   ```
 
-- Deploy a specific template
+- Deploy a specific template:
 
   ```powershell
-  ./Deploy-Toolkit -Template "finops-hub"
+  ./Deploy-Toolkit "finops-hub"
   ```
+
+- Build and deploy a Bicep Registry module test:
+
+  ```powershell
+  ./Deploy-Toolkit "subscription-scheduled-action" -Build -Test
+  ```
+
+<br>
+
+## New-Directory
+
+[New-Directory.ps1](./New-Directory.ps1) creates a new directory without failing if it already exists and without writing data to the console.
+
+Example:
+
+```powershell
+./New-Directory "C:\Temp\NewDirectory"
+```
+
+<br>
