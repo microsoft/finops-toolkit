@@ -65,7 +65,13 @@ $defaultParameters = @{
 # Reset global debug variable
 $global:ftkDeployment = $null
 
+# If deploying a workbook, switch to the release folder name
+if (Test-Path (Join-Path .. workbooks $Template)) {
+    $Template = "$Template-workbook"
+}
+
 # Find bicep file (templates first)
+# NOTE: Do not include the workbooks folder since they must be built first; they're included in the release folder
 @("../templates", "../bicep-registry", "../../release") `
 | ForEach-Object { Get-Item (Join-Path $_ $Template (iff $Test test/main.test.bicep main.bicep)) -ErrorAction SilentlyContinue } `
 | ForEach-Object {

@@ -24,6 +24,16 @@ Get-ChildItem ..\bicep-registry\* -Directory `
     Write-Host ''
 }
 
+# Generate workbook templates
+Get-ChildItem ..\workbooks\* -Directory `
+| Where-Object { $_.Name -ne '.scaffold' }
+| ForEach-Object {
+    $workbook = $_.Name
+    Write-Host "Building workbook $workbook..."
+    ./Build-Workbook $workbook
+    Write-Host ''
+}
+
 # Generate JSON parameters
 Get-ChildItem ..\templates\*\main.bicep `
 | ForEach-Object {
