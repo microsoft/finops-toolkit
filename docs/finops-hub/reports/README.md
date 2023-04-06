@@ -1,4 +1,4 @@
-# FinOps toolkit reports
+# 📊 FinOps toolkit reports
 
 The FinOps toolkit hosts data in [Azure Data Lake Storage](https://learn.microsoft.com/azure/storage/blobs/data-lake-storage-introduction). You can use any tool to query and report on your cost data in storage. As an example, we've included the following Power BI reports to get you started. We recommend customizing them to keep what works, edit and augment reports with your own data, and remove anything that isn't needed.
 
@@ -11,13 +11,13 @@ The FinOps toolkit hosts data in [Azure Data Lake Storage](https://learn.microso
 
 On this page:
 
-- [How to setup Power BI](#how-to-setup-power-bi)
-- [Queries and datasets](#queries-and-datasets)
-- [Tips for customizing Power BI reports](#tips-for-customizing-power-bi-reports)
+- [✨ How to setup Power BI](#-how-to-setup-power-bi)
+- [🗃️ Queries and datasets](#️-queries-and-datasets)
+- [💡 Tips for customizing Power BI reports](#-tips-for-customizing-power-bi-reports)
 
 ---
 
-## How to setup Power BI
+## ✨ How to setup Power BI
 
 The following sections explain how to connect Power BI reports to your data depending on where you're starting from:
 
@@ -71,7 +71,7 @@ At this point, you have the core data from the FinOps toolkit reports, extended 
 
 Note that some columns and measures depend on one another. You can ignore these errors as you copy each formula. Each will resolve itself when the dependent column or measure is added.
 
-For details about the columns available in Power BI, refer to the [data dictionary](../data-dictionary.md).
+For details about the columns available in Power BI, refer to the [data dictionary](../finops-hubs/data-dictionary.md).
 
 ### Connect manually
 
@@ -89,7 +89,7 @@ If you don't need any of the custom columns and measures provided by the FinOps 
 5. Select the **Combine** button.
 6. Select the **OK** button.
 
-For more details about connecting to Azure Data Lake Storage Gen2, see [Connect to ADLS Gen2](https://learn.microsoft.com/power-query/connectors/data-lake-storage#connect-to-azure-data-lake-storage-gen2-from-power-query-desktop). For details about the columns available in storage, refer to the [data dictionary](../data-dictionary.md).
+For more details about connecting to Azure Data Lake Storage Gen2, see [Connect to ADLS Gen2](https://learn.microsoft.com/power-query/connectors/data-lake-storage#connect-to-azure-data-lake-storage-gen2-from-power-query-desktop). For details about the columns available in storage, refer to the [data dictionary](../finops-hubs/data-dictionary.md).
 
 ### Migrate from the Cost Management template app
 
@@ -125,7 +125,7 @@ The Consumption Insights connector is not currently supported. If you'd like to 
 
 <br>
 
-## Queries and datasets
+## 🗃️ Queries and datasets
 
 FinOps toolkit offers multiple versions of cost details to align to different schemas for backwards compatibility. These schemas are only provided to assist in migrating from older versions. We recommend updating visuals to use CostDetails or the newest underlying dataset. If you do not need legacy datasets, you can remove them from the Power Query Editor (Transform data) window.
 
@@ -176,7 +176,7 @@ Note the following columns are new in this release. These columns were not previ
 
 <br>
 
-## Tips for customizing Power BI reports
+## 💡 Tips for customizing Power BI reports
 
 FinOps toolkit Power BI reports are starter templates that we encourage you to customize. Changing visuals, columns, and measures should not break in future releases outside of potential schema changes, which are usually easy to fix by changing column names. The main issue to be careful of is changing the out-of-the-box queries. Out-of-the-box queries can change in future releases, which will make it harder for you to upgrade. If you need to modify a query, we recommend confining updates to the **CostDetails** dataset, which references the internal datasets we use for schema versioning. We will keep our updates to those internal datasets to avoid conflicting with your customizations.
 

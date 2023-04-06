@@ -1,4 +1,4 @@
-# FinOps toolkit modules
+# 📦 FinOps toolkit modules
 
 All FinOps toolkit module source is available at the root of this directory. For summary details, see [public docs](../../docs/templates/modules).
 
@@ -10,15 +10,14 @@ Modules:
 
 On this page:
 
-- [Telemetry](#telemetry)
-- [About dependencies](#about-dependencies)
-- [About Bicep](#about-bicep)
+- [🧮 Telemetry](#-telemetry)
+- [🍎 About Bicep](#-about-bicep)
 
 ---
 
-## Telemetry
+## 🧮 Telemetry
 
-Every FinOps toolkit module includes a `defaultTelemetry` deployment. These should be enabled by default using an input parameter that callers can disable. Telemetry deployments are tracked using a specific ID made up of the FinOps toolkit prefix (`00f120b5-2007-6120-0000-`) followed by a 12-digit hexadecimal representation of the module name (e.g., `h0b000000000` for `hub.bicep`).
+Every FinOps toolkit template includes a `defaultTelemetry` deployment. These should be enabled by default using an input parameter that callers can disable. Telemetry deployments are tracked using a specific ID made up of the FinOps toolkit prefix (`00f120b5-2007-6120-0000-`) followed by a 12-digit hexadecimal representation of the module name (e.g., `h0b000000000` for `hub.bicep`).
 
 Include the following as the last parameter in each module and replace the `<hex-module-name>` and `<version>` placeholders:
 
@@ -64,45 +63,16 @@ Deployments
 ```
 -->
 
-## About dependencies
-
-FinOps toolkit modules utilize publicly shared modules from the [Common Azure Resource Module Library (CARML)](https://github.com/Azure/ResourceModules). Each dependency is stored in this directory in folders per resource provider with nested resource types.
-
-> _**NOTE:** Each the readme file in each folder is not updated and may have broken links. They are kept for reference only._
-
-- [Microsoft.DataFactory/factories](./Microsoft.DataFactory/factories)
-- [Microsoft.Storage/storageAccounts](./Microsoft.Storage/storageAccounts)
-
-### Adding and updating modules
-
-1. Download the latest [CARML release](https://github.com/Azure/ResourceModules/releases).
-2. Extract the ZIP file and copy the folders for each resource type you need.
-3. Remove any unnecessary folders like `.bicep` and `.test`.
-4. Add the following under the first header for each README.md file:
-
-   ```markdown
-   <sup>Copied from [<resource-type>](https://github.com/Azure/ResourceModules/tree/main/modules/<resource-type>) - **CARML v<version>** (<copy-date:Mmm d, yyyy>)</sup>
-
-   <!-- markdownlint-disable -->
-   <!-- spell-checker:disable -->
-   ```
-
-   <!-- The next 2 lines re-enable MDlint and the spell checker for the rest of the file -->
-   <!-- markdownlint-restore -->
-   <!-- spell-checker:enable -->
-
-5. Add the following at the top of each deploy.bicep file:
-
-   ```bicep
-   // Source: https://github.com/Azure/ResourceModules/blob/main/modules/<resource-type>/deploy.bicep
-   // Date: <copy-date:yyyy-MM-dd>
-   // Version: <version>
-   ```
-
-6. Review the deploy.bicep file and remove all unneeded settings and nested resource types.
-
 <br>
 
-## About Bicep
+## 🍎 About Bicep
 
 FinOps toolkit templates are comprised of [Bicep](https://learn.microsoft.com/azure/azure-resource-manager/bicep) modules. Bicep is a domain-specific language that uses declarative syntax to define and deploy Azure resources. For a guided learning experience, start with the [Fundamentals of Bicep](https://learn.microsoft.com/training/paths/fundamentals-bicep/).
+
+We prefer Bicep modules published in the official [Bicep Registry](https://github.com/Azure/bicep-registry-modules), however since there are many resource types not yet available, we also use:
+
+- [Azure Quickstart Templates](https://github.com/Azure/azure-quickstart-templates)
+- [Common Azure Resource Module Library (CARML)](https://github.com/Azure/ResourceModules)
+- [Azure Bicep and ARM templates](https://learn.microsoft.com/azure/templates)
+
+Note the above sources are non-authoritative. You are free to use them as a starting point, but each should be validated and tested before use. Each module we bring in should be tuned to our specific scenarios and is not expected to have any traceability back to the original source.

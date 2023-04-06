@@ -1,7 +1,8 @@
-# Cost summary report
+# 📊 Cost summary report
 
-![Status: Pending release](https://img.shields.io/badge/status-pending_release-blueviolet) &nbsp;<sup>→</sup>&nbsp;
-[![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/24)](https://github.com/microsoft/cloud-hubs/issues/24)
+![Version 0.0.1](https://img.shields.io/badge/version-v0.0.1-inactive)
+&nbsp;
+![Pending](https://img.shields.io/badge/status-pending_release-9900ff)
 
 The **Cost summary report** provides an overview of amortized costs with a few common breakdowns that enable you to:
 
@@ -166,7 +167,7 @@ The table shows a list of VMs that are currently using or could be using AHB wit
 
 - [Common terms](./terms.md)
 
----
+<br>
 
 ## Future considerations
 
@@ -174,4 +175,4 @@ The table shows a list of VMs that are currently using or could be using AHB wit
 - #12
 - #13
 
-For related ideas, see the [`Power BI: Cost summary` or `Area: Power BI`](https://github.com/microsoft/cloud-hubs/issues?q=is%3Aissue+is%3Aopen+label%3A%22Power+BI%3A+Cost+summary%22%2C%22Area%3A+Power+BI%22) labels.
+For related ideas, see the [`Area: Power BI`](https://github.com/microsoft/cloud-hubs/issues?q=is%3Aissue+is%3Aopen+label%3A%22Area%3A+Power+BI%22) labels.

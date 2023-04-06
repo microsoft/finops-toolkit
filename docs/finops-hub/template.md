@@ -2,11 +2,14 @@
 QuickstartPath: quickstarts/microsoft.costmanagement/finops-hub
 ---
 
-# FinOps hub template
+# 📦 FinOps hub template
 
-![Version 0.0.1](https://img.shields.io/badge/version-0.0.1-blue) &nbsp;
-![Status: In progress](https://img.shields.io/badge/status-in_progress-blue) &nbsp;<sup>→</sup>&nbsp;
-[![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/1)](https://github.com/microsoft/cloud-hubs/issues/1)
+![Version 0.0.1](https://img.shields.io/badge/version-v0.0.1-inactive)
+&nbsp;
+![Pending](https://img.shields.io/badge/status-pending_release-9900ff)
+&nbsp;
+[![Go to issue](https://img.shields.io/github/issues/detail/title/microsoft/cloud-hubs/1?label=roadmap)](https://github.com/microsoft/cloud-hubs/issues/1)
+
 This template creates a new **FinOps hub** instance.
 
 FinOps hubs include Data Lake storage to host cloud data and a Data Factory instance for data processing and orchestration.
