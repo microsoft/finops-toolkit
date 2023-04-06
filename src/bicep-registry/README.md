@@ -1,4 +1,4 @@
-# Bicep registry modules
+# 🦾 Bicep registry modules
 
 This folder contains modules that are published to the official [Bicep Registry](https://github.com/Azure/bicep-registry-modules). Modules are maintained here using a simple templating language to facilitate generating modules for multiple scopes without duplicating code.
 
@@ -8,15 +8,15 @@ This folder contains modules that are published to the official [Bicep Registry]
 
 On this page:
 
-- [Creating a new module](#creating-a-new-module)
-- [Building bicep registry modules](#building-bicep-registry-modules)
-- [Testing bicep registry modules](#testing-bicep-registry-modules)
-- [Publishing bicep registry modules](#publishing-bicep-registry-modules)
-- [Templating language](#templating-language)
+- [🆕 Creating a new module](#-creating-a-new-module)
+- [📦 Building bicep registry modules](#-building-bicep-registry-modules)
+- [🔬 Testing bicep registry modules](#-testing-bicep-registry-modules)
+- [🚀 Publishing bicep registry modules](#-publishing-bicep-registry-modules)
+- [🔣 Templating language](#-templating-language)
 
 ---
 
-## Creating a new module
+## 🆕 Creating a new module
 
 1. Create a folder for the module using kebab casing (e.g., `my-resource`). Module names should be:
    - Singular (e.g., `my-resource` instead of `my-resources`).
@@ -35,7 +35,7 @@ On this page:
 
 <br>
 
-## Building bicep registry modules
+## 📦 Building bicep registry modules
 
 There are 2 ways to build bicep registry modules. To build all toolkit modules and templates, run:
 
@@ -63,7 +63,7 @@ The `Build-Bicep` script supports the following parameters:
 
 <br>
 
-## Testing bicep registry modules
+## 🔬 Testing bicep registry modules
 
 Before deploying a module, you first need to sign in to Azure:
 
@@ -113,7 +113,7 @@ The `Deploy-Toolkit` script supports the following parameters:
 
 <br>
 
-## Publishing bicep registry modules
+## 🚀 Publishing bicep registry modules
 
 All modules in this folder are published to the official [Bicep Registry](https://github.com/Azure/bicep-registry-modules). If your module does not require multi-scope support, you can publish it directly to the Bicep Registry. If your module does require multi-scope support, follow the steps above for creating, building, and testing your module. Then, follow the [Bicep Registry contribution guide](https://github.com/Azure/bicep-registry-modules/blob/main/CONTRIBUTING.md) using the locally-generated and validated modules.
 
@@ -123,7 +123,7 @@ If you find a new requirement arises for Bicep Registry onboarding, please updat
 
 <br>
 
-## Templating language
+## 🔣 Templating language
 
 Bicep offers a clean solution to define reusable modules, but has a few limitations that make it onerous for modules that support multiple scopes. We developed a very simple templating language to work around the following limitations:
 

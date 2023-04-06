@@ -1,7 +1,8 @@
-# Commitment discounts report
+# 📊 Commitment discounts report
 
-![Status: Pending release](https://img.shields.io/badge/status-pending_release-blueviolet) &nbsp;<sup>→</sup>&nbsp;
-[![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/24)](https://github.com/microsoft/cloud-hubs/issues/24)
+![Version 0.0.1](https://img.shields.io/badge/version-v0.0.1-inactive)
+&nbsp;
+![Pending](https://img.shields.io/badge/status-pending_release-9900ff)
 
 The **Commitment discounts report** summarizes existing and potential savings from commitment-based discounts, like reservations and savings plans. This report enables you to:
 
@@ -142,8 +143,8 @@ This page filters usage down to only show service charges that can be pre-commit
 
 - [Common terms](./terms.md)
 
----
+<br>
 
 ## Future considerations
 
-For related ideas, see the [`Power BI: Commitment discounts` or `Area: Power BI`](https://github.com/microsoft/cloud-hubs/issues?q=is%3Aissue+is%3Aopen+label%3A%22Power+BI%3A+Commitment+discounts%22%2C%22Area%3A+Power+BI%22) labels.
+For related ideas, see the [`Area: Power BI`](https://github.com/microsoft/cloud-hubs/issues?q=is%3Aissue+is%3Aopen+label%3A%22Area%3A+Power+BI%22) labels.

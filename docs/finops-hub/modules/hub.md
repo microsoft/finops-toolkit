@@ -1,8 +1,10 @@
-# hub.bicep
+# 🦾 hub.bicep
 
-![Version 0.0.1](https://img.shields.io/badge/version-0.0.1-blue) &nbsp;
-![Status: In progress](https://img.shields.io/badge/status-in_progress-blue) &nbsp;<sup>→</sup>&nbsp;
-[![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/1)](https://github.com/microsoft/cloud-hubs/issues/1)
+![Version 0.0.1](https://img.shields.io/badge/version-v0.0.1-inactive)
+&nbsp;
+![Pending](https://img.shields.io/badge/status-pending_release-9900ff)
+&nbsp;
+[![Go to issue](https://img.shields.io/github/issues/detail/title/microsoft/cloud-hubs/1?label=roadmap)](https://github.com/microsoft/cloud-hubs/issues/1)
 
 This module deploys a **FinOps hub** instance into a resource group.
 
@@ -37,6 +39,9 @@ On this page:
     - **ingestion** – Used for Cost Management exports that have not been transformed.
 - Data factory – Used for data ingestion and processing. Depends on: Storage account.
   - **dataFactoryName** = `param:hubName + "-engine"`
+  - pipelines – Create the following nested pipelines:
+    - **msexports_Extract** – Runs the transform. Required to account for scalability issues in Data Factory.
+    - **msexports_Transform** – Converts the CSV export to parquet and moves it to the **ingestion** container (same path), overwriting the existing contents for that month.
 
 ### settings.json
 
@@ -53,13 +58,6 @@ The **settings.json** file is used to store any configuration settings for the h
 }
 ```
 
-> ![Version 0.0.1](https://img.shields.io/badge/version-0.0.1-lightgrey) &nbsp; ![Status: Proposed](https://img.shields.io/badge/status-proposed-lightgrey) &nbsp;<sup>→</sup>&nbsp; [![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/59)](https://github.com/microsoft/cloud-hubs/issues/59)
->
-> 🆕 _Add the following to the ADF instance:_
->
-> - pipelines – Create the following nested pipelines:
->   - **msexports_Transform** – Converts the CSV export to parquet and moves it to the **ingestion** container (same path), overwriting the existing contents for that month.
->
 > ![Version 0.0.2](https://img.shields.io/badge/version-0.0.2-lightgrey) &nbsp; ![Status: Proposed](https://img.shields.io/badge/status-proposed-lightgrey) &nbsp;<sup>→</sup>&nbsp; [![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/60)](https://github.com/microsoft/cloud-hubs/issues/60)
 >
 > 🆕 _Add the following ADF pipelines:_

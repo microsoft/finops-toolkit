@@ -1,4 +1,4 @@
-# Branching strategy
+# 🌿 Branching strategy
 
 - [main](https://github.com/microsoft/cloud-hubs/tree/main) includes the latest stable release.
 - [dev](https://github.com/microsoft/cloud-hubs/tree/dev) includes the latest changes that will go into the next release.
@@ -23,12 +23,12 @@ gitGraph
 
 On this page:
 
-- [Tips for external contributors](#tips-for-external-contributors)
-- [Tips for Microsoft contributors](#tips-for-microsoft-contributors)
+- [💡 Tips for external contributors](#-tips-for-external-contributors)
+- [💡 Tips for Microsoft contributors](#-tips-for-microsoft-contributors)
 
 ---
 
-## Tips for external contributors
+## 💡 Tips for external contributors
 
 External contributors will always start by forking the repo.
 
@@ -40,7 +40,7 @@ If you run into any issues, please reach out to us on [Discussions](https://gith
 
 <br>
 
-## Tips for Microsoft contributors
+## 💡 Tips for Microsoft contributors
 
 If planning a new feature that will require work from multiple developers (Microsoft or external), create a feature branch.
 

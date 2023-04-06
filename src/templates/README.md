@@ -1,4 +1,4 @@
-# FinOps toolkit templates
+# 📦 FinOps toolkit templates
 
 - [finops-hub](./finops-hub)
 
@@ -6,7 +6,7 @@ Please refer to [Creating templates](#creating-templates) below for template req
 
 ---
 
-## Creating templates
+## ✨ Creating templates
 
 Templates follow the [Azure Quickstart Templates guidelines](https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/README.md#contribution-guide):
 
