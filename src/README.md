@@ -88,25 +88,24 @@ cd cloud-hubs
 
 > ℹ️ _Creating branches is only applicable for Microsoft contributors. We recommend external contributors use the same guidance within their fork but this is optional._
 
-If creating a new feature, create a new feature branch:
-
-```console
-git checkout -b features/<feature-name>
-git push origin features/<feature-name>
-git branch --set-upstream-to=features/<feature-name>
-```
-
 If working on an existing feature, switch to the feature branch:
 
 ```console
 git checkout features/<feature-name>
 ```
 
-If you have a single-commit change, you can create a dev branch and submit a PR from there:
+If you have a single-commit change that has no dependencies and is ready to go live in the next release, create your own branch and submit a PR from there:
 
 ```console
 git checkout -b <your-github-account>/<feature-name>
 git branch --set-upstream-to=origin/dev
+```
+
+If creating a new feature, create a new feature branch:
+
+```powershell
+Set-Location "<cloud-hubs-root>/src/scripts"
+./New-FeatureBranch "<feature-name>"
 ```
 
 For more details, refer to the [branching strategy](./process.md).
