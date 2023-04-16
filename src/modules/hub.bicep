@@ -236,7 +236,7 @@ module linkedService_storageAccount 'linkedservices/linkedservice.bicep' = {
 }
 
 module dataset_msexports 'datasets/adlsv2.bicep' = {
-  name: 'msexports'
+  name: 'dataset_msexports'
   dependsOn: [
     linkedService_storageAccount
     linkedService_keyVault
@@ -251,7 +251,7 @@ module dataset_msexports 'datasets/adlsv2.bicep' = {
 }
 
 module dataset_ingestion_csv 'datasets/adlsv2.bicep' = {
-  name: 'ingestion_csv'
+  name: 'dataset_ingestion_csv'
   dependsOn: [
     linkedService_storageAccount
     linkedService_keyVault
@@ -265,7 +265,7 @@ module dataset_ingestion_csv 'datasets/adlsv2.bicep' = {
 }
 
 module dataset_ingestion_parquet 'datasets/adlsv2.bicep' = {
-  name: 'ingestion_parquet'
+  name: 'dataset_ingestion_parquet'
   dependsOn: [
     linkedService_storageAccount
     linkedService_keyVault
@@ -279,10 +279,10 @@ module dataset_ingestion_parquet 'datasets/adlsv2.bicep' = {
 }
 
 
-module extract_parquet 'pipelines/msexports_extract.bicep' = {
+module msexports_extract_parquet 'pipelines/msexports_extract.bicep' = {
   name: 'msexports_extract_parquet'
   dependsOn: [
-    transform_parquet
+    msexports_transform_parquet
   ]
   params: {
     dataFactoryName: dataFactoryName
@@ -291,10 +291,10 @@ module extract_parquet 'pipelines/msexports_extract.bicep' = {
   }
 }
 
-module extract_csv 'pipelines/msexports_extract.bicep' = {
+module msexports_extract_csv 'pipelines/msexports_extract.bicep' = {
   name: 'msexports_extract_csv'
   dependsOn: [
-    transform_csv
+    msexports_transform_csv
   ]
   params: {
     dataFactoryName: dataFactoryName
@@ -303,7 +303,7 @@ module extract_csv 'pipelines/msexports_extract.bicep' = {
   }
 }
 
-module transform_parquet 'pipelines/msexports_transform.bicep' = {
+module msexports_transform_parquet 'pipelines/msexports_transform.bicep' = {
   name: 'msexports_transform_parquet'
   dependsOn: [
     dataset_msexports
@@ -315,10 +315,11 @@ module transform_parquet 'pipelines/msexports_transform.bicep' = {
     sourceDataset:  replace('${exportContainer.name}_DelimitedText', '-', '_')
     ingestionContainerName: ingestionContainer.name
     exportContainerName: exportContainer.name
+    outputFormat: 'parquet'
   }
 }
 
-module transform_csv 'pipelines/msexports_transform.bicep' = {
+module msexports_transform_csv 'pipelines/msexports_transform.bicep' = {
   name: 'msexports_transform_csv'
   dependsOn: [
     dataset_msexports
@@ -330,14 +331,15 @@ module transform_csv 'pipelines/msexports_transform.bicep' = {
     sourceDataset:  replace('${exportContainer.name}_DelimitedText', '-', '_')
     ingestionContainerName: ingestionContainer.name
     exportContainerName: exportContainer.name
+    outputFormat: 'csv'
   }
 }
 
 module trigger_msexports 'triggers/adlsv2.bicep' = {
   name: 'trigger_msexports'
   dependsOn: [
-    extract_parquet
-    extract_csv
+    msexports_extract_parquet
+    msexports_extract_csv
   ]
   params: {
     dataFactoryName: dataFactoryName
