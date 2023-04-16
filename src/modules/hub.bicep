@@ -259,7 +259,6 @@ module dataset_ingestion_csv 'datasets/adlsv2.bicep' = {
   params: {
     dataFactoryName: dataFactoryName
     linkedServiceName: storageAccountName
-    compressionCodec: 'gzip'
     datasetType: 'DelimitedText'
     containerName: ingestionContainer.name
   }
@@ -274,7 +273,6 @@ module dataset_ingestion_parquet 'datasets/adlsv2.bicep' = {
   params: {
     dataFactoryName: dataFactoryName
     linkedServiceName: storageAccountName
-    compressionCodec: 'gzip'
     datasetType: 'Parquet'
     containerName: ingestionContainer.name
   }
