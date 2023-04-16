@@ -235,7 +235,7 @@ module linkedService_storageAccount 'linkedservices/linkedservice.bicep' = {
   }
 }
 
-module msexports 'datasets/adlsv2.bicep' = {
+module dataset_msexports 'datasets/adlsv2.bicep' = {
   name: 'msexports'
   dependsOn: [
     linkedService_storageAccount
@@ -250,7 +250,7 @@ module msexports 'datasets/adlsv2.bicep' = {
   }
 }
 
-module ingestion_csv 'datasets/adlsv2.bicep' = {
+module dataset_ingestion_csv 'datasets/adlsv2.bicep' = {
   name: 'ingestion_csv'
   dependsOn: [
     linkedService_storageAccount
@@ -265,7 +265,7 @@ module ingestion_csv 'datasets/adlsv2.bicep' = {
   }
 }
 
-module ingestion_parquet 'datasets/adlsv2.bicep' = {
+module dataset_ingestion_parquet 'datasets/adlsv2.bicep' = {
   name: 'ingestion_parquet'
   dependsOn: [
     linkedService_storageAccount
@@ -283,8 +283,8 @@ module ingestion_parquet 'datasets/adlsv2.bicep' = {
 module transform_parquet 'pipelines/msexports_transform.bicep' = {
   name: 'msexports_transform_parquet'
   dependsOn: [
-    msexports
-    ingestion_parquet
+    dataset_msexports
+    dataset_ingestion_parquet
   ]
   params: {
     dataFactoryName: dataFactoryName
@@ -298,8 +298,8 @@ module transform_parquet 'pipelines/msexports_transform.bicep' = {
 module transform_csv 'pipelines/msexports_transform.bicep' = {
   name: 'msexports_transform_csv'
   dependsOn: [
-    msexports
-    ingestion_csv
+    dataset_msexports
+    dataset_ingestion_csv
   ]
   params: {
     dataFactoryName: dataFactoryName
@@ -318,6 +318,7 @@ module extract_parquet 'pipelines/msexports_extract.bicep' = {
   params: {
     dataFactoryName: dataFactoryName
     exportContainerName: exportContainer.name
+    outputFormat: 'parquet'
   }
 }
 
@@ -329,6 +330,7 @@ module extract_csv 'pipelines/msexports_extract.bicep' = {
   params: {
     dataFactoryName: dataFactoryName
     exportContainerName: exportContainer.name
+    outputFormat: 'csv'
   }
 }
 
@@ -365,7 +367,7 @@ output storageAccountId string = storageAccount.id
 output storageAccountName string = storageAccountName
 
 @description('Resource name of the storage account trigger.')
-output storageAccountTriggerName string = trigger.outputs.name
+output storageAccountTriggerName string = trigger_msexports.outputs.name
 
 @description('URL to use when connecting custom Power BI reports to your data.')
 output storageUrlForPowerBI string = 'https://${storageAccountName}.dfs.${environment().suffixes.storage}/${ingestionContainer.name}'
