@@ -95,18 +95,18 @@ resource configContainer 'Microsoft.Storage/storageAccounts/blobServices/contain
   }
 }
 
-resource ingestionContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' =  {
+resource exportContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' =  {
   parent: blobService
-  name: 'ingestion'
+  name: 'msexports'
   properties: {
     publicAccess: 'None'
     metadata: {}
   }
 }
 
-resource exportContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' =  {
+resource ingestionContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' =  {
   parent: blobService
-  name: 'msexports'
+  name: 'ingestion'
   properties: {
     publicAccess: 'None'
     metadata: {}
@@ -278,6 +278,31 @@ module dataset_ingestion_parquet 'datasets/adlsv2.bicep' = {
   }
 }
 
+
+module extract_parquet 'pipelines/msexports_extract.bicep' = {
+  name: 'msexports_extract_parquet'
+  dependsOn: [
+    transform_parquet
+  ]
+  params: {
+    dataFactoryName: dataFactoryName
+    exportContainerName: exportContainer.name
+    outputFormat: 'parquet'
+  }
+}
+
+module extract_csv 'pipelines/msexports_extract.bicep' = {
+  name: 'msexports_extract_csv'
+  dependsOn: [
+    transform_csv
+  ]
+  params: {
+    dataFactoryName: dataFactoryName
+    exportContainerName: exportContainer.name
+    outputFormat: 'csv'
+  }
+}
+
 module transform_parquet 'pipelines/msexports_transform.bicep' = {
   name: 'msexports_transform_parquet'
   dependsOn: [
@@ -305,30 +330,6 @@ module transform_csv 'pipelines/msexports_transform.bicep' = {
     sourceDataset:  replace('${exportContainer.name}_DelimitedText', '-', '_')
     ingestionContainerName: ingestionContainer.name
     exportContainerName: exportContainer.name
-  }
-}
-
-module extract_parquet 'pipelines/msexports_extract.bicep' = {
-  name: 'msexports_extract_parquet'
-  dependsOn: [
-    transform_parquet
-  ]
-  params: {
-    dataFactoryName: dataFactoryName
-    exportContainerName: exportContainer.name
-    outputFormat: 'parquet'
-  }
-}
-
-module extract_csv 'pipelines/msexports_extract.bicep' = {
-  name: 'msexports_extract_csv'
-  dependsOn: [
-    transform_csv
-  ]
-  params: {
-    dataFactoryName: dataFactoryName
-    exportContainerName: exportContainer.name
-    outputFormat: 'csv'
   }
 }
 
