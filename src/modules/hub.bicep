@@ -324,7 +324,7 @@ module extract_parquet 'pipelines/msexports_extract.bicep' = {
 module extract_csv 'pipelines/msexports_extract.bicep' = {
   name: 'msexports_extract_csv'
   dependsOn: [
-    transform_parquet
+    transform_csv
   ]
   params: {
     dataFactoryName: dataFactoryName
