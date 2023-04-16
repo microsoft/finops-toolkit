@@ -332,10 +332,11 @@ module extract_csv 'pipelines/msexports_extract.bicep' = {
   }
 }
 
-module trigger 'triggers/adlsv2.bicep' = {
-  name: 'trigger'
+module trigger_msexports 'triggers/adlsv2.bicep' = {
+  name: 'trigger_msexports'
   dependsOn: [
     extract_parquet
+    extract_csv
   ]
   params: {
     dataFactoryName: dataFactoryName
