@@ -15,7 +15,7 @@ RootModule = 'FinOpsHub.psm1'
 ModuleVersion = '0.0.1'
 
 # Supported PSEditions
-# CompatiblePSEditions = @()
+CompatiblePSEditions = 'Core', 'Desktop'
 
 # ID used to uniquely identify this module
 GUID = '7b7cbb98-5737-4037-8ec0-8948a4359dd0'
@@ -33,7 +33,7 @@ Copyright = '(c) 2023 Microsoft Corporation. All rights reserved.'
 Description = 'This module provides provides supporting functionality for the FinOps Hub.'
 
 # Minimum version of the PowerShell engine required by this module
-# PowerShellVersion = ''
+PowerShellVersion = '5.1'
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''
@@ -51,7 +51,7 @@ Description = 'This module provides provides supporting functionality for the Fi
 # ProcessorArchitecture = ''
 
 # Modules that must be imported into the global environment prior to importing this module
-# RequiredModules = @()
+RequiredModules = @(@{ModuleName = 'Az'; ModuleVersion = '9.*'})
 
 # Assemblies that must be loaded prior to importing this module
 # RequiredAssemblies = @()
@@ -101,7 +101,7 @@ PrivateData = @{
         # LicenseUri = ''
 
         # A URL to the main website for this project.
-        # ProjectUri = ''
+        ProjectUri = 'https://github.com/microsoft/cloud-hubs'
 
         # A URL to an icon representing this module.
         # IconUri = ''
