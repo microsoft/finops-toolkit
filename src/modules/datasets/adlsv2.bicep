@@ -21,7 +21,7 @@ param datasetType string
   'gzip'
 ])
 @description('Required. Compression codec to use.')
-param compressionCodec string
+param compressionCodec string = 'gzip'
 
 @description('Required. Name of the dataset.')
 var datasetName = replace('${containerName}_${datasetType}', '-', '_') // ADLS Gen2 object names can't have hyphens
