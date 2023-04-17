@@ -1,6 +1,6 @@
 # 📜 FinOps toolkit scripts
 
-FinOps toolkit scripts are used for local development and testing only.
+FinOps toolkit scripts are used for local development, testing, and publishing only.
 
 On this page:
 
@@ -33,7 +33,6 @@ Example:
 Build-Toolkit runs the following scripts internally:
 
 - [Build-Bicep](./Build-Bicep.ps1) for Bicep Registry modules
-- [Build-Workbook](./Build-Workbook.ps1) for workbooks
 
 <br>
 
@@ -43,6 +42,16 @@ Build-Toolkit runs the following scripts internally:
 
 Parameters:
 
+| Parameter        | Description                                                                                                                        |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `-Template`      | Required. Name of the template or module to deploy. Default = finops-hub.                                                          |
+| `-ResourceGroup` | Optional. Name of the resource group to deploy to. Will be created if it doesn't exist. Default = `ftk-<username>-<computername>`. |
+| `-Location`      | Optional. Azure location to execute the deployment from. Default = `westus`.                                                       |
+| `-Parameters`    | Optional. Parameters to pass thru to the deployment. Defaults per template/module are configured in the script.                    |
+| `-Build`         | Optional. Indicates whether the the `Build-Toolkit` command should be executed first. Default = `false`.                           |
+| `-Test`          | Optional. Indicates whether to run the template or module test instead of the template or module itself. Default = `false`.        |
+| `-Debug`         | Optional. Writes script execution troubleshooting details to console. Does not execute deployment.                                 |
+| `-WhatIf`        | Optional. Validates the deployment without executing it or changing resources.                                                     |
 
 Examples:
 

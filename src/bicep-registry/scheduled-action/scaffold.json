@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "name": "Cost Management scheduled action for {scopeLowerPlural}",
+  "text": [
+    {
+      "summary": "Creates a scheduled action to notify recipients about the latest costs on a recurring schedule.",
+      "scopes": ["resourceGroup", "managementGroup", "tenant"]
+    },
+    {
+      "summary": "Creates a scheduled action to notify recipients about the latest costs or when an anomaly is detected.",
+      "scopes": ["subscription"]
+    }
+  ]
+}
