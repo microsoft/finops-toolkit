@@ -11,11 +11,12 @@ Param(
 )
 
 # Create output directory
-$outdir = "../../release"
-./New-Directory $outdir
+$outDir = "../../release"
+./New-Directory $outDir
 
 # Generate Bicep modules
 Get-ChildItem ..\bicep-registry\* -Directory `
+| Where-Object { $_.Name -ne '.scaffold' }
 | ForEach-Object {
     $module = $_
     Write-Host "Building module $($module.Name)..."
@@ -28,7 +29,7 @@ Get-ChildItem ..\templates\*\main.bicep `
 | ForEach-Object {
     $bicep = $_
     $tmpName = $bicep.Directory.Name
-    $tmpDir = "$outdir/$tmpName"
+    $tmpDir = "$outDir/$tmpName"
     ./New-Directory $tmpDir
 
     Write-Host "Generating $tmpName template..."

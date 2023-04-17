@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Builds all toolkit templates for publishing to Azure Quickstart Templates.
+    Builds all Bicep modules for publishing to the Bicep Registry.
 .DESCRIPTION
     Run this from the /src/scripts folder.
 .EXAMPLE
@@ -27,7 +27,8 @@ Param (
 # Use the debug flag from common parameters to determine whether to run in debug mode
 $Debug = $DebugPreference -eq "Continue"
 
-$outdir = "../../release"
+$outdir = Join-Path .. .. release
+$scaffoldDir = Join-Path .. bicep-registry .scaffold
 $scopeList = '(subscription|resourceGroup|managementGroup|tenant)';
 $scopeDirective = "//(\s*@$scopeList)+";
 $dir = Get-Item $Module;
@@ -137,15 +138,52 @@ function Build-Modules([string] $Path, [switch] $CopySupportingFiles) {
             $sb.ToString() | Out-File (Join-Path $outdir $moduleName $Path)
         }
 
-        # Write supporting files, if available
-        if ($CopySupportingFiles -and -not $Debug) {
+        # Write template files, if metadata.json exists
+        $scaffoldInputsFile = Join-Path $Module scaffold.json
+        if ($CopySupportingFiles -and -not $Debug -and (Test-Path $scaffoldInputsFile)) {
             @('main.json', 'metadata.json', 'README.md', 'version.json') `
             | ForEach-Object { 
-                $sourceFile = Join-Path $Module $_
+                $sourceFile = Join-Path $scaffoldDir $_
                 if (Test-Path $sourceFile) {
                     Copy-Item $sourceFile (Join-Path $outdir $moduleName)
                 }
             }
+
+            function formatString($text) {
+                $formatParams = @{
+                    resourceGroup   = @{ scopeLowerPlural = "resource groups" }
+                    subscription    = @{ scopeLowerPlural = "subscriptions" }
+                    managementGroup = @{ scopeLowerPlural = "management groups" }
+                    tenant          = @{ scopeLowerPlural = "billing accounts" }
+                }[$currentScope]
+                $formatParams.Keys `
+                | ForEach-Object { $text = $text.Replace("{$_}", $formatParams[$_]) }
+                return $text
+            }
+            $scaffoldInputs = Get-Content $scaffoldInputsFile | ConvertFrom-Json
+
+            # Update metadata.json
+            $metadataFile = Join-Path $outdir $moduleName metadata.json
+            $metadata = Get-Content $metadataFile | ConvertFrom-Json
+            $metadata.name = formatString $scaffoldInputs.name
+            $metadata.summary = formatString ($scaffoldInputs.text | Where-Object { $_.scopes.Contains($currentScope) }).summary
+            $metadata | ConvertTo-Json -Depth 100 | Set-Content $metadataFile
+            if ($metadata.summary.Length -gt 120) {
+                Write-Error 'Summary in metadata.json cannot be longer than 120 characters.'
+            }
+
+            # Update version.json
+            $versionFile = Join-Path $outdir $moduleName version.json
+            $version = Get-Content $versionFile | ConvertFrom-Json
+            $version.version = $scaffoldInputs.version
+            $version | ConvertTo-Json -Depth 100 | Set-Content $versionFile
+
+            # Update README.md
+            $readmeFile = Join-Path $outdir $moduleName README.md
+            $readme = Get-Content $readmeFile
+            $desc = formatString (Get-Content (Join-Path $Module README.md))
+            ("# $($metadata.name)", '', $metadata.summary, '', '## Description', '', $desc, '', $readMe) `
+            | Set-Content $readmeFile
         }
     }
 }
