@@ -11,6 +11,11 @@ var storageAccountName = '${substring(replace(toLower(hubName), '-', ''), 0, 24 
 var dataFactorySuffix = '-engine'
 var dataFactoryName = '${take(hubName, 63 - length(dataFactorySuffix))}${dataFactorySuffix}'
 
+// Generate unique KeyVault name
+var keyVaultSuffixSuffix = 'vault'
+var keyVaultName = '${substring(replace(toLower(hubName), '-', ''), 0, 24 - length(keyVaultSuffixSuffix))}${keyVaultSuffixSuffix}'
+var keyVaultUri = 'https://${keyVaultName}${environment().suffixes.keyvaultDns}/'
+
 @description('Optional. Azure location where all resources should be created. See https://aka.ms/azureregions. Default: (resource group location).')
 param location string = resourceGroup().location
 
@@ -32,8 +37,6 @@ param enableDefaultTelemetry bool = true
 
 @description('Optional. List of scope IDs to create exports for.')
 param exportScopes array
-
-var containerNames = [ 'config', 'msexports', 'ingestion' ]
 
 // The last segment of the telemetryId is used to identify this module
 var telemetryId = '00f120b5-2007-6120-0000-40b000000000'
@@ -62,49 +65,60 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (ena
 }
 
 // ADLSv2 storage account for staging and archive
-module storageAccount 'Microsoft.Storage/storageAccounts/deploy.bicep' = {
-  name: 'storage'
-  params: {
-    name: storageAccountName
-    location: location
-    storageAccountSku: storageSku
-    tags: resourceTags
-  }
-}
 
-module dataFactory 'Microsoft.DataFactory/factories/deploy.bicep' = {
-  name: 'dataFactory'
-  params: {
-    name: dataFactoryName
-    location: location
-    tags: resourceTags
-  }
-}
-
-resource storageAccountLookup 'Microsoft.Storage/storageAccounts@2021-06-01' existing = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-08-01' = {
   name: storageAccountName
+  location: location
+  sku: {
+    name: storageSku
+  }
+  kind: 'BlockBlobStorage'
+  properties: {
+    supportsHttpsTrafficOnly: true
+    isHnsEnabled: true
+    minimumTlsVersion: 'TLS1_2'
+    allowBlobPublicAccess: false
+  }
 }
 
 resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2021-06-01' = {
-  parent: storageAccountLookup
+  parent: storageAccount
   name: 'default'
 }
 
-resource containers 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' = [for containerName in containerNames: {
+resource configContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' =  {
   parent: blobService
-  name: toLower(containerName)
+  name: 'config'
   properties: {
     publicAccess: 'None'
     metadata: {}
   }
-}]
+}
+
+resource exportContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' =  {
+  parent: blobService
+  name: 'msexports'
+  properties: {
+    publicAccess: 'None'
+    metadata: {}
+  }
+}
+
+resource ingestionContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' =  {
+  parent: blobService
+  name: 'ingestion'
+  properties: {
+    publicAccess: 'None'
+    metadata: {}
+  }
+}
 
 resource uploadSettingsJson 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: 'updateSettingsJson'
   kind: 'AzurePowerShell'
   location: location
   dependsOn: [
-    containers
+    configContainer
   ]
   properties: {
     azPowerShellVersion: '8.0'
@@ -116,7 +130,7 @@ resource uploadSettingsJson 'Microsoft.Resources/deploymentScripts@2020-10-01' =
       }
       {
         name: 'storageAccountKey'
-        value: storageAccountLookup.listKeys().keys[0].value
+        value: storageAccount.listKeys().keys[0].value
       }
       {
         name: 'storageAccountName'
@@ -131,6 +145,211 @@ resource uploadSettingsJson 'Microsoft.Resources/deploymentScripts@2020-10-01' =
   }
 }
 
+// Key Vault for storing secrets
+
+module keyVault 'Microsoft.KeyVault/vaults/deploy.bicep' = {
+  name: 'keyVault'
+  dependsOn: [
+    dataFactory
+  ]
+  params: {
+    name: keyVaultName
+    location: location
+    tags: resourceTags
+    enablePurgeProtection: false
+    accessPolicies: [
+      {
+        objectId: dataFactory.outputs.systemAssignedPrincipalId
+        tenantId: subscription().tenantId
+        permissions: {
+          secrets: [
+            'get'
+          ]
+        }
+      }
+    ]
+  }
+}
+
+module keyVaultSecret 'secrets/storageaccountsecret.bicep' = {
+  name: 'keyVaultSecret'
+  dependsOn: [
+    storageAccount
+    keyVault
+  ]
+  params: {
+    keyVaultName: keyVaultName
+    storageAccountName: storageAccountName
+    secretName: storageAccountName
+  }
+}
+
+// Azure Data Factory and Pipelines
+module dataFactory 'Microsoft.DataFactory/factories/deploy.bicep' = {
+  name: 'dataFactory'
+  params: {
+    name: dataFactoryName
+    location: location
+    tags: resourceTags
+    systemAssignedIdentity: true
+  }
+}
+
+module linkedService_keyVault 'linkedservices/linkedservice.bicep' = {
+  name: 'linkedService_keyVault'
+  dependsOn: [
+    dataFactory
+    keyVaultSecret
+  ]
+  params: {
+    dataFactoryName: dataFactoryName
+    linkedServiceName: keyVaultName
+    linkedServiceType: 'AzureKeyVault'
+    linkedServiceTypeProperties:  {
+      baseUrl: keyVaultUri
+    }
+  }
+}
+
+module linkedService_storageAccount 'linkedservices/linkedservice.bicep' = {
+  name: 'linkedService_storageAccount'
+  dependsOn: [
+    dataFactory
+    linkedService_keyVault
+  ]
+  params: {
+    dataFactoryName: dataFactoryName
+    linkedServiceName: storageAccountName
+    linkedServiceType: 'AzureBlobFS'
+    linkedServiceTypeProperties: {
+      url: reference('Microsoft.Storage/storageAccounts/${storageAccountName}', '2019-04-01').primaryEndpoints.dfs
+      accountKey: {
+        type: 'AzureKeyVaultSecret'
+        store: {
+          referenceName: keyVaultName
+          type: 'LinkedServiceReference'
+        }
+        secretName: storageAccountName
+      }
+    }
+  }
+}
+
+module dataset_msexports 'datasets/adlsv2.bicep' = {
+  name: 'dataset_msexports'
+  dependsOn: [
+    linkedService_storageAccount
+    linkedService_keyVault
+  ]
+  params: {
+    dataFactoryName: dataFactoryName
+    linkedServiceName: storageAccountName
+    compressionCodec: 'none'
+    datasetType: 'DelimitedText'
+    containerName: exportContainer.name
+  }
+}
+
+module dataset_ingestion_csv 'datasets/adlsv2.bicep' = {
+  name: 'dataset_ingestion_csv'
+  dependsOn: [
+    linkedService_storageAccount
+    linkedService_keyVault
+  ]
+  params: {
+    dataFactoryName: dataFactoryName
+    linkedServiceName: storageAccountName
+    datasetType: 'DelimitedText'
+    containerName: ingestionContainer.name
+  }
+}
+
+module dataset_ingestion_parquet 'datasets/adlsv2.bicep' = {
+  name: 'dataset_ingestion_parquet'
+  dependsOn: [
+    linkedService_storageAccount
+    linkedService_keyVault
+  ]
+  params: {
+    dataFactoryName: dataFactoryName
+    linkedServiceName: storageAccountName
+    datasetType: 'Parquet'
+    containerName: ingestionContainer.name
+  }
+}
+
+
+module msexports_extract_parquet 'pipelines/msexports_extract.bicep' = {
+  name: 'msexports_extract_parquet'
+  dependsOn: [
+    msexports_transform_parquet
+  ]
+  params: {
+    dataFactoryName: dataFactoryName
+    exportContainerName: exportContainer.name
+    outputFormat: 'parquet'
+  }
+}
+
+module msexports_extract_csv 'pipelines/msexports_extract.bicep' = {
+  name: 'msexports_extract_csv'
+  dependsOn: [
+    msexports_transform_csv
+  ]
+  params: {
+    dataFactoryName: dataFactoryName
+    exportContainerName: exportContainer.name
+    outputFormat: 'csv'
+  }
+}
+
+module msexports_transform_parquet 'pipelines/msexports_transform.bicep' = {
+  name: 'msexports_transform_parquet'
+  dependsOn: [
+    dataset_msexports
+    dataset_ingestion_parquet
+  ]
+  params: {
+    dataFactoryName: dataFactoryName
+    sinkDataset:  replace('${ingestionContainer.name}_Parquet', '-', '_')
+    sourceDataset:  replace('${exportContainer.name}_DelimitedText', '-', '_')
+    ingestionContainerName: ingestionContainer.name
+    exportContainerName: exportContainer.name
+    outputFormat: 'parquet'
+  }
+}
+
+module msexports_transform_csv 'pipelines/msexports_transform.bicep' = {
+  name: 'msexports_transform_csv'
+  dependsOn: [
+    dataset_msexports
+    dataset_ingestion_csv
+  ]
+  params: {
+    dataFactoryName: dataFactoryName
+    sinkDataset:  replace('${ingestionContainer.name}_DelimitedText', '-', '_')
+    sourceDataset:  replace('${exportContainer.name}_DelimitedText', '-', '_')
+    ingestionContainerName: ingestionContainer.name
+    exportContainerName: exportContainer.name
+    outputFormat: 'csv'
+  }
+}
+
+module trigger_msexports 'triggers/adlsv2.bicep' = {
+  name: 'trigger_msexports'
+  dependsOn: [
+    msexports_extract_parquet
+    msexports_extract_csv
+  ]
+  params: {
+    dataFactoryName: dataFactoryName
+    storageAccountId: storageAccount.id
+    BlobContainerName: exportContainer.name
+    PipelineName: 'msexports_extract_parquet'
+    triggerName: 'msexports_trigger'
+  }
+}
+
 // Outputs
 
 @description('Name of the deployed hub instance.')
@@ -139,11 +358,17 @@ output name string = hubName
 @description('Azure resource location resources were deployed to.')
 output location string = location
 
+@description('Name of the Data Factory.')
+output dataFactorytName string = dataFactoryName
+
 @description('Resource ID of the storage account created for the hub instance. This must be used when creating the Cost Management export.')
-output storageAccountId string = storageAccount.outputs.resourceId
+output storageAccountId string = storageAccount.id
 
 @description('Name of the storage account created for the hub instance. This must be used when connecting FinOps toolkit Power BI reports to your data.')
-output storageAccountName string = storageAccount.outputs.name
+output storageAccountName string = storageAccountName
+
+@description('Resource name of the storage account trigger.')
+output storageAccountTriggerName string = trigger_msexports.outputs.name
 
 @description('URL to use when connecting custom Power BI reports to your data.')
-output storageUrlForPowerBI string = 'https://${storageAccount.outputs.name}.dfs.${environment().suffixes.storage}/msexports'
+output storageUrlForPowerBI string = 'https://${storageAccountName}.dfs.${environment().suffixes.storage}/${ingestionContainer.name}'
