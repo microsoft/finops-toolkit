@@ -1,17 +1,17 @@
-# FinOps toolkit scripts
+# 📜 FinOps toolkit scripts
 
 FinOps toolkit scripts are used for local development, testing, and publishing only.
 
 On this page:
 
-- [Init-Repo](#init-repo)
-- [Build-Toolkit](#build-toolkit)
-- [Deploy-Toolkit](#deploy-toolkit)
-- [New-Directory](#new-directory)
+- [🆕 Init-Repo](#-init-repo)
+- [📦 Build-Toolkit](#-build-toolkit)
+- [🚀 Deploy-Toolkit](#-deploy-toolkit)
+- [📁 New-Directory](#-new-directory)
 
 ---
 
-## Init-Repo
+## 🆕 Init-Repo
 
 [Init-Repo.ps1](./Init-Repo.ps1) initializes your local dev environment with the following tools, which are required for development and testing:
 
@@ -20,7 +20,7 @@ On this page:
 
 <br>
 
-## Build-Toolkit
+## 📦 Build-Toolkit
 
 [Build-Toolkit.ps1](./Build-Toolkit.ps1) builds toolkit modules and templates for local testing and and to prepare them for publishing.
 
@@ -36,7 +36,7 @@ Build-Toolkit runs the following scripts internally:
 
 <br>
 
-## Deploy-Toolkit
+## 🚀 Deploy-Toolkit
 
 [Deploy-Toolkit.ps1](./Deploy-Toolkit.ps1) deploys toolkit templates for local testing purposes.
 
@@ -75,7 +75,7 @@ Examples:
 
 <br>
 
-## New-Directory
+## 📁 New-Directory
 
 [New-Directory.ps1](./New-Directory.ps1) creates a new directory without failing if it already exists and without writing data to the console.
 

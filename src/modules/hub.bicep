@@ -1,6 +1,4 @@
-/**
- * Parameters
- */
+// Parameters
 
 @description('Optional. Name of the hub. Used to ensure unique resource names. Default: "finops-hub".')
 param hubName string
@@ -35,15 +33,13 @@ param enableDefaultTelemetry bool = true
 @description('Optional. List of scope IDs to create exports for.')
 param exportScopes array
 
-var containerNames = ['config', 'ms-cm-exports', 'ingestion']
+var containerNames = [ 'config', 'msexports', 'ingestion' ]
 
 // The last segment of the telemetryId is used to identify this module
 var telemetryId = '00f120b5-2007-6120-0000-40b000000000'
 var finOpsToolkitVersion = '0.0.1'
 
-/**
- * Resources
- */
+// Resources
 
 // Telemetry used anonymously to count the number of times the template has been deployed.
 // No information about you or your cost data is collected.
@@ -86,7 +82,7 @@ module dataFactory 'Microsoft.DataFactory/factories/deploy.bicep' = {
 }
 
 resource storageAccountLookup 'Microsoft.Storage/storageAccounts@2021-06-01' existing = {
-  name: storageAccount.name
+  name: storageAccountName
 }
 
 resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2021-06-01' = {
@@ -124,7 +120,7 @@ resource uploadSettingsJson 'Microsoft.Resources/deploymentScripts@2020-10-01' =
       }
       {
         name: 'storageAccountName'
-        value: storageAccount.name
+        value: storageAccountName
       }
       {
         name: 'containerName'
@@ -135,9 +131,7 @@ resource uploadSettingsJson 'Microsoft.Resources/deploymentScripts@2020-10-01' =
   }
 }
 
-/**
- * Outputs
- */
+// Outputs
 
 @description('Name of the deployed hub instance.')
 output name string = hubName
@@ -152,4 +146,4 @@ output storageAccountId string = storageAccount.outputs.resourceId
 output storageAccountName string = storageAccount.outputs.name
 
 @description('URL to use when connecting custom Power BI reports to your data.')
-output storageUrlForPowerBI string = 'https://${storageAccount.outputs.name}.dfs.${environment().suffixes.storage}/ms-cm-exports'
+output storageUrlForPowerBI string = 'https://${storageAccount.outputs.name}.dfs.${environment().suffixes.storage}/msexports'

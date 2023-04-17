@@ -1,13 +1,13 @@
-# Coding guidelines
+# 📘 Coding guidelines
 
 On this page:
 
-- [General guidelines](#general-guidelines)
-- [Content (strings and microcopy)](#content-strings-and-microcopy)
+- [ℹ️ General guidelines](#ℹ️-general-guidelines)
+- [🔤 Content (strings and microcopy)](#-content-strings-and-microcopy)
 
 ---
 
-## General guidelines
+## ℹ️ General guidelines
 
 We strive to auto-enforce coding standards as much as possible and follow common practices you'll find in other projects to simplify onboarding.
 
@@ -19,12 +19,13 @@ Here's a quick run-down of the main points:
 - Every folder should have a README.
 - Add inline comments to all major code blocks.
 - Resolve all lint errors before submitting PRs.
-
-For details about Bicep lint rules, see [Use Bicep linter](https://learn.microsoft.com/azure/azure-resource-manager/bicep/linter).
+- Follow standard language conventions:
+  - [PowerShell guidelines](https://learn.microsoft.com/powershell/scripting/developer/cmdlet/strongly-encouraged-development-guidelines)
+  - [Bicep lint rules](https://learn.microsoft.com/azure/azure-resource-manager/bicep/linter)
 
 <br>
 
-## Content (strings and microcopy)
+## 🔤 Content (strings and microcopy)
 
 There's a ton to keep in mind in this space, from capitalization to terms to specific phrasing and more. A few quick tips to be aware of:
 

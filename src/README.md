@@ -1,4 +1,4 @@
-# FinOps toolkit source
+# 🛠️ FinOps toolkit source
 
 **Welcome aboard!** 🎉 If this is your first time to our repo, here are a few tips:
 
@@ -13,17 +13,17 @@
 
 On this page:
 
-- [Get started](#get-started)
-- [Prerequisites](#prerequisites)
-- [Fork and clone](#fork-and-clone)
-- [Select a branch](#select-a-branch)
-- [Deploy](#deploy)
-- [Test and verify](#test-and-verify)
-- [Pull requests](#pull-requests)
+- [🛫 Get started](#-get-started)
+- [� Prerequisites](#-prerequisites)
+- [🗃️ Fork and clone](#️-fork-and-clone)
+- [🌿 Select a branch](#-select-a-branch)
+- [🚀 Deploy](#-deploy)
+- [🔬 Test and verify](#-test-and-verify)
+- [👀 Pull requests](#-pull-requests)
 
 ---
 
-## Get started
+## 🛫 Get started
 
 There are many ways to contribute to the FinOps toolkit project, like reporting issues, suggesting features, and submitting or reviewing pull requests. For an overview, refer to the [contribution guide](../CONTRIBUTING.md). This page covers how to contribute to the code.
 
@@ -36,7 +36,7 @@ If an issue is assigned, please contact the assignee before starting to work on 
 
 <br>
 
-## Prerequisites
+## 📋 Prerequisites
 
 - If you don't have a GitHub account, [create one](https://github.com/join)
   - Microsoft employees: Please [link your GitHub account](https://repos.opensource.microsoft.com/link) (new or existing) to your MS account and [join the Microsoft org](https://repos.opensource.microsoft.com/orgs/microsoft).
@@ -73,7 +73,7 @@ git config --global user.email "youremail@yourdomain.com"
 
 > <sup>ℹ️ _Microsoft employees: please set this to your Microsoft email_</sup>
 
-## Fork and clone
+## 🗃️ Fork and clone
 
 Fork the repository from the web and then clone your fork locally:
 
@@ -84,7 +84,7 @@ cd cloud-hubs
 
 <br>
 
-## Select a branch
+## 🌿 Select a branch
 
 > ℹ️ _Creating branches is only applicable for Microsoft contributors. We recommend external contributors use the same guidance within their fork but this is optional._
 
@@ -113,14 +113,14 @@ For more details, refer to the [branching strategy](./process.md).
 
 <br>
 
-## Deploy
+## 🚀 Deploy
 
 ```powershell
 # Sign in and optionally specify a tenant ID, if needed
 Connect-AzAccount [-Tenant <tenant-id>]
 
 # Set the default subscription (or specify subscription below)
-Set-AzContext -Subscription <subscription-id>
+Set-AzContext -Subscription "<subscription-id>"
 
 # Switch to the src/scripts directory
 Set-Location "<cloud-hubs-root>/src/scripts"
@@ -130,12 +130,12 @@ Set-Location "<cloud-hubs-root>/src/scripts"
 #   -Location <azure-location>  # Default: westus
 #   -Template <template-name    # Default: finops-hubs
 #   -WhatIf                     # Use to validate template
-./Deploy-Toolkit
+./Deploy-Toolkit "<template-or-module-name>"
 ```
 
 <br>
 
-## Test and verify
+## 🔬 Test and verify
 
 Every PR is expected to include some sort of verification:
 
@@ -145,7 +145,7 @@ Every PR is expected to include some sort of verification:
 
 <br>
 
-## Pull requests
+## 👀 Pull requests
 
 Please do the following before submitting a pull request:
 
@@ -176,7 +176,7 @@ For more details on how we use labels, see [[Labels]].
 
 <br>
 
-# Thank you! <!-- markdownlint-disable-line single-h1 -->
+# 🙏 Thank you! <!-- markdownlint-disable-line single-h1 -->
 
 Congratulations on your first PR! Hopefully it won't be your last!
 

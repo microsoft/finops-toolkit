@@ -1,4 +1,4 @@
-# FinOps toolkit reports
+# 📊 FinOps toolkit reports
 
 FinOps toolkit reports are created and edited using [Power BI Desktop](https://powerbi.microsoft.com/desktop). We currently support the following reports:
 
@@ -7,7 +7,7 @@ FinOps toolkit reports are created and edited using [Power BI Desktop](https://p
 
 ---
 
-## Changing schema
+## 🔠 Changing schema
 
 FinOps toolkit reports maintain different queries for each schema version to avoid breaking old reports during an upgrade. Use the following steps when changing the schema:
 
