@@ -32,6 +32,18 @@ function Assert-AzContext
     return $context
 }
 
+<#
+    .SYNOPSIS
+        Creates new directory if it does not exist.
+        
+    .PARAMETER Path
+        Path of the directory.
+        
+    .EXAMPLE
+        New-Directory -Path c:\foo
+        
+        Creates a folder called foo at c:\.
+#>
 function New-Directory
 {
     [CmdletBinding()]
