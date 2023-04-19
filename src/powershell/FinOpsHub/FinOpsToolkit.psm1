@@ -103,6 +103,24 @@ function Get-FinOpsHubVersions
     return $release.tag_name
 }
 
+<#
+    .SYNOPSIS
+        Downloads a release package from a GitHub repository.
+        
+    .PARAMETER RepositoryName
+        Fully-qualified name of the repository (Owner/RepositoryName).
+        
+    .PARAMETER Tag
+        Optional. Version tag of the release to download. Defaults to latest.
+        
+    .PARAMETER Destination
+        Optional. Local path to save the download to. Defaults to present work directory.
+
+    .EXAMPLE
+        Save-GitHubRelease -RepositoryName 'microsoft/cloud-hubs'
+
+        Downloads the latest release from the cloud-hubs repository and saves to current working directory.
+#>
 function Save-GitHubRelease
 {
     [CmdletBinding()]
@@ -118,7 +136,7 @@ function Save-GitHubRelease
 
         [Parameter()]
         [string]
-        $Destination
+        $Destination = $pwd.Path
     )
     
     New-Directory -Path $Destination
