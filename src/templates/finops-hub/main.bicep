@@ -27,7 +27,7 @@ param exportScopes array = []
  * Resources
  */
 
-module hub '../../modules/hub.bicep' = {
+module hub 'modules/hub.bicep' = {
   name: 'hub'
   params: {
     hubName: hubName
