@@ -5,6 +5,6 @@
   "summary": "Create a new FinOps hub instance",
   "description": "This template creates a new FinOps hub instance, including Data Lake storage and a Data Factory.",
   "githubUsername": "flanakin",
-  "dateUpdated": "2023-02-27",
+  "dateUpdated": "2023-04-22",
   "validationType": "Manual"
 }
