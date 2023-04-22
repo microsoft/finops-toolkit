@@ -1,6 +1,6 @@
-# 📊 FinOps toolkit reports
+# 📊 FinOps hub reports
 
-FinOps toolkit reports are created and edited using [Power BI Desktop](https://powerbi.microsoft.com/desktop). We currently support the following reports:
+FinOps hub reports are created and edited using [Power BI Desktop](https://powerbi.microsoft.com/desktop). We currently support the following reports:
 
 - [Cost summary](./CostSummary.pbix)
 - [Commitment discounts](./CommitmentDiscounts.pbix)
@@ -9,9 +9,9 @@ FinOps toolkit reports are created and edited using [Power BI Desktop](https://p
 
 ## 🔠 Changing schema
 
-FinOps toolkit reports maintain different queries for each schema version to avoid breaking old reports during an upgrade. Use the following steps when changing the schema:
+FinOps hub reports maintain different queries for each schema version to avoid breaking old reports during an upgrade. Use the following steps when changing the schema:
 
-1. Open the desired toolkit report in Power BI Desktop.
+1. Open the desired hub report in Power BI Desktop.
 2. Select **Transform data** in the toolbar.
 3. Either create a new query with **Get data** or right-click the latest query and select **Duplicate**, if the data source is not changing.
    - Customize the new query as desired.
@@ -52,11 +52,11 @@ FinOps toolkit reports maintain different queries for each schema version to avo
     - Note you may need to update columns and measures depending on the dataset changes.
     - Validate columns and measures first and update as needed.
     - Then validate visuals and update all as needed.
-13. Document the new dataset in [Queries and datasets](../../docs/reports/README.md#queries-and-datasets).
+13. Document the new dataset in [Queries and datasets](../../../../docs/finops-hub/reports/README.md#queries-and-datasets).
 14. Update the references to the latest dataset name in the following places:
-    - [Copy queries from a toolkit report](../../docs/reports/README.md#copy-queries-from-a-toolkit-report)
-    - [Queries and datasets](../../docs/reports/README.md#queries-and-datasets)
-15. If appropriate, document the new dataset in the [changelog](../../docs/changelog.md).
+    - [Copy queries from a report](../../../../docs/finops-hub/reports/README.md#copy-queries-from-a-report)
+    - [Queries and datasets](../../../../docs/finops-hub/reports/README.md#queries-and-datasets)
+15. If appropriate, document the new dataset in the [changelog](../../../../docs/changelog.md).
 16. Repeat these steps for each toolkit report:
 
     1. Rename the old query to `<new-query-name>` and copy the text from the first report.
