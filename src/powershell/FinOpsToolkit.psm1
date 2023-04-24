@@ -189,13 +189,13 @@ function Save-FinOpsHubTemplate
     .PARAMETER HubName
         Name of the FinOps hub instance.
 
-    .PARAMETER ResourceGroupName
+    .PARAMETER ResourceGroup
         Name of the resource group to deploy to. Will be created if it doesn't exist. Only used for ResourceGroup scope.
 
     .PARAMETER Location
         Azure location to execute the deployment from.
 
-    .PARAMETER HubVersion
+    .PARAMETER Version
         Defaults to latest. Version of FinOps hub template to use.
 
     .PARAMETER StorageSku
@@ -208,12 +208,12 @@ function Save-FinOpsHubTemplate
         Optional. List of scope IDs to create exports for.
 
     .EXAMPLE
-        Deploy-FinOpsHub -HubName MyHub -ResourceGroupName MyExistingResourceGroup -Location westus
+        Deploy-FinOpsHub -HubName MyHub -ResourceGroup MyExistingResourceGroup -Location westus
         
         Deploys a new FinOps hub instance named MyHub to an existing resource group name MyExistingResourceGroup.
     
     .EXAMPLE
-        Deploy-FinOpsHub -HubName MyHub -Location westus -HubVersion 1.0.0
+        Deploy-FinOpsHub -HubName MyHub -Location westus -Version 1.0.0
         
         Deploys a new FinOps hub instance named MyHub using version 1.0.0 of the template.
 #>
@@ -228,7 +228,7 @@ function Deploy-FinOpsHub
 
         [Parameter(Mandatory = $true)]
         [string]
-        $ResourceGroupName,
+        $ResourceGroup,
 
         [Parameter(Mandatory = $true)]
         [string]
@@ -236,7 +236,7 @@ function Deploy-FinOpsHub
 
         [Parameter()]
         [string]
-        $HubVersion = 'latest',
+        $Version = 'latest',
 
         [Parameter()]
         [ValidateSet('Premium_LRS', 'Premium_ZRS')]
@@ -254,12 +254,12 @@ function Deploy-FinOpsHub
 
     $toolkitPath = Join-Path -Path $env:temp -ChildPath 'FinOpsHub'
     $availableVersions = Get-FinOpsToolkitVersions
-    if ($HubVersion -ne 'latest' -and $availableVersions -notcontains $HubVersion)
+    if ($Version -ne 'latest' -and $availableVersions -notcontains $Version)
     {
-        throw ($LocalizedData.VersionNotFound -f $HubVersion)
+        throw ($LocalizedData.VersionNotFound -f $Version)
     }
 
-    Save-GitHubRelease -RepositoryName 'microsoft/cloud-hubs' -Tag $HubVersion -Destination $toolkitPath
+    Save-GitHubRelease -RepositoryName 'microsoft/cloud-hubs' -Tag $Version -Destination $toolkitPath
     $toolkitFile = Get-ChildItem -Path $toolkitPath -Include 'finops-hub/main.bicep' -Recurse
     $parameterSplat = @{
         TemplateFile            = $toolkitFile.FullName
@@ -278,11 +278,11 @@ function Deploy-FinOpsHub
 
     try
     {
-        $resourceGroup = Get-AzResourceGroup -Name $ResourceGroupName -Location $Location -ErrorAction 'Stop'
+        $resourceGroup = Get-AzResourceGroup -Name $ResourceGroup -Location $Location -ErrorAction 'Stop'
     }
     catch
     {
-        $resourceGroup = New-AzResourceGroup -Name $ResourceGroupName -Location $Location
+        $resourceGroup = New-AzResourceGroup -Name $ResourceGroup -Location $Location
     }
     
     try
