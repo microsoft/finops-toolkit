@@ -7,7 +7,7 @@ data LocalizedData
     FoundAsset = Found asset '{0}'.
     FoundLatestRelease = Found latest release '{0}'.
     NewDirectory = Creating directory '{0}'.
-    NotSignedIn = Not logged into Azure. Launching 'Login-AzAccount'.
+    NotSignedIn = Not signed into Azure. Launching 'Login-AzAccount'.
     VersionNotFound = Could not find version '{0}' of FinOps toolkit. Run 'Get-FinOpsToolkitVersions' for available versions.
 '@
 }
