@@ -7,11 +7,12 @@ data LocalizedData
     FoundAsset = Found asset '{0}'.
     FoundLatestRelease = Found latest release '{0}'.
     NewDirectory = Creating directory '{0}'.
-    NotLoggedIn = Not logged into Azure. Launching 'Login-AzAccount'.
-    VersionNotFound = Could not find version '{0}' of FinOpsHub. Run 'Get-FinOpsHubVersions' for available versions.
+    NotSignedIn = Not logged into Azure. Launching 'Login-AzAccount'.
+    VersionNotFound = Could not find version '{0}' of FinOps toolkit. Run 'Get-FinOpsToolkitVersions' for available versions.
 '@
 }
 
+#region Helpers
 <#
     .SYNOPSIS
         Gets Azure context for logged in user. Will prompt for login if not currently logged in.
@@ -23,7 +24,7 @@ function Assert-AzContext
     $context = Get-AzContext
     if ($null -eq $context)
     {
-        Write-Warning -Message ($LocalizedData.NotLoggedIn)
+        Write-Warning -Message ($LocalizedData.NotSignedIn)
         $null = Login-AzAccount
         $context = Get-AzContext
     }
@@ -32,6 +33,13 @@ function Assert-AzContext
     return $context
 }
 
+<#
+    .SYNOPSIS
+        Creates a directory if it does not already exist.
+        
+    .PARAMETER Path
+        Path to create directory.
+#>
 function New-Directory
 {
     [CmdletBinding()]
@@ -48,7 +56,9 @@ function New-Directory
         $null = New-Item -ItemType 'Directory' -Path $Destination
     }
 }
+#endregion Helpers
 
+#region Public
 <#
     .SYNOPSIS
         Retrieves available version numbers of the FinOps Hub template.
@@ -57,16 +67,16 @@ function New-Directory
         Will only return the latest version number of FinOps Hub template.
         
     .EXAMPLE
-        Get-FinOpsHubVersions
+        Get-FinOpsToolkitVersions
         
         Returns all available version numbers of FinOps Hub templates.
         
     .EXAMPLE
-        Get-FinOpsHubVersions -Latest
+        Get-FinOpsToolkitVersions -Latest
         
         Returns only the latest version number of the FinOps Hub templates.
 #>
-function Get-FinOpsHubVersions
+function Get-FinOpsToolkitVersions
 {
     [CmdletBinding()]
     param
@@ -76,10 +86,7 @@ function Get-FinOpsHubVersions
         $Latest
     )
     
-    # url for testing
-    $releaseUri = 'https://api.github.com/repos/dsccommunity/xdhcpserver/releases'
-
-    #$releaseUri = 'https://api.github.com/repos/microsoft/cloud-hubs/releases'
+    $releaseUri = 'https://api.github.com/repos/microsoft/cloud-hubs/releases'
     $releases = (Invoke-WebRequest -Uri $releaseUri -Verbose:$false | ConvertFrom-Json)
     
     if ($Latest)
@@ -91,27 +98,50 @@ function Get-FinOpsHubVersions
     return $release.tag_name
 }
 
-function Save-GitHubRelease
+<#
+    .SYNOPSIS
+        Saves a released version of the FinOps hub bicep template to local disk.
+        
+    .PARAMETER Tag
+        Version of the FinOps hub to download. Defaults to latest.
+        
+    .PARAMETER Destination
+        Path to store the download. Defaults to env:temp.
+        
+    .PARAMETER Force
+        Optional. Will overwrite an existing file.
+
+    .EXAMPLE
+        Save-FinOpsHubTemplate
+
+        Downloads the latest version of FinOps hub template to current users' temp folder.
+
+    .EXAMPLE
+        Save-FinOpsHubTemplate -Tag '1.0.0' -Destination 'C:\myHub' -Force
+
+        Downloads version 1.0.0 of FinOpsHub template to c:\myHub directory. It will overwrite an existing 1.0.0.zip file if it exists.
+#>
+function Save-FinOpsHubTemplate
 {
     [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory = $true)]
-        [string]
-        $RepositoryName,
-
         [Parameter()]
         [string]
         $Tag = 'latest',
 
         [Parameter()]
         [string]
-        $Destination
+        $Destination = $env:temp,
+
+        [Parameter()]
+        [switch]
+        $Force
     )
     
     New-Directory -Path $Destination
 
-    $lookupUri = 'https://api.github.com/repos/{0}/releases' -f $RepositoryName
+    $lookupUri = 'https://api.github.com/repos/microsoft/cloud-hubs/releases'
     $releases = (Invoke-WebRequest -Uri $lookupUri -Verbose:$false | ConvertFrom-Json)
 
     if ($Tag -eq 'Latest')
@@ -137,9 +167,13 @@ function Save-GitHubRelease
     }
 
     $saveFilePath = Join-Path -Path $Destination -ChildPath $saveFileName
+    if ($Force -and (Test-Path -Path $saveFilePath))
+    {
+        Remove-Item -Path $saveFilePath
+    }
+
     $downloadUri = $release.assets.browser_download_url
     $null = Invoke-Webrequest -Uri $downloadUri -OutFile $saveFilePath -Verbose:$false
-
     if ([System.IO.Path]::GetExtension($saveFilePath) -eq '.zip')
     {
         Write-Verbose -Message ($LocalizedData.ExpandingZip -f $saveFilePath)
@@ -150,13 +184,10 @@ function Save-GitHubRelease
 
 <#
     .SYNOPSIS
-        Deploys a FinOpsHub instance.
+        Deploys a FinOps hub instance.
 
     .PARAMETER HubName
-        Name of the FinOpsHub instance.
-
-    .PARAMETER Scope
-        Scope to deploy FinOpsHub to, either ResourceGroup, Subscription, or Tenant.
+        Name of the FinOps hub instance.
 
     .PARAMETER ResourceGroupName
         Name of the resource group to deploy to. Will be created if it doesn't exist. Only used for ResourceGroup scope.
@@ -165,7 +196,7 @@ function Save-GitHubRelease
         Azure location to execute the deployment from.
 
     .PARAMETER HubVersion
-        Defaults to latest. Version of FinOpsHub template to use.
+        Defaults to latest. Version of FinOps hub template to use.
 
     .PARAMETER StorageSku
         Optional. Storage account SKU. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage.
@@ -222,7 +253,7 @@ function Deploy-FinOpsHub
     )
 
     $toolkitPath = Join-Path -Path $env:temp -ChildPath 'FinOpsHub'
-    $availableVersions = Get-FinOpsHubVersions
+    $availableVersions = Get-FinOpsToolkitVersions
     if ($HubVersion -ne 'latest' -and $availableVersions -notcontains $HubVersion)
     {
         throw ($LocalizedData.VersionNotFound -f $HubVersion)
@@ -270,5 +301,6 @@ function Deploy-FinOpsHub
         Remove-Item -Path $toolkitPath
     }
 }
+#endregion
 
-Export-ModuleMember -Function 'Deploy-FinOpsHub', 'Get-FinOpsHubVersions'
+Export-ModuleMember -Function 'Deploy-FinOpsHub', 'Get-FinOpsToolkitVersions', 'Save-FinOpsHubTemplate'
