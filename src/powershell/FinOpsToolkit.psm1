@@ -199,7 +199,7 @@ function Save-FinOpsHubTemplate
         Defaults to latest. Version of FinOps hub template to use.
 
     .PARAMETER StorageSku
-        Optional. Storage account SKU. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage.
+        Optional. Storage account SKU. Premium_LRS = Lowest cost, Premium_ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage.
 
     .PARAMETER Tags
         Optional. Tags for all resources.
@@ -241,7 +241,7 @@ function Deploy-FinOpsHub
         [Parameter()]
         [ValidateSet('Premium_LRS', 'Premium_ZRS')]
         [string]
-        $StorageSku,
+        $StorageSku = 'Premium_LRS',
 
         [Parameter()]
         [hashtable]
