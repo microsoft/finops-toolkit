@@ -1,6 +1,6 @@
 # 📦 FinOps toolkit modules
 
-All FinOps toolkit module source is available at the root of this directory. For summary details, see [public docs](../../docs/templates/modules).
+All FinOps toolkit module source is available at the root of this directory. For summary details, see [public docs](../../../../docs/finops-hub/modules).
 
 Modules:
 
