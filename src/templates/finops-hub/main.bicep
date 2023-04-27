@@ -33,7 +33,7 @@ param ingestionRetentionInMonths int = 13
  * Resources
  */
 
-module hub '../../modules/hub.bicep' = {
+module hub 'modules/hub.bicep' = {
   name: 'hub'
   params: {
     hubName: hubName
