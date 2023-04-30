@@ -3,7 +3,7 @@ $json = [ordered]@{
     type         = 'HubInstance'
     version      = '0.0.1'
     learnMore    = 'https://aka.ms/finops/toolkit'
-    exportScopes = @()    
+    exportScopes = @()
 }
 
 $json.exportScopes = $env:exportScopes.Split('|')
