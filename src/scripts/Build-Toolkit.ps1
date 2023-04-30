@@ -1,16 +1,18 @@
 <#
-.SYNOPSIS
-    Builds all toolkit modules and templates for publishing to the Bicep Registry and Azure Quickstart Templates.
-.DESCRIPTION
-    Run this from the /src/scripts folder.
-.PARAMETER Template
-    Optional. Name of the module or template to publish. Default = "*" (all templates and modules).
-.EXAMPLE
-    ./Build-Toolkit
-    Builds all FinOps toolkit modules and templates.
-.EXAMPLE
-    ./Build-Toolkit -Template "finops-hub"
-    Builds only the finops-hub template.
+    .SYNOPSIS
+        Builds all toolkit modules and templates for publishing to the Bicep Registry and Azure Quickstart Templates.
+    .DESCRIPTION
+        Run this from the /src/scripts folder.
+    .PARAMETER Template
+        Optional. Name of the module or template to publish. Default = "*" (all templates and modules).
+    .EXAMPLE
+        ./Build-Toolkit
+
+        Builds all FinOps toolkit modules and templates.
+    .EXAMPLE
+        ./Build-Toolkit -Template "finops-hub"
+
+        Builds only the finops-hub template.
 #>
 Param(
     [Parameter(Position = 0)][string]$Template = "*"
@@ -39,12 +41,13 @@ Get-ChildItem ..\templates\$Template* -Directory -ErrorAction SilentlyContinue `
 
     # Create target directory
     $destDir = "$outdir/$templateName"
+    Remove-Item $destDir -Recurse -ErrorAction SilentlyContinue
     ./New-Directory $destDir
     
     # Copy required files
     Write-Host "  Copying files..."
     Copy-Item "$srcDir/*.*" $destDir
-    Copy-Item "$srcDir/modules" $destDir
+    Copy-Item "$srcDir/modules/" $destDir -Recurse
     
     # Generate parameters
     Write-Host "  Generating parameters..."
