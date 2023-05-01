@@ -43,7 +43,10 @@ function iff([bool]$Condition, $IfTrue, $IfFalse) {
 
 # Build toolkit if requested
 if ($Build) {
-    ./Build-Toolkit
+    ./Build-Toolkit -Template $Template
+    $templateFolders = @("../../release")
+} else {
+    $templateFolders = @("../templates", "../bicep-registry")
 }
 
 # Generates a unique name based on the signed in username and computer name for local testing
@@ -65,19 +68,20 @@ $defaultParameters = @{
 # Reset global debug variable
 $global:ftkDeployment = $null
 
-# Find bicep file (templates first)
-@("../templates", "../bicep-registry", "../../release") `
+# Find bicep file
+$templateFolders `
 | ForEach-Object { Get-Item (Join-Path $_ $Template (iff $Test test/main.test.bicep main.bicep)) -ErrorAction SilentlyContinue } `
 | ForEach-Object {
     $templateFile = $_
     $templateName = iff $Test ($templateFile.Directory.Parent.Name + "/test") $templateFile.Directory.Name
+    $parentFolder = iff $Test $templateFile.Directory.Parent.Parent.Name $templateFile.Directory.Parent.Name
     $targetScope = (Get-Content $templateFile | Select-String "targetScope = '([^']+)'").Matches[0].Captures[0].Groups[1].Value
     
     # Fall back to default parameters if none were provided
     $Parameters = iff ($null -eq $Parameters) $defaultParameters[$templateName] $Parameters
     $Parameters = iff ($null -eq $Parameters) @{} $Parameters
     
-    Write-Host "Deploying $templateName..."
+    Write-Host "Deploying $templateName (from $parentFolder)..."
     switch ($targetScope) {
         "resourceGroup" {
 
