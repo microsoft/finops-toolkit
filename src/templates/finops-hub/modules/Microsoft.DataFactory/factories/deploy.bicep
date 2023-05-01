@@ -206,6 +206,10 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
       keyVersion: !empty(cMKKeyVersion) ? cMKKeyVersion : null
       vaultBaseUrl: cMKKeyVault.properties.vaultUri
     } : null
+    // Ignore the unsupported error for globalConfigurations
+    globalConfigurations: {
+      PipelineBillingEnabled: 'true'
+    }
   }
 }
 
