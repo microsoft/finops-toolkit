@@ -5,8 +5,9 @@ Param(
 # Init outputs
 $DeploymentScriptOutputs = @{}
 
-# Wait; if we try to start the trigger too soon, it won't start
-#Start-Sleep -Seconds 20
+if (-not $Stop) {
+    Start-Sleep -Seconds 5
+}
 
 # Loop thru triggers
 $env:Triggers.Split('|') `
