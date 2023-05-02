@@ -58,7 +58,6 @@ resource rbac 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role i
 }]
 
 // Stop the trigger if it's already running
-// Start the trigger
 resource stopTrigger 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: '${dataFactoryName}_${triggerName}_stop'
   location: autoStartLocation
@@ -103,6 +102,9 @@ resource stopTrigger 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 resource trigger 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
   name: triggerName
   parent: dataFactoryRef
+  dependsOn: [
+    stopTrigger
+  ]
   properties: {
     description: triggerDesc
     annotations: []
@@ -120,7 +122,7 @@ resource trigger 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
     ]
     type: 'BlobEventsTrigger'
     typeProperties: {
-      blobPathBeginsWith: '/${blobContainerName}/'
+      blobPathBeginsWith: '/${blobContainerName}/blobs/'
       blobPathEndsWith: '.csv'
       ignoreEmptyBlobs: true
       scope: storageAccountId
@@ -144,6 +146,7 @@ resource startTrigger 'Microsoft.Resources/deploymentScripts@2020-10-01' = if (a
   kind: 'AzurePowerShell'
   dependsOn: [
     rbac
+    trigger
   ]
   properties: {
     azPowerShellVersion: '8.0'
