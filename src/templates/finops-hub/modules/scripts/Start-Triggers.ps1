@@ -6,7 +6,7 @@ Param(
 $DeploymentScriptOutputs = @{}
 
 if (-not $Stop) {
-    Start-Sleep -Seconds 5
+    Start-Sleep -Seconds 10
 }
 
 # Loop thru triggers
@@ -38,5 +38,5 @@ $env:Triggers.Split('|') `
 }
 
 if ($Stop) {
-    Start-Sleep -Seconds 5
+    Start-Sleep -Seconds 10
 }
