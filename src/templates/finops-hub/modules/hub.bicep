@@ -29,8 +29,9 @@ param exportScopes array
 //------------------------------------------------------------------------------
 
 // Generate unique storage account name
+var lowerHubName = replace(toLower(hubName), '-', '')
 var storageAccountSuffix = 'store'
-var storageAccountName = '${substring(replace(toLower(hubName), '-', ''), 0, 24 - length(storageAccountSuffix))}${storageAccountSuffix}'
+var storageAccountName = '${substring(lowerHubName, 0, 24 - length(storageAccountSuffix))}${storageAccountSuffix}'
 
 // Data factory naming requirements: Min 3, Max 63, can only contain letters, numbers and non-repeating dashes 
 var dataFactorySuffix = '-engine'
@@ -38,7 +39,7 @@ var dataFactoryName = '${take(hubName, 63 - length(dataFactorySuffix))}${dataFac
 
 // Generate unique KeyVault name
 var keyVaultSuffixSuffix = 'vault'
-var keyVaultName = '${substring(replace(toLower(hubName), '-', ''), 0, 24 - length(keyVaultSuffixSuffix))}${keyVaultSuffixSuffix}'
+var keyVaultName = '${substring(lowerHubName, 0, 24 - length(keyVaultSuffixSuffix))}${keyVaultSuffixSuffix}'
 var keyVaultUri = 'https://${keyVaultName}${environment().suffixes.keyvaultDns}/'
 
 var resourceTags = union(tags, {
