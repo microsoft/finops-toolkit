@@ -1,6 +1,6 @@
-//------------------------------------------------------------------------------
+//==============================================================================
 // Parameters
-//------------------------------------------------------------------------------
+//==============================================================================
 
 @description('Optional. Name of the hub. Used to ensure unique resource names. Default: "finops-hub".')
 param hubName string
@@ -50,12 +50,17 @@ var resourceTags = union(tags, {
 var telemetryId = '00f120b5-2007-6120-0000-40b000000000'
 var finOpsToolkitVersion = '0.0.1'
 
-//------------------------------------------------------------------------------
+//==============================================================================
 // Resources
+//==============================================================================
+
+//------------------------------------------------------------------------------
+// Telemetry
+// Used to anonymously count the number of times the template has been deployed
+// and to track and fix deployment bugs to ensure the highest quality.
+// No information about you or your cost data is collected.
 //------------------------------------------------------------------------------
 
-// Telemetry used anonymously to count the number of times the template has been deployed.
-// No information about you or your cost data is collected.
 resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefaultTelemetry) {
   name: 'pid-${telemetryId}-${uniqueString(deployment().name, location)}'
   properties: {
@@ -74,7 +79,10 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (ena
   }
 }
 
+//------------------------------------------------------------------------------
 // ADLSv2 storage account for staging and archive
+//------------------------------------------------------------------------------
+
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-08-01' = {
   name: storageAccountName
   location: location
@@ -151,7 +159,10 @@ resource uploadSettingsJson 'Microsoft.Resources/deploymentScripts@2020-10-01' =
   }
 }
 
+//------------------------------------------------------------------------------
 // Key Vault for storing secrets
+//------------------------------------------------------------------------------
+
 module keyVault 'Microsoft.KeyVault/vaults/deploy.bicep' = {
   name: 'keyVault'
   dependsOn: [
@@ -185,14 +196,16 @@ module keyVault 'Microsoft.KeyVault/vaults/deploy.bicep' = {
 }
 }
 
-// Azure Data Factory and Pipelines
+//------------------------------------------------------------------------------
+// Data Factory and pipelines
+//------------------------------------------------------------------------------
+
 module dataFactory 'Microsoft.DataFactory/factories/deploy.bicep' = {
   name: 'dataFactory'
   params: {
     name: dataFactoryName
     location: location
     tags: resourceTags
-    systemAssignedIdentity: true
   }
 }
 
@@ -349,7 +362,7 @@ module trigger_msexports 'triggers/adlsv2.bicep' = {
     triggerName: exportContainer.name
     triggerDesc: 'Monitors the ${exportContainer.name} container for new exports and executes the ${exportContainer.name}_extract_parquet pipeline.'
     autoStart: true
-    autoStartLocation: dataFactory.outputs.location
+    autoStartLocation: location
   }
 }
 
