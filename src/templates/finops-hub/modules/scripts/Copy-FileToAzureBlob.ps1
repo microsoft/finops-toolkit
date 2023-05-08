@@ -5,7 +5,7 @@ $json = [ordered]@{
     learnMore    = 'https://aka.ms/finops/toolkit'
     exportScopes = @()
     retention    = @{
-        'ms-cm-exports' = @{
+        'msexports' = @{
             days = 0
         }
         'ingestion'     = @{
@@ -16,7 +16,7 @@ $json = [ordered]@{
 
 # Set values from inputs
 $json.exportScopes = $env:exportScopes.Split('|')
-$json.retention['ms-cm-exports'].days = [Int32]::Parse($env:exportRetentionInDays)
+$json.retention['msexports'].days = [Int32]::Parse($env:exportRetentionInDays)
 $json.retention.ingestion.months = [Int32]::Parse($env:ingestionRetentionInMonths)
 
 # Save file to storage

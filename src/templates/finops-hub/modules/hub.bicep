@@ -1,12 +1,9 @@
+//------------------------------------------------------------------------------
 // Parameters
+//------------------------------------------------------------------------------
 
 @description('Optional. Name of the hub. Used to ensure unique resource names. Default: "finops-hub".')
 param hubName string
-
-// Generate unique KeyVault name
-var keyVaultSuffixSuffix = 'vault'
-var keyVaultName = '${substring(replace(toLower(hubName), '-', ''), 0, 24 - length(keyVaultSuffixSuffix))}${keyVaultSuffixSuffix}'
-var keyVaultUri = 'https://${keyVaultName}${environment().suffixes.keyvaultDns}/'
 
 @description('Optional. Azure location where all resources should be created. See https://aka.ms/azureregions. Default: (resource group location).')
 param location string = resourceGroup().location
@@ -29,9 +26,6 @@ var dataFactoryName = '${take(hubName, 63 - length(dataFactorySuffix))}${dataFac
 
 @description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
 param tags object = {}
-var resourceTags = union(tags, {
-    'cm-resource-parent': '${resourceGroup().id}/providers/Microsoft.Cloud/hubs/${hubName}'
-  })
 
 @description('Optional. List of scope IDs to create exports for.')
 param exportScopes array
@@ -45,11 +39,35 @@ param ingestionRetentionInMonths int = 13
 @description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
 
+//------------------------------------------------------------------------------
+// Variables
+//------------------------------------------------------------------------------
+
+// Generate unique storage account name
+var lowerHubName = replace(toLower(hubName), '-', '')
+var storageAccountSuffix = 'store'
+var storageAccountName = '${substring(lowerHubName, 0, 24 - length(storageAccountSuffix))}${storageAccountSuffix}'
+
+// Data factory naming requirements: Min 3, Max 63, can only contain letters, numbers and non-repeating dashes 
+var dataFactorySuffix = '-engine'
+var dataFactoryName = '${take(hubName, 63 - length(dataFactorySuffix))}${dataFactorySuffix}'
+
+// Generate unique KeyVault name
+var keyVaultSuffixSuffix = 'vault'
+var keyVaultName = '${substring(lowerHubName, 0, 24 - length(keyVaultSuffixSuffix))}${keyVaultSuffixSuffix}'
+var keyVaultUri = 'https://${keyVaultName}${environment().suffixes.keyvaultDns}/'
+
+var resourceTags = union(tags, {
+    'cm-resource-parent': '${resourceGroup().id}/providers/Microsoft.Cloud/hubs/${hubName}'
+  })
+
 // The last segment of the telemetryId is used to identify this module
 var telemetryId = '00f120b5-2007-6120-0000-40b000000000'
 var finOpsToolkitVersion = '0.0.1'
 
+//------------------------------------------------------------------------------
 // Resources
+//------------------------------------------------------------------------------
 
 // Telemetry used anonymously to count the number of times the template has been deployed.
 // No information about you or your cost data is collected.
@@ -72,7 +90,6 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (ena
 }
 
 // ADLSv2 storage account for staging and archive
-
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-08-01' = {
     name: storageAccountName
     location: location
@@ -121,12 +138,9 @@ resource ingestionContainer 'Microsoft.Storage/storageAccounts/blobServices/cont
 }
 
 resource uploadSettingsJson 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: 'updateSettingsJson'
+  name: '${dataFactoryName}_${configContainer.name}_updateSettings'
   kind: 'AzurePowerShell'
   location: location
-  dependsOn: [
-    configContainer
-  ]
   properties: {
     azPowerShellVersion: '8.0'
     retentionInterval: 'PT1H'
@@ -157,7 +171,6 @@ resource uploadSettingsJson 'Microsoft.Resources/deploymentScripts@2020-10-01' =
 }
 
 // Key Vault for storing secrets
-
 module keyVault 'Microsoft.KeyVault/vaults/deploy.bicep' = {
   name: 'keyVault'
   dependsOn: [
@@ -289,11 +302,10 @@ module dataset_ingestion_parquet 'datasets/adlsv2.bicep' = {
   }
 }
 
-
-module msexports_extract_parquet 'pipelines/msexports_extract.bicep' = {
-  name: 'msexports_extract_parquet'
+module pipeline_msexports_extract_parquet 'pipelines/msexports_extract.bicep' = {
+  name: 'pipeline_msexports_extract_parquet'
   dependsOn: [
-    msexports_transform_parquet
+    pipeline_msexports_transform_parquet
   ]
   params: {
     dataFactoryName: dataFactoryName
@@ -302,10 +314,10 @@ module msexports_extract_parquet 'pipelines/msexports_extract.bicep' = {
   }
 }
 
-module msexports_extract_csv 'pipelines/msexports_extract.bicep' = {
-  name: 'msexports_extract_csv'
+module pipeline_msexports_extract_csv 'pipelines/msexports_extract.bicep' = {
+  name: 'pipeline_msexports_extract_csv'
   dependsOn: [
-    msexports_transform_csv
+    pipeline_msexports_transform_csv
   ]
   params: {
     dataFactoryName: dataFactoryName
@@ -314,8 +326,8 @@ module msexports_extract_csv 'pipelines/msexports_extract.bicep' = {
   }
 }
 
-module msexports_transform_parquet 'pipelines/msexports_transform.bicep' = {
-  name: 'msexports_transform_parquet'
+module pipeline_msexports_transform_parquet 'pipelines/msexports_transform.bicep' = {
+  name: 'pipeline_msexports_transform_parquet'
   dependsOn: [
     dataset_msexports
     dataset_ingestion_parquet
@@ -330,8 +342,8 @@ module msexports_transform_parquet 'pipelines/msexports_transform.bicep' = {
   }
 }
 
-module msexports_transform_csv 'pipelines/msexports_transform.bicep' = {
-  name: 'msexports_transform_csv'
+module pipeline_msexports_transform_csv 'pipelines/msexports_transform.bicep' = {
+  name: 'pipeline_msexports_transform_csv'
   dependsOn: [
     dataset_msexports
     dataset_ingestion_csv
@@ -349,19 +361,24 @@ module msexports_transform_csv 'pipelines/msexports_transform.bicep' = {
 module trigger_msexports 'triggers/adlsv2.bicep' = {
   name: 'trigger_msexports'
   dependsOn: [
-    msexports_extract_parquet
-    msexports_extract_csv
+    pipeline_msexports_extract_parquet
+    pipeline_msexports_extract_csv
   ]
   params: {
     dataFactoryName: dataFactoryName
     storageAccountId: storageAccount.id
-    BlobContainerName: exportContainer.name
-    PipelineName: 'msexports_extract_parquet'
-    triggerName: 'msexports_trigger'
+    blobContainerName: exportContainer.name
+    pipelineName: '${exportContainer.name}_extract_parquet'
+    triggerName: exportContainer.name
+    triggerDesc: 'Monitors the ${exportContainer.name} container for new exports and executes the ${exportContainer.name}_extract_parquet pipeline.'
+    autoStart: true
+    autoStartLocation: dataFactory.outputs.location
   }
 }
 
+//------------------------------------------------------------------------------
 // Outputs
+//------------------------------------------------------------------------------
 
 @description('Name of the deployed hub instance.')
 output name string = hubName
@@ -377,9 +394,6 @@ output storageAccountId string = storageAccount.id
 
 @description('Name of the storage account created for the hub instance. This must be used when connecting FinOps toolkit Power BI reports to your data.')
 output storageAccountName string = storageAccountName
-
-@description('Resource name of the storage account trigger.')
-output storageAccountTriggerName string = trigger_msexports.outputs.name
 
 @description('URL to use when connecting custom Power BI reports to your data.')
 output storageUrlForPowerBI string = 'https://${storageAccountName}.dfs.${environment().suffixes.storage}/${ingestionContainer.name}'
