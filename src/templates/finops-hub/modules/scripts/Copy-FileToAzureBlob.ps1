@@ -9,5 +9,5 @@ $json = [ordered]@{
 $json.exportScopes = $env:exportScopes.Split('|')
 $settingsFile = Join-Path -Path .\ -ChildPath 'settings.json'
 $json | ConvertTo-Json | Out-File $settingsFile
-$ctx = New-AzStorageContext -StorageAccountName $env:storageAccountName -StorageAccountKey $env:storageAccountKey
+$ctx = New-AzStorageContext -StorageAccountName $env:storageAccountName -UseConnectedAccount
 Set-AzStorageBlobContent -Container $env:containerName -Context $ctx -File $settingsFile

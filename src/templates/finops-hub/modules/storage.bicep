@@ -29,6 +29,11 @@ param exportScopes array
 var storageAccountSuffix = 'store'
 var storageAccountName = '${take(replace(toLower(hubName), '-', ''), 24 - length(storageAccountSuffix))}${storageAccountSuffix}'
 
+// Roles needed to auto-start triggers
+var blobUploadRbacRoles = [
+  'ba92f5b4-2d11-453d-a403-e96b0029c9fe' // Storage Blob Data Contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor
+]
+
 //==============================================================================
 // Resources
 //==============================================================================
@@ -48,6 +53,10 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-08-01' = {
     allowBlobPublicAccess: false
   }
 }
+
+//------------------------------------------------------------------------------
+// Containers
+//------------------------------------------------------------------------------
 
 resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2021-06-01' = {
   parent: storageAccount
@@ -81,12 +90,40 @@ resource ingestionContainer 'Microsoft.Storage/storageAccounts/blobServices/cont
   }
 }
 
-resource uploadSettingsJson 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: 'updateSettingsJson'
+//------------------------------------------------------------------------------
+// Settings.json
+//------------------------------------------------------------------------------
+
+// Create managed identity to upload files
+resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: '${storageAccountName}_${configContainer.name}_blobManager'
+  location: location
+}
+
+// Assign access to the identity
+resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in blobUploadRbacRoles: {
+  name: guid(storageAccount.id, role, identity.id)
+  scope: storageAccount
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
+    principalId: identity.properties.principalId
+    principalType: 'ServicePrincipal'
+  }
+}]
+
+resource uploadSettings 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: 'uploadSettings'
   kind: 'AzurePowerShell'
   location: location
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${identity.id}': {}
+    }
+  }
   dependsOn: [
     configContainer
+    identityRoleAssignments
   ]
   properties: {
     azPowerShellVersion: '8.0'
@@ -95,10 +132,6 @@ resource uploadSettingsJson 'Microsoft.Resources/deploymentScripts@2020-10-01' =
       {
         name: 'exportScopes'
         value: join(exportScopes, '|')
-      }
-      {
-        name: 'storageAccountKey'
-        value: storageAccount.listKeys().keys[0].value
       }
       {
         name: 'storageAccountName'
