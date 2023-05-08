@@ -161,7 +161,6 @@ module keyVault 'Microsoft.KeyVault/vaults/deploy.bicep' = {
     name: keyVaultName
     location: location
     tags: resourceTags
-    enablePurgeProtection: false
     accessPolicies: [
       {
         objectId: dataFactory.outputs.systemAssignedPrincipalId
@@ -173,20 +172,17 @@ module keyVault 'Microsoft.KeyVault/vaults/deploy.bicep' = {
         }
       }
     ]
+    secrets: {
+      secureList: [
+        {
+          name: storageAccount.name
+          value: storageAccount.listKeys().keys[0].value
+          attributesExp: 1702648632
+          attributesNbf: 10000
+  }
+  ]
   }
 }
-
-module keyVaultSecret 'secrets/storageaccountsecret.bicep' = {
-  name: 'keyVaultSecret'
-  dependsOn: [
-    storageAccount
-    keyVault
-  ]
-  params: {
-    keyVaultName: keyVaultName
-    storageAccountName: storageAccountName
-    secretName: storageAccountName
-  }
 }
 
 // Azure Data Factory and Pipelines
