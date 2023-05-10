@@ -14,7 +14,6 @@ The cost optimization workbook is an Azure Monitor workbook that provides a sing
 ## Workbook overview
 We'll share more details as the workbook evolves.
 
-To Be Created
 
 
 ### Deployment
