@@ -595,7 +595,8 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
         typeProperties: {
           variableName: 'metric'
           value: {
-            value: '@first(split(split(pipeline().parameters.folderName, \'/\')[sub(length(split(pipeline().parameters.folderName, \'/\')), 4)], \'-\'))'
+            // TODO: Enable this with self-managed exports -- value: '@first(split(split(pipeline().parameters.folderName, \'/\')[sub(length(split(pipeline().parameters.folderName, \'/\')), 4)], \'-\'))'
+            value: 'amortizedcost'
             type: 'Expression'
           }
         }
