@@ -11,7 +11,7 @@
 The cost optimization workbook is an Azure Monitor workbook that provides a single pane of glass for cost optimization, modeled after the Well-Architected Framework guidance.
 
 
-## Workbook Overview
+## Workbook overview
 We'll share more details as the workbook evolves.
 
 To Be Created
