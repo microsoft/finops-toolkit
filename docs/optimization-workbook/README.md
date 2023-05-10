@@ -17,7 +17,7 @@ We'll share more details as the workbook evolves.
 
 
 ### Deployment
-* Consider the following least-privilege (minimum) RBAC permissions when deploying the workbook:
+* Consider the following least-privilege (minimum) RBAC roles when deploying the workbook:
 
   * **Reader** and **Workbook Contributor** : allows you to import the workbook, view all of the workbook tabs and save the workbook in a resource group.
   * **Reader** : allows you to import the workbook and view all of the workbook tabs.
