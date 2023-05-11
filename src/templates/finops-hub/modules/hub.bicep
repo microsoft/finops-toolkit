@@ -21,6 +21,9 @@ param tags object = {}
 @description('Optional. List of scope IDs to create exports for.')
 param exportScopes array
 
+@description('Optional. Indicates whether ingested data should be converted to Parquet. Default: true.')
+param convertToParquet bool = true
+
 @description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
 
@@ -94,18 +97,21 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
   location: location
   tags: tags
   identity: { type: 'SystemAssigned' }
-  properties: {
-    // Ignore the unsupported error for globalConfigurations
-    globalConfigurations: {
-      PipelineBillingEnabled: 'true'
-    }
-  }
+  properties: union(
+    // Using union() to hide the error that gets surfaced because globalConfigurations is not in the ADF schema yet.
+    {},
+    {
+      globalConfigurations: {
+        PipelineBillingEnabled: 'true'
+      }
+    })
 }
 
 module dataFactoryResources 'dataFactory.bicep' = {
   name: 'dataFactoryResources'
   params: {
     dataFactoryName: dataFactoryName
+    convertToParquet: convertToParquet
     keyVaultName: keyVault.outputs.name
     storageAccountName: storage.outputs.name
     exportContainerName: storage.outputs.exportContainer

@@ -17,19 +17,8 @@ param exportContainerName string
 @description('Required. The name of the container where normalized data is ingested.')
 param ingestionContainerName string
 
-@description('Required. The type of dataset. Allowed values: "DelimitedText", "Parquet". Default: "Parquet".')
-@allowed([
-  'DelimitedText'
-  'Parquet'
-])
-param datasetType string = 'Parquet'
-
-@description('Required. Compression codec to use. Allowed values: "none", "gzip". Default: "gzip".')
-@allowed([
-  'none'
-  'gzip'
-])
-param datasetCompression string = 'gzip'
+@description('Optional. Indicates whether ingested data should be converted to Parquet. Default: true.')
+param convertToParquet bool = true
 
 @description('Optional. The location to use for the managed identity and deployment script to auto-start triggers. Default = (resource group location).')
 param location string = resourceGroup().location
@@ -229,11 +218,11 @@ resource dataset_ingestion 'Microsoft.DataFactory/factories/datasets@2018-06-01'
         type: 'String'
       }
     }
-    type: any(datasetType)
+    type: any(convertToParquet ? 'Parquet' : 'DelimitedText')
     typeProperties: union(
       datasetPropsCommon,
-      datasetType == 'Parquet' ? datasetPropsParquet : datasetPropsDelimitedText,
-      { compressionCodec: datasetCompression }
+      convertToParquet ? datasetPropsParquet : datasetPropsDelimitedText,
+      { compressionCodec: 'gzip' }
     )
     linkedServiceName: {
       parameters: {}
@@ -353,6 +342,168 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
   ]
   properties: {
     activities: [
+      // (start) -> Wait -> Scope -> Metric -> Date -> File -> Folder -> Delete Target -> Convert CSV -> Delete CSV -> (end)
+      // Wait
+      {
+        name: 'Wait'
+        type: 'Wait'
+        dependsOn: []
+        userProperties: []
+        typeProperties: {
+          waitTimeInSeconds: 60
+        }
+      }
+      // Set Scope
+      {
+        name: 'Set Scope'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Wait'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          variableName: 'scope'
+          value: {
+            value: '@replace(split(pipeline().parameters.folderName,split(pipeline().parameters.folderName, \'/\')[sub(length(split(pipeline().parameters.folderName, \'/\')), 4)])[0],\'${exportContainerName}\',\'${ingestionContainerName}\')'
+            type: 'Expression'
+          }
+        }
+      }
+      // Set Metric
+      {
+        name: 'Set Metric'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Set Scope'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          variableName: 'metric'
+          value: {
+            // TODO: Parse metric out of the export path with self-managed exports -- value: '@first(split(split(pipeline().parameters.folderName, \'/\')[sub(length(split(pipeline().parameters.folderName, \'/\')), 4)], \'-\'))'
+            value: 'amortizedcost'
+            type: 'Expression'
+          }
+        }
+      }
+      // Set Date
+      {
+        name: 'Set Date'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Set Metric'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          variableName: 'date'
+          value: {
+            value: '@split(pipeline().parameters.folderName, \'/\')[sub(length(split(pipeline().parameters.folderName, \'/\')), 3)]'
+            type: 'Expression'
+          }
+        }
+      }
+      // Set Destination File Name
+      {
+        name: 'Set Destination File Name'
+        description: ''
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Set Date'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          variableName: 'destinationFile'
+          value: {
+            value: '@replace(pipeline().parameters.fileName, \'.csv\', \'${convertToParquet ? '.parquet' : '.csv.gz'}\')'
+            type: 'Expression'
+          }
+        }
+      }
+      // Set Destination Folder Name
+      {
+        name: 'Set Destination Folder Name'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Set Destination File Name'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          variableName: 'destinationFolder'
+          value: {
+            value: '@replace(concat(variables(\'scope\'),variables(\'date\'),\'/\',variables(\'metric\')),\'//\',\'/\')'
+            type: 'Expression'
+          }
+        }
+      }
+      // Delete Target
+      {
+        name: 'Delete Target'
+        type: 'Delete'
+        dependsOn: [
+          {
+            activity: 'Set Destination Folder Name'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+        ]
+        policy: {
+          timeout: '0.12:00:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          dataset: {
+            referenceName: safeIngestionContainerName
+            type: 'DatasetReference'
+            parameters: {
+              folderName: {
+                value: '@variables(\'destinationFolder\')'
+                type: 'Expression'
+              }
+              fileName: {
+                value: '@variables(\'destinationFile\')'
+                type: 'Expression'
+              }
+            }
+          }
+          enableLogging: false
+          storeSettings: {
+            type: 'AzureBlobFSReadSettings'
+            recursive: true
+            enablePartitionDiscovery: false
+          }
+        }
+      }
+      // Convert CSV
       {
         name: 'Convert CSV'
         type: 'Copy'
@@ -389,7 +540,7 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
             storeSettings: {
               type: 'AzureBlobFSWriteSettings'
             }
-            formatSettings: datasetType == 'parquet' ? {
+            formatSettings: convertToParquet ? {
               type: 'ParquetWriteSettings'
               fileExtension: '.parquet'
             } : {
@@ -435,48 +586,7 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
           }
         ]
       }
-      {
-        name: 'Delete Target'
-        type: 'Delete'
-        dependsOn: [
-          {
-            activity: 'Set Destination Folder Name'
-            dependencyConditions: [
-              'Completed'
-            ]
-          }
-        ]
-        policy: {
-          timeout: '0.12:00:00'
-          retry: 0
-          retryIntervalInSeconds: 30
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          dataset: {
-            referenceName: safeExportContainerName
-            type: 'DatasetReference'
-            parameters: {
-              folderName: {
-                value: '@variables(\'destinationFolder\')'
-                type: 'Expression'
-              }
-              fileName: {
-                value: '@variables(\'destinationFile\')'
-                type: 'Expression'
-              }
-            }
-          }
-          enableLogging: false
-          storeSettings: {
-            type: 'AzureBlobFSReadSettings'
-            recursive: true
-            enablePartitionDiscovery: false
-          }
-        }
-      }
+      // Delete CSV
       {
         name: 'Delete CSV'
         type: 'Delete'
@@ -519,117 +629,6 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
           }
         }
       }
-      {
-        name: 'Set Destination Folder Name'
-        type: 'SetVariable'
-        dependsOn: [
-          {
-            activity: 'Set Destination File Name'
-            dependencyConditions: [
-              'Completed'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          variableName: 'destinationFolder'
-          value: {
-            value: '@replace(concat(variables(\'scope\'),variables(\'date\'),\'/\',variables(\'metric\')),\'//\',\'/\')'
-            type: 'Expression'
-          }
-        }
-      }
-      {
-        name: 'Set Destination File Name'
-        description: ''
-        type: 'SetVariable'
-        dependsOn: [
-          {
-            activity: 'Set Date'
-            dependencyConditions: [
-              'Completed'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          variableName: 'destinationFile'
-          value: {
-            value: datasetType == 'parquet' ? '@replace(pipeline().parameters.fileName, \'.csv\', \'.parquet\')' : '@replace(pipeline().parameters.fileName, \'.csv\', \'.csv.gz\')'
-            type: 'Expression'
-          }
-        }
-      }
-      {
-        name: 'Set Date'
-        type: 'SetVariable'
-        dependsOn: [
-          {
-            activity: 'Set Metric'
-            dependencyConditions: [
-              'Completed'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          variableName: 'date'
-          value: {
-            value: '@split(pipeline().parameters.folderName, \'/\')[sub(length(split(pipeline().parameters.folderName, \'/\')), 3)]'
-            type: 'Expression'
-          }
-        }
-      }
-      {
-        name: 'Set Metric'
-        type: 'SetVariable'
-        dependsOn: [
-          {
-            activity: 'Set Scope'
-            dependencyConditions: [
-              'Completed'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          variableName: 'metric'
-          value: {
-            // TODO: Enable this with self-managed exports -- value: '@first(split(split(pipeline().parameters.folderName, \'/\')[sub(length(split(pipeline().parameters.folderName, \'/\')), 4)], \'-\'))'
-            value: 'amortizedcost'
-            type: 'Expression'
-          }
-        }
-      }
-      {
-        name: 'Set Scope'
-        type: 'SetVariable'
-        dependsOn: [
-          {
-            activity: 'Wait'
-            dependencyConditions: [
-              'Completed'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          variableName: 'scope'
-          value: {
-            value: '@replace(split(pipeline().parameters.folderName,split(pipeline().parameters.folderName, \'/\')[sub(length(split(pipeline().parameters.folderName, \'/\')), 4)])[0],\'${exportContainerName}\',\'${ingestionContainerName}\')'
-            type: 'Expression'
-          }
-        }
-      }
-      {
-        name: 'Wait'
-        type: 'Wait'
-        dependsOn: []
-        userProperties: []
-        typeProperties: {
-          waitTimeInSeconds: 60
-        }
-      }
     ]
     parameters: {
       fileName: {
@@ -664,7 +663,7 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
 // Start all triggers
 //------------------------------------------------------------------------------
 
-// Start the trigger
+// Start hub triggers
 resource startHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: '${dataFactoryName}_startHubTriggers'
   location: location
