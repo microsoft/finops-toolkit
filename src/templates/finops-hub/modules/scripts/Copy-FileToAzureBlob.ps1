@@ -1,8 +1,8 @@
 $json = [ordered]@{
-    '$schema'    = 'https://aka.ms/finops/toolkit/settings-schema'
+    '$schema'    = 'https://aka.ms/finops/hubs/settings-schema'
     type         = 'HubInstance'
     version      = '0.0.1'
-    learnMore    = 'https://aka.ms/finops/toolkit'
+    learnMore    = 'https://aka.ms/finops/hubs'
     exportScopes = @()
     retention    = @{
         'msexports' = @{
