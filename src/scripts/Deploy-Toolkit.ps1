@@ -21,6 +21,8 @@
     Optional. Indicates whether the the Build-Toolkit command should be executed first. Default = false.
 .PARAMETER Test
     Optional. Indicates whether to run the template or module test instead of the template or module itself. Default = false.
+.PARAMETER Demo
+    Optional. Indicates whether to deploy the template to the FinOps-Toolkit-Demo resource group. Default = false.
 .PARAMETER WhatIf
     Optional. Displays a message that describes the effect of the command, instead of executing the command.
 #>
@@ -31,6 +33,7 @@ Param(
     [object]$Parameters,
     [switch]$Build,
     [switch]$Test,
+    [switch]$Demo,
     [switch]$WhatIf
 )
 
@@ -49,6 +52,12 @@ if ($Build) {
     $templateFolders = @("../templates", "../bicep-registry")
 }
 
+# Don't run test and demo deployment at the same time
+if ($Test -and $Demo) {
+    Write-Error "Cannot specify both -Test and -Demo. Please try again."
+    return
+}
+
 # Generates a unique name based on the signed in username and computer name for local testing
 function Get-UniqueName() {
     # NOTE: For some reason, using variables directly does not get the value until we write them
@@ -62,6 +71,7 @@ function Get-UniqueName() {
 # Local dev parameters
 $defaultParameters = @{
     "finops-hub"      = @{ hubName = Get-UniqueName }
+    "finops-hub/demo" = @{ hubName = "FinOpsHubDemo" }
     "finops-hub/test" = @{ uniqueName = Get-UniqueName }
 }
 
@@ -78,15 +88,19 @@ $templateFolders `
     $targetScope = (Get-Content $templateFile | Select-String "targetScope = '([^']+)'").Matches[0].Captures[0].Groups[1].Value
     
     # Fall back to default parameters if none were provided
-    $Parameters = iff ($null -eq $Parameters) $defaultParameters[$templateName] $Parameters
+    $Parameters = iff ($null -eq $Parameters) $defaultParameters["$templateName$(iff $Demo '/demo' '')"] $Parameters
     $Parameters = iff ($null -eq $Parameters) @{} $Parameters
     
     Write-Host "Deploying $templateName (from $parentFolder)..."
     switch ($targetScope) {
         "resourceGroup" {
 
-            # Set default RG name to "ftk-<username>-<computername>"
-            If ([string]::IsNullOrEmpty($ResourceGroup)) {
+            # Set default RG name
+            if ($Demo) {
+                # Use "FinOps-Toolkit-Demo" for the demo
+                $ResourceGroup = "FinOps-Toolkit-Demo"
+            } elseif ([string]::IsNullOrEmpty($ResourceGroup)) {
+                # Use "ftk-<username>-<computername>" for local testing
                 $ResourceGroup = Get-UniqueName
             }
             
@@ -97,7 +111,7 @@ $templateFolders `
                 Write-Host "         $templateFile"
             } else {
                 # Create resource group if it doesn't exist
-                $rg = Get-AzResourceGroup $ResourceGroup
+                $rg = Get-AzResourceGroup $ResourceGroup -ErrorAction SilentlyContinue
                 If ($null -eq $rg) {
                     New-AzResourceGroup `
                         -Name $ResourceGroup `
@@ -114,7 +128,7 @@ $templateFolders `
                 $global:ftkDeployment
             }
 
-            return "https://portal.azure.com/subscriptions/$((Get-AzContext).Subscription.Id)/resourceGroups/$ResourceGroup"
+            return "https://portal.azure.com/#resource/subscriptions/$((Get-AzContext).Subscription.Id)/resourceGroups/$ResourceGroup"
 
         }
         "subscription" {
@@ -133,7 +147,7 @@ $templateFolders `
                 $global:ftkDeployment
             }
 
-            return "https://portal.azure.com/subscriptions/$((Get-AzContext).Subscription.Id)"
+            return "https://portal.azure.com/#resource/subscriptions/$((Get-AzContext).Subscription.Id)"
 
         }
         "managementGroup" {
