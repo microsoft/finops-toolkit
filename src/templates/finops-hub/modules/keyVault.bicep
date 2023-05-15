@@ -28,9 +28,10 @@ param tags object = {}
 // Variables
 //------------------------------------------------------------------------------
 
-// Generate unique KeyVault name
-var keyVaultSuffixSuffix = 'vault'
-var keyVaultName = '${take(replace(toLower(hubName), '-', ''), 24 - length(keyVaultSuffixSuffix))}${keyVaultSuffixSuffix}'
+// Generate globally unique KeyVault name: 3-24 chars; letters, numbers, dashes
+var keyVaultPrefix = '${replace(hubName, '_', '-')}-vault'
+var keyVaultSuffix = '-${uniqueString(hubName, resourceGroup().id)}'
+var keyVaultName = replace('${take(keyVaultPrefix, 24 - length(keyVaultSuffix))}${keyVaultSuffix}', '--', '-')
 
 var formattedAccessPolicies = [for accessPolicy in accessPolicies: {
   applicationId: contains(accessPolicy, 'applicationId') ? accessPolicy.applicationId : ''

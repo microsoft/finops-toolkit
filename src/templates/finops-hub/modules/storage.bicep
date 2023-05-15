@@ -25,9 +25,10 @@ param exportScopes array
 // Variables
 //------------------------------------------------------------------------------
 
-// Generate unique storage account name
-var storageAccountSuffix = 'store'
-var storageAccountName = '${take(replace(toLower(hubName), '-', ''), 24 - length(storageAccountSuffix))}${storageAccountSuffix}'
+// Generate globally unique storage account name: 3-24 chars; lowercase letters/numbers only
+var safeHubName = replace(replace(toLower(hubName), '-', ''), '_', '')
+var storageAccountSuffix = uniqueString(safeHubName, resourceGroup().id)
+var storageAccountName = '${take(safeHubName, 24 - length(storageAccountSuffix))}${storageAccountSuffix}'
 
 //==============================================================================
 // Resources

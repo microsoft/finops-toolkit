@@ -36,9 +36,10 @@ var resourceTags = union(tags, {
     'cm-resource-parent': '${resourceGroup().id}/providers/Microsoft.Cloud/hubs/${hubName}'
   })
 
-// Data factory naming requirements: Min 3, Max 63, can only contain letters, numbers and non-repeating dashes 
-var dataFactorySuffix = '-engine'
-var dataFactoryName = '${take(hubName, 63 - length(dataFactorySuffix))}${dataFactorySuffix}'
+// Generate globally unique Data Factory name: 3-63 chars; letters, numbers, non-repeating dashes
+var dataFactoryPrefix = '${replace(hubName, '_', '-')}-engine'
+var dataFactorySuffix = '-${uniqueString(hubName, resourceGroup().id)}'
+var dataFactoryName = replace('${take(dataFactoryPrefix, 63 - length(dataFactorySuffix))}${dataFactorySuffix}', '--', '-')
 
 // The last segment of the telemetryId is used to identify this module
 var telemetryId = '00f120b5-2007-6120-0000-40b000000000'
