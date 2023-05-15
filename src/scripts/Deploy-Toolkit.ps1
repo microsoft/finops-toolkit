@@ -21,6 +21,8 @@
     Optional. Indicates whether the the Build-Toolkit command should be executed first. Default = false.
 .PARAMETER Test
     Optional. Indicates whether to run the template or module test instead of the template or module itself. Default = false.
+.PARAMETER Demo
+    Optional. Indicates whether to deploy the template to the FinOps-Toolkit-Demo resource group. Default = false.
 .PARAMETER WhatIf
     Optional. Displays a message that describes the effect of the command, instead of executing the command.
 #>
@@ -31,6 +33,7 @@ Param(
     [object]$Parameters,
     [switch]$Build,
     [switch]$Test,
+    [switch]$Demo,
     [switch]$WhatIf
 )
 
@@ -43,7 +46,17 @@ function iff([bool]$Condition, $IfTrue, $IfFalse) {
 
 # Build toolkit if requested
 if ($Build) {
-    ./Build-Toolkit
+    ./Build-Toolkit -Template $Template
+    $templateFolders = @("../../release")
+} else {
+    # NOTE: Do not include the workbooks folder since they must be built first; they're included in the release folder
+    $templateFolders = @("../templates", "../bicep-registry", "../../release")
+}
+
+# Don't run test and demo deployment at the same time
+if ($Test -and $Demo) {
+    Write-Error "Cannot specify both -Test and -Demo. Please try again."
+    return
 }
 
 # Generates a unique name based on the signed in username and computer name for local testing
@@ -59,6 +72,7 @@ function Get-UniqueName() {
 # Local dev parameters
 $defaultParameters = @{
     "finops-hub"      = @{ hubName = Get-UniqueName }
+    "finops-hub/demo" = @{ hubName = "FinOpsHubDemo" }
     "finops-hub/test" = @{ uniqueName = Get-UniqueName }
 }
 
@@ -70,25 +84,29 @@ if (Test-Path (Join-Path .. workbooks $Template)) {
     $Template = "$Template-workbook"
 }
 
-# Find bicep file (templates first)
-# NOTE: Do not include the workbooks folder since they must be built first; they're included in the release folder
-@("../templates", "../bicep-registry", "../../release") `
+# Find bicep file
+$templateFolders `
 | ForEach-Object { Get-Item (Join-Path $_ $Template (iff $Test test/main.test.bicep main.bicep)) -ErrorAction SilentlyContinue } `
 | ForEach-Object {
     $templateFile = $_
     $templateName = iff $Test ($templateFile.Directory.Parent.Name + "/test") $templateFile.Directory.Name
+    $parentFolder = iff $Test $templateFile.Directory.Parent.Parent.Name $templateFile.Directory.Parent.Name
     $targetScope = (Get-Content $templateFile | Select-String "targetScope = '([^']+)'").Matches[0].Captures[0].Groups[1].Value
     
     # Fall back to default parameters if none were provided
-    $Parameters = iff ($null -eq $Parameters) $defaultParameters[$templateName] $Parameters
+    $Parameters = iff ($null -eq $Parameters) $defaultParameters["$templateName$(iff $Demo '/demo' '')"] $Parameters
     $Parameters = iff ($null -eq $Parameters) @{} $Parameters
     
-    Write-Host "Deploying $templateName..."
+    Write-Host "Deploying $templateName (from $parentFolder)..."
     switch ($targetScope) {
         "resourceGroup" {
 
-            # Set default RG name to "ftk-<username>-<computername>"
-            If ([string]::IsNullOrEmpty($ResourceGroup)) {
+            # Set default RG name
+            if ($Demo) {
+                # Use "FinOps-Toolkit-Demo" for the demo
+                $ResourceGroup = "FinOps-Toolkit-Demo"
+            } elseif ([string]::IsNullOrEmpty($ResourceGroup)) {
+                # Use "ftk-<username>-<computername>" for local testing
                 $ResourceGroup = Get-UniqueName
             }
             
@@ -99,7 +117,7 @@ if (Test-Path (Join-Path .. workbooks $Template)) {
                 Write-Host "         $templateFile"
             } else {
                 # Create resource group if it doesn't exist
-                $rg = Get-AzResourceGroup $ResourceGroup
+                $rg = Get-AzResourceGroup $ResourceGroup -ErrorAction SilentlyContinue
                 If ($null -eq $rg) {
                     New-AzResourceGroup `
                         -Name $ResourceGroup `
@@ -116,7 +134,7 @@ if (Test-Path (Join-Path .. workbooks $Template)) {
                 $global:ftkDeployment
             }
 
-            return "https://portal.azure.com/subscriptions/$((Get-AzContext).Subscription.Id)/resourceGroups/$ResourceGroup"
+            return "https://portal.azure.com/#resource/subscriptions/$((Get-AzContext).Subscription.Id)/resourceGroups/$ResourceGroup"
 
         }
         "subscription" {
@@ -135,7 +153,7 @@ if (Test-Path (Join-Path .. workbooks $Template)) {
                 $global:ftkDeployment
             }
 
-            return "https://portal.azure.com/subscriptions/$((Get-AzContext).Subscription.Id)"
+            return "https://portal.azure.com/#resource/subscriptions/$((Get-AzContext).Subscription.Id)"
 
         }
         "managementGroup" {
