@@ -1,3 +1,5 @@
+
+#region Public functions
 <#
     .SYNOPSIS
         Retrieves available version numbers of the FinOps Hub template.
@@ -33,11 +35,7 @@ function Get-FinOpsToolkitVersions
     )
 
     $releaseUri = 'https://api.github.com/repos/microsoft/cloud-hubs/releases'
-    [array]$releases = Invoke-WebRequest -Uri $releaseUri -Verbose:$false | ConvertFrom-Json
-    if (-not $Preview)
-    {
-        $releases = $releases | Where-Object {($_.prerelease -eq $false)} 
-    }
+    [array]$releases = Invoke-WebRequest -Uri $releaseUri | ConvertFrom-Json | Where-Object {($Preview) -or (-not $_.prerelease)}
     
     if ($Latest)
     {
@@ -47,3 +45,6 @@ function Get-FinOpsToolkitVersions
     
     return $releases.tag_name
 }
+#endregion Public functions
+
+Export-ModuleMember -Function 'Get-FinOpsToolkitVersions'
