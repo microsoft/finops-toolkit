@@ -22,5 +22,5 @@ $json.retention.ingestion.months = [Int32]::Parse($env:ingestionRetentionInMonth
 # Save file to storage
 $settingsFile = Join-Path -Path .\ -ChildPath 'settings.json'
 $json | ConvertTo-Json | Out-File $settingsFile
-$ctx = New-AzStorageContext -StorageAccountName $env:storageAccountName -StorageAccountKey $env:storageAccountKey
+$ctx = New-AzStorageContext -StorageAccountName $env:storageAccountName -UseConnectedAccount
 Set-AzStorageBlobContent -Container config -Context $ctx -File $settingsFile
