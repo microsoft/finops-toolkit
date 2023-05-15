@@ -2,8 +2,11 @@
 // Parameters
 //==============================================================================
 
-@description('Optional. Name of the hub. Used to ensure unique resource names. Default: "finops-hub".')
+@description('Required. Name of the hub. Used to ensure unique resource names.')
 param hubName string
+
+@description('Required. Suffix to add to the KeyVault instance name to ensure uniqueness.')
+param uniqueSuffix string
 
 @description('Optional. Location for all resources.')
 param location string = resourceGroup().location
@@ -30,7 +33,7 @@ param tags object = {}
 
 // Generate globally unique KeyVault name: 3-24 chars; letters, numbers, dashes
 var keyVaultPrefix = '${replace(hubName, '_', '-')}-vault'
-var keyVaultSuffix = '-${uniqueString(hubName, resourceGroup().id)}'
+var keyVaultSuffix = '-${uniqueSuffix}'
 var keyVaultName = replace('${take(keyVaultPrefix, 24 - length(keyVaultSuffix))}${keyVaultSuffix}', '--', '-')
 
 var formattedAccessPolicies = [for accessPolicy in accessPolicies: {

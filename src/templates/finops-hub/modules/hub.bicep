@@ -37,8 +37,9 @@ var resourceTags = union(tags, {
   })
 
 // Generate globally unique Data Factory name: 3-63 chars; letters, numbers, non-repeating dashes
+var uniqueSuffix = uniqueString(hubName, resourceGroup().id)
 var dataFactoryPrefix = '${replace(hubName, '_', '-')}-engine'
-var dataFactorySuffix = '-${uniqueString(hubName, resourceGroup().id)}'
+var dataFactorySuffix = '-${uniqueSuffix}'
 var dataFactoryName = replace('${take(dataFactoryPrefix, 63 - length(dataFactorySuffix))}${dataFactorySuffix}', '--', '-')
 
 // The last segment of the telemetryId is used to identify this module
@@ -82,6 +83,7 @@ module storage 'storage.bicep' = {
   name: 'storage'
   params: {
     hubName: hubName
+    uniqueSuffix: uniqueSuffix
     sku: storageSku
     location: location
     tags: resourceTags
@@ -129,6 +131,7 @@ module keyVault 'keyVault.bicep' = {
   name: 'keyVault'
   params: {
     hubName: hubName
+    uniqueSuffix: uniqueSuffix
     location: location
     tags: resourceTags
     storageAccountName: storage.outputs.name
