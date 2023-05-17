@@ -52,10 +52,6 @@
       "config": {
         "configs": [
           {
-            "label": "Area: GitHub",
-            "pathFilter": [".github"]
-          },
-          {
             "label": "Solution: FinOps hubs",
             "pathFilter": ["src/templates/finops-hub"]
           },
@@ -66,6 +62,10 @@
           {
             "label": "Solutions: Bicep Registry",
             "pathFilter": ["src/bicep-registry"]
+          },
+          {
+            "label": "Area: GitHub",
+            "pathFilter": [".github"]
           }
         ],
         "taskName": "Solution labels"
@@ -81,6 +81,476 @@
         "fixedLabelEnabled": true,
         "taskName": "Label issues in review",
         "label_fixed": "Status: 📦 Pending release"
+      }
+    },
+    {
+      "taskType": "trigger",
+      "capabilityId": "IssueResponder",
+      "subCapability": "PullRequestReviewResponder",
+      "version": "1.0",
+      "config": {
+        "taskName": "PR changes requested - Needs attention",
+        "conditions": {
+          "operator": "and",
+          "operands": [
+            {
+              "name": "isAction",
+              "parameters": {
+                "action": "submitted"
+              }
+            },
+            {
+              "name": "isReviewState",
+              "parameters": {
+                "state": "changes_requested"
+              }
+            }
+          ]
+        },
+        "actions": [
+          {
+            "name": "addLabel",
+            "parameters": {
+              "label": "Needs: Attention 👋"
+            }
+          }
+        ],
+        "eventType": "pull_request",
+        "eventNames": ["pull_request_review"]
+      }
+    },
+    {
+      "taskType": "trigger",
+      "capabilityId": "IssueResponder",
+      "subCapability": "PullRequestResponder",
+      "version": "1.0",
+      "config": {
+        "taskName": "PR updated by author - Needs review",
+        "conditions": {
+          "operator": "and",
+          "operands": [
+            {
+              "name": "isActivitySender",
+              "parameters": {
+                "user": {
+                  "type": "author"
+                }
+              }
+            },
+            {
+              "operator": "not",
+              "operands": [
+                {
+                  "name": "isAction",
+                  "parameters": {
+                    "action": "closed"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "hasLabel",
+              "parameters": {
+                "label": "Needs: Attention 👋"
+              }
+            }
+          ]
+        },
+        "actions": [
+          {
+            "name": "removeLabel",
+            "parameters": {
+              "label": "Needs: Attention 👋"
+            }
+          },
+          {
+            "name": "addLabel",
+            "parameters": {
+              "label": "Needs: Review 👀"
+            }
+          }
+        ],
+        "eventType": "pull_request",
+        "eventNames": ["pull_request", "issues", "project_card"]
+      }
+    },
+    {
+      "taskType": "trigger",
+      "capabilityId": "IssueResponder",
+      "subCapability": "PullRequestCommentResponder",
+      "version": "1.0",
+      "config": {
+        "taskName": "PR comments - Needs review",
+        "conditions": {
+          "operator": "and",
+          "operands": [
+            {
+              "name": "isActivitySender",
+              "parameters": {
+                "user": {
+                  "type": "author"
+                }
+              }
+            },
+            {
+              "name": "hasLabel",
+              "parameters": {
+                "label": "Needs: Attention 👋"
+              }
+            }
+          ]
+        },
+        "actions": [
+          {
+            "name": "removeLabel",
+            "parameters": {
+              "label": "Needs: Attention 👋"
+            }
+          },
+          {
+            "name": "addLabel",
+            "parameters": {
+              "label": "Needs: Review 👀"
+            }
+          }
+        ],
+        "eventType": "pull_request",
+        "eventNames": ["issue_comment"]
+      }
+    },
+    {
+      "taskType": "trigger",
+      "capabilityId": "IssueResponder",
+      "subCapability": "PullRequestReviewResponder",
+      "version": "1.0",
+      "config": {
+        "taskName": "PR review comments - Needs review",
+        "conditions": {
+          "operator": "and",
+          "operands": [
+            {
+              "name": "isActivitySender",
+              "parameters": {
+                "user": {
+                  "type": "author"
+                }
+              }
+            },
+            {
+              "name": "hasLabel",
+              "parameters": {
+                "label": "Needs: Attention 👋"
+              }
+            }
+          ]
+        },
+        "actions": [
+          {
+            "name": "removeLabel",
+            "parameters": {
+              "label": "Needs: Attention 👋"
+            }
+          },
+          {
+            "name": "addLabel",
+            "parameters": {
+              "label": "Needs: Review 👀"
+            }
+          }
+        ],
+        "eventType": "pull_request",
+        "eventNames": ["pull_request_review"]
+      }
+    },
+    {
+      "taskType": "trigger",
+      "capabilityId": "IssueResponder",
+      "subCapability": "PullRequestResponder",
+      "version": "1.0",
+      "config": {
+        "taskName": "PR revived - Needs review",
+        "conditions": {
+          "operator": "and",
+          "operands": [
+            {
+              "operator": "not",
+              "operands": [
+                {
+                  "name": "isAction",
+                  "parameters": {
+                    "action": "closed"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "hasLabel",
+              "parameters": {
+                "label": "Resolution: No activity"
+              }
+            }
+          ]
+        },
+        "actions": [
+          {
+            "name": "removeLabel",
+            "parameters": {
+              "label": "Resolution: No activity"
+            }
+          },
+          {
+            "name": "addLabel",
+            "parameters": {
+              "label": "Needs: Review 👀"
+            }
+          }
+        ],
+        "eventType": "pull_request",
+        "eventNames": ["pull_request", "issues", "project_card"]
+      }
+    },
+    {
+      "taskType": "trigger",
+      "capabilityId": "IssueResponder",
+      "subCapability": "PullRequestCommentResponder",
+      "version": "1.0",
+      "config": {
+        "taskName": "PR revived via comments - Needs review",
+        "conditions": {
+          "operator": "and",
+          "operands": [
+            {
+              "name": "hasLabel",
+              "parameters": {
+                "label": "Resolution: No activity"
+              }
+            }
+          ]
+        },
+        "actions": [
+          {
+            "name": "removeLabel",
+            "parameters": {
+              "label": "Resolution: No activity"
+            }
+          },
+          {
+            "name": "addLabel",
+            "parameters": {
+              "label": "Needs: Review 👀"
+            }
+          }
+        ],
+        "eventType": "pull_request",
+        "eventNames": ["issue_comment"]
+      }
+    },
+    {
+      "taskType": "trigger",
+      "capabilityId": "IssueResponder",
+      "subCapability": "PullRequestReviewResponder",
+      "version": "1.0",
+      "config": {
+        "taskName": "PR revived via review - Needs review",
+        "conditions": {
+          "operator": "and",
+          "operands": [
+            {
+              "name": "hasLabel",
+              "parameters": {
+                "label": "Resolution: No activity"
+              }
+            }
+          ]
+        },
+        "actions": [
+          {
+            "name": "removeLabel",
+            "parameters": {
+              "label": "Resolution: No activity"
+            }
+          },
+          {
+            "name": "addLabel",
+            "parameters": {
+              "label": "Needs: Review 👀"
+            }
+          }
+        ],
+        "eventType": "pull_request",
+        "eventNames": ["pull_request_review"]
+      }
+    },
+    {
+      "taskType": "scheduled",
+      "capabilityId": "ScheduledSearch",
+      "subCapability": "ScheduledSearch",
+      "version": "1.1",
+      "config": {
+        "taskName": "PR inactive 3mo - Close",
+        "frequency": [
+          {
+            "weekDay": 0,
+            "hours": [4, 10, 16, 22]
+          },
+          {
+            "weekDay": 1,
+            "hours": [4, 10, 16, 22]
+          },
+          {
+            "weekDay": 2,
+            "hours": [4, 10, 16, 22]
+          },
+          {
+            "weekDay": 3,
+            "hours": [4, 10, 16, 22]
+          },
+          {
+            "weekDay": 4,
+            "hours": [4, 10, 16, 22]
+          },
+          {
+            "weekDay": 5,
+            "hours": [4, 10, 16, 22]
+          },
+          {
+            "weekDay": 6,
+            "hours": [4, 10, 16, 22]
+          }
+        ],
+        "searchTerms": [
+          {
+            "name": "isPr",
+            "parameters": {}
+          },
+          {
+            "name": "isOpen",
+            "parameters": {}
+          },
+          {
+            "name": "hasLabel",
+            "parameters": {
+              "label": "Needs: Attention 👋"
+            }
+          },
+          {
+            "name": "hasLabel",
+            "parameters": {
+              "label": "Resolution: No activity"
+            }
+          },
+          {
+            "name": "noActivitySince",
+            "parameters": {
+              "days": 91
+            }
+          }
+        ],
+        "actions": [
+          {
+            "name": "closeIssue",
+            "parameters": {}
+          }
+        ]
+      }
+    },
+    {
+      "taskType": "scheduled",
+      "capabilityId": "ScheduledSearch",
+      "subCapability": "ScheduledSearch",
+      "version": "1.1",
+      "config": {
+        "taskName": "PR inactive 4 weeks - Comment and flag",
+        "frequency": [
+          {
+            "weekDay": 0,
+            "hours": [5, 11, 17, 23]
+          },
+          {
+            "weekDay": 1,
+            "hours": [5, 11, 17, 23]
+          },
+          {
+            "weekDay": 2,
+            "hours": [5, 11, 17, 23]
+          },
+          {
+            "weekDay": 3,
+            "hours": [5, 11, 17, 23]
+          },
+          {
+            "weekDay": 4,
+            "hours": [5, 11, 17, 23]
+          },
+          {
+            "weekDay": 5,
+            "hours": [5, 11, 17, 23]
+          },
+          {
+            "weekDay": 6,
+            "hours": [5, 11, 17, 23]
+          }
+        ],
+        "searchTerms": [
+          {
+            "name": "isPr",
+            "parameters": {}
+          },
+          {
+            "name": "isOpen",
+            "parameters": {}
+          },
+          {
+            "name": "hasLabel",
+            "parameters": {
+              "label": "Needs: Attention 👋"
+            }
+          },
+          {
+            "name": "noActivitySince",
+            "parameters": {
+              "days": 28
+            }
+          },
+          {
+            "name": "noLabel",
+            "parameters": {
+              "label": "Resolution: No activity"
+            }
+          }
+        ],
+        "actions": [
+          {
+            "name": "addLabel",
+            "parameters": {
+              "label": "Resolution: No activity"
+            }
+          },
+          {
+            "name": "addReply",
+            "parameters": {
+              "comment": "This PR has not been updated in 4 weeks. Please respond to comments and update the PR. It will be closed if not updated **in the next 2 months**."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "taskType": "trigger",
+      "capabilityId": "AutoMerge",
+      "subCapability": "AutoMerge",
+      "version": "1.0",
+      "config": {
+        "taskName": "PR automerge 3 day wait - Automerge",
+        "label": "Resolution: Automerge",
+        "silentMode": false,
+        "minMinutesOpen": "4320",
+        "mergeType": "squash",
+        "allowAutoMergeInstructionsWithoutLabel": true,
+        "deleteBranches": true,
+        "removeLabelOnPush": true,
+        "requireSpecificCheckRuns": false,
+        "conditionalMergeTypes": []
       }
     }
   ],
