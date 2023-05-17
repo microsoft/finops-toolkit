@@ -1,8 +1,6 @@
 # 📗 FinOps toolkit documentation
 
-![Version 0.0.1](https://img.shields.io/badge/version-v0.0.1-inactive)
-&nbsp;
-![Pending](https://img.shields.io/badge/status-pending_release-9900ff)
+![Version 0.0.1](https://img.shields.io/badge/version-v0.0.1-darkgreen)
 &nbsp;
 [![Go to issue](https://img.shields.io/github/issues/detail/title/microsoft/cloud-hubs/104?label=roadmap)](https://github.com/microsoft/cloud-hubs/issues/104)
 
@@ -14,21 +12,20 @@ The FinOps toolkit is a collection of customizable Azure Resource Manager (ARM) 
 
 On this page:
 
-- [🛠️ Available tools](#️-available-tools)
+- [🧰 Available tools](#-available-tools)
 - [🗺️ Roadmap](#️-roadmap)
 - [👩‍💻 Get involved](#-get-involved)
 - [📜 Changelog](#-changelog)
 
 ---
 
-## 🛠️ Available tools
-
-> ℹ️ _The toolkit is in an early pre-release stage. If you're looking for a solution, check back next month. If you'd like to help, contact @flanakin._
-
-### In development
+## 🧰 Available tools
 
 - [FinOps hubs](./finops-hub) – Open, extensible, and scalable cost reporting.
 - [Cost optimization workbook](./optimization-workbook) – Central hub for cost optimization.
+
+### In development
+
 - [Bicep Registry modules](./bicep-registry) – Official repository for Bicep modules.
 
 Looking for more? See what's coming in the [Toolkit v1 release](https://github.com/microsoft/cloud-hubs/issues/104).
@@ -51,4 +48,4 @@ FinOps toolkit is an open source project. We have many ideas on the long-term vi
 
 ## 📜 Changelog
 
-All the main changes are tracked within the [Changelog](./changelog.md). For additional details, refer to the [commit history](https://github.com/microsoft/cloud-hubs/commits/dev).
+All the main changes are tracked within the [Changelog](./changelog.md). For additional details, refer to the [commit history](https://github.com/microsoft/cloud-hubs/commits/main).

@@ -1,6 +1,6 @@
-# 📊 FinOps toolkit reports
+# 📊 FinOps hub reports
 
-The FinOps toolkit hosts data in [Azure Data Lake Storage](https://learn.microsoft.com/azure/storage/blobs/data-lake-storage-introduction). You can use any tool to query and report on your cost data in storage. As an example, we've included the following Power BI reports to get you started. We recommend customizing them to keep what works, edit and augment reports with your own data, and remove anything that isn't needed.
+The FinOps hub hosts data in [Azure Data Lake Storage](https://learn.microsoft.com/azure/storage/blobs/data-lake-storage-introduction). You can use any tool to query and report on your cost data in storage. As an example, we've included the following Power BI reports to get you started. We recommend customizing them to keep what works, edit and augment reports with your own data, and remove anything that isn't needed.
 
 > ℹ️ _The Power BI reports (PBIX files) are starter templates. Keep in mind you won't be able to upgrade a customized report as the toolkit evolves._
 
@@ -13,6 +13,7 @@ On this page:
 
 - [✨ How to setup Power BI](#-how-to-setup-power-bi)
 - [🗃️ Queries and datasets](#️-queries-and-datasets)
+- [🛠️ Troubleshooting Power BI reports](#️-troubleshooting-power-bi-reports)
 - [💡 Tips for customizing Power BI reports](#-tips-for-customizing-power-bi-reports)
 
 ---
@@ -21,16 +22,16 @@ On this page:
 
 The following sections explain how to connect Power BI reports to your data depending on where you're starting from:
 
-- [Setup a FinOps toolkit report](#setup-a-finops-toolkit-report)
-- [Copy queries from a toolkit report](#copy-queries-from-a-toolkit-report)
+- [Setup a FinOps hub report](#setup-a-finops-hub-report)
+- [Copy queries from a hub report](#copy-queries-from-a-hub-report)
 - [Connect manually](#connect-manually)
 - [Migrate from the Cost Management template app](#migrate-from-the-cost-management-template-app)
 - [Migrate from the Cost Management connector](#migrate-from-the-cost-management-connector)
 - [Migrate from the Consumption Insights connector](#migrate-from-the-consumption-insights-connector)
 
-### Setup a FinOps toolkit report
+### Setup a FinOps hub report
 
-The FinOps toolkit Power BI reports include pre-configured visuals, but are not connected to your data. Use the following steps to connect them to your data:
+The FinOps hubs Power BI reports include pre-configured visuals, but are not connected to your data. Use the following steps to connect them to your data:
 
 1. Download and open the desired report in Power BI Desktop.
 2. Select the **Transform data** button in the toolbar.
@@ -39,17 +40,28 @@ The FinOps toolkit Power BI reports include pre-configured visuals, but are not 
 
 3. In the **Queries** pane on the left, update the following parameters by selecting each and updating the value as appropriate:
 
-   - **StorageAccountName** is the name of your FinOps toolkit storage account. You can copy this from your deployment outputs.
-   - **BillingProfileIdOrEnrollmentNumber** is your EA enrollment number or MCA billing profile ID. This is only included for some reports that pull data from the Cost Management Power BI connector. See [Create visuals and reports with the Azure Cost Management connector in Power BI Desktop](https://learn.microsoft.com/power-bi/connect-data/desktop-connect-azure-cost-management) for details.
-   - **Scope** must be either `EnrollmentNumber` for an EA billing account or `BillingProfileId` for an MCA billing profile.
+   - **StorageUrl** is the URL of your hub storage account. Copy this value from the portal:
+     1. Open the [list of resource groups](https://portal.azure.com/#view/HubsExtension/BrowseResourceGroups) in the Azure portal.
+     2. Select the hub resource group.
+     3. Select Deployments in the menu.
+     4. Select the **hub** deployment.
+     5. Select **Outputs**.
+     6. Copy the value for `storageUrlForPowerBI`.
+   - If you customized the deployment to use compressed CSV instead of Parquet, change **FileType** to `.gz`. Most people will not change this.
+   - Change **RangeStart** and **RangeEnd** to the desired start/end dates for your report. The default is the current calendar year. Consider using your fiscal year.
+     > ⚠️ _Power BI reports can only support 35GB of data. You may need to adjust the number of months in your report to fit within this limit._
+   - **BillingProfileIdOrEnrollmentNumber** (if applicable) is your EA enrollment number or MCA billing profile ID. This is only included for some reports that pull data from the Cost Management Power BI connector. See [Create visuals and reports with the Azure Cost Management connector in Power BI Desktop](https://learn.microsoft.com/power-bi/connect-data/desktop-connect-azure-cost-management) for details.
+   - **Scope** (if applicable) must be either `EnrollmentNumber` for an EA billing account or `BillingProfileId` for an MCA billing profile. This is only included for some reports that pull data from the Cost Management Power BI connector.
 
 4. Select the **Close & Apply** to save your settings.
 
-### Copy queries from a toolkit report
+If you run into any issues syncing your data, see [Troubleshooting Power BI reports](#️-troubleshooting-power-bi-reports) below.
 
-FinOps toolkit reports manipulate the raw export data to facilitate specific types of reports. If you need to connect your data to a new or existing Power BI report that doesn't currently use FinOps hub or Cost Management data source, the best option is to copy queries, columns, and measures from a FinOps toolkit report.
+### Copy queries from a hub report
 
-1. Download one of the FinOps toolkit reports.
+FinOps hub reports manipulate the raw export data to facilitate specific types of reports. If you need to connect your data to a new or existing Power BI report that doesn't currently use FinOps hub or Cost Management data source, the best option is to copy queries, columns, and measures from a FinOps hub report.
+
+1. Download one of the FinOps hub reports.
 2. Open the report in Power BI Desktop.
 3. Select **Transform data** in the toolbar.
 4. In the Queries list on the left, right-click **CMExports** and select **Copy**.
@@ -60,46 +72,53 @@ FinOps toolkit reports manipulate the raw export data to facilitate specific typ
 9. Right-click the **FinOps toolkit** folder and select **Paste**.
 10. Select **Close & Apply** in the toolbar for both reports.
 
-At this point, you have the core data from the FinOps toolkit reports, extended to support Azure Hybrid Benefit reports. In addition to these, you may also be interested in the custom columns and measures that summarize savings, utilization, cost over time, and more. Unfortunately, Power BI doesn't provide a simple way to copy columns and measures. Perform the following for each column and measure you'd like to copy:
+At this point, you have the core data from the FinOps hub reports, extended to support Azure Hybrid Benefit reports. In addition to these, you may also be interested in the custom columns and measures that summarize savings, utilization, cost over time, and more. Unfortunately, Power BI doesn't provide a simple way to copy columns and measures. Perform the following for each column and measure you'd like to copy:
 
-1. In the FinOps toolkit report, expand the **CMExports** table in the **Data** pane on the right.
+1. In the FinOps hub report, expand the **CMExports** table in the **Data** pane on the right.
 2. Select a custom column or measure, then copy the formula from the editor at the top of the window, under the toolbar.
-   > ℹ️ _Be sure to make note if this is a column or a measure. Columns have a table icon with a sigma or "fx" symbol and measures have a calculator icon._ > ![Screenshot of the calculated column and measure icons in Power BI](https://user-images.githubusercontent.com/399533/216805396-96abae2d-473a-4136-8943-cac4ddd74dce.png)
+   > ℹ️ _Be sure to make note if this is a column or a measure. Columns have a table icon with a "Σ" or "fx" symbol and measures have a calculator icon._<br> > ![Screenshot of the calculated column and measure icons in Power BI](https://user-images.githubusercontent.com/399533/216805396-96abae2d-473a-4136-8943-cac4ddd74dce.png)
 3. In your report, right click the **CMExports** table and select **New measure** or **New column** based on what you just copied.
 4. When the formula editor is shown, paste the formula using <kbd>Ctrl+V</kbd> or <kbd>Cmd+V</kbd>.
 5. Repeat steps 2-4 for each desired column and measure.
 
 Note that some columns and measures depend on one another. You can ignore these errors as you copy each formula. Each will resolve itself when the dependent column or measure is added.
 
-For details about the columns available in Power BI, refer to the [data dictionary](../finops-hubs/data-dictionary.md).
+For details about the columns available in Power BI, refer to the [data dictionary](../data-dictionary.md).
 
 ### Connect manually
 
-If you don't need any of the custom columns and measures provided by the FinOps toolkit reports, you can also connect directly to your data using the Azure Data Lake Storage Gen2 connector:
+If you don't need any of the custom columns and measures provided by the FinOps hub reports, you can also connect directly to your data using the Azure Data Lake Storage Gen2 connector:
 
 1. Open your desired report in Power BI Desktop.
 2. Select **Get data** in the toolbar.
 3. Search for `lake` and select **Azure Data Lake Storage Gen2**
-4. Set the URL to `https://<storage-name>.dfs.core.windows.net/msexports` and select the **OK** button.
+4. Set the URL using deployment outputs:
+   1. Open the [list of resource groups](https://portal.azure.com/#view/HubsExtension/BrowseResourceGroups) in the Azure portal.
+   2. Select the hub resource group.
+   3. Select Deployments in the menu.
+   4. Select the **hub** deployment.
+   5. Select **Outputs**.
+   6. Copy the value for `storageUrlForPowerBI`.
+5. Select the **OK** button.
 
    - You can copy this value from the deployment outputs.
 
    > ℹ️ _If you receive an "Access to the resource is forbidden" error, grant the account loading data in Power BI the [Storage Blob Data Reader role](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-reader)._
 
-5. Select the **Combine** button.
-6. Select the **OK** button.
+6. Select the **Combine** button.
+7. Select the **OK** button.
 
-For more details about connecting to Azure Data Lake Storage Gen2, see [Connect to ADLS Gen2](https://learn.microsoft.com/power-query/connectors/data-lake-storage#connect-to-azure-data-lake-storage-gen2-from-power-query-desktop). For details about the columns available in storage, refer to the [data dictionary](../finops-hubs/data-dictionary.md).
+For more details about connecting to Azure Data Lake Storage Gen2, see [Connect to ADLS Gen2](https://learn.microsoft.com/power-query/connectors/data-lake-storage#connect-to-azure-data-lake-storage-gen2-from-power-query-desktop). For details about the columns available in storage, refer to the [data dictionary](../data-dictionary.md).
 
 ### Migrate from the Cost Management template app
 
-The Cost Management template app does not support customization in Power BI Desktop. We recommend [starting from a FinOps toolkit report](#setup-a-finops-toolkit-report).
+The Cost Management template app does not support customization in Power BI Desktop. We recommend [starting from a FinOps hub report](#setup-a-finops-hub-report).
 
 ### Migrate from the Cost Management connector
 
-If using the Cost Management connector, you can copy queries from a FinOps toolkit report without breaking your report.
+If using the Cost Management connector, you can copy queries from a FinOps hub report without breaking your report.
 
-1. Download one of the FinOps toolkit reports.
+1. Download one of the FinOps hub reports.
 2. Open the report in Power BI Desktop.
 3. Select **Transform data** in the toolbar.
 4. In the Queries list on the left, right-click **CMConnector** and select **Copy**.
@@ -115,25 +134,21 @@ If using the Cost Management connector, you can copy queries from a FinOps toolk
 14. Replace all text with the copied text from CMConnector and select the **Done** button.
 15. Select **Close & Apply** in the toolbar for both reports.
 
-If interested in custom columns and measures, see [Copy queries from a toolkit report](#copy-queries-from-a-toolkit-report) for required steps.
+If interested in custom columns and measures, see [Copy queries from a hub report](#copy-queries-from-a-hub-report) for required steps.
 
-This approach ensures your existing reports can switch to your FinOps hub data without breaking the visuals you already have configured, however this is only intended as a short-term migration helper. We recommend switching all visuals to the latest dataset. See [Queries and datasets](#queries-and-datasets) below for additional details.
-
-### Migrate from the Consumption Insights connector
-
-The Consumption Insights connector is not currently supported. If you'd like to see support added, please [submit a feature request](https://github.com/microsoft/cloud-hubs/issues/new/choose).
+This approach ensures your existing reports can switch to your FinOps hub data without breaking the visuals you already have configured, however this is only intended as a short-term migration helper. We recommend switching all visuals to the latest dataset. See [Queries and datasets](#️-queries-and-datasets) below for additional details.
 
 <br>
 
 ## 🗃️ Queries and datasets
 
-FinOps toolkit offers multiple versions of cost details to align to different schemas for backwards compatibility. These schemas are only provided to assist in migrating from older versions. We recommend updating visuals to use CostDetails or the newest underlying dataset. If you do not need legacy datasets, you can remove them from the Power Query Editor (Transform data) window.
+FinOps hubs offer multiple versions of cost details to align to different schemas for backwards compatibility. These schemas are only provided to assist in migrating from older versions. We recommend updating visuals to use CostDetails or the newest underlying dataset. If you do not need legacy datasets, you can remove them from the Power Query Editor (Transform data) window.
 
-> ℹ️ _FinOps toolkit will eventually adopt the [FOCUS standard](https://aka.ms/finops/focus) when available._
+> ℹ️ _FinOps hubs will eventually adopt the [FOCUS standard](https://aka.ms/finops/focus) when available._
 
 ### CostDetails
 
-The **CostDetails** dataset is a reference to the latest version of the schema. All visuals in FinOps toolkit reports are connected to this latest version. If you do not want to point to the latest version, you can edit the CostDetails query in the Power Query editor and change it to reference a different schema version.
+The **CostDetails** dataset is a reference to the latest version of the schema. All visuals in FinOps hub reports are connected to this latest version. If you do not want to point to the latest version, you can edit the CostDetails query in the Power Query editor and change it to reference a different schema version.
 
 ### CMExports
 
@@ -176,8 +191,36 @@ Note the following columns are new in this release. These columns were not previ
 
 <br>
 
+## 🛠️ Troubleshooting Power BI reports
+
+- **(No data)**
+
+  If you don't see any data, check the following:
+
+  1. Check the storage account to ensure data is populated in the **ingestion** container. You should see either a **providers** or **subscriptions** folder.
+     1. If the **ingestion** container is empty, open the Data Factory instance in Data Factory Studio and select **Manage** > **Author** > **Triggers** and verify the **msexports** trigger is started. If not, start it.
+     2. If the trigger fails to start with a "resource provider is not registered" error, open the subscription in the Azure portal, then select **Settings** > **Resource providers**, select the **Microsoft.EventGrid** row, then select the **Register** command at the top of the page. Registration may take a few minutes.
+     3. After registration completes, start the **msexports** trigger again.
+     4. After the trigger is started, re-run all connected Cost Management exports. Data should be fully ingested within 10-20 minutes, depending on the size of the account.
+     5. Confirm thd **ingestion** container is populated and refresh your Power BI report.
+  2. If the **ingestion** container is not empty, confirm whether you have **parquet** or **csv.gz** files by drilling into the folders. Once you know, verify the **FileType** parameter is set to `.parquet` or `.gz` in the Power BI report. See [Setup a FinOps hub report](#setup-a-finops-hub-report) for details.
+
+- **The Microsoft.EventGrid resource provider is not registered in subscription \<guid>**
+
+  Open the subscription in the Azure portal, then select **Settings** > **Resource providers**, select the **Microsoft.EventGrid** row, then select the **Register** command at the top of the page. Registration may take a few minutes.
+
+- **Exception of type 'Microsoft.Mashup.Engine.Interface.ResourceAccessForbiddenException' was thrown**
+
+  Indicates that the account loading data in Power BI does not have the [Storage Blob Data Reader role](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-reader). Grant this role to the account loading data in Power BI.
+
+- **The remote name could not be resolved: '\<storage-account>.dfs.core.windows.net'**
+
+  Indicates that the storage account name is incorrect. Verify the **StorageUrl** parameter. See [Setup a FinOps hub report](#setup-a-finops-hub-report) for details.
+
+<br>
+
 ## 💡 Tips for customizing Power BI reports
 
-FinOps toolkit Power BI reports are starter templates that we encourage you to customize. Changing visuals, columns, and measures should not break in future releases outside of potential schema changes, which are usually easy to fix by changing column names. The main issue to be careful of is changing the out-of-the-box queries. Out-of-the-box queries can change in future releases, which will make it harder for you to upgrade. If you need to modify a query, we recommend confining updates to the **CostDetails** dataset, which references the internal datasets we use for schema versioning. We will keep our updates to those internal datasets to avoid conflicting with your customizations.
+FinOps hubs Power BI reports are starter templates that we encourage you to customize. Changing visuals, columns, and measures should not break in future releases outside of potential schema changes, which are usually easy to fix by changing column names. The main issue to be careful of is changing the out-of-the-box queries. Out-of-the-box queries can change in future releases, which will make it harder for you to upgrade. If you need to modify a query, we recommend confining updates to the **CostDetails** dataset, which references the internal datasets we use for schema versioning. We will keep our updates to those internal datasets to avoid conflicting with your customizations.
 
 If you run into any issues, please let us know in [Discussions](https://github.com/microsoft/cloud-hubs/discussions).
