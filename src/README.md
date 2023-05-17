@@ -5,7 +5,7 @@
 - Every folder has a README that explains its purpose.
 - For public docs and specs, start in [docs](../docs).
 - For code and dev docs, start in [src](../src) &nbsp; **← YOU ARE HERE**
-- Read about our [architecture](architecture.md) for context on structure.
+- Read about our [architecture](architecture.md) for context on technologies and structure.
 - Review our [coding guidelines](code.md) before you write/review code.
 - Review the guidance below for how to contribute code.
 
@@ -14,7 +14,7 @@
 On this page:
 
 - [🛫 Get started](#-get-started)
-- [� Prerequisites](#-prerequisites)
+- [📋 Prerequisites](#-prerequisites)
 - [🗃️ Fork and clone](#️-fork-and-clone)
 - [🌿 Select a branch](#-select-a-branch)
 - [🚀 Deploy](#-deploy)

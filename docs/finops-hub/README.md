@@ -1,6 +1,6 @@
 # ☁️ FinOps hubs
 
-![Unreleased](https://img.shields.io/badge/version-unreleased-inactive)
+![Version 0.0.1](https://img.shields.io/badge/version-0.0.1-darkgreen)
 &nbsp;
 [![Go to issue](https://img.shields.io/github/issues/detail/title/microsoft/cloud-hubs/1?label=roadmap)](https://github.com/microsoft/cloud-hubs/issues/1)
 
@@ -9,6 +9,10 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 - **Be the standard**<br>_<sup>Strive to be the principal embodiment of the FinOps Framework.</sup>_
 - **Built for scale**<br>_<sup>Designed to support the largest accounts and organizations.</sup>_
 - **Open and extensible**<br>_<sup>Embrace the ecosystem and prioritize enabling the platform.</sup>_
+
+> #### 💵 Estimated cost: $25 per $1M in cost <!-- markdownlint-disable-line -->
+>
+> _Exact cost of the solution may vary. Cost is primarily for data storage and number of times data is ingested. Pipelines will run once a day per export._
 
 On this page:
 
@@ -23,7 +27,8 @@ On this page:
 The FinOps hub template includes the following resources:
 
 - Storage account (Data Lake Storage Gen2) to hold all cost data.
-- Data factory to manage data ingestion and cleanup.
+- Data Factory instance to manage data ingestion and cleanup.
+- Key Vault to store the Data Factory system managed identity credentials.
 
 Once deployed, you can create new exports in Cost Management and use [out of the box Power BI reports](reports) to customize and share reports with your stakeholders.
 
@@ -44,8 +49,7 @@ To learn more, see [FinOps hub template details](template.md).
      > 💡 _**Tip:** Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range._
    - **Storage account** = (Use subscription/resource from step 1)
    - **Container** = `msexports`
-   - **Directory** = (Use the resource ID of the scope you're exporting, but remove the first "/")
-     > ℹ️ _You are welcome to use any directory name you want. Using the scope ID avoids collisions._
+   - **Directory** = (Use the resource ID of the scope you're exporting without the first "/")
 3. Run your export.
    - Exports can take up to a day to show up after first created.
    - Use the **Run now** command at the top of the Cost Management Exports page.
@@ -54,10 +58,6 @@ To learn more, see [FinOps hub template details](template.md).
    - [Cost summary](./reports/cost-summary.md) for standard cost roll-ups.
    - [Commitment discounts](./reports/commitment-discounts.md) for commitment-based savings utilization and coverage.
 5. [Connect Power BI to your hub](./reports/README.md#setup-a-finops-toolkit-report)
-
-> ![Version 0.0.2](https://img.shields.io/badge/version-0.0.2-lightgrey) &nbsp; ![Status: Proposed](https://img.shields.io/badge/status-proposed-lightgrey) &nbsp;<sup>→</sup>&nbsp; [![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/60)](https://github.com/microsoft/cloud-hubs/issues/60)
->
-> 🆕 _Remove steps 2 and 3 when we have self-managed exports._
 
 <br>
 
@@ -98,10 +98,6 @@ After deploying a hub instance, there are several ways for you to get started:
 No matter what you choose to do, we recommend creating a new Bicep module to support updating your solution. You can reference `finops-hub/main.bicep` or `hub.bicep` directly to ensure you can apply new updates as they're released.
 
 If you need to change `hub.bicep`, be sure to track those changes and re-apply them when upgrading to the latest release. We generally don't recommend modifying the template or modules directly to avoid conflicts with future updates. Instead, consider contributing those changes back to the open source project. [Learn more](../CONTRIBUTING.md).
-
-> ![Version 0.0.2](https://img.shields.io/badge/version-0.0.2-lightgrey) &nbsp; ![Status: Proposed](https://img.shields.io/badge/status-proposed-lightgrey) &nbsp;<sup>→</sup>&nbsp; [![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/60)](https://github.com/microsoft/cloud-hubs/issues/60)
->
-> 🆕 _Change the notes for storage to: Data is ingested into the `msexports` container and transformed when moved into the `ingestion` container. Do not store use the `msexports` container for anything other than Cost Management exports. If manipulating data, please do that in the `ingestion` container after the transform pipeline completes. Don't remove or rename columns, as that can break Power BI reports._
 
 If you access data in storage or are creating or customizing Power BI reports, please refer to the [data dictionary](data-dictionary.md) for details about the available columns.
 
