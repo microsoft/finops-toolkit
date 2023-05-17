@@ -15,15 +15,6 @@ param location string = resourceGroup().location
 @description('Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: Premium_LRS, Premium_ZRS. Default: Premium_LRS.')
 param storageSku string = 'Premium_LRS'
 
-// Generate unique storage account name
-var storageAccountSuffix = 'store'
-var storageAccountName = '${substring(replace(toLower(hubName), '-', ''), 0, 24 - length(storageAccountSuffix))}${storageAccountSuffix}'
-var containerNames = [ 'config', 'ms-cm-exports', 'ingestion' ]
-
-// Data factory naming requirements: Min 3, Max 63, can only contain letters, numbers and non-repeating dashes 
-var dataFactorySuffix = '-engine'
-var dataFactoryName = '${take(hubName, 63 - length(dataFactorySuffix))}${dataFactorySuffix}'
-
 @description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
 param tags object = {}
 
@@ -136,9 +127,9 @@ module dataFactoryResources 'dataFactory.bicep' = {
     storageAccountName: storage.outputs.name
     exportContainerName: storage.outputs.exportContainer
     ingestionContainerName: storage.outputs.ingestionContainer
-  location: location
-      }
-      }
+    location: location
+  }
+}
 
 //------------------------------------------------------------------------------
 // Key Vault for storing secrets
@@ -164,7 +155,7 @@ module keyVault 'keyVault.bicep' = {
       }
     ]
   }
-  }
+}
 
 //==============================================================================
 //------------------------------------------------------------------------------

@@ -1,12 +1,12 @@
 <#
-.SYNOPSIS
-    Builds all toolkit modules and templates for publishing to the Bicep Registry and Azure Quickstart Templates.
-.DESCRIPTION
-    Run this from the /src/scripts folder.
+    .SYNOPSIS
+        Builds all toolkit modules and templates for publishing to the Bicep Registry and Azure Quickstart Templates.
+    .DESCRIPTION
+        Run this from the /src/scripts folder.
     .PARAMETER Template
         Optional. Name of the module or template to publish. Default = "*" (all templates and modules).
-.EXAMPLE
-    ./Build-Toolkit
+    .EXAMPLE
+        ./Build-Toolkit
 
         Builds all FinOps toolkit modules and templates.
     .EXAMPLE
@@ -33,7 +33,7 @@ Get-ChildItem ..\bicep-registry\$Template* -Directory -ErrorAction SilentlyConti
 }
 
 # Generate workbook templates
-Get-ChildItem ..\workbooks\* -Directory `
+Get-ChildItem ..\workbooks\$Template* -Directory `
 | Where-Object { $_.Name -ne '.scaffold' }
 | ForEach-Object {
     $workbook = $_.Name
