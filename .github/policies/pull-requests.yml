@@ -37,3 +37,22 @@ configuration:
               reviewer: sreenav
           - requestReview:
               reviewer: tsilvers-ms
+      - if:
+          - payloadType: Pull_Request_Review
+          - and:
+              - or:
+                  - targetsBranch:
+                      branch: dev
+                  - targetsBranch:
+                      branch: features/*
+              - isAction:
+                  action: Submitted
+              - isReviewState:
+                  state: Changes_requested
+              - hasLabel:
+                  label: 'Needs: Review 👀'
+        then:
+          - removeLabel:
+              label: 'Needs: Review 👀'
+          - addLabel:
+              label: 'Needs: Attention 👋'
