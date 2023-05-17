@@ -37,3 +37,22 @@ configuration:
               reviewer: sreenav
           - requestReview:
               reviewer: tsilvers-ms
+      - if:
+          - payloadType: Pull_Request
+          - and:
+              - or:
+                  - targetsBranch:
+                      branch: dev
+                  - targetsBranch:
+                      branch: features/*
+              - isActivitySender:
+                  issueAuthor: true
+              - isAction:
+                  action: Synchronize
+              - hasLabel:
+                  label: 'Needs: Attention 👋'
+        then:
+          - removeLabel:
+              label: 'Needs: Attention 👋'
+          - addLabel:
+              label: 'Needs: Review 👀'
