@@ -2,8 +2,11 @@
 // Parameters
 //==============================================================================
 
-@description('Optional. Name of the hub. Used to ensure unique resource names. Default: "finops-hub".')
+@description('Required. Name of the hub. Used to ensure unique resource names.')
 param hubName string
+
+@description('Required. Suffix to add to the storage account name to ensure uniqueness.')
+param uniqueSuffix string
 
 @description('Optional. Azure location where all resources should be created. See https://aka.ms/azureregions. Default: (resource group location).')
 param location string = resourceGroup().location
@@ -33,7 +36,7 @@ param ingestionRetentionInMonths int = 13
 
 // Generate globally unique storage account name: 3-24 chars; lowercase letters/numbers only
 var safeHubName = replace(replace(toLower(hubName), '-', ''), '_', '')
-var storageAccountSuffix = uniqueString(safeHubName, resourceGroup().id)
+var storageAccountSuffix = uniqueSuffix
 var storageAccountName = '${take(safeHubName, 24 - length(storageAccountSuffix))}${storageAccountSuffix}'
 
 // Roles needed to auto-start triggers
