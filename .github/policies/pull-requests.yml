@@ -1,21 +1,18 @@
-name: PR needs review
-description: Assign Needs Review label to new/updated PRs
+name: PR lifecycle
+description: Pull request lifecycle
 resource: repository
 
-# Cheat sheet: https://github.com/microsoft/cloud-hubs/tree/main/.github/README.md#fabricbot-policies-cheat-sheet
-# spell-checker:disable
 configuration:
   fabricBotConfiguration:
     eventResponderTasks:
-      # PR lifecycle: (New) > #Review > #Attenton > #Review > Close
-
-      # 1. (New) > #Review when opened
       - if:
           - payloadType: Pull_Request
           - and:
-              - targetsBranch:
-                  branch: main
-              - isOpen
+              - or:
+                  - targetsBranch:
+                      branch: dev
+                  - targetsBranch:
+                      branch: features/*
               - or:
                   - isAction:
                       action: Opened
@@ -27,80 +24,16 @@ configuration:
           - assignTo:
               user: ankur-ms
           - assignTo:
-              user: tsilvers-ms
-          - assignTo:
               user: flanakin
+          - assignTo:
+              user: sreenav
+          - assignTo:
+              user: tsilvers-ms
           - requestReview:
               reviewer: ankur-ms
           - requestReview:
-              reviewer: tsilvers-ms
-          - requestReview:
               reviewer: flanakin
-
-      # 2. #Review > #Attention when changes are requested
-      # - if:
-      #     - payloadType: Pull_Request_Review
-      #     - and:
-      #         - targetsBranch:
-      #             branch: main
-      #         - isAction:
-      #             action: Submitted
-      #         - isReviewState:
-      #             state: Changes_requested
-      #         - hasLabel:
-      #             label: 'Needs: Review 👀'
-      #   then:
-      #     - removeLabel:
-      #         label: 'Needs: Review 👀'
-      #     - addLabel:
-      #         label: 'Needs: Attention 👋'
-
-      # 3a. #Attenton > #Review when PR updated
-      - if:
-          - payloadType: Pull_Request
-          - and:
-              - isActivitySender:
-                  issueAuthor: true
-              - isAction:
-                  action: Synchronize
-              - hasLabel:
-                  label: 'Needs: Attention 👋'
-        then:
-          - removeLabel:
-              label: 'Needs: Attention 👋'
-          - addLabel:
-              label: 'Needs: Review 👀'
-
-      # 3b. #Attenton > #Review when PR review dismissed
-      # - if:
-      #     - payloadType: Pull_Request_Review
-      #     - and:
-      #         - isActivitySender:
-      #             issueAuthor: true
-      #         - isAction:
-      #             action: Dismissed
-      #         - hasLabel:
-      #             label: 'Needs: Attention 👋'
-      #   then:
-      #     - removeLabel:
-      #         label: 'Needs: Attention 👋'
-      #     - addLabel:
-      #         label: 'Needs: Review 👀'
-
-      # 3c. #Attenton > #Review when PR comment updated
-      - if:
-          - payloadType: Pull_Request_Review_Comment
-          - and:
-              - isActivitySender:
-                  issueAuthor: true
-              - isAction:
-                  action: Updated
-              - hasLabel:
-                  label: 'Needs: Attention 👋'
-        then:
-          - removeLabel:
-              label: 'Needs: Attention 👋'
-          - addLabel:
-              label: 'Needs: Review 👀'
-
-      # 4. #Review > Close
+          - requestReview:
+              reviewer: sreenav
+          - requestReview:
+              reviewer: tsilvers-ms
