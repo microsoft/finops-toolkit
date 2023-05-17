@@ -38,21 +38,21 @@ configuration:
           - requestReview:
               reviewer: tsilvers-ms
       - if:
-          - payloadType: Pull_Request_Review
+          - payloadType: Pull_Request
           - and:
               - or:
                   - targetsBranch:
                       branch: dev
                   - targetsBranch:
                       branch: features/*
+              - isActivitySender:
+                  issueAuthor: true
               - isAction:
-                  action: Submitted
-              - isReviewState:
-                  state: Changes_requested
+                  action: Synchronize
               - hasLabel:
-                  label: 'Needs: Review 👀'
+                  label: 'Needs: Attention 👋'
         then:
           - removeLabel:
-              label: 'Needs: Review 👀'
-          - addLabel:
               label: 'Needs: Attention 👋'
+          - addLabel:
+              label: 'Needs: Review 👀'
