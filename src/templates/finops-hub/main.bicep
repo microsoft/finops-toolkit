@@ -42,14 +42,14 @@ module hub 'modules/hub.bicep' = {
  * Outputs
  */
 
-@description('The name of the resource group.')
+@description('The name of the deployed hub instance.')
 output name string = hubName
 
 @description('The location the resources wer deployed to.')
 output location string = location
 
 @description('Name of the Data Factory.')
-output dataFactorytName string = hub.outputs.dataFactorytName
+output dataFactoryName string = hub.outputs.dataFactoryName
 
 @description('The resource ID of the deployed storage account.')
 output storageAccountId string = hub.outputs.storageAccountId

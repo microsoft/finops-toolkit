@@ -161,7 +161,7 @@ output name string = hubName
 output location string = location
 
 @description('Name of the Data Factory.')
-output dataFactorytName string = dataFactory.name
+output dataFactoryName string = dataFactory.name
 
 @description('Resource ID of the storage account created for the hub instance. This must be used when creating the Cost Management export.')
 output storageAccountId string = storage.outputs.resourceId
