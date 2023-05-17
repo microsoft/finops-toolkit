@@ -44,13 +44,17 @@
       }
     },
     {
+      "taskName": "Label solutions",
       "taskType": "trigger",
       "capabilityId": "PrAutoLabel",
       "subCapability": "Path",
       "version": "1.0",
       "config": {
-        "taskName": "Solution labels",
         "configs": [
+          {
+            "label": "Area: GitHub",
+            "pathFilter": [".github"]
+          },
           {
             "label": "Solution: FinOps hubs",
             "pathFilter": ["src/templates/finops-hub"]
@@ -63,7 +67,20 @@
             "label": "Solutions: Bicep Registry",
             "pathFilter": ["src/bicep-registry"]
           }
-        ]
+        ],
+        "taskName": "Solution labels"
+      }
+    },
+    {
+      "taskType": "trigger",
+      "capabilityId": "InPrLabel",
+      "subCapability": "InPrLabel",
+      "version": "1.0",
+      "config": {
+        "label_inPr": "Status: 🔬 Code review",
+        "fixedLabelEnabled": true,
+        "taskName": "Label issues in review",
+        "label_fixed": "Status: 📦 Pending release"
       }
     }
   ],
