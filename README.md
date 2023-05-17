@@ -1,6 +1,6 @@
 # 🧰 FinOps toolkit
 
-<sup> ℹ️ _This project is in the early concept phase. If interested, please contact micflan@microsoft.com._</sup>
+<sup> ℹ️ _This project is in the early concept phase. If interested, please let us know in [discussions](https://github.com/microsoft/cloud-hubs/discussions/categories/general)._</sup>
 
 The FinOps toolkit is a collection of customizable ARM templates used to build and deploy various FinOps solutions that automate and extend native Microsoft Cost Management capabilities. The toolkit aims to include:
 

@@ -1,9 +1,5 @@
 # 📊 Commitment discounts report
 
-![Version 0.0.1](https://img.shields.io/badge/version-v0.0.1-inactive)
-&nbsp;
-![Pending](https://img.shields.io/badge/status-pending_release-9900ff)
-
 The **Commitment discounts report** summarizes existing and potential savings from commitment-based discounts, like reservations and savings plans. This report enables you to:
 
 - Review Azure Hybrid Benefit usage.
@@ -22,7 +18,6 @@ On this page:
 - [Commitments](#commitments)
 - [Coverage](#coverage)
 - [See also](#see-also)
-- [Future considerations](#future-considerations)
 
 ---
 
@@ -120,13 +115,13 @@ This page filters usage down to only show charges related to commitment-based di
 
 ## Coverage
 
-The **Coverage** page helps you identify any places where you could potentially save even more based on your historical usage patterns. The page uses the standard layout, but is optimized to show recommendations rather than focusing on cost, so sections differ from other pages.
+There are two **Coverage** pages that help you identify any places where you could potentially save even more based on your historical usage patterns with virtual machine reservations within a single subscription or shared across all subscriptions. Each page uses the standard layout optimized to show recommendations rather than focusing on cost, so sections differ from other pages.
 
-Most of the common cost filters are not available, since this page is focused future usage. The following filters are available for recommendations:
+Most of the common cost filters are not available. The following filters are available for recommendations:
 
-- Term – Length of time for a commitment-based discount.
-- Scope – Indicates how broadly commitments should be shared (i.e., Billing account, Management group, Subscription, Resource group).
-- Lookback – Period of historical time to use when recommending future commitments (e.g., 7-day, 30-day).
+- Term – Length of time for a reservation.
+- Scope – Indicates how broadly reservations should be shared (i.e., Billing account, Management group, Subscription, Resource group).
+- Lookback – Period of historical time to use when recommending future reservations (e.g., 7-day, 30-day).
 
 The KPIs on this page cover:
 
@@ -135,16 +130,13 @@ The KPIs on this page cover:
 
 There are 2 charts on the page that offer a breakdown of location, instance size flexibility group, and size; and, cost over time.
 
-This page filters usage down to only show service charges that can be pre-committed to. If commitment-based discounts are not available for the service, it won't be visible on the page. This means the total cost on the Coverage page won't match other pages, which aren't filtered by default.
+![Screenshot of the VM shared reservation coverage page](https://github.com/microsoft/cloud-hubs/assets/399533/e33abb0b-6b2b-44d7-a9ec-8061b72d7857)
 
 <br>
 
 ## See also
 
+- [Power BI ideas and suggestions](https://github.com/microsoft/cloud-hubs/issues?q=is%3Aissue+is%3Aopen+label%3A%22Area%3A+Power+BI%22)
 - [Common terms](./terms.md)
 
 <br>
-
-## Future considerations
-
-For related ideas, see the [`Area: Power BI`](https://github.com/microsoft/cloud-hubs/issues?q=is%3Aissue+is%3Aopen+label%3A%22Area%3A+Power+BI%22) labels.
