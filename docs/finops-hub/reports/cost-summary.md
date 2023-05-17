@@ -1,9 +1,5 @@
 # 📊 Cost summary report
 
-![Version 0.0.1](https://img.shields.io/badge/version-v0.0.1-inactive)
-&nbsp;
-![Pending](https://img.shields.io/badge/status-pending_release-9900ff)
-
 The **Cost summary report** provides an overview of amortized costs with a few common breakdowns that enable you to:
 
 - Identify the top cost contributors.
@@ -11,7 +7,7 @@ The **Cost summary report** provides an overview of amortized costs with a few c
 - Build a chargeback report.
 - Summarize cost savings from negotiated and commitment-based discounts.
 
-> 🚩 **Important**<br>FinOps hubs uses [amortized costs](https://learn.microsoft.com/azure/cost-management-billing/reservations/reservation-amortization). Amortization breaks reservation and savings plan purchases down and allocates costs to the resources that received the benefit. Due to this, amortized costs will not show purchase costs and will not match your invoice. Please use [Cost Management](https://aka.ms/costmgmt) to review invoice charges.
+> 🚩 **Important**<br>FinOps hubs use [amortized costs](https://learn.microsoft.com/azure/cost-management-billing/reservations/reservation-amortization). Amortization breaks reservation and savings plan purchases down and allocates costs to the resources that received the benefit. Due to this, amortized costs will not show purchase costs and will not match your invoice. Please use [Cost Management](https://aka.ms/costmgmt) to review invoice charges.
 
 On this page:
 
@@ -25,7 +21,6 @@ On this page:
 - [Commitments](#commitments)
 - [Hybrid Benefit](#hybrid-benefit)
 - [See also](#see-also)
-- [Future considerations](#future-considerations)
 
 ---
 
@@ -165,14 +160,5 @@ The table shows a list of VMs that are currently using or could be using AHB wit
 
 ## See also
 
+- [Power BI ideas and suggestions](https://github.com/microsoft/cloud-hubs/issues?q=is%3Aissue+is%3Aopen+label%3A%22Area%3A+Power+BI%22)
 - [Common terms](./terms.md)
-
-<br>
-
-## Future considerations
-
-- #11
-- #12
-- #13
-
-For related ideas, see the [`Area: Power BI`](https://github.com/microsoft/cloud-hubs/issues?q=is%3Aissue+is%3Aopen+label%3A%22Area%3A+Power+BI%22) labels.
