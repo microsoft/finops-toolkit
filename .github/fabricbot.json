@@ -7,9 +7,9 @@
       "subCapability": "PullRequestResponder",
       "version": "1.0",
       "config": {
+        "taskName": "Do not allow PRs to be merged into main",
         "eventType": "pull_request",
         "eventNames": ["pull_request", "issues", "project_card"],
-        "taskName": "Do not allow PRs to be merged into main",
         "conditions": {
           "operator": "and",
           "operands": [
@@ -39,6 +39,29 @@
             "parameters": {
               "label": "Needs: Attention 👋"
             }
+          }
+        ]
+      }
+    },
+    {
+      "taskType": "trigger",
+      "capabilityId": "PrAutoLabel",
+      "subCapability": "Path",
+      "version": "1.0",
+      "config": {
+        "taskName": "Solution labels",
+        "configs": [
+          {
+            "label": "Solution: FinOps hubs",
+            "pathFilter": ["src/templates/finops-hub"]
+          },
+          {
+            "label": "Solution: Workbooks",
+            "pathFilter": ["src/workbooks"]
+          },
+          {
+            "label": "Solutions: Bicep Registry",
+            "pathFilter": ["src/bicep-registry"]
           }
         ]
       }
