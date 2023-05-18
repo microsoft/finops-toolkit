@@ -44,7 +44,7 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 
 Usage of FinOps toolkit templates and modules is tracked by using a `defaultTelemetry` deployment. Microsoft may use this information to improve our products and services. You may turn off the telemetry by using the `enableDefaultTelemetry` parameter on any Bicep module. If you use these features, you must comply with applicable law, including providing appropriate notices to users of your applications together with a copy of Microsoft's privacy statement. Our privacy statement is located at https://go.microsoft.com/fwlink/?LinkID=824704. You can learn more about data collection and use in the help documentation and our privacy statement. Your use of the software operates as your consent to these practices.
 
-> \_**NOTE:** You can review what is included in this telemetry in the Azure portal by viewing the details for any `pid-00f1n0b5-*` deployments under the Deployments section of the corresponding scope (e.g., resource group, subscription).
+> _**NOTE:** You can review what is included in this telemetry in the Azure portal by viewing the details for any `pid-00f1n0b5-*` deployments under the Deployments section of the corresponding scope (e.g., resource group, subscription)._
 
 ### Trademarks
 
