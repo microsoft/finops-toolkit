@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 $json = [ordered]@{
     '$schema'    = 'https://aka.ms/finops/hubs/settings-schema'
     type         = 'HubInstance'

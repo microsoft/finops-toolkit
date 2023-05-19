@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 <#
 .SYNOPSIS
     Builds all toolkit modules and templates for publishing to the Bicep Registry and Azure Quickstart Templates.

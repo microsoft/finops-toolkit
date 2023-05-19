@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 
 # Install Az
 Install-Module -Name Az -Scope CurrentUser -Repository PSGallery -Force
