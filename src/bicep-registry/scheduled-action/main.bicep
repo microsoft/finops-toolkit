@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 // See https://learn.microsoft.com/rest/api/cost-management/scheduled-actions/create-or-update
 
 //===| Parameters |============================================================

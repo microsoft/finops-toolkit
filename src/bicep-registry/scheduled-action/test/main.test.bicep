@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 targetScope = 'subscription' // @resourceGroup @subscription @tenant
 
 param startTime string = utcNow('yyyy-MM-dd')

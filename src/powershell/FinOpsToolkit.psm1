@@ -1,3 +1,5 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 
 #region Public functions
 <#
@@ -20,8 +22,7 @@
         
         Returns only the latest version number of the FinOps Hub templates.
 #>
-function Get-FinOpsToolkitVersions
-{
+function Get-FinOpsToolkitVersions {
     [CmdletBinding()]
     param
     (
@@ -35,10 +36,9 @@ function Get-FinOpsToolkitVersions
     )
 
     $releaseUri = 'https://api.github.com/repos/microsoft/cloud-hubs/releases'
-    [array]$releases = Invoke-WebRequest -Uri $releaseUri | ConvertFrom-Json | Where-Object {($Preview) -or (-not $_.prerelease)}
+    [array]$releases = Invoke-WebRequest -Uri $releaseUri | ConvertFrom-Json | Where-Object { ($Preview) -or (-not $_.prerelease) }
     
-    if ($Latest)
-    {
+    if ($Latest) {
         $releases = $releases | Select-Object -First 1
         Write-Verbose -Message ($LocalizedData.FoundLatestRelease -f $releases.tag_name)
     }
