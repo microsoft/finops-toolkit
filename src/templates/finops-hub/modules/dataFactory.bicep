@@ -17,9 +17,8 @@ param exportContainerName string
 @description('Required. The name of the container where normalized data is ingested.')
 param ingestionContainerName string
 
-@description('Optional. The name of the container where normalized data is ingested.')
-param configContainerName string = 'config'
-
+@description('Required. The name of the container where normalized data is ingested.')
+param configContainerName string
 
 @description('Optional. Indicates whether ingested data should be converted to Parquet. Default: true.')
 param convertToParquet bool = true
