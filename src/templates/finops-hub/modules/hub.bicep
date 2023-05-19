@@ -126,6 +126,7 @@ module dataFactoryResources 'dataFactory.bicep' = {
     keyVaultName: keyVault.outputs.name
     storageAccountName: storage.outputs.name
     exportContainerName: storage.outputs.exportContainer
+    configContainerName: storage.outputs.configContainer
     ingestionContainerName: storage.outputs.ingestionContainer
     location: location
   }
