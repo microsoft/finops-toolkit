@@ -37,7 +37,6 @@ var datasetPropsDelimitedText = {
   firstRowAsHeader: true
   quoteChar: '"'
 }
-var datasetPropsParquet = {}
 var datasetPropsCommon = {
   location: {
     type: 'AzureBlobFSLocation'
@@ -81,7 +80,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
 
 // Create managed identity to start/stop triggers
 resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: '${dataFactoryName}_${exportContainerName}_extract_triggerManager'
+  name: '${dataFactoryName}_triggerManager'
   location: location
 }
 
@@ -141,28 +140,32 @@ resource stopHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 // Linked services
 //------------------------------------------------------------------------------
 
-resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
+resource keyVault 'Microsoft.KeyVault/vaults@2022-11-01' existing = {
   name: keyVaultName
+}
+
+resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
+  name: 'keyVault'
   parent: dataFactory
   properties: {
     annotations: []
     parameters: {}
     type: 'AzureKeyVault'
     typeProperties: {
-      baseUrl: 'https://${keyVaultName}${environment().suffixes.keyvaultDns}/'
+      baseUrl: keyVault.properties.vaultUri
     }
   }
 }
 
 resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
-  name: storageAccountName
+  name: 'storage'
   parent: dataFactory
   properties: {
     annotations: []
     parameters: {}
     type: 'AzureBlobFS'
     typeProperties: {
-      url: reference('Microsoft.Storage/storageAccounts/${storageAccountName}', '2021-08-01').primaryEndpoints.dfs
+      url: storageAccount.properties.primaryEndpoints.dfs
       accountKey: {
         type: 'AzureKeyVaultSecret'
         store: {
@@ -224,7 +227,7 @@ resource dataset_ingestion 'Microsoft.DataFactory/factories/datasets@2018-06-01'
     type: any(convertToParquet ? 'Parquet' : 'DelimitedText')
     typeProperties: union(
       datasetPropsCommon,
-      convertToParquet ? datasetPropsParquet : datasetPropsDelimitedText,
+      convertToParquet ? {} : datasetPropsDelimitedText,
       { compressionCodec: 'gzip' }
     )
     linkedServiceName: {
