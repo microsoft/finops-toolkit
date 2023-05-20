@@ -129,6 +129,7 @@ module dataFactoryResources 'dataFactory.bicep' = {
     configContainerName: storage.outputs.configContainer
     ingestionContainerName: storage.outputs.ingestionContainer
     location: location
+    storageAccountId: storage.outputs.resourceId
   }
 }
 
