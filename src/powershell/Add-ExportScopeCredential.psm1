@@ -89,7 +89,7 @@ function Add-ExportScopeCredential {
 
     if ($keyVault.Count -gt 1) {
         Write-Output ("{0}    Multiple Key Vaults Found" -f (Get-Date))
-        Throw ("Multiple Key Vaults Found")
+        Throw ("Multiple Key Vaults Found.  Run Get-AzKeyVault -InRemovedState | Remove-AzKeyVault -InRemovedState to select and remove the old one.")
     } # handle this better later on to select the correct one.
 
     Write-Output ("{0}    Key Vault Found" -f (Get-Date))
