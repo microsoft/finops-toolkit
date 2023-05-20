@@ -18,7 +18,7 @@ The Secret (Password) of the service principal.
 .EXAMPLE
 $clientId = ConvertTo-SecureString -AsPlainText -String '00000000-0000-0000-0000-000000000000'
 $secret = ConvertTo-SecureString -AsPlainText -String 'SomePassword'
-Add-ExportScopeCredential -HubName $hubName  -TenantId $tenantid -ClientId $clientId -Secret $secret
+Add-ExportScopeCredential -HubName FinOps-Hub  -TenantId $tenantid -ClientId $clientId -Secret $secret
 
 Creates secrets in Azure KeyVault for the Service Principal.
 #>
