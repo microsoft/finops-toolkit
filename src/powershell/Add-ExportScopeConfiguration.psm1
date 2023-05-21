@@ -85,6 +85,7 @@ Function Add-FinOpsHubScope {
     Get-AzStorageBlob -Container 'config' -Blob 'settings.json' -Context $storageContext | Get-AzStorageBlobContent -Force | Out-Null
     $settings = Get-Content 'settings.json' | ConvertFrom-Json
 
+    # To deal with the case where there's nothing but a blank export scope in the settings.json file
     if (($settings.exportScopes.Count -eq 1) -and ([string]::IsNullOrEmpty($settings.exportScopes[0]))) {
         $settings.exportScopes = @()
         $operation = 'create'
