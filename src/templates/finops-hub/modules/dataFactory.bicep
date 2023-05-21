@@ -630,7 +630,7 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
               type: 'SetVariable'
               dependsOn: [
                 {
-                  activity: 'If Azure Commercial'
+                  activity: 'Set Export Name Prefix'
                   dependencyConditions: [
                     'Succeeded'
                   ]
@@ -640,7 +640,7 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
               typeProperties: {
                 variableName: 'exportName'
                 value: {
-                  value: '@if(greater(length(replace(tolower(concat(pipeline().parameters.StorageAccountName,\'openamortized\', last(split(item().scope, \'/\')))), \'-\', \'\')), 64), substring(replace(tolower(concat(pipeline().parameters.StorageAccountName,\'openamortized\', last(split(item().scope, \'/\')))), \'-\', \'\'), 0, 63), replace(tolower(concat(pipeline().parameters.StorageAccountName,\'openamortized\', last(split(item().scope, \'/\')))), \'-\', \'\'))'
+                  value: '@concat(variables(\'exportNamePrefix\'), \'openamortized\')'
                   type: 'Expression'
                 }
               }
@@ -697,7 +697,47 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
               typeProperties: {
                 variableName: 'exportName'
                 value: {
-                  value: '@if(greater(length(replace(tolower(concat(pipeline().parameters.StorageAccountName,\'closedamortized\', last(split(item().scope, \'/\')))), \'-\', \'\')), 64), substring(replace(tolower(concat(pipeline().parameters.StorageAccountName,\'closedamortized\', last(split(item().scope, \'/\')))), \'-\', \'\'), 0, 63), replace(tolower(concat(pipeline().parameters.StorageAccountName,\'closedamortized\', last(split(item().scope, \'/\')))), \'-\', \'\'))'
+                  value: '@concat(variables(\'exportNamePrefix\'), \'closedamortized\')'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Set Export Name Prefix'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Set Storage Account Name'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'exportNamePrefix'
+                value: {
+                  value: '@if(greater(length(replace(tolower(concat(variables(\'storageAccountName\'), last(split(item().scope,  \'/\')))),  \'-\',  \'\')),  48),  substring(replace(tolower(concat(variables(\'storageAccountName\'), last(split(item().scope,  \'/\')))),  \'-\',  \'\'),  0,  48),  replace(tolower(concat(variables(\'storageAccountName\'), last(split(item().scope,  \'/\')))),  \'-\',  \'\'))'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Set Storage Account Name'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'If Azure Commercial'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'storageAccountName'
+                value: {
+                  value: '@last(split(pipeline().parameters.StorageAccountId, \'/\'))'
                   type: 'Expression'
                 }
               }
@@ -718,10 +758,6 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
       StorageAccountId: {
         type: 'string'
         defaultValue: storageAccountId
-      }
-      StorageAccountName: {
-        type: 'String'
-        defaultValue: storageAccountName
       }
       KeyVaultName: {
         type: 'String'
@@ -748,6 +784,12 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
         type: 'String'
       }
       tenantId: {
+        type: 'String'
+      }
+      exportNamePrefix: {
+        type: 'String'
+      }
+      storageAccountName: {
         type: 'String'
       }
     }
