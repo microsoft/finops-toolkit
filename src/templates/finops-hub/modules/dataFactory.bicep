@@ -13,9 +13,6 @@ param keyVaultName string
 @description('Required. The name of the Azure storage account instance.')
 param storageAccountName string
 
-@description('Required. The resource Id of the Azure storage account instance.')
-param storageAccountId string
-
 @description('Required. The name of the container where Cost Management data is exported.')
 param exportContainerName string
 
@@ -74,6 +71,11 @@ var autoStartRbacRoles = [
   '673868aa-7521-48a0-acc6-0f60742d39f5' // Data Factory contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#data-factory-contributor
 ]
 
+var cmStorageRbacRoles = [
+  '17d1049b-9a84-46fb-8f53-869881c3d3ab' // Storage Account Contributor
+  'acdd72a7-3385-48ef-bd42-f606fba81ae7' // Reader
+]
+
 //==============================================================================
 // Resources
 //==============================================================================
@@ -83,8 +85,13 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   name: dataFactoryName
 }
 
+// Get storage account instance
+resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+  name: storageAccountName
+}
+
 //------------------------------------------------------------------------------
-// Stop all triggers before deploying
+// Identities and RBAC
 //------------------------------------------------------------------------------
 
 // Create managed identity to start/stop triggers
@@ -93,7 +100,6 @@ resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' 
   location: location
 }
 
-// Assign access to the identity
 resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in autoStartRbacRoles: {
   name: guid(dataFactory.id, role, identity.id)
   scope: dataFactory
@@ -103,6 +109,21 @@ resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-0
     principalType: 'ServicePrincipal'
   }
 }]
+
+// Create managed identity to manage exports in cost management
+resource pipelineIdentityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in cmStorageRbacRoles: {
+  name: guid(storageAccount.id, role, dataFactory.id)
+  scope: storageAccount
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
+    principalId: dataFactory.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}]
+
+//------------------------------------------------------------------------------
+// Stop all triggers before deploying
+//------------------------------------------------------------------------------
 
 // Stop hub triggers if they're already running
 resource stopHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
@@ -280,11 +301,6 @@ resource dataset_ingestion 'Microsoft.DataFactory/factories/datasets@2018-06-01'
 // Queuing up the transform pipeline and exiting immediately greatly reduces the likelihood of this happening.
 //------------------------------------------------------------------------------
 
-// Get storage account instance
-resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
-  name: storageAccountName
-}
-
 //------------------------------------------------------------------------------
 // Triggers
 //------------------------------------------------------------------------------
@@ -432,167 +448,9 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
           isSequential: true
           activities: [
             {
-              name: 'If Azure Commercial'
-              type: 'IfCondition'
-              dependsOn: []
-              userProperties: []
-              typeProperties: {
-                expression: {
-                  value: '@equals(toLower(item().cloud), \'azurecloud\')'
-                  type: 'Expression'
-                }
-                ifTrueActivities: [
-                  {
-                    name: 'Set Resource Management URI Suffix'
-                    type: 'SetVariable'
-                    dependsOn: []
-                    userProperties: []
-                    typeProperties: {
-                      variableName: 'resourceManagementUri'
-                      value: 'management.azure.com'
-                    }
-                  }
-                  {
-                    name: 'Set KeyVault URI Suffix'
-                    type: 'SetVariable'
-                    dependsOn: []
-                    userProperties: []
-                    typeProperties: {
-                      variableName: 'keyVaultUriSuffix'
-                      value: 'vault.azure.net'
-                    }
-                  }
-                  {
-                    name: 'Set Azure AD URI'
-                    type: 'SetVariable'
-                    dependsOn: []
-                    userProperties: []
-                    typeProperties: {
-                      variableName: 'azureADUri'
-                      value: 'login.microsoftonline.com'
-                    }
-                  }
-                ]
-              }
-            }
-            {
-              name: 'Get Client ID'
-              type: 'WebActivity'
-              dependsOn: [
-                {
-                  activity: 'If Azure Commercial'
-                  dependencyConditions: [
-                    'Succeeded'
-                  ]
-                }
-              ]
-              policy: {
-                timeout: '0.12:00:00'
-                retry: 0
-                retryIntervalInSeconds: 30
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                url: {
-                  value: '@concat(\'https://\', pipeline().parameters.KeyVaultName, \'.\', variables(\'keyVaultUriSuffix\'), \'/secrets/ClientId\', item().tenantId, \'?api-version=7.0\')'
-                  type: 'Expression'
-                }
-                method: 'GET'
-                authentication: {
-                  type: 'MSI'
-                  resource: {
-                    value: '@concat(\'https://\', variables(\'keyVaultUriSuffix\'))'
-                    type: 'Expression'
-                  }
-                }
-              }
-            }
-            {
-              name: 'Get Client Secret'
-              type: 'WebActivity'
-              dependsOn: [
-                {
-                  activity: 'If Azure Commercial'
-                  dependencyConditions: [
-                    'Succeeded'
-                  ]
-                }
-              ]
-              policy: {
-                timeout: '0.12:00:00'
-                retry: 0
-                retryIntervalInSeconds: 30
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                url: {
-                  value: '@concat(\'https://\', pipeline().parameters.KeyVaultName, \'.\', variables(\'keyVaultUriSuffix\'), \'/secrets/Secret\', item().tenantId, \'?api-version=7.0\')'
-                  type: 'Expression'
-                }
-                method: 'GET'
-                authentication: {
-                  type: 'MSI'
-                  resource: {
-                    value: '@concat(\'https://\', variables(\'keyVaultUriSuffix\'))'
-                    type: 'Expression'
-                  }
-                }
-              }
-            }
-            {
-              name: 'Get Token'
-              type: 'WebActivity'
-              dependsOn: [
-                {
-                  activity: 'Get Client Secret'
-                  dependencyConditions: [
-                    'Succeeded'
-                  ]
-                }
-                {
-                  activity: 'Get Client ID'
-                  dependencyConditions: [
-                    'Succeeded'
-                  ]
-                }
-              ]
-              policy: {
-                timeout: '0.12:00:00'
-                retry: 0
-                retryIntervalInSeconds: 30
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                url: {
-                  value: '@concat(\'https://\', variables(\'azureADUri\'), \'/\' ,item().tenantId, \'/oauth2/v2.0/token\')'
-                  type: 'Expression'
-                }
-                method: 'POST'
-                headers: {
-                  'Content-Type': 'application/x-www-form-urlencoded'
-                }
-                body: {
-                  value: 'client_id=@{activity(\'Get Client ID\').output.value}&scope=https%3A%2F%2F@{variables(\'resourceManagementUri\')}%2F.default&client_secret=@{activity(\'Get Client Secret\').output.value}&grant_type=client_credentials'
-                  type: 'Expression'
-                }
-              }
-            }
-            {
               name: 'Create or Update Open Month Export'
               type: 'WebActivity'
               dependsOn: [
-                {
-                  activity: 'Get Token'
-                  dependencyConditions: [
-                    'Succeeded'
-                  ]
-                }
                 {
                   activity: 'Set Open Month Export Name'
                   dependencyConditions: [
@@ -610,33 +468,27 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
               userProperties: []
               typeProperties: {
                 url: {
-                  value: 'https://@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}?api-version=2021-10-01'
+                  value: '@{pipeline().parameters.ResourceManagementUri}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}?api-version=2021-10-01'
                   type: 'Expression'
                 }
                 method: 'PUT'
-                headers: {
-                  authorization: {
-                    value: 'Bearer @{activity(\'Get Token\').output.access_token}'
-                    type: 'Expression'
-                  }
-                }
                 body: {
                   value: '{\n  "properties": {\n    "schedule": {\n      "status": "Active",\n      "recurrence": "Daily",\n      "recurrencePeriod": {\n        "from": "@{utcNow()}",\n        "to": "2099-12-31T00:00:00Z"\n      }\n    },\n    "partitionData": "True",\n    "format": "Csv",\n    "deliveryInfo": {\n      "destination": {\n        "resourceId": "@{pipeline().parameters.StorageAccountId}",\n        "container": "msexports",\n        "rootFolderPath": "@{item().scope}"\n      }\n    },\n    "definition": {\n      "type": "amortizedcost",\n      "timeframe": "BillingMonthToDate",\n      "dataSet": {\n        "granularity": "Daily"\n      }\n    }\n  }\n}'
                   type: 'Expression'
+                }
+                authentication: {
+                  type: 'MSI'
+                  resource: {
+                    value: '@pipeline().parameters.ResourceManagementUri'
+                    type: 'Expression'
+                  }
                 }
               }
             }
             {
               name: 'Set Open Month Export Name'
               type: 'SetVariable'
-              dependsOn: [
-                {
-                  activity: 'If Azure Commercial'
-                  dependencyConditions: [
-                    'Succeeded'
-                  ]
-                }
-              ]
+              dependsOn: []
               userProperties: []
               typeProperties: {
                 variableName: 'exportName'
@@ -667,19 +519,20 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
               userProperties: []
               typeProperties: {
                 url: {
-                  value: 'https://@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}?api-version=2021-10-01'
+                  value: '@{pipeline().parameters.ResourceManagementUri}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}?api-version=2021-10-01'
                   type: 'Expression'
                 }
                 method: 'PUT'
-                headers: {
-                  authorization: {
-                    value: 'Bearer @{activity(\'Get Token\').output.access_token}'
-                    type: 'Expression'
-                  }
-                }
                 body: {
                   value: '{\n  "properties": {\n    "schedule": {\n      "status": "Active",\n      "recurrence": "Monthly",\n      "recurrencePeriod": {\n        "from": "@{utcNow()}",\n        "to": "2099-12-31T00:00:00Z"\n      }\n    },\n    "partitionData": "True",\n    "format": "Csv",\n    "deliveryInfo": {\n      "destination": {\n        "resourceId": "@{pipeline().parameters.StorageAccountId}",\n        "container": "msexports",\n        "rootFolderPath": "@{item().scope}"\n      }\n    },\n    "definition": {\n      "type": "amortizedcost",\n      "timeframe": "TheLastBillingMonth",\n      "dataSet": {\n        "granularity": "Daily"\n      }\n    }\n  }\n}'
                   type: 'Expression'
+                }
+                authentication: {
+                  type: 'MSI'
+                  resource: {
+                    value: '@pipeline().parameters.ResourceManagementUri'
+                    type: 'Expression'
+                  }
                 }
               }
             }
@@ -719,7 +572,7 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
       }
       StorageAccountId: {
         type: 'string'
-        defaultValue: storageAccountId
+        defaultValue: storageAccount.id
       }
       KeyVaultName: {
         type: 'String'
@@ -729,27 +582,16 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
         type: 'String'
         defaultValue: hubName
       }
+      ResourceManagementUri: {
+        type: 'string'
+        defaultValue: environment().resourceManager
+      }
     }
     variables: {
-      resourceManagementUri: {
-        type: 'String'
-      }
-      keyVaultUriSuffix: {
-        type: 'String'
-      }
-      azureADUri: {
-        type: 'String'
-      }
       exportName: {
         type: 'String'
       }
       exportScope: {
-        type: 'String'
-      }
-      cloud: {
-        type: 'String'
-      }
-      tenantId: {
         type: 'String'
       }
     }
