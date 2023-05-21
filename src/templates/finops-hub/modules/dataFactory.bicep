@@ -358,9 +358,9 @@ resource trigger_configContainer 'Microsoft.DataFactory/factories/triggers@2018-
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-// Azure Cost Management add export pipeline
+// Microsoft Cost Management add export pipeline
 // Triggered when settings.json is updated.
-// Creates an export in Azure Cost Management.
+// Creates an export in Cost Management.
 //------------------------------------------------------------------------------
 resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
   name: '${safeExportContainerName}_setup'
@@ -469,16 +469,6 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
                     typeProperties: {
                       variableName: 'azureADUri'
                       value: 'login.microsoftonline.com'
-                    }
-                  }
-                  {
-                    name: 'Set Storage Account URI Suffix'
-                    type: 'SetVariable'
-                    dependsOn: []
-                    userProperties: []
-                    typeProperties: {
-                      variableName: 'storageAccountUriSuffix'
-                      value: 'dfs.core.usgovcloudapi.net'
                     }
                   }
                 ]
@@ -650,7 +640,7 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
               typeProperties: {
                 variableName: 'exportName'
                 value: {
-                  value: '@if(greater(length(replace(tolower(concat(pipeline().parameters.StorageAccountName,\'oamortized\', last(split(item().scope, \'/\')))), \'-\', \'\')), 64), substring(replace(tolower(concat(pipeline().parameters.StorageAccountName,\'oamortized\', last(split(item().scope, \'/\')))), \'-\', \'\'), 0, 63), replace(tolower(concat(pipeline().parameters.StorageAccountName,\'oamortized\', last(split(item().scope, \'/\')))), \'-\', \'\'))'
+                  value: '@if(greater(length(replace(tolower(concat(pipeline().parameters.StorageAccountName,\'openamortized\', last(split(item().scope, \'/\')))), \'-\', \'\')), 64), substring(replace(tolower(concat(pipeline().parameters.StorageAccountName,\'openamortized\', last(split(item().scope, \'/\')))), \'-\', \'\'), 0, 63), replace(tolower(concat(pipeline().parameters.StorageAccountName,\'openamortized\', last(split(item().scope, \'/\')))), \'-\', \'\'))'
                   type: 'Expression'
                 }
               }
@@ -707,7 +697,7 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
               typeProperties: {
                 variableName: 'exportName'
                 value: {
-                  value: '@if(greater(length(replace(tolower(concat(pipeline().parameters.StorageAccountName,\'camortized\', last(split(item().scope, \'/\')))), \'-\', \'\')), 64), substring(replace(tolower(concat(pipeline().parameters.StorageAccountName,\'camortized\', last(split(item().scope, \'/\')))), \'-\', \'\'), 0, 63), replace(tolower(concat(pipeline().parameters.StorageAccountName,\'camortized\', last(split(item().scope, \'/\')))), \'-\', \'\'))'
+                  value: '@if(greater(length(replace(tolower(concat(pipeline().parameters.StorageAccountName,\'closedamortized\', last(split(item().scope, \'/\')))), \'-\', \'\')), 64), substring(replace(tolower(concat(pipeline().parameters.StorageAccountName,\'closedamortized\', last(split(item().scope, \'/\')))), \'-\', \'\'), 0, 63), replace(tolower(concat(pipeline().parameters.StorageAccountName,\'closedamortized\', last(split(item().scope, \'/\')))), \'-\', \'\'))'
                   type: 'Expression'
                 }
               }
@@ -749,9 +739,6 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
         type: 'String'
       }
       exportName: {
-        type: 'String'
-      }
-      storageAccountUriSuffix: {
         type: 'String'
       }
       exportScope: {
