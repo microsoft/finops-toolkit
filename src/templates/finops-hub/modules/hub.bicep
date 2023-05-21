@@ -121,11 +121,10 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
 module dataFactoryResources 'dataFactory.bicep' = {
   name: 'dataFactoryResources'
   params: {
-    dataFactoryName: dataFactoryName
+    dataFactoryName: dataFactory.name
     convertToParquet: convertToParquet
     keyVaultName: keyVault.outputs.name
     storageAccountName: storage.outputs.name
-    storageAccountId: storage.outputs.resourceId
     exportContainerName: storage.outputs.exportContainer
     configContainerName: storage.outputs.configContainer
     ingestionContainerName: storage.outputs.ingestionContainer
