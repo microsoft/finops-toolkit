@@ -16,11 +16,11 @@ The Azure AD Tenant linked to the export scope.
 The Azure Cloud the export scope belongs to.
 
 .EXAMPLE
-Add-ExportScopeConfiguration -HubName FinOps-Hub -TenantId 00000000-0000-0000-0000-000000000000 -Cloud AzureCloud -Scope "/providers/Microsoft.Billing/billingAccounts/1234567"
+Add-FinOpsHubScope -HubName FinOps-Hub -TenantId 00000000-0000-0000-0000-000000000000 -Cloud AzureCloud -Scope "/providers/Microsoft.Billing/billingAccounts/1234567"
 
 Adds an export scope configuration to the specified FinOps Hub.
 #>
-Function Add-ExportScopeConfiguration {
+Function Add-FinOpsHubScope {
     [CmdletBinding()]
     param (
         [Parameter()]
@@ -62,24 +62,24 @@ Function Add-ExportScopeConfiguration {
 
     $resourceGroup = Get-AzResourceGroup -Name $HubName -ErrorAction SilentlyContinue
     if ($null -eq $resourceGroup) {
-        Write-Output ("{0}    FinOps Hub {1} Not Found" -f (Get-Date), $HubName)
-        Throw ("FinOps Hub {0} Not Found" -f $HubName)
+        Write-Output ("{0}    FinOps hub {1} not found" -f (Get-Date), $HubName)
+        Throw ("FinOps hub {0} not found" -f $HubName)
     }
 
-    Write-Output ("{0}    FinOps Hub {1} Found" -f (Get-Date), $HubName)
+    Write-Output ("{0}    FinOps hub {1} found" -f (Get-Date), $HubName)
 
     $storageAccount = Get-AzStorageAccount -ResourceGroupName $HubName -ErrorAction SilentlyContinue
     if ($null -eq $storageAccount) {
-        Write-Output ("{0}    Storage Account Not Found" -f (Get-Date))
-        Throw ("Storage Account Not Found")
+        Write-Output ("{0}    Storage account not found" -f (Get-Date))
+        Throw ("Storage account not found")
     }
 
     if ($storageAccount.Count -gt 1) {
-        Write-Output ("{0}    Multiple Storage Accounts Found" -f (Get-Date))
-        Throw ("Multiple Storage Accounts Found")
+        Write-Output ("{0}    Multiple storage accounts found" -f (Get-Date))
+        Throw ("Multiple storage accounts found")
     } # handle this better later on to select the correct one.
 
-    Write-Output ("{0}    Storage Account Found" -f (Get-Date))
+    Write-Output ("{0}    Storage account found" -f (Get-Date))
 
     $storageContext = $StorageAccount.Context
     Get-AzStorageBlob -Container 'config' -Blob 'settings.json' -Context $storageContext | Get-AzStorageBlobContent -Force | Out-Null
@@ -92,35 +92,35 @@ Function Add-ExportScopeConfiguration {
 
     foreach ($ScopeToUpdate in $settings.exportScopes) {
         if ($ScopeToUpdate.scope -eq $Scope) {
-            Write-Output ("{0}    Export Scope {1} Already Exists" -f (Get-Date), $Scope)
+            Write-Output ("{0}    Export scope {1} already exists" -f (Get-Date), $Scope)
             if ($ScopeToUpdate.tenantId -eq $TenantId) {
-                Write-Output ("{0}    tenantId {1} Matches" -f (Get-Date), $TenantId)
+                Write-Output ("{0}    tenantId {1} matches (no change)" -f (Get-Date), $TenantId)
                 $operation = 'none'
             } else {
-                Write-Output ("{0}    tenantId {1} <> {2}" -f (Get-Date), $ScopeToUpdate.tenantId, $TenantId)
+                Write-Output ("{0}    tenantId {1} --> {2}" -f (Get-Date), $ScopeToUpdate.tenantId, $TenantId)
                 $operation = 'update'
             }
 
             if ($ScopeToUpdate.cloud -eq $Cloud) {
-                Write-Output ("{0}    cloud {1} Matches" -f (Get-Date), $Cloud)
+                Write-Output ("{0}    cloud {1} matches (no change)" -f (Get-Date), $Cloud)
                 $operation = 'none'
             } else {
-                Write-Output ("{0}    cloud {1} <> {2}" -f (Get-Date), $ScopeToUpdate.cloud, $Cloud)
+                Write-Output ("{0}    cloud {1} --> {2}" -f (Get-Date), $ScopeToUpdate.cloud, $Cloud)
                 $operation = 'update'
             }
         } else {
-            Write-Output ("{0}    Export Scope {1} Skipped" -f (Get-Date), $ScopeToUpdate.scope)
+            Write-Output ("{0}    Export scope {1} does not need updating" -f (Get-Date), $ScopeToUpdate.scope)
         }
     }
 
     if ($operation -eq 'create') {
-        Write-Output ("{0}    Adding Export Scope {1} with tenantId {2}" -f (Get-Date), $Scope, $TenantId)
+        Write-Output ("{0}    Adding export scope {1} with tenant ID {2}" -f (Get-Date), $Scope, $TenantId)
         [PSCustomObject]$ScopeToAdd = @{cloud = $Cloud; scope = $Scope; tenantId = $TenantId }
         $settings.exportScopes += $ScopeToAdd
     }
 
     if ($operation -eq 'update') {
-        Write-Output ("{0}    Updating Export Scope {1} with tenantId {2}" -f (Get-Date), $Scope, $TenantId)
+        Write-Output ("{0}    Updating export scope {1} with tenant ID {2}" -f (Get-Date), $Scope, $TenantId)
         $settings.exportScopes | Where-Object { $_.scope -eq $Scope } | ForEach-Object { $_.tenantId = $TenantId; $_.cloud = $Cloud }
     }
 
@@ -134,4 +134,4 @@ Function Add-ExportScopeConfiguration {
     Write-Output ''
 }
 
-Export-ModuleMember -Function 'Add-ExportScopeConfiguration'
+Export-ModuleMember -Function 'Add-FinOpsHubScope'
