@@ -7,9 +7,6 @@ param hubName string
 @description('Required. Name of the data factory')
 param dataFactoryName string
 
-@description('Required. The name of the Azure Key Vault instance.')
-param keyVaultName string
-
 @description('Required. The name of the Azure storage account instance.')
 param storageAccountName string
 
@@ -170,19 +167,6 @@ resource stopHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 // Linked services
 //------------------------------------------------------------------------------
 
-resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
-  name: keyVaultName
-  parent: dataFactory
-  properties: {
-    annotations: []
-    parameters: {}
-    type: 'AzureKeyVault'
-    typeProperties: {
-      baseUrl: 'https://${keyVaultName}${environment().suffixes.keyvaultDns}/'
-    }
-  }
-}
-
 resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
   name: storageAccountName
   parent: dataFactory
@@ -192,14 +176,6 @@ resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedser
     type: 'AzureBlobFS'
     typeProperties: {
       url: reference('Microsoft.Storage/storageAccounts/${storageAccountName}', '2021-08-01').primaryEndpoints.dfs
-      accountKey: {
-        type: 'AzureKeyVaultSecret'
-        store: {
-          referenceName: linkedService_keyVault.name
-          type: 'LinkedServiceReference'
-        }
-        secretName: storageAccountName
-      }
     }
   }
 }
@@ -210,9 +186,6 @@ resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedser
 resource dataset_config 'Microsoft.DataFactory/factories/datasets@2018-06-01' = {
   name: safeConfigContainerName
   parent: dataFactory
-  dependsOn: [
-    linkedService_keyVault
-  ]
   properties: {
     annotations: []
     parameters: {
@@ -238,9 +211,6 @@ resource dataset_config 'Microsoft.DataFactory/factories/datasets@2018-06-01' = 
 resource dataset_msexports 'Microsoft.DataFactory/factories/datasets@2018-06-01' = {
   name: safeExportContainerName
   parent: dataFactory
-  dependsOn: [
-    linkedService_keyVault
-  ]
   properties: {
     annotations: []
     parameters: {
@@ -264,9 +234,6 @@ resource dataset_msexports 'Microsoft.DataFactory/factories/datasets@2018-06-01'
 resource dataset_ingestion 'Microsoft.DataFactory/factories/datasets@2018-06-01' = {
   name: safeIngestionContainerName
   parent: dataFactory
-  dependsOn: [
-    linkedService_keyVault
-  ]
   properties: {
     annotations: []
     parameters: {
@@ -573,10 +540,6 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
       StorageAccountId: {
         type: 'string'
         defaultValue: storageAccount.id
-      }
-      KeyVaultName: {
-        type: 'String'
-        defaultValue: keyVaultName
       }
       FinOpsHub: {
         type: 'String'
