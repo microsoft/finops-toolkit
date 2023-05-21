@@ -42,22 +42,26 @@ To learn more, see [FinOps hub template details](template.md).
 
 ## ➕ Create a new hub
 
-1. [Deploy the **finops-hub** template](../deploy).
-2. [Create a new cost export](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data?tabs=azure-portal) using the following settings:
+1. Register the Microsoft.EventGrid resource provider
+   > See [Register a resource provider](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) for details.
+2. [Deploy the **finops-hub** template](../deploy).
+3. [Create a new cost export](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data?tabs=azure-portal) using the following settings:
    - **Metric** = `Amortized cost`
    - **Export type** = `Daily export of month-to-date costs`
      > 💡 _**Tip:** Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range._
    - **Storage account** = (Use subscription/resource from step 1)
    - **Container** = `msexports`
    - **Directory** = (Use the resource ID of the scope you're exporting without the first "/")
-3. Run your export.
+4. Run your export.
    - Exports can take up to a day to show up after first created.
    - Use the **Run now** command at the top of the Cost Management Exports page.
    - Your data should be available within 15 minutes or so, depending on how big your account is.
-4. Download one or more of the available Power BI starter templates:
+5. Download one or more of the available Power BI starter templates:
    - [Cost summary](./reports/cost-summary.md) for standard cost roll-ups.
    - [Commitment discounts](./reports/commitment-discounts.md) for commitment-based savings utilization and coverage.
-5. [Connect Power BI to your hub](./reports/README.md#setup-a-finops-toolkit-report)
+6. [Connect Power BI to your hub](./reports/README.md#setup-a-finops-toolkit-report)
+
+If you run into any issues, see [Troubleshooting Power BI reports](./troubleshooting.md).
 
 <br>
 

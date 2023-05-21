@@ -13,7 +13,6 @@ On this page:
 
 - [✨ How to setup Power BI](#-how-to-setup-power-bi)
 - [🗃️ Queries and datasets](#️-queries-and-datasets)
-- [🛠️ Troubleshooting Power BI reports](#️-troubleshooting-power-bi-reports)
 - [💡 Tips for customizing Power BI reports](#-tips-for-customizing-power-bi-reports)
 
 ---
@@ -55,7 +54,7 @@ The FinOps hubs Power BI reports include pre-configured visuals, but are not con
 
 4. Select the **Close & Apply** to save your settings.
 
-If you run into any issues syncing your data, see [Troubleshooting Power BI reports](#️-troubleshooting-power-bi-reports) below.
+If you run into any issues syncing your data, see [Troubleshooting Power BI reports](../troubleshooting.md).
 
 ### Copy queries from a hub report
 
@@ -188,34 +187,6 @@ Note the following columns are new in this release. These columns were not previ
 - **CommitmentSavings**
 - **DiscountSavings**
 - **NegotiatedSavings**
-
-<br>
-
-## 🛠️ Troubleshooting Power BI reports
-
-- **(No data)**
-
-  If you don't see any data, check the following:
-
-  1. Check the storage account to ensure data is populated in the **ingestion** container. You should see either a **providers** or **subscriptions** folder.
-     1. If the **ingestion** container is empty, open the Data Factory instance in Data Factory Studio and select **Manage** > **Author** > **Triggers** and verify the **msexports** trigger is started. If not, start it.
-     2. If the trigger fails to start with a "resource provider is not registered" error, open the subscription in the Azure portal, then select **Settings** > **Resource providers**, select the **Microsoft.EventGrid** row, then select the **Register** command at the top of the page. Registration may take a few minutes.
-     3. After registration completes, start the **msexports** trigger again.
-     4. After the trigger is started, re-run all connected Cost Management exports. Data should be fully ingested within 10-20 minutes, depending on the size of the account.
-     5. Confirm thd **ingestion** container is populated and refresh your Power BI report.
-  2. If the **ingestion** container is not empty, confirm whether you have **parquet** or **csv.gz** files by drilling into the folders. Once you know, verify the **FileType** parameter is set to `.parquet` or `.gz` in the Power BI report. See [Setup a FinOps hub report](#setup-a-finops-hub-report) for details.
-
-- **The Microsoft.EventGrid resource provider is not registered in subscription \<guid>**
-
-  Open the subscription in the Azure portal, then select **Settings** > **Resource providers**, select the **Microsoft.EventGrid** row, then select the **Register** command at the top of the page. Registration may take a few minutes.
-
-- **Exception of type 'Microsoft.Mashup.Engine.Interface.ResourceAccessForbiddenException' was thrown**
-
-  Indicates that the account loading data in Power BI does not have the [Storage Blob Data Reader role](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-reader). Grant this role to the account loading data in Power BI.
-
-- **The remote name could not be resolved: '\<storage-account>.dfs.core.windows.net'**
-
-  Indicates that the storage account name is incorrect. Verify the **StorageUrl** parameter. See [Setup a FinOps hub report](#setup-a-finops-hub-report) for details.
 
 <br>
 
