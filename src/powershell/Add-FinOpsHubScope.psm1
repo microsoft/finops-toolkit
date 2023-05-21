@@ -1,13 +1,12 @@
 <#
 .SYNOPSIS
-Adds an export scope configuration to the specified FinOps Hub.
+Adds an export scope configuration to the specified Resource group.
 
-.PARAMETER HubName
-The name of the FinOps Hub.
-Assumes HubName = ResourceGroupName.
+.PARAMETER ResourceGroupName
+The name of the Resource group.
 
 .PARAMETER Scope
-The Export Scope to add to the FinOps Hub configuration.
+The Export Scope to add to the Resource group configuration.
 
 .PARAMETER TenantId
 The Azure AD Tenant linked to the export scope.
@@ -16,9 +15,9 @@ The Azure AD Tenant linked to the export scope.
 The Azure Cloud the export scope belongs to.
 
 .EXAMPLE
-Add-FinOpsHubScope -HubName FinOps-Hub -TenantId 00000000-0000-0000-0000-000000000000 -Cloud AzureCloud -Scope "/providers/Microsoft.Billing/billingAccounts/1234567"
+Add-FinOpsHubScope -ResourceGroupName FinOps-Hub -TenantId 00000000-0000-0000-0000-000000000000 -Cloud AzureCloud -Scope "/providers/Microsoft.Billing/billingAccounts/1234567"
 
-Adds an export scope configuration to the specified FinOps Hub.
+Adds an export scope configuration to the specified Resource group.
 #>
 Function Add-FinOpsHubScope {
     [CmdletBinding()]
@@ -26,21 +25,11 @@ Function Add-FinOpsHubScope {
         [Parameter()]
         [string]
         [ValidateNotNullOrEmpty()]
-        $HubName,    
-        [Parameter()]
-        [string]
-        [ValidateNotNullOrEmpty()]
-        [ValidateSet("AzureCloud", "AzureUSGovernment")]
-        $Cloud,
+        $ResourceGroupName,    
         [Parameter()]
         [String]
         [ValidateNotNullOrEmpty()]
-        $Scope,
-        [Parameter()]
-        [String]
-        [ValidateNotNullOrEmpty()]
-        $TenantId
-        
+        $Scope
     )
     $ErrorActionPreference = 'Stop'
     [string]$operation = 'create'
@@ -58,17 +47,16 @@ Function Add-FinOpsHubScope {
     }
 
     Write-Output ("{0}    Export Scope to add: {1}" -f (Get-Date), $Scope)
-    Write-Output ("{0}    tenantId for scope: {1}" -f (Get-Date), $TenantId)
 
-    $resourceGroup = Get-AzResourceGroup -Name $HubName -ErrorAction SilentlyContinue
+    $resourceGroup = Get-AzResourceGroup -Name $ResourceGroupName -ErrorAction SilentlyContinue
     if ($null -eq $resourceGroup) {
-        Write-Output ("{0}    FinOps hub {1} not found" -f (Get-Date), $HubName)
-        Throw ("FinOps hub {0} not found" -f $HubName)
+        Write-Output ("{0}    Resource group {1} not found" -f (Get-Date), $ResourceGroupName)
+        Throw ("Resource group {0} not found" -f $ResourceGroupName)
     }
 
-    Write-Output ("{0}    FinOps hub {1} found" -f (Get-Date), $HubName)
+    Write-Output ("{0}    Resource group {1} found" -f (Get-Date), $ResourceGroupName)
 
-    $storageAccount = Get-AzStorageAccount -ResourceGroupName $HubName -ErrorAction SilentlyContinue
+    $storageAccount = Get-AzStorageAccount -ResourceGroupName $ResourceGroupName -ErrorAction SilentlyContinue
     if ($null -eq $storageAccount) {
         Write-Output ("{0}    Storage account not found" -f (Get-Date))
         Throw ("Storage account not found")
@@ -89,43 +77,20 @@ Function Add-FinOpsHubScope {
     if (($settings.exportScopes.Count -eq 1) -and ([string]::IsNullOrEmpty($settings.exportScopes[0]))) {
         $settings.exportScopes = @()
         $operation = 'create'
+        Write-Output ("{0}    No export scopes defined" -f (Get-Date), $Scope)
     }
 
-    foreach ($ScopeToUpdate in $settings.exportScopes) {
-        if ($ScopeToUpdate.scope -eq $Scope) {
+    foreach ($exportScope in $settings.exportScopes) {
+        if ($exportScope.scope -eq $Scope) {
             Write-Output ("{0}    Export scope {1} already exists" -f (Get-Date), $Scope)
-            if ($ScopeToUpdate.tenantId -eq $TenantId) {
-                Write-Output ("{0}    tenantId {1} matches (no change)" -f (Get-Date), $TenantId)
-                $operation = 'none'
-            } else {
-                Write-Output ("{0}    tenantId {1} --> {2}" -f (Get-Date), $ScopeToUpdate.tenantId, $TenantId)
-                $operation = 'update'
-            }
-
-            if ($ScopeToUpdate.cloud -eq $Cloud) {
-                Write-Output ("{0}    cloud {1} matches (no change)" -f (Get-Date), $Cloud)
-                $operation = 'none'
-            } else {
-                Write-Output ("{0}    cloud {1} --> {2}" -f (Get-Date), $ScopeToUpdate.cloud, $Cloud)
-                $operation = 'update'
-            }
-        } else {
-            Write-Output ("{0}    Export scope {1} does not need updating" -f (Get-Date), $ScopeToUpdate.scope)
+            $operation = 'none'
         }
     }
 
     if ($operation -eq 'create') {
         Write-Output ("{0}    Adding export scope {1} with tenant ID {2}" -f (Get-Date), $Scope, $TenantId)
-        [PSCustomObject]$ScopeToAdd = @{cloud = $Cloud; scope = $Scope; tenantId = $TenantId }
+        [PSCustomObject]$ScopeToAdd = @{scope = $Scope}
         $settings.exportScopes += $ScopeToAdd
-    }
-
-    if ($operation -eq 'update') {
-        Write-Output ("{0}    Updating export scope {1} with tenant ID {2}" -f (Get-Date), $Scope, $TenantId)
-        $settings.exportScopes | Where-Object { $_.scope -eq $Scope } | ForEach-Object { $_.tenantId = $TenantId; $_.cloud = $Cloud }
-    }
-
-    if ($operation -eq 'update' -or $operation -eq 'create') {
         Write-Output ("{0}    Saving settings.json" -f (Get-Date))
         $settings | ConvertTo-Json -Depth 100 | Set-Content 'settings.json' -Force | Out-Null
         Set-AzStorageBlobContent -Container 'config' -File 'settings.json' -Context $storageContext -Force | Out-Null
