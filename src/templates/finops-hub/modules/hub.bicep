@@ -125,11 +125,12 @@ module dataFactoryResources 'dataFactory.bicep' = {
     convertToParquet: convertToParquet
     keyVaultName: keyVault.outputs.name
     storageAccountName: storage.outputs.name
+    storageAccountId: storage.outputs.resourceId
     exportContainerName: storage.outputs.exportContainer
     configContainerName: storage.outputs.configContainer
     ingestionContainerName: storage.outputs.ingestionContainer
     location: location
-    storageAccountId: storage.outputs.resourceId
+    hubName: hubName
   }
 }
 
