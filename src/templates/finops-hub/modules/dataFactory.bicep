@@ -68,7 +68,7 @@ var autoStartRbacRoles = [
   '673868aa-7521-48a0-acc6-0f60742d39f5' // Data Factory contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#data-factory-contributor
 ]
 
-var cmStorageRbacRoles = [
+var storageRbacRoles = [
   '17d1049b-9a84-46fb-8f53-869881c3d3ab' // Storage Account Contributor https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage-account-contributor
   'ba92f5b4-2d11-453d-a403-e96b0029c9fe' // Storage Blob Data Contributor https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor
   'acdd72a7-3385-48ef-bd42-f606fba81ae7' // Reader https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#reader
@@ -109,7 +109,7 @@ resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-0
 }]
 
 // Create managed identity to manage exports in cost management
-resource pipelineIdentityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in cmStorageRbacRoles: {
+resource pipelineIdentityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in storageRbacRoles: {
   name: guid(storageAccount.id, role, dataFactory.id)
   scope: storageAccount
   properties: {
