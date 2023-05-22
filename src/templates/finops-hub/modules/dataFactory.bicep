@@ -625,8 +625,6 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
   ]
   properties: {
     activities: [
-      // (start) -> Wait -> Scope -> Metric -> Date -> File -> Folder -> Delete Target -> Convert CSV -> Delete CSV -> (end)
-      // Wait
       {
         name: 'Wait'
         type: 'Wait'
@@ -636,7 +634,6 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
           waitTimeInSeconds: 60
         }
       }
-      // Set Scope
       {
         name: 'Set Scope'
         type: 'SetVariable'
@@ -652,12 +649,11 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
         typeProperties: {
           variableName: 'scope'
           value: {
-            value: '@replace(split(pipeline().parameters.folderName,split(pipeline().parameters.folderName, \'/\')[sub(length(split(pipeline().parameters.folderName, \'/\')), 4)])[0],\'${exportContainerName}\',\'${ingestionContainerName}\')'
+            value: '@replace(split(pipeline().parameters.folderName,split(pipeline().parameters.folderName, \'/\')[sub(length(split(pipeline().parameters.folderName, \'/\')), 4)])[0],\'msexports\',\'ingestion\')'
             type: 'Expression'
           }
         }
       }
-      // Set Metric
       {
         name: 'Set Metric'
         type: 'SetVariable'
@@ -673,13 +669,11 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
         typeProperties: {
           variableName: 'metric'
           value: {
-            // TODO: Parse metric out of the export path with self-managed exports -- value: '@first(split(split(pipeline().parameters.folderName, \'/\')[sub(length(split(pipeline().parameters.folderName, \'/\')), 4)], \'-\'))'
-            value: 'amortizedcost'
+            value: '@if(contains(toLower(pipeline().parameters.folderName), \'amortizedcost\'), \'amortizedcost\', \'actualcost\')'
             type: 'Expression'
           }
         }
       }
-      // Set Date
       {
         name: 'Set Date'
         type: 'SetVariable'
@@ -700,7 +694,6 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
           }
         }
       }
-      // Set Destination File Name
       {
         name: 'Set Destination File Name'
         description: ''
@@ -717,12 +710,11 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
         typeProperties: {
           variableName: 'destinationFile'
           value: {
-            value: '@replace(pipeline().parameters.fileName, \'.csv\', \'${convertToParquet ? '.parquet' : '.csv.gz'}\')'
+            value: '@replace(pipeline().parameters.fileName, \'.csv\', \'.parquet\')'
             type: 'Expression'
           }
         }
       }
-      // Set Destination Folder Name
       {
         name: 'Set Destination Folder Name'
         type: 'SetVariable'
@@ -743,7 +735,6 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
           }
         }
       }
-      // Delete Target
       {
         name: 'Delete Target'
         type: 'Delete'
@@ -765,7 +756,7 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
         userProperties: []
         typeProperties: {
           dataset: {
-            referenceName: safeIngestionContainerName
+            referenceName: 'ingestion'
             type: 'DatasetReference'
             parameters: {
               folderName: {
@@ -786,7 +777,6 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
           }
         }
       }
-      // Convert CSV
       {
         name: 'Convert CSV'
         type: 'Copy'
@@ -823,13 +813,9 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
             storeSettings: {
               type: 'AzureBlobFSWriteSettings'
             }
-            formatSettings: convertToParquet ? {
+            formatSettings: {
               type: 'ParquetWriteSettings'
               fileExtension: '.parquet'
-            } : {
-              type: 'DelimitedTextWriteSettings'
-              quoteAllText: true
-              fileExtension: '.csv.gz'
             }
           }
           enableStaging: false
@@ -838,7 +824,7 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
         }
         inputs: [
           {
-            referenceName: safeExportContainerName
+            referenceName: 'msexports'
             type: 'DatasetReference'
             parameters: {
               folderName: {
@@ -854,7 +840,7 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
         ]
         outputs: [
           {
-            referenceName: safeIngestionContainerName
+            referenceName: 'ingestion'
             type: 'DatasetReference'
             parameters: {
               folderName: {
@@ -869,7 +855,6 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
           }
         ]
       }
-      // Delete CSV
       {
         name: 'Delete CSV'
         type: 'Delete'
@@ -891,7 +876,7 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
         userProperties: []
         typeProperties: {
           dataset: {
-            referenceName: safeExportContainerName
+            referenceName: 'msexports'
             type: 'DatasetReference'
             parameters: {
               folderName: {
@@ -938,7 +923,6 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
         type: 'String'
       }
     }
-    annotations: []
   }
 }
 
