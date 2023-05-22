@@ -33,6 +33,13 @@ param convertToParquet bool = true
 @description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
 
+@description('Optional. Remote storage account for ingestion dataset.')
+param remoteHubStorageAccountUri string = ''
+
+@description('Optional. Storage account key for remote storage account.')
+@secure()
+param remoteHubStorageAccountKey string = ''
+
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
@@ -127,9 +134,10 @@ module dataFactoryResources 'dataFactory.bicep' = {
     exportContainerName: storage.outputs.exportContainer
     configContainerName: storage.outputs.configContainer
     ingestionContainerName: storage.outputs.ingestionContainer
-    keyVaultName: keyVault.name
+    keyVaultName: keyVault.outputs.name
     location: location
     hubName: hubName
+    remoteHubStorageAccountUri: remoteHubStorageAccountUri
   }
 }
 
@@ -141,9 +149,10 @@ module keyVault 'keyVault.bicep' = {
   name: 'keyVault'
   params: {
     hubName: hubName
+    uniqueSuffix: uniqueSuffix
     location: location
     tags: resourceTags
-    storageAccountName: storage.outputs.name
+    storageAccountKey: remoteHubStorageAccountKey
     accessPolicies: [
       {
         objectId: dataFactory.identity.principalId

@@ -28,6 +28,9 @@ param convertToParquet bool = true
 @description('Optional. The location to use for the managed identity and deployment script to auto-start triggers. Default = (resource group location).')
 param location string = resourceGroup().location
 
+@description('Optional. Remote storage account for ingestion dataset.')
+param remoteHubStorageAccountUri string
+
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
@@ -185,14 +188,35 @@ resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@
 }
 
 resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
-  name: storageAccountName
+  name: storageAccount.name
   parent: dataFactory
   properties: {
     annotations: []
     parameters: {}
     type: 'AzureBlobFS'
     typeProperties: {
-      url: reference('Microsoft.Storage/storageAccounts/${storageAccountName}', '2021-08-01').primaryEndpoints.dfs
+      url: reference('Microsoft.Storage/storageAccounts/${storageAccount.name}', '2021-08-01').primaryEndpoints.dfs
+    }
+  }
+}
+
+resource linkedService_remoteHubStorageAccount 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = if (!empty(remoteHubStorageAccountUri)) {
+  name: 'remoteHubStorageAccount'
+  parent: dataFactory
+  properties: {
+    annotations: []
+    parameters: {}
+    type: 'AzureBlobFS'
+    typeProperties: {
+      url: remoteHubStorageAccountUri
+      accountKey: {
+        type: 'AzureKeyVaultSecret'
+        store: {
+          referenceName: linkedService_keyVault.name
+          type: 'LinkedServiceReference'
+        }
+        secretName: '${toLower(hubName)}-storage-key'
+      }
     }
   }
 }
@@ -269,7 +293,7 @@ resource dataset_ingestion 'Microsoft.DataFactory/factories/datasets@2018-06-01'
     )
     linkedServiceName: {
       parameters: {}
-      referenceName: linkedService_storageAccount.name
+      referenceName: empty(remoteHubStorageAccountUri) ? linkedService_storageAccount.name : 'remoteHubStorageAccount'
       type: 'LinkedServiceReference'
     }
   }
