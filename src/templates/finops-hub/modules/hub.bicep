@@ -127,8 +127,34 @@ module dataFactoryResources 'dataFactory.bicep' = {
     exportContainerName: storage.outputs.exportContainer
     configContainerName: storage.outputs.configContainer
     ingestionContainerName: storage.outputs.ingestionContainer
+    keyVaultName: keyVault.name
     location: location
     hubName: hubName
+  }
+}
+
+//------------------------------------------------------------------------------
+// Key Vault for storing secrets
+//------------------------------------------------------------------------------
+
+module keyVault 'keyVault.bicep' = {
+  name: 'keyVault'
+  params: {
+    hubName: hubName
+    location: location
+    tags: resourceTags
+    storageAccountName: storage.outputs.name
+    accessPolicies: [
+      {
+        objectId: dataFactory.identity.principalId
+        tenantId: subscription().tenantId
+        permissions: {
+          secrets: [
+            'get'
+          ]
+        }
+      }
+    ]
   }
 }
 
