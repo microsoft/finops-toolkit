@@ -416,11 +416,11 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
           isSequential: true
           activities: [
             {
-              name: 'Create or Update Open Month Export'
+              name: 'Create or or update open month amortized export'
               type: 'WebActivity'
               dependsOn: [
                 {
-                  activity: 'Set Open Month Export Name'
+                  activity: 'Set open month amortized export name'
                   dependencyConditions: [
                     'Succeeded'
                   ]
@@ -436,7 +436,7 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
               userProperties: []
               typeProperties: {
                 url: {
-                  value: '@{pipeline().parameters.ResourceManagementUri}/@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}?api-version=2021-10-01'
+                  value: '@{pipeline().parameters.ResourceManagementUri}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}?api-version=2021-10-01'
                   type: 'Expression'
                 }
                 method: 'PUT'
@@ -454,24 +454,24 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
               }
             }
             {
-              name: 'Set Open Month Export Name'
+              name: 'Set open month amortized export name'
               type: 'SetVariable'
               dependsOn: []
               userProperties: []
               typeProperties: {
                 variableName: 'exportName'
                 value: {
-                  value: '@toLower(concat(pipeline().parameters.FinOpsHub, \'-daily-amortized\'))'
+                  value: '@toLower(concat(pipeline().parameters.FinOpsHub, \'-daily-amortizedcost\'))'
                   type: 'Expression'
                 }
               }
             }
             {
-              name: 'Create or Update Closed Month Export'
+              name: 'Create or update closed month amortized export'
               type: 'WebActivity'
               dependsOn: [
                 {
-                  activity: 'Set Closed Month Export Name'
+                  activity: 'Set closed month amortized export name'
                   dependencyConditions: [
                     'Succeeded'
                   ]
@@ -487,7 +487,7 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
               userProperties: []
               typeProperties: {
                 url: {
-                  value: '@{pipeline().parameters.ResourceManagementUri}/@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}?api-version=2021-10-01'
+                  value: '@{pipeline().parameters.ResourceManagementUri}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}?api-version=2021-10-01'
                   type: 'Expression'
                 }
                 method: 'PUT'
@@ -505,11 +505,11 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
               }
             }
             {
-              name: 'Set Closed Month Export Name'
+              name: 'Set closed month amortized export name'
               type: 'SetVariable'
               dependsOn: [
                 {
-                  activity: 'Create or Update Open Month Export'
+                  activity: 'Create or or update open month amortized export'
                   dependencyConditions: [
                     'Succeeded'
                   ]
@@ -519,7 +519,123 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
               typeProperties: {
                 variableName: 'exportName'
                 value: {
-                  value: '@toLower(concat(pipeline().parameters.FinOpsHub, \'-monthly-amortized\'))'
+                  value: '@toLower(concat(pipeline().parameters.FinOpsHub, \'-monthly-amortizedcost\'))'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Create or or update open month actuals export'
+              type: 'WebActivity'
+              dependsOn: [
+                {
+                  activity: 'Set open month actuals export name'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              policy: {
+                timeout: '0.12:00:00'
+                retry: 0
+                retryIntervalInSeconds: 30
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                url: {
+                  value: '@{pipeline().parameters.ResourceManagementUri}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}?api-version=2021-10-01'
+                  type: 'Expression'
+                }
+                method: 'PUT'
+                body: {
+                  value: '{\n  "properties": {\n    "schedule": {\n      "status": "Active",\n      "recurrence": "Daily",\n      "recurrencePeriod": {\n        "from": "@{utcNow()}",\n        "to": "2099-12-31T00:00:00Z"\n      }\n    },\n    "partitionData": "True",\n    "format": "Csv",\n    "deliveryInfo": {\n      "destination": {\n        "resourceId": "@{pipeline().parameters.StorageAccountId}",\n        "container": "msexports",\n        "rootFolderPath": "@{item().scope}"\n      }\n    },\n    "definition": {\n      "type": "actualcost",\n      "timeframe": "BillingMonthToDate",\n      "dataSet": {\n        "granularity": "Daily"\n      }\n    }\n  }\n}'
+                  type: 'Expression'
+                }
+                authentication: {
+                  type: 'MSI'
+                  resource: {
+                    value: '@pipeline().parameters.ResourceManagementUri'
+                    type: 'Expression'
+                  }
+                }
+              }
+            }
+            {
+              name: 'Set open month actuals export name'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Create or update closed month amortized export'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'exportName'
+                value: {
+                  value: '@toLower(concat(pipeline().parameters.FinOpsHub, \'-daily-actualcost\'))'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Create or update closed month actuals export'
+              type: 'WebActivity'
+              dependsOn: [
+                {
+                  activity: 'Set closed month actuals export name'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              policy: {
+                timeout: '0.12:00:00'
+                retry: 0
+                retryIntervalInSeconds: 30
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                url: {
+                  value: '@{pipeline().parameters.ResourceManagementUri}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}?api-version=2021-10-01'
+                  type: 'Expression'
+                }
+                method: 'PUT'
+                body: {
+                  value: '{\n  "properties": {\n    "schedule": {\n      "status": "Active",\n      "recurrence": "Monthly",\n      "recurrencePeriod": {\n        "from": "@{utcNow()}",\n        "to": "2099-12-31T00:00:00Z"\n      }\n    },\n    "partitionData": "True",\n    "format": "Csv",\n    "deliveryInfo": {\n      "destination": {\n        "resourceId": "@{pipeline().parameters.StorageAccountId}",\n        "container": "msexports",\n        "rootFolderPath": "@{item().scope}"\n      }\n    },\n    "definition": {\n      "type": "actualcost",\n      "timeframe": "TheLastBillingMonth",\n      "dataSet": {\n        "granularity": "Daily"\n      }\n    }\n  }\n}'
+                  type: 'Expression'
+                }
+                authentication: {
+                  type: 'MSI'
+                  resource: {
+                    value: '@pipeline().parameters.ResourceManagementUri'
+                    type: 'Expression'
+                  }
+                }
+              }
+            }
+            {
+              name: 'Set closed month actuals export name'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Create or or update open month actuals export'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'exportName'
+                value: {
+                  value: '@toLower(concat(pipeline().parameters.FinOpsHub, \'-monthly-actualcost\'))'
                   type: 'Expression'
                 }
               }
