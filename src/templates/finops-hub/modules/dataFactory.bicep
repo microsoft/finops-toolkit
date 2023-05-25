@@ -275,9 +275,6 @@ resource dataset_msexports 'Microsoft.DataFactory/factories/datasets@2018-06-01'
 resource dataset_ingestion 'Microsoft.DataFactory/factories/datasets@2018-06-01' = {
   name: safeIngestionContainerName
   parent: dataFactory
-  dependsOn: [
-    
-  ]
   properties: {
     annotations: []
     parameters: {
