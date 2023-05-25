@@ -275,6 +275,9 @@ resource dataset_msexports 'Microsoft.DataFactory/factories/datasets@2018-06-01'
 resource dataset_ingestion 'Microsoft.DataFactory/factories/datasets@2018-06-01' = {
   name: safeIngestionContainerName
   parent: dataFactory
+  dependsOn: [
+    
+  ]
   properties: {
     annotations: []
     parameters: {
@@ -293,7 +296,7 @@ resource dataset_ingestion 'Microsoft.DataFactory/factories/datasets@2018-06-01'
     )
     linkedServiceName: {
       parameters: {}
-      referenceName: empty(remoteHubStorageAccountUri) ? linkedService_storageAccount.name : 'remoteHubStorageAccount'
+      referenceName: empty(remoteHubStorageAccountUri) ? linkedService_storageAccount.name : linkedService_remoteHubStorageAccount.name
       type: 'LinkedServiceReference'
     }
   }
