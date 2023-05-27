@@ -29,7 +29,7 @@ param convertToParquet bool = true
 param location string = resourceGroup().location
 
 @description('Optional. Remote storage account for ingestion dataset.')
-param remoteHubStorageAccountUri string
+param hubStorageAccountUri string
 
 //------------------------------------------------------------------------------
 // Variables
@@ -200,15 +200,15 @@ resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedser
   }
 }
 
-resource linkedService_remoteHubStorageAccount 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = if (!empty(remoteHubStorageAccountUri)) {
-  name: 'remoteHubStorageAccount'
+resource linkedService_hubStorageAccount 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = if (!empty(hubStorageAccountUri)) {
+  name: 'hubStorageAccount'
   parent: dataFactory
   properties: {
     annotations: []
     parameters: {}
     type: 'AzureBlobFS'
     typeProperties: {
-      url: remoteHubStorageAccountUri
+      url: hubStorageAccountUri
       accountKey: {
         type: 'AzureKeyVaultSecret'
         store: {
@@ -293,7 +293,7 @@ resource dataset_ingestion 'Microsoft.DataFactory/factories/datasets@2018-06-01'
     )
     linkedServiceName: {
       parameters: {}
-      referenceName: empty(remoteHubStorageAccountUri) ? linkedService_storageAccount.name : linkedService_remoteHubStorageAccount.name
+      referenceName: empty(hubStorageAccountUri) ? linkedService_storageAccount.name : linkedService_hubStorageAccount.name
       type: 'LinkedServiceReference'
     }
   }

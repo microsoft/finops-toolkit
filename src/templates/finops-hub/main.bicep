@@ -30,11 +30,11 @@ param exportRetentionInDays int = 0
 param ingestionRetentionInMonths int = 13
 
 @description('Optional. Remote storage account for ingestion dataset.')
-param remoteHubStorageAccountUri string = ''
+param hubStorageAccountUri string = ''
 
 @description('Optional. Storage account key for remote storage account.')
 @secure()
-param remoteHubStorageAccountKey string = ''
+param hubStorageAccountKey string = ''
 
 /**
  * Resources
@@ -50,8 +50,8 @@ module hub 'modules/hub.bicep' = {
     exportScopes: exportScopes
     exportRetentionInDays: exportRetentionInDays
     ingestionRetentionInMonths: ingestionRetentionInMonths
-    remoteHubStorageAccountUri: remoteHubStorageAccountUri
-    remoteHubStorageAccountKey: remoteHubStorageAccountKey
+    hubStorageAccountUri: hubStorageAccountUri
+    hubStorageAccountKey: hubStorageAccountKey
   }
 }
 
