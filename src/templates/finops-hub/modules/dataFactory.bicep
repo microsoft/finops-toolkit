@@ -62,11 +62,15 @@ var safeIngestionContainerName = replace('${ingestionContainerName}', '-', '_')
 var safeConfigContainerName = replace('${configContainerName}', '-', '_')
 
 // All hub triggers (used to auto-start)
-var extractExportTriggerName = exportContainerName
-var updateConfigTriggerName = configContainerName
+var extractExportTriggerName = '${safeExportContainerName}_extract'
+var updateConfigTriggerName = '${safeExportContainerName}_setup'
+var dailyTriggerName = '${safeExportContainerName}_daily'
+var monthlyTriggerName = '${safeExportContainerName}_monthly'
 var allHubTriggers = [
   extractExportTriggerName
   updateConfigTriggerName
+  dailyTriggerName
+  monthlyTriggerName
 ]
 
 // Roles needed to auto-start triggers
@@ -313,18 +317,17 @@ resource dataset_ingestion 'Microsoft.DataFactory/factories/datasets@2018-06-01'
 // Triggers
 //------------------------------------------------------------------------------
 resource trigger_exportContainer 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
-  name: safeExportContainerName
+  name: extractExportTriggerName
   parent: dataFactory
   dependsOn: [
     stopHubTriggers
-    pipeline_extractExport
   ]
   properties: {
     annotations: []
     pipelines: [
       {
         pipelineReference: {
-          referenceName: '${exportContainerName}_extract'
+          referenceName: pipeline_extractExport.name
           type: 'PipelineReference'
         }
         parameters: {
@@ -347,7 +350,7 @@ resource trigger_exportContainer 'Microsoft.DataFactory/factories/triggers@2018-
 }
 
 resource trigger_configContainer 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
-  name: safeConfigContainerName
+  name: updateConfigTriggerName
   parent: dataFactory
   dependsOn: [
     stopHubTriggers
@@ -379,9 +382,329 @@ resource trigger_configContainer 'Microsoft.DataFactory/factories/triggers@2018-
   }
 }
 
+resource trigger_daily 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
+  name: dailyTriggerName
+  parent: dataFactory
+  dependsOn: [
+    stopHubTriggers
+  ]
+  properties: {
+    pipelines: [
+      {
+        pipelineReference: {
+          referenceName: pipeline_listExports.name
+          type: 'PipelineReference'
+        }
+        parameters: {
+          Recurrence: 'Daily'
+        }
+      }
+    ]
+    type: 'ScheduleTrigger'
+    typeProperties: {
+      recurrence: {
+        frequency: 'Hour'
+        interval: 24
+        startTime: '2023-06-01T01:01:00'
+        timeZone: 'Pacific Standard Time'
+      }
+    }
+  }
+}
+
+resource trigger_monthly 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
+  name: monthlyTriggerName
+  parent: dataFactory
+  dependsOn: [
+    stopHubTriggers
+  ]
+  properties: {
+    pipelines: [
+      {
+        pipelineReference: {
+          referenceName: pipeline_listExports.name
+          type: 'PipelineReference'
+        }
+        parameters: {
+          Recurrence: 'Monthly'
+        }
+      }
+    ]
+    type: 'ScheduleTrigger'
+    typeProperties: {
+      recurrence: {
+        frequency: 'Month'
+        interval: 1
+        startTime: '2023-06-05T01:11:00'
+        timeZone: 'Pacific Standard Time'
+        schedule: {
+          monthDays: [
+            5
+            19
+          ]
+        }
+      }
+    }
+  }
+}
+
 //------------------------------------------------------------------------------
 // Pipelines
 //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// Microsoft Cost Management scheduled exports
+// Triggered by daily/monthly trigger.
+// Enumerates all exports configured for the export scopes stored in settings.json.
+//------------------------------------------------------------------------------
+resource pipeline_listExports 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: '${safeExportContainerName}_list'
+  parent: dataFactory
+  dependsOn: [
+    dataset_config
+  ]
+  properties: {
+    activities: [
+      {
+        name: 'Get Config'
+        type: 'Lookup'
+        dependsOn: []
+        policy: {
+          timeout: '0.12:00:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          source: {
+            type: 'JsonSource'
+            storeSettings: {
+              type: 'AzureBlobFSReadSettings'
+              recursive: true
+              enablePartitionDiscovery: false
+            }
+            formatSettings: {
+              type: 'JsonReadSettings'
+            }
+          }
+          dataset: {
+            referenceName: 'config'
+            type: 'DatasetReference'
+            parameters: {
+              fileName: {
+                value: '@pipeline().parameters.fileName'
+                type: 'Expression'
+              }
+              folderName: {
+                value: '@pipeline().parameters.folderName'
+                type: 'Expression'
+              }
+            }
+          }
+        }
+      }
+      {
+        name: 'ForEach Export Scope'
+        type: 'ForEach'
+        dependsOn: [
+          {
+            activity: 'Get Config'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@activity(\'Get Config\').output.firstRow.exportScopes'
+            type: 'Expression'
+          }
+          isSequential: true
+          activities: [
+            {
+              name: 'Get exports for scope'
+              type: 'WebActivity'
+              dependsOn: []
+              policy: {
+                timeout: '0.12:00:00'
+                retry: 0
+                retryIntervalInSeconds: 30
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                url: {
+                  value: '@{pipeline().parameters.ResourceManagementUri}@{item().scope}/providers/Microsoft.CostManagement/exports?api-version=2023-03-01'
+                  type: 'Expression'
+                }
+                method: 'GET'
+                authentication: {
+                  type: 'MSI'
+                  resource: {
+                    value: '@pipeline().parameters.ResourceManagementUri'
+                    type: 'Expression'
+                  }
+                }
+              }
+            }
+            {
+              name: pipeline_runExports.name
+              type: 'ExecutePipeline'
+              dependsOn: [
+                {
+                  activity: 'Get exports for scope'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                pipeline: {
+                  referenceName: pipeline_runExports.name
+                  type: 'PipelineReference'
+                }
+                waitOnCompletion: true
+                parameters: {
+                  ExportScopes: {
+                    value: '@activity(\'Get exports for scope\').output.value'
+                    type: 'Expression'
+                  }
+                  ResourceManagementUri: {
+                    value: '@pipeline().parameters.ResourceManagementUri'
+                    type: 'Expression'
+                  }
+                  Recurrence: {
+                    value: '@pipeline().parameters.Recurrence'
+                    type: 'Expression'
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+    concurrency: 1
+    parameters: {
+      FileName: {
+        type: 'string'
+        defaultValue: 'settings.json'
+      }
+      FolderName: {
+        type: 'string'
+        defaultValue: 'config'
+      }
+      StorageAccountId: {
+        type: 'string'
+        defaultValue: storageAccount.id
+      }
+      FinOpsHub: {
+        type: 'String'
+        defaultValue: hubName
+      }
+      ResourceManagementUri: {
+        type: 'string'
+        defaultValue: environment().resourceManager
+      }
+      Recurrence: {
+        type: 'string'
+        defaultValue: 'Daily'
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+// Microsoft Cost Management scheduled exports
+// Triggered by pipeline_listExports.
+// Triggers scheduled exports for the specified scopes which meet the schedule conditions.
+//------------------------------------------------------------------------------
+resource pipeline_runExports 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: '${safeExportContainerName}_run'
+  parent: dataFactory
+  dependsOn: [
+    dataset_config
+  ]
+  properties: {
+    activities: [
+      {
+        name: 'ForEach export scope'
+        type: 'ForEach'
+        dependsOn: []
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@pipeline().parameters.exportScopes'
+            type: 'Expression'
+          }
+          isSequential: true
+          activities: [
+            {
+              name: 'If scheduled'
+              type: 'IfCondition'
+              dependsOn: []
+              userProperties: []
+              typeProperties: {
+                expression: {
+                  value: '@equals(tolower(item().properties.schedule.recurrence), tolower(pipeline().parameters.Recurrence))'
+                  type: 'Expression'
+                }
+                ifTrueActivities: [
+                  {
+                    name: 'Trigger export'
+                    type: 'WebActivity'
+                    dependsOn: []
+                    policy: {
+                      timeout: '0.12:00:00'
+                      retry: 0
+                      retryIntervalInSeconds: 30
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      url: {
+                        value: '@{pipeline().parameters.ResourceManagementUri}/@{item().id}/run?api-version=2023-03-01'
+                        type: 'Expression'
+                      }
+                      method: 'POST'
+                      authentication: {
+                        type: 'MSI'
+                        resource: {
+                          value: '@pipeline().parameters.ResourceManagementUri'
+                          type: 'Expression'
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+    concurrency: 1
+    parameters: {
+      ExportScopes: {
+        type: 'array'
+      }
+      ResourceManagementUri: {
+        type: 'string'
+        defaultValue: environment().resourceManager
+      }
+      Recurrence: {
+        type: 'string'
+        defaultValue: 'Daily'
+      }
+    }
+  }
+}
 
 //------------------------------------------------------------------------------
 // Microsoft Cost Management add export pipeline
