@@ -1,0 +1,9 @@
+{
+  "$schema": "https://aka.ms/azure-quickstart-templates-metadata-schema#",
+  "type": "QuickStart",
+  "itemDisplayName": "FinOps toolkit workbook",
+  "summary": "Create a new workbook",
+  "description": "This template creates a new Azure Monitor workbook.",
+  "githubUsername": "flanakin",
+  "dateUpdated": "2023-05-24"
+}

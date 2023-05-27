@@ -61,4 +61,4 @@ If you run into any issues, see [Troubleshooting FinOps hubs](https://aka.ms/fin
 
 <br>
 
-`Tags: cost, finops, Microsoft.CostManagement/exports, Microsoft.Storage/storageAccounts, Microsoft.DataFactory/factories`
+`Tags: finops, cost, Microsoft.CostManagement/exports, Microsoft.Storage/storageAccounts, Microsoft.DataFactory/factories`
