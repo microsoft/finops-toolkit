@@ -405,7 +405,7 @@ resource trigger_daily 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
       recurrence: {
         frequency: 'Hour'
         interval: 24
-        startTime: '2023-06-01T01:01:00'
+        startTime: '2023-01-01T01:01:00'
         timeZone: 'Pacific Standard Time'
       }
     }
@@ -435,7 +435,7 @@ resource trigger_monthly 'Microsoft.DataFactory/factories/triggers@2018-06-01' =
       recurrence: {
         frequency: 'Month'
         interval: 1
-        startTime: '2023-06-05T01:11:00'
+        startTime: '2023-01-05T01:11:00'
         timeZone: 'Pacific Standard Time'
         schedule: {
           monthDays: [
@@ -470,8 +470,8 @@ resource pipeline_listExports 'Microsoft.DataFactory/factories/pipelines@2018-06
         type: 'Lookup'
         dependsOn: []
         policy: {
-          timeout: '0.12:00:00'
-          retry: 0
+          timeout: '0.00:05:00'
+          retry: 2
           retryIntervalInSeconds: 30
           secureOutput: false
           secureInput: false
@@ -529,8 +529,8 @@ resource pipeline_listExports 'Microsoft.DataFactory/factories/pipelines@2018-06
               type: 'WebActivity'
               dependsOn: []
               policy: {
-                timeout: '0.12:00:00'
-                retry: 0
+                timeout: '0.00:05:00'
+                retry: 2
                 retryIntervalInSeconds: 30
                 secureOutput: false
                 secureInput: false
@@ -660,8 +660,8 @@ resource pipeline_runExports 'Microsoft.DataFactory/factories/pipelines@2018-06-
                     type: 'WebActivity'
                     dependsOn: []
                     policy: {
-                      timeout: '0.12:00:00'
-                      retry: 0
+                      timeout: '0.00:05:00'
+                      retry: 1
                       retryIntervalInSeconds: 30
                       secureOutput: false
                       secureInput: false
@@ -724,8 +724,8 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
         type: 'Lookup'
         dependsOn: []
         policy: {
-          timeout: '0.12:00:00'
-          retry: 0
+          timeout: '0.00:05:00'
+          retry: 2
           retryIntervalInSeconds: 30
           secureOutput: false
           secureInput: false
@@ -790,8 +790,8 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
                 }
               ]
               policy: {
-                timeout: '0.12:00:00'
-                retry: 0
+                timeout: '0.00:05:00'
+                retry: 2
                 retryIntervalInSeconds: 30
                 secureOutput: false
                 secureInput: false
@@ -841,8 +841,8 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
                 }
               ]
               policy: {
-                timeout: '0.12:00:00'
-                retry: 0
+                timeout: '0.00:05:00'
+                retry: 2
                 retryIntervalInSeconds: 30
                 secureOutput: false
                 secureInput: false
@@ -899,8 +899,8 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
                 }
               ]
               policy: {
-                timeout: '0.12:00:00'
-                retry: 0
+                timeout: '0.00:05:00'
+                retry: 2
                 retryIntervalInSeconds: 30
                 secureOutput: false
                 secureInput: false
@@ -957,8 +957,8 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
                 }
               ]
               policy: {
-                timeout: '0.12:00:00'
-                retry: 0
+                timeout: '0.00:05:00'
+                retry: 2
                 retryIntervalInSeconds: 30
                 secureOutput: false
                 secureInput: false
@@ -1226,8 +1226,8 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
           }
         ]
         policy: {
-          timeout: '0.12:00:00'
-          retry: 0
+          timeout: '0.00:05:00'
+          retry: 2
           retryIntervalInSeconds: 30
           secureOutput: false
           secureInput: false
@@ -1268,8 +1268,8 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
           }
         ]
         policy: {
-          timeout: '0.12:00:00'
-          retry: 0
+          timeout: '0.00:05:00'
+          retry: 2
           retryIntervalInSeconds: 30
           secureOutput: false
           secureInput: false
@@ -1346,8 +1346,8 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
           }
         ]
         policy: {
-          timeout: '0.12:00:00'
-          retry: 0
+          timeout: '0.00:05:00'
+          retry: 2
           retryIntervalInSeconds: 30
           secureOutput: false
           secureInput: false
