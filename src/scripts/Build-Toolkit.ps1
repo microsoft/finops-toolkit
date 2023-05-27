@@ -47,6 +47,21 @@ function Build-MainBicepParameters($dir) {
     $params | ConvertTo-Json -Depth 100 | Out-File $paramFilePath
 }
 
+# Generate deployment parameters file from main.bicep in the target directory
+function Build-MainBicepParameters($dir) {
+    Write-Host "  Generating parameters..."
+    bicep generate-params "$dir/main.bicep" --outfile "$dir/azuredeploy.json"
+    $paramFilePath = "$dir/azuredeploy.parameters.json"
+    $params = Get-Content $paramFilePath -Raw | ConvertFrom-Json;
+    $params.parameters.psobject.Properties `
+    | ForEach-Object {
+        # Add placeholder values for required parameters
+        # See AQT docs for allowed values: https://github.com/Azure/azure-quickstart-templates/tree/4a6e5eae3c860208bf1731b392ae2b8a5fb24f4b/1-CONTRIBUTION-GUIDE#azure-devops-ci
+        if ($_.Name.EndsWith('Name')) { $_.Value.value = "GEN-UNIQUE" }
+    }
+    $params | ConvertTo-Json -Depth 100 | Out-File $paramFilePath
+}
+
 # Generate workbook templates
 Get-ChildItem ..\workbooks\* -Directory `
 | Where-Object { $_.Name -ne '.scaffold' }
