@@ -60,12 +60,29 @@ Get-ChildItem ..\templates\$Template* -Directory -ErrorAction SilentlyContinue `
     
     # Copy required files
     Write-Host "  Copying files..."
-    Copy-Item "$srcDir/*.*" $destDir
-    Copy-Item "$srcDir/modules/" $destDir -Recurse
-    
+    Get-ChildItem $srcDir | Copy-Item -Destination $destDir -Recurse -Exclude ".buildignore"
+
+    # Remove ignored files
+    Get-Content "$srcDir/.buildignore" `
+    | ForEach-Object {
+        $file = $_
+        if (Test-Path "$destDir/$file") {
+            Remove-Item "$destDir/$file" -Recurse -Force
+        }
+    }
+
     # Generate parameters
     Write-Host "  Generating parameters..."
     bicep generate-params "$srcDir/main.bicep" --outfile "$destDir/azuredeploy.json"
+    $paramFilePath = "$destDir/azuredeploy.parameters.json"
+    $params = Get-Content $paramFilePath -Raw | ConvertFrom-Json;
+    $params.parameters.psobject.Properties `
+    | ForEach-Object {
+        # Add placeholder values for required parameters
+        # See AQT docs for allowed values: https://github.com/Azure/azure-quickstart-templates/tree/4a6e5eae3c860208bf1731b392ae2b8a5fb24f4b/1-CONTRIBUTION-GUIDE#azure-devops-ci
+        if ($_.Name.EndsWith('Name')) { $_.Value.value = "GEN-UNIQUE" }
+    }
+    $params | ConvertTo-Json -Depth 100 | Out-File $paramFilePath
 
     Write-Host ''
 }

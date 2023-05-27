@@ -31,7 +31,7 @@ $Debug = $DebugPreference -eq "Continue"
 
 # Build toolkit if requested
 if ($Build) {
-    ./Build-Toolkit
+    ./Build-Toolkit $Template
 }
 
 $srcDir = "../../release/$Template"
@@ -102,7 +102,7 @@ Write-Host '    Copying release files...'
 $destDir = "$Destination//quickstarts/microsoft.costmanagement/$Template"
 Remove-Item $destDir -Recurse -Force
 ./New-Directory $destDir
-Copy-Item "$srcDir/*" $destDir
+Get-ChildItem $srcDir | Copy-Item -Destination $destDir -Recurse
 
 # Commit changes
 if ($Commit) {

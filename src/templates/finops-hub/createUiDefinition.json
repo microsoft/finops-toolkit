@@ -5,14 +5,14 @@
   "parameters": {
     "config": {
       "basics": {
-        "description": "Creates a new FinOps hub instance as a foundation for a custom cost management and optimization solution.",
+        "description": "FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, and optimization. Connect your hub to one or more billing accounts and subscriptions and build custom reports in Power BI or other tools. [Learn more](https://aka.ms/finops/hubs)",
         "location": {
           "label": "Location",
-          "resourceTypes": ["Microsoft.Storage/storageAccounts", "Microsoft.DataFactory/factories"]
+          "resourceTypes": ["Microsoft.DataFactory/factories", "Microsoft.KeyVault/vaults", "Microsoft.Storage/storageAccounts"]
         }
       }
     },
-    "resourceTypes": ["Microsoft.Storage/storageAccounts", "Microsoft.DataFactory/factories"],
+    "resourceTypes": ["Microsoft.DataFactory/factories", "Microsoft.KeyVault/vaults", "Microsoft.Storage/storageAccounts"],
     "basics": [
       {
         "name": "hubName",
@@ -21,7 +21,9 @@
         "defaultValue": "finops-hub",
         "toolTip": "Name of the hub. Used to ensure unique resource names.",
         "constraints": {
-          "required": true
+          "required": true,
+          "regex": "^[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9]$",
+          "validationMessage": "Name must be between 3 and 63 characters long and can contain only lowercase letters, numbers, and hyphens. The first and last characters in the name must be alphanumeric."
         },
         "visible": true
       },
@@ -55,15 +57,16 @@
           {
             "name": "tagsByResource",
             "label": "Tags",
+            "toolTip": "Tags to apply to resources.",
             "type": "Microsoft.Common.TagsByResource",
-            "resources": ["Microsoft.Cloud/hubs"]
+            "resources": ["Microsoft.DataFactory/factories", "Microsoft.KeyVault/vaults", "Microsoft.Storage/storageAccounts"]
           }
         ]
       }
     ],
     "outputs": {
       "hubName": "[basics('hubName')]",
-      "location": "[basics('region')]",
+      "location": "[location()]",
       "storageSku": "[basics('storageSku')]",
       "tags": "[steps('tags').tagsByResource]"
     }
