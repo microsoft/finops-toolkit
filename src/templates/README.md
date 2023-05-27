@@ -2,7 +2,11 @@
 
 - [finops-hub](./finops-hub)
 
-Please refer to [Creating templates](#creating-templates) below for template requirements.
+On this page:
+
+- [✨ Creating templates](#-creating-templates)
+- [📦 Building templates](#-building-templates)
+- [🧪 Testing templates](#-testing-templates)
 
 ---
 
@@ -87,3 +91,58 @@ Templates follow the [Azure Quickstart Templates guidelines](https://github.com/
    - Wait for the PR validation to complete and repeat as needed.
    - If you get a failure that doesn't have enough details, try running the [Template Analyzer](https://github.com/Azure/template-analyzer) locally.
    - Optionally, you can also run [arm-ttk](https://github.com/Azure/arm-ttk) locally, but this shouldn't be needed.
+
+## 📦 Building templates
+
+There are 2 ways to build templates. To build all toolkit modules and templates, run:
+
+```console
+cd $repo/src/scripts
+./Build-Toolkit
+```
+
+To build only a single template, run:
+
+```console
+cd $repo/src/scripts
+./Build-Toolkit <template-name>
+```
+
+See [`Build-Template`](../scripts/README.md#📦-build-toolkit) for optional parameters.
+
+> ℹ️ _Note: Both build scripts must be run from the `src/scripts` folder._
+
+<br>
+
+## 🧪 Testing templates
+
+Before deploying a template, you first need to sign in to Azure:
+
+```console
+Connect-AzContext
+Set-AzContext -Subscription "Trey Research R&D Playground"
+```
+
+> ℹ️ _**Microsoft contributors:** We recommend using the Trey Research R&D Playground subscription (64e355d7-997c-491d-b0c1-8414dccfcf42) for subscription deployments. Contact @flanakin to request access._
+
+Use the `Deploy-Toolkit` script to deploy a template. In its simplest form, you need only specify the name (not the path) of the module you want to deploy to run the local dev version of the module (not the generated versions):
+
+```console
+cd $repo/src/scripts
+./Deploy-Toolkit finops-hub
+```
+
+You can optionally build templates by specifying the `-Build` parameter:
+
+```console
+cd $repo/src/scripts
+./Deploy-Toolkit finops-hub -Build
+```
+
+Use `-WhatIf` to validate the template without deploying anything first.
+
+> ℹ️ _**Note:** Templates are deployed to a unique resource group based on your username and computer name: `ftk-<username>-<computername>`. Please delete resources after templates are validated._
+
+To learn more, see [`Deploy-Toolkit`](../scripts/README.md#-build-toolkit).
+
+<br>

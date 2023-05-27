@@ -28,35 +28,51 @@ if (-not (Test-Path $workbookDir)) {
     return
 }
 
-Write-Host "  $Workbook..."
-
 # Copy scaffold and workbook files
 ./New-Directory $outDir
-Copy-Item (Join-Path .. workbooks .scaffold *) $outDir
+Copy-Item (Join-Path .. workbooks .scaffold *) $outDir -Exclude workbook.json
 Copy-Item (Join-Path $workbookDir workbook.json) $outDir
+Copy-Item (Join-Path $workbookDir createUiDefinition.json) $outDir
+Copy-Item (Join-Path $workbookDir README.md) $outDir
 
 # Read workbook
 $workbookText = Get-Content (Join-Path $workbookDir workbook.json)
 
-# Update module with scaffold inputs
-$moduleFile = Join-Path $outDir main.bicep
-$moduleText = Get-Content $moduleFile 
+# Load scaffold config and add workbook version
 $scaffoldMetadata = Get-Content (Join-Path $workbookDir scaffold.json) | ConvertFrom-Json
-$scaffoldMetadata | Add-Member version (($workbookText | ConvertFrom-Json).version)
+$scaffoldMetadata['main.bicep'] | Add-Member version (($workbookText | ConvertFrom-Json).version)
+$scaffoldMetadata['metadata.json'] | Add-Member itemDisplayName "$($scaffoldMetadata['main.bicep'].displayName) workbook"
+
+# Update template files from scaffold config
 $scaffoldMetadata.PSObject.Properties `
-| ForEach-Object { 
-    $var = $_.Name
-    $moduleText = $moduleText -replace "^(param $var string|var $var)( = .*)?$", "`$1 = '$($_.Value)'"
-}
+| ForEach-Object {
+    $file = $_.Name
+    $path = Join-Path $outDir $file
+    $text = Get-Content $path
+    if ($file.EndsWith('.json')) {
+        $json = $text | ConvertFrom-Json;
+    }
+    $_.Value.PSObject.Properties `
+    | ForEach-Object {
+        $var = $_.Name
+        $value = $_.Value
+        if ($file.EndsWith('.bicep')) {
+            $text = $text -replace "^(param $var string|var $var)( = .*)?$", "`$1 = '$value'"
+        } elseif ($file.EndsWith('.json')) {
+            $json | Add-Member -MemberType NoteProperty -Name $var -Value $value -Force
+        }
+    }
 
-# Load workbook.json dynamically (not included in scaffold file due to invalid file reference)
-$moduleText = $moduleText -replace "var workbookJson = ''", "var workbookJson = string(loadJsonContent('workbook.json'))"
-
-# Convert module text to json and write to file
-$moduleText -join [Environment]::NewLine `
-| Out-File $moduleFile
-#| ConvertTo-Json -Compress `
-
-if ($Debug) {
-    $moduleText
-}
+    if ($file.EndsWith('.json')) {
+        $json | ConvertTo-Json | Out-File $path
+    } else {
+        $text -join [Environment]::NewLine | Out-File $path
+    }
+    
+    if ($Debug) {
+        Write-Host ""
+        Write-Host "  $file"
+        Write-Host "  $($file -replace ".","=")"
+        Write-Host ((Get-Content $path) -join [Environment]::NewLine)
+    }
+} 

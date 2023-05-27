@@ -100,7 +100,9 @@ if ($Commit) {
 # Copy files
 Write-Host '    Copying release files...'
 $destDir = "$Destination//quickstarts/microsoft.costmanagement/$Template"
-Remove-Item $destDir -Recurse -Force
+if (Test-Path $destDir) {
+    Remove-Item $destDir -Recurse -Force
+}
 ./New-Directory $destDir
 Get-ChildItem $srcDir | Copy-Item -Destination $destDir -Recurse
 

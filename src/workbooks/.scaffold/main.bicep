@@ -7,20 +7,20 @@
 
 targetScope = 'resourceGroup'
 
-@sys.description('Optional. Display name for the workbook used in the Gallery. Must be unique in the resource group. Default: Cost optimization.')
-param displayName string = 'Cost optimization'
+@sys.description('Optional. Display name for the workbook used in the Gallery. Must be unique in the resource group.')
+param displayName string = ''
 
 @sys.description('Optional. Location of the resources. Default: Same as deployment. See https://aka.ms/azureregions.')
 param location string = resourceGroup().location
 
 @sys.description('Optional. Workbook description.')
-param description string
+param description string = ''
 
 @sys.description('Optional. Tags for all resources.')
 param tags object = {}
 
 var version = ''
-var workbookJson = ''
+var workbookJson = string(loadJsonContent('workbook.json'))
 
 //==============================================================================
 // Resources
@@ -49,4 +49,4 @@ resource workbook 'Microsoft.Insights/workbooks@2022-04-01' = {
 output workbookId string = workbook.id
 
 @sys.description('Link to the workbook in the Azure portal.')
-output workbookUrl string = 'https://portal.azure.com/#view/AppInsightsExtension/UsageNotebookBlade/ComponentId/Azure%20Monitor/ConfigurationId/%2Fsubscriptions%2F${subscription().id}%2Fresourcegroups%2F${resourceGroup().name}%2Fproviders%2Fmicrosoft.insights%2Fworkbooks%2F${workbook.name}/Type/${workbook.properties.category}/WorkbookTemplateName/${replace(displayName, '/', '%2F')}'
+output workbookUrl string = '${environment().portal}/#view/AppInsightsExtension/UsageNotebookBlade/ComponentId/Azure%20Monitor/ConfigurationId/${uriComponent(workbook.id)}/Type/${workbook.properties.category}/WorkbookTemplateName/${uriComponent(workbook.properties.displayName)}'

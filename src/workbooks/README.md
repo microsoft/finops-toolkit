@@ -1,4 +1,4 @@
-# Workbook modules
+# 📒 Workbook modules
 
 This folder contains Azure Monitor workbooks that will be published to Azure Quickstart Templates.
 
@@ -8,13 +8,13 @@ This folder contains Azure Monitor workbooks that will be published to Azure Qui
 
 On this page:
 
-- [Creating a new workbook](#creating-a-new-workbook)
-- [Building workbook templates](#building-workbook-templates)
-- [Testing workbook templates](#testing-workbook-templates)
+- [✨ Creating workbooks](#-creating-workbooks)
+- [📦 Building workbook templates](#-building-workbook-templates)
+- [🧪 Testing workbook templates](#-testing-workbook-templates)
 
 ---
 
-## Creating a new workbook
+## ✨ Creating workbooks
 
 Workbooks in the FinOps toolkit reuse common scaffolding in the `.scaffold` folder to generate the files needed when publishing. Use the following steps to create a new workbook:
 
@@ -25,19 +25,35 @@ Workbooks in the FinOps toolkit reuse common scaffolding in the `.scaffold` fold
 
       ```json
       {
-        "name": "",
-        "displayName": "",
-        "description": ""
+        "main.bicep": {
+          "displayName": "",
+          "description": ""
+        },
+        "metadata.json": {
+          "summary": "",
+          "description": "",
+          "githubUsername": "",
+          "dateUpdated": "yyyy-MM-dd"
+        }
       }
       ```
 
-   2. Set `name` to a default resource name.
-   3. Set `displayName` to a human-readable name that will be shown in the portal.
-   4. Set `description` to a short description.
+   2. Set main.bicep properties:
+      - `displayName` to a human-readable name that will be shown in the portal.
+      - `description` to a short description.
+   3. Set metadata.json properties:
+      - `summary` to a short description.
+      - `description` to a long description.
+      - `githubUsername` to the username of the GitHub.
+      - `dateUpdated` to the date the workbook was last updated.
+
+3. Create a `createUiDefinition.json` file.
+   - [CreateUiDef docs](https://learn.microsoft.com/azure/azure-resource-manager/managed-applications/create-uidefinition-overview)
+   - [Test in portal](https://portal.azure.com/?feature.customPortal=false&#blade/Microsoft_Azure_CreateUIDef/SandboxBlade)
 
 <br>
 
-## Building workbook templates
+## 📦 Building workbook templates
 
 There are 2 ways to build workbook templates. To build all toolkit modules and templates, run:
 
@@ -64,7 +80,7 @@ The `Build-Workbook` script supports the following parameters:
 
 <br>
 
-## Testing workbook templates
+## 🧪 Testing workbook templates
 
 Before deploying a workbook template, you first need to sign in to Azure:
 
