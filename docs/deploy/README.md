@@ -1,26 +1,20 @@
-# FinOps toolkit deployment options
+# 📦 FinOps toolkit deployment options
 
-![Status: Not started](https://img.shields.io/badge/status-not%20started-red) &nbsp;<sup>→</sup>&nbsp;
-[![Go to issue](https://img.shields.io/github/issues/detail/state/microsoft/cloud-hubs/26)](https://github.com/microsoft/cloud-hubs/issues/26)
+The FinOps toolkit includes multiple ARM templates. Prerequisites, parameters, and post-deployment setup steps differ per template. Please refer to the template details for more information:
 
-<!--
-TODO: Uncomment this block when additional templates are added.
+- [FinOps hub](./finops-hub/template.md)
+- [Optimization workbook](./optimization-workbook)
 
-The FinOps toolkit includes multiple ARM templates depending on your needs. We recommend using the **FinOps hub with exports** template to streamline your setup process. All the examples below refer to this template. You may select a different template, which will change the available options.
-
-For more details about toolkit options, refer to the [available templates](../templates).
--->
+Note Bicep Registry modules can be referenced directly from your Bicep code and are not deployed using the steps below.
 
 > ### ⚠️ Important <!-- markdownlint-disable-line -->
 >
-> _The FinOps toolkit will change over time. We highly recommend saving a parameter file to ensure you can re-deploy new versions of the template with the same parameters._
+> _The FinOps toolkit will change over time. We highly recommend saving a parameter file to ensure you can re-deploy new versions with the same parameters._
 
 On this page:
 
 - [Using custom deployment in the Azure portal](#using-custom-deployment-in-the-azure-portal)
-- [Deploy from Microsoft Learn code samples](#deploy-from-microsoft-learn-code-samples)
 - [Deploy from Azure Quickstart Templates](#deploy-from-azure-quickstart-templates)
-- [Future considerations](#future-considerations)
 
 ---
 
@@ -29,25 +23,14 @@ On this page:
 The Azure portal includes a **Custom deployment** option that supports all templates available in the Azure Quickstart Templates repository. To deploy a quickstart template:
 
 1. Open [Custom deployment](https://portal.azure.com/#create/Microsoft.Template)
-2. In the **Quickstart template** dropdown, select `quickstarts/microsoft.costmanagement/finops-hub`.
-   <!-- > ℹ️ _Replace this template as desired. Note parameters below may differ slightly._-->
+2. In the **Quickstart template** dropdown, select `quickstarts/microsoft.costmanagement/<template>`.
 3. Select the **Select template** button.
 4. <a name="edit-params"></a>Are you updating an existing deployment?
    1. If so, use a parameters file:
       1. Select the **Edit parameters** link at the top of the form.
       2. Select the **Load file** command at the top of the page to upload your existing parameters file or copy and paste the file contents directly.
       3. Select the **Save** button at the bottom of the page.
-   2. If this is a new deployment, specify the desired values:
-      Parameter | Type | Description
-      ----------|------|------------
-      **hubName** | String | Name of the resource group and name prefix for all resources. Default: `finops-hub`.
-      **location** | String | Azure location where all resources should be created. Default: (resource group location).
-      **storageSku** | String | SKU (`LRS` or `ZRS`) for the storage account.
-      **tags** | String | Optional. Tags to apply to all resources.
-      <!--
-      **subscription** | String | ID of the subscription to deploy the hub instance to.
-      **exportScopes** | Array | Optional. List of scope IDs to create exports for.
-      -->
+   2. If this is a new deployment, specify the desired values for each parameter. See the template details for more information.
 5. Select the **Edit parameters** link at the top of the form.
 6. Select the **Download** command at the top of the page to save your parameters file. Keep this for your next deployment.
 7. Select the **Save** button at the bottom of the page.
@@ -58,15 +41,19 @@ If you received any validation errors, fix those and attempt to create the resou
 
 <br>
 
+<!--
+TODO: Uncomment this when the template is published to the Azure Quickstart Templates repository.
+
 ## Deploy from Microsoft Learn code samples
 
 Microsoft Learn hosts all templates available from the Azure Quickstart Templates repository. To deploy from Microsoft Learn:
 
 1. Open the [FinOps hub code sample](https://learn.microsoft.com/en-us/samples/azure/azure-quickstart-templates/finops-hub).
 2. Select the **Deploy to Azure** button towards the top of the page.
-3. Complete [steps 4 and beyond](#edit-params) from the custom deployment steps above.
+3. Complete [steps 4+](#edit-params) from the custom deployment steps above.
 
 <br>
+-->
 
 ## Deploy from Azure Quickstart Templates
 
@@ -88,10 +75,3 @@ To deploy a quickstart template:
 3. Complete [steps 4+](#edit-params) from the custom deployment steps above.
 
 <br>
-
----
-
-## Future considerations
-
-- Add note about how to use the resource visualizer (with screenshot)
-- Add screenshots for each deployment option

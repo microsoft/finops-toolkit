@@ -1,4 +1,4 @@
-# Contributing to the FinOps toolkit
+# 🛠️ Contributing to the FinOps toolkit
 
 Welcome, and thank you for your interest in contributing to the FinOps toolkit! Your time and effort is greatly appreciated, no matter how big or small the contribution is.
 
@@ -8,20 +8,20 @@ There are many ways in which you can contribute, beyond writing code. The goal o
 
 On this page:
 
-- [Asking questions](#asking-questions)
-- [Suggesting features and reporting bugs](#suggesting-features-and-reporting-bugs)
-- [Reviewing code changes](#reviewing-code-changes)
-- [Making code changes](#making-code-changes)
+- [🙋‍♀️ Asking questions](#️-asking-questions)
+- [ℹ️ Suggesting features and reporting bugs](#ℹ️-suggesting-features-and-reporting-bugs)
+- [👀 Reviewing code changes](#-reviewing-code-changes)
+- [👩‍💻 Making code changes](#-making-code-changes)
 
 ---
 
-## Asking questions
+## 🙋‍♀️ Asking questions
 
 Have a question? Please ask in [Discussions](../../discussions). Avoid asking questions in issues to keep issues clean and focused on product improvements. If not sure, start a discussion and create an issue based on that discussion later, if needed.
 
 <br>
 
-## Suggesting features and reporting bugs
+## ℹ️ Suggesting features and reporting bugs
 
 If you have an idea or notice a bug, [search open issues](../../issues) to see if an issue already exists.
 
@@ -31,7 +31,7 @@ If you don't find your issue, [create a new issue](../../issues/new/choose) per 
 
 <br>
 
-## Reviewing code changes
+## 👀 Reviewing code changes
 
 If you want to help out with code, but aren't quite ready to jump in yet, start by reviewing [pull requests](../../pulls). Please don't sign off unless you've reviewed, understand, and agree with every change. If you'd like to contribute PR feedback without signing off, add comments without approving. These reviews are just as valuable as sign-off reviews because they help improve the overall quality!
 
@@ -41,7 +41,7 @@ When possible, try to suggest code changes using **Add a suggestion** to streaml
 
 <br>
 
-## Making code changes
+## 👩‍💻 Making code changes
 
 If you want to contribute code changes, but aren't sure where to start, scan through [existing issues](../../issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc) to find one that interests you. Use `labels` to narrow down your search.
 
@@ -53,7 +53,7 @@ For details about contributing code changes and submitting pull requests, see [H
 
 <br>
 
-# Thank you! <!-- markdownlint-disable-line single-h1 -->
+# 🙏 Thank you! <!-- markdownlint-disable-line single-h1 -->
 
 Your contributions to open source, large or small, make projects like this possible. Thank you for taking the time to contribute.
 

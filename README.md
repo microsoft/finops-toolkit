@@ -1,8 +1,14 @@
-# 🛠️ Microsoft Cloud FinOps toolkit
+# 🧰 FinOps toolkit
 
-<sup> ℹ️ _This project is in the early concept phase. If interested, please contact micflan@microsoft.com._</sup>
+<sup> ℹ️ _This project is in the early concept phase. If interested, please let us know in [discussions](https://github.com/microsoft/cloud-hubs/discussions/categories/general)._</sup>
 
-The FinOps toolkit is a collection of customizable ARM templates used to build and deploy various cost management and optimization solutions. The main focus of the FinOps toolkit is to build a reliable, trustworthy platform for cost analytics, insights, and optimization, which we call **FinOps hubs**.
+The FinOps toolkit is a collection of customizable ARM templates used to build and deploy various FinOps solutions that automate and extend native Microsoft Cost Management capabilities. The toolkit aims to include:
+
+- Starter kits that help you get started with Cost Management.
+- Automation scripts to streamline cost configuration and management at scale.
+- Advanced solutions to facilitate building custom solutions.
+
+While you will find numerous ARM templates within this repository, our main focus is to build a reliable, trustworthy platform for cost analytics, insights, and optimization, which we call **FinOps hubs**.
 
 FinOps hubs are **virtual command centers** for leaders throughout the organization to report on, monitor, and optimize cost based on their organizational needs. FinOps hubs focus on 3 core design principles:
 
@@ -18,7 +24,7 @@ Looking to learn more about FinOps toolkit and how to get started? See [FinOps t
 
 <br>
 
-## 👨‍💻 Contributing
+## 👩‍💻 Contributing
 
 There are many ways to participate. From reporting bugs and requesting features to reviewing or even making code changes. See the [contribution guide ➡️](./CONTRIBUTING.md)
 
@@ -38,7 +44,7 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 
 Usage of FinOps toolkit templates and modules is tracked by using a `defaultTelemetry` deployment. Microsoft may use this information to improve our products and services. You may turn off the telemetry by using the `enableDefaultTelemetry` parameter on any Bicep module. If you use these features, you must comply with applicable law, including providing appropriate notices to users of your applications together with a copy of Microsoft's privacy statement. Our privacy statement is located at https://go.microsoft.com/fwlink/?LinkID=824704. You can learn more about data collection and use in the help documentation and our privacy statement. Your use of the software operates as your consent to these practices.
 
-> \_**NOTE:** You can review what is included in this telemetry in the Azure portal by viewing the details for any `pid-00f1n0b5-*` deployments under the Deployments section of the corresponding scope (e.g., resource group, subscription).
+> _**NOTE:** You can review what is included in this telemetry in the Azure portal by viewing the details for any `pid-00f1n0b5-*` deployments under the Deployments section of the corresponding scope (e.g., resource group, subscription)._
 
 ### Trademarks
 

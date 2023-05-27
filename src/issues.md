@@ -1,15 +1,15 @@
-# Dev process
+# 👩‍💻 Development process
 
 The following outlines the dev process from creating to releasing features.
 
 On this page:
 
-- [Issue lifecycle](#issue-lifecycle)
-- [Triaging issues](#triaging-issues)
+- [📃 Issue lifecycle](#-issue-lifecycle)
+- [📋 Triaging issues](#-triaging-issues)
 
 ---
 
-## Issue lifecycle
+## 📃 Issue lifecycle
 
 1. Author creates new issue
    > Assign to PM<br>
@@ -79,7 +79,7 @@ On this page:
 
 <br>
 
-## Triaging issues
+## 📋 Triaging issues
 
 The goal of triaging is to ensure issues in the backlog are valid and have the necessary details for someone to start working on them. The following rules apply for triaging all issues:
 
