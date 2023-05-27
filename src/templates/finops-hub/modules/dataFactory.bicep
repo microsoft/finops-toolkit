@@ -392,7 +392,7 @@ resource trigger_daily 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
     pipelines: [
       {
         pipelineReference: {
-          referenceName: pipeline_listExports.name
+          referenceName: pipeline_getExports.name
           type: 'PipelineReference'
         }
         parameters: {
@@ -422,7 +422,7 @@ resource trigger_monthly 'Microsoft.DataFactory/factories/triggers@2018-06-01' =
     pipelines: [
       {
         pipelineReference: {
-          referenceName: pipeline_listExports.name
+          referenceName: pipeline_getExports.name
           type: 'PipelineReference'
         }
         parameters: {
@@ -457,8 +457,8 @@ resource trigger_monthly 'Microsoft.DataFactory/factories/triggers@2018-06-01' =
 // Triggered by daily/monthly trigger.
 // Enumerates all exports configured for the export scopes stored in settings.json.
 //------------------------------------------------------------------------------
-resource pipeline_listExports 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
-  name: '${safeExportContainerName}_list'
+resource pipeline_getExports 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: '${safeExportContainerName}_getexports'
   parent: dataFactory
   dependsOn: [
     dataset_config
@@ -552,7 +552,7 @@ resource pipeline_listExports 'Microsoft.DataFactory/factories/pipelines@2018-06
               }
             }
             {
-              name: pipeline_runExports.name
+              name: 'Run exports for scope'
               type: 'ExecutePipeline'
               dependsOn: [
                 {
@@ -621,11 +621,11 @@ resource pipeline_listExports 'Microsoft.DataFactory/factories/pipelines@2018-06
 
 //------------------------------------------------------------------------------
 // Microsoft Cost Management scheduled exports
-// Triggered by pipeline_listExports.
+// Triggered by pipeline_getExports.
 // Triggers scheduled exports for the specified scopes which meet the schedule conditions.
 //------------------------------------------------------------------------------
 resource pipeline_runExports 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
-  name: '${safeExportContainerName}_run'
+  name: '${safeExportContainerName}_runexport'
   parent: dataFactory
   dependsOn: [
     dataset_config
