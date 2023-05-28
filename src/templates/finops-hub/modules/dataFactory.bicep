@@ -649,7 +649,7 @@ resource pipeline_backfill 'Microsoft.DataFactory/factories/pipelines@2018-06-01
               userProperties: []
               typeProperties: {
                 pipeline: {
-                  referenceName: pipeline_custom.name
+                  referenceName: pipeline_fill.name
                   type: 'PipelineReference'
                 }
                 waitOnCompletion: true
@@ -716,8 +716,8 @@ resource pipeline_backfill 'Microsoft.DataFactory/factories/pipelines@2018-06-01
 // Triggered by pipeline_backfill.
 // Creates and triggers cost management exports against all defined scopes for the specified date range.
 //------------------------------------------------------------------------------
-resource pipeline_custom 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
-  name: '${safeExportContainerName}_custom'
+resource pipeline_fill 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: '${safeExportContainerName}_fill'
   parent: dataFactory
   properties: {
     activities: [
