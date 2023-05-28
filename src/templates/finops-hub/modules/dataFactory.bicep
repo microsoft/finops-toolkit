@@ -363,10 +363,6 @@ resource trigger_configContainer 'Microsoft.DataFactory/factories/triggers@2018-
           referenceName: pipeline_setup.name
           type: 'PipelineReference'
         }
-        parameters: {
-          FolderName: '@triggerBody().folderPath'
-          FileName: '@triggerBody().fileName'
-        }
       }
     ]
     type: 'BlobEventsTrigger'
@@ -860,6 +856,7 @@ resource pipeline_custom 'Microsoft.DataFactory/factories/pipelines@2018-06-01' 
                   type: 'Expression'
                 }
                 method: 'POST'
+                body: '{}'
                 authentication: {
                   type: 'MSI'
                   resource: {
@@ -952,6 +949,7 @@ resource pipeline_custom 'Microsoft.DataFactory/factories/pipelines@2018-06-01' 
                   type: 'Expression'
                 }
                 method: 'POST'
+                body: '{}'
                 authentication: {
                   type: 'MSI'
                   resource: {
@@ -1041,11 +1039,11 @@ resource pipeline_get 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
             type: 'DatasetReference'
             parameters: {
               fileName: {
-                value: '@pipeline().parameters.fileName'
+                value: '@variables(\'fileName\')'
                 type: 'Expression'
               }
               folderName: {
-                value: '@pipeline().parameters.folderName'
+                value: '@variables(\'folderName\')'
                 type: 'Expression'
               }
             }
@@ -1085,14 +1083,14 @@ resource pipeline_get 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
               userProperties: []
               typeProperties: {
                 url: {
-                  value: '@{pipeline().parameters.ResourceManagementUri}@{item().scope}/providers/Microsoft.CostManagement/exports?api-version=2023-03-01'
+                  value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports?api-version=2023-03-01'
                   type: 'Expression'
                 }
                 method: 'GET'
                 authentication: {
                   type: 'MSI'
                   resource: {
-                    value: '@pipeline().parameters.ResourceManagementUri'
+                    value: '@variables(\'resourceManagementUri\')'
                     type: 'Expression'
                   }
                 }
@@ -1121,10 +1119,6 @@ resource pipeline_get 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
                     value: '@activity(\'Get exports for scope\').output.value'
                     type: 'Expression'
                   }
-                  ResourceManagementUri: {
-                    value: '@pipeline().parameters.ResourceManagementUri'
-                    type: 'Expression'
-                  }
                   Recurrence: {
                     value: '@pipeline().parameters.Recurrence'
                     type: 'Expression'
@@ -1138,29 +1132,27 @@ resource pipeline_get 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
     ]
     concurrency: 1
     parameters: {
-      FileName: {
-        type: 'string'
-        defaultValue: 'settings.json'
-      }
-      FolderName: {
-        type: 'string'
-        defaultValue: 'config'
-      }
-      StorageAccountId: {
-        type: 'string'
-        defaultValue: storageAccount.id
-      }
-      FinOpsHub: {
-        type: 'String'
-        defaultValue: hubName
-      }
-      ResourceManagementUri: {
-        type: 'string'
-        defaultValue: environment().resourceManager
-      }
       Recurrence: {
         type: 'string'
         defaultValue: 'Daily'
+      }
+    }
+    variables: {
+      fileName: {
+        type: 'String'
+        defaultValue: 'settings.json'
+      }
+      folderName: {
+        type: 'String'
+        defaultValue: 'config'
+      }
+      finOpsHub: {
+        type: 'String'
+        defaultValue: hubName
+      }
+      resourceManagementUri: {
+        type: 'String'
+        defaultValue: environment().resourceManager
       }
     }
   }
@@ -1198,7 +1190,7 @@ resource pipeline_run 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
               userProperties: []
               typeProperties: {
                 expression: {
-                  value: '@equals(tolower(item().properties.schedule.recurrence), tolower(pipeline().parameters.Recurrence))'
+                  value: '@equals(tolower(item().properties.schedule.recurrence), toLower(pipeline().parameters.Recurrence))'
                   type: 'Expression'
                 }
                 ifTrueActivities: [
@@ -1216,14 +1208,15 @@ resource pipeline_run 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
                     userProperties: []
                     typeProperties: {
                       url: {
-                        value: '@{pipeline().parameters.ResourceManagementUri}/@{item().id}/run?api-version=2023-03-01'
+                        value: '@{variables(\'resourceManagementUri\')}/@{item().id}/run?api-version=2023-03-01'
                         type: 'Expression'
                       }
                       method: 'POST'
+                      body: '{}'
                       authentication: {
                         type: 'MSI'
                         resource: {
-                          value: '@pipeline().parameters.ResourceManagementUri'
+                          value: '@variables(\'resourceManagementUri\')'
                           type: 'Expression'
                         }
                       }
@@ -1241,13 +1234,15 @@ resource pipeline_run 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
       ExportScopes: {
         type: 'array'
       }
-      ResourceManagementUri: {
-        type: 'string'
-        defaultValue: environment().resourceManager
-      }
       Recurrence: {
         type: 'string'
         defaultValue: 'Daily'
+      }
+    }
+    variables: {
+      resourceManagementUri: {
+        type: 'String'
+        defaultValue: environment().resourceManager
       }
     }
   }
