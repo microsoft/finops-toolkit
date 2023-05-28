@@ -1953,6 +1953,9 @@ resource startHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   dependsOn: [
     identityRoleAssignments
     trigger_exportContainer
+    trigger_configContainer
+    trigger_daily
+    trigger_monthly
   ]
   properties: {
     azPowerShellVersion: '8.0'
