@@ -15,7 +15,7 @@
     .PARAMETER Build
         Optional. Indicates whether the the Build-Toolkit command should be executed first. Default = false.
     .PARAMETER Commit
-        Indicates whether the changes should be committed to the Git repo. Default = false.
+        Optional. Indicates whether the changes should be committed to the Git repo. Default = false.
     .EXAMPLE
         ./Publish-Toolkit "finops-hub"
 
@@ -87,7 +87,7 @@ Get-ChildItem "$relDir/$Template*" -Directory `
         Write-Error "Template folder invalid. metadata.json required. Please ensure all required files are present. See src/<type>/README.md for details."
         return
     }
-    
+        
     # Find target repo
     $schema = (Get-Content "$templateDir/metadata.json" -Raw | ConvertFrom-Json).PSObject.Properties['$schema'].Value
     if ($schema.Contains('azure-quickstart-templates')) {
