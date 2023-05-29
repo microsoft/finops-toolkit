@@ -78,6 +78,8 @@ var autoStartRbacRoles = [
   '673868aa-7521-48a0-acc6-0f60742d39f5' // Data Factory contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#data-factory-contributor
 ]
 
+// Storage roles needed for ADF to create CM exports and process the output
+// Does not include roles assignments needed against the export scope
 var storageRbacRoles = [
   '17d1049b-9a84-46fb-8f53-869881c3d3ab' // Storage Account Contributor https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage-account-contributor
   'ba92f5b4-2d11-453d-a403-e96b0029c9fe' // Storage Blob Data Contributor https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor
@@ -109,7 +111,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
 
 // Create managed identity to start/stop triggers
 resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: '${dataFactoryName}_${exportContainerName}_extract_triggerManager'
+  name: '${dataFactory.name}_${exportContainerName}_extract_triggerManager'
   location: location
 }
 
@@ -140,7 +142,7 @@ resource pipelineIdentityRoleAssignments 'Microsoft.Authorization/roleAssignment
 
 // Stop hub triggers if they're already running
 resource stopHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: '${dataFactoryName}_stopHubTriggers'
+  name: '${dataFactory.name}_stopHubTriggers'
   location: location
   identity: {
     type: 'UserAssigned'
@@ -169,7 +171,7 @@ resource stopHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
       }
       {
         name: 'DataFactoryName'
-        value: dataFactoryName
+        value: dataFactory.name
       }
       {
         name: 'Triggers'
@@ -1946,7 +1948,7 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
 
 // Start hub triggers
 resource startHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: '${dataFactoryName}_startHubTriggers'
+  name: '${dataFactory.name}_startHubTriggers'
   location: location
   identity: {
     type: 'UserAssigned'
@@ -1978,7 +1980,7 @@ resource startHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
       }
       {
         name: 'DataFactoryName'
-        value: dataFactoryName
+        value: dataFactory.name
       }
       {
         name: 'Triggers'
