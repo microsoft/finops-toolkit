@@ -29,7 +29,7 @@ param convertToParquet bool = true
 param location string = resourceGroup().location
 
 @description('Optional. Remote storage account for ingestion dataset.')
-param hubStorageAccountUri string
+param remoteHubStorageUri string
 
 //------------------------------------------------------------------------------
 // Variables
@@ -96,6 +96,11 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
 // Get storage account instance
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
   name: storageAccountName
+}
+
+// Get keyvault instance
+resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
+  name: keyVaultName
 }
 
 //------------------------------------------------------------------------------
@@ -179,14 +184,14 @@ resource stopHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //------------------------------------------------------------------------------
 
 resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
-  name: keyVaultName
+  name: keyVault.name
   parent: dataFactory
   properties: {
     annotations: []
     parameters: {}
     type: 'AzureKeyVault'
     typeProperties: {
-      baseUrl: 'https://${keyVaultName}${environment().suffixes.keyvaultDns}/'
+      baseUrl: reference('Microsoft.KeyVault/vaults/${keyVault.name}', '2023-02-01').vaultUri
     }
   }
 }
@@ -204,15 +209,15 @@ resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedser
   }
 }
 
-resource linkedService_hubStorageAccount 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = if (!empty(hubStorageAccountUri)) {
-  name: 'hubStorageAccount'
+resource linkedService_remoteHubStorage 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = if (!empty(remoteHubStorageUri)) {
+  name: 'remoteHubStorage'
   parent: dataFactory
   properties: {
     annotations: []
     parameters: {}
     type: 'AzureBlobFS'
     typeProperties: {
-      url: hubStorageAccountUri
+      url: remoteHubStorageUri
       accountKey: {
         type: 'AzureKeyVaultSecret'
         store: {
@@ -297,7 +302,7 @@ resource dataset_ingestion 'Microsoft.DataFactory/factories/datasets@2018-06-01'
     )
     linkedServiceName: {
       parameters: {}
-      referenceName: empty(hubStorageAccountUri) ? linkedService_storageAccount.name : linkedService_hubStorageAccount.name
+      referenceName: empty(remoteHubStorageUri) ? linkedService_storageAccount.name : linkedService_remoteHubStorage.name
       type: 'LinkedServiceReference'
     }
   }
@@ -623,7 +628,7 @@ resource pipeline_backfill 'Microsoft.DataFactory/factories/pipelines@2018-06-01
               }
             }
             {
-              name: 'update export end date'
+              name: 'Update export end date'
               type: 'SetVariable'
               dependsOn: [
                 {
