@@ -49,7 +49,7 @@ var formattedAccessPolicies = [for accessPolicy in accessPolicies: {
 // Resources
 //==============================================================================
 
-resource keyVault 'Microsoft.KeyVault/vaults@2021-11-01-preview' = {
+resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = {
   name: keyVaultName
   location: location
   tags: tags
@@ -70,7 +70,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-11-01-preview' = {
   }
 }
 
-resource keyVault_accessPolicies 'Microsoft.KeyVault/vaults/accessPolicies@2021-06-01-preview' = if (!empty(accessPolicies)) {
+resource keyVault_accessPolicies 'Microsoft.KeyVault/vaults/accessPolicies@2023-02-01' = if (!empty(accessPolicies)) {
   name: 'add'
   parent: keyVault
   properties: {
@@ -78,7 +78,7 @@ resource keyVault_accessPolicies 'Microsoft.KeyVault/vaults/accessPolicies@2021-
   }
 }
 
-resource keyVault_secret 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = if (!empty(storageAccountKey)) {
+resource keyVault_secret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = if (!empty(storageAccountKey)) {
   name: keyVaultSecretName
   parent: keyVault
   properties: {
