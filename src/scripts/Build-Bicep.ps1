@@ -211,6 +211,7 @@ Get-ChildItem "$registryDir/$Module*" -Directory `
         | Where-Object { $_.Directory.Parent.Name -match "-$($srcDir.Name)$" } `
         | ForEach-Object {
             $testFile = $_
+            $targetModuleName = $testFile.Directory.Parent.Name
             $sb = [System.Text.StringBuilder]::new()
             $writingModule = $false
             
@@ -230,7 +231,8 @@ Get-ChildItem "$registryDir/$Module*" -Directory `
                 }
                 # If module, adjust the target destination
                 elseif ($line -match '^module\s*' -and $line -match '../main.bicep') {
-                    $line = $line -replace "../main.bicep", "br/public:cost/$($testFile.Directory.Parent.Name):1.0"
+                    $version = (Get-Content "$outDir/$targetModuleName/version.json" -Raw | ConvertFrom-Json).PSObject.Properties['version'].Value
+                    $line = $line -replace "../main.bicep", "br/public:cost/$($testFile.Directory.Parent.Name):$version"
                     [void]$sb.AppendLine($line)
                     $writingModule = $true
                 }
