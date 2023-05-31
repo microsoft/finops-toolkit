@@ -14,7 +14,6 @@ $script:localizedData = Import-LocalizedData -FileName 'FinOpsToolkit.strings.ps
 #>
 function New-Directory
 {
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '')]
     [CmdletBinding()]
     param
     (
@@ -34,7 +33,7 @@ function New-Directory
     .SYNOPSIS
         Saves a released version of the FinOps hub bicep template to local disk.
 
-    .PARAMETER Tag
+    .PARAMETER Version
         Version of the FinOps hub to download. Defaults to latest.
 
     .PARAMETER Destination
@@ -49,7 +48,7 @@ function New-Directory
         Downloads the latest version of FinOps hub template to current users' temp folder.
 
     .EXAMPLE
-        Save-FinOpsHubTemplate -Tag '1.0.0' -Destination 'C:\myHub' -Force
+        Save-FinOpsHubTemplate -Version '1.0.0' -Destination 'C:\myHub' -Force
 
         Downloads version 1.0.0 of FinOpsHub template to c:\myHub directory. It will overwrite an existing 1.0.0.zip file if it exists.
 #>
