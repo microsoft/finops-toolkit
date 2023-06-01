@@ -25,7 +25,7 @@ Function Add-FinOpsHubScope {
         [Parameter()]
         [string]
         [ValidateNotNullOrEmpty()]
-        $ResourceGroupName,    
+        $HubName,    
         [Parameter()]
         [String]
         [ValidateNotNullOrEmpty()]
@@ -48,26 +48,23 @@ Function Add-FinOpsHubScope {
 
     Write-Output ("{0}    Export Scope to add: {1}" -f (Get-Date), $Scope)
 
-    $resourceGroup = Get-AzResourceGroup -Name $ResourceGroupName -ErrorAction SilentlyContinue
-    if ($null -eq $resourceGroup) {
-        Write-Output ("{0}    Resource group {1} not found" -f (Get-Date), $ResourceGroupName)
-        Throw ("Resource group {0} not found" -f $ResourceGroupName)
+    $tagSuffix = "Microsoft.Cloud/hubs/$HubName"
+    $hubResource = Get-AzResource -ResourceType 'Microsoft.Storage/storageAccounts' -TagName 'cm-resource-parent' | Where-Object {$_.Tags['cm-resource-parent'].EndsWith($tagSuffix) }
+    if ($null -eq $hubResource) {
+        Write-Output ("{0}    Hub not found" -f (Get-Date))
+        Throw ("Hub not found")
     }
 
-    Write-Output ("{0}    Resource group {1} found" -f (Get-Date), $ResourceGroupName)
+    if ($hubResource.Count -gt 1) {
+        Write-Output ("{0}    Multiple hubs found" -f (Get-Date))
+        Throw ("Multiple hubs found")
+    }
 
-    $storageAccount = Get-AzStorageAccount -ResourceGroupName $ResourceGroupName -ErrorAction SilentlyContinue
+    $storageAccount = Get-AzStorageAccount -ResourceGroupName $hubResource.ResourceGroupName -Name $hubResource.Name -ErrorAction SilentlyContinue
     if ($null -eq $storageAccount) {
         Write-Output ("{0}    Storage account not found" -f (Get-Date))
         Throw ("Storage account not found")
     }
-
-    if ($storageAccount.Count -gt 1) {
-        Write-Output ("{0}    Multiple storage accounts found" -f (Get-Date))
-        Throw ("Multiple storage accounts found")
-    } # handle this better later on to select the correct one.
-
-    Write-Output ("{0}    Storage account found" -f (Get-Date))
 
     $storageContext = $StorageAccount.Context
     Get-AzStorageBlob -Container 'config' -Blob 'settings.json' -Context $storageContext | Get-AzStorageBlobContent -Force | Out-Null
