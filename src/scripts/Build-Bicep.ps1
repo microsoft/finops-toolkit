@@ -173,6 +173,9 @@ Get-ChildItem "$registryDir/$Module*" -Directory `
                     return $text
                 }
                 $scaffoldInputs = Get-Content $scaffoldInputsFile | ConvertFrom-Json
+                if (-not ($scaffoldInputs.version -match '^v?(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-(?:[\da-z\-]+)(?:\.(?:[\da-z\-]+))*)?$')) {
+                    Write-Error 'Version in scaffold.json must be in the format of "#.#" or "v#.#-x#.x".'
+                }
     
                 # Update metadata.json
                 $metadataFile = Join-Path $outDir $moduleName metadata.json
