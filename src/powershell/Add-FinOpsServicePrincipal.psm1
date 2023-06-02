@@ -41,9 +41,7 @@ function Add-FinOpsServicePrincipal {
       [Parameter(Mandatory=$false)]
       [string]$BillingAccountId,
       [Parameter(Mandatory=$false)]
-      [string]$DepartmentId,
-      [Parameter(Mandatory=$false)]
-      [string]$EnrollmentAccountId
+      [string]$DepartmentId
     )
 
     $azContext = get-azcontext
