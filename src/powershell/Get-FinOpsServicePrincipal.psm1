@@ -1,12 +1,6 @@
 <#
 .SYNOPSIS
-Grants EA level permissions to the specified service principal or managed identity
-
-.PARAMETER ObjectId
-The object id of the service principal or managed identity.
-
-.PARAMETER TenantId
-The Azure Active Directory tenant which contains the identity.
+Returns details about current role assignments for the specified enrollment/department
 
 .PARAMETER BillingScope
 Specifies whether to grant permissions at an enrollment or department level.
@@ -18,13 +12,12 @@ The billing Account ID (enrollment id) to grant permissions against.
 The department id to grant permissions against.
 
 .EXAMPLE
-Add-EAReader -principalId 00000000-0000-0000-0000-000000000000 -principalTenantId 00000000-0000-0000-0000-000000000000 -billingAccountId 1234567
 
-Add-FinOpsServicePrincipal -ObjectId 00000000-0000-0000-0000-000000000000 -TenantId 00000000-0000-0000-0000-000000000000 -BillingScope Enrollment -BillingAccountId 12345
-Grants EA Reader permissions to the specified service principal or managed identity
+Get-FinOpsServicePrincipal -BillingScope Enrollment -BillingAccountId $BillingAccountId | ft createdOn, createdByUserEmailAddress, roleDefinition, principalName, principalType, scopentId
+Returns all role assignments at for the enrollment scope
 
-Add-FinOpsServicePrincipal -ObjectId 00000000-0000-0000-0000-000000000000 -TenantId 00000000-0000-0000-0000-000000000000 -BillingScope Department -BillingAccountId 12345 -DepartmentId 67890
-Grants department reader permissions to the specified service principal or managed identity
+Get-FinOpsServicePrincipal -BillingScope Department -BillingAccountId $BillingAccountId -DepartmentId $DepartmentId | ft createdOn, createdByUserEmailAddress, roleDefinition, principalName, principalType, scopentId
+Returns all role assignments at for the department scope
 
 #>
 
@@ -111,7 +104,7 @@ function Get-FinOpsServicePrincipal {
       $roleAssignments = @()
       $results.value | foreach  {
         $roleAssignment = $_.properties
-        $roleAssignment | add-member -MemberType NoteProperty -Name 'roleDefinition' -Value (Get-RoleDefinition -roleDefinitionId $roleAssignment.roleDefinitionId)
+        
         $principalName = $roleAssignment.userEmailAddress
         if ($null -ne $roleAssignment.principalId) {
           $principal = Get-AzADServicePrincipal -Id $roleAssignment.principalId -erroraction silentlycontinue
@@ -121,22 +114,33 @@ function Get-FinOpsServicePrincipal {
           }
           else
           {
-            $principalType = 'missing or deleted'
-            $principalName = '------------------'
+            $principal = Get-AzADUser -ObjectId $roleAssignment.principalId -erroraction silentlycontinue
+            if ($null -ne $principal) {
+              $principalType = $roleAssignment.userAuthenticationType
+              $principalName = $principal.UserPrincipalName
+            }
+            else
+            { 
+              $principalType = 'NOT FOUND'
+              $principalName = 'NOT FOUND'
+            }
           }
         }
         elseif ($null -ne $roleAssignment.userEmailAddress) {
-          $principalType = 'User'
+          $principalType = $roleAssignment.userAuthenticationType
           $principalName = $roleAssignment.userEmailAddress
         }
         else {
           $principalType = 'undefined'
           $principalName = 'undefined'
         }
-        $roleAssignment | add-member -MemberType NoteProperty -Name 'principalName' -Value $principalName
-        $roleAssignment | add-member -MemberType NoteProperty -Name 'principalType' -Value $principalType
+        
         $roleAssignment | add-member -MemberType NoteProperty -Name 'name' -Value $_.name
         $roleAssignment | add-member -MemberType NoteProperty -Name 'id' -Value $_.id
+        $roleAssignment | add-member -MemberType NoteProperty -Name 'roleDefinition' -Value (Get-RoleDefinition -roleDefinitionId $roleAssignment.roleDefinitionId)
+        $roleAssignment | add-member -MemberType NoteProperty -Name 'principalName' -Value $principalName
+        $roleAssignment | add-member -MemberType NoteProperty -Name 'principalType' -Value $principalType
+
         $roleAssignments += $roleAssignment
       }
 
