@@ -29,10 +29,7 @@ $outDir = "../../release"
 Get-ChildItem ..\bicep-registry\$Template* -Directory -ErrorAction SilentlyContinue `
 | Where-Object { $_.Name -ne '.scaffold' }
 | ForEach-Object {
-    $module = $_
-    Write-Host "Building Registry module $($module.Name)..."
-    ./Build-Bicep $module
-    Write-Host ''
+    ./Build-Bicep $_.Name
 }
 
 # Generate deployment parameters file from main.bicep in the target directory
