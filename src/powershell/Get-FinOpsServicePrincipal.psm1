@@ -97,7 +97,7 @@ function Get-FinOpsServicePrincipal {
         throw "Invalid BillingScope: $BillingScope"
       }
     }
-    $restUri
+    
     $azProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
     $profileClient = New-Object -TypeName Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient -ArgumentList ($azProfile)
     $token = $profileClient.AcquireAccessToken($azContext.Subscription.TenantId)
