@@ -2,8 +2,8 @@
 
 The FinOps toolkit includes multiple ARM templates. Prerequisites, parameters, and post-deployment setup steps differ per template. Please refer to the template details for more information:
 
-- [FinOps hub](./finops-hub/template.md)
-- [Optimization workbook](./optimization-workbook)
+- [FinOps hub](../finops-hub/template.md)
+- [Optimization workbook](../optimization-workbook)
 
 Note Bicep Registry modules can be referenced directly from your Bicep code and are not deployed using the steps below.
 
@@ -70,7 +70,7 @@ We do not currently have any subscription or management group templates.
 
 To deploy a quickstart template:
 
-1. Open the [FinOps hub template](https://github.com/Azure/azure-quickstart-templates/tree/master/quickstarts/finops-hub).
+1. Open the [FinOps hub template](https://github.com/Azure/azure-quickstart-templates/tree/master/quickstarts/microsoft.costmanagement/finops-hub).
 2. Select the **Deploy to Azure** button towards the top of the page.
 3. Complete [steps 4+](#edit-params) from the custom deployment steps above.
 
