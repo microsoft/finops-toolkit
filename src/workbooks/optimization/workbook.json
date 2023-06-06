@@ -534,11 +534,27 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "resources \r\n| where type =~ 'microsoft.compute/disks' and managedBy == \"\"\r\n| where resourceGroup in ({ResourceGroup})\r\n| extend diskState = tostring(properties.diskState)\r\n| where managedBy == \"\" and diskState != 'ActiveSAS'\r\nor diskState == 'Unattached' and diskState != 'ActiveSAS'\r\n| extend DiskId=id, DiskName=name, SKUName=sku.name, SKUTier=sku.tier, DiskSizeGB=tostring(properties.diskSizeGB), Location=location, TimeCreated=tostring(properties.timeCreated), QuickFix=id\r\n| order by DiskId asc \r\n| project DiskId,DiskName, DiskSizeGB, SKUName, SKUTier, resourceGroup, QuickFix, Location, TimeCreated, subscriptionId\r\n",
+                          "query": "resources \r\n| where type =~ 'microsoft.compute/disks' and managedBy == \"\"\r\n| where resourceGroup in ({ResourceGroup})\r\n| extend diskState = tostring(properties.diskState)\r\n| where managedBy == \"\" and diskState != 'ActiveSAS'\r\nor diskState == 'Unattached' and diskState != 'ActiveSAS'\r\n| extend DiskId=id, DiskIDfull=id, DiskName=name, SKUName=sku.name, SKUTier=sku.tier, DiskSizeGB=tostring(properties.diskSizeGB), Location=location, TimeCreated=tostring(properties.timeCreated), QuickFix=id\r\n| order by DiskId asc \r\n| project DiskId, DiskIDfull, DiskName, DiskSizeGB, SKUName, SKUTier, resourceGroup, QuickFix, Location, TimeCreated, subscriptionId\r\n",
                           "size": 0,
                           "title": "Unattached disks",
                           "noDataMessage": "There isn't any unnatached disks!",
                           "noDataMessageStyle": 3,
+                          "exportedParameters": [
+                            {
+                              "fieldName": "DiskIDfull",
+                              "parameterName": "DiskID"
+                            },
+                            {
+                              "fieldName": "DiskName",
+                              "parameterName": "DiskName",
+                              "parameterType": 1
+                            },
+                            {
+                              "fieldName": "resourceGroup",
+                              "parameterName": "ResourceGroup",
+                              "parameterType": 1
+                            }
+                          ],
                           "showExportToExcel": true,
                           "queryType": 1,
                           "resourceType": "microsoft.resourcegraph/resources",
@@ -549,18 +565,14 @@
                           "gridSettings": {
                             "formatters": [
                               {
-                                "columnMatch": "subscriptionId",
-                                "formatter": 15,
-                                "formatOptions": {
-                                  "linkTarget": null,
-                                  "showIcon": true
-                                }
+                                "columnMatch": "DiskIDfull",
+                                "formatter": 5
                               },
                               {
                                 "columnMatch": "QuickFix",
                                 "formatter": 7,
                                 "formatOptions": {
-                                  "linkTarget": "ArmTemplate",
+                                  "linkTarget": "ArmAction",
                                   "linkLabel": "Remove Idle Disk",
                                   "linkIsContextBlade": true,
                                   "templateRunContext": {
@@ -582,7 +594,30 @@
                                     "description": "# Description\r\nThis ARM Template will remove the selected disk.\r\n\r\n# Actions:\r\n- Click \"Remove Idle Disk\" to remove the selected item.\r\n- Click View Template to examine the template and parameters used during deployment\r\n\r\n\r\n\r\n",
                                     "runLabelSource": "static",
                                     "runLabel": "Remove Idle Disk"
+                                  },
+                                  "armActionContext": {
+                                    "path": "/{DiskID}?api-version=2021-04-01",
+                                    "headers": [],
+                                    "params": [
+                                      {
+                                        "key": "DiskID",
+                                        "value": ""
+                                      }
+                                    ],
+                                    "httpMethod": "DELETE",
+                                    "title": "Remove Idle Disks",
+                                    "description": "# Disk Deletion Warning: {DiskName}\r\n\r\n**Attention!**\r\n\r\nThis action will permanently remove the disk with the name **{DiskName}**. Please ensure that this disk is not currently in use and that you are deleting the correct disk.\r\n\r\n**Resource Details:**\r\n\r\n- Disk Name: {DiskName}\r\n- Resource Group: {ResourceGroup}\r\n\r\n### Required RBAC Permissions\r\n\r\nTo perform this action, you need to have **Contributor** permissions on the Resource Group where the disk is located.\r\n\r\nPlease review the information carefully before proceeding with the deletion.\r\n",
+                                    "actionName": "Removing Idle Dsk",
+                                    "runLabel": "I understand, remove disk {DiskName}"
                                   }
+                                }
+                              },
+                              {
+                                "columnMatch": "subscriptionId",
+                                "formatter": 15,
+                                "formatOptions": {
+                                  "linkTarget": null,
+                                  "showIcon": true
                                 }
                               }
                             ],
@@ -694,23 +729,6 @@
               ]
             },
             "name": "OldSnapshots-RG"
-          },
-          {
-            "type": 3,
-            "content": {
-              "version": "KqlItem/1.0",
-              "query": "resources\r\n| where type == 'microsoft.compute/snapshots'\r\n| where resourceGroup in ({ResourceGroup})\r\n| extend SnapshotId=id, name, resourceGroup, SnapshotLocation=location, TimeCreated=tostring(properties.timeCreated), SourceDisk=tostring(properties.creationData.sourceResourceId),subscriptionId\r\n| project SnapshotId=id, name, resourceGroup, SnapshotLocation, TimeCreated=tostring(properties.timeCreated), SourceDisk=tostring(properties.creationData.sourceResourceId), subscriptionId \r\n| join kind=leftouter  (\r\nresources\r\n| where type =~ 'microsoft.compute/disks'\r\n| extend SourceDisk=id ) on SourceDisk\r\n| where isempty(managedBy)",
-              "size": 0,
-              "title": "Snapshots of disks that doesn't exist anymore",
-              "noDataMessage": "There aren't any idle disk snapshot",
-              "noDataMessageStyle": 3,
-              "queryType": 1,
-              "resourceType": "microsoft.resourcegraph/resources",
-              "crossComponentResources": [
-                "{Subscription}"
-              ]
-            },
-            "name": "Idle Snapshots - RG"
           }
         ]
       },
@@ -928,11 +946,18 @@
           }
         ]
       },
-      "conditionalVisibility": {
-        "parameterName": "SelectedTab",
-        "comparison": "isEqualTo",
-        "value": "Storage"
-      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "SelectedTab",
+          "comparison": "isEqualTo",
+          "value": "Storage"
+        },
+        {
+          "parameterName": "FilterBy",
+          "comparison": "isEqualTo",
+          "value": "Tags"
+        }
+      ],
       "name": "StorageGroup - Copy",
       "styleSettings": {
         "showBorder": true
@@ -1490,7 +1515,7 @@
                   },
                   "queryType": 1,
                   "resourceType": "microsoft.resourcegraph/resources",
-                  "value": "uksouth"
+                  "value": null
                 },
                 {
                   "id": "3ee18b0f-2f7b-4a6a-9d1c-526505c7eea2",
@@ -1620,11 +1645,13 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "ResourceContainers | where type =~ 'Microsoft.Resources/subscriptions' | where tostring (properties.subscriptionPolicies.quotaId) !has \"MSDNDevTest_2014-09-01\"  | extend SubscriptionName=name \r\n| join (\r\nresources \r\n| where resourceGroup in ({ResourceGroup})\r\n| where type =~ 'microsoft.compute/virtualmachines' or type =~ 'microsoft.compute/virtualMachineScaleSets'\r\n| where tostring(properties.storageProfile.osDisk.osType) == 'Windows' or tostring(properties.virtualMachineProfile.storageProfile.osDisk.osType) == 'Windows'\r\n| where tostring(properties.['licenseType']) !has 'Windows' and tostring(properties.virtualMachineProfile.['licenseType']) !has 'Windows'\r\n| extend WindowsId=id, VMName=name, VMLocation=location, VMRG=resourceGroup, OSType=tostring(properties.storageProfile.imageReference.offer), OsVersion = tostring(properties.storageProfile.imageReference.sku), VMSize=tostring (properties.hardwareProfile.vmSize), LicenseType = tostring(properties.['licenseType']), VMSSize=tostring(sku.name)\r\n    ) on subscriptionId \r\n| order by type asc \r\n| project WindowsId,VMName,VMRG,VMSize, VMSSize, VMLocation,OSType, OsVersion,LicenseType, subscriptionId",
+                          "query": "ResourceContainers | where type =~ 'Microsoft.Resources/subscriptions' | where tostring (properties.subscriptionPolicies.quotaId) !has \"MSDNDevTest_2014-09-01\"  | extend SubscriptionName=name \r\n| join (\r\nresources \r\n| where resourceGroup in ({ResourceGroup})\r\n| where type =~ 'microsoft.compute/virtualmachines' or type =~ 'microsoft.compute/virtualMachineScaleSets'\r\n| where tostring(properties.storageProfile.osDisk.osType) == 'Windows' or tostring(properties.virtualMachineProfile.storageProfile.osDisk.osType) == 'Windows'\r\n| where tostring(properties.['licenseType']) !has 'Windows' and tostring(properties.virtualMachineProfile.['licenseType']) !has 'Windows'\r\n| extend WindowsId=id, VMName=name, VMLocation=location, VMRG=resourceGroup, OSType=tostring(properties.storageProfile.imageReference.offer), OsVersion = tostring(properties.storageProfile.imageReference.sku), VMSize=tostring (properties.hardwareProfile.vmSize), LicenseType = tostring(properties.['licenseType']), VMSSize=tostring(sku.name), QuickFix=id\r\n    ) on subscriptionId \r\n| order by type asc \r\n| project WindowsId,VMName,VMRG,VMSize, VMSSize, VMLocation,OSType, OsVersion,LicenseType, subscriptionId,QuickFix",
                           "size": 0,
                           "title": "AHUB Disabled",
                           "noDataMessage": "All of your VMs have AHUB enabled.",
                           "noDataMessageStyle": 3,
+                          "exportFieldName": "WindowsId",
+                          "exportParameterName": "VMID",
                           "queryType": 1,
                           "resourceType": "microsoft.resourcegraph/resources",
                           "crossComponentResources": [
@@ -1638,6 +1665,23 @@
                                 "formatOptions": {
                                   "linkTarget": null,
                                   "showIcon": true
+                                }
+                              },
+                              {
+                                "columnMatch": "QuickFix",
+                                "formatter": 7,
+                                "formatOptions": {
+                                  "linkTarget": "ArmAction",
+                                  "linkLabel": "Quick Fix",
+                                  "linkIsContextBlade": true,
+                                  "armActionContext": {
+                                    "path": "/{VMID}?api-version=2023-03-01",
+                                    "headers": [],
+                                    "params": [],
+                                    "body": "{\r\n  \"properties\": {\r\n    \"licenseType\": \"Windows_Server\"\r\n  }\r\n}\r\n\r\n",
+                                    "httpMethod": "PATCH",
+                                    "description": "# Actions can potentially modify resources.\n## Please use caution and include a confirmation message in this description when authoring this command."
+                                  }
                                 }
                               }
                             ]
@@ -1939,7 +1983,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"50d79765-aad4-437e-a90b-8cc7865e7081\",\"mergeType\":\"inner\",\"leftTable\":\"query - 0\",\"rightTable\":\"query - Get VM vCPU\",\"leftColumn\":\"VMSize\",\"rightColumn\":\"Name\"}],\"projectRename\":[{\"originalName\":\"[Added column]\",\"mergedName\":\"Prioritize AHUB?\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"vCPUs\",\"operator\":\">=\",\"rightValType\":\"static\",\"rightVal\":\"8\",\"resultValType\":\"expression\",\"resultVal\":\"\\\"High Priority\\\"\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"\\\"Low Priority\\\"\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Consumed Cores per VM\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"vCPUs\",\"operator\":\"<=\",\"rightValType\":\"static\",\"rightVal\":\"8\",\"resultValType\":\"expression\",\"resultVal\":\"8\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"vCPUs\\\"]\"}}]},{\"originalName\":\"[query - 0].WindowsId\",\"mergedName\":\"WindowsId\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].VMName\",\"mergedName\":\"VMName\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].VMRG\",\"mergedName\":\"VMRG\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].VMSize\",\"mergedName\":\"VMSize\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].VMSSize\",\"mergedName\":\"VMSSize\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].VMLocation\",\"mergedName\":\"VMLocation\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].OSType\",\"mergedName\":\"OSType\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].OsVersion\",\"mergedName\":\"OsVersion\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].LicenseType\",\"mergedName\":\"LicenseType\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - Get VM vCPU].Name\",\"mergedName\":\"Name\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - Get VM vCPU].vCPUs\",\"mergedName\":\"vCPUs\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - Get VM vCPU].MemoryGB\",\"mergedName\":\"MemoryGB\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - Get VM vCPU].MaxNetworkInterfaces\",\"mergedName\":\"MaxNetworkInterfaces\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - Get VM vCPU].HyperVGenerations\",\"mergedName\":\"HyperVGenerations\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - Get VM vCPU].vCPUsPerCore\",\"mergedName\":\"vCPUsPerCore\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].subscriptionId\",\"mergedName\":\"subscriptionId\",\"fromId\":\"unknown\"},{\"originalName\":\"[WindowsAHUBEnabled].WindowsId\"},{\"originalName\":\"[WindowsAHUBEnabled].VMRG\"},{\"originalName\":\"[WindowsAHUBEnabled].VMLocation\"},{\"originalName\":\"[WindowsAHUBEnabled].OSType\"},{\"originalName\":\"[WindowsAHUBEnabled].OsVersion\"},{\"originalName\":\"[WindowsAHUBEnabled].LicenseType\"},{\"originalName\":\"[query - Get VM vCPU].Name\"},{\"originalName\":\"[query - Get VM vCPU].MemoryGB\"},{\"originalName\":\"[query - Get VM vCPU].MaxNetworkInterfaces\"},{\"originalName\":\"[query - Get VM vCPU].HyperVGenerations\"},{\"originalName\":\"[query - Get VM vCPU].vCPUsPerCore\"},{\"originalName\":\"[WindowsAHUBEnabled].VMSSize\"}]}",
+                          "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"50d79765-aad4-437e-a90b-8cc7865e7081\",\"mergeType\":\"inner\",\"leftTable\":\"query - 0\",\"rightTable\":\"query - Get VM vCPU\",\"leftColumn\":\"VMSize\",\"rightColumn\":\"Name\"}],\"projectRename\":[{\"originalName\":\"[Added column]\",\"mergedName\":\"Prioritize AHUB?\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"vCPUs\",\"operator\":\">=\",\"rightValType\":\"static\",\"rightVal\":\"8\",\"resultValType\":\"expression\",\"resultVal\":\"\\\"High Priority\\\"\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"\\\"Low Priority\\\"\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Consumed Cores per VM\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"vCPUs\",\"operator\":\"<=\",\"rightValType\":\"static\",\"rightVal\":\"8\",\"resultValType\":\"expression\",\"resultVal\":\"8\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"vCPUs\\\"]\"}}]},{\"originalName\":\"[query - 0].WindowsId\",\"mergedName\":\"WindowsId\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].VMName\",\"mergedName\":\"VMName\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].VMRG\",\"mergedName\":\"VMRG\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].VMSize\",\"mergedName\":\"VMSize\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].VMSSize\",\"mergedName\":\"VMSSize\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].VMLocation\",\"mergedName\":\"VMLocation\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].OSType\",\"mergedName\":\"OSType\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].OsVersion\",\"mergedName\":\"OsVersion\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].LicenseType\",\"mergedName\":\"LicenseType\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - Get VM vCPU].Name\",\"mergedName\":\"Name\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - Get VM vCPU].vCPUs\",\"mergedName\":\"vCPUs\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - Get VM vCPU].MemoryGB\",\"mergedName\":\"MemoryGB\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - Get VM vCPU].MaxNetworkInterfaces\",\"mergedName\":\"MaxNetworkInterfaces\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - Get VM vCPU].HyperVGenerations\",\"mergedName\":\"HyperVGenerations\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - Get VM vCPU].vCPUsPerCore\",\"mergedName\":\"vCPUsPerCore\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].subscriptionId\",\"mergedName\":\"subscriptionId\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - 0].QuickFix\",\"mergedName\":\"QuickFix\",\"fromId\":\"unknown\"},{\"originalName\":\"[WindowsAHUBEnabled].WindowsId\"},{\"originalName\":\"[WindowsAHUBEnabled].VMRG\"},{\"originalName\":\"[WindowsAHUBEnabled].VMLocation\"},{\"originalName\":\"[WindowsAHUBEnabled].OSType\"},{\"originalName\":\"[WindowsAHUBEnabled].OsVersion\"},{\"originalName\":\"[WindowsAHUBEnabled].LicenseType\"},{\"originalName\":\"[query - Get VM vCPU].Name\"},{\"originalName\":\"[query - Get VM vCPU].MemoryGB\"},{\"originalName\":\"[query - Get VM vCPU].MaxNetworkInterfaces\"},{\"originalName\":\"[query - Get VM vCPU].HyperVGenerations\"},{\"originalName\":\"[query - Get VM vCPU].vCPUsPerCore\"},{\"originalName\":\"[WindowsAHUBEnabled].VMSSize\"}]}",
                           "size": 0,
                           "title": "Cores not enabled per AHUB Priority",
                           "noDataMessage": "All of your VMs have AHUB enabled",
@@ -2021,7 +2065,8 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\":\"Yes\"},\r\n    {\"value\":\"No\", \"selected\":true}\r\n]\r\n\r\n"
+                              "jsonData": "[\r\n    {\"value\":\"Yes\"},\r\n    {\"value\":\"No\", \"selected\":true}\r\n]\r\n\r\n",
+                              "value": "Yes"
                             },
                             {
                               "id": "20a00706-a89b-42aa-8dea-9c44c93e8014",
@@ -2060,11 +2105,32 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"50d79765-aad4-437e-a90b-8cc7865e7081\",\"mergeType\":\"inner\",\"leftTable\":\"query - 0\",\"rightTable\":\"query - Get VM vCPU\",\"leftColumn\":\"VMSize\",\"rightColumn\":\"Name\"}],\"projectRename\":[{\"originalName\":\"[query - 0].WindowsId\",\"mergedName\":\"VM Name\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].VMRG\",\"mergedName\":\"Resource Group\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].VMSize\",\"mergedName\":\"SKU\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - Get VM vCPU].vCPUs\",\"mergedName\":\"vCPUs\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[Added column]\",\"mergedName\":\"Prioritize AHUB?\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"vCPUs\",\"operator\":\">=\",\"rightValType\":\"static\",\"rightVal\":\"8\",\"resultValType\":\"static\",\"resultVal\":\"High Priority\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"static\",\"resultVal\":\"Low Priority\"}}]},{\"originalName\":\"[query - 0].LicenseType\",\"mergedName\":\"License Type\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].VMLocation\",\"mergedName\":\"Location\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].OSType\",\"mergedName\":\"OS Type\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].OsVersion\",\"mergedName\":\"OS Version\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].subscriptionId\",\"mergedName\":\"subscriptionId\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - 0].subscriptionId\",\"mergedName\":\"subscriptionId\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - 0].VMName\"},{\"originalName\":\"[query - 0].VMSSize\"},{\"originalName\":\"[query - Get VM vCPU].Name\"},{\"originalName\":\"[query - Get VM vCPU].MemoryGB\"},{\"originalName\":\"[query - Get VM vCPU].MaxNetworkInterfaces\"},{\"originalName\":\"[query - Get VM vCPU].HyperVGenerations\"},{\"originalName\":\"[query - Get VM vCPU].vCPUsPerCore\"}]}",
+                          "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"50d79765-aad4-437e-a90b-8cc7865e7081\",\"mergeType\":\"inner\",\"leftTable\":\"query - 0\",\"rightTable\":\"query - Get VM vCPU\",\"leftColumn\":\"VMSize\",\"rightColumn\":\"Name\"}],\"projectRename\":[{\"originalName\":\"[query - 0].WindowsId\",\"mergedName\":\"VM Name\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].VMRG\",\"mergedName\":\"Resource Group\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].VMSize\",\"mergedName\":\"SKU\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - Get VM vCPU].vCPUs\",\"mergedName\":\"vCPUs\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[Added column]\",\"mergedName\":\"Prioritize AHUB?\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"vCPUs\",\"operator\":\">=\",\"rightValType\":\"static\",\"rightVal\":\"8\",\"resultValType\":\"static\",\"resultVal\":\"High Priority\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"static\",\"resultVal\":\"Low Priority\"}}]},{\"originalName\":\"[query - 0].QuickFix\",\"mergedName\":\"QuickFix\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - 0].VMLocation\",\"mergedName\":\"Location\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].OSType\",\"mergedName\":\"OS Type\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].OsVersion\",\"mergedName\":\"OS Version\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].subscriptionId\",\"mergedName\":\"subscriptionId\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - 0].subscriptionId\",\"mergedName\":\"subscriptionId\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - 0].VMName\",\"mergedName\":\"VMName\",\"fromId\":\"50d79765-aad4-437e-a90b-8cc7865e7081\"},{\"originalName\":\"[query - 0].VMSSize\"},{\"originalName\":\"[query - 0].LicenseType\"},{\"originalName\":\"[query - Get VM vCPU].Name\"},{\"originalName\":\"[query - Get VM vCPU].MemoryGB\"},{\"originalName\":\"[query - Get VM vCPU].MaxNetworkInterfaces\"},{\"originalName\":\"[query - Get VM vCPU].HyperVGenerations\"},{\"originalName\":\"[query - Get VM vCPU].vCPUsPerCore\"}]}",
                           "size": 0,
                           "title": "VMs without AHUB",
                           "noDataMessage": "All of your VMs have AHUB enabled",
                           "noDataMessageStyle": 3,
+                          "exportedParameters": [
+                            {
+                              "fieldName": "VM Name",
+                              "parameterName": "VMID"
+                            },
+                            {
+                              "fieldName": "Resource Group",
+                              "parameterName": "ResourceGroup",
+                              "parameterType": 1
+                            },
+                            {
+                              "fieldName": "Prioritize AHUB?",
+                              "parameterName": "AHUBPriority",
+                              "parameterType": 1
+                            },
+                            {
+                              "fieldName": "VMName",
+                              "parameterName": "VMName",
+                              "parameterType": 1
+                            }
+                          ],
                           "showExportToExcel": true,
                           "queryType": 7,
                           "gridSettings": {
@@ -2111,6 +2177,30 @@
                                     "style": "decimal"
                                   }
                                 }
+                              },
+                              {
+                                "columnMatch": "QuickFix",
+                                "formatter": 7,
+                                "formatOptions": {
+                                  "linkTarget": "ArmAction",
+                                  "linkLabel": "Apply Hybrid Benefit",
+                                  "linkIsContextBlade": true,
+                                  "armActionContext": {
+                                    "path": "/{VMID}?api-version=2023-03-01",
+                                    "headers": [],
+                                    "params": [],
+                                    "body": "{\r\n  \"properties\": {\r\n    \"licenseType\": \"Windows_Server\"\r\n  }\r\n}\r\n\r\n",
+                                    "httpMethod": "PATCH",
+                                    "title": "Apply Hybrid Benefit to VM {VMName}",
+                                    "description": "# Windows Hybrid Benefit Application Information: VM \"{VMName}\"\n\n**Attention!**\n\nThis action will apply the Windows Hybrid Benefit to the virtual machine with the name **{VMName}**. Please ensure that you are applying the benefit to the correct VM.\n\n**Resource Details:**\n\n- VM Name: {VMName}\n- Resource Group: {ResourceGroup}\n- Prioritize AHUB: {AHUBPriority}\n\n### Required RBAC Permissions\n\nTo perform this action, you need to have **Contributor** permissions on the Resource Group where the VM is located.\n\nPlease review the information carefully before proceeding with applying the Windows Hybrid Benefit.\n",
+                                    "actionName": "Applying Hybrid benefit to VM {VMName}",
+                                    "runLabel": "Apply Hybrid Benefit to VM: \"{VMName}\""
+                                  }
+                                }
+                              },
+                              {
+                                "columnMatch": "VMName",
+                                "formatter": 5
                               }
                             ],
                             "hierarchySettings": {
