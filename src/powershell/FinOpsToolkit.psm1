@@ -39,18 +39,15 @@ function New-Directory
     .PARAMETER Destination
         Path to store the download. Defaults to env:temp.
 
-    .PARAMETER Force
-        Optional. Will overwrite an existing file.
-
     .EXAMPLE
         Save-FinOpsHubTemplate
 
         Downloads the latest version of FinOps hub template to current users' temp folder.
 
     .EXAMPLE
-        Save-FinOpsHubTemplate -Version '1.0.0' -Destination 'C:\myHub' -Force
+        Save-FinOpsHubTemplate -Version '1.0.0' -Destination 'C:\myHub'
 
-        Downloads version 1.0.0 of FinOpsHub template to c:\myHub directory. It will overwrite an existing 1.0.0.zip file if it exists.
+        Downloads version 1.0.0 of FinOpsHub template to c:\myHub directory.
 #>
 function Save-FinOpsHubTemplate
 {
@@ -67,56 +64,208 @@ function Save-FinOpsHubTemplate
 
         [Parameter()]
         [string]
-        $Destination = $env:temp,
-
-        [Parameter()]
-        [switch]
-        $Force
+        $Destination = $env:temp
     )
 
-    New-Directory -Path $Destination
-    $releases = Get-FinOpsToolkitVersion -Latest:$($Version -eq 'Latest') -Preview:$Preview
+    $progress = $ProgressPreference
+    $ProgressPreference = 'SilentlyContinue'
+    try
+    {
+        New-Directory -Path $Destination
+        $releases = Get-FinOpsToolkitVersion -Latest:$($Version -eq 'Latest') -Preview:$Preview
 
-    if ($Version -eq 'Latest')
-    {
-        $release = $releases | Select-Object -First 1
-        Write-Verbose -Message ($script:localizedData.FoundLatestRelease -f $release.Version)
-    }
-    else
-    {
-        $release = $releases | Where-Object -FilterScript {$_.Version -eq $Version}
-    }
-
-    foreach ($asset in $release.Assets)
-    {
-        Write-Verbose -Message ($script:localizedData.FoundAsset -f $asset.Name)
-        if ([System.IO.Path]::GetExtension($asset.Name) -eq '.nupkg')
+        if ($Version -eq 'Latest')
         {
-            $saveFileName = $asset.Name -replace '.nupkg', '.zip'
+            $release = $releases | Select-Object -First 1
         }
         else
         {
-            $saveFileName = $asset.Name
+            $release = $releases | Where-Object -FilterScript {$_.Version -eq $Version}
         }
 
-        $saveFilePath = Join-Path -Path $Destination -ChildPath $saveFileName
-        if ($Force -and (Test-Path -Path $saveFilePath))
+        foreach ($asset in $release.Assets)
         {
-            Remove-Item -Path $saveFilePath
-        }
+            Write-Verbose -Message ($script:localizedData.FoundAsset -f $asset.Name)
+            if ([System.IO.Path]::GetExtension($asset.Name) -eq '.nupkg')
+            {
+                $saveFileName = $asset.Name -replace '.nupkg', '.zip'
+            }
+            else
+            {
+                $saveFileName = $asset.Name
+            }
 
-        $null = Invoke-Webrequest -Uri $asset.Url -OutFile $saveFilePath -Verbose:$false
-        if ([System.IO.Path]::GetExtension($saveFilePath) -eq '.zip')
-        {
-            Write-Verbose -Message ($script:localizedData.ExpandingZip -f $saveFilePath)
-            Expand-Archive -Path $saveFilePath -DestinationPath ($saveFilePath -replace '.zip', '')
-            Remove-Item -Path $saveFilePath -Recurse -Force
+            $saveFilePath = Join-Path -Path $Destination -ChildPath $saveFileName
+            if (Test-Path -Path $saveFilePath)
+            {
+                Remove-Item -Path $saveFilePath -Recurse -Force
+            }
+
+            $null = Invoke-Webrequest -Uri $asset.Url -OutFile $saveFilePath -Verbose:$false
+            if ([System.IO.Path]::GetExtension($saveFilePath) -eq '.zip')
+            {
+                Write-Verbose -Message ($script:localizedData.ExpandingZip -f $saveFilePath)
+                Expand-Archive -Path $saveFilePath -DestinationPath ($saveFilePath -replace '.zip', '')
+                Remove-Item -Path $saveFilePath -Recurse -Force
+            }
         }
+    }
+    catch
+    {
+        throw $_.Exception
+    }
+    finally
+    {
+        $ProgressPreference = $progress
     }
 }
 #endregion Private functions
 
 #region Public functions
+<#
+    .SYNOPSIS
+        Deploys a FinOps hub instance.
+
+    .PARAMETER Name
+        Name of the FinOps hub instance.
+
+    .PARAMETER ResourceGroup
+        Name of the resource group to deploy to. Will be created if it doesn't exist.
+
+    .PARAMETER Location
+        Azure location to execute the deployment from.
+
+    .PARAMETER Version
+        Optional. Version of FinOps hub template to use. Defaults to latest.
+
+    .PARAMETER Preview
+        Optional. Deploy a pre-release version of FinOps Hub.
+
+    .PARAMETER StorageSku
+        Optional. Storage account SKU. Premium_LRS = Lowest cost, Premium_ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage.
+
+    .PARAMETER Tags
+        Optional. Tags for all resources.
+
+    .PARAMETER ExportScopes
+        Optional. List of Cost Management scope IDs to create exports for.
+
+    .EXAMPLE
+        Deploy-FinOpsHub -Name MyHub -ResourceGroup MyExistingResourceGroup -Location westus
+        
+        Deploys a new FinOps hub instance named MyHub to an existing resource group named MyExistingResourceGroup.
+    
+    .EXAMPLE
+        Deploy-FinOpsHub -Name MyHub -Location westus -Version 0.0.1
+        
+        Deploys a new FinOps hub instance named MyHub using version 0.0.1 of the template.
+#>
+function Deploy-FinOpsHub
+{
+    [CmdletBinding(SupportsShouldProcess)]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [string]
+        $Name,
+
+        [Parameter(Mandatory = $true)]
+        [string]
+        $ResourceGroup,
+
+        [Parameter()]
+        [string]
+        $Location = 'westus',
+
+        [Parameter()]
+        [string]
+        $Version = 'latest',
+
+        [Parameter()]
+        [switch]
+        $Preview,
+
+        [Parameter()]
+        [ValidateSet('Premium_LRS', 'Premium_ZRS')]
+        [string]
+        $StorageSku,
+
+        [Parameter()]
+        [hashtable]
+        $Tags,
+
+        [Parameter()]
+        [array]
+        $ExportScopes
+    )
+
+    $resourceGroupObject = Get-AzResourceGroup -Name $ResourceGroup -ErrorAction 'SilentlyContinue'
+    if (-not $resourceGroupObject)
+    {
+        if ($PSCmdlet.ShouldProcess($ResourceGroup, 'CreateResourceGroup'))
+        {
+            try
+            {
+                $resourceGroupObject = New-AzResourceGroup -Name $ResourceGroup -Location $Location
+            }
+            catch
+            {
+                throw $_.Exception
+            }
+        }
+    }
+
+    $toolkitPath = Join-Path $env:temp -ChildPath 'FinOps'
+    if ($PSCmdlet.ShouldProcess($toolkitPath, 'CreateDirectory'))
+    {
+        New-Directory -Path $toolkitPath
+    }
+
+    if ($PSCmdlet.ShouldProcess($Version, 'DownloadTemplate'))
+    {
+        Save-FinOpsHubTemplate -Version $Version -Preview:$Preview -Destination $toolkitPath
+        $toolkitFile = Get-ChildItem -Path $toolkitPath -Include 'main.bicep' -Recurse | Where-Object -FilterScript {$_.FullName -like '*finops-hub-v*'}
+        if (-not $toolkitFile)
+        {
+            throw ($LocalizedData.TemplateNotFound -f $toolkitPath)
+        }
+
+        $parameterSplat = @{
+            TemplateFile            = $toolkitFile.FullName
+            TemplateParameterObject = @{
+                hubName = $Name
+            }
+        }
+
+        foreach ($parameter in @('StorageSku', 'Tags', 'ExportScopes'))
+        {
+            if ($PSBoundParameters.ContainsKey($parameter))
+            {
+                $parameterSplat.TemplateParameterObject.Add($parameter, $PSBoundParameters[$parameter])
+            }
+        }
+    }
+    
+    if ($PSCmdlet.ShouldProcess($ResourceGroup, 'DeployFinOpsHub'))
+    {
+        try
+        {
+            Write-Verbose -Message ($LocalizedData.DeployFinOpsHub -f $toolkitFile.FullName, $resourceGroupObject.ResourceGroupName)
+            $deployment = New-AzResourceGroupDeployment @parameterSplat -ResourceGroupName $resourceGroupObject.ResourceGroupName
+
+            return $deployment
+        }
+        catch
+        {
+            throw $_.Exception
+        }
+        finally
+        {
+            Remove-Item -Path $toolkitPath -Recurse -Force -ErrorAction 'SilentlyContinue'
+        }
+    }
+}
+
 <#
     .SYNOPSIS
         Retrieves available version numbers of the FinOps toolkit.
@@ -151,39 +300,53 @@ function Get-FinOpsToolkitVersion
         $Preview
     )
 
+    $progress = $ProgressPreference
+    $ProgressPreference = 'SilentlyContinue'
     $releaseUri = 'https://api.github.com/repos/microsoft/cloud-hubs/releases'
-    [array]$releases = Invoke-WebRequest -Uri $releaseUri | ConvertFrom-Json | Where-Object { ($Preview) -or (-not $_.prerelease) }
-
-    if ($Latest)
+    
+    try
     {
-        $releases = $releases | Select-Object -First 1
-        Write-Verbose -Message ($script:localizedData.FoundLatestRelease -f $releases.tag_name)
-    }
+        [array]$releases = Invoke-WebRequest -Uri $releaseUri | ConvertFrom-Json | Where-Object { ($Preview) -or (-not $_.prerelease) }
 
-    $output = @()
-    foreach ($release in $releases)
-    {
-        $properties = [ordered]@{
-            Name       = $release.name
-            PreRelease = $release.prerelease
-            Version    = $release.tag_name
-            Url        = $release.url
-            Assets     = @()
-        }
-
-        foreach ($asset in $release.assets)
+        if ($Latest)
         {
-            $properties.Assets += @{
-                Name = $asset.name
-                Url  = $asset.browser_download_url
-            }
+            $releases = $releases | Select-Object -First 1
+            Write-Verbose -Message ($script:localizedData.FoundLatestRelease -f $releases.tag_name)
         }
 
-        $output += New-Object -TypeName 'PSObject' -Property $properties
-    }
+        $output = @()
+        foreach ($release in $releases)
+        {
+            $properties = [ordered]@{
+                Name       = $release.name
+                PreRelease = $release.prerelease
+                Version    = $release.tag_name
+                Url        = $release.url
+                Assets     = @()
+            }
 
-    return $output
+            foreach ($asset in $release.assets)
+            {
+                $properties.Assets += @{
+                    Name = $asset.name
+                    Url  = $asset.browser_download_url
+                }
+            }
+
+            $output += New-Object -TypeName 'PSObject' -Property $properties
+        }
+
+        return $output
+    }
+    catch
+    {
+        throw $_.Exception
+    }
+    finally
+    {
+        $ProgressPreference = $progress
+    }
 }
 #endregion Public functions
 
-Export-ModuleMember -Function 'Get-FinOpsToolkitVersions'
+Export-ModuleMember -Function 'Get-FinOpsToolkitVersions', 'Deploy-FinOpsHub'
