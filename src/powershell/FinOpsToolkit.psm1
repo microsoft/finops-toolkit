@@ -86,16 +86,7 @@ function Save-FinOpsHubTemplate
         foreach ($asset in $release.Assets)
         {
             Write-Verbose -Message ($script:localizedData.FoundAsset -f $asset.Name)
-            if ([System.IO.Path]::GetExtension($asset.Name) -eq '.nupkg')
-            {
-                $saveFileName = $asset.Name -replace '.nupkg', '.zip'
-            }
-            else
-            {
-                $saveFileName = $asset.Name
-            }
-
-            $saveFilePath = Join-Path -Path $Destination -ChildPath $saveFileName
+            $saveFilePath = Join-Path -Path $Destination -ChildPath $asset.Name
             if (Test-Path -Path $saveFilePath)
             {
                 Remove-Item -Path $saveFilePath -Recurse -Force
@@ -112,7 +103,7 @@ function Save-FinOpsHubTemplate
     }
     catch
     {
-        throw $_.Exception
+        throw $_.Exception.Message
     }
     finally
     {
@@ -146,9 +137,6 @@ function Save-FinOpsHubTemplate
 
     .PARAMETER Tags
         Optional. Tags for all resources.
-
-    .PARAMETER ExportScopes
-        Optional. List of Cost Management scope IDs to create exports for.
 
     .EXAMPLE
         Deploy-FinOpsHub -Name MyHub -ResourceGroup MyExistingResourceGroup -Location westus
@@ -192,77 +180,66 @@ function Deploy-FinOpsHub
 
         [Parameter()]
         [hashtable]
-        $Tags,
-
-        [Parameter()]
-        [array]
-        $ExportScopes
+        $Tags
     )
 
-    $resourceGroupObject = Get-AzResourceGroup -Name $ResourceGroup -ErrorAction 'SilentlyContinue'
-    if (-not $resourceGroupObject)
+    try
     {
-        if ($PSCmdlet.ShouldProcess($ResourceGroup, 'CreateResourceGroup'))
+        $resourceGroupObject = Get-AzResourceGroup -Name $ResourceGroup -ErrorAction 'SilentlyContinue'
+        if (-not $resourceGroupObject)
         {
-            try
+            if ($PSCmdlet.ShouldProcess($ResourceGroup, 'CreateResourceGroup'))
             {
                 $resourceGroupObject = New-AzResourceGroup -Name $ResourceGroup -Location $Location
             }
-            catch
-            {
-                throw $_.Exception
-            }
         }
-    }
 
-    $toolkitPath = Join-Path $env:temp -ChildPath 'FinOps'
-    if ($PSCmdlet.ShouldProcess($toolkitPath, 'CreateDirectory'))
-    {
-        New-Directory -Path $toolkitPath
-    }
-
-    if ($PSCmdlet.ShouldProcess($Version, 'DownloadTemplate'))
-    {
-        Save-FinOpsHubTemplate -Version $Version -Preview:$Preview -Destination $toolkitPath
-        $toolkitFile = Get-ChildItem -Path $toolkitPath -Include 'main.bicep' -Recurse | Where-Object -FilterScript {$_.FullName -like '*finops-hub-v*'}
-        if (-not $toolkitFile)
+        $toolkitPath = Join-Path $env:temp -ChildPath 'FinOps'
+        if ($PSCmdlet.ShouldProcess($toolkitPath, 'CreateDirectory'))
         {
-            throw ($LocalizedData.TemplateNotFound -f $toolkitPath)
+            New-Directory -Path $toolkitPath
         }
 
-        $parameterSplat = @{
-            TemplateFile            = $toolkitFile.FullName
-            TemplateParameterObject = @{
-                hubName = $Name
-            }
-        }
-
-        foreach ($parameter in @('StorageSku', 'Tags', 'ExportScopes'))
+        if ($PSCmdlet.ShouldProcess($Version, 'DownloadTemplate'))
         {
-            if ($PSBoundParameters.ContainsKey($parameter))
+            Save-FinOpsHubTemplate -Version $Version -Preview:$Preview -Destination $toolkitPath
+            $toolkitFile = Get-ChildItem -Path $toolkitPath -Include 'main.bicep1' -Recurse | Where-Object -FilterScript {$_.FullName -like '*finops-hub-v*'}
+            if (-not $toolkitFile)
             {
-                $parameterSplat.TemplateParameterObject.Add($parameter, $PSBoundParameters[$parameter])
+                throw ($LocalizedData.TemplateNotFound -f $toolkitPath)
+            }
+
+            $parameterSplat = @{
+                TemplateFile            = $toolkitFile.FullName
+                TemplateParameterObject = @{
+                    hubName = $Name
+                }
+            }
+
+            foreach ($parameter in @('StorageSku', 'Tags'))
+            {
+                if ($PSBoundParameters.ContainsKey($parameter))
+                {
+                    $parameterSplat.TemplateParameterObject.Add($parameter, $PSBoundParameters[$parameter])
+                }
             }
         }
-    }
-    
-    if ($PSCmdlet.ShouldProcess($ResourceGroup, 'DeployFinOpsHub'))
-    {
-        try
+        
+        if ($PSCmdlet.ShouldProcess($ResourceGroup, 'DeployFinOpsHub'))
         {
             Write-Verbose -Message ($LocalizedData.DeployFinOpsHub -f $toolkitFile.FullName, $resourceGroupObject.ResourceGroupName)
             $deployment = New-AzResourceGroupDeployment @parameterSplat -ResourceGroupName $resourceGroupObject.ResourceGroupName
 
             return $deployment
         }
-        catch
-        {
-            throw $_.Exception
-        }
-        finally
-        {
-            Remove-Item -Path $toolkitPath -Recurse -Force -ErrorAction 'SilentlyContinue'
-        }
+    }
+    catch
+    {
+        throw $_.Exception.Message
+    }
+    finally
+    {
+        Remove-Item -Path $toolkitPath -Recurse -Force -ErrorAction 'SilentlyContinue'
     }
 }
 
@@ -340,7 +317,7 @@ function Get-FinOpsToolkitVersion
     }
     catch
     {
-        throw $_.Exception
+        throw $_.Exception.Message
     }
     finally
     {
