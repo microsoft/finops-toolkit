@@ -291,6 +291,7 @@ InModuleScope 'FinOpsToolkit' {
         BeforeAll {
             function Get-AzResourceGroup {}
             function New-AzResourceGroup {}
+            function New-AzResourceGroupDeployment {}
             $hubName = 'hub'
             $rgName = 'hubRg'
             $location = 'eastus'
