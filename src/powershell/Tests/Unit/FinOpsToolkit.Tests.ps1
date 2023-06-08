@@ -1,5 +1,5 @@
 $rootDirectory = ((Get-Item -Path $PSScriptRoot).Parent.Parent).FullName
-$modulePath = (Get-ChildItem -Path $rootDirectory -Include 'FinOpsToolKit.psm1').FullName
+$modulePath = (Get-ChildItem -Path $rootDirectory -Include 'FinOpsToolKit.psm1' -Recurse).FullName
 
 Import-Module -FullyQualifiedName $modulePath
 
