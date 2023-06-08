@@ -3,7 +3,7 @@ name: 'Run Pester Tests'
 on: [push]
 jobs:
     run_pester_tests:
-        name: Install dependencies
+        name: Run Unit Tests
         runs-on: Windows-latest
         steps:
         - uses: actions/checkout@v3
