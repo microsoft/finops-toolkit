@@ -1,6 +1,6 @@
 $rootDirectory = ((Get-Item -Path $PSScriptRoot).Parent.Parent).FullName
 $modulePath = (Get-ChildItem -Path $rootDirectory -Include 'FinOpsToolKit.psm1' -Recurse).FullName
-echo $PSVersionTable
+write-host $PSVersionTable
 Import-Module -FullyQualifiedName $modulePath
 
 InModuleScope 'FinOpsToolkit' {
@@ -289,6 +289,8 @@ InModuleScope 'FinOpsToolkit' {
 
     Describe 'Deploy-FinOpsHub' {
         BeforeAll {
+            function Get-AzResourceGroup {}
+            function New-AzResourceGroup {}
             $hubName = 'hub'
             $rgName = 'hubRg'
             $location = 'eastus'
