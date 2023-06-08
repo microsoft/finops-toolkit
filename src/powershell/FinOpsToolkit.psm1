@@ -243,9 +243,9 @@ function Deploy-FinOpsHub
         [string]
         $ResourceGroup,
 
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [string]
-        $Location = 'westus',
+        $Location,
 
         [Parameter()]
         [string]
@@ -258,7 +258,7 @@ function Deploy-FinOpsHub
         [Parameter()]
         [ValidateSet('Premium_LRS', 'Premium_ZRS')]
         [string]
-        $StorageSku,
+        $StorageSku = 'Premium_LRS',
 
         [Parameter()]
         [hashtable]
@@ -285,7 +285,7 @@ function Deploy-FinOpsHub
         if ($PSCmdlet.ShouldProcess($Version, 'DownloadTemplate'))
         {
             Save-FinOpsHubTemplate -Version $Version -Preview:$Preview -Destination $toolkitPath
-            $toolkitFile = Get-ChildItem -Path $toolkitPath -Include 'main.bicep1' -Recurse | Where-Object -FilterScript {$_.FullName -like '*finops-hub-v*'}
+            $toolkitFile = Get-ChildItem -Path $toolkitPath -Include 'main.bicep' -Recurse | Where-Object -FilterScript {$_.FullName -like '*finops-hub-v*'}
             if (-not $toolkitFile)
             {
                 throw ($LocalizedData.TemplateNotFound -f $toolkitPath)
@@ -294,16 +294,14 @@ function Deploy-FinOpsHub
             $parameterSplat = @{
                 TemplateFile            = $toolkitFile.FullName
                 TemplateParameterObject = @{
-                    hubName = $Name
+                    hubName    = $Name
+                    storageSku = $StorageSku
                 }
             }
 
-            foreach ($parameter in @('StorageSku', 'Tags'))
+            if ($Tags -and $Tags.Keys.Count -gt 0)
             {
-                if ($PSBoundParameters.ContainsKey($parameter))
-                {
-                    $parameterSplat.TemplateParameterObject.Add($parameter, $PSBoundParameters[$parameter])
-                }
+                $parameterSplat.TemplateParameterObject.Add('tags', $Tags)
             }
         }
         
