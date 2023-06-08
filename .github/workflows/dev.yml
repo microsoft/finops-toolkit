@@ -1,0 +1,13 @@
+name: 'Run Pester Tests'
+
+on: [push]
+jobs:
+    run_pester_tests:
+        name: Install dependencies
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v3
+        - name: Test with Pester
+          shell: pwsh
+          run: ${{ github.action_path }}/src/scripts/Start-PesterTests.ps1         
+            
