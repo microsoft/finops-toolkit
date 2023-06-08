@@ -7,7 +7,7 @@ if (-not $pesterModule -or $pesterModule.Version.ToString() -ne $pesterVersion)
 }
 
 Import-Module -Name 'Pester'
-$rootPath = (Get-Item -Path $PSScriptRoot).Parent.Parent
+$rootPath = ((Get-Item -Path $PSScriptRoot).Parent.Parent).FullName
 $powerShellPath = Join-Path -Path $rootPath -ChildPath 'src/powershell'
 
 $pesterArgs = [PesterConfiguration]::Default
