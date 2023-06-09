@@ -49,6 +49,7 @@ To learn more, see [FinOps hub template details](template.md).
    - **Metric** = `Amortized cost`
    - **Export type** = `Daily export of month-to-date costs`
      > 💡 _**Tip:** Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range._
+   - **File Partitioning** = On
    - **Storage account** = (Use subscription/resource from step 1)
    - **Container** = `msexports`
    - **Directory** = (Use the resource ID of the scope you're exporting without the first "/")
