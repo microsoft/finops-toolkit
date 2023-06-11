@@ -8,7 +8,8 @@ This template creates a new **FinOps hub** instance.
 
 FinOps hubs include:
 
-- Data Lake storage to host cost data.
+- Data Lake storage for data staging.
+- Data Explorer to host cost data.
 - Data Factory for data processing and orchestration.
 - Key Vault for storing secrets.
 
@@ -35,15 +36,15 @@ Please ensure the following prerequisites are met before deploying this template
 
 ## Parameters
 
-| Parameter        | Type   | Description                                                                                                                                                                       | Default value             |
-| ---------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- |
-| **hubName**      | String | Optional. Name of the hub. Used to ensure unique resource names.                                                                                                                  | `"finops-hub"`            |
-| **location**     | String | Optional. Azure location where all resources should be created. See https://aka.ms/azureregions.                                                                                  | (resource group location) |
-| **storageSku**   | String | Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: `Premium_LRS`, `Premium_ZRS`. | `Premium_LRS`             |
-| **tags**         | Object | Optional. Tags to apply to all resources. We will also add the `cm-resource-parent` tag for improved cost roll-ups in Cost Management.                                            |
-| **exportScopes** | Array  | Optional. List of scope IDs to create exports for.                                                                                                                                |
-| **exportRetentionInDays** | Int | Optional. Number of days of cost data to retain in the ms-cm-exports container. | 0 |
-| **ingestionRetentionInMonths** | Int | Optional. Number of months of cost data to retain in the ingestion container. | 13 |
+| Parameter                      | Type   | Description                                                                                                                                                                       | Default value             |
+| ------------------------------ | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- |
+| **hubName**                    | String | Optional. Name of the hub. Used to ensure unique resource names.                                                                                                                  | `"finops-hub"`            |
+| **location**                   | String | Optional. Azure location where all resources should be created. See https://aka.ms/azureregions.                                                                                  | (resource group location) |
+| **storageSku**                 | String | Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: `Premium_LRS`, `Premium_ZRS`. | `Premium_LRS`             |
+| **tags**                       | Object | Optional. Tags to apply to all resources. We will also add the `cm-resource-parent` tag for improved cost roll-ups in Cost Management.                                            |
+| **exportScopes**               | Array  | Optional. List of scope IDs to create exports for.                                                                                                                                |
+| **exportRetentionInDays**      | Int    | Optional. Number of days of cost data to retain in the ms-cm-exports container.                                                                                                   | 0                         |
+| **ingestionRetentionInMonths** | Int    | Optional. Number of months of cost data to retain in the ingestion container.                                                                                                     | 13                        |
 
 <br>
 
@@ -69,6 +70,9 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
 - `<hubName>-vault-<unique-suffix>` Key Vault instance
   - Secrets:
     - Data Factory system managed identity
+- `<hubName>` Data Explorer cluster
+  - Databases:
+    - `Hub` – Stores ingested data.
 
 In addition to the above, the following resources are created to automate the deployment process. Each of these can be safely removed after deployment without impacting runtime functionality. Note they will be recreated if you redeploy the template.
 

@@ -67,3 +67,12 @@ output storageAccountName string = hub.outputs.storageAccountName
 
 @description('URL to use when connecting custom Power BI reports to your data.')
 output storageUrlForPowerBI string = hub.outputs.storageUrlForPowerBI
+
+@description('The resource ID of the Data Explorer cluster.')
+output clusterId string = hub.outputs.clusterId
+
+@description('The URI of the Data Explorer cluster.')
+output clusterUri string = hub.outputs.clusterUri
+
+@description('The name of the Data Explorer database.')
+output databaseName string = hub.outputs.databaseName

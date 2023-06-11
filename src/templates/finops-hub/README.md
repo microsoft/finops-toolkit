@@ -16,7 +16,7 @@
 
 This template creates a new **FinOps hub** instance. FinOps hubs are a foundation you can use to build homegrown cost management and optimization solutions.
 
-FinOps hubs include Data Lake storage to host cost data and a Data Factory instance to clean up duplicated cost data after each export is processed.
+FinOps hubs include Data Explorer for advanced querying, Data Lake storage for data staging and archiving, and Data Factory for data orchestration.
 
 To use FinOps hubs, you can either leverage the available Power BI reports or connect directly to the included storage account. To learn more, see [aka.ms/hubs/docs](https://aka.ms/hubs/docs).
 
@@ -30,4 +30,4 @@ To use FinOps hubs, you can either leverage the available Power BI reports or co
 
 <br>
 
-`Tags: Microsoft.CostManagement/exports, Microsoft.Storage/storageAccounts, Microsoft.DataFactory/factories`
+`Tags: Microsoft.CostManagement/exports, Microsoft.Storage/storageAccounts, Microsoft.DataFactory/factories, Microsoft.Kusto/clusters/databases, Microsoft.KeyVault/vaults`

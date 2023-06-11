@@ -157,8 +157,21 @@ module keyVault 'keyVault.bicep' = {
   }
 }
 
-//==============================================================================
 //------------------------------------------------------------------------------
+// Data Explorer for analytics
+//------------------------------------------------------------------------------
+
+module dataExplorer 'dataExplorer.bicep' = {
+  name: 'dataExplorer'
+  params: {
+    hubName: hubName
+    location: location
+    tags: resourceTags
+    keyVaultName: keyVault.outputs.name
+  }
+}
+
+//==============================================================================
 // Outputs
 //==============================================================================
 
@@ -179,3 +192,12 @@ output storageAccountName string = storage.outputs.name
 
 @description('URL to use when connecting custom Power BI reports to your data.')
 output storageUrlForPowerBI string = 'https://${storage.outputs.name}.dfs.${environment().suffixes.storage}/${storage.outputs.ingestionContainer}'
+
+@description('The resource ID of the Data Explorer cluster.')
+output clusterId string = dataExplorer.outputs.clusterId
+
+@description('The URI of the Data Explorer cluster.')
+output clusterUri string = dataExplorer.outputs.clusterUri
+
+@description('The name of the Data Explorer database.')
+output databaseName string = dataExplorer.outputs.databaseName
