@@ -22,9 +22,9 @@ Returns all role assignments at for the department scope
 #>
 
 # private functions
-function Get-RoleDefinition{
+function Get-RoleDefinition {
   param(
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [string]$roleDefinitionId
   )
 
@@ -49,106 +49,68 @@ function Get-RoleDefinition{
 
 # public functions
 function Get-FinOpsServicePrincipal {
-    param(
-      [Parameter(Mandatory=$true)]
-      [ValidateSet('Enrollment', 'Department')]
-      [string]$BillingScope,
-      [Parameter(Mandatory=$false)]
-      [string]$BillingAccountId,
-      [Parameter(Mandatory=$false)]
-      [string]$DepartmentId
-    )
+  param(
+    [Parameter(Mandatory = $true)]
+    [ValidateSet('Enrollment', 'Department')]
+    [string]$BillingScope,
+    [Parameter(Mandatory = $false)]
+    [string]$BillingAccountId,
+    [Parameter(Mandatory = $false)]
+    [string]$DepartmentId
+  )
 
-    $azContext = get-azcontext
-    switch ($BillingScope) {
-      'Enrollment' {
-        if([string]::IsNullOrEmpty($BillingAccountId)){
-            Write-Output "Billing account ID is required when billing scope = Department"
-            Write-Output ''
-            exit 1
-        }
-
-        $restUri = "{0}providers/Microsoft.Billing/billingAccounts/{1}/billingRoleAssignments?api-version=2019-10-01-preview" -f $azContext.Environment.ResourceManagerUrl, $BillingAccountId
-
+  $azContext = get-azcontext
+  switch ($BillingScope) {
+    'Enrollment' {
+      if ([string]::IsNullOrEmpty($BillingAccountId)) {
+        Write-Output "Billing account ID is required when billing scope = Department"
+        Write-Output ''
+        exit 1
       }
-      'Department' {
-        if([string]::IsNullOrEmpty($BillingAccountId)){
-          Write-Output "Billing account ID is required when billing scope = Department"
-            Write-Output ''
-            exit 1
-        }
-        if([string]::IsNullOrEmpty($DepartmentId)){
-          Write-Output "Department ID is required when billing scope = Department"
-            Write-Output ''
-            exit 1
-        }
 
-        $restUri = "{0}providers/Microsoft.Billing/billingAccounts/{1}/departments/{2}/billingRoleAssignments?api-version=2019-10-01-preview" -f $azContext.Environment.ResourceManagerUrl, $BillingAccountId, $DepartmentId
+      $restUri = "{0}providers/Microsoft.Billing/billingAccounts/{1}/billingRoleAssignments?api-version=2019-10-01-preview" -f $azContext.Environment.ResourceManagerUrl, $BillingAccountId
 
-      }
-      default {
-        throw "Invalid BillingScope: $BillingScope"
-      }
     }
-    
-    $azProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
-    $profileClient = New-Object -TypeName Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient -ArgumentList ($azProfile)
-    $token = $profileClient.AcquireAccessToken($azContext.Subscription.TenantId)
-    $authHeader = @{
-      'Content-Type'='application/json'
-      'Authorization'='Bearer ' + $token.AccessToken
-    }
-  
-    try {
-      $results = Invoke-RestMethod -Uri $restUri -Method get -Headers $authHeader
-      $roleAssignments = @()
-      $results.value | foreach  {
-        $roleAssignment = $_.properties
-        
-        $principalName = $roleAssignment.userEmailAddress
-        if ($null -ne $roleAssignment.principalId) {
-          $principal = Get-AzADServicePrincipal -Id $roleAssignment.principalId -erroraction silentlycontinue
-          if ($null -ne $principal) {
-            $principalType = $principal.ServicePrincipalType
-            $principalName = $principal.DisplayName
-          }
-          else
-          {
-            $principal = Get-AzADUser -ObjectId $roleAssignment.principalId -erroraction silentlycontinue
-            if ($null -ne $principal) {
-              $principalType = $roleAssignment.userAuthenticationType
-              $principalName = $principal.UserPrincipalName
-            }
-            else
-            { 
-              $principalType = 'NOT FOUND'
-              $principalName = 'NOT FOUND'
-            }
-          }
-        }
-        elseif ($null -ne $roleAssignment.userEmailAddress) {
-          $principalType = $roleAssignment.userAuthenticationType
-          $principalName = $roleAssignment.userEmailAddress
-        }
-        else {
-          $principalType = 'undefined'
-          $principalName = 'undefined'
-        }
-        
-        $roleAssignment | add-member -MemberType NoteProperty -Name 'name' -Value $_.name
-        $roleAssignment | add-member -MemberType NoteProperty -Name 'id' -Value $_.id
-        $roleAssignment | add-member -MemberType NoteProperty -Name 'roleDefinition' -Value (Get-RoleDefinition -roleDefinitionId $roleAssignment.roleDefinitionId)
-        $roleAssignment | add-member -MemberType NoteProperty -Name 'principalName' -Value $principalName
-        $roleAssignment | add-member -MemberType NoteProperty -Name 'principalType' -Value $principalType
-
-        $roleAssignments += $roleAssignment
+    'Department' {
+      if ([string]::IsNullOrEmpty($BillingAccountId)) {
+        Write-Output "Billing account ID is required when billing scope = Department"
+        Write-Output ''
+        exit 1
+      }
+      if ([string]::IsNullOrEmpty($DepartmentId)) {
+        Write-Output "Department ID is required when billing scope = Department"
+        Write-Output ''
+        exit 1
       }
 
-      return $roleAssignments
+      $restUri = "{0}providers/Microsoft.Billing/billingAccounts/{1}/departments/{2}/billingRoleAssignments?api-version=2019-10-01-preview" -f $azContext.Environment.ResourceManagerUrl, $BillingAccountId, $DepartmentId
+
     }
-    catch {
-      throw $_.Exception
+    default {
+      throw "Invalid BillingScope: $BillingScope"
     }
   }
+    
+  $azProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
+  $profileClient = New-Object -TypeName Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient -ArgumentList ($azProfile)
+  $token = $profileClient.AcquireAccessToken($azContext.Subscription.TenantId)
+  $authHeader = @{
+    'Content-Type'  = 'application/json'
+    'Authorization' = 'Bearer ' + $token.AccessToken
+  }
+  
+  try {
+    $results = Invoke-RestMethod -Uri $restUri -Method get -Headers $authHeader
+    $roleAssignments = @()
+    $results.value | ForEach-Object {
+      $_.properties | Add-Member -MemberType NoteProperty -Name 'userRole' -Value (Get-RoleDefinition -roleDefinitionId $_.properties.roleDefinitionId)
+      $roleAssignments += $_.properties
+    }
 
-  Export-ModuleMember -Function 'Get-FinOpsServicePrincipal'
+    return $roleAssignments
+  } catch {
+    throw $_.Exception
+  }
+}
+
+Export-ModuleMember -Function 'Get-FinOpsServicePrincipal'
