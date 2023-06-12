@@ -109,8 +109,8 @@ resource database 'Microsoft.Kusto/clusters/databases@2022-12-29' = {
   parent: cluster
   kind: 'ReadWrite'
   properties: {
-    hotCachePeriod: 'string'
-    softDeletePeriod: 'string'
+    hotCachePeriod: '30.00:00:00' // 30 days
+    softDeletePeriod: '30.00:00:00' // 30 days
   }
 }
 
