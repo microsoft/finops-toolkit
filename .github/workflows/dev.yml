@@ -10,7 +10,6 @@ jobs:
         - name: Run Meta Tests
           shell: pwsh
           run: ./src/scripts/Start-PesterTests.ps1 -Type 'Meta' -InstallPreReqs
-        - uses: actions/checkout@v3
         - name: Run Unit Tests
           shell: pwsh
           run: ./src/scripts/Start-PesterTests.ps1 -Type 'Unit'
