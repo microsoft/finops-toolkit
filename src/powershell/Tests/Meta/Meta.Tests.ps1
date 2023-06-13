@@ -1,5 +1,5 @@
 BeforeDiscovery {
-    $rootPath = 'C:\Repos\cloud-hubs\src\powershell'
+    $rootPath = ((Get-Item -Path $PSScriptRoot).Parent.Parent).FullName
     $filesToInclude = 'FinOpsToolkit.psm1'
     $files = Get-ChildItem -Path $rootPath -Recurse -Include $filesToInclude
 }
