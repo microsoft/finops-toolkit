@@ -212,7 +212,7 @@ function Get-FinOpsToolkitVersion
         Optional. Version of FinOps hub template to use. Defaults = "latest".
 
     .PARAMETER Preview
-        Optional. Deploy a pre-release version of FinOps Hub.
+        Optional. Indicates that a pre-release version of FinOps hub can be used when -Version is "latest".
 
     .PARAMETER StorageSku
         Optional. Storage account SKU. Premium_LRS = Lowest cost, Premium_ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Default = "Premium_LRS".
