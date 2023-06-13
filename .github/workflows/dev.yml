@@ -1,13 +1,17 @@
-name: 'Unit Tests'
+name: 'PowerShell Tests'
 
 on: [pull_request]
 jobs:
     run_pester_tests:
-        name: Run Unit Tests
+        name: Pester
         runs-on: Windows-latest
         steps:
         - uses: actions/checkout@v3
-        - name: Pester
+        - name: Run Meta Tests
           shell: pwsh
-          run: ./src/scripts/Start-PesterTests.ps1
+          run: ./src/scripts/Start-PesterTests.ps1 -Type 'Meta' -InstallPreReqs
+        - uses: actions/checkout@v3
+        - name: Run Unit Tests
+          shell: pwsh
+          run: ./src/scripts/Start-PesterTests.ps1 -Type 'Unit'
             
