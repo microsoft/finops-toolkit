@@ -378,10 +378,6 @@ InModuleScope 'FinOpsToolkit' {
                             }
                         } -Times 1
                     }
-
-                    It 'Should fail' {
-                        1 | Should -Be 2
-                    }
                 }
             }
         }
