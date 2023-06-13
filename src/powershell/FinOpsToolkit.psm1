@@ -149,7 +149,7 @@ function Get-FinOpsToolkitVersion
 
     $progress = $ProgressPreference
     $ProgressPreference = 'SilentlyContinue'
-    $releaseUri = 'https://api.github.com/repos/microsoft/cloud-hubs/releases'
+    $releaseUri = 'https://api.github.com/repos/microsoft/finops-toolkit/releases'
     
     try
     {
