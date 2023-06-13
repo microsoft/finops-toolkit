@@ -149,7 +149,7 @@ function Get-FinOpsToolkitVersion
 
     $progress = $ProgressPreference
     $ProgressPreference = 'SilentlyContinue'
-    $releaseUri = 'https://api.github.com/repos/microsoft/cloud-hubs/releases'
+    $releaseUri = 'https://api.github.com/repos/microsoft/finops-toolkit/releases'
     
     try
     {
@@ -209,13 +209,13 @@ function Get-FinOpsToolkitVersion
         Azure location to execute the deployment from.
 
     .PARAMETER Version
-        Optional. Version of FinOps hub template to use. Defaults to latest.
+        Optional. Version of FinOps hub template to use. Defaults = "latest".
 
     .PARAMETER Preview
-        Optional. Deploy a pre-release version of FinOps Hub.
+        Optional. Indicates that a pre-release version of FinOps hub can be used when -Version is "latest".
 
     .PARAMETER StorageSku
-        Optional. Storage account SKU. Premium_LRS = Lowest cost, Premium_ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage.
+        Optional. Storage account SKU. Premium_LRS = Lowest cost, Premium_ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Default = "Premium_LRS".
 
     .PARAMETER Tags
         Optional. Tags for all resources.

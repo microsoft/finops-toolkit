@@ -27,6 +27,8 @@ After registration completes, start the **msexports** trigger again.
 
 After the trigger is started, re-run all connected Cost Management exports. Data should be fully ingested within 10-20 minutes, depending on the size of the account.
 
+If the issue persists, check if Cost Management exports are configured with File Partitioning enabled. If you find it disabled, turn it on and re-run the exports.
+
 Confirm the **ingestion** container is populated and refresh your reports or other connected tools.
 
 ### Files available in the ingestion container
