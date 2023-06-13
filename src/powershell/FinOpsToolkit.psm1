@@ -209,7 +209,7 @@ function Get-FinOpsToolkitVersion
         Azure location to execute the deployment from.
 
     .PARAMETER Version
-        Optional. Version of FinOps hub template to use. Defaults to latest.
+        Optional. Version of FinOps hub template to use. Defaults = "latest".
 
     .PARAMETER Preview
         Optional. Deploy a pre-release version of FinOps Hub.
