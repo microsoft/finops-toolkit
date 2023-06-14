@@ -14,6 +14,7 @@ $script:localizedData = Import-LocalizedData -FileName 'FinOpsToolkit.strings.ps
 #>
 function New-Directory
 {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]
     [CmdletBinding()]
     param
     (
@@ -135,6 +136,7 @@ function Save-FinOpsHubTemplate
 #>
 function Get-FinOpsToolkitVersion
 {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSReviewUnusedParameter", "")]
     [CmdletBinding()]
     param
     (
@@ -150,7 +152,7 @@ function Get-FinOpsToolkitVersion
     $progress = $ProgressPreference
     $ProgressPreference = 'SilentlyContinue'
     $releaseUri = 'https://api.github.com/repos/microsoft/finops-toolkit/releases'
-    
+
     try
     {
         [array]$releases = Invoke-WebRequest -Uri $releaseUri | ConvertFrom-Json | Where-Object { ($Preview) -or (-not $_.prerelease) }
@@ -222,12 +224,12 @@ function Get-FinOpsToolkitVersion
 
     .EXAMPLE
         Deploy-FinOpsHub -Name MyHub -ResourceGroup MyExistingResourceGroup -Location westus
-        
+
         Deploys a new FinOps hub instance named MyHub to an existing resource group named MyExistingResourceGroup.
-    
+
     .EXAMPLE
         Deploy-FinOpsHub -Name MyHub -Location westus -Version 0.0.1
-        
+
         Deploys a new FinOps hub instance named MyHub using version 0.0.1 of the template.
 #>
 function Deploy-FinOpsHub
@@ -304,7 +306,7 @@ function Deploy-FinOpsHub
                 $parameterSplat.TemplateParameterObject.Add('tags', $Tags)
             }
         }
-        
+
         if ($PSCmdlet.ShouldProcess($ResourceGroup, 'DeployFinOpsHub'))
         {
             Write-Verbose -Message ($LocalizedData.DeployFinOpsHub -f $toolkitFile.FullName, $resourceGroupObject.ResourceGroupName)
