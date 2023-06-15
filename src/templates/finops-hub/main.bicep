@@ -29,10 +29,10 @@ param exportRetentionInDays int = 0
 @description('Optional. Number of months of cost data to retain in the ingestion container. Default: 13.')
 param ingestionRetentionInMonths int = 13
 
-@description('Optional. Remote storage account for ingestion dataset.')
+@description('Optional. Storage account to push data to for ingestion into a remote hub.')
 param remoteHubStorageUri string = ''
 
-@description('Optional. Storage account key for remote storage account.')
+@description('Optional. Storage account key to use when pushing data to a remote hub.')
 @secure()
 param remoteHubStorageKey string = ''
 
