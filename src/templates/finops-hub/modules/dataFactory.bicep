@@ -105,13 +105,20 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
   name: keyVaultName
 }
 
+module azuretimezones 'azuretimezones.bicep' = {
+  name: 'azuretimezones'
+  params: {
+    location: location
+  }
+}
+
 //------------------------------------------------------------------------------
 // Identities and RBAC
 //------------------------------------------------------------------------------
 
 // Create managed identity to start/stop triggers
 resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: '${dataFactory.name}_${exportContainerName}_extract_triggerManager'
+  name: '${dataFactory.name}_triggerManager'
   location: location
 }
 
@@ -409,7 +416,7 @@ resource trigger_daily 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
         frequency: 'Hour'
         interval: 24
         startTime: '2023-01-01T01:01:00'
-        timeZone: 'Pacific Standard Time'
+        timeZone: azuretimezones.outputs.Timezone
       }
     }
   }
@@ -439,7 +446,7 @@ resource trigger_monthly 'Microsoft.DataFactory/factories/triggers@2018-06-01' =
         frequency: 'Month'
         interval: 1
         startTime: '2023-01-05T01:11:00'
-        timeZone: 'Pacific Standard Time'
+        timeZone: azuretimezones.outputs.Timezone
         schedule: {
           monthDays: [
             5
@@ -457,7 +464,7 @@ resource trigger_monthly 'Microsoft.DataFactory/factories/triggers@2018-06-01' =
 
 //------------------------------------------------------------------------------
 // Microsoft Cost Management backfill exports
-// Triggered by ???.
+// Triggered by pipeline_setup after completion.
 // Creates and triggers cost management exports against all defined scopes for the specified date ranges.
 //------------------------------------------------------------------------------
 resource pipeline_backfill 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
