@@ -30,7 +30,7 @@ The FinOps hub template includes the following resources:
 - Data Factory instance to manage data ingestion and cleanup.
 - Key Vault to store the Data Factory system managed identity credentials.
 
-Once deployed, you can create new exports in Cost Management and use [out of the box Power BI reports](reports) to customize and share reports with your stakeholders.
+Once deployed, you can create new exports in Cost Management and use [out of the box Power BI reports](./reports/README.md) to customize and share reports with your stakeholders.
 
 <img alt="Screenshot of the cost summary report" style="max-width:200px" src="https://user-images.githubusercontent.com/399533/216882658-45f026f1-c895-48ca-81e2-35765af8e29e.png">
 <img alt="Screenshot of the services cost report" style="max-width:200px" src="https://user-images.githubusercontent.com/399533/216882700-4e04b589-0580-4e49-9b40-9f5948792975.png">
@@ -42,9 +42,10 @@ To learn more, see [FinOps hub template details](template.md).
 
 ## ➕ Create a new hub
 
-1. Register the Microsoft.EventGrid resource provider
+1. Register the Microsoft.EventGrid and Microsoft.CostManagementExports resource providers
    > See [Register a resource provider](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) for details.
 2. [Deploy the **finops-hub** template](../deploy).
+   > [![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy) &nbsp; [![Deploy To Azure US Gov](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy/gov)
 3. [Create a new cost export](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data?tabs=azure-portal) using the following settings:
    - **Metric** = `Amortized cost`
    - **Export type** = `Daily export of month-to-date costs`
@@ -72,7 +73,7 @@ After deploying a hub instance, there are several ways for you to get started:
 
 1. Customize the built-in Power BI reports.
 
-   Our Power BI reports are starter templates and intended to be customized. We encourage you to customize as needed. [Learn more](./reports).
+   Our Power BI reports are starter templates and intended to be customized. We encourage you to customize as needed. [Learn more](./reports/README.md).
 
 2. Create your own Power BI reports.
 
@@ -80,7 +81,7 @@ After deploying a hub instance, there are several ways for you to get started:
 
    <!-- NOTE TO CONTRIBUTORS: Keep this info note in sync with the same one under #3 below. -->
 
-   > ℹ️ _The schema may change multiple times before the 0.1 release. We will ensure Power BI reports have backwards compatibility, but if you access data directly, you may run into breaking changes with new releases. Familiarize yourself with [upcoming releases](https://aka.ms/finops/toolkit/roadmap) and review the [changelog](changelog.md) for breaking changes before you update._
+   > ℹ️ _The schema may change multiple times before the 0.1 release. We will ensure Power BI reports have backwards compatibility, but if you access data directly, you may run into breaking changes with new releases. Familiarize yourself with [upcoming releases](https://aka.ms/finops/toolkit/roadmap) and review the [changelog](./changelog.md) for breaking changes before you update._
 
 3. Access the cost data from custom tools.
 

@@ -20,7 +20,7 @@ FinOps hubs are **virtual command centers** for leaders throughout the organizat
 
 ## 📗 Get started
 
-Looking to learn more about FinOps toolkit and how to get started? See [FinOps toolkit documentation ➡️](./docs)
+Looking to learn more about FinOps toolkit and how to get started? See [FinOps toolkit documentation ➡️](./docs/README.md)
 
 <br>
 
