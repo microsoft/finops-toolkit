@@ -1,6 +1,6 @@
 # 🧰 FinOps toolkit
 
-<sup>**Quick links:**</sup> &nbsp; ![Static Badge](https://img.shields.io/badge/-Read_the_docs_›-090) &nbsp; ![Static Badge](https://img.shields.io/badge/-How_to_contribute_›-609)
+<sup>**Quick links:**</sup> &nbsp; [![Read the docs](https://img.shields.io/badge/-Read_the_docs_›-090)](./docs/README.md) &nbsp; [![How to contribute](https://img.shields.io/badge/-How_to_contribute_›-609)](./CONTRIBUTING.md)
 
 The FinOps toolkit is a collection of customizable ARM templates used to build and deploy various FinOps solutions that automate and extend native Microsoft Cost Management capabilities. The toolkit aims to include:
 
