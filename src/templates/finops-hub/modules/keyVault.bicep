@@ -14,7 +14,7 @@ param location string = resourceGroup().location
 @description('Optional. Array of access policies object.')
 param accessPolicies array = []
 
-@description('Optional. Name of the storage account to store access keys for.')
+@description('Optional. Create and store a key for a remote storage account.')
 @secure()
 param storageAccountKey string
 
