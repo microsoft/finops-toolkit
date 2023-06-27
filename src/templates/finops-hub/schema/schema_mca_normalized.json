@@ -1,0 +1,659 @@
+{
+  "additionalColumns": [
+  ],
+  "translator": {
+    "type": "TabularTranslator",
+    "mappings": [
+      {
+        "source": {
+          "name": "additionalInfo",
+          "type": "String"
+        },
+        "sink": {
+          "name": "AdditionalInfo",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "benefitId",
+          "type": "String"
+        },
+        "sink": {
+          "name": "BenefitId",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "benefitName",
+          "type": "String"
+        },
+        "sink": {
+          "name": "BenefitName",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "billingAccountId",
+          "type": "String"
+        },
+        "sink": {
+          "name": "BillingAccountId",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "billingAccountName",
+          "type": "String"
+        },
+        "sink": {
+          "name": "BillingAccountName",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "billingCurrency",
+          "type": "String"
+        },
+        "sink": {
+          "name": "BillingCurrency",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "billingPeriodEndDate",
+          "type": "DateTime"
+        },
+        "sink": {
+          "name": "BillingPeriodEndDate",
+          "type": "DateTime"
+        }
+      },
+      {
+        "source": {
+          "name": "billingPeriodStartDate",
+          "type": "DateTime"
+        },
+        "sink": {
+          "name": "BillingPeriodStartDate",
+          "type": "DateTime"
+        }
+      },
+      {
+        "source": {
+          "name": "billingProfileId",
+          "type": "String"
+        },
+        "sink": {
+          "name": "BillingProfileId",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "billingProfileName",
+          "type": "String"
+        },
+        "sink": {
+          "name": "BillingProfileName",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "chargeType",
+          "type": "String"
+        },
+        "sink": {
+          "name": "ChargeType",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "consumedService",
+          "type": "String"
+        },
+        "sink": {
+          "name": "ConsumedService",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "costAllocationRuleName",
+          "type": "String"
+        },
+        "sink": {
+          "name": "CostAllocationRuleName",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "costCenter",
+          "type": "String"
+        },
+        "sink": {
+          "name": "CostCenter",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "costInBillingCurrency",
+          "type": "Decimal"
+        },
+        "sink": {
+          "name": "CostInBillingCurrency",
+          "type": "Decimal"
+        }
+      },
+      {
+        "source": {
+          "name": "costInPricingCurrency",
+          "type": "Decimal"
+        },
+        "sink": {
+          "name": "CostInPricingCurrency",
+          "type": "Decimal"
+        }
+      },
+      {
+        "source": {
+          "name": "costInUsd",
+          "type": "Decimal"
+        },
+        "sink": {
+          "name": "CostInUsd",
+          "type": "Decimal"
+        }
+      },
+      {
+        "source": {
+          "name": "date",
+          "type": "DateTime"
+        },
+        "sink": {
+          "name": "Date",
+          "type": "DateTime"
+        }
+      },
+      {
+        "source": {
+          "name": "effectivePrice",
+          "type": "Decimal"
+        },
+        "sink": {
+          "name": "EffectivePrice",
+          "type": "Decimal"
+        }
+      },
+      {
+        "source": {
+          "name": "exchangeRateDate",
+          "type": "DateTime"
+        },
+        "sink": {
+          "name": "ExchangeRateDate",
+          "type": "DateTime"
+        }
+      },
+      {
+        "source": {
+          "name": "exchangeRatePricingToBilling",
+          "type": "Decimal"
+        },
+        "sink": {
+          "name": "ExchangeRatePricingToBilling",
+          "type": "Decimal"
+        }
+      },
+      {
+        "source": {
+          "name": "frequency",
+          "type": "String"
+        },
+        "sink": {
+          "name": "Frequency",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "invoiceId",
+          "type": "String"
+        },
+        "sink": {
+          "name": "InvoiceId",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "invoiceSectionId",
+          "type": "String"
+        },
+        "sink": {
+          "name": "InvoiceSectionId",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "invoiceSectionName",
+          "type": "String"
+        },
+        "sink": {
+          "name": "InvoiceSectionName",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "isAzureCreditEligible",
+          "type": "String"
+        },
+        "sink": {
+          "name": "IsAzureCreditEligible",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "location",
+          "type": "String"
+        },
+        "sink": {
+          "name": "Location",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "meterCategory",
+          "type": "String"
+        },
+        "sink": {
+          "name": "MeterCategory",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "meterId",
+          "type": "String"
+        },
+        "sink": {
+          "name": "MeterId",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "meterName",
+          "type": "String"
+        },
+        "sink": {
+          "name": "MeterName",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "meterRegion",
+          "type": "String"
+        },
+        "sink": {
+          "name": "MeterRegion",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "meterSubCategory",
+          "type": "String"
+        },
+        "sink": {
+          "name": "MeterSubCategory",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "paygCostInBillingCurrency",
+          "type": "Decimal"
+        },
+        "sink": {
+          "name": "PaygCostInBillingCurrency",
+          "type": "Decimal"
+        }
+      },
+      {
+        "source": {
+          "name": "paygCostInUsd",
+          "type": "Decimal"
+        },
+        "sink": {
+          "name": "PaygCostInUsd",
+          "type": "Decimal"
+        }
+      },
+      {
+        "source": {
+          "name": "PayGPrice",
+          "type": "Decimal"
+        },
+        "sink": {
+          "name": "PayGPrice",
+          "type": "Decimal"
+        }
+      },
+      {
+        "source": {
+          "name": "previousInvoiceId",
+          "type": "String"
+        },
+        "sink": {
+          "name": "PreviousInvoiceId",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "pricingCurrency",
+          "type": "String"
+        },
+        "sink": {
+          "name": "PricingCurrency",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "pricingModel",
+          "type": "String"
+        },
+        "sink": {
+          "name": "PricingModel",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "ProductId",
+          "type": "String"
+        },
+        "sink": {
+          "name": "ProductId",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "ProductName",
+          "type": "String"
+        },
+        "sink": {
+          "name": "ProductName",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "productOrderId",
+          "type": "String"
+        },
+        "sink": {
+          "name": "ProductOrderId",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "productOrderName",
+          "type": "String"
+        },
+        "sink": {
+          "name": "ProductOrderName",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "provider",
+          "type": "String"
+        },
+        "sink": {
+          "name": "Provider",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "publisherId",
+          "type": "String"
+        },
+        "sink": {
+          "name": "PublisherId",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "publisherName",
+          "type": "String"
+        },
+        "sink": {
+          "name": "PublisherName",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "publisherType",
+          "type": "String"
+        },
+        "sink": {
+          "name": "PublisherType",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "quantity",
+          "type": "Decimal"
+        },
+        "sink": {
+          "name": "Quantity",
+          "type": "Decimal"
+        }
+      },
+      {
+        "source": {
+          "name": "resellerMpnId",
+          "type": "String"
+        },
+        "sink": {
+          "name": "ResellerMpnId",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "resellerName",
+          "type": "String"
+        },
+        "sink": {
+          "name": "ResellerName",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "reservationId",
+          "type": "String"
+        },
+        "sink": {
+          "name": "ReservationId",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "reservationName",
+          "type": "String"
+        },
+        "sink": {
+          "name": "ReservationName",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "resourceGroupName",
+          "type": "String"
+        },
+        "sink": {
+          "name": "ResourceGroupName",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "ResourceId",
+          "type": "String"
+        },
+        "sink": {
+          "name": "ResourceId",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "resourceLocation",
+          "type": "String"
+        },
+        "sink": {
+          "name": "ResourceLocation",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "serviceFamily",
+          "type": "String"
+        },
+        "sink": {
+          "name": "ServiceFamily",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "serviceInfo1",
+          "type": "String"
+        },
+        "sink": {
+          "name": "ServiceInfo1",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "serviceInfo2",
+          "type": "String"
+        },
+        "sink": {
+          "name": "ServiceInfo2",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "servicePeriodEndDate",
+          "type": "DateTime"
+        },
+        "sink": {
+          "name": "ServicePeriodEndDate",
+          "type": "DateTime"
+        }
+      },
+      {
+        "source": {
+          "name": "servicePeriodStartDate",
+          "type": "DateTime"
+        },
+        "sink": {
+          "name": "ServicePeriodStartDate",
+          "type": "DateTime"
+        }
+      },
+      {
+        "source": {
+          "name": "SubscriptionId",
+          "type": "String"
+        },
+        "sink": {
+          "name": "SubscriptionId",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "subscriptionName",
+          "type": "String"
+        },
+        "sink": {
+          "name": "SubscriptionName",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "tags",
+          "type": "String"
+        },
+        "sink": {
+          "name": "Tags",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "term",
+          "type": "String"
+        },
+        "sink": {
+          "name": "Term",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "unitOfMeasure",
+          "type": "String"
+        },
+        "sink": {
+          "name": "UnitOfMeasure",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "unitPrice",
+          "type": "Decimal"
+        },
+        "sink": {
+          "name": "UnitPrice",
+          "type": "Decimal"
+        }
+      }
+    ]
+  }
+}
