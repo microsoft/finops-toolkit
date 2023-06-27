@@ -20,7 +20,11 @@ $json.retention['msexports'].days = [Int32]::Parse($env:exportRetentionInDays)
 $json.retention.ingestion.months = [Int32]::Parse($env:ingestionRetentionInMonths)
 
 # Save file to storage
-$settingsFile = Join-Path -Path .\ -ChildPath 'settings.json'
-$json | ConvertTo-Json | Out-File $settingsFile
+$fileName = 'settings.json'
+$fileToUpload = Join-Path -Path .\ -ChildPath $fileName
+$json | ConvertTo-Json -Depth 99 | Out-File $fileToUpload
 $ctx = New-AzStorageContext -StorageAccountName $env:storageAccountName -UseConnectedAccount
-Set-AzStorageBlobContent -Container config -Context $ctx -File $settingsFile
+$existingFile = Get-AzStorageBlob -Container config -Context $ctx -Blob $fileName -ErrorAction SilentlyContinue
+if ($null -eq $existingFile) {
+    Set-AzStorageBlobContent -Container config -Context $ctx -File $fileToUpload
+}
