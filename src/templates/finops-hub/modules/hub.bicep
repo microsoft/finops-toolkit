@@ -33,6 +33,13 @@ param convertToParquet bool = true
 @description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
 
+@description('Optional. Remote storage account for ingestion dataset.')
+param remoteHubStorageUri string = ''
+
+@description('Optional. Storage account key for remote storage account.')
+@secure()
+param remoteHubStorageKey string = ''
+
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
@@ -106,7 +113,7 @@ module storage 'storage.bicep' = {
 resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
   name: dataFactoryName
   location: location
-  tags: tags
+  tags: resourceTags
   identity: { type: 'SystemAssigned' }
   properties: union(
     // Using union() to hide the error that gets surfaced because globalConfigurations is not in the ADF schema yet.
@@ -121,13 +128,16 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
 module dataFactoryResources 'dataFactory.bicep' = {
   name: 'dataFactoryResources'
   params: {
-    dataFactoryName: dataFactoryName
+    dataFactoryName: dataFactory.name
     convertToParquet: convertToParquet
-    keyVaultName: keyVault.outputs.name
     storageAccountName: storage.outputs.name
     exportContainerName: storage.outputs.exportContainer
+    configContainerName: storage.outputs.configContainer
     ingestionContainerName: storage.outputs.ingestionContainer
+    keyVaultName: keyVault.outputs.name
     location: location
+    hubName: hubName
+    remoteHubStorageUri: remoteHubStorageUri
   }
 }
 
@@ -142,7 +152,7 @@ module keyVault 'keyVault.bicep' = {
     uniqueSuffix: uniqueSuffix
     location: location
     tags: resourceTags
-    storageAccountName: storage.outputs.name
+    storageAccountKey: remoteHubStorageKey
     accessPolicies: [
       {
         objectId: dataFactory.identity.principalId

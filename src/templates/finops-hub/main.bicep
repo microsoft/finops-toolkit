@@ -29,6 +29,13 @@ param exportRetentionInDays int = 0
 @description('Optional. Number of months of cost data to retain in the ingestion container. Default: 13.')
 param ingestionRetentionInMonths int = 13
 
+@description('Optional. Storage account to push data to for ingestion into a remote hub.')
+param remoteHubStorageUri string = ''
+
+@description('Optional. Storage account key to use when pushing data to a remote hub.')
+@secure()
+param remoteHubStorageKey string = ''
+
 /**
  * Resources
  */
@@ -43,6 +50,8 @@ module hub 'modules/hub.bicep' = {
     exportScopes: exportScopes
     exportRetentionInDays: exportRetentionInDays
     ingestionRetentionInMonths: ingestionRetentionInMonths
+    remoteHubStorageUri: remoteHubStorageUri
+    remoteHubStorageKey: remoteHubStorageKey
   }
 }
 
