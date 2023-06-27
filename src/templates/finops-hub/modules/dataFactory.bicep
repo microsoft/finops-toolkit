@@ -850,7 +850,7 @@ resource pipeline_fill 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = 
               type: 'WebActivity'
               dependsOn: [
                 {
-                  activity: 'Create or or update backfill amortized export'
+                  activity: 'Create or update backfill amortized export'
                   dependencyConditions: [
                     'Succeeded'
                   ]
@@ -881,7 +881,7 @@ resource pipeline_fill 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = 
               }
             }
             {
-              name: 'Create or or update backfill actual export_copy1'
+              name: 'Create or update backfill actual export'
               type: 'WebActivity'
               dependsOn: [
                 {
@@ -943,7 +943,7 @@ resource pipeline_fill 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = 
               type: 'WebActivity'
               dependsOn: [
                 {
-                  activity: 'Create or or update backfill actual export_copy1'
+                  activity: 'Create or update backfill actual export'
                   dependencyConditions: [
                     'Succeeded'
                   ]
