@@ -14,7 +14,7 @@ $env:Triggers.Split('|') `
 | ForEach-Object {
     $trigger = $_
     if ($Stop) {
-        Write-Host "Stopping trigger $trigger..." -NoNewline
+        Write-Output "Stopping trigger $trigger..."
         $triggerOutput = Stop-AzDataFactoryV2Trigger `
             -ResourceGroupName $env:DataFactoryResourceGroup `
             -DataFactoryName $env:DataFactoryName `
@@ -22,7 +22,7 @@ $env:Triggers.Split('|') `
             -Force `
             -ErrorAction SilentlyContinue # Ignore errors, since the trigger may not exist
     } else {
-        Write-Host "Starting trigger $trigger..." -NoNewline
+        Write-Output "Starting trigger $trigger..."
         $triggerOutput = Start-AzDataFactoryV2Trigger `
             -ResourceGroupName $env:DataFactoryResourceGroup `
             -DataFactoryName $env:DataFactoryName `
@@ -30,9 +30,9 @@ $env:Triggers.Split('|') `
             -Force
     }
     if ($triggerOutput) { 
-        Write-Host 'done'
+        Write-Output "done..."
     } else {
-        Write-Host 'failed'
+        Write-Output "failed..."
     }
     $DeploymentScriptOutputs[$trigger] = $triggerOutput
 }
