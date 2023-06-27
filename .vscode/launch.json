@@ -1,0 +1,18 @@
+{
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Deploy Hub",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "./Deploy-Toolkit finops-hub -Build",
+            "cwd": "${workspaceFolder}/src/scripts",
+            "presentation": {
+                "hidden": false,
+                "group": "",
+                "order": 1,
+            },
+        },
+    ],
+}

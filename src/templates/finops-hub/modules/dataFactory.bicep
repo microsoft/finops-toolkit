@@ -1,10 +1,14 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 //==============================================================================
 // Parameters
 //==============================================================================
-@description('Required. Name of the FinOps Hub')
+
+@description('Required. Name of the FinOps hub instance.')
 param hubName string
 
-@description('Required. Name of the data factory')
+@description('Required. Name of the Data Factory instance.')
 param dataFactoryName string
 
 @description('Required. The name of the Azure Key Vault instance.')
@@ -22,7 +26,7 @@ param ingestionContainerName string
 @description('Required. The name of the container where normalized data is ingested.')
 param configContainerName string
 
-@description('Optional. Indicates whether ingested data should be converted to Parquet. Default: true.')
+@description('Optional. Indicates whether ingested data should be converted to parquet. Default: true.')
 param convertToParquet bool = true
 
 @description('Optional. The location to use for the managed identity and deployment script to auto-start triggers. Default = (resource group location).')

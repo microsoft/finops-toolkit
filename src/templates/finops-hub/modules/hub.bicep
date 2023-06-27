@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 //==============================================================================
 // Parameters
 //==============================================================================
@@ -30,15 +33,15 @@ param ingestionRetentionInMonths int = 13
 @description('Optional. Indicates whether ingested data should be converted to Parquet. Default: true.')
 param convertToParquet bool = true
 
-@description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
-param enableDefaultTelemetry bool = true
-
 @description('Optional. Remote storage account for ingestion dataset.')
 param remoteHubStorageUri string = ''
 
 @description('Optional. Storage account key for remote storage account.')
 @secure()
 param remoteHubStorageKey string = ''
+
+@description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
+param enableDefaultTelemetry bool = true
 
 //------------------------------------------------------------------------------
 // Variables
