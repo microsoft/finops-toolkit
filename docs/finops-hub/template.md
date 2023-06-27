@@ -16,10 +16,11 @@ To use this template, you will need to create a Cost Management export that publ
 
 On this page:
 
-- [Prerequisites](#prerequisites)
-- [Parameters](#parameters)
-- [Resources](#resources)
-- [Outputs](#outputs)
+- [📦 FinOps hub template](#-finops-hub-template)
+  - [Prerequisites](#prerequisites)
+  - [Parameters](#parameters)
+  - [Resources](#resources)
+  - [Outputs](#outputs)
 
 ---
 
@@ -60,12 +61,22 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
       > ℹ️ _In the future, we will use this container to stage external data outside of Cost Management._
     - `config` – Stores hub metadata and configuration settings. Files:
       - `settings.json` – Hub settings.
+      - `schema_ea.json` – Transforms for EA data.
+      - `schema_mca.json` – Transforms for MCA data.
 - `<hubName>-engine-<unique-suffix>` Data Factory instance
   - Pipelines:
+    - `msexports_backfill` – Triggers a series of monthly Cost Management exports (msexports_fill pipeline) to fill the dataset per the retention setting defined in settings.json
+    - `msexports_fill` – Creates and triggers Cost Management exports (both actual and amortized) for the selected scope and date range.
+    - `msexports_get` – Retrieves the list of configured Cost Management exports for scopes defined in settings.json and triggers them via the msexports_run pipeline.
+    - `msexports_run` – Triggers Cost Management exports for the selected scope.
+    - `msexports_setup` – Create or update exports in Cost Management for supported scopes defined in settings.json.
     - `msexport_extract` – Triggers the ingestion process for Cost Management exports to account for Data Factory pipeline trigger limits.
-    - `msexports_transform` – Converts Cost Management exports into parquet or gzipped CSV and removes historical data duplicated in each day's export.
+    - `msexports_transform` – Converts Cost Management exports into parquet or gzipped CSV and removes historical data duplicated in each day's exports.
   - Triggers:
-    - `msexport` – Triggers the `msexport_extract` pipeline when Cost Management exports complete.
+    - `msexports_extract` – Triggers the `msexport_extract` pipeline when Cost Management exports complete.
+    - `msexports_setup` – Triggers the `msexport_setup` pipeline when settings.json is updated.
+    - `msexports_daily` – Scheduled trigger for activities which execute daily.
+    - `msexports_monthly` – Scheduled trigger for activities which execute monthly.
 - `<hubName>-vault-<unique-suffix>` Key Vault instance
   - Secrets:
     - Data Factory system managed identity
@@ -74,7 +85,7 @@ In addition to the above, the following resources are created to automate the de
 
 - Managed identities:
   - `<storage>_config_blobManager` ([Storage Blob Data Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)) – Uploads the settings.json file.
-  - `<datafactory>_msexports_extract_triggerManager` ([Data Factory Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#data-factory-contributor)) – Stops triggers before deployment and starts them after deployment.
+  - `<datafactory>_triggerManager` ([Data Factory Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#data-factory-contributor)) – Stops triggers before deployment and starts them after deployment.
 - Deployment scripts (automatically deleted after a successful deployment):
   - `<datafactory>_stopHubTriggers` – Stops all triggers in the hub using the triggerManager identity.
   - `<datafactory>_startHubTriggers` – Starts all triggers in the hub using the triggerManager identity.
