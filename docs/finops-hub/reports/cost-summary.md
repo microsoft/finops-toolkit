@@ -225,6 +225,8 @@ If you have feedback about our mappings or about our full FOCUS support plans, p
 
 If you have feedback about FOCUS, please consider contributing to the FOCUS project. The project is looking for more practitioners to help bring their experience to help guide efforts and make this the most useful spec it can be. To learn more about FOCUS or to contribute to the project, visit [focus.finops.org](https://focus.finops.org).
 
+![Screenshot of the FOCUS page](https://github.com/microsoft/finops-toolkit/assets/399533/dfdaf249-1fdc-43e3-afbd-b7797a85e9f8)
+
 <br>
 
 ## See also
