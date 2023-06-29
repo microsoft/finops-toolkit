@@ -75,19 +75,7 @@
           },
           "nodeIndex": "CMConnector",
           "size": {
-            "height": 300,
-            "width": 234
-          },
-          "zIndex": 0
-        },
-        {
-          "location": {
-            "x": 432.7,
-            "y": 0
-          },
-          "nodeIndex": "CMExports",
-          "size": {
-            "height": 300,
+            "height": 200,
             "width": 234
           },
           "zIndex": 0

@@ -566,6 +566,22 @@
                           "title": "Azure Advisor Cost recommendations - Storage",
                           "noDataMessage": "You are following all of our cost recommendations for Storage",
                           "noDataMessageStyle": 3,
+                          "exportedParameters": [
+                            {
+                              "fieldName": "DiskIDfull",
+                              "parameterName": "DiskID"
+                            },
+                            {
+                              "fieldName": "DiskName",
+                              "parameterName": "DiskName",
+                              "parameterType": 1
+                            },
+                            {
+                              "fieldName": "resourceGroup",
+                              "parameterName": "ResourceGroup",
+                              "parameterType": 1
+                            }
+                          ],
                           "showExportToExcel": true,
                           "queryType": 1,
                           "resourceType": "microsoft.resourcegraph/resources",
@@ -1362,6 +1378,8 @@
                           "title": "AHUB Disabled",
                           "noDataMessage": "All of your VMs have AHUB enabled.",
                           "noDataMessageStyle": 3,
+                          "exportFieldName": "WindowsId",
+                          "exportParameterName": "VMID",
                           "queryType": 1,
                           "resourceType": "microsoft.resourcegraph/resources",
                           "crossComponentResources": [
@@ -1375,6 +1393,23 @@
                                 "formatOptions": {
                                   "linkTarget": null,
                                   "showIcon": true
+                                }
+                              },
+                              {
+                                "columnMatch": "QuickFix",
+                                "formatter": 7,
+                                "formatOptions": {
+                                  "linkTarget": "ArmAction",
+                                  "linkLabel": "Quick Fix",
+                                  "linkIsContextBlade": true,
+                                  "armActionContext": {
+                                    "path": "/{VMID}?api-version=2023-03-01",
+                                    "headers": [],
+                                    "params": [],
+                                    "body": "{\r\n  \"properties\": {\r\n    \"licenseType\": \"Windows_Server\"\r\n  }\r\n}\r\n\r\n",
+                                    "httpMethod": "PATCH",
+                                    "description": "# Actions can potentially modify resources.\n## Please use caution and include a confirmation message in this description when authoring this command."
+                                  }
                                 }
                               }
                             ]
@@ -1891,6 +1926,30 @@
                                     "style": "decimal"
                                   }
                                 }
+                              },
+                              {
+                                "columnMatch": "QuickFix",
+                                "formatter": 7,
+                                "formatOptions": {
+                                  "linkTarget": "ArmAction",
+                                  "linkLabel": "Apply Hybrid Benefit",
+                                  "linkIsContextBlade": true,
+                                  "armActionContext": {
+                                    "path": "/{VMID}?api-version=2023-03-01",
+                                    "headers": [],
+                                    "params": [],
+                                    "body": "{\r\n  \"properties\": {\r\n    \"licenseType\": \"Windows_Server\"\r\n  }\r\n}\r\n\r\n",
+                                    "httpMethod": "PATCH",
+                                    "title": "Apply Hybrid Benefit to VM {VMName}",
+                                    "description": "# Windows Hybrid Benefit Application Information: VM \"{VMName}\"\n\n**Attention!**\n\nThis action will apply the Windows Hybrid Benefit to the virtual machine with the name **{VMName}**. Please ensure that you are applying the benefit to the correct VM.\n\n**Resource Details:**\n\n- VM Name: {VMName}\n- Resource Group: {ResourceGroup}\n- Prioritize AHUB: {AHUBPriority}\n\n### Required RBAC Permissions\n\nTo perform this action, you need to have **Contributor** permissions on the Resource Group where the VM is located.\n\nPlease review the information carefully before proceeding with applying the Windows Hybrid Benefit.\n",
+                                    "actionName": "Applying Hybrid benefit to VM {VMName}",
+                                    "runLabel": "Apply Hybrid Benefit to VM: \"{VMName}\""
+                                  }
+                                }
+                              },
+                              {
+                                "columnMatch": "VMName",
+                                "formatter": 5
                               }
                             ],
                             "hierarchySettings": {

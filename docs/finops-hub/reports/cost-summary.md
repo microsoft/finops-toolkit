@@ -20,6 +20,7 @@ On this page:
 - [Resources](#resources)
 - [Commitments](#commitments)
 - [Hybrid Benefit](#hybrid-benefit)
+- [FOCUS](#focus)
 - [See also](#see-also)
 
 ---
@@ -155,6 +156,76 @@ There are 3 charts on the page:
 The table shows a list of VMs that are currently using or could be using AHB with their vCPU count, AHB vCPU count, resource group, subscription, cost and quantity.
 
 ![Screenshot of the Hybrid Benefit page](https://user-images.githubusercontent.com/399533/216882954-a83d0c8a-fe6d-4d55-8e8b-45b3df3914a9.png)
+
+<br>
+
+## FOCUS
+
+The **FOCUS** page transforms the amortized cost data into the FinOps Open Cost and Usage Specification (FOCUS) schema. This is an early preview to demonstrate the FOCUS schema and elicit feedback. Not all aspects of FOCUS have been fully accounted for. Please see the details below.
+
+The following changes were made to a new `FOCUS_0.5` table to align to the FOCUS schema:
+
+| FOCUS column                                                                                                                                                | CostDetails column        | Notes                                                                                                                              |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| [`AmortizedCost`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/metrics/amortizedcost.md)              | `CostInBillingCurrency`   |
+| [`AvailabilityZone`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/availabilityzone.md)     | `NULL` (empty)            | Not provided in Azure usage data.                                                                                                  |
+| [`BilledCost`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/metrics/billedcost.md)                    | `CostInBillingCurrency`   | ⚠️ Only includes usage and Marketplace purchases. Reservation and savings plan purchases are not included.                         |
+| [`BillingAccountId`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/billingaccountid.md)     | `BillingProfileId`        | Represents the invoice scope, which is the billing profile in Microsoft cost details.                                              |
+| [`BillingAccountName`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/billingaccountname.md) | `BillingProfileName`      | Represents the invoice scope, which is the billing profile in Microsoft cost details.                                              |
+| [`BillingCurrency`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/billingcurrency.md)       | `BillingCurrencyCode`     |
+| `BillingPeriod`                                                                                                                                             | (Derived)                 | Not an official FOCUS column. Derived from `BillingPeriodStart` for reporting purposes only.                                       |
+| [`BillingPeriodEnd`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/billingperiodend.md)     | `BillingPeriodEndDate+1d` | FOCUS end dates are exclusive, meaning they are set to the start of the next period.                                               |
+| [`BillingPeriodStart`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/billingperiodstart.md) | `BillingPeriodStartDate`  |
+| `ChargePeriod`                                                                                                                                              | (Derived)                 | Not an official FOCUS column. Derived from `ChargePeriodStart` and `ChargePeriodEnd` for reporting purposes only.                  |
+| [`ChargePeriodEnd`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/chargeperiodend.md)       | `Date+1d`                 | FOCUS end dates are exclusive, meaning they are set to the start of the next period.                                               |
+| [`ChargePeriodStart`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/chargeperiodstart.md)   | `Date`                    |
+| [`ChargeType`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/chargetype.md)                 | `ChargeType`              | `UnusedReservation` and `UnusedSavingsPlan` are returned as `Usage`. `Refund` is returned as `Adjustment`.                         |
+| [`InvoiceIssuer`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/invoiceissuer.md)           | `"Microsoft"`             | Currently hard-coded.                                                                                                              |
+| [`ProviderName`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/provider.md)                 | `"Microsoft"`             | Currently hard-coded.                                                                                                              |
+| [`PublisherName`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/publisher.md)               | `PublisherName`           | If `PublisherName` is empty and `PublisherType` is `"Azure"`, `"Microsoft"` is used; otherwise, the `PublisherType` value is used. |
+| [`Region`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/region.md)                         | `ResourceLocation`        | `"All regions"` and Microsoft Defender values are changed to `Global` for consistency.                                             |
+| [`ResourceId`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/resourceid.md)                 | `ResourceId`              |
+| [`ResourceName`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/resourceid.md)               | `ResourceName`            |
+| [`ServiceCategory`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/servicecategory.md)       | (Derived)                 | Value derived from a custom mapping from `ServiceName` and `ftk_ConsumedService`.                                                  |
+| [`ServiceName`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/servicename.md)               | (Derived)                 | Value derived from a custom mapping from `ftk_ProductName`, `ftk_ConsumedService`, and `ftk_MeterCategory`.                        |
+| [`SubAccountId`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/subaccountid.md)             | `SubscriptionId`          |
+| [`SubAccountName`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/subaccountname.md)         | `SubscriptionName`        |
+| `SubAccountNameUnique`                                                                                                                                      | (Derived)                 | Not an official FOCUS column. Derived from `SubAccountName` and `SubAccountId` for reporting purposes only.                        |
+| `ftk_(ColumnName)`                                                                                                                                          | (Remaining columns)       | Not an official FOCUS column. Added a prefix to keep existing columns, but clearly denote them as separate.                        |
+
+A few open issues we've identified:
+
+1. `BilledCost` is missing reservation and savings plan purchases and cannot be used for invoice reconciliation.
+   - FinOps hubs v0.0.1 only supports amortized cost data. Support for actual (billed) cost data will be added in a future release.
+2. `BillingAccountId` and `BillingAccountName` may be confusing for Microsoft Customer Agreement accounts, where the billing profile is used.
+   - We are looking for feedback about this to understand if it is a problem and determine the best way to address it.
+3. `BillingPeriodEnd` and `ChargePeriodEnd` are exclusive, which is ideal for filtering, but may be confusing.
+   - We are looking for feedback about this to understand if it is a problem and determine the best way to address it.
+4. `ChargeType` is missing support for unused commitments. This will be accounted for by FOCUS 1.0.
+5. `InvoiceIssuer` is not accounting for Cloud Solution Provider partners.
+   - FinOps hubs v0.0.1 only supports Enterprise Agreement accounts. Support for Microsoft Customer Agreement and Microsoft Partner Agreement accounts will be added in a future release.
+6. `Region` can include values that are not regions, such as `Unassigned`.
+   - This is an underlying service issue and must be resolved by the service that is referencing invalid Azure locations in their usage data.
+7. `Region` uses `Global` to indicate a global service.
+   - FOCUS is considering whether to use `Global` or not. This will be finalized by FOCUS 1.0.
+8. `ServiceName` and `ServiceCategory` are using a custom mapping that may not account for all services yet.
+   - We will update this list to account for all services soon. This will require ongoing work to keep up with the pace at which Microsoft is enabling new services.
+   - Please let us know if you find any missed services or if you have any feedback about the mapping.
+9. `ServiceName` uses `Azure Savings Plan for Compute` for savings plan records due to missing service details.
+   - This is an underlying data issue and must be resolved by the service that generates the data.
+10. `ServiceName` attempts to map Azure Kubernetes Service (AKS) charges based on a simple resource group name check, which may catch false positives.
+    - We will update the resource group check to be more targeted soon.
+    - Please let us know if you find any false positives.
+    - If we find we are unable to accurately identify AKS charges, we will fall back to the service name for the actual resource (e.g., Load Balancer).
+11. `ftk_` prefix is not part of the specification.
+    - FOCUS is considering whether to prefix custom columns or standard columns. This will be accounted for by FOCUS 1.0.
+    - Please let us know if you have any feedback about this.
+
+If you have feedback about our mappings or about our full FOCUS support plans, please leave a comment within the [FOCUS schema release discussion](https://github.com/microsoft/finops-toolkit/discussions/61). If you believe you've found a bug, please [create an issue](https://github.com/microsoft/finops-toolkit/issues/new/choose).
+
+If you have feedback about FOCUS, please consider contributing to the FOCUS project. The project is looking for more practitioners to help bring their experience to help guide efforts and make this the most useful spec it can be. To learn more about FOCUS or to contribute to the project, visit [focus.finops.org](https://focus.finops.org).
+
+![Screenshot of the FOCUS page](https://github.com/microsoft/finops-toolkit/assets/399533/dfdaf249-1fdc-43e3-afbd-b7797a85e9f8)
 
 <br>
 
