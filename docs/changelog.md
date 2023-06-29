@@ -1,14 +1,12 @@
 # 📜 FinOps toolkit changelog
 
-- [Unreleased](#unreleased)
 - [v0.0.1](#v001)
 
 ---
 
+<!--
 ## Unreleased
-
-1. FinOps hubs
-   1. Add Azure Data Explorer cluster to finops-hub template.
+-->
 
 ## v0.0.1
 

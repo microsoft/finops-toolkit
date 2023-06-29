@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 <#
 .SYNOPSIS
     Creates a new directory if it doesn't already exist. Does not return an object.

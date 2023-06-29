@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 targetScope = 'subscription' // @resourceGroup @subscription @tenant
 
 param startTime string = utcNow('yyyy-MM-dd')
@@ -14,6 +17,7 @@ module dailyCostsAlert '../main.bicep' = {
     // billingAccountId: '8611537' // @tenant
     builtInView: 'DailyCosts'
     emailRecipients: [ 'ema@contoso.com' ]
+    notificationEmail: 'ema@contoso.com'
     scheduleFrequency: 'Weekly'
     scheduleDaysOfWeek: [ 'Monday' ]
   }
@@ -29,6 +33,7 @@ module privateAlert '../main.bicep' = {
     // privateScope: '/providers/Microsoft.Billing/billingAccounts/8611537' // @tenant
     builtInView: 'DailyCosts'
     emailRecipients: [ 'priya@contoso.com' ]
+    notificationEmail: 'priya@contoso.com'
     scheduleFrequency: 'Monthly'
     scheduleDayOfMonth: 1
     scheduleStartDate: scheduleStartDate
@@ -45,6 +50,7 @@ module anomalyAlert '../main.bicep' = {
     kind: 'InsightAlert'
     displayName: 'My anomaly check'
     emailRecipients: [ 'ana@contoso.com' ]
+    notificationEmail: 'ana@contoso.com'
   }
 }
 

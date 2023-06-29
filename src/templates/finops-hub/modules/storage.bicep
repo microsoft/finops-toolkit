@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 //==============================================================================
 // Parameters
 //==============================================================================
@@ -23,12 +26,6 @@ param tags object = {}
 
 @description('Optional. List of scope IDs to create exports for.')
 param exportScopes array
-
-@description('Optional. Number of days of cost data to retain in the ms-cm-exports container. Default: 0.')
-param exportRetentionInDays int = 0
-
-@description('Optional. Number of months of cost data to retain in the ingestion container. Default: 13.')
-param ingestionRetentionInMonths int = 13
 
 //------------------------------------------------------------------------------
 // Variables
@@ -106,7 +103,7 @@ resource ingestionContainer 'Microsoft.Storage/storageAccounts/blobServices/cont
 
 // Create managed identity to upload files
 resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: '${storageAccountName}_${configContainer.name}_blobManager'
+  name: '${storageAccountName}_blobManager'
   location: location
 }
 
@@ -142,14 +139,6 @@ resource uploadSettings 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
       {
         name: 'exportScopes'
         value: join(exportScopes, '|')
-      }
-      {
-        name: 'exportRetentionInDays'
-        value: string(exportRetentionInDays)
-      }
-      {
-        name: 'ingestionRetentionInMonths'
-        value: string(ingestionRetentionInMonths)
       }
       {
         name: 'storageAccountName'

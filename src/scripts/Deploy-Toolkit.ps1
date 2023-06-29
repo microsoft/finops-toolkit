@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 <#
 .SYNOPSIS
     Deploys a toolkit template or module for local testing purposes.
@@ -49,7 +52,8 @@ if ($Build) {
     ./Build-Toolkit -Template $Template
     $templateFolders = @("../../release")
 } else {
-    $templateFolders = @("../templates", "../bicep-registry")
+    # NOTE: Do not include the workbooks folder since they must be built first; they're included in the release folder
+    $templateFolders = @("../templates", "../bicep-registry", "../../release")
 }
 
 # Don't run test and demo deployment at the same time
@@ -77,6 +81,11 @@ $defaultParameters = @{
 
 # Reset global debug variable
 $global:ftkDeployment = $null
+
+# If deploying a workbook, switch to the release folder name
+if (Test-Path (Join-Path .. workbooks $Template)) {
+    $Template = "$Template-workbook"
+}
 
 # Find bicep file
 $templateFolders `

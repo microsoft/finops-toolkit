@@ -21,12 +21,13 @@ On this page:
 
 ## 🧰 Available tools
 
-- [FinOps hubs](./finops-hub) – Open, extensible, and scalable cost reporting.
-- [Cost optimization workbook](./optimization-workbook) – Central hub for cost optimization.
+- [FinOps hubs](./finops-hub/README.md) – Open, extensible, and scalable cost reporting.
+- [Cost optimization workbook](./optimization-workbook/README.md) – Central hub for cost optimization.
+- [Bicep Registry modules](./bicep-registry/README.md) – Official repository for Bicep modules.
 
+<!--
 ### In development
-
-- [Bicep Registry modules](./bicep-registry) – Official repository for Bicep modules.
+-->
 
 Looking for more? See what's coming in the [Toolkit v1 release](https://github.com/microsoft/cloud-hubs/issues/104).
 
