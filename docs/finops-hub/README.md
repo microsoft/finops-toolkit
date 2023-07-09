@@ -58,7 +58,7 @@ To learn more, see [FinOps hub template details](template.md).
    - Exports can take up to a day to show up after first created.
    - Use the **Run now** command at the top of the Cost Management Exports page.
    - Your data should be available within 15 minutes or so, depending on how big your account is.
-5. Download one or more of the available Power BI starter templates:
+5. Download one or more of the available Power BI starter templates from the [latest release](https://github.com/microsoft/finops-toolkit/releases):
    - [Cost summary](./reports/cost-summary.md) for standard cost roll-ups.
    - [Commitment discounts](./reports/commitment-discounts.md) for commitment-based savings utilization and coverage.
 6. [Connect Power BI to your hub](./reports/README.md#setup-a-finops-toolkit-report)
