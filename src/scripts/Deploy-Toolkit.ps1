@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 <#
 .SYNOPSIS
     Deploys a toolkit template or module for local testing purposes.

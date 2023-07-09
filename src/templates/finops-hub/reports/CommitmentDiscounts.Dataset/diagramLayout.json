@@ -1,0 +1,94 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 1411.3384018771867,
+            "y": 0
+          },
+          "nodeIndex": "RI recommendations (shared)",
+          "size": {
+            "height": 429,
+            "width": 285
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1764.1730023464834,
+            "y": 0
+          },
+          "nodeIndex": "RI recommendations (single)",
+          "size": {
+            "height": 409,
+            "width": 308
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3175.51140422367,
+            "y": 0
+          },
+          "nodeIndex": "CostDetails",
+          "size": {
+            "height": 337,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1610.1058377165541,
+            "y": 469
+          },
+          "nodeIndex": "InstanceSizeFlexibility",
+          "size": {
+            "height": 270,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3608.2,
+            "y": 0
+          },
+          "nodeIndex": "Recommendations",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 0,
+            "y": 0
+          },
+          "nodeIndex": "CMConnector",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 100,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

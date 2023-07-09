@@ -7,7 +7,9 @@ On this page:
 - [🆕 Init-Repo](#-init-repo)
 - [📦 Build-Toolkit](#-build-toolkit)
 - [🚀 Deploy-Toolkit](#-deploy-toolkit)
+- [🚚 Publish-Toolkit](#-publish-toolkit)
 - [📁 New-Directory](#-new-directory)
+- [🌿 New-FeatureBranch](#-new-featurebranch)
 
 ---
 
@@ -33,6 +35,7 @@ Example:
 Build-Toolkit runs the following scripts internally:
 
 - [Build-Bicep](./Build-Bicep.ps1) for Bicep Registry modules
+- [Build-Workbook](./Build-Workbook.ps1) for Azure Monitor workbook templates
 
 <br>
 
@@ -75,6 +78,27 @@ Examples:
 
 <br>
 
+## 🚚 Publish-Toolkit
+
+[Publish-Toolkit.ps1](./Publish-Toolkit.ps1) publishes a template to the Azure Quickstart Templates repository.
+
+Parameters:
+
+| Parameter      | Description                                                                                                              |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `-Template`    | Required. Name of the template or module to deploy.                                                                      |
+| `-Destination` | Required. Path to the local clone of the Azure Quickstart Templates repository.                                          |
+| `-Build`       | Optional. Indicates whether the the `Build-Toolkit` command should be executed first. Default = `false`.                 |
+| `-Commit`      | Optional. Indicates whether to commit the changes and start a pull request in the Azure Quickstart Templates repository. |
+
+Example:
+
+```powershell
+./Publish-Toolkit "finops-hub" "../../../aqt" -Build -Commit
+```
+
+<br>
+
 ## 📁 New-Directory
 
 [New-Directory.ps1](./New-Directory.ps1) creates a new directory without failing if it already exists and without writing data to the console.
@@ -83,6 +107,18 @@ Example:
 
 ```powershell
 ./New-Directory "C:\Temp\NewDirectory"
+```
+
+<br>
+
+## 🌿 New-FeatureBranch
+
+[New-FeatureBranch.ps1](./New-FeatureBranch.ps1) creates a new feature branch.
+
+Example:
+
+```powershell
+./New-FeatureBranch "foo"
 ```
 
 <br>

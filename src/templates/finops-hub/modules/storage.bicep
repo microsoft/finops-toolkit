@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 //==============================================================================
 // Parameters
 //==============================================================================
@@ -100,7 +103,7 @@ resource ingestionContainer 'Microsoft.Storage/storageAccounts/blobServices/cont
 
 // Create managed identity to upload files
 resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: '${storageAccountName}_${configContainer.name}_blobManager'
+  name: '${storageAccountName}_blobManager'
   location: location
 }
 

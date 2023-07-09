@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 targetScope = 'resourceGroup'
 
 param uniqueName string = 'ftk-hub-localtest1'

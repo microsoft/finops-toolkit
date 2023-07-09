@@ -1,0 +1,28 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Toolkit",
+            "type": "shell",
+            "command": "./Build-Toolkit",
+            "options": {
+                "cwd": "${workspaceFolder}/src/scripts",
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true,
+            },
+            "isBackground": false,
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false,
+            },
+        }
+    ]
+}
