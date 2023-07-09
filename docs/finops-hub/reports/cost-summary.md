@@ -7,6 +7,8 @@ The **Cost summary report** provides an overview of amortized costs with a few c
 - Build a chargeback report.
 - Summarize cost savings from negotiated and commitment-based discounts.
 
+You can download the Cost summary report from the [latest release](https://github.com/microsoft/finops-toolkit/releases).
+
 > 🚩 **Important**<br>FinOps hubs use [amortized costs](https://learn.microsoft.com/azure/cost-management-billing/reservations/reservation-amortization). Amortization breaks reservation and savings plan purchases down and allocates costs to the resources that received the benefit. Due to this, amortized costs will not show purchase costs and will not match your invoice. Please use [Cost Management](https://aka.ms/costmgmt) to review invoice charges.
 
 On this page:
