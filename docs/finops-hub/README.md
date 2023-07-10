@@ -10,19 +10,45 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 - **Built for scale**<br>_<sup>Designed to support the largest accounts and organizations.</sup>_
 - **Open and extensible**<br>_<sup>Embrace the ecosystem and prioritize enabling the platform.</sup>_
 
+We are very early in our journey. Today, FinOps hubs extend Cost Management by exporting cost details to a consolidated storage account and addressing a few of the inherent limitations that make exports more difficult to use. In their most basic form, FinOps hubs enable more Power BI reporting options. On the more advanced end, FinOps hubs are a foundation for you to build your own cost management and optimization solution.
+
 > #### 💵 Estimated cost: $25 per $1M in cost <!-- markdownlint-disable-line -->
 >
 > _Exact cost of the solution may vary. Cost is primarily for data storage and number of times data is ingested. Pipelines will run once a day per export._
 
 On this page:
 
-- [ℹ️ Summary](#ℹ️-summary)
+- [🙋‍♀️ Why FinOps hubs?](#️-why-finops-hubs)
+- [🌟 Benefits](#-benefits)
+- [ℹ️ What's included](#ℹ️-whats-included)
 - [➕ Create a new hub](#-create-a-new-hub)
 - [🛫 Get started with hubs](#-get-started-with-hubs)
 
 ---
 
-## ℹ️ Summary
+## 🙋‍♀️ Why FinOps hubs?
+
+Many organizations that use Microsoft Cost Management eventually hit a wall where they need some capability that isn't natively available. When they do, their only options are to leverage one of the many third party tools or build something from scratch. While the cost management tooling ecosystem is rich and vast with many great options, they may be overkill or perhaps they don't solve specific needs. In these cases, organizations export cost data and build a custom solution. But this comes with many challenges, as these organizations are not generally staffed with the data engineers needed to design, build, and maintain a scalable data platform. FinOps hubs seeks to provide that foundation to streamline efforts in getting up and running with your own homegrown cost management solution.
+
+FinOps hubs seek to streamline implementing the FinOps Framework, are being designed to scale to meet the largest enterprise needs, and will be open and extensible to support building custom solutions without the hassle of building the backend data store. FinOps hubs are designed for and by the community. Please [join the discussions](https://github.com/microsoft/finops-toolkit/discussions) and let us know what you'd like to see next or learn [how to contribute](https://github.com/microsoft/finops-toolkit/blob/dev/CONTRIBUTING.md) to be a part of the team.
+
+<br>
+
+## 🌟 Benefits
+
+- Clean up duplicated data in daily Cost Management exports (and save money on storage).
+- Convert exported data to parquet for faster data access.
+- Connect Power BI to subscriptions, resource groups, and other scopes.
+- Connect Power BI to Azure Government and Microsoft Online Services Agreement accounts.
+- Report on multiple subscriptions, resource groups, or billing accounts.
+- Preview cost data in the [FinOps Open Cost and Usage Specification (FOCUS)](https://focus.finops.org) schema.
+- Coming soon: Ingest data from subscriptions in multiple tenants into a single storage account.
+- Coming soon: Normalize cost data across account types.
+- Coming soon: Ingest data into Azure Data Explorer.
+
+<br>
+
+## ℹ️ What's included
 
 The FinOps hub template includes the following resources:
 
@@ -30,7 +56,7 @@ The FinOps hub template includes the following resources:
 - Data Factory instance to manage data ingestion and cleanup.
 - Key Vault to store the Data Factory system managed identity credentials.
 
-Once deployed, you can create new exports in Cost Management and use [out of the box Power BI reports](./reports/README.md) to customize and share reports with your stakeholders.
+Once deployed, you can [report on the data in Power BI](./reports/README.md) or by connecting to the storage account directly.
 
 <img alt="Screenshot of the cost summary report" style="max-width:200px" src="https://user-images.githubusercontent.com/399533/216882658-45f026f1-c895-48ca-81e2-35765af8e29e.png">
 <img alt="Screenshot of the services cost report" style="max-width:200px" src="https://user-images.githubusercontent.com/399533/216882700-4e04b589-0580-4e49-9b40-9f5948792975.png">
