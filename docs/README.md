@@ -25,9 +25,9 @@ On this page:
 - [Cost optimization workbook](./optimization-workbook/README.md) – Central hub for cost optimization.
 - [Bicep Registry modules](./bicep-registry/README.md) – Official repository for Bicep modules.
 
-<!--
 ### In development
--->
+
+- [Governance workbook](./governance-workbook/README.md) – Central hub for governance.
 
 Looking for more? See what's coming in the [Toolkit v1 release](https://github.com/microsoft/cloud-hubs/issues/104).
 
