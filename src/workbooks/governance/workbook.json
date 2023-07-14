@@ -2240,7 +2240,7 @@
                         },
                         "queryType": 1,
                         "resourceType": "microsoft.resourcegraph/resources",
-                        "value": "TOTO"
+                        "value": "TODO"
                       }
                     ],
                     "style": "formVertical",
