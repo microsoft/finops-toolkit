@@ -791,7 +791,7 @@
                     "query": "Resources\r\n| where type has \"microsoft.network/networkinterfaces\"\r\n| extend VM = properties.virtualMachine.id\r\n| extend privateEndPoint = properties['privateEndpoint']['id']\r\n| where properties !has 'virtualmachine' and isnull(privateEndPoint)\r\n| where properties['linkedResourceType'] != \"Microsoft.Netapp/volumes\"\r\n| project id, subscriptionId, resourceGroup, location, VM, privateEndPoint, properties\r\n",
                     "size": 0,
                     "title": "Orphan NICs",
-                    "noDataMessage": "No orphan NICs",
+                    "noDataMessage": "No orphaned NICs",
                     "noDataMessageStyle": 3,
                     "showExportToExcel": true,
                     "queryType": 1,
