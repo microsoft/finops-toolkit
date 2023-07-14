@@ -4860,7 +4860,7 @@
                         "id": "f967854d-c31e-46a6-b8b0-6b9fff7ce582",
                         "version": "KqlParameterItem/1.0",
                         "name": "ManagementGroup",
-                        "label": "Management Group",
+                        "label": "Management group",
                         "type": 2,
                         "query": "resourcecontainers\r\n| where type == \"microsoft.management/managementgroups\"\r\n| extend name = properties.displayName\r\n| project name",
                         "crossComponentResources": [
