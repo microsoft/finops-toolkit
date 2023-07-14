@@ -159,7 +159,7 @@ Get-ChildItem "$relDir/$Template*" -Directory `
         Remove-Item $repo.path -Recurse -Force
     }
     ./New-Directory $repo.path
-    Get-ChildItem "$relDir/$templateName" | Copy-Item -Destination $repo.path -Recurse
+    Get-ChildItem "$relDir/$templateName" -Exclude .buildignore | Copy-Item -Destination $repo.path -Recurse
 
     # Commit changes
     if ($Commit) {
