@@ -2170,7 +2170,7 @@
                 {
                   "type": 1,
                   "content": {
-                    "json": "This workbook tab does not work for Tag Name with space, hyphen and underscore ",
+                    "json": "Tag names with spaces, hyphens, and underscores are not supported.",
                     "style": "warning"
                   },
                   "name": "text - 8"
