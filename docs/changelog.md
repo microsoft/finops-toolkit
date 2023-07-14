@@ -4,9 +4,12 @@
 
 ---
 
-<!--
 ## Unreleased
--->
+
+Added:
+
+1. Azure Monitor workbooks
+   1. [Governance workbook](governance-workbook) to centralize governance.
 
 ## v0.0.1
 
