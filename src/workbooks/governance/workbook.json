@@ -219,7 +219,7 @@
                     "version": "KqlItem/1.0",
                     "query": "Resources\n| summarize count()",
                     "size": 3,
-                    "title": "Count of All Resources",
+                    "title": "Count of all resources",
                     "queryType": 1,
                     "resourceType": "microsoft.resourcegraph/resources",
                     "crossComponentResources": [
