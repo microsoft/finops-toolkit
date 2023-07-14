@@ -28,7 +28,7 @@ $valid = 0
 $fixed = 0
 $notSupported = 0
 
-Get-ChildItem -Path ../ -Recurse -Include *.* -Exclude *.json, *.md, *.pbix, *.svg -File `
+Get-ChildItem -Path ../ -Recurse -Include *.* -Exclude *.abf, *.bim, .buildignore, .gitignore, *.json, *.md, *.pbidataset, *.pbip, *.pbir, *.pbix, *.png, *.svg -File `
 | ForEach-Object {
     $file = $_
 
