@@ -358,7 +358,7 @@
           "type": "String"
         },
         "sink": {
-          "name": "Location",
+          "name": "ResourceLocationNormalized",
           "type": "String"
         }
       },
