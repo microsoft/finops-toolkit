@@ -2045,6 +2045,48 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
           }
         }
       }
+      {
+        name: 'Delete Source'
+        type: 'Delete'
+        dependsOn: [
+          {
+            activity: 'Convert File'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        policy: {
+          timeout: '0.00:05:00'
+          retry: 2
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          dataset: {
+            referenceName: 'ingestion'
+            type: 'DatasetReference'
+            parameters: {
+              fileName: {
+                value: '@pipeline().parameters.fileName'
+                type: 'Expression'
+              }
+              folderName: {
+                value: '@pipeline().parameters.folderName'
+                type: 'Expression'
+              }
+            }
+          }
+          enableLogging: false
+          storeSettings: {
+            type: 'AzureBlobFSReadSettings'
+            recursive: true
+            enablePartitionDiscovery: false
+          }
+        }
+      }
     ]
     parameters: {
       fileName: {
