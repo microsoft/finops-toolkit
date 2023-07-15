@@ -498,7 +498,7 @@
           "type": "String"
         },
         "sink": {
-          "name": "PartNumber",
+          "name": "ProductId",
           "type": "String"
         }
       },
