@@ -188,7 +188,7 @@
           "type": "String"
         },
         "sink": {
-          "name": "AccountOwnerName",
+          "name": "BillingProfileName",
           "type": "String"
         }
       },
@@ -498,7 +498,7 @@
           "type": "String"
         },
         "sink": {
-          "name": "PartNumber",
+          "name": "ProductId",
           "type": "String"
         }
       },
