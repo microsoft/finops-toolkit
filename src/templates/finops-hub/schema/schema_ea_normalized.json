@@ -6,11 +6,11 @@
     },
     {
       "name": "costInUsd",
-      "value": 0.0
+      "value": null
     },
     {
       "name": "exchangeRateDate",
-      "value": "$$COLUMN:Date"
+      "value": "$$COLUMN:BillingPeriodStartDate"
     },
     {
       "name": "exchangeRatePricingToBilling",
@@ -30,7 +30,7 @@
     },
     {
       "name": "paygCostInUsd",
-      "value": 0.0
+      "value": null
     },
     {
       "name": "previousInvoiceId",
@@ -39,6 +39,10 @@
     {
       "name": "pricingCurrency",
       "value": "$$COLUMN:BillingCurrencyCode"
+    },
+    {
+      "name": "ProductId",
+      "value": null
     },
     {
       "name": "provider",
@@ -58,7 +62,7 @@
     },
     {
       "name": "servicePeriodEndDate",
-      "value": "$$COLUMN:BillingPeriodEndDate"
+      "value": null
     },
     {
       "name": "servicePeriodStartDate",
@@ -68,6 +72,26 @@
   "translator": {
     "type": "TabularTranslator",
     "mappings": [
+      {
+        "source": {
+          "name": "AccountName",
+          "type": "String"
+        },
+        "sink": {
+          "name": "AccountName",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "AccountOwnerId",
+          "type": "String"
+        },
+        "sink": {
+          "name": "AccountOwnerId",
+          "type": "String"
+        }
+      },
       {
         "source": {
           "name": "AdditionalInfo",
@@ -150,7 +174,7 @@
       },
       {
         "source": {
-          "name": "AccountOwnerId",
+          "name": "BillingProfileId",
           "type": "String"
         },
         "sink": {
@@ -160,7 +184,7 @@
       },
       {
         "source": {
-          "name": "AccountName",
+          "name": "BillingProfileName",
           "type": "String"
         },
         "sink": {
@@ -325,7 +349,7 @@
         },
         "sink": {
           "name": "IsAzureCreditEligible",
-          "type": "String"
+          "type": "Boolean"
         }
       },
       {
@@ -390,6 +414,16 @@
       },
       {
         "source": {
+          "name": "OfferId",
+          "type": "String"
+        },
+        "sink": {
+          "name": "OfferId",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
           "name": "paygCostInBillingCurrency",
           "type": "Decimal"
         },
@@ -414,7 +448,7 @@
           "type": "Decimal"
         },
         "sink": {
-          "name": "PayGPrice",
+          "name": "PaygPrice",
           "type": "Decimal"
         }
       },
@@ -454,6 +488,16 @@
           "type": "String"
         },
         "sink": {
+          "name": "PartNumber",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "ProductId",
+          "type": "String"
+        },
+        "sink": {
           "name": "ProductId",
           "type": "String"
         }
@@ -480,7 +524,7 @@
       },
       {
         "source": {
-          "name": "OfferId",
+          "name": "ProductOrderName",
           "type": "String"
         },
         "sink": {
@@ -555,26 +599,6 @@
         },
         "sink": {
           "name": "ResellerName",
-          "type": "String"
-        }
-      },
-      {
-        "source": {
-          "name": "ReservationId",
-          "type": "String"
-        },
-        "sink": {
-          "name": "ReservationId",
-          "type": "String"
-        }
-      },
-      {
-        "source": {
-          "name": "ReservationName",
-          "type": "String"
-        },
-        "sink": {
-          "name": "ReservationName",
           "type": "String"
         }
       },

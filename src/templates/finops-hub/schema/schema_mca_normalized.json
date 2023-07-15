@@ -1,9 +1,65 @@
 {
   "additionalColumns": [
+    {
+      "name": "AccountName",
+      "value": null
+    },
+    {
+      "name": "AccountOwnerId",
+      "value": null
+    },
+    {
+      "name": "PartNumber",
+      "value": null
+    },
+    {
+      "name": "OfferId",
+      "value": null
+    }
   ],
   "translator": {
     "type": "TabularTranslator",
     "mappings": [
+      {
+        "source": {
+          "name": "AccountName",
+          "type": "String"
+        },
+        "sink": {
+          "name": "AccountName",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "AccountOwnerId",
+          "type": "String"
+        },
+        "sink": {
+          "name": "AccountOwnerId",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "PartNumber",
+          "type": "String"
+        },
+        "sink": {
+          "name": "PartNumber",
+          "type": "String"
+        }
+      },
+      {
+        "source": {
+          "name": "OfferId",
+          "type": "String"
+        },
+        "sink": {
+          "name": "OfferId",
+          "type": "String"
+        }
+      },
       {
         "source": {
           "name": "additionalInfo",
@@ -491,26 +547,6 @@
         },
         "sink": {
           "name": "ResellerName",
-          "type": "String"
-        }
-      },
-      {
-        "source": {
-          "name": "reservationId",
-          "type": "String"
-        },
-        "sink": {
-          "name": "ReservationId",
-          "type": "String"
-        }
-      },
-      {
-        "source": {
-          "name": "reservationName",
-          "type": "String"
-        },
-        "sink": {
-          "name": "ReservationName",
           "type": "String"
         }
       },

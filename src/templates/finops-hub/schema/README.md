@@ -1,6 +1,6 @@
 # 📦 FinOps hub schema tranforms
 
-These transforms are used to convert incoming cost management data into the target schema.
+These transforms are used to convert incoming cost data into the target schema.
 
 Modules:
 
