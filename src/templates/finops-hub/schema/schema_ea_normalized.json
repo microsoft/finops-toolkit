@@ -188,7 +188,7 @@
           "type": "String"
         },
         "sink": {
-          "name": "AccountOwnerName",
+          "name": "BillingProfileName",
           "type": "String"
         }
       },
