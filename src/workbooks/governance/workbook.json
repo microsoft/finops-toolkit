@@ -125,7 +125,7 @@
           {
             "type": 1,
             "content": {
-              "json": "## Azure Governance Workbook\r\n### Change Log\r\n\r\n|Version|Date|Description|\r\n|---|---|---|\r\n|v1.0.0| 12/07/2023 | Initial Release\r\n|v1.1.0| 13/07/2023 |-Added dynamic filter for Cost Management tab<br>-Query fixed for Tag Explorer<br>-Fixed typo in all tab notes"
+              "json": "## Azure governance workbook\r\n### Change log\r\n\r\n|Version|Date|Description|\r\n|---|---|---|\r\n|v1.0.0| 12/07/2023 | Initial Release\r\n|v1.1.0| 13/07/2023 |-Added dynamic filter for Cost Management tab<br>-Query fixed for Tag explorer<br>-Fixed typo in all tab notes"
             },
             "conditionalVisibility": {
               "parameterName": "isVisible",
