@@ -6,6 +6,14 @@
 
 <!--
 ## Unreleased
+## v0.0.2
+
+Added:
+
+1. FinOps hubs
+   1. Support for actual (billed) cost data.
+   2. Add managed exports feature
+   3. Backfill historical cost data to streamline first-time setup.
 -->
 
 ## v0.0.1
@@ -20,20 +28,5 @@ Added:
    1. [Scheduled action modules](bicep-registry/README.md#scheduled-actions) submitted to the Bicep Registry (pending release).
 3. Azure Monitor workbooks
    1. [Cost optimization workbook](optimization-workbook) to centralize cost optimization.
-
-<br>
-
-## v0.0.2
-
-Added:
-
-1. FinOps hubs
-   1. Add actuals dataset
-   2. Add managed exports feature
-      1. Add pipeline to automatically configure Cost Management exports for supported scopes
-      2. Add pipelines to trigger Cost Management exports on schedule for supported scopes
-      3. Add daily and monthly schedules for supported scopes
-   3. Add historical backfill feature
-      1. Add pipelines to backfill dataset based on ingestion container retention settings defined in settings.json
 
 <br>

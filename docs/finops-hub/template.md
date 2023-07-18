@@ -16,11 +16,10 @@ To use this template, you will need to create a Cost Management export that publ
 
 On this page:
 
-- [📦 FinOps hub template](#-finops-hub-template)
-  - [Prerequisites](#prerequisites)
-  - [Parameters](#parameters)
-  - [Resources](#resources)
-  - [Outputs](#outputs)
+- [Prerequisites](#prerequisites)
+- [Parameters](#parameters)
+- [Resources](#resources)
+- [Outputs](#outputs)
 
 ---
 
@@ -61,8 +60,8 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
       > ℹ️ _In the future, we will use this container to stage external data outside of Cost Management._
     - `config` – Stores hub metadata and configuration settings. Files:
       - `settings.json` – Hub settings.
-      - `schema_ea.json` – Transforms for EA data.
-      - `schema_mca.json` – Transforms for MCA data.
+      - `schema_ea.json` – Configuration to map the EA schema to a normalized schema.
+      - `schema_mca.json` – Configuration to map the MCA schema to a normalized schema.
 - `<hubName>-engine-<unique-suffix>` Data Factory instance
   - Pipelines:
     - `msexports_backfill` – Triggers a series of monthly Cost Management exports (msexports_fill pipeline) to fill the dataset per the retention setting defined in settings.json

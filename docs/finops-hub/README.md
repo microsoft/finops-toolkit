@@ -16,17 +16,11 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 
 On this page:
 
-- [☁️ FinOps hubs](#️-finops-hubs)
-  - [ℹ️ Summary](#ℹ️-summary)
-  - [Create a new hub](#create-a-new-hub)
-  - [Configure daily/monthly exports](#configure-dailymonthly-exports)
-    - [Configure daily/monthly exports using managed exports](#configure-dailymonthly-exports-using-managed-exports)
-      - [Managed export requirements](#managed-export-requirements)
-      - [Managed export configuration](#managed-export-configuration)
-      - [Export scope examples](#export-scope-examples)
-    - [Configure daily/monthly exports using Cost Management exports](#configure-dailymonthly-exports-using-cost-management-exports)
-  - [Connect to your data](#connect-to-your-data)
-  - [🛫 Get started with hubs](#-get-started-with-hubs)
+- [ℹ️ Summary](#ℹ️-summary)
+- [🧰 Create a new hub](#-create-a-new-hub)
+- [🛠️ Configure  exports](#️-configure--exports)
+- [🗃️ Connect to your data](#️-connect-to-your-data)
+- [🛫 Get started with hubs](#-get-started-with-hubs)
 
 ---
 
@@ -48,77 +42,17 @@ To learn more, see [FinOps hub template details](template.md).
 
 <br>
 
-## Create a new hub
+## 🧰 Create a new hub
 
 1. [Deploy the **finops-hub** template](../deploy).
 
-## Configure daily/monthly exports
+## 🛠️ Configure  exports
 
-Configure exports for supported scopes using either managed exports or Cost Management exports.
+Configure exports for supported scopes
+- For EA enrollments use [managed exports](./managed-exports.md)
+- For MCA enrollments use [cost management exports](./cm-exports.md)
 
-### Configure daily/monthly exports using managed exports
-
-#### Managed export requirements
-
-- Managed exports require granting permissions against the export scope to the managed identity used by Data Factory.  If this is not desireable/feasable use Cost Management exports instead
-- Managed exports support EA Enrollment, EA Department and Subscription level imports.
-- **MCA Billing Accounts and Billing Profiles are not supported by managed exports at present.  Use Cost Management exports instead.**
-- Minimum required permissions for the export scope:
-  - _**EA Enrollment:** EA Reader_
-  - _**EA Department:** Department Reader_
-  - _**Subscription:** Cost Management Contributor_
-  
-#### Managed export configuration
-
-> 💡 _Note: MCA billing scopes are not supported for managed exports at this time.  Use Cost Management Exports instead._
-
-1. Grant required permissions to the managed identity of the Data Factory.
-2. Add the export scope(s) to the exportScopes section of the settings.json file in the config container.  
-3. Wait for the msexports_setup pipeline to configure managed exports for the specified scopes.
-4. Execute the msexports_backfill pipeline to fill the dataset per the retention settings in settings.json.
-
-#### Export scope examples
-
-````json
-   "exportScopes": [
-      {
-         "scope": "/subscriptions/00000000-0000-0000-0000-000000000000"
-      },
-      {
-         "scope": "/providers/Microsoft.Billing/billingAccounts/12345678"
-      },
-      {
-         "scope": "/providers/Microsoft.Billing/billingAccounts/12345678/departments/1234"
-      }
-    ]
-````
-
-### Configure daily/monthly exports using Cost Management exports
-
-Use Cost Management exports for MCA scopes or scenarios where you cannot grant permissions to Azure Data Factory.
-
-1. [Create a new cost export](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data?tabs=azure-portal) using the following settings:
-   - **Metric** = `Amortized cost`
-   - **Export type** = `Daily export of month-to-date costs`
-     > 💡 _**Tip:** Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range.  For best performance create one for calendar month of historical data you want to backfill._
-   - **File Partitioning** = `on`
-     > 💡 _Tip: This setting must be enabled for the extract trigger to fire correctly.  If data isn't appearing in the ingestion container make sure this setting is turned on and the trigger is enabled in Data Factory._
-   - **Storage account** = (Use subscription/resource from step 1)
-   - **Container** = `msexports`
-   - **Directory** = (Use the resource ID of the scope you're exporting without the first "/")
-
-   > - _**EA Enrollment:** providers/Microsoft.Billing/billingAccounts/{billingAccountId}_
-   > - _**EA Department:** providers/Microsoft.Billing/billingAccounts/{billingAccountId}/departments/{departmentId}_
-   > - _**MCA Billing Account:** providers/Microsoft.Billing/billingAccounts/{billingAccountId}_
-   > - _**MCA Billing Profile:** providers/Microsoft.Billing/billingAccounts/{billingAccountId}/billingProfiles/{billingProfileId}_
-   > - _**Subscription:** subscriptions/{subscriptionId}_
-
-2. Run your export.
-   - Exports can take up to a day to show up after first created.
-   - Use the **Run now** command at the top of the Cost Management Exports page.
-   - Your data should be available within 15 minutes or so, depending on how big your account is.
-
-## Connect to your data
+## 🗃️ Connect to your data
 
 1. Download one or more of the available Power BI starter templates:
    - [Cost summary](./reports/cost-summary.md) for standard cost roll-ups.
