@@ -5328,7 +5328,7 @@
                 {
                   "type": 1,
                   "content": {
-                    "json": "## Build and scale your applications quickly while maintaining control\r\nTake advantage of built-in and custom policies to set guardrails in your subscriptions. Easily deploy fully governed environments throughout your organization with Azure Blueprints. And, manage costs by gaining insights into your cloud spend so that you get the most from your cloud investments.<br>\r\n- Enforce and audit your policies for any Azure service<br>\r\n- Create compliant environments using Azure Blueprints, including resources, policies, and role-access controls<br>\r\n- Ensure that you’re compliant with external regulations by using built-in compliance controls<br>\r\n- Monitor spend and encourage accountability across your entire organization"
+                    "json": "## Build and scale your applications quickly while maintaining control\r\nTake advantage of built-in and custom policies to set guardrails in your subscriptions. Easily deploy fully governed environments throughout your organization with Azure Blueprints. And, manage costs by gaining insights into your cloud spend so that you get the most from your cloud investments.<br>\r\n- Enforce and audit your policies for any Azure service<br>\r\n- Create compliant environments using Azure Blueprints, including resources, policies, and role-access controls<br>\r\n- Ensure that you’re compliant with external regulations by using built-in compliance controls<br>\r\n- Monitor cost and encourage accountability across your entire organization"
                   },
                   "name": "text - 16"
                 },
