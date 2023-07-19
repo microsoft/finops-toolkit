@@ -876,7 +876,7 @@
                               },
                               {
                                 "columnId": "resourceGroup",
-                                "label": "Resource Group"
+                                "label": "Resource group"
                               },
                               {
                                 "columnId": "location",
