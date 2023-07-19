@@ -5777,7 +5777,7 @@
                               },
                               {
                                 "columnId": "policyAssignmentScope",
-                                "label": "Assignment Scope"
+                                "label": "Assignment scope"
                               },
                               {
                                 "columnId": "policyAssignmentDefinitionId",
