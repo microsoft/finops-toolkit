@@ -5765,7 +5765,7 @@
                             "labelSettings": [
                               {
                                 "columnId": "policyAssignmentId",
-                                "label": "Assignment Id"
+                                "label": "Assignment ID"
                               },
                               {
                                 "columnId": "policyAssignmentName",
