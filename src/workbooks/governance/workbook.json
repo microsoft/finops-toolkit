@@ -2111,7 +2111,7 @@
                               "id": "256c7e33-df90-4956-aaf3-699aeaad912f",
                               "version": "KqlParameterItem/1.0",
                               "name": "DataSourceLocation",
-                              "label": "Datasource Location",
+                              "label": "Data source location",
                               "type": 2,
                               "description": "Use to filter for datasources within a specific location",
                               "isRequired": true,
