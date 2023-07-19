@@ -1712,7 +1712,7 @@
                               },
                               {
                                 "columnId": "microsoft.storage/storageaccounts-Transaction-SuccessServerLatency Timeline",
-                                "label": "Server Latency Timeline"
+                                "label": "Server latency timeline"
                               }
                             ]
                           },
