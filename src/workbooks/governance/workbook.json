@@ -1700,7 +1700,7 @@
                               },
                               {
                                 "columnId": "microsoft.storage/storageaccounts-Transaction-SuccessE2ELatency",
-                                "label": "E2E Latency"
+                                "label": "E2E latency"
                               },
                               {
                                 "columnId": "microsoft.storage/storageaccounts-Transaction-SuccessE2ELatency Timeline",
