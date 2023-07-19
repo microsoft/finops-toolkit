@@ -2793,7 +2793,7 @@
                     "version": "KqlItem/1.0",
                     "query": "resources\r\n| where type =~ 'Microsoft.Network/applicationGateways'\r\n| extend backendPoolsCount = array_length(properties.backendAddressPools),SKUName= tostring(properties.sku.name), SKUTier= tostring(properties.sku.tier),SKUCapacity=properties.sku.capacity,backendPools=properties.backendAddressPools\r\n| project id, name, SKUName, SKUTier, SKUCapacity\r\n| join (\r\n    resources\r\n    | where type =~ 'Microsoft.Network/applicationGateways'\r\n    | mvexpand backendPools = properties.backendAddressPools\r\n    | extend backendIPCount = array_length(backendPools.properties.backendIPConfigurations)\r\n    | extend backendAddressesCount = array_length(backendPools.properties.backendAddresses)\r\n    | extend backendPoolName  = backendPools.properties.backendAddressPools.name\r\n    | summarize backendIPCount = sum(backendIPCount) ,backendAddressesCount=sum(backendAddressesCount) by id\r\n) on id\r\n| project-away id1\r\n{OrphanAppGW} where  (backendIPCount == 0 or isempty(backendIPCount)) and (backendAddressesCount==0 or isempty(backendAddressesCount))\r\n| order by id asc",
                     "size": 0,
-                    "noDataMessage": "No App Gateways",
+                    "noDataMessage": "No app gateways",
                     "noDataMessageStyle": 3,
                     "showExportToExcel": true,
                     "queryType": 1,
