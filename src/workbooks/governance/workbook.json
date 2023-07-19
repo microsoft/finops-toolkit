@@ -5801,7 +5801,7 @@
                               },
                               {
                                 "columnId": "numberOfNonCompliantResources",
-                                "label": "Non Compliant Resources"
+                                "label": "Non compliant resources"
                               },
                               {
                                 "columnId": "details",
