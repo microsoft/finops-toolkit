@@ -5785,7 +5785,7 @@
                               },
                               {
                                 "columnId": "definitionId",
-                                "label": "Definition Id"
+                                "label": "Definition ID"
                               },
                               {
                                 "columnId": "numberOfPolicies",
