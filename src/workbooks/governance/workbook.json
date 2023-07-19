@@ -34,7 +34,7 @@
                   "id": "7faacfc6-663e-4ff5-bb64-f86d995f9563",
                   "cellValue": "SelectedTab",
                   "linkTarget": "parameter",
-                  "linkLabel": "Storage & backup",
+                  "linkLabel": "Storage + backup",
                   "subTarget": "RC_Storage",
                   "style": "link"
                 },
