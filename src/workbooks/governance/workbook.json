@@ -2461,7 +2461,7 @@
                               },
                               {
                                 "columnId": "JobDuration",
-                                "label": "Job Duration (Hours)"
+                                "label": "Job duration (hours)"
                               },
                               {
                                 "columnId": "JobStatus",
