@@ -5773,7 +5773,7 @@
                               },
                               {
                                 "columnId": "policyAssignmentDisplayName",
-                                "label": "Assignment Display Name"
+                                "label": "Assignment display name"
                               },
                               {
                                 "columnId": "policyAssignmentScope",
