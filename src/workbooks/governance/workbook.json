@@ -2647,7 +2647,7 @@
                           "formatter": 7,
                           "formatOptions": {
                             "linkTarget": "CellDetails",
-                            "linkLabel": "🔍 View Details",
+                            "linkLabel": "🔍 View details",
                             "linkIsContextBlade": true
                           }
                         }
