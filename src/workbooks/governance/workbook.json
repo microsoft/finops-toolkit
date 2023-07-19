@@ -1696,7 +1696,7 @@
                               },
                               {
                                 "columnId": "microsoft.storage/storageaccounts-Transaction-Transactions Timeline",
-                                "label": "Transactions Timeline"
+                                "label": "Transactions timeline"
                               },
                               {
                                 "columnId": "microsoft.storage/storageaccounts-Transaction-SuccessE2ELatency",
