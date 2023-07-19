@@ -722,7 +722,7 @@
                               },
                               {
                                 "columnId": "nicId",
-                                "label": "Network Interface"
+                                "label": "Network interface"
                               },
                               {
                                 "columnId": "privateIP",
