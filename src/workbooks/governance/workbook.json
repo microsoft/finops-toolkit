@@ -2469,7 +2469,7 @@
                               },
                               {
                                 "columnId": "FailureCode",
-                                "label": "Job Failure Code"
+                                "label": "Job failure code"
                               }
                             ]
                           },
