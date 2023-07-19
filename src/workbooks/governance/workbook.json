@@ -1918,7 +1918,7 @@
                               },
                               {
                                 "columnId": "microsoft.storage/storageaccounts/blobservices-Capacity-BlobCapacity Timeline",
-                                "label": "Blob capacity Timeline"
+                                "label": "Blob capacity timeline"
                               },
                               {
                                 "columnId": "microsoft.storage/storageaccounts/fileservices-Capacity-FileCapacity",
