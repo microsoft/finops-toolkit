@@ -3270,7 +3270,7 @@
                             "labelSettings": [
                               {
                                 "columnId": "id",
-                                "label": "Resource Name"
+                                "label": "Resource name"
                               },
                               {
                                 "columnId": "tag",
