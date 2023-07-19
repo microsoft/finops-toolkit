@@ -2807,7 +2807,7 @@
                 {
                   "type": 1,
                   "content": {
-                    "json": "# Load Balancer"
+                    "json": "# Load balancer"
                   },
                   "name": "Load Balancer Title"
                 },
