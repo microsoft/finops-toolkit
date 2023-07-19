@@ -3387,7 +3387,7 @@
                               },
                               {
                                 "columnId": "tag",
-                                "label": "Tag Value"
+                                "label": "Tag value"
                               }
                             ]
                           }
