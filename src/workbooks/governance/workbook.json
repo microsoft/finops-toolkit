@@ -2009,7 +2009,7 @@
                               "name": "Workspaces",
                               "label": "Workspace",
                               "type": 5,
-                              "description": "LA Workspaces configured in vault diagnostic settings",
+                              "description": "LA workspaces configured in vault diagnostic settings",
                               "isRequired": true,
                               "multiSelect": true,
                               "quote": "'",
