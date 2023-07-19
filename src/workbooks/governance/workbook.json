@@ -1096,7 +1096,7 @@
                       {
                         "type": 1,
                         "content": {
-                          "json": "States and billing status of Azure virtual machines : https://learn.microsoft.com/en-us/azure/virtual-machines/states-billing",
+                          "json": "States and billing status of Azure virtual machines : https://learn.microsoft.com/azure/virtual-machines/states-billing",
                           "style": "info"
                         },
                         "name": "Info VM states"
