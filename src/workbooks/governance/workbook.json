@@ -2457,7 +2457,7 @@
                               },
                               {
                                 "columnId": "JobStartTime",
-                                "label": "Job Start Time (UTC)"
+                                "label": "Job start time (UTC)"
                               },
                               {
                                 "columnId": "JobDuration",
