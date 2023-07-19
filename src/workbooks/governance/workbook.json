@@ -2453,7 +2453,7 @@
                               },
                               {
                                 "columnId": "JobOperation",
-                                "label": "Job Operation"
+                                "label": "Job operation"
                               },
                               {
                                 "columnId": "JobStartTime",
