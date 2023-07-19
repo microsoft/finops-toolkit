@@ -2272,7 +2272,7 @@
                               "id": "7a64467f-eec7-495b-9099-233fb7bceb08",
                               "version": "KqlParameterItem/1.0",
                               "name": "RowsPerPage",
-                              "label": "Rows Per Page",
+                              "label": "Rows per page",
                               "type": 2,
                               "description": "Number of rows to display in a single page",
                               "typeSettings": {
