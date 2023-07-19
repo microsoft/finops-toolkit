@@ -2754,7 +2754,7 @@
                 {
                   "type": 1,
                   "content": {
-                    "json": "# Application Gateway"
+                    "json": "# Application gateway"
                   },
                   "name": "Application Gateway Title"
                 },
