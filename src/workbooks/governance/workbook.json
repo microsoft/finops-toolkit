@@ -1934,7 +1934,7 @@
                               },
                               {
                                 "columnId": "microsoft.storage/storageaccounts/queueservices-Capacity-QueueCapacity Timeline",
-                                "label": "Queue capacity Timeline"
+                                "label": "Queue capacity timeline"
                               },
                               {
                                 "columnId": "microsoft.storage/storageaccounts/tableservices-Capacity-TableCapacity",
