@@ -5769,7 +5769,7 @@
                               },
                               {
                                 "columnId": "policyAssignmentName",
-                                "label": "Assignment Name"
+                                "label": "Assignment name"
                               },
                               {
                                 "columnId": "policyAssignmentDisplayName",
