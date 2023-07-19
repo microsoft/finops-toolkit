@@ -2465,7 +2465,7 @@
                               },
                               {
                                 "columnId": "JobStatus",
-                                "label": "Job Status"
+                                "label": "Job status"
                               },
                               {
                                 "columnId": "FailureCode",
