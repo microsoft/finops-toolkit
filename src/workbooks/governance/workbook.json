@@ -2559,7 +2559,7 @@
                   "content": {
                     "json": "# Network Security Group"
                   },
-                  "name": "Network Security Group Title"
+                  "name": "Network security group title"
                 },
                 {
                   "type": 9,
