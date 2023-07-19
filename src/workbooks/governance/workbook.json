@@ -734,7 +734,7 @@
                               },
                               {
                                 "columnId": "publicIpAddress",
-                                "label": "Public IP Address"
+                                "label": "Public IP address"
                               }
                             ]
                           }
