@@ -2665,7 +2665,7 @@
                   "content": {
                     "json": "# Public IPs"
                   },
-                  "name": "Public IP Title"
+                  "name": "Public IP title"
                 },
                 {
                   "type": 9,
