@@ -1133,7 +1133,7 @@
                       {
                         "type": 1,
                         "content": {
-                          "json": "## Storage account & backup"
+                          "json": "## Storage account + backup"
                         },
                         "name": "text - 9"
                       },
