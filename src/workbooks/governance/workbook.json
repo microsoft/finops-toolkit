@@ -2557,7 +2557,7 @@
                 {
                   "type": 1,
                   "content": {
-                    "json": "# Network Security Group"
+                    "json": "# Network security group"
                   },
                   "name": "Network security group title"
                 },
