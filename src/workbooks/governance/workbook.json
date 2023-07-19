@@ -1942,7 +1942,7 @@
                               },
                               {
                                 "columnId": "microsoft.storage/storageaccounts/tableservices-Capacity-TableCapacity Timeline",
-                                "label": "Table capacity Timeline"
+                                "label": "Table capacity timeline"
                               }
                             ]
                           },
