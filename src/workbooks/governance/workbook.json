@@ -2113,7 +2113,7 @@
                               "name": "DataSourceLocation",
                               "label": "Data source location",
                               "type": 2,
-                              "description": "Use to filter for datasources within a specific location",
+                              "description": "Use to filter for data sources within a specific location",
                               "isRequired": true,
                               "multiSelect": true,
                               "quote": "",
