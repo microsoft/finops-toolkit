@@ -2437,7 +2437,7 @@
                             "labelSettings": [
                               {
                                 "columnId": "BackupItemFriendlyName",
-                                "label": "Backup Instance"
+                                "label": "Backup instance"
                               },
                               {
                                 "columnId": "Vault",
