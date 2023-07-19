@@ -2809,7 +2809,7 @@
                   "content": {
                     "json": "# Load balancer"
                   },
-                  "name": "Load Balancer Title"
+                  "name": "Load balancer title"
                 },
                 {
                   "type": 9,
