@@ -710,7 +710,7 @@
                             "labelSettings": [
                               {
                                 "columnId": "vmId",
-                                "label": "Resource Name"
+                                "label": "Resource name"
                               },
                               {
                                 "columnId": "subscriptionId",
