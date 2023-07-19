@@ -5781,7 +5781,7 @@
                               },
                               {
                                 "columnId": "policyAssignmentDefinitionId",
-                                "label": "Assignment Definition Id"
+                                "label": "Assignment definition ID"
                               },
                               {
                                 "columnId": "definitionId",
