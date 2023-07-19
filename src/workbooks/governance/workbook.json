@@ -1926,7 +1926,7 @@
                               },
                               {
                                 "columnId": "microsoft.storage/storageaccounts/fileservices-Capacity-FileCapacity Timeline",
-                                "label": "File capacity Timeline"
+                                "label": "File capacity timeline"
                               },
                               {
                                 "columnId": "microsoft.storage/storageaccounts/queueservices-Capacity-QueueCapacity",
