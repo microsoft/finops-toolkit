@@ -814,7 +814,7 @@
                               },
                               {
                                 "columnId": "diskState",
-                                "label": "Disk State"
+                                "label": "Disk state"
                               },
                               {
                                 "columnId": "location",
