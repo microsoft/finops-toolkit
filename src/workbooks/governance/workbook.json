@@ -884,7 +884,7 @@
                               },
                               {
                                 "columnId": "VM",
-                                "label": "Virtual Machine"
+                                "label": "Virtual machine"
                               },
                               {
                                 "columnId": "privateEndPoint",
