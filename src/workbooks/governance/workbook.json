@@ -5789,7 +5789,7 @@
                               },
                               {
                                 "columnId": "numberOfPolicies",
-                                "label": "Number of Policies"
+                                "label": "Number of policies"
                               },
                               {
                                 "columnId": "category",
