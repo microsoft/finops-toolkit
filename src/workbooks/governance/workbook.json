@@ -3317,7 +3317,7 @@
                             "labelSettings": [
                               {
                                 "columnId": "Name",
-                                "label": "Resource Name"
+                                "label": "Resource name"
                               }
                             ]
                           }
