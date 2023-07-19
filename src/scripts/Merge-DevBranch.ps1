@@ -164,11 +164,17 @@ function Merge-BranchAtoB($source, $target) {
             } else {
                 Write-Host '  ' -NoNewline
                 Write-Warning "Please resolve conflicts, then run: git commit; git push origin $target"
+				if ($Silent) {
+					git merge --abort
+				}
                 exit 2
             }
         } else {
             Write-Host '  ' -NoNewline
             Write-Error "Branch $Branch has merge conflicts."
+            if ($Silent) {
+				git merge --abort
+            }
             exit 2
         }
     }
