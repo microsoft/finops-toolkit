@@ -3293,7 +3293,7 @@
                           "query": "resources \r\n| where tags =~ '' or tags =~ '{}'\r\n| where type contains '{ResourceType}'\r\n| project Name=id",
                           "size": 0,
                           "title": "Untagged resources",
-                          "noDataMessage": "No Untagged Resources found",
+                          "noDataMessage": "No untagged resources found",
                           "noDataMessageStyle": 3,
                           "showExportToExcel": true,
                           "queryType": 1,
