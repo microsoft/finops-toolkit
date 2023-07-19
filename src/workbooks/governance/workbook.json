@@ -718,7 +718,7 @@
                               },
                               {
                                 "columnId": "vmSize",
-                                "label": "VM Size"
+                                "label": "VM size"
                               },
                               {
                                 "columnId": "nicId",
