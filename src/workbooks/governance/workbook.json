@@ -314,7 +314,7 @@
                             "labelSettings": [
                               {
                                 "columnId": "subscriptionId",
-                                "label": "Subscription Name"
+                                "label": "Subscription name"
                               }
                             ]
                           },
