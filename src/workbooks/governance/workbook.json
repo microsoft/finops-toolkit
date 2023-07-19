@@ -7418,7 +7418,7 @@
               "comparison": "isEqualTo",
               "value": "RC_Quota"
             },
-            "name": "Usage and Limits"
+            "name": "Usage + limits"
           },
           {
             "type": 12,
