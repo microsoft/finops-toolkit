@@ -1972,7 +1972,7 @@
                     "comparison": "isNotEqualTo",
                     "value": ""
                   },
-                  "name": "Storage account & backup"
+                  "name": "Storage account + backup"
                 },
                 {
                   "type": 12,
