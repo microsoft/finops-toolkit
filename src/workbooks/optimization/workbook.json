@@ -135,7 +135,7 @@
             "queryType": 1,
             "resourceType": "microsoft.resourcegraph/resources",
             "value": null,
-            "label": "Tag Name"
+            "label": "Tag name"
           },
           {
             "id": "f73dc4a1-ef8b-45c5-a30b-a11bb077a3cc",
@@ -152,7 +152,7 @@
             "queryType": 1,
             "resourceType": "microsoft.resourcegraph/resources",
             "value": null,
-            "label": "Tag Value"
+            "label": "Tag value"
           }
         ],
         "style": "pills",
@@ -202,7 +202,7 @@
             "defaultValue": "value::1",
             "queryType": 1,
             "resourceType": "microsoft.resourcegraph/resources",
-            "label": "Resource Location"
+            "label": "Resource location"
           }
         ],
         "style": "pills",
