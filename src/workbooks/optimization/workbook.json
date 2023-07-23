@@ -1549,7 +1549,7 @@
               {
                 "type": 1,
                 "content": {
-                  "json": "# Virtual Machine Scale Sets\r\n## Save with Azure Spot VMs on Virtual Machine Scale Sets\r\nUsing Azure Spot Virtual Machines on scale sets allows you to take advantage of our unused capacity at a significant cost savings. At any point in time when Azure needs the capacity back, the Azure infrastructure will evict Azure Spot Virtual Machine instances. Therefore, Azure Spot Virtual Machine instances are great for workloads that can handle interruptions like batch processing jobs, dev/test environments, large compute workloads, and more.\r\n\r\n## Spot Priority Mix\r\nAzure allows you to have the flexibility of running a mix of uninterruptible standard VMs and interruptible Spot VMs for Virtual Machine Scale Set deployments. You're able to deploy this Spot Priority Mix using Flexible orchestration to easily balance between high-capacity availability and lower infrastructure costs according to your workload requirements\r\n",
+                  "json": "# Virtual Machine Scale Sets\r\n## Save with Azure Spot VMs on virtual machine scale sets\r\nUsing Azure Spot Virtual Machines on scale sets allows you to take advantage of our unused capacity at a significant cost savings. At any point in time when Azure needs the capacity back, the Azure infrastructure will evict Azure Spot Virtual Machine instances. Therefore, Azure Spot Virtual Machine instances are great for workloads that can handle interruptions like batch processing jobs, dev/test environments, large compute workloads, and more.\r\n\r\n## Spot Priority Mix\r\nAzure allows you to have the flexibility of running a mix of uninterruptible standard VMs and interruptible Spot VMs for Virtual Machine Scale Set deployments. You're able to deploy this Spot Priority Mix using Flexible orchestration to easily balance between high-capacity availability and lower infrastructure costs according to your workload requirements\r\n",
                   "style": "upsell"
                 },
                 "name": "text - 8"
@@ -2334,7 +2334,7 @@
           "id": "0c58188b-5c09-45aa-b738-f7122d0e0a19",
           "version": "KqlParameterItem/1.0",
           "name": "Location",
-          "label": "SKU Location",
+          "label": "SKU location",
           "type": 1,
           "description": "Select the region where the VMs are located. Different Regions might have different SKUs",
           "isRequired": true,
@@ -2618,7 +2618,7 @@
                   "version": "KqlItem/1.0",
                   "query": "ResourceContainers | where type =~ 'Microsoft.Resources/subscriptions' | where tostring (properties.subscriptionPolicies.quotaId) !has \"MSDNDevTest_2014-09-01\" | extend SubscriptionName=name \r\n| join (\r\nresources \r\n| where resourceGroup in ({ResourceGroup})\r\n| where type =~ 'microsoft.compute/virtualmachines'\r\n| where tostring(properties.storageProfile.osDisk.osType) == 'Windows'\r\n| extend WindowsId=id\r\n| join kind = innerunique(\r\n    resources\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}']), WindowsId=id\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    | distinct WindowsId\r\n    )\r\n    on WindowsId\r\n| extend LicenseType = tostring(properties.['licenseType'])\r\n| extend CheckAHUBWindows = case(\r\n     type == 'microsoft.compute/virtualmachines' or type =~ 'microsoft.compute/virtualMachineScaleSets', iif((properties.['licenseType'])\r\n     !has 'Windows' and (properties.virtualMachineProfile.['licenseType']) !has 'Windows' , \"AHUB Not Enabled\", \"AHUB Enabled\"),\r\n     \"Not Windows\"\r\n     )\r\n) on subscriptionId \r\n| summarize count() by SubscriptionName, CheckAHUBWindows\r\n",
                   "size": 0,
-                  "title": "Summary of Windows VMs with or without AHUB per Subscription",
+                  "title": "Summary of Windows VMs with or without AHB per subscription",
                   "showRefreshButton": true,
                   "showExportToExcel": true,
                   "queryType": 1,
@@ -2679,7 +2679,7 @@
                   }
                 },
                 "customWidth": "50",
-                "name": "Summary of Windows VMs with or without AHUB per Subscription"
+                "name": "Summary of Windows VMs with or without AHB per subscription"
               },
               {
                 "type": 3,
