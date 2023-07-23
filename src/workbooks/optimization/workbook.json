@@ -103,7 +103,7 @@
             "defaultValue": "value::all",
             "queryType": 1,
             "resourceType": "microsoft.resourcegraph/resources",
-            "label": "Resource Group"
+            "label": "Resource group"
           },
           {
             "id": "2336f06b-ddaa-4a9e-b72f-a2bec1ea84a9",
@@ -501,7 +501,7 @@
                       },
                       {
                         "columnId": "resourceGroup",
-                        "label": "Resource Group"
+                        "label": "Resource group"
                       },
                       {
                         "columnId": "subscriptionId",
@@ -625,7 +625,7 @@
                       },
                       {
                         "columnId": "resourceGroup",
-                        "label": "Resource Group"
+                        "label": "Resource group"
                       },
                       {
                         "columnId": "subscriptionId",
@@ -708,7 +708,7 @@
                       },
                       {
                         "columnId": "resourceGroup",
-                        "label": "Resource Group"
+                        "label": "Resource group"
                       },
                       {
                         "columnId": "AllocationMethod",
@@ -925,7 +925,7 @@
                       },
                       {
                         "columnId": "resourceGroup",
-                        "label": "Resource Group"
+                        "label": "Resource group"
                       },
                       {
                         "columnId": "subscriptionId",
@@ -1082,7 +1082,7 @@
                 },
                 {
                   "columnId": "resourceGroup",
-                  "label": "Resource Group"
+                  "label": "Resource group"
                 },
                 {
                   "columnId": "Location",
@@ -1227,7 +1227,7 @@
                 },
                 {
                   "columnId": "resourceGroup",
-                  "label": "Resource Group"
+                  "label": "Resource group"
                 },
                 {
                   "columnId": "QuickFix",
@@ -1299,7 +1299,7 @@
                 },
                 {
                   "columnId": "resourceGroup",
-                  "label": "Resource Group"
+                  "label": "Resource group"
                 },
                 {
                   "columnId": "location",
@@ -1434,7 +1434,7 @@
                 },
                 {
                   "columnId": "resourceGroup",
-                  "label": "Resource Group"
+                  "label": "Resource group"
                 },
                 {
                   "columnId": "subscriptionId",
@@ -1652,7 +1652,7 @@
                       },
                       {
                         "columnId": "resourceGroup",
-                        "label": "Resource Group"
+                        "label": "Resource group"
                       },
                       {
                         "columnId": "location",
@@ -1858,7 +1858,7 @@
                       },
                       {
                         "columnId": "resourceGroup",
-                        "label": "Resource Group"
+                        "label": "Resource group"
                       },
                       {
                         "columnId": "subscriptionId",
@@ -2213,7 +2213,7 @@
                       },
                       {
                         "columnId": "resourceGroup",
-                        "label": "Resource Group"
+                        "label": "Resource group"
                       },
                       {
                         "columnId": "subscriptionId",
@@ -3082,7 +3082,7 @@
                       },
                       {
                         "columnId": "VMRG",
-                        "label": "Resource Group"
+                        "label": "Resource group"
                       },
                       {
                         "columnId": "VMLocation",
@@ -3907,7 +3907,7 @@
                             },
                             {
                               "columnId": "VMRG",
-                              "label": "Resource Group"
+                              "label": "Resource group"
                             },
                             {
                               "columnId": "VMLocation",
@@ -4039,7 +4039,7 @@
                             },
                             {
                               "columnId": "VMRG",
-                              "label": "Resource Group"
+                              "label": "Resource group"
                             },
                             {
                               "columnId": "VMLocation",
@@ -4626,7 +4626,7 @@
                             },
                             {
                               "columnId": "SQLRG",
-                              "label": "Resource Group"
+                              "label": "Resource group"
                             },
                             {
                               "columnId": "SKUName",
@@ -4696,7 +4696,7 @@
                             },
                             {
                               "columnId": "SQLRG",
-                              "label": "Resource Group"
+                              "label": "Resource group"
                             },
                             {
                               "columnId": "SKUName",
