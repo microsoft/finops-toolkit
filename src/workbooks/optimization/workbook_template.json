@@ -1,0 +1,352 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 11,
+      "content": {
+        "version": "LinkItem/1.0",
+        "style": "tabs",
+        "links": [
+          {
+            "id": "ca40468d-4518-43bf-ac6e-0a11d7331e12",
+            "cellValue": "SelectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Get started",
+            "subTarget": "Welcome",
+            "style": "link"
+          },
+          {
+            "id": "96d6402c-ff6c-4cf8-961d-8fbe5c98be60",
+            "cellValue": "SelectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Compute",
+            "subTarget": "Compute",
+            "preText": "VirtualMachines",
+            "style": "link"
+          },
+          {
+            "id": "34014531-76a5-4eab-9772-9944fa241fea",
+            "cellValue": "SelectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Azure Hybrid Benefit",
+            "subTarget": "AHUB",
+            "style": "link"
+          },
+          {
+            "id": "4f4786a7-c2df-4788-b5b6-63057bc0c24a",
+            "cellValue": "SelectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Storage",
+            "subTarget": "Storage",
+            "style": "link"
+          },
+          {
+            "id": "69dfc3f7-5937-49ba-9851-d6d2973a0c69",
+            "cellValue": "SelectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Networking",
+            "subTarget": "Networking",
+            "style": "link"
+          }
+        ]
+      },
+      "name": "links - MainTabs"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "parameters": [
+          {
+            "id": "51aa3a9b-14e0-4c22-a60d-abdbf8813f00",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "includeAll": true,
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "defaultValue": "value::all",
+            "label": " Subscription"
+          },
+          {
+            "id": "f342a111-002a-47fd-807f-0d4ccac0618a",
+            "version": "KqlParameterItem/1.0",
+            "name": "ResourceGroup",
+            "type": 2,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "resourceContainers | where type == 'microsoft.resources/subscriptions/resourcegroups'\r\n| project resourceGroup\r\n| sort by resourceGroup asc",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "defaultValue": "value::all",
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "label": "Resource Group"
+          },
+          {
+            "id": "2336f06b-ddaa-4a9e-b72f-a2bec1ea84a9",
+            "version": "KqlParameterItem/1.0",
+            "name": "SingleSubHidden",
+            "type": 1,
+            "isRequired": true,
+            "query": "resourcecontainers\r\n| where type==\"microsoft.resources/subscriptions\"\r\n| take 1\r\n| project subscriptionId",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "isHiddenWhenLocked": true,
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "label": "Hidden Subscription"
+          },
+          {
+            "id": "d6776ffe-e4f6-4c08-8f9e-a2fe2b3b6634",
+            "version": "KqlParameterItem/1.0",
+            "name": "TagName",
+            "type": 2,
+            "query": "Resources\r\n| where tags != '' and tags != '[]'\r\n| mvexpand tags\r\n| extend tagName = tostring(bag_keys(tags)[0])\r\n| distinct tagName\r\n| sort by tagName asc",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "value": null,
+            "label": "Tag Name"
+          },
+          {
+            "id": "f73dc4a1-ef8b-45c5-a30b-a11bb077a3cc",
+            "version": "KqlParameterItem/1.0",
+            "name": "TagValue",
+            "type": 2,
+            "query": "Resources\r\n| mvexpand tags\r\n| extend tagName = tostring(bag_keys(tags)[0])\r\n| extend tagValue = tostring(tags[tagName])\r\n| where tags != '' and tags != '[]' and tostring(bag_keys(tags)[0]) == '{TagName}'\r\n| distinct tagValue\r\n| sort by tagValue asc",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "value": null,
+            "label": "Tag Value"
+          }
+        ],
+        "style": "pills",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources"
+      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "SelectedTab",
+          "comparison": "isNotEqualTo",
+          "value": "CostInformation"
+        },
+        {
+          "parameterName": "SelectedTab",
+          "comparison": "isNotEqualTo",
+          "value": "Welcome"
+        }
+      ],
+      "customWidth": "75",
+      "name": "parameters - Filters"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "parameters": [
+          {
+            "id": "f74bc7f5-2b16-4440-8053-106e040b73b6",
+            "version": "KqlParameterItem/1.0",
+            "name": "Location",
+            "type": 2,
+            "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| project name, location\r\n| summarize count () by location\r\n| project location",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::1"
+              ]
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "defaultValue": "value::1",
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "label": "Resource Location"
+          }
+        ],
+        "style": "pills",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources"
+      },
+      "conditionalVisibility": {
+        "parameterName": "SelectedTab",
+        "comparison": "isEqualTo",
+        "value": "AHUB"
+      },
+      "customWidth": "25",
+      "name": "parameters - location"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "NetworkingGroup",
+        "items": networkingGroupPlaceholder
+      },
+      "conditionalVisibility": {
+        "parameterName": "SelectedTab",
+        "comparison": "isEqualTo",
+        "value": "Networking"
+      },
+      "name": "NetworkingGroup",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "Storage Group",
+        "items": storageGroupPlaceholder
+      },
+      "conditionalVisibility": {
+        "parameterName": "SelectedTab",
+        "comparison": "isEqualTo",
+        "value": "Storage"
+      },
+      "name": "StorageGroup",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "Compute Group",
+        "items": computeGroupPlaceholder
+      },
+      "conditionalVisibility": {
+        "parameterName": "SelectedTab",
+        "comparison": "isEqualTo",
+        "value": "Compute"
+      },
+      "name": "ComputeGroup",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "# Welcome the cost optimization workbook"
+            },
+            "name": "Welcome"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "### Reference: [Microsoft Azure Well-Architected Framework - cost optimization pillar](https://learn.microsoft.com/en-us/azure/architecture/framework/cost/overview)",
+              "style": "upsell"
+            },
+            "name": "Reference"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "The objective of this workbook is to provide a comprehensive overview of the cost posture of your Azure environment. It offers cost-relevant insights aligned with the WAF Cost Optimization pillar and has the capability to identify and apply recommendations to optimize costs. It's important to note that the workbook serves as guidance and does not guarantee cost reduction.\r\n\r\n## Overview of the cost optimization pillar\r\n\r\n* The cost optimization pillar provides principles for balancing business goals with budget justification to create a cost-effective workload while avoiding capital-intensive solutions.It emphasizes the importance of reducing unnecessary expenses and improving operational efficiencies.\r\n\r\n* To assess your workload based on the principles outlined in the [Microsoft Azure Well-Architected Framework](https://learn.microsoft.com/en-us/azure/architecture/framework/), reference the [Microsoft Azure Well-Architected Review](https://learn.microsoft.com/en-us/assessments/?id=azure-architecture-review&mode=pre-assessment&session=20dc50e4-5b71-4f38-bc49-51cc1d9f205c) tool.\r\n\r\n\r\n\r\n\r\n"
+            },
+            "name": "objective"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "Indicates an implemented feature that can result in a environment that is following the Cost Optimization & Cost Governance principles.",
+              "style": "success"
+            },
+            "customWidth": "50",
+            "name": "Greenlight",
+            "styleSettings": {
+              "margin": "10px",
+              "showBorder": true
+            }
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "## Prerequisites\r\n\r\nThis workbook will present various cost-related details in the form of governance, networking, storage, VMs, Webapps, SQL, and cost information to educate the business about cost related to various resources.\r\n\r\nThis workbook requires the following least-privileged (minimum) roles:\r\n\r\n  * **Reader** : allows you to import the workbook without saving it and view all of the workbook tabs except the *Cost Information* tab.\r\n  * **Cost Management Reader**: allows you to view the costs of idle resources in the *Cost information* tab \r\n  * **Workbook Contributor** : allows you to import and save the workbook\r\n\r\n\r\n\r\n"
+            },
+            "name": "Prerequisites"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "SelectedTab",
+        "comparison": "isEqualTo",
+        "value": "Welcome"
+      },
+      "name": "Welcome"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "Azure Hybrid Benefit Overview",
+        "loadType": "always",
+        "items": AHUBGroupPlaceholder
+      },
+      "conditionalVisibility": {
+        "parameterName": "SelectedTab",
+        "comparison": "isEqualTo",
+        "value": "AHUB"
+      },
+      "name": "AHUB Overview"
+    }
+  ],
+  "fallbackResourceIds": [
+    "Azure Monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
