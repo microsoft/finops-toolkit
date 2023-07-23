@@ -118,7 +118,7 @@
             "isHiddenWhenLocked": true,
             "queryType": 1,
             "resourceType": "microsoft.resourcegraph/resources",
-            "label": "Hidden Subscription"
+            "label": "Hidden subscription"
           },
           {
             "id": "d6776ffe-e4f6-4c08-8f9e-a2fe2b3b6634",
@@ -2365,7 +2365,7 @@
           },
           "queryType": 1,
           "resourceType": "microsoft.resourcegraph/resources",
-          "label": "Hidden Subscription"
+          "label": "Hidden subscription"
         }
       ],
       "style": "pills",
