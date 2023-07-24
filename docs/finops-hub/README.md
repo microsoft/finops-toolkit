@@ -46,15 +46,12 @@ To learn more, see [FinOps hub template details](template.md).
 
 1. [Deploy the **finops-hub** template](../deploy).
 
-2. [Configure scopes to pull cost data from](./configure-scopes.md).
-3. [Download one or more of the available Power BI starter templates](./reports).
-
 <br>
 
 ## 🛠️ Configure exports for supported scopes
 
-- For EA enrollments use [managed exports](./configure-scopes.md#☁️-configure-dailymonthly-exports-using-managed-exports)
-- For MCA enrollments use [manual exports](./configure-scopes.md#configure-cost-management-exports-manually)
+- For EA enrollments use [managed exports](./configure-scopes.md#️-managed-export-configuration)
+- For MCA enrollments use [manual exports](./configure-scopes.md#️-configure-cost-management-exports-manually)
 
 <br>
 
