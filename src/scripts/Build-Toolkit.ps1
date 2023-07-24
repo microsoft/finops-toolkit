@@ -26,7 +26,7 @@ $outDir = "../../release"
 ./New-Directory $outDir
 
 # Generate Bicep Registry modules
-Get-ChildItem ..\bicep-registry\$Template* -Directory -ErrorAction SilentlyContinue `
+Get-ChildItem "..\bicep-registry\$($Template -replace '(subscription|resourceGroup|managementGroup|tenant)-', '')*" -Directory -ErrorAction SilentlyContinue `
 | Where-Object { $_.Name -ne '.scaffold' }
 | ForEach-Object {
     ./Build-Bicep $_.Name
