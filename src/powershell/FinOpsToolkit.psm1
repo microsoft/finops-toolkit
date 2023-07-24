@@ -430,7 +430,7 @@ Function Add-FinOpsHubScope {
         [Parameter()]
         [string]
         [ValidateNotNullOrEmpty()]
-        $ResourceGroupName,    
+        $ResourceGroupName,
         [Parameter()]
         [String]
         [ValidateNotNullOrEmpty()]
