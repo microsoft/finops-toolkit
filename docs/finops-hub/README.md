@@ -53,8 +53,8 @@ To learn more, see [FinOps hub template details](template.md).
 
 ## 🛠️ Configure exports for supported scopes
 
-- For EA enrollments use [managed exports](./managed-exports.md#☁️-configure-dailymonthly-exports-using-managed-exports)
-- For MCA enrollments use [manual exports](./managed-exports.md#configure-cost-management-exports-manually)
+- For EA enrollments use [managed exports](./configure-scopes.md#☁️-configure-dailymonthly-exports-using-managed-exports)
+- For MCA enrollments use [manual exports](./configure-scopes.md#configure-cost-management-exports-manually)
 
 <br>
 

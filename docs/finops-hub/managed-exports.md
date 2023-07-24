@@ -1,14 +1,12 @@
-# ☁️ Configure daily/monthly exports using managed exports
+# 🛠️ Configure scopes to monitor
 
-![Version 0.0.1](https://img.shields.io/badge/version-0.0.1-darkgreen)
-&nbsp;
-[![Go to issue](https://img.shields.io/github/issues/detail/title/microsoft/cloud-hubs/1?label=roadmap)](https://github.com/microsoft/cloud-hubs/issues/1)
+> ℹ️ _**Important**<br>Microsoft Cost Management does not support managed exports for Microsoft Customer Agreement billing accounts, billing profiles, invoice sections, and customers. Please [configure Cost Management exports manually](#configure-cost-management-exports-manually)._
 
 On this page:
 
 - [Managed export requirements](#managed-export-requirements)
 - [Managed export configuration](#managed-export-configuration)
-- [Export scope examples](#export-scope-examples)
+- [🛠️ Configure scopes](#️-configure-scopes)
 - [Configure Cost Management exports manually](#configure-cost-management-exports-manually)
 
 ---
@@ -25,28 +23,58 @@ On this page:
   
 ## Managed export configuration
 
-> 💡 _Note: MCA billing scopes are not supported for managed exports at this time.  Use Cost Management Exports instead._
+## 🛠️ Configure scopes
+
+> ℹ️ _**Important**<br>Microsoft Cost Management does not support managed exports for Microsoft Customer Agreement billing accounts, billing profiles, invoice sections, and customers. Please [configure exports manually](#-configure-exports-manually)._
 
 1. Grant required permissions to the managed identity of the Data Factory.
 2. Add the export scope(s) to the exportScopes section of the settings.json file in the config container.  
 3. Wait for the msexports_setup pipeline to configure managed exports for the specified scopes.
 4. Execute the msexports_backfill pipeline to fill the dataset per the retention settings in settings.json.
+  
+  > ℹ️ _**Important**<br>Ensure not to add duplicate or overlapping export scopes as this will lead to duplication of data._
 
-## Export scope examples
+- Export scope examples:
 
-````json
+  - Subscription
+
+  ````json
    "exportScopes": [
       {
-         "scope": "/subscriptions/00000000-0000-0000-0000-000000000000"
-      },
-      {
-         "scope": "/providers/Microsoft.Billing/billingAccounts/12345678"
-      },
-      {
-         "scope": "/providers/Microsoft.Billing/billingAccounts/12345678/departments/1234"
+         "scope": "/subscriptions/{subscriptionId}"
       }
     ]
-````
+  ````
+
+  - EA Enrollment
+
+  ````json
+   "exportScopes": [
+      {
+         "/providers/Microsoft.Billing/billingAccounts/{enrollmentNumber}"
+      }
+    ]
+  ````
+
+  - MCA Billing Account
+
+  ````json
+   "exportScopes": [
+      {
+         "scope": "/providers/Microsoft.Billing/billingAccounts/{billingAccountId}"
+      }
+    ]
+  ````
+
+  - MCA Billing Profile
+
+  ````json
+   "exportScopes": [
+      {
+         "scope": "/providers/Microsoft.Billing/billingAccounts/{billingAccountId}/billingProfiles/{billingProfileId}"
+      }
+    ]
+  ````
 
 <br>
 
