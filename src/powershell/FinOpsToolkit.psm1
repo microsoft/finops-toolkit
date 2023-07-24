@@ -392,11 +392,11 @@ function Add-FinOpsServicePrincipal {
     
     try {
         Invoke-RestMethod -Uri $restUri -Method Put -Headers $authHeader -Body $body
-        Write-Host ($LocalizedData.SuccessMessage1 -f $BillingScope)
+        Write-Output ($LocalizedData.SuccessMessage1 -f $BillingScope)
     }
     catch {
         if ($_.Exception.Response.StatusCode -eq 409) {
-            Write-Host ($LocalizedData.AlreadyGrantedMessage1 -f $BillingScope)
+            Write-Output ($LocalizedData.AlreadyGrantedMessage1 -f $BillingScope)
         }
         else {
             $body
