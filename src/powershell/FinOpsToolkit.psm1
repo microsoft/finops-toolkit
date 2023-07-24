@@ -339,7 +339,7 @@ function Add-FinOpsServicePrincipal {
         [Parameter(Mandatory = $false)]
         [string]$DepartmentId
     )
-  
+
     $azContext = get-azcontext
     switch ($BillingScope) {
         'Enrollment' {
@@ -348,14 +348,13 @@ function Add-FinOpsServicePrincipal {
                 Write-Output ''
                 exit 1
             }
-  
+
             $roleDefinitionId = "/providers/Microsoft.Billing/billingAccounts/{0}/billingRoleDefinitions/24f8edb6-1668-4659-b5e2-40bb5f3a7d7e" -f $BillingAccountId
             $restUri = "{0}providers/Microsoft.Billing/billingAccounts/{1}/billingRoleAssignments/{2}?api-version=2019-10-01-preview" -f $azContext.Environment.ResourceManagerUrl, $BillingAccountId, (New-Guid).Guid
-            $body = '{"properties": { "PrincipalId": "{0}", "PrincipalTenantId": "{1}", "roleDefinitionId": "{2}" } }' 
+            $body = '{"properties": { "PrincipalId": "{0}", "PrincipalTenantId": "{1}", "roleDefinitionId": "{2}" } }'
             $body = $body.Replace("{0}", $ObjectId)
             $body = $body.Replace("{1}", $TenantId)
             $body = $body.Replace("{2}", $roleDefinitionId)
-  
         }
         'Department' {
             if ([string]::IsNullOrEmpty($BillingAccountId)) {
@@ -368,20 +367,19 @@ function Add-FinOpsServicePrincipal {
                 Write-Output ''
                 exit 1
             }
-  
+
             $roleDefinitionId = "/providers/Microsoft.Billing/billingAccounts/{0}/departments/{1}/billingRoleDefinitions/db609904-a47f-4794-9be8-9bd86fbffd8a" -f $BillingAccountId, $DepartmentId
             $restUri = "{0}providers/Microsoft.Billing/billingAccounts/{1}/departments/{2}/billingRoleAssignments/{3}?api-version=2019-10-01-preview" -f $azContext.Environment.ResourceManagerUrl, $BillingAccountId, $DepartmentId, (New-Guid).Guid
             $body = '{"properties": { "PrincipalId": "{0}", "PrincipalTenantId": "{1}", "roleDefinitionId": "{2}" } }'
             $body = $body.Replace("{0}", $ObjectId)
             $body = $body.Replace("{1}", $TenantId)
             $body = $body.Replace("{2}", $roleDefinitionId)
-  
         }
         default {
             throw ($LocalizedData.InvalidBillingScope -f $BillingScope)
         }
     }
-    
+
     $azProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
     $profileClient = New-Object -TypeName Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient -ArgumentList ($azProfile)
     $token = $profileClient.AcquireAccessToken($azContext.Subscription.TenantId)
@@ -389,7 +387,7 @@ function Add-FinOpsServicePrincipal {
         'Content-Type'  = 'application/json'
         'Authorization' = 'Bearer ' + $token.AccessToken
     }
-    
+
     try {
         Invoke-RestMethod -Uri $restUri -Method Put -Headers $authHeader -Body $body
         Write-Output ($LocalizedData.SuccessMessage1 -f $BillingScope)
