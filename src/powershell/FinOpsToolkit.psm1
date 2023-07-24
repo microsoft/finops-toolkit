@@ -323,7 +323,7 @@ Add-FinOpsServicePrincipal -ObjectId 00000000-0000-0000-0000-000000000000 -Tenan
 Grants department reader permissions to the specified service principal or managed identity
 
 #>
-function Add-FinOpsServicePrincipal {
+function Add-FinOpsHubServicePrincipal {
     param(
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
@@ -405,4 +405,5 @@ function Add-FinOpsServicePrincipal {
 
 #endregion Public functions
 
-Export-ModuleMember -Function 'Get-FinOpsToolkitVersions', 'Deploy-FinOpsHub', 'Add-FinOpsServicePrincipal'
+Export-ModuleMember -Function 'Get-FinOpsToolkitVersions', 'Deploy-FinOpsHub', 'Add-FinOpsHubServicePrincipal {
+    '
