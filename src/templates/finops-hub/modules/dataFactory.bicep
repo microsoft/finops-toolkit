@@ -711,7 +711,7 @@ resource pipeline_backfill 'Microsoft.DataFactory/factories/pipelines@2018-06-01
       }
       folderName: {
         type: 'String'
-        defaultValue: 'config'
+        defaultValue: configContainerName
       }
       endDate: {
         type: 'String'
@@ -799,7 +799,7 @@ resource pipeline_fill 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = 
           isSequential: true
           activities: [
             {
-              name: 'Create or or update backfill amortized export'
+              name: 'Create or update backfill amortized export'
               type: 'WebActivity'
               dependsOn: [
                 {
@@ -824,7 +824,7 @@ resource pipeline_fill 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = 
                 }
                 method: 'PUT'
                 body: {
-                  value: '{\n      "properties": {\n        "schedule": {\n          "status": "Inactive",\n          "recurrence": "daily",\n          "recurrencePeriod": {\n            "from": "2099-06-01T00:00:00Z",\n            "to": "2099-10-31T00:00:00Z"\n          }\n        },\n        "partitionData": "true",\n        "format": "Csv",\n        "deliveryInfo": {\n          "destination": {\n            "resourceId": "@{variables(\'storageAccountId\')}",\n            "container": "msexports",\n            "rootFolderPath": "@{item().scope}"\n          }\n        },\n        "definition": {\n          "type": "amortizedcost",\n          "timeframe": "Custom",\n          "timePeriod" : {\n            "from" : "@{pipeline().parameters.StartDate}",\n            "to" : "@{pipeline().parameters.EndDate}"\n          },\n          "dataSet": {\n            "granularity": "Daily"\n          }\n        }\n      }\n    }'
+                  value: '{\n      "properties": {\n        "schedule": {\n          "status": "Inactive",\n          "recurrence": "daily",\n          "recurrencePeriod": {\n            "from": "2099-06-01T00:00:00Z",\n            "to": "2099-10-31T00:00:00Z"\n          }\n        },\n        "partitionData": "true",\n        "format": "Csv",\n        "deliveryInfo": {\n          "destination": {\n            "resourceId": "@{variables(\'storageAccountId\')}",\n            "container": "${exportContainerName}",\n            "rootFolderPath": "@{item().scope}"\n          }\n        },\n        "definition": {\n          "type": "amortizedcost",\n          "timeframe": "Custom",\n          "timePeriod" : {\n            "from" : "@{pipeline().parameters.StartDate}",\n            "to" : "@{pipeline().parameters.EndDate}"\n          },\n          "dataSet": {\n            "granularity": "Daily"\n          }\n        }\n      }\n    }'
                   type: 'Expression'
                 }
                 authentication: {
@@ -910,7 +910,7 @@ resource pipeline_fill 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = 
                 }
                 method: 'PUT'
                 body: {
-                  value: '{\n      "properties": {\n        "schedule": {\n          "status": "Inactive",\n          "recurrence": "daily",\n          "recurrencePeriod": {\n            "from": "2099-06-01T00:00:00Z",\n            "to": "2099-10-31T00:00:00Z"\n          }\n        },\n        "partitionData": "true",\n        "format": "Csv",\n        "deliveryInfo": {\n          "destination": {\n            "resourceId": "@{variables(\'storageAccountId\')}",\n            "container": "msexports",\n            "rootFolderPath": "@{item().scope}"\n          }\n        },\n        "definition": {\n          "type": "actualcost",\n          "timeframe": "Custom",\n          "timePeriod" : {\n            "from" : "@{pipeline().parameters.StartDate}",\n            "to" : "@{pipeline().parameters.EndDate}"\n          },\n          "dataSet": {\n            "granularity": "Daily"\n          }\n        }\n      }\n    }'
+                  value: '{\n      "properties": {\n        "schedule": {\n          "status": "Inactive",\n          "recurrence": "daily",\n          "recurrencePeriod": {\n            "from": "2099-06-01T00:00:00Z",\n            "to": "2099-10-31T00:00:00Z"\n          }\n        },\n        "partitionData": "true",\n        "format": "Csv",\n        "deliveryInfo": {\n          "destination": {\n            "resourceId": "@{variables(\'storageAccountId\')}",\n            "container": "${exportContainerName}",\n            "rootFolderPath": "@{item().scope}"\n          }\n        },\n        "definition": {\n          "type": "actualcost",\n          "timeframe": "Custom",\n          "timePeriod" : {\n            "from" : "@{pipeline().parameters.StartDate}",\n            "to" : "@{pipeline().parameters.EndDate}"\n          },\n          "dataSet": {\n            "granularity": "Daily"\n          }\n        }\n      }\n    }'
                   type: 'Expression'
                 }
                 authentication: {
@@ -943,7 +943,7 @@ resource pipeline_fill 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = 
               }
             }
             {
-              name: 'Trigger backfill actual export_copy1'
+              name: 'Trigger backfill actual export'
               type: 'WebActivity'
               dependsOn: [
                 {
@@ -1012,7 +1012,7 @@ resource pipeline_fill 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = 
       }
       folderName: {
         type: 'String'
-        defaultValue: 'config'
+        defaultValue: configContainerName
       }
     }
   }
@@ -1162,7 +1162,7 @@ resource pipeline_get 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
       }
       folderName: {
         type: 'String'
-        defaultValue: 'config'
+        defaultValue: configContainerName
       }
       finOpsHub: {
         type: 'String'
@@ -1336,7 +1336,7 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
           isSequential: true
           activities: [
             {
-              name: 'Create or or update open month amortized export'
+              name: 'Create or update open month amortized export'
               type: 'WebActivity'
               dependsOn: [
                 {
@@ -1361,7 +1361,7 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
                 }
                 method: 'PUT'
                 body: {
-                  value: '{\n  "properties": {\n    "schedule": {\n      "status": "Inactive",\n      "recurrence": "Daily",\n      "recurrencePeriod": {\n        "from": "@{utcNow()}",\n        "to": "2099-12-31T00:00:00Z"\n      }\n    },\n    "partitionData": "True",\n    "format": "Csv",\n    "deliveryInfo": {\n      "destination": {\n        "resourceId": "@{variables(\'StorageAccountId\')}",\n        "container": "msexports",\n        "rootFolderPath": "@{item().scope}"\n      }\n    },\n    "definition": {\n      "type": "amortizedcost",\n      "timeframe": "BillingMonthToDate",\n      "dataSet": {\n        "granularity": "Daily"\n      }\n    }\n  }\n}'
+                  value: '{\n  "properties": {\n    "schedule": {\n      "status": "Inactive",\n      "recurrence": "Daily",\n      "recurrencePeriod": {\n        "from": "@{utcNow()}",\n        "to": "2099-12-31T00:00:00Z"\n      }\n    },\n    "partitionData": "True",\n    "format": "Csv",\n    "deliveryInfo": {\n      "destination": {\n        "resourceId": "@{variables(\'StorageAccountId\')}",\n        "container": "${exportContainerName}",\n        "rootFolderPath": "@{item().scope}"\n      }\n    },\n    "definition": {\n      "type": "amortizedcost",\n      "timeframe": "BillingMonthToDate",\n      "dataSet": {\n        "granularity": "Daily"\n      }\n    }\n  }\n}'
                   type: 'Expression'
                 }
                 authentication: {
@@ -1412,7 +1412,7 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
                 }
                 method: 'PUT'
                 body: {
-                  value: '{\n  "properties": {\n    "schedule": {\n      "status": "Inactive",\n      "recurrence": "Monthly",\n      "recurrencePeriod": {\n        "from": "@{utcNow()}",\n        "to": "2099-12-31T00:00:00Z"\n      }\n    },\n    "partitionData": "True",\n    "format": "Csv",\n    "deliveryInfo": {\n      "destination": {\n        "resourceId": "@{variables(\'StorageAccountId\')}",\n        "container": "msexports",\n        "rootFolderPath": "@{item().scope}"\n      }\n    },\n    "definition": {\n      "type": "amortizedcost",\n      "timeframe": "TheLastBillingMonth",\n      "dataSet": {\n        "granularity": "Daily"\n      }\n    }\n  }\n}'
+                  value: '{\n  "properties": {\n    "schedule": {\n      "status": "Inactive",\n      "recurrence": "Monthly",\n      "recurrencePeriod": {\n        "from": "@{utcNow()}",\n        "to": "2099-12-31T00:00:00Z"\n      }\n    },\n    "partitionData": "True",\n    "format": "Csv",\n    "deliveryInfo": {\n      "destination": {\n        "resourceId": "@{variables(\'StorageAccountId\')}",\n        "container": "${exportContainerName}",\n        "rootFolderPath": "@{item().scope}"\n      }\n    },\n    "definition": {\n      "type": "amortizedcost",\n      "timeframe": "TheLastBillingMonth",\n      "dataSet": {\n        "granularity": "Daily"\n      }\n    }\n  }\n}'
                   type: 'Expression'
                 }
                 authentication: {
@@ -1429,7 +1429,7 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
               type: 'SetVariable'
               dependsOn: [
                 {
-                  activity: 'Create or or update open month amortized export'
+                  activity: 'Create or update open month amortized export'
                   dependencyConditions: [
                     'Succeeded'
                   ]
@@ -1445,7 +1445,7 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
               }
             }
             {
-              name: 'Create or or update open month actuals export'
+              name: 'Create or update open month actuals export'
               type: 'WebActivity'
               dependsOn: [
                 {
@@ -1470,7 +1470,7 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
                 }
                 method: 'PUT'
                 body: {
-                  value: '{\n  "properties": {\n    "schedule": {\n      "status": "Inactive",\n      "recurrence": "Daily",\n      "recurrencePeriod": {\n        "from": "@{utcNow()}",\n        "to": "2099-12-31T00:00:00Z"\n      }\n    },\n    "partitionData": "True",\n    "format": "Csv",\n    "deliveryInfo": {\n      "destination": {\n        "resourceId": "@{variables(\'StorageAccountId\')}",\n        "container": "msexports",\n        "rootFolderPath": "@{item().scope}"\n      }\n    },\n    "definition": {\n      "type": "actualcost",\n      "timeframe": "BillingMonthToDate",\n      "dataSet": {\n        "granularity": "Daily"\n      }\n    }\n  }\n}'
+                  value: '{\n  "properties": {\n    "schedule": {\n      "status": "Inactive",\n      "recurrence": "Daily",\n      "recurrencePeriod": {\n        "from": "@{utcNow()}",\n        "to": "2099-12-31T00:00:00Z"\n      }\n    },\n    "partitionData": "True",\n    "format": "Csv",\n    "deliveryInfo": {\n      "destination": {\n        "resourceId": "@{variables(\'StorageAccountId\')}",\n        "container": "${exportContainerName}",\n        "rootFolderPath": "@{item().scope}"\n      }\n    },\n    "definition": {\n      "type": "actualcost",\n      "timeframe": "BillingMonthToDate",\n      "dataSet": {\n        "granularity": "Daily"\n      }\n    }\n  }\n}'
                   type: 'Expression'
                 }
                 authentication: {
@@ -1528,7 +1528,7 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
                 }
                 method: 'PUT'
                 body: {
-                  value: '{\n  "properties": {\n    "schedule": {\n      "status": "Inactive",\n      "recurrence": "Monthly",\n      "recurrencePeriod": {\n        "from": "@{utcNow()}",\n        "to": "2099-12-31T00:00:00Z"\n      }\n    },\n    "partitionData": "True",\n    "format": "Csv",\n    "deliveryInfo": {\n      "destination": {\n        "resourceId": "@{variables(\'StorageAccountId\')}",\n        "container": "msexports",\n        "rootFolderPath": "@{item().scope}"\n      }\n    },\n    "definition": {\n      "type": "actualcost",\n      "timeframe": "TheLastBillingMonth",\n      "dataSet": {\n        "granularity": "Daily"\n      }\n    }\n  }\n}'
+                  value: '{\n  "properties": {\n    "schedule": {\n      "status": "Inactive",\n      "recurrence": "Monthly",\n      "recurrencePeriod": {\n        "from": "@{utcNow()}",\n        "to": "2099-12-31T00:00:00Z"\n      }\n    },\n    "partitionData": "True",\n    "format": "Csv",\n    "deliveryInfo": {\n      "destination": {\n        "resourceId": "@{variables(\'StorageAccountId\')}",\n        "container": "${exportContainerName}",\n        "rootFolderPath": "@{item().scope}"\n      }\n    },\n    "definition": {\n      "type": "actualcost",\n      "timeframe": "TheLastBillingMonth",\n      "dataSet": {\n        "granularity": "Daily"\n      }\n    }\n  }\n}'
                   type: 'Expression'
                 }
                 authentication: {
@@ -1545,7 +1545,7 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
               type: 'SetVariable'
               dependsOn: [
                 {
-                  activity: 'Create or or update open month actuals export'
+                  activity: 'Create or update open month actuals export'
                   dependencyConditions: [
                     'Succeeded'
                   ]
@@ -1590,7 +1590,7 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
       }
       folderName: {
         type: 'String'
-        defaultValue: 'config'
+        defaultValue: configContainerName
       }
     }
   }
@@ -1676,7 +1676,7 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
         typeProperties: {
           variableName: 'scope'
           value: {
-            value: '@replace(split(pipeline().parameters.folderName,split(pipeline().parameters.folderName, \'/\')[sub(length(split(pipeline().parameters.folderName, \'/\')), 4)])[0],\'msexports\',\'ingestion\')'
+            value: '@replace(split(pipeline().parameters.folderName,split(pipeline().parameters.folderName, \'/\')[sub(length(split(pipeline().parameters.folderName, \'/\')), 4)])[0],\'${exportContainerName}\',\'${ingestionContainerName}\')'
             type: 'Expression'
           }
         }
@@ -1767,9 +1767,9 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
         type: 'Delete'
         dependsOn: [
           {
-            activity: 'Set Destination Folder Name'
+            activity: 'Load Schema Mappings'
             dependencyConditions: [
-              'Completed'
+              'Succeeded'
             ]
           }
         ]
@@ -1805,7 +1805,7 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
         }
       }
       {
-        name: 'Convert CSV'
+        name: 'Convert File'
         type: 'Copy'
         dependsOn: [
           {
@@ -1817,7 +1817,93 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
         ]
         policy: {
           timeout: '0.00:05:00'
-          retry: 2
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          source: {
+            type: 'DelimitedTextSource'
+            additionalColumns: {
+              type: 'Expression'
+              value: '@activity(\'Load Schema Mappings\').output.firstRow.additionalColumns'
+            }
+            storeSettings: {
+              type: 'AzureBlobFSReadSettings'
+              recursive: true
+              enablePartitionDiscovery: false
+            }
+            formatSettings: {
+              type: 'DelimitedTextReadSettings'
+            }
+          }
+          sink: {
+            type: 'ParquetSink'
+            storeSettings: {
+              type: 'AzureBlobFSWriteSettings'
+            }
+            formatSettings: {
+              type: 'ParquetWriteSettings'
+              fileExtension: '.parquet'
+            }
+          }
+          enableStaging: false
+          parallelCopies: 1
+          validateDataConsistency: false
+          translator: {
+            value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
+            type: 'Expression'
+          }
+        }
+        inputs: [
+          {
+            referenceName: dataset_msexports.name
+            type: 'DatasetReference'
+            parameters: {
+              fileName: {
+                value: '@pipeline().parameters.fileName'
+                type: 'Expression'
+              }
+              folderName: {
+                value: '@pipeline().parameters.folderName'
+                type: 'Expression'
+              }
+            }
+          }
+        ]
+        outputs: [
+          {
+            referenceName: dataset_ingestion.name
+            type: 'DatasetReference'
+            parameters: {
+              fileName: {
+                value: '@variables(\'destinationFile\')'
+                type: 'Expression'
+              }
+              folderName: {
+                value: '@variables(\'destinationFolder\')'
+                type: 'Expression'
+              }
+            }
+          }
+        ]
+      }
+      {
+        name: 'Read first row'
+        type: 'Lookup'
+        dependsOn: [
+          {
+            activity: 'Set Destination Folder Name'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+        ]
+        policy: {
+          timeout: '0.12:00:00'
+          retry: 0
           retryIntervalInSeconds: 30
           secureOutput: false
           secureInput: false
@@ -1835,59 +1921,140 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
               type: 'DelimitedTextReadSettings'
             }
           }
-          sink: {
-            type: 'DelimitedTextSink'
-            storeSettings: {
-              type: 'AzureBlobFSWriteSettings'
-            }
-            formatSettings: {
-              type: 'ParquetWriteSettings'
-              fileExtension: '.parquet'
-            }
-          }
-          enableStaging: false
-          parallelCopies: 1
-          validateDataConsistency: false
-        }
-        inputs: [
-          {
+          dataset: {
             referenceName: dataset_msexports.name
             type: 'DatasetReference'
             parameters: {
-              folderName: {
-                value: '@pipeline().parameters.folderName'
-                type: 'Expression'
-              }
               fileName: {
                 value: '@pipeline().parameters.fileName'
                 type: 'Expression'
               }
-            }
-          }
-        ]
-        outputs: [
-          {
-            referenceName: dataset_ingestion.name
-            type: 'DatasetReference'
-            parameters: {
               folderName: {
-                value: '@variables(\'destinationFolder\')'
-                type: 'Expression'
-              }
-              fileName: {
-                value: '@variables(\'destinationFile\')'
+                value: '@pipeline().parameters.folderName'
                 type: 'Expression'
               }
             }
           }
-        ]
+        }
       }
       {
-        name: 'Delete CSV'
+        name: 'Detect EA Schema'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Read first row'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@and(not(empty(activity(\'Read first row\').output.firstRow.AccountName)), not(empty(activity(\'Read first row\').output.firstRow.CostInBillingCurrency)))'
+            type: 'Expression'
+          }
+          ifTrueActivities: [
+            {
+              name: 'Set EA schema'
+              type: 'SetVariable'
+              dependsOn: []
+              userProperties: []
+              typeProperties: {
+                variableName: 'detectedSchema'
+                value: {
+                  value: 'ea'
+                  type: 'Expression'
+                }
+              }
+            }
+          ]
+        }
+      }
+      {
+        name: 'Detect MCA Schema'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Detect EA Schema'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@and(not(empty(activity(\'Read first row\').output.firstRow.costInBillingCurrency)), not(empty(activity(\'Read first row\').output.firstRow.costInPricingCurrency)))'
+            type: 'Expression'
+          }
+          ifTrueActivities: [
+            {
+              name: 'Set MCA schema'
+              type: 'SetVariable'
+              dependsOn: []
+              userProperties: []
+              typeProperties: {
+                variableName: 'detectedSchema'
+                value: {
+                  value: 'mca'
+                  type: 'Expression'
+                }
+              }
+            }
+          ]
+        }
+      }
+      {
+        name: 'Load Schema Mappings'
+        type: 'Lookup'
+        dependsOn: [
+          {
+            activity: 'Detect MCA Schema'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+        ]
+        policy: {
+          timeout: '0.12:00:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          source: {
+            type: 'JsonSource'
+            storeSettings: {
+              type: 'AzureBlobFSReadSettings'
+              recursive: true
+              enablePartitionDiscovery: false
+            }
+            formatSettings: {
+              type: 'JsonReadSettings'
+            }
+          }
+          dataset: {
+            referenceName: dataset_config.name
+            type: 'DatasetReference'
+            parameters: {
+              fileName: {
+                value: 'schema_@{toLower(variables(\'detectedSchema\'))}.json'
+                type: 'Expression'
+              }
+              folderName: configContainerName
+            }
+          }
+        }
+      }
+      {
+        name: 'Delete Source'
         type: 'Delete'
         dependsOn: [
           {
-            activity: 'Convert CSV'
+            activity: 'Convert File'
             dependencyConditions: [
               'Succeeded'
             ]
@@ -1903,15 +2070,15 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
         userProperties: []
         typeProperties: {
           dataset: {
-            referenceName: dataset_msexports.name
+            referenceName: 'ingestion'
             type: 'DatasetReference'
             parameters: {
-              folderName: {
-                value: '@pipeline().parameters.folderName'
-                type: 'Expression'
-              }
               fileName: {
                 value: '@pipeline().parameters.fileName'
+                type: 'Expression'
+              }
+              folderName: {
+                value: '@pipeline().parameters.folderName'
                 type: 'Expression'
               }
             }
@@ -1947,6 +2114,12 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
         type: 'String'
       }
       metric: {
+        type: 'String'
+      }
+      detectedSchema: {
+        type: 'String'
+      }
+      schemaMappings: {
         type: 'String'
       }
     }
