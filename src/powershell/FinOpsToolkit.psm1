@@ -12,8 +12,7 @@ $script:localizedData = Import-LocalizedData -FileName 'FinOpsToolkit.strings.ps
     .PARAMETER Path
         Path to create directory.
 #>
-function New-Directory
-{
+function New-Directory {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "")]
     [CmdletBinding()]
     param
@@ -23,8 +22,7 @@ function New-Directory
         $Path
     )
 
-    if (-not (Test-Path -Path $Path))
-    {
+    if (-not (Test-Path -Path $Path)) {
         Write-Verbose -Message ($LocalizedData.NewDirectory -f $Path)
         $null = New-Item -ItemType 'Directory' -Path $Path
     }
@@ -50,8 +48,7 @@ function New-Directory
 
         Downloads version 1.0.0 of FinOpsHub template to c:\myHub directory.
 #>
-function Save-FinOpsHubTemplate
-{
+function Save-FinOpsHubTemplate {
     [CmdletBinding()]
     param
     (
@@ -70,44 +67,36 @@ function Save-FinOpsHubTemplate
 
     $progress = $ProgressPreference
     $ProgressPreference = 'SilentlyContinue'
-    try
-    {
+    try {
         New-Directory -Path $Destination
         $releases = Get-FinOpsToolkitVersion -Latest:$($Version -eq 'Latest') -Preview:$Preview
 
-        if ($Version -eq 'Latest')
-        {
+        if ($Version -eq 'Latest') {
             $release = $releases | Select-Object -First 1
         }
-        else
-        {
-            $release = $releases | Where-Object -FilterScript {$_.Version -eq $Version}
+        else {
+            $release = $releases | Where-Object -FilterScript { $_.Version -eq $Version }
         }
 
-        foreach ($asset in $release.Assets)
-        {
+        foreach ($asset in $release.Assets) {
             Write-Verbose -Message ($script:localizedData.FoundAsset -f $asset.Name)
             $saveFilePath = Join-Path -Path $Destination -ChildPath $asset.Name
-            if (Test-Path -Path $saveFilePath)
-            {
+            if (Test-Path -Path $saveFilePath) {
                 Remove-Item -Path $saveFilePath -Recurse -Force
             }
 
             $null = Invoke-Webrequest -Uri $asset.Url -OutFile $saveFilePath -Verbose:$false
-            if ([System.IO.Path]::GetExtension($saveFilePath) -eq '.zip')
-            {
+            if ([System.IO.Path]::GetExtension($saveFilePath) -eq '.zip') {
                 Write-Verbose -Message ($script:localizedData.ExpandingZip -f $saveFilePath)
                 Expand-Archive -Path $saveFilePath -DestinationPath ($saveFilePath -replace '.zip', '')
                 Remove-Item -Path $saveFilePath -Recurse -Force
             }
         }
     }
-    catch
-    {
+    catch {
         throw $_.Exception.Message
     }
-    finally
-    {
+    finally {
         $ProgressPreference = $progress
     }
 }
@@ -134,8 +123,7 @@ function Save-FinOpsHubTemplate
 
         Returns only the latest version number of the FinOps toolkit.
 #>
-function Get-FinOpsToolkitVersion
-{
+function Get-FinOpsToolkitVersion {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSReviewUnusedParameter", "")]
     [CmdletBinding()]
     param
@@ -153,19 +141,16 @@ function Get-FinOpsToolkitVersion
     $ProgressPreference = 'SilentlyContinue'
     $releaseUri = 'https://api.github.com/repos/microsoft/finops-toolkit/releases'
 
-    try
-    {
+    try {
         [array]$releases = Invoke-WebRequest -Uri $releaseUri | ConvertFrom-Json | Where-Object { ($Preview) -or (-not $_.prerelease) }
 
-        if ($Latest)
-        {
+        if ($Latest) {
             $releases = $releases | Select-Object -First 1
             Write-Verbose -Message ($script:localizedData.FoundLatestRelease -f $releases.tag_name)
         }
 
         $output = @()
-        foreach ($release in $releases)
-        {
+        foreach ($release in $releases) {
             $properties = [ordered]@{
                 Name       = $release.name
                 PreRelease = $release.prerelease
@@ -174,8 +159,7 @@ function Get-FinOpsToolkitVersion
                 Assets     = @()
             }
 
-            foreach ($asset in $release.assets)
-            {
+            foreach ($asset in $release.assets) {
                 $properties.Assets += @{
                     Name = $asset.name
                     Url  = $asset.browser_download_url
@@ -187,12 +171,10 @@ function Get-FinOpsToolkitVersion
 
         return $output
     }
-    catch
-    {
+    catch {
         throw $_.Exception.Message
     }
-    finally
-    {
+    finally {
         $ProgressPreference = $progress
     }
 }
@@ -232,8 +214,7 @@ function Get-FinOpsToolkitVersion
 
         Deploys a new FinOps hub instance named MyHub using version 0.0.1 of the template.
 #>
-function Deploy-FinOpsHub
-{
+function Deploy-FinOpsHub {
     [CmdletBinding(SupportsShouldProcess)]
     param
     (
@@ -267,29 +248,23 @@ function Deploy-FinOpsHub
         $Tags
     )
 
-    try
-    {
+    try {
         $resourceGroupObject = Get-AzResourceGroup -Name $ResourceGroup -ErrorAction 'SilentlyContinue'
-        if (-not $resourceGroupObject)
-        {
-            if ($PSCmdlet.ShouldProcess($ResourceGroup, 'CreateResourceGroup'))
-            {
+        if (-not $resourceGroupObject) {
+            if ($PSCmdlet.ShouldProcess($ResourceGroup, 'CreateResourceGroup')) {
                 $resourceGroupObject = New-AzResourceGroup -Name $ResourceGroup -Location $Location
             }
         }
 
         $toolkitPath = Join-Path $env:temp -ChildPath 'FinOps'
-        if ($PSCmdlet.ShouldProcess($toolkitPath, 'CreateDirectory'))
-        {
+        if ($PSCmdlet.ShouldProcess($toolkitPath, 'CreateDirectory')) {
             New-Directory -Path $toolkitPath
         }
 
-        if ($PSCmdlet.ShouldProcess($Version, 'DownloadTemplate'))
-        {
+        if ($PSCmdlet.ShouldProcess($Version, 'DownloadTemplate')) {
             Save-FinOpsHubTemplate -Version $Version -Preview:$Preview -Destination $toolkitPath
-            $toolkitFile = Get-ChildItem -Path $toolkitPath -Include 'main.bicep' -Recurse | Where-Object -FilterScript {$_.FullName -like '*finops-hub-v*'}
-            if (-not $toolkitFile)
-            {
+            $toolkitFile = Get-ChildItem -Path $toolkitPath -Include 'main.bicep' -Recurse | Where-Object -FilterScript { $_.FullName -like '*finops-hub-v*' }
+            if (-not $toolkitFile) {
                 throw ($LocalizedData.TemplateNotFound -f $toolkitPath)
             }
 
@@ -301,29 +276,135 @@ function Deploy-FinOpsHub
                 }
             }
 
-            if ($Tags -and $Tags.Keys.Count -gt 0)
-            {
+            if ($Tags -and $Tags.Keys.Count -gt 0) {
                 $parameterSplat.TemplateParameterObject.Add('tags', $Tags)
             }
         }
 
-        if ($PSCmdlet.ShouldProcess($ResourceGroup, 'DeployFinOpsHub'))
-        {
+        if ($PSCmdlet.ShouldProcess($ResourceGroup, 'DeployFinOpsHub')) {
             Write-Verbose -Message ($LocalizedData.DeployFinOpsHub -f $toolkitFile.FullName, $resourceGroupObject.ResourceGroupName)
             $deployment = New-AzResourceGroupDeployment @parameterSplat -ResourceGroupName $resourceGroupObject.ResourceGroupName
 
             return $deployment
         }
     }
-    catch
-    {
+    catch {
         throw $_.Exception.Message
     }
-    finally
-    {
+    finally {
         Remove-Item -Path $toolkitPath -Recurse -Force -ErrorAction 'SilentlyContinue'
     }
 }
+
+<#
+.SYNOPSIS
+Grants EA level permissions to the specified service principal or managed identity
+
+.PARAMETER ObjectId
+The object id of the service principal or managed identity.
+
+.PARAMETER TenantId
+The Azure Active Directory tenant which contains the identity.
+
+.PARAMETER BillingScope
+Specifies whether to grant permissions at an enrollment or department level.
+
+.PARAMETER BillingAccountId
+The billing Account ID (enrollment id) to grant permissions against.
+
+.PARAMETER DepartmentId
+The department id to grant permissions against.
+
+.EXAMPLE
+Add-FinOpsServicePrincipal -ObjectId 00000000-0000-0000-0000-000000000000 -TenantId 00000000-0000-0000-0000-000000000000 -BillingScope Enrollment -BillingAccountId 12345
+Grants EA Reader permissions to the specified service principal or managed identity
+
+Add-FinOpsServicePrincipal -ObjectId 00000000-0000-0000-0000-000000000000 -TenantId 00000000-0000-0000-0000-000000000000 -BillingScope Department -BillingAccountId 12345 -DepartmentId 67890
+Grants department reader permissions to the specified service principal or managed identity
+
+#>
+function Add-FinOpsServicePrincipal {
+    param(
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$ObjectId,
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$TenantId,
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Enrollment', 'Department')]
+        [string]$BillingScope,
+        [Parameter(Mandatory = $false)]
+        [string]$BillingAccountId,
+        [Parameter(Mandatory = $false)]
+        [string]$DepartmentId
+    )
+  
+    $azContext = get-azcontext
+    switch ($BillingScope) {
+        'Enrollment' {
+            if ([string]::IsNullOrEmpty($BillingAccountId)) {
+                Write-Output $LocalizedData.BillingAccountNotSpecifiedForDept
+                Write-Output ''
+                exit 1
+            }
+  
+            $roleDefinitionId = "/providers/Microsoft.Billing/billingAccounts/{0}/billingRoleDefinitions/24f8edb6-1668-4659-b5e2-40bb5f3a7d7e" -f $BillingAccountId
+            $restUri = "{0}providers/Microsoft.Billing/billingAccounts/{1}/billingRoleAssignments/{2}?api-version=2019-10-01-preview" -f $azContext.Environment.ResourceManagerUrl, $BillingAccountId, (New-Guid).Guid
+            $body = '{"properties": { "PrincipalId": "{0}", "PrincipalTenantId": "{1}", "roleDefinitionId": "{2}" } }' 
+            $body = $body.Replace("{0}", $ObjectId)
+            $body = $body.Replace("{1}", $TenantId)
+            $body = $body.Replace("{2}", $roleDefinitionId)
+  
+        }
+        'Department' {
+            if ([string]::IsNullOrEmpty($BillingAccountId)) {
+                Write-Output $LocalizedData.BillingAccountNotSpecifiedForDept
+                Write-Output ''
+                exit 1
+            }
+            if ([string]::IsNullOrEmpty($DepartmentId)) {
+                Write-Output $LocalizedData.DeptIdNotSpecified
+                Write-Output ''
+                exit 1
+            }
+  
+            $roleDefinitionId = "/providers/Microsoft.Billing/billingAccounts/{0}/departments/{1}/billingRoleDefinitions/db609904-a47f-4794-9be8-9bd86fbffd8a" -f $BillingAccountId, $DepartmentId
+            $restUri = "{0}providers/Microsoft.Billing/billingAccounts/{1}/departments/{2}/billingRoleAssignments/{3}?api-version=2019-10-01-preview" -f $azContext.Environment.ResourceManagerUrl, $BillingAccountId, $DepartmentId, (New-Guid).Guid
+            $body = '{"properties": { "PrincipalId": "{0}", "PrincipalTenantId": "{1}", "roleDefinitionId": "{2}" } }'
+            $body = $body.Replace("{0}", $ObjectId)
+            $body = $body.Replace("{1}", $TenantId)
+            $body = $body.Replace("{2}", $roleDefinitionId)
+  
+        }
+        default {
+            throw ($LocalizedData.InvalidBillingScope -f $BillingScope)
+        }
+    }
+    
+    $azProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
+    $profileClient = New-Object -TypeName Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient -ArgumentList ($azProfile)
+    $token = $profileClient.AcquireAccessToken($azContext.Subscription.TenantId)
+    $authHeader = @{
+        'Content-Type'  = 'application/json'
+        'Authorization' = 'Bearer ' + $token.AccessToken
+    }
+    
+    try {
+        Invoke-RestMethod -Uri $restUri -Method Put -Headers $authHeader -Body $body
+        Write-Host ($LocalizedData.SuccessMessage1 -f $BillingScope)
+    }
+    catch {
+        if ($_.Exception.Response.StatusCode -eq 409) {
+            Write-Host ($LocalizedData.AlreadyGrantedMessage1 -f $BillingScope)
+        }
+        else {
+            $body
+            throw $_.Exception
+        }
+    }
+}
+
 #endregion Public functions
 
-Export-ModuleMember -Function 'Get-FinOpsToolkitVersions', 'Deploy-FinOpsHub'
+Export-ModuleMember -Function 'Get-FinOpsToolkitVersions', 'Deploy-FinOpsHub', 'Add-FinOpsServicePrincipal'
