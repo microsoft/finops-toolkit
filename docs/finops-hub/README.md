@@ -17,8 +17,8 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 On this page:
 
 - [ℹ️ Summary](#ℹ️-summary)
-- [🧰 Create a new hub](#-create-a-new-hub)
-- [🛠️ Configure  exports](#️-configure--exports)
+- [➕ Create a new hub](#-create-a-new-hub)
+- [🛠️ Configure exports for supported scopes](#️-configure-exports-for-supported-scopes)
 - [🗃️ Connect to your data](#️-connect-to-your-data)
 - [🛫 Get started with hubs](#-get-started-with-hubs)
 
@@ -42,15 +42,21 @@ To learn more, see [FinOps hub template details](template.md).
 
 <br>
 
-## 🧰 Create a new hub
+## ➕ Create a new hub
 
 1. [Deploy the **finops-hub** template](../deploy).
 
-## 🛠️ Configure  exports
+2. [Configure scopes to pull cost data from](./configure-scopes.md).
+3. [Download one or more of the available Power BI starter templates](./reports).
 
-Configure exports for supported scopes
-- For EA enrollments use [managed exports](./managed-exports.md)
-- For MCA enrollments use [cost management exports](./cm-exports.md)
+<br>
+
+## 🛠️ Configure exports for supported scopes
+
+- For EA enrollments use [managed exports](./managed-exports.md#☁️-configure-dailymonthly-exports-using-managed-exports)
+- For MCA enrollments use [manual exports](./managed-exports.md#configure-cost-management-exports-manually)
+
+<br>
 
 ## 🗃️ Connect to your data
 

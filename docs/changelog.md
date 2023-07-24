@@ -1,11 +1,13 @@
 # 📜 FinOps toolkit changelog
 
+- [v0.0.2](#v002)
 - [v0.0.1](#v001)
 
 ---
 
 <!--
 ## Unreleased
+-->
 ## v0.0.2
 
 Added:
@@ -14,7 +16,8 @@ Added:
    1. Support for actual (billed) cost data.
    2. Add managed exports feature
    3. Backfill historical cost data to streamline first-time setup.
--->
+
+<br>
 
 ## v0.0.1
 
