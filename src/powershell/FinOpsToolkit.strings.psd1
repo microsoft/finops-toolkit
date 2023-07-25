@@ -9,4 +9,10 @@ ConvertFrom-StringData -StringData @'
     FoundLatestRelease = Found latest release '{0}'.
     NewDirectory = Creating directory '{0}'.
     TemplateNotFound = Could not find template 'main.bicep' at path '{0}'.
+    BillingAccountNotSpecifiedForDept = Billing account ID is required when billing scope = Department.
+    DeptIdNotSpecified = Department ID is required when billing scope = Department.
+    BillingAccountNotSpecified = A billing account ID is required.
+    InvalidBillingScope = Invalid billing scope: '{0}'.
+    SSuccessMessage1 = Successfully granted {0} Reader permissions to the specified service principal.
+    AlreadyGrantedMessage1 = Service principal already has {0} Reader permissions for the specified billing scope.
 '@
