@@ -298,10 +298,10 @@ function Deploy-FinOpsHub {
 
 <#
 .SYNOPSIS
-Grants EA level permissions to the specified service principal or managed identity
+Grants the specified service principal or managed identity access to an Enterprise Agreement billing account or department.
 
 .PARAMETER ObjectId
-The object id of the service principal or managed identity.
+The object ID of the service principal or managed identity.
 
 .PARAMETER TenantId
 The Azure Active Directory tenant which contains the identity.
@@ -310,20 +310,20 @@ The Azure Active Directory tenant which contains the identity.
 Specifies whether to grant permissions at an enrollment or department level.
 
 .PARAMETER BillingAccountId
-The billing Account ID (enrollment id) to grant permissions against.
+The billing account ID (enrollment ID) to grant permissions against.
 
 .PARAMETER DepartmentId
-The department id to grant permissions against.
+The department ID to grant permissions against.
 
 .EXAMPLE
-Add-FinOpsHubServicePrincipal -ObjectId 00000000-0000-0000-0000-000000000000 -TenantId 00000000-0000-0000-0000-000000000000 -BillingScope Enrollment -BillingAccountId 12345
+Add-FinOpsServicePrincipal -ObjectId 00000000-0000-0000-0000-000000000000 -TenantId 00000000-0000-0000-0000-000000000000 -BillingScope Enrollment -BillingAccountId 12345
 Grants EA Reader permissions to the specified service principal or managed identity
 
-Add-FinOpsHubServicePrincipal -ObjectId 00000000-0000-0000-0000-000000000000 -TenantId 00000000-0000-0000-0000-000000000000 -BillingScope Department -BillingAccountId 12345 -DepartmentId 67890
+Add-FinOpsServicePrincipal -ObjectId 00000000-0000-0000-0000-000000000000 -TenantId 00000000-0000-0000-0000-000000000000 -BillingScope Department -BillingAccountId 12345 -DepartmentId 67890
 Grants department reader permissions to the specified service principal or managed identity
 
 #>
-function Add-FinOpsHubServicePrincipal {
+function Add-FinOpsServicePrincipal {
     param(
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
@@ -332,15 +332,23 @@ function Add-FinOpsHubServicePrincipal {
         [ValidateNotNullOrEmpty()]
         [string]$TenantId,
         [Parameter(Mandatory = $true)]
-        [ValidateSet('Enrollment', 'Department')]
-        [string]$BillingScope,
-        [Parameter(Mandatory = $false)]
         [string]$BillingAccountId,
         [Parameter(Mandatory = $false)]
         [string]$DepartmentId
     )
 
     $azContext = get-azcontext
+
+    if (![string]::IsNullOrEmpty($DepartmentId) -and ![string]::IsNullOrEmpty($BillingAccountId)) {
+        $BillingScope = 'Department'
+    }
+    elseif ([string]::IsNullOrEmpty($DepartmentId) -and ![string]::IsNullOrEmpty($BillingAccountId)) {
+        $BillingScope = 'Enrollment'
+    }
+    else {
+        throw ($LocalizedData.BillingAccountNotSpecified)
+    }
+
     switch ($BillingScope) {
         'Enrollment' {
             if ([string]::IsNullOrEmpty($BillingAccountId)) {
@@ -407,20 +415,14 @@ function Add-FinOpsHubServicePrincipal {
 .SYNOPSIS
 Adds an export scope configuration to the specified Resource group.
 
-.PARAMETER ResourceGroupName
-The name of the Resource group.
+.PARAMETER HubName
+The name of the resource group.
 
 .PARAMETER Scope
-The Export Scope to add to the Resource group configuration.
-
-.PARAMETER TenantId
-The Azure AD Tenant linked to the export scope.
-
-.PARAMETER Cloud
-The Azure Cloud the export scope belongs to.
+The export scope to add to the FinOps Hub configuration.
 
 .EXAMPLE
-Add-FinOpsHubScope -ResourceGroupName ftk-FinOps-Hub -Scope "/providers/Microsoft.Billing/billingAccounts/1234567"
+Add-FinOpsHubScope -HubName ftk-FinOps-Hub -Scope "/providers/Microsoft.Billing/billingAccounts/1234567"
 
 Adds an export scope configuration to the specified Resource group.
 #>
@@ -430,7 +432,7 @@ Function Add-FinOpsHubScope {
         [Parameter()]
         [string]
         [ValidateNotNullOrEmpty()]
-        $ResourceGroupName,
+        $HubName,
         [Parameter()]
         [String]
         [ValidateNotNullOrEmpty()]
@@ -453,7 +455,7 @@ Function Add-FinOpsHubScope {
 
     Write-Output ("{0}    Export Scope to add: {1}" -f (Get-Date), $Scope)
 
-    $tagSuffix = "Microsoft.Cloud/hubs/$ResourceGroupName"
+    $tagSuffix = "Microsoft.Cloud/hubs/$HubName"
     $hubResource = Get-AzResource -ResourceType 'Microsoft.Storage/storageAccounts' -TagName 'cm-resource-parent' | Where-Object {$_.Tags['cm-resource-parent'].EndsWith($tagSuffix) }
     if ($null -eq $hubResource) {
         Write-Output ("{0}    Hub not found" -f (Get-Date))
@@ -504,4 +506,7 @@ Function Add-FinOpsHubScope {
 
 #endregion Public functions
 
-Export-ModuleMember -Function 'Get-FinOpsToolkitVersions', 'Deploy-FinOpsHub', 'Add-FinOpsHubServicePrincipal', 'Add-FinOpsHubScope'
+Export-ModuleMember -Function 'Add-FinOpsHubScope'
+Export-ModuleMember -Function 'Add-FinOpsServicePrincipal'
+Export-ModuleMember -Function 'Deploy-FinOpsHub'
+Export-ModuleMember -Function 'Get-FinOpsToolkitVersions'
