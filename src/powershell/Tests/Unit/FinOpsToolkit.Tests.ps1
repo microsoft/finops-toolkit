@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 $rootDirectory = ((Get-Item -Path $PSScriptRoot).Parent.Parent).FullName
 $modulePath = (Get-ChildItem -Path $rootDirectory -Include 'FinOpsToolKit.psm1' -Recurse).FullName
 write-host $PSVersionTable
