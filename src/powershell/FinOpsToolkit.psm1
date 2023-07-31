@@ -134,7 +134,7 @@ function Save-FinOpsHubTemplate
 
         Returns only the latest version number of the FinOps toolkit.
 #>
-function Get-FinOpsToolkitVersion
+function Get-FinOpsToolkitVersions
 {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSReviewUnusedParameter", "")]
     [CmdletBinding()]
