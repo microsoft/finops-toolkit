@@ -136,8 +136,8 @@ function Save-FinOpsHubTemplate
 #>
 function Get-FinOpsToolkitVersion
 {
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
     [CmdletBinding()]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
     param
     (
         [Parameter()]
