@@ -114,6 +114,7 @@ function Save-FinOpsHubTemplate
 #endregion Private functions
 
 #region Public functions
+
 <#
     .SYNOPSIS
         Retrieves available version numbers of the FinOps toolkit.
