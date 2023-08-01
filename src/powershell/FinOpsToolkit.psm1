@@ -2,7 +2,7 @@
 # Licensed under the MIT License.
 
 # Import the localized Data
-$script:localizedData = Import-LocalizedData -FileName 'FinOpsToolkit.strings.psd1' -BaseDirectory $PSScriptRoot
+$script:localizedData = Import-LocalizedData -FileName 'FinOpsToolkit.strings.psd1' -BaseDirectory (Join-Path -Path $PSScriptRoot -ChildPath 'en-US')
 
 #region Private functions
 <#
