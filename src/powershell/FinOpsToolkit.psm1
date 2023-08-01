@@ -326,4 +326,4 @@ function Deploy-FinOpsHub
 }
 #endregion Public functions
 
-Export-ModuleMember -Function 'Get-FinOpsToolkitVersions', 'Deploy-FinOpsHub'
+Export-ModuleMember -Function 'Get-FinOpsToolkitVersion', 'Deploy-FinOpsHub'
