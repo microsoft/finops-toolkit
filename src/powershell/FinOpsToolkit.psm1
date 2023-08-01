@@ -5,6 +5,7 @@
 $script:localizedData = Import-LocalizedData -FileName 'FinOpsToolkit.strings.psd1' -BaseDirectory (Join-Path -Path $PSScriptRoot -ChildPath 'en-US')
 
 #region Private functions
+
 <#
     .SYNOPSIS
         Creates a directory if it does not already exist.
@@ -114,6 +115,7 @@ function Save-FinOpsHubTemplate
 #endregion Private functions
 
 #region Public functions
+
 <#
     .SYNOPSIS
         Retrieves available version numbers of the FinOps toolkit.
