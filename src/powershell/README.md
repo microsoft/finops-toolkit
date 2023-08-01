@@ -39,7 +39,7 @@ Deploys a new FinOps hub instance named MyHub using version 0.0.1 of the templat
 
 #### Syntax
 
-`Get-FinOpsToolkitVersions [-Latest] [-Preview] [<CommonParameters>]`
+`Get-FinOpsToolkitVersion [-Latest] [-Preview] [<CommonParameters>]`
 
 #### Parameters
 
@@ -50,12 +50,12 @@ Deploys a new FinOps hub instance named MyHub using version 0.0.1 of the templat
 
 ##### Example 1
 
-`Get-FinOpsToolkitVersions`
+`Get-FinOpsToolkitVersion`
 
 Returns all available released version numbers of the FinOps toolkit.
 
 ##### Example 2
 
-`Get-FinOpsToolkitVersions -Latest`
+`Get-FinOpsToolkitVersion -Latest`
 
 Returns only the latest version number of the FinOps toolkit.
