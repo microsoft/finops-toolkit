@@ -114,6 +114,7 @@ function Save-FinOpsHubTemplate
 #endregion Private functions
 
 #region Public functions
+
 <#
     .SYNOPSIS
         Retrieves available version numbers of the FinOps toolkit.
@@ -125,19 +126,19 @@ function Save-FinOpsHubTemplate
         Includes pre-releases.
 
     .EXAMPLE
-        Get-FinOpsToolkitVersions
+        Get-FinOpsToolkitVersion
 
         Returns all available released version numbers of the FinOps toolkit.
 
     .EXAMPLE
-        Get-FinOpsToolkitVersions -Latest
+        Get-FinOpsToolkitVersion -Latest
 
         Returns only the latest version number of the FinOps toolkit.
 #>
 function Get-FinOpsToolkitVersion
 {
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSReviewUnusedParameter", "")]
     [CmdletBinding()]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
     param
     (
         [Parameter()]
@@ -326,4 +327,4 @@ function Deploy-FinOpsHub
 }
 #endregion Public functions
 
-Export-ModuleMember -Function 'Get-FinOpsToolkitVersions', 'Deploy-FinOpsHub'
+Export-ModuleMember -Function 'Get-FinOpsToolkitVersion', 'Deploy-FinOpsHub'
