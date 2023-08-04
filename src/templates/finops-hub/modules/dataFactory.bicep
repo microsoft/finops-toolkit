@@ -2041,7 +2041,7 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
             type: 'DatasetReference'
             parameters: {
               fileName: {
-                value: 'schema_@{toLower(variables(\'detectedSchema\'))}.json'
+                value: 'schema_@{toLower(variables(\'detectedSchema\'))}_normalized.json'
                 type: 'Expression'
               }
               folderName: configContainerName
