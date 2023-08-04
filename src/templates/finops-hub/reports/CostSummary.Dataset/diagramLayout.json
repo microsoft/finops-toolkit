@@ -13,36 +13,39 @@
             "x": 0,
             "y": 0
           },
-          "nodeIndex": "CMConnector",
-          "size": {
-            "height": 300,
-            "width": 234
-          },
-          "zIndex": 0
-        },
-        {
-          "location": {
-            "x": 3175.51140422367,
-            "y": 0
-          },
           "nodeIndex": "CostDetails",
-          "size": {
-            "height": 337,
-            "width": 234
-          },
-          "zIndex": 0
-        },
-        {
-          "location": {
-            "x": 3608.2,
-            "y": 0
-          },
-          "nodeIndex": "CMExports",
+          "nodeLineageTag": "4b9830c4-e7c7-43ee-823c-d6b15359c25f",
           "size": {
             "height": 300,
             "width": 234
           },
-          "zIndex": 0
+          "zIndex": 1
+        },
+        {
+          "location": {
+            "x": 284,
+            "y": 0
+          },
+          "nodeIndex": "FOCUS_0.5",
+          "nodeLineageTag": "0d972719-3a8f-48d4-b644-683ed62c03c5",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 3
+        },
+        {
+          "location": {
+            "x": 568,
+            "y": 0
+          },
+          "nodeIndex": "CMConnector",
+          "nodeLineageTag": "1d35eb1a-591b-409e-abdc-6eddd85d8ec2",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 2
         }
       ],
       "name": "All tables",
