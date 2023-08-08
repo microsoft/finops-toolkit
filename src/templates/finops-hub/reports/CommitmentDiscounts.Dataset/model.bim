@@ -9778,10 +9778,6 @@
           {
             "name": "PBI_ResultType",
             "value": "Text"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "description": "Enter your EA account enrollment number",
@@ -9813,7 +9809,7 @@
           }
         ],
         "description": "Name of the Azure DataLake Gen2 storage account to pull data from.",
-        "expression": "\"https://ftkbrettwilv5mrhwn3alqxs.dfs.core.windows.net/ingestion\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
+        "expression": "\"https://finopshubdej33rzckeakmum.dfs.core.windows.net/ingestion\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
         "kind": "m",
         "lineageTag": "9822a938-a2c3-4661-8c41-aaa6bf664fd3",
         "queryGroup": "FinOps toolkit"
@@ -11743,10 +11739,6 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "columns": [
@@ -13539,10 +13531,6 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "columns": [
@@ -16335,10 +16323,6 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "columns": [
