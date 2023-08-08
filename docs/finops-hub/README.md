@@ -50,8 +50,15 @@ To learn more, see [FinOps hub template details](template.md).
 
 ## 🛠️ Configure exports for supported scopes
 
-- For EA enrollments use [managed exports](./configure-scopes.md#️-managed-export-configuration)
-- For MCA enrollments use [manual exports](./configure-scopes.md#️-configure-cost-management-exports-manually)
+> ℹ️ _**Important**<br>Microsoft Cost Management does not support managed exports for Microsoft Customer Agreement billing accounts, billing profiles, invoice sections, and customers. Please [configure exports manually](#-Configure Cost Management exports manually)._
+
+1. [Grant permissions to Data Factory](./configure-permissions.md).
+2. Configure the export scope(s)
+   1. [for MCA billing accounts and billing profiles](./configure-cm-exports.md)
+   2. [for all other export scopes](./configure-managed-exports.md)
+3. Trigger an export to initialize the dataset.
+  
+  > ℹ️ _**Important**<br>Ensure not to add duplicate or overlapping export scopes as this will lead to duplication of data._
 
 <br>
 

@@ -1,25 +1,4 @@
-# 🛠️ Configure scopes to monitor
-
-On this page:
-
-- [🛠️ Managed export configuration](#️-managed-export-configuration)
-- [🛠️ Configure Cost Management exports manually](#️-configure-cost-management-exports-manually)
-
----
-  
-## 🛠️ Managed export configuration
-
-> ℹ️ _**Important**<br>Microsoft Cost Management does not support managed exports for Microsoft Customer Agreement billing accounts, billing profiles, invoice sections, and customers. Please [configure exports manually](#-Configure Cost Management exports manually)._
-
-1. [Grant permissions to Data Factory](./configure-permissions.md).
-2. [Configure the export scope(s)](./configure-exports.md).
-3. Initialize the dataset.
-  
-  > ℹ️ _**Important**<br>Ensure not to add duplicate or overlapping export scopes as this will lead to duplication of data._
-
-<br>
-
-## 🛠️ Configure Cost Management exports manually
+# 🛠️ Configure Cost Management exports
 
 Use Cost Management exports for MCA scopes or scenarios where you cannot grant permissions to Azure Data Factory.
 
@@ -36,7 +15,11 @@ Use Cost Management exports for MCA scopes or scenarios where you cannot grant p
      > - _**Billing profile:** providers/Microsoft.Billing/billingAccounts/{billingAccountId}/billingProfiles/{billingProfileId}_
      > - _**EA Department:** providers/Microsoft.Billing/billingAccounts/{billingAccountId}/departments/{departmentId}_
 
-2. Run your export.
+2. Create another export using the process in step 1, but this time set **Metric** = `Actual cost`
+3. Create another export using the process in step 1, but this time set **Export type** = `Monthly export of last month's costs`
+4. Create another export using the process in step 1, but this time set **Metric** = `Actual cost` and **Export type** = `Monthly export of last month's costs`
+
+5. Run your exports to initialize the dataset.
    - Exports can take up to a day to show up after first created.
    - Use the **Run now** command at the top of the Cost Management Exports page.
    - Your data should be available within 15 minutes or so, depending on how big your account is.
