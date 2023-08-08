@@ -11215,7 +11215,7 @@
           }
         ],
         "description": "Name of the Azure DataLake Gen2 storage account to pull data from.",
-        "expression": "\"https://finopshubdej33rzckeakmum.dfs.core.windows.net/ingestion\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
+        "expression": "\"https://ftkbrettwilv5mrhwn3alqxs.dfs.core.windows.net/ingestion\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
         "kind": "m",
         "lineageTag": "421c1232-0e40-45a4-bc59-257ce648478c",
         "queryGroup": "FinOps toolkit"
