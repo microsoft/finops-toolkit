@@ -8,7 +8,7 @@
       },
       {
         "name": "PBIDesktopVersion",
-        "value": "2.119.6958.2 (Main)"
+        "value": "2.120.288.0 (23.08)"
       },
       {
         "name": "PBI_QueryOrder",
@@ -9778,10 +9778,6 @@
           {
             "name": "PBI_ResultType",
             "value": "Text"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "description": "Enter your EA account enrollment number",
@@ -9796,10 +9792,6 @@
           {
             "name": "PBI_ResultType",
             "value": "Text"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "description": "Enter the scope as 'Enrollment Number'",
@@ -9812,16 +9804,12 @@
         "name": "StorageUrl",
         "annotations": [
           {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
             "name": "PBI_ResultType",
             "value": "Text"
           }
         ],
         "description": "Name of the Azure DataLake Gen2 storage account to pull data from.",
-        "expression": "\"https://finopshubdej33rzckeakmum.dfs.core.windows.net/ingestion\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
+        "expression": "\"https://ftkbrettwilv5mrhwn3alqxs.dfs.core.windows.net/ingestion\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
         "kind": "m",
         "lineageTag": "9822a938-a2c3-4661-8c41-aaa6bf664fd3",
         "queryGroup": "FinOps toolkit"
@@ -9829,10 +9817,6 @@
       {
         "name": "FileType",
         "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
           {
             "name": "PBI_ResultType",
             "value": "Text"
@@ -10030,6 +10014,38 @@
         "joinOnDateBehavior": "datePartOnly",
         "toColumn": "Date",
         "toTable": "LocalDateTable_d75548e1-cab3-4032-8abd-59c543411907"
+      },
+      {
+        "name": "bb546cba-bba1-4658-9535-58bae9110c3a",
+        "fromColumn": "ExchangeRateDate",
+        "fromTable": "CostDetails",
+        "joinOnDateBehavior": "datePartOnly",
+        "toColumn": "Date",
+        "toTable": "LocalDateTable_869f1d77-5e68-4904-88de-ae4eb87429dd"
+      },
+      {
+        "name": "541dd8a7-59d4-4d3a-9dbf-fbdd74efbb2e",
+        "fromColumn": "ExchangeRateDate",
+        "fromTable": "CMConnector",
+        "joinOnDateBehavior": "datePartOnly",
+        "toColumn": "Date",
+        "toTable": "LocalDateTable_58b4ad38-77ed-42df-99f1-a96f3d9c2e94"
+      },
+      {
+        "name": "eb3931c3-56a8-4153-9aaa-0562d16a9c5c",
+        "fromColumn": "ServicePeriodStartDate",
+        "fromTable": "CostDetails",
+        "joinOnDateBehavior": "datePartOnly",
+        "toColumn": "Date",
+        "toTable": "LocalDateTable_6dbe2f80-c597-41b6-8cbd-b086a25d10fe"
+      },
+      {
+        "name": "0bd0de83-0de0-4338-8b77-3e6640be73e9",
+        "fromColumn": "ServicePeriodStartDate",
+        "fromTable": "CMConnector",
+        "joinOnDateBehavior": "datePartOnly",
+        "toColumn": "Date",
+        "toTable": "LocalDateTable_a5a01516-faf1-45f0-a4ca-fd7b057f6464"
       }
     ],
     "sourceQueryCulture": "en-US",
@@ -10125,22 +10141,6 @@
             "type": "calculatedTableColumn"
           },
           {
-            "name": "AvailabilityZone",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "isDataTypeInferred": true,
-            "isNameInferred": true,
-            "lineageTag": "5a5c188d-04e4-49c5-a31e-fd988a35c32c",
-            "sourceColumn": "CostDetails[AvailabilityZone]",
-            "summarizeBy": "none",
-            "type": "calculatedTableColumn"
-          },
-          {
             "name": "BillingAccountId",
             "annotations": [
               {
@@ -10170,22 +10170,6 @@
             "isNameInferred": true,
             "lineageTag": "21b2d757-63e1-4777-8615-00c8ffde3487",
             "sourceColumn": "CostDetails[BillingAccountName]",
-            "summarizeBy": "none",
-            "type": "calculatedTableColumn"
-          },
-          {
-            "name": "BillingCurrencyCode",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "isDataTypeInferred": true,
-            "isNameInferred": true,
-            "lineageTag": "d4807ac9-b3f7-461f-9df6-40c1008513af",
-            "sourceColumn": "CostDetails[BillingCurrencyCode]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
@@ -10855,42 +10839,6 @@
             "type": "calculatedTableColumn"
           },
           {
-            "name": "PayGPrice",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ],
-            "dataType": "double",
-            "isDataTypeInferred": true,
-            "isNameInferred": true,
-            "lineageTag": "0dc7c235-39a8-47eb-97ec-e72d4118c54a",
-            "sourceColumn": "CostDetails[PayGPrice]",
-            "summarizeBy": "sum",
-            "type": "calculatedTableColumn"
-          },
-          {
-            "name": "PlanName",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "isDataTypeInferred": true,
-            "isNameInferred": true,
-            "lineageTag": "14b92834-9427-413e-8118-d4f6a2187a34",
-            "sourceColumn": "CostDetails[PlanName]",
-            "summarizeBy": "none",
-            "type": "calculatedTableColumn"
-          },
-          {
             "name": "PricingModel",
             "annotations": [
               {
@@ -11004,54 +10952,6 @@
             "lineageTag": "47785ccf-c32a-4f5e-86c1-2cccff90f237",
             "sourceColumn": "CostDetails[Quantity]",
             "summarizeBy": "sum",
-            "type": "calculatedTableColumn"
-          },
-          {
-            "name": "ReservationId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "isDataTypeInferred": true,
-            "isNameInferred": true,
-            "lineageTag": "c220224b-be69-49de-b579-235692bd029d",
-            "sourceColumn": "CostDetails[ReservationId]",
-            "summarizeBy": "none",
-            "type": "calculatedTableColumn"
-          },
-          {
-            "name": "ReservationName",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "isDataTypeInferred": true,
-            "isNameInferred": true,
-            "lineageTag": "efb0eab1-0583-4812-ba6a-01247c1c228a",
-            "sourceColumn": "CostDetails[ReservationName]",
-            "summarizeBy": "none",
-            "type": "calculatedTableColumn"
-          },
-          {
-            "name": "ResourceGroup",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "isDataTypeInferred": true,
-            "isNameInferred": true,
-            "lineageTag": "c63bfb0a-789c-421a-8576-16da679e4752",
-            "sourceColumn": "CostDetails[ResourceGroup]",
-            "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
@@ -11436,7 +11336,7 @@
             "type": "calculatedTableColumn"
           },
           {
-            "name": "benefitId",
+            "name": "BillingCurrency",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -11446,13 +11346,33 @@
             "dataType": "string",
             "isDataTypeInferred": true,
             "isNameInferred": true,
-            "lineageTag": "d463bd7a-64ad-4217-9dc9-ea3404380d6b",
-            "sourceColumn": "CostDetails[benefitId]",
+            "lineageTag": "f9403e72-ac7c-4e27-974c-81a6bcc316db",
+            "sourceColumn": "CostDetails[BillingCurrency]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "benefitName",
+            "name": "CostInPricingCurrency",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "c48500a5-fbaf-44c4-8768-9cda0bbe6985",
+            "sourceColumn": "CostDetails[CostInPricingCurrency]",
+            "summarizeBy": "sum",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "CostInUsd",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -11462,8 +11382,341 @@
             "dataType": "string",
             "isDataTypeInferred": true,
             "isNameInferred": true,
-            "lineageTag": "be62623a-1f8c-421a-939d-023427e7ce6f",
-            "sourceColumn": "CostDetails[benefitName]",
+            "lineageTag": "2ebab6d2-acc0-4492-a59b-70cb5b65ea0f",
+            "sourceColumn": "CostDetails[CostInUsd]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "ExchangeRateDate",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "dateTime",
+            "formatString": "General Date",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "8ea89a8f-af8f-457f-bfaa-13c34985061d",
+            "sourceColumn": "CostDetails[ExchangeRateDate]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn",
+            "variations": [
+              {
+                "name": "Variation",
+                "defaultHierarchy": {
+                  "hierarchy": "Date Hierarchy",
+                  "table": "LocalDateTable_58b4ad38-77ed-42df-99f1-a96f3d9c2e94"
+                },
+                "isDefault": true,
+                "relationship": "541dd8a7-59d4-4d3a-9dbf-fbdd74efbb2e"
+              }
+            ]
+          },
+          {
+            "name": "ExchangeRatePricingToBilling",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "6c9ab93e-5a63-45c1-91b6-e52edbb0ba44",
+            "sourceColumn": "CostDetails[ExchangeRatePricingToBilling]",
+            "summarizeBy": "sum",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "InvoiceId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "95d5edf6-88cd-4b61-8801-d2634d9d2402",
+            "sourceColumn": "CostDetails[InvoiceId]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "ResourceLocationNormalized",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "bc1735c6-00d8-40f5-90ec-6699013cea7a",
+            "sourceColumn": "CostDetails[ResourceLocationNormalized]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "PaygCostInBillingCurrency",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "502edbd5-53e1-46f0-b6c0-5039b63b125f",
+            "sourceColumn": "CostDetails[PaygCostInBillingCurrency]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "PaygCostInUsd",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "4db8fd3e-cd55-402f-9b3f-b4e5fd9fe01f",
+            "sourceColumn": "CostDetails[PaygCostInUsd]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "PaygPrice",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "766ada69-c198-41af-8ec9-3a54fb4fdca0",
+            "sourceColumn": "CostDetails[PaygPrice]",
+            "summarizeBy": "sum",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "PreviousInvoiceId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "e549bf79-cfd4-4754-a043-882b3bd774f4",
+            "sourceColumn": "CostDetails[PreviousInvoiceId]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "PricingCurrency",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "3e5bab5c-c97a-4071-8e5d-e508aba227af",
+            "sourceColumn": "CostDetails[PricingCurrency]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "ProductId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "64a028b6-4e4a-4f9d-a4eb-fdc191a5c7d9",
+            "sourceColumn": "CostDetails[ProductId]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "ResourceGroupName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "c2e232fc-4d12-4333-8f70-5e4e46feff02",
+            "sourceColumn": "CostDetails[ResourceGroupName]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "Provider",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "745e9b81-3f91-44ef-88e6-495639917d3f",
+            "sourceColumn": "CostDetails[Provider]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "PublisherId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "78372140-6bd6-4664-898d-8c3704f55533",
+            "sourceColumn": "CostDetails[PublisherId]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "ResellerMpnId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "3453f36e-530d-4d0b-a13c-90cb69c62a71",
+            "sourceColumn": "CostDetails[ResellerMpnId]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "ResellerName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "95048713-ec0e-41ff-a2a9-1ea05f6569a0",
+            "sourceColumn": "CostDetails[ResellerName]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "ServicePeriodEndDate",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "c188ba75-f650-4ba5-abe2-96842a404f03",
+            "sourceColumn": "CostDetails[ServicePeriodEndDate]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "ServicePeriodStartDate",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "dateTime",
+            "formatString": "General Date",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "da128f2f-cb52-4a21-8fb7-f6b433b99e6e",
+            "sourceColumn": "CostDetails[ServicePeriodStartDate]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn",
+            "variations": [
+              {
+                "name": "Variation",
+                "defaultHierarchy": {
+                  "hierarchy": "Date Hierarchy",
+                  "table": "LocalDateTable_a5a01516-faf1-45f0-a4ca-fd7b057f6464"
+                },
+                "isDefault": true,
+                "relationship": "0bd0de83-0de0-4338-8b77-3e6640be73e9"
+              }
+            ]
+          },
+          {
+            "name": "BenefitId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "9be8e8b1-bbac-46b3-ab2a-432f00702333",
+            "sourceColumn": "CostDetails[BenefitId]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "BenefitName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "9ace0773-1b40-4d7e-8996-c1788a077537",
+            "sourceColumn": "CostDetails[BenefitName]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           }
@@ -11486,10 +11739,6 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "columns": [
@@ -11560,19 +11809,6 @@
             "summarizeBy": "none"
           },
           {
-            "name": "AvailabilityZone",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "2b1afdce-22be-4a7f-a3db-0382bb6a5263",
-            "sourceColumn": "AvailabilityZone",
-            "summarizeBy": "none"
-          },
-          {
             "name": "BillingAccountId",
             "annotations": [
               {
@@ -11597,19 +11833,6 @@
             "dataType": "string",
             "lineageTag": "655ebd24-5376-4e47-a4a4-0f1ee3186c8e",
             "sourceColumn": "BillingAccountName",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "BillingCurrencyCode",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "49869aa8-bb59-4007-b27a-ea5ba1a96129",
-            "sourceColumn": "BillingCurrencyCode",
             "summarizeBy": "none"
           },
           {
@@ -12167,36 +12390,6 @@
             "summarizeBy": "none"
           },
           {
-            "name": "PayGPrice",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ],
-            "dataType": "double",
-            "lineageTag": "e4180103-71cb-4dda-9b48-f2a9a8ea7591",
-            "sourceColumn": "PayGPrice",
-            "summarizeBy": "sum"
-          },
-          {
-            "name": "PlanName",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "b8de21b2-74bc-4b9b-bd11-7f753622d390",
-            "sourceColumn": "PlanName",
-            "summarizeBy": "none"
-          },
-          {
             "name": "PricingModel",
             "annotations": [
               {
@@ -12290,45 +12483,6 @@
             "lineageTag": "50a4704f-78ee-4a8a-ab87-f9c9d66c6ac5",
             "sourceColumn": "Quantity",
             "summarizeBy": "sum"
-          },
-          {
-            "name": "ReservationId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "10b4c80c-8fe2-4e7d-bd3b-039f4626958b",
-            "sourceColumn": "ReservationId",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "ReservationName",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "f86a9731-42b5-445e-b3e4-9a305b072136",
-            "sourceColumn": "ReservationName",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "ResourceGroup",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "b001b16a-0152-425b-ad21-0624302157d2",
-            "sourceColumn": "ResourceGroup",
-            "summarizeBy": "none"
           },
           {
             "name": "ResourceGroupNameUnique",
@@ -12643,7 +12797,7 @@
             "summarizeBy": "none"
           },
           {
-            "name": "benefitId",
+            "name": "BillingCurrency",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12651,12 +12805,29 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "da6040f0-5c7b-4192-aaf8-65e25cf6bea0",
-            "sourceColumn": "benefitId",
+            "lineageTag": "ef172b14-22a6-4675-9aff-ecab66d9237a",
+            "sourceColumn": "BillingCurrency",
             "summarizeBy": "none"
           },
           {
-            "name": "benefitName",
+            "name": "CostInPricingCurrency",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "lineageTag": "25ba8bb9-f6c5-4da2-8153-022446309bbc",
+            "sourceColumn": "CostInPricingCurrency",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "CostInUsd",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12664,8 +12835,292 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "41f60420-8041-422b-b910-cf4e60f8ea7c",
-            "sourceColumn": "benefitName",
+            "lineageTag": "42c07983-9567-4d29-8994-85b97ec39a2b",
+            "sourceColumn": "CostInUsd",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ExchangeRateDate",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "UnderlyingDateTimeDataType",
+                "value": "Date"
+              }
+            ],
+            "dataType": "dateTime",
+            "formatString": "Long Date",
+            "lineageTag": "79c16183-9282-4df0-b9a1-3eb085b2787e",
+            "sourceColumn": "ExchangeRateDate",
+            "summarizeBy": "none",
+            "variations": [
+              {
+                "name": "Variation",
+                "defaultHierarchy": {
+                  "hierarchy": "Date Hierarchy",
+                  "table": "LocalDateTable_869f1d77-5e68-4904-88de-ae4eb87429dd"
+                },
+                "isDefault": true,
+                "relationship": "bb546cba-bba1-4658-9535-58bae9110c3a"
+              }
+            ]
+          },
+          {
+            "name": "ExchangeRatePricingToBilling",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "e3105628-7cbb-452a-ae9c-d571a4d3f76a",
+            "sourceColumn": "ExchangeRatePricingToBilling",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "InvoiceId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "3e158ffd-82e9-4a51-8426-0f032a48bd11",
+            "sourceColumn": "InvoiceId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ResourceLocationNormalized",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "7080cabd-d9fa-4ea9-988a-2197b63f51dd",
+            "sourceColumn": "ResourceLocationNormalized",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "PaygCostInBillingCurrency",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "ed56926a-60e6-4e79-be5c-2aa610a5476e",
+            "sourceColumn": "PaygCostInBillingCurrency",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "PaygCostInUsd",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "1d823bfc-c087-4169-aeae-de0891045d90",
+            "sourceColumn": "PaygCostInUsd",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "PaygPrice",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "lineageTag": "f9192b7f-16a8-499b-9e7c-3fd3e463cee3",
+            "sourceColumn": "PaygPrice",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "PreviousInvoiceId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "e6a61c0b-4f92-4cca-8976-f01bb84db793",
+            "sourceColumn": "PreviousInvoiceId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "PricingCurrency",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "e826b659-3554-4671-be08-b32cb807812c",
+            "sourceColumn": "PricingCurrency",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ProductId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "91c47221-d016-4206-a5ae-ae458224b6d4",
+            "sourceColumn": "ProductId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ResourceGroupName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "3a8f41b1-aac8-4898-a818-b284d737b8b7",
+            "sourceColumn": "ResourceGroupName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Provider",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "5384f807-dade-4d00-95a3-69ebb9ee5041",
+            "sourceColumn": "Provider",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "PublisherId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "3cd173fe-d6ab-4599-b790-1b98af238dfe",
+            "sourceColumn": "PublisherId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ResellerMpnId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "237a3a8c-34a3-4717-a007-367e632e54c4",
+            "sourceColumn": "ResellerMpnId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ResellerName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "1c5e6e6d-239e-4b47-becb-e541cc347046",
+            "sourceColumn": "ResellerName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ServicePeriodEndDate",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "ec7ac9e9-30c0-402c-9a7d-59430d274fea",
+            "sourceColumn": "ServicePeriodEndDate",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ServicePeriodStartDate",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "UnderlyingDateTimeDataType",
+                "value": "Date"
+              }
+            ],
+            "dataType": "dateTime",
+            "formatString": "Long Date",
+            "lineageTag": "6b43d918-c0a1-4e9e-9fe4-e778f4188769",
+            "sourceColumn": "ServicePeriodStartDate",
+            "summarizeBy": "none",
+            "variations": [
+              {
+                "name": "Variation",
+                "defaultHierarchy": {
+                  "hierarchy": "Date Hierarchy",
+                  "table": "LocalDateTable_6dbe2f80-c597-41b6-8cbd-b086a25d10fe"
+                },
+                "isDefault": true,
+                "relationship": "eb3931c3-56a8-4153-9aaa-0562d16a9c5c"
+              }
+            ]
+          },
+          {
+            "name": "BenefitId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "94a76187-26db-464a-8635-e677e6f9af32",
+            "sourceColumn": "BenefitId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "BenefitName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "8ea2519a-703f-4a22-a2a7-5813425a99db",
+            "sourceColumn": "BenefitName",
             "summarizeBy": "none"
           }
         ],
@@ -12799,14 +13254,13 @@
                 "    #\"Filtered Files by Date\" = Table.SelectRows(#\"Filter Files by Metric and FileType\", each [StartDate] >= Date.StartOfMonth(Date.From(RangeStart)) and [EndDate] <= Date.EndOfMonth(Date.From(RangeEnd))),",
                 "    #\"Select Content\" = Table.SelectColumns(#\"Filtered Files by Date\",{\"Content\"}),",
                 "    #\"Unpack Content\" = Table.AddColumn(#\"Select Content\", \"Custom\", each if FileType = \".gz\" then fnUnpackData([Content]) else Parquet.Document([Content])),",
-                "    #\"Expanded Columns\" = Table.ExpandTableColumn(#\"Unpack Content\", \"Custom\", {\"InvoiceSectionName\", \"AccountName\", \"AccountOwnerId\", \"SubscriptionId\", \"SubscriptionName\", \"ResourceGroup\", \"ResourceLocation\", \"Date\", \"ProductName\", \"MeterCategory\", \"MeterSubCategory\", \"MeterId\", \"MeterName\", \"MeterRegion\", \"UnitOfMeasure\", \"Quantity\", \"EffectivePrice\", \"CostInBillingCurrency\", \"CostCenter\", \"ConsumedService\", \"ResourceId\", \"Tags\", \"OfferId\", \"AdditionalInfo\", \"ServiceInfo1\", \"ServiceInfo2\", \"ResourceName\", \"ReservationId\", \"ReservationName\", \"UnitPrice\", \"ProductOrderId\", \"ProductOrderName\", \"Term\", \"PublisherType\", \"PublisherName\", \"ChargeType\", \"Frequency\", \"PricingModel\", \"AvailabilityZone\", \"BillingAccountId\", \"BillingAccountName\", \"BillingCurrencyCode\", \"BillingPeriodStartDate\", \"BillingPeriodEndDate\", \"BillingProfileId\", \"BillingProfileName\", \"InvoiceSectionId\", \"IsAzureCreditEligible\", \"PartNumber\", \"PayGPrice\", \"PlanName\", \"ServiceFamily\", \"CostAllocationRuleName\", \"benefitId\", \"benefitName\"}, {\"InvoiceSectionName\", \"AccountName\", \"AccountOwnerId\", \"SubscriptionId\", \"SubscriptionName\", \"ResourceGroup\", \"ResourceLocation\", \"Date\", \"ProductName\", \"MeterCategory\", \"MeterSubCategory\", \"MeterId\", \"MeterName\", \"MeterRegion\", \"UnitOfMeasure\", \"Quantity\", \"EffectivePrice\", \"CostInBillingCurrency\", \"CostCenter\", \"ConsumedService\", \"ResourceId\", \"Tags\", \"OfferId\", \"AdditionalInfo\", \"ServiceInfo1\", \"ServiceInfo2\", \"ResourceName\", \"ReservationId\", \"ReservationName\", \"UnitPrice\", \"ProductOrderId\", \"ProductOrderName\", \"Term\", \"PublisherType\", \"PublisherName\", \"ChargeType\", \"Frequency\", \"PricingModel\", \"AvailabilityZone\", \"BillingAccountId\", \"BillingAccountName\", \"BillingCurrencyCode\", \"BillingPeriodStartDate\", \"BillingPeriodEndDate\", \"BillingProfileId\", \"BillingProfileName\", \"InvoiceSectionId\", \"IsAzureCreditEligible\", \"PartNumber\", \"PayGPrice\", \"PlanName\", \"ServiceFamily\", \"CostAllocationRuleName\", \"benefitId\", \"benefitName\"}),",
+                "    #\"Expanded Columns\" = Table.ExpandTableColumn(#\"Unpack Content\", \"Custom\", {\"AccountName\", \"AccountOwnerId\", \"AdditionalInfo\", \"BenefitId\", \"BenefitName\", \"BillingAccountId\", \"BillingAccountName\", \"BillingCurrency\", \"BillingPeriodEndDate\", \"BillingPeriodStartDate\", \"BillingProfileId\", \"BillingProfileName\", \"ChargeType\", \"ConsumedService\", \"CostAllocationRuleName\", \"CostCenter\", \"CostInBillingCurrency\", \"CostInPricingCurrency\", \"CostInUsd\", \"Date\", \"EffectivePrice\", \"ExchangeRateDate\", \"ExchangeRatePricingToBilling\", \"Frequency\", \"InvoiceId\", \"InvoiceSectionId\", \"InvoiceSectionName\", \"IsAzureCreditEligible\", \"ResourceLocationNormalized\", \"MeterCategory\", \"MeterId\", \"MeterName\", \"MeterRegion\", \"MeterSubCategory\", \"OfferId\", \"PaygCostInBillingCurrency\", \"PaygCostInUsd\", \"PaygPrice\", \"PreviousInvoiceId\", \"PricingCurrency\", \"PricingModel\", \"PartNumber\", \"ProductId\", \"ProductName\", \"ProductOrderId\", \"ProductOrderName\", \"Provider\", \"PublisherId\", \"PublisherName\", \"PublisherType\", \"Quantity\", \"ResellerMpnId\", \"ResellerName\", \"ResourceGroupName\", \"ResourceId\", \"ResourceLocation\", \"ServiceFamily\", \"ServiceInfo1\", \"ServiceInfo2\", \"ServicePeriodEndDate\", \"ServicePeriodStartDate\", \"SubscriptionId\", \"SubscriptionName\", \"Tags\", \"Term\", \"UnitOfMeasure\", \"UnitPrice\"}, {\"AccountName\", \"AccountOwnerId\", \"AdditionalInfo\", \"BenefitId\", \"BenefitName\", \"BillingAccountId\", \"BillingAccountName\", \"BillingCurrency\", \"BillingPeriodEndDate\", \"BillingPeriodStartDate\", \"BillingProfileId\", \"BillingProfileName\", \"ChargeType\", \"ConsumedService\", \"CostAllocationRuleName\", \"CostCenter\", \"CostInBillingCurrency\", \"CostInPricingCurrency\", \"CostInUsd\", \"Date\", \"EffectivePrice\", \"ExchangeRateDate\", \"ExchangeRatePricingToBilling\", \"Frequency\", \"InvoiceId\", \"InvoiceSectionId\", \"InvoiceSectionName\", \"IsAzureCreditEligible\", \"ResourceLocationNormalized\", \"MeterCategory\", \"MeterId\", \"MeterName\", \"MeterRegion\", \"MeterSubCategory\", \"OfferId\", \"PaygCostInBillingCurrency\", \"PaygCostInUsd\", \"PaygPrice\", \"PreviousInvoiceId\", \"PricingCurrency\", \"PricingModel\", \"PartNumber\", \"ProductId\", \"ProductName\", \"ProductOrderId\", \"ProductOrderName\", \"Provider\", \"PublisherId\", \"PublisherName\", \"PublisherType\", \"Quantity\", \"ResellerMpnId\", \"ResellerName\", \"ResourceGroupName\", \"ResourceId\", \"ResourceLocation\", \"ServiceFamily\", \"ServiceInfo1\", \"ServiceInfo2\", \"ServicePeriodEndDate\", \"ServicePeriodStartDate\", \"SubscriptionId\", \"SubscriptionName\", \"Tags\", \"Term\", \"UnitOfMeasure\", \"UnitPrice\"}),",
                 "    #\"Removed Content\" = Table.RemoveColumns(#\"Expanded Columns\",{\"Content\"}),",
-                "    #\"Replaced Value\" = Table.ReplaceValue(#\"Removed Content\",null,\"\",Replacer.ReplaceValue,{\"InvoiceSectionName\", \"AccountName\", \"AccountOwnerId\", \"SubscriptionId\", \"SubscriptionName\", \"ResourceGroup\", \"ResourceLocation\", \"Date\", \"ProductName\", \"MeterCategory\", \"MeterSubCategory\", \"MeterId\", \"MeterName\", \"MeterRegion\", \"UnitOfMeasure\", \"Quantity\", \"EffectivePrice\", \"CostInBillingCurrency\", \"CostCenter\", \"ConsumedService\", \"ResourceId\", \"Tags\", \"OfferId\", \"AdditionalInfo\", \"ServiceInfo1\", \"ServiceInfo2\", \"ResourceName\", \"ReservationId\", \"ReservationName\", \"UnitPrice\", \"ProductOrderId\", \"ProductOrderName\", \"Term\", \"PublisherType\", \"PublisherName\", \"ChargeType\", \"Frequency\", \"PricingModel\", \"AvailabilityZone\", \"BillingAccountId\", \"BillingAccountName\", \"BillingCurrencyCode\", \"BillingPeriodStartDate\", \"BillingPeriodEndDate\", \"BillingProfileId\", \"BillingProfileName\", \"InvoiceSectionId\", \"IsAzureCreditEligible\", \"PartNumber\", \"PayGPrice\", \"PlanName\", \"ServiceFamily\", \"CostAllocationRuleName\", \"benefitId\", \"benefitName\"}),",
-                "    #\"Detect Column Types\" = Table.TransformColumnTypes(#\"Replaced Value\",{{\"InvoiceSectionName\", type text}, {\"AccountName\", type text}, {\"AccountOwnerId\", type text}, {\"SubscriptionId\", type text}, {\"SubscriptionName\", type text}, {\"ResourceGroup\", type text}, {\"ResourceLocation\", type text}, {\"Date\", type date}, {\"ProductName\", type text}, {\"MeterCategory\", type text}, {\"MeterSubCategory\", type text}, {\"MeterId\", type text}, {\"MeterName\", type text}, {\"MeterRegion\", type text}, {\"UnitOfMeasure\", type text}, {\"Quantity\", type number}, {\"EffectivePrice\", type number}, {\"CostInBillingCurrency\", type number}, {\"CostCenter\", type text}, {\"ConsumedService\", type text}, {\"ResourceId\", type text}, {\"Tags\", type text}, {\"OfferId\", type text}, {\"AdditionalInfo\", type text}, {\"ServiceInfo1\", type any}, {\"ServiceInfo2\", type text}, {\"ResourceName\", type text}, {\"ReservationId\", type any}, {\"ReservationName\", type any}, {\"UnitPrice\", type number}, {\"ProductOrderId\", type any}, {\"ProductOrderName\", type any}, {\"Term\", type any}, {\"PublisherType\", type text}, {\"PublisherName\", type text}, {\"ChargeType\", type text}, {\"Frequency\", type text}, {\"PricingModel\", type text}, {\"AvailabilityZone\", type any}, {\"BillingAccountId\", Int64.Type}, {\"BillingAccountName\", type text}, {\"BillingCurrencyCode\", type text}, {\"BillingPeriodStartDate\", type date}, {\"BillingPeriodEndDate\", type date}, {\"BillingProfileId\", Int64.Type}, {\"BillingProfileName\", type text}, {\"InvoiceSectionId\", type any}, {\"IsAzureCreditEligible\", type logical}, {\"PartNumber\", type text}, {\"PayGPrice\", type number}, {\"PlanName\", type text}, {\"ServiceFamily\", type text}, {\"CostAllocationRuleName\", type any}, {\"benefitId\", type any}, {\"benefitName\", type any}}),",
+                "    #\"Detect Column Types\" = Table.TransformColumnTypes(#\"Removed Content\",{{\"AccountName\", type text}, {\"AccountOwnerId\", type text}, {\"AdditionalInfo\", type text}, {\"BenefitId\", type any}, {\"BenefitName\", type any}, {\"BillingAccountId\", Int64.Type}, {\"BillingAccountName\", type text}, {\"BillingCurrency\", type text}, {\"BillingPeriodEndDate\", type date}, {\"BillingPeriodStartDate\", type date}, {\"BillingProfileId\", Int64.Type}, {\"BillingProfileName\", type text}, {\"ChargeType\", type text}, {\"ConsumedService\", type text}, {\"CostAllocationRuleName\", type text}, {\"CostCenter\", type text}, {\"CostInBillingCurrency\", type number}, {\"CostInPricingCurrency\", type number}, {\"CostInUsd\", type any}, {\"Date\", type date}, {\"EffectivePrice\", type number}, {\"ExchangeRateDate\", type date}, {\"ExchangeRatePricingToBilling\", Int64.Type}, {\"Frequency\", type text}, {\"InvoiceId\", type any}, {\"InvoiceSectionId\", type any}, {\"InvoiceSectionName\", type text}, {\"IsAzureCreditEligible\", type logical}, {\"ResourceLocationNormalized\", type text}, {\"MeterCategory\", type text}, {\"MeterId\", type text}, {\"MeterName\", type text}, {\"MeterRegion\", type text}, {\"MeterSubCategory\", type text}, {\"OfferId\", type text}, {\"PaygCostInBillingCurrency\", type text}, {\"PaygCostInUsd\", type any}, {\"PaygPrice\", type number}, {\"PreviousInvoiceId\", type any}, {\"PricingCurrency\", type text}, {\"PricingModel\", type text}, {\"PartNumber\", type text}, {\"ProductId\", type any}, {\"ProductName\", type text}, {\"ProductOrderId\", type any}, {\"ProductOrderName\", type any}, {\"Provider\", type text}, {\"PublisherId\", type any}, {\"PublisherName\", type text}, {\"PublisherType\", type text}, {\"Quantity\", type number}, {\"ResellerMpnId\", type any}, {\"ResellerName\", type any}, {\"ResourceGroupName\", type text}, {\"ResourceId\", type text}, {\"ResourceLocation\", type text}, {\"ServiceFamily\", type text}, {\"ServiceInfo1\", type any}, {\"ServiceInfo2\", type text}, {\"ServicePeriodEndDate\", type any}, {\"ServicePeriodStartDate\", type date}, {\"SubscriptionId\", type text}, {\"SubscriptionName\", type text}, {\"Tags\", type text}, {\"Term\", type any}, {\"UnitOfMeasure\", type text}, {\"UnitPrice\", type number}}),",
                 "    #\"Filter Rows by Date\" = Table.SelectRows(#\"Detect Column Types\", each [Date] >= Date.From(RangeStart) and [Date] < Date.From(RangeEnd)),",
                 "    ",
                 "    // Tags + TagsString (from CMConnector)",
-                "    #\"Add TagsString\" = Table.AddColumn(#\"Filter Rows by Date\", \"TagsString\", each \"{\" & [Tags] & \"}\"),",
+                "    #\"Add TagsString\" = Table.AddColumn(#\"Filter Rows by Date\", \"TagsString\", each if [Tags] = null then \"{}\" else \"{\" & [Tags] & \"}\"),",
                 "    #\"Remove Tags\" = Table.RemoveColumns(#\"Add TagsString\",{\"Tags\"}),",
                 "    #\"Add Tags\" = Table.AddColumn(#\"Remove Tags\", \"Tags\", each [TagsString]),",
                 "    #\"Parse Tags\" = Table.TransformColumns(#\"Add Tags\",{{\"Tags\", Json.Document}}),",
@@ -12817,12 +13271,11 @@
                 "    #\"Replace AdditionalInfoDictionary Errors\" = Table.ReplaceErrorValues(#\"Parse AdditionalInfoDictionary\", {{\"AdditionalInfoDictionary\", null}}),",
                 "    #\"Expand AdditionalInfoDictionary\" = Table.ExpandRecordColumn(#\"Replace AdditionalInfoDictionary Errors\", \"AdditionalInfoDictionary\", {\"UsageType\", \"ImageType\", \"ServiceType\", \"VMName\", \"VMProperties\", \"VCPUs\", \"CPUs\"}, {\"UsageType\", \"ImageType\", \"ServiceType\", \"VMName\", \"VMProperties\", \"VCPUs\", \"CPUs\"}),",
                 "    #\"Change VCPUs Type\" = Table.TransformColumnTypes(#\"Expand AdditionalInfoDictionary\",{{\"VCPUs\", Int64.Type}}),",
-                "    #\"Add CPUHours\" = Table.AddColumn(#\"Change VCPUs Type\", \"CPUHours\", each [VCPUs] * [Quantity]),",
-                "    #\"Change AHB Type\" = Table.TransformColumnTypes(#\"Add CPUHours\",{{\"CPUHours\", type number}}),",
-                "    #\"Add AHB Status\" = Table.AddColumn(#\"Change AHB Type\", \"AHB Status\", each if Text.Contains([MeterSubCategory], \"Windows\") then \"Not enabled\" else if Text.Contains([ServiceInfo2], \"Windows Server BYOL\") then \"Enabled\" else \"Not supported\"),",
-                "    #\"Add AHB vCPUs\" = Table.AddColumn(#\"Add AHB Status\", \"AHB vCPUs\", each if [VCPUs] = null then 0 else if [VCPUs] <= 8 then 8 else if [VCPUs] <= 16 then 16 else if [VCPUs] = 20 then 24 else if [VCPUs] > 20 then [VCPUs] else 0),",
-                "    #\"Change AHB vCPUs Type\" = Table.TransformColumnTypes(#\"Add AHB vCPUs\",{{\"AHB vCPUs\", Int64.Type}}),",
-                "    #\"Add InstanceName\" = Table.AddColumn(#\"Change AHB vCPUs Type\", \"InstanceName\", each if [VMName] = null then [ResourceName] else if [VMName] <> null then [VMName] else null),",
+                "    #\"Add CPUHours\" = Table.AddColumn(#\"Change VCPUs Type\", \"CPUHours\", each [VCPUs] * [Quantity], type number),",
+                "    #\"Add AHB Status\" = Table.AddColumn(#\"Add CPUHours\", \"AHB Status\", each if [MeterSubCategory] = null then null else if Text.Contains([MeterSubCategory], \"Windows\") then \"Not enabled\" else if [ServiceInfo2] = null then null else if Text.Contains([ServiceInfo2], \"Windows Server BYOL\") then \"Enabled\" else \"Not supported\"),",
+                "    #\"Add AHB vCPUs\" = Table.AddColumn(#\"Add AHB Status\", \"AHB vCPUs\", each if [VCPUs] = null then 0 else if [VCPUs] <= 8 then 8 else if [VCPUs] <= 16 then 16 else if [VCPUs] = 20 then 24 else if [VCPUs] > 20 then [VCPUs] else 0, Int64.Type),",
+                "    #\"Added ResourceName\" = Table.AddColumn(#\"Add AHB vCPUs\", \"ResourceName\", each List.Last(Text.Split([ResourceId], \"/\"))),",
+                "    #\"Add InstanceName\" = Table.AddColumn(#\"Added ResourceName\", \"InstanceName\", each if [VMName] = null then [ResourceName] else if [VMName] <> null then [VMName] else null),",
                 "    #\"Rename ServiceType\" = Table.RenameColumns(#\"Add InstanceName\",{{\"ServiceType\", \"SKU\"}}),",
                 "    #\"Add CompositeKey\" = Table.AddColumn(#\"Rename ServiceType\", \"CompositeKey\", each [SKU] & [MeterId]),",
                 "    ",
@@ -12830,28 +13283,24 @@
                 "    #\"Add Month\" = Table.AddColumn(#\"Add CompositeKey\", \"Month\", each Date.StartOfMonth([Date])),",
                 "",
                 "    // Unique names",
-                "    #\"Add CommitmentNameUnique\" = Table.AddColumn(#\"Add Month\", \"CommitmentNameUnique\", each if Text.Length([benefitName]) = 0 then null else [benefitName] & \" (\" & [benefitId] & \")\"),",
+                "    #\"Add CommitmentNameUnique\" = Table.AddColumn(#\"Add Month\", \"CommitmentNameUnique\", each if Text.Length([BenefitName]) = 0 then null else [BenefitName] & \" (\" & [BenefitId] & \")\"),",
                 "    #\"Add ResourceNameUnique\" = Table.AddColumn(#\"Add CommitmentNameUnique\", \"ResourceNameUnique\", each if Text.Length([ResourceName]) = 0 then null else [ResourceName] & \" (\" & [ResourceId] & \")\"),",
-                "    #\"Add ResourceGroupNameUnique\" = Table.AddColumn(#\"Add ResourceNameUnique\", \"ResourceGroupNameUnique\", each if Text.Length([ResourceGroup]) = 0 then null else [ResourceGroup] & \" (\" & [SubscriptionName] & \")\"),",
+                "    #\"Add ResourceGroupNameUnique\" = Table.AddColumn(#\"Add ResourceNameUnique\", \"ResourceGroupNameUnique\", each if Text.Length([ResourceGroupName]) = 0 then null else [ResourceGroupName] & \" (\" & [SubscriptionName] & \")\"),",
                 "    #\"Add SubscriptionNameUnique\" = Table.AddColumn(#\"Add ResourceGroupNameUnique\", \"SubscriptionNameUnique\", each if Text.Length([SubscriptionName]) = 0 then null else [SubscriptionName] & \" (\" & [SubscriptionId] & \")\"),",
                 "    ",
                 "    // Commitment columns",
                 "    #\"Add CommitmentType\" = Table.AddColumn(#\"Add SubscriptionNameUnique\", \"CommitmentType\", each if [PricingModel] = \"Reservation\" or [PricingModel] = \"SavingsPlan\" then [PricingModel] else null),",
-                "    #\"Add CommitmentUtilizationAmount\" = Table.AddColumn(#\"Add CommitmentType\", \"CommitmentUtilizationAmount\", each if [ChargeType] = \"Usage\" and [PricingModel] = \"Reservation\" then [Quantity] else if [ChargeType] = \"Usage\" and [PricingModel] = \"SavingsPlan\" then [CostInBillingCurrency] else 0),",
-                "    #\"Add CommitmentUtilizationPotential\" = Table.AddColumn(#\"Add CommitmentUtilizationAmount\", \"CommitmentUtilizationPotential\", each if [PricingModel] = \"SavingsPlan\" then [CostInBillingCurrency] else if [PricingModel] = \"Reservation\" then [Quantity] else 0),",
-                "    #\"Change CommitmentUtilization Types\" = Table.TransformColumnTypes(#\"Add CommitmentUtilizationPotential\",{{\"CommitmentUtilizationAmount\", type number}, {\"CommitmentUtilizationPotential\", type number}}),",
-                "",
+                "    #\"Add CommitmentUtilizationAmount\" = Table.AddColumn(#\"Add CommitmentType\", \"CommitmentUtilizationAmount\", each if [ChargeType] = \"Usage\" and [PricingModel] = \"Reservation\" then [Quantity] else if [ChargeType] = \"Usage\" and [PricingModel] = \"SavingsPlan\" then [CostInBillingCurrency] else 0, type number),",
+                "    #\"Add CommitmentUtilizationPotential\" = Table.AddColumn(#\"Add CommitmentUtilizationAmount\", \"CommitmentUtilizationPotential\", each if [PricingModel] = \"SavingsPlan\" then [CostInBillingCurrency] else if [PricingModel] = \"Reservation\" then [Quantity] else 0, type number),",
                 "    // Savings columns",
-                "    #\"Add RetailPrice\" = Table.AddColumn(#\"Change CommitmentUtilization Types\", \"RetailPrice\", each if [PayGPrice] > 0 then [PayGPrice] else [UnitPrice]),",
-                "    #\"Add RetailCost\" = Table.AddColumn(#\"Add RetailPrice\", \"RetailCost\", each Number.Round([Quantity] * [RetailPrice], 8, RoundingMode.Down)),",
-                "    #\"Add OnDemandCost\" = Table.AddColumn(#\"Add RetailCost\", \"OnDemandCost\", each Number.Round([Quantity] * [UnitPrice], 8, RoundingMode.Down)),",
-                "    #\"Add CommitmentSavings\" = Table.AddColumn(#\"Add OnDemandCost\", \"CommitmentSavings\", each if [PricingModel] = \"OnDemand\" then 0 else if [ChargeType] = \"UnusedReservation\" or [ChargeType] = \"UnusedSavingsPlan\" then -[CostInBillingCurrency] else ([UnitPrice]-[EffectivePrice])*[Quantity]),",
-                "    #\"Add DiscountSavings\" = Table.AddColumn(#\"Add CommitmentSavings\", \"DiscountSavings\", each if [ChargeType] = \"UnusedReservation\" or [ChargeType] = \"UnusedSavingsPlan\" then -[CostInBillingCurrency] else ([RetailPrice]-[EffectivePrice])*[Quantity]),",
-                "    #\"Add NegotiatedSavings\" = Table.AddColumn(#\"Add DiscountSavings\", \"NegotiatedSavings\", each [DiscountSavings] - [CommitmentSavings]),",
-                "    #\"Change Savings Types\" = Table.TransformColumnTypes(#\"Add NegotiatedSavings\",{{\"RetailPrice\", type number}, {\"RetailCost\", type number}, {\"OnDemandCost\", type number}, {\"CommitmentSavings\", type number}, {\"DiscountSavings\", type number}, {\"NegotiatedSavings\", type number}}),",
-                "",
+                "    #\"Add RetailPrice\" = Table.AddColumn(#\"Add CommitmentUtilizationPotential\", \"RetailPrice\", each if [PaygPrice] > 0 then [PaygPrice] else [UnitPrice], type number),",
+                "    #\"Add RetailCost\" = Table.AddColumn(#\"Add RetailPrice\", \"RetailCost\", each Number.Round([Quantity] * [RetailPrice], 8, RoundingMode.Down), type number),",
+                "    #\"Add OnDemandCost\" = Table.AddColumn(#\"Add RetailCost\", \"OnDemandCost\", each Number.Round([Quantity] * [UnitPrice], 8, RoundingMode.Down), type number),",
+                "    #\"Add CommitmentSavings\" = Table.AddColumn(#\"Add OnDemandCost\", \"CommitmentSavings\", each if [PricingModel] = \"OnDemand\" then 0 else if [ChargeType] = \"UnusedReservation\" or [ChargeType] = \"UnusedSavingsPlan\" then -[CostInBillingCurrency] else ([UnitPrice]-[EffectivePrice])*[Quantity], type number),",
+                "    #\"Add DiscountSavings\" = Table.AddColumn(#\"Add CommitmentSavings\", \"DiscountSavings\", each if [ChargeType] = \"UnusedReservation\" or [ChargeType] = \"UnusedSavingsPlan\" then -[CostInBillingCurrency] else ([RetailPrice]-[EffectivePrice])*[Quantity], type number),",
+                "    #\"Add NegotiatedSavings\" = Table.AddColumn(#\"Add DiscountSavings\", \"NegotiatedSavings\", each [DiscountSavings] - [CommitmentSavings], type number),",
                 "    // Order columns",
-                "    #\"Reorder Columns\" = Table.ReorderColumns(#\"Change Savings Types\", {\"Month\", \"Date\", \"PricingModel\", \"ChargeType\", \"CostInBillingCurrency\", \"OnDemandCost\", \"RetailCost\", \"DiscountSavings\", \"NegotiatedSavings\", \"CommitmentSavings\", \"UnitPrice\", \"EffectivePrice\", \"RetailPrice\", \"Quantity\", \"CommitmentUtilizationAmount\", \"CommitmentUtilizationPotential\", \"BillingAccountId\", \"BillingAccountName\", \"BillingProfileId\", \"BillingProfileName\", \"InvoiceSectionId\", \"InvoiceSectionName\", \"AccountOwnerId\", \"AccountName\", \"SubscriptionId\", \"SubscriptionName\", \"SubscriptionNameUnique\", \"ResourceGroup\", \"ResourceGroupNameUnique\", \"ConsumedService\", \"ResourceId\", \"InstanceName\", \"ResourceNameUnique\", \"ResourceLocation\", \"AvailabilityZone\", \"Tags\", \"TagsString\", \"AdditionalInfo\", \"ServiceInfo1\", \"ServiceInfo2\", \"UsageType\", \"PublisherType\", \"PublisherName\", \"ProductName\", \"MeterCategory\", \"MeterSubCategory\", \"MeterId\", \"MeterName\", \"MeterRegion\", \"CostCenter\", \"OfferId\", \"ProductOrderId\", \"ProductOrderName\", \"UnitOfMeasure\", \"CommitmentNameUnique\", \"CommitmentType\", \"ReservationId\", \"ReservationName\", \"benefitId\", \"benefitName\", \"Term\", \"Frequency\", \"BillingPeriodStartDate\", \"BillingPeriodEndDate\"})",
+                "    #\"Reorder Columns\" = Table.ReorderColumns(#\"Add NegotiatedSavings\", {\"Month\", \"Date\", \"PricingModel\", \"ChargeType\", \"CostInBillingCurrency\", \"OnDemandCost\", \"RetailCost\", \"DiscountSavings\", \"NegotiatedSavings\", \"CommitmentSavings\", \"UnitPrice\", \"EffectivePrice\", \"RetailPrice\", \"Quantity\", \"CommitmentUtilizationAmount\", \"CommitmentUtilizationPotential\", \"BillingAccountId\", \"BillingAccountName\", \"BillingProfileId\", \"BillingProfileName\", \"InvoiceSectionId\", \"InvoiceSectionName\", \"AccountOwnerId\", \"AccountName\", \"SubscriptionId\", \"SubscriptionName\", \"SubscriptionNameUnique\", \"ResourceGroupName\", \"ResourceGroupNameUnique\", \"ConsumedService\", \"ResourceId\", \"InstanceName\", \"ResourceNameUnique\", \"ResourceLocation\", \"Tags\", \"TagsString\", \"AdditionalInfo\", \"ServiceInfo1\", \"ServiceInfo2\", \"UsageType\", \"PublisherType\", \"PublisherName\", \"ProductName\", \"MeterCategory\", \"MeterSubCategory\", \"MeterId\", \"MeterName\", \"MeterRegion\", \"CostCenter\", \"OfferId\", \"ProductOrderId\", \"ProductOrderName\", \"UnitOfMeasure\", \"CommitmentNameUnique\", \"CommitmentType\", \"BenefitId\", \"BenefitName\", \"Term\", \"Frequency\", \"BillingPeriodStartDate\", \"BillingPeriodEndDate\"})",
                 "in",
                 "    #\"Reorder Columns\""
               ],
@@ -13082,10 +13531,6 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "columns": [
@@ -15124,10 +15569,6 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "changedProperties": [
@@ -15528,10 +15969,6 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "changedProperties": [
@@ -15886,10 +16323,6 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "columns": [
@@ -16168,6 +16601,838 @@
             }
           }
         ]
+      },
+      {
+        "name": "LocalDateTable_869f1d77-5e68-4904-88de-ae4eb87429dd",
+        "annotations": [
+          {
+            "name": "__PBI_LocalDateTable",
+            "value": "true"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "PaddedDateTableDates",
+            "dataType": "dateTime",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "isNameInferred": true,
+            "lineageTag": "fd2ffd24-72c5-4afb-9290-bb61bd83fbb5",
+            "sourceColumn": "[Date]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "Day",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Day"
+              }
+            ],
+            "dataCategory": "DayOfMonth",
+            "dataType": "int64",
+            "expression": "DAY([Date])",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "9c1e6036-a303-4cff-bae6-e699a68a7982",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Month",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Month"
+              }
+            ],
+            "dataCategory": "Months",
+            "dataType": "string",
+            "expression": "FORMAT([Date], \"MMMM\")",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "6a78e58e-10ab-4030-bc12-3e4750bbedfe",
+            "sortByColumn": "MonthNo",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "MonthNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "MonthNumber"
+              }
+            ],
+            "dataCategory": "MonthOfYear",
+            "dataType": "int64",
+            "expression": "MONTH([Date])",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "8e74c049-3ce7-44ea-9a07-817bbab7f8c5",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Quarter",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Quarter"
+              }
+            ],
+            "dataCategory": "Quarters",
+            "dataType": "string",
+            "expression": "\"Qtr \" & [QuarterNo]",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "d7a036e6-3575-4d47-90d9-48ef113515be",
+            "sortByColumn": "QuarterNo",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "QuarterNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "QuarterNumber"
+              }
+            ],
+            "dataCategory": "QuarterOfYear",
+            "dataType": "int64",
+            "expression": "INT(([MonthNo] + 2) / 3)",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "e1f71ec1-7fbc-48b0-93e1-2bbce2d15827",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Year"
+              }
+            ],
+            "dataCategory": "Years",
+            "dataType": "int64",
+            "expression": "YEAR([Date])",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "de6141f9-aa50-4a5a-919e-1300246d529e",
+            "summarizeBy": "none",
+            "type": "calculated"
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Date Hierarchy",
+            "annotations": [
+              {
+                "name": "TemplateId",
+                "value": "DateHierarchy"
+              }
+            ],
+            "levels": [
+              {
+                "name": "Year",
+                "column": "Year",
+                "lineageTag": "ab55d927-3019-433d-8c3a-51ab1f386f3d",
+                "ordinal": 0
+              },
+              {
+                "name": "Quarter",
+                "column": "Quarter",
+                "lineageTag": "fd5632e0-055a-49b3-91fa-4a698970ff6a",
+                "ordinal": 1
+              },
+              {
+                "name": "Month",
+                "column": "Month",
+                "lineageTag": "a6451311-2d92-4ed4-a95c-5aa024f70ea0",
+                "ordinal": 2
+              },
+              {
+                "name": "Day",
+                "column": "Day",
+                "lineageTag": "a48bcd27-54c1-432b-a7dd-d136668033b3",
+                "ordinal": 3
+              }
+            ],
+            "lineageTag": "a107d1ab-e57b-409a-af9f-e749244ea794"
+          }
+        ],
+        "isHidden": true,
+        "lineageTag": "31c33f19-ed1c-4334-b038-dbd95e4f6f9c",
+        "partitions": [
+          {
+            "name": "LocalDateTable_869f1d77-5e68-4904-88de-ae4eb87429dd",
+            "mode": "import",
+            "source": {
+              "expression": "Calendar(Date(Year(MIN('CostDetails'[ExchangeRateDate])), 1, 1), Date(Year(MAX('CostDetails'[ExchangeRateDate])), 12, 31))",
+              "type": "calculated"
+            }
+          }
+        ],
+        "showAsVariationsOnly": true
+      },
+      {
+        "name": "LocalDateTable_58b4ad38-77ed-42df-99f1-a96f3d9c2e94",
+        "annotations": [
+          {
+            "name": "__PBI_LocalDateTable",
+            "value": "true"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "PaddedDateTableDates",
+            "dataType": "dateTime",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "isNameInferred": true,
+            "lineageTag": "fd8b5545-8f49-4398-aa6a-182400fffd1c",
+            "sourceColumn": "[Date]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "Day",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Day"
+              }
+            ],
+            "dataCategory": "DayOfMonth",
+            "dataType": "int64",
+            "expression": "DAY([Date])",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "fcb4efee-cf44-4ecf-a86e-38ceab113bb0",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Month",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Month"
+              }
+            ],
+            "dataCategory": "Months",
+            "dataType": "string",
+            "expression": "FORMAT([Date], \"MMMM\")",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "7cfbe308-0cae-4476-a454-12cea400a52a",
+            "sortByColumn": "MonthNo",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "MonthNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "MonthNumber"
+              }
+            ],
+            "dataCategory": "MonthOfYear",
+            "dataType": "int64",
+            "expression": "MONTH([Date])",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "2c837cfc-5087-47d7-a8d0-2ada7acc30ff",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Quarter",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Quarter"
+              }
+            ],
+            "dataCategory": "Quarters",
+            "dataType": "string",
+            "expression": "\"Qtr \" & [QuarterNo]",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "90dca61d-7ddd-49b9-8c2f-99e32b15d8c9",
+            "sortByColumn": "QuarterNo",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "QuarterNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "QuarterNumber"
+              }
+            ],
+            "dataCategory": "QuarterOfYear",
+            "dataType": "int64",
+            "expression": "INT(([MonthNo] + 2) / 3)",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "b678b926-2d83-4df7-89d7-5c0cf2187f7a",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Year"
+              }
+            ],
+            "dataCategory": "Years",
+            "dataType": "int64",
+            "expression": "YEAR([Date])",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "712f5600-bfe1-4406-88e0-62244d946a52",
+            "summarizeBy": "none",
+            "type": "calculated"
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Date Hierarchy",
+            "annotations": [
+              {
+                "name": "TemplateId",
+                "value": "DateHierarchy"
+              }
+            ],
+            "levels": [
+              {
+                "name": "Year",
+                "column": "Year",
+                "lineageTag": "2e633a2b-9184-47b9-afda-cfbaf2fdf219",
+                "ordinal": 0
+              },
+              {
+                "name": "Quarter",
+                "column": "Quarter",
+                "lineageTag": "95adcacc-9fea-4618-9882-ce08847676e9",
+                "ordinal": 1
+              },
+              {
+                "name": "Month",
+                "column": "Month",
+                "lineageTag": "ef251395-3b2b-4d13-874c-1f560bc3fe9b",
+                "ordinal": 2
+              },
+              {
+                "name": "Day",
+                "column": "Day",
+                "lineageTag": "5bb545bd-2dda-4ba9-945d-51bdbc6d9542",
+                "ordinal": 3
+              }
+            ],
+            "lineageTag": "844fbd22-b039-4720-9427-83a66f9fcdc6"
+          }
+        ],
+        "isHidden": true,
+        "lineageTag": "022f1ae8-8dbb-4d24-8d29-e88e409d1aa1",
+        "partitions": [
+          {
+            "name": "LocalDateTable_58b4ad38-77ed-42df-99f1-a96f3d9c2e94",
+            "mode": "import",
+            "source": {
+              "expression": "Calendar(Date(Year(MIN('CMConnector'[ExchangeRateDate])), 1, 1), Date(Year(MAX('CMConnector'[ExchangeRateDate])), 12, 31))",
+              "type": "calculated"
+            }
+          }
+        ],
+        "showAsVariationsOnly": true
+      },
+      {
+        "name": "LocalDateTable_6dbe2f80-c597-41b6-8cbd-b086a25d10fe",
+        "annotations": [
+          {
+            "name": "__PBI_LocalDateTable",
+            "value": "true"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "PaddedDateTableDates",
+            "dataType": "dateTime",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "isNameInferred": true,
+            "lineageTag": "b5aa4ac5-c8cf-47a8-bb50-dda441a78ef8",
+            "sourceColumn": "[Date]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "Day",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Day"
+              }
+            ],
+            "dataCategory": "DayOfMonth",
+            "dataType": "int64",
+            "expression": "DAY([Date])",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "c057f745-b2a4-4334-b798-21805dbc65dd",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Month",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Month"
+              }
+            ],
+            "dataCategory": "Months",
+            "dataType": "string",
+            "expression": "FORMAT([Date], \"MMMM\")",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "e2c0e844-f3ed-4a40-b3d0-25785b0ffd04",
+            "sortByColumn": "MonthNo",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "MonthNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "MonthNumber"
+              }
+            ],
+            "dataCategory": "MonthOfYear",
+            "dataType": "int64",
+            "expression": "MONTH([Date])",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "060ebce3-5eee-451f-bada-cbd1b4cf8848",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Quarter",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Quarter"
+              }
+            ],
+            "dataCategory": "Quarters",
+            "dataType": "string",
+            "expression": "\"Qtr \" & [QuarterNo]",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "340974bb-dd74-462f-8e7c-9d2ecd11dfba",
+            "sortByColumn": "QuarterNo",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "QuarterNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "QuarterNumber"
+              }
+            ],
+            "dataCategory": "QuarterOfYear",
+            "dataType": "int64",
+            "expression": "INT(([MonthNo] + 2) / 3)",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "a7c321d8-0aae-4fe9-8735-3f3cb07d27fb",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Year"
+              }
+            ],
+            "dataCategory": "Years",
+            "dataType": "int64",
+            "expression": "YEAR([Date])",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "1647cfbd-af3b-4fdb-a6d3-4b7e001d8e38",
+            "summarizeBy": "none",
+            "type": "calculated"
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Date Hierarchy",
+            "annotations": [
+              {
+                "name": "TemplateId",
+                "value": "DateHierarchy"
+              }
+            ],
+            "levels": [
+              {
+                "name": "Year",
+                "column": "Year",
+                "lineageTag": "8b0f71b9-906e-4541-aa2a-c4480f70273d",
+                "ordinal": 0
+              },
+              {
+                "name": "Quarter",
+                "column": "Quarter",
+                "lineageTag": "622b5a56-c118-4821-a14a-b4b36165abae",
+                "ordinal": 1
+              },
+              {
+                "name": "Month",
+                "column": "Month",
+                "lineageTag": "07bc245a-04e7-46bb-9a29-ea1775356888",
+                "ordinal": 2
+              },
+              {
+                "name": "Day",
+                "column": "Day",
+                "lineageTag": "331bf5d7-ab69-492c-b630-22e371751bbe",
+                "ordinal": 3
+              }
+            ],
+            "lineageTag": "b3e0e9b5-f87d-4aaf-944b-4acfebbcbea7"
+          }
+        ],
+        "isHidden": true,
+        "lineageTag": "cd89a8b7-c373-4b05-b989-df9576675f7f",
+        "partitions": [
+          {
+            "name": "LocalDateTable_6dbe2f80-c597-41b6-8cbd-b086a25d10fe",
+            "mode": "import",
+            "source": {
+              "expression": "Calendar(Date(Year(MIN('CostDetails'[ServicePeriodStartDate])), 1, 1), Date(Year(MAX('CostDetails'[ServicePeriodStartDate])), 12, 31))",
+              "type": "calculated"
+            }
+          }
+        ],
+        "showAsVariationsOnly": true
+      },
+      {
+        "name": "LocalDateTable_a5a01516-faf1-45f0-a4ca-fd7b057f6464",
+        "annotations": [
+          {
+            "name": "__PBI_LocalDateTable",
+            "value": "true"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "PaddedDateTableDates",
+            "dataType": "dateTime",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "isNameInferred": true,
+            "lineageTag": "0b644cc4-646f-49e8-95f2-8818cfb81469",
+            "sourceColumn": "[Date]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "Day",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Day"
+              }
+            ],
+            "dataCategory": "DayOfMonth",
+            "dataType": "int64",
+            "expression": "DAY([Date])",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "b1a4aae8-b226-4367-90ea-2eb75825bd25",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Month",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Month"
+              }
+            ],
+            "dataCategory": "Months",
+            "dataType": "string",
+            "expression": "FORMAT([Date], \"MMMM\")",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "cb575337-3b4f-4bc1-b938-f36048c54d5f",
+            "sortByColumn": "MonthNo",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "MonthNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "MonthNumber"
+              }
+            ],
+            "dataCategory": "MonthOfYear",
+            "dataType": "int64",
+            "expression": "MONTH([Date])",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "ed3ac7cd-2311-4057-b185-f1e83ac40fbf",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Quarter",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Quarter"
+              }
+            ],
+            "dataCategory": "Quarters",
+            "dataType": "string",
+            "expression": "\"Qtr \" & [QuarterNo]",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "cbbafcb7-8034-49a4-bc39-d2d242b01ca6",
+            "sortByColumn": "QuarterNo",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "QuarterNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "QuarterNumber"
+              }
+            ],
+            "dataCategory": "QuarterOfYear",
+            "dataType": "int64",
+            "expression": "INT(([MonthNo] + 2) / 3)",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "bdcfee84-0dbf-49eb-a157-cd6d38592990",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "TemplateId",
+                "value": "Year"
+              }
+            ],
+            "dataCategory": "Years",
+            "dataType": "int64",
+            "expression": "YEAR([Date])",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "lineageTag": "1937c0f4-3189-4e2e-8427-75ec6bce60e8",
+            "summarizeBy": "none",
+            "type": "calculated"
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Date Hierarchy",
+            "annotations": [
+              {
+                "name": "TemplateId",
+                "value": "DateHierarchy"
+              }
+            ],
+            "levels": [
+              {
+                "name": "Year",
+                "column": "Year",
+                "lineageTag": "7703ef65-1d46-4c18-be3c-65f71d80a721",
+                "ordinal": 0
+              },
+              {
+                "name": "Quarter",
+                "column": "Quarter",
+                "lineageTag": "10b1acf6-d51e-4291-9b99-6f0e40d4c746",
+                "ordinal": 1
+              },
+              {
+                "name": "Month",
+                "column": "Month",
+                "lineageTag": "b68becda-6be0-4699-aeb9-10dc9607eb07",
+                "ordinal": 2
+              },
+              {
+                "name": "Day",
+                "column": "Day",
+                "lineageTag": "26ba58ad-d7d0-454f-99b2-b1437b961ecc",
+                "ordinal": 3
+              }
+            ],
+            "lineageTag": "5dbeff04-23b7-4f00-9f49-b3285f69f59d"
+          }
+        ],
+        "isHidden": true,
+        "lineageTag": "e9f3d041-fc81-4574-9953-2c1985fc1378",
+        "partitions": [
+          {
+            "name": "LocalDateTable_a5a01516-faf1-45f0-a4ca-fd7b057f6464",
+            "mode": "import",
+            "source": {
+              "expression": "Calendar(Date(Year(MIN('CMConnector'[ServicePeriodStartDate])), 1, 1), Date(Year(MAX('CMConnector'[ServicePeriodStartDate])), 12, 31))",
+              "type": "calculated"
+            }
+          }
+        ],
+        "showAsVariationsOnly": true
       }
     ]
   }
