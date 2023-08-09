@@ -6,7 +6,7 @@ param
     $Version,
 
     [Parameter()]
-    [ValidateSet('alpha', 'beta')]
+    [ValidateSet('alpha', 'preview')]
     [string]
     $PrereleaseTag
 )
