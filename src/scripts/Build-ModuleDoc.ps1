@@ -195,7 +195,7 @@ foreach ($function in $functions)
 
     foreach ($example in $functionHelp.Examples)
     {
-        [void]$sb.AppendLine('#### Example {0}' -f $example.Id).AppendLine()
+        [void]$sb.AppendLine("#### Example $($example.Id)").AppendLine()
         [void]$sb.AppendLine("``$($example.Code)``").AppendLine()
         [void]$sb.Appendline($example.Remark).AppendLine()
     }
