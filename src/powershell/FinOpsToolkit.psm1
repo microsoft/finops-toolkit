@@ -117,23 +117,23 @@ function Save-FinOpsHubTemplate
 
 <#
     .SYNOPSIS
-        Retrieves available version numbers of the FinOps toolkit.
+    Retrieves available version numbers of the FinOps toolkit.
 
     .PARAMETER Latest
-        Will only return the latest version number of the FinOps toolkit.
+    Will only return the latest version number of the FinOps toolkit.
 
     .PARAMETER Preview
-        Includes pre-releases.
+    Includes pre-releases.
 
     .EXAMPLE
-        Get-FinOpsToolkitVersion
+    Get-FinOpsToolkitVersion
 
-        Returns all available released version numbers of the FinOps toolkit.
+    Returns all available released version numbers of the FinOps toolkit.
 
     .EXAMPLE
-        Get-FinOpsToolkitVersion -Latest
+    Get-FinOpsToolkitVersion -Latest
 
-        Returns only the latest version number of the FinOps toolkit.
+    Returns only the latest version number of the FinOps toolkit.
 #>
 function Get-FinOpsToolkitVersion
 {
@@ -200,38 +200,38 @@ function Get-FinOpsToolkitVersion
 
 <#
     .SYNOPSIS
-        Deploys a FinOps hub instance.
+    Deploys a FinOps hub instance.
 
     .PARAMETER Name
-        Name of the FinOps hub instance.
+    Name of the FinOps hub instance.
 
     .PARAMETER ResourceGroup
-        Name of the resource group to deploy to. Will be created if it doesn't exist.
+    Name of the resource group to deploy to. Will be created if it doesn't exist.
 
     .PARAMETER Location
-        Azure location to execute the deployment from.
+    Azure location to execute the deployment from.
 
     .PARAMETER Version
-        Optional. Version of FinOps hub template to use. Defaults = "latest".
+    Optional. Version of FinOps hub template to use. Defaults = "latest".
 
     .PARAMETER Preview
-        Optional. Indicates that a pre-release version of FinOps hub can be used when -Version is "latest".
+    Optional. Indicates that a pre-release version of FinOps hub can be used when -Version is "latest".
 
     .PARAMETER StorageSku
-        Optional. Storage account SKU. Premium_LRS = Lowest cost, Premium_ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Default = "Premium_LRS".
+    Optional. Storage account SKU. Premium_LRS = Lowest cost, Premium_ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Default = "Premium_LRS".
 
     .PARAMETER Tags
-        Optional. Tags for all resources.
+    Optional. Tags for all resources.
 
     .EXAMPLE
-        Deploy-FinOpsHub -Name MyHub -ResourceGroup MyExistingResourceGroup -Location westus
+    Deploy-FinOpsHub -Name MyHub -ResourceGroup MyExistingResourceGroup -Location westus
 
-        Deploys a new FinOps hub instance named MyHub to an existing resource group named MyExistingResourceGroup.
+    Deploys a new FinOps hub instance named MyHub to an existing resource group named MyExistingResourceGroup.
 
     .EXAMPLE
-        Deploy-FinOpsHub -Name MyHub -Location westus -Version 0.0.1
+    Deploy-FinOpsHub -Name MyHub -Location westus -Version 0.0.1
 
-        Deploys a new FinOps hub instance named MyHub using version 0.0.1 of the template.
+    Deploys a new FinOps hub instance named MyHub using version 0.0.1 of the template.
 #>
 function Deploy-FinOpsHub
 {
