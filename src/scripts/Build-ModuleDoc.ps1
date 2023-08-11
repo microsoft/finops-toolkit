@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 <#
     .SYNOPSIS
     Builds a README file in markdown for a specified module. Includes sytnax, description, required modules, parameters and examples.
