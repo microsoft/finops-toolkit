@@ -170,7 +170,7 @@ if ($manifestPath)
 $functions = Get-Command -Module $moduleName -CommandType 'Function'
 foreach ($function in $functions)
 {
-    $functionHelp = Get-HelpContent -Function $function
+    $functionHelp = Get-HelpContent -Function $function.Name
     [void]$sb.AppendLine("### $($function.Name)").AppendLine()
 
     if (-not [String]::IsNullOrEmpty($functionHelp.syntax))
