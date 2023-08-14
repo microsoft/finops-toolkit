@@ -25,7 +25,7 @@ On this page:
 2. Add the export scope(s).
    - [using the FinOps Toolkit PowerShell module](#🛠️-add-export-scopes-via-the-finops-toolkit-powershell-module) (EA enrollments and departments, subscriptions and resource groups)
    - [manually via the Azure Portal](#🛠️-add-export-scopes-via-the-azure-portal) (MCA billing accounts and billing profiles)
-3. Initialize the dataset.
+3. [Initialize the dataset](#🛠️-initialize-the-dataset)
   
   > ℹ️ _**Important**<br>Ensure not to add duplicate or overlapping export scopes as this will lead to duplication of data._
 
@@ -106,3 +106,16 @@ On this page:
       }
     ]
   ````
+
+<br>
+
+### 🛠️ Initialize the dataset
+
+Trigger the "msexports_backfill" datafactory pipeline to initialize the dataset.  This can be done through the Azure Portal or using PowerShell.
+
+````powershell
+
+$ResourceGroup = "ftk-finops-hub"
+$df = (Get-AzDataFactoryV2 -ResourceGroupName $ResourceGroup -ErrorAction SilentlyContinue)
+Invoke-AzDataFactoryV2Pipeline -DataFactoryName $df.DataFactoryName -PipelineName 'msexports_backfill' -ResourceGroupName $ResourceGroup
+````
