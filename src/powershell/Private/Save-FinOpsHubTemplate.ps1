@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 <#
     .SYNOPSIS
         Saves a released version of the FinOps hub bicep template to local disk.
