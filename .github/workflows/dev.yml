@@ -7,10 +7,6 @@ jobs:
         runs-on: Windows-latest
         steps:
         - uses: actions/checkout@v3
-        - uses: lostick/path-filtering-action@main
-        - name: setup go
-          if: env.DIFF_DETECTED == 'true'
-          uses: actions/setup-go@v2
         - name: Run Tests
           shell: pwsh
           run: .build/start.ps1 -Task Test.All
