@@ -41,11 +41,11 @@ task Publish.Module Build.Module, {
     }
 }
 
-task Test.Unit {
+task Test.Unit PreRequisites, {
     Start-PesterTest -Type 'Unit'
 }
 
-task Test.Meta {
+task Test.Meta PreRequisites, {
     Start-PesterTest -Type 'Meta'
 }
 
