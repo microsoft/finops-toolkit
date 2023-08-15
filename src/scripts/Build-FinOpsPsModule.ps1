@@ -14,10 +14,10 @@ param
 $rootPath = (Get-Item -Path $PSScriptRoot).Parent.Parent.FullName
 $moduleName = 'FinOpsToolkit'
 $moduleFullName = "$moduleName.psm1"
-$modulePath = Join-Path -Path $rootPath -ChildPath "src\powershell\$moduleFullName"
-$stringsPath = Join-Path -Path $rootPath -ChildPath 'src\powershell\en-US'
-$releasePath = Join-Path -Path $rootPath -ChildPath "release\FinOpsToolkit\$Version"
-$scriptPath = Join-Path -Path $rootPath -ChildPath 'src\scripts'
+$modulePath = Join-Path -Path $rootPath -ChildPath "src/powershell/$moduleFullName"
+$stringsPath = Join-Path -Path $rootPath -ChildPath 'src/powershell/en-US'
+$releasePath = Join-Path -Path $rootPath -ChildPath "release/FinOpsToolkit/$Version"
+$scriptPath = Join-Path -Path $rootPath -ChildPath 'src/scripts'
 $manifestPath = Join-Path -Path $releasePath -ChildPath 'FinOpsToolkit.psd1'
 
 # Make sure we can import module properly. Capture exported functions.
@@ -34,7 +34,7 @@ catch
 
 # Create release directory
 Push-Location -Path $scriptPath
-.\New-Directory $releasePath
+./New-Directory $releasePath
 Pop-Location
 
 $manifestProperties = @{
