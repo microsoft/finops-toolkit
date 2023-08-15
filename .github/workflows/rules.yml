@@ -1,0 +1,3 @@
+rules:
+    - paths: # required - pathnames passed to git diff
+      - ./src/powershell

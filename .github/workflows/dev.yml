@@ -6,15 +6,12 @@ jobs:
         name: Pester
         runs-on: Windows-latest
         steps:
-        - uses: dorny/paths-filter@v2
-          id: changes
-          with:
-            filters: |
-              src:
-                - 'src/powershell'
         - uses: actions/checkout@v3
-        - if: steps.changes.outputs.src == 'true'
+        - uses: lostick/path-filtering-action@main
+        - name: setup go
+          if: env.DIFF_DETECTED == 'true'
+          uses: actions/setup-go@v2
+        - name: Run Tests
           shell: pwsh
           run: .build/start.ps1 -Task Test.All
-
             
