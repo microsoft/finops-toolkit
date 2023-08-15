@@ -11,7 +11,7 @@ function Start-PesterTest
         $Type
     )
 
-    $rootPath = ((Get-Item -Path $PSScriptRoot).Parent).FullName
+    $rootPath = ((Get-Item -Path $PSScriptRoot).Parent.Parent).FullName
     $pesterArgs = [PesterConfiguration]::Default
     $pesterArgs.Output.Verbosity = 'Detailed'
 
