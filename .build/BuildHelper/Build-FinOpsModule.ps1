@@ -46,13 +46,13 @@ function Build-FinOpsModule
         Guid              = '00f120b5-2007-6120-0000-b03e1254e770'
         Author            = 'Microsoft Corporation'
         CompanyName       = 'Microsoft Corporation'
-        Description       = 'FinOps toolkit - Cmdlets to deploy and manage resusable FinOps solutions in Azure. This module is compatible with PowerShell and Windows PowerShell. For more information about the FinOps toolkit, please visit https://aka.ms/finops/toolkit'
+        Description       = 'FinOps toolkit - Commands to deploy and manage resusable FinOps solutions in the Microsoft Cloud. This module is compatible with PowerShell and Windows PowerShell. For more information about the FinOps toolkit, please visit https://aka.ms/finops/toolkit'
         RootModule        = $moduleFullName
         FunctionsToExport = $exportedCommands.Name
         CmdletsToExport   = @()
         VariablesToExport = @()
         AliasesToExport   = @()
-        Copyright         = '(c) 2023 Microsoft Corporation. All rights reserved.'
+        Copyright         = "(c) $((Get-Date).Year) Microsoft Corporation. All rights reserved."
         PowerShellVersion = '5.1'
         RequiredModules   = @(
             @{
@@ -64,9 +64,9 @@ function Build-FinOpsModule
                 ModuleVersion = '6.5.1'
             }
         )
-        IconUri           = 'https://raw.githubusercontent.com/microsoft/cloud-hubs/4747859b1c800f49d5b0c3cd7894a40fe8641c3a/src/images/FinOpsHubs.svg'
-        LicenseUri        = 'https://github.com/microsoft/cloud-hubs/blob/dev/LICENSE'
-        ProjectUri        = 'https://github.com/microsoft/cloud-hubs'
+        IconUri           = 'https://raw.githubusercontent.com/microsoft/finops-toolkit/4747859b1c800f49d5b0c3cd7894a40fe8641c3a/src/images/FinOpsHubs.svg'
+        LicenseUri        = 'https://github.com/microsoft/finops-toolkit/blob/main/LICENSE'
+        ProjectUri        = 'https://github.com/microsoft/finops-toolkit'
         Tags              = @('FinOps', 'Cost', 'CostManagement', 'Azure', 'MicrosoftCloud')
     }
 
