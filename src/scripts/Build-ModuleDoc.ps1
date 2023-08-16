@@ -3,7 +3,7 @@
 
 <#
     .SYNOPSIS
-    Builds a README file in markdown for a specified module. Includes sytnax, description, required modules, parameters and examples.
+    Builds a README file in markdown for a specified module. Includes sytnax, description, required modules, parameters, and examples.
 
     .PARAMETER Path
     Path to a .psm1 module file.
@@ -166,7 +166,7 @@ if ($manifestPath)
 }
 
 # Parse functions
-[void]$sb.AppendLine('## Functions').AppendLine()
+[void]$sb.AppendLine('## Commands').AppendLine()
 $functions = Get-Command -Module $moduleName -CommandType 'Function'
 foreach ($function in $functions)
 {
@@ -182,13 +182,13 @@ foreach ($function in $functions)
     if ($functionHelp.Parameters.Count -gt 0)
     {
         [void]$sb.AppendLine('#### Parameters').AppendLine()
-        [void]$sb.AppendLine('Name | Type | Description | Required? | Default Value')
+        [void]$sb.AppendLine('Name | Type | Required? | Description | Default value')
         [void]$sb.AppendLine('|:---:|:---:|---|:---:|:---:|')
     }
 
     foreach ($parameter in $functionHelp.Parameters)
     {
-        [void]$sb.AppendLine("$($parameter.Name) | $($parameter.Type) | $($parameter.Description) | $($parameter.Required) | $($parameter.DefaultValue)")
+        [void]$sb.AppendLine("$($parameter.Name) | $($parameter.Type) | $($parameter.Required) | $($parameter.Description) | $($parameter.DefaultValue)")
     }
 
     [void]$sb.AppendLine()
