@@ -183,7 +183,7 @@ foreach ($function in $functions)
     {
         [void]$sb.AppendLine('#### Parameters').AppendLine()
         [void]$sb.AppendLine('Name | Type | Required? | Description | Default value')
-        [void]$sb.AppendLine('|:---:|:---:|:---:|---|:---:|')
+        [void]$sb.AppendLine('|---|---|---|---|---|')
     }
 
     foreach ($parameter in $functionHelp.Parameters)
