@@ -75,7 +75,7 @@ build.ps1 defines and performs incremental tasks. For more information, see [Inv
 
 ### Commands
 
-#### Build-FinOpsModules
+#### Build-FinOpsModule
 
 [Build-FinOpsModule.ps1](./BuildHelper/Build-FinOpsModule.ps1) Compiles the FinOpsToolkit module into a versioned package ready for publishing.
 
