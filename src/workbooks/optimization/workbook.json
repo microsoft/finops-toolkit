@@ -1456,7 +1456,7 @@
         {
           "type": 1,
           "content": {
-            "json": "## Orphand Managed Disks snapshots\r\n\r\nReview snapshots with deleted source disks.\r\n",
+            "json": "## Orphaned Managed Disks snapshots\r\n\r\nReview snapshots with deleted source disks.\r\n",
             "style": "upsell"
           },
           "name": "text - 6"
@@ -1545,7 +1545,7 @@
             "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"d0a11ffb-579b-4259-827d-7ea62e3021fe\",\"mergeType\":\"leftanti\",\"leftTable\":\"query - Retrieve all snapshots\",\"rightTable\":\"query - Retrieve all managed disks\",\"leftColumn\":\"parentDisk\",\"rightColumn\":\"id\"}],\"projectRename\":[{\"originalName\":\"[query - Retrieve all snapshots].id\",\"mergedName\":\"Resource Id\",\"fromId\":\"d0a11ffb-579b-4259-827d-7ea62e3021fe\"},{\"originalName\":\"[query - Retrieve all snapshots].parentDisk\",\"mergedName\":\"Parent Disk Resource Id\",\"fromId\":\"d0a11ffb-579b-4259-827d-7ea62e3021fe\"},{\"originalName\":\"[query - Retrieve all snapshots].diskSize\",\"mergedName\":\"Disk size (GB)\",\"fromId\":\"d0a11ffb-579b-4259-827d-7ea62e3021fe\"},{\"originalName\":\"[query - Retrieve all snapshots].location\",\"mergedName\":\"Location\",\"fromId\":\"d0a11ffb-579b-4259-827d-7ea62e3021fe\"},{\"originalName\":\"[query - Retrieve all snapshots].resourceGroup\",\"mergedName\":\"Resource Group\",\"fromId\":\"d0a11ffb-579b-4259-827d-7ea62e3021fe\"},{\"originalName\":\"[query - Retrieve all snapshots].subscriptionId\",\"mergedName\":\"Subscription Id\",\"fromId\":\"d0a11ffb-579b-4259-827d-7ea62e3021fe\"},{\"originalName\":\"[query - Retrieve all snapshots].id1\",\"mergedName\":\"id1\",\"fromId\":\"d0a11ffb-579b-4259-827d-7ea62e3021fe\"}]}",
             "size": 0,
             "title": "Snapshots with deleted source disk",
-            "noDataMessage": "No orphand snapshots found",
+            "noDataMessage": "No orphaned snapshots found",
             "noDataMessageStyle": 3,
             "queryType": 7,
             "gridSettings": {
@@ -1596,7 +1596,7 @@
             }
           },
           "showPin": false,
-          "name": "query - Orphand snapshots"
+          "name": "query - orphaned snapshots"
         }
       ]
     },
@@ -2749,7 +2749,7 @@
           {
             "type": 1,
             "content": {
-              "json": "## Prerequisites\r\n\r\nThis workbook will present various cost-related details in the form of governance, networking, storage, VMs, Webapps, SQL, and cost information to educate the business about cost related to various resources.\r\n\r\nThis workbook requires the following least-privileged (minimum) roles:\r\n\r\n  * **Reader** : allows you to import the workbook without saving it and view all of the workbook tabs except the *Cost Information* tab.\r\n  * **Cost Management Reader**: allows you to view the costs of idle resources in the *Cost information* tab \r\n  * **Workbook Contributor** : allows you to import and save the workbook\r\n\r\n\r\n\r\n"
+              "json": "## Prerequisites\r\n\r\nThis workbook will present various cost-related details in the form of governance, networking, storage, VMs, Webapps and SQL to educate the business about cost related to various resources.\r\n\r\nThis workbook requires the following least-privileged (minimum) roles:\r\n\r\n  * **Reader** : allows you to import the workbook without saving it and view all of the workbook tabs.\r\n * **Workbook Contributor** : allows you to import and save the workbook\r\n\r\n\r\n\r\n"
             },
             "name": "Prerequisites"
           }
