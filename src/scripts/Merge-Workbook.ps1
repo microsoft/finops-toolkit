@@ -1,3 +1,5 @@
+# Run from root of repo
+
 $workbookPath = "./src/workbooks/optimization"
 $workbookTemplate = "./src/workbooks/optimization/workbook_template.json"
 $newTemplate = "$workbookPath/workbook.json"
