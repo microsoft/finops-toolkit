@@ -104,6 +104,7 @@ resource ingestionContainer 'Microsoft.Storage/storageAccounts/blobServices/cont
 // Create managed identity to upload files
 resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: '${storageAccountName}_blobManager'
+  tags: tags
   location: location
 }
 
@@ -122,6 +123,7 @@ resource uploadSettings 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: 'uploadSettings'
   kind: 'AzurePowerShell'
   location: location
+  tags: tags
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {

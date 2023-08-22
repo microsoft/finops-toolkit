@@ -62,6 +62,7 @@ var finOpsToolkitVersion = '0.0.1'
 
 resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefaultTelemetry) {
   name: 'pid-${telemetryId}-${uniqueString(deployment().name, location)}'
+  tags: tags
   properties: {
     mode: 'Incremental'
     template: {
@@ -101,7 +102,7 @@ module storage 'storage.bicep' = {
 resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
   name: dataFactoryName
   location: location
-  tags: tags
+  tags: resourceTags
   identity: { type: 'SystemAssigned' }
   properties: union(
     // Using union() to hide the error that gets surfaced because globalConfigurations is not in the ADF schema yet.
@@ -123,6 +124,7 @@ module dataFactoryResources 'dataFactory.bicep' = {
     exportContainerName: storage.outputs.exportContainer
     ingestionContainerName: storage.outputs.ingestionContainer
     location: location
+    tags: resourceTags
   }
 }
 

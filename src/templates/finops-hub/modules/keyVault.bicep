@@ -86,6 +86,7 @@ resource storageRef 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
 resource keyVault_secrets 'Microsoft.KeyVault/vaults/secrets@2022-11-01' = {
   name: storageRef.name
   parent: keyVault
+  tags: tags
   properties: {
     attributes: {
       enabled: true

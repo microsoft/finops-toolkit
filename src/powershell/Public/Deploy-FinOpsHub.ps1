@@ -3,70 +3,84 @@
 
 <#
     .SYNOPSIS
-        Deploys a FinOps hub instance.
+    Deploys a FinOps hub instance.
 
     .PARAMETER Name
-        Name of the FinOps hub instance.
+    Name of the FinOps hub instance.
 
     .PARAMETER ResourceGroup
-        Name of the resource group to deploy to. Will be created if it doesn't exist.
+    Name of the resource group to deploy to. Will be created if it doesn't exist.
 
     .PARAMETER Location
-        Azure location to execute the deployment from.
+    Azure location to execute the deployment from.
+
+    .PARAMETER Path
+    (Offline mode) Path to main.bicep template file.
 
     .PARAMETER Version
-        Optional. Version of FinOps hub template to use. Defaults = "latest".
+    (Online mode) Version of FinOps hub template to use. Defaults = "latest".
 
     .PARAMETER Preview
-        Optional. Indicates that a pre-release version of FinOps hub can be used when -Version is "latest".
+    (Online mode) Optional. Indicates that a pre-release version of FinOps hub can be used when -Version is "latest".
 
     .PARAMETER StorageSku
-        Optional. Storage account SKU. Premium_LRS = Lowest cost, Premium_ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Default = "Premium_LRS".
+    Optional. Storage account SKU. Premium_LRS = Lowest cost, Premium_ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Default = "Premium_LRS".
 
     .PARAMETER Tags
-        Optional. Tags for all resources.
+    Optional. Tags for all resources.
 
     .EXAMPLE
-        Deploy-FinOpsHub -Name MyHub -ResourceGroup MyExistingResourceGroup -Location westus
+    Deploy-FinOpsHub -Name MyHub -ResourceGroup MyExistingResourceGroup -Location westus
 
-        Deploys a new FinOps hub instance named MyHub to an existing resource group named MyExistingResourceGroup.
+    Deploys a new FinOps hub instance named MyHub to an existing resource group named MyExistingResourceGroup.
 
     .EXAMPLE
-        Deploy-FinOpsHub -Name MyHub -Location westus -Version 0.0.1
+    Deploy-FinOpsHub -Name MyHub -Location westus -Version 0.0.1
 
-        Deploys a new FinOps hub instance named MyHub using version 0.0.1 of the template.
+    Deploys a new FinOps hub instance named MyHub using version 0.0.1 of the template.
 #>
 function Deploy-FinOpsHub
 {
     [CmdletBinding(SupportsShouldProcess)]
     param
     (
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Online')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Offline')]
         [string]
         $Name,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Online')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Offline')]
         [string]
         $ResourceGroup,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Online')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Offline')]
         [string]
         $Location,
 
-        [Parameter()]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Offline')]
+        [ValidateScript({Test-Path -Path $_})]
+        [ValidateScript({[System.IO.Path]::GetExtension($_) -eq '.bicep'})]
         [string]
-        $Version = 'latest',
+        $Path,
 
-        [Parameter()]
+        [Parameter(ParameterSetName = 'Online')]
+        [string]
+        $Version,
+
+        [Parameter(ParameterSetName = 'Online')]
         [switch]
         $Preview,
 
-        [Parameter()]
+        [Parameter(ParameterSetName = 'Online')]
+        [Parameter(ParameterSetName = 'Offline')]
         [ValidateSet('Premium_LRS', 'Premium_ZRS')]
         [string]
         $StorageSku = 'Premium_LRS',
 
-        [Parameter()]
+        [Parameter(ParameterSetName = 'Online')]
+        [Parameter(ParameterSetName = 'Offline')]
         [hashtable]
         $Tags
     )
@@ -82,33 +96,38 @@ function Deploy-FinOpsHub
             }
         }
 
-        $toolkitPath = Join-Path $env:temp -ChildPath 'FinOps'
-        if ($PSCmdlet.ShouldProcess($toolkitPath, 'CreateDirectory'))
+        if ($PSCmdlet.ParameterSetName -eq 'Online')
         {
-            New-Directory -Path $toolkitPath
+            $toolkitPath = Join-Path $env:temp -ChildPath 'FinOps'
+            if ($PSCmdlet.ShouldProcess($toolkitPath, 'CreateDirectory'))
+            {
+                New-Directory -Path $toolkitPath
+            }
+
+            if ($PSCmdlet.ShouldProcess($Version, 'DownloadTemplate'))
+            {
+                Save-FinOpsHubTemplate -Version $Version -Preview:$Preview -Destination $toolkitPath
+                $toolkitFile = Get-ChildItem -Path $toolkitPath -Include 'main.bicep' -Recurse | Where-Object -FilterScript {$_.FullName -like '*finops-hub-v*'}
+                if (-not $toolkitFile)
+                {
+                    throw ($LocalizedData.TemplateNotFound -f $toolkitFile)
+                }
+
+                $Path = $toolkitFile.FullName
+            }
         }
 
-        if ($PSCmdlet.ShouldProcess($Version, 'DownloadTemplate'))
+        $parameterSplat = @{
+            TemplateFile            = $Path
+            TemplateParameterObject = @{
+                hubName    = $Name
+                storageSku = $StorageSku
+            }
+        }
+
+        if ($Tags -and $Tags.Keys.Count -gt 0)
         {
-            Save-FinOpsHubTemplate -Version $Version -Preview:$Preview -Destination $toolkitPath
-            $toolkitFile = Get-ChildItem -Path $toolkitPath -Include 'main.bicep' -Recurse | Where-Object -FilterScript {$_.FullName -like '*finops-hub-v*'}
-            if (-not $toolkitFile)
-            {
-                throw ($LocalizedData.TemplateNotFound -f $toolkitPath)
-            }
-
-            $parameterSplat = @{
-                TemplateFile            = $toolkitFile.FullName
-                TemplateParameterObject = @{
-                    hubName    = $Name
-                    storageSku = $StorageSku
-                }
-            }
-
-            if ($Tags -and $Tags.Keys.Count -gt 0)
-            {
-                $parameterSplat.TemplateParameterObject.Add('tags', $Tags)
-            }
+            $parameterSplat.TemplateParameterObject.Add('tags', $Tags)
         }
 
         if ($PSCmdlet.ShouldProcess($ResourceGroup, 'DeployFinOpsHub'))
@@ -121,10 +140,13 @@ function Deploy-FinOpsHub
     }
     catch
     {
-        throw $_.Exception.Message
+        throw $_
     }
     finally
     {
-        Remove-Item -Path $toolkitPath -Recurse -Force -ErrorAction 'SilentlyContinue'
+        if ($PSCmdlet.ParameterSetName -eq 'Online')
+        {
+            Remove-Item -Path $toolkitPath -Recurse -Force -ErrorAction 'SilentlyContinue'
+        }
     }
 }
