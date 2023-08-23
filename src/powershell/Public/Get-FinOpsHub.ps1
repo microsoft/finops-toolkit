@@ -75,18 +75,21 @@ function Get-FinOpsHub
         }
     }
 
-    $output = @()
-    $groups = $resourceMatches | Group-Object -Property 'HubId'
-    foreach ($group in $groups)
+    if ($resourceMatches.Count -gt 0)
     {
-        $groupProperties = [ordered]@{
-            Name = $group.Group.Name | Select-Object -Unique
-            HubId = $group.Group.HubId | Select-Object -Unique
-            Resources = $group.Group.Resource
+        $output = @()
+        $groups = $resourceMatches | Group-Object -Property 'HubId'
+        foreach ($group in $groups)
+        {
+            $groupProperties = [ordered]@{
+                Name = $group.Group.Name | Select-Object -Unique
+                HubId = $group.Group.HubId | Select-Object -Unique
+                Resources = $group.Group.Resource
+            }
+
+            $output += New-Object -TypeName 'PSObject' -Property $groupProperties
         }
 
-        $output += New-Object -TypeName 'PSObject' -Property $groupProperties
+        return $output
     }
-
-    return $output
 }
