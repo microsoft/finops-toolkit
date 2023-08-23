@@ -16,11 +16,13 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 
 We are very early in our journey. Today, FinOps hubs extend Cost Management by exporting cost details to a consolidated storage account and addressing a few of the inherent limitations that make exports more difficult to use. In their most basic form, FinOps hubs enable more Power BI reporting options. On the more advanced end, FinOps hubs are a foundation for you to build your own cost management and optimization solution.
 
-{: .new }
+<span class="new-title">
 
 > #### 💵 Estimated cost: $25 per $1M in cost <!-- markdownlint-disable-line -->
 >
 > _Exact cost of the solution may vary. Cost is primarily for data storage and number of times data is ingested. Pipelines will run once a day per export._
+
+</span>
 
 <details open markdown="block">
    <summary>On this page</summary>
