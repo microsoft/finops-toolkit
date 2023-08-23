@@ -38,15 +38,14 @@ function Get-FinOpsHub
         $ResourceGroupName
     )
 
-    $wildcard = '*'
     if ([System.String]::IsNullOrEmpty($Name))
     {
-        $Name = $wildcard
+        $Name = '*'
     }
 
     if ([System.String]::IsNullOrEmpty($ResourceGroupName))
     {
-        $ResourceGroupName = $wildcard
+        $ResourceGroupName = '*'
     }
     
     $context = Get-AzContext
