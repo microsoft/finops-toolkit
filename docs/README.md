@@ -10,7 +10,7 @@ permalink: /
 Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced solutions to accelerate your FinOps journey.
 {: .fs-6 .fw-300 }
 
-[View tools](#-available-tools){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
+[Get the tools](#-available-tools){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
 [Get involved](#-get-involved){: .btn .fs-5 .mb-4 .mb-md-0 }
 
 ---

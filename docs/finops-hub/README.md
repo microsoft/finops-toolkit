@@ -1,8 +1,12 @@
-# ☁️ FinOps hubs
+---
+layout: default
+title: FinOps hubs
+nav_order: 2
+description: 'Reliable, trustworthy platform for cost analytics, insights, and optimization.'
+permalink: /hubs
+---
 
-![Version 0.0.1](https://img.shields.io/badge/version-0.0.1-darkgreen)
-&nbsp;
-[![Go to issue](https://img.shields.io/github/issues/detail/title/microsoft/cloud-hubs/1?label=roadmap)](https://github.com/microsoft/cloud-hubs/issues/1)
+# FinOps hubs <!-- markdownlint-disable-line MD025 -->
 
 FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, and optimization – virtual command centers for leaders throughout the organization to report on, monitor, and optimize cost based on their organizational needs. FinOps hubs focus on 3 core design principles:
 
@@ -12,17 +16,22 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 
 We are very early in our journey. Today, FinOps hubs extend Cost Management by exporting cost details to a consolidated storage account and addressing a few of the inherent limitations that make exports more difficult to use. In their most basic form, FinOps hubs enable more Power BI reporting options. On the more advanced end, FinOps hubs are a foundation for you to build your own cost management and optimization solution.
 
+{: .new }
+
 > #### 💵 Estimated cost: $25 per $1M in cost <!-- markdownlint-disable-line -->
 >
 > _Exact cost of the solution may vary. Cost is primarily for data storage and number of times data is ingested. Pipelines will run once a day per export._
 
-On this page:
+<details open markdown="block">
+   <summary>On this page</summary>
 
 - [🙋‍♀️ Why FinOps hubs?](#️-why-finops-hubs)
 - [🌟 Benefits](#-benefits)
 - [ℹ️ What's included](#ℹ️-whats-included)
 - [➕ Create a new hub](#-create-a-new-hub)
 - [🛫 Get started with hubs](#-get-started-with-hubs)
+
+</details>
 
 ---
 
