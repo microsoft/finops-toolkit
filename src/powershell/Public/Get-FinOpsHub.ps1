@@ -58,18 +58,34 @@ function Get-FinOpsHub
     $tagName = 'cm-resource-parent' 
     $subscriptionId = $context.Subscription.Id
     $tagValue = $tagTemplate -f $subscriptionId, $ResourceGroupName, $Name
-    $output = @()
+    $resourceMatches = @()
     $resources = Get-AzResource -TagName $tagName
     foreach ($resource in $resources)
     {
-        foreach ($tag in $resource.Tags)
+        $tagMatch = $resource.Tags.Values | Where-Object -FilterScript {$_ -like $tagValue}
+        if ($tagMatch)
         {
-            if ($tag.Values -like $tagValue)
-            {
-                $output += $resource
-                break
+            $properties = [ordered]@{
+                Name = $tagMatch.Split('/')[-1]
+                HubId = $tagMatch
+                Resource = $resource
             }
+            
+            $resourceMatches += New-Object -TypeName 'PSObject' -Property $properties
         }
+    }
+
+    $output = @()
+    $groups = $resourceMatches | Group-Object -Property 'HubId'
+    foreach ($group in $groups)
+    {
+        $groupProperties = [ordered]@{
+            Name = $group.Group.Name | Select-Object -Unique
+            HubId = $group.Group.HubId | Select-Object -Unique
+            Resources = $group.Group.Resource
+        }
+
+        $output += New-Object -TypeName 'PSObject' -Property $groupProperties
     }
 
     return $output
