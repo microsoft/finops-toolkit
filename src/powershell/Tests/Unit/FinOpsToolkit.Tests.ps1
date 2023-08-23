@@ -529,7 +529,7 @@ InModuleScope 'FinOpsToolkit' {
                 $result.Count | Should -Be 2
             }
 
-            It "Returns 3 FinOps Hubs: '$hubPartial', '$hub1', '$hub1' [ResourceGroup]: '$rgFull', '$rgPartial' with [Name filter]: '$hubWild' and [ResourceGroup filter]: '$rgWild'" {
+            It "Returns 2 FinOps Hubs: '$hubPartial', '$hub1', '$hub1' [ResourceGroup]: '$rgFull', '$rgPartial' with [Name filter]: '$hubWild' and [ResourceGroup filter]: '$rgWild'" {
                 Mock -CommandName Get-AzResource -MockWith {
                     @(
                         (New-MockResource -SubscriptionId $id -ResourceGroupName $rgFull -Name $hubPartial),
@@ -538,7 +538,7 @@ InModuleScope 'FinOpsToolkit' {
                     )
                 }
                 $result = Get-FinOpsHub -ResourceGroupName $rgWild
-                $result.Count | Should -Be 3
+                $result.Count | Should -Be 2
             }
         }
     }
