@@ -1,4 +1,12 @@
-# 📜 FinOps toolkit changelog
+---
+layout: default
+title: Changelog
+nav_order: zzz
+description: 'All primary changes to this project.'
+permalink: /
+---
+
+# FinOps toolkit changelog <!-- markdownlint-disable-line MD025 -->
 
 - [v0.0.1](#v001)
 
@@ -13,7 +21,7 @@
 Added:
 
 1. FinOps hubs
-   1. [finops-hub template](finops-hub) to deploy a storage account and Data Factory instance.
+   1. [FinOps hub template](finops-hub) to deploy a storage account and Data Factory instance.
    2. [Cost summary report](./finops-hub/reports/cost-summary.md) for various out-of-the-box cost breakdowns.
    3. [Commitment discounts report](./finops-hub/reports/commitment-discounts.md) for commitment-based discount reports.
 2. Bicep modules
