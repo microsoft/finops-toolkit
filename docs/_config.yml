@@ -6,3 +6,20 @@ url: https://microsoft.github.io/finops-toolkit
 
 aux_links:
   FTK on GitHub: https://github.com/microsoft/finops-toolkit
+
+callouts_level: quiet # or loud
+callouts:
+  highlight:
+    color: yellow
+  important:
+    title: Important
+    color: blue
+  new:
+    title: New
+    color: green
+  note:
+    title: Note
+    color: purple
+  warning:
+    title: Warning
+    color: red
