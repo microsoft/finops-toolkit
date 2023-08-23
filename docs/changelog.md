@@ -3,7 +3,7 @@ layout: default
 title: Changelog
 nav_order: zzz
 description: 'All primary changes to this project.'
-permalink: /
+permalink: /changelog
 ---
 
 # FinOps toolkit changelog <!-- markdownlint-disable-line MD025 -->
