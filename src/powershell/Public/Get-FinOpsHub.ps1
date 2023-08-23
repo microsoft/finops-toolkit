@@ -57,16 +57,15 @@ function Get-FinOpsHub
 
     $tagTemplate = '/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Cloud/hubs/{2}'
     $tagName = 'cm-resource-parent' 
-
     $subscriptionId = $context.Subscription.Id
-    $tagValue = $tagTemplate -f $subscriptionId, $ResourceGroupName.Replace($wildcard, '.*?'), $Name.Replace($wildcard, '.*?')
+    $tagValue = $tagTemplate -f $subscriptionId, $ResourceGroupName, $Name
     $output = @()
     $resources = Get-AzResource -TagName $tagName @PSBoundParameters
     foreach ($resource in $resources)
     {
         foreach ($tag in $resource.Tags)
         {
-            if ($tag.Values -match $tagValue)
+            if ($tag.Values -like $tagValue)
             {
                 $output += $resource
                 break
