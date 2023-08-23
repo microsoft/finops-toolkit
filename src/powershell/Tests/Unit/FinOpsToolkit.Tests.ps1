@@ -3,7 +3,6 @@
 
 $rootDirectory = ((Get-Item -Path $PSScriptRoot).Parent.Parent).FullName
 $modulePath = (Get-ChildItem -Path $rootDirectory -Include 'FinOpsToolKit.psm1' -Recurse).FullName
-write-host $PSVersionTable
 Import-Module -FullyQualifiedName $modulePath
 
 InModuleScope 'FinOpsToolkit' {
@@ -97,6 +96,33 @@ InModuleScope 'FinOpsToolkit' {
             }
 
             return $output
+        }
+
+        function New-MockResource
+        {
+            [CmdletBinding()]
+            param
+            (
+                [Parameter()]
+                [string]
+                $SubscriptionId,
+
+                [Parameter()]
+                [string]
+                $ResourceGroupName,
+
+                [Parameter()]
+                [string]
+                $Name
+            )
+
+            $tagTemplate = '/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Cloud/hubs/{2}'
+
+            return @{
+                Tags = @{
+                    'cm-resource-parent' = $tagTemplate -f  $SubscriptionId, $ResourceGroupName, $Name
+                }
+            }
         }
 
         $previewVersion = '1.0.0-alpha.01'
@@ -316,7 +342,7 @@ InModuleScope 'FinOpsToolkit' {
                     }
 
                     It 'Should throw if error creating resource group' {
-                        { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location } | Should -Throw
+                        { Deploy-FinOpsHub -Version 'latest' -Name $hubName -ResourceGroup $rgName -Location $location  } | Should -Throw
                         Assert-MockCalled -CommandName 'Get-AzResourceGroup' -Times 1
                         Assert-MockCalled -CommandName 'New-AzResourceGroup' -Times 1
                         Assert-MockCalled -CommandName 'New-Directory' -Times 0
@@ -337,7 +363,7 @@ InModuleScope 'FinOpsToolkit' {
                     }
 
                     It 'Should throw if template file is not found' {
-                        { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location } | Should -Throw
+                        { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version 'latest' } | Should -Throw
                         Assert-MockCalled -CommandName 'Get-ChildItem' -Times 1
                     }
                 }
@@ -350,13 +376,13 @@ InModuleScope 'FinOpsToolkit' {
                     }
 
                     It 'Should deploy the template without throwing' {
-                        { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location } | Should -Not -Throw
+                        { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version 'latest' } | Should -Not -Throw
                         Assert-MockCalled -CommandName 'Get-ChildItem' -Times 1
                         Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter { @{ TemplateFile = $templateFile } } -Times 1
                     }
 
                     It 'Should deploy the template with tags' {
-                        { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Tags @{ Test = 'Tag' } } | Should -Not -Throw
+                        { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Tags @{ Test = 'Tag' } -Version 'latest' } | Should -Not -Throw
                         Assert-MockCalled -CommandName 'Get-ChildItem' -Times 1
                         Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
                             @{
@@ -371,7 +397,7 @@ InModuleScope 'FinOpsToolkit' {
 
                     It 'Should deploy the template with StorageSku' {
                         $storageSku = 'Premium_ZRS'
-                        { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -StorageSku $storageSku } | Should -Not -Throw
+                        { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -StorageSku $storageSku -Version 'latest' } | Should -Not -Throw
                         Assert-MockCalled -CommandName 'Get-ChildItem' -Times 1
                         Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
                             @{
@@ -382,6 +408,137 @@ InModuleScope 'FinOpsToolkit' {
                         } -Times 1
                     }
                 }
+            }
+        }
+    }
+
+    Describe 'Get-FinOpsHub' {
+        BeforeAll {
+            function Get-AzContext {}
+            function Get-AzResource {}
+        }
+
+        Context 'AzContext' {
+            BeforeAll {
+                Mock -CommandName 'Get-AzContext'
+            }
+
+            It 'Should throw if Az context is not set' {
+                { Get-FinOpsHub } | Should -Throw
+            }
+        }
+
+        Context 'Tag Filtering' {
+            BeforeDiscovery {
+                $id = (New-Guid).Guid
+                $hubPartial = 'hub'
+                $hub1 = 'hub1'
+                $hub2 = 'hub2'
+                $newHub = 'newHub'
+                $hubWild = 'hub*'
+                $rgPartial = 'test'
+                $rgFull = 'testRg'
+                $newRg = 'newRg'
+                $rgWild = 'test*'
+                $noMatch = 'fake'
+                $tagTemplate = "/subscriptions/$id/resourceGroups/{0}/providers/Microsoft.Cloud/hubs/{1}"    
+            }
+
+            BeforeAll {
+                $hubPartial = 'hub'
+                $hub1 = 'hub1'
+                $hub2 = 'hub2'
+                $newHub = 'newHub'
+                $hubWild = 'hub*'
+                $rgPartial = 'test'
+                $rgFull = 'testRg'
+                $newRg = 'newRg'
+                $rgWild = 'test*'
+                $noMatch = 'fake'
+                $tagTemplate = "/subscriptions/$id/resourceGroups/{0}/providers/Microsoft.Cloud/hubs/{1}"
+                Mock -CommandName 'Get-AzContext' -MockWith { @{Subscription = @{Id = $id}}}
+            }
+
+            It "Returns 3 FinOps Hubs: '$hubPartial', '$hub1', '$hub2' [ResourceGroup]: '$rgFull' with [Name filter]: '$hubWild' and [ResourceGroup filter]: 'null'" {
+                Mock -CommandName Get-AzResource -MockWith {
+                    @(
+                        (New-MockResource -SubscriptionId $id -ResourceGroupName $rgFull -Name $hubPartial),
+                        (New-MockResource -SubscriptionId $id -ResourceGroupName $rgFull -Name $hub1),
+                        (New-MockResource -SubscriptionId $id -ResourceGroupName $rgFull -Name $hub2),
+                        (New-MockResource -SubscriptionId $id -ResourceGroupName $newRg -Name $newHub)
+                    )
+                }
+                $result = Get-FinOpsHub -Name $hubWild
+                $result.Count | Should -Be 3
+            }
+
+            It "Returns 1 FinOps Hub: '$hubPartial' [ResourceGroup]: '$rgFull' with [Name filter]: '$hubPartial' and [ResourceGroup filter]: 'null'" {
+                Mock -CommandName Get-AzResource -MockWith {
+                    @(
+                        (New-MockResource -SubscriptionId $id -ResourceGroupName $rgFull -Name $hubPartial),
+                        (New-MockResource -SubscriptionId $id -ResourceGroupName $rgFull -Name $hub1)
+                    )
+                }
+                $result = Get-FinOpsHub -Name $hubPartial
+                $result.Count | Should -Be 1
+            }
+
+            It "Returns 0 FinOps Hubs: '' [ResourceGroup]: '' with [Name filter]: '$noMatch' and [ResourceGroup filter]: 'null'" {
+                Mock -CommandName Get-AzResource -MockWith {
+                    @(
+                        (New-MockResource -SubscriptionId $id -ResourceGroupName $rgFull -Name $hubPartial),
+                        (New-MockResource -SubscriptionId $id -ResourceGroupName $rgFull -Name $hub1)
+                    )
+                }
+                $result = Get-FinOpsHub -Name $noMatch
+                $result.Count | Should -Be 0
+            }
+
+            It "Returns 4 FinOps Hubs: '$hubPartial', '$newHub', '$hub2', '$hub1' [ResourceGroup]: '$rgFull', 'newRg' with [Name filter]: 'null' and [ResourceGroup filter]: 'null'" {
+                Mock -CommandName Get-AzResource -MockWith {
+                    @(
+                        (New-MockResource -SubscriptionId $id -ResourceGroupName $rgFull -Name $hubPartial),
+                        (New-MockResource -SubscriptionId $id -ResourceGroupName $rgFull -Name $newHub),
+                        (New-MockResource -SubscriptionId $id -ResourceGroupName $rgFull -Name $hub2),
+                        (New-MockResource -SubscriptionId $id -ResourceGroupName $newRg -Name $hub1)
+                    )
+                }
+                $result = Get-FinOpsHub
+                $result.Count | Should -Be 4
+            }
+
+            It "Returns 0 FinOps Hubs: '' [ResourceGroup]: '' with [Name filter]: '$noMatch' and [ResourceGroup filter]: 'null'" {
+                Mock -CommandName Get-AzResource -MockWith {
+                    @(
+                        (New-MockResource -SubscriptionId $id -ResourceGroupName $rgFull -Name $hubPartial),
+                        (New-MockResource -SubscriptionId $id -ResourceGroupName $rgFull -Name $hub1)
+                    )
+                }
+                $result = Get-FinOpsHub -Name $noMatch
+                $result.Count | Should -Be 0
+            }
+
+            It "Returns 2 FinOps Hubs: '$hubPartial', '$hub1' [ResourceGroup]: '$rgFull', '$rgPartial' with [Name filter]: 'null' and [ResourceGroup filter]: '$rgWild'" {
+                Mock -CommandName Get-AzResource -MockWith {
+                    @(
+                        (New-MockResource -SubscriptionId $id -ResourceGroupName $rgFull -Name $hubPartial),
+                        (New-MockResource -SubscriptionId $id -ResourceGroupName $rgPartial -Name $hub1)
+                    )
+                }
+                $result = Get-FinOpsHub -ResourceGroupName $rgWild
+                $result.Count | Should -Be 2
+            }
+
+            It "Returns 3 FinOps Hubs: '$hubPartial', '$hub1', '$hub1' [ResourceGroup]: '$rgFull', '$rgPartial' with [Name filter]: '$hubWild' and [ResourceGroup filter]: '$rgWild'" {
+                Mock -CommandName Get-AzResource -MockWith {
+                    @(
+                        (New-MockResource -SubscriptionId $id -ResourceGroupName $rgFull -Name $hubPartial),
+                        (New-MockResource -SubscriptionId $id -ResourceGroupName $rgPartial -Name $hub1),
+                        (New-MockResource -SubscriptionId $id -ResourceGroupName $rgPartial -Name $hub1)
+                    )
+                }
+                $result = Get-FinOpsHub -ResourceGroupName $rgWild
+                $result.Count | Should -Be 3
             }
         }
     }

@@ -60,7 +60,7 @@ function Get-FinOpsHub
     $subscriptionId = $context.Subscription.Id
     $tagValue = $tagTemplate -f $subscriptionId, $ResourceGroupName, $Name
     $output = @()
-    $resources = Get-AzResource -TagName $tagName @PSBoundParameters
+    $resources = Get-AzResource -TagName $tagName
     foreach ($resource in $resources)
     {
         foreach ($tag in $resource.Tags)
