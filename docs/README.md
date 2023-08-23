@@ -2,15 +2,12 @@
 layout: default
 title: Home
 nav_order: 1
-description: 'The FinOps toolkit is a collection of FinOps solutions that automate and extend native Microsoft Cloud capabilities.'
+description: 'Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced solutions to accelerate your FinOps journey.'
 permalink: /
 ---
 
-## Kick start your FinOps efforts
-
-{: .fs-9 }
-
-Leverage reusable solutions that automate and extend native Microsoft Cloud capabilities. From starter kits and automation scripts to advanced solutions, the FinOps toolkit seeks to accelerate your FinOps journey.
+<span class="fs-9 d-block mb-4">Kick start your FinOps efforts</span>
+Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced solutions to accelerate your FinOps journey.
 {: .fs-6 .fw-300 }
 
 [View tools](#-available-tools){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
@@ -18,7 +15,7 @@ Leverage reusable solutions that automate and extend native Microsoft Cloud capa
 
 ---
 
-The FinOps toolkit is a collection of customizable Azure Resource Manager (ARM) templates used to deploy FinOps solutions that automate and extend native Microsoft Cloud capabilities. This includes:
+The FinOps toolkit is a collection of customizable scripts and Azure Resource Manager (ARM) templates used to deploy and manage FinOps solutions that automate and extend native Microsoft Cloud capabilities. This includes:
 
 - Starter kits that help you get up and running with Cost Management.
 - Automation scripts to streamline cost management and optimization at scale.
