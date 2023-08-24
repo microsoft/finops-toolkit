@@ -29,7 +29,7 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 
 We are very early in our journey. Today, FinOps hubs extend Cost Management by exporting cost details to a consolidated storage account and addressing a few of the inherent limitations that make exports more difficult to use. In their most basic form, FinOps hubs enable more Power BI reporting options. On the more advanced end, FinOps hubs are a foundation for you to build your own cost management and optimization solution.
 
-<blockquote class="new-title">
+<blockquote class="green-title">
    <p>💵 Estimated cost: $25 per $1M in cost</p>
    <p class="i">Exact cost of the solution may vary. Cost is primarily for data storage and number of times data is ingested. Pipelines will run once a day per export.</p>
 </blockquote>
@@ -78,18 +78,27 @@ To learn more, see [FinOps hub template details](template.md).
 
 ## ➕ Create a new hub
 
-1. Register the Microsoft.EventGrid and Microsoft.CostManagementExports resource providers
-   > See [Register a resource provider](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) for details.
+1. Register the Microsoft.EventGrid and Microsoft.CostManagementExports resource providers. See [Register a resource provider](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) for details.
 2. [Deploy the **finops-hub** template](../deploy).
-   > [![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy) &nbsp; [![Deploy To Azure US Gov](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy/gov)
+
+   [![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy) &nbsp; [![Deploy To Azure US Gov](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy/gov)
+
 3. [Create a new cost export](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data?tabs=azure-portal) using the following settings:
+
    - **Metric** = `Amortized cost`
    - **Export type** = `Daily export of month-to-date costs`
-     > 💡 _**Tip:** Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range._
+
+     <blockquote class="tip">
+
+     _Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range._
+
+     </blockquote>
+
    - **File Partitioning** = On
    - **Storage account** = (Use subscription/resource from step 1)
    - **Container** = `msexports`
    - **Directory** = (Use the resource ID of the scope you're exporting without the first "/")
+
 4. Run your export.
    - Exports can take up to a day to show up after first created.
    - Use the **Run now** command at the top of the Cost Management Exports page.
@@ -117,7 +126,11 @@ After deploying a hub instance, there are several ways for you to get started:
 
    <!-- NOTE TO CONTRIBUTORS: Keep this info note in sync with the same one under #3 below. -->
 
-   > ℹ️ _The schema may change multiple times before the 0.1 release. We will ensure Power BI reports have backwards compatibility, but if you access data directly, you may run into breaking changes with new releases. Familiarize yourself with [upcoming releases](https://aka.ms/finops/toolkit/roadmap) and review the [changelog](./changelog.md) for breaking changes before you update._
+   <blockquote class="note">
+
+   _The schema may change multiple times before the 0.1 release. We will ensure Power BI reports have backwards compatibility, but if you access data directly, you may run into breaking changes with new releases. Familiarize yourself with [upcoming releases](https://aka.ms/finops/toolkit/roadmap) and review the [changelog](./changelog.md) for breaking changes before you update._
+
+   </blockquote>
 
 3. Access the cost data from custom tools.
 
@@ -125,13 +138,21 @@ After deploying a hub instance, there are several ways for you to get started:
 
    <!-- NOTE TO CONTRIBUTORS: Keep this info note in sync with the same one under #2 above. -->
 
-   > ℹ️ _The schema may change multiple times before the 0.1 release. We will ensure Power BI reports have backwards compatibility, but if you access data directly, you may run into breaking changes with new releases. Familiarize yourself with [upcoming releases](https://aka.ms/finops/toolkit/roadmap) and review the [changelog](changelog.md) for breaking changes before you update._
+   <blockquote class="note">
+
+   _The schema may change multiple times before the 0.1 release. We will ensure Power BI reports have backwards compatibility, but if you access data directly, you may run into breaking changes with new releases. Familiarize yourself with [upcoming releases](https://aka.ms/finops/toolkit/roadmap) and review the [changelog](changelog.md) for breaking changes before you update._
+
+   </blockquote>
 
 4. Apply cost allocation logic, augment, or manipulate your cost data using Data Factory.
 
    [Data Factory](https://learn.microsoft.com/azure/data-factory/introduction) is used to ingest and transform data. We recommend using Data Factory as a cost-efficient solution to apply custom logic to your cost data. Do not modify built-in pipelines or data in the **msexports** container. If you create custom pipelines, monitor new data in the **ingestion** container and use a consistent prefix to ensure they don't overlap with new pipelines. Refer to [data processing](./data-processing.md) for details about how data is processed.
 
-   > ⚠️ _Keep in mind this is the primary area we are planning to evolve in [upcoming FinOps toolkit releases](https://aka.ms/finops/toolkit/roadmap). Please familiarize yourself with our roadmap to avoid conflicts with future updates. Consider [contributing to the project](../CONTRIBUTING.md) to add support for new scenarios to avoid conflicts._
+   <blockquote class="important">
+
+   _Keep in mind this is the primary area we are planning to evolve in [upcoming FinOps toolkit releases](https://aka.ms/finops/toolkit/roadmap). Please familiarize yourself with our roadmap to avoid conflicts with future updates. Consider [contributing to the project](../CONTRIBUTING.md) to add support for new scenarios to avoid conflicts._
+
+   </blockquote>
 
 5. Generate custom alerts using Power Automate.
 

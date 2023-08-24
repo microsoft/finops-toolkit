@@ -11,15 +11,20 @@ callouts_level: quiet # or loud
 callouts:
   highlight:
     color: yellow
-  important:
-    title: Important
-    color: blue
-  new:
-    title: New
+  green:
     color: green
   note:
-    title: Note
-    color: purple
+    title: 🚩 Note
+    color: yellow
+  tip:
+    title: 💡 Tip
+    color: blue
+  important:
+    title: ✨ Important
+    color: blue
   warning:
-    title: Warning
+    title: ⚠️ Warning
     color: red
+  new:
+    title: 🆕 New
+    color: purple
