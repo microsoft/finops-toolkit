@@ -2,6 +2,14 @@ title: FinOps toolkit
 description: A collection of customizable FinOps solutions that automate and extend native Microsoft Cloud capabilities.
 remote_theme: just-the-docs/just-the-docs
 
+# Markdown options -- https://jekyllrb.com/docs/configuration/markdown/
+kramdown:
+  # Kramdown options -- https://kramdown.gettalong.org/options.html
+  parse_block_html: true
+
+  # GFM options -- https://github.com/kramdown/parser-gfm
+  gfm_emojis: true
+
 url: https://microsoft.github.io/finops-toolkit
 
 aux_links:
@@ -14,7 +22,7 @@ callouts:
   highlight-green:
     color: green
   note:
-    title: 🚩 Note
+    title: 🚩i Note
     color: yellow
   tip:
     title: 💡 Tip
