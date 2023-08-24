@@ -1,6 +1,7 @@
 ---
 layout: default
 title: FinOps hubs
+has_children: true
 nav_order: 2
 description: 'Reliable, trustworthy platform for cost analytics, insights, and optimization.'
 permalink: /hubs
