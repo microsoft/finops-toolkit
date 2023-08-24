@@ -42,7 +42,7 @@ function Remove-FinOpsCostExport {
     [string]
     $Scope,
 
-    [Parameter]
+    [Parameter()]
     [switch]
     $RemoveData,
 
