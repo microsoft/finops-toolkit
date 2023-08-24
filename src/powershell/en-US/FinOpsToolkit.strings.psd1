@@ -9,5 +9,6 @@ ConvertFrom-StringData -StringData @'
     FoundLatestRelease = Found latest release '{0}'.
     NewDirectory = Creating directory '{0}'.
     TemplateNotFound = Could not find template 'main.bicep' at path '{0}'.
-    ContextNotFound = Could not retrieve Az context. Run Az-Login.
+    RegisterProvider =  Registering resource provider {0}.
+    ResourceProviderExists =  Resource provider {0} is already registered. 
 '@
