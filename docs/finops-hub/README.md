@@ -11,8 +11,9 @@ permalink: /hubs
 Open, extensible, and scalable cost governance for the enterprise.
 {: .fs-6 .fw-300 }
 
-[Get started](#-create-a-new-hub){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
-[Learn more](️#-why-finops-hubs){: .btn .fs-5 .mb-4 .mb-md-0 }
+[Get started](#-create-a-new-hub){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 }
+&nbsp;
+[Learn more](#️-why-finops-hubs){: .btn .fs-5 .mb-4 .mb-md-0 }
 
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
@@ -50,6 +51,7 @@ Many organizations that use Microsoft Cost Management eventually hit a wall wher
 FinOps hubs will streamline implementing the FinOps Framework, are being designed to scale to meet the largest enterprise needs, and will be open and extensible to support building custom solutions without the hassle of building the backend data store. FinOps hubs are designed for and by the community. Please join the discussion and let us know what you'd like to see next or learn how to contribute and be a part of the team.
 
 [Join the discussion](https://github.com/microsoft/finops-toolkit/discussions){: .btn .fs-5 .mb-4 .mb-md-0 }
+&nbsp;
 [Join the team](https://github.com/microsoft/finops-toolkit/blob/dev/CONTRIBUTING.md){: .btn .fs-5 .mb-4 .mb-md-0 }
 
 <br>
@@ -84,7 +86,10 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
 <img alt="Screenshot of the services cost report" style="max-width:200px" src="https://user-images.githubusercontent.com/399533/216882700-4e04b589-0580-4e49-9b40-9f5948792975.png">
 <img alt="Screenshot of the commitment-based discounts coverage report" style="max-width:200px" src="https://user-images.githubusercontent.com/399533/216882916-bb7ecfa3-d092-4ae2-88e1-7a0425c14dca.png">
 
+<br>
+
 [See the reports](./reports/README.md){: .btn .fs-5 .mb-4 .mb-md-0 }
+&nbsp;
 [See the template](./template.md){: .btn .fs-5 .mb-4 .mb-md-0 }
 
 <br>
@@ -92,7 +97,7 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
 ## ➕ Create a new hub
 
 1. Register the Microsoft.EventGrid and Microsoft.CostManagementExports resource providers. See [Register a resource provider](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) for details.
-2. [Deploy the **finops-hub** template](../deploy).
+2. [Deploy the **finops-hub** template](../deploy/README.md).
 
    [![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy) &nbsp; [![Deploy To Azure US Gov](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy/gov)
 
@@ -100,11 +105,9 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
 
    - **Metric** = `Amortized cost`
    - **Export type** = `Daily export of month-to-date costs`
-
      <blockquote class="tip" markdown="1">
        _Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range._
      </blockquote>
-
    - **File Partitioning** = On
    - **Storage account** = (Use subscription/resource from step 1)
    - **Container** = `msexports`
@@ -117,7 +120,7 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
 5. Download one or more of the available Power BI starter templates from the [latest release](https://github.com/microsoft/finops-toolkit/releases):
    - [Cost summary](./reports/cost-summary.md) for standard cost roll-ups.
    - [Commitment discounts](./reports/commitment-discounts.md) for commitment-based savings utilization and coverage.
-6. [Connect Power BI to your hub](./reports/README.md#setup-a-finops-toolkit-report)
+6. [Connect Power BI to your hub](./reports/README.md#setup-a-finops-hub-report)
 
 If you run into any issues, see [Troubleshooting Power BI reports](./troubleshooting.md).
 
@@ -133,12 +136,12 @@ After deploying a hub instance, there are several ways for you to get started:
 
 2. Create your own Power BI reports.
 
-   If you'd like to create your own reports or add cost data to an existing report, you can either [copy queries from a toolkit report](./reports/README.md#setup-a-finops-toolkit-report) or [connect manually](./reports/README.md#connect-manually) using the Azure Data Lake Storage Gen2 connector.
+   If you'd like to create your own reports or add cost data to an existing report, you can either [copy queries from a pre-built report](./reports/README.md#setup-a-finops-hub-report) or [connect manually](./reports/README.md#connect-manually) using the Azure Data Lake Storage Gen2 connector.
 
    <!-- NOTE TO CONTRIBUTORS: Keep this info note in sync with the same one under #3 below. -->
 
    <blockquote class="note" markdown="1">
-     _The schema may change multiple times before the 0.1 release. We will ensure Power BI reports have backwards compatibility, but if you access data directly, you may run into breaking changes with new releases. Familiarize yourself with [upcoming releases](https://aka.ms/finops/toolkit/roadmap) and review the [changelog](./changelog.md) for breaking changes before you update._
+     _The schema may change multiple times before the 0.1 release. We will ensure Power BI reports have backwards compatibility, but if you access data directly, you may run into breaking changes with new releases. Familiarize yourself with [upcoming releases](https://aka.ms/finops/toolkit/roadmap) and review the [changelog](../changelog.md) for breaking changes before you update._
    </blockquote>
 
 3. Access the cost data from custom tools.
@@ -165,7 +168,7 @@ After deploying a hub instance, there are several ways for you to get started:
 
 No matter what you choose to do, we recommend creating a new Bicep module to support updating your solution. You can reference `finops-hub/main.bicep` or `hub.bicep` directly to ensure you can apply new updates as they're released.
 
-If you need to change `hub.bicep`, be sure to track those changes and re-apply them when upgrading to the latest release. We generally don't recommend modifying the template or modules directly to avoid conflicts with future updates. Instead, consider contributing those changes back to the open source project. [Learn more](../CONTRIBUTING.md).
+If you need to change `hub.bicep`, be sure to track those changes and re-apply them when upgrading to the latest release. We generally don't recommend modifying the template or modules directly to avoid conflicts with future updates. Instead, consider contributing those changes back to the open source project. [Learn more](https://github.com/microsoft/finops-toolkit/blob/main/CONTRIBUTING.md).
 
 If you access data in storage or are creating or customizing Power BI reports, please refer to the [data dictionary](data-dictionary.md) for details about the available columns.
 
