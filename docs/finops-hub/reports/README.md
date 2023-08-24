@@ -1,21 +1,37 @@
-# 📊 FinOps hub reports
+---
+layout: default
+parent: FinOps hubs
+title: Reports
+nav_order: 1
+description: 'Pre-built Power BI reports to summarize and break down costs in FinOps hubs.'
+permalink: /hubs/terms
+---
 
-The FinOps hub hosts data in [Azure Data Lake Storage](https://learn.microsoft.com/azure/storage/blobs/data-lake-storage-introduction). You can use any tool to query and report on your cost data in storage. As an example, we've included the following Power BI reports to get you started. We recommend customizing them to keep what works, edit and augment reports with your own data, and remove anything that isn't needed.
+<span class="fs-9 d-block mb-4">Power BI reports for FinOps hubs</span>
+Leverage pre-built Power BI reports to summarize and break down costs. Customize reports and build your own to get the most out of your hub.
+{: .fs-6 .fw-300 }
 
-> ℹ️ _The Power BI reports (PBIX files) are starter templates. Keep in mind you won't be able to upgrade a customized report as the toolkit evolves._
-
-- [Cost summary](./cost-summary.md)
-- [Commitment discounts](./commitment-discounts.md)
-
-<br>
-
-On this page:
+<details open markdown="block">
+    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [✨ How to setup Power BI](#-how-to-setup-power-bi)
 - [🗃️ Queries and datasets](#️-queries-and-datasets)
 - [💡 Tips for customizing Power BI reports](#-tips-for-customizing-power-bi-reports)
 
+</details>
+
 ---
+
+FinOps hubs host data in [Azure Data Lake Storage](https://learn.microsoft.com/azure/storage/blobs/data-lake-storage-introduction). You can use any tool to query and report on your cost data in storage. We've included the following Power BI reports to get you started. We recommend customizing them to keep what works, edit and augment reports with your own data, and remove anything that isn't needed.
+
+- [Cost summary](./cost-summary.md)
+- [Commitment discounts](./commitment-discounts.md)
+
+<blockquote class="note" markdown="1">
+   _To download available Power BI reports, refer to the [official release](https://github.com/microsoft/finops-toolkit/releases) on GitHub._
+</blockquote>
+
+<br>
 
 ## ✨ How to setup Power BI
 
@@ -195,3 +211,5 @@ Note the following columns are new in this release. These columns were not previ
 FinOps hubs Power BI reports are starter templates that we encourage you to customize. Changing visuals, columns, and measures should not break in future releases outside of potential schema changes, which are usually easy to fix by changing column names. The main issue to be careful of is changing the out-of-the-box queries. Out-of-the-box queries can change in future releases, which will make it harder for you to upgrade. If you need to modify a query, we recommend confining updates to the **CostDetails** dataset, which references the internal datasets we use for schema versioning. We will keep our updates to those internal datasets to avoid conflicting with your customizations.
 
 If you run into any issues, please let us know in [Discussions](https://github.com/microsoft/cloud-hubs/discussions).
+
+<br>
