@@ -1,15 +1,25 @@
-# 🛠️ Troubleshooting FinOps hubs
+---
+layout: default
+parent: FinOps hubs
+title: Troubleshooting
+nav_order: 3
+description: 'Details and solutions for common issues you may experience with FinOps hubs.'
+permalink: /hubs/troubleshoting
+---
 
-Sorry to hear you're having a problem. This page includes common issues and solutions. If you run into a problem that isn't covered here, [start a discussion](https://aka.ms/finops/toolkit/discuss) or [open an issue](https://aka.ms/finops/toolkit/ideas).
+# Troubleshooting FinOps hubs<!-- markdownlint-disable-line MD025 -->
 
-<br>
-
-On this page:
+Sorry to hear you're having a problem. Here are a few common issues and solutions:
 
 - [Reports are empty (no data)](#reports-are-empty-no-data)
 - [The Microsoft.EventGrid resource provider is not registered in subscription \<guid\>](#the-microsofteventgrid-resource-provider-is-not-registered-in-subscription-guid)
 - [Exception of type 'Microsoft.Mashup.Engine.Interface.ResourceAccessForbiddenException' was thrown](#exception-of-type-microsoftmashupengineinterfaceresourceaccessforbiddenexception-was-thrown)
 - [The remote name could not be resolved: '\<storage-account\>.dfs.core.windows.net'](#the-remote-name-could-not-be-resolved-storage-accountdfscorewindowsnet)
+
+Didn't find what you're looking for?
+
+[Start a discussion](https://aka.ms/finops/toolkit/discuss){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
+[Create an issue](https://aka.ms/finops/toolkit/ideas){: .btn .fs-5 .mb-4 .mb-md-0 }
 
 ---
 

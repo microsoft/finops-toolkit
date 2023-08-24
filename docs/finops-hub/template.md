@@ -8,7 +8,7 @@ permalink: /hubs/template
 quickstartPath: quickstarts/microsoft.costmanagement/finops-hub
 ---
 
-# FinOps hub template <!-- markdownlint-disable-line MD025 -->
+# FinOps hub template<!-- markdownlint-disable-line MD025 -->
 
 <details open markdown="block">
   <summary class="fs-2 text-uppercase">On this page</summary>
