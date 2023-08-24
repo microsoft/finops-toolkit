@@ -21,7 +21,7 @@ callouts:
   highlight-green:
     color: green
   note:
-    title: 🚩ℹ️:information_source: :Information: Note
+    title: '🚩ℹ️:information_source: :Information: Note'
     color: yellow
   tip:
     title: 💡 Tip
