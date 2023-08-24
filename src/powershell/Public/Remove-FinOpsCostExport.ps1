@@ -22,7 +22,7 @@ function Remove-FinOpsCostExport {
 
   try {
 
-    # TODO : Validate parameters
+    # TODO : Validate parameters and resources before proceeding
 
     $additionalParamaters = @{
       scope = $scope
@@ -44,13 +44,13 @@ function Remove-FinOpsCostExport {
         # Export deleted successfully
       } else {
         # Error response describing why the operation failed.
-        throw "Operation failed with message: '$($httpResponse.Content)'"
+        throw "Delete Cost Management Export operation failed with message: '$($httpResponse.Content)'"
       }
 
     }
 
+    # Delete associated ingestion data from storage account
     if ($RemoveData) {
-      # Delete associated ingestion data from storage account
       # Using the REST API to delete the export as requested as PS modules are outdated?
       $httpResponse = Invoke-AzRestMethod `
         -ResourceProviderName "Microsoft.CostManagement" `
@@ -74,11 +74,13 @@ function Remove-FinOpsCostExport {
         $storageAccountName = $storageAccountID.Split('/')[8]
 
         #Hold on to your hats, deleting all the files in the ingestion scope
-        Get-AzStorageAccount -resourcegroupname $resourceGroupName -name $storageAccountName | Get-AzDataLakeGen2ChildItem -FileSystem "ingestion" -Path $scope -Recurse -FetchProperty | Remove-AzDataLakeGen2Item -Force
+        if ($PSCmdlet.ShouldProcess($scope, 'DeleteCostReports')){
+          Get-AzStorageAccount -resourcegroupname $resourceGroupName -name $storageAccountName | Get-AzDataLakeGen2ChildItem -FileSystem "ingestion" -Path $scope -Recurse -FetchProperty | Remove-AzDataLakeGen2Item -Force
+        }
 
       } else {
         # Error response describing why the operation failed.
-        throw "Operation failed with message: '$($httpResponse.Content)'"
+        throw "Delete ingestion data operation failed with message: '$($httpResponse.Content)'"
       }
     }
 
