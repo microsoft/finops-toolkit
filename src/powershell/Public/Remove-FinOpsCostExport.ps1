@@ -100,7 +100,7 @@ function Remove-FinOpsCostExport
       }
       elseif ($httpResponse.StatusCode -eq 404)
       {
-        # Not found
+        # Not found - nothing to delete
       }
       else
       {
@@ -148,7 +148,7 @@ function Remove-FinOpsCostExport
       }
       elseif ($httpResponse.StatusCode -eq 404)
       {
-        # Not found
+        # Not found - Nothing to delete
       }
       else
       {
