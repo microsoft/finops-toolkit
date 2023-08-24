@@ -77,7 +77,7 @@ function Remove-FinOpsCostExport {
 
     # Delete associated ingestion data from storage account
     if ($RemoveData) {
-      # Using the REST API to delete the export as requested as PS modules are outdated?
+      # Using the REST API to get the export as requested as PS modules are outdated?
       $httpResponse = Invoke-AzRestMethod `
         -ResourceProviderName "Microsoft.CostManagement" `
         -ResourceType "exports" `
