@@ -6,10 +6,10 @@ description: 'Reliable, trustworthy platform for cost analytics, insights, and o
 permalink: /hubs
 ---
 
-# FinOps hubs <!-- markdownlint-disable-line MD025 -->
+# FinOps hubs<!-- markdownlint-disable-line MD025 -->
 
 <details open markdown="block">
-   <summary>On this page</summary>
+   <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🙋‍♀️ Why FinOps hubs?](#️-why-finops-hubs)
 - [🌟 Benefits](#-benefits)
@@ -17,9 +17,9 @@ permalink: /hubs
 - [➕ Create a new hub](#-create-a-new-hub)
 - [🛫 Get started with hubs](#-get-started-with-hubs)
 
-</details>
-
 <br>
+
+</details>
 
 FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, and optimization – virtual command centers for leaders throughout the organization to report on, monitor, and optimize cost based on their organizational needs. FinOps hubs focus on 3 core design principles:
 
@@ -29,10 +29,10 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 
 We are very early in our journey. Today, FinOps hubs extend Cost Management by exporting cost details to a consolidated storage account and addressing a few of the inherent limitations that make exports more difficult to use. In their most basic form, FinOps hubs enable more Power BI reporting options. On the more advanced end, FinOps hubs are a foundation for you to build your own cost management and optimization solution.
 
-> 💵 Estimated cost: $25 per $1M in cost
->
-> _Exact cost of the solution may vary. Cost is primarily for data storage and number of times data is ingested. Pipelines will run once a day per export._
-> {: .custom-title }
+<blockquote class="highlight-green-title">
+   <p>💵 Estimated cost: $25 per $1M in cost</p>
+   <p class="i">Exact cost of the solution may vary. Cost is primarily for data storage and number of times data is ingested. Pipelines will run once a day per export.</p>
+</blockquote>
 
 ---
 
@@ -88,7 +88,7 @@ To learn more, see [FinOps hub template details](template.md).
    - **Metric** = `Amortized cost`
    - **Export type** = `Daily export of month-to-date costs`
 
-     > _Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range._{: .tipcallout }
+     <blockquote class="tip"><p class="i">Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range.</p></blockquote>
 
    - **File Partitioning** = On
    - **Storage account** = (Use subscription/resource from step 1)
@@ -122,11 +122,7 @@ After deploying a hub instance, there are several ways for you to get started:
 
    <!-- NOTE TO CONTRIBUTORS: Keep this info note in sync with the same one under #3 below. -->
 
-   <blockquote class="note">
-
-   _The schema may change multiple times before the 0.1 release. We will ensure Power BI reports have backwards compatibility, but if you access data directly, you may run into breaking changes with new releases. Familiarize yourself with [upcoming releases](https://aka.ms/finops/toolkit/roadmap) and review the [changelog](./changelog.md) for breaking changes before you update._
-
-   </blockquote>
+   <blockquote class="note"><p class="i">The schema may change multiple times before the 0.1 release. We will ensure Power BI reports have backwards compatibility, but if you access data directly, you may run into breaking changes with new releases. Familiarize yourself with [upcoming releases](https://aka.ms/finops/toolkit/roadmap) and review the [changelog](./changelog.md) for breaking changes before you update.</p></blockquote>
 
 3. Access the cost data from custom tools.
 
@@ -134,21 +130,13 @@ After deploying a hub instance, there are several ways for you to get started:
 
    <!-- NOTE TO CONTRIBUTORS: Keep this info note in sync with the same one under #2 above. -->
 
-   <blockquote class="note">
-
-   _The schema may change multiple times before the 0.1 release. We will ensure Power BI reports have backwards compatibility, but if you access data directly, you may run into breaking changes with new releases. Familiarize yourself with [upcoming releases](https://aka.ms/finops/toolkit/roadmap) and review the [changelog](changelog.md) for breaking changes before you update._
-
-   </blockquote>
+   <blockquote class="note"><p class="i">The schema may change multiple times before the 0.1 release. We will ensure Power BI reports have backwards compatibility, but if you access data directly, you may run into breaking changes with new releases. Familiarize yourself with [upcoming releases](https://aka.ms/finops/toolkit/roadmap) and review the [changelog](changelog.md) for breaking changes before you update.</p></blockquote>
 
 4. Apply cost allocation logic, augment, or manipulate your cost data using Data Factory.
 
    [Data Factory](https://learn.microsoft.com/azure/data-factory/introduction) is used to ingest and transform data. We recommend using Data Factory as a cost-efficient solution to apply custom logic to your cost data. Do not modify built-in pipelines or data in the **msexports** container. If you create custom pipelines, monitor new data in the **ingestion** container and use a consistent prefix to ensure they don't overlap with new pipelines. Refer to [data processing](./data-processing.md) for details about how data is processed.
 
-   <blockquote class="important">
-
-   _Keep in mind this is the primary area we are planning to evolve in [upcoming FinOps toolkit releases](https://aka.ms/finops/toolkit/roadmap). Please familiarize yourself with our roadmap to avoid conflicts with future updates. Consider [contributing to the project](../CONTRIBUTING.md) to add support for new scenarios to avoid conflicts._
-
-   </blockquote>
+   <blockquote class="important"><p class="i">Keep in mind this is the primary area we are planning to evolve in [upcoming FinOps toolkit releases](https://aka.ms/finops/toolkit/roadmap). Please familiarize yourself with our roadmap to avoid conflicts with future updates. Consider [contributing to the project](../CONTRIBUTING.md) to add support for new scenarios to avoid conflicts.</p></blockquote>
 
 5. Generate custom alerts using Power Automate.
 

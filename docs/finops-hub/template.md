@@ -11,16 +11,16 @@ quickstartPath: quickstarts/microsoft.costmanagement/finops-hub
 # FinOps hub template <!-- markdownlint-disable-line MD025 -->
 
 <details open markdown="block">
-  <summary>On this page</summary>
+  <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [📋 Prerequisites](#-prerequisites)
 - [📥 Parameters](#-parameters)
 - [🎛️ Resources](#️-resources)
 - [📤 Outputs](#-outputs)
 
-</details>
-
 <br>
+
+</details>
 
 This template creates a new **FinOps hub** instance.
 
@@ -30,11 +30,7 @@ FinOps hubs include:
 - Data Factory for data processing and orchestration.
 - Key Vault for storing secrets.
 
-<blockquote class="important">
-
-_To use this template, you will need to create a Cost Management export that publishes cost data to the `msexports` container in the included storage account. See [Create a new hub](README.md#-create-a-new-hub) for details._
-
-</blockquote>
+<blockquote class="important"><p class="i">To use this template, you will need to create a Cost Management export that publishes cost data to the `msexports` container in the included storage account. See [Create a new hub](README.md#-create-a-new-hub) for details.</p></blockquote>
 
 ---
 
@@ -45,11 +41,7 @@ Please ensure the following prerequisites are met before deploying this template
 1. You must have permission to create the [deployed resources](#resources).
 2. The Microsoft.EventGrid resource provider must be registered in your subscription. See [Register a resource provider](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) for details.
 
-   <blockquote class="important">
-
-   _If you forget this step, the deployment will succeed, but the pipeline trigger will not be started and data will not be ready. See [Troubleshooting Power BI reports](reports/README.md#-troubleshooting-power-bi-reports) for details._
-
-   </blockquote>
+   <blockquote class="important"><p class="i">If you forget this step, the deployment will succeed, but the pipeline trigger will not be started and data will not be ready. See [Troubleshooting Power BI reports](reports/README.md#-troubleshooting-power-bi-reports) for details.</p></blockquote>
 
 <br>
 

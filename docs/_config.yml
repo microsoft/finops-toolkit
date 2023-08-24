@@ -11,12 +11,12 @@ callouts_level: quiet # or loud
 callouts:
   highlight:
     color: yellow
-  custom:
+  highlight-green:
     color: green
   note:
     title: 🚩 Note
     color: yellow
-  tipcallout:
+  tip:
     title: 💡 Tip
     color: blue
   important:
