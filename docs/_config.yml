@@ -3,11 +3,10 @@ description: A collection of customizable FinOps solutions that automate and ext
 remote_theme: just-the-docs/just-the-docs
 
 # Markdown options -- https://jekyllrb.com/docs/configuration/markdown/
+# Kramdown options -- https://kramdown.gettalong.org/options.html
+# GFM options -- https://github.com/kramdown/parser-gfm
 kramdown:
-  # Kramdown options -- https://kramdown.gettalong.org/options.html
   parse_block_html: true
-
-  # GFM options -- https://github.com/kramdown/parser-gfm
   gfm_emojis: true
 
 url: https://microsoft.github.io/finops-toolkit
@@ -22,7 +21,7 @@ callouts:
   highlight-green:
     color: green
   note:
-    title: 🚩i Note
+    title: 🚩ℹ️:information_source: :Information: Note
     color: yellow
   tip:
     title: 💡 Tip
