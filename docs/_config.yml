@@ -6,13 +6,16 @@ remote_theme: just-the-docs/just-the-docs
 # Kramdown options -- https://kramdown.gettalong.org/options.html
 # GFM options -- https://github.com/kramdown/parser-gfm
 kramdown:
-  parse_block_html: true
   gfm_emojis: true
 
 url: https://microsoft.github.io/finops-toolkit
 
 aux_links:
   FTK on GitHub: https://github.com/microsoft/finops-toolkit
+
+gh_edit_link: true
+gh_edit_repository: "https://github.com/microsoft/finops-toolkit"
+gh_edit_branch: main
 
 callouts_level: quiet # or loud
 callouts:
@@ -21,7 +24,7 @@ callouts:
   highlight-green:
     color: green
   note:
-    title: '🚩ℹ️:information_source: :Information: Note'
+    title: 🚩 Note
     color: yellow
   tip:
     title: 💡 Tip
