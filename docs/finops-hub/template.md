@@ -1,8 +1,26 @@
 ---
-QuickstartPath: quickstarts/microsoft.costmanagement/finops-hub
+layout: default
+parent: FinOps hubs
+title: Template
+nav_order: 2
+description: 'Details about what's included in the FinOps hub template.'
+permalink: /hubs/template
+quickstartPath: quickstarts/microsoft.costmanagement/finops-hub
 ---
 
-# 📦 FinOps hub template
+# FinOps hub template <!-- markdownlint-disable-line MD025 -->
+
+<details open markdown="block">
+  <summary>On this page</summary>
+
+- [📋 Prerequisites](#-prerequisites)
+- [📥 Parameters](#-parameters)
+- [🎛️ Resources](#️-resources)
+- [📤 Outputs](#-outputs)
+
+</details>
+
+<br>
 
 This template creates a new **FinOps hub** instance.
 
@@ -12,28 +30,30 @@ FinOps hubs include:
 - Data Factory for data processing and orchestration.
 - Key Vault for storing secrets.
 
-To use this template, you will need to create a Cost Management export that publishes cost data to the `msexports` container in the included storage account. See [Create a new hub](README.md#➕-create-a-new-hub) for details.
+<blockquote class="important">
 
-On this page:
+_To use this template, you will need to create a Cost Management export that publishes cost data to the `msexports` container in the included storage account. See [Create a new hub](README.md#-create-a-new-hub) for details._
 
-- [Prerequisites](#prerequisites)
-- [Parameters](#parameters)
-- [Resources](#resources)
-- [Outputs](#outputs)
+</blockquote>
 
 ---
 
-## Prerequisites
+## 📋 Prerequisites
 
 Please ensure the following prerequisites are met before deploying this template:
 
 1. You must have permission to create the [deployed resources](#resources).
 2. The Microsoft.EventGrid resource provider must be registered in your subscription. See [Register a resource provider](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) for details.
-   > ⚠️ _If you forget this step, the deployment will succeed, but the pipeline trigger will not be started and data will not be ready. See [Troubleshooting Power BI reports](reports/README.md#-troubleshooting-power-bi-reports) for details._
+
+   <blockquote class="important">
+
+   _If you forget this step, the deployment will succeed, but the pipeline trigger will not be started and data will not be ready. See [Troubleshooting Power BI reports](reports/README.md#-troubleshooting-power-bi-reports) for details._
+
+   </blockquote>
 
 <br>
 
-## Parameters
+## 📥 Parameters
 
 | Parameter        | Type   | Description                                                                                                                                                                       | Default value             |
 | ---------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- |
@@ -45,7 +65,7 @@ Please ensure the following prerequisites are met before deploying this template
 
 <br>
 
-## Resources
+## 🎛️ Resources
 
 The following resources are created in the target resource group during deployment.
 
@@ -80,7 +100,7 @@ In addition to the above, the following resources are created to automate the de
 
 <br>
 
-## Outputs
+## 📤 Outputs
 
 | Output                   | Type   | Description                                                                                                                               |
 | ------------------------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------- |

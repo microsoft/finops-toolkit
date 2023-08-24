@@ -29,10 +29,10 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 
 We are very early in our journey. Today, FinOps hubs extend Cost Management by exporting cost details to a consolidated storage account and addressing a few of the inherent limitations that make exports more difficult to use. In their most basic form, FinOps hubs enable more Power BI reporting options. On the more advanced end, FinOps hubs are a foundation for you to build your own cost management and optimization solution.
 
-<blockquote class="green-title">
-   <p>💵 Estimated cost: $25 per $1M in cost</p>
-   <p class="i">Exact cost of the solution may vary. Cost is primarily for data storage and number of times data is ingested. Pipelines will run once a day per export.</p>
-</blockquote>
+> 💵 Estimated cost: $25 per $1M in cost
+>
+> _Exact cost of the solution may vary. Cost is primarily for data storage and number of times data is ingested. Pipelines will run once a day per export._
+> {: .custom-title }
 
 ---
 
@@ -88,11 +88,7 @@ To learn more, see [FinOps hub template details](template.md).
    - **Metric** = `Amortized cost`
    - **Export type** = `Daily export of month-to-date costs`
 
-     <blockquote class="tip">
-
-     _Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range._
-
-     </blockquote>
+     > _Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range._{: .tipcallout }
 
    - **File Partitioning** = On
    - **Storage account** = (Use subscription/resource from step 1)
