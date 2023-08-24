@@ -18,10 +18,8 @@
     - Microsoft.CostManagementExports
 #>
 function Register-FinOpsHubProviders {
-    [CmdletBinding()]
-    param (
-        [Switch]$WhatIf
-    )
+    [CmdletBinding(SupportsShouldProcess)]
+    param ()
 
     # Define the resource providers to register
     $providers = "Microsoft.EventGrid", "Microsoft.CostManagementExports"
