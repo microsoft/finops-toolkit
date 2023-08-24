@@ -7,7 +7,12 @@ description: 'Reliable, trustworthy platform for cost analytics, insights, and o
 permalink: /hubs
 ---
 
-# FinOps hubs<!-- markdownlint-disable-line MD025 -->
+<span class="fs-9 d-block mb-4">FinOps hubs</span>
+Open, extensible, and scalable cost governance for the enterprise.
+{: .fs-6 .fw-300 }
+
+[Get started](#-create-a-new-hub){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
+[Learn more](️#-why-finops-hubs){: .btn .fs-5 .mb-4 .mb-md-0 }
 
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
@@ -18,11 +23,9 @@ permalink: /hubs
 - [➕ Create a new hub](#-create-a-new-hub)
 - [🛫 Get started with hubs](#-get-started-with-hubs)
 
-<br>
-
 </details>
 
-:information_source:
+---
 
 FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, and optimization – virtual command centers for leaders throughout the organization to report on, monitor, and optimize cost based on their organizational needs. FinOps hubs focus on 3 core design principles:
 
@@ -38,13 +41,16 @@ We are very early in our journey. Today, FinOps hubs extend Cost Management by e
   Exact cost of the solution may vary. Cost is primarily for data storage and number of times data is ingested. Pipelines will run once a day per export.
 </blockquote>
 
----
+<br>
 
 ## 🙋‍♀️ Why FinOps hubs?
 
 Many organizations that use Microsoft Cost Management eventually hit a wall where they need some capability that isn't natively available. When they do, their only options are to leverage one of the many third party tools or build something from scratch. While the cost management tooling ecosystem is rich and vast with many great options, they may be overkill or perhaps they don't solve specific needs. In these cases, organizations export cost data and build a custom solution. But this comes with many challenges, as these organizations are not generally staffed with the data engineers needed to design, build, and maintain a scalable data platform. FinOps hubs seeks to provide that foundation to streamline efforts in getting up and running with your own homegrown cost management solution.
 
-FinOps hubs seek to streamline implementing the FinOps Framework, are being designed to scale to meet the largest enterprise needs, and will be open and extensible to support building custom solutions without the hassle of building the backend data store. FinOps hubs are designed for and by the community. Please [join the discussions](https://github.com/microsoft/finops-toolkit/discussions) and let us know what you'd like to see next or learn [how to contribute](https://github.com/microsoft/finops-toolkit/blob/dev/CONTRIBUTING.md) to be a part of the team.
+FinOps hubs will streamline implementing the FinOps Framework, are being designed to scale to meet the largest enterprise needs, and will be open and extensible to support building custom solutions without the hassle of building the backend data store. FinOps hubs are designed for and by the community. Please join the discussion and let us know what you'd like to see next or learn how to contribute and be a part of the team.
+
+[Join the discussion](https://github.com/microsoft/finops-toolkit/discussions){: .btn .fs-5 .mb-4 .mb-md-0 }
+[Join the team](https://github.com/microsoft/finops-toolkit/blob/dev/CONTRIBUTING.md){: .btn .fs-5 .mb-4 .mb-md-0 }
 
 <br>
 
@@ -56,9 +62,11 @@ FinOps hubs seek to streamline implementing the FinOps Framework, are being desi
 - Connect Power BI to Azure Government and Microsoft Online Services Agreement accounts.
 - Report on multiple subscriptions, resource groups, or billing accounts.
 - Preview cost data in the [FinOps Open Cost and Usage Specification (FOCUS)](https://focus.finops.org) schema.
-- Coming soon: Ingest data from subscriptions in multiple tenants into a single storage account.
-- Coming soon: Normalize cost data across account types.
-- Coming soon: Ingest data into Azure Data Explorer.
+- _Coming soon: Ingest data from subscriptions in multiple tenants into a single storage account._
+- _Coming soon: Normalize cost data across account types._
+- _Coming soon: Connect Power BI to Azure China accounts._
+- _Coming soon: Streamlined deployment and management with PowerShell._
+- _Coming soon: Ingest data into Azure Data Explorer._
 
 <br>
 
@@ -70,13 +78,14 @@ The FinOps hub template includes the following resources:
 - Data Factory instance to manage data ingestion and cleanup.
 - Key Vault to store the Data Factory system managed identity credentials.
 
-Once deployed, you can [report on the data in Power BI](./reports/README.md) or by connecting to the storage account directly.
+Once deployed, you can report on the data in Power BI or by connecting to the storage account directly.
 
 <img alt="Screenshot of the cost summary report" style="max-width:200px" src="https://user-images.githubusercontent.com/399533/216882658-45f026f1-c895-48ca-81e2-35765af8e29e.png">
 <img alt="Screenshot of the services cost report" style="max-width:200px" src="https://user-images.githubusercontent.com/399533/216882700-4e04b589-0580-4e49-9b40-9f5948792975.png">
 <img alt="Screenshot of the commitment-based discounts coverage report" style="max-width:200px" src="https://user-images.githubusercontent.com/399533/216882916-bb7ecfa3-d092-4ae2-88e1-7a0425c14dca.png">
 
-To learn more, see [FinOps hub template details](template.md).
+[See the reports](./reports/README.md){: .btn .fs-5 .mb-4 .mb-md-0 }
+[See the template](./template.md){: .btn .fs-5 .mb-4 .mb-md-0 }
 
 <br>
 

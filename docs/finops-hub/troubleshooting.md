@@ -2,14 +2,18 @@
 layout: default
 parent: FinOps hubs
 title: Troubleshooting
-nav_order: 3
+nav_order: 999
 description: 'Details and solutions for common issues you may experience with FinOps hubs.'
-permalink: /hubs/troubleshoting
+permalink: /hubs/troubleshoot
 ---
 
-# Troubleshooting FinOps hubs<!-- markdownlint-disable-line MD025 -->
+<span class="fs-9 d-block mb-4">Troubleshooting FinOps hubs</span>
+Sorry to hear you're having a problem. We're here to help!
+{: .fs-6 .fw-300 }
 
-Sorry to hear you're having a problem. Here are a few common issues and solutions:
+---
+
+Here are a few simple solutions to issues you may have faced:
 
 - [Reports are empty (no data)](#reports-are-empty-no-data)
 - [The Microsoft.EventGrid resource provider is not registered in subscription \<guid\>](#the-microsofteventgrid-resource-provider-is-not-registered-in-subscription-guid)
@@ -49,22 +53,24 @@ Once you know, verify the **FileType** parameter is set to `.parquet` or `.gz` i
 
 If you're using another tool, ensure it supports the file type you're using.
 
-<br>
+---
 
 ## The Microsoft.EventGrid resource provider is not registered in subscription \<guid>
 
 Open the subscription in the Azure portal, then select **Settings** > **Resource providers**, select the **Microsoft.EventGrid** row, then select the **Register** command at the top of the page. Registration may take a few minutes.
 
-<br>
+---
 
 ## Exception of type 'Microsoft.Mashup.Engine.Interface.ResourceAccessForbiddenException' was thrown
 
 Indicates that the account loading data in Power BI does not have the [Storage Blob Data Reader role](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-reader). Grant this role to the account loading data in Power BI.
 
-<br>
+---
 
 ## The remote name could not be resolved: '\<storage-account>.dfs.core.windows.net'
 
 Indicates that the storage account name is incorrect. Verify the **StorageUrl** parameter. See [Setup a FinOps hub report](#setup-a-finops-hub-report) for details.
+
+---
 
 <br>

@@ -8,19 +8,25 @@ permalink: /hubs/template
 quickstartPath: quickstarts/microsoft.costmanagement/finops-hub
 ---
 
-# FinOps hub template<!-- markdownlint-disable-line MD025 -->
+<span class="fs-9 d-block mb-4">FinOps hub template</span>
+Behind the scenes peek at what makes up the FinOps hub template, including inputs and outputs.
+{: .fs-6 .fw-300 }
 
-<details open markdown="block">
+[Get started](./README.md#-create-a-new-hub){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
+[Learn more](️#-why-finops-hubs){: .btn .fs-5 .mb-4 .mb-md-0 }
+
+<details open markdown="1">
   <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [📋 Prerequisites](#-prerequisites)
 - [📥 Parameters](#-parameters)
 - [🎛️ Resources](#️-resources)
 - [📤 Outputs](#-outputs)
-
-<br>
+- [⏭️ Next steps](#️-next-steps)
 
 </details>
+
+---
 
 This template creates a new **FinOps hub** instance.
 
@@ -30,18 +36,22 @@ FinOps hubs include:
 - Data Factory for data processing and orchestration.
 - Key Vault for storing secrets.
 
-<blockquote class="important"><p class="i">To use this template, you will need to create a Cost Management export that publishes cost data to the `msexports` container in the included storage account. See [Create a new hub](README.md#-create-a-new-hub) for details.</p></blockquote>
+<blockquote class="important" markdown="1">
+  _To use this template, you will need to create a Cost Management export that publishes cost data to the `msexports` container in the included storage account. See [Create a new hub](README.md#-create-a-new-hub) for details._
+</blockquote>
 
----
+<br>
 
 ## 📋 Prerequisites
 
 Please ensure the following prerequisites are met before deploying this template:
 
-1. You must have permission to create the [deployed resources](#resources).
+1. You must have permission to create the [deployed resources](#️-resources).
 2. The Microsoft.EventGrid resource provider must be registered in your subscription. See [Register a resource provider](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) for details.
 
-   <blockquote class="important"><p class="i">If you forget this step, the deployment will succeed, but the pipeline trigger will not be started and data will not be ready. See [Troubleshooting Power BI reports](reports/README.md#-troubleshooting-power-bi-reports) for details.</p></blockquote>
+   <blockquote class="important" markdown="1">
+     _If you forget this step, the deployment will succeed, but the pipeline trigger will not be started and data will not be ready. See [Troubleshooting Power BI reports](reports/README.md#-troubleshooting-power-bi-reports) for details._
+   </blockquote>
 
 <br>
 
@@ -102,5 +112,12 @@ In addition to the above, the following resources are created to automate the de
 | **storageAccountId**     | String | The resource ID of the deployed storage account.                                                                                          |
 | **storageAccountName**   | String | Name of the storage account created for the hub instance. This must be used when connecting FinOps toolkit Power BI reports to your data. |
 | **storageUrlForPowerBI** | String | URL to use when connecting custom Power BI reports to your data.                                                                          |
+
+---
+
+## ⏭️ Next steps
+
+[Get started](./README.md#-create-a-new-hub){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
+[Learn more](./README.md️#-why-finops-hubs){: .btn .fs-5 .mb-4 .mb-md-0 }
 
 <br>
