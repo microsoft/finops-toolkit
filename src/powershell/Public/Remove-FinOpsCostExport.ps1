@@ -3,10 +3,10 @@
 
 <#
     .SYNOPSIS
-        Delete a FinOps Cost Export and optionally data associated with the export.
+        Delete a Cost Management Export and optionally data associated with the export.
 
     .PARAMETER Name
-        Name of the FinOps Cost Export.
+        Name of the Cost Management Export.
 
     .PARAMETER Scope
         The scope associated with export operations. This includes '/subscriptions/{subscriptionId}/' for subscription scope,
@@ -27,7 +27,7 @@
     .EXAMPLE
         Remove-FinOpsCostExport -Name MyExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -RemoveData
 
-        Deletes a FinOps Cost export named MyExport scoped to /subscriptions/00000000-0000-0000-0000-000000000000, and deletes all data associated with that scope.
+        Deletes a Cost Management Export named MyExport scoped to /subscriptions/00000000-0000-0000-0000-000000000000, and deletes all data associated with that scope.
 #>
 
 function Remove-FinOpsCostExport {
