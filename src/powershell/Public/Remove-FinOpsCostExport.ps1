@@ -1,3 +1,29 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+<#
+    .SYNOPSIS
+        Delete a FinOps Cost Export and optionally data associated with the export.
+
+    .PARAMETER Name
+        Name of the FinOps Cost Export.
+
+    .PARAMETER Scope
+        The scope associated with export operations. This includes '/subscriptions/{subscriptionId}/' for subscription scope, '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}' for resourceGroup scope, '/providers/Microsoft.Billing/billingAccounts/{billingAccountId}' for Billing Account scope and '/providers/Microsoft.Billing/billingAccounts/{billingAccountId}/departments/{departmentId}' for Department scope, '/providers/Microsoft.Billing/billingAccounts/{billingAccountId}/enrollmentAccounts/{enrollmentAccountId}' for EnrollmentAccount scope, '/providers/Microsoft.Management/managementGroups/{managementGroupId} for Management Group scope, '/providers/Microsoft.Billing/billingAccounts/{billingAccountId}/billingProfiles/{billingProfileId}' for billingProfile scope, '/providers/Microsoft.Billing/billingAccounts/{billingAccountId}/billingProfiles/{billingProfileId}/invoiceSections/{invoiceSectionId}' for invoiceSection scope, and '/providers/Microsoft.Billing/billingAccounts/{billingAccountId}/customers/{customerId}' specific for partners.
+
+    .PARAMETER RemoveData
+        Optional. Indicates that all cost data associated with the Export scope should be deleted.
+        This will delete all data in the storage account associated with the export scope (billing, subscription, management group, resource group).
+
+    .PARAMETER APIVersion
+        Optional. Specify an alternative API version. Default is 2023-04-01-preview.
+
+    .EXAMPLE
+        Remove-FinOpsCostExport -Name MyExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -RemoveData
+
+        Deletes a FinOps Cost export named MyExport scoped to /subscriptions/00000000-0000-0000-0000-000000000000, and deletes all data associated with that scope.
+
+#>
 
 function Remove-FinOpsCostExport {
   [CmdletBinding(SupportsShouldProcess)]
@@ -17,7 +43,7 @@ function Remove-FinOpsCostExport {
 
     [Parameter()]
     [string]
-    $ApiVersion = '2023-04-01-preview'
+    $APIVersion = '2023-04-01-preview'
   )
 
   try {
