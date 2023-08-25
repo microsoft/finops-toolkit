@@ -1,4 +1,25 @@
-# 📦 FinOps toolkit deployment options
+---
+layout: default
+title: Deployment options
+nav_order: 5
+description: 'Azure Monitor workbook focused on cost optimization.'
+permalink: /deploy
+---
+
+<span class="fs-9 d-block mb-4">FinOps toolkit deployment options</span>
+Learn where to find and how to deploy FinOps toolkit solutions.
+{: .fs-6 .fw-300 }
+
+<details open markdown="block">
+   <summary class="fs-2 text-uppercase">On this page</summary>
+
+- [Where can I get FinOps toolkit templates?](#where-can-i-get-finops-toolkit-templates)
+- [Deploy a FinOps toolkit template](#deploy-a-finops-toolkit-template)
+- [Using custom deployment in the Azure portal](#using-custom-deployment-in-the-azure-portal)
+
+</details>
+
+---
 
 The FinOps toolkit includes multiple ARM templates. Prerequisites, parameters, and post-deployment setup steps differ per template. Please refer to the template details for more information:
 
@@ -7,13 +28,7 @@ The FinOps toolkit includes multiple ARM templates. Prerequisites, parameters, a
 
 Note Bicep Registry modules can be referenced directly from your Bicep code and are not deployed using the steps below.
 
-On this page:
-
-- [Where can I get FinOps toolkit templates?](#where-can-i-get-finops-toolkit-templates)
-- [Deploy a FinOps toolkit template](#deploy-a-finops-toolkit-template)
-- [Using custom deployment in the Azure portal](#using-custom-deployment-in-the-azure-portal)
-
----
+<br>
 
 ## Where can I get FinOps toolkit templates?
 
@@ -22,9 +37,9 @@ On this page:
 - Download from [FinOps toolkit releases](https://github.com/microsoft/finops-toolkit/releases).
 - Include in your bicep modules from the [Bicep Registry](https://azure.github.io/bicep-registry-modules/#cost).
 
-<br>
-
-> 💡 _Have an idea? Are we missing anything? [Let us know!](https://github.com/microsoft/finops-toolkit/issues/new/choose)_
+<blockquote class="highlight" markdown="1">
+  💡 _Have an idea? Are we missing anything? [Let us know!](https://github.com/microsoft/finops-toolkit/issues/new/choose)_
+</blockquote>
 
 <br>
 

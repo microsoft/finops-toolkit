@@ -1,15 +1,30 @@
-# 🦾 Bicep Registry modules
+---
+layout: default
+title: Bicep Registry
+nav_order: 4
+description: 'Include bicep modules in your templates.'
+permalink: /bicep
+---
 
-[![Go to issue](https://img.shields.io/github/issues/detail/title/microsoft/cloud-hubs/104?label=roadmap)](https://github.com/microsoft/cloud-hubs/issues/104)
+<span class="fs-9 d-block mb-4">Bicep Registry modules</span>
+Leverage reusable bicep modules in your templates to accelerate your FinOps efforts.
+{: .fs-6 .fw-300 }
 
-Bicep modules developed within the toolkit are published to the [official Bicep Registry](https://azure.github.io/bicep-registry-modules). These modules are not included directly in the toolkit release.
+[See the modules](https://azure.github.io/bicep-registry-modules/#cost){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
 
-Bicep modules:
+<details open markdown="block">
+   <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [Scheduled actions](#scheduled-actions)
 - [Tag inheritance](#tag-inheritance)
 
+</details>
+
 ---
+
+Bicep modules developed within the toolkit are published to the [official Bicep Registry](https://azure.github.io/bicep-registry-modules). These modules are not included directly in the toolkit release.
+
+<br>
 
 ## Scheduled actions
 
