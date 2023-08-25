@@ -135,8 +135,8 @@ function Remove-FinOpsCostExport
         #Hold on to your hats, deleting all the files in the ingestion scope. Using Az PS module as this should be current.
         if ($PSCmdlet.ShouldProcess($scope, 'DeleteCostReports'))
         {
-          Write-Verbose "Resourace Group: $resourceGroupName"
-          Write-Verbose "Storage Account: $storageAccountName"
+          Write-Verbose "Resource group: $resourceGroupName"
+          Write-Verbose "Storage account: $storageAccountName"
           Write-Verbose "Scope: $scope"
 
           $getFiles = Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageAccountName | Get-AzDataLakeGen2ChildItem -FileSystem "ingestion" -Path $scope -Recurse -FetchProperty
