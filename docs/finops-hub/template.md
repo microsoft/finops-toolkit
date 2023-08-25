@@ -11,7 +11,8 @@ permalink: /hubs/template
 Behind the scenes peek at what makes up the FinOps hub template, including inputs and outputs.
 {: .fs-6 .fw-300 }
 
-[Get started](./README.md#-create-a-new-hub){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
+[Deploy](./README.md#-create-a-new-hub){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
+&nbsp;
 [Learn more](️#-why-finops-hubs){: .btn .fs-5 .mb-4 .mb-md-0 }
 
 <details open markdown="1">
