@@ -9,7 +9,7 @@ remote_theme: just-the-docs/just-the-docs
 url: https://microsoft.github.io/finops-toolkit
 
 aux_links:
-  FTK on GitHub: https://github.com/microsoft/finops-toolkit
+  FinOps toolkit on GitHub: https://github.com/microsoft/finops-toolkit
 
 gh_edit_link: true
 gh_edit_link_text: Edit this page on GitHub

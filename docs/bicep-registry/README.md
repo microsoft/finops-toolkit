@@ -28,6 +28,11 @@ Bicep modules developed within the toolkit are published to the [official Bicep 
 
 ## Scheduled actions
 
+Version: **1.0.1**
+{: .label .label-green .fs-2 .mr-4 }
+Scopes: **Resource group, Subscription**
+{: .label .fs-2 .mr-4 }
+
 ![Version 1.0.1](https://img.shields.io/badge/version-1.0.1-darkgreen)
 &nbsp;
 ![Scopes: Resource group, Subscription](https://img.shields.io/badge/scopes-resourceGroup,_subscription-blue)
@@ -41,9 +46,18 @@ Creates a [scheduled action](https://learn.microsoft.com/rest/api/cost-managemen
 
 ## Tag inheritance
 
+Version: **Unreleased**
+{: .label .label-green .fs-2 .mr-4 }
+Scopes: **Subscription**
+{: .label .fs-2 .mr-4 }
+<sup>→</sup>
+{: .mr-4 }
+[Issue: #184](https://github.com/finops-toolkit/issues/184)
+{: .label .label-yellow .fs-2 .mr-4 }
+
 ![Unreleased](https://img.shields.io/badge/version-unreleased-inactive)
 &nbsp;
-![Scopes: Resource group, Subscription](https://img.shields.io/badge/scopes-subscription-blue)
+![Scopes: Subscription](https://img.shields.io/badge/scopes-subscription-blue)
 &nbsp;<sup>→</sup>&nbsp;
 [![Issue details](https://img.shields.io/github/issues/detail/title/microsoft/finops-toolkit/184)](https://github.com/finops-toolkit/issues/184)
 
