@@ -116,7 +116,7 @@ In addition to the above, the following resources are created to automate the de
 
 ## ⏭️ Next steps
 
-[Deploy](./README.md#-create-a-new-hub){: .btn .btn-primary .mt-4 .mb-4 .mb-md-0 .mr-4 }
-[Learn more](./README.md#-why-finops-hubs){: .btn .mt-4 .mb-4 .mb-md-0 .mr-4 }
+[Deploy](./README.md#-create-a-new-hub){: .btn .btn-primary .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Learn more](./README.md#-why-finops-hubs){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>

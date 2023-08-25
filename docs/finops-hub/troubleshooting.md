@@ -23,7 +23,7 @@ Here are a few simple solutions to issues you may have faced:
 Didn't find what you're looking for?
 
 [Start a discussion](https://aka.ms/finops/toolkit/discuss){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 }
-[Create an issue](https://aka.ms/finops/toolkit/ideas){: .btn .mt-4 .mb-4 .mb-md-0 .mr-4 }
+[Create an issue](https://aka.ms/finops/toolkit/ideas){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 ---
 

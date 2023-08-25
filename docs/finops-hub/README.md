@@ -49,8 +49,8 @@ Many organizations that use Microsoft Cost Management eventually hit a wall wher
 
 FinOps hubs will streamline implementing the FinOps Framework, are being designed to scale to meet the largest enterprise needs, and will be open and extensible to support building custom solutions without the hassle of building the backend data store. FinOps hubs are designed for and by the community. Please join the discussion and let us know what you'd like to see next or learn how to contribute and be a part of the team.
 
-[Join the conversation](https://github.com/microsoft/finops-toolkit/discussions){: .btn .mt-4 .mb-4 .mb-md-0 .mr-4 }
-[Learn how to contribute](https://github.com/microsoft/finops-toolkit/blob/dev/CONTRIBUTING.md){: .btn .mt-4 .mb-4 .mb-md-0 .mr-4 }
+[Join the conversation](https://github.com/microsoft/finops-toolkit/discussions){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Learn how to contribute](https://github.com/microsoft/finops-toolkit/blob/dev/CONTRIBUTING.md){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
@@ -84,8 +84,8 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
 <img alt="Screenshot of the services cost report" style="max-width:200px" src="https://user-images.githubusercontent.com/399533/216882700-4e04b589-0580-4e49-9b40-9f5948792975.png">
 <img alt="Screenshot of the commitment-based discounts coverage report" style="max-width:200px" src="https://user-images.githubusercontent.com/399533/216882916-bb7ecfa3-d092-4ae2-88e1-7a0425c14dca.png">
 
-[Browse reports](./reports/README.md){: .btn .mt-4 .mb-4 .mb-md-0 .mr-4 }
-[See the template](./template.md){: .btn .mt-4 .mb-4 .mb-md-0 .mr-4 }
+[Browse reports](./reports/README.md){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[See the template](./template.md){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 

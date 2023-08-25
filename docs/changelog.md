@@ -40,6 +40,6 @@ Added:
 3. Azure Monitor workbooks
    1. [Cost optimization workbook](./optimization-workbook/README.md) to centralize cost optimization.
 
-[Download v0.0.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.0.1){: .btn .mt-4 .mb-4 .mb-md-0 .mr-4 }
+[Download v0.0.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.0.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
