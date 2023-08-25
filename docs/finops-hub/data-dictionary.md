@@ -156,9 +156,7 @@ The **Source** column in the data dictionary indicates where the column was adde
 
 ## ⏭️ Next steps
 
-<br>
-
-[Deploy](./README.md#-create-a-new-hub){: .btn .btn-primary .fs-5 .mt-4 .mb-4 .mb-md-0 .mr-4 }
-[Learn more](./README.md#-why-finops-hubs){: .btn .fs-5 .mt-4 .mb-4 .mb-md-0 .mr-4 }
+[Deploy](./README.md#-create-a-new-hub){: .btn .btn-primary .mt-4 .mb-4 .mb-md-0 .mr-4 }
+[Learn more](./README.md#-why-finops-hubs){: .btn .mt-4 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
