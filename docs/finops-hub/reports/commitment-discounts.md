@@ -12,9 +12,8 @@ permalink: /hubs/reports/commitment-discounts
 Commitment-based discount chargeback, savings, and coverage.
 {: .fs-6 .fw-300 }
 
-[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/CommitmentDiscounts.pbix){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 }
-&nbsp;
-[How to setup](./README.md#-how-to-setup-power-bi){: .btn .fs-5 .mb-4 .mb-md-0 }
+[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/CommitmentDiscounts.pbix){: .btn .btn-primary .fs-5 .mt-4 .mb-4 .mb-md-0 .mr-4 }
+[How to setup](./README.md#-how-to-setup-power-bi){: .btn .fs-5 .mt-4 .mb-4 .mb-md-0 .mr-4 }
 
 <details open markdown="block">
     <summary class="fs-2 text-uppercase">On this page</summary>

@@ -10,7 +10,7 @@ permalink: /optimization-workbook
 Give your engineers a single pane of glass for cost optimization with this handy Azure Monitor workbook.
 {: .fs-6 .fw-300 }
 
-[Try now](<https://portal.azure.com/#blade/AppInsightsExtension/UsageNotebookBlade/ComponentId/Azure%20Advisor/ConfigurationId/community-Workbooks%2FAzure%20Advisor%2FCost%20Optimization/Type/workbook/WorkbookTemplateName/Cost%20Optimization%20(Preview)>){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 }
+[Try now](<https://portal.azure.com/#blade/AppInsightsExtension/UsageNotebookBlade/ComponentId/Azure%20Advisor/ConfigurationId/community-Workbooks%2FAzure%20Advisor%2FCost%20Optimization/Type/workbook/WorkbookTemplateName/Cost%20Optimization%20(Preview)>){: .btn .btn-primary .fs-5 .mt-4 .mb-4 .mb-md-0 .mr-4 }
 
 ---
 

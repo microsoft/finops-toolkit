@@ -11,9 +11,8 @@ permalink: /hubs
 Open, extensible, and scalable cost governance for the enterprise.
 {: .fs-6 .fw-300 }
 
-[Deploy](#-create-a-new-hub){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 }
-&nbsp;
-[Learn more](#️-why-finops-hubs){: .btn .fs-5 .mb-4 .mb-md-0 }
+[Deploy](#-create-a-new-hub){: .btn .btn-primary .fs-5 .mt-4 .mb-4 .mb-md-0 .mr-4 }
+[Learn more](#️-why-finops-hubs){: .btn .fs-5 .mt-4 .mb-4 .mb-md-0 .mr-4 }
 
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
@@ -50,9 +49,8 @@ Many organizations that use Microsoft Cost Management eventually hit a wall wher
 
 FinOps hubs will streamline implementing the FinOps Framework, are being designed to scale to meet the largest enterprise needs, and will be open and extensible to support building custom solutions without the hassle of building the backend data store. FinOps hubs are designed for and by the community. Please join the discussion and let us know what you'd like to see next or learn how to contribute and be a part of the team.
 
-[Join the conversation](https://github.com/microsoft/finops-toolkit/discussions){: .btn .fs-5 .mb-4 .mb-md-0 }
-&nbsp;
-[Learn how to contribute](https://github.com/microsoft/finops-toolkit/blob/dev/CONTRIBUTING.md){: .btn .fs-5 .mb-4 .mb-md-0 }
+[Join the conversation](https://github.com/microsoft/finops-toolkit/discussions){: .btn .fs-5 .mt-4 .mb-4 .mb-md-0 .mr-4 }
+[Learn how to contribute](https://github.com/microsoft/finops-toolkit/blob/dev/CONTRIBUTING.md){: .btn .fs-5 .mt-4 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
@@ -88,9 +86,8 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
 
 <br>
 
-[Browse reports](./reports/README.md){: .btn .fs-5 .mb-4 .mb-md-0 }
-&nbsp;
-[See the template](./template.md){: .btn .fs-5 .mb-4 .mb-md-0 }
+[Browse reports](./reports/README.md){: .btn .fs-5 .mt-4 .mb-4 .mb-md-0 .mr-4 }
+[See the template](./template.md){: .btn .fs-5 .mt-4 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 

@@ -10,7 +10,7 @@ permalink: /changelog
 Explore the latest and greatest features and enhancements from the FinOps toolkit.
 {: .fs-6 .fw-300 }
 
-[Download the latest release](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 }
+[Download the latest release](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .btn-primary .fs-5 .mt-4 .mb-4 .mb-md-0 .mr-4 }
 
 <details open markdown="block">
    <summary class="fs-2 text-uppercase">On this page</summary>
@@ -40,6 +40,6 @@ Added:
 3. Azure Monitor workbooks
    1. [Cost optimization workbook](./optimization-workbook/README.md) to centralize cost optimization.
 
-[Download v0.0.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.0.1){: .btn .fs-5 .mb-4 .mb-md-0 }
+[Download v0.0.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.0.1){: .btn .fs-5 .mt-4 .mb-4 .mb-md-0 .mr-4 }
 
 <br>

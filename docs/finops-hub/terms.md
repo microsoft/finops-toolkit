@@ -103,8 +103,7 @@ See also:
 
 <br>
 
-[Deploy](./README.md#-create-a-new-hub){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 }
-&nbsp;
-[Learn more](./README.md#-why-finops-hubs){: .btn .fs-5 .mb-4 .mb-md-0 }
+[Deploy](./README.md#-create-a-new-hub){: .btn .btn-primary .fs-5 .mt-4 .mb-4 .mb-md-0 .mr-4 }
+[Learn more](./README.md#-why-finops-hubs){: .btn .fs-5 .mt-4 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
