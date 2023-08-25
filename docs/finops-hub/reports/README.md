@@ -16,7 +16,7 @@ Leverage pre-built Power BI reports to summarize and break down costs. Customize
 [How to setup](#-how-to-setup-power-bi){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <details open markdown="1">
-    <summary class="fs-2 text-uppercase">On this page</summary>
+   <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [✨ How to setup Power BI](#-how-to-setup-power-bi)
 - [🗃️ Queries and datasets](#️-queries-and-datasets)

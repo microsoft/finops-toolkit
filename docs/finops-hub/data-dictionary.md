@@ -12,7 +12,7 @@ Familiarize yourself with the columns used in FinOps hubs.
 {: .fs-6 .fw-300 }
 
 <details open markdown="1">
-    <summary class="fs-2 text-uppercase">On this page</summary>
+   <summary class="fs-2 text-uppercase">On this page</summary>
 
 [A](#a)
 &nbsp; [B](#b)
