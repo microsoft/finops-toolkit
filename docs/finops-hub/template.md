@@ -5,7 +5,6 @@ title: Template
 nav_order: 2
 description: 'Details about what's included in the FinOps hub template.'
 permalink: /hubs/template
-quickstartPath: quickstarts/microsoft.costmanagement/finops-hub
 ---
 
 <span class="fs-9 d-block mb-4">FinOps hub template</span>
