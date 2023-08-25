@@ -9,8 +9,7 @@ remote_theme: just-the-docs/just-the-docs
 url: https://microsoft.github.io/finops-toolkit
 
 aux_links:
-  ☀︎: '#light'
-  ☽: '#dark'
+  Theme: 'javascript:jtd.setTheme("dark")'
   FinOps toolkit on GitHub: https://github.com/microsoft/finops-toolkit
 
 gh_edit_link: true
