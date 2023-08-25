@@ -33,10 +33,6 @@ Bicep modules developed within the toolkit are published to the [official Bicep 
 <small>Scopes: **Resource group, Subscription**</small>
 {: .label .pt-0 .pl-3 .pr-3 }
 
-![Version 1.0.1](https://img.shields.io/badge/version-1.0.1-darkgreen)
-&nbsp;
-![Scopes: Resource group, Subscription](https://img.shields.io/badge/scopes-resourceGroup,_subscription-blue)
-
 Creates a [scheduled action](https://learn.microsoft.com/rest/api/cost-management/scheduled-actions) to notify recipients about the latest costs or when an anomaly is detected.
 
 - [About scheduled actions for resource groups](https://github.com/Azure/bicep-registry-modules/tree/main/modules/cost/resourcegroup-scheduled-action/README.md)
