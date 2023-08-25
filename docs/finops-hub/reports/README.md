@@ -2,9 +2,10 @@
 layout: default
 parent: FinOps hubs
 title: Reports
+has_children: true
 nav_order: 1
 description: 'Pre-built Power BI reports to summarize and break down costs in FinOps hubs.'
-permalink: /hubs/terms
+permalink: /hubs/reports
 ---
 
 <span class="fs-9 d-block mb-4">Power BI reports for FinOps hubs</span>

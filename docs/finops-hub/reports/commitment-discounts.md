@@ -1,4 +1,31 @@
-# 📊 Commitment discounts report
+---
+layout: default
+parent: Reports
+title: Commitment discounts
+nav_order: 2
+description: 'Pre-built Power BI report to summarize commitment-based discount cost, savings, and coverage.'
+permalink: /hubs/reports/commitment-discounts
+---
+
+<span class="fs-9 d-block mb-4">Commitment discounts report</span>
+Commitment-based discount chargeback, savings, and coverage.
+{: .fs-6 .fw-300 }
+
+[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/CommitmentDiscounts.pbix){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 }
+
+<details open markdown="block">
+    <summary class="fs-2 text-uppercase">On this page</summary>
+
+- [Common page layout](#common-page-layout)
+- [Get started](#get-started)
+- [Hybrid Benefit](#hybrid-benefit)
+- [Commitments](#commitments)
+- [Coverage](#coverage)
+- [See also](#see-also)
+
+</details>
+
+---
 
 The **Commitment discounts report** summarizes existing and potential savings from commitment-based discounts, like reservations and savings plans. This report enables you to:
 
@@ -10,18 +37,11 @@ The **Commitment discounts report** summarizes existing and potential savings fr
 
 You can download the Commitment discount report from the [latest release](https://github.com/microsoft/finops-toolkit/releases).
 
-> 🚩 **Important**<br>FinOps hubs uses [amortized costs](https://learn.microsoft.com/azure/cost-management-billing/reservations/reservation-amortization). Amortization breaks reservation and savings plan purchases down and allocates costs to the resources that received the benefit. Due to this, amortized costs will not show purchase costs and will not match your invoice. Please use [Cost Management](https://aka.ms/costmgmt) to review invoice charges.
+<blockquote class="important" markdown="1">
+  _FinOps hubs uses [amortized costs](https://learn.microsoft.com/azure/cost-management-billing/reservations/reservation-amortization). Amortization breaks reservation and savings plan purchases down and allocates costs to the resources that received the benefit. Due to this, amortized costs will not show purchase costs and will not match your invoice. Please use [Cost Management](https://aka.ms/costmgmt) to review invoice charges.
+</blockquote>
 
-On this page:
-
-- [Common page layout](#common-page-layout)
-- [Get started](#get-started)
-- [Hybrid Benefit](#hybrid-benefit)
-- [Commitments](#commitments)
-- [Coverage](#coverage)
-- [See also](#see-also)
-
----
+<br>
 
 ## Common page layout
 
