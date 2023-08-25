@@ -1,8 +1,9 @@
 ---
 layout: default
+parent: FinOps hubs
 title: Template
 nav_order: 2
-description: 'Details about what's included in the FinOps hub template.'
+description: "Details about what's included in the FinOps hub template."
 permalink: /hubs/template
 ---
 
