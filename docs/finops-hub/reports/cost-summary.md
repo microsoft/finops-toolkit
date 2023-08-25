@@ -4,7 +4,7 @@ grand_parent: FinOps hubs
 parent: Reports
 title: Cost summary
 nav_order: 1
-description: 'Pre-built Power BI report to summarize and break down costs.'
+description: 'Identify top contributors, review changes over time, build a chargeback report, and summarize savings in Power BI.'
 permalink: /hubs/reports/cost-summary
 ---
 
@@ -15,7 +15,7 @@ Common breakdowns of your cost to identify top contributors, review changes over
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostSummary.pbix){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
 [How to setup](./README.md#-how-to-setup-power-bi){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
-<details open markdown="block">
+<details open markdown="1">
     <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [Common page layout](#common-page-layout)

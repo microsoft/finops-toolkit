@@ -3,7 +3,7 @@ layout: default
 parent: FinOps hubs
 title: Columns
 nav_order: 5
-description: 'Cost details columns you'll find in FinOps hubs.'
+description: "Cost details columns you'll find in FinOps hubs."
 permalink: /hubs/columns
 ---
 
@@ -11,7 +11,7 @@ permalink: /hubs/columns
 Familiarize yourself with the columns used in FinOps hubs.
 {: .fs-6 .fw-300 }
 
-<details open markdown="block">
+<details open markdown="1">
     <summary class="fs-2 text-uppercase">On this page</summary>
 
 [A](#a)

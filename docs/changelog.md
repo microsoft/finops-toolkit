@@ -12,7 +12,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
 
 [Download the latest release](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
-<details open markdown="block">
+<details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [v0.0.1](#v001)

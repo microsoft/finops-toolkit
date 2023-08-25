@@ -11,7 +11,7 @@ permalink: /hubs/terms
 Familiarize yourself with the terminology used in FinOps hubs.
 {: .fs-6 .fw-300 }
 
-<details open markdown="block">
+<details open markdown="1">
     <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [A](#a)

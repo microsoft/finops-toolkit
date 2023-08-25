@@ -15,7 +15,7 @@ Leverage pre-built Power BI reports to summarize and break down costs. Customize
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
 [How to setup](#-how-to-setup-power-bi){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
-<details open markdown="block">
+<details open markdown="1">
     <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [✨ How to setup Power BI](#-how-to-setup-power-bi)

@@ -10,7 +10,7 @@ permalink: /deploy
 Learn where to find and how to deploy FinOps toolkit solutions.
 {: .fs-6 .fw-300 }
 
-<details open markdown="block">
+<details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [Where can I get FinOps toolkit templates?](#where-can-i-get-finops-toolkit-templates)

@@ -10,9 +10,9 @@ permalink: /bicep
 Leverage reusable bicep modules in your templates to accelerate your FinOps efforts.
 {: .fs-6 .fw-300 }
 
-[See the modules](https://azure.github.io/bicep-registry-modules/#cost){: .btn .btn-primary .fs-5 .mt-4 .mb-4 .mb-md-0 .mr-4 }
+[See the modules](https://azure.github.io/bicep-registry-modules/#cost){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
-<details open markdown="block">
+<details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [Scheduled actions](#scheduled-actions)
