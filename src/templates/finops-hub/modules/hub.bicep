@@ -62,7 +62,6 @@ var finOpsToolkitVersion = '0.0.1'
 
 resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefaultTelemetry) {
   name: 'pid-${telemetryId}-${uniqueString(deployment().name, location)}'
-  tags: resourceTags
   properties: {
     mode: 'Incremental'
     template: {
