@@ -26,6 +26,9 @@ param convertToParquet bool = true
 @description('Optional. The location to use for the managed identity and deployment script to auto-start triggers. Default = (resource group location).')
 param location string = resourceGroup().location
 
+@description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
+param tags object = {}
+
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
@@ -82,6 +85,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
 resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: '${dataFactoryName}_triggerManager'
   location: location
+  tags: tags
 }
 
 // Assign access to the identity
@@ -109,6 +113,7 @@ resource stopHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   dependsOn: [
     identityRoleAssignments
   ]
+  tags: tags
   properties: {
     azPowerShellVersion: '8.0'
     retentionInterval: 'PT1H'
@@ -673,6 +678,7 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
 resource startHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: '${dataFactoryName}_startHubTriggers'
   location: location
+  tags: tags
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
