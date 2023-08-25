@@ -29,9 +29,9 @@ Bicep modules developed within the toolkit are published to the [official Bicep 
 ## Scheduled actions
 
 <small>Version: **1.0.1**</small>
-{: .label .label-green .pt-0 .pl-3 .pr-3 }
+{: .label .label-green .pt-0 .pl-3 .pr-3 .m-0 }
 <small>Scopes: **Resource group, Subscription**</small>
-{: .label .pt-0 .pl-3 .pr-3 }
+{: .label .pt-0 .pl-3 .pr-3 .m-0 }
 
 Creates a [scheduled action](https://learn.microsoft.com/rest/api/cost-management/scheduled-actions) to notify recipients about the latest costs or when an anomaly is detected.
 
@@ -43,12 +43,12 @@ Creates a [scheduled action](https://learn.microsoft.com/rest/api/cost-managemen
 ## Exports
 
 <small>Version: **Unreleased**</small>
-{: .label .label-yellow .pt-0 .pl-3 .pr-3 }
+{: .label .label-yellow .pt-0 .pl-3 .pr-3 .m-0 }
 <small>Scopes: **Resource group, Subscription**</small>
-{: .label .pt-0 .pl-3 .pr-3 }
+{: .label .pt-0 .pl-3 .pr-3 .m-0 }
 <small>[Issue: **#221**](https://github.com/microsoft/finops-toolkit/issues/221)</small>
-{: .label .label-yellow .pt-0 .pl-3 .pr-3 }
+{: .label .label-yellow .pt-0 .pl-3 .pr-3 .m-0 }
 
-Creates an export to push cost data to a storage account on a daily or monthly schedule.
+Creates an [export](https://learn.microsoft.com/rest/api/cost-management/exports) to push cost data to a storage account on a daily or monthly schedule.
 
 <br>
