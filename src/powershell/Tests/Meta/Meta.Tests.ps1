@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 BeforeDiscovery {
     $rootPath = ((Get-Item -Path $PSScriptRoot).Parent.Parent).FullName
     $filesToInclude = 'FinOpsToolkit.psm1'
