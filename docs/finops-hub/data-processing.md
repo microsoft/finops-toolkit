@@ -36,6 +36,6 @@ sequenceDiagram
 
 [Deploy](./README.md#-create-a-new-hub){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 }
 &nbsp;
-[Learn more](./README.md️#-why-finops-hubs){: .btn .fs-5 .mb-4 .mb-md-0 }
+[Learn more](./README.md#-why-finops-hubs){: .btn .fs-5 .mb-4 .mb-md-0 }
 
 <br>
