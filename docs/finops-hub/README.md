@@ -11,7 +11,7 @@ permalink: /hubs
 Open, extensible, and scalable cost governance for the enterprise.
 {: .fs-6 .fw-300 }
 
-[Get started](#-create-a-new-hub){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 }
+[Deploy](#-create-a-new-hub){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 }
 &nbsp;
 [Learn more](#️-why-finops-hubs){: .btn .fs-5 .mb-4 .mb-md-0 }
 

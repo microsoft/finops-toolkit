@@ -24,7 +24,7 @@ Familiarize yourself with the terminology used in FinOps hubs.
 
 See also:
 
-- [FinOps hubs data dictionary](./data-dictionary.md)
+- [FinOps hubs columns](./data-dictionary.md)
 - [Cost Management data dictionary](https://learn.microsoft.com/azure/cost-management-billing/automate/understand-usage-details-fields)
 
 </details>
@@ -79,13 +79,13 @@ See also:
 
 #### MOSA or Microsoft Online Services Agreement
 
-"Microsoft Online Services Agreement" is an agreement between Microsoft and an individual or organization for how they can purchase, use and pay for Azure.
+"Microsoft Online Services Agreement" is an agreement between Microsoft and an individual or organization for how they can purchase, use and pay for Azure. MOSA subscriptions are typically obtained directly from the Azure website.
 
 <br>
 
 #### MPA or Microsoft Partner Agreement
 
-"Microsoft Partner Agreement" is an agreement between Microsoft and an organization that resells Microsoft Cloud services, like Azure, Microsoft 365, Dynamics 365, Power Platform, etc. Partners can also work with intermediary resellers. The individual or organization that resellers work with sign a Microsoft Customer Agreement (MCA).
+"Microsoft Partner Agreement" is an agreement between Microsoft and a Cloud Solution Provider (CSP) partner organization that resells Microsoft Cloud services, like Azure, Microsoft 365, Dynamics 365, Power Platform, etc. Partners can also work with intermediary resellers. The individual or organization that resellers work with sign a Microsoft Customer Agreement (MCA).
 
 <br>
 
@@ -101,5 +101,10 @@ See also:
 
 ## ⏭️ Next steps
 
-[Get started](./README.md#-create-a-new-hub){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
+<br>
+
+[Deploy](./README.md#-create-a-new-hub){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 }
+&nbsp;
 [Learn more](./README.md️#-why-finops-hubs){: .btn .fs-5 .mb-4 .mb-md-0 }
+
+<br>

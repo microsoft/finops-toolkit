@@ -1,13 +1,13 @@
 ---
 layout: default
 parent: FinOps hubs
-title: Data dictionary
-nav_order: 3
+title: Columns
+nav_order: 5
 description: 'Cost details columns you'll find in FinOps hubs.'
 permalink: /hubs/columns
 ---
 
-<span class="fs-9 d-block mb-4">Data dictionary</span>
+<span class="fs-9 d-block mb-4">FinOps hubs columns</span>
 Familiarize yourself with the columns used in FinOps hubs.
 {: .fs-6 .fw-300 }
 
@@ -156,7 +156,10 @@ The **Source** column in the data dictionary indicates where the column was adde
 
 ## ⏭️ Next steps
 
-[Get started](./README.md#-create-a-new-hub){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
+<br>
+
+[Deploy](./README.md#-create-a-new-hub){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 }
+&nbsp;
 [Learn more](./README.md️#-why-finops-hubs){: .btn .fs-5 .mb-4 .mb-md-0 }
 
 <br>

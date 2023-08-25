@@ -32,7 +32,7 @@ Note Bicep Registry modules can be referenced directly from your Bicep code and 
 
 ## Where can I get FinOps toolkit templates?
 
-- Deploy from [Microsoft Learn code samples](https://learn.microsoft.com/en-us/samples/browse/?terms=finops).
+- Deploy from [Microsoft Learn code samples](https://learn.microsoft.com/samples/browse/?terms=finops).
 - Deploy from [Azure Quickstart Templates](https://github.com/Azure/azure-quickstart-templates/tree/master/quickstarts/microsoft.costmanagement).
 - Download from [FinOps toolkit releases](https://github.com/microsoft/finops-toolkit/releases).
 - Include in your bicep modules from the [Bicep Registry](https://azure.github.io/bicep-registry-modules/#cost).
