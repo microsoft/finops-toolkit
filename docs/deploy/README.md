@@ -2,20 +2,20 @@
 layout: default
 title: Deployment options
 nav_order: 5
-description: 'Azure Monitor workbook focused on cost optimization.'
+description: 'Deploy FinOps toolkit solutions.'
 permalink: /deploy
 ---
 
 <span class="fs-9 d-block mb-4">FinOps toolkit deployment options</span>
-Learn where to find and how to deploy FinOps toolkit solutions.
+Explore the different options to deploy FinOps toolkit solutions. Deploy from the portal, make small tweaks, or download for a fully customized deployment.
 {: .fs-6 .fw-300 }
 
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Where can I get FinOps toolkit templates?](#where-can-i-get-finops-toolkit-templates)
-- [Deploy a FinOps toolkit template](#deploy-a-finops-toolkit-template)
-- [Using custom deployment in the Azure portal](#using-custom-deployment-in-the-azure-portal)
+- [🗺️ Where to find FinOps toolkit templates](#️-where-to-find-finops-toolkit-templates)
+- [🚀 Deploy a FinOps toolkit template](#-deploy-a-finops-toolkit-template)
+- [🎛️ Using custom deployment in the Azure portal](#️-using-custom-deployment-in-the-azure-portal)
 
 </details>
 
@@ -30,7 +30,7 @@ Note Bicep Registry modules can be referenced directly from your Bicep code and 
 
 <br>
 
-## Where can I get FinOps toolkit templates?
+## 🗺️ Where to find FinOps toolkit templates
 
 - Deploy from [Microsoft Learn code samples](https://learn.microsoft.com/samples/browse/?terms=finops).
 - Deploy from [Azure Quickstart Templates](https://github.com/Azure/azure-quickstart-templates/tree/master/quickstarts/microsoft.costmanagement).
@@ -43,14 +43,16 @@ Note Bicep Registry modules can be referenced directly from your Bicep code and 
 
 <br>
 
-## Deploy a FinOps toolkit template
+## 🚀 Deploy a FinOps toolkit template
 
 1. Open the desired template:
    - [FinOps hub](https://learn.microsoft.com/samples/azure/azure-quickstart-templates/finops-hub)
    - [Optimization workbook](https://learn.microsoft.com/samples/azure/azure-quickstart-templates/optimization-workbook)
 2. Select the **Deploy to Azure** button towards the top of the page.
 3. Specify the desired values for each parameter. See the template details for more information.
-   > _Use the **Edit parameters** link to use a saved parameters file or to download a new parameters file for future use._
+   <blockquote class="tip" markdown="1">
+     _Use the **Edit parameters** link to use a saved parameters file or to download a new parameters file for future use._
+   </blockquote>
 4. Select the **Review + create** button.
 5. Select the **Create** button.
 
@@ -58,7 +60,7 @@ Note Bicep Registry modules can be referenced directly from your Bicep code and 
 
 <br>
 
-## Using custom deployment in the Azure portal
+## 🎛️ Using custom deployment in the Azure portal
 
 ![Screenshot of the custom deployment form](https://github.com/microsoft/finops-toolkit/assets/399533/cab162d6-cbb1-43e4-87ff-2e659285a428)
 

@@ -16,7 +16,7 @@ Leverage reusable bicep modules in your templates to accelerate your FinOps effo
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [Scheduled actions](#scheduled-actions)
-- [Tag inheritance](#tag-inheritance)
+- [Exports](#exports)
 
 </details>
 
@@ -28,10 +28,10 @@ Bicep modules developed within the toolkit are published to the [official Bicep 
 
 ## Scheduled actions
 
-Version: **1.0.1**
-{: .label .label-green .fs-2 .mr-4 }
-Scopes: **Resource group, Subscription**
-{: .label .fs-2 .mr-4 }
+<small>Version: **1.0.1**</small>
+{: .label .label-green .pt-0 .pl-3 .pr-3 }
+<small>Scopes: **Resource group, Subscription**</small>
+{: .label .pt-0 .pl-3 .pr-3 }
 
 ![Version 1.0.1](https://img.shields.io/badge/version-1.0.1-darkgreen)
 &nbsp;
@@ -44,27 +44,15 @@ Creates a [scheduled action](https://learn.microsoft.com/rest/api/cost-managemen
 
 <br>
 
-## Tag inheritance
+## Exports
 
-Version: **Unreleased**
-{: .label .label-green .fs-2 .mr-4 }
-Scopes: **Subscription**
-{: .label .fs-2 .mr-4 }
-<sup>→</sup>
-{: .mr-4 }
-[Issue: #184](https://github.com/finops-toolkit/issues/184)
-{: .label .label-yellow .fs-2 .mr-4 }
+<small>Version: **Unreleased**</small>
+{: .label .label-yellow .pt-0 .pl-3 .pr-3 }
+<small>Scopes: **Resource group, Subscription**</small>
+{: .label .pt-0 .pl-3 .pr-3 }
+<small>[Issue: **#221**](https://github.com/microsoft/finops-toolkit/issues/221)</small>
+{: .label .label-yellow .pt-0 .pl-3 .pr-3 }
 
-![Unreleased](https://img.shields.io/badge/version-unreleased-inactive)
-&nbsp;
-![Scopes: Subscription](https://img.shields.io/badge/scopes-subscription-blue)
-&nbsp;<sup>→</sup>&nbsp;
-[![Issue details](https://img.shields.io/github/issues/detail/title/microsoft/finops-toolkit/184)](https://github.com/finops-toolkit/issues/184)
-
-<!--
-[![Go to PR](https://img.shields.io/github/pulls/detail/state/Azure/bicep-registry-modules/300?label=resourceGroup%20PR)](https://github.com/bicep-registry-modules/pulls/300)
--->
-
-Enables tag inheritance within Cost Management. This module is pending review and inclusion in the next Bicep Registry release.
+Creates an export to push cost data to a storage account on a daily or monthly schedule.
 
 <br>

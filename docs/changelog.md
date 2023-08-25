@@ -15,19 +15,19 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [v0.0.1](#v001)
+- [🚀 v0.0.1](#-v001)
 
 </details>
 
 ---
 
 <!--
-## Unreleased
+## 🔄️ Unreleased
 
 <br>
 -->
 
-## v0.0.1
+## 🚀 v0.0.1
 
 Added:
 
@@ -36,7 +36,7 @@ Added:
    2. [Cost summary report](./finops-hub/reports/cost-summary.md) for various out-of-the-box cost breakdowns.
    3. [Commitment discounts report](./finops-hub/reports/commitment-discounts.md) for commitment-based discount reports.
 2. Bicep modules
-   1. [Scheduled action modules](./bicep-registry/README.md#scheduled-actions) submitted to the Bicep Registry (pending release).
+   1. [Scheduled action modules](./bicep-registry/README.md#scheduled-actions) submitted to the Bicep Registry.
 3. Azure Monitor workbooks
    1. [Cost optimization workbook](./optimization-workbook/README.md) to centralize cost optimization.
 
