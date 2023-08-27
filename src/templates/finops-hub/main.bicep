@@ -71,6 +71,9 @@ output location string = location
 @description('Name of the Data Factory.')
 output dataFactorytName string = hub.outputs.dataFactorytName
 
+@description('Object ID of the managed identity created for the Data Factory. This will be needed when configuring managed exports.')
+output dataFactoryManagedIdentityId string = hub.outputs.dataFactoryManagedIdentityId
+
 @description('The resource ID of the deployed storage account.')
 output storageAccountId string = hub.outputs.storageAccountId
 
@@ -79,3 +82,6 @@ output storageAccountName string = hub.outputs.storageAccountName
 
 @description('URL to use when connecting custom Power BI reports to your data.')
 output storageUrlForPowerBI string = hub.outputs.storageUrlForPowerBI
+
+@description('Azure AD tenant ID. This will be needed when configuring managed exports.')
+output tenantId string = hub.outputs.tenantId
