@@ -58,7 +58,7 @@ If an issue is assigned, please contact the assignee before starting to work on 
 - Install Azure PowerShell and Bicep
 
   ```powershell
-  Set-Location "<cloud-hubs-root>/src/scripts"
+  Set-Location "<finops-toolkit-root>/src/scripts"
   ./Init-Repo
   ```
 
@@ -78,8 +78,8 @@ git config --global user.email "youremail@yourdomain.com"
 Fork the repository from the web and then clone your fork locally:
 
 ```console
-git clone https://github.com/<your-github-account>/cloud-hubs.git
-cd cloud-hubs
+git clone https://github.com/<your-github-account>/finops-toolkit.git
+cd finops-toolkit
 ```
 
 <br>
@@ -104,7 +104,7 @@ git branch --set-upstream-to=origin/dev
 If creating a new feature, create a new feature branch:
 
 ```powershell
-Set-Location "<cloud-hubs-root>/src/scripts"
+Set-Location "<finops-toolkit-root>/src/scripts"
 ./New-FeatureBranch "<feature-name>"
 ```
 
@@ -122,14 +122,14 @@ Connect-AzAccount [-Tenant <tenant-id>]
 Set-AzContext -Subscription "<subscription-id>"
 
 # Switch to the src/scripts directory
-Set-Location "<cloud-hubs-root>/src/scripts"
+Set-Location "<finops-toolkit-root>/src/scripts"
 
 # Deploy the desired template. Optional parameters:
 #   -ResourceGroup <name>       # Default: ftk-<alias>-<machine>
 #   -Location <azure-location>  # Default: westus
 #   -Template <template-name    # Default: finops-hubs
 #   -WhatIf                     # Use to validate template
-./Deploy-Toolkit "<template-or-module-name>"
+./Deploy-Toolkit "<template-or-module-name>" -Build
 ```
 
 <br>
@@ -140,7 +140,7 @@ Every PR is expected to include some sort of verification:
 
 - 💪 **Unit tests** are preferred.
 - 👍 **Manual verification** is acceptable but should ideally be in addition to unit tests.
-- 🫰 **PS -WhatIf / az validate** should always happen but should not be the only means with which you verify your change.
+- 🤞 **PS -WhatIf / az validate** should always happen but should not be the only means with which you verify your change.
 
 <br>
 
@@ -154,7 +154,7 @@ Please do the following before submitting a pull request:
 
    ```console
    git checkout <branch-name>
-   git pull https://github.com/microsoft/cloud-hubs.git <branch-name>
+   git pull https://github.com/microsoft/finops-toolkit.git <branch-name>
    ```
 
    Resolve any merge conflicts, commit them, and then push them to your fork.

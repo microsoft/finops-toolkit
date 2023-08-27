@@ -8,16 +8,21 @@
 -->
 
 ## 🛠️ Description
+
 <!-- TODO: Summarize the changes with context and motivation -->
 
 Fixes #(issue)
+
 <!-- TODO: Add a list of the issues this change addresses (e.g., Fixes #1, #2, #3) -->
 
 ## 📷 Screenshots
+
 <!-- TODO: Add screenshots of the new experience or remove section if not applicable -->
 
 ## 🔬 How has this been tested?
+
 <!-- TODO: Check [x] all that apply. Leave the rest. -->
-- [ ] 🫰 PS -WhatIf / az validate
+
+- [ ] 🤞 PS -WhatIf / az validate
 - [ ] 👍 Manually deployed + verified
 - [ ] 💪 Unit tests
