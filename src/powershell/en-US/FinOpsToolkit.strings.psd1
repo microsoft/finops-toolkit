@@ -12,5 +12,5 @@ ConvertFrom-StringData -StringData @'
     ContextNotFound = Could not retrieve Az context. Run Az-Login.
     DeleteCostExportFailed = Delete Cost Management export operation failed with message: '{0}'.
     GetCostExportNotFound = Cost Management export not found. Operation failed with message: '{0}'.
-    DeleteCostExportFilesFailed = Delete export files operation failed with message: '{0}'.
+    DeleteCostExportFilesFailed = Delete export files operation failed.
 '@

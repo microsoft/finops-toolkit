@@ -83,6 +83,7 @@ function Remove-FinOpsCostExport
         $storageAccountId = $exportDetails.properties.deliveryInfo.destination.resourceId
         $resourceGroupName = $storageAccountID.Split('/')[4]
         $storageAccountName = $storageAccountID.Split('/')[8]
+        $path = $scope + "/" + $Name
 
         # Hold on to your hats, deleting all the files in the ingestion scope. Using Az PS module as this should be current.
         if ($PSCmdlet.ShouldProcess($scope, 'DeleteCostReports'))
@@ -90,21 +91,14 @@ function Remove-FinOpsCostExport
           Write-Verbose "Resource group: $resourceGroupName"
           Write-Verbose "Storage account: $storageAccountName"
           Write-Verbose "Scope: $scope"
+          Write-Verbose "Path: $path"
 
-          try
+          $getSta = Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageAccountName
+          # $getFiles = $getSta | Get-AzDataLakeGen2ChildItem -FileSystem "msexports" -Path $path -Recurse -FetchProperty
+          # if (($getFiles.Count -gt 0) -and $getSta.EnableHierarchicalNamespace)
+          if ($getSta.EnableHierarchicalNamespace)
           {
-            $path = $scope + "/" + $Name
-            Write-Verbose "Path: $path"
-
-            $getFiles = Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageAccountName | Get-AzDataLakeGen2ChildItem -FileSystem "msexports" -Path $path -Recurse -FetchProperty
-            if ($getFiles.Count -gt 0)
-            {
-              $getFiles | Remove-AzDataLakeGen2Item -Force
-            }
-          }
-          catch
-          {
-            throw ($script:localizedData.DeleteCostExportFilesFailed -f $($httpResponse.Content))
+            Remove-AzDataLakeGen2Item -FileSystem "msexports" -Path $path -Force
           }
         }
       }
