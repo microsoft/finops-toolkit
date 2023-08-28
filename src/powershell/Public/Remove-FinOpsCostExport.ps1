@@ -68,7 +68,10 @@ function Remove-FinOpsCostExport
 
     $httpResponse = Invoke-AzRestMethod @invokeAzRestMethodParams -Method "GET"
 
-    if ($httpResponse.StatusCode -eq 404) { break }
+    if ($httpResponse.StatusCode -eq 404) {
+      Write-Verbose -Message "Cost Management export not found."
+      break
+    }
     elseif ($httpResponse.StatusCode -ne 200)
     {
       throw ($script:localizedData.GetCostExportNotFound -f $($httpResponse.Content))
@@ -92,7 +95,7 @@ function Remove-FinOpsCostExport
           Write-Verbose "Scope: $scope"
 
           $getSta = Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageAccountName
-          if ($getSta.EnableHierarchicalNamespace)
+          if ($getSta -and $getSta.EnableHierarchicalNamespace)
           {
             $getSta | Remove-AzDataLakeGen2Item -FileSystem "msexports" -Path $path -Force
           }
@@ -104,7 +107,10 @@ function Remove-FinOpsCostExport
     {
       $httpResponse = Invoke-AzRestMethod @invokeAzRestMethodParams -Method "DELETE"
 
-      if ($httpResponse.StatusCode -eq 404) { break }
+      if ($httpResponse.StatusCode -eq 404) {
+        Write-Verbose -Message "Cost Management export folder not found in storage account."
+        break
+      }
       elseif ($httpResponse.StatusCode -ne 200)
       {
         throw ($script:localizedData.DeleteCostExportFailed -f $($httpResponse.Content))
