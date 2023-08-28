@@ -119,10 +119,6 @@ function Remove-FinOpsCostExport
           }
         }
       }
-      # elseif ($httpResponse.StatusCode -eq 404)
-      # {
-      #   # Not found - Nothing to delete
-      # }
       else
       {
         # Error response describing why the operation failed.
