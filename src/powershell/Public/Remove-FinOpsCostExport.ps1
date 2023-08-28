@@ -67,7 +67,6 @@ function Remove-FinOpsCostExport
       Payload = $payload
     }
 
-    # TODO : Validate parameters and resources before proceeding
     $httpResponse = Invoke-AzRestMethod @invokeAzRestMethodParams
 
     if ($httpResponse.StatusCode -eq 404) { break }
@@ -98,7 +97,7 @@ function Remove-FinOpsCostExport
           try
           {
             $path = $scope + "/$Name"
-            $getFiles = Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageAccountName | Get-AzDataLakeGen2ChildItem -FileSystem "msexports" -Path $path -Recurse -FetchProperty # TODO: verify folder/files to delete (ingestion or msexports)
+            $getFiles = Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageAccountName | Get-AzDataLakeGen2ChildItem -FileSystem "msexports" -Path $path -Recurse -FetchProperty
             if ($getFiles.Count -gt 0)
             {
               $getFiles | Remove-AzDataLakeGen2Item -Force
