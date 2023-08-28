@@ -3,7 +3,7 @@
 
 <#
     .SYNOPSIS
-        Delete a Cost Management Export and optionally data associated with the export.
+    Delete a Cost Management export and optionally data associated with the export.
 
     .PARAMETER Name
         Name of the Cost Management Export.
