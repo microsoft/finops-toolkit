@@ -43,7 +43,7 @@ function Remove-FinOpsCostExport
 
     [Parameter()]
     [string]
-    $APIVersion = '2023-04-01-preview'
+    $ApiVersion = '2023-03-01'
   )
 
   try
