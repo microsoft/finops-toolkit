@@ -16,7 +16,7 @@
         This will delete all data in the storage account associated with the export scope (billing, subscription, management group, resource group).
 
     .PARAMETER APIVersion
-        Optional. Specify an alternative API version. Default is 2023-04-01-preview.
+        Optional. API version to use when calling the Cost Management Exports API. Default = 2023-03-01.
 
     .EXAMPLE
         Remove-FinOpsCostExport -Name MyExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -RemoveData
