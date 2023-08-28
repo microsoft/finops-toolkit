@@ -82,8 +82,6 @@ function Remove-FinOpsCostExport
         # Export details retreived
         $exportDetails = ConvertFrom-Json -InputObject $httpResponse.Content
         $storageAccountId = $exportDetails.properties.deliveryInfo.destination.resourceId
-
-        # Get-AzStorageAccount -resourcegroupname alz-finopstk -name finopshub255k7ov6asado | Get-AzDataLakeGen2ChildItem -FileSystem "ingestion" -Path "/" -Recurse -FetchProperty | Where-Object IsDirectory -ne false | Select-Object Path
         $resourceGroupName = $storageAccountID.Split('/')[4]
         $storageAccountName = $storageAccountID.Split('/')[8]
 
