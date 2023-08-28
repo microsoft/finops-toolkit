@@ -6,7 +6,7 @@
     Delete a Cost Management export and optionally data associated with the export.
 
     .PARAMETER Name
-        Name of the Cost Management Export.
+    Name of the Cost Management export.
 
     .PARAMETER Scope
         The scope associated with export operations. This includes '/subscriptions/{subscriptionId}/' for subscription scope,
