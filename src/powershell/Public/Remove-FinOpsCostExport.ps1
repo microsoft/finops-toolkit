@@ -90,7 +90,6 @@ function Remove-FinOpsCostExport
           Write-Verbose "Resource group: $resourceGroupName"
           Write-Verbose "Storage account: $storageAccountName"
           Write-Verbose "Scope: $scope"
-          Write-Verbose "Path: $path"
 
           $getSta = Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageAccountName
           if ($getSta.EnableHierarchicalNamespace)
