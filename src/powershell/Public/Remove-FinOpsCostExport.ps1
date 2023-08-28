@@ -98,7 +98,7 @@ function Remove-FinOpsCostExport
           # if (($getFiles.Count -gt 0) -and $getSta.EnableHierarchicalNamespace)
           if ($getSta.EnableHierarchicalNamespace)
           {
-            Remove-AzDataLakeGen2Item -FileSystem "msexports" -Path $path -Force
+            $getSta | Remove-AzDataLakeGen2Item -FileSystem "msexports" -Path $path -Force
           }
         }
       }
