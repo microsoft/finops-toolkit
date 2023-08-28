@@ -12,16 +12,15 @@
     Required. Resource ID of the scope to export data for.
 
     .PARAMETER RemoveData
-        Optional. Indicates that all cost data associated with the Export scope should be deleted.
-        This will delete all data in the storage account associated with the export scope (billing, subscription, management group, resource group).
+    Optional. Indicates that all cost data associated with the Export scope should be deleted.
 
     .PARAMETER APIVersion
-        Optional. API version to use when calling the Cost Management Exports API. Default = 2023-03-01.
+    Optional. API version to use when calling the Cost Management Exports API. Default = 2023-03-01.
 
     .EXAMPLE
-        Remove-FinOpsCostExport -Name MyExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -RemoveData
+    Remove-FinOpsCostExport -Name MyExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -RemoveData
 
-        Deletes a Cost Management Export named MyExport scoped to /subscriptions/00000000-0000-0000-0000-000000000000, and deletes all data associated with that scope.
+    Deletes a Cost Management Export named MyExport scoped to /subscriptions/00000000-0000-0000-0000-000000000000, and deletes all data associated with that scope.
 #>
 
 function Remove-FinOpsCostExport
@@ -46,6 +45,12 @@ function Remove-FinOpsCostExport
     $ApiVersion = '2023-03-01'
   )
 
+  $context = Get-AzContext
+  if (-not $context)
+  {
+      throw $script:localizedData.ContextNotFound
+  }
+
   try
   {
     $additionalParamaters = @{
@@ -62,18 +67,10 @@ function Remove-FinOpsCostExport
       -Method "GET" `
       -Payload $payload
 
-    if ($httpResponse.StatusCode -eq 200)
+    if ($httpResponse.StatusCode -eq 404) { break }
+    elseif ($httpResponse.StatusCode -ne 200)
     {
-      # Export deleted successfully
-    }
-    elseif ($httpResponse.StatusCode -eq 404)
-    {
-      # Not found
-    }
-    else
-    {
-      # Error response describing why the operation failed.
-      throw "Not Exists: Cost Management Export operation failed with message: '$($httpResponse.Content)'"
+      throw ($script:localizedData.GetCostExportNotFound -f $($httpResponse.Content))
     }
 
     if ($PSCmdlet.ShouldProcess($Name, 'DeleteCostExport'))
@@ -88,18 +85,11 @@ function Remove-FinOpsCostExport
         -Method "DELETE" `
         -Payload $payload
 
-      if ($httpResponse.StatusCode -eq 200)
-      {
-        # Export deleted successfully
-      }
-      elseif ($httpResponse.StatusCode -eq 404)
-      {
-        # Not found - nothing to delete
-      }
-      else
+      if ($httpResponse.StatusCode -eq 404) { break }
+      elseif ($httpResponse.StatusCode -ne 200)
       {
         # Error response describing why the operation failed.
-        throw "Delete Cost Management Export operation failed with message: '$($httpResponse.Content)'"
+        throw ($script:localizedData.DeleteCostExportFailed -f $($httpResponse.Content))
       }
     }
 
@@ -154,10 +144,6 @@ function Remove-FinOpsCostExport
   }
   catch
   {
-    throw $_.Exception.Message
-  }
-  finally
-  {
-    # Nothing to do here
+    throw $_.Exception
   }
 }
