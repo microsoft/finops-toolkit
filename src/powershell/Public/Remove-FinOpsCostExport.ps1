@@ -63,11 +63,10 @@ function Remove-FinOpsCostExport
       ResourceType = "exports"
       Name = $Name
       ApiVersion = $ApiVersion
-      Method = "GET"
       Payload = $payload
     }
 
-    $httpResponse = Invoke-AzRestMethod @invokeAzRestMethodParams
+    $httpResponse = Invoke-AzRestMethod @invokeAzRestMethodParams -Method "GET"
 
     if ($httpResponse.StatusCode -eq 404) { break }
     elseif ($httpResponse.StatusCode -ne 200)
@@ -94,7 +93,9 @@ function Remove-FinOpsCostExport
 
           try
           {
-            $path = $scope + "/$Name"
+            $path = $scope + "/" + $Name
+            Write-Verbose "Path: $path"
+
             $getFiles = Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageAccountName | Get-AzDataLakeGen2ChildItem -FileSystem "msexports" -Path $path -Recurse -FetchProperty
             if ($getFiles.Count -gt 0)
             {
