@@ -75,27 +75,10 @@ function Remove-FinOpsCostExport
     {
       throw ($script:localizedData.GetCostExportNotFound -f $($httpResponse.Content))
     }
-
-    if ($PSCmdlet.ShouldProcess($Name, 'DeleteCostExport'))
+    else
     {
-      # Using the REST API to delete the export as requested as PS modules are outdated?
-      $httpResponse = Invoke-AzRestMethod @invokeAzRestMethodParams -Method "DELETE"
-
-      if ($httpResponse.StatusCode -eq 404) { break }
-      elseif ($httpResponse.StatusCode -ne 200)
-      {
-        # Error response describing why the operation failed.
-        throw ($script:localizedData.DeleteCostExportFailed -f $($httpResponse.Content))
-      }
-    }
-
-    # Delete associated ingestion data from storage account
-    if ($RemoveData)
-    {
-      # Using the REST API to get the export as requested as PS modules are outdated?
-      $httpResponse = Invoke-AzRestMethod @invokeAzRestMethodParams
-
-      if ($httpResponse.StatusCode -eq 200)
+      # Delete associated data from storage account
+      if ($RemoveData)
       {
         # Export details retreived
         $exportDetails = ConvertFrom-Json -InputObject $httpResponse.Content
@@ -112,17 +95,33 @@ function Remove-FinOpsCostExport
           Write-Verbose "Storage account: $storageAccountName"
           Write-Verbose "Scope: $scope"
 
-          $getFiles = Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageAccountName | Get-AzDataLakeGen2ChildItem -FileSystem "ingestion" -Path $scope -Recurse -FetchProperty # TODO: verify folder/files to delete (ingestion or msexports)
-          if ($getFiles.Count -gt 0)
+          try
           {
-            $getFiles | Remove-AzDataLakeGen2Item -Force
+            $path = $scope + "/$Name"
+            $getFiles = Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageAccountName | Get-AzDataLakeGen2ChildItem -FileSystem "msexports" -Path $path -Recurse -FetchProperty # TODO: verify folder/files to delete (ingestion or msexports)
+            if ($getFiles.Count -gt 0)
+            {
+              $getFiles | Remove-AzDataLakeGen2Item -Force
+            }
+          }
+          catch
+          {
+            throw ($script:localizedData.DeleteCostExportFilesFailed -f $($httpResponse.Content))
           }
         }
       }
-      else
+    }
+
+    if ($PSCmdlet.ShouldProcess($Name, 'DeleteCostExport'))
+    {
+      # Using the REST API to delete the export as requested as PS modules are outdated?
+      $httpResponse = Invoke-AzRestMethod @invokeAzRestMethodParams -Method "DELETE"
+
+      if ($httpResponse.StatusCode -eq 404) { break }
+      elseif ($httpResponse.StatusCode -ne 200)
       {
         # Error response describing why the operation failed.
-        throw ($script:localizedData.DeleteCostExportFilesFailed -f $($httpResponse.Content))
+        throw ($script:localizedData.DeleteCostExportFailed -f $($httpResponse.Content))
       }
     }
   }
