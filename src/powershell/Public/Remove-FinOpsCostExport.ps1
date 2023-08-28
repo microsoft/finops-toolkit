@@ -85,7 +85,7 @@ function Remove-FinOpsCostExport
         $storageAccountName = $storageAccountID.Split('/')[8]
         $path = $scope + "/" + $Name
 
-        if ($PSCmdlet.ShouldProcess($scope, 'DeleteCostReports'))
+        if ($PSCmdlet.ShouldProcess($path, 'DeleteCostReports'))
         {
           Write-Verbose "Resource group: $resourceGroupName"
           Write-Verbose "Storage account: $storageAccountName"
