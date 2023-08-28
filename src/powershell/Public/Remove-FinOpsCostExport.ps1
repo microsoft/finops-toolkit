@@ -48,7 +48,7 @@ function Remove-FinOpsCostExport
   $context = Get-AzContext
   if (-not $context)
   {
-      throw $script:localizedData.ContextNotFound
+    throw $script:localizedData.ContextNotFound
   }
 
   try
@@ -60,10 +60,10 @@ function Remove-FinOpsCostExport
 
     $invokeAzRestMethodParams = @{
       ResourceProviderName = "Microsoft.CostManagement"
-      ResourceType = "exports"
-      Name = $Name
-      ApiVersion = $ApiVersion
-      Payload = $payload
+      ResourceType         = "exports"
+      Name                 = $Name
+      ApiVersion           = $ApiVersion
+      Payload              = $payload
     }
 
     $httpResponse = Invoke-AzRestMethod @invokeAzRestMethodParams -Method "GET"
