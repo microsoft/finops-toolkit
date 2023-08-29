@@ -74,7 +74,7 @@ function Remove-FinOpsCostExport
     }
     elseif ($httpResponse.StatusCode -ne 200)
     {
-      throw ($script:localizedData.GetCostExportNotFound -f $($httpResponse.Content))
+      throw ($script:localizedData.GetCostExportNotFound -f $($httpResponse.Content), $($httpResponse.StatusCode))
     }
     else
     {
@@ -113,7 +113,7 @@ function Remove-FinOpsCostExport
       }
       elseif ($httpResponse.StatusCode -ne 200)
       {
-        throw ($script:localizedData.DeleteCostExportFailed -f $($httpResponse.Content))
+        throw ($script:localizedData.DeleteCostExportFailed -f $($httpResponse.Content), $($httpResponse.StatusCode))
       }
     }
   }
