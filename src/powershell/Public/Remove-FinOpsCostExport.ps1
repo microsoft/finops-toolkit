@@ -86,7 +86,7 @@ function Remove-FinOpsCostExport
         $storageAccountId = $exportDetails.properties.deliveryInfo.destination.resourceId
         $resourceGroupName = $storageAccountID.Split('/')[4]
         $storageAccountName = $storageAccountID.Split('/')[8]
-        $path = $scope + "/" + $Name
+        $path = $exportDetails.properties.deliveryInfo.destination.rootFolderPath + "/" + $Name
 
         if ($PSCmdlet.ShouldProcess($path, 'DeleteCostReports'))
         {
