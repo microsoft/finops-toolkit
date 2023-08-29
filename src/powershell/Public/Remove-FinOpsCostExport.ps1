@@ -97,7 +97,7 @@ function Remove-FinOpsCostExport
           $getSta = Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageAccountName
           if ($getSta -and $getSta.EnableHierarchicalNamespace)
           {
-            $getSta | Remove-AzDataLakeGen2Item -FileSystem "msexports" -Path $path -Force
+            $getSta | Remove-AzDataLakeGen2Item -FileSystem $exportDetails.properties.deliveryInfo.destination.container -Path $path -Force
           }
         }
       }
