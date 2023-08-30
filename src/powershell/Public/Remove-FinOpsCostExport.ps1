@@ -53,20 +53,10 @@ function Remove-FinOpsCostExport
 
   try
   {
-    $additionalParamaters = @{
-      scope = $scope
-    }
-    $payload = ConvertTo-Json -InputObject $additionalParamaters -Depth 100
+    $path = "/{0}/providers/Microsoft.CostManagement/exports/{1}?api-version={2}" -f $Scope, $Name, $ApiVersion
 
-    $invokeAzRestMethodParams = @{
-      ResourceProviderName = "Microsoft.CostManagement"
-      ResourceType         = "exports"
-      Name                 = $Name
-      ApiVersion           = $ApiVersion
-      Payload              = $payload
-    }
-
-    $httpResponse = Invoke-AzRestMethod @invokeAzRestMethodParams -Method "GET"
+    # Switch to use the Get-FinOpsCostExport function once it is available
+    $httpResponse = Invoke-AzRestMethod -Path $path -Method "GET"
 
     if ($httpResponse.StatusCode -eq 404) {
       Write-Verbose -Message "Cost Management export not found."
@@ -74,7 +64,8 @@ function Remove-FinOpsCostExport
     }
     elseif ($httpResponse.StatusCode -ne 200)
     {
-      throw ($script:localizedData.GetCostExportNotFound -f $($httpResponse.Content), $($httpResponse.StatusCode))
+      $errorResponse = ConvertFrom-Json -InputObject $httpResponse.Content
+      throw ($script:localizedData.GetCostExportNotFound -f $($errorResponse.error.message), $($errorResponse.error.code))
     }
     else
     {
@@ -105,7 +96,7 @@ function Remove-FinOpsCostExport
 
     if ($PSCmdlet.ShouldProcess($Name, 'DeleteCostExport'))
     {
-      $httpResponse = Invoke-AzRestMethod @invokeAzRestMethodParams -Method "DELETE"
+      $httpResponse = Invoke-AzRestMethod -Path $path -Method "DELETE"
 
       if ($httpResponse.StatusCode -eq 404) {
         Write-Verbose -Message "Cost Management export folder not found in storage account."
@@ -113,7 +104,8 @@ function Remove-FinOpsCostExport
       }
       elseif ($httpResponse.StatusCode -ne 200)
       {
-        throw ($script:localizedData.DeleteCostExportFailed -f $($httpResponse.Content), $($httpResponse.StatusCode))
+        $errorResponse = ConvertFrom-Json -InputObject $httpResponse.Content
+        throw ($script:localizedData.DeleteCostExportFailed -f $($errorResponse.Content), $($errorResponse.StatusCode))
       }
     }
   }
