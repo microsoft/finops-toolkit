@@ -1,0 +1,34 @@
+name: '1. Triage new issues'
+description: '#Triage when new issues are created'
+resource: repository
+
+# spell-checker:disable
+configuration:
+  resourceManagementConfiguration:
+    eventResponderTasks:
+      #
+      # TODO: Consider adding a comment to teach reviewer about what they can do: "@author, thanks for the issue! Please make sure all relevant details are included. @reviewer, please triage this issue. If you need more details, leave a comment with #needs-info..."
+      - if:
+          - payloadType: Issues
+          - and:
+              - isOpen
+              - not:
+                  and:
+                    - hasLabel:
+                        label: 'Needs: Information'
+                    - hasLabel:
+                        label: 'Status: ✍️ Spec in progress'
+                    - hasLabel:
+                        label: 'Status: 🔭 Spec review'
+                    - hasLabel:
+                        label: 'Status: ▶️ Ready'
+                    - hasLabel:
+                        label: 'Status: 🔄️ In progress'
+                    - hasLabel:
+                        label: 'Status: 🔬 Code review'
+                    - isAssignedToSomeone
+        then:
+          - addLabel:
+              label: 'Needs: Triage 🔍'
+          - assignTo:
+              user: flanakin
