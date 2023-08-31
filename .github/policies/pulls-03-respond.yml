@@ -17,7 +17,7 @@ configuration:
         if:
           - payloadType: Pull_Request_Review_Comment
           - isActivitySender:
-              author: True
+              issueAuthor: True
           - hasLabel:
               label: 'Needs: Attention 👋'
           - not:
@@ -27,6 +27,6 @@ configuration:
           - removeLabel:
               label: 'Needs: Attention 👋'
           - assignTo:
-              author: True
+              author: False
 onFailure:
 onSuccess:
