@@ -12,53 +12,37 @@ On this page:
 ## 📃 Issue lifecycle
 
 1. Author creates new issue
-   > Assign to PM<br>
+   > Assign to reviewer<br>
    > ➕ `Needs: Triage 🔍`<br>
-2. PM reviews issue and...
-   - Asks author for details with `#needs-info` in a comment
-     > Assign to author<br>
-     > ➖ `Needs: Triage 🔍`<br>
-     > ➕ `Needs: Information`<br>
-     1. If no updates after 14d...
-        > ➕ `Needs: Attention 👋`<br>
-     2. If no updates after 28d...
-        > Close issue<br>
-        > ➕ `Resolution: No activity`<br>
-     3. If updated within 35d...
-        > Reopen issue<br>
-        > ➖ `Needs: Information`<br>
-        > ➖ `Needs: Attention 👋`<br>
-        > ➖ `Resolution: No activity`<br>
-        > ➕ `Needs: Triage 🔍`<br>
-   - Closes issue as a duplicate with `#duplicate` in a comment
-     > ➖ `Needs: Triage 🔍`<br>
-     > ➕ `Resolution: Duplicate`<br>
-     - If no updates after 7d...
-       > Close issue<br>
-3. PM asks author for details with `#needs-info` in a comment
+2. Reviewer notes issue is a duplicate with `#duplicate` in a comment
+   > ➖ `Needs: Triage 🔍`<br>
+   > ➕ `Resolution: Duplicate`<br>
+   1. If no updates after 7d...
+      > Close issue<br>
+3. Reviewer asks author for details with `#needs-info` in a comment
    > Assign to author<br>
    > ➖ `Needs: Triage 🔍`<br>
    > ➕ `Needs: Information`<br>
-   - If no updates after 14d...
-     > ➕ `Needs: Attention 👋`<br>
-   - If no updates after 28d...
-     > Close issue<br>
-     > ➕ `Resolution: No activity`<br>
-   - If updated within 35d...
-     > Reopen issue<br>
-     > ➖ `Needs: Information`<br>
-     > ➖ `Needs: Attention 👋`<br>
-     > ➖ `Resolution: No activity`<br>
-     > ➕ `Needs: Triage 🔍`<br>
+   1. If no updates after 14d...
+      > ➕ `Needs: Attention 👋`<br>
+   2. If no updates after 28d...
+      > Close issue<br>
+      > ➕ `Resolution: No activity`<br>
+   3. If updated within 35d...
+      > Reopen issue<br>
+      > ➖ `Needs: Information`<br>
+      > ➖ `Needs: Attention 👋`<br>
+      > ➖ `Resolution: No activity`<br>
+      > ➕ `Needs: Triage 🔍`<br>
 4. Author adds details in comment
    > Assign to PM<br>
    > ➖ `Needs: Information`<br>
    > ➕ `Needs: Triage 🔍`<br>
-5. PM approves with `#approved` in a comment
+5. Reviewer approves with `#approved` in a comment
    > Remove assignee<br>
    > ➖ `Needs: Triage 🔍`<br>
-6. PM assigned ➕ `Status: ✍️ Spec in progress`
-7. PM creates "Spec review:" PR
+6. Reviewer assigned ➕ `Status: ✍️ Spec in progress`
+7. Reviewer creates "Spec review:" PR
    > ➖ `Status: ✍️ Spec in progress`<br>
    > ➕ `Status: 🔭 Spec review`<br>
 8. "Spec review:" PR closes
