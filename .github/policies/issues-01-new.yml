@@ -21,26 +21,25 @@ configuration:
           - payloadType: Issues
           - isAction:
               action: Opened
+          - not: isAssignedToSomeone
           - not:
-              - isAssignedToSomeone
+              hasLabel:
+                label: 'Needs: Information'
           - not:
-              - hasLabel:
-                  label: 'Needs: Information'
+              hasLabel:
+                label: 'Status: ✍️ Spec in progress'
           - not:
-              - hasLabel:
-                  label: 'Status: ✍️ Spec in progress'
+              hasLabel:
+                label: 'Status: 🔭 Spec review'
           - not:
-              - hasLabel:
-                  label: 'Status: 🔭 Spec review'
+              hasLabel:
+                label: 'Status: ▶️ Ready'
           - not:
-              - hasLabel:
-                  label: 'Status: ▶️ Ready'
+              hasLabel:
+                label: 'Status: 🔄️ In progress'
           - not:
-              - hasLabel:
-                  label: 'Status: 🔄️ In progress'
-          - not:
-              - hasLabel:
-                  label: 'Status: 🔬 Code review'
+              hasLabel:
+                label: 'Status: 🔬 Code review'
         then:
           - addLabel:
               label: 'Needs: Triage 🔍'
