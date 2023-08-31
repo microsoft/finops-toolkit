@@ -94,5 +94,11 @@ The goal of triaging is to ensure issues in the backlog are valid and have the n
 2. Author creates new PR
    > Assign to reviewer<br>
    > ➕ `Needs: Review 👀`<br>
+3. Reviewer leaves a comment
+   > Assign to author<br>
+   > ➕ `Needs: Attention 👋`<br>
+4. Author responds with a comment
+   > Remove author as assignee<br>
+   > ➖ `Needs: Attention 👋`<br>
 
 <br>
