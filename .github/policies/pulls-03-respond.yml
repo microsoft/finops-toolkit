@@ -1,0 +1,32 @@
+id: pulls-02-feedback
+name: GitOps.PullRequestIssueManagement
+description: Handles when PR feedback is responded to
+owner:
+resource: repository
+disabled: false
+where:
+
+# spell-checker:disable
+configuration:
+  resourceManagementConfiguration:
+    eventResponderTasks:
+      - description: >-
+          When PR feedback is responded to:
+          - Label with `Needs: Attention 👋`
+          - TODO: Remove author as assignee
+        if:
+          - payloadType: Pull_Request_Review_Comment
+          - isActivitySender:
+              author: True
+          - hasLabel:
+              label: 'Needs: Attention 👋'
+          - not:
+              targetsBranch:
+                branch: main
+        then:
+          - removeLabel:
+              label: 'Needs: Attention 👋'
+          - assignTo:
+              author: True
+onFailure:
+onSuccess:
