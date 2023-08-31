@@ -1,0 +1,30 @@
+id: issues-01-new
+name: GitOps.PullRequestIssueManagement
+description: Handles when an issue is first opened
+owner:
+resource: repository
+disabled: false
+where:
+
+# spell-checker:disable
+configuration:
+  resourceManagementConfiguration:
+    eventResponderTasks:
+      - description: >-
+          When an author creates new issue:
+          - Assign to PM
+          - Label with `Needs: Triage 🔍`
+
+          TODO: Consider adding a comment to teach reviewer about what they can do: "@author, thanks for the issue! Please make sure all relevant details are included. @reviewer, please triage this issue. If you need more details, leave a comment with #needs-info..."
+      - description: Add Needs-Triage to new issues
+        if:
+          - payloadType: Issues
+          - isAction:
+              action: Opened
+        then:
+          - addLabel:
+              label: 'Needs: Triage 🔍'
+          - assignTo:
+              user: flanakin
+onFailure:
+onSuccess:
