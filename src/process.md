@@ -4,12 +4,13 @@ The following outlines the dev process from creating to releasing features.
 
 On this page:
 
-- [📃 Issue lifecycle](#-issue-lifecycle)
+- [♻️ Issue lifecycle](#️-issue-lifecycle)
 - [📋 Triaging issues](#-triaging-issues)
+- [♻️ Pull request lifecycle](#️-pull-request-lifecycle)
 
 ---
 
-## 📃 Issue lifecycle
+## ♻️ Issue lifecycle
 
 1. Author creates new issue
    > Assign to reviewer<br>
@@ -80,5 +81,18 @@ The goal of triaging is to ensure issues in the backlog are valid and have the n
 - Don't be afraid to say no, or close issues. Just explain why and be polite.
 - Don't be afraid to be wrong. Just be flexible when new information appears.
 - Explicitly @mention relevant users when you think the issue needs their attention.
+
+<br>
+
+## ♻️ Pull request lifecycle
+
+1. Author creates new PR against `main` branch
+   > Assign to author<br>
+   > Leave comment about no PRs to main policy<br>
+   > ➕ `Status: ⛔ Blocked`<br>
+   > ➕ `Needs: Attention 👋`<br>
+2. Author creates new PR
+   > Assign to reviewer<br>
+   > ➕ `Needs: Review 👀`<br>
 
 <br>
