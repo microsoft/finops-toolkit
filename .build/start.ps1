@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 
 [CmdletBinding()]
 param
@@ -12,9 +15,17 @@ param
     $Version,
 
     [Parameter()]
+    [int]
+    $BuildNumber,
+
+    [Parameter()]
     [ValidateSet('alpha', 'preview')]
     [string]
-    $PrereleaseTag
+    $PrereleaseTag,
+
+    [Parameter()]
+    [string]
+    $ApiKey
 )
 
 if (-not (Get-Module -Name 'PsDepend' -ListAvailable))

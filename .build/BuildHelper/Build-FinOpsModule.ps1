@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 function Build-FinOpsModule
 {
     [CmdletBinding()]
@@ -9,17 +12,32 @@ function Build-FinOpsModule
         $Version,
 
         [Parameter()]
+        [int]
+        $BuildNumber,
+
+        [Parameter()]
         [ValidateSet('alpha', 'preview')]
         [string]
         $PrereleaseTag
     )
 
-    $rootPath = (Get-Item -Path $PSScriptRoot).Parent.FullName
+    if ($BuildNumber)
+    {
+        $fullVersion = "$Version.$BuildNumber"
+    }
+    else
+    {
+        $fullVersion = $Version
+    }
+
+    $rootPath = (Get-Item -Path $PSScriptRoot).Parent.Parent.FullName
     $moduleName = 'FinOpsToolkit'
     $moduleFullName = "$moduleName.psm1"
     $modulePath = Join-Path -Path $rootPath -ChildPath "src/powershell/$moduleFullName"
+    $privatePath = Join-Path -Path $rootPath -ChildPath "src/powershell/private"
+    $publicPath = Join-Path -Path $rootPath -ChildPath "src/powershell/public"
     $stringsPath = Join-Path -Path $rootPath -ChildPath 'src/powershell/en-US'
-    $releasePath = Join-Path -Path $rootPath -ChildPath "release/FinOpsToolkit/$Version"
+    $releasePath = Join-Path -Path $rootPath -ChildPath "release/FinOpsToolkit/$fullVersion"
     $scriptPath = Join-Path -Path $rootPath -ChildPath 'src/scripts'
     $manifestPath = Join-Path -Path $releasePath -ChildPath 'FinOpsToolkit.psd1'
 
@@ -37,11 +55,11 @@ function Build-FinOpsModule
 
     # Create release directory
     Push-Location -Path $scriptPath
-    ./New-Directory $releasePath
+    New-Directory -Path $releasePath
     Pop-Location
 
     $manifestProperties = @{
-        ModuleVersion     = $Version
+        ModuleVersion     = $fullVersion
         Path              = $manifestPath
         Guid              = '00f120b5-2007-6120-0000-b03e1254e770'
         Author            = 'Microsoft Corporation'
@@ -79,4 +97,7 @@ function Build-FinOpsModule
     New-ModuleManifest @manifestProperties
     Copy-Item -Path $modulePath -Destination $releasePath
     Copy-Item -Path $stringsPath -Destination $releasePath -Container -Recurse
+    Copy-Item -Path $privatePath -Destination $releasePath -Container -Recurse
+    Copy-Item -Path $publicPath -Destination $releasePath -Container -Recurse
+    Add-CopyrightHeader -Path $manifestPath
 }
