@@ -71,6 +71,14 @@
                   "style": "link"
                 },
                 {
+                  "id": "6fc0fef0-a016-4923-9239-b641eb5bdc4f",
+                  "cellValue": "SelectedTab",
+                  "linkTarget": "parameter",
+                  "linkLabel": "Services retirement",
+                  "subTarget": "RC_ServicesRetirement",
+                  "style": "link"
+                },
+                {
                   "id": "e40dbf66-2abe-4bcf-acd7-1ee6d8fc950b",
                   "cellValue": "SelectedTab",
                   "linkTarget": "parameter",
@@ -174,8 +182,7 @@
                     "durationMs": 86400000
                   },
                   "queryType": 1,
-                  "resourceType": "microsoft.resources/tenants",
-                  "value": []
+                  "resourceType": "microsoft.resources/tenants"
                 }
               ],
               "style": "above",
@@ -202,6 +209,11 @@
                 "parameterName": "SelectedTab",
                 "comparison": "isNotEqualTo",
                 "value": "RC_Compliance"
+              },
+              {
+                "parameterName": "SelectedTab",
+                "comparison": "isNotEqualTo",
+                "value": "RC_ServicesRetirement"
               }
             ],
             "name": "parameters - 0"
@@ -7919,6 +7931,21 @@
             "content": {
               "version": "NotebookGroup/1.0",
               "groupType": "template",
+              "loadFromTemplateId": "community-Workbooks/Azure Advisor/AzureServiceRetirement",
+              "items": []
+            },
+            "conditionalVisibility": {
+              "parameterName": "SelectedTab",
+              "comparison": "isEqualTo",
+              "value": "RC_ServicesRetirement"
+            },
+            "name": "group - Service retirement"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "template",
               "loadFromTemplateId": "community-Workbooks/Common/noSubscriptions",
               "items": []
             },
@@ -7937,6 +7964,11 @@
                 "parameterName": "SelectedTab",
                 "comparison": "isNotEqualTo",
                 "value": "RC_Age"
+              },
+              {
+                "parameterName": "SelectedTab",
+                "comparison": "isNotEqualTo",
+                "value": "RC_ServicesRetirement"
               }
             ],
             "name": "No Subscriptions group"
@@ -7947,7 +7979,7 @@
     }
   ],
   "fallbackResourceIds": [
-    "azure monitor"
+    "Azure Monitor"
   ],
   "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
 }
