@@ -19,7 +19,7 @@ param description string = ''
 @sys.description('Optional. Tags for all resources.')
 param tags object = {}
 
-@description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
+@sys.description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
 
 //------------------------------------------------------------------------------
