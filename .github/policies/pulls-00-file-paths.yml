@@ -25,10 +25,13 @@ configuration:
             then:
               - requestReview:
                   reviewer: flanakin
-          # GitHub
+          # devops
           - if:
-              - filesMatchPattern:
-                  pattern: ^.github\/.*
+              - or:
+                  - filesMatchPattern:
+                      pattern: ^(.build|.github|.vscode|src\/scripts)\/.*
+                  - filesMatchPattern:
+                      pattern: ^src\/([^\/]+\/)?[^\/]+.md$
             then:
               - addLabel:
                   label: 'Area: DevOps'
