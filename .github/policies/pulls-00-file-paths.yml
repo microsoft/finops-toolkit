@@ -1,0 +1,249 @@
+id: pulls-00-file-paths
+name: GitOps.PullRequestIssueManagement
+description: Handles when a PR is opened with specific file paths
+owner:
+resource: repository
+disabled: false
+where:
+
+# spell-checker:disable
+configuration:
+  resourceManagementConfiguration:
+    eventResponderTasks:
+      - description: When a PR is opened, add labels based on file paths
+        if:
+          - payloadType: Pull_Request
+          - isAction:
+              action: Opened
+          - not:
+              targetsBranch:
+                branch: main
+        then:
+          # GitHub
+          - if:
+              - filesMatchPattern:
+                  pattern: .github
+            then:
+              - addLabel:
+                  label: 'Area: GitHub'
+              - if:
+                  - not:
+                      isAssignedToUser:
+                        user: aromano2
+                then:
+                  - assignTo:
+                      user: aromano2
+              - if:
+                  - not:
+                      isAssignedToUser:
+                        user: flanakin
+                then:
+                  - assignTo:
+                      user: flanakin
+          # docs
+          - if:
+              - filesMatchPattern:
+                  pattern: docs
+            then:
+              - addLabel:
+                  label: 'Area: Documentation'
+              - if:
+                  - not:
+                      isAssignedToUser:
+                        user: flanakin
+                then:
+                  - assignTo:
+                      user: flanakin
+          # bicep
+          - if:
+              - or:
+                  - filesMatchPattern:
+                      pattern: docs/bicep-registry
+                  - filesMatchPattern:
+                      pattern: src/bicep-registry
+              - not:
+                  filesMatchPattern:
+                    pattern: src/templates/finops-hub
+              - not:
+                  filesMatchPattern:
+                    pattern: src/powershell
+              - not:
+                  filesMatchPattern:
+                    pattern: src/workbooks
+            then:
+              - addLabel:
+                  label: 'Solution: FinOps hubs'
+              - if:
+                  - not:
+                      isAssignedToUser:
+                        user: aromano2
+                then:
+                  - assignTo:
+                      user: aromano2
+          # hubs
+          - if:
+              - or:
+                  - filesMatchPattern:
+                      pattern: docs/finops-hub
+                  - filesMatchPattern:
+                      pattern: src/templates/finops-hub
+                  - filesMatchPattern:
+                      pattern: src/powershell/*/*FinOpsHub*.ps1
+              - not:
+                  filesMatchPattern:
+                    pattern: src/bicep-registry
+              - not:
+                  filesMatchPattern:
+                    pattern: src/powershell
+              - not:
+                  filesMatchPattern:
+                    pattern: src/workbooks
+            then:
+              - addLabel:
+                  label: 'Solution: FinOps hubs'
+              - if:
+                  - not:
+                      isAssignedToUser:
+                        user: flanakin
+                then:
+                  - assignTo:
+                      user: flanakin
+              - if:
+                  - not:
+                      isAssignedToUser:
+                        user: msbrett
+                then:
+                  - assignTo:
+                      user: msbrett
+          # powershell
+          - if:
+              - or:
+                  - filesMatchPattern:
+                      pattern: docs/powershell
+                  - filesMatchPattern:
+                      pattern: src/powershell
+              - not:
+                  filesMatchPattern:
+                    pattern: src/bicep-registry
+              - not:
+                  filesMatchPattern:
+                    pattern: src/templates/finops-hub
+              - not:
+                  filesMatchPattern:
+                    pattern: src/workbooks
+            then:
+              - addLabel:
+                  label: 'Area: PowerShell'
+              - if:
+                  - not:
+                      isAssignedToUser:
+                        user: aromano2
+                then:
+                  - assignTo:
+                      user: aromano2
+              - if:
+                  - not:
+                      isAssignedToUser:
+                        user: arthurclares
+                then:
+                  - assignTo:
+                      user: arthurclares
+              - if:
+                  - not:
+                      isAssignedToUser:
+                        user: didayal-msft
+                then:
+                  - assignTo:
+                      user: didayal-msft
+              - if:
+                  - not:
+                      isAssignedToUser:
+                        user: flanakin
+                then:
+                  - assignTo:
+                      user: flanakin
+              - if:
+                  - not:
+                      isAssignedToUser:
+                        user: saadmsft
+                then:
+                  - assignTo:
+                      user: saadmsft
+              - if:
+                  - not:
+                      isAssignedToUser:
+                        user: sebassem
+                then:
+                  - assignTo:
+                      user: sebassem
+              - if:
+                  - not:
+                      isAssignedToUser:
+                        user: springstone
+                then:
+                  - assignTo:
+                      user: springstone
+          # workbooks
+          - if:
+              - or:
+                  - filesMatchPattern:
+                      pattern: docs/*-workbook
+                  - filesMatchPattern:
+                      pattern: src/workbooks
+              - not:
+                  filesMatchPattern:
+                    pattern: src/bicep-registry
+              - not:
+                  filesMatchPattern:
+                    pattern: src/templates/finops-hub
+              - not:
+                  filesMatchPattern:
+                    pattern: src/powershell
+            then:
+              - addLabel:
+                  label: 'Solution: Workbooks'
+              - if:
+                  - or:
+                      - filesMatchPattern:
+                          pattern: docs/optimization-workbook
+                      - filesMatchPattern:
+                          pattern: src/workbooks/optimization
+                  - not:
+                      isAssignedToUser:
+                        user: arthurclares
+                then:
+                  - assignTo:
+                      user: arthurclares
+              - if:
+                  - or:
+                      - filesMatchPattern:
+                          pattern: docs/governance-workbook
+                      - filesMatchPattern:
+                          pattern: src/workbooks/governance
+                  - not:
+                      isAssignedToUser:
+                        user: nteyan
+                then:
+                  - assignTo:
+                      user: nteyan
+              - if:
+                  - not:
+                      isAssignedToUser:
+                        user: flanakin
+                then:
+                  - assignTo:
+                      user: flanakin
+              - if:
+                  - or:
+                      - filesMatchPattern:
+                          pattern: docs/optimization-workbook
+                      - filesMatchPattern:
+                          pattern: src/workbooks/optimization
+                  - not:
+                      isAssignedToUser:
+                        user: sebassem
+                then:
+                  - assignTo:
+                      user: sebassem
+onFailure:
+onSuccess:
