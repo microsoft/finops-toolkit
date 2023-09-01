@@ -1,0 +1,182 @@
+id: pulls-00-file-paths
+name: GitOps.PullRequestIssueManagement
+description: Handles when a PR is opened with specific file paths
+owner:
+resource: repository
+disabled: false
+where:
+
+# spell-checker:disable
+configuration:
+  resourceManagementConfiguration:
+    eventResponderTasks:
+      - description: When a PR is opened, add labels based on file paths
+        if:
+          - payloadType: Pull_Request
+          - not:
+              targetsBranch:
+                branch: main
+        then:
+          # all paths -- Michael
+          - if:
+              - not:
+                  isActivitySender:
+                    user: flanakin
+            then:
+              - requestReview:
+                  reviewer: flanakin
+          # GitHub
+          - if:
+              - filesMatchPattern:
+                  pattern: ^.github\/.*
+            then:
+              - addLabel:
+                  label: 'Area: DevOps'
+              # Anthony
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: aromano2
+                then:
+                  - requestReview:
+                      reviewer: aromano2
+          # docs
+          - if:
+              - filesMatchPattern:
+                  pattern: ^docs\/.*
+            then:
+              - addLabel:
+                  label: 'Area: Documentation'
+          # bicep
+          - if:
+              - filesMatchPattern:
+                  pattern: ^(docs|src)\/bicep-registry\/.*
+            then:
+              - addLabel:
+                  label: 'Solution: Bicep Registry'
+          # hubs
+          - if:
+              - or:
+                  - filesMatchPattern:
+                      pattern: ^docs\/finops-hub\/.*
+                  - filesMatchPattern:
+                      pattern: ^src\/templates\/finops-hub\/.*
+                  - filesMatchPattern:
+                      pattern: ^src\/powershell\/(Public|Private)\/[^-]+-FinOpsHub[^\.]*\.ps1
+            then:
+              - addLabel:
+                  label: 'Solution: FinOps hubs'
+              # Brett
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: msbrett
+                then:
+                  - requestReview:
+                      reviewer: msbrett
+          # powershell
+          - if:
+              - filesMatchPattern:
+                  pattern: ^(docs|src)\/powershell\/.*
+            then:
+              - addLabel:
+                  label: 'Area: PowerShell'
+              # Anthony
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: aromano2
+                then:
+                  - requestReview:
+                      reviewer: aromano2
+              # Arthur
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: arthurclares
+                then:
+                  - requestReview:
+                      reviewer: arthurclares
+              # Divyadeep
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: didayal-msft
+                then:
+                  - requestReview:
+                      reviewer: didayal-msft
+              # Saad
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: saadmsft
+                then:
+                  - requestReview:
+                      reviewer: saadmsft
+              # Sacha
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: springstone
+                then:
+                  - requestReview:
+                      reviewer: springstone
+              # Seif
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: sebassem
+                then:
+                  - requestReview:
+                      reviewer: sebassem
+          # workbooks
+          - if:
+              - or:
+                  - filesMatchPattern:
+                      pattern: ^docs\/[^-]+-workbook\/.*
+                  - filesMatchPattern:
+                      pattern: ^src\/workbooks\/.*
+            then:
+              - addLabel:
+                  label: 'Solution: Workbooks'
+              # Arthur
+              - if:
+                  - or:
+                      - filesMatchPattern:
+                          pattern: ^docs\/optimization-workbook\/.*
+                      - filesMatchPattern:
+                          pattern: ^src\/workbooks\/(\.scaffold|optimization)\/.*
+                  - not:
+                      isActivitySender:
+                        user: arthurclares
+                then:
+                  - requestReview:
+                      reviewer: arthurclares
+              # Nicolas
+              - if:
+                  - or:
+                      - filesMatchPattern:
+                          pattern: ^docs\/governance-workbook\/.*
+                      - filesMatchPattern:
+                          pattern: ^src\/workbooks\/(\.scaffold|governance)\/.*
+                  - not:
+                      isActivitySender:
+                        user: nteyan
+                then:
+                  - requestReview:
+                      reviewer: nteyan
+              # Seif
+              - if:
+                  - or:
+                      - filesMatchPattern:
+                          pattern: ^docs\/optimization-workbook\/.*
+                      - filesMatchPattern:
+                          pattern: ^src\/workbooks\/(\.scaffold|optimization)\/.*
+                  - not:
+                      isActivitySender:
+                        user: sebassem
+                then:
+                  - requestReview:
+                      reviewer: sebassem
+onFailure:
+onSuccess:
