@@ -1,4 +1,4 @@
-id: pulls-02-feedback
+id: pulls-03-respond
 name: GitOps.PullRequestIssueManagement
 description: Handles when PR feedback is responded to
 owner:
@@ -13,11 +13,21 @@ configuration:
       - description: >-
           When PR feedback is responded to:
           - Label with `Needs: Attention 👋`
-          - TODO: Remove author as assignee
+          - Remove author as assignee
         if:
-          - payloadType: Pull_Request_Review_Comment
-          - isActivitySender:
-              issueAuthor: True
+          - or:
+              - and:
+                  - payloadType: Pull_Request_Review_Comment
+                  - isAction:
+                      action: Created
+                  - isActivitySender:
+                      issueAuthor: True
+              - and:
+                  - payloadType: Pull_Request_Review
+                  - isAction:
+                      action: Synchronize
+              - commentContains:
+                  text: '#needs-review'
           - hasLabel:
               label: 'Needs: Attention 👋'
           - not:
