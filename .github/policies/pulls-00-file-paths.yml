@@ -19,6 +19,14 @@ configuration:
               targetsBranch:
                 branch: main
         then:
+          # all paths -- Michael
+          - if:
+              - not:
+                  isActivitySender:
+                    user: flanakin
+            then:
+              - requestReview:
+                  reviewer: flanakin
           # GitHub
           - if:
               - filesMatchPattern:
@@ -26,20 +34,14 @@ configuration:
             then:
               - addLabel:
                   label: 'Area: DevOps'
+              # Anthony
               - if:
                   - not:
-                      isAssignedToUser:
+                      isActivitySender:
                         user: aromano2
                 then:
                   - requestReview:
                       reviewer: aromano2
-              - if:
-                  - not:
-                      isAssignedToUser:
-                        user: flanakin
-                then:
-                  - requestReview:
-                      reviewer: flanakin
           # docs
           - if:
               - filesMatchPattern:
@@ -47,13 +49,6 @@ configuration:
             then:
               - addLabel:
                   label: 'Area: Documentation'
-              - if:
-                  - not:
-                      isAssignedToUser:
-                        user: flanakin
-                then:
-                  - requestReview:
-                      reviewer: flanakin
           # bicep
           - if:
               - filesMatchPattern:
@@ -61,13 +56,6 @@ configuration:
             then:
               - addLabel:
                   label: 'Solution: Bicep Registry'
-              - if:
-                  - not:
-                      isAssignedToUser:
-                        user: flanakin
-                then:
-                  - requestReview:
-                      reviewer: flanakin
           # hubs
           - if:
               - or:
@@ -80,16 +68,10 @@ configuration:
             then:
               - addLabel:
                   label: 'Solution: FinOps hubs'
+              # Brett
               - if:
                   - not:
-                      isAssignedToUser:
-                        user: flanakin
-                then:
-                  - requestReview:
-                      reviewer: flanakin
-              - if:
-                  - not:
-                      isAssignedToUser:
+                      isActivitySender:
                         user: msbrett
                 then:
                   - requestReview:
@@ -101,55 +83,54 @@ configuration:
             then:
               - addLabel:
                   label: 'Area: PowerShell'
+              # Anthony
               - if:
                   - not:
-                      isAssignedToUser:
+                      isActivitySender:
                         user: aromano2
                 then:
                   - requestReview:
                       reviewer: aromano2
+              # Arthur
               - if:
                   - not:
-                      isAssignedToUser:
+                      isActivitySender:
                         user: arthurclares
                 then:
                   - requestReview:
                       reviewer: arthurclares
+              # Divyadeep
               - if:
                   - not:
-                      isAssignedToUser:
+                      isActivitySender:
                         user: didayal-msft
                 then:
                   - requestReview:
                       reviewer: didayal-msft
+              # Saad
               - if:
                   - not:
-                      isAssignedToUser:
-                        user: flanakin
-                then:
-                  - requestReview:
-                      reviewer: flanakin
-              - if:
-                  - not:
-                      isAssignedToUser:
+                      isActivitySender:
                         user: saadmsft
                 then:
                   - requestReview:
                       reviewer: saadmsft
+              # Sacha
               - if:
                   - not:
-                      isAssignedToUser:
-                        user: sebassem
-                then:
-                  - requestReview:
-                      reviewer: sebassem
-              - if:
-                  - not:
-                      isAssignedToUser:
+                      isActivitySender:
                         user: springstone
                 then:
                   - requestReview:
                       reviewer: springstone
+              # Seif
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: sebassem
+                then:
+                  - requestReview:
+                      reviewer: sebassem
           # workbooks
           - if:
               - or:
@@ -160,37 +141,33 @@ configuration:
             then:
               - addLabel:
                   label: 'Solution: Workbooks'
+              # Arthur
               - if:
                   - or:
                       - filesMatchPattern:
                           pattern: ^docs\/optimization-workbook\/.*
                       - filesMatchPattern:
-                          pattern: ^src\/workbooks\/optimization\/.*
+                          pattern: ^src\/workbooks\/(\.scaffold|optimization)\/.*
                   - not:
-                      isAssignedToUser:
+                      isActivitySender:
                         user: arthurclares
                 then:
                   - requestReview:
                       reviewer: arthurclares
+              # Nicolas
               - if:
                   - or:
                       - filesMatchPattern:
                           pattern: ^docs\/governance-workbook\/.*
                       - filesMatchPattern:
-                          pattern: ^src\/workbooks\/governance\/.*
+                          pattern: ^src\/workbooks\/(\.scaffold|governance)\/.*
                   - not:
-                      isAssignedToUser:
+                      isActivitySender:
                         user: nteyan
                 then:
                   - requestReview:
                       reviewer: nteyan
-              - if:
-                  - not:
-                      isAssignedToUser:
-                        user: flanakin
-                then:
-                  - requestReview:
-                      reviewer: flanakin
+              # Seif
               - if:
                   - or:
                       - filesMatchPattern:
@@ -198,7 +175,7 @@ configuration:
                       - filesMatchPattern:
                           pattern: ^src\/workbooks\/optimization\/.*
                   - not:
-                      isAssignedToUser:
+                      isActivitySender:
                         user: sebassem
                 then:
                   - requestReview:
