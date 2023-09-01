@@ -1,7 +1,20 @@
-# Data dictionary
+---
+layout: default
+parent: FinOps hubs
+title: Columns
+nav_order: 5
+description: "Cost details columns you'll find in FinOps hubs."
+permalink: /hubs/columns
+---
 
-_<sup>Quick links:
-&nbsp; [A](#a)
+<span class="fs-9 d-block mb-4">FinOps hubs columns</span>
+Familiarize yourself with the columns used in FinOps hubs.
+{: .fs-6 .fw-300 }
+
+<details open markdown="1">
+   <summary class="fs-2 text-uppercase">On this page</summary>
+
+[A](#a)
 &nbsp; [B](#b)
 &nbsp; [C](#c)
 &nbsp; [D](#d)
@@ -18,9 +31,18 @@ _<sup>Quick links:
 &nbsp; [T](#t)
 &nbsp; [U](#u)
 &nbsp; [V](#v)
-</sup>_
 
-The following table describes the columns available within the exported data:
+See also:
+
+- [FinOps hubs terms](./terms.md)
+- [Cost Management data dictionary](https://learn.microsoft.com/azure/cost-management-billing/automate/understand-usage-details-fields)
+- [FinOps Open Cost and Usage Specification (FOCUS)](https://focus.finops.org)
+
+</details>
+
+---
+
+Most of the columns in FinOps hubs originated in Cost Management or the FinOps Open Cost and Usage Specification (FOCUS). Below is a list of all columns you can expect to see in FinOps hubs:
 
 | Name                              | Type    | Source ([learn more](#source)) | Version | Description                                                                                                                                                                                                                                                            |
 | --------------------------------- | ------- | ------------------------------ | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -85,7 +107,7 @@ The following table describes the columns available within the exported data:
 | ProductOrderName                  | String  | Storage: msexports             | 0.0.1+  |
 | PublisherName                     | String  | Storage: msexports             | 0.0.1+  | Name of the organization that created the cloud service.                                                                                                                                                                                                               |
 | PublisherType                     | String  | Storage: msexports             | 0.0.1+  | Indicates whether a charge is from a cloud provider or third-party Marketplace vendor. Allowed values: Azure, AWS, Marketplace.                                                                                                                                        |
-| <a name="q"></a>Quantity          | Number  | Storage: msexports             | 0.0.1+  | Amount of a particular service that was used or purchased. The type of quantiy is defined by the UnitOfMeasure.                                                                                                                                                        |
+| <a name="q"></a>Quantity          | Number  | Storage: msexports             | 0.0.1+  | Amount of a particular service that was used or purchased. The type of quantity is defined by the UnitOfMeasure.                                                                                                                                                       |
 | <a name="r"></a>ReservationId     | String  | Storage: msexports             | 0.0.1+  | Unique identifier (GUID) of the reservation this resource utilized.                                                                                                                                                                                                    |
 | ReservationName                   | String  | Storage: msexports             | 0.0.1+  | Name of the reservation this resource utilized.                                                                                                                                                                                                                        |
 | ResourceGroup                     | String  | Storage: msexports             | 0.0.1+  | Grouping of resources that make up an application or set of resources that share the same lifecycle (e.g., created and deleted together).                                                                                                                              |
@@ -129,3 +151,12 @@ The **Source** column in the data dictionary indicates where the column was adde
   > ℹ️ _CMConnector inherits all columns from CMExport except for the renamed or transformed values. New columns may be added over time._
 - **Power BI: Measure** – Added as a custom measure column in Power BI.
   > ℹ️ _Measures are added to the **CostDetails** data table in Power BI. This is a virtual query that references the latest query version. You can point this virtual query to another query using the advanced query editor._
+
+---
+
+## ⏭️ Next steps
+
+[Deploy](./README.md#-create-a-new-hub){: .btn .btn-primary .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Learn more](./README.md#-why-finops-hubs){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+
+<br>

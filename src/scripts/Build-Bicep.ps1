@@ -34,7 +34,7 @@ Param (
 $Debug = $DebugPreference -eq "Continue"
 
 $scopeList = '(subscription|resourceGroup|managementGroup|tenant)';
-$scopeDirective = "//(\s*@$scopeList)+";
+$scopeDirective = "(//(\s*@$scopeList)+|targetScope = '$scopeList')";
 
 $outDir = "../../release"
 $registryDir = "../bicep-registry"
@@ -52,6 +52,7 @@ Get-ChildItem "$registryDir/$Module*" -Directory `
     function Build-Modules([string] $Path, [switch] $CopySupportingFiles) {
         # Confirm path
         if (-not (Test-Path (Join-Path $srcDir $Path))) {
+            Write-Error "$srcDir/$Path not found"
             return;
         }
         

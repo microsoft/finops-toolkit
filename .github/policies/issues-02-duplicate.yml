@@ -1,0 +1,35 @@
+id: issues-02-duplicate
+name: GitOps.PullRequestIssueManagement
+description: Handles when an issue has been flagged as a duplicate
+owner:
+resource: repository
+disabled: false
+where:
+
+# spell-checker:disable
+configuration:
+  resourceManagementConfiguration:
+    eventResponderTasks:
+      - description: >-
+          When an issue has been flagged with `#duplicate` in a comment:
+          - Assign to author
+          - Remove the `Needs: Triage 🔍` label
+          - Label with `Resolution: Duplicate`
+        if:
+          - payloadType: Issue_Comment
+          - commentContains:
+              pattern: '#duplicate'
+          - or:
+              - activitySenderHasPermission:
+                  permission: Admin
+              - activitySenderHasPermission:
+                  permission: Write
+        then:
+          - addLabel:
+              label: 'Resolution: Duplicate'
+          - removeLabel:
+              label: 'Needs: Triage 🔍'
+          - assignTo:
+              author: True
+onFailure:
+onSuccess:
