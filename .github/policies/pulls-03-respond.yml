@@ -27,7 +27,7 @@ configuration:
                   - isAction:
                       action: Synchronize
               - commentContains:
-                  text: '#needs-review'
+                  pattern: '#needs-review'
           - hasLabel:
               label: 'Needs: Attention 👋'
           - not:
