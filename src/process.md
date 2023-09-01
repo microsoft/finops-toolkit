@@ -91,14 +91,56 @@ The goal of triaging is to ensure issues in the backlog are valid and have the n
    > Leave comment about no PRs to main policy<br>
    > ➕ `Status: ⛔ Blocked`<br>
    > ➕ `Needs: Attention 👋`<br>
+   1. If no updates after 7d...
+      > Close issue<br>
 2. Author creates new PR
    > Assign to reviewer<br>
    > ➕ `Needs: Review 👀`<br>
-3. Reviewer leaves a comment
+3. Reviewer requests changes
    > Assign to author<br>
    > ➕ `Needs: Attention 👋`<br>
+   1. If no updates after 28d...
+      > Leave comment about needing to update<br>
+      > ➕ `Resolution: No activity`<br>
+   2. If no updates after 56d...
+      > Leave comment about closing due to no activity<br>
+      > Close issue<br>
+   3. If updated within 70d...
+      > Reopen PR<br>
+      > ➖ `Needs: Attention 👋`<br>
+      > ➖ `Resolution: No activity`<br>
 4. Author responds with a comment
-   > Remove author as assignee<br>
+   - Can we check to see if there are pending comments?
+     > Remove author as assignee<br>
+     > ➖ `Needs: Attention 👋`<br>
+5. Author pushes changes to the PR
+   - Can we check to see if there are pending comments?
+     > Remove author as assignee<br>
+     > ➖ `Needs: Attention 👋`<br>
+   1. If no updates after 28d...
+      > Leave comment about needing to update<br>
+      > ➕ `Needs: Attention 👋`<br>
+      > ➕ `Resolution: No activity`<br>
+   2. If no updates after 56d...
+      > Leave comment about closing due to no activity<br>
+      > Close issue<br>
+   3. If updated within 70d...
+      > Reopen issue<br>
+      > ➖ `Needs: Attention 👋`<br>
+      > ➖ `Resolution: No activity`<br>
+6. Reviewer approves
+   > Assign to author<br>
+   > ➕ `Status: ▶️ Ready`<br>
    > ➖ `Needs: Attention 👋`<br>
+   1. If no updates after 28d...
+      > Leave comment about needing to update<br>
+      > ➕ `Resolution: No activity`<br>
+   2. If no updates after 56d...
+      > Leave comment about closing due to no activity<br>
+      > Close issue<br>
+   3. If updated within 70d...
+      > Reopen issue<br>
+      > ➖ `Needs: Attention 👋`<br>
+      > ➖ `Resolution: No activity`<br>
 
 <br>
