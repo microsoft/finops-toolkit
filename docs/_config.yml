@@ -2,7 +2,42 @@ title: FinOps toolkit
 description: A collection of customizable FinOps solutions that automate and extend native Microsoft Cloud capabilities.
 remote_theme: just-the-docs/just-the-docs
 
+# Markdown options -- https://jekyllrb.com/docs/configuration/markdown/
+# Kramdown options -- https://kramdown.gettalong.org/options.html
+# GFM options -- https://github.com/kramdown/parser-gfm
+
 url: https://microsoft.github.io/finops-toolkit
 
 aux_links:
-  FTK on GitHub: https://github.com/microsoft/finops-toolkit
+  FinOps toolkit on GitHub: https://github.com/microsoft/finops-toolkit
+
+gh_edit_link: true
+gh_edit_link_text: Edit this page on GitHub
+gh_edit_repository: https://github.com/microsoft/finops-toolkit
+gh_edit_branch: main
+
+callouts_level: quiet # or loud
+callouts:
+  highlight:
+    color: yellow
+  highlight-green:
+    color: green
+  note:
+    title: 🚩 Note
+    color: yellow
+  tip:
+    title: 💡 Tip
+    color: blue
+  important:
+    title: ✨ Important
+    color: blue
+  warning:
+    title: ⚠️ Warning
+    color: red
+  new:
+    title: 🆕 New
+    color: purple
+
+# Mermaid versions @ https://cdn.jsdelivr.net/npm/mermaid
+mermaid:
+  version: '10.3.1'

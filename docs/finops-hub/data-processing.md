@@ -1,4 +1,17 @@
-# Data processing
+---
+layout: default
+parent: FinOps hubs
+title: Data processing
+nav_order: 3
+description: 'Details about how data is handled in FinOps hubs.'
+permalink: /hubs/data
+---
+
+<span class="fs-9 d-block mb-4">How data is processed in FinOps hubs</span>
+From data cleanup to normalization, FinOps hubs do the work so you can focus on driving business value.
+{: .fs-6 .fw-300 }
+
+---
 
 FinOps hubs perform a number of data processing activities to clean up, normalize, and optimize data. The following diagram shows how data flows from Cost Management into a hub instance:
 
@@ -14,5 +27,14 @@ sequenceDiagram
 1. Cost Management exports raw cost details to the **msexports** container.
 2. The **msexports_transform** pipeline saves the raw data in parquet format to the **ingestion** container.
 3. Power BI reads cost data from the **ingestion** container.
+
+---
+
+## ⏭️ Next steps
+
+<br>
+
+[Deploy](./README.md#-create-a-new-hub){: .btn .btn-primary .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Learn more](./README.md#-why-finops-hubs){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
