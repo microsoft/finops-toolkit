@@ -173,7 +173,7 @@ configuration:
                       - filesMatchPattern:
                           pattern: ^docs\/optimization-workbook\/.*
                       - filesMatchPattern:
-                          pattern: ^src\/workbooks\/optimization\/.*
+                          pattern: ^src\/workbooks\/(\.scaffold|optimization)\/.*
                   - not:
                       isActivitySender:
                         user: sebassem
