@@ -16,7 +16,12 @@ configuration:
           - Label with `Needs: Attention 👋`
         if:
           - or:
-              - payloadType: Pull_Request_Review_Comment
+              - and:
+                  - payloadType: Pull_Request_Review_Comment
+                  - isAction:
+                      action: Created
+                  - isActivitySender:
+                      issueAuthor: False
               - and:
                   - payloadType: Pull_Request_Review
                   - isReviewState:
@@ -29,5 +34,11 @@ configuration:
               label: 'Needs: Attention 👋'
           - assignTo:
               author: True
+          - addReply:
+              reply: >-
+                @{{issueAuthor}}: you have some new feedback!
+
+
+                Please review and resolve all comments and I'll let reviewers know by removing the `Needs: Attention` label. If I miss anything, just reply with `#needs-review` and I'll update the status.
 onFailure:
 onSuccess:

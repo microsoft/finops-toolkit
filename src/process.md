@@ -109,11 +109,7 @@ The goal of triaging is to ensure issues in the backlog are valid and have the n
       > Reopen PR<br>
       > ➖ `Needs: Attention 👋`<br>
       > ➖ `Resolution: No activity`<br>
-4. Author responds with a comment
-   - Can we check to see if there are pending comments?
-     > Remove author as assignee<br>
-     > ➖ `Needs: Attention 👋`<br>
-5. Author pushes changes to the PR
+4. Author responds with a comment or pushes changes to the PR
    - Can we check to see if there are pending comments?
      > Remove author as assignee<br>
      > ➖ `Needs: Attention 👋`<br>
@@ -128,7 +124,7 @@ The goal of triaging is to ensure issues in the backlog are valid and have the n
       > Reopen issue<br>
       > ➖ `Needs: Attention 👋`<br>
       > ➖ `Resolution: No activity`<br>
-6. Reviewer approves
+5. Reviewer approves
    > Assign to author<br>
    > ➕ `Status: ▶️ Ready`<br>
    > ➖ `Needs: Attention 👋`<br>
