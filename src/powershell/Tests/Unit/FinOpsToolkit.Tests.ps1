@@ -3,7 +3,6 @@
 
 $rootDirectory = ((Get-Item -Path $PSScriptRoot).Parent.Parent).FullName
 $modulePath = (Get-ChildItem -Path $rootDirectory -Include 'FinOpsToolKit.psm1' -Recurse).FullName
-write-host $PSVersionTable
 Import-Module -FullyQualifiedName $modulePath
 
 InModuleScope 'FinOpsToolkit' {
@@ -316,7 +315,7 @@ InModuleScope 'FinOpsToolkit' {
                     }
 
                     It 'Should throw if error creating resource group' {
-                        { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location } | Should -Throw
+                        { Deploy-FinOpsHub -Version 'latest' -Name $hubName -ResourceGroup $rgName -Location $location  } | Should -Throw
                         Assert-MockCalled -CommandName 'Get-AzResourceGroup' -Times 1
                         Assert-MockCalled -CommandName 'New-AzResourceGroup' -Times 1
                         Assert-MockCalled -CommandName 'New-Directory' -Times 0
@@ -337,7 +336,7 @@ InModuleScope 'FinOpsToolkit' {
                     }
 
                     It 'Should throw if template file is not found' {
-                        { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location } | Should -Throw
+                        { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version 'latest' } | Should -Throw
                         Assert-MockCalled -CommandName 'Get-ChildItem' -Times 1
                     }
                 }
@@ -350,13 +349,13 @@ InModuleScope 'FinOpsToolkit' {
                     }
 
                     It 'Should deploy the template without throwing' {
-                        { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location } | Should -Not -Throw
+                        { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version 'latest' } | Should -Not -Throw
                         Assert-MockCalled -CommandName 'Get-ChildItem' -Times 1
                         Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter { @{ TemplateFile = $templateFile } } -Times 1
                     }
 
                     It 'Should deploy the template with tags' {
-                        { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Tags @{ Test = 'Tag' } } | Should -Not -Throw
+                        { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Tags @{ Test = 'Tag' } -Version 'latest' } | Should -Not -Throw
                         Assert-MockCalled -CommandName 'Get-ChildItem' -Times 1
                         Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
                             @{
@@ -371,7 +370,7 @@ InModuleScope 'FinOpsToolkit' {
 
                     It 'Should deploy the template with StorageSku' {
                         $storageSku = 'Premium_ZRS'
-                        { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -StorageSku $storageSku } | Should -Not -Throw
+                        { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -StorageSku $storageSku -Version 'latest' } | Should -Not -Throw
                         Assert-MockCalled -CommandName 'Get-ChildItem' -Times 1
                         Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
                             @{
