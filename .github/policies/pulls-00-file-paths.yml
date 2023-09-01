@@ -22,7 +22,7 @@ configuration:
           # GitHub
           - if:
               - filesMatchPattern:
-                  pattern: ^.github/.*
+                  pattern: ^.github\/.*
             then:
               - addLabel:
                   label: 'Area: DevOps'
@@ -43,7 +43,7 @@ configuration:
           # docs
           - if:
               - filesMatchPattern:
-                  pattern: ^docs/.*
+                  pattern: ^docs\/.*
             then:
               - addLabel:
                   label: 'Area: Documentation'
@@ -57,7 +57,7 @@ configuration:
           # bicep
           - if:
               - filesMatchPattern:
-                  pattern: ^(docs|src)/bicep-registry/.*
+                  pattern: ^(docs|src)\/bicep-registry\/.*
             then:
               - addLabel:
                   label: 'Solution: Bicep Registry'
@@ -72,11 +72,11 @@ configuration:
           - if:
               - or:
                   - filesMatchPattern:
-                      pattern: ^docs/finops-hub/.*
+                      pattern: ^docs\/finops-hub\/.*
                   - filesMatchPattern:
-                      pattern: ^src/templates/finops-hub/.*
+                      pattern: ^src\/templates\/finops-hub\/.*
                   - filesMatchPattern:
-                      pattern: ^src/powershell/(Public|Private)/[^-]+-FinOpsHub[^\.]*\.ps1
+                      pattern: ^src\/powershell\/(Public|Private)\/[^-]+-FinOpsHub[^\.]*\.ps1
             then:
               - addLabel:
                   label: 'Solution: FinOps hubs'
@@ -97,7 +97,7 @@ configuration:
           # powershell
           - if:
               - filesMatchPattern:
-                  pattern: ^(docs|src)/powershell/.*
+                  pattern: ^(docs|src)\/powershell\/.*
             then:
               - addLabel:
                   label: 'Area: PowerShell'
@@ -154,18 +154,18 @@ configuration:
           - if:
               - or:
                   - filesMatchPattern:
-                      pattern: ^docs/[^-]+-workbook/.*
+                      pattern: ^docs\/[^-]+-workbook\/.*
                   - filesMatchPattern:
-                      pattern: ^src/workbooks/.*
+                      pattern: ^src\/workbooks\/.*
             then:
               - addLabel:
                   label: 'Solution: Workbooks'
               - if:
                   - or:
                       - filesMatchPattern:
-                          pattern: ^docs/optimization-workbook/.*
+                          pattern: ^docs\/optimization-workbook\/.*
                       - filesMatchPattern:
-                          pattern: ^src/workbooks/optimization/.*
+                          pattern: ^src\/workbooks\/optimization\/.*
                   - not:
                       isAssignedToUser:
                         user: arthurclares
@@ -175,9 +175,9 @@ configuration:
               - if:
                   - or:
                       - filesMatchPattern:
-                          pattern: ^docs/governance-workbook/.*
+                          pattern: ^docs\/governance-workbook\/.*
                       - filesMatchPattern:
-                          pattern: ^src/workbooks/governance/.*
+                          pattern: ^src\/workbooks\/governance\/.*
                   - not:
                       isAssignedToUser:
                         user: nteyan
@@ -194,9 +194,9 @@ configuration:
               - if:
                   - or:
                       - filesMatchPattern:
-                          pattern: ^docs/optimization-workbook/.*
+                          pattern: ^docs\/optimization-workbook\/.*
                       - filesMatchPattern:
-                          pattern: ^src/workbooks/optimization/.*
+                          pattern: ^src\/workbooks\/optimization\/.*
                   - not:
                       isAssignedToUser:
                         user: sebassem
