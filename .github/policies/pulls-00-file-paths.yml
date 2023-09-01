@@ -22,28 +22,28 @@ configuration:
           # GitHub
           - if:
               - filesMatchPattern:
-                  pattern: .github
+                  pattern: ^.github\/.*
             then:
               - addLabel:
-                  label: 'Area: GitHub'
+                  label: 'Area: DevOps'
               - if:
                   - not:
                       isAssignedToUser:
                         user: aromano2
                 then:
-                  - assignTo:
-                      user: aromano2
+                  - requestReview:
+                      reviewer: aromano2
               - if:
                   - not:
                       isAssignedToUser:
                         user: flanakin
                 then:
-                  - assignTo:
-                      user: flanakin
+                  - requestReview:
+                      reviewer: flanakin
           # docs
           - if:
               - filesMatchPattern:
-                  pattern: docs
+                  pattern: ^docs\/.*
             then:
               - addLabel:
                   label: 'Area: Documentation'
@@ -52,52 +52,31 @@ configuration:
                       isAssignedToUser:
                         user: flanakin
                 then:
-                  - assignTo:
-                      user: flanakin
+                  - requestReview:
+                      reviewer: flanakin
           # bicep
           - if:
-              - or:
-                  - filesMatchPattern:
-                      pattern: docs/bicep-registry
-                  - filesMatchPattern:
-                      pattern: src/bicep-registry
-              - not:
-                  filesMatchPattern:
-                    pattern: src/templates/finops-hub
-              - not:
-                  filesMatchPattern:
-                    pattern: src/powershell
-              - not:
-                  filesMatchPattern:
-                    pattern: src/workbooks
+              - filesMatchPattern:
+                  pattern: ^(docs|src)\/bicep-registry\/.*
             then:
               - addLabel:
-                  label: 'Solution: FinOps hubs'
+                  label: 'Solution: Bicep Registry'
               - if:
                   - not:
                       isAssignedToUser:
-                        user: aromano2
+                        user: flanakin
                 then:
-                  - assignTo:
-                      user: aromano2
+                  - requestReview:
+                      reviewer: flanakin
           # hubs
           - if:
               - or:
                   - filesMatchPattern:
-                      pattern: docs/finops-hub
+                      pattern: ^docs\/finops-hub\/.*
                   - filesMatchPattern:
-                      pattern: src/templates/finops-hub
+                      pattern: ^src\/templates\/finops-hub\/.*
                   - filesMatchPattern:
-                      pattern: src/powershell/*/*FinOpsHub*.ps1
-              - not:
-                  filesMatchPattern:
-                    pattern: src/bicep-registry
-              - not:
-                  filesMatchPattern:
-                    pattern: src/powershell
-              - not:
-                  filesMatchPattern:
-                    pattern: src/workbooks
+                      pattern: ^src\/powershell\/(Public|Private)\/[^-]+-FinOpsHub[^\.]*\.ps1
             then:
               - addLabel:
                   label: 'Solution: FinOps hubs'
@@ -106,31 +85,19 @@ configuration:
                       isAssignedToUser:
                         user: flanakin
                 then:
-                  - assignTo:
-                      user: flanakin
+                  - requestReview:
+                      reviewer: flanakin
               - if:
                   - not:
                       isAssignedToUser:
                         user: msbrett
                 then:
-                  - assignTo:
-                      user: msbrett
+                  - requestReview:
+                      reviewer: msbrett
           # powershell
           - if:
-              - or:
-                  - filesMatchPattern:
-                      pattern: docs/powershell
-                  - filesMatchPattern:
-                      pattern: src/powershell
-              - not:
-                  filesMatchPattern:
-                    pattern: src/bicep-registry
-              - not:
-                  filesMatchPattern:
-                    pattern: src/templates/finops-hub
-              - not:
-                  filesMatchPattern:
-                    pattern: src/workbooks
+              - filesMatchPattern:
+                  pattern: ^(docs|src)\/powershell\/.*
             then:
               - addLabel:
                   label: 'Area: PowerShell'
@@ -139,111 +106,102 @@ configuration:
                       isAssignedToUser:
                         user: aromano2
                 then:
-                  - assignTo:
-                      user: aromano2
+                  - requestReview:
+                      reviewer: aromano2
               - if:
                   - not:
                       isAssignedToUser:
                         user: arthurclares
                 then:
-                  - assignTo:
-                      user: arthurclares
+                  - requestReview:
+                      reviewer: arthurclares
               - if:
                   - not:
                       isAssignedToUser:
                         user: didayal-msft
                 then:
-                  - assignTo:
-                      user: didayal-msft
+                  - requestReview:
+                      reviewer: didayal-msft
               - if:
                   - not:
                       isAssignedToUser:
                         user: flanakin
                 then:
-                  - assignTo:
-                      user: flanakin
+                  - requestReview:
+                      reviewer: flanakin
               - if:
                   - not:
                       isAssignedToUser:
                         user: saadmsft
                 then:
-                  - assignTo:
-                      user: saadmsft
+                  - requestReview:
+                      reviewer: saadmsft
               - if:
                   - not:
                       isAssignedToUser:
                         user: sebassem
                 then:
-                  - assignTo:
-                      user: sebassem
+                  - requestReview:
+                      reviewer: sebassem
               - if:
                   - not:
                       isAssignedToUser:
                         user: springstone
                 then:
-                  - assignTo:
-                      user: springstone
+                  - requestReview:
+                      reviewer: springstone
           # workbooks
           - if:
               - or:
                   - filesMatchPattern:
-                      pattern: docs/*-workbook
+                      pattern: ^docs\/[^-]+-workbook\/.*
                   - filesMatchPattern:
-                      pattern: src/workbooks
-              - not:
-                  filesMatchPattern:
-                    pattern: src/bicep-registry
-              - not:
-                  filesMatchPattern:
-                    pattern: src/templates/finops-hub
-              - not:
-                  filesMatchPattern:
-                    pattern: src/powershell
+                      pattern: ^src\/workbooks\/.*
             then:
               - addLabel:
                   label: 'Solution: Workbooks'
               - if:
                   - or:
                       - filesMatchPattern:
-                          pattern: docs/optimization-workbook
+                          pattern: ^docs\/optimization-workbook\/.*
                       - filesMatchPattern:
-                          pattern: src/workbooks/optimization
+                          pattern: ^src\/workbooks\/optimization\/.*
                   - not:
                       isAssignedToUser:
                         user: arthurclares
                 then:
-                  - assignTo:
-                      user: arthurclares
+                  - requestReview:
+                      reviewer: arthurclares
               - if:
                   - or:
                       - filesMatchPattern:
-                          pattern: docs/governance-workbook
+                          pattern: ^docs\/governance-workbook\/.*
                       - filesMatchPattern:
-                          pattern: src/workbooks/governance
+                          pattern: ^src\/workbooks\/governance\/.*
                   - not:
                       isAssignedToUser:
                         user: nteyan
                 then:
-                  - assignTo:
-                      user: nteyan
+                  - requestReview:
+                      reviewer: nteyan
               - if:
                   - not:
                       isAssignedToUser:
                         user: flanakin
                 then:
-                  - assignTo:
-                      user: flanakin
+                  - requestReview:
+                      reviewer: flanakin
               - if:
                   - or:
                       - filesMatchPattern:
-                          pattern: docs/optimization-workbook
+                          pattern: ^docs\/optimization-workbook\/.*
                       - filesMatchPattern:
-                          pattern: src/workbooks/optimization
+                          pattern: ^src\/workbooks\/optimization\/.*
                   - not:
                       isAssignedToUser:
                         user: sebassem
                 then:
-                  - assignTo:
-                      user: sebassem
+                  - requestReview:
+                      reviewer: sebassem
 onFailure:
 onSuccess:
