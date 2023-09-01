@@ -30,7 +30,8 @@ var version = ''
 var workbookJson = string(loadJsonContent('workbook.json'))
 
 // The last segment of the telemetryId is used to identify this module
-var telemetryId = '00f120b5-2007-6120-0000-0b230126b006'
+var workbookId = '000'
+var telemetryId = '00f120b5-2007-6120-0000-${workbookId}30126b006'
 var finOpsToolkitVersion = '0.0.1'
 
 //==============================================================================
