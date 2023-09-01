@@ -13,8 +13,6 @@ configuration:
       - description: When a PR is opened, add labels based on file paths
         if:
           - payloadType: Pull_Request
-          - isAction:
-              action: Opened
           - not:
               targetsBranch:
                 branch: main
