@@ -1,21 +1,37 @@
-# 🦾 Bicep Registry modules
+---
+layout: default
+title: Bicep Registry
+nav_order: 4
+description: 'Include bicep modules in your templates.'
+permalink: /bicep
+---
 
-[![Go to issue](https://img.shields.io/github/issues/detail/title/microsoft/cloud-hubs/104?label=roadmap)](https://github.com/microsoft/cloud-hubs/issues/104)
+<span class="fs-9 d-block mb-4">Bicep Registry modules</span>
+Leverage reusable bicep modules in your templates to accelerate your FinOps efforts.
+{: .fs-6 .fw-300 }
 
-Bicep modules developed within the toolkit are published to the [official Bicep Registry](https://azure.github.io/bicep-registry-modules). These modules are not included directly in the toolkit release.
+[See the modules](https://azure.github.io/bicep-registry-modules/#cost){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
-Bicep modules:
+<details open markdown="1">
+   <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [Scheduled actions](#scheduled-actions)
-- [Tag inheritance](#tag-inheritance)
+- [Exports](#exports)
+
+</details>
 
 ---
 
+Bicep modules developed within the toolkit are published to the [official Bicep Registry](https://azure.github.io/bicep-registry-modules). These modules are not included directly in the toolkit release.
+
+<br>
+
 ## Scheduled actions
 
-![Version 1.0.1](https://img.shields.io/badge/version-1.0.1-darkgreen)
-&nbsp;
-![Scopes: Resource group, Subscription](https://img.shields.io/badge/scopes-resourceGroup,_subscription-blue)
+<small>Version: **1.0.1**</small>
+{: .label .label-green .pt-0 .pl-3 .pr-3 .m-0 }
+<small>Scopes: **Resource group, Subscription**</small>
+{: .label .pt-0 .pl-3 .pr-3 .m-0 }
 
 Creates a [scheduled action](https://learn.microsoft.com/rest/api/cost-management/scheduled-actions) to notify recipients about the latest costs or when an anomaly is detected.
 
@@ -24,18 +40,15 @@ Creates a [scheduled action](https://learn.microsoft.com/rest/api/cost-managemen
 
 <br>
 
-## Tag inheritance
+## Exports
 
-![Unreleased](https://img.shields.io/badge/version-unreleased-inactive)
-&nbsp;
-![Scopes: Resource group, Subscription](https://img.shields.io/badge/scopes-subscription-blue)
-&nbsp;<sup>→</sup>&nbsp;
-[![Issue details](https://img.shields.io/github/issues/detail/title/microsoft/finops-toolkit/184)](https://github.com/finops-toolkit/issues/184)
+<small>Version: **Unreleased**</small>
+{: .label .label-yellow .pt-0 .pl-3 .pr-3 .m-0 }
+<small>Scopes: **Resource group, Subscription**</small>
+{: .label .pt-0 .pl-3 .pr-3 .m-0 }
+<small>[Issue: **#221**](https://github.com/microsoft/finops-toolkit/issues/221)</small>
+{: .label .label-yellow .pt-0 .pl-3 .pr-3 .m-0 }
 
-<!--
-[![Go to PR](https://img.shields.io/github/pulls/detail/state/Azure/bicep-registry-modules/300?label=resourceGroup%20PR)](https://github.com/bicep-registry-modules/pulls/300)
--->
-
-Enables tag inheritance within Cost Management. This module is pending review and inclusion in the next Bicep Registry release.
+Creates an [export](https://learn.microsoft.com/rest/api/cost-management/exports) to push cost data to a storage account on a daily or monthly schedule.
 
 <br>
