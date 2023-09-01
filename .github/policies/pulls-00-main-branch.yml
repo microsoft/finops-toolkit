@@ -1,0 +1,38 @@
+id: pulls-00-main-branch
+name: GitOps.PullRequestIssueManagement
+description: Handles when a PR is opened against the main branch
+owner:
+resource: repository
+disabled: false
+where:
+
+# spell-checker:disable
+configuration:
+  resourceManagementConfiguration:
+    eventResponderTasks:
+      - description: >-
+          When a PR is opened against main:
+          - Add comment
+          - Label with `Status: ⛔ Blocked`
+          - Label with `Needs: Attention 👋`
+        if:
+          - payloadType: Pull_Request
+          - isAction:
+              action: Opened
+          - targetsBranch:
+              branch: main
+        then:
+          - addLabel:
+              label: 'Status: ⛔ Blocked'
+          - addLabel:
+              label: 'Needs: Attention 👋'
+          - addReply:
+              reply: >- # spell-checker:enable
+                @${issueAuthor}, thanks for the PR!
+
+                Unfortunately, you opened a PR against the `main` branch and we don't accept PRs into this branch.
+
+                Please create a new PR against either `dev` or a `features/*` branch.
+              # spell-checker:disable
+onFailure:
+onSuccess:

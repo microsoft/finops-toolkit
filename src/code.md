@@ -20,7 +20,7 @@ Here's a quick run-down of the main points:
 - Add inline comments to all major code blocks.
 - Resolve all lint errors before submitting PRs.
 - Follow standard language conventions:
-  - [PowerShell guidelines](https://learn.microsoft.com/powershell/scripting/developer/cmdlet/strongly-encouraged-development-guidelines)
+  - [PowerShell guidelines](https://learn.microsoft.com/powershell/scripting/developer/cmdlet/cmdlet-development-guidelines)
   - [Bicep lint rules](https://learn.microsoft.com/azure/azure-resource-manager/bicep/linter)
 
 <br>
