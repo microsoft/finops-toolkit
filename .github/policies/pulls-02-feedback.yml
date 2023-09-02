@@ -36,7 +36,7 @@ configuration:
               author: True
           - addReply:
               reply: >-
-                @{{issueAuthor}}: you have some new feedback!
+                @${issueAuthor}: you have some new feedback!
 
 
                 Please review and resolve all comments and I'll let reviewers know by removing the `Needs: Attention` label. If I miss anything, just reply with `#needs-review` and I'll update the status.
