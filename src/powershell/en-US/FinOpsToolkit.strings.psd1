@@ -9,6 +9,7 @@ ConvertFrom-StringData -StringData @'
     FoundLatestRelease = Found latest release '{0}'.
     NewDirectory = Creating directory '{0}'.
     TemplateNotFound = Could not find template 'main.bicep' at path '{0}'.
+    ContextNotFound = Could not retrieve Az context. Run Az-Login.
     BillingAccountNotSpecifiedForDept = Billing account ID is required when billing scope = Department.
     DeptIdNotSpecified = Department ID is required when billing scope = Department.
     BillingAccountNotSpecified = A billing account ID is required.

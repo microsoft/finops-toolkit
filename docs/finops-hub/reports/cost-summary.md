@@ -1,17 +1,22 @@
-# 📊 Cost summary report
+---
+layout: default
+grand_parent: FinOps hubs
+parent: Reports
+title: Cost summary
+nav_order: 1
+description: 'Identify top contributors, review changes over time, build a chargeback report, and summarize savings in Power BI.'
+permalink: /hubs/reports/cost-summary
+---
 
-The **Cost summary report** provides an overview of amortized costs with a few common breakdowns that enable you to:
+<span class="fs-9 d-block mb-4">Cost summary report</span>
+Common breakdowns of your cost to identify top contributors, review changes over time, build a chargeback report, and summarize savings.
+{: .fs-6 .fw-300 }
 
-- Identify the top cost contributors.
-- Review changes in cost over time.
-- Build a chargeback report.
-- Summarize cost savings from negotiated and commitment-based discounts.
+[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostSummary.pbix){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[How to setup](./README.md#-how-to-setup-power-bi){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
-You can download the Cost summary report from the [latest release](https://github.com/microsoft/finops-toolkit/releases).
-
-> 🚩 **Important**<br>FinOps hubs use [amortized costs](https://learn.microsoft.com/azure/cost-management-billing/reservations/reservation-amortization). Amortization breaks reservation and savings plan purchases down and allocates costs to the resources that received the benefit. Due to this, amortized costs will not show purchase costs and will not match your invoice. Please use [Cost Management](https://aka.ms/costmgmt) to review invoice charges.
-
-On this page:
+<details open markdown="1">
+   <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [Common page layout](#common-page-layout)
 - [Get started](#get-started)
@@ -25,7 +30,24 @@ On this page:
 - [FOCUS](#focus)
 - [See also](#see-also)
 
+</details>
+
 ---
+
+The **Cost summary report** provides an overview of amortized costs with a few common breakdowns that enable you to:
+
+- Identify the top cost contributors.
+- Review changes in cost over time.
+- Build a chargeback report.
+- Summarize cost savings from negotiated and commitment-based discounts.
+
+You can download the Cost summary report from the [latest release](https://github.com/microsoft/finops-toolkit/releases/latest).
+
+<blockquote class="important" markdown="1">
+  _FinOps hubs use [amortized costs](https://learn.microsoft.com/azure/cost-management-billing/reservations/reservation-amortization). Amortization breaks reservation and savings plan purchases down and allocates costs to the resources that received the benefit. Due to this, amortized costs will not show purchase costs and will not match your invoice. Please use [Cost Management](https://aka.ms/costmgmt) to review invoice charges._
+</blockquote>
+
+<br>
 
 ## Common page layout
 
@@ -233,5 +255,7 @@ If you have feedback about FOCUS, please consider contributing to the FOCUS proj
 
 ## See also
 
-- [Power BI ideas and suggestions](https://github.com/microsoft/cloud-hubs/issues?q=is%3Aissue+is%3Aopen+label%3A%22Area%3A+Power+BI%22)
+- [Power BI ideas and suggestions](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+label%3A%22Area%3A+Power+BI%22)
 - [Common terms](./terms.md)
+
+<br>

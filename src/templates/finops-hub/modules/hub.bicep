@@ -141,6 +141,7 @@ module dataFactoryResources 'dataFactory.bicep' = {
     location: location
     hubName: hubName
     remoteHubStorageUri: remoteHubStorageUri
+    tags: resourceTags
   }
 }
 

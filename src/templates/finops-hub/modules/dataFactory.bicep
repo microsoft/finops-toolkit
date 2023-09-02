@@ -35,6 +35,9 @@ param location string = resourceGroup().location
 @description('Optional. Remote storage account for ingestion dataset.')
 param remoteHubStorageUri string
 
+@description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
+param tags object = {}
+
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
@@ -124,6 +127,7 @@ module azuretimezones 'azuretimezones.bicep' = {
 resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: '${dataFactory.name}_triggerManager'
   location: location
+  tags: tags
 }
 
 resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in autoStartRbacRoles: {
@@ -165,6 +169,7 @@ resource stopHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   dependsOn: [
     identityRoleAssignments
   ]
+  tags: tags
   properties: {
     azPowerShellVersion: '8.0'
     retentionInterval: 'PT1H'
@@ -2134,6 +2139,7 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
 resource startHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: '${dataFactory.name}_startHubTriggers'
   location: location
+  tags: tags
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
