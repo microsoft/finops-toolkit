@@ -1,4 +1,7 @@
 # 🧰 FinOps toolkit
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 <sup>**Quick links:**</sup> &nbsp; [![Read the docs](https://img.shields.io/badge/-Read_the_docs_›-090)](https://aka.ms/finops/toolkit) &nbsp; [![How to contribute](https://img.shields.io/badge/-How_to_contribute_›-609)](./CONTRIBUTING.md)
 
@@ -31,6 +34,13 @@ There are many ways to participate. From reporting bugs and requesting features 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="http://about.me/flanakin"><img src="https://avatars.githubusercontent.com/u/399533?v=4?s=100" width="100px;" alt="Michael Flanakin"/><br /><sub><b>Michael Flanakin</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=flanakin" title="Code">💻</a></td>
+    </tr>
+  </tbody>
+</table>
 
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
@@ -64,3 +74,16 @@ This project may contain trademarks or logos for projects, products, or services
 Copyright © Microsoft Corporation. All rights reserved.
 
 Licensed under the [MIT license](LICENSE).
+
+## Contributors ✨
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
