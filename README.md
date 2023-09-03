@@ -28,6 +28,15 @@ Looking to learn more about FinOps toolkit and how to get started? See [FinOps t
 
 There are many ways to participate. From reporting bugs and requesting features to reviewing or even making code changes. See the [contribution guide ➡️](./CONTRIBUTING.md)
 
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
 <br>
 
 ---
