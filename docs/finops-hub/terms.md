@@ -2,7 +2,7 @@
 layout: default
 parent: FinOps hubs
 title: Common terms
-nav_order: 4
+nav_order: 5
 description: 'Common terms and definitions used throughout FinOps hubs.'
 permalink: /hubs/terms
 ---

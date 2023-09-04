@@ -2,7 +2,7 @@
 layout: default
 parent: FinOps hubs
 title: Columns
-nav_order: 5
+nav_order: 6
 description: "Cost details columns you'll find in FinOps hubs."
 permalink: /hubs/columns
 ---
