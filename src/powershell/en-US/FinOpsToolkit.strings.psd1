@@ -12,4 +12,5 @@ ConvertFrom-StringData -StringData @'
     ContextNotFound = Could not retrieve Az context. Run Az-Login.
     RegisterProvider =  Registering resource provider {0}.
     ResourceProviderExists =  Resource provider {0} is already registered. 
+    ErrorRegisteringProvider =  Error registering resource provider: {0}.
 '@
