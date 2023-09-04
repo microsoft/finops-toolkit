@@ -1,0 +1,38 @@
+id: pulls-00-file-paths
+name: GitOps.PullRequestIssueManagement
+description: Handles when a PR is opened with specific notes from the checklist
+owner:
+resource: repository
+disabled: false
+where:
+
+# spell-checker:disable
+configuration:
+  resourceManagementConfiguration:
+    eventResponderTasks:
+      - description: When a PR is opened, add labels based on the checklist
+        if:
+          - payloadType: Pull_Request
+          - not:
+              targetsBranch:
+                branch: main
+        then:
+          # breaking change
+          - if:
+              - commentContains:
+                  - pattern: '[x] This is a breaking change.'
+                  - regex: false
+          - then:
+              - addLabel:
+                  label: 'Breaking change 🚨'
+
+          # micro PR
+          - if:
+              - commentContains:
+                  - pattern: '[x] The change is less than 20 lines of code.'
+                  - regex: false
+          - then:
+              - addLabel:
+                  label: 'Micro PR 🔬'
+onFailure:
+onSuccess:

@@ -1,10 +1,5 @@
 <!--
-⚠️⚠️⚠️ BEFORE YOU SUBMIT ⚠️⚠️⚠️
-1. Make sure you have a user-friendly PR title that describes the change (this will be in the release notes).
-2. Complete all TODO items below and remove the TODO lines after.
-3. Internal PRs: Add applicable labels: Type, Micro PR, Breaking change
-
-**PRO TIP**: Smaller PRs are closed faster. Try submitting multiple, small PRs.
+✨ TIP: Small PRs close faster. Try multiple, small PRs.
 -->
 
 ## 🛠️ Description
@@ -16,8 +11,31 @@ Fixes #(issue)
 ## 📷 Screenshots
 <!-- TODO: Add screenshots of the new experience or remove section if not applicable -->
 
-## 🔬 How has this been tested?
-<!-- TODO: Check [x] all that apply. Leave the rest. -->
-- [ ] 🫰 PS -WhatIf / az validate
+## 📋 Checklist
+
+<!-- TODO: Check [x] all answers that apply in each section -->
+
+### 🔬 How did you test this change?
+
+- [ ] 🤞 PS -WhatIf / az validate
 - [ ] 👍 Manually deployed + verified
 - [ ] 💪 Unit tests
+
+### 🙋‍♀️ Do any of the following that apply?
+<!-- NOTE: If you change, update .github/policies/pulls-00-checklist.yml -->
+
+- [ ] 🚨 This is a breaking change.
+- [ ] 🤏 The change is less than 20 lines of code.
+
+### 📑 Did you add to `docs/changelog.md`?
+
+- [ ] ✅ Yes (required for `dev` PRs)
+- [ ] 🔜 Will cover in a future PR (feature branch PRs only)
+- [ ] ❎ Not needed (small/internal change)
+
+### 📖 Did you update documentation?
+
+- [ ] ✅ Public docs in `docs` (required for `dev`)
+- [ ] ✅ Internal dev docs in `src` (required for `dev`)
+- [ ] 🔜 Will cover in a future PR (feature branch PRs only)
+- [ ] ❎ Not needed (small/internal change)
