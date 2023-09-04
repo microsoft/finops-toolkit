@@ -13,4 +13,7 @@ ConvertFrom-StringData -StringData @'
     RegisterProvider =  Registering resource provider {0}.
     ResourceProviderExists =  Resource provider {0} is already registered. 
     ErrorRegisteringProvider =  Error registering resource provider: {0}.
+    DeleteCostExportFailed = Delete Cost Management export operation failed with message: '{0}' (Code: {1}).
+    GetCostExportNotFound = Cost Management export not found. Operation failed with message: '{0}' (Code: {1}).
+    DeleteCostExportFilesFailed = Delete export files operation failed.
 '@

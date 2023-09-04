@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "name": "Cost Management tag inheritance for {scopeLowerPlural}",
+  "text": [
+    {
+      "summary": "Enables tag inheritance for cost data in Microsoft Cost Management.",
+      "scopes": ["subscription", "tenant"]
+    }
+  ]
+}
