@@ -21,7 +21,7 @@ configuration:
           - if:
               - commentContains:
                   pattern: '^\s*- \[(\s*x\s+|\s+x\s*)\] '
-                  regex: true
+                  isRegex: true
           - then:
               - addReply:
                   # spell-checker:enable
@@ -31,7 +31,7 @@ configuration:
           - if:
               - commentContains:
                   pattern: '^\s*- \[\] '
-                  regex: true
+                  isRegex: true
           - then:
               - addReply:
                   # spell-checker:enable
