@@ -22,6 +22,7 @@ Open, extensible, and scalable cost governance for the enterprise.
 - [📦 What's included](#-whats-included)
 - [➕ Create a new hub](#-create-a-new-hub)
 - [🛫 Get started with hubs](#-get-started-with-hubs)
+- [⏭️ Next steps](#️-next-steps)
 
 </details>
 
@@ -80,9 +81,18 @@ The FinOps hub template includes the following resources:
 
 Once deployed, you can report on the data in Power BI or by connecting to the storage account directly.
 
-<img alt="Screenshot of the cost summary report" style="max-width:200px" src="https://user-images.githubusercontent.com/399533/216882658-45f026f1-c895-48ca-81e2-35765af8e29e.png">
-<img alt="Screenshot of the services cost report" style="max-width:200px" src="https://user-images.githubusercontent.com/399533/216882700-4e04b589-0580-4e49-9b40-9f5948792975.png">
-<img alt="Screenshot of the commitment-based discounts coverage report" style="max-width:200px" src="https://user-images.githubusercontent.com/399533/216882916-bb7ecfa3-d092-4ae2-88e1-7a0425c14dca.png">
+<img
+   alt="Screenshot of the cost summary report"
+   style="max-width:200px"
+   src="https://user-images.githubusercontent.com/399533/216882658-45f026f1-c895-48ca-81e2-35765af8e29e.png">
+<img
+   alt="Screenshot of the services cost report"
+   style="max-width:200px"
+   src="https://user-images.githubusercontent.com/399533/216882700-4e04b589-0580-4e49-9b40-9f5948792975.png">
+<img
+   alt="Screenshot of the commitment-based discounts coverage report"
+   style="max-width:200px"
+   src="https://user-images.githubusercontent.com/399533/216882916-bb7ecfa3-d092-4ae2-88e1-7a0425c14dca.png">
 
 [Browse reports](./reports/README.md){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [See the template](./template.md){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
@@ -91,33 +101,29 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
 
 ## ➕ Create a new hub
 
-1. Register the Microsoft.EventGrid and Microsoft.CostManagementExports resource providers. See [Register a resource provider](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) for details.
-2. [Deploy the **finops-hub** template](../deploy/README.md).
+1. **Register resource providers.**
 
-   [![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy) &nbsp; [![Deploy To Azure US Gov](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy/gov)
+   FinOps hubs use Event Grid and Cost Management behind the scenes. Before you deploy your template, register the `Microsoft.EventGrid` and `Microsoft.CostManagementExports` resource providers.
 
-3. [Create a new cost export](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data?tabs=azure-portal) using the following settings:
+   [Learn more](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider)
 
-   - **Metric** = `Amortized cost`
-   - **Export type** = `Daily export of month-to-date costs`
-     <blockquote class="tip" markdown="1">
-       _Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range._
-     </blockquote>
-   - **File Partitioning** = On
-   - **Storage account** = (Use subscription/resource from step 1)
-   - **Container** = `msexports`
-   - **Directory** = (Use the resource ID of the scope you're exporting without the first "/")
+2. **Deploy your FinOps hub.**
 
-4. Run your export.
-   - Exports can take up to a day to show up after first created.
-   - Use the **Run now** command at the top of the Cost Management Exports page.
-   - Your data should be available within 15 minutes or so, depending on how big your account is.
-5. Download one or more of the available Power BI starter templates from the [latest release](https://github.com/microsoft/finops-toolkit/releases):
-   - [Cost summary](./reports/cost-summary.md) for standard cost roll-ups.
-   - [Commitment discounts](./reports/commitment-discounts.md) for commitment-based savings utilization and coverage.
-6. [Connect Power BI to your hub](./reports/README.md#setup-a-finops-hub-report)
+   [![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy) &nbsp; [![Deploy To Azure US Gov](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy/gov)<!-- &nbsp; [![Deploy To Azure China](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazurechina.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy/china)-->
 
-If you run into any issues, see [Troubleshooting Power BI reports](./troubleshooting.md).
+   [Learn more](../deploy/README.md)
+
+3. **Configure scopes to monitor.**
+
+   FinOps hubs use Cost Management exports to load the cost data you want to monitor. You can configure exports manually or grant access to your hub to manage exports for you.
+
+   [Learn more](./configure-scopes.md)
+
+4. **Connect to your data.**
+
+   You can connect to your data from any system that supports Azure storage. For ideas, see [get started with hubs](#-get-started-with-hubs) below. We recommend using pre-built Power BI starter templates to get started quickly.
+
+   [Learn more](./reports/README.md#setup-a-finops-hub-report)
 
 <br>
 
@@ -125,7 +131,7 @@ If you run into any issues, see [Troubleshooting Power BI reports](./troubleshoo
 
 After deploying a hub instance, there are several ways for you to get started:
 
-1. Customize the built-in Power BI reports.
+1. Customize the pre-built Power BI reports.
 
    Our Power BI reports are starter templates and intended to be customized. We encourage you to customize as needed. [Learn more](./reports/README.md).
 
@@ -166,5 +172,12 @@ No matter what you choose to do, we recommend creating a new Bicep module to sup
 If you need to change `hub.bicep`, be sure to track those changes and re-apply them when upgrading to the latest release. We generally don't recommend modifying the template or modules directly to avoid conflicts with future updates. Instead, consider contributing those changes back to the open source project. [Learn more](https://github.com/microsoft/finops-toolkit/blob/main/CONTRIBUTING.md).
 
 If you access data in storage or are creating or customizing Power BI reports, please refer to the [data dictionary](data-dictionary.md) for details about the available columns.
+
+---
+
+## ⏭️ Next steps
+
+[Configure scopes](./configure.md){: .btn .btn-primary .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Connect to Power BI](./reports/README.md){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>

@@ -3,7 +3,7 @@ layout: default
 parent: FinOps hubs
 title: Reports
 has_children: true
-nav_order: 1
+nav_order: 2
 description: 'Pre-built Power BI reports to summarize and break down costs in FinOps hubs.'
 permalink: /hubs/reports
 ---
@@ -28,8 +28,8 @@ Leverage pre-built Power BI reports to summarize and break down costs. Customize
 
 FinOps hubs host data in [Azure Data Lake Storage](https://learn.microsoft.com/azure/storage/blobs/data-lake-storage-introduction). You can use any tool to query and report on your cost data in storage. We've included the following Power BI reports to get you started. We recommend customizing them to keep what works, edit and augment reports with your own data, and remove anything that isn't needed.
 
-- [Cost summary](./cost-summary.md)
-- [Commitment discounts](./commitment-discounts.md)
+- Cost summary – [Details](./cost-summary.md), [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostSummary.pbix)
+- Commitment discounts – [Details](./commitment-discounts.md), [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/CommitmentDiscounts.pbix)
 
 <br>
 
@@ -42,7 +42,6 @@ The following sections explain how to connect Power BI reports to your data depe
 - [Connect manually](#connect-manually)
 - [Migrate from the Cost Management template app](#migrate-from-the-cost-management-template-app)
 - [Migrate from the Cost Management connector](#migrate-from-the-cost-management-connector)
-- [Migrate from the Consumption Insights connector](#migrate-from-the-consumption-insights-connector)
 
 ### Setup a FinOps hub report
 
