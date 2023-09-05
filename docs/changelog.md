@@ -15,19 +15,38 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [🚀 v0.0.1](#-v001)
+- [🔄️ Unreleased](#️-unreleased)
+- [🌱 v0.0.1](#-v001)
 
 </details>
 
 ---
 
 <!--
-## 🔄️ Unreleased
-
-<br>
+Legend:
+🔄️ Unreleased
+🚀🎉 Major
+🚚💎 Minor
+🛠️✨ Patch
+🪛⬆️ Update
+🌱 Pre-release
 -->
 
-## 🚀 v0.0.1
+## 🔄️ Unreleased
+
+Added:
+
+1. FinOps hubs
+   1. Support for actual (billed) cost data.
+   2. Backfill historical cost data to streamline first-time setup.
+   3. Managed exports to simplify the setup and backfill process.
+   4. Normalize Enterprise Agreement and Microsoft Customer Agreement cost data to a consistent schema.
+   5. Support for Microsoft Customer Agreement in Power BI reports.
+   6. Remote exports to monitor cost across Azure Active Directory tenants.
+
+<br>
+
+## 🌱 v0.0.1
 
 Added:
 
