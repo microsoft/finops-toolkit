@@ -20,8 +20,8 @@ configuration:
           # spaces in markdown checkbox
           - if:
               - commentContains:
-                  - pattern: '^\s*- \[(\s*x\s+|\s+x\s*)\] '
-                  - regex: true
+                  pattern: '^\s*- \[(\s*x\s+|\s+x\s*)\] '
+                  regex: true
           - then:
               - addReply:
                   # spell-checker:enable
@@ -30,8 +30,8 @@ configuration:
           # no space in markdown checkbox
           - if:
               - commentContains:
-                  - pattern: '^\s*- \[\] '
-                  - regex: true
+                  pattern: '^\s*- \[\] '
+                  regex: true
           - then:
               - addReply:
                   # spell-checker:enable
@@ -40,13 +40,13 @@ configuration:
           # breaking change
           - if:
               - commentContains:
-                  - pattern: '[x] This is a breaking change.'
+                  pattern: '[x] This is a breaking change.'
           - then:
               - addLabel:
                   label: 'Breaking change 🚨'
           - if:
               - commentContains:
-                  - pattern: '[ ] This is a breaking change.'
+                  pattern: '[ ] This is a breaking change.'
           - then:
               - removeLabel:
                   label: 'Breaking change 🚨'
@@ -57,13 +57,13 @@ configuration:
           # micro PR
           - if:
               - commentContains:
-                  - pattern: '[x] The change is less than 20 lines of code.'
+                  pattern: '[x] The change is less than 20 lines of code.'
           - then:
               - addLabel:
                   label: 'Micro PR 🔬'
           - if:
               - commentContains:
-                  - pattern: '[ ] The change is less than 20 lines of code.'
+                  pattern: '[ ] The change is less than 20 lines of code.'
           - then:
               - removeLabel:
                   label: 'Micro PR 🔬'
