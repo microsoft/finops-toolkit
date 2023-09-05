@@ -9,10 +9,6 @@ param
     $Version,
 
     [Parameter()]
-    [int]
-    $BuildNumber,
-
-    [Parameter()]
     [ValidateSet('alpha', 'preview')]
     [string]
     $PrereleaseTag,
@@ -36,7 +32,7 @@ task PreRequisites {
     Import-Module -FullyQualifiedName $helperPath
 }
 
-task Build.Module PreRequisites, Clean, {
+task Build.PsModule PreRequisites, Clean, {
     if ([string]::IsNullOrEmpty($Version))
     {
         throw 'Missing required parameter "Version".'
@@ -46,20 +42,15 @@ task Build.Module PreRequisites, Clean, {
         Version = $Version
     }
 
-    if ($BuildNumber)
-    {
-        $buildParameters.Add('BuildNumber', $BuildNumber)
-    }
-
     if (-not [string]::IsNullOrEmpty($PrereleaseTag))
     {
         $buildParameters.Add('PrereleaseTag', $PrereleaseTag)
     }
 
-    Build-FinOpsModule @buildParameters
+    Build-PsModule @buildParameters
 }
 
-task Publish.Module Build.Module, {
+task Publish.PsModule Build.PsModule, {
     if ([string]::IsNullOrEmpty($Version))
     {
         throw 'Missing required parameter "Version".'
@@ -72,6 +63,7 @@ task Publish.Module Build.Module, {
 
     try
     {
+        Remove-Module -Name $moduleName -Force -ErrorAction 'SilentlyContinue'
         Import-Module -Name $modulePath -ErrorAction 'Stop'
         $moduleInfo = Get-Module -Name $moduleName -ErrorAction 'Stop'
     }
@@ -92,12 +84,12 @@ task Publish.Module Build.Module, {
     Publish-Module -Name $moduleName -Repository 'PSGallery' -NuGetApiKey $ApiKey -Force -AllowPrerelease @parameters
 }
 
-task Test.Unit PreRequisites, {
+task Test.PowerShell.Unit PreRequisites, {
     Start-PesterTest -Type 'Unit'
 }
 
-task Test.Meta PreRequisites, {
-    Start-PesterTest -Type 'Meta'
+task Test.PowerShell.PsAnalyzer PreRequisites, {
+    Start-PesterTest -Type 'PsAnalyzer'
 }
 
-task Test.All Test.Meta, Test.Unit, {}
+task Test.PowerShell.All Test.PowerShell.PsAnalyzer, Test.PowerShell.Unit, {}

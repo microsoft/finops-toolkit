@@ -23,6 +23,94 @@
                 "showReuseMessage": true,
                 "clear": false,
             },
+        },
+        {
+            "label": "Test.PowerShell.All",
+            "type": "shell",
+            "command": "./start.ps1 -Task Test.PowerShell.All",
+            "options": {
+                "cwd": "${workspaceFolder}/.build",
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true,
+            },
+            "isBackground": false,
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false,
+            },
+        },
+        {
+            "label": "Test.PowerShell.Unit",
+            "type": "shell",
+            "command": "./start.ps1 -Task Test.PowerShell.Unit",
+            "options": {
+                "cwd": "${workspaceFolder}/.build",
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true,
+            },
+            "isBackground": false,
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false,
+            },
+        },
+        {
+            "label": "Test.PowerShell.PsAnalyzer",
+            "type": "shell",
+            "command": "./start.ps1 -Task Test.PowerShell.PsAnalyzer",
+            "options": {
+                "cwd": "${workspaceFolder}/.build",
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true,
+            },
+            "isBackground": false,
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false,
+            },
+        },
+        {
+            "label": "Build.PsModule",
+            "type": "shell",
+            "command": "./start.ps1 -Task Build.PsModule",
+            "options": {
+                "cwd": "${workspaceFolder}/.build",
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true,
+            },
+            "isBackground": false,
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false,
+            },
         }
     ]
 }

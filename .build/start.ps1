@@ -6,17 +6,13 @@
 param
 (
     [Parameter(Mandatory = $true)]
-    [ValidateSet('PreRequisites', 'Build.Module', 'Publish.Module', 'Test.Unit', 'Test.Meta', 'Test.All')]
+    [ValidateSet('PreRequisites', 'Build.PsModule', 'Publish.PsModule', 'Test.PowerShell.Unit', 'Test.PowerShell.PsAnalyzer', 'Test.PowerShell.All')]
     [string[]]
     $Task,
 
     [Parameter()]
     [string]
     $Version,
-
-    [Parameter()]
-    [int]
-    $BuildNumber,
 
     [Parameter()]
     [ValidateSet('alpha', 'preview')]
