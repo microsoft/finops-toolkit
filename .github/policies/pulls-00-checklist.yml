@@ -1,4 +1,4 @@
-id: pulls-00-file-paths
+id: pulls-00-checklist
 name: GitOps.PullRequestIssueManagement
 description: Handles when a PR is opened with specific notes from the checklist
 owner:
@@ -17,22 +17,55 @@ configuration:
               targetsBranch:
                 branch: main
         then:
+          # spaces in markdown checkbox
+          - if:
+              - commentContains:
+                  - pattern: '^\s*- \[(\s*x\s+|\s+x\s*)\] '
+                  - regex: true
+          - then:
+              - addReply:
+                  # spell-checker:enable
+                  reply: '@${issueAuthor}, thanks for the PR. Looks like you included an extra space in your markdown checkbox. Please edit your PR description to use `[ ]` (1 space) for unchecked and `[x]` (no spaces) for checked tasks.'
+                  # spell-checker:disable
+          # no space in markdown checkbox
+          - if:
+              - commentContains:
+                  - pattern: '^\s*- \[\] '
+                  - regex: true
+          - then:
+              - addReply:
+                  # spell-checker:enable
+                  reply: '@${issueAuthor}, thanks for the PR. Looks like you forgot a space in your markdown checkbox. Please edit your PR description to use `[ ]` (1 space) for unchecked and `[x]` (no spaces) for checked tasks.'
+                  # spell-checker:disable
           # breaking change
           - if:
               - commentContains:
                   - pattern: '[x] This is a breaking change.'
-                  - regex: false
           - then:
               - addLabel:
                   label: 'Breaking change 🚨'
-
+          - if:
+              - commentContains:
+                  - pattern: '[ ] This is a breaking change.'
+          - then:
+              - removeLabel:
+                  label: 'Breaking change 🚨'
+              - addReply:
+                  # spell-checker:enable
+                  reply: '@${issueAuthor}, thanks for the PR. You marked this as not being a breaking change, but the breaking change label was set. I took the liberty of removing the label. If you meant to keep that applied, please "check" the "This is a breaking change" task.'
+                  # spell-checker:disable
           # micro PR
           - if:
               - commentContains:
                   - pattern: '[x] The change is less than 20 lines of code.'
-                  - regex: false
           - then:
               - addLabel:
+                  label: 'Micro PR 🔬'
+          - if:
+              - commentContains:
+                  - pattern: '[ ] The change is less than 20 lines of code.'
+          - then:
+              - removeLabel:
                   label: 'Micro PR 🔬'
 onFailure:
 onSuccess:
