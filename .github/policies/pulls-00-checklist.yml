@@ -22,7 +22,7 @@ configuration:
               - commentContains:
                   pattern: '^\s*- \[(\s*x\s+|\s+x\s*)\] '
                   isRegex: true
-          - then:
+            then:
               - addReply:
                   # spell-checker:enable
                   reply: '@${issueAuthor}, thanks for the PR. Looks like you included an extra space in your markdown checkbox. Please edit your PR description to use `[ ]` (1 space) for unchecked and `[x]` (no spaces) for checked tasks.'
@@ -32,7 +32,7 @@ configuration:
               - commentContains:
                   pattern: '^\s*- \[\] '
                   isRegex: true
-          - then:
+            then:
               - addReply:
                   # spell-checker:enable
                   reply: '@${issueAuthor}, thanks for the PR. Looks like you forgot a space in your markdown checkbox. Please edit your PR description to use `[ ]` (1 space) for unchecked and `[x]` (no spaces) for checked tasks.'
@@ -41,13 +41,13 @@ configuration:
           - if:
               - commentContains:
                   pattern: '[x] This is a breaking change.'
-          - then:
+            then:
               - addLabel:
                   label: 'Breaking change 🚨'
           - if:
               - commentContains:
                   pattern: '[ ] This is a breaking change.'
-          - then:
+            then:
               - removeLabel:
                   label: 'Breaking change 🚨'
               - addReply:
@@ -58,13 +58,13 @@ configuration:
           - if:
               - commentContains:
                   pattern: '[x] The change is less than 20 lines of code.'
-          - then:
+            then:
               - addLabel:
                   label: 'Micro PR 🔬'
           - if:
               - commentContains:
                   pattern: '[ ] The change is less than 20 lines of code.'
-          - then:
+            then:
               - removeLabel:
                   label: 'Micro PR 🔬'
 onFailure:
