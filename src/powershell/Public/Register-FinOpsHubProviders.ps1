@@ -1,24 +1,20 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
+
 <#
     .SYNOPSIS
-        Registers Azure resource providers required for FinOps hub.
+    Registers Azure resource providers required for FinOps hub.
 
     .PARAMETER WhatIf
-        Optional. Shows what would happen if the command runs without actually running it.
+    Optional. Shows what would happen if the command runs without actually running it.
 
     .EXAMPLE
-        Register-FinOpsHubProviders -WhatIf
+    Register-FinOpsHubProviders -WhatIf
 
-        Shows what would happen if the command runs without actually running it.
+    Shows what would happen if the command runs without actually running it.
 
     .Description
-        The Register-FinOpsHubProviders command registers the Azure resource providers required to deploy 
-        and operate a FinOps hub instance. To register a resource provider, you must have 
-        Contributor access (or the /register permission for each resource provider) for the entire subscription. 
-        Subscription readers can check the status of the resource providers but cannot register them. 
-        If you do not have access to register resource providers, please contact a subscription contributor 
-        or owner to run the Register-FinOpsHubProviders command.
+    The Register-FinOpsHubProviders command registers the Azure resource providers required to deploy and operate a FinOps hub instance. To register a resource provider, you must have Contributor access (or the /register permission for each resource provider) for the entire subscription. Subscription readers can check the status of the resource providers but cannot register them. If you do not have access to register resource providers, please contact a subscription contributor or owner to run the Register-FinOpsHubProviders command.
 #>
 function Register-FinOpsHubProviders {
     [CmdletBinding(SupportsShouldProcess)]
@@ -45,11 +41,12 @@ function Register-FinOpsHubProviders {
             }
             # If the provider is already registered, logging a message saying so
             else {
-                Write-Verbose -Message $($LocalizedData.ResourceProviderExists -f $provider)
+                Write-Verbose -Message $($LocalizedData.ResourceProviderRegistered -f $provider)
             }
         }
     }
-    catch [Microsoft.Azure.PowerShell.Cmdlets.ResourceManager.Runtime.AzurePowerShellException] {
+    catch {
         Write-Verbose -Message $($LocalizedData.ErrorRegisteringProvider -f $_.Exception.Message)
+        throw $_.Exception.Message
     }
 }
