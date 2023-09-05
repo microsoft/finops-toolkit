@@ -3,7 +3,7 @@ name: 'PowerShell Tests'
 on:
   pull_request:
     paths:
-      - '/src/powershell/**'
+      - 'src/powershell/**'
 jobs:
     run_pester_tests:
         name: Pester
