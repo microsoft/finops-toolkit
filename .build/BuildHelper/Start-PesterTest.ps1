@@ -12,6 +12,8 @@ function Start-PesterTest
     )
 
     $rootPath = ((Get-Item -Path $PSScriptRoot).Parent.Parent).FullName
+    $testRootPath = Join-Path -Path $rootPath -ChildPath 'src/powershell/Tests'
+    $modulePath = Join-Path -Path $rootPath -ChildPath 'src/powershell/FinOpsToolkit.psm1'
     $pesterArgs = [PesterConfiguration]::Default
     $pesterArgs.Output.Verbosity = 'Detailed'
 
@@ -19,13 +21,13 @@ function Start-PesterTest
     {
         'Meta'
         {
-            $testPath = Join-Path -Path $rootPath -ChildPath 'src/powershell/Tests/Meta'
+            $testPath = Join-Path -Path $testRootPath -ChildPath 'Meta/*'
         }
 
         'Unit'
         {
             $powerShellPath = Join-Path -Path $rootPath -ChildPath 'src/powershell'
-            $testPath = Join-Path -Path $rootPath -ChildPath 'src/powershell/Tests/Unit'
+            $testPath = Join-Path -Path $rootPath -ChildPath 'src/powershell/Tests/Unit/*'
             $pesterArgs.CodeCoverage.Enabled = $true
             $pesterArgs.CodeCoverage.Path = "$powerShellPath/*.ps*1"
             $pesterArgs.CodeCoverage.OutputFormat = 'JaCoCo'
@@ -34,5 +36,8 @@ function Start-PesterTest
     }
 
     $pesterArgs.Run.Path = $testPath
+
+    Remove-Module -FullyQualifiedName $modulePath -Force -ErrorAction 'SilentlyContinue'
+
     Invoke-Pester -Configuration $pesterArgs
 }

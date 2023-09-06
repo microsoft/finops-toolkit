@@ -39,5 +39,4 @@ $buildPath = Join-Path -Path $PSScriptRoot -ChildPath 'build.ps1'
 $dependencyPath = Get-ChildItem -Path $PSScriptRoot -Filter '*.depends.psd1'
 Invoke-PSDepend -Path $dependencyPath.FullName -Install -Import -Force
 
-$buildPath
 Invoke-Build -File $buildPath @PSBoundParameters

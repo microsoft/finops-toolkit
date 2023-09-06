@@ -12,7 +12,8 @@
             "problemMatcher": [],
             "group": {
                 "kind": "build",
-                "isDefault": true,
+                "label": "Test.All",
+                "isDefault": false,
             },
             "isBackground": false,
             "presentation": {
@@ -22,7 +23,17 @@
                 "panel": "shared",
                 "showReuseMessage": true,
                 "clear": false,
+            }
+        },
+        {
+            "label": "Test.All",
+            "type": "shell",
+            "problemMatcher": [ "$msCompile" ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
             },
-        }
+            "command": ". '${workspaceRoot}/.build/start.ps1' -Task Test.All"
+        },
     ]
 }
