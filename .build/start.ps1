@@ -6,7 +6,7 @@
 param
 (
     [Parameter(Mandatory = $true)]
-    [ValidateSet('PreRequisites', 'Build.PsModule', 'Publish.PsModule', 'Test.PowerShell.Unit', 'Test.PowerShell.PsAnalyzer', 'Test.PowerShell.All')]
+    [ValidateSet('PreRequisites', 'Build.PsModule', 'Publish.PsModule', 'Test.PowerShell.Unit', 'Test.PowerShell.Lint', 'Test.PowerShell.All')]
     [string[]]
     $Task,
 

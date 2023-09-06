@@ -6,7 +6,7 @@ function Start-PesterTest
     param
     (
         [Parameter(Mandatory = $true)]
-        [ValidateSet('Unit', 'PsAnalyzer')]
+        [ValidateSet('Unit', 'Lint')]
         [string]
         $Type
     )
@@ -17,9 +17,9 @@ function Start-PesterTest
 
     switch ($Type)
     {
-        'PsAnalyzer'
+        'Lint'
         {
-            $testPath = Join-Path -Path $rootPath -ChildPath 'src/powershell/Tests/PsAnalyzer'
+            $testPath = Join-Path -Path $rootPath -ChildPath 'src/powershell/Tests/Lint'
         }
 
         'Unit'

@@ -69,9 +69,9 @@
             },
         },
         {
-            "label": "Test.PowerShell.PsAnalyzer",
+            "label": "Test.PowerShell.Lint",
             "type": "shell",
-            "command": "./start.ps1 -Task Test.PowerShell.PsAnalyzer",
+            "command": "./start.ps1 -Task Test.PowerShell.Lint",
             "options": {
                 "cwd": "${workspaceFolder}/.build",
             },

@@ -88,8 +88,8 @@ task Test.PowerShell.Unit PreRequisites, {
     Start-PesterTest -Type 'Unit'
 }
 
-task Test.PowerShell.PsAnalyzer PreRequisites, {
-    Start-PesterTest -Type 'PsAnalyzer'
+task Test.PowerShell.Lint PreRequisites, {
+    Start-PesterTest -Type 'Lint'
 }
 
 task Test.PowerShell.All Test.PowerShell.PsAnalyzer, Test.PowerShell.Unit, {}
