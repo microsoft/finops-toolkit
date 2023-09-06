@@ -92,4 +92,4 @@ task Test.PowerShell.Lint PreRequisites, {
     Start-PesterTest -Type 'Lint'
 }
 
-task Test.PowerShell.All Test.PowerShell.PsAnalyzer, Test.PowerShell.Unit, {}
+task Test.PowerShell.All Test.PowerShell.Lint, Test.PowerShell.Unit, {}
