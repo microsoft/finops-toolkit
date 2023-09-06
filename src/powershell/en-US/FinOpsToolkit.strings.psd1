@@ -10,4 +10,5 @@ ConvertFrom-StringData -StringData @'
     NewDirectory = Creating directory '{0}'.
     TemplateNotFound = Could not find template 'main.bicep' at path '{0}'.
     ContextNotFound = Could not retrieve Az context. Run Az-Login.
+    ErrorResponse = {0} (Code: {1}).
 '@

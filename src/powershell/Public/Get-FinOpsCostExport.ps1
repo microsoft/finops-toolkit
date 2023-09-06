@@ -3,57 +3,68 @@
 
 <#
     .SYNOPSIS
-        Get list of Cost Management Exports.
+    Get list of Cost Management Exports.
 
     .PARAMETER Name
-        Name of the Cost Management Export.
+    Optional. Name of the export. Supports wildcards.
 
     .PARAMETER Scope
-        The scope associated with export operations. 
-        This includes '/subscriptions/{subscriptionId}/' for subscription scope, 
-        '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}' for resourceGroup scope, 
-        '/providers/Microsoft.Billing/billingAccounts/{billingAccountId}' for Billing Account scope and 
-        '/providers/Microsoft.Billing/billingAccounts/{billingAccountId}/departments/{departmentId}' for Department scope, 
-        '/providers/Microsoft.Billing/billingAccounts/{billingAccountId}/enrollmentAccounts/{enrollmentAccountId}' for EnrollmentAccount scope, 
-        '/providers/Microsoft.Management/managementGroups/{managementGroupId} for Management Group scope,
-        '/providers/Microsoft.Billing/billingAccounts/{billingAccountId}/billingProfiles/{billingProfileId}' for billingProfile scope, 
-        '/providers/Microsoft.Billing/billingAccounts/{billingAccountId}/billingProfiles/{billingProfileId}/invoiceSections/{invoiceSectionId}' for invoiceSection scope, and 
-        '/providers/Microsoft.Billing/billingAccounts/{billingAccountId}/customers/{customerId}' specific for partners.
+    Optional. Resource ID of the scope the export was created for. If empty, defaults to current subscription context.
 
     .PARAMETER DataSet
-        Optional. Dataset to get exports for. Allowed values = "ActualCost", "AmortizedCost", "Usage". Default = null (all exports).
+    Optional. Dataset to get exports for. Allowed values = "ActualCost", "AmortizedCost", "Usage". Default = null (all exports).
 
     .PARAMETER StorageAccountId
-        Optional. Resource ID of the storage account to get exports for. Default = null (all exports).
+    Optional. Resource ID of the storage account to get exports for. Default = null (all exports).
 
     .PARAMETER StorageContainer
-        Optional. Name of the container to get exports for. Default = null (all exports).
+    Optional. Name of the container to get exports for. Supports wildcards. Default = null (all exports).
 
     .PARAMETER ApiVersion
-        Optional. API version to use when calling the Cost Management Exports API. Default = 2023-03-01.
+    Optional. API version to use when calling the Cost Management Exports API. Default = 2023-03-01.
 
     .EXAMPLE
+    Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000"
 
-        Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000"
-        Get-FinOpsCostExport -Name MyExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000"
-        Get-FinOpsCostExport -Name MyExport* -Scope "/subscriptions/00000000-0000-0000-0000-000000000000"
-        Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -DataSet "AmortizedCost"
-        Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageAccountId "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/MyResourceGroup/providers/Microsoft.Storage/storageAccounts/MyStorageAccount"
-        Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageContainer "MyContainer"
-        Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageContainer "mtd*" -apiVersion "2023-08-01"
-        
+    Gets all exports for a subscription. Does not include exports in nested resource groups.
+    
+    .EXAMPLE
+    Get-FinOpsCostExport -Name mtd* -Scope "providers/Microsoft.Billing/billingAccounts/79676095"
+
+    Gets export with name matching wildcard mtd* within the specified billing account scope. Does not include exports in nested resource groups.
+
+    .EXAMPLE
+    Get-FinOpsCostExport -DataSet "AmortizedCost"
+
+    Gets all exports within the current context subscription scope and filtered by dataset AmortizedCost.
+
+    .EXAMPLE
+    Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageAccountId "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/MyResourceGroup/providers/Microsoft.Storage/storageAccounts/MyStorageAccount"
+
+    Gets all exports within the subscription scope filtered by a specific storage account.
+
+    .EXAMPLE
+    Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageContainer "MyContainer*"
+
+    Gets all exports within the subscription scope for a specific container. Supports wildcard.
+
+    .EXAMPLE
+    Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageContainer "mtd*" -apiVersion "2023-08-01"
+
+    Gets all exports within the subscription scope for a container matching wildcard pattern and using a specific API version.
 #>
 function Get-FinOpsCostExport
 {
     param
     (
         [Parameter()]
-        [SupportsWildcards()][string]
+        [SupportsWildcards()]
+        [string]
         $Name = $null,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [string]
-        $Scope,
+        $Scope = $null,
 
         [Parameter()]
         [ValidateSet("ActualCost", "AmortizedCost", "Usage")]
@@ -65,7 +76,8 @@ function Get-FinOpsCostExport
         $StorageAccountId = $null,
 
         [Parameter()]
-        [SupportsWildcards()][string]
+        [SupportsWildcards()]
+        [string]
         $StorageContainer = $null,
 
         [Parameter()]
@@ -78,15 +90,23 @@ function Get-FinOpsCostExport
     {
         throw $script:localizedData.ContextNotFound
     }
- 
+    # if Scope is not passed, use current subscription scope
+    if ([System.String]::IsNullOrEmpty($Scope))
+        {
+            $contextsubscription = $context.Subscription.Id
+            $Scope="subscriptions/$contextsubscription"
+
+            write-verbose "Scope parameter was not passed. Setting to subscription scope from current context"
+        }
+
+    $scope=$scope.trimstart("/").trimend("/")
+    $path = "$scope/providers/Microsoft.CostManagement/exports?api-version=$APIVersion"
+    
     # Get operation does not allow wildcards. Fetching all exports using list operation and then filtering in script
     # https://learn.microsoft.com/en-us/rest/api/cost-management/exports/list?tabs=HTTP
-
-
-    $uri = "https://management.azure.com/$scope/providers/Microsoft.CostManagement/exports?api-version=$APIVersion"
-  
-    Write-Verbose "connecting to $uri and fetching all exports for scope: $scope"
-    $httpResponse = Invoke-AzRestMethod -Uri $uri
+    
+    Write-Verbose "fetching all exports for scope:$scope"
+    $httpResponse = Invoke-AzRestMethod -path $path
 
     Write-Verbose "response received with status code $($httpResponse.StatusCode)"
 
@@ -119,32 +139,38 @@ function Get-FinOpsCostExport
         }
         $exportdetails = @()
         $content | ForEach-Object {
- 
+           
             $item = [PSCustomObject]@{
 
-                Id                   = $_.id
                 Name                 = $_.name
+                Id                   = $_.id
                 Type                 = $_.type
                 eTag                 = $_.eTag
-                ScheduledStatus      = $_.properties.schedule.status
+                ScheduleStatus       = $_.properties.schedule.status
                 ScheduleRecurrence   = $_.properties.schedule.recurrence
-                RecurrencePeriodFrom = $_.properties.schedule.recurrencePeriod.from
-                RecurrencePeriodTo   = $_.properties.schedule.recurrencePeriod.to
+                ScheduleStartDate    = $_.properties.schedule.recurrencePeriod.from
+                ScheduleEndDate      = $_.properties.schedule.recurrencePeriod.to
                 NextRuntimeEstimate  = $_.properties.nextRunTimeEstimate
                 Format               = $_.properties.format
                 StorageAccountId     = $_.properties.deliveryInfo.destination.resourceId
                 StorageContainer     = $_.properties.deliveryInfo.destination.container
-                RootFolderPath       = $_.properties.deliveryInfo.destination.rootfolderpath
-                DefinitionType       = $_.properties.definition.type
-                DefinitionTimeFrame  = $_.properties.definition.timeframe
+                StoragePath          = $_.properties.deliveryInfo.destination.rootfolderpath
+                DataSet              = $_.properties.definition.type
+                DataSetTimeFrame     = $_.properties.definition.timeframe
+                DataSetStartDate     = $_.properties.definition.timePeriod.from
+                DataSetEndDate       = $_.properties.definition.timePeriod.to
                 DatasetGranularity   = $_.properties.definition.dataset.granularity        
             }
             $exportdetails += $item
-            return $exportdetails
-        }    
+           
+        }
+        return $exportdetails 
     }
     else
     {
-        Write-Error "Failed to fetch export data: '$($httpResponse.Content)'"
+        $errorobject=$($httpResponse.Content | ConvertFrom-Json).error
+        $errorcode=$errorobject.code
+        $errorcodemessage=$errorobject.message
+        write-error $($script:localizedData.ErrorResponse -f $errorcodemessage, $errorcode)
     }
 }
