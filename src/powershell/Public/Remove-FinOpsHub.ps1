@@ -62,35 +62,33 @@ function Remove-FinOpsHub
     try
     {
 
-        $fhO = $null
-
         if ($PSCmdlet.ParameterSetName -eq 'Name')
         {
             if (-not [string]::IsNullOrEmpty($ResourceGroupName))
             {
-                $fhO = Get-FinOpsHub -Name $Name -ResourceGroupName $ResourceGroupName
+                $hub = Get-FinOpsHub -Name $Name -ResourceGroupName $ResourceGroupName
             }
             else
             {
-                $fhO = Get-FinOpsHub -Name $Name
+                $hub = Get-FinOpsHub -Name $Name
             }
         }
         else
         {
-            $fhO = $InputObject
+            $hub = $InputObject
         }
 
         # TODO: $Name is not available if InputObject provided
-        if (-not $fhO)
+        if (-not $hub)
         {
             throw $script:localizedData.FinOpsHubNotFound -f $Name
         }
 
         # Extract unique identifier from Key Vault name
-        $kv = $fhO.Resources | Where-Object ResourceType -eq "Microsoft.KeyVault/vaults"
+        $kv = $hub.Resources | Where-Object ResourceType -eq "Microsoft.KeyVault/vaults"
         $uniqueId = $kv[0].Substring($kv[0].LastIndexOf("-") + 1)
 
-        $resources = $null
+
         if ($KeepStorageAccount)
         {
             $resources = Get-AzResource -ResourceGroupName $ResourceGroup | Where-Object Name -like "*$uniqueId*" | Where-Object ResourceType -ne "Microsoft.Storage/storageAccounts"
@@ -103,7 +101,7 @@ function Remove-FinOpsHub
 
         if ($PSCmdlet.ShouldProcess($Name, 'DeleteFinOpsHub'))
         {
-            $resources | Remove-AzResource -Force:$Force -AsJob
+            $resources | Remove-AzResource -Force:$Force
         }
     }
     catch
