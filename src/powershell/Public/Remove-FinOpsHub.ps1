@@ -3,24 +3,24 @@
 
 <#
     .SYNOPSIS
-    Delete a Cost Management export and optionally data associated with the export.
+    Delete a FinOps Hub instance and optionally keep the storage account hosting cost data.
 
     .PARAMETER Name
-    Name of the Cost Management export.
+    Required when specifying Name. Name of the FinOps Hub.
 
-    .PARAMETER Scope
-    Required. Resource ID of the scope to export data for.
+    .PARAMETER ResourceGroupName
+    Optional when specifying Name. Resource Group Name for the FinOps Hub.
 
-    .PARAMETER RemoveData
-    Optional. Indicates that all cost data associated with the Export scope should be deleted.
+    .PARAMETER InputObject
+    Required when specifying InputObject. Expected object is the output of Get-FinOpsHub.
 
-    .PARAMETER APIVersion
-    Optional. API version to use when calling the Cost Management Exports API. Default = 2023-03-01.
+    .PARAMETER KeepStorageAccount
+    Optional. Indicates that the storage account associated with the FinOps Hub should be retained.
 
     .EXAMPLE
-    Remove-FinOpsCostExport -Name MyExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -RemoveData
+    Remove-FinOpsHub -Name MyHub -ResourceGroupName MyRG -KeepStorageAccount
 
-    Deletes a Cost Management export named MyExport scoped to /subscriptions/00000000-0000-0000-0000-000000000000, and deletes all exported data from the related storage account.
+    Deletes a FinOps Hub named MyHub and deletes all associated resource except the storagea ccount.
 #>
 
 function Remove-FinOpsHub
