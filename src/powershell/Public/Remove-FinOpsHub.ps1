@@ -64,7 +64,8 @@ function Remove-FinOpsHub
     throw $script:localizedData.ContextNotFound
   }
 
-  try {
+  try
+  {
 
     $fhO = $null
 
@@ -91,14 +92,15 @@ function Remove-FinOpsHub
     }
 
     # Extract unique identifier
-    $fhO | Where-Object ResourceType -eq ""
+    $fhO | Where-Object Resources.ResourceType -EQ "Microsoft.KeyVault/vaults"
 
     $name = (Get-FinOpsHub).Resources.Name
     $name[0].Substring($name[0].LastIndexOf("-") + 1)
 
 
   }
-  catch {
+  catch
+  {
     <#Do this if a terminating exception happens#>
   }
 }
