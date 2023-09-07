@@ -103,7 +103,7 @@ function Remove-FinOpsHub
 
         if ($PSCmdlet.ShouldProcess($Name, 'DeleteFinOpsHub'))
         {
-            $resources | Remove-AzResource -Force -AsJob
+            $resources | Remove-AzResource -Force:$Force -AsJob
         }
     }
     catch
