@@ -25,7 +25,7 @@
 
 function Remove-FinOpsHub
 {
-    [CmdletBinding(SupportsShouldProcess)]
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
     param
     (
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
@@ -46,11 +46,6 @@ function Remove-FinOpsHub
         [Parameter(ParameterSetName = 'Object')]
         [switch]
         $KeepStorageAccount,
-
-        [Parameter(ParameterSetName = 'Name')]
-        [Parameter(ParameterSetName = 'Object')]
-        [bool]
-        $Confirm = $true,
 
         [Parameter(ParameterSetName = 'Name')]
         [Parameter(ParameterSetName = 'Object')]
@@ -92,15 +87,27 @@ function Remove-FinOpsHub
         }
 
         # Extract unique identifier
-        $fhO | Where-Object Resources.ResourceType -EQ "Microsoft.KeyVault/vaults"
+        $kv = $fhO.Resources | Where-Object ResourceType -eq "Microsoft.KeyVault/vaults"
+        $uniqueId = $kv[0].Substring($kv[0].LastIndexOf("-") + 1)
 
-        $name = (Get-FinOpsHub).Resources.Name
-        $name[0].Substring($name[0].LastIndexOf("-") + 1)
+        $resources = $null
+        if ($KeepStorageAccount)
+        {
+            $resources = Get-AzResource -ResourceGroupName $ResourceGroup | Where-Object Name -like "*$uniqueId*" | Where-Object ResourceType -ne "Microsoft.Storage/storageAccounts"
+        }
+        else {
+            $resources = Get-AzResource -ResourceGroupName $ResourceGroup | Where-Object Name -like "*$uniqueId*"<# Action when all if and elseif conditions are false #>
+        }
 
+        #$resources | ft ResourceId, Name, ResourceType
 
+        if ($PSCmdlet.ShouldProcess($Name, 'DeleteFinOpsHub'))
+        {
+            $resources | Remove-AzResource -Force -AsJob
+        }
     }
     catch
     {
-        <#Do this if a terminating exception happens#>
+        throw $script:localizedData.DeleteFinOpsHub<#Do this if a terminating exception happens#>
     }
 }
