@@ -1,7 +1,10 @@
 {
   "projectName": "finops-toolkit",
   "projectOwner": "microsoft",
-  "files": ["README.md", "docs/README.md"],
+  "files": [
+    "README.md",
+    "docs/README.md"
+  ],
   "repoType": "github",
   "commitConvention": "none",
   "contributors": [
@@ -10,99 +13,133 @@
       "name": "Michael Flanakin",
       "avatar_url": "https://avatars.githubusercontent.com/u/399533?v=4",
       "profile": "http://about.me/flanakin",
-      "contributions": ["code", "review", "doc"]
+      "contributions": [
+        "code",
+        "review",
+        "doc"
+      ]
     },
     {
       "login": "aromano2",
       "name": "Anthony Romano",
       "avatar_url": "https://avatars.githubusercontent.com/u/26576969?v=4",
       "profile": "https://github.com/aromano2",
-      "contributions": ["code", "review"]
+      "contributions": [
+        "code",
+        "review"
+      ]
     },
     {
       "login": "MSBrett",
       "name": "Brett Wilson",
       "avatar_url": "https://avatars.githubusercontent.com/u/24294904?v=4",
       "profile": "https://github.com/MSBrett",
-      "contributions": ["code", "review"]
+      "contributions": [
+        "code",
+        "review"
+      ]
     },
     {
       "login": "tsilvers-ms",
       "name": "Travis Silvers",
       "avatar_url": "https://avatars.githubusercontent.com/u/92124324?v=4",
       "profile": "https://github.com/tsilvers-ms",
-      "contributions": ["review"]
+      "contributions": [
+        "review"
+      ]
     },
     {
       "login": "ankur-ms",
       "name": "Ankur Sharma",
       "avatar_url": "https://avatars.githubusercontent.com/u/118343862?v=4",
       "profile": "https://github.com/ankur-ms",
-      "contributions": ["review"]
+      "contributions": [
+        "review"
+      ]
     },
     {
       "login": "sri-",
       "name": "srilatha inavolu",
       "avatar_url": "https://avatars.githubusercontent.com/u/4493254?v=4",
       "profile": "https://github.com/sri-",
-      "contributions": ["review"]
+      "contributions": [
+        "review"
+      ]
     },
     {
       "login": "arthurclares",
       "name": "Arthur Clares",
       "avatar_url": "https://avatars.githubusercontent.com/u/53261392?v=4",
       "profile": "https://github.com/arthurclares",
-      "contributions": ["code"]
+      "contributions": [
+        "code"
+      ]
     },
     {
       "login": "sebassem",
       "name": "Seif Bassem",
       "avatar_url": "https://avatars.githubusercontent.com/u/38246040?v=4",
       "profile": "https://www.seifbassem.com/",
-      "contributions": ["code"]
+      "contributions": [
+        "code"
+      ]
     },
     {
       "login": "sreenav",
       "name": "SREENADHA REDDY VANKIREDDY",
       "avatar_url": "https://avatars.githubusercontent.com/u/57934984?v=4",
       "profile": "https://github.com/sreenav",
-      "contributions": ["review"]
+      "contributions": [
+        "review"
+      ]
     },
     {
       "login": "helderpinto",
       "name": "Hélder Pinto",
       "avatar_url": "https://avatars.githubusercontent.com/u/10661605?v=4",
       "profile": "https://aka.ms/helderpinto",
-      "contributions": ["doc"]
+      "contributions": [
+        "doc"
+      ]
     },
     {
       "login": "nteyan",
       "name": "Nicolas Teyan",
       "avatar_url": "https://avatars.githubusercontent.com/u/8894656?v=4",
       "profile": "https://github.com/nteyan",
-      "contributions": ["code"]
+      "contributions": [
+        "code"
+      ]
     },
     {
       "login": "Springstone",
       "name": "Sacha Narinx",
       "avatar_url": "https://avatars.githubusercontent.com/u/2101287?v=4",
       "profile": "https://github.com/Springstone",
-      "contributions": ["code"]
+      "contributions": [
+        "code"
+      ]
     },
     {
       "login": "saadmsft",
       "name": "Saad Mahmood",
       "avatar_url": "https://avatars.githubusercontent.com/u/66096650?v=4",
       "profile": "https://github.com/saadmsft",
-      "contributions": ["code"]
+      "contributions": [
+        "code"
+      ]
     },
     {
       "login": "didayal-msft",
       "name": "Divyadeep Dayal",
       "avatar_url": "https://avatars.githubusercontent.com/u/81250915?v=4",
       "profile": "https://github.com/didayal-msft",
-      "contributions": ["code"]
+      "contributions": [
+        "code",
+        "review"
+      ]
     }
-  ]
+  ],
+  "commitType": "docs",
+  "contributorsPerLine": 7
 }
-
