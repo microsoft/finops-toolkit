@@ -60,25 +60,25 @@ function Get-FinOpsCostExport
         [Parameter()]
         [SupportsWildcards()]
         [string]
-        $Name = $null,
+        $Name,
 
         [Parameter()]
         [string]
-        $Scope = $null,
+        $Scope,
 
         [Parameter()]
         [ValidateSet("ActualCost", "AmortizedCost", "Usage")]
         [string]
-        $DataSet = $null,
+        $DataSet,
 
         [Parameter()]
         [string]
-        $StorageAccountId = $null,
+        $StorageAccountId,
 
         [Parameter()]
         [SupportsWildcards()]
         [string]
-        $StorageContainer = $null,
+        $StorageContainer,
 
         [Parameter()]
         [string]
@@ -96,7 +96,7 @@ function Get-FinOpsCostExport
             $contextsubscription = $context.Subscription.Id
             $Scope="subscriptions/$contextsubscription"
 
-            write-verbose "Scope parameter was not passed. Setting to subscription scope from current context"
+            Write-Verbose -Message "Scope parameter was not passed. Setting to subscription scope from current context"
         }
 
     $scope=$scope.trimstart("/").trimend("/")
@@ -105,37 +105,37 @@ function Get-FinOpsCostExport
     # Get operation does not allow wildcards. Fetching all exports using list operation and then filtering in script
     # https://learn.microsoft.com/en-us/rest/api/cost-management/exports/list?tabs=HTTP
     
-    Write-Verbose "fetching all exports for scope:$scope"
+    Write-Verbose -Message "fetching all exports for scope:$scope"
     $httpResponse = Invoke-AzRestMethod -path $path
 
-    Write-Verbose "response received with status code $($httpResponse.StatusCode)"
+    Write-Verbose -Message "response received with status code $($httpResponse.StatusCode)"
 
     if ($httpResponse.StatusCode -eq 200)
     {
       
         $content = $(ConvertFrom-Json -InputObject $httpResponse.Content -Depth 20).Value
-        Write-Verbose "found $($content.count) export items for the scope $scope"
+        Write-Verbose -Message "found $($content.count) export items for the scope $scope"
 
         # Name parameter received
         if (-not [System.String]::IsNullOrEmpty($Name))
         {
             $content = $content | Where-Object { $_.name -like $Name }
-            Write-Verbose "$($content.count) items left after filtering for Name $Name"
+            Write-Verbose -Message "$($content.count) items left after filtering for Name $Name"
         }
         if (-not [System.String]::IsNullOrEmpty($DataSet)) 
         {
             $content = $content | Where-Object { $_.properties.definition.type -like $DataSet }
-            Write-Verbose "$($content.count) items left after filtering for DataSet $DataSet"
+            Write-Verbose -Message "$($content.count) items left after filtering for DataSet $DataSet"
         }
         if (-not [System.String]::IsNullOrEmpty($StorageAccountId))
         {    
             $content = $content | Where-Object { $_.properties.deliveryInfo.destination.resourceId.tostring() -eq $StorageAccountId }
-            Write-Verbose "found $($content.count) items after filtering for storageaccountid $StorageAccountId"
+            Write-Verbose -Message "found $($content.count) items after filtering for storageaccountid $StorageAccountId"
         }
         if (-not [System.String]::IsNullOrEmpty($StorageContainer))
         {    
             $content = $content | Where-Object { $_.properties.deliveryInfo.destination.container.tostring() -like $StorageContainer }
-            Write-Verbose "found $($content.count) items after filtering for StorageContainer $StorageContainer"
+            Write-Verbose -Message "found $($content.count) items after filtering for StorageContainer $StorageContainer"
         }
         $exportdetails = @()
         $content | ForEach-Object {
@@ -171,6 +171,6 @@ function Get-FinOpsCostExport
         $errorobject=$($httpResponse.Content | ConvertFrom-Json).error
         $errorcode=$errorobject.code
         $errorcodemessage=$errorobject.message
-        write-error $($script:localizedData.ErrorResponse -f $errorcodemessage, $errorcode)
+        write-error -Message $($script:localizedData.ErrorResponse -f $errorcodemessage, $errorcode)
     }
 }
