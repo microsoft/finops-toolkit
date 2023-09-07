@@ -25,82 +25,82 @@
 
 function Remove-FinOpsHub
 {
-  [CmdletBinding(SupportsShouldProcess)]
-  param
-  (
-    [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
-    [ValidateNotNullOrEmpty ()]
-    [string]
-    $Name,
+    [CmdletBinding(SupportsShouldProcess)]
+    param
+    (
+        [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
+        [ValidateNotNullOrEmpty ()]
+        [string]
+        $Name,
 
-    [Parameter(ParameterSetName = 'Name')]
-    [string]
-    $ResourceGroupName,
+        [Parameter(ParameterSetName = 'Name')]
+        [string]
+        $ResourceGroupName,
 
-    [Parameter(Mandatory = $true, ParameterSetName = 'Object')]
-    [ValidateNotNullOrEmpty ()]
-    [psobject]
-    $InputObject,
+        [Parameter(Mandatory = $true, ParameterSetName = 'Object')]
+        [ValidateNotNullOrEmpty ()]
+        [psobject]
+        $InputObject,
 
-    [Parameter(ParameterSetName = 'Name')]
-    [Parameter(ParameterSetName = 'Object')]
-    [switch]
-    $KeepStorageAccount,
+        [Parameter(ParameterSetName = 'Name')]
+        [Parameter(ParameterSetName = 'Object')]
+        [switch]
+        $KeepStorageAccount,
 
-    [Parameter(ParameterSetName = 'Name')]
-    [Parameter(ParameterSetName = 'Object')]
-    [bool]
-    $Confirm = $true,
+        [Parameter(ParameterSetName = 'Name')]
+        [Parameter(ParameterSetName = 'Object')]
+        [bool]
+        $Confirm = $true,
 
-    [Parameter(ParameterSetName = 'Name')]
-    [Parameter(ParameterSetName = 'Object')]
-    [switch]
-    $Force
-  )
+        [Parameter(ParameterSetName = 'Name')]
+        [Parameter(ParameterSetName = 'Object')]
+        [switch]
+        $Force
+    )
 
-  $context = Get-AzContext
-  if (-not $context)
-  {
-    throw $script:localizedData.ContextNotFound
-  }
-
-  try
-  {
-
-    $fhO = $null
-
-    if ($PSCmdlet.ParameterSetName -eq 'Name')
+    $context = Get-AzContext
+    if (-not $context)
     {
-      if (-not [string]::IsNullOrEmpty($ResourceGroupName))
-      {
-        $fhO = Get-FinOpsHub -Name $Name -ResourceGroupName $ResourceGroupName
-      }
-      else
-      {
-        $fhO = Get-FinOpsHub -Name $Name
-      }
-    }
-    else
-    {
-      $fhO = $InputObject
+        throw $script:localizedData.ContextNotFound
     }
 
-    # TODO: $Name is not available if InputObject provided
-    if (-not $fhO)
+    try
     {
-      throw $script:localizedData.FinOpsHubNotFound -f $Name
+
+        $fhO = $null
+
+        if ($PSCmdlet.ParameterSetName -eq 'Name')
+        {
+            if (-not [string]::IsNullOrEmpty($ResourceGroupName))
+            {
+                $fhO = Get-FinOpsHub -Name $Name -ResourceGroupName $ResourceGroupName
+            }
+            else
+            {
+                $fhO = Get-FinOpsHub -Name $Name
+            }
+        }
+        else
+        {
+            $fhO = $InputObject
+        }
+
+        # TODO: $Name is not available if InputObject provided
+        if (-not $fhO)
+        {
+            throw $script:localizedData.FinOpsHubNotFound -f $Name
+        }
+
+        # Extract unique identifier
+        $fhO | Where-Object Resources.ResourceType -EQ "Microsoft.KeyVault/vaults"
+
+        $name = (Get-FinOpsHub).Resources.Name
+        $name[0].Substring($name[0].LastIndexOf("-") + 1)
+
+
     }
-
-    # Extract unique identifier
-    $fhO | Where-Object Resources.ResourceType -EQ "Microsoft.KeyVault/vaults"
-
-    $name = (Get-FinOpsHub).Resources.Name
-    $name[0].Substring($name[0].LastIndexOf("-") + 1)
-
-
-  }
-  catch
-  {
-    <#Do this if a terminating exception happens#>
-  }
+    catch
+    {
+        <#Do this if a terminating exception happens#>
+    }
 }
