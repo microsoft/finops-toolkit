@@ -53,6 +53,9 @@ There are many ways to participate. From reporting bugs and requesting features 
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/saadmsft"><img src="https://avatars.githubusercontent.com/u/66096650?v=4?s=100" width="100px;" alt="Saad Mahmood"/><br /><sub><b>Saad Mahmood</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=saadmsft" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/didayal-msft"><img src="https://avatars.githubusercontent.com/u/81250915?v=4?s=100" width="100px;" alt="Divyadeep Dayal"/><br /><sub><b>Divyadeep Dayal</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=didayal-msft" title="Code">💻</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/apps/allcontributors"><img src="https://avatars.githubusercontent.com/in/23186?v=4?s=100" width="100px;" alt="allcontributors[bot]"/><br /><sub><b>allcontributors[bot]</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=allcontributors[bot]" title="Documentation">📖</a></td>
+    </tr>
   </tbody>
 </table>
 
