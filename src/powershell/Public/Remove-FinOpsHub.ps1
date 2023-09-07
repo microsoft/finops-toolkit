@@ -86,7 +86,7 @@ function Remove-FinOpsHub
             throw $script:localizedData.FinOpsHubNotFound -f $Name
         }
 
-        # Extract unique identifier
+        # Extract unique identifier from Key Vault name
         $kv = $fhO.Resources | Where-Object ResourceType -eq "Microsoft.KeyVault/vaults"
         $uniqueId = $kv[0].Substring($kv[0].LastIndexOf("-") + 1)
 
@@ -96,7 +96,7 @@ function Remove-FinOpsHub
             $resources = Get-AzResource -ResourceGroupName $ResourceGroup | Where-Object Name -like "*$uniqueId*" | Where-Object ResourceType -ne "Microsoft.Storage/storageAccounts"
         }
         else {
-            $resources = Get-AzResource -ResourceGroupName $ResourceGroup | Where-Object Name -like "*$uniqueId*"<# Action when all if and elseif conditions are false #>
+            $resources = Get-AzResource -ResourceGroupName $ResourceGroup | Where-Object Name -like "*$uniqueId*"
         }
 
         #$resources | ft ResourceId, Name, ResourceType
@@ -108,6 +108,6 @@ function Remove-FinOpsHub
     }
     catch
     {
-        throw $script:localizedData.DeleteFinOpsHub<#Do this if a terminating exception happens#>
+        throw $script:localizedData.DeleteFinOpsHub
     }
 }
