@@ -37,7 +37,7 @@ There are many ways to participate. From reporting bugs and requesting features 
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="14.28%"><a href="http://about.me/flanakin"><img src="https://avatars.githubusercontent.com/u/399533?v=4?s=100" width="100px;" alt="Michael Flanakin"/><br /><sub><b>Michael Flanakin</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=flanakin" title="Code">💻</a> <a href="https://github.com/microsoft/finops-toolkit/commits?author=flanakin" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://about.me/flanakin"><img src="https://avatars.githubusercontent.com/u/399533?v=4?s=100" width="100px;" alt="Michael Flanakin"/><br /><sub><b>Michael Flanakin</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=flanakin" title="Code">💻</a> <a href="https://github.com/microsoft/finops-toolkit/commits?author=flanakin" title="Documentation">📖</a> <a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3Aflanakin" title="Reviewed Pull Requests">👀</a></td>
     </tr>
   </tbody>
 </table>
