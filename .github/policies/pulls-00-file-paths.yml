@@ -16,6 +16,9 @@ configuration:
               - payloadType: Pull_Request_Review
               - payloadType: Pull_Request_Review_Comment
           - not:
+              isActivitySender:
+                user: allcontributors
+          - not:
               targetsBranch:
                 branch: main
         then:
