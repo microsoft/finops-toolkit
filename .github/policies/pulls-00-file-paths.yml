@@ -10,6 +10,44 @@ where:
 configuration:
   resourceManagementConfiguration:
     eventResponderTasks:
+      - description: When a PR is reviewed, add as review contributor
+        if:
+          - or:
+              - payloadType: Pull_Request_Review
+              - payloadType: Pull_Request_Review_Comment
+          - not:
+              isActivitySender:
+                user: allcontributors
+          - not:
+              targetsBranch:
+                branch: main
+        then:
+          - addReply:
+              reply: '@all-contributors please add ${contextualAuthor} for review'
+      - description: When a PR is opened, add as contributor
+        if:
+          - payloadType: Pull_Request
+          - not:
+              targetsBranch:
+                branch: main
+        then:
+          # all code
+          - if:
+              - or:
+                  - filesMatchPattern:
+                      pattern: ^(.build|.github|.vscode|src\/scripts)\/.*
+                  - filesMatchPattern:
+                      pattern: ^src\/.*
+            then:
+              - addReply:
+                  reply: '@all-contributors please add ${issueAuthor} for doc'
+          # docs
+          - if:
+              - filesMatchPattern:
+                  pattern: ^docs\/.*
+            then:
+              - addReply:
+                  reply: '@all-contributors please add ${issueAuthor} for doc'
       - description: When a PR is opened, add labels based on file paths
         if:
           - payloadType: Pull_Request
@@ -25,10 +63,13 @@ configuration:
             then:
               - requestReview:
                   reviewer: flanakin
-          # GitHub
+          # devops
           - if:
-              - filesMatchPattern:
-                  pattern: ^.github\/.*
+              - or:
+                  - filesMatchPattern:
+                      pattern: ^(.build|.github|.vscode|src\/scripts)\/.*
+                  - filesMatchPattern:
+                      pattern: ^src\/([^\/]+\/)?[^\/]+.md$
             then:
               - addLabel:
                   label: 'Area: DevOps'
