@@ -1,11 +1,14 @@
-function Build-FinOpsModule
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+function Build-PsModule
 {
     [CmdletBinding()]
     param
     (
         [Parameter(Mandatory = $true)]
         [string]
-        [ValidateScript({$_ -match '^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'})]
+        [ValidateScript({$_ -match '^([1-9]\d*|0)(\.(([1-9]\d*)|0)){0,3}$'})]
         $Version,
 
         [Parameter()]
@@ -14,21 +17,22 @@ function Build-FinOpsModule
         $PrereleaseTag
     )
 
-    $rootPath = (Get-Item -Path $PSScriptRoot).Parent.FullName
+    $rootPath = (Get-Item -Path $PSScriptRoot).Parent.Parent.FullName
     $moduleName = 'FinOpsToolkit'
     $moduleFullName = "$moduleName.psm1"
     $modulePath = Join-Path -Path $rootPath -ChildPath "src/powershell/$moduleFullName"
+    $privatePath = Join-Path -Path $rootPath -ChildPath "src/powershell/private"
+    $publicPath = Join-Path -Path $rootPath -ChildPath "src/powershell/public"
     $stringsPath = Join-Path -Path $rootPath -ChildPath 'src/powershell/en-US'
-    $releasePath = Join-Path -Path $rootPath -ChildPath "release/FinOpsToolkit/$Version"
-    $scriptPath = Join-Path -Path $rootPath -ChildPath 'src/scripts'
-    $manifestPath = Join-Path -Path $releasePath -ChildPath 'FinOpsToolkit.psd1'
+    $releasePath = Join-Path -Path $rootPath -ChildPath "release/$moduleName/$Version"
+    $manifestPath = Join-Path -Path $releasePath -ChildPath "$moduleName.psd1"
 
     # Make sure we can import module properly. Capture exported functions.
     try
     {
         Import-Module -FullyQualifiedName $modulePath -ErrorAction 'Stop'
         $exportedCommands = Get-Command -Module $moduleName
-        Remove-Module -Name $moduleName
+        Remove-Module -Name $moduleName -Force -ErrorAction 'SilentlyContinue'
     }
     catch
     {
@@ -36,9 +40,7 @@ function Build-FinOpsModule
     }
 
     # Create release directory
-    Push-Location -Path $scriptPath
-    ./New-Directory $releasePath
-    Pop-Location
+    New-Directory -Path $releasePath
 
     $manifestProperties = @{
         ModuleVersion     = $Version
@@ -79,4 +81,7 @@ function Build-FinOpsModule
     New-ModuleManifest @manifestProperties
     Copy-Item -Path $modulePath -Destination $releasePath
     Copy-Item -Path $stringsPath -Destination $releasePath -Container -Recurse
+    Copy-Item -Path $privatePath -Destination $releasePath -Container -Recurse
+    Copy-Item -Path $publicPath -Destination $releasePath -Container -Recurse
+    Add-CopyrightHeader -Path $manifestPath
 }

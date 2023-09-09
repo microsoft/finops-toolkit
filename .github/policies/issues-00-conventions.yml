@@ -1,0 +1,81 @@
+id: issues-00-conventions
+name: GitOps.PullRequestIssueManagement
+description: Handles when an issue follows predetermined conventions
+owner:
+resource: repository
+disabled: false
+where:
+
+# spell-checker:disable
+configuration:
+  resourceManagementConfiguration:
+    eventResponderTasks:
+      - description: When an issue has a specific title prefix, add a label
+        if:
+          - payloadType: Issues
+        then:
+          # bicep
+          - if:
+              - or:
+                  - titleContains:
+                      pattern: '^\[Bicep Registry\]'
+                      isRegex: true
+                  - titleContains:
+                      pattern: '^\[Bicep\]'
+                      isRegex: true
+                  - bodyContains:
+                      pattern: /bicep/i
+                      isRegex: true
+            then:
+              - addLabel:
+                  label: 'Area: DevOps'
+          # devops
+          - if:
+              - or:
+                  - titleContains:
+                      pattern: '^\[DevOps\]'
+                      isRegex: true
+                  - bodyContains:
+                      pattern: /DevOps/i
+                      isRegex: true
+            then:
+              - addLabel:
+                  label: 'Area: DevOps'
+          # hubs
+          - if:
+              - or:
+                  - titleContains:
+                      pattern: '^\[Hubs\]'
+                      isRegex: true
+                  - bodyContains:
+                      pattern: /Hubs/i
+                      isRegex: true
+            then:
+              - addLabel:
+                  label: 'Solution: FinOps hubs'
+          # powershell
+          - if:
+              - or:
+                  - titleContains:
+                      pattern: '^\[PowerShell\]'
+                      isRegex: true
+                  - bodyContains:
+                      pattern: /PowerShell/i
+                      isRegex: true
+            then:
+              - addLabel:
+                  label: 'Area: PowerShell'
+          # workbooks
+          - if:
+              - or:
+                  - titleContains:
+                      pattern: '^\[Workbooks\]'
+                      isRegex: true
+                  - bodyContains:
+                      pattern: /workbooks/i
+                      isRegex: true
+            then:
+              - addLabel:
+                  label: 'Solution: Workbooks'
+onFailure:
+onSuccess:
