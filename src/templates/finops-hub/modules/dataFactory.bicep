@@ -798,7 +798,7 @@ resource pipeline_fill 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = 
         userProperties: []
         typeProperties: {
           items: {
-            value: '@activity(\'Get Config\').output.firstRow.exportScopes'
+            value: '@activity(\'Get Config\').output.firstRow.scopes'
             type: 'Expression'
           }
           isSequential: true
@@ -1087,7 +1087,7 @@ resource pipeline_get 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
         userProperties: []
         typeProperties: {
           items: {
-            value: '@activity(\'Get Config\').output.firstRow.exportScopes'
+            value: '@activity(\'Get Config\').output.firstRow.scopes'
             type: 'Expression'
           }
           isSequential: true
@@ -1335,7 +1335,7 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
         userProperties: []
         typeProperties: {
           items: {
-            value: '@activity(\'Get Config\').output.firstRow.exportScopes'
+            value: '@activity(\'Get Config\').output.firstRow.scopes'
             type: 'Expression'
           }
           isSequential: true

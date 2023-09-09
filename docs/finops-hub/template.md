@@ -62,7 +62,7 @@ Please ensure the following prerequisites are met before deploying this template
 | **location**                   | String | Optional. Azure location where all resources should be created. See https://aka.ms/azureregions.                                                                                  | (resource group location) |
 | **storageSku**                 | String | Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: `Premium_LRS`, `Premium_ZRS`. | `Premium_LRS`             |
 | **tags**                       | Object | Optional. Tags to apply to all resources. We will also add the `cm-resource-parent` tag for improved cost roll-ups in Cost Management.                                            |
-| **exportScopes**               | Array  | Optional. List of scope IDs to create exports for.                                                                                                                                |
+| **scopesToMonitor**            | Array  | Optional. List of scope IDs to monitor and ingest cost for.                                                                                                                                |
 | **exportRetentionInDays**      | Int    | Optional. Number of days of cost data to retain in the ms-cm-exports container.                                                                                                   | 0                         |
 | **ingestionRetentionInMonths** | Int    | Optional. Number of months of cost data to retain in the ingestion container.                                                                                                     | 13                        |
 

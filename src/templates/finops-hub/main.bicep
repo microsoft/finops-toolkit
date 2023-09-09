@@ -23,8 +23,8 @@ param storageSku string = 'Premium_LRS'
 @description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
 param tags object = {}
 
-@description('Optional. List of scope IDs to create exports for.')
-param exportScopes array = []
+@description('Optional. List of scope IDs to monitor and ingest cost for.')
+param scopesToMonitor array = []
 
 @description('Optional. Number of days of cost data to retain in the ms-cm-exports container. Default: 0.')
 param exportRetentionInDays int = 0
@@ -50,7 +50,7 @@ module hub 'modules/hub.bicep' = {
     location: location
     storageSku: storageSku
     tags: tags
-    exportScopes: exportScopes
+    scopesToMonitor: scopesToMonitor
     exportRetentionInDays: exportRetentionInDays
     ingestionRetentionInMonths: ingestionRetentionInMonths
     remoteHubStorageUri: remoteHubStorageUri
