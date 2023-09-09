@@ -1,9 +1,12 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 
 [CmdletBinding()]
 param
 (
     [Parameter(Mandatory = $true)]
-    [ValidateSet('PreRequisites', 'Build.Module', 'Publish.Module', 'Test.Unit', 'Test.Meta', 'Test.All')]
+    [ValidateSet('PreRequisites', 'Build.PsModule', 'Publish.PsModule', 'Test.PowerShell.Unit', 'Test.PowerShell.Lint', 'Test.PowerShell.All')]
     [string[]]
     $Task,
 
@@ -14,7 +17,11 @@ param
     [Parameter()]
     [ValidateSet('alpha', 'preview')]
     [string]
-    $PrereleaseTag
+    $PrereleaseTag,
+
+    [Parameter()]
+    [string]
+    $ApiKey
 )
 
 if (-not (Get-Module -Name 'PsDepend' -ListAvailable))

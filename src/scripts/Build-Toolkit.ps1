@@ -48,7 +48,7 @@ function Build-MainBicepParameters($dir) {
 }
 
 # Generate workbook templates
-Get-ChildItem ..\workbooks\$Template* -Directory `
+Get-ChildItem "..\workbooks\$($Template -replace '-workbook$','')*" -Directory `
 | Where-Object { $_.Name -ne '.scaffold' }
 | ForEach-Object {
     $workbook = $_.Name
