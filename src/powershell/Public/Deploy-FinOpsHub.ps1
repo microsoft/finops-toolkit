@@ -38,6 +38,7 @@
 #>
 function Deploy-FinOpsHub
 {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseApprovedVerbs", "")]
     [CmdletBinding(SupportsShouldProcess)]
     param
     (

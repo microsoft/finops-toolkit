@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 <#
     .SYNOPSIS
     Gets a FinOps hub instance.
@@ -47,7 +50,7 @@ function Get-FinOpsHub
     {
         $ResourceGroupName = '*'
     }
-    
+
     $context = Get-AzContext
     if (-not $context)
     {
@@ -55,7 +58,7 @@ function Get-FinOpsHub
     }
 
     $tagTemplate = '/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Cloud/hubs/{2}'
-    $tagName = 'cm-resource-parent' 
+    $tagName = 'cm-resource-parent'
     $subscriptionId = $context.Subscription.Id
     $tagValue = $tagTemplate -f $subscriptionId, $ResourceGroupName, $Name
     $resourceMatches = @()
@@ -70,7 +73,7 @@ function Get-FinOpsHub
                 HubId = $tagMatch
                 Resource = $resource
             }
-            
+
             $resourceMatches += New-Object -TypeName 'PSObject' -Property $properties
         }
     }
