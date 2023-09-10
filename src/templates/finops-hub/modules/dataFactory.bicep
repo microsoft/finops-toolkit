@@ -564,7 +564,7 @@ resource pipeline_BackfillData 'Microsoft.DataFactory/factories/pipelines@2018-0
         typeProperties: {
           variableName: 'thisMonth'
           value: {
-            value: '@variables(\'startDate\')'
+            value: '@startOfMonth(variables(\'endDate\'))'
             type: 'Expression'
           }
         }
@@ -584,7 +584,7 @@ resource pipeline_BackfillData 'Microsoft.DataFactory/factories/pipelines@2018-0
         typeProperties: {
           variableName: 'nextMonth'
           value: {
-            value: '@startOfMonth(addToTime(variables(\'thisMonth\'), 1, \'Month\'))'
+            value: '@startOfMonth(subtractFromTime(variables(\'thisMonth\'), 1, \'Month\'))'
             type: 'Expression'
           }
         }
@@ -609,7 +609,7 @@ resource pipeline_BackfillData 'Microsoft.DataFactory/factories/pipelines@2018-0
         userProperties: []
         typeProperties: {
           expression: {
-            value: '@greater(variables(\'thisMonth\'), variables(\'endDate\'))'
+            value: '@less(variables(\'thisMonth\'), variables(\'startDate\'))'
             type: 'Expression'
           }
           activities: [
@@ -648,7 +648,7 @@ resource pipeline_BackfillData 'Microsoft.DataFactory/factories/pipelines@2018-0
               typeProperties: {
                 variableName: 'nextMonth'
                 value: {
-                  value: '@addToTime(variables(\'thisMonth\'), 1, \'month\')'
+                  value: '@subtractFromTime(variables(\'thisMonth\'), 1, \'Month\')'
                   type: 'Expression'
                 }
               }
@@ -670,7 +670,7 @@ resource pipeline_BackfillData 'Microsoft.DataFactory/factories/pipelines@2018-0
                     type: 'Expression'
                   }
                   EndDate: {
-                    value: '@addDays(variables(\'nextMonth\'), -1)'
+                    value: '@addDays(addToTime(variables(\'thisMonth\'), 1, \'Month\'), -1)'
                     type: 'Expression'
                   }
                 }
