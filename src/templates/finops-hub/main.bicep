@@ -81,7 +81,7 @@ output storageAccountName string = hub.outputs.storageAccountName
 output storageUrlForPowerBI string = hub.outputs.storageUrlForPowerBI
 
 @description('Object ID of the Data Factory managed identity. This will be needed when configuring managed exports.')
-output managedIdentityId string = dataFactory.identity.principalId
+output managedIdentityId string = hub.outputs.managedIdentityId
 
 @description('Azure AD tenant ID. This will be needed when configuring managed exports.')
-output managedIdentityTenantId string = tenant().tenantId
+output managedIdentityTenantId string = hub.outputs.managedIdentityTenantId
