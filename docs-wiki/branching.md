@@ -23,10 +23,27 @@ gitGraph
 
 On this page:
 
+- [🌟 Important branches](#-important-branches)
 - [💡 Tips for external contributors](#-tips-for-external-contributors)
 - [💡 Tips for Microsoft contributors](#-tips-for-microsoft-contributors)
 
 ---
+
+## 🌟 Important branches
+
+- `main` is for released versions. Do not work in this branch.
+- `dev` is for the next release. All PRs to this branch must meet the following requirements:
+  - Changes must be complete and validated. No partial commits.
+  - Applicable documentation in [docs](../docs) must be updated.
+  - External-facing changes must be covered in the [changelog](../docs/changelog.md).
+- `features/workbookv2` is for the Cost optimization workbook's next release. Target version: `0.1` (TBD).
+- `features/governance` is for a new Governance workbook. Target version: `0.1` (TBD).
+- `features/powershell` is for PowerShell automation. Target version: `0.1.*`.
+- `features/exports` is for FinOps hubs managed exports. Target version: `0.2`.
+- `features/focus` is for FinOps hubs FOCUS adoption. Target version: `0.3`.
+- `features/adx` is for FinOps hubs Azure Data Explorer ingestion. Target version: `0.4`.
+
+<br>
 
 ## 💡 Tips for external contributors
 
