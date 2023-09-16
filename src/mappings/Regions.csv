@@ -1,0 +1,436 @@
+OriginalType,OriginalValue,RegionId,RegionName
+DCMT,arlem,arlem,Arlem
+DCMT,asiaeast,eastasia,East Asia
+DCMT,asiasoutheast,southeastasia,Southeast Asia
+DCMT,asiasoutheast2,apacsoutheast2,APAC Southeast 2
+DCMT,australiac,australiacentral,Australia Central
+DCMT,australiac2,australiacentral2,Australia Central 2
+DCMT,australiaeast,australiaeast,Australia East
+DCMT,australiasoutheast,australiasoutheast,Australia Southeast
+DCMT,austriae,austriaeast,Austria East
+DCMT,belgiumc,belgiumcentral,Belgium Central
+DCMT,bleuc,bleufrancecentral,Bleu France Central
+DCMT,bleus,bleufrancesouth,Bleu France South
+DCMT,brazilne,brazilnortheast,Brazil Northeast
+DCMT,brazilse,brazilsoutheast,Brazil Southeast
+DCMT,brazilsouth,brazilsouth,Brazil South
+DCMT,canadacentral,canadacentral,Canada Central
+DCMT,canadaeast,canadaeast,Canada East
+DCMT,chilec,chilecentral,Chile Central
+DCMT,chilenc,chilenorthcentral,Chile North Central
+DCMT,chinae2,chinaeast2,China East 2
+DCMT,chinae3,chinaeast3,China East 3
+DCMT,chinaeast,chinaeast,China East
+DCMT,chinan10,chinanorth10,China North 10
+DCMT,chinan2,chinanorth2,China North 2
+DCMT,chinan3,chinanorth3,China North 3
+DCMT,chinanorth,chinanorth,China North
+DCMT,delosc,deloscloudgermanycentral,Delos Cloud Germany Central
+DCMT,delosn,deloscloudgermanynorth,Delos Cloud Germany North
+DCMT,denmarke,denmarkeast,Denmark East
+DCMT,europeeast,easteurope,East Europe
+DCMT,europenorth,northeurope,North Europe
+DCMT,europenorth2,northeurope2,North Europe 2
+DCMT,europewest,westeurope,West Europe
+DCMT,eusslv,eastusslv,East US SLV
+DCMT,finlandc,finlandcentral,Finland Central
+DCMT,francec,francecentral,France Central
+DCMT,frances,francesouth,France South
+DCMT,germanycentral,germanycentral,Germany Central
+DCMT,germanyn,germanynorth,Germany North
+DCMT,germanynortheast,germanynortheast,Germany NorthEast
+DCMT,germanywc,germanywestcentral,Germany West Central
+DCMT,indiacentral,centralindia,Central India
+DCMT,indiasc,indiasouthcentral,India South Central
+DCMT,indiasouth,southindia,South India
+DCMT,indiawest,westindia,West India
+DCMT,indonesiac,indonesiacentral,Indonesia Central
+DCMT,israelc,israelcentral,Israel Central
+DCMT,israelnw,israelnorthwest,Israel Northwest
+DCMT,italyn,italynorth,Italy North
+DCMT,japaneast,japaneast,Japan East
+DCMT,japanwest,japanwest,Japan West
+DCMT,jioinc,jioindiacentral,Jio India Central
+DCMT,jioinw,jioindiawest,Jio India West
+DCMT,koreacentral,koreacentral,Korea Central
+DCMT,koreas2,koreasouth2,Korea South 2
+DCMT,koreasouth,koreasouth,Korea South
+DCMT,malaysias,malaysiasouth,Malaysia South
+DCMT,malaysiaw,malaysiawest,Malaysia West
+DCMT,mexicoc,mexicocentral,Mexico Central
+DCMT,newzealandn,newzealandnorth,New Zealand North
+DCMT,norwaye,norwayeast,Norway East
+DCMT,norwayw,norwaywest,Norway West
+DCMT,ocave,ocave,Ocave
+DCMT,polandc,polandcentral,Poland Central
+DCMT,qatarc,qatarcentral,Qatar Central
+DCMT,singaporec,singaporecentral,Singapore Central
+DCMT,singaporegov,singaporegov,Singapore Gov
+DCMT,singaporen,singaporenorth,Singapore North
+DCMT,southafrican,southafricanorth,South Africa North
+DCMT,southafricaw,southafricawest,South Africa West
+DCMT,spainc,spaincentral,Spain Central
+DCMT,swedenc,swedencentral,Sweden Central
+DCMT,swedens,swedensouth,Sweden South
+DCMT,switzerlandn,switzerlandnorth,Switzerland North
+DCMT,switzerlandw,switzerlandwest,Switzerland West
+DCMT,taiwann,taiwannorth,Taiwan North
+DCMT,taiwannw,taiwannorthwest,Taiwan Northwest
+DCMT,uaec,uaecentral,UAE Central
+DCMT,uaen,uaenorth,UAE North
+DCMT,uknorth,uknorth,UK North
+DCMT,uksouth,uksouth,UK South
+DCMT,uksouth2,uksouth2,UK South 2
+DCMT,ukwest,ukwest,UK West
+DCMT,uscentral,centralus,Central US
+DCMT,uscentraleuap,centraluseuap,Central US EUAP
+DCMT,usdodcentral,usdodcentral,USDoD Central
+DCMT,usdodeast,usdodeast,USDoD East
+DCMT,usdodsc,usdodsouthcentral,USDoD South Central
+DCMT,usdodsw,usdodsouthwest,USDoD Southwest
+DCMT,usdodwc,usdodwestcentral,USDoD West Central
+DCMT,useast,eastus,East US
+DCMT,useast2,eastus2,East US 2
+DCMT,useast2euap,eastus2euap,East US 2 EUAP
+DCMT,usgovcentral,usgoviowa,USGov Iowa
+DCMT,usgoveast,usgovvirginia,USGov Virginia
+DCMT,usgovsc,usgovtexas,USGov Texas
+DCMT,usgovsw,usgovarizona,USGov Arizona
+DCMT,usgovwc,usgovwyoming,USGov Wyoming
+DCMT,usnate,usnateast,USNat East
+DCMT,usnatw,usnatwest,USNat West
+DCMT,usnorth,northcentralus,North Central US
+DCMT,ussecc,usseccentral,USSec Central
+DCMT,ussece,usseceast,USSec East
+DCMT,ussecw,ussecwest,USSec West
+DCMT,ussecwc,ussecwestcentral,USSec West Central
+DCMT,ussouth,southcentralus,South Central US
+DCMT,usstagee,eastusstg,East US STG
+DCMT,usstagesc,southcentralusstg,South Central US STG
+DCMT,uswest,westus,West US
+DCMT,uswest2,westus2,West US 2
+DCMT,uswest3,westus3,West US 3
+DCMT,uswestcentral,westcentralus,West Central US
+ShortId,arlem,arlem,Arlem
+ShortId,hk,eastasia,East Asia
+ShortId,sg,southeastasia,Southeast Asia
+ShortId,kul,apacsoutheast2,APAC Southeast 2
+ShortId,cbr,australiacentral,Australia Central
+ShortId,cbr2,australiacentral2,Australia Central 2
+ShortId,sy,australiaeast,Australia East
+ShortId,ml,australiasoutheast,Australia Southeast
+ShortId,ate,austriaeast,Austria East
+ShortId,bec,belgiumcentral,Belgium Central
+ShortId,bleuc,bleufrancecentral,Bleu France Central
+ShortId,bleus,bleufrancesouth,Bleu France South
+ShortId,brne,brazilnortheast,Brazil Northeast
+ShortId,brse,brazilsoutheast,Brazil Southeast
+ShortId,cq,brazilsouth,Brazil South
+ShortId,yt,canadacentral,Canada Central
+ShortId,yq,canadaeast,Canada East
+ShortId,clc,chilecentral,Chile Central
+ShortId,clnc,chilenorthcentral,Chile North Central
+ShortId,sha,chinaeast2,China East 2
+ShortId,cne3,chinaeast3,China East 3
+ShortId,sh,chinaeast,China East
+ShortId,cnn10,chinanorth10,China North 10
+ShortId,bjs,chinanorth2,China North 2
+ShortId,cnn3,chinanorth3,China North 3
+ShortId,bj,chinanorth,China North
+ShortId,delc,deloscloudgermanycentral,Delos Cloud Germany Central
+ShortId,deln,deloscloudgermanynorth,Delos Cloud Germany North
+ShortId,dke,denmarkeast,Denmark East
+ShortId,yyy,easteurope,East Europe
+ShortId,db,northeurope,North Europe
+ShortId,hel,northeurope2,North Europe 2
+ShortId,am,westeurope,West Europe
+ShortId,use,eastusslv,East US SLV
+ShortId,flc,finlandcentral,Finland Central
+ShortId,par,francecentral,France Central
+ShortId,mrs,francesouth,France South
+ShortId,fr,germanycentral,Germany Central
+ShortId,den,germanynorth,Germany North
+ShortId,lg,germanynortheast,Germany NorthEast
+ShortId,dewc,germanywestcentral,Germany West Central
+ShortId,pn,centralindia,Central India
+ShortId,insc,indiasouthcentral,India South Central
+ShortId,ma,southindia,South India
+ShortId,bm,westindia,West India
+ShortId,idc,indonesiacentral,Indonesia Central
+ShortId,ilc,israelcentral,Israel Central
+ShortId,ilnw,israelnorthwest,Israel Northwest
+ShortId,itn,italynorth,Italy North
+ShortId,ty,japaneast,Japan East
+ShortId,os,japanwest,Japan West
+ShortId,jinc,jioindiacentral,Jio India Central
+ShortId,jinw,jioindiawest,Jio India West
+ShortId,se,koreacentral,Korea Central
+ShortId,krs2,koreasouth2,Korea South 2
+ShortId,ps,koreasouth,Korea South
+ShortId,mys,malaysiasouth,Malaysia South
+ShortId,myw,malaysiawest,Malaysia West
+ShortId,mxc,mexicocentral,Mexico Central
+ShortId,nzn,newzealandnorth,New Zealand North
+ShortId,noe,norwayeast,Norway East
+ShortId,now,norwaywest,Norway West
+ShortId,ocave,ocave,Ocave
+ShortId,plc,polandcentral,Poland Central
+ShortId,qac,qatarcentral,Qatar Central
+ShortId,singc,singaporecentral,Singapore Central
+ShortId,sgg,singaporegov,Singapore Gov
+ShortId,singn,singaporenorth,Singapore North
+ShortId,jnb,southafricanorth,South Africa North
+ShortId,cpt,southafricawest,South Africa West
+ShortId,esc,spaincentral,Spain Central
+ShortId,sec,swedencentral,Sweden Central
+ShortId,ses,swedensouth,Sweden South
+ShortId,chn,switzerlandnorth,Switzerland North
+ShortId,chw,switzerlandwest,Switzerland West
+ShortId,twn,taiwannorth,Taiwan North
+ShortId,twnw,taiwannorthwest,Taiwan Northwest
+ShortId,auh,uaecentral,UAE Central
+ShortId,dxb,uaenorth,UAE North
+ShortId,mm,uknorth,UK North
+ShortId,ln,uksouth,UK South
+ShortId,lo,uksouth2,UK South 2
+ShortId,cw,ukwest,UK West
+ShortId,dm,centralus,Central US
+ShortId,cdm,centraluseuap,Central US EUAP
+ShortId,dd,usdodcentral,USDoD Central
+ShortId,bd,usdodeast,USDoD East
+ShortId,usdsc,usdodsouthcentral,USDoD South Central
+ShortId,phxd,usdodsouthwest,USDoD Southwest
+ShortId,usdwc,usdodwestcentral,USDoD West Central
+ShortId,bl,eastus,East US
+ShortId,bn,eastus2,East US 2
+ShortId,cbn,eastus2euap,East US 2 EUAP
+ShortId,dm,usgoviowa,USGov Iowa
+ShortId,bn,usgovvirginia,USGov Virginia
+ShortId,sn,usgovtexas,USGov Texas
+ShortId,phx,usgovarizona,USGov Arizona
+ShortId,cy,usgovwyoming,USGov Wyoming
+ShortId,red,usnateast,USNat East
+ShortId,grn,usnatwest,USNat West
+ShortId,ch,northcentralus,North Central US
+ShortId,ussc,usseccentral,USSec Central
+ShortId,usse,usseceast,USSec East
+ShortId,ussw,ussecwest,USSec West
+ShortId,usswc,ussecwestcentral,USSec West Central
+ShortId,sn,southcentralus,South Central US
+ShortId,uste,eastusstg,East US STG
+ShortId,ustsc,southcentralusstg,South Central US STG
+ShortId,by,westus,West US
+ShortId,mwh,westus2,West US 2
+ShortId,usw3,westus3,West US 3
+ShortId,cy,westcentralus,West Central US
+Azure Location,arlem,arlem,Arlem
+Azure Location,eastasia,eastasia,East Asia
+Azure Location,southeastasia,southeastasia,Southeast Asia
+Azure Location,apacsoutheast2,apacsoutheast2,APAC Southeast 2
+Azure Location,australiacentral,australiacentral,Australia Central
+Azure Location,australiacentral2,australiacentral2,Australia Central 2
+Azure Location,australiaeast,australiaeast,Australia East
+Azure Location,australiasoutheast,australiasoutheast,Australia Southeast
+Azure Location,austriaeast,austriaeast,Austria East
+Azure Location,belgiumcentral,belgiumcentral,Belgium Central
+Azure Location,bleufrancecentral,bleufrancecentral,Bleu France Central
+Azure Location,bleufrancesouth,bleufrancesouth,Bleu France South
+Azure Location,brazilnortheast,brazilnortheast,Brazil Northeast
+Azure Location,brazilsoutheast,brazilsoutheast,Brazil Southeast
+Azure Location,brazilsouth,brazilsouth,Brazil South
+Azure Location,canadacentral,canadacentral,Canada Central
+Azure Location,canadaeast,canadaeast,Canada East
+Azure Location,chilecentral,chilecentral,Chile Central
+Azure Location,chilenorthcentral,chilenorthcentral,Chile North Central
+Azure Location,chinaeast2,chinaeast2,China East 2
+Azure Location,chinaeast3,chinaeast3,China East 3
+Azure Location,chinaeast,chinaeast,China East
+Azure Location,chinanorth10,chinanorth10,China North 10
+Azure Location,chinanorth2,chinanorth2,China North 2
+Azure Location,chinanorth3,chinanorth3,China North 3
+Azure Location,chinanorth,chinanorth,China North
+Azure Location,deloscloudgermanycentral,deloscloudgermanycentral,Delos Cloud Germany Central
+Azure Location,deloscloudgermanynorth,deloscloudgermanynorth,Delos Cloud Germany North
+Azure Location,denmarkeast,denmarkeast,Denmark East
+Azure Location,easteurope,easteurope,East Europe
+Azure Location,northeurope,northeurope,North Europe
+Azure Location,northeurope2,northeurope2,North Europe 2
+Azure Location,westeurope,westeurope,West Europe
+Azure Location,eastusslv,eastusslv,East US SLV
+Azure Location,finlandcentral,finlandcentral,Finland Central
+Azure Location,francecentral,francecentral,France Central
+Azure Location,francesouth,francesouth,France South
+Azure Location,germanycentral,germanycentral,Germany Central
+Azure Location,germanynorth,germanynorth,Germany North
+Azure Location,germanynortheast,germanynortheast,Germany NorthEast
+Azure Location,germanywestcentral,germanywestcentral,Germany West Central
+Azure Location,centralindia,centralindia,Central India
+Azure Location,indiasouthcentral,indiasouthcentral,India South Central
+Azure Location,southindia,southindia,South India
+Azure Location,westindia,westindia,West India
+Azure Location,indonesiacentral,indonesiacentral,Indonesia Central
+Azure Location,israelcentral,israelcentral,Israel Central
+Azure Location,israelnorthwest,israelnorthwest,Israel Northwest
+Azure Location,italynorth,italynorth,Italy North
+Azure Location,japaneast,japaneast,Japan East
+Azure Location,japanwest,japanwest,Japan West
+Azure Location,jioindiacentral,jioindiacentral,Jio India Central
+Azure Location,jioindiawest,jioindiawest,Jio India West
+Azure Location,koreacentral,koreacentral,Korea Central
+Azure Location,koreasouth2,koreasouth2,Korea South 2
+Azure Location,koreasouth,koreasouth,Korea South
+Azure Location,malaysiasouth,malaysiasouth,Malaysia South
+Azure Location,malaysiawest,malaysiawest,Malaysia West
+Azure Location,mexicocentral,mexicocentral,Mexico Central
+Azure Location,newzealandnorth,newzealandnorth,New Zealand North
+Azure Location,norwayeast,norwayeast,Norway East
+Azure Location,norwaywest,norwaywest,Norway West
+Azure Location,ocave,ocave,Ocave
+Azure Location,polandcentral,polandcentral,Poland Central
+Azure Location,qatarcentral,qatarcentral,Qatar Central
+Azure Location,singaporecentral,singaporecentral,Singapore Central
+Azure Location,singaporegov,singaporegov,Singapore Gov
+Azure Location,singaporenorth,singaporenorth,Singapore North
+Azure Location,southafricanorth,southafricanorth,South Africa North
+Azure Location,southafricawest,southafricawest,South Africa West
+Azure Location,spaincentral,spaincentral,Spain Central
+Azure Location,swedencentral,swedencentral,Sweden Central
+Azure Location,swedensouth,swedensouth,Sweden South
+Azure Location,switzerlandnorth,switzerlandnorth,Switzerland North
+Azure Location,switzerlandwest,switzerlandwest,Switzerland West
+Azure Location,taiwannorth,taiwannorth,Taiwan North
+Azure Location,taiwannorthwest,taiwannorthwest,Taiwan Northwest
+Azure Location,uaecentral,uaecentral,UAE Central
+Azure Location,uaenorth,uaenorth,UAE North
+Azure Location,uknorth,uknorth,UK North
+Azure Location,uksouth,uksouth,UK South
+Azure Location,uksouth2,uksouth2,UK South 2
+Azure Location,ukwest,ukwest,UK West
+Azure Location,centralus,centralus,Central US
+Azure Location,centraluseuap,centraluseuap,Central US EUAP
+Azure Location,usdodcentral,usdodcentral,USDoD Central
+Azure Location,usdodeast,usdodeast,USDoD East
+Azure Location,usdodsouthcentral,usdodsouthcentral,USDoD South Central
+Azure Location,usdodsouthwest,usdodsouthwest,USDoD Southwest
+Azure Location,usdodwestcentral,usdodwestcentral,USDoD West Central
+Azure Location,eastus,eastus,East US
+Azure Location,eastus2,eastus2,East US 2
+Azure Location,eastus2euap,eastus2euap,East US 2 EUAP
+Azure Location,usgoviowa,usgoviowa,USGov Iowa
+Azure Location,usgovvirginia,usgovvirginia,USGov Virginia
+Azure Location,usgovtexas,usgovtexas,USGov Texas
+Azure Location,usgovarizona,usgovarizona,USGov Arizona
+Azure Location,usgovwyoming,usgovwyoming,USGov Wyoming
+Azure Location,usnateast,usnateast,USNat East
+Azure Location,usnatwest,usnatwest,USNat West
+Azure Location,northcentralus,northcentralus,North Central US
+Azure Location,usseccentral,usseccentral,USSec Central
+Azure Location,usseceast,usseceast,USSec East
+Azure Location,ussecwest,ussecwest,USSec West
+Azure Location,ussecwestcentral,ussecwestcentral,USSec West Central
+Azure Location,southcentralus,southcentralus,South Central US
+Azure Location,eastusstg,eastusstg,East US STG
+Azure Location,southcentralusstg,southcentralusstg,South Central US STG
+Azure Location,westus,westus,West US
+Azure Location,westus2,westus2,West US 2
+Azure Location,westus3,westus3,West US 3
+Azure Location,westcentralus,westcentralus,West Central US
+Billing Region,Arlem,arlem,Arlem
+Billing Region,AP East,eastasia,East Asia
+Billing Region,AP Southeast,southeastasia,Southeast Asia
+Billing Region,AU Central,australiacentral,Australia Central
+Billing Region,AU Central 2,australiacentral2,Australia Central 2
+Billing Region,AU East,australiaeast,Australia East
+Billing Region,AU Southeast,australiasoutheast,Australia Southeast
+Billing Region,AT East,austriaeast,Austria East
+Billing Region,BE Central,belgiumcentral,Belgium Central
+Billing Region,Bleu France Central,bleufrancecentral,Bleu France Central
+Billing Region,Bleu France South,bleufrancesouth,Bleu France South
+Billing Region,BR Southeast,brazilsoutheast,Brazil Southeast
+Billing Region,BR South,brazilsouth,Brazil South
+Billing Region,CA Central,canadacentral,Canada Central
+Billing Region,CA East,canadaeast,Canada East
+Billing Region,CL Central,chilecentral,Chile Central
+Billing Region,CL North Central,chilenorthcentral,Chile North Central
+Billing Region,CN East 2,chinaeast2,China East 2
+Billing Region,CN East 3,chinaeast3,China East 3
+Billing Region,CN East,chinaeast,China East
+Billing Region,CN North 2,chinanorth2,China North 2
+Billing Region,CN North 3,chinanorth3,China North 3
+Billing Region,CN North,chinanorth,China North
+Billing Region,Delos Cloud Germany Central,deloscloudgermanycentral,Delos Cloud Germany Central
+Billing Region,Delos Cloud Germany North,deloscloudgermanynorth,Delos Cloud Germany North
+Billing Region,Denmark East,denmarkeast,Denmark East
+Billing Region,EU North,northeurope,North Europe
+Billing Region,EU West,westeurope,West Europe
+Billing Region,FI Central,finlandcentral,Finland Central
+Billing Region,FR Central,francecentral,France Central
+Billing Region,FR South,francesouth,France South
+Billing Region,DE Central,germanycentral,Germany Central
+Billing Region,DE North,germanynorth,Germany North
+Billing Region,DE Northeast,germanynortheast,Germany NorthEast
+Billing Region,DE West Central,germanywestcentral,Germany West Central
+Billing Region,IN Central,centralindia,Central India
+Billing Region,IN South Central,indiasouthcentral,India South Central
+Billing Region,IN South,southindia,South India
+Billing Region,IN West,westindia,West India
+Billing Region,ID Central,indonesiacentral,Indonesia Central
+Billing Region,IL Central,israelcentral,Israel Central
+Billing Region,IL Northwest,israelnorthwest,Israel Northwest
+Billing Region,IT North,italynorth,Italy North
+Billing Region,JA East,japaneast,Japan East
+Billing Region,JA West,japanwest,Japan West
+Billing Region,IN Central Jio,jioindiacentral,Jio India Central
+Billing Region,IN West Jio,jioindiawest,Jio India West
+Billing Region,KR Central,koreacentral,Korea Central
+Billing Region,KR South,koreasouth,Korea South
+Billing Region,MY South,malaysiasouth,Malaysia South
+Billing Region,MY West,malaysiawest,Malaysia West
+Billing Region,MX Central,mexicocentral,Mexico Central
+Billing Region,NZ North,newzealandnorth,New Zealand North
+Billing Region,NO East,norwayeast,Norway East
+Billing Region,NO West,norwaywest,Norway West
+Billing Region,Ocave,ocave,Ocave
+Billing Region,PL Central,polandcentral,Poland Central
+Billing Region,QA Central,qatarcentral,Qatar Central
+Billing Region,Singapore Central,singaporecentral,Singapore Central
+Billing Region,SG Gov,singaporegov,Singapore Gov
+Billing Region,Singapore North,singaporenorth,Singapore North
+Billing Region,ZA North,southafricanorth,South Africa North
+Billing Region,ZA West,southafricawest,South Africa West
+Billing Region,ES Central,spaincentral,Spain Central
+Billing Region,SE Central,swedencentral,Sweden Central
+Billing Region,SE South,swedensouth,Sweden South
+Billing Region,CH North,switzerlandnorth,Switzerland North
+Billing Region,CH West,switzerlandwest,Switzerland West
+Billing Region,TW North,taiwannorth,Taiwan North
+Billing Region,TW Northwest,taiwannorthwest,Taiwan Northwest
+Billing Region,AE Central,uaecentral,UAE Central
+Billing Region,AE North,uaenorth,UAE North
+Billing Region,UK North,uknorth,UK North
+Billing Region,UK South,uksouth,UK South
+Billing Region,UK South 2,uksouth2,UK South 2
+Billing Region,UK West,ukwest,UK West
+Billing Region,US Central,centralus,Central US
+Billing Region,US Central,centraluseuap,Central US EUAP
+Billing Region,US DoD,usdodcentral,USDoD Central
+Billing Region,US DoD,usdodeast,USDoD East
+Billing Region,US East,eastus,East US
+Billing Region,US East 2,eastus2,East US 2
+Billing Region,US East 2,eastus2euap,East US 2 EUAP
+Billing Region,US Gov,usgoviowa,USGov Iowa
+Billing Region,US Gov,usgovvirginia,USGov Virginia
+Billing Region,US Gov TX,usgovtexas,USGov Texas
+Billing Region,US Gov AZ,usgovarizona,USGov Arizona
+Billing Region,US Nat East,usnateast,USNat East
+Billing Region,US Nat West,usnatwest,USNat West
+Billing Region,US North Central,northcentralus,North Central US
+Billing Region,US Sec Central,usseccentral,USSec Central
+Billing Region,US Sec East,usseceast,USSec East
+Billing Region,US Sec West,ussecwest,USSec West
+Billing Region,US Sec West Central,ussecwestcentral,USSec West Central
+Billing Region,US South Central,southcentralus,South Central US
+Billing Region,US West,westus,West US
+Billing Region,US West 2,westus2,West US 2
+Billing Region,US West 3,westus3,West US 3
+Billing Region,US West Central,westcentralus,West Central US
