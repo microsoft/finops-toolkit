@@ -15,17 +15,21 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
+- [🔄️ Unreleased](#️-unreleased)
 - [🚀 v0.0.1](#-v001)
 
 </details>
 
 ---
 
-<!--
 ## 🔄️ Unreleased
 
+Added:
+
+1. Mappings
+   1. [Regions](./mappings/README.md#-regions) to map historical resource location values in Microsoft Cost Management to standard Azure regions.
+
 <br>
--->
 
 ## 🚀 v0.0.1
 
