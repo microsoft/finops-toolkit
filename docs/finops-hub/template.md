@@ -85,18 +85,18 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
       - `settings.json` – Hub settings.
 - `<hubName>-engine-<unique-suffix>` Data Factory instance
   - Pipelines:
-    - `msexports_backfill` – Triggers a series of monthly Cost Management exports (msexports_fill pipeline) to fill the dataset per the retention setting defined in settings.json
-    - `msexports_fill` – Creates and triggers Cost Management exports (both actual and amortized) for the selected scope and date range.
-    - `msexports_get` – Retrieves the list of configured Cost Management exports for scopes defined in settings.json and triggers them via the msexports_run pipeline.
-    - `msexports_run` – Triggers Cost Management exports for the selected scope.
-    - `msexports_setup` – Create or update exports in Cost Management for supported scopes defined in settings.json.
-    - `msexport_extract` – Triggers the ingestion process for Cost Management exports to account for Data Factory pipeline trigger limits.
-    - `msexports_transform` – Converts Cost Management exports into parquet or gzipped CSV and removes historical data duplicated in each day's exports.
+    - `config_ConfigureExports` – Creates Cost Management exports for all scopes.
+    - `config_BackfillData` – Runs the backfill job for each month based on retention settings.
+    - `config_RunBackfill` – Creates and triggers exports for all defined scopes for the specified date range.
+    - `config_ExportData` – Gets a list of all Cost Management exports configured for this hub based on the scopes defined in settings.json, then runs each export using the config_RunExports pipeline.
+    - `config_RunExports` – Runs the specified Cost Management exports.
+    - `msexport_ExecuteETL` – Queues the `msexports_ETL_ingestion` pipeline.
+    - `msexports_ETL_ingestion` – Transforms CSV data to a standard schema and converts to Parquet.
   - Triggers:
-    - `msexports_extract` – Triggers the `msexport_extract` pipeline when Cost Management exports complete.
-    - `msexports_setup` – Triggers the `msexport_setup` pipeline when settings.json is updated.
-    - `msexports_daily` – Scheduled trigger for activities which execute daily.
-    - `msexports_monthly` – Scheduled trigger for activities which execute monthly.
+    - `config_SettingsUpdated` – Triggers the `config_ConfigureExports` pipeline when settings.json is updated.
+    - `config_DailySchedule` – Triggers the `config_RunExports` pipeline daily for the current month's cost data.
+    - `config_MonthlySchedule` – Triggers the `config_RunExports` pipeline monthly for the previous month's cost data.
+    - `msexports_FileAdded` – Triggers the `msexport_ExecuteETL` pipeline when Cost Management exports complete.
 - `<hubName>-vault-<unique-suffix>` Key Vault instance
   - Secrets:
     - Data Factory system managed identity

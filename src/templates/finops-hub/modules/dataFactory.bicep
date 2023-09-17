@@ -69,12 +69,12 @@ var safeIngestionContainerName = replace('${ingestionContainerName}', '-', '_')
 var safeConfigContainerName = replace('${configContainerName}', '-', '_')
 
 // All hub triggers (used to auto-start)
-var extractExportTriggerName = '${safeExportContainerName}_extract'
-var updateConfigTriggerName = '${safeExportContainerName}_setup'
-var dailyTriggerName = '${safeExportContainerName}_daily'
-var monthlyTriggerName = '${safeExportContainerName}_monthly'
+var fileAddedExportTriggerName = '${safeExportContainerName}_FileAdded'
+var updateConfigTriggerName = '${safeConfigContainerName}_SettingsUpdated'
+var dailyTriggerName = '${safeConfigContainerName}_DailySchedule'
+var monthlyTriggerName = '${safeConfigContainerName}_MonthlySchedule'
 var allHubTriggers = [
-  extractExportTriggerName
+  fileAddedExportTriggerName
   updateConfigTriggerName
   dailyTriggerName
   monthlyTriggerName
@@ -155,9 +155,8 @@ resource pipelineIdentityRoleAssignments 'Microsoft.Authorization/roleAssignment
 // Stop all triggers before deploying
 //------------------------------------------------------------------------------
 
-// Stop hub triggers if they're already running
-resource stopHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: '${dataFactory.name}_stopHubTriggers'
+resource stopTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: '${dataFactory.name}_stopTriggers'
   location: location
   identity: {
     type: 'UserAssigned'
@@ -327,30 +326,20 @@ resource dataset_ingestion 'Microsoft.DataFactory/factories/datasets@2018-06-01'
 }
 
 //------------------------------------------------------------------------------
-// Export container extract pipeline + trigger
-// Trigger: New CSV files in exportContainer
-//
-// Queues the transform pipeline.
-// This pipeline must complete ASAP due to ADF's hard limit of 100 concurrent executions per pipeline.
-// If multiple large, partitioned exports run concurrently and this pipeline doesn't finish quickly, the transform pipeline won't get triggered.
-// Queuing up the transform pipeline and exiting immediately greatly reduces the likelihood of this happening.
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
 // Triggers
 //------------------------------------------------------------------------------
-resource trigger_exportContainer 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
-  name: extractExportTriggerName
+resource trigger_FileAdded 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
+  name: fileAddedExportTriggerName
   parent: dataFactory
   dependsOn: [
-    stopHubTriggers
+    stopTriggers
   ]
   properties: {
     annotations: []
     pipelines: [
       {
         pipelineReference: {
-          referenceName: pipeline_extractExport.name
+          referenceName: pipeline_ExecuteETL.name
           type: 'PipelineReference'
         }
         parameters: {
@@ -372,18 +361,18 @@ resource trigger_exportContainer 'Microsoft.DataFactory/factories/triggers@2018-
   }
 }
 
-resource trigger_configContainer 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
+resource trigger_SettingsUpdated 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
   name: updateConfigTriggerName
   parent: dataFactory
   dependsOn: [
-    stopHubTriggers
+    stopTriggers
   ]
   properties: {
     annotations: []
     pipelines: [
       {
         pipelineReference: {
-          referenceName: pipeline_setup.name
+          referenceName: pipeline_ConfigureExports.name
           type: 'PipelineReference'
         }
       }
@@ -401,17 +390,17 @@ resource trigger_configContainer 'Microsoft.DataFactory/factories/triggers@2018-
   }
 }
 
-resource trigger_daily 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
+resource trigger_DailySchedule 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
   name: dailyTriggerName
   parent: dataFactory
   dependsOn: [
-    stopHubTriggers
+    stopTriggers
   ]
   properties: {
     pipelines: [
       {
         pipelineReference: {
-          referenceName: pipeline_get.name
+          referenceName: pipeline_ExportData.name
           type: 'PipelineReference'
         }
         parameters: {
@@ -431,17 +420,17 @@ resource trigger_daily 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
   }
 }
 
-resource trigger_monthly 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
+resource trigger_MonthlySchedule 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
   name: monthlyTriggerName
   parent: dataFactory
   dependsOn: [
-    stopHubTriggers
+    stopTriggers
   ]
   properties: {
     pipelines: [
       {
         pipelineReference: {
-          referenceName: pipeline_get.name
+          referenceName: pipeline_ExportData.name
           type: 'PipelineReference'
         }
         parameters: {
@@ -472,12 +461,11 @@ resource trigger_monthly 'Microsoft.DataFactory/factories/triggers@2018-06-01' =
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-// Microsoft Cost Management backfill exports
-// Triggered by pipeline_setup after completion.
-// Creates and triggers cost management exports against all defined scopes for the specified date ranges.
+// config_BackfillData pipeline
 //------------------------------------------------------------------------------
-resource pipeline_backfill 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
-  name: '${safeExportContainerName}_backfill'
+@description('Runs the backfill job for each month based on retention settings.')
+resource pipeline_BackfillData 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: '${safeConfigContainerName}_BackfillData'
   parent: dataFactory
   properties: {
     activities: [
@@ -672,7 +660,7 @@ resource pipeline_backfill 'Microsoft.DataFactory/factories/pipelines@2018-06-01
               userProperties: []
               typeProperties: {
                 pipeline: {
-                  referenceName: pipeline_fill.name
+                  referenceName: pipeline_RunBackfill.name
                   type: 'PipelineReference'
                 }
                 waitOnCompletion: true
@@ -735,12 +723,12 @@ resource pipeline_backfill 'Microsoft.DataFactory/factories/pipelines@2018-06-01
 }
 
 //------------------------------------------------------------------------------
-// Microsoft Cost Management backfill exports
-// Triggered by pipeline_backfill.
-// Creates and triggers cost management exports against all defined scopes for the specified date range.
+// config_RunBackfill pipeline
+// Triggered by config_BackfillData pipeline
 //------------------------------------------------------------------------------
-resource pipeline_fill 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
-  name: '${safeExportContainerName}_fill'
+@description('Creates and triggers exports for all defined scopes for the specified date range.')
+resource pipeline_RunBackfill 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: '${safeConfigContainerName}_RunBackfill'
   parent: dataFactory
   properties: {
     activities: [
@@ -1025,11 +1013,11 @@ resource pipeline_fill 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = 
 
 //------------------------------------------------------------------------------
 // Microsoft Cost Management scheduled exports
-// Triggered by daily/monthly trigger.
-// Enumerates all exports configured for the export scopes stored in settings.json.
+// Triggered by config_DailySchedule/MonthlySchedule triggers
 //------------------------------------------------------------------------------
-resource pipeline_get 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
-  name: '${safeExportContainerName}_get'
+@description('Gets a list of all Cost Management exports configured for this hub based on the scopes defined in settings.json, then runs each export using the config_RunExports pipeline.')
+resource pipeline_ExportData 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: '${safeConfigContainerName}_ExportData'
   parent: dataFactory
   properties: {
     activities: [
@@ -1133,7 +1121,7 @@ resource pipeline_get 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
               userProperties: []
               typeProperties: {
                 pipeline: {
-                  referenceName: pipeline_run.name
+                  referenceName: pipeline_RunExports.name
                   type: 'PipelineReference'
                 }
                 waitOnCompletion: true
@@ -1183,11 +1171,11 @@ resource pipeline_get 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
 
 //------------------------------------------------------------------------------
 // Microsoft Cost Management scheduled exports
-// Triggered by pipeline_get.
-// Triggers scheduled exports for the specified scopes which meet the schedule conditions.
+// Triggered by pipeline_ExportData pipeline
 //------------------------------------------------------------------------------
-resource pipeline_run 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
-  name: '${safeExportContainerName}_run'
+@description('Runs the specified Cost Management exports.')
+resource pipeline_RunExports 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: '${safeConfigContainerName}_RunExports'
   parent: dataFactory
   dependsOn: [
     dataset_config
@@ -1272,12 +1260,12 @@ resource pipeline_run 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
 }
 
 //------------------------------------------------------------------------------
-// Microsoft Cost Management add export pipeline
-// Triggered when settings.json is updated.
-// Creates an export in Cost Management.
+// msexports_ConfigureExports pipeline
+// Triggered by config_SettingsUpdated trigger
 //------------------------------------------------------------------------------
-resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
-  name: '${safeExportContainerName}_setup'
+@description('Creates Cost Management exports for all scopes.')
+resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: '${safeConfigContainerName}_ConfigureExports'
   parent: dataFactory
   properties: {
     activities: [
@@ -1602,12 +1590,12 @@ resource pipeline_setup 'Microsoft.DataFactory/factories/pipelines@2018-06-01' =
 }
 
 //------------------------------------------------------------------------------
-// Export container extract pipeline
-// Triggered when an export is runs in Azure Cost Management.
-// Queues up the pipeline_transformExport pipeline.
+// msexports_ExecuteETL pipeline
+// Triggered by msexports_FileAdded trigger
 //------------------------------------------------------------------------------
-resource pipeline_extractExport 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
-  name: '${safeExportContainerName}_extract'
+@description('Queues the msexports_ETL_ingestion pipeline.')
+resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: '${safeExportContainerName}_ExecuteETL'
   parent: dataFactory
   properties: {
     activities: [
@@ -1618,7 +1606,7 @@ resource pipeline_extractExport 'Microsoft.DataFactory/factories/pipelines@2018-
         userProperties: []
         typeProperties: {
           pipeline: {
-            referenceName: pipeline_transformExport.name
+            referenceName: pipeline_ToIngestion.name
             type: 'PipelineReference'
           }
           waitOnCompletion: false
@@ -1648,12 +1636,12 @@ resource pipeline_extractExport 'Microsoft.DataFactory/factories/pipelines@2018-
 }
 
 //------------------------------------------------------------------------------
+// msexports_ETL_ingestion pipeline
+// Triggered by msexports_ExecuteETL
 //------------------------------------------------------------------------------
-// Export container transform pipeline
-// Converts CSV files to Parquet or .CSV.GZ files.
-//------------------------------------------------------------------------------
-resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
-  name: '${safeExportContainerName}_transform'
+@description('Transforms CSV data to a standard schema and converts to Parquet.')
+resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: '${safeExportContainerName}_ETL_${safeIngestionContainerName}'
   parent: dataFactory
   properties: {
     activities: [
@@ -2135,9 +2123,8 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
 // Start all triggers
 //------------------------------------------------------------------------------
 
-// Start hub triggers
-resource startHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: '${dataFactory.name}_startHubTriggers'
+resource startTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: '${dataFactory.name}_startTriggers'
   location: location
   tags: tags
   identity: {
@@ -2149,10 +2136,10 @@ resource startHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzurePowerShell'
   dependsOn: [
     identityRoleAssignments
-    trigger_exportContainer
-    trigger_configContainer
-    trigger_daily
-    trigger_monthly
+    trigger_FileAdded
+    trigger_SettingsUpdated
+    trigger_DailySchedule
+    trigger_MonthlySchedule
   ]
   properties: {
     azPowerShellVersion: '8.0'
