@@ -12,7 +12,13 @@
         }
       }
     },
-    "resourceTypes": ["Microsoft.DataFactory/factories", "Microsoft.KeyVault/vaults", "Microsoft.Storage/storageAccounts"],
+    "resourceTypes": [
+      "Microsoft.DataFactory/factories",
+      "Microsoft.KeyVault/vaults",
+      "Microsoft.Storage/storageAccounts",
+      "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "Microsoft.Resources/deploymentScripts"
+    ],
     "basics": [
       {
         "name": "hubName",

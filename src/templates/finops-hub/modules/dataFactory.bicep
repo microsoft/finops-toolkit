@@ -29,6 +29,9 @@ param location string = resourceGroup().location
 @description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
 param tags object = {}
 
+@description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
+param tagsByResource object = {}
+
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
@@ -86,6 +89,7 @@ resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' 
   name: '${dataFactoryName}_triggerManager'
   location: location
   tags: tags
+  tags: union(tags, contains(tagsByResource, 'Microsoft.ManagedIdentity/userAssignedIdentities') ? tagsByResource['Microsoft.ManagedIdentity/userAssignedIdentities'] : {})
 }
 
 // Assign access to the identity
@@ -114,6 +118,7 @@ resource stopHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     identityRoleAssignments
   ]
   tags: tags
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
   properties: {
     azPowerShellVersion: '8.0'
     retentionInterval: 'PT1H'
@@ -679,6 +684,7 @@ resource startHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: '${dataFactoryName}_startHubTriggers'
   location: location
   tags: tags
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
