@@ -786,7 +786,7 @@ resource pipeline_RunBackfill 'Microsoft.DataFactory/factories/pipelines@2018-06
         userProperties: []
         typeProperties: {
           items: {
-            value: '@activity(\'Get Config\').output.firstRow.exportScopes'
+            value: '@activity(\'Get Config\').output.firstRow.scopes'
             type: 'Expression'
           }
           isSequential: true
@@ -1075,7 +1075,7 @@ resource pipeline_ExportData 'Microsoft.DataFactory/factories/pipelines@2018-06-
         userProperties: []
         typeProperties: {
           items: {
-            value: '@activity(\'Get Config\').output.firstRow.exportScopes'
+            value: '@activity(\'Get Config\').output.firstRow.scopes'
             type: 'Expression'
           }
           isSequential: true
@@ -1323,7 +1323,7 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
         userProperties: []
         typeProperties: {
           items: {
-            value: '@activity(\'Get Config\').output.firstRow.exportScopes'
+            value: '@activity(\'Get Config\').output.firstRow.scopes'
             type: 'Expression'
           }
           isSequential: true

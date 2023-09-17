@@ -64,24 +64,24 @@ Function Add-FinOpsHubScope {
     Get-AzStorageBlob -Container 'config' -Blob 'settings.json' -Context $storageContext | Get-AzStorageBlobContent -Force | Out-Null
     $settings = Get-Content 'settings.json' | ConvertFrom-Json
 
-    # To deal with the case where there's nothing but a blank export scope in the settings.json file
-    if (($settings.exportScopes.Count -eq 1) -and ([string]::IsNullOrEmpty($settings.exportScopes[0]))) {
-        $settings.exportScopes = @()
+    # To deal with the case where there's nothing but a blank scope in the settings.json file
+    if (($settings.scopes.Count -eq 1) -and ([string]::IsNullOrEmpty($settings.scopes[0]))) {
+        $settings.scopes = @()
         $operation = 'create'
-        Write-Output ("{0}    No export scopes defined" -f (Get-Date), $Scope)
+        Write-Output ("{0}    No scopes defined" -f (Get-Date), $Scope)
     }
 
-    foreach ($exportScope in $settings.exportScopes) {
+    foreach ($exportScope in $settings.scopes) {
         if ($exportScope.scope -eq $Scope) {
-            Write-Output ("{0}    Export scope {1} already exists" -f (Get-Date), $Scope)
+            Write-Output ("{0}    Scope {1} already exists" -f (Get-Date), $Scope)
             $operation = 'none'
         }
     }
 
     if ($operation -eq 'create') {
-        Write-Output ("{0}    Adding export scope {1} with tenant ID {2}" -f (Get-Date), $Scope, $TenantId)
+        Write-Output ("{0}    Adding scope {1} with tenant ID {2}" -f (Get-Date), $Scope, $TenantId)
         [PSCustomObject]$ScopeToAdd = @{scope = $Scope }
-        $settings.exportScopes += $ScopeToAdd
+        $settings.scopes += $ScopeToAdd
         Write-Output ("{0}    Saving settings.json" -f (Get-Date))
         $settings | ConvertTo-Json -Depth 100 | Set-Content 'settings.json' -Force | Out-Null
         Set-AzStorageBlobContent -Container 'config' -File 'settings.json' -Context $storageContext -Force | Out-Null

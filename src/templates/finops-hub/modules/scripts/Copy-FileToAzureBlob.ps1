@@ -2,23 +2,23 @@
 # Licensed under the MIT License.
 
 $json = [ordered]@{
-    '$schema'    = 'https://aka.ms/finops/hubs/settings-schema'
-    type         = 'HubInstance'
-    version      = '0.0.1'
-    learnMore    = 'https://aka.ms/finops/hubs'
-    exportScopes = @()
-    retention    = @{
+    '$schema' = 'https://aka.ms/finops/hubs/settings-schema'
+    type      = 'HubInstance'
+    version   = '0.0.1'
+    learnMore = 'https://aka.ms/finops/hubs'
+    scopes    = @()
+    retention = @{
         'msexports' = @{
             days = 0
         }
-        'ingestion'     = @{
+        'ingestion' = @{
             months = 13
         }
     }
 }
 
 # Set values from inputs
-$json.exportScopes = $env:exportScopes.Split('|')
+$json.scopes = $env:scopes.Split('|') | ForEach-Object { @{ 'scope' = $_ } }
 $json.retention['msexports'].days = [Int32]::Parse($env:exportRetentionInDays)
 $json.retention.ingestion.months = [Int32]::Parse($env:ingestionRetentionInMonths)
 
