@@ -16,5 +16,5 @@ ConvertFrom-StringData -StringData @'
     DeleteCostExportFailed = Delete Cost Management export operation failed with message: '{0}' (Code: {1}).
     GetCostExportNotFound = Cost Management export not found. Operation failed with message: '{0}' (Code: {1}).
     DeleteCostExportFilesFailed = Delete export files operation failed.
-    DeleteFinOpsHub = Delete FinOps Hub failed.
+    DeleteFinOpsHub = FinOps hub could not be deleted.
 '@
