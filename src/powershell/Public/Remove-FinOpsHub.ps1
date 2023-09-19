@@ -76,9 +76,9 @@ function Remove-FinOpsHub
         else
         {
             $hub = $InputObject
+            $Name = $hub.Name
         }
 
-        # TODO: $Name is not available if InputObject provided
         if (-not $hub)
         {
             throw $script:localizedData.FinOpsHubNotFound -f $Name
@@ -96,8 +96,6 @@ function Remove-FinOpsHub
         else {
             $resources = Get-AzResource -ResourceGroupName $ResourceGroup | Where-Object Name -like "*$uniqueId*"
         }
-
-        #$resources | ft ResourceId, Name, ResourceType
 
         if ($PSCmdlet.ShouldProcess($Name, 'DeleteFinOpsHub'))
         {
