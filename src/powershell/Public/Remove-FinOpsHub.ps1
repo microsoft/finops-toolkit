@@ -88,14 +88,7 @@ function Remove-FinOpsHub
         $kv = $hub.Resources | Where-Object ResourceType -eq "Microsoft.KeyVault/vaults"
         $uniqueId = $kv[0].Substring($kv[0].LastIndexOf("-") + 1)
 
-
-        if ($KeepStorageAccount)
-        {
-            $resources = Get-AzResource -ResourceGroupName $ResourceGroup | Where-Object Name -like "*$uniqueId*" | Where-Object ResourceType -ne "Microsoft.Storage/storageAccounts"
-        }
-        else {
-            $resources = Get-AzResource -ResourceGroupName $ResourceGroup | Where-Object Name -like "*$uniqueId*"
-        }
+        $resources = Get-AzResource -ResourceGroupName $ResourceGroup | Where-Object Name -like "*$uniqueId*" | Where-Object {(-not $KeepStorageAccount) -or $_.ResourceType -ne "Microsoft.Storage/storageAccounts"}
 
         if ($PSCmdlet.ShouldProcess($Name, 'DeleteFinOpsHub'))
         {
