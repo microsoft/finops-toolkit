@@ -3,7 +3,7 @@
 
 <#
     .SYNOPSIS
-    Delete a FinOps Hub instance and optionally keep the storage account hosting cost data.
+    Delete a FinOps hub instance and optionally keep the storage account hosting cost data.
 
     .PARAMETER Name
     Required when specifying Name. Name of the FinOps Hub.
