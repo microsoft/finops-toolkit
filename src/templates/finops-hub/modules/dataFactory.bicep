@@ -88,7 +88,6 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
 resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: '${dataFactoryName}_triggerManager'
   location: location
-  tags: tags
   tags: union(tags, contains(tagsByResource, 'Microsoft.ManagedIdentity/userAssignedIdentities') ? tagsByResource['Microsoft.ManagedIdentity/userAssignedIdentities'] : {})
 }
 
@@ -117,7 +116,6 @@ resource stopHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   dependsOn: [
     identityRoleAssignments
   ]
-  tags: tags
   tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
   properties: {
     azPowerShellVersion: '8.0'
@@ -683,7 +681,6 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
 resource startHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: '${dataFactoryName}_startHubTriggers'
   location: location
-  tags: tags
   tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
   identity: {
     type: 'UserAssigned'

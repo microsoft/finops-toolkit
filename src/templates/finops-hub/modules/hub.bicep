@@ -143,8 +143,8 @@ module keyVault 'keyVault.bicep' = {
     uniqueSuffix: uniqueSuffix
     location: location
     tags: resourceTags
-    storageAccountName: storage.outputs.name
     tagsByResource: tagsByResource
+    storageAccountName: storage.outputs.name
     accessPolicies: [
       {
         objectId: dataFactory.identity.principalId
