@@ -1,0 +1,31 @@
+{
+  "name": "finops-toolkit",
+  "version": "0.0.1",
+  "description": "Starter kits, scripts, and advanced solutions to accelerate your FinOps journey in the Microsoft Cloud.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "contrib": "all-contributors add"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/finops-toolkit.git"
+  },
+  "keywords": [
+    "finops",
+    "azure",
+    "microsoft-cloud",
+    "cost-management"
+  ],
+  "author": "Microsoft",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/microsoft/finops-toolkit/issues"
+  },
+  "homepage": "https://aka.ms/finops/toolkit",
+  "devDependencies": {
+    "all-contributors-cli": "^6.26.1"
+  }
+}
