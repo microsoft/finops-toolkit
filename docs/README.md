@@ -95,6 +95,9 @@ All the main changes are tracked in the changelog. For additional details, refer
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/saadmsft"><img src="https://avatars.githubusercontent.com/u/66096650?v=4?s=100" width="100px;" alt="Saad Mahmood"/><br /><sub><b>Saad Mahmood</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=saadmsft" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/didayal-msft"><img src="https://avatars.githubusercontent.com/u/81250915?v=4?s=100" width="100px;" alt="Divyadeep Dayal"/><br /><sub><b>Divyadeep Dayal</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=didayal-msft" title="Code">💻</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/BenShy"><img src="https://avatars.githubusercontent.com/u/18198475?v=4?s=100" width="100px;" alt="BenShyMSFT"/><br /><sub><b>BenShyMSFT</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3ABenShy" title="Reviewed Pull Requests">👀</a></td>
+    </tr>
   </tbody>
 </table>
 
