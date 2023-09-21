@@ -71,12 +71,14 @@ function Remove-FinOpsHub
             else
             {
                 $hub = Get-FinOpsHub -Name $Name
+                $ResourceGroupName = $hub.Resources[0].ResourceGroupName
             }
         }
         else
         {
             $hub = $InputObject
             $Name = $hub.Name
+            $ResourceGroupName = $hub.Resources[0].ResourceGroupName
         }
 
         if (-not $hub)
@@ -84,11 +86,12 @@ function Remove-FinOpsHub
             throw $script:localizedData.FinOpsHubNotFound -f $Name
         }
 
-        # Extract unique identifier from Key Vault name
-        $kv = $hub.Resources | Where-Object ResourceType -eq "Microsoft.KeyVault/vaults"
-        $uniqueId = $kv[0].Substring($kv[0].LastIndexOf("-") + 1)
+        # Extract unique identifier from Key Vault name - In the future to use Get-FinOpsHub when all resources are returned.
+        $kv = ($hub.Resources | Where-Object ResourceType -eq "Microsoft.KeyVault/vaults")[0].Name
+        $uniqueId = $kv.Substring($kv.LastIndexOf('-') + 1)
+        Write-Verbose -Message "Unique identifier: $uniqueId"
 
-        $resources = Get-AzResource -ResourceGroupName $ResourceGroup | Where-Object Name -like "*$uniqueId*" | Where-Object {(-not $KeepStorageAccount) -or $_.ResourceType -ne "Microsoft.Storage/storageAccounts"}
+        $resources = Get-AzResource -ResourceGroupName $ResourceGroupName | Where-Object Name -like "*$uniqueId*" | Where-Object {(-not $KeepStorageAccount) -or $_.ResourceType -ne "Microsoft.Storage/storageAccounts"}
 
         if ($PSCmdlet.ShouldProcess($Name, 'DeleteFinOpsHub'))
         {
@@ -97,6 +100,7 @@ function Remove-FinOpsHub
     }
     catch
     {
+        Write-Verbose -Message $($LocalizedData.ErrorRegisteringProvider -f $_.Exception.Message)
         throw $script:localizedData.DeleteFinOpsHub
     }
 }
