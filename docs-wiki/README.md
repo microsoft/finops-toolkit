@@ -57,10 +57,11 @@ If an issue is assigned, please contact the assignee before starting to work on 
   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
   ```
 
-- Install Azure PowerShell and Bicep
+- Install dependencies, like Azure PowerShell and Bicep
 
   ```powershell
   Set-Location "<cloud-hubs-root>/src/scripts"
+  # Pro-tip: Add -WhatIf to see what the script does without changing anything
   ./Init-Repo
   ```
 
@@ -150,7 +151,7 @@ Every PR is expected to include some sort of verification:
 
 Please do the following before submitting a pull request:
 
-1. Sign a [Contributor License Agreement (CLA)](./CLA.md) (one-time requirement).
+1. Sign a [Contributor License Agreement (CLA)](CLA.md) (one-time requirement).
 2. Review the [branching strategy](branching.md) and ensure you submit PRs against the correct branch.
 3. Ensure you have the latest changes from the upstream (official) repository:
 

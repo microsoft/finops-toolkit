@@ -34,8 +34,8 @@ On this page:
 - `main` is for released versions. Do not work in this branch.
 - `dev` is for the next release. All PRs to this branch must meet the following requirements:
   - Changes must be complete and validated. No partial commits.
-  - Applicable documentation in [docs](../docs) must be updated.
-  - External-facing changes must be covered in the [changelog](../docs/changelog.md).
+  - Applicable documentation in [docs](../tree/dev/docs) must be updated.
+  - External-facing changes must be covered in the [changelog](../tree/dev/docs/changelog.md).
 - `features/workbookv2` is for the Cost optimization workbook's next release. Target version: `0.1` (TBD).
 - `features/governance` is for a new Governance workbook. Target version: `0.1` (TBD).
 - `features/powershell` is for PowerShell automation. Target version: `0.1.*`.
