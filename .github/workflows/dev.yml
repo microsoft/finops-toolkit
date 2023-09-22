@@ -12,5 +12,5 @@ jobs:
         - uses: actions/checkout@v3
         - name: Run Tests
           shell: pwsh
-          run: .build/start.ps1 -Task Test.All
+          run: .build/start.ps1 -Task Test.PowerShell.All
             
