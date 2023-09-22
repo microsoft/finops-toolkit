@@ -100,6 +100,6 @@ function Remove-FinOpsHub
     }
     catch
     {
-        throw $script:localizedData.DeleteFinOpsHub
+        throw ($script:localizedData.DeleteFinOpsHub -f $_)
     }
 }
