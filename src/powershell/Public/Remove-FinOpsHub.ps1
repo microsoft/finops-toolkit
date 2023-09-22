@@ -100,7 +100,6 @@ function Remove-FinOpsHub
     }
     catch
     {
-        Write-Verbose -Message $($LocalizedData.ErrorRegisteringProvider -f $_.Exception.Message)
         throw $script:localizedData.DeleteFinOpsHub
     }
 }
