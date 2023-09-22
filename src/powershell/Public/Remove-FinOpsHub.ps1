@@ -87,7 +87,7 @@ function Remove-FinOpsHub
         }
 
         # Extract unique identifier from Key Vault name - In the future to use Get-FinOpsHub when all resources are returned.
-        $kv = ($hub.Resources | Where-Object ResourceType -eq "Microsoft.KeyVault/vaults")[0].Name
+        $kv = ($hub.Resources | Where-Object -FilterScript {$_.ResourceType -eq "Microsoft.KeyVault/vaults"})[0].Name
         $uniqueId = $kv.Substring($kv.LastIndexOf('-') + 1)
         Write-Verbose -Message "Unique identifier: $uniqueId"
 
