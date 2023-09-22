@@ -86,9 +86,7 @@ function Remove-FinOpsHub
             throw $script:localizedData.FinOpsHubNotFound -f $Name
         }
 
-        # Extract unique identifier from Key Vault name - In the future to use Get-FinOpsHub when all resources are returned.
-        $kv = ($hub.Resources | Where-Object -FilterScript {$_.ResourceType -eq "Microsoft.KeyVault/vaults"})[0].Name
-        $uniqueId = $kv.Substring($kv.LastIndexOf('-') + 1)
+        $uniqueId = Get-HubIdentifier -Collection $hub.Resources.Name
         Write-Verbose -Message "Unique identifier: $uniqueId"
 
         $resources = Get-AzResource -ResourceGroupName $ResourceGroupName | Where-Object -FilterScript {$_.Name -like "*$uniqueId*" -and ((-not $KeepStorageAccount) -or $_.ResourceType -ne "Microsoft.Storage/storageAccounts")}
