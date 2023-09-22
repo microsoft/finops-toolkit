@@ -111,7 +111,6 @@ uswest,westus,West US
 uswest2,westus2,West US 2
 uswest3,westus3,West US 3
 uswestcentral,westcentralus,West Central US
-arlem,arlem,Arlem
 hk,eastasia,East Asia
 sg,southeastasia,Southeast Asia
 kul,apacsoutheast2,APAC Southeast 2
@@ -121,8 +120,6 @@ sy,australiaeast,Australia East
 ml,australiasoutheast,Australia Southeast
 ate,austriaeast,Austria East
 bec,belgiumcentral,Belgium Central
-bleuc,bleufrancecentral,Bleu France Central
-bleus,bleufrancesouth,Bleu France South
 brne,brazilnortheast,Brazil Northeast
 brse,brazilsoutheast,Brazil Southeast
 cq,brazilsouth,Brazil South
@@ -173,7 +170,6 @@ mxc,mexicocentral,Mexico Central
 nzn,newzealandnorth,New Zealand North
 noe,norwayeast,Norway East
 now,norwaywest,Norway West
-ocave,ocave,Ocave
 plc,polandcentral,Poland Central
 qac,qatarcentral,Qatar Central
 singc,singaporecentral,Singapore Central
@@ -223,32 +219,24 @@ by,westus,West US
 mwh,westus2,West US 2
 usw3,westus3,West US 3
 cy,westcentralus,West Central US
-arlem,arlem,Arlem
 eastasia,eastasia,East Asia
 southeastasia,southeastasia,Southeast Asia
 apacsoutheast2,apacsoutheast2,APAC Southeast 2
 australiacentral,australiacentral,Australia Central
 australiacentral2,australiacentral2,Australia Central 2
-australiaeast,australiaeast,Australia East
-australiasoutheast,australiasoutheast,Australia Southeast
 austriaeast,austriaeast,Austria East
 belgiumcentral,belgiumcentral,Belgium Central
 bleufrancecentral,bleufrancecentral,Bleu France Central
 bleufrancesouth,bleufrancesouth,Bleu France South
 brazilnortheast,brazilnortheast,Brazil Northeast
 brazilsoutheast,brazilsoutheast,Brazil Southeast
-brazilsouth,brazilsouth,Brazil South
-canadacentral,canadacentral,Canada Central
-canadaeast,canadaeast,Canada East
 chilecentral,chilecentral,Chile Central
 chilenorthcentral,chilenorthcentral,Chile North Central
 chinaeast2,chinaeast2,China East 2
 chinaeast3,chinaeast3,China East 3
-chinaeast,chinaeast,China East
 chinanorth10,chinanorth10,China North 10
 chinanorth2,chinanorth2,China North 2
 chinanorth3,chinanorth3,China North 3
-chinanorth,chinanorth,China North
 deloscloudgermanycentral,deloscloudgermanycentral,Delos Cloud Germany Central
 deloscloudgermanynorth,deloscloudgermanynorth,Delos Cloud Germany North
 denmarkeast,denmarkeast,Denmark East
@@ -260,9 +248,7 @@ eastusslv,eastusslv,East US SLV
 finlandcentral,finlandcentral,Finland Central
 francecentral,francecentral,France Central
 francesouth,francesouth,France South
-germanycentral,germanycentral,Germany Central
 germanynorth,germanynorth,Germany North
-germanynortheast,germanynortheast,Germany NorthEast
 germanywestcentral,germanywestcentral,Germany West Central
 centralindia,centralindia,Central India
 indiasouthcentral,indiasouthcentral,India South Central
@@ -272,24 +258,18 @@ indonesiacentral,indonesiacentral,Indonesia Central
 israelcentral,israelcentral,Israel Central
 israelnorthwest,israelnorthwest,Israel Northwest
 italynorth,italynorth,Italy North
-japaneast,japaneast,Japan East
-japanwest,japanwest,Japan West
 jioindiacentral,jioindiacentral,Jio India Central
 jioindiawest,jioindiawest,Jio India West
-koreacentral,koreacentral,Korea Central
 koreasouth2,koreasouth2,Korea South 2
-koreasouth,koreasouth,Korea South
 malaysiasouth,malaysiasouth,Malaysia South
 malaysiawest,malaysiawest,Malaysia West
 mexicocentral,mexicocentral,Mexico Central
 newzealandnorth,newzealandnorth,New Zealand North
 norwayeast,norwayeast,Norway East
 norwaywest,norwaywest,Norway West
-ocave,ocave,Ocave
 polandcentral,polandcentral,Poland Central
 qatarcentral,qatarcentral,Qatar Central
 singaporecentral,singaporecentral,Singapore Central
-singaporegov,singaporegov,Singapore Gov
 singaporenorth,singaporenorth,Singapore North
 southafricanorth,southafricanorth,South Africa North
 southafricawest,southafricawest,South Africa West
@@ -302,14 +282,8 @@ taiwannorth,taiwannorth,Taiwan North
 taiwannorthwest,taiwannorthwest,Taiwan Northwest
 uaecentral,uaecentral,UAE Central
 uaenorth,uaenorth,UAE North
-uknorth,uknorth,UK North
-uksouth,uksouth,UK South
-uksouth2,uksouth2,UK South 2
-ukwest,ukwest,UK West
 centralus,centralus,Central US
 centraluseuap,centraluseuap,Central US EUAP
-usdodcentral,usdodcentral,USDoD Central
-usdodeast,usdodeast,USDoD East
 usdodsouthcentral,usdodsouthcentral,USDoD South Central
 usdodsouthwest,usdodsouthwest,USDoD Southwest
 usdodwestcentral,usdodwestcentral,USDoD West Central
@@ -335,7 +309,6 @@ westus,westus,West US
 westus2,westus2,West US 2
 westus3,westus3,West US 3
 westcentralus,westcentralus,West Central US
-Arlem,arlem,Arlem
 AP East,eastasia,East Asia
 AP Southeast,southeastasia,Southeast Asia
 AU Central,australiacentral,Australia Central
@@ -390,7 +363,6 @@ MX Central,mexicocentral,Mexico Central
 NZ North,newzealandnorth,New Zealand North
 NO East,norwayeast,Norway East
 NO West,norwaywest,Norway West
-Ocave,ocave,Ocave
 PL Central,polandcentral,Poland Central
 QA Central,qatarcentral,Qatar Central
 Singapore Central,singaporecentral,Singapore Central
