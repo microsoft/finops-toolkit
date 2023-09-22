@@ -6,15 +6,6 @@ param
 (
     [Parameter()]
     [string]
-    $Version,
-
-    [Parameter()]
-    [ValidateSet('alpha', 'preview')]
-    [string]
-    $PrereleaseTag,
-
-    [Parameter()]
-    [string]
     $ApiKey
 )
 
@@ -33,29 +24,10 @@ task PreRequisites {
 }
 
 task Build.PsModule PreRequisites, Clean, {
-    if ([string]::IsNullOrEmpty($Version))
-    {
-        throw 'Missing required parameter "Version".'
-    }
-
-    $buildParameters = @{
-        Version = $Version
-    }
-
-    if (-not [string]::IsNullOrEmpty($PrereleaseTag))
-    {
-        $buildParameters.Add('PrereleaseTag', $PrereleaseTag)
-    }
-
-    Build-PsModule @buildParameters
+    Build-PsModule
 }
 
 task Publish.PsModule Build.PsModule, {
-    if ([string]::IsNullOrEmpty($Version))
-    {
-        throw 'Missing required parameter "Version".'
-    }
-
     if (-not $ApiKey)
     {
         throw 'Missing required parameter "ApiKey".'

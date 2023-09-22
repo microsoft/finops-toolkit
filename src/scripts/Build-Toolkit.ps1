@@ -18,12 +18,36 @@
         Builds only the finops-hub template.
 #>
 Param(
-    [Parameter(Position = 0)][string]$Template = "*"
+    [Parameter(Position = 0)][string]$Template = "*",
+    [switch]$Major,
+    [switch]$Minor,
+    [switch]$Patch,
+    [switch]$Prerelease
 )
 
 # Create output directory
 $outDir = "../../release"
 ./New-Directory $outDir
+
+# Update version
+Write-Host ''
+if ($Major -or $Minor -or $Patch -or $Prerelease) {
+    $npmVersionParams = { "" }
+    if ($Major) {
+        $ver = npm --no-git-tag-version version major
+    } elseif ($Minor) {
+        $ver = npm --no-git-tag-version version minor 
+    } elseif ($Patch) {
+        $ver = npm --no-git-tag-version version patch 
+    } elseif ($Prerelease) {
+        $ver = npm --no-git-tag-version --preid dev version prerelease
+    }
+    Write-Host "Updated version to $ver"
+} else {
+    $ver = (npm pkg get version).Trim('"')
+    Write-Host "Building version $ver"
+}
+Write-Host ''
 
 # Generate Bicep Registry modules
 Get-ChildItem "..\bicep-registry\$($Template -replace '(subscription|resourceGroup|managementGroup|tenant)-', '')*" -Directory -ErrorAction SilentlyContinue `
@@ -55,6 +79,7 @@ Get-ChildItem "..\workbooks\$($Template -replace '-workbook$','')*" -Directory `
     Write-Host "Building workbook $workbook..."
     ./Build-Workbook $workbook
     Build-MainBicepParameters "$outdir/$workbook-workbook"
+    $ver > "$outdir/$workbook-workbook/version.txt"
     Write-Host ''
 }
 | ForEach-Object { Build-QuickstartTemplate $_ }
@@ -75,7 +100,7 @@ Get-ChildItem ..\templates\$Template* -Directory -ErrorAction SilentlyContinue `
     # Copy required files
     Write-Host "  Copying files..."
     Get-ChildItem $srcDir | Copy-Item -Destination $destDir -Recurse -Exclude ".buildignore,scaffold.json"
-
+    
     # Remove ignored files
     Get-Content "$srcDir/.buildignore" `
     | ForEach-Object {
@@ -84,8 +109,11 @@ Get-ChildItem ..\templates\$Template* -Directory -ErrorAction SilentlyContinue `
             Remove-Item "$destDir/$file" -Recurse -Force
         }
     }
-
+    
     Build-MainBicepParameters $destDir
+   
+    # Copy version file last to override placeholder
+    $ver > "$destDir/modules/version.txt"
 
     Write-Host ''
 }

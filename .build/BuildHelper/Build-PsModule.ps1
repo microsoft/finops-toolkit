@@ -1,21 +1,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-function Build-PsModule
-{
+function Build-PsModule {
     [CmdletBinding()]
     param
-    (
-        [Parameter(Mandatory = $true)]
-        [string]
-        [ValidateScript({$_ -match '^([1-9]\d*|0)(\.(([1-9]\d*)|0)){0,3}$'})]
-        $Version,
-
-        [Parameter()]
-        [ValidateSet('alpha', 'preview')]
-        [string]
-        $PrereleaseTag
-    )
+    ()
 
     $rootPath = (Get-Item -Path $PSScriptRoot).Parent.Parent.FullName
     $moduleName = 'FinOpsToolkit'
@@ -24,26 +13,26 @@ function Build-PsModule
     $privatePath = Join-Path -Path $rootPath -ChildPath "src/powershell/private"
     $publicPath = Join-Path -Path $rootPath -ChildPath "src/powershell/public"
     $stringsPath = Join-Path -Path $rootPath -ChildPath 'src/powershell/en-US'
-    $releasePath = Join-Path -Path $rootPath -ChildPath "release/$moduleName/$Version"
+    $releasePath = Join-Path -Path $rootPath -ChildPath "release/$moduleName"
     $manifestPath = Join-Path -Path $releasePath -ChildPath "$moduleName.psd1"
 
     # Make sure we can import module properly. Capture exported functions.
-    try
-    {
+    try {
         Import-Module -FullyQualifiedName $modulePath -ErrorAction 'Stop'
         $exportedCommands = Get-Command -Module $moduleName
         Remove-Module -Name $moduleName -Force -ErrorAction 'SilentlyContinue'
-    }
-    catch
-    {
+    } catch {
         throw ("Error importing module at path: '{0}', {1}" -f $modulePath, $_.Exception.Message)
     }
 
     # Create release directory
     New-Directory -Path $releasePath
 
+    # Get version
+    $version = (npm pkg get version).Trim('"')
+
     $manifestProperties = @{
-        ModuleVersion     = $Version
+        ModuleVersion     = [Version]::Parse(($version -replace '-dev', ''))
         Path              = $manifestPath
         Guid              = '00f120b5-2007-6120-0000-b03e1254e770'
         Author            = 'Microsoft Corporation'
@@ -72,8 +61,7 @@ function Build-PsModule
         Tags              = @('FinOps', 'Cost', 'CostManagement', 'Azure', 'MicrosoftCloud')
     }
 
-    if ($PrereleaseTag)
-    {
+    if ($PrereleaseTag) {
         $manifestProperties.Add('Prerelease', $PrereleaseTag)
     }
 
