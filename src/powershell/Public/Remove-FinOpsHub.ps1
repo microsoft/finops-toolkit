@@ -91,7 +91,7 @@ function Remove-FinOpsHub
         $uniqueId = $kv.Substring($kv.LastIndexOf('-') + 1)
         Write-Verbose -Message "Unique identifier: $uniqueId"
 
-        $resources = Get-AzResource -ResourceGroupName $ResourceGroupName | Where-Object Name -like "*$uniqueId*" | Where-Object {(-not $KeepStorageAccount) -or $_.ResourceType -ne "Microsoft.Storage/storageAccounts"}
+        $resources = Get-AzResource -ResourceGroupName $ResourceGroupName | Where-Object -FilterScript {$_.Name -like "*$uniqueId*" -and ((-not $KeepStorageAccount) -or $_.ResourceType -ne "Microsoft.Storage/storageAccounts")}
 
         if ($PSCmdlet.ShouldProcess($Name, 'DeleteFinOpsHub'))
         {
@@ -100,6 +100,6 @@ function Remove-FinOpsHub
     }
     catch
     {
-        throw $script:localizedData.DeleteFinOpsHub
+        throw ($script:localizedData.DeleteFinOpsHub -f $_)
     }
 }
