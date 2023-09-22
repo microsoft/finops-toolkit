@@ -33,19 +33,19 @@ Microsoft Cost Management provides various values for resource locations that ar
 
 Sample data:
 
-| OriginalType   | OriginalValue | RegionId      | RegionName     |
-| -------------- | ------------- | ------------- | -------------- |
-| Billing Region | AP East       | eastasia      | East Asia      |
-| Billing Region | CA Central    | canadacentral | Canada Central |
-| Billing Region | DE North      | germanynorth  | Germany North  |
-| Billing Region | NO West       | norwaywest    | Norway West    |
-| Billing Region | TW North      | taiwannorth   | Taiwan North   |
+| OriginalValue | RegionId      | RegionName     |
+| ------------- | ------------- | -------------- |
+| AP East       | eastasia      | East Asia      |
+| CA Central    | canadacentral | Canada Central |
+| DE North      | germanynorth  | Germany North  |
+| NO West       | norwaywest    | Norway West    |
+| TW North      | taiwannorth   | Taiwan North   |
 
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
-## 📑 Looking for more?
+## 📇 Looking for more?
 
 We'd love to hear about any datasets you're looking for. Create a new issue with the details that you'd like to see either included in existing or new datasets.
 
