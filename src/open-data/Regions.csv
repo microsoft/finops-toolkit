@@ -1,388 +1,324 @@
 OriginalValue,RegionId,RegionName
+AE Central,uaecentral,UAE Central
+AE North,uaenorth,UAE North
+am,westeurope,West Europe
+AP East,eastasia,East Asia
+AP Southeast,southeastasia,Southeast Asia
+apacsoutheast2,apacsoutheast2,APAC Southeast 2
 arlem,arlem,Arlem
 asiaeast,eastasia,East Asia
 asiasoutheast,southeastasia,Southeast Asia
 asiasoutheast2,apacsoutheast2,APAC Southeast 2
+AT East,austriaeast,Austria East
+ate,austriaeast,Austria East
+AU Central,australiacentral,Australia Central
+AU Central 2,australiacentral2,Australia Central 2
+AU East,australiaeast,Australia East
+AU Southeast,australiasoutheast,Australia Southeast
+auh,uaecentral,UAE Central
 australiac,australiacentral,Australia Central
 australiac2,australiacentral2,Australia Central 2
+australiacentral,australiacentral,Australia Central
+australiacentral2,australiacentral2,Australia Central 2
 australiaeast,australiaeast,Australia East
 australiasoutheast,australiasoutheast,Australia Southeast
 austriae,austriaeast,Austria East
+austriaeast,austriaeast,Austria East
+bd,usdodeast,USDoD East
+BE Central,belgiumcentral,Belgium Central
+bec,belgiumcentral,Belgium Central
 belgiumc,belgiumcentral,Belgium Central
+belgiumcentral,belgiumcentral,Belgium Central
+bj,chinanorth,China North
+bjs,chinanorth2,China North 2
+bl,eastus,East US
+Bleu France Central,bleufrancecentral,Bleu France Central
+Bleu France South,bleufrancesouth,Bleu France South
 bleuc,bleufrancecentral,Bleu France Central
+bleufrancecentral,bleufrancecentral,Bleu France Central
+bleufrancesouth,bleufrancesouth,Bleu France South
 bleus,bleufrancesouth,Bleu France South
+bm,westindia,West India
+bn,eastus2,East US 2
+bn,usgovvirginia,USGov Virginia
+BR South,brazilsouth,Brazil South
+BR Southeast,brazilsoutheast,Brazil Southeast
 brazilne,brazilnortheast,Brazil Northeast
+brazilnortheast,brazilnortheast,Brazil Northeast
 brazilse,brazilsoutheast,Brazil Southeast
 brazilsouth,brazilsouth,Brazil South
+brazilsoutheast,brazilsoutheast,Brazil Southeast
+brne,brazilnortheast,Brazil Northeast
+brse,brazilsoutheast,Brazil Southeast
+by,westus,West US
+CA Central,canadacentral,Canada Central
+CA East,canadaeast,Canada East
 canadacentral,canadacentral,Canada Central
 canadaeast,canadaeast,Canada East
+cbn,eastus2euap,East US 2 EUAP
+cbr,australiacentral,Australia Central
+cbr2,australiacentral2,Australia Central 2
+cdm,centraluseuap,Central US EUAP
+centralindia,centralindia,Central India
+centralus,centralus,Central US
+centraluseuap,centraluseuap,Central US EUAP
+ch,northcentralus,North Central US
+CH North,switzerlandnorth,Switzerland North
+CH West,switzerlandwest,Switzerland West
 chilec,chilecentral,Chile Central
+chilecentral,chilecentral,Chile Central
 chilenc,chilenorthcentral,Chile North Central
+chilenorthcentral,chilenorthcentral,Chile North Central
 chinae2,chinaeast2,China East 2
 chinae3,chinaeast3,China East 3
 chinaeast,chinaeast,China East
+chinaeast2,chinaeast2,China East 2
+chinaeast3,chinaeast3,China East 3
 chinan10,chinanorth10,China North 10
 chinan2,chinanorth2,China North 2
 chinan3,chinanorth3,China North 3
 chinanorth,chinanorth,China North
+chinanorth10,chinanorth10,China North 10
+chinanorth2,chinanorth2,China North 2
+chinanorth3,chinanorth3,China North 3
+chn,switzerlandnorth,Switzerland North
+chw,switzerlandwest,Switzerland West
+CL Central,chilecentral,Chile Central
+CL North Central,chilenorthcentral,Chile North Central
+clc,chilecentral,Chile Central
+clnc,chilenorthcentral,Chile North Central
+CN East,chinaeast,China East
+CN East 2,chinaeast2,China East 2
+CN East 3,chinaeast3,China East 3
+CN North,chinanorth,China North
+CN North 2,chinanorth2,China North 2
+CN North 3,chinanorth3,China North 3
+cne3,chinaeast3,China East 3
+cnn10,chinanorth10,China North 10
+cnn3,chinanorth3,China North 3
+cpt,southafricawest,South Africa West
+cq,brazilsouth,Brazil South
+cw,ukwest,UK West
+cy,usgovwyoming,USGov Wyoming
+cy,westcentralus,West Central US
+db,northeurope,North Europe
+dd,usdodcentral,USDoD Central
+DE Central,germanycentral,Germany Central
+DE North,germanynorth,Germany North
+DE Northeast,germanynortheast,Germany NorthEast
+DE West Central,germanywestcentral,Germany West Central
+delc,deloscloudgermanycentral,Delos Cloud Germany Central
+deln,deloscloudgermanynorth,Delos Cloud Germany North
+Delos Cloud Germany Central,deloscloudgermanycentral,Delos Cloud Germany Central
+Delos Cloud Germany North,deloscloudgermanynorth,Delos Cloud Germany North
 delosc,deloscloudgermanycentral,Delos Cloud Germany Central
+deloscloudgermanycentral,deloscloudgermanycentral,Delos Cloud Germany Central
+deloscloudgermanynorth,deloscloudgermanynorth,Delos Cloud Germany North
 delosn,deloscloudgermanynorth,Delos Cloud Germany North
+den,germanynorth,Germany North
+Denmark East,denmarkeast,Denmark East
 denmarke,denmarkeast,Denmark East
+denmarkeast,denmarkeast,Denmark East
+dewc,germanywestcentral,Germany West Central
+dke,denmarkeast,Denmark East
+dm,centralus,Central US
+dm,usgoviowa,USGov Iowa
+dxb,uaenorth,UAE North
+eastasia,eastasia,East Asia
+easteurope,easteurope,East Europe
+eastus,eastus,East US
+eastus2,eastus2,East US 2
+eastus2euap,eastus2euap,East US 2 EUAP
+eastusslv,eastusslv,East US SLV
+eastusstg,eastusstg,East US STG
+ES Central,spaincentral,Spain Central
+esc,spaincentral,Spain Central
+EU North,northeurope,North Europe
+EU West,westeurope,West Europe
 europeeast,easteurope,East Europe
 europenorth,northeurope,North Europe
 europenorth2,northeurope2,North Europe 2
 europewest,westeurope,West Europe
 eusslv,eastusslv,East US SLV
+FI Central,finlandcentral,Finland Central
 finlandc,finlandcentral,Finland Central
+finlandcentral,finlandcentral,Finland Central
+flc,finlandcentral,Finland Central
+fr,germanycentral,Germany Central
+FR Central,francecentral,France Central
+FR South,francesouth,France South
 francec,francecentral,France Central
+francecentral,francecentral,France Central
 frances,francesouth,France South
+francesouth,francesouth,France South
 germanycentral,germanycentral,Germany Central
 germanyn,germanynorth,Germany North
+germanynorth,germanynorth,Germany North
 germanynortheast,germanynortheast,Germany NorthEast
 germanywc,germanywestcentral,Germany West Central
+germanywestcentral,germanywestcentral,Germany West Central
+grn,usnatwest,USNat West
+hel,northeurope2,North Europe 2
+hk,eastasia,East Asia
+ID Central,indonesiacentral,Indonesia Central
+idc,indonesiacentral,Indonesia Central
+IL Central,israelcentral,Israel Central
+IL Northwest,israelnorthwest,Israel Northwest
+ilc,israelcentral,Israel Central
+ilnw,israelnorthwest,Israel Northwest
+IN Central,centralindia,Central India
+IN Central Jio,jioindiacentral,Jio India Central
+IN South,southindia,South India
+IN South Central,indiasouthcentral,India South Central
+IN West,westindia,West India
+IN West Jio,jioindiawest,Jio India West
 indiacentral,centralindia,Central India
 indiasc,indiasouthcentral,India South Central
 indiasouth,southindia,South India
+indiasouthcentral,indiasouthcentral,India South Central
 indiawest,westindia,West India
 indonesiac,indonesiacentral,Indonesia Central
+indonesiacentral,indonesiacentral,Indonesia Central
+insc,indiasouthcentral,India South Central
 israelc,israelcentral,Israel Central
+israelcentral,israelcentral,Israel Central
+israelnorthwest,israelnorthwest,Israel Northwest
 israelnw,israelnorthwest,Israel Northwest
+IT North,italynorth,Italy North
 italyn,italynorth,Italy North
+italynorth,italynorth,Italy North
+itn,italynorth,Italy North
+JA East,japaneast,Japan East
+JA West,japanwest,Japan West
 japaneast,japaneast,Japan East
 japanwest,japanwest,Japan West
+jinc,jioindiacentral,Jio India Central
+jinw,jioindiawest,Jio India West
 jioinc,jioindiacentral,Jio India Central
+jioindiacentral,jioindiacentral,Jio India Central
+jioindiawest,jioindiawest,Jio India West
 jioinw,jioindiawest,Jio India West
+jnb,southafricanorth,South Africa North
 koreacentral,koreacentral,Korea Central
 koreas2,koreasouth2,Korea South 2
 koreasouth,koreasouth,Korea South
-malaysias,malaysiasouth,Malaysia South
-malaysiaw,malaysiawest,Malaysia West
-mexicoc,mexicocentral,Mexico Central
-newzealandn,newzealandnorth,New Zealand North
-norwaye,norwayeast,Norway East
-norwayw,norwaywest,Norway West
-ocave,ocave,Ocave
-polandc,polandcentral,Poland Central
-qatarc,qatarcentral,Qatar Central
-singaporec,singaporecentral,Singapore Central
-singaporegov,singaporegov,Singapore Gov
-singaporen,singaporenorth,Singapore North
-southafrican,southafricanorth,South Africa North
-southafricaw,southafricawest,South Africa West
-spainc,spaincentral,Spain Central
-swedenc,swedencentral,Sweden Central
-swedens,swedensouth,Sweden South
-switzerlandn,switzerlandnorth,Switzerland North
-switzerlandw,switzerlandwest,Switzerland West
-taiwann,taiwannorth,Taiwan North
-taiwannw,taiwannorthwest,Taiwan Northwest
-uaec,uaecentral,UAE Central
-uaen,uaenorth,UAE North
-uknorth,uknorth,UK North
-uksouth,uksouth,UK South
-uksouth2,uksouth2,UK South 2
-ukwest,ukwest,UK West
-uscentral,centralus,Central US
-uscentraleuap,centraluseuap,Central US EUAP
-usdodcentral,usdodcentral,USDoD Central
-usdodeast,usdodeast,USDoD East
-usdodsc,usdodsouthcentral,USDoD South Central
-usdodsw,usdodsouthwest,USDoD Southwest
-usdodwc,usdodwestcentral,USDoD West Central
-useast,eastus,East US
-useast2,eastus2,East US 2
-useast2euap,eastus2euap,East US 2 EUAP
-usgovcentral,usgoviowa,USGov Iowa
-usgoveast,usgovvirginia,USGov Virginia
-usgovsc,usgovtexas,USGov Texas
-usgovsw,usgovarizona,USGov Arizona
-usgovwc,usgovwyoming,USGov Wyoming
-usnate,usnateast,USNat East
-usnatw,usnatwest,USNat West
-usnorth,northcentralus,North Central US
-ussecc,usseccentral,USSec Central
-ussece,usseceast,USSec East
-ussecw,ussecwest,USSec West
-ussecwc,ussecwestcentral,USSec West Central
-ussouth,southcentralus,South Central US
-usstagee,eastusstg,East US STG
-usstagesc,southcentralusstg,South Central US STG
-uswest,westus,West US
-uswest2,westus2,West US 2
-uswest3,westus3,West US 3
-uswestcentral,westcentralus,West Central US
-hk,eastasia,East Asia
-sg,southeastasia,Southeast Asia
-kul,apacsoutheast2,APAC Southeast 2
-cbr,australiacentral,Australia Central
-cbr2,australiacentral2,Australia Central 2
-sy,australiaeast,Australia East
-ml,australiasoutheast,Australia Southeast
-ate,austriaeast,Austria East
-bec,belgiumcentral,Belgium Central
-brne,brazilnortheast,Brazil Northeast
-brse,brazilsoutheast,Brazil Southeast
-cq,brazilsouth,Brazil South
-yt,canadacentral,Canada Central
-yq,canadaeast,Canada East
-clc,chilecentral,Chile Central
-clnc,chilenorthcentral,Chile North Central
-sha,chinaeast2,China East 2
-cne3,chinaeast3,China East 3
-sh,chinaeast,China East
-cnn10,chinanorth10,China North 10
-bjs,chinanorth2,China North 2
-cnn3,chinanorth3,China North 3
-bj,chinanorth,China North
-delc,deloscloudgermanycentral,Delos Cloud Germany Central
-deln,deloscloudgermanynorth,Delos Cloud Germany North
-dke,denmarkeast,Denmark East
-yyy,easteurope,East Europe
-db,northeurope,North Europe
-hel,northeurope2,North Europe 2
-am,westeurope,West Europe
-use,eastusslv,East US SLV
-flc,finlandcentral,Finland Central
-par,francecentral,France Central
-mrs,francesouth,France South
-fr,germanycentral,Germany Central
-den,germanynorth,Germany North
-lg,germanynortheast,Germany NorthEast
-dewc,germanywestcentral,Germany West Central
-pn,centralindia,Central India
-insc,indiasouthcentral,India South Central
-ma,southindia,South India
-bm,westindia,West India
-idc,indonesiacentral,Indonesia Central
-ilc,israelcentral,Israel Central
-ilnw,israelnorthwest,Israel Northwest
-itn,italynorth,Italy North
-ty,japaneast,Japan East
-os,japanwest,Japan West
-jinc,jioindiacentral,Jio India Central
-jinw,jioindiawest,Jio India West
-se,koreacentral,Korea Central
-krs2,koreasouth2,Korea South 2
-ps,koreasouth,Korea South
-mys,malaysiasouth,Malaysia South
-myw,malaysiawest,Malaysia West
-mxc,mexicocentral,Mexico Central
-nzn,newzealandnorth,New Zealand North
-noe,norwayeast,Norway East
-now,norwaywest,Norway West
-plc,polandcentral,Poland Central
-qac,qatarcentral,Qatar Central
-singc,singaporecentral,Singapore Central
-sgg,singaporegov,Singapore Gov
-singn,singaporenorth,Singapore North
-jnb,southafricanorth,South Africa North
-cpt,southafricawest,South Africa West
-esc,spaincentral,Spain Central
-sec,swedencentral,Sweden Central
-ses,swedensouth,Sweden South
-chn,switzerlandnorth,Switzerland North
-chw,switzerlandwest,Switzerland West
-twn,taiwannorth,Taiwan North
-twnw,taiwannorthwest,Taiwan Northwest
-auh,uaecentral,UAE Central
-dxb,uaenorth,UAE North
-mm,uknorth,UK North
-ln,uksouth,UK South
-lo,uksouth2,UK South 2
-cw,ukwest,UK West
-dm,centralus,Central US
-cdm,centraluseuap,Central US EUAP
-dd,usdodcentral,USDoD Central
-bd,usdodeast,USDoD East
-usdsc,usdodsouthcentral,USDoD South Central
-phxd,usdodsouthwest,USDoD Southwest
-usdwc,usdodwestcentral,USDoD West Central
-bl,eastus,East US
-bn,eastus2,East US 2
-cbn,eastus2euap,East US 2 EUAP
-dm,usgoviowa,USGov Iowa
-bn,usgovvirginia,USGov Virginia
-sn,usgovtexas,USGov Texas
-phx,usgovarizona,USGov Arizona
-cy,usgovwyoming,USGov Wyoming
-red,usnateast,USNat East
-grn,usnatwest,USNat West
-ch,northcentralus,North Central US
-ussc,usseccentral,USSec Central
-usse,usseceast,USSec East
-ussw,ussecwest,USSec West
-usswc,ussecwestcentral,USSec West Central
-sn,southcentralus,South Central US
-uste,eastusstg,East US STG
-ustsc,southcentralusstg,South Central US STG
-by,westus,West US
-mwh,westus2,West US 2
-usw3,westus3,West US 3
-cy,westcentralus,West Central US
-eastasia,eastasia,East Asia
-southeastasia,southeastasia,Southeast Asia
-apacsoutheast2,apacsoutheast2,APAC Southeast 2
-australiacentral,australiacentral,Australia Central
-australiacentral2,australiacentral2,Australia Central 2
-austriaeast,austriaeast,Austria East
-belgiumcentral,belgiumcentral,Belgium Central
-bleufrancecentral,bleufrancecentral,Bleu France Central
-bleufrancesouth,bleufrancesouth,Bleu France South
-brazilnortheast,brazilnortheast,Brazil Northeast
-brazilsoutheast,brazilsoutheast,Brazil Southeast
-chilecentral,chilecentral,Chile Central
-chilenorthcentral,chilenorthcentral,Chile North Central
-chinaeast2,chinaeast2,China East 2
-chinaeast3,chinaeast3,China East 3
-chinanorth10,chinanorth10,China North 10
-chinanorth2,chinanorth2,China North 2
-chinanorth3,chinanorth3,China North 3
-deloscloudgermanycentral,deloscloudgermanycentral,Delos Cloud Germany Central
-deloscloudgermanynorth,deloscloudgermanynorth,Delos Cloud Germany North
-denmarkeast,denmarkeast,Denmark East
-easteurope,easteurope,East Europe
-northeurope,northeurope,North Europe
-northeurope2,northeurope2,North Europe 2
-westeurope,westeurope,West Europe
-eastusslv,eastusslv,East US SLV
-finlandcentral,finlandcentral,Finland Central
-francecentral,francecentral,France Central
-francesouth,francesouth,France South
-germanynorth,germanynorth,Germany North
-germanywestcentral,germanywestcentral,Germany West Central
-centralindia,centralindia,Central India
-indiasouthcentral,indiasouthcentral,India South Central
-southindia,southindia,South India
-westindia,westindia,West India
-indonesiacentral,indonesiacentral,Indonesia Central
-israelcentral,israelcentral,Israel Central
-israelnorthwest,israelnorthwest,Israel Northwest
-italynorth,italynorth,Italy North
-jioindiacentral,jioindiacentral,Jio India Central
-jioindiawest,jioindiawest,Jio India West
 koreasouth2,koreasouth2,Korea South 2
-malaysiasouth,malaysiasouth,Malaysia South
-malaysiawest,malaysiawest,Malaysia West
-mexicocentral,mexicocentral,Mexico Central
-newzealandnorth,newzealandnorth,New Zealand North
-norwayeast,norwayeast,Norway East
-norwaywest,norwaywest,Norway West
-polandcentral,polandcentral,Poland Central
-qatarcentral,qatarcentral,Qatar Central
-singaporecentral,singaporecentral,Singapore Central
-singaporenorth,singaporenorth,Singapore North
-southafricanorth,southafricanorth,South Africa North
-southafricawest,southafricawest,South Africa West
-spaincentral,spaincentral,Spain Central
-swedencentral,swedencentral,Sweden Central
-swedensouth,swedensouth,Sweden South
-switzerlandnorth,switzerlandnorth,Switzerland North
-switzerlandwest,switzerlandwest,Switzerland West
-taiwannorth,taiwannorth,Taiwan North
-taiwannorthwest,taiwannorthwest,Taiwan Northwest
-uaecentral,uaecentral,UAE Central
-uaenorth,uaenorth,UAE North
-centralus,centralus,Central US
-centraluseuap,centraluseuap,Central US EUAP
-usdodsouthcentral,usdodsouthcentral,USDoD South Central
-usdodsouthwest,usdodsouthwest,USDoD Southwest
-usdodwestcentral,usdodwestcentral,USDoD West Central
-eastus,eastus,East US
-eastus2,eastus2,East US 2
-eastus2euap,eastus2euap,East US 2 EUAP
-usgoviowa,usgoviowa,USGov Iowa
-usgovvirginia,usgovvirginia,USGov Virginia
-usgovtexas,usgovtexas,USGov Texas
-usgovarizona,usgovarizona,USGov Arizona
-usgovwyoming,usgovwyoming,USGov Wyoming
-usnateast,usnateast,USNat East
-usnatwest,usnatwest,USNat West
-northcentralus,northcentralus,North Central US
-usseccentral,usseccentral,USSec Central
-usseceast,usseceast,USSec East
-ussecwest,ussecwest,USSec West
-ussecwestcentral,ussecwestcentral,USSec West Central
-southcentralus,southcentralus,South Central US
-eastusstg,eastusstg,East US STG
-southcentralusstg,southcentralusstg,South Central US STG
-westus,westus,West US
-westus2,westus2,West US 2
-westus3,westus3,West US 3
-westcentralus,westcentralus,West Central US
-AP East,eastasia,East Asia
-AP Southeast,southeastasia,Southeast Asia
-AU Central,australiacentral,Australia Central
-AU Central 2,australiacentral2,Australia Central 2
-AU East,australiaeast,Australia East
-AU Southeast,australiasoutheast,Australia Southeast
-AT East,austriaeast,Austria East
-BE Central,belgiumcentral,Belgium Central
-Bleu France Central,bleufrancecentral,Bleu France Central
-Bleu France South,bleufrancesouth,Bleu France South
-BR Southeast,brazilsoutheast,Brazil Southeast
-BR South,brazilsouth,Brazil South
-CA Central,canadacentral,Canada Central
-CA East,canadaeast,Canada East
-CL Central,chilecentral,Chile Central
-CL North Central,chilenorthcentral,Chile North Central
-CN East 2,chinaeast2,China East 2
-CN East 3,chinaeast3,China East 3
-CN East,chinaeast,China East
-CN North 2,chinanorth2,China North 2
-CN North 3,chinanorth3,China North 3
-CN North,chinanorth,China North
-Delos Cloud Germany Central,deloscloudgermanycentral,Delos Cloud Germany Central
-Delos Cloud Germany North,deloscloudgermanynorth,Delos Cloud Germany North
-Denmark East,denmarkeast,Denmark East
-EU North,northeurope,North Europe
-EU West,westeurope,West Europe
-FI Central,finlandcentral,Finland Central
-FR Central,francecentral,France Central
-FR South,francesouth,France South
-DE Central,germanycentral,Germany Central
-DE North,germanynorth,Germany North
-DE Northeast,germanynortheast,Germany NorthEast
-DE West Central,germanywestcentral,Germany West Central
-IN Central,centralindia,Central India
-IN South Central,indiasouthcentral,India South Central
-IN South,southindia,South India
-IN West,westindia,West India
-ID Central,indonesiacentral,Indonesia Central
-IL Central,israelcentral,Israel Central
-IL Northwest,israelnorthwest,Israel Northwest
-IT North,italynorth,Italy North
-JA East,japaneast,Japan East
-JA West,japanwest,Japan West
-IN Central Jio,jioindiacentral,Jio India Central
-IN West Jio,jioindiawest,Jio India West
 KR Central,koreacentral,Korea Central
 KR South,koreasouth,Korea South
+krs2,koreasouth2,Korea South 2
+kul,apacsoutheast2,APAC Southeast 2
+lg,germanynortheast,Germany NorthEast
+ln,uksouth,UK South
+lo,uksouth2,UK South 2
+ma,southindia,South India
+malaysias,malaysiasouth,Malaysia South
+malaysiasouth,malaysiasouth,Malaysia South
+malaysiaw,malaysiawest,Malaysia West
+malaysiawest,malaysiawest,Malaysia West
+mexicoc,mexicocentral,Mexico Central
+mexicocentral,mexicocentral,Mexico Central
+ml,australiasoutheast,Australia Southeast
+mm,uknorth,UK North
+mrs,francesouth,France South
+mwh,westus2,West US 2
+MX Central,mexicocentral,Mexico Central
+mxc,mexicocentral,Mexico Central
 MY South,malaysiasouth,Malaysia South
 MY West,malaysiawest,Malaysia West
-MX Central,mexicocentral,Mexico Central
-NZ North,newzealandnorth,New Zealand North
+mys,malaysiasouth,Malaysia South
+myw,malaysiawest,Malaysia West
+newzealandn,newzealandnorth,New Zealand North
+newzealandnorth,newzealandnorth,New Zealand North
 NO East,norwayeast,Norway East
 NO West,norwaywest,Norway West
+noe,norwayeast,Norway East
+northcentralus,northcentralus,North Central US
+northeurope,northeurope,North Europe
+northeurope2,northeurope2,North Europe 2
+norwaye,norwayeast,Norway East
+norwayeast,norwayeast,Norway East
+norwayw,norwaywest,Norway West
+norwaywest,norwaywest,Norway West
+now,norwaywest,Norway West
+NZ North,newzealandnorth,New Zealand North
+nzn,newzealandnorth,New Zealand North
+ocave,ocave,Ocave
+os,japanwest,Japan West
+par,francecentral,France Central
+phx,usgovarizona,USGov Arizona
+phxd,usdodsouthwest,USDoD Southwest
 PL Central,polandcentral,Poland Central
+plc,polandcentral,Poland Central
+pn,centralindia,Central India
+polandc,polandcentral,Poland Central
+polandcentral,polandcentral,Poland Central
+ps,koreasouth,Korea South
 QA Central,qatarcentral,Qatar Central
-Singapore Central,singaporecentral,Singapore Central
-SG Gov,singaporegov,Singapore Gov
-Singapore North,singaporenorth,Singapore North
-ZA North,southafricanorth,South Africa North
-ZA West,southafricawest,South Africa West
-ES Central,spaincentral,Spain Central
+qac,qatarcentral,Qatar Central
+qatarc,qatarcentral,Qatar Central
+qatarcentral,qatarcentral,Qatar Central
+red,usnateast,USNat East
+se,koreacentral,Korea Central
 SE Central,swedencentral,Sweden Central
 SE South,swedensouth,Sweden South
-CH North,switzerlandnorth,Switzerland North
-CH West,switzerlandwest,Switzerland West
+sec,swedencentral,Sweden Central
+ses,swedensouth,Sweden South
+sg,southeastasia,Southeast Asia
+SG Gov,singaporegov,Singapore Gov
+sgg,singaporegov,Singapore Gov
+sh,chinaeast,China East
+sha,chinaeast2,China East 2
+Singapore Central,singaporecentral,Singapore Central
+Singapore North,singaporenorth,Singapore North
+singaporec,singaporecentral,Singapore Central
+singaporecentral,singaporecentral,Singapore Central
+singaporegov,singaporegov,Singapore Gov
+singaporen,singaporenorth,Singapore North
+singaporenorth,singaporenorth,Singapore North
+singc,singaporecentral,Singapore Central
+singn,singaporenorth,Singapore North
+sn,southcentralus,South Central US
+sn,usgovtexas,USGov Texas
+southafrican,southafricanorth,South Africa North
+southafricanorth,southafricanorth,South Africa North
+southafricaw,southafricawest,South Africa West
+southafricawest,southafricawest,South Africa West
+southcentralus,southcentralus,South Central US
+southcentralusstg,southcentralusstg,South Central US STG
+southeastasia,southeastasia,Southeast Asia
+southindia,southindia,South India
+spainc,spaincentral,Spain Central
+spaincentral,spaincentral,Spain Central
+swedenc,swedencentral,Sweden Central
+swedencentral,swedencentral,Sweden Central
+swedens,swedensouth,Sweden South
+swedensouth,swedensouth,Sweden South
+switzerlandn,switzerlandnorth,Switzerland North
+switzerlandnorth,switzerlandnorth,Switzerland North
+switzerlandw,switzerlandwest,Switzerland West
+switzerlandwest,switzerlandwest,Switzerland West
+sy,australiaeast,Australia East
+taiwann,taiwannorth,Taiwan North
+taiwannorth,taiwannorth,Taiwan North
+taiwannorthwest,taiwannorthwest,Taiwan Northwest
+taiwannw,taiwannorthwest,Taiwan Northwest
 TW North,taiwannorth,Taiwan North
 TW Northwest,taiwannorthwest,Taiwan Northwest
-AE Central,uaecentral,UAE Central
-AE North,uaenorth,UAE North
+twn,taiwannorth,Taiwan North
+twnw,taiwannorthwest,Taiwan Northwest
+ty,japaneast,Japan East
+uaec,uaecentral,UAE Central
+uaecentral,uaecentral,UAE Central
+uaen,uaenorth,UAE North
+uaenorth,uaenorth,UAE North
 UK North,uknorth,UK North
 UK South,uksouth,UK South
 UK South 2,uksouth2,UK South 2
 UK West,ukwest,UK West
+uknorth,uknorth,UK North
+uksouth,uksouth,UK South
+uksouth2,uksouth2,UK South 2
+ukwest,ukwest,UK West
 US Central,centralus,Central US
 US Central,centraluseuap,Central US EUAP
 US DoD,usdodcentral,USDoD Central
@@ -392,8 +328,8 @@ US East 2,eastus2,East US 2
 US East 2,eastus2euap,East US 2 EUAP
 US Gov,usgoviowa,USGov Iowa
 US Gov,usgovvirginia,USGov Virginia
-US Gov TX,usgovtexas,USGov Texas
 US Gov AZ,usgovarizona,USGov Arizona
+US Gov TX,usgovtexas,USGov Texas
 US Nat East,usnateast,USNat East
 US Nat West,usnatwest,USNat West
 US North Central,northcentralus,North Central US
@@ -406,3 +342,67 @@ US West,westus,West US
 US West 2,westus2,West US 2
 US West 3,westus3,West US 3
 US West Central,westcentralus,West Central US
+uscentral,centralus,Central US
+uscentraleuap,centraluseuap,Central US EUAP
+usdodcentral,usdodcentral,USDoD Central
+usdodeast,usdodeast,USDoD East
+usdodsc,usdodsouthcentral,USDoD South Central
+usdodsouthcentral,usdodsouthcentral,USDoD South Central
+usdodsouthwest,usdodsouthwest,USDoD Southwest
+usdodsw,usdodsouthwest,USDoD Southwest
+usdodwc,usdodwestcentral,USDoD West Central
+usdodwestcentral,usdodwestcentral,USDoD West Central
+usdsc,usdodsouthcentral,USDoD South Central
+usdwc,usdodwestcentral,USDoD West Central
+use,eastusslv,East US SLV
+useast,eastus,East US
+useast2,eastus2,East US 2
+useast2euap,eastus2euap,East US 2 EUAP
+usgovarizona,usgovarizona,USGov Arizona
+usgovcentral,usgoviowa,USGov Iowa
+usgoveast,usgovvirginia,USGov Virginia
+usgoviowa,usgoviowa,USGov Iowa
+usgovsc,usgovtexas,USGov Texas
+usgovsw,usgovarizona,USGov Arizona
+usgovtexas,usgovtexas,USGov Texas
+usgovvirginia,usgovvirginia,USGov Virginia
+usgovwc,usgovwyoming,USGov Wyoming
+usgovwyoming,usgovwyoming,USGov Wyoming
+usnate,usnateast,USNat East
+usnateast,usnateast,USNat East
+usnatw,usnatwest,USNat West
+usnatwest,usnatwest,USNat West
+usnorth,northcentralus,North Central US
+ussc,usseccentral,USSec Central
+usse,usseceast,USSec East
+ussecc,usseccentral,USSec Central
+usseccentral,usseccentral,USSec Central
+ussece,usseceast,USSec East
+usseceast,usseceast,USSec East
+ussecw,ussecwest,USSec West
+ussecwc,ussecwestcentral,USSec West Central
+ussecwest,ussecwest,USSec West
+ussecwestcentral,ussecwestcentral,USSec West Central
+ussouth,southcentralus,South Central US
+usstagee,eastusstg,East US STG
+usstagesc,southcentralusstg,South Central US STG
+ussw,ussecwest,USSec West
+usswc,ussecwestcentral,USSec West Central
+uste,eastusstg,East US STG
+ustsc,southcentralusstg,South Central US STG
+usw3,westus3,West US 3
+uswest,westus,West US
+uswest2,westus2,West US 2
+uswest3,westus3,West US 3
+uswestcentral,westcentralus,West Central US
+westcentralus,westcentralus,West Central US
+westeurope,westeurope,West Europe
+westindia,westindia,West India
+westus,westus,West US
+westus2,westus2,West US 2
+westus3,westus3,West US 3
+yq,canadaeast,Canada East
+yt,canadacentral,Canada Central
+yyy,easteurope,East Europe
+ZA North,southafricanorth,South Africa North
+ZA West,southafricawest,South Africa West
