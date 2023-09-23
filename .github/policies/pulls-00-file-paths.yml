@@ -21,6 +21,18 @@ configuration:
           - not:
               targetsBranch:
                 branch: main
+          - not:
+              or:
+                - isActivitySender:
+                    user: aromano2
+                - isActivitySender:
+                    user: benshy
+                - isActivitySender:
+                    user: flanakin
+                - isActivitySender:
+                    user: msbrett
+                - isActivitySender:
+                    user: springstone
         then:
           - addReply:
               reply: '@all-contributors please add ${contextualAuthor} for review'
@@ -38,13 +50,47 @@ configuration:
                       pattern: ^(.build|.github|.vscode|src\/scripts)\/.*
                   - filesMatchPattern:
                       pattern: ^src\/.*
+              - not:
+                  or:
+                    - isActivitySender:
+                        user: aromano2
+                    - isActivitySender:
+                        user: arthurclares
+                    - isActivitySender:
+                        user: didayal-msft
+                    - isActivitySender:
+                        user: flanakin
+                    - isActivitySender:
+                        user: msbrett
+                    - isActivitySender:
+                        user: nteyan
+                    - isActivitySender:
+                        user: saadmsft
+                    - isActivitySender:
+                        user: sebassem
+                    - isActivitySender:
+                        user: springstone
             then:
               - addReply:
-                  reply: '@all-contributors please add ${issueAuthor} for doc'
+                  reply: '@all-contributors please add ${issueAuthor} for code'
           # docs
           - if:
               - filesMatchPattern:
-                  pattern: ^docs\/.*
+                  pattern: ^(docs|docs-wiki)\/.*
+              - not:
+                  or:
+                    - isActivitySender:
+                        user: aromano2
+                    - isActivitySender:
+                        user: benshy
+                    - isActivitySender:
+                        user: flanakin
+                    - isActivitySender:
+                        user: helderpinto
+                    - isActivitySender:
+                        user: msbrett
+                    - isActivitySender:
+                        user: springstone
             then:
               - addReply:
                   reply: '@all-contributors please add ${issueAuthor} for doc'
