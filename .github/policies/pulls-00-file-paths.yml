@@ -115,6 +115,13 @@ configuration:
                 then:
                   - requestReview:
                       reviewer: msbrett
+          # open data
+          - if:
+              - filesMatchPattern:
+                  pattern: ^(docs|src)\/open-data\/.*
+            then:
+              - addLabel:
+                  label: 'Solution: Open data'
           # powershell
           - if:
               - filesMatchPattern:
