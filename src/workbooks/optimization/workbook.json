@@ -103,7 +103,7 @@
             "defaultValue": "value::all",
             "queryType": 1,
             "resourceType": "microsoft.resourcegraph/resources",
-            "label": "Resource group"
+            "label": "Resource Group"
           },
           {
             "id": "2336f06b-ddaa-4a9e-b72f-a2bec1ea84a9",
@@ -118,7 +118,7 @@
             "isHiddenWhenLocked": true,
             "queryType": 1,
             "resourceType": "microsoft.resourcegraph/resources",
-            "label": "Hidden subscription"
+            "label": "Hidden Subscription"
           },
           {
             "id": "d6776ffe-e4f6-4c08-8f9e-a2fe2b3b6634",
@@ -135,7 +135,7 @@
             "queryType": 1,
             "resourceType": "microsoft.resourcegraph/resources",
             "value": null,
-            "label": "Tag name"
+            "label": "Tag Name"
           },
           {
             "id": "f73dc4a1-ef8b-45c5-a30b-a11bb077a3cc",
@@ -152,7 +152,7 @@
             "queryType": 1,
             "resourceType": "microsoft.resourcegraph/resources",
             "value": null,
-            "label": "Tag value"
+            "label": "Tag Value"
           }
         ],
         "style": "pills",
@@ -202,7 +202,7 @@
             "defaultValue": "value::1",
             "queryType": 1,
             "resourceType": "microsoft.resourcegraph/resources",
-            "label": "Resource location"
+            "label": "Resource Location"
           }
         ],
         "style": "pills",
@@ -501,7 +501,7 @@
                       },
                       {
                         "columnId": "resourceGroup",
-                        "label": "Resource group"
+                        "label": "Resource Group"
                       },
                       {
                         "columnId": "subscriptionId",
@@ -625,7 +625,7 @@
                       },
                       {
                         "columnId": "resourceGroup",
-                        "label": "Resource group"
+                        "label": "Resource Group"
                       },
                       {
                         "columnId": "subscriptionId",
@@ -708,7 +708,7 @@
                       },
                       {
                         "columnId": "resourceGroup",
-                        "label": "Resource group"
+                        "label": "Resource Group"
                       },
                       {
                         "columnId": "AllocationMethod",
@@ -828,7 +828,7 @@
                 "type": 3,
                 "content": {
                   "version": "KqlItem/1.0",
-                  "query": "advisorresources\r\n| where type =~ 'microsoft.advisor/recommendations'\r\n| where properties.category == 'Cost' and properties.lastUpdated >= ago(1d)\r\n| extend AffectedResource=tostring(properties.resourceMetadata.resourceId), Category=properties.category, SubCategory=properties.impactedField, Impact=properties.impact,resourceGroup,subscriptionId,Recommendation=tostring(properties.shortDescription.problem), id, stableId = name, recommendationTypeId = tostring(properties.recommendationTypeId), maxCpuP95 = properties.extendedProperties.MaxCpuP95\r\n| join kind = inner(\r\n    resources\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend AffectedResource=id,ResourceRG=resourceGroup\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}'])\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    )\r\n    on AffectedResource\r\n| join kind = leftouter\r\n(advisorresources | where type=~'microsoft.advisor/suppressions'\r\n| extend tokens = split(id, '/')\r\n| extend stableId = iff(array_length(tokens) > 3, tokens[(array_length(tokens)-3)], '')\r\n| extend expirationTimeStamp = todatetime(iff(strcmp(tostring(properties.ttl), '-1') == 0, '9999-12-31', properties.expirationTimeStamp))\r\n| where expirationTimeStamp > now()\r\n| project stableId, expirationTimeStamp)\r\non stableId\r\n| where isempty(expirationTimeStamp)\r\n| project AffectedResource=tostring(properties.resourceMetadata.resourceId), Category=properties.category, SubCategory=properties.impactedField, Recommendation=tostring(properties.shortDescription.problem), Impact=properties.impact,resourceGroup,subscriptionId, id, stableId = name, recommendationTypeId = tostring(properties.recommendationTypeId), maxCpuP95 = properties.extendedProperties.MaxCpuP95\r\n| join kind = leftouter\r\n(advisorresources | where type =~ 'microsoft.advisor/configurations' | where isempty(resourceGroup) == true\r\n| project subscriptionId, excludeRecomm = properties.exclude, lowCpuThreshold = properties.lowCpuThreshold, AffectedResource=tostring(properties.resourceMetadata.resourceId),Impact=properties.impact,resourceGroup,AdditionaInfo=properties.extendedProperties,Recommendation=tostring(properties.shortDescription.problem))\r\non subscriptionId\r\n| extend isActive1 = iff(isnull(excludeRecomm), true, tobool(excludeRecomm) == false)\r\n| extend isActive2 = iff(recommendationTypeId == 'e10b1381-5f0a-47ff-8c7b-37bd13d7c974', iff((isnotempty(lowCpuThreshold) and isnotempty(maxCpuP95)), toint(maxCpuP95) < toint(lowCpuThreshold), iff((isempty(maxCpuP95) or toint(maxCpuP95) < 5), true, false)), true)\r\n| where isActive1 == true and isActive2 == true\r\n| join kind = leftouter\r\n(advisorresources | where type =~ 'microsoft.advisor/configurations' | where isnotempty(resourceGroup) == true\r\n| project subscriptionId, resourceGroup, excludeProperty = properties.exclude)\r\non subscriptionId, resourceGroup\r\n| extend isActive3 = iff(isnull(excludeProperty), true, tobool(excludeProperty) == false)\r\n| where isActive3 == true\r\n| where Category == 'Cost' \r\n| where SubCategory has \"Network\"\r\n| project-away subscriptionId1, subscriptionId2, AffectedResource1, isActive2, isActive3, Impact1, Recommendation1, resourceGroup1, resourceGroup2\r\n| where resourceGroup in ({ResourceGroup})",
+                  "query": "advisorresources\r\n| where type =~ 'microsoft.advisor/recommendations'\r\n| where resourceGroup in ({ResourceGroup})\r\n| where properties.category == 'Cost' and properties.lastUpdated >= ago(1d)\r\n| extend AffectedResource=tostring(properties.resourceMetadata.resourceId), Category=properties.category, SubCategory=properties.impactedField, Impact=properties.impact,resourceGroup,subscriptionId,Recommendation=tostring(properties.shortDescription.problem), id, stableId = name, recommendationTypeId = tostring(properties.recommendationTypeId), maxCpuP95 = properties.extendedProperties.MaxCpuP95\r\n| join kind = leftouter\r\n(advisorresources | where type=~'microsoft.advisor/suppressions'\r\n| extend tokens = split(id, '/')\r\n| extend stableId = iff(array_length(tokens) > 3, tokens[(array_length(tokens)-3)], '')\r\n| extend expirationTimeStamp = todatetime(iff(strcmp(tostring(properties.ttl), '-1') == 0, '9999-12-31', properties.expirationTimeStamp))\r\n| where expirationTimeStamp > now()\r\n| project stableId, expirationTimeStamp)\r\non stableId\r\n| where isempty(expirationTimeStamp)\r\n| project AffectedResource=tostring(properties.resourceMetadata.resourceId), Category=properties.category, SubCategory=properties.impactedField, Recommendation=tostring(properties.shortDescription.problem), Impact=properties.impact,resourceGroup,subscriptionId, id, stableId = name, recommendationTypeId = tostring(properties.recommendationTypeId), maxCpuP95 = properties.extendedProperties.MaxCpuP95\r\n| join kind = leftouter\r\n(advisorresources | where type =~ 'microsoft.advisor/configurations' | where isempty(resourceGroup) == true\r\n| project subscriptionId, excludeRecomm = properties.exclude, lowCpuThreshold = properties.lowCpuThreshold, AffectedResource=tostring(properties.resourceMetadata.resourceId),Impact=properties.impact,resourceGroup,AdditionaInfo=properties.extendedProperties,Recommendation=tostring(properties.shortDescription.problem))\r\non subscriptionId\r\n| extend isActive1 = iff(isnull(excludeRecomm), true, tobool(excludeRecomm) == false)\r\n| extend isActive2 = iff(recommendationTypeId == 'e10b1381-5f0a-47ff-8c7b-37bd13d7c974', iff((isnotempty(lowCpuThreshold) and isnotempty(maxCpuP95)), toint(maxCpuP95) < toint(lowCpuThreshold), iff((isempty(maxCpuP95) or toint(maxCpuP95) < 5), true, false)), true)\r\n| where isActive1 == true and isActive2 == true\r\n| join kind = leftouter\r\n(advisorresources | where type =~ 'microsoft.advisor/configurations' | where isnotempty(resourceGroup) == true\r\n| project subscriptionId, resourceGroup, excludeProperty = properties.exclude)\r\non subscriptionId, resourceGroup\r\n| extend isActive3 = iff(isnull(excludeProperty), true, tobool(excludeProperty) == false)\r\n| where isActive3 == true\r\n| where Category == 'Cost' \r\n| where SubCategory has \"Network\"\r\n| project-away subscriptionId1, subscriptionId2, AffectedResource1, isActive2, isActive3, Impact1, Recommendation1, resourceGroup1, resourceGroup2",
                   "size": 0,
                   "title": "Azure Advisor Cost recommendations",
                   "noDataMessage": "You are following all of our cost recommendations for Networking",
@@ -925,7 +925,7 @@
                       },
                       {
                         "columnId": "resourceGroup",
-                        "label": "Resource group"
+                        "label": "Resource Group"
                       },
                       {
                         "columnId": "subscriptionId",
@@ -934,7 +934,45 @@
                     ]
                   }
                 },
+                "conditionalVisibility": {
+                  "parameterName": "isVisible",
+                  "comparison": "isEqualTo",
+                  "value": "true"
+                },
                 "name": "Get-AdvisorRecommendations-Networking"
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": " resources\r\n    | where resourceGroup in ({ResourceGroup})\r\n    | where type has \"Microsoft.Network\"\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend AffectedResource=id,ResourceRG=resourceGroup\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}'])\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    | distinct id\r\n    | project id",
+                  "size": 0,
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ]
+                },
+                "conditionalVisibility": {
+                  "parameterName": "isVisible",
+                  "comparison": "isEqualTo",
+                  "value": "true"
+                },
+                "name": "query - tags - list all network resources"
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"d446799d-b1af-4bca-9d72-84ba2d87008d\",\"mergeType\":\"innerunique\",\"leftTable\":\"Get-AdvisorRecommendations-Networking\",\"rightTable\":\"query - tags - list all network resources\",\"leftColumn\":\"AffectedResource\",\"rightColumn\":\"id\"}],\"projectRename\":[{\"originalName\":\"[Get-AdvisorRecommendations-Networking].AffectedResource\",\"mergedName\":\"AffectedResource\",\"fromId\":\"d446799d-b1af-4bca-9d72-84ba2d87008d\"},{\"originalName\":\"[Get-AdvisorRecommendations-Networking].Category\",\"mergedName\":\"Category\",\"fromId\":\"d446799d-b1af-4bca-9d72-84ba2d87008d\"},{\"originalName\":\"[Get-AdvisorRecommendations-Networking].SubCategory\",\"mergedName\":\"SubCategory\",\"fromId\":\"d446799d-b1af-4bca-9d72-84ba2d87008d\"},{\"originalName\":\"[Get-AdvisorRecommendations-Networking].Recommendation\",\"mergedName\":\"Recommendation\",\"fromId\":\"d446799d-b1af-4bca-9d72-84ba2d87008d\"},{\"originalName\":\"[Get-AdvisorRecommendations-Networking].Impact\",\"mergedName\":\"Impact\",\"fromId\":\"d446799d-b1af-4bca-9d72-84ba2d87008d\"},{\"originalName\":\"[Get-AdvisorRecommendations-Networking].resourceGroup\",\"mergedName\":\"resourceGroup\",\"fromId\":\"d446799d-b1af-4bca-9d72-84ba2d87008d\"},{\"originalName\":\"[Get-AdvisorRecommendations-Networking].subscriptionId\",\"mergedName\":\"subscriptionId\",\"fromId\":\"d446799d-b1af-4bca-9d72-84ba2d87008d\"},{\"originalName\":\"[Get-AdvisorRecommendations-Networking].excludeProperty\"},{\"originalName\":\"[Get-AdvisorRecommendations-Networking].isActive1\"},{\"originalName\":\"[Get-AdvisorRecommendations-Networking].AdditionaInfo\"},{\"originalName\":\"[Get-AdvisorRecommendations-Networking].lowCpuThreshold\"},{\"originalName\":\"[Get-AdvisorRecommendations-Networking].excludeRecomm\"},{\"originalName\":\"[Get-AdvisorRecommendations-Networking].maxCpuP95\"},{\"originalName\":\"[Get-AdvisorRecommendations-Networking].recommendationTypeId\"},{\"originalName\":\"[Get-AdvisorRecommendations-Networking].stableId\"},{\"originalName\":\"[query - tags - list all network resources].id\"},{\"originalName\":\"[Get-AdvisorRecommendations-Networking].id\"}]}",
+                  "size": 0,
+                  "title": "Azure Advisor Cost recommendations",
+                  "noDataMessage": "You are following all of our cost recommendations for Networking",
+                  "noDataMessageStyle": 3,
+                  "queryType": 7
+                },
+                "showPin": false,
+                "name": "query - Merge - Network Advisor recommendations"
               }
             ]
           },
@@ -1024,6 +1062,8 @@
             "query": "resources \r\n| where type =~ 'Microsoft.Storage/StorageAccounts' and kind !='StorageV2' and kind !='FileStorage'\r\n| where resourceGroup in ({ResourceGroup})\r\n| extend StorageAccountName=name, SAKind=kind,AccessTier=tostring(properties.accessTier),SKUName=sku.name, SKUTier=sku.tier, Location=location\r\n| order by id asc\r\n| project id,StorageAccountName, SKUName, SKUTier, SAKind,AccessTier, resourceGroup, Location, subscriptionId\r\n| join kind = innerunique(\r\n    resources\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}'])\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    | distinct id\r\n    )\r\n    on id",
             "size": 0,
             "title": "Storage accounts which are not v2",
+            "noDataMessage": "All storage accounts are General-purpose v2",
+            "noDataMessageStyle": 3,
             "showExportToExcel": true,
             "queryType": 1,
             "resourceType": "microsoft.resourcegraph/resources",
@@ -1082,7 +1122,7 @@
                 },
                 {
                   "columnId": "resourceGroup",
-                  "label": "Resource group"
+                  "label": "Resource Group"
                 },
                 {
                   "columnId": "Location",
@@ -1113,13 +1153,21 @@
       "groupType": "editable",
       "items": [
         {
+          "type": 1,
+          "content": {
+            "json": "## Unattached Managed Disks\r\n\r\nReview Managed Disks that are not attached to any Virtual machine\r\n",
+            "style": "upsell"
+          },
+          "name": "text - 3"
+        },
+        {
           "type": 3,
           "content": {
             "version": "KqlItem/1.0",
             "query": "resources \r\n| where type =~ 'microsoft.compute/disks' and managedBy == \"\"\r\n| where resourceGroup in ({ResourceGroup})\r\n| extend diskState = tostring(properties.diskState)\r\n| where managedBy == \"\" and diskState != 'ActiveSAS'\r\nor diskState == 'Unattached' and diskState != 'ActiveSAS'\r\n| extend DiskId=id, DiskIDfull=id, DiskName=name, SKUName=sku.name, SKUTier=sku.tier, DiskSizeGB=tostring(properties.diskSizeGB), Location=location, TimeCreated=tostring(properties.timeCreated), QuickFix=id\r\n| order by DiskId asc \r\n| project DiskId, DiskIDfull, DiskName, DiskSizeGB, SKUName, SKUTier, resourceGroup, QuickFix, Location, TimeCreated, subscriptionId\r\n",
             "size": 0,
             "title": "Unattached disks",
-            "noDataMessage": "There isn't any unnatached disks!",
+            "noDataMessage": "There aren't any unattached disks!",
             "noDataMessageStyle": 3,
             "exportedParameters": [
               {
@@ -1227,7 +1275,7 @@
                 },
                 {
                   "columnId": "resourceGroup",
-                  "label": "Resource group"
+                  "label": "Resource Group"
                 },
                 {
                   "columnId": "QuickFix",
@@ -1249,6 +1297,14 @@
             }
           },
           "name": "Get-Idle-Disk"
+        },
+        {
+          "type": 1,
+          "content": {
+            "json": "## Old Managed Disks snapshots\r\n\r\nReview Managed Disks snapshots that are older than 30 days\r\n",
+            "style": "upsell"
+          },
+          "name": "text - 4"
         },
         {
           "type": 3,
@@ -1299,7 +1355,7 @@
                 },
                 {
                   "columnId": "resourceGroup",
-                  "label": "Resource group"
+                  "label": "Resource Group"
                 },
                 {
                   "columnId": "location",
@@ -1317,6 +1373,230 @@
             }
           },
           "name": "Get-Old-Snapshots"
+        },
+        {
+          "type": 1,
+          "content": {
+            "json": "## Managed Disks snapshots using Premium storage\r\n\r\nTo save 60% of cost, we recommend storing your snapshots in Standard Storage, regardless of the storage type of the parent disk. It is the default option for Managed Disks snapshots. Migrate your snapshot from Premium to Standard Storage.\r\n",
+            "style": "upsell"
+          },
+          "name": "text - 5"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "resources\r\n| where type == 'microsoft.compute/snapshots'\r\n| where resourceGroup in ({ResourceGroup})\r\n| extend StorageSku = tostring(sku.tier), resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup),diskSize=tostring(properties.diskSizeGB)\r\n| where StorageSku == \"Premium\"\r\n| project id,name,StorageSku,diskSize,location,resourceGroup,subscriptionId\r\n| join kind = innerunique(\r\n    resources\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}'])\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    | distinct id\r\n    )\r\n    on id\r\n",
+            "size": 0,
+            "title": "Snapshots using premium storage",
+            "noDataMessage": "No snapshots are using Premium storage",
+            "noDataMessageStyle": 3,
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "gridSettings": {
+              "formatters": [
+                {
+                  "columnMatch": "resourceGroup",
+                  "formatter": 14,
+                  "formatOptions": {
+                    "linkTarget": null,
+                    "showIcon": true
+                  }
+                },
+                {
+                  "columnMatch": "subscriptionId",
+                  "formatter": 15,
+                  "formatOptions": {
+                    "linkTarget": null,
+                    "showIcon": true
+                  }
+                },
+                {
+                  "columnMatch": "id1",
+                  "formatter": 5
+                }
+              ],
+              "labelSettings": [
+                {
+                  "columnId": "id",
+                  "label": "Resource Id"
+                },
+                {
+                  "columnId": "name",
+                  "label": "Name"
+                },
+                {
+                  "columnId": "StorageSku",
+                  "label": "SKU"
+                },
+                {
+                  "columnId": "diskSize",
+                  "label": "Disk Size (GB)"
+                },
+                {
+                  "columnId": "location",
+                  "label": "Location"
+                },
+                {
+                  "columnId": "resourceGroup",
+                  "label": "Resource Group"
+                },
+                {
+                  "columnId": "subscriptionId",
+                  "label": "Subscription Id"
+                }
+              ]
+            }
+          },
+          "name": "query - Snapshots using premium storage"
+        },
+        {
+          "type": 1,
+          "content": {
+            "json": "## Orphaned Managed Disks snapshots\r\n\r\nReview snapshots with deleted source disks.\r\n",
+            "style": "upsell"
+          },
+          "name": "text - 6"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "resources\r\n| where type == 'microsoft.compute/snapshots'\r\n| where resourceGroup in ({ResourceGroup})\r\n| extend parentDisk = properties.creationData.sourceResourceId, diskSize=tostring(properties.diskSizeGB),resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)\r\n| project id,parentDisk,diskSize,location,resourceGroup,subscriptionId\r\n| join kind = innerunique(\r\n    resources\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}'])\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    | distinct id\r\n    )\r\n    on id\r\n",
+            "size": 0,
+            "title": "All Managed Disks snapshots",
+            "noDataMessage": "No snapshots found",
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "gridSettings": {
+              "labelSettings": [
+                {
+                  "columnId": "id",
+                  "label": "Resource Id"
+                },
+                {
+                  "columnId": "parentDisk",
+                  "label": "Parent Disk Resource Id"
+                },
+                {
+                  "columnId": "diskSize",
+                  "label": "Disk size (GB)"
+                },
+                {
+                  "columnId": "location",
+                  "label": "Location"
+                },
+                {
+                  "columnId": "resourceGroup",
+                  "label": "Resource Group"
+                },
+                {
+                  "columnId": "subscriptionId",
+                  "label": "Subscription Id"
+                }
+              ]
+            }
+          },
+          "conditionalVisibility": {
+            "parameterName": "IsVisible",
+            "comparison": "isEqualTo",
+            "value": "true"
+          },
+          "name": "query - Retrieve all snapshots"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "resources\r\n| where type == 'microsoft.compute/disks'\r\n| project id\r\n",
+            "size": 0,
+            "title": "All managed disks",
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "gridSettings": {
+              "labelSettings": [
+                {
+                  "columnId": "id",
+                  "label": "Resource Id"
+                }
+              ]
+            }
+          },
+          "conditionalVisibility": {
+            "parameterName": "isVisible",
+            "comparison": "isEqualTo",
+            "value": "True"
+          },
+          "name": "query - Retrieve all managed disks"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"d0a11ffb-579b-4259-827d-7ea62e3021fe\",\"mergeType\":\"leftanti\",\"leftTable\":\"query - Retrieve all snapshots\",\"rightTable\":\"query - Retrieve all managed disks\",\"leftColumn\":\"parentDisk\",\"rightColumn\":\"id\"}],\"projectRename\":[{\"originalName\":\"[query - Retrieve all snapshots].id\",\"mergedName\":\"Resource Id\",\"fromId\":\"d0a11ffb-579b-4259-827d-7ea62e3021fe\"},{\"originalName\":\"[query - Retrieve all snapshots].parentDisk\",\"mergedName\":\"Parent Disk Resource Id\",\"fromId\":\"d0a11ffb-579b-4259-827d-7ea62e3021fe\"},{\"originalName\":\"[query - Retrieve all snapshots].diskSize\",\"mergedName\":\"Disk size (GB)\",\"fromId\":\"d0a11ffb-579b-4259-827d-7ea62e3021fe\"},{\"originalName\":\"[query - Retrieve all snapshots].location\",\"mergedName\":\"Location\",\"fromId\":\"d0a11ffb-579b-4259-827d-7ea62e3021fe\"},{\"originalName\":\"[query - Retrieve all snapshots].resourceGroup\",\"mergedName\":\"Resource Group\",\"fromId\":\"d0a11ffb-579b-4259-827d-7ea62e3021fe\"},{\"originalName\":\"[query - Retrieve all snapshots].subscriptionId\",\"mergedName\":\"Subscription Id\",\"fromId\":\"d0a11ffb-579b-4259-827d-7ea62e3021fe\"},{\"originalName\":\"[query - Retrieve all snapshots].id1\",\"mergedName\":\"id1\",\"fromId\":\"d0a11ffb-579b-4259-827d-7ea62e3021fe\"}]}",
+            "size": 0,
+            "title": "Snapshots with deleted source disk",
+            "noDataMessage": "No orphaned snapshots found",
+            "noDataMessageStyle": 3,
+            "queryType": 7,
+            "gridSettings": {
+              "formatters": [
+                {
+                  "columnMatch": "Parent Disk Resource Id",
+                  "formatter": 5
+                },
+                {
+                  "columnMatch": "Subscription Id",
+                  "formatter": 15,
+                  "formatOptions": {
+                    "linkTarget": null,
+                    "showIcon": true
+                  }
+                },
+                {
+                  "columnMatch": "id1",
+                  "formatter": 5
+                }
+              ],
+              "labelSettings": [
+                {
+                  "columnId": "Resource Id",
+                  "label": "Resource Id"
+                },
+                {
+                  "columnId": "Parent Disk Resource Id",
+                  "label": "Parent Disk resource Id"
+                },
+                {
+                  "columnId": "Disk size (GB)",
+                  "label": "Disk size (GB)"
+                },
+                {
+                  "columnId": "Location",
+                  "label": "Location"
+                },
+                {
+                  "columnId": "Resource Group",
+                  "label": "Resource Group"
+                },
+                {
+                  "columnId": "Subscription Id",
+                  "label": "Subscription Id"
+                }
+              ]
+            }
+          },
+          "showPin": false,
+          "name": "query - orphaned snapshots"
         }
       ]
     },
@@ -1337,7 +1617,7 @@
           "type": 3,
           "content": {
             "version": "KqlItem/1.0",
-            "query": "advisorresources\r\n| where type =~ 'microsoft.advisor/recommendations'\r\n| where properties.category == 'Cost' and properties.lastUpdated >= ago(1d)\r\n| extend AffectedResource=tostring(properties.resourceMetadata.resourceId), Category=properties.category, SubCategory=properties.impactedField, Impact=properties.impact,resourceGroup,subscriptionId,Recommendation=tostring(properties.shortDescription.problem), id, stableId = name, recommendationTypeId = tostring(properties.recommendationTypeId), maxCpuP95 = properties.extendedProperties.MaxCpuP95\r\n| join kind = inner(\r\n    resources\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend AffectedResource=id,ResourceRG=resourceGroup\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}'])\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    )\r\n    on AffectedResource\r\n| join kind = leftouter\r\n(advisorresources | where type=~'microsoft.advisor/suppressions'\r\n| extend tokens = split(id, '/')\r\n| extend stableId = iff(array_length(tokens) > 3, tokens[(array_length(tokens)-3)], '')\r\n| extend expirationTimeStamp = todatetime(iff(strcmp(tostring(properties.ttl), '-1') == 0, '9999-12-31', properties.expirationTimeStamp))\r\n| where expirationTimeStamp > now()\r\n| project stableId, expirationTimeStamp)\r\non stableId\r\n| where isempty(expirationTimeStamp)\r\n| project AffectedResource=tostring(properties.resourceMetadata.resourceId), Category=properties.category, SubCategory=properties.impactedField, Recommendation=tostring(properties.shortDescription.problem), Impact=properties.impact,resourceGroup,subscriptionId, id, stableId = name, recommendationTypeId = tostring(properties.recommendationTypeId), maxCpuP95 = properties.extendedProperties.MaxCpuP95\r\n| join kind = leftouter\r\n(advisorresources | where type =~ 'microsoft.advisor/configurations' | where isempty(resourceGroup) == true\r\n| project subscriptionId, excludeRecomm = properties.exclude, lowCpuThreshold = properties.lowCpuThreshold, AffectedResource=tostring(properties.resourceMetadata.resourceId),Impact=properties.impact,resourceGroup,AdditionaInfo=properties.extendedProperties,Recommendation=tostring(properties.shortDescription.problem))\r\non subscriptionId\r\n| extend isActive1 = iff(isnull(excludeRecomm), true, tobool(excludeRecomm) == false)\r\n| extend isActive2 = iff(recommendationTypeId == 'e10b1381-5f0a-47ff-8c7b-37bd13d7c974', iff((isnotempty(lowCpuThreshold) and isnotempty(maxCpuP95)), toint(maxCpuP95) < toint(lowCpuThreshold), iff((isempty(maxCpuP95) or toint(maxCpuP95) < 5), true, false)), true)\r\n| where isActive1 == true and isActive2 == true\r\n| join kind = leftouter\r\n(advisorresources | where type =~ 'microsoft.advisor/configurations' | where isnotempty(resourceGroup) == true\r\n| project subscriptionId, resourceGroup, excludeProperty = properties.exclude)\r\non subscriptionId, resourceGroup\r\n| extend isActive3 = iff(isnull(excludeProperty), true, tobool(excludeProperty) == false)\r\n| where isActive3 == true\r\n| where Category == 'Cost' \r\n| where SubCategory has \"Microsoft.Compute/disks\" or SubCategory has \"Storage\"\r\n| project-away subscriptionId1, subscriptionId2, AffectedResource1, isActive2, isActive3, Impact1, Recommendation1, resourceGroup1, resourceGroup2\r\n| where resourceGroup in ({ResourceGroup})",
+            "query": "advisorresources\r\n| where type =~ 'microsoft.advisor/recommendations'\r\n| where resourceGroup in ({ResourceGroup})\r\n| where properties.category == 'Cost' and properties.lastUpdated >= ago(1d)\r\n| extend AffectedResource=tostring(properties.resourceMetadata.resourceId), Category=tostring(properties.category), SubCategory=tostring(properties.impactedField), Impact=tostring(properties.impact),resourceGroup,subscriptionId,Recommendation=tostring(properties.shortDescription.problem), id, stableId = name, recommendationTypeId = tostring(properties.recommendationTypeId), maxCpuP95 = properties.extendedProperties.MaxCpuP95\r\n| where SubCategory has \"Microsoft.Storage\"\r\n| join kind = leftouter\r\n(advisorresources | where type=~'microsoft.advisor/suppressions'\r\n| extend tokens = split(id, '/')\r\n| extend stableId = iff(array_length(tokens) > 3, tokens[(array_length(tokens)-3)], '')\r\n| extend expirationTimeStamp = todatetime(iff(strcmp(tostring(properties.ttl), '-1') == 0, '9999-12-31', properties.expirationTimeStamp))\r\n| where expirationTimeStamp > now()\r\n| project stableId, expirationTimeStamp)\r\non stableId\r\n| where isempty(expirationTimeStamp)\r\n| project AffectedResource=tostring(properties.resourceMetadata.resourceId), Category=tostring(properties.category), SubCategory=tostring(properties.impactedField), Recommendation=tostring(properties.shortDescription.problem), Impact=tostring(properties.impact),resourceGroup,subscriptionId, id, stableId = name, recommendationTypeId = tostring(properties.recommendationTypeId), maxCpuP95 = properties.extendedProperties.MaxCpuP95\r\n| join kind = leftouter\r\n(advisorresources | where type =~ 'microsoft.advisor/configurations' | where isempty(resourceGroup) == true\r\n| project subscriptionId, excludeRecomm = properties.exclude, lowCpuThreshold = properties.lowCpuThreshold, AffectedResource=tostring(properties.resourceMetadata.resourceId),Impact=properties.impact,resourceGroup,AdditionaInfo=properties.extendedProperties,Recommendation=tostring(properties.shortDescription.problem))\r\non subscriptionId\r\n| extend isActive1 = iff(isnull(excludeRecomm), true, tobool(excludeRecomm) == false)\r\n| extend isActive2 = iff(recommendationTypeId == 'e10b1381-5f0a-47ff-8c7b-37bd13d7c974', iff((isnotempty(lowCpuThreshold) and isnotempty(maxCpuP95)), toint(maxCpuP95) < toint(lowCpuThreshold), iff((isempty(maxCpuP95) or toint(maxCpuP95) < 5), true, false)), true)\r\n| where isActive1 == true and isActive2 == true\r\n| join kind = leftouter\r\n(advisorresources | where type =~ 'microsoft.advisor/configurations' | where isnotempty(resourceGroup) == true\r\n| project subscriptionId, resourceGroup, excludeProperty = properties.exclude)\r\non subscriptionId, resourceGroup\r\n| extend isActive3 = iff(isnull(excludeProperty), true, tobool(excludeProperty) == false)\r\n| where isActive3 == true\r\n| project-away subscriptionId1, subscriptionId2, AffectedResource1, isActive2, isActive3, Impact1, Recommendation1, resourceGroup1, resourceGroup2\r\n| where resourceGroup in ({ResourceGroup})",
             "size": 0,
             "title": "Azure Advisor Cost recommendations",
             "noDataMessage": "You are following all of our cost recommendations for Storage",
@@ -1434,7 +1714,7 @@
                 },
                 {
                   "columnId": "resourceGroup",
-                  "label": "Resource group"
+                  "label": "Resource Group"
                 },
                 {
                   "columnId": "subscriptionId",
@@ -1443,7 +1723,69 @@
               ]
             }
           },
+          "conditionalVisibility": {
+            "parameterName": "isVisible",
+            "comparison": "isEqualTo",
+            "value": "true"
+          },
           "name": "Get-AdvisorRecommendations-Storage"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": " resources\r\n    | where resourceGroup in ({ResourceGroup})\r\n    | where type has \"Microsoft.Storage\"\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend AffectedResource=id,ResourceRG=resourceGroup\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}'])\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    | distinct id\r\n    | project id",
+            "size": 0,
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "crossComponentResources": [
+              "{Subscription}"
+            ]
+          },
+          "conditionalVisibility": {
+            "parameterName": "isVisible",
+            "comparison": "isEqualTo",
+            "value": "true"
+          },
+          "name": "query - tags - list all storageresources"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"e84cba0d-e501-4f55-a761-9126fb305030\",\"mergeType\":\"innerunique\",\"leftTable\":\"Get-AdvisorRecommendations-Storage\",\"rightTable\":\"query - tags - list all storageresources\",\"leftColumn\":\"AffectedResource\",\"rightColumn\":\"id\"}],\"projectRename\":[{\"originalName\":\"[Get-AdvisorRecommendations-Storage].AffectedResource\",\"mergedName\":\"Affected Resource\",\"fromId\":\"e84cba0d-e501-4f55-a761-9126fb305030\"},{\"originalName\":\"[Get-AdvisorRecommendations-Storage].Category\",\"mergedName\":\"Recommendation Category\",\"fromId\":\"e84cba0d-e501-4f55-a761-9126fb305030\"},{\"originalName\":\"[Get-AdvisorRecommendations-Storage].SubCategory\",\"mergedName\":\"Affected Resource Type\",\"fromId\":\"e84cba0d-e501-4f55-a761-9126fb305030\"},{\"originalName\":\"[Get-AdvisorRecommendations-Storage].Recommendation\",\"mergedName\":\"Recommendation\",\"fromId\":\"e84cba0d-e501-4f55-a761-9126fb305030\"},{\"originalName\":\"[Get-AdvisorRecommendations-Storage].Impact\",\"mergedName\":\"Impact\",\"fromId\":\"e84cba0d-e501-4f55-a761-9126fb305030\"},{\"originalName\":\"[Get-AdvisorRecommendations-Storage].resourceGroup\",\"mergedName\":\"Resource Group\",\"fromId\":\"e84cba0d-e501-4f55-a761-9126fb305030\"},{\"originalName\":\"[Get-AdvisorRecommendations-Storage].subscriptionId\",\"mergedName\":\"Subscription ID\",\"fromId\":\"e84cba0d-e501-4f55-a761-9126fb305030\"},{\"originalName\":\"[query - tags - list all storageresources].id\"},{\"originalName\":\"[Get-AdvisorRecommendations-Storage].excludeProperty\"},{\"originalName\":\"[Get-AdvisorRecommendations-Storage].isActive1\"},{\"originalName\":\"[Get-AdvisorRecommendations-Storage].AdditionaInfo\"},{\"originalName\":\"[Get-AdvisorRecommendations-Storage].lowCpuThreshold\"},{\"originalName\":\"[Get-AdvisorRecommendations-Storage].excludeRecomm\"},{\"originalName\":\"[Get-AdvisorRecommendations-Storage].recommendationTypeId\"},{\"originalName\":\"[Get-AdvisorRecommendations-Storage].maxCpuP95\"},{\"originalName\":\"[Get-AdvisorRecommendations-Storage].stableId\"},{\"originalName\":\"[Get-AdvisorRecommendations-Storage].id\"}]}",
+            "size": 0,
+            "title": "Azure Advisor Cost recommendations",
+            "noDataMessage": "You are following all of our cost recommendations for Storage",
+            "noDataMessageStyle": 3,
+            "queryType": 7,
+            "gridSettings": {
+              "formatters": [
+                {
+                  "columnMatch": "Affected Resource Type",
+                  "formatter": 5
+                },
+                {
+                  "columnMatch": "Subscription ID",
+                  "formatter": 15,
+                  "formatOptions": {
+                    "linkTarget": null,
+                    "showIcon": true
+                  }
+                }
+              ],
+              "rowLimit": 1000,
+              "filter": true,
+              "hierarchySettings": {
+                "treeType": 1,
+                "groupBy": [
+                  "Recommendation"
+                ]
+              }
+            }
+          },
+          "showPin": false,
+          "name": "query - Merge - Storage Advisor recommendations"
         }
       ]
     },
@@ -1549,7 +1891,7 @@
               {
                 "type": 1,
                 "content": {
-                  "json": "# Virtual Machine Scale Sets\r\n## Save with Azure Spot VMs on virtual machine scale sets\r\nUsing Azure Spot Virtual Machines on scale sets allows you to take advantage of our unused capacity at a significant cost savings. At any point in time when Azure needs the capacity back, the Azure infrastructure will evict Azure Spot Virtual Machine instances. Therefore, Azure Spot Virtual Machine instances are great for workloads that can handle interruptions like batch processing jobs, dev/test environments, large compute workloads, and more.\r\n\r\n## Spot Priority Mix\r\nAzure allows you to have the flexibility of running a mix of uninterruptible standard VMs and interruptible Spot VMs for Virtual Machine Scale Set deployments. You're able to deploy this Spot Priority Mix using Flexible orchestration to easily balance between high-capacity availability and lower infrastructure costs according to your workload requirements\r\n",
+                  "json": "# Virtual Machine Scale Sets\r\n## Save with Azure Spot VMs on Virtual Machine Scale Sets\r\nUsing Azure Spot Virtual Machines on scale sets allows you to take advantage of our unused capacity at a significant cost savings. At any point in time when Azure needs the capacity back, the Azure infrastructure will evict Azure Spot Virtual Machine instances. Therefore, Azure Spot Virtual Machine instances are great for workloads that can handle interruptions like batch processing jobs, dev/test environments, large compute workloads, and more.\r\n\r\n## Spot Priority Mix\r\nAzure allows you to have the flexibility of running a mix of uninterruptible standard VMs and interruptible Spot VMs for Virtual Machine Scale Set deployments. You're able to deploy this Spot Priority Mix using Flexible orchestration to easily balance between high-capacity availability and lower infrastructure costs according to your workload requirements\r\n",
                   "style": "upsell"
                 },
                 "name": "text - 8"
@@ -1652,7 +1994,7 @@
                       },
                       {
                         "columnId": "resourceGroup",
-                        "label": "Resource group"
+                        "label": "Resource Group"
                       },
                       {
                         "columnId": "location",
@@ -1858,7 +2200,7 @@
                       },
                       {
                         "columnId": "resourceGroup",
-                        "label": "Resource group"
+                        "label": "Resource Group"
                       },
                       {
                         "columnId": "subscriptionId",
@@ -2116,7 +2458,7 @@
                 "type": 3,
                 "content": {
                   "version": "KqlItem/1.0",
-                  "query": "advisorresources\r\n| where type =~ 'microsoft.advisor/recommendations'\r\n| where properties.category == 'Cost' and properties.lastUpdated >= ago(1d)\r\n| extend AffectedResource=tostring(properties.resourceMetadata.resourceId), Category=properties.category, SubCategory=properties.impactedField, Impact=properties.impact,resourceGroup,subscriptionId,Recommendation=tostring(properties.shortDescription.problem), id, stableId = name, recommendationTypeId = tostring(properties.recommendationTypeId), maxCpuP95 = properties.extendedProperties.MaxCpuP95\r\n| join kind = inner(\r\n    resources\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend AffectedResource=id,ResourceRG=resourceGroup\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}'])\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    )\r\n    on AffectedResource\r\n| join kind = leftouter\r\n(advisorresources | where type=~'microsoft.advisor/suppressions'\r\n| extend tokens = split(id, '/')\r\n| extend stableId = iff(array_length(tokens) > 3, tokens[(array_length(tokens)-3)], '')\r\n| extend expirationTimeStamp = todatetime(iff(strcmp(tostring(properties.ttl), '-1') == 0, '9999-12-31', properties.expirationTimeStamp))\r\n| where expirationTimeStamp > now()\r\n| project stableId, expirationTimeStamp)\r\non stableId\r\n| where isempty(expirationTimeStamp)\r\n| project AffectedResource=tostring(properties.resourceMetadata.resourceId), Category=properties.category, SubCategory=properties.impactedField, Recommendation=tostring(properties.shortDescription.problem), Impact=properties.impact,resourceGroup,subscriptionId, id, stableId = name, recommendationTypeId = tostring(properties.recommendationTypeId), maxCpuP95 = properties.extendedProperties.MaxCpuP95\r\n| join kind = leftouter\r\n(advisorresources | where type =~ 'microsoft.advisor/configurations' | where isempty(resourceGroup) == true\r\n| project subscriptionId, excludeRecomm = properties.exclude, lowCpuThreshold = properties.lowCpuThreshold, AffectedResource=tostring(properties.resourceMetadata.resourceId),Impact=properties.impact,resourceGroup,AdditionaInfo=properties.extendedProperties,Recommendation=tostring(properties.shortDescription.problem))\r\non subscriptionId\r\n| extend isActive1 = iff(isnull(excludeRecomm), true, tobool(excludeRecomm) == false)\r\n| extend isActive2 = iff(recommendationTypeId == 'e10b1381-5f0a-47ff-8c7b-37bd13d7c974', iff((isnotempty(lowCpuThreshold) and isnotempty(maxCpuP95)), toint(maxCpuP95) < toint(lowCpuThreshold), iff((isempty(maxCpuP95) or toint(maxCpuP95) < 5), true, false)), true)\r\n| where isActive1 == true and isActive2 == true\r\n| join kind = leftouter\r\n(advisorresources | where type =~ 'microsoft.advisor/configurations' | where isnotempty(resourceGroup) == true\r\n| project subscriptionId, resourceGroup, excludeProperty = properties.exclude)\r\non subscriptionId, resourceGroup\r\n| extend isActive3 = iff(isnull(excludeProperty), true, tobool(excludeProperty) == false)\r\n| where isActive3 == true\r\n| where Category == 'Cost' \r\n| where SubCategory has \"Microsoft.Compute\" or SubCategory has \"Container\" or SubCategory has \"Web\"\r\n| where SubCategory !has \"Microsoft.Compute/disks\"\r\n| project-away subscriptionId1, subscriptionId2, AffectedResource1, isActive2, isActive3, Impact1, Recommendation1, resourceGroup1, resourceGroup2\r\n| where resourceGroup in ({ResourceGroup})",
+                  "query": "advisorresources\r\n| where type =~ 'microsoft.advisor/recommendations'\r\n| where resourceGroup in ({ResourceGroup})\r\n| where properties.category == 'Cost' and properties.lastUpdated >= ago(1d)\r\n| extend AffectedResource=tostring(properties.resourceMetadata.resourceId), Category=tostring(properties.category), SubCategory=tostring(properties.impactedField), Impact=tostring(properties.impact),subscriptionId,Recommendation=tostring(properties.shortDescription.problem), id, stableId = name, recommendationTypeId = tostring(properties.recommendationTypeId), maxCpuP95 = properties.extendedProperties.MaxCpuP95,resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)\r\n| join kind = leftouter\r\n(advisorresources | where type=~'microsoft.advisor/suppressions'\r\n| extend tokens = split(id, '/')\r\n| extend stableId = iff(array_length(tokens) > 3, tokens[(array_length(tokens)-3)], '')\r\n| extend expirationTimeStamp = todatetime(iff(strcmp(tostring(properties.ttl), '-1') == 0, '9999-12-31', properties.expirationTimeStamp))\r\n| where expirationTimeStamp > now()\r\n| project stableId, expirationTimeStamp)\r\non stableId\r\n| where isempty(expirationTimeStamp)\r\n| project AffectedResource=tostring(properties.resourceMetadata.resourceId), Category=tostring(properties.category), SubCategory=tostring(properties.impactedField), Recommendation=tostring(properties.shortDescription.problem), Impact=tostring(properties.impact),resourceGroup,subscriptionId, id, stableId = name, recommendationTypeId = tostring(properties.recommendationTypeId), maxCpuP95 = properties.extendedProperties.MaxCpuP95\r\n| join kind = leftouter\r\n(advisorresources | where type =~ 'microsoft.advisor/configurations' | where isempty(resourceGroup) == true\r\n| project subscriptionId, excludeRecomm = properties.exclude, lowCpuThreshold = properties.lowCpuThreshold, AffectedResource=tostring(properties.resourceMetadata.resourceId),Impact=tostring(properties.impact),resourceGroup,AdditionaInfo=properties.extendedProperties,Recommendation=tostring(properties.shortDescription.problem))\r\non subscriptionId\r\n| extend isActive1 = iff(isnull(excludeRecomm), true, tobool(excludeRecomm) == false)\r\n| extend isActive2 = iff(recommendationTypeId == 'e10b1381-5f0a-47ff-8c7b-37bd13d7c974', iff((isnotempty(lowCpuThreshold) and isnotempty(maxCpuP95)), toint(maxCpuP95) < toint(lowCpuThreshold), iff((isempty(maxCpuP95) or toint(maxCpuP95) < 5), true, false)), true)\r\n| where isActive1 == true and isActive2 == true\r\n| join kind = leftouter\r\n(advisorresources | where type =~ 'microsoft.advisor/configurations' | where isnotempty(resourceGroup) == true\r\n| project subscriptionId, resourceGroup, excludeProperty = properties.exclude)\r\non subscriptionId, resourceGroup\r\n| extend isActive3 = iff(isnull(excludeProperty), true, tobool(excludeProperty) == false)\r\n| where isActive3 == true\r\n| where Category == 'Cost' \r\n| where SubCategory has \"Microsoft.Compute\" or SubCategory has \"Container\" or SubCategory has \"Web\"\r\n| where SubCategory !has \"Microsoft.Compute/disks\"\r\n| project-away subscriptionId1, subscriptionId2, AffectedResource1, isActive2, isActive3, Impact1, Recommendation1, resourceGroup1, resourceGroup2",
                   "size": 0,
                   "title": "Azure Advisor Cost recommendations",
                   "noDataMessage": "You are following all of our cost recommendations for Compute",
@@ -2213,7 +2555,7 @@
                       },
                       {
                         "columnId": "resourceGroup",
-                        "label": "Resource group"
+                        "label": "Resource Group"
                       },
                       {
                         "columnId": "subscriptionId",
@@ -2222,7 +2564,121 @@
                     ]
                   }
                 },
+                "conditionalVisibility": {
+                  "parameterName": "IsVisible",
+                  "comparison": "isEqualTo",
+                  "value": "true"
+                },
                 "name": "Get-AdvisorRecommendations-Compute"
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": " resources\r\n    | where resourceGroup in ({ResourceGroup})\r\n    | where (type has \"Microsoft.Compute\" or type has \"Microsoft.ContainerService\" or type has \"serverfarms\") and type !has \"Disks\"\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend AffectedResource=id,ResourceRG=resourceGroup\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}'])\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    | distinct id\r\n    | project id",
+                  "size": 0,
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ]
+                },
+                "conditionalVisibility": {
+                  "parameterName": "isVisible",
+                  "comparison": "isEqualTo",
+                  "value": "true"
+                },
+                "name": "query - tags - list all compute resources"
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"d446799d-b1af-4bca-9d72-84ba2d870039\",\"mergeType\":\"innerunique\",\"leftTable\":\"Get-AdvisorRecommendations-Compute\",\"rightTable\":\"query - tags - list all compute resources\",\"leftColumn\":\"AffectedResource\",\"rightColumn\":\"id\"}],\"projectRename\":[{\"originalName\":\"[Get-AdvisorRecommendations-Compute].AffectedResource\",\"mergedName\":\"Affected Resource\",\"fromId\":\"d446799d-b1af-4bca-9d72-84ba2d870039\"},{\"originalName\":\"[Get-AdvisorRecommendations-Compute].Category\",\"mergedName\":\"Recommendation Category\",\"fromId\":\"d446799d-b1af-4bca-9d72-84ba2d870039\"},{\"originalName\":\"[Get-AdvisorRecommendations-Compute].SubCategory\",\"mergedName\":\"Affected Resource Type\",\"fromId\":\"d446799d-b1af-4bca-9d72-84ba2d870039\"},{\"originalName\":\"[Get-AdvisorRecommendations-Compute].Recommendation\",\"mergedName\":\"Recommendation\",\"fromId\":\"d446799d-b1af-4bca-9d72-84ba2d870039\"},{\"originalName\":\"[Get-AdvisorRecommendations-Compute].Impact\",\"mergedName\":\"Impact\",\"fromId\":\"d446799d-b1af-4bca-9d72-84ba2d870039\"},{\"originalName\":\"[Get-AdvisorRecommendations-Compute].resourceGroup\",\"mergedName\":\"Resource Group\",\"fromId\":\"d446799d-b1af-4bca-9d72-84ba2d870039\"},{\"originalName\":\"[Get-AdvisorRecommendations-Compute].subscriptionId\",\"mergedName\":\"Subscription ID\",\"fromId\":\"d446799d-b1af-4bca-9d72-84ba2d870039\"},{\"originalName\":\"[Get-AdvisorRecommendations-Compute].id\",\"mergedName\":\"id\",\"fromId\":\"d446799d-b1af-4bca-9d72-84ba2d870039\"},{\"originalName\":\"[Get-AdvisorRecommendations-Compute].stableId\",\"mergedName\":\"stableId\",\"fromId\":\"d446799d-b1af-4bca-9d72-84ba2d870039\"},{\"originalName\":\"[Get-AdvisorRecommendations-Compute].recommendationTypeId\",\"mergedName\":\"recommendationTypeId\",\"fromId\":\"d446799d-b1af-4bca-9d72-84ba2d870039\"},{\"originalName\":\"[Get-AdvisorRecommendations-Compute].maxCpuP95\",\"mergedName\":\"maxCpuP95\",\"fromId\":\"d446799d-b1af-4bca-9d72-84ba2d870039\"},{\"originalName\":\"[Get-AdvisorRecommendations-Compute].excludeRecomm\",\"mergedName\":\"excludeRecomm\",\"fromId\":\"d446799d-b1af-4bca-9d72-84ba2d870039\"},{\"originalName\":\"[Get-AdvisorRecommendations-Compute].lowCpuThreshold\",\"mergedName\":\"lowCpuThreshold\",\"fromId\":\"d446799d-b1af-4bca-9d72-84ba2d870039\"},{\"originalName\":\"[Get-AdvisorRecommendations-Compute].AdditionaInfo\",\"mergedName\":\"AdditionaInfo\",\"fromId\":\"d446799d-b1af-4bca-9d72-84ba2d870039\"},{\"originalName\":\"[Get-AdvisorRecommendations-Compute].isActive1\",\"mergedName\":\"isActive1\",\"fromId\":\"d446799d-b1af-4bca-9d72-84ba2d870039\"},{\"originalName\":\"[Get-AdvisorRecommendations-Compute].excludeProperty\",\"mergedName\":\"excludeProperty\",\"fromId\":\"d446799d-b1af-4bca-9d72-84ba2d870039\"},{\"originalName\":\"[query - tags - list all compute resources].id\",\"mergedName\":\"id1\",\"fromId\":\"d446799d-b1af-4bca-9d72-84ba2d870039\"},{\"originalName\":\"[Get-AdvisorRecommendations-Compute].location\",\"mergedName\":\"location\",\"fromId\":\"unknown\"}]}",
+                  "size": 0,
+                  "title": "Azure Advisor Cost recommendations",
+                  "noDataMessage": "You are following all of our cost recommendations for Compute",
+                  "noDataMessageStyle": 3,
+                  "queryType": 7,
+                  "gridSettings": {
+                    "formatters": [
+                      {
+                        "columnMatch": "Group",
+                        "formatter": 1
+                      },
+                      {
+                        "columnMatch": "Affected Resource Type",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "Resource Group",
+                        "formatter": 14,
+                        "formatOptions": {
+                          "linkTarget": null,
+                          "showIcon": true
+                        }
+                      },
+                      {
+                        "columnMatch": "Subscription ID",
+                        "formatter": 15,
+                        "formatOptions": {
+                          "linkTarget": null,
+                          "showIcon": true
+                        }
+                      },
+                      {
+                        "columnMatch": "id",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "stableId",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "recommendationTypeId",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "maxCpuP95",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "excludeRecomm",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "lowCpuThreshold",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "AdditionaInfo",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "isActive1",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "excludeProperty",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "id1",
+                        "formatter": 5
+                      }
+                    ],
+                    "rowLimit": 1000,
+                    "filter": true,
+                    "hierarchySettings": {
+                      "treeType": 1,
+                      "groupBy": [
+                        "Recommendation"
+                      ]
+                    }
+                  }
+                },
+                "showPin": false,
+                "name": "query - Merge - Compute Advisor recommendations"
               }
             ]
           },
@@ -2293,7 +2749,7 @@
           {
             "type": 1,
             "content": {
-              "json": "## Prerequisites\r\n\r\nThis workbook will present various cost-related details in the form of governance, networking, storage, VMs, Webapps, SQL, and cost information to educate the business about cost related to various resources.\r\n\r\nThis workbook requires the following least-privileged (minimum) roles:\r\n\r\n  * **Reader** : allows you to import the workbook without saving it and view all of the workbook tabs except the *Cost Information* tab.\r\n  * **Cost Management Reader**: allows you to view the costs of idle resources in the *Cost information* tab \r\n  * **Workbook Contributor** : allows you to import and save the workbook\r\n\r\n\r\n\r\n"
+              "json": "## Prerequisites\r\n\r\nThis workbook will present various cost-related details in the form of governance, networking, storage, VMs, Webapps and SQL to educate the business about cost related to various resources.\r\n\r\nThis workbook requires the following least-privileged (minimum) roles:\r\n\r\n  * **Reader** : allows you to import the workbook without saving it and view all of the workbook tabs. \r\n  * **Workbook Contributor** : allows you to import and save the workbook\r\n\r\n\r\n\r\n"
             },
             "name": "Prerequisites"
           }
@@ -2334,7 +2790,7 @@
           "id": "0c58188b-5c09-45aa-b738-f7122d0e0a19",
           "version": "KqlParameterItem/1.0",
           "name": "Location",
-          "label": "SKU location",
+          "label": "SKU Location",
           "type": 1,
           "description": "Select the region where the VMs are located. Different Regions might have different SKUs",
           "isRequired": true,
@@ -2365,7 +2821,7 @@
           },
           "queryType": 1,
           "resourceType": "microsoft.resourcegraph/resources",
-          "label": "Hidden subscription"
+          "label": "Hidden Subscription"
         }
       ],
       "style": "pills",
@@ -2618,7 +3074,7 @@
                   "version": "KqlItem/1.0",
                   "query": "ResourceContainers | where type =~ 'Microsoft.Resources/subscriptions' | where tostring (properties.subscriptionPolicies.quotaId) !has \"MSDNDevTest_2014-09-01\" | extend SubscriptionName=name \r\n| join (\r\nresources \r\n| where resourceGroup in ({ResourceGroup})\r\n| where type =~ 'microsoft.compute/virtualmachines'\r\n| where tostring(properties.storageProfile.osDisk.osType) == 'Windows'\r\n| extend WindowsId=id\r\n| join kind = innerunique(\r\n    resources\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}']), WindowsId=id\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    | distinct WindowsId\r\n    )\r\n    on WindowsId\r\n| extend LicenseType = tostring(properties.['licenseType'])\r\n| extend CheckAHUBWindows = case(\r\n     type == 'microsoft.compute/virtualmachines' or type =~ 'microsoft.compute/virtualMachineScaleSets', iif((properties.['licenseType'])\r\n     !has 'Windows' and (properties.virtualMachineProfile.['licenseType']) !has 'Windows' , \"AHUB Not Enabled\", \"AHUB Enabled\"),\r\n     \"Not Windows\"\r\n     )\r\n) on subscriptionId \r\n| summarize count() by SubscriptionName, CheckAHUBWindows\r\n",
                   "size": 0,
-                  "title": "Summary of Windows VMs with or without AHB per subscription",
+                  "title": "Summary of Windows VMs with or without AHUB per Subscription",
                   "showRefreshButton": true,
                   "showExportToExcel": true,
                   "queryType": 1,
@@ -2679,7 +3135,7 @@
                   }
                 },
                 "customWidth": "50",
-                "name": "Summary of Windows VMs with or without AHB per subscription"
+                "name": "Summary of Windows VMs with or without AHUB per Subscription"
               },
               {
                 "type": 3,
@@ -3082,7 +3538,7 @@
                       },
                       {
                         "columnId": "VMRG",
-                        "label": "Resource group"
+                        "label": "Resource Group"
                       },
                       {
                         "columnId": "VMLocation",
@@ -3907,7 +4363,7 @@
                             },
                             {
                               "columnId": "VMRG",
-                              "label": "Resource group"
+                              "label": "Resource Group"
                             },
                             {
                               "columnId": "VMLocation",
@@ -4039,7 +4495,7 @@
                             },
                             {
                               "columnId": "VMRG",
-                              "label": "Resource group"
+                              "label": "Resource Group"
                             },
                             {
                               "columnId": "VMLocation",
@@ -4115,7 +4571,7 @@
                 "type": 3,
                 "content": {
                   "version": "KqlItem/1.0",
-                  "query": "ResourceContainers | where type =~ 'Microsoft.Resources/subscriptions' | where tostring (properties.subscriptionPolicies.quotaId) !has \"MSDNDevTest_2014-09-01\"\r\n| extend SubscriptionName=name | join (resources |  where type =~ 'Microsoft.Sql/servers/databases' and name != 'master' and tostring(properties.['licenseType']) == 'LicenseIncluded' \r\n| extend   SQLDBID=id,SQLName = name, SQLRG = resourceGroup, SKUName=tostring(sku.name), SKUTier=tostring(sku.tier), vCores=tostring(sku.capacity), SQLLocation = location, LicenseType = tostring(properties.['licenseType']), StorageAccountType=tostring(properties.['storageAccountType'])\r\n| extend CheckSQLDBAHUB = case(\r\n type =~ 'Microsoft.Sql/servers/databases', iif((properties.['licenseType'])\r\n has 'LicenseIncluded', \"AHUB Not Enabled\", \"AHUB Enabled\"),\r\n\"Not SQL DB\"\r\n    )\r\n) on subscriptionId \r\n| project SQLDBID,SQLName,SQLRG, SKUName, SKUTier, vCores, CheckSQLDBAHUB,SQLLocation, LicenseType, StorageAccountType, SubscriptionName\r\n| join kind = innerunique(\r\n    resources\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}']), SQLDBID=id\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    | distinct SQLDBID\r\n    )\r\n    on SQLDBID\r\n",
+                  "query": "ResourceContainers | where type =~ 'Microsoft.Resources/subscriptions' | where tostring (properties.subscriptionPolicies.quotaId) !has \"MSDNDevTest_2014-09-01\"\r\n| extend SubscriptionName=name | join (resources |  where type =~ 'Microsoft.Sql/servers/databases' and name != 'master' and tostring(properties.['licenseType']) == 'LicenseIncluded' and kind contains 'vcore' and kind !contains \"serverless\"\r\n| extend   SQLDBID=id,SQLName = name, SQLRG = resourceGroup, SKUName=tostring(sku.name), SKUTier=tostring(sku.tier), vCores=tostring(sku.capacity), SQLLocation = location, LicenseType = tostring(properties.['licenseType']), StorageAccountType=tostring(properties.['storageAccountType'])\r\n| extend CheckSQLDBAHUB = case(\r\n type =~ 'Microsoft.Sql/servers/databases', iif((properties.['licenseType'])\r\n has 'LicenseIncluded', \"AHUB Not Enabled\", \"AHUB Enabled\"),\r\n\"Not SQL DB\"\r\n    )\r\n) on subscriptionId \r\n| project SQLDBID,SQLName,SQLRG, SKUName, SKUTier, vCores, CheckSQLDBAHUB,SQLLocation, LicenseType, StorageAccountType, SubscriptionName\r\n| join kind = innerunique(\r\n    resources\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}']), SQLDBID=id\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    | distinct SQLDBID\r\n    )\r\n    on SQLDBID\r\n",
                   "size": 0,
                   "title": "AHUB Disabled",
                   "queryType": 1,
@@ -4135,7 +4591,7 @@
                 "type": 3,
                 "content": {
                   "version": "KqlItem/1.0",
-                  "query": "ResourceContainers | where type =~ 'Microsoft.Resources/subscriptions' | where tostring (properties.subscriptionPolicies.quotaId) !has \"MSDNDevTest_2014-09-01\"\r\n| extend SubscriptionName=name | join (resources |  where type =~ 'Microsoft.Sql/servers/databases' and name != 'master' and tostring(properties.['licenseType']) != 'LicenseIncluded' and kind !has 'serverless'\r\n| extend   SQLDBID=id,SQLName = name, SQLRG = resourceGroup, SKUName=sku.name, SKUTier=sku.tier, SQLLocation = location, vCores=tostring(sku.capacity), LicenseType = tostring(properties.['licenseType']), StorageAccountType=tostring(properties.['storageAccountType'])) on subscriptionId \r\n| project SQLDBID,SQLName,SQLRG, SKUName, SKUTier, vCores, SQLLocation, LicenseType, StorageAccountType, SubscriptionName\r\n| join kind = innerunique(\r\n    resources\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}']), SQLDBID=id\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    | distinct SQLDBID\r\n    )\r\n    on SQLDBID\r\n\r\n",
+                  "query": "ResourceContainers | where type =~ 'Microsoft.Resources/subscriptions' | where tostring (properties.subscriptionPolicies.quotaId) !has \"MSDNDevTest_2014-09-01\"\r\n| extend SubscriptionName=name | join (resources |  where type =~ 'Microsoft.Sql/servers/databases' and name != 'master' and tostring(properties.['licenseType']) != 'LicenseIncluded' and kind contains 'vcore' and kind !contains \"serverless\"\r\n| extend   SQLDBID=id,SQLName = name, SQLRG = resourceGroup, SKUName=sku.name, SKUTier=sku.tier, SQLLocation = location, vCores=tostring(sku.capacity), LicenseType = tostring(properties.['licenseType']), StorageAccountType=tostring(properties.['storageAccountType'])) on subscriptionId \r\n| project SQLDBID,SQLName,SQLRG, SKUName, SKUTier, vCores, SQLLocation, LicenseType, StorageAccountType, SubscriptionName\r\n| join kind = innerunique(\r\n    resources\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}']), SQLDBID=id\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    | distinct SQLDBID\r\n    )\r\n    on SQLDBID\r\n\r\n",
                   "size": 0,
                   "title": "AHUB Enabled",
                   "queryType": 1,
@@ -4161,7 +4617,7 @@
               {
                 "type": 1,
                 "content": {
-                  "json": "Apply to SQL Server 1 to 4 vCPUs exchange: For every 1 core of SQL Server Enterprise Edition, you get 4 vCPUs of SQL Managed Instance or Azure SQL Database general purpose and Hyperscale tiers, or 4 vCPUs of SQL Server Standard edition on Azure VMs.\r\n\r\nThe SQL virtual machines (VMs) with less than 4 cores are categorized as **Low Priority**, while those with 8 or more cores are classified as **High Priority**. In situations where there are insufficient Azure Hybrid benefit licenses to cover all the VMs in the environment, it is recommended to prioritize the High Priority VMs.",
+                  "json": "Apply to SQL Server 1 to 4 vCPUs exchange: For every 1 core of SQL Server Enterprise Edition, you get 4 vCPUs of SQL Managed Instance or Azure SQL Database general purpose and Hyperscale tiers, or 4 vCPUs of SQL Server Standard edition on Azure VMs.\r\n\r\nThe SQL virtual machines (VMs) with less than 4 cores are categorized as **Low Priority**, while those with 8 or more cores are classified as **High Priority**. In situations where there are insufficient Azure Hybrid benefit licenses to cover all the VMs in the environment, it is recommended to prioritize the High Priority VMs.\r\n\r\nFor Azure SQL Database, Azure Hybrid Benefit is only available when using the provisioned compute tier of the vCore-based purchasing model. Azure Hybrid Benefit doesn't apply to DTU-based purchasing models or the serverless compute tier.",
                   "style": "info"
                 },
                 "name": "Apply to SQL Server 1 to 4 vCPUs "
@@ -4186,7 +4642,7 @@
                       "type": 3,
                       "content": {
                         "version": "KqlItem/1.0",
-                        "query": "ResourceContainers | where type =~ 'Microsoft.Resources/subscriptions' | where tostring (properties.subscriptionPolicies.quotaId) !has \"MSDNDevTest_2014-09-01\" | extend SubscriptionName=name \r\n| join (\r\n    resources | where type =~ 'Microsoft.Sql/servers/databases' and name != 'master'\r\n     | extend   SQLDBID=id,SQLName = name, SQLRG = resourceGroup, SKUName=sku.name, SKUTier=sku.tier, SQLLocation = location, LicenseType = tostring(properties.['licenseType']), StorageAccountType=tostring(properties.['storageAccountType'])\r\n     | join kind = innerunique(\r\n    resources\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}']), SQLDBID=id\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    | distinct SQLDBID\r\n    )\r\n    on SQLDBID\r\n     | extend CheckSQLDBAHUB = case(\r\n     type =~ 'Microsoft.Sql/servers/databases', iif((properties.['licenseType'])\r\n     has 'LicenseIncluded', \"AHUB Not Enabled\", \"AHUB Enabled\"),\r\n     \"Not SQL DB\"\r\n     )\r\n    ) on subscriptionId \r\n| summarize count() by SubscriptionName, CheckSQLDBAHUB",
+                        "query": "ResourceContainers | where type =~ 'Microsoft.Resources/subscriptions' | where tostring (properties.subscriptionPolicies.quotaId) !has \"MSDNDevTest_2014-09-01\" | extend SubscriptionName=name \r\n| join (\r\n    resources | where type =~ 'Microsoft.Sql/servers/databases' and name != 'master' and kind contains 'vcore' and kind !contains \"serverless\"\r\n     | extend   SQLDBID=id,SQLName = name, SQLRG = resourceGroup, SKUName=sku.name, SKUTier=sku.tier, SQLLocation = location, LicenseType = tostring(properties.['licenseType']), StorageAccountType=tostring(properties.['storageAccountType'])\r\n     | join kind = innerunique(\r\n    resources\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}']), SQLDBID=id\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    | distinct SQLDBID\r\n    )\r\n    on SQLDBID\r\n     | extend CheckSQLDBAHUB = case(\r\n     type =~ 'Microsoft.Sql/servers/databases', iif((properties.['licenseType'])\r\n     has 'LicenseIncluded', \"AHUB Not Enabled\", \"AHUB Enabled\"),\r\n     \"Not SQL DB\"\r\n     )\r\n    ) on subscriptionId \r\n| summarize count() by SubscriptionName, CheckSQLDBAHUB",
                         "size": 0,
                         "title": "Summary of SQL Databases with or without AHUB per Subscription",
                         "showRefreshButton": true,
@@ -4271,7 +4727,7 @@
                       "type": 3,
                       "content": {
                         "version": "KqlItem/1.0",
-                        "query": "ResourceContainers | where type =~ 'Microsoft.Resources/subscriptions' | where tostring (properties.subscriptionPolicies.quotaId) !has \"MSDNDevTest_2014-09-01\" | extend SubscriptionName=name \r\n| join (\r\n    resources | where type =~ 'Microsoft.Sql/servers/databases' and name != 'master'\r\n     | extend   SQLDBID=id,SQLName = name, SQLRG = resourceGroup, SKUName=sku.name, SKUTier=sku.tier, SQLLocation = location, LicenseType = tostring(properties.['licenseType']), StorageAccountType=tostring(properties.['storageAccountType'])\r\n     | join kind = innerunique(\r\n    resources\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}']), SQLDBID=id\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    | distinct SQLDBID\r\n    )\r\n    on SQLDBID\r\n     | extend CheckSQLDBAHUB = case(\r\n     type =~ 'Microsoft.Sql/servers/databases', iif((properties.['licenseType'])\r\n     has 'LicenseIncluded', \"AHUB Not Enabled\", \"AHUB Enabled\"),\r\n     \"Not SQL DB\"\r\n     )\r\n    ) on subscriptionId \r\n| summarize count() by CheckSQLDBAHUB",
+                        "query": "ResourceContainers | where type =~ 'Microsoft.Resources/subscriptions' | where tostring (properties.subscriptionPolicies.quotaId) !has \"MSDNDevTest_2014-09-01\" | extend SubscriptionName=name \r\n| join (\r\n    resources | where type =~ 'Microsoft.Sql/servers/databases' and name != 'master' and kind contains 'vcore' and kind !contains \"serverless\"\r\n     | extend   SQLDBID=id,SQLName = name, SQLRG = resourceGroup, SKUName=sku.name, SKUTier=sku.tier, SQLLocation = location, LicenseType = tostring(properties.['licenseType']), StorageAccountType=tostring(properties.['storageAccountType'])\r\n     | join kind = innerunique(\r\n    resources\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}']), SQLDBID=id\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    | distinct SQLDBID\r\n    )\r\n    on SQLDBID\r\n     | extend CheckSQLDBAHUB = case(\r\n     type =~ 'Microsoft.Sql/servers/databases', iif((properties.['licenseType'])\r\n     has 'LicenseIncluded', \"AHUB Not Enabled\", \"AHUB Enabled\"),\r\n     \"Not SQL DB\"\r\n     )\r\n    ) on subscriptionId \r\n| summarize count() by CheckSQLDBAHUB",
                         "size": 0,
                         "title": "Summary of SQL Databases with or without AHUB",
                         "showRefreshButton": true,
@@ -4626,7 +5082,7 @@
                             },
                             {
                               "columnId": "SQLRG",
-                              "label": "Resource group"
+                              "label": "Resource Group"
                             },
                             {
                               "columnId": "SKUName",
@@ -4682,6 +5138,7 @@
                         "size": 0,
                         "title": "SQL DB AHUB Enabled",
                         "noDataMessage": "None of you SQL DBs have AHUB enabled.",
+                        "noDataMessageStyle": 4,
                         "showExportToExcel": true,
                         "queryType": 7,
                         "gridSettings": {
@@ -4696,7 +5153,7 @@
                             },
                             {
                               "columnId": "SQLRG",
-                              "label": "Resource group"
+                              "label": "Resource Group"
                             },
                             {
                               "columnId": "SKUName",
