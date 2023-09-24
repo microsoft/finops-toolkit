@@ -3,21 +3,26 @@
 
 <#
     .SYNOPSIS
-        Packages all toolkit templates for release.
+    Packages all toolkit templates for release.
+
     .DESCRIPTION
-        Run this from the /src/scripts folder.
+    Run this from the /src/scripts folder.
+
     .PARAMETER Template
-        Optional. Name of the template or module to package. Default = * (all).
+    Optional. Name of the template or module to package. Default = * (all).
+
     .PARAMETER Build
-        Optional. Indicates whether the Build-Toolkit command should be executed first. Default = false.
-    .EXAMPLE
-        ./Package-Toolkit
+    Optional. Indicates whether the Build-Toolkit command should be executed first. Default = false.
 
-        Generates ZIP files for each template using an existing build.
     .EXAMPLE
-        ./Package-Toolkit -Build
+    ./Package-Toolkit
 
-        Builds the latest code and generates ZIP files for each template.
+    Generates ZIP files for each template using an existing build.
+
+    .EXAMPLE
+    ./Package-Toolkit -Build
+
+    Builds the latest code and generates ZIP files for each template.
 #>
 Param(
     [Parameter(Position = 0)][string]$Template = "*",
@@ -43,7 +48,7 @@ if ($Template -ne "*" -and -not (Test-Path $relDir)) {
 Write-Host "Packaging templates..."
 
 # Package files for release
-$version = git describe --tags
+$version = Invoke-Task Version
 Remove-Item "$relDir/*-$version.zip" -Force
 Get-ChildItem $relDir `
 | ForEach-Object {

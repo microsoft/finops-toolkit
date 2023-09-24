@@ -29,10 +29,11 @@ function Build-PsModule {
     New-Directory -Path $releasePath
 
     # Get version
-    $version = (npm pkg get version).Trim('"')
+    $version = Get-Version
+    $prereleaseTag = $version -replace '^[^-]+-([^\.]+).*$', '$1'
 
     $manifestProperties = @{
-        ModuleVersion     = [Version]::Parse(($version -replace '-dev', ''))
+        ModuleVersion     = $version -replace "-$prereleaseTag", ''
         Path              = $manifestPath
         Guid              = '00f120b5-2007-6120-0000-b03e1254e770'
         Author            = 'Microsoft Corporation'
@@ -61,8 +62,8 @@ function Build-PsModule {
         Tags              = @('FinOps', 'Cost', 'CostManagement', 'Azure', 'MicrosoftCloud')
     }
 
-    if ($PrereleaseTag) {
-        $manifestProperties.Add('Prerelease', $PrereleaseTag)
+    if ($prereleaseTag) {
+        $manifestProperties.Add('Prerelease', $prereleaseTag)
     }
 
     # Create manifest and copy supporting files

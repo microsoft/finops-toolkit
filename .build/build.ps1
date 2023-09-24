@@ -4,9 +4,9 @@
 [CmdletBinding()]
 param
 (
+    # Using a single parameter to pass all task parameters to each task and avoid re-defining every parameter multiple times
     [Parameter()]
-    [string]
-    $ApiKey
+    $TaskParams
 )
 
 $moduleName = 'FinOpsToolkit'
@@ -20,7 +20,9 @@ task Clean {
 
 task PreRequisites {
     $helperPath = Join-Path -Path $PSScriptRoot -ChildPath 'BuildHelper.psm1'
-    Import-Module -FullyQualifiedName $helperPath
+    if (-not (Get-Module BuildHelper)) {
+        Import-Module -FullyQualifiedName $helperPath
+    }
 }
 
 task Build.PsModule PreRequisites, Clean, {
@@ -28,32 +30,26 @@ task Build.PsModule PreRequisites, Clean, {
 }
 
 task Publish.PsModule Build.PsModule, {
-    if (-not $ApiKey)
-    {
+    if (-not $TaskParams.ApiKey) {
         throw 'Missing required parameter "ApiKey".'
     }
 
-    try
-    {
+    try {
         Remove-Module -Name $moduleName -Force -ErrorAction 'SilentlyContinue'
         Import-Module -Name $modulePath -ErrorAction 'Stop'
         $moduleInfo = Get-Module -Name $moduleName -ErrorAction 'Stop'
-    }
-    catch
-    {
+    } catch {
         throw $_
     }
 
     $parameters = @{}
-    foreach ($key in @('Tags', 'IconUri', 'ProjectUri', 'LicenseUri', 'ReleaseNotes'))
-    {
-        if ($moduleInfo.$key)
-        {
+    foreach ($key in @('Tags', 'IconUri', 'ProjectUri', 'LicenseUri', 'ReleaseNotes')) {
+        if ($moduleInfo.$key) {
             $parameters.Add($key, $moduleInfo.$key)
         }
     }
 
-    Publish-Module -Name $moduleName -Repository 'PSGallery' -NuGetApiKey $ApiKey -Force -AllowPrerelease @parameters
+    Publish-Module -Name $moduleName -Repository 'PSGallery' -NuGetApiKey $TaskParams.ApiKey -Force -AllowPrerelease @parameters
 }
 
 task Test.PowerShell.Unit PreRequisites, {
@@ -65,3 +61,7 @@ task Test.PowerShell.Lint PreRequisites, {
 }
 
 task Test.PowerShell.All Test.PowerShell.Lint, Test.PowerShell.Unit, {}
+
+task Version PreRequisites, {
+    return (Get-Version -Major:$TaskParams.Major -Minor:$TaskParams.Minor -Patch:$TaskParams.Patch -Prerelease:$TaskParams.Prerelease -Label $TaskParams.Label)
+}

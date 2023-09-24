@@ -31,20 +31,10 @@ $outDir = "../../release"
 
 # Update version
 Write-Host ''
+$ver = Invoke-Task Version -Major:$Major -Minor:$Minor -Patch:$Patch -Prerelease:$Prerelease -Label dev
 if ($Major -or $Minor -or $Patch -or $Prerelease) {
-    $npmVersionParams = { "" }
-    if ($Major) {
-        $ver = npm --no-git-tag-version version major
-    } elseif ($Minor) {
-        $ver = npm --no-git-tag-version version minor 
-    } elseif ($Patch) {
-        $ver = npm --no-git-tag-version version patch 
-    } elseif ($Prerelease) {
-        $ver = npm --no-git-tag-version --preid dev version prerelease
-    }
     Write-Host "Updated version to $ver"
 } else {
-    $ver = (npm pkg get version).Trim('"')
     Write-Host "Building version $ver"
 }
 Write-Host ''
