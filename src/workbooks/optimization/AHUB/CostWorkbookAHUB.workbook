@@ -43,7 +43,7 @@
                   "id": "1867f91d-213c-440d-b0bb-1a699355cccf",
                   "version": "KqlParameterItem/1.0",
                   "name": "ResourceGroup",
-                  "label": "Resource Group",
+                  "label": "resoure group",
                   "type": 2,
                   "isRequired": true,
                   "multiSelect": true,
