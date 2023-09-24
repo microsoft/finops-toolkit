@@ -16,14 +16,35 @@ Leverage open data to normalize and enhance your FinOps reporting.
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
+- [📏 Pricing units](#-pricing-units)
 - [🗺️ Regions](#️-regions)
-- [📑 Looking for more?](#-looking-for-more)
+- [📇 Looking for more?](#-looking-for-more)
 
 </details>
 
 ---
 
 Reporting is the life-blood of any FinOps initiative. And your reports are only as good as your data. This is why [data ingestion and normalization](https://learn.microsoft.com/azure/cost-management-billing/finops/capabilities-ingestion-normalization) is such an important part of FinOps (and any big data effort). The following datasets can be used to clean and normalize your data as part of data ingestion, reporting, or other solutions.
+
+<br>
+
+## 📏 Pricing units
+
+Microsoft Cost Management uses the `UnitOfMeasure` column to indicate how each charge is measured. This can be in singular or distinct units or can be grouped into chunks based on applicable block pricing rules. As a string, the `UnitOfMeasure` column can be challenging to parse and handle all the different permutations and inconsistencies. The Pricing units file provides a list of values you may find within common cost-related datasets (e.g., Cost Management exports and price sheets) along with their related distinct unit and scaling factor to compare pricing to usage units.
+
+Sample data:
+
+| UnitOfMeasure      | MeterCount | UsageToPricingRate | DistinctUnits |
+| ------------------ | ---------- | ------------------ | ------------- |
+| `1 Hour`           | 116073     | 1                  | Hours         |
+| `10000 GB`         | 342        | 10000              | GB            |
+| `150 Hours`        | 4          | 150                | Hours         |
+| `200 /Hour`        | 4          | 200                | Units/Hour    |
+| `5 GB`             | 16         | 5                  | GB            |
+| `5000000 Requests` | 1          | 5000000            | Requests      |
+| `744 Connections`  | 26         | 744                | Connections   |
+
+[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/PricingUnits.csv){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
