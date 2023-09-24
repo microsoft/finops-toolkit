@@ -68,11 +68,13 @@ $scaffoldMetadata.PSObject.Properties `
     } else {
         $text -join [Environment]::NewLine | Out-File $path
     }
-    
+
     if ($Debug) {
         Write-Host ""
         Write-Host "  $file"
         Write-Host "  $($file -replace ".","=")"
         Write-Host ((Get-Content $path) -join [Environment]::NewLine)
     }
-} 
+}
+
+## Build cost optimization workbook
