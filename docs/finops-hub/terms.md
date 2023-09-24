@@ -1,8 +1,18 @@
-# FinOps hubs terms
+---
+layout: default
+parent: FinOps hubs
+title: Common terms
+nav_order: 4
+description: 'Common terms and definitions used throughout FinOps hubs.'
+permalink: /hubs/terms
+---
 
-This page covers a number of common terms used throughout FinOps hubs. For details about the usage column terms used, see [Terms in the Azure usage and charges file](https://learn.microsoft.com/en-us/azure/cost-management-billing/understand/mca-understand-your-usage).
+<span class="fs-9 d-block mb-4">Common terms</span>
+Familiarize yourself with the terminology used in FinOps hubs.
+{: .fs-6 .fw-300 }
 
-On this page:
+<details open markdown="1">
+   <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [A](#a)
 - [C](#c)
@@ -10,10 +20,14 @@ On this page:
 - [E](#e)
 - [M](#m)
 - [N](#n)
+- [⏭️ Next steps](#️-next-steps)
 
 See also:
 
-- [Data dictionary](./data-dictionary.md)
+- [FinOps hubs columns](./data-dictionary.md)
+- [Cost Management data dictionary](https://learn.microsoft.com/azure/cost-management-billing/automate/understand-usage-details-fields)
+
+</details>
 
 ---
 
@@ -65,13 +79,13 @@ See also:
 
 #### MOSA or Microsoft Online Services Agreement
 
-"Microsoft Online Services Agreement" is an agreement between Microsoft and an individual or organization for how they can purchase, use and pay for Azure.
+"Microsoft Online Services Agreement" is an agreement between Microsoft and an individual or organization for how they can purchase, use and pay for Azure. MOSA subscriptions are typically obtained directly from the Azure website.
 
 <br>
 
 #### MPA or Microsoft Partner Agreement
 
-"Microsoft Partner Agreement" is an agreement between Microsoft and an organization that resells Microsoft Cloud services, like Azure, Microsoft 365, Dynamics 365, Power Platform, etc. Partners can also work with intermediary resellers. The individual or organization that resellers work with sign a Microsoft Customer Agreement (MCA).
+"Microsoft Partner Agreement" is an agreement between Microsoft and a Cloud Solution Provider (CSP) partner organization that resells Microsoft Cloud services, like Azure, Microsoft 365, Dynamics 365, Power Platform, etc. Partners can also work with intermediary resellers. The individual or organization that resellers work with sign a Microsoft Customer Agreement (MCA).
 
 <br>
 
@@ -81,6 +95,13 @@ See also:
 
 "Negotiated discounts" are a type of rate optimization you can obtain by negotiating with cloud providers during large deals. As an example, this usually happens with Microsoft Sales as part of signing an Enterprise Agreement (EA) or Microsoft Customer Agreement (MCA).
 
-<br>
-
 <!-- markdownlint-restore -->
+
+---
+
+## ⏭️ Next steps
+
+[Deploy](./README.md#-create-a-new-hub){: .btn .btn-primary .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Learn more](./README.md#-why-finops-hubs){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+
+<br>

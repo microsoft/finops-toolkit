@@ -1,7 +1,10 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 BeforeDiscovery {
     $rootPath = ((Get-Item -Path $PSScriptRoot).Parent.Parent).FullName
-    $filesToInclude = 'FinOpsToolkit.psm1'
-    $files = Get-ChildItem -Path $rootPath -Recurse -Include $filesToInclude
+    $filesToInclude = '*.psm1', '*.ps1'
+    $files = Get-ChildItem -Path $rootPath -Recurse -Include $filesToInclude -Exclude '*.Tests.ps1'
 }
 
 Describe 'Style tests - [<_>]' -ForEach $files.FullName {

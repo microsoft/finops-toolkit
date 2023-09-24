@@ -26,7 +26,7 @@ $outDir = "../../release"
 ./New-Directory $outDir
 
 # Generate Bicep Registry modules
-Get-ChildItem ..\bicep-registry\$Template* -Directory -ErrorAction SilentlyContinue `
+Get-ChildItem "..\bicep-registry\$($Template -replace '(subscription|resourceGroup|managementGroup|tenant)-', '')*" -Directory -ErrorAction SilentlyContinue `
 | Where-Object { $_.Name -ne '.scaffold' }
 | ForEach-Object {
     ./Build-Bicep $_.Name
@@ -48,7 +48,7 @@ function Build-MainBicepParameters($dir) {
 }
 
 # Generate workbook templates
-Get-ChildItem ..\workbooks\* -Directory `
+Get-ChildItem "..\workbooks\$($Template -replace '-workbook$','')*" -Directory `
 | Where-Object { $_.Name -ne '.scaffold' }
 | ForEach-Object {
     $workbook = $_.Name
