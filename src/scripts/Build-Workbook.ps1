@@ -24,8 +24,45 @@ $Debug = $DebugPreference -eq "Continue"
 $outDir = Join-Path .. .. release "$Workbook-workbook"
 $workbookDir = Join-Path .. workbooks $Workbook
 
+# Worbkooks' templates placeholders
+$placeholders = @(
+    [PSCustomObject]@{
+        optimization = @{
+            "Compute"    = "computeGroupPlaceholder"
+            "Storage"    = "storageGroupPlaceholder"
+            "Networking" = "networkingGroupPlaceholder"
+            "AHUB"       = "AHUBGroupPlaceholder"
+        }
+    }
+)
+
 if (-not (Test-Path $workbookDir)) {
     return
+}
+
+# Check if the workbook is using templates
+if (Test-Path -Path $workbookDir -PathType Container) {
+  # Get all directories within the workbook folder
+  $templates = Get-ChildItem -Path $workbookDir -Directory
+
+  # Check if any templates were found
+  if ($templates) {
+      $workbookTemplate = Join-Path $workbookDir "workbook_template.json"
+      $newTemplate = "$workbookDir\workbook.json"
+      ## Create a new template
+      Copy-Item $workbookTemplate $newTemplate -Force
+
+      ## Get contents of each sub-template
+      foreach ($template in $templates) {
+          $templateName = $template.Name
+          $tempTemplate = Get-Content "$workbookDir/$templateName/CostWorkbook$templateName.workbook" -Raw
+          $templateJson = $tempTemplate | ConvertFrom-Json
+          $templateObjects = ($templateJson.items.content).items
+          $replacedTemplate = $placeholders.$workbook[$templateName]
+          $newWorbook = get-content $newTemplate
+          $newWorbook -replace $replacedTemplate, ($templateObjects[2..$templateObjects.Count] | ConvertTo-Json -Depth 20) | Set-Content $newTemplate
+      }
+  }
 }
 
 # Copy scaffold and workbook files
@@ -68,11 +105,14 @@ $scaffoldMetadata.PSObject.Properties `
     } else {
         $text -join [Environment]::NewLine | Out-File $path
     }
-    
+
     if ($Debug) {
         Write-Host ""
         Write-Host "  $file"
         Write-Host "  $($file -replace ".","=")"
         Write-Host ((Get-Content $path) -join [Environment]::NewLine)
     }
-} 
+}
+
+# Delete workook.json file
+Remove-Item $workbookDir/workbook.json -Force
