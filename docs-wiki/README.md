@@ -76,6 +76,8 @@ git config --global user.email "youremail@yourdomain.com"
 
 > <sup>ℹ️ _Microsoft employees: please set this to your Microsoft email_</sup>
 
+<br>
+
 ## 🗃️ Fork and clone
 
 Fork the repository from the web and then clone your fork locally:
