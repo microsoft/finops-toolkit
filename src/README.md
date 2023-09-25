@@ -1,6 +1,6 @@
 # 🛠️ FinOps toolkit source
 
-**Welcome aboard!** 🎉 If this is your first time to our repo, here are a few tips:
+**Welcome aboard!** 👋 If this is your first time to our repo, here are a few tips:
 
 - Every folder has a README that explains its purpose.
 - If you want to know how to deploy a FinOps toolkit solution, start with the [documentation](https://aka.ms/finops/toolkit).
@@ -20,7 +20,7 @@ On this page:
 ## ⚡ Quickstart guide
 
 1. ⬇️ Install Azure PowerShell and the Bicep CLI. [Visual Studio Code](https://code.visualstudio.com) is recommended.
-2. ▶️ Start in the `dev` branch (or applicable [feature branch](../docs-wiki/branching.md#-important-branches)).
+2. ▶️ Start in the `dev` branch (or applicable [feature branch](../docs-wiki/Branching-strategy.md#-important-branches)).
 3. 👩‍💻 Make your change and build/deploy using local dev scripts:
 
    ```powershell

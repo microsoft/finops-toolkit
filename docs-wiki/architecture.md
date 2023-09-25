@@ -1,4 +1,4 @@
-# 🏗️ Architecture
+<!-- markdownlint-disable MD041 -->
 
 FinOps toolkit uses Azure Bicep templates and PowerShell scripts to deploy Azure resources. Each solution utilizes different Azure services to meet specific requirements.
 
