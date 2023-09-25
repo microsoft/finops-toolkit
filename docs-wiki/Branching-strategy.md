@@ -1,4 +1,4 @@
-# 🌿 Branching strategy
+<!-- markdownlint-disable MD041 -->
 
 - [main](https://github.com/microsoft/cloud-hubs/tree/main) includes the latest stable release.
 - [dev](https://github.com/microsoft/cloud-hubs/tree/dev) includes the latest changes that will go into the next release.

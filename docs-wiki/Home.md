@@ -1,6 +1,6 @@
-# 🛠️ FinOps toolkit source
+<!-- markdownlint-disable MD041 -->
 
-**Welcome aboard!** 🎉 If this is your first time to our repo, here are a few tips:
+**Welcome aboard!** 👋 If this is your first time to our repo, here are a few tips:
 
 - Every folder has a README that explains its purpose.
 - If you want to know how to deploy a FinOps toolkit solution, start with the [documentation](https://aka.ms/finops/toolkit).
@@ -31,8 +31,8 @@ There are many ways to contribute to the FinOps toolkit project, like reporting 
 
 After cloning and building the repo, check out the [issues list](../issues):
 
-- [`Help wanted ✨`](../issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted+✨%22+sort%3Areactions-%2B1-desc) are areas we'd like explicit help on.
-- [`Good first issue 🏆`](../issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue+🏆%22+sort%3Areactions-%2B1-desc) are great candidates for those getting started.
+- [`Help wanted ✨`](../issues) are areas we'd like explicit help on.
+- [`Good first issue 🏆`](../issues) are great candidates for those getting started.
 
 If an issue is assigned, please contact the assignee before starting to work on the issue.
 
@@ -113,7 +113,7 @@ Set-Location "<cloud-hubs-root>/src/scripts"
 ./New-FeatureBranch "<feature-name>"
 ```
 
-For more details, refer to the [branching strategy](./process.md).
+For more details, refer to the [[Branching strategy]].
 
 <br>
 
@@ -153,8 +153,8 @@ Every PR is expected to include some sort of verification:
 
 Please do the following before submitting a pull request:
 
-1. Sign a [Contributor License Agreement (CLA)](CLA.md) (one-time requirement).
-2. Review the [branching strategy](branching.md) and ensure you submit PRs against the correct branch.
+1. Sign a [Contributor License Agreement (CLA)](Contributor-License-Agreement.md) (one-time requirement).
+2. Review the [branching strategy](Branching-strategy.md) and ensure you submit PRs against the correct branch.
 3. Ensure you have the latest changes from the upstream (official) repository:
 
    ```console
@@ -165,7 +165,7 @@ Please do the following before submitting a pull request:
    Resolve any merge conflicts, commit them, and then push them to your fork.
 
 4. Only address 1 issue per pull request and [link the issue in the pull request](https://github.com/blog/957-introducing-issue-mentions).
-5. Be sure to follow our [coding guidelines](./code.md) and keep code changes as small as possible.
+5. Be sure to follow our [coding guidelines](./Coding-guidelines.md) and keep code changes as small as possible.
 6. Validate changes by running locally and running [[unit tests]].
 7. Enable the checkbox to [allow maintainer edits](https://docs.github.com/github/collaborating-with-issues-and-pull-requests/allowing-changes-to-a-pull-request-branch-created-from-a-fork) so the branch can be updated for a merge.
 8. Do all of the above before publishing your PR. You are welcome to create a draft PR to share and discuss ideas, but only publish when all code is committed, tested, and ready for review.
@@ -176,7 +176,7 @@ Please do the following before submitting a pull request:
 
 As a reminder, smaller PRs are closed quicker. If your PR has less than 20 lines of code changed, apply the **Micro PR** label (internal only). We will prioritize these to ensure they are closed quickly.
 
-For more details on how we use labels, see [[Labels]].
+<!--For more details on how we use labels, see [[Labels]].-->
 
 <br>
 
