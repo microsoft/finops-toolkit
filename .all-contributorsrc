@@ -147,6 +147,15 @@
       "contributions": [
         "review"
       ]
+    },
+    {
+      "login": "AdamAndersson",
+      "name": "Adam Andersson",
+      "avatar_url": "https://avatars.githubusercontent.com/u/31773202?v=4",
+      "profile": "https://github.com/AdamAndersson",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "commitType": "docs",
