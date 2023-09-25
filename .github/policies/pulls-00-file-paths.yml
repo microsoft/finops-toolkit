@@ -63,6 +63,8 @@ configuration:
             then:
               - requestReview:
                   reviewer: flanakin
+              - assignTo:
+                  user: flanakin
           # devops
           - if:
               - or:
@@ -81,6 +83,8 @@ configuration:
                 then:
                   - requestReview:
                       reviewer: aromano2
+                  - assignTo:
+                      user: aromano2
           # docs
           - if:
               - filesMatchPattern:
@@ -115,6 +119,8 @@ configuration:
                 then:
                   - requestReview:
                       reviewer: msbrett
+                  - assignTo:
+                      user: msbrett
           # open data
           - if:
               - filesMatchPattern:
@@ -137,6 +143,8 @@ configuration:
                 then:
                   - requestReview:
                       reviewer: aromano2
+                  - assignTo:
+                      user: aromano2
               # Arthur
               - if:
                   - not:
@@ -145,6 +153,8 @@ configuration:
                 then:
                   - requestReview:
                       reviewer: arthurclares
+                  - assignTo:
+                      user: arthurclares
               # Divyadeep
               - if:
                   - not:
@@ -153,6 +163,8 @@ configuration:
                 then:
                   - requestReview:
                       reviewer: didayal-msft
+                  - assignTo:
+                      user: didayal-msft
               # Saad
               - if:
                   - not:
@@ -161,6 +173,8 @@ configuration:
                 then:
                   - requestReview:
                       reviewer: saadmsft
+                  - assignTo:
+                      user: saadmsft
               # Sacha
               - if:
                   - not:
@@ -169,6 +183,8 @@ configuration:
                 then:
                   - requestReview:
                       reviewer: springstone
+                  - assignTo:
+                      user: springstone
               # Seif
               - if:
                   - not:
@@ -177,6 +193,8 @@ configuration:
                 then:
                   - requestReview:
                       reviewer: sebassem
+                  - assignTo:
+                      user: sebassem
           # workbooks
           - if:
               - or:
@@ -200,6 +218,8 @@ configuration:
                 then:
                   - requestReview:
                       reviewer: arthurclares
+                  - assignTo:
+                      user: arthurclares
               # Nicolas
               - if:
                   - or:
@@ -213,6 +233,8 @@ configuration:
                 then:
                   - requestReview:
                       reviewer: nteyan
+                  - assignTo:
+                      user: nteyan
               # Seif
               - if:
                   - or:
@@ -226,5 +248,7 @@ configuration:
                 then:
                   - requestReview:
                       reviewer: sebassem
+                  - assignTo:
+                      user: sebassem
 onFailure:
 onSuccess:
