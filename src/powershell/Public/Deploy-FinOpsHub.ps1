@@ -42,7 +42,7 @@
     Deploys a new FinOps hub instance named MyHub using version 0.1 of the template.
 
     .LINK
-    https://microsoft.github.io/finops-toolkit/powershell/hubs/Deploy-FinOpsHub
+    https://aka.ms/ftk/Deploy-FinOpsHub
 #>
 function Deploy-FinOpsHub
 {

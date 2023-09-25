@@ -35,7 +35,7 @@
     Returns all FinOps hubs named 'foo' in the 'bar' resource group.
 
     .LINK
-    https://microsoft.github.io/finops-toolkit/powershell/hubs/Get-FinOpsHub
+    https://aka.ms/ftk/Get-FinOpsHub
 #>
 function Get-FinOpsHub
 {

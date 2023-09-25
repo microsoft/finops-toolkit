@@ -30,7 +30,7 @@
     Returns all release versions, including preview releases.
 
     .LINK
-    https://microsoft.github.io/finops-toolkit/powershell/toolkit/Get-FinOpsToolkitVersion
+    https://aka.ms/ftk/Get-FinOpsToolkitVersion
 #>
 function Get-FinOpsToolkitVersion
 {
