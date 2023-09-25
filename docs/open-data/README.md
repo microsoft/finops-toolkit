@@ -3,7 +3,7 @@ layout: default
 title: Open data
 nav_order: 5
 description: 'Leverage open data to normalize and enhance your FinOps reporting.'
-permalink: /hubs
+permalink: /data
 ---
 
 <span class="fs-9 d-block mb-4">Mappings</span>
@@ -11,14 +11,14 @@ Leverage open data to normalize and enhance your FinOps reporting.
 {: .fs-6 .fw-300 }
 
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Share feedback](#-looking-for-more){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Share feedback](#️-looking-for-more){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [📏 Pricing units](#-pricing-units)
 - [🗺️ Regions](#️-regions)
-- [📇 Looking for more?](#-looking-for-more)
+- [🙋‍♀️ Looking for more?](#️-looking-for-more)
 
 </details>
 
@@ -66,7 +66,7 @@ Sample data:
 
 <br>
 
-## 📇 Looking for more?
+## 🙋‍♀️ Looking for more?
 
 We'd love to hear about any datasets you're looking for. Create a new issue with the details that you'd like to see either included in existing or new datasets.
 
