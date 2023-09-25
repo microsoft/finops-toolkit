@@ -160,6 +160,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "jamelachahbar",
+      "name": "jamelachahbar",
+      "avatar_url": "https://avatars.githubusercontent.com/u/127963872?v=4",
+      "profile": "https://github.com/jamelachahbar",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "commitType": "docs",
