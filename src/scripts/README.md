@@ -201,7 +201,8 @@ Examples:
   ./Merge-DevBranch features/foo -TortoiseGit
   ```
 
-- Merge the `dev` branch into main and all feature branches. Does not resolve conflicts.
+- Merge the `dev` branch into all feature branches. Does not resolve conflicts.
+
   ```powershell
   ./Merge-DevBranch *
   ```
