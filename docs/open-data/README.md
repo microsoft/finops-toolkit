@@ -3,7 +3,7 @@ layout: default
 title: Open data
 nav_order: 5
 description: 'Leverage open data to normalize and enhance your FinOps reporting.'
-permalink: /hubs
+permalink: /data
 ---
 
 <span class="fs-9 d-block mb-4">Mappings</span>
@@ -17,7 +17,7 @@ Leverage open data to normalize and enhance your FinOps reporting.
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🗺️ Regions](#️-regions)
-- [📑 Looking for more?](#-looking-for-more)
+- [📇 Looking for more?](#-looking-for-more)
 
 </details>
 
