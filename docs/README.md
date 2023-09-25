@@ -30,6 +30,8 @@ Read on to learn about the tools and roadmap for the FinOps toolkit or how to ge
 - [FinOps hubs](./finops-hub/README.md) – Open, extensible, and scalable cost reporting.
 - [Cost optimization workbook](./optimization-workbook/README.md) – Central hub for cost optimization.
 - [Bicep Registry modules](./bicep-registry/README.md) – Official repository for Bicep modules.
+- [Open data](./open-data/README.md) – Data available for anyone to access, use, and share without restriction.
+  - [Regions](./open-data/README.md#-regions) – Cost Management locations and their corresponding Azure region IDs and names.
 
 ### In development
 
