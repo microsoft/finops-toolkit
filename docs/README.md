@@ -103,6 +103,9 @@ All the main changes are tracked in the changelog. For additional details, refer
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/lkshck"><img src="https://avatars.githubusercontent.com/u/46962619?v=4?s=100" width="100px;" alt="lkshck"/><br /><sub><b>lkshck</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Alkshck" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/ijurica"><img src="https://avatars.githubusercontent.com/u/130588473?v=4?s=100" width="100px;" alt="Irena Jurica"/><br /><sub><b>Irena Jurica</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3Aijurica" title="Reviewed Pull Requests">👀</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/jamelachahbar"><img src="https://avatars.githubusercontent.com/u/127963872?v=4?s=100" width="100px;" alt="jamelachahbar"/><br /><sub><b>jamelachahbar</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=jamelachahbar" title="Code">💻</a></td>
+    </tr>
   </tbody>
 </table>
 
