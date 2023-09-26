@@ -3,7 +3,7 @@
 
 <#
     .SYNOPSIS
-    Get list of Cost Management Exports.
+    Get list of Cost Management exports.
 
     .PARAMETER Name
     Optional. Name of the export. Supports wildcards.
@@ -21,7 +21,7 @@
     Optional. Name of the container to get exports for. Supports wildcards. Default = null (all exports).
 
     .PARAMETER ApiVersion
-    Optional. API version to use when calling the Cost Management Exports API. Default = 2023-03-01.
+    Optional. API version to use when calling the Cost Management exports API. Default = 2023-03-01.
 
     .EXAMPLE
     Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000"
@@ -29,7 +29,7 @@
     Gets all exports for a subscription. Does not include exports in nested resource groups.
     
     .EXAMPLE
-    Get-FinOpsCostExport -Name mtd* -Scope "providers/Microsoft.Billing/billingAccounts/79676095"
+    Get-FinOpsCostExport -Name mtd* -Scope "providers/Microsoft.Billing/billingAccounts/00000000"
 
     Gets export with name matching wildcard mtd* within the specified billing account scope. Does not include exports in nested resource groups.
 
@@ -49,7 +49,7 @@
     Gets all exports within the subscription scope for a specific container. Supports wildcard.
 
     .EXAMPLE
-    Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageContainer "mtd*" -apiVersion "2023-08-01"
+    Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageContainer "mtd*" -ApiVersion "2023-08-01"
 
     Gets all exports within the subscription scope for a container matching wildcard pattern and using a specific API version.
 #>
@@ -82,7 +82,7 @@ function Get-FinOpsCostExport
 
         [Parameter()]
         [string]
-        $APIVersion = '2023-08-01'
+        $ApiVersion = '2023-08-01'
     )
 
     $context = Get-AzContext
@@ -92,21 +92,21 @@ function Get-FinOpsCostExport
     }
     # if Scope is not passed, use current subscription scope
     if ([System.String]::IsNullOrEmpty($Scope))
-        {
-            $contextsubscription = $context.Subscription.Id
-            $Scope="subscriptions/$contextsubscription"
+    {
+        $contextsubscription = $context.Subscription.Id
+        $Scope = "subscriptions/$contextsubscription"
 
-            Write-Verbose -Message "Scope parameter was not passed. Setting to subscription scope from current context"
-        }
+        Write-Verbose -Message "Scope parameter was not passed. Setting to subscription scope from current context"
+    }
 
-    $scope=$scope.trimstart("/").trimend("/")
-    $path = "$scope/providers/Microsoft.CostManagement/exports?api-version=$APIVersion"
+    $scope = $scope.Trim("/")
+    $path = "$scope/providers/Microsoft.CostManagement/exports?api-version=$ApiVersion"
     
     # Get operation does not allow wildcards. Fetching all exports using list operation and then filtering in script
     # https://learn.microsoft.com/en-us/rest/api/cost-management/exports/list?tabs=HTTP
     
     Write-Verbose -Message "fetching all exports for scope:$scope"
-    $httpResponse = Invoke-AzRestMethod -path $path
+    $httpResponse = Invoke-AzRestMethod -Path $path
 
     Write-Verbose -Message "response received with status code $($httpResponse.StatusCode)"
 
@@ -142,24 +142,24 @@ function Get-FinOpsCostExport
            
             $item = [PSCustomObject]@{
 
-                Name                 = $_.name
-                Id                   = $_.id
-                Type                 = $_.type
-                eTag                 = $_.eTag
-                ScheduleStatus       = $_.properties.schedule.status
-                ScheduleRecurrence   = $_.properties.schedule.recurrence
-                ScheduleStartDate    = $_.properties.schedule.recurrencePeriod.from
-                ScheduleEndDate      = $_.properties.schedule.recurrencePeriod.to
-                NextRuntimeEstimate  = $_.properties.nextRunTimeEstimate
-                Format               = $_.properties.format
-                StorageAccountId     = $_.properties.deliveryInfo.destination.resourceId
-                StorageContainer     = $_.properties.deliveryInfo.destination.container
-                StoragePath          = $_.properties.deliveryInfo.destination.rootfolderpath
-                DataSet              = $_.properties.definition.type
-                DataSetTimeFrame     = $_.properties.definition.timeframe
-                DataSetStartDate     = $_.properties.definition.timePeriod.from
-                DataSetEndDate       = $_.properties.definition.timePeriod.to
-                DatasetGranularity   = $_.properties.definition.dataset.granularity        
+                Name                = $_.name
+                Id                  = $_.id
+                Type                = $_.type
+                eTag                = $_.eTag
+                ScheduleStatus      = $_.properties.schedule.status
+                ScheduleRecurrence  = $_.properties.schedule.recurrence
+                ScheduleStartDate   = $_.properties.schedule.recurrencePeriod.from
+                ScheduleEndDate     = $_.properties.schedule.recurrencePeriod.to
+                NextRuntimeEstimate = $_.properties.nextRunTimeEstimate
+                Format              = $_.properties.format
+                StorageAccountId    = $_.properties.deliveryInfo.destination.resourceId
+                StorageContainer    = $_.properties.deliveryInfo.destination.container
+                StoragePath         = $_.properties.deliveryInfo.destination.rootfolderpath
+                DataSet             = $_.properties.definition.type
+                DataSetTimeFrame    = $_.properties.definition.timeframe
+                DataSetStartDate    = $_.properties.definition.timePeriod.from
+                DataSetEndDate      = $_.properties.definition.timePeriod.to
+                DatasetGranularity  = $_.properties.definition.dataset.granularity        
             }
             $exportdetails += $item
            
@@ -168,9 +168,9 @@ function Get-FinOpsCostExport
     }
     else
     {
-        $errorobject=$($httpResponse.Content | ConvertFrom-Json).error
-        $errorcode=$errorobject.code
-        $errorcodemessage=$errorobject.message
-        write-error -Message $($script:localizedData.ErrorResponse -f $errorcodemessage, $errorcode)
+        $errorobject = $($httpResponse.Content | ConvertFrom-Json).error
+        $errorcode = $errorobject.code
+        $errorcodemessage = $errorobject.message
+        Write-Error -Message $($script:localizedData.ErrorResponse -f $errorcodemessage, $errorcode)
     }
 }
