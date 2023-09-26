@@ -142,6 +142,10 @@ resource uploadSettings 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     retentionInterval: 'PT1H'
     environmentVariables: [
       {
+        name: 'ftkVersion'
+        value: loadTextContent('./version.txt')
+      }
+      {
         name: 'exportScopes'
         value: join(exportScopes, '|')
       }
