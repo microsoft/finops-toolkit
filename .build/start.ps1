@@ -33,7 +33,7 @@ param
     [Parameter()]
     [ValidateSet('dev', 'alpha', 'preview')]
     [string]
-    $Label = 'dev'
+    $Label
 )
 
 if (-not (Get-Module -Name 'PsDepend' -ListAvailable)) {

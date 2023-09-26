@@ -46,7 +46,7 @@ param (
 
     [ValidateSet('dev', 'alpha', 'preview')]
     [string]
-    $Label = 'dev',
+    $Label,
 
     [switch]
     $Reset
