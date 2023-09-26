@@ -15,14 +15,20 @@ configuration:
           - or:
               - payloadType: Pull_Request_Review
               - payloadType: Pull_Request_Review_Comment
-          - not:
-              isActivitySender:
-                user: allcontributors
+          - or:
+              - isAction:
+                  action: Submitted # for reviews
+              - isAction:
+                  action: Created # for comments
           - not:
               targetsBranch:
                 branch: main
+          - isActivitySender:
+              issueAuthor: false
           - not:
               or:
+                - isActivitySender:
+                    user: allcontributors
                 - isActivitySender:
                     user: aromano2
                 - isActivitySender:
@@ -36,9 +42,11 @@ configuration:
         then:
           - addReply:
               reply: '@all-contributors please add ${contextualAuthor} for review'
-      - description: When a PR is opened, add as contributor
+      - description: When a PR is closed, add as contributor
         if:
           - payloadType: Pull_Request
+          - isAction:
+              action: Closed
           - not:
               targetsBranch:
                 branch: main
