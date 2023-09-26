@@ -6,6 +6,7 @@ param
 (
     # Using a single parameter to pass all task parameters to each task and avoid re-defining every parameter multiple times
     [Parameter()]
+    [hashtable]
     $TaskParams
 )
 
@@ -63,5 +64,5 @@ task Test.PowerShell.Lint PreRequisites, {
 task Test.PowerShell.All Test.PowerShell.Lint, Test.PowerShell.Unit, {}
 
 task Version PreRequisites, {
-    return (Get-Version -Major:$TaskParams.Major -Minor:$TaskParams.Minor -Patch:$TaskParams.Patch -Prerelease:$TaskParams.Prerelease -Label $TaskParams.Label)
+    return (Update-Version -Major:$TaskParams.Major -Minor:$TaskParams.Minor -Patch:$TaskParams.Patch -Prerelease:$TaskParams.Prerelease -Label $TaskParams.Label)
 }
