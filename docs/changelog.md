@@ -26,7 +26,11 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
 
 Added:
 
-1. Mappings
+1. PowerShell
+   1. [Get-FinOpsToolkitVersion](./powershell/toolkit/Get-FinOpsToolkitVersion) to get toolkit versions.
+   2. [Deploy-FinOpsHub](./powershell/hubs/Deploy-FinOpsHub) to deploy or update a hub instance.
+   3. [Get-FinOpsHub](./powershell/hubs/Get-FinOpsHub) to get details about a hub instance.
+2. Mappings
    1. [Regions](./mappings/README.md#-regions) to map historical resource location values in Microsoft Cost Management to standard Azure regions.
 
 <br>
