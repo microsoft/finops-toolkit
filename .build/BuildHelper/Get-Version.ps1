@@ -12,5 +12,9 @@
 #>
 function Get-Version {
     # Remove trailing 0s from version (keep first 2 + prerelease name)
-    return (Get-Content (Join-Path $tmp ../../package.json) | ConvertFrom-Json).version -replace '(\d+\.\d+)(\.\d+\-[^\.]+)?(\.0)?\.0$', '$1$2'
+    $ver = (Get-Content (Join-Path $tmp ../../package.json) | ConvertFrom-Json).version -replace '(\d+\.\d+)(\.\d+\-[^\.]+)?(\.0)?\.0$', '$1$2'
+
+    # Strip control characters that seem to be added by npm
+    $null = $ver -match '(\d+\.\d+(\.\d+)?(-[a-z]+)?(\.\d+)?)'
+    return $matches[1]
 }

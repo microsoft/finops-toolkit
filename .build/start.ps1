@@ -31,7 +31,7 @@ param
     $Prerelease,
 
     [Parameter()]
-    [ValidateSet('dev', 'alpha', 'preview')]
+    [ValidateSet($null, '', 'dev', 'alpha', 'preview')]
     [string]
     $Label
 )
