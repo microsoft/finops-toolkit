@@ -161,6 +161,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "lkshck",
+      "name": "lkshck",
+      "avatar_url": "https://avatars.githubusercontent.com/u/46962619?v=4",
+      "profile": "https://github.com/lkshck",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "commitType": "docs",

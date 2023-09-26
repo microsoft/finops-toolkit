@@ -100,6 +100,7 @@ All the main changes are tracked in the changelog. For additional details, refer
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/didayal-msft"><img src="https://avatars.githubusercontent.com/u/81250915?v=4?s=100" width="100px;" alt="Divyadeep Dayal"/><br /><sub><b>Divyadeep Dayal</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=didayal-msft" title="Code">💻</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/BenShy"><img src="https://avatars.githubusercontent.com/u/18198475?v=4?s=100" width="100px;" alt="Ben Shy"/><br /><sub><b>Ben Shy</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3ABenShy" title="Reviewed Pull Requests">👀</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/AdamAndersson"><img src="https://avatars.githubusercontent.com/u/31773202?v=4?s=100" width="100px;" alt="Adam Andersson"/><br /><sub><b>Adam Andersson</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3AAdamAndersson" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/lkshck"><img src="https://avatars.githubusercontent.com/u/46962619?v=4?s=100" width="100px;" alt="lkshck"/><br /><sub><b>lkshck</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Alkshck" title="Bug reports">🐛</a></td>
     </tr>
   </tbody>
 </table>
