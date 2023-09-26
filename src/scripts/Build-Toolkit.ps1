@@ -31,7 +31,7 @@ $outDir = "../../release"
 
 # Update version
 Write-Host ''
-$ver = Invoke-Task Version -Major:$Major -Minor:$Minor -Patch:$Patch -Prerelease:$Prerelease -Label dev
+$ver = ./Invoke-Task Version -Major:$Major -Minor:$Minor -Patch:$Patch -Prerelease:$Prerelease -Label dev
 if ($Major -or $Minor -or $Patch -or $Prerelease) {
     Write-Host "Updated version to $ver"
 } else {
