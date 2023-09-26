@@ -23,6 +23,8 @@ configuration:
           - not:
               targetsBranch:
                 branch: main
+          - isActivitySender:
+              issueAuthor: false
           - not:
               or:
                 - isActivitySender:
