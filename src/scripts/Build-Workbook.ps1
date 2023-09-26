@@ -15,7 +15,7 @@
     Optional. Renders main module and test bicep code to the console instead of generating files. Line numbers map to original file.
 #>
 Param (
-    [Parameter(Position = 0)][string] $Workbook
+  [Parameter(Position = 0)][string] $Workbook
 )
 
 # Use the debug flag from common parameters to determine whether to run in debug mode
@@ -26,18 +26,18 @@ $workbookDir = Join-Path .. workbooks $Workbook
 
 # Worbkooks' templates placeholders
 $placeholders = @(
-    [PSCustomObject]@{
-        optimization = @{
-            "Compute"    = "computeGroupPlaceholder"
-            "Storage"    = "storageGroupPlaceholder"
-            "Networking" = "networkingGroupPlaceholder"
-            "AHUB"       = "AHUBGroupPlaceholder"
-        }
+  [PSCustomObject]@{
+    optimization = @{
+      "Compute"    = "computeGroupPlaceholder"
+      "Storage"    = "storageGroupPlaceholder"
+      "Networking" = "networkingGroupPlaceholder"
+      "AHB"       = "AHBGroupPlaceholder"
     }
+  }
 )
 
 if (-not (Test-Path $workbookDir)) {
-    return
+  return
 }
 
 # Check if the workbook is using templates
@@ -47,21 +47,21 @@ if (Test-Path -Path $workbookDir -PathType Container) {
 
   # Check if any templates were found
   if ($templates) {
-      $workbookTemplate = Join-Path $workbookDir "workbook_template.json"
-      $newTemplate = "$workbookDir\workbook.json"
-      ## Create a new template
-      Copy-Item $workbookTemplate $newTemplate -Force
+    $workbookTemplate = Join-Path $workbookDir "workbook_template.json"
+    $newTemplate = "$workbookDir\workbook.json"
+    ## Create a new template
+    Copy-Item $workbookTemplate $newTemplate -Force
 
-      ## Get contents of each sub-template
-      foreach ($template in $templates) {
-          $templateName = $template.Name
-          $tempTemplate = Get-Content "$workbookDir/$templateName/CostWorkbook$templateName.workbook" -Raw
-          $templateJson = $tempTemplate | ConvertFrom-Json
-          $templateObjects = ($templateJson.items.content).items
-          $replacedTemplate = $placeholders.$workbook[$templateName]
-          $newWorbook = get-content $newTemplate
-          $newWorbook -replace $replacedTemplate, ($templateObjects[2..$templateObjects.Count] | ConvertTo-Json -Depth 20) | Set-Content $newTemplate
-      }
+    ## Get contents of each sub-template
+    foreach ($template in $templates) {
+      $templateName = $template.Name
+      $tempTemplate = Get-Content "$workbookDir/$templateName/$templateName.workbook" -Raw
+      $templateJson = $tempTemplate | ConvertFrom-Json
+      $templateObjects = ($templateJson.items.content).items
+      $replacedTemplate = $placeholders.$workbook[$templateName]
+      $newWorbook = get-content $newTemplate
+      $newWorbook -replace $replacedTemplate, ($templateObjects[2..$templateObjects.Count] | ConvertTo-Json -Depth 20) | Set-Content $newTemplate
+    }
   }
 }
 
@@ -83,36 +83,38 @@ $scaffoldMetadata['metadata.json'] | Add-Member itemDisplayName "$($scaffoldMeta
 # Update template files from scaffold config
 $scaffoldMetadata.PSObject.Properties `
 | ForEach-Object {
-    $file = $_.Name
-    $path = Join-Path $outDir $file
-    $text = Get-Content $path
-    if ($file.EndsWith('.json')) {
-        $json = $text | ConvertFrom-Json;
+  $file = $_.Name
+  $path = Join-Path $outDir $file
+  $text = Get-Content $path
+  if ($file.EndsWith('.json')) {
+    $json = $text | ConvertFrom-Json;
+  }
+  $_.Value.PSObject.Properties `
+  | ForEach-Object {
+    $var = $_.Name
+    $value = $_.Value
+    if ($file.EndsWith('.bicep')) {
+      $text = $text -replace "^(param $var string|var $var)( = .*)?$", "`$1 = '$value'"
+    } elseif ($file.EndsWith('.json')) {
+      $json | Add-Member -MemberType NoteProperty -Name $var -Value $value -Force
     }
-    $_.Value.PSObject.Properties `
-    | ForEach-Object {
-        $var = $_.Name
-        $value = $_.Value
-        if ($file.EndsWith('.bicep')) {
-            $text = $text -replace "^(param $var string|var $var)( = .*)?$", "`$1 = '$value'"
-        } elseif ($file.EndsWith('.json')) {
-            $json | Add-Member -MemberType NoteProperty -Name $var -Value $value -Force
-        }
-    }
+  }
 
-    if ($file.EndsWith('.json')) {
-        $json | ConvertTo-Json | Out-File $path
-    } else {
-        $text -join [Environment]::NewLine | Out-File $path
-    }
+  if ($file.EndsWith('.json')) {
+    $json | ConvertTo-Json | Out-File $path
+  } else {
+    $text -join [Environment]::NewLine | Out-File $path
+  }
 
-    if ($Debug) {
-        Write-Host ""
-        Write-Host "  $file"
-        Write-Host "  $($file -replace ".","=")"
-        Write-Host ((Get-Content $path) -join [Environment]::NewLine)
-    }
+  if ($Debug) {
+    Write-Host ""
+    Write-Host "  $file"
+    Write-Host "  $($file -replace ".","=")"
+    Write-Host ((Get-Content $path) -join [Environment]::NewLine)
+  }
 }
 
 # Delete workook.json file
-Remove-Item $workbookDir/workbook.json -Force
+if ($templates){
+  Remove-Item $workbookDir/workbook.json -Force
+}
