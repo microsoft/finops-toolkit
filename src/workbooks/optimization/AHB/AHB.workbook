@@ -2269,7 +2269,7 @@
                                 }
                               },
                               "customWidth": "33",
-                              "name": "Summary SQLDB+SKU AHB Enabled - per VM"
+                              "name": "Summary SQL Database +sku AHB enabled - per vm"
                             },
                             {
                               "type": 3,
