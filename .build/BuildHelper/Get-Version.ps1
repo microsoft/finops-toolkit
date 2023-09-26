@@ -5,16 +5,21 @@
     .SYNOPSIS
     Gets the current version.
 
+    .DESCRIPTION
+    The Get-Version command gets the current version from NPM (stored in package.json).
+
+    After getting the version from NPM, we also do the following to clean up the value:
+    1. Remove quotes
+    2. Strip control characters
+    3. Remove trailing 0s (keep major/minor/label)
+
     .EXAMPLE
     ./Get-Version
 
     Gets the current version number.
 #>
 function Get-Version {
-    # Remove trailing 0s from version (keep first 2 + prerelease name)
-    $ver = (Get-Content (Join-Path $tmp ../../package.json) | ConvertFrom-Json).version -replace '(\d+\.\d+)(\.\d+\-[^\.]+)?(\.0)?\.0$', '$1$2'
-
-    # Strip control characters that seem to be added by npm
-    $null = $ver -match '(\d+\.\d+(\.\d+)?(-[a-z]+)?(\.\d+)?)'
-    return $matches[1]
+    return (Get-Content (Join-Path $tmp ../../package.json) | ConvertFrom-Json).version `
+        -replace '^[^\d]*((\d+\.\d+)(\.\d+)?(-[a-z]+)?(\.\d+)?)[^\d]*$', '$1' `
+        -replace '(\.0)?(-[a-z]+)?(\.0)?$', ''
 }
