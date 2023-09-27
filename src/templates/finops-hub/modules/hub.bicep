@@ -21,6 +21,9 @@ param storageSku string = 'Premium_LRS'
 @description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
 param tags object = {}
 
+@description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
+param tagsByResource object = {}
+
 @description('Optional. List of scope IDs to create exports for.')
 param exportScopes array
 
@@ -90,6 +93,7 @@ module storage 'storage.bicep' = {
     sku: storageSku
     location: location
     tags: resourceTags
+    tagsByResource: tagsByResource
     exportScopes: exportScopes
   }
 }
@@ -101,7 +105,7 @@ module storage 'storage.bicep' = {
 resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
   name: dataFactoryName
   location: location
-  tags: resourceTags
+  tags: union(resourceTags, contains(tagsByResource, 'Microsoft.DataFactory/factories') ? tagsByResource['Microsoft.DataFactory/factories'] : {})
   identity: { type: 'SystemAssigned' }
   properties: union(
     // Using union() to hide the error that gets surfaced because globalConfigurations is not in the ADF schema yet.
@@ -124,6 +128,7 @@ module dataFactoryResources 'dataFactory.bicep' = {
     ingestionContainerName: storage.outputs.ingestionContainer
     location: location
     tags: resourceTags
+    tagsByResource: tagsByResource
   }
 }
 
@@ -138,6 +143,7 @@ module keyVault 'keyVault.bicep' = {
     uniqueSuffix: uniqueSuffix
     location: location
     tags: resourceTags
+    tagsByResource: tagsByResource
     storageAccountName: storage.outputs.name
     accessPolicies: [
       {
