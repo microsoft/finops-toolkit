@@ -43,7 +43,7 @@ if (-not (Get-Module -Name 'PsDepend' -ListAvailable)) {
     }
 
     try {
-        Install-Module -Name 'PsDepend' -Force -AllowClobber -ErrorAction 'Stop'
+        Install-Module -Name 'PsDepend' -Force -AllowClobber -Scope CurrentUser -ErrorAction 'Stop'
     } catch {
         throw $_
     }
