@@ -54,7 +54,7 @@ function Get-Version {
         $label = if (-not $Label) { "dev" } else { $Label.ToLower() -replace '[^a-z]', '' }
         $ver = npm --no-git-tag-version --preid $Label version prerelease
     } else {
-        $ver = (npm pkg get version).Trim('"')
+        $ver = (Get-Content (Join-Path $tmp ../../package.json) | ConvertFrom-Json).version
     }
 
     # Remove trailing 0s from version (keep first 2 + prerelease name)
