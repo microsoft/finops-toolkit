@@ -197,6 +197,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "soumyananda",
+      "name": "soumyananda",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7952916?v=4",
+      "profile": "https://github.com/soumyananda",
+      "contributions": [
+        "review"
+      ]
     }
   ],
   "commitType": "docs",

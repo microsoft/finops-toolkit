@@ -62,6 +62,7 @@ There are many ways to participate. From reporting bugs and requesting features 
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/ijurica"><img src="https://avatars.githubusercontent.com/u/130588473?v=4?s=100" width="100px;" alt="Irena Jurica"/><br /><sub><b>Irena Jurica</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3Aijurica" title="Reviewed Pull Requests">👀</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/renanalmeidjr"><img src="https://avatars.githubusercontent.com/u/41745296?v=4?s=100" width="100px;" alt="renanalmeidjr"/><br /><sub><b>renanalmeidjr</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Arenanalmeidjr" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/soumyananda"><img src="https://avatars.githubusercontent.com/u/7952916?v=4?s=100" width="100px;" alt="soumyananda"/><br /><sub><b>soumyananda</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3Asoumyananda" title="Reviewed Pull Requests">👀</a></td>
     </tr>
   </tbody>
 </table>
