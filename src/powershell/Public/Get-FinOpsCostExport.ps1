@@ -52,6 +52,9 @@
     Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageContainer "mtd*" -ApiVersion "2023-08-01"
 
     Gets all exports within the subscription scope for a container matching wildcard pattern and using a specific API version.
+
+    .LINK
+    https://aka.ms/ftk/Get-FinOpsCostExport
 #>
 function Get-FinOpsCostExport
 {
