@@ -19,24 +19,24 @@ Fixes # <!-- TODO: Add related issues (e.g., Fixes #123, #246, #369) -->
 
 ### 🔬 How did you test this change?
 
-- [ ] 🤞 PS -WhatIf / az validate
-- [ ] 👍 Manually deployed + verified
-- [ ] 💪 Unit tests
+> - [ ] 🤞 PS -WhatIf / az validate
+> - [ ] 👍 Manually deployed + verified
+> - [ ] 💪 Unit tests
 
 ### 🙋‍♀️ Do any of the following that apply?
 
-- [ ] 🚨 This is a breaking change.
-- [ ] 🤏 The change is less than 20 lines of code.
+> - [ ] 🚨 This is a breaking change.
+> - [ ] 🤏 The change is less than 20 lines of code.
 
 ### 📑 Did you update `docs/changelog.md`?
 
-- [ ] ✅ Yes (required for `dev` PRs)
-- [ ] ➡️ Will cover in a future PR (feature branch PRs only)
-- [ ] ❎ Not needed (small/internal change)
+> - [ ] ✅ Yes (required for `dev` PRs)
+> - [ ] ➡️ Will cover in a future PR (feature branch PRs only)
+> - [ ] ❎ Not needed (small/internal change)
 
 ### 📖 Did you update documentation?
 
-- [ ] ✅ Public docs in `docs` (required for `dev`)
-- [ ] ✅ Internal dev docs in `src` (required for `dev`)
-- [ ] ➡️ Will cover in a future PR (feature branch PRs only)
-- [ ] ❎ Not needed (small/internal change)
+> - [ ] ✅ Public docs in `docs` (required for `dev`)
+> - [ ] ✅ Internal dev docs in `src` (required for `dev`)
+> - [ ] ➡️ Will cover in a future PR (feature branch PRs only)
+> - [ ] ❎ Not needed (small/internal change)
