@@ -1,6 +1,6 @@
 # 🧰 FinOps toolkit
 
-<sup>**Quick links:**</sup> &nbsp; [![Read the docs](https://img.shields.io/badge/-Read_the_docs_›-090)](./docs/README.md) &nbsp; [![How to contribute](https://img.shields.io/badge/-How_to_contribute_›-609)](./CONTRIBUTING.md)
+<sup>**Quick links:**</sup> &nbsp; [![Read the docs](https://img.shields.io/badge/-Read_the_docs_›-090)](https://aka.ms/finops/toolkit) &nbsp; [![How to contribute](https://img.shields.io/badge/-How_to_contribute_›-609)](./CONTRIBUTING.md)
 
 The FinOps toolkit is a collection of customizable ARM templates used to build and deploy various FinOps solutions that automate and extend native Microsoft Cost Management capabilities. The toolkit aims to include:
 
@@ -20,13 +20,49 @@ FinOps hubs are **virtual command centers** for leaders throughout the organizat
 
 ## 📗 Get started
 
-Looking to learn more about FinOps toolkit and how to get started? See [FinOps toolkit documentation ➡️](./docs/README.md)
+Looking to learn more about FinOps toolkit and how to get started? See [FinOps toolkit documentation ➡️](https://aka.ms/finops/toolkit)
 
 <br>
 
 ## 👩‍💻 Contributing
 
 There are many ways to participate. From reporting bugs and requesting features to reviewing or even making code changes. See the [contribution guide ➡️](./CONTRIBUTING.md)
+
+<br>
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="http://about.me/flanakin"><img src="https://avatars.githubusercontent.com/u/399533?v=4?s=100" width="100px;" alt="Michael Flanakin"/><br /><sub><b>Michael Flanakin</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=flanakin" title="Code">💻</a> <a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3Aflanakin" title="Reviewed Pull Requests">👀</a> <a href="https://github.com/microsoft/finops-toolkit/commits?author=flanakin" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/aromano2"><img src="https://avatars.githubusercontent.com/u/26576969?v=4?s=100" width="100px;" alt="Anthony Romano"/><br /><sub><b>Anthony Romano</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=aromano2" title="Code">💻</a> <a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3Aaromano2" title="Reviewed Pull Requests">👀</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/MSBrett"><img src="https://avatars.githubusercontent.com/u/24294904?v=4?s=100" width="100px;" alt="Brett Wilson"/><br /><sub><b>Brett Wilson</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=MSBrett" title="Code">💻</a> <a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3AMSBrett" title="Reviewed Pull Requests">👀</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/tsilvers-ms"><img src="https://avatars.githubusercontent.com/u/92124324?v=4?s=100" width="100px;" alt="Travis Silvers"/><br /><sub><b>Travis Silvers</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3Atsilvers-ms" title="Reviewed Pull Requests">👀</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/ankur-ms"><img src="https://avatars.githubusercontent.com/u/118343862?v=4?s=100" width="100px;" alt="Ankur Sharma"/><br /><sub><b>Ankur Sharma</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3Aankur-ms" title="Reviewed Pull Requests">👀</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/sri-"><img src="https://avatars.githubusercontent.com/u/4493254?v=4?s=100" width="100px;" alt="srilatha inavolu"/><br /><sub><b>srilatha inavolu</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3Asri-" title="Reviewed Pull Requests">👀</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/arthurclares"><img src="https://avatars.githubusercontent.com/u/53261392?v=4?s=100" width="100px;" alt="Arthur Clares"/><br /><sub><b>Arthur Clares</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=arthurclares" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://www.seifbassem.com/"><img src="https://avatars.githubusercontent.com/u/38246040?v=4?s=100" width="100px;" alt="Seif Bassem"/><br /><sub><b>Seif Bassem</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=sebassem" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/sreenav"><img src="https://avatars.githubusercontent.com/u/57934984?v=4?s=100" width="100px;" alt="SREENADHA REDDY VANKIREDDY"/><br /><sub><b>SREENADHA REDDY VANKIREDDY</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3Asreenav" title="Reviewed Pull Requests">👀</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://aka.ms/helderpinto"><img src="https://avatars.githubusercontent.com/u/10661605?v=4?s=100" width="100px;" alt="Hélder Pinto"/><br /><sub><b>Hélder Pinto</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=helderpinto" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/nteyan"><img src="https://avatars.githubusercontent.com/u/8894656?v=4?s=100" width="100px;" alt="Nicolas Teyan"/><br /><sub><b>Nicolas Teyan</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=nteyan" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Springstone"><img src="https://avatars.githubusercontent.com/u/2101287?v=4?s=100" width="100px;" alt="Sacha Narinx"/><br /><sub><b>Sacha Narinx</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=Springstone" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/saadmsft"><img src="https://avatars.githubusercontent.com/u/66096650?v=4?s=100" width="100px;" alt="Saad Mahmood"/><br /><sub><b>Saad Mahmood</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=saadmsft" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/didayal-msft"><img src="https://avatars.githubusercontent.com/u/81250915?v=4?s=100" width="100px;" alt="Divyadeep Dayal"/><br /><sub><b>Divyadeep Dayal</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=didayal-msft" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/BenShy"><img src="https://avatars.githubusercontent.com/u/18198475?v=4?s=100" width="100px;" alt="Ben Shy"/><br /><sub><b>Ben Shy</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3ABenShy" title="Reviewed Pull Requests">👀</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 
 <br>
 
