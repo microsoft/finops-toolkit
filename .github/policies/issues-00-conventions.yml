@@ -64,7 +64,7 @@ configuration:
                       isRegex: true
             then:
               - addLabel:
-                  label: 'Area: Open data'
+                  label: 'Solution: Open data'
           # powershell
           - if:
               - or:
