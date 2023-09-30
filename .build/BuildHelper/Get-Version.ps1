@@ -19,7 +19,7 @@
     Gets the current version number.
 #>
 function Get-Version {
-    return (Get-Content (Join-Path $tmp ../../package.json) | ConvertFrom-Json).version `
+    return (Get-Content (Join-Path $PSScriptRoot ../../package.json) | ConvertFrom-Json).version `
         -replace '^[^\d]*((\d+\.\d+)(\.\d+)?(-[a-z]+)?(\.\d+)?)[^\d]*$', '$1' `
         -replace '(\.0)?(-[a-z]+)?(\.0)?$', ''
 }
