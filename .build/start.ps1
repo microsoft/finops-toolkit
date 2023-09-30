@@ -33,7 +33,11 @@ param
     [Parameter()]
     [ValidateSet($null, '', 'dev', 'alpha', 'preview')]
     [string]
-    $Label
+    $Label,
+
+    [Parameter()]
+    [string]
+    $Version
 )
 
 if (-not (Get-Module -Name 'PsDepend' -ListAvailable)) {
@@ -54,4 +58,4 @@ $dependencyPath = Get-ChildItem -Path $PSScriptRoot -Filter '*.depends.psd1'
 Invoke-PSDepend -Path $dependencyPath.FullName -Install -Import -Force
 
 $buildPath
-Invoke-Build -Task $Task -File $buildPath -TaskParams $PSBoundParameters
+Invoke-Build -Task $Task -File $buildPath -TaskParams $PSBoundParameters -Verbose:$VerbosePreference

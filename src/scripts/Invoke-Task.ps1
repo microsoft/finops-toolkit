@@ -48,6 +48,9 @@ param (
     [string]
     $Label,
 
+    [string]
+    $Version,
+
     [switch]
     $Reset
 )

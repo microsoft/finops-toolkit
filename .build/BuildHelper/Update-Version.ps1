@@ -54,13 +54,27 @@ function Update-Version {
         [AllowNull()]
         [ValidateSet($null, '', 'dev', 'alpha', 'preview')]
         [string]
-        $Label = 'dev'
+        $Label = 'dev',
+
+        [string]
+        $Version
     )
     
-    $update = if ($Major) { "major" } elseif ($Minor) { "minor" } elseif ($Patch) { "patch" } elseif ($Prerelease) { "prerelease" }
-    $label = if (-not $Label) { "dev" } else { $Label.ToLower() -replace '[^a-z]', '' }
+    $update = if ($Major) { "major" } elseif ($Minor) { "minor" } elseif ($Patch) { "patch" } elseif ($Prerelease) { "prerelease" } 
     if ($update) {
-        $null = npm --no-git-tag-version --preid $Label version $update
+        Write-Verbose "Updating $update version."
+    } elseif ($Version) {
+        $update = $Version
+        Write-Verbose "Updating to version $update."
     }
-    return Get-Version
+    
+    $newLabel = if (-not $Label) { "dev" } else { $Label.ToLower() -replace '[^a-z]', '' }
+    if ($update -eq "prerelease") {
+        Write-Verbose "Using label '$newLabel'."
+    }
+    
+    $null = npm --no-git-tag-version --preid $newLabel version $update
+    $ver = Get-Version
+    Write-Verbose "Updated to version $ver."
+    return $ver
 }

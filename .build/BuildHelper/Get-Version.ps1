@@ -21,5 +21,6 @@
 function Get-Version {
     return (Get-Content (Join-Path $PSScriptRoot ../../package.json) | ConvertFrom-Json).version `
         -replace '^[^\d]*((\d+\.\d+)(\.\d+)?(-[a-z]+)?(\.\d+)?)[^\d]*$', '$1' `
-        -replace '(\.0)?(-[a-z]+)?(\.0)?$', ''
+        -replace '^(\d+\.\d+)(\.\d+)?(-[a-z]+)?(\.0)?$', '$1$2$3' `
+        -replace '^(\d+\.\d+)(\.0)?(-[a-z]+)?(\.\d+)?$', '$1$3$4'
 }
