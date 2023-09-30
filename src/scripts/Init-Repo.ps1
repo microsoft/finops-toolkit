@@ -31,9 +31,9 @@
 #>
 [CmdletBinding(SupportsShouldProcess)]
 Param(
-    [switch] $VSCode
-    [switch] $BicepPowerShell
-    [switch] $NPM
+    [switch] $VSCode,
+    [switch] $BicepPowerShell,
+    [switch] $NPM,
     [switch] $All
 )
 
@@ -62,7 +62,7 @@ if ($VSCode -or $All) {
 
 # Az -- required for testing
 Write-Verbose "Checking for Az PowerShell..."
-if (Get-Module Az) {
+if (Get-Module -Name Az -ListAvailable) {
     Write-Verbose "...installed"
 } else {
     Write-Verbose "...not installed"
@@ -75,7 +75,7 @@ if (Get-Module Az) {
 # Bicep PowerShell
 if ($BicepPowerShell -or $All) {
     Write-Verbose "Checking for Bicep PowerShell..."
-    if (Get-Module Bicep) {
+    if (Get-Module -Name Bicep -ListAvailable) {
         Write-Verbose "...installed"
     } else {
         Write-Verbose "...not installed"
