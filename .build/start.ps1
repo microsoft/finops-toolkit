@@ -6,38 +6,49 @@
 param
 (
     [Parameter(Mandatory = $true)]
-    [ValidateSet('PreRequisites', 'Build.PsModule', 'Publish.PsModule', 'Test.PowerShell.Unit', 'Test.PowerShell.Lint', 'Test.PowerShell.All')]
+    [ValidateSet('PreRequisites', 'Build.PsModule', 'Publish.PsModule', 'Test.PowerShell.Unit', 'Test.PowerShell.Lint', 'Test.PowerShell.All', 'Version')]
     [string[]]
     $Task,
 
     [Parameter()]
     [string]
-    $Version,
+    $ApiKey,
+    
+    [Parameter()]
+    [switch]
+    $Major,
 
     [Parameter()]
-    [ValidateSet('alpha', 'preview')]
+    [switch]
+    $Minor,
+
+    [Parameter()]
+    [switch]
+    $Patch,
+
+    [Parameter()]
+    [switch]
+    $Prerelease,
+
+    [Parameter()]
+    [ValidateSet($null, '', 'dev', 'alpha', 'preview')]
     [string]
-    $PrereleaseTag,
+    $Label,
 
     [Parameter()]
     [string]
-    $ApiKey
+    $Version
 )
 
-if (-not (Get-Module -Name 'PsDepend' -ListAvailable))
-{
+if (-not (Get-Module -Name 'PsDepend' -ListAvailable)) {
     $repository = Get-PSRepository -Name 'PSGallery'
-    if ($repository.InstallationPolicy -ne 'Trusted')
-    {
+    if ($repository.InstallationPolicy -ne 'Trusted') {
         Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
     }
 
-    try
-    {
-        Install-Module -Name 'PsDepend' -Force -AllowClobber -ErrorAction 'Stop'
-    }
-    catch
-    {
+    try {
+        Install-Module -Name 'PsDepend' -Force -AllowClobber -Scope CurrentUser -ErrorAction 'Stop'
+    } catch {
         throw $_
     }
 }
@@ -47,4 +58,4 @@ $dependencyPath = Get-ChildItem -Path $PSScriptRoot -Filter '*.depends.psd1'
 Invoke-PSDepend -Path $dependencyPath.FullName -Install -Import -Force
 
 $buildPath
-Invoke-Build -File $buildPath @PSBoundParameters
+Invoke-Build -Task $Task -File $buildPath -TaskParams $PSBoundParameters -Verbose:$VerbosePreference
