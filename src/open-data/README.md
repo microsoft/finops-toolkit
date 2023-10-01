@@ -22,59 +22,80 @@ Use the following query to update the data:
 
 ```kql
 let unabbrev = (regex: string, uom: string) { tolong(replace_string(replace_string(replace_string(replace_string(extract(regex, 1, uom), 'K', '000'), 'M', '000000'), 'B', '000000000'), 'T', '000000000000')) };
-cluster('<aci-prod>').database('ACI').vwMeterAll
+Meters
 | where Provider != 'AWS'
+| where IsMicrosoftInternalUseOnly != 'true'
+| where ProductOwnershipSellingMotion != 'Marketplace'
 | where isnotempty(UnitOfMeasure)
-| summarize MeterCount = count()
-    // DEBUG: , make_set(MeterName)
-    by
-    // DEBUG: Provider,
-    UnitOfMeasure
+| where UnitOfMeasure !contains 'contact us'
+| summarize EA = countif(AccountType == 'EA'), MCA = countif(AccountType == 'MCA')
+    // DEBUG:
+    , meters = make_set(MeterName) // MeterType
+    by UnitOfMeasure
+    // DEBUG: , Provider
     // DEBUG: , strlen(UnitOfMeasure)
+| summarize by UnitOfMeasure, AccountTypes = case(EA > 0 and MCA > 0, 'MCA, EA', EA > 0, 'EA', MCA > 0, 'MCA', 'Neither')
+    // DEBUG: , meters
 //
 // Parse number-only values
 | extend UsageToPricingRate = unabbrev(@'^(\d+[KMBT]?)$', replace_string(UnitOfMeasure, ' ', ''))
-| extend DistinctUnits = iff(isnotempty(UsageToPricingRate), 'Count', '')
+| extend DistinctUnits = iff(isnotempty(UsageToPricingRate), 'Units', '')
 //
 // Parse all other numbers
-| extend UsageToPricingRate = iff(isnotempty(UsageToPricingRate), UsageToPricingRate, unabbrev(@'^ *(\d+[KMBT]?)[ /]', toupper(UnitOfMeasure)))
+| extend UsageToPricingRate = iff(isempty(UsageToPricingRate), unabbrev(@'^ *(\d+[KMBT]?)[ /]', toupper(UnitOfMeasure)), UsageToPricingRate)
 //
 // If no number, assume 1
-| extend UsageToPricingRate = iff(isnotempty(UsageToPricingRate), UsageToPricingRate, 1)
+| extend UsageToPricingRate = iff(isempty(UsageToPricingRate), 1, UsageToPricingRate)
 //
 // Parse unit after number
-| extend DistinctUnits = iff(isnotempty(DistinctUnits), DistinctUnits, replace_regex(extract(@'^ *\d+[KMBT]? *(.*) *$', 1, UnitOfMeasure), @'^/', 'Count/'))
+| extend DistinctUnits = iff(isempty(DistinctUnits), replace_regex(extract(@'^ *\d+[KMBT]? *(.*) *$', 1, UnitOfMeasure), @'^/', 'Units/'), DistinctUnits)
 //
 // Parse unit when no number
-| extend DistinctUnits = iff(isnotempty(DistinctUnits), DistinctUnits, extract(@'^ *([^\d]+) *$', 1, UnitOfMeasure))
+| extend DistinctUnits = iff(isempty(DistinctUnits), extract(@'^ *([^\d]+) *$', 1, UnitOfMeasure), DistinctUnits)
 //
-// Cleanup...
-| extend DistinctUnits = iff(DistinctUnits matches regex '^[a-z]', strcat(toupper(substring(DistinctUnits, 0, 1)), substring(DistinctUnits, 1)), DistinctUnits)
-| extend DistinctUnits = replace_regex(DistinctUnits, @'( )?Hr(s )?', @'\1Hour\2')
-| extend DistinctUnits = replace_regex(DistinctUnits, @'(App|Call|Certificate|Connection|Day|Device|Domain|Hour|Key|Machine|Meter|Minute|Month|Node|Pack|Pipeline|Plan|Resource|Second|Subscription|Unit|User|Website)(/.*)?$', @'\1s\2')
-| extend DistinctUnits = replace_regex(DistinctUnits, @'/(Second|Minute|Hour|Day|Month)s$', @'/\1')
+// Replace non-english words
+| extend DistinctUnits = replace_string(DistinctUnits, '小时', 'Hour')
+| extend DistinctUnits = replace_string(DistinctUnits, '月', 'Month')
+| extend DistinctUnits = replace_regex(DistinctUnits, @'[Hh]ora$', 'Hour')
+| extend DistinctUnits = replace_regex(DistinctUnits, @'( |/)mes$', @'\1Month')
+//
+// Fix abbreviations
+| extend DistinctUnits = replace_regex(DistinctUnits, @'( |/)?Hr(s )?', @'\1Hour\2')
+| extend DistinctUnits = replace_regex(DistinctUnits, @'^Gb( ?/ ?Month)?$', @'GB\1')
+//
+// Clean up units per period
+| extend DistinctUnits = replace_string(DistinctUnits, ' / ', '/')  // Don't space out the slash
+| extend DistinctUnits = replace_regex(DistinctUnits, @'(App|Border|Call|Certificate|Connection|Day|Device|Domain|Hour|Key|Machine|Meter|Minute|Month|Node|Pack|Pipeline|Plan|Request|Resource|Second|Subscription|Unit|User|Website|Zone)(/.*)?$', @'\1s\2') // Always plural before slash
+| extend DistinctUnits = replace_regex(DistinctUnits, @'/(Second|Minute|Hour|Day|Month)s$', @'/\1') // Always singular after slash
+//
+// More cleanup
 | extend DistinctUnits = case(
-    DistinctUnits startswith '1 ', substring(DistinctUnits, 2),
-    DistinctUnits startswith 'Annual ', strcat(replace_string(DistinctUnits, 'Annual ', ''), '/Year'),
-    DistinctUnits startswith 'Daily ', strcat(replace_string(DistinctUnits, 'Daily ', ''), '/Day'),
-    DistinctUnits startswith 'Hourly ', strcat(replace_string(DistinctUnits, 'Hourly ', ''), '/Hour'),
-    DistinctUnits startswith 'Per ', replace_regex(DistinctUnits, @'^Per ', ''),
-    DistinctUnits endswith '(s)', replace_regex(DistinctUnits, @'\(s\)$', 's'),
-    DistinctUnits endswith ' (DU)', replace_regex(DistinctUnits, @' \(DU\)$', ''),
-    DistinctUnits == 'Activity Runs', 'Runs',
-    DistinctUnits == 'API Calls', 'Requests',
-    DistinctUnits == 'CallingMinutes', 'Minutes',
-    DistinctUnits == 'Concurrent DVC', 'Configurations',
-    DistinctUnits matches regex @'^(Virtual User) Minutes$', 'Minutes',
-    DistinctUnits matches regex @'^(Content|Core|Instance|Relay) Hours$', 'Hours',
-    DistinctUnits matches regex @'^(MAUS|MAUs)$', 'Users/Month',
-    DistinctUnits matches regex @'^(Named) Users$', 'Users',
+    UnitOfMeasure == '10000s' and DistinctUnits == 'S', 'Transactions',
     DistinctUnits == '1,000s', 'Transactions in Thousands',
+    DistinctUnits in ('API Calls', 'Print job'), 'Requests',
+    DistinctUnits == 'Concurrent DVC', 'Configurations',
+    DistinctUnits == 'CallingMinutes', 'Minutes',
     DistinctUnits == 'Key Use', 'Keys',
     DistinctUnits == 'VM', 'Virtual Machines',
+    DistinctUnits == 'Unassigned', 'Units',
+    DistinctUnits in ('MAUS', 'MAUs'), 'Users/Month',
+    DistinctUnits matches regex @'^(Annual|Daily|Hourly) ', replace_regex(replace_regex(replace_regex(replace_regex(DistinctUnits, @'^(Annual|Daily|Hourly) (.*)$', @'\2/\1'), @'/Annual$', '/Year'), @'/Daily$', '/Day'), @'/Hourly$', '/Hour'),
     DistinctUnits)
+//
+// Prefix cleanup
+| extend DistinctUnits = replace_regex(DistinctUnits, @'^1 ', '')  // Remove duplicate quantity
+| extend DistinctUnits = replace_regex(DistinctUnits, @'^[\s\pZ\pC]+', '')  // Remove leading spaces
+| extend DistinctUnits = iff(DistinctUnits matches regex '^[a-z]', strcat(toupper(substring(DistinctUnits, 0, 1)), substring(DistinctUnits, 1)), DistinctUnits)  // Capitalize first word
+| extend DistinctUnits = replace_regex(DistinctUnits, @'^(Per|Por) ', '')  // Remove starting "per"
+| extend DistinctUnits = replace_regex(DistinctUnits, @'^(Activity|Border|Content|Core|Database|Hosted|Instance|Messaging|Named|Operation|Privacy Subject Rights|Relay|Reserved|Service|Virtual User) ', '')  // Trim extra adjectives
+//
+// Suffix cleanup
+| extend DistinctUnits = replace_regex(DistinctUnits, @'[\s\pZ\pC]+$', '')  // Remove trailing spaces
+| extend DistinctUnits = replace_regex(DistinctUnits, @' \(DU\)$', '')
+| extend DistinctUnits = replace_regex(DistinctUnits, @'\(s\)$', 's')  // Always plural
+//
 | order by UnitOfMeasure asc
-// Output with quotes to avoid spaces being lost, then replace '"""' with '"'
+// Output with quotes to avoid spaces being lost --
 | extend UnitOfMeasure = strcat('"', UnitOfMeasure, '"')
 ```
 
