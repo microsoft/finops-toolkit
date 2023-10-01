@@ -28,14 +28,8 @@ Meters
 | where ProductOwnershipSellingMotion != 'Marketplace'
 | where isnotempty(UnitOfMeasure)
 | where UnitOfMeasure !contains 'contact us'
-| summarize EA = countif(AccountType == 'EA'), MCA = countif(AccountType == 'MCA')
-    // DEBUG:
-    , meters = make_set(MeterName) // MeterType
-    by UnitOfMeasure
-    // DEBUG: , Provider
-    // DEBUG: , strlen(UnitOfMeasure)
-| summarize by UnitOfMeasure, AccountTypes = case(EA > 0 and MCA > 0, 'MCA, EA', EA > 0, 'EA', MCA > 0, 'MCA', 'Neither')
-    // DEBUG: , meters
+| summarize AccountTypes = make_set(AccountType) by UnitOfMeasure
+| extend AccountTypes = replace_string(arraystring(AccountTypes), 'EA, MCA', 'MCA, EA')
 //
 // Parse number-only values
 | extend UsageToPricingRate = unabbrev(@'^(\d+[KMBT]?)$', replace_string(UnitOfMeasure, ' ', ''))
@@ -72,12 +66,12 @@ Meters
 | extend DistinctUnits = case(
     UnitOfMeasure == '10000s' and DistinctUnits == 'S', 'Transactions',
     DistinctUnits == '1,000s', 'Transactions in Thousands',
-    DistinctUnits in ('API Calls', 'Print job'), 'Requests',
+    DistinctUnits in ('API Calls', 'print job'), 'Requests',
     DistinctUnits == 'Concurrent DVC', 'Configurations',
     DistinctUnits == 'CallingMinutes', 'Minutes',
     DistinctUnits == 'Key Use', 'Keys',
-    DistinctUnits == 'VM', 'Virtual Machines',
     DistinctUnits == 'Unassigned', 'Units',
+    DistinctUnits == 'VM', 'Virtual Machines',
     DistinctUnits in ('MAUS', 'MAUs'), 'Users/Month',
     DistinctUnits matches regex @'^(Annual|Daily|Hourly) ', replace_regex(replace_regex(replace_regex(replace_regex(DistinctUnits, @'^(Annual|Daily|Hourly) (.*)$', @'\2/\1'), @'/Annual$', '/Year'), @'/Daily$', '/Day'), @'/Hourly$', '/Hour'),
     DistinctUnits)
