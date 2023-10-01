@@ -34,15 +34,26 @@ Microsoft Cost Management uses the `UnitOfMeasure` column to indicate how each c
 
 Sample data:
 
-| UnitOfMeasure      | MeterCount | UsageToPricingRate | DistinctUnits |
-| ------------------ | ---------- | ------------------ | ------------- |
-| `1 Hour`           | 116073     | 1                  | Hours         |
-| `10000 GB`         | 342        | 10000              | GB            |
-| `150 Hours`        | 4          | 150                | Hours         |
-| `200 /Hour`        | 4          | 200                | Units/Hour    |
-| `5 GB`             | 16         | 5                  | GB            |
-| `5000000 Requests` | 1          | 5000000            | Requests      |
-| `744 Connections`  | 26         | 744                | Connections   |
+| UnitOfMeasure      | AccountTypes | UsageToPricingRate | DistinctUnits |
+| ------------------ | ------------ | -----------------: | ------------- |
+| `1 Hour`           | MCA, EA      | 1                  | Hours         |
+| `10000 GB`         | EA           | 10000              | GB            |
+| `150 Hours`        | EA           | 150                | Hours         |
+| `200 /Hour`        | EA           | 200                | Units/Hour    |
+| `5 GB`             | MCA, EA      | 5                  | GB            |
+| `5000000 Requests` | EA           | 5000000            | Requests      |
+| `744 Connections`  | EA           | 744                | Connections   |
+
+A few important notes about the data:
+
+1. Meter names are not included to keep the file size down.
+2. The default unit type is "Units".
+3. Some default units may include a more specific unit in the meter name, which is not accounted here since meter names aren't included.
+4. Marketplace meters are not included due to inconsistencies that would impact data size.
+
+<blockquote class="note" markdown="1">
+   _`UnitOfMeasure` maps to `PricingUnit` in FOCUS 1.0._
+</blockquote>
 
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/PricingUnits.csv){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
