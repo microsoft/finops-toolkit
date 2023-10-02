@@ -3,19 +3,23 @@
 
 <#
     .SYNOPSIS
-        Builds all toolkit modules and templates for publishing to the Bicep Registry and Azure Quickstart Templates.
-    .DESCRIPTION
-        Run this from the /src/scripts folder.
+    Builds all toolkit modules and templates for publishing to the Bicep Registry and Azure Quickstart Templates.
+
     .PARAMETER Template
-        Optional. Name of the module or template to publish. Default = "*" (all templates and modules).
-    .EXAMPLE
-        ./Build-Toolkit
+    Optional. Name of the module or template to publish. Default = "*" (all templates and modules).
 
-        Builds all FinOps toolkit modules and templates.
     .EXAMPLE
-        ./Build-Toolkit -Template "finops-hub"
+    ./Build-Toolkit
 
-        Builds only the finops-hub template.
+    Builds all FinOps toolkit modules and templates.
+
+    .EXAMPLE
+    ./Build-Toolkit -Template "finops-hub"
+
+    Builds only the finops-hub template.
+
+    .LINK
+    https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md#-build-toolkit
 #>
 Param(
     [Parameter(Position = 0)][string]$Template = "*",
@@ -27,12 +31,12 @@ Param(
 )
 
 # Create output directory
-$outDir = "../../release"
-./New-Directory $outDir
+$outDir = "$PSScriptRoot/../../release"
+& "$PSScriptRoot/New-Directory" $outDir
 
 # Update version
 Write-Host ''
-$ver = ./Invoke-Task Version -Major:$Major -Minor:$Minor -Patch:$Patch -Prerelease:$Prerelease -Label $Label
+$ver = & "$PSScriptRoot/Invoke-Task" Version -Major:$Major -Minor:$Minor -Patch:$Patch -Prerelease:$Prerelease -Label $Label
 if ($Major -or $Minor -or $Patch -or $Prerelease) {
     Write-Host "Updated version to $ver"
 } else {
@@ -41,7 +45,7 @@ if ($Major -or $Minor -or $Patch -or $Prerelease) {
 Write-Host ''
 
 # Generate Bicep Registry modules
-Get-ChildItem "..\bicep-registry\$($Template -replace '(subscription|resourceGroup|managementGroup|tenant)-', '')*" -Directory -ErrorAction SilentlyContinue `
+Get-ChildItem "$PSScriptRoot/../bicep-registry/$($Template -replace '(subscription|resourceGroup|managementGroup|tenant)-', '')*" -Directory -ErrorAction SilentlyContinue `
 | Where-Object { $_.Name -ne '.scaffold' }
 | ForEach-Object {
     ./Build-Bicep $_.Name
@@ -63,12 +67,12 @@ function Build-MainBicepParameters($dir) {
 }
 
 # Generate workbook templates
-Get-ChildItem "..\workbooks\$($Template -replace '-workbook$','')*" -Directory `
+Get-ChildItem "$PSScriptRoot/../workbooks/$($Template -replace '-workbook$','')*" -Directory `
 | Where-Object { $_.Name -ne '.scaffold' }
 | ForEach-Object {
     $workbook = $_.Name
     Write-Host "Building workbook $workbook..."
-    ./Build-Workbook $workbook
+    & "$PSScriptRoot/Build-Workbook" $workbook
     Build-MainBicepParameters "$outdir/$workbook-workbook"
     $ver | Out-File "$outdir/$workbook-workbook/version.txt" -NoNewLine
     Write-Host ''
@@ -76,7 +80,7 @@ Get-ChildItem "..\workbooks\$($Template -replace '-workbook$','')*" -Directory `
 | ForEach-Object { Build-QuickstartTemplate $_ }
 
 # Package Azure Quickstart Template folders
-Get-ChildItem ..\templates\$Template* -Directory -ErrorAction SilentlyContinue `
+Get-ChildItem "$PSScriptRoot/../templates/$Template*" -Directory -ErrorAction SilentlyContinue `
 | ForEach-Object {
     $srcDir = $_
     $templateName = $srcDir.Name
@@ -86,7 +90,7 @@ Get-ChildItem ..\templates\$Template* -Directory -ErrorAction SilentlyContinue `
     # Create target directory
     $destDir = "$outdir/$templateName"
     Remove-Item $destDir -Recurse -ErrorAction SilentlyContinue
-    ./New-Directory $destDir
+    & "$PSScriptRoot/New-Directory" $destDir
     
     # Copy required files
     Write-Host "  Copying files..."
