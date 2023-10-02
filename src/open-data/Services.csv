@@ -4,8 +4,8 @@ Citrix.Services,citrix.services/xendesktopessentials,Citrix Virtual Desktop Esse
 GitHub.Enterprise,github.enterprise/accounts,GitHub Enterprise Cloud,Developer Tools,Microsoft,Cloud Provider
 GitHub,github/enterpriseaccount,GitHub Enterprise Cloud,Developer Tools,Microsoft,Cloud Provider
 Marketplace,marketplace/account,Azure Marketplace,Other,Microsoft,Cloud Provider
-MFA,mfa/perauthentication,Microsoft Entry ID,Identity,Microsoft,Cloud Provider
-MFA,mfa/peruser,Microsoft Entry ID,Identity,Microsoft,Cloud Provider
+MFA,mfa/perauthentication,Microsoft Entra ID,Identity,Microsoft,Cloud Provider
+MFA,mfa/peruser,Microsoft Entra ID,Identity,Microsoft,Cloud Provider
 Microsoft.AAD,microsoft.aad/domainservices,Azure Active Directory Domain Services,Identity,Microsoft,Cloud Provider
 Microsoft.AgFoodPlatform,microsoft.agfoodplatform/farmbeats,Azure Data Manager for Agriculture,Integration,Microsoft,Cloud Provider
 Microsoft.AnalysisServices,microsoft.analysisservices/servers,Azure Analysis Services,Analytics,Microsoft,Cloud Provider

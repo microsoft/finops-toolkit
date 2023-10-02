@@ -33,6 +33,7 @@ Added:
 2. Open data
    1. [PricingUnits](./open-data/README.md#-pricing-units) to map all pricing units (UnitOfMeasure values) to distinct units with a scaling factor.
    2. [Regions](./open-data/README.md#-regions) to map historical resource location values in Microsoft Cost Management to standard Azure regions.
+   3. [Services](./open-data/README.md#-services) to map all resource types to FOCUS service names and categories.
 
 <br>
 
