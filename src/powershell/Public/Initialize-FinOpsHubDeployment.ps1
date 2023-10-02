@@ -9,13 +9,16 @@
     Optional. Shows what would happen if the command runs without actually running it.
 
     .EXAMPLE
-    Initialize-FinOpsHubDeployment `
-    [-WhatIf]
+    Initialize-FinOpsHubDeployment -WhatIf
 
     Shows what would happen if the command runs without actually running it.
 
-    .Description
+    .DESCRIPTION
     The Initialize-FinOpsHubDeployment command performs any initialization tasks required for a resource group contributor to be able to deploy a FinOps hub instance in Azure, like registering resource providers. To view the full list of tasks performed, run the command with the -WhatIf option.
+
+    .LINK
+    https://aka.ms/ftk/Initialize-FinOpsHubDeployment
+
 #>
 
 
@@ -23,16 +26,15 @@ function Initialize-FinOpsHubDeployment {
     [CmdletBinding(SupportsShouldProcess)]
     param()
 
-    if ($PSCmdlet.ShouldProcess('Initialization Tasks for FinOpsHub')) {
+    if ($PSCmdlet.ShouldProcess('Required resource providers', 'Register')) {
         if ($WhatIf) {
-            Write-Output 'WhatIf:'+ $LocalizedData.FinOpsHubInitialization
+            Write-Verbose "Registering required resource providers for FinOps Hub deployment." 
         }
         else {
             # Register required resource providers
             Write-Output $LocalizedData.FinOpsHubInitialization
-            Register-FinOpsHubProviders
+            Register-FinOpsHubProviders -WhatIf:$WhatIfPreference
         }
 
-        # Other initialization tasks go here
     }
 }

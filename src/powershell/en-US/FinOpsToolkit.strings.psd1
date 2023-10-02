@@ -19,5 +19,4 @@ ConvertFrom-StringData -StringData @'
     DeleteFinOpsHub = FinOps hub could not be deleted. {0}.
     ErrorResponse = {0} (Code: {1}).
     FinOpsHubNotFound = FinOps hub '{0}' not found.
-    FinOpsHubInitialization = Initializing FinOps pre-deployment tasks.
 '@
