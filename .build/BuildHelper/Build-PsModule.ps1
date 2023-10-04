@@ -32,10 +32,6 @@ function Build-PsModule {
     # Create release directory
     New-Directory -Path $releasePath
 
-    # Get version
-    $version = Get-Version
-    $prereleaseTag = $version -replace '^[^-]+-([^\.]+).*$', '$1'
-
     $manifestProperties = @{
         ModuleVersion     = $version -replace "-$prereleaseTag", ''
         Path              = $manifestPath
