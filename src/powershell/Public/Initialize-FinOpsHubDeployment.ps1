@@ -5,9 +5,6 @@
     .SYNOPSIS
     Initialize a FinOps hub deployment in order to enable resource group owners to deployment hubs via the portal.
 
-    .PARAMETER WhatIf
-    Optional. Shows what would happen if the command runs without actually running it.
-
     .EXAMPLE
     Initialize-FinOpsHubDeployment -WhatIf
 
@@ -29,6 +26,6 @@ function Initialize-FinOpsHubDeployment {
     if ($PSCmdlet.ShouldProcess('Required resource providers', 'Register')) {
             # Register required resource providers
             Write-Verbose "Registering required resource providers for FinOps Hub deployment."
-            Register-FinOpsHubProviders -WhatIf:$WhatIfPreference -Verbose:$VerbosePreference
+            Register-FinOpsHubProviders 
         }
 }
