@@ -6,57 +6,21 @@
     Gets the current version.
 
     .DESCRIPTION
-    Run this from the /src/scripts folder.
+    The Get-Version command gets the current version from NPM (stored in package.json).
 
-    .PARAMETER Template
-    Optional. Name of the template or module to package. Default = * (all).
-
-    .PARAMETER Build
-    Optional. Indicates whether the Build-Toolkit command should be executed first. Default = false.
-
-    .EXAMPLE
-    ./Package-Toolkit
-
-    Generates ZIP files for each template using an existing build.
+    After getting the version from NPM, we also do the following to clean up the value:
+    1. Remove quotes
+    2. Strip control characters
+    3. Remove trailing 0s (keep major/minor/label)
 
     .EXAMPLE
-    ./Package-Toolkit -Build
+    ./Get-Version
 
-    Builds the latest code and generates ZIP files for each template.
+    Gets the current version number.
 #>
 function Get-Version {
-    param
-    (
-        [switch]
-        $Major,
-
-        [switch]
-        $Minor,
-
-        [switch]
-        $Patch,
-
-        [switch]
-        $Prerelease,
-    
-        [AllowEmptyString()]
-        [AllowNull()]
-        [ValidateSet($null, '', 'dev', 'alpha', 'preview')]
-        [string]
-        $Label = 'dev'
-    )
-    
-    $update = if ($Major) { "major" } elseif ($Minor) { "minor" } elseif ($Patch) { "patch" }
-    $ver = $null
-    if ($update) {
-        $ver = npm --no-git-tag-version version $update
-    } elseif ($Prerelease) {
-        $label = if (-not $Label) { "dev" } else { $Label.ToLower() -replace '[^a-z]', '' }
-        $ver = npm --no-git-tag-version --preid $Label version prerelease
-    } else {
-        $ver = (npm pkg get version).Trim('"')
-    }
-
-    # Remove trailing 0s from version (keep first 2 + prerelease name)
-    return $ver -replace '(\d+\.\d+)(\.\d+\-[^\.]+)?(\.0)?\.0$', '$1$2'
+    return (Get-Content (Join-Path $PSScriptRoot ../../package.json) | ConvertFrom-Json).version `
+        -replace '^[^\d]*((\d+\.\d+)(\.\d+)?(-[a-z]+)?(\.\d+)?)[^\d]*$', '$1' `
+        -replace '^(\d+\.\d+)(\.\d+)?(-[a-z]+)?(\.0)?$', '$1$2$3' `
+        -replace '^(\d+\.\d+)(\.0)?(-[a-z]+)?(\.\d+)?$', '$1$3$4'
 }

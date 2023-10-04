@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Deployment options
-nav_order: 5
+nav_order: 7
 description: 'Deploy FinOps toolkit solutions.'
 permalink: /deploy
 ---

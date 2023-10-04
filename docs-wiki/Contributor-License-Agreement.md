@@ -1,4 +1,4 @@
-# Contribution License Agreement (CLA)
+<!-- markdownlint-disable MD041 -->
 
 You must sign a [Contribution License Agreement (CLA)](https://cla.opensource.microsoft.com/) before your PR will be merged. This a one-time requirement for Microsoft projects on GitHub. You can read more about [Contribution License Agreements](https://en.wikipedia.org/wiki/Contributor_License_Agreement) on Wikipedia.
 

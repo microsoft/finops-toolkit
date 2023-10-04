@@ -28,7 +28,7 @@
     Executes the "Version" task.
 #>
 param (
-    [Parameter(Mandatory = $true, Position = 0)]
+    [Parameter(Position = 0)]
     [string]
     $Task,
 
@@ -44,9 +44,12 @@ param (
     [switch]
     $Prerelease,
 
-    [ValidateSet('dev', 'alpha', 'preview')]
+    [ValidateSet($null, '', 'dev', 'alpha', 'preview')]
     [string]
-    $Label = 'dev',
+    $Label,
+
+    [string]
+    $Version,
 
     [switch]
     $Reset

@@ -6,6 +6,10 @@ function Build-PsModule {
     param
     ()
 
+    # Get version
+    $version = Get-Version
+    $prereleaseTag = $version -replace '^[^-]+-([^\.]+).*$', '$1'
+
     $rootPath = (Get-Item -Path $PSScriptRoot).Parent.Parent.FullName
     $moduleName = 'FinOpsToolkit'
     $moduleFullName = "$moduleName.psm1"
@@ -13,7 +17,7 @@ function Build-PsModule {
     $privatePath = Join-Path -Path $rootPath -ChildPath "src/powershell/private"
     $publicPath = Join-Path -Path $rootPath -ChildPath "src/powershell/public"
     $stringsPath = Join-Path -Path $rootPath -ChildPath 'src/powershell/en-US'
-    $releasePath = Join-Path -Path $rootPath -ChildPath "release/$moduleName"
+    $releasePath = Join-Path -Path $rootPath -ChildPath "release/$moduleName/$version"
     $manifestPath = Join-Path -Path $releasePath -ChildPath "$moduleName.psd1"
 
     # Make sure we can import module properly. Capture exported functions.

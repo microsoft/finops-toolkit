@@ -22,7 +22,8 @@ Param(
     [switch]$Major,
     [switch]$Minor,
     [switch]$Patch,
-    [switch]$Prerelease
+    [switch]$Prerelease,
+    [string]$Label
 )
 
 # Create output directory
@@ -31,7 +32,7 @@ $outDir = "../../release"
 
 # Update version
 Write-Host ''
-$ver = Invoke-Task Version -Major:$Major -Minor:$Minor -Patch:$Patch -Prerelease:$Prerelease -Label dev
+$ver = ./Invoke-Task Version -Major:$Major -Minor:$Minor -Patch:$Patch -Prerelease:$Prerelease -Label $Label
 if ($Major -or $Minor -or $Patch -or $Prerelease) {
     Write-Host "Updated version to $ver"
 } else {
@@ -69,7 +70,7 @@ Get-ChildItem "..\workbooks\$($Template -replace '-workbook$','')*" -Directory `
     Write-Host "Building workbook $workbook..."
     ./Build-Workbook $workbook
     Build-MainBicepParameters "$outdir/$workbook-workbook"
-    $ver > "$outdir/$workbook-workbook/version.txt"
+    $ver | Out-File "$outdir/$workbook-workbook/version.txt" -NoNewLine
     Write-Host ''
 }
 | ForEach-Object { Build-QuickstartTemplate $_ }
@@ -103,7 +104,7 @@ Get-ChildItem ..\templates\$Template* -Directory -ErrorAction SilentlyContinue `
     Build-MainBicepParameters $destDir
    
     # Copy version file last to override placeholder
-    $ver > "$destDir/modules/version.txt"
+    $ver | Out-File "$destDir/modules/version.txt" -NoNewLine
 
     Write-Host ''
 }

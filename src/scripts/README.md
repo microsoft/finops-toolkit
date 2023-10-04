@@ -21,7 +21,41 @@ On this page:
 [Init-Repo.ps1](./Init-Repo.ps1) initializes your local dev environment with the following tools, which are required for development and testing:
 
 - Az PowerShell module
-- Bicep
+- Bicep CLI
+
+The following optional apps/modules can be installed with the corresponding parameters or with the `-All` parameter:
+
+- Visual Studio Code
+- Bicep PowerShell module
+- NodeJS and configured modules (-NPM parameter)
+
+If an app or module is already installed, it will be skipped. To see which apps would be installed, use the -WhatIf parameter.
+
+Examples:
+
+- Checks to see what apps/modules would be installed:
+
+  ```powershell
+  ./Init-Repo -All -WhatIf
+  ```
+
+- Installs only required apps/modules:
+
+  ```powershell
+  ./Init-Repo
+  ```
+
+- Installs all required and specific apps/modules:
+
+  ```powershell
+  ./Init-Repo -VSCode -NPM
+  ```
+
+- Installs all required and optional apps/modules:
+
+  ```powershell
+  ./Init-Repo -All
+  ```
 
 <br>
 
@@ -201,7 +235,8 @@ Examples:
   ./Merge-DevBranch features/foo -TortoiseGit
   ```
 
-- Merge the `dev` branch into main and all feature branches. Does not resolve conflicts.
+- Merge the `dev` branch into all feature branches. Does not resolve conflicts.
+
   ```powershell
   ./Merge-DevBranch *
   ```

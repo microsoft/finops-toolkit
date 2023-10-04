@@ -15,17 +15,26 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
+- [🔄️ Unreleased](#️-unreleased)
 - [🚀 v0.0.1](#-v001)
 
 </details>
 
 ---
 
-<!--
 ## 🔄️ Unreleased
 
+Added:
+
+1. PowerShell
+   1. [Get-FinOpsToolkitVersion](./powershell/toolkit/Get-FinOpsToolkitVersion) to get toolkit versions.
+   2. [Deploy-FinOpsHub](./powershell/hubs/Deploy-FinOpsHub) to deploy or update a hub instance.
+   3. [Get-FinOpsHub](./powershell/hubs/Get-FinOpsHub) to get details about a hub instance.
+2. Open data
+   1. [PricingUnits](./open-data/README.md#-pricing-units) to map all pricing units (UnitOfMeasure values) to distinct units with a scaling factor.
+   2. [Regions](./open-data/README.md#-regions) to map historical resource location values in Microsoft Cost Management to standard Azure regions.
+
 <br>
--->
 
 ## 🚀 v0.0.1
 
