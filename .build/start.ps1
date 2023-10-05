@@ -48,6 +48,7 @@ if (-not (Get-Module -Name 'PsDepend' -ListAvailable)) {
 
     try {
         Install-Module -Name 'PsDepend' -Force -AllowClobber -Scope CurrentUser -ErrorAction 'Stop'
+        Remove-Module -Name 'Az*' -Force
     } catch {
         throw $_
     }
