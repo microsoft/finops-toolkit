@@ -36,9 +36,9 @@ task Publish.PsModule Build.PsModule, {
     }
 
     try {
-            Remove-Module -Name $moduleName -Force -ErrorAction 'SilentlyContinue'
-            Import-Module -Name $modulePath -ErrorAction 'Stop'
-            $moduleInfo = Get-Module -Name $moduleName -ErrorAction 'Stop'
+        Remove-Module -Name $moduleName -Force -ErrorAction 'SilentlyContinue'
+        Import-Module -Name $modulePath -ErrorAction 'Stop'
+        $moduleInfo = Get-Module -Name $moduleName -ErrorAction 'Stop'
         } catch {
         throw $_
     }
@@ -50,7 +50,7 @@ task Publish.PsModule Build.PsModule, {
         }
     }
 
-    Publish-Module -Path $modulePath -Repository 'PSGallery' -NuGetApiKey $TaskParams.ApiKey -Force -AllowPrerelease -Confirm:$false @parameters
+    Publish-Module -Name $moduleName -Repository 'PSGallery' -NuGetApiKey $TaskParams.ApiKey -Force -AllowPrerelease @parameters
 }
 
 task Test.PowerShell.Unit PreRequisites, {
