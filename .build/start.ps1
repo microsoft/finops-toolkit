@@ -55,11 +55,6 @@ if (-not (Get-Module -Name 'PsDepend' -ListAvailable)) {
 }
 
 $buildPath = Join-Path -Path $PSScriptRoot -ChildPath 'build.ps1'
-if (-not $env:CI)
-{
-    "call psdepend"
-    $dependencyPath = Get-ChildItem -Path $PSScriptRoot -Filter '*.depends.psd1'
-    Invoke-PSDepend -Path $dependencyPath.FullName -Install -Import -Force
-}
-
+$dependencyPath = Get-ChildItem -Path $PSScriptRoot -Filter '*.depends.psd1'
+Invoke-PSDepend -Path $dependencyPath.FullName -Install -Import -Force
 Invoke-Build -Task $Task -File $buildPath -TaskParams $PSBoundParameters -Verbose:$VerbosePreference
