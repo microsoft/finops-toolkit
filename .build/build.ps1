@@ -40,7 +40,7 @@ task Publish.PsModule Build.PsModule, {
         Import-Module -Name $modulePath -ErrorAction 'SilentlyContinue'
         $moduleInfo = Get-Module -Name $moduleName -ErrorAction 'Stop'
     } catch {
-        #throw $_
+        throw $_
     }
 
     $parameters = @{}
