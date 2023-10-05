@@ -8,6 +8,7 @@ function Build-PsModule {
 
     # Get version
     $version = Get-Version
+    $baseVersion = $version.Split('-') | Select-Object -First 1
     $prereleaseTag = $version -replace '^[^-]+-([^\.]+).*$', '$1'
 
     $rootPath = (Get-Item -Path $PSScriptRoot).Parent.Parent.FullName
@@ -17,7 +18,7 @@ function Build-PsModule {
     $privatePath = Join-Path -Path $rootPath -ChildPath "src/powershell/private"
     $publicPath = Join-Path -Path $rootPath -ChildPath "src/powershell/public"
     $stringsPath = Join-Path -Path $rootPath -ChildPath 'src/powershell/en-US'
-    $releasePath = Join-Path -Path $rootPath -ChildPath "release/$moduleName/$version"
+    $releasePath = Join-Path -Path $rootPath -ChildPath "release/$moduleName/$baseVersion"
     $manifestPath = Join-Path -Path $releasePath -ChildPath "$moduleName.psd1"
 
     # Make sure we can import module properly. Capture exported functions.
@@ -33,7 +34,7 @@ function Build-PsModule {
     New-Directory -Path $releasePath
 
     $manifestProperties = @{
-        ModuleVersion     = $version -replace "-$prereleaseTag", ''
+        ModuleVersion     = $baseVersion
         Path              = $manifestPath
         Guid              = '00f120b5-2007-6120-0000-b03e1254e770'
         Author            = 'Microsoft Corporation'
