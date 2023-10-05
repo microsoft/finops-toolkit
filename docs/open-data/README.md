@@ -18,6 +18,7 @@ Leverage open data to normalize and enhance your FinOps reporting.
 
 - [📏 Pricing units](#-pricing-units)
 - [🗺️ Regions](#️-regions)
+- [🎛️ Services](#️-services)
 - [🙋‍♀️ Looking for more?](#️-looking-for-more)
 
 </details>
@@ -34,15 +35,15 @@ Microsoft Cost Management uses the `UnitOfMeasure` column to indicate how each c
 
 Sample data:
 
-| UnitOfMeasure      | AccountTypes | UsageToPricingRate | DistinctUnits |
-| ------------------ | ------------ | -----------------: | ------------- |
-| `1 Hour`           | MCA, EA      | 1                  | Hours         |
-| `10000 GB`         | EA           | 10000              | GB            |
-| `150 Hours`        | EA           | 150                | Hours         |
-| `200 /Hour`        | EA           | 200                | Units/Hour    |
-| `5 GB`             | MCA, EA      | 5                  | GB            |
-| `5000000 Requests` | EA           | 5000000            | Requests      |
-| `744 Connections`  | EA           | 744                | Connections   |
+| UnitOfMeasure    | AccountTypes | UsageToPricingRate | DistinctUnits |
+| ---------------- | ------------ | -----------------: | ------------- |
+| 1 Hour           | MCA, EA      |                  1 | Hours         |
+| 10000 GB         | EA           |              10000 | GB            |
+| 150 Hours        | EA           |                150 | Hours         |
+| 200 /Hour        | EA           |                200 | Units/Hour    |
+| 5 GB             | MCA, EA      |                  5 | GB            |
+| 5000000 Requests | EA           |            5000000 | Requests      |
+| 744 Connections  | EA           |                744 | Connections   |
 
 A few important notes about the data:
 
@@ -74,6 +75,31 @@ Sample data:
 | TW North      | taiwannorth   | Taiwan North   |
 
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+
+<br>
+
+## 🎛️ Services
+
+In Microsoft Cost Management, `ConsumedService` represents the primary service or resource provider of the resource you used. This is roughly the same as `ServiceName` in [FOCUS](https://focus.finops.org). In some cases, multiple services share the same resource provider, so we're using the `ConsumedService` and `ResourceType` columns to map to `ServiceName` and `ServiceCategory` values for use within FOCUS.
+
+Sample data:
+
+| ConsumedService      | ResourceType                          | ServiceName         | ServiceCategory | PublisherName | PublisherType  |
+| -------------------- | ------------------------------------- | ------------------- | --------------- | ------------- | -------------- |
+| microsoft.compute    | microsoft.compute/virtualmachines     | Virtual Machines    | Compute         | Microsoft     | Cloud Provider |
+| microsoft.documentdb | microsoft.documentdb/databaseaccounts | Cosmos DB           | Databases       | Microsoft     | Cloud Provider |
+| Microsoft.Kusto      | microsoft.kusto/clusters              | Azure Data Explorer | Analytics       | Microsoft     | Cloud Provider |
+| Microsoft.Network    | microsoft.network/virtualnetworks     | Virtual Network     | Networking      | Microsoft     | Cloud Provider |
+| MICROSOFT.STORAGE    | microsoft.storage/storageaccounts     | Storage Accounts    | Storage         | Microsoft     | Cloud Provider |
+
+A few important notes about the data:
+
+1. `ConsumsedService` values should match the case of your cost data. When they are provided in mixed case, you'll see multiple rows in the Services file.
+2. `ResourceType` values are all lowercased to avoid case sensitivity issues.
+3. `ServiceName` values should match the product marketing name for the closest possible service. Some services reuse resource types and cannot be distinguished from the resource type alone (e.g., Azure functions will show as App Service).
+4. `ServiceCategory` values are aligned with the allowed values in FOCUS.
+
+[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Services.csv){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 

@@ -6,13 +6,14 @@ On this page:
 
 - [📏 Pricing units](#-pricing-units)
 - [🗺️ Regions](#️-regions)
+- [🎛️ Services](#️-services)
 
 ---
 
 ## 📏 Pricing units
 
 <sup>
-    📅 Updated: Sep 24, 2023_<br>
+    📅 Updated: Sep 24, 2023<br>
     ➡️ Source: Cost Management team<br>
 </sup>
 
@@ -98,7 +99,7 @@ Meters
 ## 🗺️ Regions
 
 <sup>
-    📅 Updated: Sep 16, 2023_<br>
+    📅 Updated: Sep 16, 2023<br>
     ➡️ Source: Commerce Platform Data Model team<br>
 </sup>
 
@@ -107,5 +108,31 @@ Meters
 The [Regions.csv](./Regions.csv) file contains data from several internal sources. We shouldn't need to update this file as Cost Management data is standardizing on Azure regions.
 
 > ℹ️ _Internal only: Contact the CPDM PM team for any updates._
+
+<br>
+
+## 🎛️ Services
+
+<sup>
+    📅 Updated: Sep 30, 2023<br>
+    ➡️ Source: Cost Management team<br>
+</sup>
+
+<br>
+
+The [Services.csv](./Services.csv) file contains the list of all unique `ConsumedService` and `ResourceType` values. This data will need to be updated periodically.
+
+Use the following query to update the data:
+
+```kql
+union cluster('<shard-cluster>').database('<shard>*').UCDD
+| where UsageDate > ago(365d)
+| where isnotempty(ConsumedService)
+| where ConsumedService !startswith '/subscriptions/'
+| extend ParsedResourceType = tostring(extract(@'/providers/([^/]+/[^/]+)', 1, tolower(InstanceName)))
+| extend ResourceType = iff(isempty(ParsedResourceType), tolower(ResourceType), ParsedResourceType)
+| summarize by ConsumedServiceId, ConsumedService, ResourceType
+| order by ConsumedServiceId asc, ResourceType asc
+```
 
 <br>
