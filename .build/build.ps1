@@ -37,10 +37,10 @@ task Publish.PsModule Build.PsModule, {
 
     try {
         Remove-Module -Name $moduleName -Force -ErrorAction 'SilentlyContinue'
-        Import-Module -Name $modulePath -ErrorAction 'Stop'
+        Import-Module -Name $modulePath -ErrorAction 'SilentlyContinue'
         $moduleInfo = Get-Module -Name $moduleName -ErrorAction 'Stop'
     } catch {
-        throw $_
+        #throw $_
     }
 
     $parameters = @{}
