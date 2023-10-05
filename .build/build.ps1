@@ -11,7 +11,6 @@ param
 )
 
 $moduleName = 'FinOpsToolkit'
-$manifestName = "$moduleName.psd1"
 $root = (Get-Item -Path $PSScriptRoot).Parent.FullName
 $releaseDirectory = Join-Path -Path $root -ChildPath 'release'
 $modulePath = Join-Path -Path $releaseDirectory -ChildPath $moduleName
@@ -37,14 +36,10 @@ task Publish.PsModule Build.PsModule, {
     }
 
     try {
-        $manifestPath = Get-ChildItem -Path $modulePath -Include $manifestName -Recurse
-        if (-not $manifestPath)
-        {
-            throw "Manifest not found."
-        }
-
-        $moduleInfo = Test-ModuleManifest -Path $manifestPath -ErrorAction 'Stop'
-    } catch {
+            Remove-Module -Name $moduleName -Force -ErrorAction 'SilentlyContinue'
+            Import-Module -Name $modulePath -ErrorAction 'Stop'
+            $moduleInfo = Get-Module -Name $moduleName -ErrorAction 'Stop'
+        } catch {
         throw $_
     }
 

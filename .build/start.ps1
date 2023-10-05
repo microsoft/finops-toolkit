@@ -48,7 +48,6 @@ if (-not (Get-Module -Name 'PsDepend' -ListAvailable)) {
 
     try {
         Install-Module -Name 'PsDepend' -Force -AllowClobber -Scope CurrentUser -ErrorAction 'Stop'
-        Remove-Module -Name 'Az*' -Force
     } catch {
         throw $_
     }
@@ -57,7 +56,6 @@ if (-not (Get-Module -Name 'PsDepend' -ListAvailable)) {
 $buildPath = Join-Path -Path $PSScriptRoot -ChildPath 'build.ps1'
 if (-not $env:CI)
 {
-    "call psdepend"
     $dependencyPath = Get-ChildItem -Path $PSScriptRoot -Filter '*.depends.psd1'
     Invoke-PSDepend -Path $dependencyPath.FullName -Install -Import -Force
 }
