@@ -52,6 +52,7 @@ task Publish.PsModule Build.PsModule, {
 
     $parameters
     gci $modulePath -Recurse
+    Get-Module az* -ListAvailable
     #Publish-Module -Name $moduleName -Repository 'PSGallery' -NuGetApiKey $TaskParams.ApiKey -Force -AllowPrerelease @parameters
 }
 
