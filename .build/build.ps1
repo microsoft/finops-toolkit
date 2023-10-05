@@ -50,7 +50,8 @@ task Publish.PsModule Build.PsModule, {
         }
     }
 
-    Publish-Module -Name $moduleName -Repository 'PSGallery' -NuGetApiKey $TaskParams.ApiKey -Force -AllowPrerelease @parameters
+    $parameters
+    #Publish-Module -Name $moduleName -Repository 'PSGallery' -NuGetApiKey $TaskParams.ApiKey -Force -AllowPrerelease @parameters
 }
 
 task Test.PowerShell.Unit PreRequisites, {

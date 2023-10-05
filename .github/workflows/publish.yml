@@ -1,3 +1,4 @@
+name: Publish PowerShell
 on:
     workflow_dispatch: {}            
 

@@ -12,4 +12,6 @@
     InvokeBuild      = 'latest'
     PSScriptAnalyzer = 'latest'
     Pester           = 'latest'
+    'Az.Accounts'    = '2.11.1'
+    'Az.Resources'   = '6.5.1'
 }
