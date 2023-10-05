@@ -1,5 +1,5 @@
 on:
-    push:
+    push: 
     workflow_dispatch: {}            
 
 jobs:
@@ -7,6 +7,6 @@ jobs:
         runs-on: windows-latest
         steps:
             - uses: actions/checkout@v3
-            - name: Test
+            - name: PowerShellGallery
               shell: pwsh
               run: .build/start.ps1 -Task Version
