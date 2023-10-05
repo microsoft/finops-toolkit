@@ -3,9 +3,31 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build Toolkit",
+            "label": "Build toolkit",
             "type": "shell",
             "command": "./Build-Toolkit",
+            "options": {
+                "cwd": "${workspaceFolder}/src/scripts",
+            },
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true,
+            },
+            "isBackground": false,
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false,
+            },
+        },
+        {
+            "label": "Deploy module",
+            "type": "shell",
+            "command": "./Deploy-Toolkit ${input:module} -Build",
             "options": {
                 "cwd": "${workspaceFolder}/src/scripts",
             },
@@ -111,6 +133,14 @@
                 "showReuseMessage": true,
                 "clear": false,
             },
+        }
+    ],
+    "inputs": [
+        {
+            "id": "module",
+            "type": "promptString",
+            "description": "Name of the toolkit module to deploy",
+            "default": "finops-hub"
         }
     ]
 }
