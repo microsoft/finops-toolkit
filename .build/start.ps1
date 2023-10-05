@@ -36,7 +36,6 @@ param
     $Label,
 
     [Parameter()]
-    [ValidateSet('dev', 'alpha', 'preview')]
     [string]
     $Version
 )
