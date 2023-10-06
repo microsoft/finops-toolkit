@@ -6,26 +6,16 @@ description: 'Latest and greatest features and enhancements from the FinOps tool
 permalink: /changelog
 ---
 
-- [Unreleased](#unreleased)
-- [v0.0.1](#v001)
-
----
-
-## Unreleased
-
-1. FinOps hubs
-
-   1. Add Azure Data Explorer cluster to finops-hub template.
-
 <span class="fs-9 d-block mb-4">FinOps toolkit changelog</span>
-
 Explore the latest and greatest features and enhancements from the FinOps toolkit.
+{: .fs-6 .fw-300 }
 
 [Download the latest release](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
+- [🔄️ Unreleased](#️-unreleased)
 - [🚚 v0.1](#-v01)
 - [🌱 v0.0.1](#-v001)
 
@@ -33,6 +23,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
 
 ---
 
+<!--
 Legend:
 🔄️ Unreleased
 🚀🎉 Major
@@ -40,12 +31,16 @@ Legend:
 🛠️✨ Patch
 🪛⬆️ Update
 🌱 Pre-release
+-->
 
-<!-- ## 🔄️ Unreleased -->
+## 🔄️ Unreleased
 
-Added:1. FinOps hubs
+Added:
+
+1. FinOps hubs
    1. Add Azure Data Explorer cluster to finops-hub template.
 
+<br>
 
 ## 🚚 v0.1
 
