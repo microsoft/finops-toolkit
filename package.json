@@ -1,0 +1,34 @@
+{
+  "name": "ftk",
+  "version": "0.1.0",
+  "description": "Starter kits, scripts, and advanced solutions to accelerate your FinOps journey in the Microsoft Cloud.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "build": "pwsh -Command ./src/scripts/Build-Toolkit",
+    "deploy": "pwsh -Command ./src/scripts/Deploy-Toolkit -Build",
+    "deploy-test": "pwsh -Command ./src/scripts/Deploy-Toolkit -Build -Test",
+    "contrib": "all-contributors add"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/finops-toolkit.git"
+  },
+  "keywords": [
+    "finops",
+    "azure",
+    "microsoft-cloud",
+    "cost-management"
+  ],
+  "author": "Microsoft",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/microsoft/finops-toolkit/issues"
+  },
+  "homepage": "https://aka.ms/finops/toolkit",
+  "devDependencies": {
+    "all-contributors-cli": "^6.26.1"
+  }
+}

@@ -3,27 +3,31 @@
 
 <#
     .SYNOPSIS
-        Builds all Bicep modules for publishing to the Bicep Registry.
-    .DESCRIPTION
-        Run this from the /src/scripts folder.
+    Builds all Bicep modules for publishing to the Bicep Registry.
+    
     .PARAMETER Module
-        Path to the module to build.
+    Path to the module to build.
+    
     .PARAMETER Scope
-        Optional. Scope to build. If not specified, all scopes will be built.
+    Optional. Scope to build. If not specified, all scopes will be built.
+    
     .PARAMETER Debug
-        Optional. Renders main module and test bicep code to the console instead of generating files. Line numbers map to original file.
+    Optional. Renders main module and test bicep code to the console instead of generating files. Line numbers map to original file.
+    
     .EXAMPLE
-        ./Build-Bicep module-name
+    ./Build-Bicep module-name
 
-        Generates separate modules for each supported scope for the specified module.
+    Generates separate modules for each supported scope for the specified module.
+    
     .EXAMPLE
-        ./Build-Bicep module-name -Scope subscription
+    ./Build-Bicep module-name -Scope subscription
 
-        Generates the module for only one scope (subscription in this case).
+    Generates the module for only one scope (subscription in this case).
+    
     .EXAMPLE
-        ./Build-Bicep module-name -Scope subscription -Debug
+    ./Build-Bicep module-name -Scope subscription -Debug
 
-        Renders main module and test bicep code to the console instead of generating files.
+    Renders main module and test bicep code to the console instead of generating files.
 #>
 Param (
     [Parameter(Position = 0)][string] $Module = "*",
@@ -34,10 +38,10 @@ Param (
 $Debug = $DebugPreference -eq "Continue"
 
 $scopeList = '(subscription|resourceGroup|managementGroup|tenant)';
-$scopeDirective = "//(\s*@$scopeList)+";
+$scopeDirective = "(//(\s*@$scopeList)+|targetScope = '$scopeList')";
 
-$outDir = "../../release"
-$registryDir = "../bicep-registry"
+$outDir = "$PSScriptRoot/../../release"
+$registryDir = "$PSScriptRoot/../bicep-registry"
 $scaffoldDir = "$registryDir/.scaffold"
 
 Get-ChildItem "$registryDir/$Module*" -Directory `
@@ -52,6 +56,7 @@ Get-ChildItem "$registryDir/$Module*" -Directory `
     function Build-Modules([string] $Path, [switch] $CopySupportingFiles) {
         # Confirm path
         if (-not (Test-Path (Join-Path $srcDir $Path))) {
+            Write-Error "$srcDir/$Path not found"
             return;
         }
         
@@ -143,7 +148,7 @@ Get-ChildItem "$registryDir/$Module*" -Directory `
             }
       
             # Write main file
-            ./New-Directory (Join-Path $outDir $moduleName (Split-Path $Path))
+            & "$PSScriptRoot/New-Directory" (Join-Path $outDir $moduleName (Split-Path $Path))
             if ($Debug) { 
                 $sb.ToString()
             } else {

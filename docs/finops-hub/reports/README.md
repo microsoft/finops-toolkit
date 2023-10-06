@@ -1,21 +1,37 @@
-# 📊 FinOps hub reports
+---
+layout: default
+parent: FinOps hubs
+title: Reports
+has_children: true
+nav_order: 1
+description: 'Pre-built Power BI reports to summarize and break down costs in FinOps hubs.'
+permalink: /hubs/reports
+---
 
-The FinOps hub hosts data in [Azure Data Lake Storage](https://learn.microsoft.com/azure/storage/blobs/data-lake-storage-introduction). You can use any tool to query and report on your cost data in storage. As an example, we've included the following Power BI reports to get you started. We recommend customizing them to keep what works, edit and augment reports with your own data, and remove anything that isn't needed.
+<span class="fs-9 d-block mb-4">Power BI reports for FinOps hubs</span>
+Leverage pre-built Power BI reports to summarize and break down costs. Customize reports and build your own to get the most out of your hub.
+{: .fs-6 .fw-300 }
 
-> ℹ️ _The Power BI reports (PBIX files) are starter templates. Keep in mind you won't be able to upgrade a customized report as the toolkit evolves._
+[Download](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[How to setup](#-how-to-setup-power-bi){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
-- [Cost summary](./cost-summary.md)
-- [Commitment discounts](./commitment-discounts.md)
-
-<br>
-
-On this page:
+<details open markdown="1">
+   <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [✨ How to setup Power BI](#-how-to-setup-power-bi)
 - [🗃️ Queries and datasets](#️-queries-and-datasets)
 - [💡 Tips for customizing Power BI reports](#-tips-for-customizing-power-bi-reports)
 
+</details>
+
 ---
+
+FinOps hubs host data in [Azure Data Lake Storage](https://learn.microsoft.com/azure/storage/blobs/data-lake-storage-introduction). You can use any tool to query and report on your cost data in storage. We've included the following Power BI reports to get you started. We recommend customizing them to keep what works, edit and augment reports with your own data, and remove anything that isn't needed.
+
+- [Cost summary](./cost-summary.md)
+- [Commitment discounts](./commitment-discounts.md)
+
+<br>
 
 ## ✨ How to setup Power BI
 
@@ -48,7 +64,9 @@ The FinOps hubs Power BI reports include pre-configured visuals, but are not con
      6. Copy the value for `storageUrlForPowerBI`.
    - If you customized the deployment to use compressed CSV instead of Parquet, change **FileType** to `.gz`. Most people will not change this.
    - Change **RangeStart** and **RangeEnd** to the desired start/end dates for your report. The default is the current calendar year. Consider using your fiscal year.
-     > ⚠️ _Power BI reports can only support 35GB of data. You may need to adjust the number of months in your report to fit within this limit._
+     <blockquote class="warning" markdown="1">
+       _Power BI reports can only support 35GB of data. You may need to adjust the number of months in your report to fit within this limit._
+     </blockquote>
    - **BillingProfileIdOrEnrollmentNumber** (if applicable) is your EA enrollment number or MCA billing profile ID. This is only included for some reports that pull data from the Cost Management Power BI connector. See [Create visuals and reports with the Azure Cost Management connector in Power BI Desktop](https://learn.microsoft.com/power-bi/connect-data/desktop-connect-azure-cost-management) for details.
    - **Scope** (if applicable) must be either `EnrollmentNumber` for an EA billing account or `BillingProfileId` for an MCA billing profile. This is only included for some reports that pull data from the Cost Management Power BI connector.
 
@@ -75,7 +93,9 @@ At this point, you have the core data from the FinOps hub reports, extended to s
 
 1. In the FinOps hub report, expand the **CMExports** table in the **Data** pane on the right.
 2. Select a custom column or measure, then copy the formula from the editor at the top of the window, under the toolbar.
-   > ℹ️ _Be sure to make note if this is a column or a measure. Columns have a table icon with a "Σ" or "fx" symbol and measures have a calculator icon._<br> > ![Screenshot of the calculated column and measure icons in Power BI](https://user-images.githubusercontent.com/399533/216805396-96abae2d-473a-4136-8943-cac4ddd74dce.png)
+   <blockquote class="note" markdown="1">
+     _Be sure to make note if this is a column or a measure. Columns have a table icon with a "Σ" or "fx" symbol and measures have a calculator icon._<br> > ![Screenshot of the calculated column and measure icons in Power BI](https://user-images.githubusercontent.com/399533/216805396-96abae2d-473a-4136-8943-cac4ddd74dce.png)
+   </blockquote>
 3. In your report, right click the **CMExports** table and select **New measure** or **New column** based on what you just copied.
 4. When the formula editor is shown, paste the formula using <kbd>Ctrl+V</kbd> or <kbd>Cmd+V</kbd>.
 5. Repeat steps 2-4 for each desired column and measure.
@@ -102,7 +122,9 @@ If you don't need any of the custom columns and measures provided by the FinOps 
 
    - You can copy this value from the deployment outputs.
 
-   > ℹ️ _If you receive an "Access to the resource is forbidden" error, grant the account loading data in Power BI the [Storage Blob Data Reader role](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-reader)._
+   <blockquote class="warning" markdown="1">
+      _If you receive an "Access to the resource is forbidden" error, grant the account loading data in Power BI the [Storage Blob Data Reader role](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-reader)._
+   </blockquote>
 
 6. Select the **Combine** button.
 7. Select the **OK** button.
@@ -143,7 +165,9 @@ This approach ensures your existing reports can switch to your FinOps hub data w
 
 FinOps hubs offer multiple versions of cost details to align to different schemas for backwards compatibility. These schemas are only provided to assist in migrating from older versions. We recommend updating visuals to use CostDetails or the newest underlying dataset. If you do not need legacy datasets, you can remove them from the Power Query Editor (Transform data) window.
 
-> ℹ️ _FinOps hubs will eventually adopt the [FOCUS standard](https://aka.ms/finops/focus) when available._
+<blockquote class="warning" markdown="1">
+   _FinOps hubs will eventually adopt the [FOCUS standard](https://aka.ms/finops/focus) when available._
+</blockquote>
 
 ### CostDetails
 
@@ -195,3 +219,5 @@ Note the following columns are new in this release. These columns were not previ
 FinOps hubs Power BI reports are starter templates that we encourage you to customize. Changing visuals, columns, and measures should not break in future releases outside of potential schema changes, which are usually easy to fix by changing column names. The main issue to be careful of is changing the out-of-the-box queries. Out-of-the-box queries can change in future releases, which will make it harder for you to upgrade. If you need to modify a query, we recommend confining updates to the **CostDetails** dataset, which references the internal datasets we use for schema versioning. We will keep our updates to those internal datasets to avoid conflicting with your customizations.
 
 If you run into any issues, please let us know in [Discussions](https://github.com/microsoft/cloud-hubs/discussions).
+
+<br>
