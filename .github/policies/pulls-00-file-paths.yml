@@ -15,18 +15,38 @@ configuration:
           - or:
               - payloadType: Pull_Request_Review
               - payloadType: Pull_Request_Review_Comment
-          - not:
-              isActivitySender:
-                user: allcontributors
+          - or:
+              - isAction:
+                  action: Submitted # for reviews
+              - isAction:
+                  action: Created # for comments
           - not:
               targetsBranch:
                 branch: main
+          - isActivitySender:
+              issueAuthor: false
+          - not:
+              or:
+                - isActivitySender:
+                    user: allcontributors
+                - isActivitySender:
+                    user: aromano2
+                - isActivitySender:
+                    user: benshy
+                - isActivitySender:
+                    user: flanakin
+                - isActivitySender:
+                    user: msbrett
+                - isActivitySender:
+                    user: springstone
         then:
           - addReply:
               reply: '@all-contributors please add ${contextualAuthor} for review'
-      - description: When a PR is opened, add as contributor
+      - description: When a PR is closed, add as contributor
         if:
           - payloadType: Pull_Request
+          - isAction:
+              action: Closed
           - not:
               targetsBranch:
                 branch: main
@@ -38,13 +58,47 @@ configuration:
                       pattern: ^(.build|.github|.vscode|src\/scripts)\/.*
                   - filesMatchPattern:
                       pattern: ^src\/.*
+              - not:
+                  or:
+                    - isActivitySender:
+                        user: aromano2
+                    - isActivitySender:
+                        user: arthurclares
+                    - isActivitySender:
+                        user: didayal-msft
+                    - isActivitySender:
+                        user: flanakin
+                    - isActivitySender:
+                        user: msbrett
+                    - isActivitySender:
+                        user: nteyan
+                    - isActivitySender:
+                        user: saadmsft
+                    - isActivitySender:
+                        user: sebassem
+                    - isActivitySender:
+                        user: springstone
             then:
               - addReply:
-                  reply: '@all-contributors please add ${issueAuthor} for doc'
+                  reply: '@all-contributors please add ${issueAuthor} for code'
           # docs
           - if:
               - filesMatchPattern:
-                  pattern: ^docs\/.*
+                  pattern: ^(docs|docs-wiki)\/.*
+              - not:
+                  or:
+                    - isActivitySender:
+                        user: aromano2
+                    - isActivitySender:
+                        user: benshy
+                    - isActivitySender:
+                        user: flanakin
+                    - isActivitySender:
+                        user: helderpinto
+                    - isActivitySender:
+                        user: msbrett
+                    - isActivitySender:
+                        user: springstone
             then:
               - addReply:
                   reply: '@all-contributors please add ${issueAuthor} for doc'
@@ -63,6 +117,8 @@ configuration:
             then:
               - requestReview:
                   reviewer: flanakin
+              - assignTo:
+                  user: flanakin
           # devops
           - if:
               - or:
@@ -81,6 +137,8 @@ configuration:
                 then:
                   - requestReview:
                       reviewer: aromano2
+                  - assignTo:
+                      user: aromano2
           # docs
           - if:
               - filesMatchPattern:
@@ -115,6 +173,8 @@ configuration:
                 then:
                   - requestReview:
                       reviewer: msbrett
+                  - assignTo:
+                      user: msbrett
           # open data
           - if:
               - filesMatchPattern:
@@ -137,6 +197,8 @@ configuration:
                 then:
                   - requestReview:
                       reviewer: aromano2
+                  - assignTo:
+                      user: aromano2
               # Arthur
               - if:
                   - not:
@@ -145,6 +207,8 @@ configuration:
                 then:
                   - requestReview:
                       reviewer: arthurclares
+                  - assignTo:
+                      user: arthurclares
               # Divyadeep
               - if:
                   - not:
@@ -153,6 +217,8 @@ configuration:
                 then:
                   - requestReview:
                       reviewer: didayal-msft
+                  - assignTo:
+                      user: didayal-msft
               # Saad
               - if:
                   - not:
@@ -161,6 +227,8 @@ configuration:
                 then:
                   - requestReview:
                       reviewer: saadmsft
+                  - assignTo:
+                      user: saadmsft
               # Sacha
               - if:
                   - not:
@@ -169,6 +237,8 @@ configuration:
                 then:
                   - requestReview:
                       reviewer: springstone
+                  - assignTo:
+                      user: springstone
               # Seif
               - if:
                   - not:
@@ -177,6 +247,8 @@ configuration:
                 then:
                   - requestReview:
                       reviewer: sebassem
+                  - assignTo:
+                      user: sebassem
           # workbooks
           - if:
               - or:
@@ -200,6 +272,8 @@ configuration:
                 then:
                   - requestReview:
                       reviewer: arthurclares
+                  - assignTo:
+                      user: arthurclares
               # Nicolas
               - if:
                   - or:
@@ -213,6 +287,8 @@ configuration:
                 then:
                   - requestReview:
                       reviewer: nteyan
+                  - assignTo:
+                      user: nteyan
               # Seif
               - if:
                   - or:
@@ -226,5 +302,7 @@ configuration:
                 then:
                   - requestReview:
                       reviewer: sebassem
+                  - assignTo:
+                      user: sebassem
 onFailure:
 onSuccess:
