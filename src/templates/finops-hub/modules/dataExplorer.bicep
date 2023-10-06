@@ -11,8 +11,8 @@ param location string = resourceGroup().location
 @description('Optional. Resource tags.')
 param tags object = {}
 
-@description('Required. The name of the Azure Key Vault instance.')
-param keyVaultName string
+// @description('Required. The name of the Azure Key Vault instance.')
+// param keyVaultName string
 
 @description('Optional. Forces the table to be updated if different from the last time it was deployed.')
 param forceUpdateTag string = utcNow()
