@@ -18,15 +18,30 @@
         Builds only the finops-hub template.
 #>
 Param(
-    [Parameter(Position = 0)][string]$Template = "*"
+    [Parameter(Position = 0)][string]$Template = "*",
+    [switch]$Major,
+    [switch]$Minor,
+    [switch]$Patch,
+    [switch]$Prerelease,
+    [string]$Label
 )
 
 # Create output directory
 $outDir = "../../release"
 ./New-Directory $outDir
 
+# Update version
+Write-Host ''
+$ver = ./Invoke-Task Version -Major:$Major -Minor:$Minor -Patch:$Patch -Prerelease:$Prerelease -Label $Label
+if ($Major -or $Minor -or $Patch -or $Prerelease) {
+    Write-Host "Updated version to $ver"
+} else {
+    Write-Host "Building version $ver"
+}
+Write-Host ''
+
 # Generate Bicep Registry modules
-Get-ChildItem ..\bicep-registry\$Template* -Directory -ErrorAction SilentlyContinue `
+Get-ChildItem "..\bicep-registry\$($Template -replace '(subscription|resourceGroup|managementGroup|tenant)-', '')*" -Directory -ErrorAction SilentlyContinue `
 | Where-Object { $_.Name -ne '.scaffold' }
 | ForEach-Object {
     ./Build-Bicep $_.Name
@@ -48,13 +63,14 @@ function Build-MainBicepParameters($dir) {
 }
 
 # Generate workbook templates
-Get-ChildItem ..\workbooks\* -Directory `
+Get-ChildItem "..\workbooks\$($Template -replace '-workbook$','')*" -Directory `
 | Where-Object { $_.Name -ne '.scaffold' }
 | ForEach-Object {
     $workbook = $_.Name
     Write-Host "Building workbook $workbook..."
     ./Build-Workbook $workbook
     Build-MainBicepParameters "$outdir/$workbook-workbook"
+    $ver | Out-File "$outdir/$workbook-workbook/version.txt" -NoNewLine
     Write-Host ''
 }
 | ForEach-Object { Build-QuickstartTemplate $_ }
@@ -75,7 +91,7 @@ Get-ChildItem ..\templates\$Template* -Directory -ErrorAction SilentlyContinue `
     # Copy required files
     Write-Host "  Copying files..."
     Get-ChildItem $srcDir | Copy-Item -Destination $destDir -Recurse -Exclude ".buildignore,scaffold.json"
-
+    
     # Remove ignored files
     Get-Content "$srcDir/.buildignore" `
     | ForEach-Object {
@@ -84,8 +100,11 @@ Get-ChildItem ..\templates\$Template* -Directory -ErrorAction SilentlyContinue `
             Remove-Item "$destDir/$file" -Recurse -Force
         }
     }
-
+    
     Build-MainBicepParameters $destDir
+   
+    # Copy version file last to override placeholder
+    $ver | Out-File "$destDir/modules/version.txt" -NoNewLine
 
     Write-Host ''
 }

@@ -1,0 +1,11 @@
+on:
+    workflow_dispatch: {}            
+
+jobs:
+    publish:
+        runs-on: windows-latest
+        steps:
+            - uses: actions/checkout@v3
+            - name: PowerShellGallery
+              shell: pwsh
+              run: .build/start.ps1 -Task Publish.PsModule -ApiKey ${{ secrets.POWERSHELLGALLERY }}

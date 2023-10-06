@@ -4,7 +4,7 @@
 $json = [ordered]@{
     '$schema'    = 'https://aka.ms/finops/hubs/settings-schema'
     type         = 'HubInstance'
-    version      = '0.0.1'
+    version      = $env:ftkVersion
     learnMore    = 'https://aka.ms/finops/hubs'
     exportScopes = @()
 }
