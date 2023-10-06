@@ -57,13 +57,13 @@ configuration:
           # micro PR
           - if:
               - commentContains:
-                  pattern: '[x] The change is less than 20 lines of code.'
+                  pattern: '[x] 🤏 The change is less than 20 lines of code.'
             then:
               - addLabel:
                   label: 'Micro PR 🔬'
           - if:
               - commentContains:
-                  pattern: '[ ] The change is less than 20 lines of code.'
+                  pattern: '[ ] 🤏 The change is less than 20 lines of code.'
             then:
               - removeLabel:
                   label: 'Micro PR 🔬'

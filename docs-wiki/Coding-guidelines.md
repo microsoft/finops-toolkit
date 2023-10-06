@@ -1,4 +1,4 @@
-# 📘 Coding guidelines
+<!-- markdownlint-disable MD041 -->
 
 On this page:
 

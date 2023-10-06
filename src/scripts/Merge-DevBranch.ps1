@@ -55,7 +55,7 @@ if ($Branch -eq "*") {
     $success = @()
     $failure = @()
     $longestBranchName = ($featureBranches | Measure-Object -Maximum -Property Length).Maximum
-    @("main"; $featureBranches) | ForEach-Object {
+    @($featureBranches) | ForEach-Object {
         $branchName = $_
         Write-Host "  $branchName".PadRight($longestBranchName + 5, ".") -NoNewline
         ./Merge-DevBranch $branchName -Silent
