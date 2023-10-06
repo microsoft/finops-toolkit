@@ -53,6 +53,18 @@ configuration:
             then:
               - addLabel:
                   label: 'Solution: FinOps hubs'
+          # open data
+          - if:
+              - or:
+                  - titleContains:
+                      pattern: '^\[Open data\]'
+                      isRegex: true
+                  - bodyContains:
+                      pattern: /Open data set/i
+                      isRegex: true
+            then:
+              - addLabel:
+                  label: 'Solution: Open data'
           # powershell
           - if:
               - or:

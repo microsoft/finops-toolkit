@@ -1,4 +1,4 @@
-# 👩‍💻 Development process
+<!-- markdownlint-disable MD041 -->
 
 The following outlines the dev process from creating to releasing features.
 

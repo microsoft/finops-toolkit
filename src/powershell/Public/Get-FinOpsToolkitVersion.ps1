@@ -3,23 +3,34 @@
 
 <#
     .SYNOPSIS
-        Retrieves available version numbers of the FinOps toolkit.
+    Gets available versions from published FinOps toolkit releases.
+
+    .DESCRIPTION
+    The Get-FinOpsToolkitVersions command calls GitHub to retrieve all toolkit releases, then filters the list based on the specified options.
 
     .PARAMETER Latest
-        Will only return the latest version number of the FinOps toolkit.
+    Optional. Indicates that only the most recent release should be returned. Default = false.
 
     .PARAMETER Preview
-        Includes pre-releases.
+    Optional. Indicates that preview releases should also be included. Default = false.
 
     .EXAMPLE
-        Get-FinOpsToolkitVersion
+    Get-FinOpsToolkitVersion
 
-        Returns all available released version numbers of the FinOps toolkit.
+    Returns all stable (non-preview) release versions.
 
     .EXAMPLE
-        Get-FinOpsToolkitVersion -Latest
+    Get-FinOpsToolkitVersion -Latest
 
-        Returns only the latest version number of the FinOps toolkit.
+    Returns only the latest stable (non-preview) release version.
+
+    .EXAMPLE
+    Get-FinOpsToolkitVersion -Preview
+
+    Returns all release versions, including preview releases.
+
+    .LINK
+    https://aka.ms/ftk/Get-FinOpsToolkitVersion
 #>
 function Get-FinOpsToolkitVersion
 {
@@ -56,14 +67,14 @@ function Get-FinOpsToolkitVersion
             $properties = [ordered]@{
                 Name       = $release.name
                 PreRelease = $release.prerelease
-                Version    = $release.tag_name
+                Version    = $release.tag_name -replace '^v', ''
                 Url        = $release.url
-                Assets     = @()
+                Files      = @()
             }
 
             foreach ($asset in $release.assets)
             {
-                $properties.Assets += @{
+                $properties.Files += @{
                     Name = $asset.name
                     Url  = $asset.browser_download_url
                 }
