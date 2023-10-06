@@ -3,38 +3,46 @@
 
 <#
     .SYNOPSIS
-        Deploys a FinOps hub instance.
+    Deploys a FinOps hub instance.
+
+    .DESCRIPTION
+    The Deploy-FinOpsHub command creates a new FinOps hub instance. The FinOps hub template is downloaded from GitHub.
+
+    Before running this command, register the Microsoft.EventGrid and Microsoft.CostManagementExports providers. Resource provider registration must be done by a subscription contributor.
 
     .PARAMETER Name
-        Name of the FinOps hub instance.
+    Required. Name of the FinOps hub instance.
 
-    .PARAMETER ResourceGroup
-        Name of the resource group to deploy to. Will be created if it doesn't exist.
+    .PARAMETER ResourceGroupName
+    Required. Name of the resource group to deploy to. Will be created if it doesn't exist.
 
     .PARAMETER Location
-        Azure location to execute the deployment from.
+    Required. Azure location to execute the deployment from.
 
     .PARAMETER Version
-        Optional. Version of FinOps hub template to use. Defaults = "latest".
+    Optional. Version of the FinOps hub template to use. Default = "latest".
 
     .PARAMETER Preview
-        Optional. Indicates that a pre-release version of FinOps hub can be used when -Version is "latest".
+    Optional. Indicates that preview releases should also be included. Default = false.
 
     .PARAMETER StorageSku
-        Optional. Storage account SKU. Premium_LRS = Lowest cost, Premium_ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Default = "Premium_LRS".
+    Optional. Storage account SKU. Premium_LRS = Lowest cost, Premium_ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Default = "Premium_LRS".
 
     .PARAMETER Tags
-        Optional. Tags for all resources.
+    Optional. Tags for all resources.
 
     .EXAMPLE
-        Deploy-FinOpsHub -Name MyHub -ResourceGroup MyExistingResourceGroup -Location westus
+    Deploy-FinOpsHub -Name MyHub -ResourceGroupName MyExistingResourceGroup -Location westus
 
-        Deploys a new FinOps hub instance named MyHub to an existing resource group named MyExistingResourceGroup.
+    Deploys a new FinOps hub instance named MyHub to an existing resource group named MyExistingResourceGroup.
 
     .EXAMPLE
-        Deploy-FinOpsHub -Name MyHub -Location westus -Version 0.0.1
+    Deploy-FinOpsHub -Name MyHub -Location westus -Version 0.1
 
-        Deploys a new FinOps hub instance named MyHub using version 0.0.1 of the template.
+    Deploys a new FinOps hub instance named MyHub using version 0.1 of the template.
+
+    .LINK
+    https://aka.ms/ftk/Deploy-FinOpsHub
 #>
 function Deploy-FinOpsHub
 {
@@ -48,7 +56,7 @@ function Deploy-FinOpsHub
 
         [Parameter(Mandatory = $true)]
         [string]
-        $ResourceGroup,
+        $ResourceGroupName,
 
         [Parameter(Mandatory = $true)]
         [string]
@@ -74,12 +82,12 @@ function Deploy-FinOpsHub
 
     try
     {
-        $resourceGroupObject = Get-AzResourceGroup -Name $ResourceGroup -ErrorAction 'SilentlyContinue'
+        $resourceGroupObject = Get-AzResourceGroup -Name $ResourceGroupName -ErrorAction 'SilentlyContinue'
         if (-not $resourceGroupObject)
         {
-            if ($PSCmdlet.ShouldProcess($ResourceGroup, 'CreateResourceGroup'))
+            if ($PSCmdlet.ShouldProcess($ResourceGroupName, 'CreateResourceGroup'))
             {
-                $resourceGroupObject = New-AzResourceGroup -Name $ResourceGroup -Location $Location
+                $resourceGroupObject = New-AzResourceGroup -Name $ResourceGroupName -Location $Location
             }
         }
 
@@ -116,7 +124,7 @@ function Deploy-FinOpsHub
             }
         }
 
-        if ($PSCmdlet.ShouldProcess($ResourceGroup, 'DeployFinOpsHub'))
+        if ($PSCmdlet.ShouldProcess($ResourceGroupName, 'DeployFinOpsHub'))
         {
             Write-Verbose -Message ($LocalizedData.DeployFinOpsHub -f $toolkitFile.FullName, $resourceGroupObject.ResourceGroupName)
             $deployment = New-AzResourceGroupDeployment @parameterSplat -ResourceGroupName $resourceGroupObject.ResourceGroupName

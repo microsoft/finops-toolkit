@@ -33,5 +33,13 @@ configuration:
               label: 'Needs: Attention 👋'
           - assignTo:
               author: True
+          - if:
+              - isActivitySender:
+                  user: flanakin
+              - titleContains:
+                  pattern: '^add [^ ]+ as a contributor for [a-z]+$'
+            then:
+              - enableAutoMerge:
+                  mergeMethod: squash
 onFailure:
 onSuccess:

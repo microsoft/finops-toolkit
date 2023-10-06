@@ -3,13 +3,21 @@
 
 <#
     .SYNOPSIS
-    Gets a FinOps hub instance.
+    Gets details about a FinOps hub instance.
+
+    .DESCRIPTION
+    The Get-FinOpsHub command gets details about a FinOps hub instance using the cm-resource-parent tag to identify hub resources.
 
     .PARAMETER Name
-    Name of the FinOps hub.
+    Optional. Name of the FinOps hub instance. Supports wildcards.
 
     .PARAMETER ResourceGroupName
-    Name of the resource group the FinOps hub was deployed to.
+    Optional. Name of the resource group the FinOps hub was deployed to. Supports wildcards.
+
+    .EXAMPLE
+    Get-FinOpsHub
+
+    Returns all FinOps hubs for the selected subscription.
 
     .EXAMPLE
     Get-FinOpsHub -Name foo*
@@ -19,20 +27,22 @@
     .EXAMPLE
     Get-FinOpsHub -ResourceGroupName foo
 
-    Returns all resources associated with a FinOps hub in reource group 'foo'.
+    Returns all resources associated with a FinOps hub in the 'foo' resource group.
 
     .EXAMPLE
     Get-FinOpsHub -Name foo -ResourceGroupName bar
 
     Returns all FinOps hubs named 'foo' in the 'bar' resource group.
-#>
 
+    .LINK
+    https://aka.ms/ftk/Get-FinOpsHub
+#>
 function Get-FinOpsHub
 {
     [CmdletBinding()]
     param
     (
-        [Parameter()]
+        [Parameter(Position = 1)]
         [string]
         $Name,
 
@@ -84,10 +94,37 @@ function Get-FinOpsHub
         $groups = $resourceMatches | Group-Object -Property 'HubId'
         foreach ($group in $groups)
         {
+            # Determine version and status
+            $allResources = $group.Group.Resource
+            $hasStorage = $allResources.ResourceType.ToLower() -contains 'microsoft.storage/storageaccounts'
+            $hasFactory = $allResources.ResourceType.ToLower() -contains 'microsoft.datafactory/factories'
+            $hasVault = $allResources.ResourceType.ToLower() -contains 'microsoft.keyvault/vaults'
+            $hasIdentities = $allResources.ResourceType.ToLower() -contains 'microsoft.managedidentity/userassignedidentities'
+            if (($allResources.Count -eq 1) -and $hasStorage) {
+                $status = 'StorageOnly'
+            } elseif ($allResources.Count -eq 3 -and $hasStorage -and $hasFactory -and $hasVault) {
+                $status = 'Deployed'
+                $version = '0.0.1'
+            } elseif ($allResources.Count -eq 4 -and $hasStorage -and $hasFactory -and $hasVault) {
+                $status = 'DeployedWithExtraResources'
+                $version = '0.0.1'
+            } elseif ($allResources.Count -eq 5) {
+                $status = 'Deployed'
+                $version = '0.1'
+            } elseif ($allResources.Count -ge 6 -and $hasStorage -and $hasFactory -and $hasVault -and $hasIdentities) {
+                $status = 'DeployedWithExtraResources'
+                $version = '0.1'
+            } else {
+                $status = 'Unknown'
+            }
+
             $groupProperties = [ordered]@{
                 Name = $group.Group.Name | Select-Object -Unique
                 HubId = $group.Group.HubId | Select-Object -Unique
-                Resources = $group.Group.Resource
+                Location = $group.Group.Resource.Location | Select-Object -Unique
+                Version = $version
+                Status = $status
+                Resources = $allResources
             }
 
             $output += New-Object -TypeName 'PSObject' -Property $groupProperties

@@ -1,0 +1,64 @@
+---
+name: Docs/Wiki Sync
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - "docs-wiki/**"
+  workflow_dispatch: {}
+
+env:
+  wiki_source_repo: "${{ github.repository }}"
+  wiki_source_repo_dir: "${{ github.repository }}/docs-wiki"
+  wiki_target_repo: "${{ github.repository }}.wiki"
+  github_user_name: "github-actions"
+  github_email: "41898282+github-actions[bot]@users.noreply.github.com"
+  github_commit_message: "GitHub action syncing wiki from docs-wiki"
+
+jobs:
+  sync-wiki:
+    name: Sync docs-wiki to Wiki
+    if: github.repository == 'microsoft/finops-toolkit' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Repo
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ env.wiki_source_repo }}
+          path: ${{ env.wiki_source_repo }}
+
+      - name: Checkout Wiki Repo
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ env.wiki_target_repo }}
+          path: ${{ env.wiki_target_repo }}
+
+      - name: Configure Local Git
+        run: |
+          git config --global user.name $github_user_name
+          git config --global user.email $github_email
+        working-directory: ${{ env.GITHUB_WORKSPACE }}
+
+      - name: Sync docs-wiki Into Wiki Repo
+        run: |
+          rsync -avzr --delete --exclude='.git/' "$wiki_source_repo_dir/" "$wiki_target_repo"
+        working-directory: ${{ env.GITHUB_WORKSPACE }}
+
+      - name: Check for changes
+        id: git_status
+        run: |
+          mapfile -t CHECK_GIT_STATUS < <(git status -s)
+          printf "%s\n" "${CHECK_GIT_STATUS[@]}"
+          echo "changes=${#CHECK_GIT_STATUS[@]}" >> $GITHUB_OUTPUT
+        working-directory: ${{ env.wiki_target_repo }}
+
+      - name: Add files, commit and push into Wiki
+        if: steps.git_status.outputs.changes > 0
+        run: |
+          echo "Pushing changes to origin..."
+          git add .
+          git commit -m "$github_commit_message [$GITHUB_ACTOR/${GITHUB_SHA::8}]"
+          git push --set-upstream "https://$GITHUB_TOKEN@github.com/$wiki_target_repo.git" master
+        working-directory: ${{ env.wiki_target_repo }}
