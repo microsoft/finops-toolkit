@@ -15,6 +15,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
+- [🔄️ Unreleased](#️-unreleased)
 - [🚚 v0.1](#-v01)
 - [🌱 v0.0.1](#-v001)
 
@@ -22,6 +23,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
 
 ---
 
+<!--
 Legend:
 🔄️ Unreleased
 🚀🎉 Major
@@ -29,12 +31,16 @@ Legend:
 🛠️✨ Patch
 🪛⬆️ Update
 🌱 Pre-release
+-->
 
-<!-- ## 🔄️ Unreleased -->
+## 🔄️ Unreleased
 
-Added:1. FinOps hubs
+Added:
+
+1. FinOps hubs
    1. Add Azure Data Explorer cluster to finops-hub template.
 
+<br>
 
 ## 🚚 v0.1
 
