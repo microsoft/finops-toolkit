@@ -28,7 +28,8 @@ Workbooks in the FinOps toolkit reuse common scaffolding in the `.scaffold` fold
       {
         "main.bicep": {
           "displayName": "",
-          "description": ""
+          "description": "",
+          "workbookId": ""
         },
         "metadata.json": {
           "summary": "",
@@ -42,6 +43,7 @@ Workbooks in the FinOps toolkit reuse common scaffolding in the `.scaffold` fold
    2. Set main.bicep properties:
       - `displayName` to a human-readable name that will be shown in the portal.
       - `description` to a short description.
+      - `workbookId` to a unique 3-character hex number to identify this workbook.
    3. Set metadata.json properties:
       - `summary` to a short description.
       - `description` to a long description.

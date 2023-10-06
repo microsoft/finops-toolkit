@@ -12,4 +12,14 @@
 # This should make it easy to add new rules without breaking existing ones.
 
 # Global rule:
-* @microsoft/cloud-hubs
+* @microsoft/finops-toolkit
+
+# DevOps folders:
+.build @aromano2
+.github @aromano2
+
+# PowerShell:
+src/powershell @aromano2
+
+# Hubs
+src/templates/finops-hub @msbrett

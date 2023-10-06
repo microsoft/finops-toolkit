@@ -8,8 +8,11 @@ On this page:
 - [📦 Build-Toolkit](#-build-toolkit)
 - [🚀 Deploy-Toolkit](#-deploy-toolkit)
 - [🚚 Publish-Toolkit](#-publish-toolkit)
+- [📦 Package-Toolkit](#-package-toolkit)
+- [©️ Add-CopyrightHeader](#️-add-copyrightheader)
 - [📁 New-Directory](#-new-directory)
 - [🌿 New-FeatureBranch](#-new-featurebranch)
+- [🔀 Merge-DevBranch](#-merge-devbranch)
 
 ---
 
@@ -18,7 +21,41 @@ On this page:
 [Init-Repo.ps1](./Init-Repo.ps1) initializes your local dev environment with the following tools, which are required for development and testing:
 
 - Az PowerShell module
-- Bicep
+- Bicep CLI
+
+The following optional apps/modules can be installed with the corresponding parameters or with the `-All` parameter:
+
+- Visual Studio Code
+- Bicep PowerShell module
+- NodeJS and configured modules (-NPM parameter)
+
+If an app or module is already installed, it will be skipped. To see which apps would be installed, use the -WhatIf parameter.
+
+Examples:
+
+- Checks to see what apps/modules would be installed:
+
+  ```powershell
+  ./Init-Repo -All -WhatIf
+  ```
+
+- Installs only required apps/modules:
+
+  ```powershell
+  ./Init-Repo
+  ```
+
+- Installs all required and specific apps/modules:
+
+  ```powershell
+  ./Init-Repo -VSCode -NPM
+  ```
+
+- Installs all required and optional apps/modules:
+
+  ```powershell
+  ./Init-Repo -All
+  ```
 
 <br>
 
@@ -26,11 +63,23 @@ On this page:
 
 [Build-Toolkit.ps1](./Build-Toolkit.ps1) builds toolkit modules and templates for local testing and and to prepare them for publishing.
 
-Example:
+Examples:
 
-```powershell
-./Build-Toolkit
-```
+- Build all toolkit modules and templates:
+
+  ```powershell
+  ./Build-Toolkit
+  ```
+
+- Build all toolkit modules and templates from any directory via NPM:
+
+  ```console
+  npm run build
+  ```
+
+- Build all toolkit modules and templates from VS Code:
+
+  <kbd>Ctrl+Shift+P</kbd> > <kbd>Run Build Task</kbd> > <kbd>Build Toolkit</kbd>
 
 Build-Toolkit runs the following scripts internally:
 
@@ -42,8 +91,6 @@ Build-Toolkit runs the following scripts internally:
 ## 🚀 Deploy-Toolkit
 
 [Deploy-Toolkit.ps1](./Deploy-Toolkit.ps1) deploys toolkit templates for local testing purposes.
-
-Parameters:
 
 | Parameter        | Description                                                                                                                        |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
@@ -76,13 +123,23 @@ Examples:
   ./Deploy-Toolkit "subscription-scheduled-action" -Build -Test
   ```
 
+- Build and deploy a module from any directory via NPM:
+
+  ```console
+  npm run deploy "finops-hub"
+  ```
+
+- Build and deploy a module test (`main.test.bicep` file) from any directory via NPM:
+
+  ```console
+  npm run deploy-test "finops-hub"
+  ```
+
 <br>
 
 ## 🚚 Publish-Toolkit
 
 [Publish-Toolkit.ps1](./Publish-Toolkit.ps1) publishes a template to the Azure Quickstart Templates repository.
-
-Parameters:
 
 | Parameter      | Description                                                                                                              |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------ |
@@ -95,6 +152,61 @@ Example:
 
 ```powershell
 ./Publish-Toolkit "finops-hub" "../../../aqt" -Build -Commit
+```
+
+<br>
+
+## 📦 Package-Toolkit
+
+[Package-Toolkit.ps1](./Package-Toolkit.ps1) packages all toolkit templates as ZIP files for release.
+
+| Parameter   | Description                                                                                      |
+| ----------- | ------------------------------------------------------------------------------------------------ |
+| `-Template` | Optional. Name of the template or module to package. Default = \* (all).                         |
+| `-Build`    | Optional. Indicates whether the Build-Toolkit command should be executed first. Default = false. |
+
+Examples:
+
+- Generate ZIP files for each template using an existing build.
+
+  ```powershell
+  ./Package-Toolkit
+  ```
+
+- Builds the latest code and generates ZIP files for each template.
+
+  ```powershell
+  ./Package-Toolkit -Build
+  ```
+
+<br>
+
+## ©️ Add-CopyrightHeader
+
+[Add-CopyrightHeader.ps1](./Add-CopyrightHeader.ps1) checks all files to ensure they have a copyright header. Generates a summary of the number of files checked, files updated, and file types that are not supported. Run this script whenever adding new code files.
+
+If unsupported file types are found, the script needs to be updated to either specify the comment character(s) or ignore the file type.
+
+To specify the comment character(s), update the `$fileTypes` variable:
+
+```powershell
+$fileTypes = @{
+    "bicep" = "//"
+    "ps1"   = "#"
+    "psd1"  = "#"
+    "psm1"  = "#"
+}
+```
+
+To ignore a file type, add it to the `Get-ChildItem -Exclude` list:
+
+```powershell
+Get-ChildItem `
+    -Path ../ `
+    -Recurse `
+    -Include *.* `
+    -Exclude *.abf, *.bim, .buildignore, .gitignore, *.json, *.md, *.pbidataset, *.pbip, *.pbir, *.pbix, *.png, *.svg `
+    -File
 ```
 
 <br>
@@ -120,5 +232,37 @@ Example:
 ```powershell
 ./New-FeatureBranch "foo"
 ```
+
+<br>
+
+## 🔀 Merge-DevBranch
+
+[Merge-DevBranch.ps1](./Merge-DevBranch.ps1) merges the `dev` branch into the specified branch.
+
+| Parameter      | Description                                                                                                                                                                                                 |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `-Branch`      | Optional. Name of the branch to merge into. Default = "." (current branch).                                                                                                                                 |
+| `-TortoiseGit` | Optional. Indicates whether to use TortoiseGit to resolve conflicts. Default = false.                                                                                                                       |
+| `-Silent`      | Optional. Indicates whether to hide informational output. Will abort merge if there are any conflicts. Use `$LASTEXITCODE` to determine status (0 = successful, 1 = error, 2 = conflicts). Default = false. |
+
+Examples:
+
+- Merge the `dev` branch into the current branch.
+
+  ```powershell
+  ./Merge-DevBranch
+  ```
+
+- Merge the `dev` branch into the `features/foo` branch and uses TortoiseGit to resolve conflicts.
+
+  ```powershell
+  ./Merge-DevBranch features/foo -TortoiseGit
+  ```
+
+- Merge the `dev` branch into all feature branches. Does not resolve conflicts.
+
+  ```powershell
+  ./Merge-DevBranch *
+  ```
 
 <br>
