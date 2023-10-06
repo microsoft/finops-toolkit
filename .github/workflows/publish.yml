@@ -1,3 +1,4 @@
+name: Publish PowerShell
 on:
     workflow_dispatch: {}            
 
@@ -5,6 +6,11 @@ jobs:
     publish:
         runs-on: windows-latest
         steps:
+            - name: Install and cache PowerShell modules
+              uses: potatoqualitee/psmodulecache@v5.2
+              with:
+                modules-to-cache: InvokeBuild, PSScriptAnalyzer, Pester, Az.Accounts, Az.Resources
+                shell: pwsh
             - uses: actions/checkout@v3
             - name: PowerShellGallery
               shell: pwsh

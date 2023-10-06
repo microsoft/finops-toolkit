@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/**
- * Parameters
- */
+//==============================================================================
+// Parameters
+//==============================================================================
 
 targetScope = 'resourceGroup'
 
@@ -32,9 +32,9 @@ param exportScopes array = []
 @description('Optional. Deploy Azure Data Explorer cluster for analytics. Default: false.')
 param deployDataExplorer bool = true //TODO: DEFAULT to False once ready.
 
-/**
- * Resources
- */
+//==============================================================================
+// Resources
+//==============================================================================
 
 module hub 'modules/hub.bicep' = {
   name: 'hub'
@@ -49,9 +49,9 @@ module hub 'modules/hub.bicep' = {
   }
 }
 
-/**
- * Outputs
- */
+//==============================================================================
+// Outputs
+//==============================================================================
 
 @description('The name of the resource group.')
 output name string = hubName
