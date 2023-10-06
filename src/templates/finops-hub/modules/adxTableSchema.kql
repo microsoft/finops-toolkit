@@ -1,0 +1,3 @@
+.create-merge table Focus (Timestamp:datetime, AvailabilityZone:string, BillingAccountId:string, BillingAccountName:string, BillingCurrency:string, BillingPeriodEnd:datetime, BillingPeriodStart:datetime, ChargePeriodEnd:datetime, ChargePeriodStart:datetime, ChargeType:string, InvoiceIssuerName:string, ProviderName:string, PublisherName:string, Region:string, ResourceId:string, ResourceName:string, ServiceCategory:string, ServiceName:string, SubAccountId:string, SubAccountName:string, AmortizedCost:decimal, BilledCost:decimal)
+
+// .create-merge table Basic (Level:string, Timestamp:datetime, UserId:string, TraceId:string, Message:string, ProcessId:int32)
