@@ -15,6 +15,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
+- [🔄️ Unreleased](#️-unreleased)
 - [🚚 v0.1](#-v01)
 - [🌱 v0.0.1](#-v001)
 
@@ -22,6 +23,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
 
 ---
 
+<!--
 Legend:
 🔄️ Unreleased
 🚀🎉 Major
@@ -29,14 +31,14 @@ Legend:
 🛠️✨ Patch
 🪛⬆️ Update
 🌱 Pre-release
+-->
 
-<!-- ## 🔄️ Unreleased -->
+## 🔄️ Unreleased
+
 Added:
 
 1. Azure Monitor workbooks
    1. [Governance workbook](governance-workbook) to centralize governance.
-
-## v0.0.1
 
 ## 🚚 v0.1
 
