@@ -1,0 +1,7 @@
+{% if page.title == "Home" %}
+<title>{{ site.title }} - Kick start your FinOps efforts</title>
+{% endif %}
+
+{% if page.title != "Home" %}
+<title>{{ page.title }} - {{ site.title }}</title>
+{% endif %}
