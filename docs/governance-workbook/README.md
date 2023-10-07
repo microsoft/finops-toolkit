@@ -7,9 +7,12 @@
 The governance workbook is an Azure Monitor workbook that provides a customizable single pane of glass for governance.
 
 ## Workbook Overview
-Take advantage of the Azure governance workbook to easily navigate through the resource of your subscription. The purpose of this tool is to help you to identify the resources deployed into your environment and keep track on them.
+
+Take advantage of the Azure governance workbook to easily navigate through your Azure resources. The purpose of this tool is to help you identify and keep track of resources deployed into your environment.
+
 The following section will help you to understand the metrics displayed in this workbook to ease your cloud usage and administration.
-This tool is contain 14 sections:
+
+The Governance workbook contains the following sections:
 -	Overview
 -	Virtual Machine
 -	Storage + backup
@@ -104,23 +107,29 @@ The **Resource age** tab is giving you more information about the resource “Cr
 
 ## Tag explorer
 The **Tag explorer** tab help you to filter/sort your resources by Tag. You can list and identify resources with or without a specified tag name and with or without a value. Each result can be filtered by resource type.
-You can also get general information on Subscription and Resource Groups.
+
+You can also get general information on subscriptions and resource groups.
 
 ## Cost management
 The **Cost management** tab is providing you high level information about your cost and can be filtered by tag.
 
 ## Usage + limits
 Many Azure services have quotas, which are the assigned number of resources for your Azure subscription. Each quota represents a specific countable resource, such as the number of virtual machines you can create, the number of storage accounts you can use concurrently, the number of networking resources you can consume, or the number of API calls to a particular service you can make.
-The **Usage & limits** tab is providing this information about your subscriptions. If you need more information about quotas, see [Quotas overview](https://learn.microsoft.com/en-us/azure/quotas/quotas-overview).
+
+The **Usage & limits** tab provides this information about your subscriptions. To learn more about quotas, see [Quotas overview](https://learn.microsoft.com/en-us/azure/quotas/quotas-overview).
 
 ## Compliance
 The **Compliance** tab allow you to monitore your policy compliance, the number of failures by resources, by operations and by category.
 
 ## Governance
 Microsoft Defender for Cloud continuously assesses your hybrid and multi-cloud workloads and provides you with recommendations to harden your assets and enhance your security posture.
+
 Central security teams often experience challenges when driving the personnel within their organizations to implement recommendations. The organizations' security posture can suffer as a result.
+
 We're introducing a brand-new, built-in governance experience to set ownership and expected remediation timeframes to resolve recommendations.
-Pre-requisite: To use this governance report, you need to create security governance rules. 
+
+Pre-requisite: To use this governance report, you need to create security governance rules.
+
 To know more about this product, please use the following link : [Driving your organization to remediate security issues with recommendation governance in Microsoft Defender for Cloud | Microsoft Learn](https://learn.microsoft.com/en-us/azure/defender-for-cloud/governance-rules)
 
 
