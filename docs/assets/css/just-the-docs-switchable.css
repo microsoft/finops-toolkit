@@ -2648,7 +2648,7 @@ html.dark-mode h5,
 html.dark-mode h6,
 html.dark-mode #toctitle { color: #f5f6fa; }
 html.dark-mode a { color: #7253ed; }
-html.dark-mode a:not([class]) { text-decoration-color: #eeebee; }
+html.dark-mode a:not([class]) { text-decoration-color: #44434d; }
 html.dark-mode a:not([class]):hover { text-decoration-color: rgba(114, 83, 237, 0.45); }
 html.dark-mode hr { background-color: #44434d; }
 html.dark-mode blockquote { border-left-color: #44434d; }
