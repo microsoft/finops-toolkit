@@ -393,6 +393,7 @@ body { position: relative; padding-bottom: 4rem; overflow-y: scroll; }
 .nav-list .nav-list-item .nav-list-link:hover,
 .nav-list .nav-list-item .nav-list-link.active { background-image: linear-gradient(-90deg, #ebedf5 0%, rgba(235, 237, 245, 0.8) 80%, rgba(235, 237, 245, 0) 100%); }
 .nav-list .nav-list-item .nav-list-expander { position: absolute; right: 0; width: 3rem; height: 3rem; padding: 0.75rem; color: #7253ed; }
+.btn-reset { background: none; border: none; margin: 0; text-align: inherit; font: inherit; border-radius: 0; appearance: none; }
 @media (min-width: 50rem) {
   .nav-list .nav-list-item .nav-list-expander { width: 2rem; height: 2rem; padding: 0.5rem; }
 }
