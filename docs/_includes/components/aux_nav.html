@@ -23,6 +23,17 @@
     </symbol>
   </svg>
   <ul class="aux-nav-list">
+    {% for link in site.aux_links %}
+      <li class="aux-nav-list-item">
+        <a href="{{ link.last }}" class="site-button"
+          {% if site.aux_links_new_tab %}
+          target="_blank" rel="noopener noreferrer"
+          {% endif %}
+        >
+          {{ link.first }}
+        </a>
+      </li>
+    {% endfor %}
     <li class="aux-nav-list-item">
       <a id="theme-toggle" class="site-button"><svg width="18px" height="18px"><use href="#svg-sun"></use></svg></a>
     </li>
