@@ -98,7 +98,7 @@ function Deploy-FinOpsHub
         }
         if($PSCmdlet.ShouldProcess('FinOps hub deployment','Initialize'))
         {
-            Initialize-FinOpsToolkit 
+            Initialize-FinOpsHubDeployment
         }
 
         if ($PSCmdlet.ShouldProcess($Version, 'DownloadTemplate'))
