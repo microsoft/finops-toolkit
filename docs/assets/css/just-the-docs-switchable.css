@@ -2715,7 +2715,7 @@ html.dark-mode .btn-outline.zeroclipboard-is-active { color: #1878fa; text-decor
 html.dark-mode .btn-outline:focus { box-shadow: inset 0 0 0 2px #5c5962, 0 0 0 3px rgba(0, 0, 255, 0.25); }
 html.dark-mode .btn-outline:focus:hover,
 html.dark-mode .btn-outline.selected:focus { box-shadow: inset 0 0 0 2px #5c5962; }
-html.dark-mode .btn-primary { color: #fff; background-color: #2448a7; background-image: linear-gradient(#2b55c4, #2448a7); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), 0 4px 10px rgba(0, 0, 0, 0.12); }
+html.dark-mode .btn-primary { background-color: #5739ce; background-image: linear-gradient(#6f55d5, #5739ce); }
 html.dark-mode .btn-primary:hover,
 html.dark-mode .btn-primary.zeroclipboard-is-hover { color: #fff; background-color: #22459e; background-image: linear-gradient(#2850b7, #22459e); }
 html.dark-mode .btn-primary:active,
