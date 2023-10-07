@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Cost optimization workbook
-nav_order: 3
+nav_order: 30
 description: 'Azure Monitor workbook focused on cost optimization.'
 permalink: /optimization-workbook
 ---

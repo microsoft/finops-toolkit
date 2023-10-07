@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Open data
-nav_order: 6
+nav_order: 60
 description: 'Leverage open data to normalize and enhance your FinOps reporting.'
 permalink: /data
 ---
