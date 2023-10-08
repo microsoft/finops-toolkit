@@ -17,6 +17,7 @@ Leverage reusable bicep modules in your templates to accelerate your FinOps effo
 
 - [Scheduled actions](#scheduled-actions)
 - [Exports](#exports)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -53,4 +54,10 @@ Creates an [export](https://learn.microsoft.com/rest/api/cost-management/exports
 
 <br>
 
+---
+
+## 🧰 Related tools
+
 {% include tools.md powershell="1" %}
+
+<br>

@@ -121,3 +121,5 @@ See [Commitment-based discounts](#commitment-based-discounts).
 ## 🧰 Related tools
 
 {% include tools.md finops-hub="1" power-bi="1" %}
+
+<br>

@@ -20,6 +20,7 @@ Leverage open data to normalize and enhance your FinOps reporting.
 - [🗺️ Regions](#️-regions)
 - [🎛️ Services](#️-services)
 - [🙋‍♀️ Looking for more?](#️-looking-for-more)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -111,4 +112,10 @@ We'd love to hear about any datasets you're looking for. Create a new issue with
 
 <br>
 
+---
+
+## 🧰 Related tools
+
 {% include tools.md power-bi="1" %}
+
+<br>

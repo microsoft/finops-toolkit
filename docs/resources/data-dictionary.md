@@ -175,4 +175,10 @@ Columns to add:
 
 <br>
 
+---
+
+## 🧰 Related tools
+
 {% include tools.md finops-hub=1 power-bi="1" %}
+
+<br>

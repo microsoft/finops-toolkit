@@ -22,6 +22,7 @@ Publish new Power BI reports based on FinOps toolkit starter kits, extend them t
 - [🛠️ Connect manually](#️-connect-manually)
 - [🚚 Migrate from the Cost Management template app](#-migrate-from-the-cost-management-template-app)
 - [🏗️ Migrate from the Cost Management connector](#️-migrate-from-the-cost-management-connector)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -245,4 +246,10 @@ Note the following columns are new in this release. These columns were not previ
 <br>
 -->
 
+---
+
+## 🧰 Related tools
+
 {% include tools.md finops-hub="1" %}
+
+<br>

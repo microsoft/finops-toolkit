@@ -20,6 +20,7 @@ Deploy a new or update an existing FinOps hub instance.
 
 - [⚡ Commands](#-commands)
 - [🙋‍♀️ Looking for more?](#️-looking-for-more)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -45,4 +46,10 @@ We'd love to hear about any commands or scripts you're looking for. Vote up (�
 
 <br>
 
+---
+
+## 🧰 Related tools
+
 {% include tools.md finops-hub="1" %}
+
+<br>

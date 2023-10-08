@@ -36,4 +36,10 @@ The cost optimization workbook is an Azure Monitor workbook that provides a sing
 
 <br>
 
+---
+
+## 🧰 Related tools
+
 {% include tools.md finops-hub="1" governance-workbook="1" %}
+
+<br>

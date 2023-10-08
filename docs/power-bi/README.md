@@ -21,6 +21,7 @@ Accelerate your analytics efforts with simple, targeted reports. Summarize and b
 - [⚖️ Help me choose](#️-help-me-choose)
 - [✨ Connect to your data](#-connect-to-your-data)
 - [🙋‍♀️ Looking for more?](#️-looking-for-more)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -122,4 +123,10 @@ We'd love to hear about any reports, charts, or general reporting questions you'
 
 <br>
 
+---
+
+## 🧰 Related tools
+
 {% include tools.md finops-hub="1" optimization-workbook="1" governance-workbook="1" open-data="1" %}
+
+<br>

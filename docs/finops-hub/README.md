@@ -22,6 +22,7 @@ Open, extensible, and scalable cost governance for the enterprise.
 - [📦 What's included](#-whats-included)
 - [➕ Create a new hub](#-create-a-new-hub)
 - [🛫 Get started with hubs](#-get-started-with-hubs)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -169,4 +170,10 @@ If you access data in storage or are creating or customizing Power BI reports, p
 
 <br>
 
+---
+
+## 🧰 Related tools
+
 {% include tools.md power-bi="1" powershell="1" optimization-workbook="1" %}
+
+<br>

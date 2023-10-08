@@ -21,6 +21,7 @@ Gets details about a FinOps hub instance.
 - [🧮 Syntax](#-syntax)
 - [📥 Parameters](#-parameters)
 - [🌟 Examples](#-examples)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -86,4 +87,10 @@ Returns all FinOps hubs named 'foo' in the 'bar' resource group.
 
 <br>
 
+---
+
+## 🧰 Related tools
+
 {% include tools.md finops-hub="1" %}
+
+<br>

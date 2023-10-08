@@ -21,6 +21,7 @@ Deploys a FinOps hub instance.
 - [🧮 Syntax](#-syntax)
 - [📥 Parameters](#-parameters)
 - [🌟 Examples](#-examples)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -89,4 +90,10 @@ Deploys a new FinOps hub instance named MyHub to a new resource group named MyNe
 
 <br>
 
+---
+
+## 🧰 Related tools
+
 {% include tools.md finops-hub="1" %}
+
+<br>
