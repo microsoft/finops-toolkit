@@ -6,7 +6,7 @@
     Delete a Cost Management export and optionally data associated with the export.
 
     .PARAMETER Id
-    Required Resource ID of the scope to remove.
+    Required resource ID of the scope to remove.
 
     .PARAMETER HubName
     Optional. Name of the hub instance to update.
@@ -15,11 +15,14 @@
     Optional. Indicates whether to remove data for this scope from storage. Default = false
 
     .EXAMPLE
-    Remove-FinOpsHubScope -Id "ResourceID of Scope" -HubName "Hub Name" 
-    Remove-FinOpsHubScope -Id "ResourceID of Scope" -HubName "Hub Name" -RemoveData
+    Remove-FinOpsHubScope -Id "/providers/Microsoft.Billing/billingAccounts/123" -HubName "FooHub" 
+    Deletes the exports configured to use the FooHub hub instance. Existing data is retained in the storage account.
+    
+    Remove-FinOpsHubScope -Id "/subscriptions/##-#-#-#-###" -HubName "FooHub" -RemoveData
+    Deletes the exports configured to use the FooHub hub instance and removes data for that scope.
     
     .LINK
-    https://aka.ms/ftk/Initialize-FinOpsHubDeployment
+    https://aka.ms/ftk/Remove-FinOpsHubScope
 #>
 
 
@@ -39,7 +42,7 @@ function Remove-FinOpsHubScope {
         # Delete the exports
         foreach ($export in $exports) 
         {
-            Remove-FinOpsCostExport -Scope $Id -Name $export.Name 
+            Remove-FinOpsCostExport -Scope $Id -Name $export.Name -RemoveData:$RemoveData
             Write-Verbose -Message "Deleted Cost Management export $($export.Name) from storage account $($export.StorageAccountId.Split("/")[-1])."
         
 
@@ -48,7 +51,6 @@ function Remove-FinOpsHubScope {
             {
                 # This can use the standard storage Az commands
                 $storageAccountName = $export.StorageAccountId.Split("/")[-1]
-                $storageAccount = Get-AzStorageAccount -ResourceGroupName (Get-AzResource -ResourceId $export.StorageAccountId).ResourceGroupName -Name $storageAccountName | Select-Object -ExpandProperty Kind
                 $storageAccountKey = (Get-AzStorageAccountKey -ResourceGroupName (Get-AzResource -ResourceId $export.StorageAccountId).ResourceGroupName -Name $storageAccountName).Value[0]
                 $context = New-AzStorageContext -StorageAccountName $storageAccountName -StorageAccountKey $storageAccountKey
                 Remove-AzDataLakeGen2Item -FileSystem "ingestion" -Path $export.StoragePath -Context $context -Force
