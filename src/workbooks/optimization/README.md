@@ -1,3 +1,15 @@
+---
+description: This template creates a new Azure Monitor workbook for cost optimization based on the Well-Architected Framework.
+page_type: sample
+products:
+  - azure
+  - azure-resource-manager
+urlFragment: optimization-workbook
+languages:
+  - bicep
+  - json
+---
+
 # Cost optimization workbook template
 
 ![Azure Public Test Date](https://azurequickstartsservice.blob.core.windows.net/badges/quickstarts/microsoft.costmanagement/optimization-workbook/PublicLastTestDate.svg)

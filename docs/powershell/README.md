@@ -2,7 +2,7 @@
 layout: default
 title: PowerShell
 has_children: true
-nav_order: 5
+nav_order: 50
 description: 'Automate and scale your FinOps efforts.'
 permalink: /powershell
 ---

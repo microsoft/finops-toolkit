@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Deployment options
-nav_order: 7
+nav_order: yyy
 description: 'Deploy FinOps toolkit solutions.'
 permalink: /deploy
 ---
@@ -25,6 +25,7 @@ The FinOps toolkit includes multiple ARM templates. Prerequisites, parameters, a
 
 - [FinOps hub](../finops-hub/template.md)
 - [Optimization workbook](../optimization-workbook/README.md)
+- [Governance workbook](../governance-workbook/README.md)
 
 Note Bicep Registry modules can be referenced directly from your Bicep code and are not deployed using the steps below.
 
@@ -48,6 +49,7 @@ Note Bicep Registry modules can be referenced directly from your Bicep code and 
 1. Open the desired template:
    - [FinOps hub](https://learn.microsoft.com/samples/azure/azure-quickstart-templates/finops-hub)
    - [Optimization workbook](https://learn.microsoft.com/samples/azure/azure-quickstart-templates/optimization-workbook)
+   - [Governance workbook](https://learn.microsoft.com/samples/azure/azure-quickstart-templates/governance-workbook)
 2. Select the **Deploy to Azure** button towards the top of the page.
 3. Specify the desired values for each parameter. See the template details for more information.
    <blockquote class="tip" markdown="1">

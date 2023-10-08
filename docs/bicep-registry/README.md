@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Bicep Registry
-nav_order: 4
+nav_order: 40
 description: 'Include bicep modules in your templates.'
 permalink: /bicep
 ---
