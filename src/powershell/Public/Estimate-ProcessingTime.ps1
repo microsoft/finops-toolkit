@@ -60,7 +60,7 @@ param(
 )
     
 # Define the directory, input, and output file paths
-$directory = "$env:USERPROFILE\Documents\__repos\finops-toolkit\src\powershell\Public"
+$directory = "..\Public"
 $inputFile = "$directory\inputtestfile.csv"
 $outputFile = "$directory\outputtestfile.csv"
 
