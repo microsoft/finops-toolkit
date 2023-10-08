@@ -53,6 +53,13 @@ Added:
    2. [Regions](./open-data/README.md#-regions) to map historical resource location values in Microsoft Cost Management to standard Azure regions.
    3. [Services](./open-data/README.md#-services) to map all resource types to FOCUS service names and categories.
 
+Fixed:
+
+1. FinOps hubs
+   1. Tags specified in the create form were causing the deployment to fail. See #331.
+
+[Download v0.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+
 <br>
 
 ## 🌱 v0.0.1
