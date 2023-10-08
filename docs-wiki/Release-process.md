@@ -4,9 +4,8 @@ The following outlines the release process after all work is completed and mergi
 
 On this page:
 
-- [♻️ Issue lifecycle](#️-issue-lifecycle)
-- [📋 Triaging issues](#-triaging-issues)
-- [♻️ Pull request lifecycle](#️-pull-request-lifecycle)
+- [🌿 Promoting a feature branch](#-promoting-a-feature-branch)
+- [📜 Changelog guidance](#-changelog-guidance)
 
 ---
 
