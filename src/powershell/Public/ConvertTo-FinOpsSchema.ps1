@@ -33,21 +33,21 @@
     Specifies whether to force the operation to continue without user confirmation after the test is complete.
 
     .EXAMPLE
-    ConvertTo-FinOpsSchema -ActualCost .\Detail_Account_196312_202309_en.csv -outputFilePath .\Detail_Account_196312_202309_en_filtered.csv -ExportAllColumns $false
+    .\ConvertTo-FinOpsSchema.ps1 -ActualCost .\Detail_Account_196312_202309_en.csv -outputFilePath .\Detail_Account_196312_202309_en_filtered.csv -ExportAllColumns $false -Force
 
     # This will convert the input file to the output file using the default column mapping and export only the columns specified in the column mapping. The operation will not run a test and will not prompt the user to continue.
 
     .EXAMPLE
-    ConvertTo-FinOpsSchema -ActualCost .\Detail_Account_196312_202309_en.csv -outputFilePath .\Detail_Account_196312_202309_en_filtered.csv -columnMapping @{billingAccountId='BillingAccountId';billingAccountName='BillingAccountName';ftk_AccountType='ftk_AccountType';BillingProfileId='BillingProfileId';SubscriptionId='SubscriptionId'} -ExportAllColumns $true -Force
+    .\ConvertTo-FinOpsSchema.ps1 -ActualCost .\Detail_Account_196312_202309_en.csv -outputFilePath .\Detail_Account_196312_202309_en_filtered.csv -ExportAllColumns $true -Force
 
     # This will convert the input file to the output file using the default column mapping and export all columns. The operation will not run a test and will not prompt the user to continue. 
 
     .EXAMPLE
-    ConvertTo-FinOpsSchema -ActualCost .\Detail_Account_196312_202309_en.csv -outputFilePath .\Detail_Account_196312_202309_en_filtered.csv -ExportAllColumns $true -RunTest -rows 1000 -columns 10
+    .\ConvertTo-FinOpsSchema.ps1 -ActualCost .\Detail_Account_196312_202309_en.csv -outputFilePath .\Detail_Account_196312_202309_en_filtered.csv -ExportAllColumns $true -RunTest $true -rows 1000 -columns 10
     # This will run a test to estimate the processing time and then prompt the user to continue. If the user enters Y or y, the operation will continue. If the user enters N or n, the operation will be aborted. 
 
     .EXAMPLE
-    ConvertTo-FinOpsSchema -ActualCost .\Detail_Account_196312_202309_en.csv -outputFilePath .\Detail_Account_196312_202309_en_filtered.csv -ExportAllColumns $false -RunTest -rows 1000 -columns 10 -Force
+    .\ConvertTo-FinOpsSchema.ps1 -ActualCost .\Detail_Account_196312_202309_en.csv -outputFilePath .\Detail_Account_196312_202309_en_filtered.csv -ExportAllColumns $false -RunTest $true -rows 1000 -columns 10 -Force
     # This will run a test to estimate the processing time and then continue without prompting the user. It will export only the columns specified in the column mapping.
 #>
 
@@ -192,32 +192,23 @@ function ConvertTo-FinOpsSchema {
 
 <# Testing Framework #>
 # Define the number of rows and columns for testing and it will display an estimated processing time.
-if ($RunTest) {
+if ($RunTest -and -not $Force) {
     $host.UI.RawUI.ForegroundColor = "Yellow"
     Write-Output "Running test..." 
     .\Estimate-ProcessingTime.ps1 -rows $rows -columns $columns -columnMapping $columnMapping -ExportAllColumns $ExportAllColumns
     $host.UI.RawUI.ForegroundColor = "White"
     $confirmation = Read-Host "Do you want to continue? (Y/N)"
-
-
-} else {
-    $confirmation = Read-Host "Do you want to continue? (Y/N)"
+    if ($confirmation -ne 'Y' -and $confirmation -ne 'y') {
+        $host.UI.RawUI.ForegroundColor = "Red"
+        Write-Output "Operation aborted by the user."
+        $host.UI.RawUI.ForegroundColor = "White"
+        return
+    }
 }
 
-# if the user enters Y or y, continue with processing
-if ($Force -or ($confirmation -eq 'Y')) {
-    # Continue with processing...
-
-<# The actual function call #>
-    # Call the functions from the function with the specified parameters
-    ConvertTo-FinOpsSchema -ActualCost $ActualCost -outputFilePath $outputFilePath -columnMapping $columnMapping -ExportAllColumns $ExportAllColumns
-    $host.UI.RawUI.ForegroundColor = "Green"
-    Write-Output "Processing completed."
-    $host.UI.RawUI.ForegroundColor = "White"
-
-} else {
-    $host.UI.RawUI.ForegroundColor = "Red"
-    Write-Output "Operation aborted by the user."
-    $host.UI.RawUI.ForegroundColor = "White"
-
-}
+# The actual function call
+# Call the functions from the function with the specified parameters
+ConvertTo-FinOpsSchema -ActualCost $ActualCost -outputFilePath $outputFilePath -columnMapping $columnMapping -ExportAllColumns $ExportAllColumns
+$host.UI.RawUI.ForegroundColor = "Green"
+Write-Output "Processing completed."
+$host.UI.RawUI.ForegroundColor = "White"
