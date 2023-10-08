@@ -88,8 +88,9 @@ $elapsedTime = Measure-Command {
     ConvertTo-FinOpsSchema -ActualCost $inputFile -outputFilePath $outputFile -columnMapping $columnMapping -ExportAllColumns $ExportAllColumns
 }
 $correctedTimeString = $elapsedTime.TotalSeconds *10
-
-Write-Host "Estimated total processing time: $($correctedTimeString) seconds" -ForegroundColor Yellow
+$host.UI.RawUI.ForegroundColor = "Yellow"
+Write-Output "Estimated total processing time: $($correctedTimeString) seconds"
+$host.UI.RawUI.ForegroundColor = "White"
 #  delete the files after the test is complete
 Remove-Item -Path $inputFile
 Remove-Item -Path $outputFile
