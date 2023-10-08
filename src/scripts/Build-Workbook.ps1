@@ -51,27 +51,24 @@ if (Test-Path -Path $workbookDir -PathType Container) {
         $workbookGalleryName = $workbooksMetdata.$workbook["GalleryName"]
         ## Create a new template
         Copy-Item $workbookTemplate $newTemplate -Force
-
-        $templateName = $templates[0].Name
-        $tempTemplate = Get-Content "$workbookDir/$templateName/$templateName.workbook" -Raw
-        $templateJson = $tempTemplate | ConvertFrom-Json
-        $templateObjects = ($templateJson.items.content).items
+        $newWorkbookContent = Get-Content $newTemplate | ConvertFrom-Json
 
         ## Inject contents of each sub-template
         foreach ($template in $templates) {
             $templateName = $template.Name
             $tempTemplate = Get-Content "$workbookDir/$templateName/$templateName.workbook" -Raw
-            $newWorkbookContent = Get-Content $newTemplate
             $templateJson = $tempTemplate | ConvertFrom-Json
             $templateObjects = ($templateJson.items.content).items
             $templateLoadString = "community-Workbooks/$workbookProduct/$workbookGalleryName/$templateName"
-            $templateItemsLine = (Select-String $templateLoadString -Context 0, 1 -Path $newTemplate).LineNumber
-            $x = $templateObjects[2..$templateObjects.Count] | ConvertTo-Json -Depth 20
-            $itemsObject = "`"items`": $x"
-            $newWorkbookContent[$templateItemsLine] = $itemsObject
-            Set-Content $newTemplate -Value $newWorkbookContent
-            (Get-Content $newTemplate) -replace $templateLoadString, '' | Set-Content $newTemplate
+            $templateContent=$newWorkbookContent.items.content.items | Where-Object {$_.content.groupType -eq 'template'} | Select-Object -ExpandProperty content | Where-Object {$_.loadFromTemplateId -eq $templateLoadString}
+            $templateContent.loadFromTemplateId = '""'
+            $templateContent.groupType = "editable"
+            $templateObjects | ForEach-Object {
+                $templateContent.items += $_
+            }
         }
+        $newWorkbookContent = $newWorkbookContent | ConvertTo-Json -Depth 40
+        $newWorkbookContent | Set-Content -Path $newTemplate
     }
 }
 
