@@ -3,11 +3,7 @@
 
 <#
     .SYNOPSIS
-    This script is used to test the ConvertTo-FinOpsSchema function.
-    You can specify the number of rows and columns to generate, as well as the column mapping.
-    It creates a CSV file based on the input of the user and calls the function with the specified parameters.
-    The function will create a new CSV file with the specified column mapping and export all columns or only the columns specified in the column mapping.
-    The script will then delete the input and output files.
+    This script is used to test the processing time of the ConvertTo-FinOpsSchema function.
 
     .DESCRIPTION
     This script is used to test the ConvertTo-FinOpsSchema function.
