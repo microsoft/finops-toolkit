@@ -46,7 +46,7 @@ if (Test-Path -Path $workbookDir -PathType Container) {
     # Check if any templates were found
     if ($templates) {
         $workbookTemplate = Join-Path $workbookDir "workbook.json"
-        $newTemplate = "$outDir\workbook.json"
+        $newTemplate = "$outDir/workbook.json"
         $workbookProduct = $workbooksMetdata.$workbook["Product"]
         $workbookGalleryName = $workbooksMetdata.$workbook["GalleryName"]
         ## Create a new template
