@@ -49,7 +49,7 @@
     # This will run a test to estimate the processing time and then prompt the user to continue. If the user enters Y or y, the operation will continue. If the user enters N or n, the operation will be aborted. 
 
     .EXAMPLE
-    ConvertTo-FinOpsSchema -ActualCost .\Detail_Account_196312_202309_en.csv -outputFilePath .\Detail_Account_196312_202309_en_filtered.csv -ExportAllColumns $true -RunTest -rows 1000 -columns 10 -Force -ExportAllColumns $false
+    ConvertTo-FinOpsSchema -ActualCost .\Detail_Account_196312_202309_en.csv -outputFilePath .\Detail_Account_196312_202309_en_filtered.csv -ExportAllColumns $false -RunTest -rows 1000 -columns 10 -Force
     # This will run a test to estimate the processing time and then continue without prompting the user. It will export only the columns specified in the column mapping.
 #>
 
