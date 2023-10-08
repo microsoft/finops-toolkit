@@ -62,7 +62,6 @@ if (Test-Path -Path $workbookDir -PathType Container) {
             $templateLoadString = "community-Workbooks/$workbookProduct/$workbookGalleryName/$templateName"
             $templateContent=$newWorkbookContent.items.content.items | Where-Object {$_.content.groupType -eq 'template'} | Select-Object -ExpandProperty content | Where-Object {$_.loadFromTemplateId -eq $templateLoadString}
             $templateContent.loadFromTemplateId = '""'
-            $templateContent.groupType = "editable"
             $templateObjects | ForEach-Object {
                 $templateContent.items += $_
             }
