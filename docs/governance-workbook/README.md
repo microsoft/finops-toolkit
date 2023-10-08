@@ -19,7 +19,6 @@ The governance workbook is an Azure Monitor workbook that provides a comprehensi
 
 ![Screenshot of the Governance workbook](https://github.com/microsoft/finops-toolkit/assets/399533/1710cf38-b0ef-4cdf-a30f-dde03dc7f1bf).
 
-
 <br>
 
 ## ➕ Deploy the workbook
