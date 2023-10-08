@@ -36,7 +36,6 @@
     ConvertTo-FinOpsSchema -ActualCost .\Detail_Account_196312_202309_en.csv -outputFilePath .\Detail_Account_196312_202309_en_filtered.csv -ExportAllColumns $false
 
     # This will convert the input file to the output file using the default column mapping and export only the columns specified in the column mapping. The operation will not run a test and will not prompt the user to continue.
-    
 
     .EXAMPLE
     ConvertTo-FinOpsSchema -ActualCost .\Detail_Account_196312_202309_en.csv -outputFilePath .\Detail_Account_196312_202309_en_filtered.csv -columnMapping @{billingAccountId='BillingAccountId';billingAccountName='BillingAccountName';ftk_AccountType='ftk_AccountType';BillingProfileId='BillingProfileId';SubscriptionId='SubscriptionId'} -ExportAllColumns $true -Force
@@ -44,7 +43,7 @@
     # This will convert the input file to the output file using the default column mapping and export all columns. The operation will not run a test and will not prompt the user to continue. 
 
     .EXAMPLE
-    ConvertTo-FinOpsSchema -ActualCost .\Detail_Account_196312_202309_en.csv -outputFilePath .\Detail_Account_196312_202309_en_filtered.csv -ExportAllColumns $true -RunTest -rows 1000 -columns 10 -Force
+    ConvertTo-FinOpsSchema -ActualCost .\Detail_Account_196312_202309_en.csv -outputFilePath .\Detail_Account_196312_202309_en_filtered.csv -ExportAllColumns $true -RunTest -rows 1000 -columns 10
     # This will run a test to estimate the processing time and then prompt the user to continue. If the user enters Y or y, the operation will continue. If the user enters N or n, the operation will be aborted. 
 
     .EXAMPLE
