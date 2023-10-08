@@ -1,12 +1,13 @@
 {
   "main.bicep": {
     "displayName": "Governance",
-    "description": "Reports to help you optimize your cost."
+    "description": "Reports to help you optimize your cost.",
+    "workbookId": "907"
   },
   "metadata.json": {
     "summary": "Create a new governance workbook",
     "description": "This template creates a new Azure Monitor workbook for governance.",
     "githubUsername": "nteyan",
-    "dateUpdated": "2023-07-13"
+    "dateUpdated": "2023-10-08"
   }
 }
