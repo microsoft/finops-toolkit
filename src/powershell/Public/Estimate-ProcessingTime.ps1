@@ -3,7 +3,7 @@
 
 <#
     .SYNOPSIS
-    This script is used to test the processing time of the ConvertTo-FinOpsSchema function.
+    This script is used to test the processing time of the ConvertTo-FinOpsSchema function. It is used inside the ConvertTo-FinOpsSchema.Tests.ps1 script. It is not meant to be run independently.
 
     .DESCRIPTION
     This script is used to test the ConvertTo-FinOpsSchema function.
@@ -23,22 +23,6 @@
 
     .PARAMETER ExportAllColumns
     Specifies whether to export all columns or only the columns specified in the column mapping.
-
-    .EXAMPLE
-    .\Estimate-ProcessingTime.ps1 -rows 1000 -columns 10 -columnMapping @{billingAccountId='BillingAccountId';billingAccountName='BillingAccountName';ftk_AccountType='ftk_AccountType';BillingProfileId='BillingProfileId';SubscriptionId='SubscriptionId'} -ExportAllColumns $true
-    # This will run a test to estimate the processing time and then prompt the user to continue. If the user enters Y or y, the operation will continue. If the user enters N or n, the operation will be aborted.
-
-    .EXAMPLE
-    .\Estimate-ProcessingTime.ps1 -rows 1000 -columns 10 -columnMapping @{billingAccountId='BillingAccountId';billingAccountName='BillingAccountName';ftk_AccountType='ftk_AccountType';BillingProfileId='BillingProfileId';SubscriptionId='SubscriptionId'} -ExportAllColumns $true -Force
-    # This will run a test to estimate the processing time and then continue without prompting the user.
-
-    .EXAMPLE
-    .\Estimate-ProcessingTime.ps1 -rows 1000 -columns 10 -columnMapping @{billingAccountId='BillingAccountId';billingAccountName='BillingAccountName';ftk_AccountType='ftk_AccountType';BillingProfileId='BillingProfileId';SubscriptionId='SubscriptionId'} -ExportAllColumns $true -Force -ExportAllColumns $false
-    # This will run a test to estimate the processing time and then continue without prompting the user. It will export only the columns specified in the column mapping.
-
-    .EXAMPLE
-    .\Estimate-ProcessingTime.ps1 -rows 1000 -columns 10 -columnMapping @{billingAccountId='BillingAccountId';billingAccountName='BillingAccountName';ftk_AccountType='ftk_AccountType';BillingProfileId='BillingProfileId';SubscriptionId='SubscriptionId'} -ExportAllColumns $true -Force -ExportAllColumns $false
-    # This will run a test to estimate the processing time and then continue without prompting the user. It will export only the columns specified in the column mapping.
 
 #>
 
