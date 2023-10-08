@@ -46,12 +46,12 @@ The Azure governance workbook enables you to easily identify and track Azure res
 
 ## ℹ️ Overview
 
-The **overview** tab give you general information about your environment like:
+The **overview** tab provides general information about your environment, including:
 
-- Count of All Resources
-- Resource count per Subscription (Top 10)\*
-- Resource Number by Type (Top 10)\*
-- Resource count per Azure Region
+- Number of resources
+- Resource count by subscription (top 10)
+- Resource Number by type (top 10)
+- Resource count by Azure region
 
 <br>
 
@@ -59,17 +59,20 @@ The **overview** tab give you general information about your environment like:
 
 The **Virtual machine** tab is focused on Compute resources to get more information about the resource count and configuration:
 
-- Virtual Machine Count per OS Type
-- VM by VM Type/Size (D2ms, D2v3…)
+- Virtual machine count by OS type
+- Virtual machines by type/size (e.g., D2ms, D2v3)
 - Virtual machine scale set capacity and size
-- Compute Disks (OS & Data Disk attached, OS & Data Disk size, OS Disk SKU)
-- Compute Networking (NIC, Private IP, Public IP attached)
+- Compute disks (OS & data disk attached, OS & data disk size, OS disk SKU)
+- Compute networking (NIC, private IP, public IP attached)
 - Compute optimization
   - Underused assets (identified by Azure Advisor)
   - Orphaned disks
   - Orphaned NICs
-  - Current VM Status (Creating, Starting, Running, Stopping, Stopped, Deallocating, Deallocated). To get more information about each power state, please refer to the following link : [States and billing status - Azure Virtual Machines | Microsoft Learn](https://learn.microsoft.com/en-us/azure/virtual-machines/states-billing)
-  - Virtual Machine List filtered by Power state
+  - Current VM status (Creating, Starting, Running, Stopping, Stopped, Deallocating, Deallocated)
+    <blockquote class="note" markdown="1">
+      _For more information about each power state, please refer to [Azure VM states and billing status](https://learn.microsoft.com/azure/virtual-machines/states-billing)._
+    </blockquote>
+  - Virtual machine list filtered by power state
 
 <br>
 
@@ -77,36 +80,60 @@ The **Virtual machine** tab is focused on Compute resources to get more informat
 
 The **Storage + backup** tab is focused on storage and backup resources:
 
-- Count of all resource types
+- Number of resource types
 - Resource details
 - Storage accounts details
   - Overview
   - Capacity
-- Backup details (Pre-requisite: Vault diagnostic setting needs configured with Log Analytics Workspaces)
+- Backup details
+  <blockquote class="important" markdown="1">
+    _Vault diagnostic setting needs configured in Log Analytics Workspaces in order to see backup details._
+  </blockquote>
 
 <br>
 
 ## 🛜 Network
 
-The **Network** tab is focusing on Network resources configuration:
+The **Network** tab is focusing on network resource configuration:
 
-- Count of all network resources by resource type
-- **NSGs** is listing orphan Network Security Groups
-- **NSG Rules** (if a NSG is selected above this list) is listing all Network Security Groups rules
-- **Public Ips** is listing Public IPs (could be filtered if orphan or not)
-- **Application Gateways** is listing Application Gateways with or without any backend IP and backend Addresses (depend on the “Orphan filter parameter”)
-- **Load Balancers** is listing Load Balancers with or without empty backend pools (depend on the “Orphan filter parameter”)
+- Number of network resources by resource type
+- **NSGs** shows all or orphaned network security groups
+- **NSG rules** shows network security group rules for the selected NSG from the pervious list
+- **Public IPs** shows all or orphaned public IPs
+- **Application gateways** shows all or orphaned application gateways with or without any backend IP and backend addresses
+- **Load balancers** shows all or orphaned load balancers with or without empty backend pools
 
 <br>
 
 ## 🎛️ PaaS
 
-The **PaaS** tab is focusing PaaS resources configuration:
+The **PaaS** tab is focusing platform as a service resource configuration:
 
-- Automation is listing Automation Accounts, LogicApp Connectors, LogicApp API, Connectors, Logic Apps, Automation Runbooks, Automation Configurations.
-- App Services is listing App Service Plans, Azure Functions, API Apps, App Services, App Gateways, Front Door, API Management, App Certificates, App Config Stores
-- Data is listing CosmosDB, SQL DBs, MySQL Servers, SQL Servers, PostgreSQL Servers, PostgreSQL Flexi Servers, MariaDB Servers.
-- Storage is listing Azure File Sync, Azure Backup, Storage Accounts, Key Vaults
+- **Automation** shows:
+  - Azure Automation accounts, runbooks, and configurations
+  - Logic App instances, APIs, and connectors
+- **App services** shows:
+  - App Service plans, apps, and certificates
+  - Azure Functions
+  - API Apps
+  - App gateways
+  - Front Door
+  - API Management
+  - App Config stores
+- **Data** shows:
+  - Cosmos DB accounts
+  - SQL servers, databases
+  - PostgreSQL servers (including flexible servers)
+  - MySQL servers
+  - MariaDB servers
+
+<!--
+  - **Storage** shows:
+    - Azure File Sync
+    - Azure Backup
+    - Storage accounts
+    - Key Vaults
+-->
 
 <br>
 
@@ -114,21 +141,21 @@ The **PaaS** tab is focusing PaaS resources configuration:
 
 The **Security** tab is focusing on the security score for your subscriptions and controls
 
-- Security Scores by Subscription
-- Security Scores by Control
-- Top 5 attacked resources (with High Severity)
+- Security scores by subscription
+- Security scores by control
+- Top 5 attacked resources (with high severity)
 - Top alert types
-- New Alerts (Since last 24hrs)
+- New alerts in last 24 hours
 - MITRE ATT&CK tactics
-- Active Alerts
+- Active alerts
 
 <br>
 
 ## 🔍 Monitoring
 
-The **Monitoring** tab is providing Service Health information and main events that are happening into one selected subscription:
+The **Monitoring** tab shows Service Health information and main events impacting selected subscriptions:
 
-- All Service Health active Incident
+- All Service Health active incident
 - All changes performed on your resources for the past one day
 - All deleted resources for the past 14 days
 
@@ -136,19 +163,19 @@ The **Monitoring** tab is providing Service Health information and main events t
 
 ## 🪦 Service retirement
 
-The **Services retirement** tab shows Azure services that are being phased out so that you can mitigate affected resources
+The **Services retirement** tab shows Azure services that are being phased out in order to mitigate affected resources.
 
 <br>
 
 ## 🔢 Resource age
 
-The **Resource age** tab is giving you more information about the resource “Creation Date” and the “Last Change Date” in the selected Subscription to help you to identify old resources and perform sanitization.
+The **Resource age** tab shows information about the creation and last change dates for resources in the selected subscription to help you identify old resources and perform sanitization.
 
 <br>
 
 ## 🏷️ Tag explorer
 
-The **Tag explorer** tab help you to filter/sort your resources by Tag. You can list and identify resources with or without a specified tag name and with or without a value. Each result can be filtered by resource type.
+The **Tag explorer** tab helps you to filter/sort your resources by tag. You can list and identify resources with or without a specified tag name and with or without a value. Each result can be filtered by resource type.
 
 You can also get general information on subscriptions and resource groups.
 
@@ -156,7 +183,7 @@ You can also get general information on subscriptions and resource groups.
 
 ## 💹 Cost Management
 
-The **Cost management** tab is providing you high level information about your cost and can be filtered by tag.
+The **Cost Management** tab shows high level information about your cost and can be filtered by tag.
 
 <br>
 
@@ -164,13 +191,13 @@ The **Cost management** tab is providing you high level information about your c
 
 Many Azure services have quotas, which are the assigned number of resources for your Azure subscription. Each quota represents a specific countable resource, such as the number of virtual machines you can create, the number of storage accounts you can use concurrently, the number of networking resources you can consume, or the number of API calls to a particular service you can make.
 
-The **Usage & limits** tab provides this information about your subscriptions. To learn more about quotas, see [Quotas overview](https://learn.microsoft.com/en-us/azure/quotas/quotas-overview).
+The **Usage & limits** tab shows resource this information about your subscriptions. To learn more about quotas, see [Quotas overview](https://learn.microsoft.com/azure/quotas/quotas-overview).
 
 <br>
 
 ## 📋 Compliance
 
-The **Compliance** tab allow you to monitore your policy compliance, the number of failures by resources, by operations and by category.
+The **Compliance** tab helps you monitor policy compliance, the number of failures by resource, operation, and category.
 
 <br>
 
@@ -184,6 +211,6 @@ We're introducing a brand-new, built-in governance experience to set ownership a
 
 Pre-requisite: To use this governance report, you need to create security governance rules.
 
-To know more about this product, please use the following link : [Driving your organization to remediate security issues with recommendation governance in Microsoft Defender for Cloud | Microsoft Learn](https://learn.microsoft.com/en-us/azure/defender-for-cloud/governance-rules)
+To learn more, refer to [Driving your organization to remediate security issues with recommendation governance in Microsoft Defender for Cloud](https://learn.microsoft.com/azure/defender-for-cloud/governance-rules).
 
 <br>
