@@ -17,7 +17,8 @@ Monitor the governance posture of your Azure environment. Leverage recommendatio
 
 The governance workbook is an Azure Monitor workbook that provides a comprehensive overview of the governance posture of your Azure environment. It includes the standard metrics aligned with the Cloud Adoption Framework for all disciplines and has the capability to identify and apply recommendations to address non-compliant resources.
 
-![Screenshot of the Governance workbook.](https://github.com/microsoft/finops-toolkit/assets/399533/20813257-51ba-486c-ac28-d279bb8af3ac)
+![Screenshot of the Governance workbook](https://github.com/microsoft/finops-toolkit/assets/399533/1710cf38-b0ef-4cdf-a30f-dde03dc7f1bf).
+
 
 <br>
 

@@ -25,7 +25,7 @@ The FinOps toolkit includes multiple ARM templates. Prerequisites, parameters, a
 
 - [FinOps hub](../finops-hub/template.md)
 - [Optimization workbook](../optimization-workbook/README.md)
-- [Optimization workbook](../governance-workbook/README.md)
+- [Governance workbook](../governance-workbook/README.md)
 
 Note Bicep Registry modules can be referenced directly from your Bicep code and are not deployed using the steps below.
 

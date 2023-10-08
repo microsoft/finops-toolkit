@@ -1,5 +1,5 @@
 ---
-description: This template creates a new Azure Monitor workbook for governance based on the Well-Architected Framework.
+description: This template creates a new Azure Monitor workbook for governance based on the Cloud Adoption Framework.
 page_type: sample
 products:
   - azure
