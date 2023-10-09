@@ -24,6 +24,9 @@ task PreRequisites {
     if (-not (Get-Module BuildHelper)) {
         Import-Module -FullyQualifiedName $helperPath
     }
+
+    Remove-Module -Name Pester -Force
+    Import-Module -Name Pester -MinimumVersion '5.0.0'
 }
 
 task Build.PsModule PreRequisites, Clean, {

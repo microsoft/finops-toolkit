@@ -1,6 +1,7 @@
 name: 'PowerShell Tests'
 
 on:
+  push:
   pull_request:
     paths:
       - 'src/powershell/**'
