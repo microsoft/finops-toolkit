@@ -30,7 +30,9 @@ function Remove-FinOpsHubScope {
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $true)]
-        [string]$Id,
+        [Parameter()]
+        [string]
+        $Id,
         [Parameter()]
         [string]
         $HubName,
