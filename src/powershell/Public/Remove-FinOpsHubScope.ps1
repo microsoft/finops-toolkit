@@ -30,7 +30,6 @@ function Remove-FinOpsHubScope {
     [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(Mandatory = $true)]
-        [Parameter()]
         [string]
         $Id,
         [Parameter()]
@@ -43,6 +42,7 @@ function Remove-FinOpsHubScope {
 
     try {
         
+
         $hub = Get-FinOpsHub -Name $HubName
         $storageAccountId = $hub.StorageAccountId
 
@@ -52,20 +52,27 @@ function Remove-FinOpsHubScope {
         # Delete the exports
         foreach ($export in $exports) 
         {
-            Write-Verbose -Message "Deleting Cost Management export $($export.Name) from storage account $($export.StorageAccountId.Split("/")[-1])."
-            Remove-FinOpsCostExport -Scope $Id -Name $export.Name -RemoveData:$RemoveData
-            Write-Verbose -Message "Complete: Deleted Cost Management export $($export.Name) from storage account $($export.StorageAccountId.Split("/")[-1])."
+            if($PSCmdlet.ShouldProcess("Cost Management Export","Delete"))
+            {
+                Write-Verbose -Message "Deleting Cost Management export $($export.Name) from storage account $($export.StorageAccountId.Split("/")[-1])."
+                Remove-FinOpsCostExport -Scope $Id -Name $export.Name -RemoveData:$RemoveData
+                Write-Verbose -Message "Complete: Deleted Cost Management export $($export.Name) from storage account $($export.StorageAccountId.Split("/")[-1])."
+            }
 
             # Delete the data if requested
             if ($RemoveData) 
             {
                 # This can use the standard storage Az commands
-                $storageAccountName = $export.StorageAccountId.Split("/")[-1]
-                $storageAccountKey = (Get-AzStorageAccountKey -ResourceGroupName (Get-AzResource -ResourceId $export.StorageAccountId).ResourceGroupName -Name $storageAccountName).Value[0]
-                $context = New-AzStorageContext -StorageAccountName $storageAccountName -StorageAccountKey $storageAccountKey
-                Write-Verbose -Message "Deleting data for Cost Management export $($export.Name) in storage account $($export.StorageAccountId.Split("/")[-1]) at path $($export.StoragePath)."
-                Remove-AzDataLakeGen2Item -FileSystem "ingestion" -Path $export.StoragePath -Context $context -Force
-                Write-Verbose -Message "Complete: Deleted data for Cost Management export $($export.Name) in storage account $($export.StorageAccountId.Split("/")[-1]) at path $($export.StoragePath)."
+                if($PSCmdlet.ShouldProcess("Cost Management Export Data","Delete"))
+                {
+                    
+                    $storageAccountName = $export.StorageAccountId.Split("/")[-1]
+                    $storageAccountKey = (Get-AzStorageAccountKey -ResourceGroupName (Get-AzResource -ResourceId $export.StorageAccountId).ResourceGroupName -Name $storageAccountName).Value[0]
+                    $context = New-AzStorageContext -StorageAccountName $storageAccountName -StorageAccountKey $storageAccountKey
+                    Write-Verbose -Message "Deleting data for Cost Management export $($export.Name) in storage account $($export.StorageAccountId.Split("/")[-1]) at path $($export.StoragePath)."
+                    Remove-AzDataLakeGen2Item -FileSystem "ingestion" -Path $export.StoragePath -Context $context -Force
+                    Write-Verbose -Message "Complete: Deleted data for Cost Management export $($export.Name) in storage account $($export.StorageAccountId.Split("/")[-1]) at path $($export.StoragePath)."          
+                }
             }
         }
     }
