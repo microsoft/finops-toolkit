@@ -32,7 +32,9 @@ function Remove-FinOpsHubScope {
         [Parameter(Mandatory = $true)]
         [string]$Id,
         [string]$HubName,
-        [switch]$RemoveData
+        [Parameter()]
+        [switch]
+        $RemoveData
     )
 
     try {
