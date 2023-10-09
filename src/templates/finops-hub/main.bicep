@@ -29,6 +29,9 @@ param tagsByResource object = {}
 @description('Optional. List of scope IDs to create exports for.')
 param exportScopes array = []
 
+@description('Optional. Deploy Azure Data Explorer cluster for analytics. Default: false.')
+param deployDataExplorer bool = true //TODO: DEFAULT to False once ready.
+
 //==============================================================================
 // Resources
 //==============================================================================
@@ -42,6 +45,7 @@ module hub 'modules/hub.bicep' = {
     tags: tags
     tagsByResource: tagsByResource
     exportScopes: exportScopes
+    deployDataExplorer: deployDataExplorer
   }
 }
 

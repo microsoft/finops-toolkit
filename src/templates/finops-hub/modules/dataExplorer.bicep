@@ -14,6 +14,12 @@ param tags object = {}
 @description('Required. The name of the Azure Key Vault instance.')
 param keyVaultName string
 
+@description('Optional. Forces the table to be updated if different from the last time it was deployed.')
+param forceUpdateTag string = utcNow()
+
+@description('Optional. If true, ingestion will continue even if some rows fail to ingest.')
+param continueOnErrors bool = false
+
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
@@ -26,91 +32,97 @@ var clusterName = replace('${take(safeHubName, 22)}', '--', '-')
 // Resources
 //==============================================================================
 
-resource cluster 'Microsoft.Kusto/clusters@2022-12-29' = {
+resource adxCluster 'Microsoft.Kusto/clusters@2023-05-02' = {
   name: clusterName
   location: location
   tags: tags
   sku: {
-    capacity: 1
-    name: 'string'
-    tier: 'string'
+    capacity: 2
+    name: 'Standard_E2ads_v5'
+    tier: 'Standard'
   }
-  identity: {
-    type: 'string'
-    userAssignedIdentities: {}
-  }
-  properties: {
-    acceptedAudiences: [
-      {
-        value: 'string'
-      }
-    ]
-    allowedFqdnList: [
-      'string'
-    ]
-    allowedIpRangeList: [
-      'string'
-    ]
-    enableAutoStop: true
-    enableDiskEncryption: false
-    enableDoubleEncryption: false
-    enablePurge: false
-    enableStreamingIngest: false
-    engineType: 'V3'
-    keyVaultProperties: {
-      keyName: keyVaultName
-      keyVaultUri: 'string'
-      keyVersion: 'string'
-      userIdentity: 'string'
-    }
-    languageExtensions: {
-      value: [
-        {
-          languageExtensionImageName: 'string'
-          languageExtensionName: 'string'
-        }
-      ]
-      value: [
-        {
-          languageExtensionImageName: 'string'
-          languageExtensionName: 'string'
-        }
-      ]
-    }
-    optimizedAutoscale: {
-      isEnabled: bool
-      maximum: int
-      minimum: int
-      version: int
-    }
-    publicIPType: 'string'
-    publicNetworkAccess: 'string'
-    restrictOutboundNetworkAccess: 'string'
-    trustedExternalTenants: [
-      {
-        value: 'string'
-      }
-    ]
-    virtualClusterGraduationProperties: 'string'
-    virtualNetworkConfiguration: {
-      dataManagementPublicIpId: 'string'
-      enginePublicIpId: 'string'
-      subnetId: 'string'
-    }
-  }
-  zones: [
-    'string'
-  ]
+  // identity: {
+  //   type: 'string'
+  //   userAssignedIdentities: {}
+  // }
+  // properties: {
+  //   acceptedAudiences: [
+  //     {
+  //       value: 'string'
+  //     }
+  //   ]
+  //   allowedFqdnList: [
+  //     'string'
+  //   ]
+  //   allowedIpRangeList: [
+  //     'string'
+  //   ]
+  //   enableAutoStop: bool
+  //   enableDiskEncryption: bool
+  //   enableDoubleEncryption: bool
+  //   enablePurge: bool
+  //   enableStreamingIngest: bool
+  //   engineType: 'string'
+  //   keyVaultProperties: {
+  //     keyName: 'string'
+  //     keyVaultUri: 'string'
+  //     keyVersion: 'string'
+  //     userIdentity: 'string'
+  //   }
+  //   languageExtensions: {
+  //     value: [
+  //       {
+  //         languageExtensionImageName: 'string'
+  //         languageExtensionName: 'string'
+  //       }
+  //     ]
+  //     value: [
+  //       {
+  //         languageExtensionImageName: 'string'
+  //         languageExtensionName: 'string'
+  //       }
+  //     ]
+  //   }
+  //   optimizedAutoscale: {
+  //     isEnabled: bool
+  //     maximum: int
+  //     minimum: int
+  //     version: int
+  //   }
+  //   publicIPType: 'string'
+  //   publicNetworkAccess: 'string'
+  //   restrictOutboundNetworkAccess: 'string'
+  //   trustedExternalTenants: [
+  //     {
+  //       value: 'string'
+  //     }
+  //   ]
+  //   virtualClusterGraduationProperties: 'string'
+  //   virtualNetworkConfiguration: {
+  //     dataManagementPublicIpId: 'string'
+  //     enginePublicIpId: 'string'
+  //     subnetId: 'string'
+  //   }
+  // }
+  // zones: [
+  //   'string'
+  // ]
 }
 
-resource database 'Microsoft.Kusto/clusters/databases@2022-12-29' = {
-  name: 'Hub'
+resource adxDatabase 'Microsoft.Kusto/clusters/databases@2023-05-02' = {
+  name: 'hub'
   location: location
-  parent: cluster
   kind: 'ReadWrite'
+  parent: adxCluster
+}
+
+resource adxDbTable 'Microsoft.Kusto/clusters/databases/scripts@2023-05-02' = {
+  name: 'ingestion'
+  parent: adxDatabase
   properties: {
-    hotCachePeriod: '30.00:00:00' // 30 days
-    softDeletePeriod: '30.00:00:00' // 30 days
+      scriptContent: loadTextContent('adxTableSchema.kql')
+      continueOnErrors: continueOnErrors
+      forceUpdateTag: forceUpdateTag
   }
 }
 
@@ -119,16 +131,16 @@ resource database 'Microsoft.Kusto/clusters/databases@2022-12-29' = {
 //==============================================================================
 
 @description('The resource ID of the cluster.')
-output clusterId string = cluster.id
+output clusterId string = adxCluster.id
 
 @description('The name of the cluster.')
-output clusterName string = cluster.name
+output clusterName string = adxCluster.name
 
 @description('The URI of the cluster.')
-output clusterUri string = cluster.properties.uri
+output clusterUri string = adxCluster.properties.uri
 
 @description('The resource ID of the database.')
-output databaseId string = database.id
+output databaseId string = adxDatabase.id
 
 @description('The name of the database.')
-output databaseName string = database.name
+output databaseName string = adxDatabase.name
