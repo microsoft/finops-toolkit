@@ -25,7 +25,7 @@ task PreRequisites {
         Import-Module -FullyQualifiedName $helperPath
     }
 
-    Remove-Module -Name Pester -Force
+    #Remove-Module -Name Pester -Force
     Import-Module -Name Pester -MinimumVersion '5.0.0'
 }
 
