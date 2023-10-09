@@ -30,6 +30,8 @@ function Start-PesterTest
             $pesterArgs.CodeCoverage.Path = "$powerShellPath/*.ps*1"
             $pesterArgs.CodeCoverage.OutputFormat = 'JaCoCo'
             $pesterArgs.CodeCoverage.OutputPath = "$rootPath/coverage.xml"
+            $pesterArgs.TestResult.Enabled = $true
+            $pesterArgs.Output.CIFormat = "GithubActions"
         }
     }
 

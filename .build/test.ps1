@@ -1,0 +1,1 @@
+C:\repos\finops-toolkit\.build\start.ps1 -Task Test.PowerShell.Lint

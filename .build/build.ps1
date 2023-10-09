@@ -57,11 +57,13 @@ task Publish.PsModule Build.PsModule, {
 }
 
 task Test.PowerShell.Unit PreRequisites, {
-    Start-PesterTest -Type 'Unit'
+    $result = Start-PesterTest -Type 'Unit'
+    $result
 }
 
 task Test.PowerShell.Lint PreRequisites, {
-    Start-PesterTest -Type 'Lint'
+    $result = Start-PesterTest -Type 'Lint'
+    $result
 }
 
 task Test.PowerShell.All Test.PowerShell.Lint, Test.PowerShell.Unit, {}
