@@ -15,29 +15,54 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [🔄️ Unreleased](#️-unreleased)
-- [🚀 v0.0.1](#-v001)
+- [🚚 v0.1](#-v01)
+- [🌱 v0.0.1](#-v001)
 
 </details>
 
 ---
 
+<!--
+Legend:
+🔄️ Unreleased
+🚀🎉 Major
+🚚💎 Minor
+🛠️✨ Patch
+🪛⬆️ Update
+🌱 Pre-release
+-->
+
+<!--
 ## 🔄️ Unreleased
 
 Added:
+-->
 
-1. PowerShell
+## 🚚 v0.1
+
+Added:
+
+1. Azure Monitor workbooks
+   1. [Governance workbook](governance-workbook) to centralize governance.
+2. PowerShell
    1. [Get-FinOpsToolkitVersion](./powershell/toolkit/Get-FinOpsToolkitVersion) to get toolkit versions.
    2. [Deploy-FinOpsHub](./powershell/hubs/Deploy-FinOpsHub) to deploy or update a hub instance.
    3. [Get-FinOpsHub](./powershell/hubs/Get-FinOpsHub) to get details about a hub instance.
-2. Open data
+3. Open data
    1. [PricingUnits](./open-data/README.md#-pricing-units) to map all pricing units (UnitOfMeasure values) to distinct units with a scaling factor.
    2. [Regions](./open-data/README.md#-regions) to map historical resource location values in Microsoft Cost Management to standard Azure regions.
    3. [Services](./open-data/README.md#-services) to map all resource types to FOCUS service names and categories.
 
+Fixed:
+
+1. FinOps hubs
+   1. Tags specified in the create form were causing the deployment to fail. See #331.
+
+[Download v0.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+
 <br>
 
-## 🚀 v0.0.1
+## 🌱 v0.0.1
 
 Added:
 

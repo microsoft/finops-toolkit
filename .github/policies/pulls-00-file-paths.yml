@@ -126,6 +126,8 @@ configuration:
                       pattern: ^(.build|.github|.vscode|src\/scripts)\/.*
                   - filesMatchPattern:
                       pattern: ^src\/([^\/]+\/)?[^\/]+.md$
+                  - filesMatchPattern:
+                      pattern: ^package.json$
             then:
               - addLabel:
                   label: 'Area: DevOps'

@@ -5,7 +5,7 @@
   "parameters": {
     "config": {
       "basics": {
-        "description": "The Cost optimization workbook provides an overview of the cost posture of your Azure environment. [Learn more](https://aka.ms/finops/toolkit)",
+        "description": "The Governance workbook provides an overview of the cost posture of your Azure environment. [Learn more](https://aka.ms/finops/toolkit)",
         "location": {
           "label": "Location",
           "resourceTypes": ["Microsoft.Insights/workbooks"]
@@ -18,7 +18,7 @@
         "name": "displayName",
         "type": "Microsoft.Common.TextBox",
         "label": "Name",
-        "defaultValue": "Cost optimization",
+        "defaultValue": "Governance",
         "toolTip": "Name of the workbook.",
         "constraints": {
           "required": true,
