@@ -1,57 +1,39 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-
 <#
     .SYNOPSIS
-    Converts Cost Management cost data to the FinOps Open Cost and Usage Specification (FOCUS) schema.
+    Converts Microsoft Cost Management data to comply with the FinOps Open Cost and Usage Specification (FOCUS) schema version 0.5.
 
     .DESCRIPTION
-    The ConvertTo-FinOpsSchema command returns an object that adheres to the FinOps Open Cost and Usage Specification (FOCUS) schema.
-    It currently understands how to convert Cost Management cost data using schema 0.5 as of September 2023.
-    Older schemas may not be fully supported. Please review output and report any issues to https://aka.ms/ftk.
+    The ConvertTo-FinOpsSchema PowerShell script takes cost data adhering to the Microsoft Cost Management schema and converts it into a format that complies with the FinOps Open Cost and Usage Specification (FOCUS) schema version 0.5. 
+    This conversion aids in data management, analytics, and reporting by ensuring data consistency and adherence to standards. 
+    It's important to note that the script is specifically designed for schema version 0.5 (as of September 2023) and may not fully support older versions.
+    Please review output and report any issues to https://aka.ms/ftk.
 
     .PARAMETER ActualCost
-    Specifies the actual cost data to be converted. Object must be a supported Microsoft Cost Management schema. Specify the filepath like this: .\Detail_Account_196312_202309_en.csv
+    Specifies the input cost data that will be converted. The object must adhere to a supported Microsoft Cost Management schema. Provide the filepath of the data to be converted. Example usage: ..\..\sample-data\EA_ActualCost.csv
 
-    .PARAMETER outputFilePath
-    Specifies the path of the output CSV file.
-
-    .PARAMETER RunTest
-    Specifies whether to run a test to estimate the processing time.
-
-    .PARAMETER rows
-    Specifies the number of rows to use for the test.
-
-    .PARAMETER columns
-    Specifies the number of columns to use for the test.
+    .PARAMETER Destination
+    Specifies the file path where the output CSV file, which contains the converted data, will be stored.
 
     .PARAMETER ExportAllColumns
-    Specifies whether to export all columns or only the columns specified in the column mapping.
+    Optionally specifies whether to export all columns in the input data or only the columns specified in the column mapping. When this parameter is set to $false, only the columns specified in the column mapping will be exported. Default value is $true, meaning all columns will be exported.
 
-    .PARAMETER Force
-    Specifies whether to force the operation to continue without user confirmation after the test is complete.
 
     .EXAMPLE
-    .\ConvertTo-FinOpsSchema.ps1 -ActualCost .\Detail_Account_196312_202309_en.csv -outputFilePath .\Detail_Account_196312_202309_en_filtered.csv -ExportAllColumns $false -Force
-
-    # This will convert the input file to the output file using the default column mapping and export only the columns specified in the column mapping. The operation will not run a test and will not prompt the user to continue.
-
-    .EXAMPLE
-    .\ConvertTo-FinOpsSchema.ps1 -ActualCost .\Detail_Account_196312_202309_en.csv -outputFilePath .\Detail_Account_196312_202309_en_filtered.csv -ExportAllColumns $true -Force
-
-    # This will convert the input file to the output file using the default column mapping and export all columns. The operation will not run a test and will not prompt the user to continue. 
+    ConvertTo-FinOpsSchema.ps1 -ActualCost ..\..\sample-data\EA_ActualCost.csv -Destination .\EA_ActualCost_Output.csv -ExportAllColumns $false
+    Converts the input data found in EA_ActualCost.csv, exporting only the columns specified in the column mapping, and stores the converted data in EA_ActualCost_Output.csv.
 
     .EXAMPLE
-    .\ConvertTo-FinOpsSchema.ps1 -ActualCost .\Detail_Account_196312_202309_en.csv -outputFilePath .\Detail_Account_196312_202309_en_filtered.csv -ExportAllColumns $true -RunTest $true -rows 1000 -columns 10
-    # This will run a test to estimate the processing time and then prompt the user to continue. If the user enters Y or y, the operation will continue. If the user enters N or n, the operation will be aborted. 
+    ConvertTo-FinOpsSchema.ps1 -ActualCost ..\..\sample-data\EA_ActualCost.csv -Destination .\EA_ActualCost_Output.csv -ExportAllColumns $true
+    Converts the input data found in EA_ActualCost.csv, exporting all available columns, and stores the converted data in EA_ActualCost_Output.csv. 
 
-    .EXAMPLE
-    .\ConvertTo-FinOpsSchema.ps1 -ActualCost .\Detail_Account_196312_202309_en.csv -outputFilePath .\Detail_Account_196312_202309_en_filtered.csv -ExportAllColumns $false -RunTest $true -rows 1000 -columns 10 -Force
-    # This will run a test to estimate the processing time and then continue without prompting the user. It will export only the columns specified in the column mapping.
+
+    .LINK
+    https://aka.ms/ftk/ConvertTo-FinOpsSchema
 #>
 
-<# Parameter Block #>
 param(
     [Parameter(Mandatory = $true)]
     [string]
@@ -59,156 +41,108 @@ param(
 
     [Parameter(Mandatory = $true)]
     [string]
-    $outputFilePath,
+    $Destination,
 
     [Parameter(Mandatory = $false)]
     [bool]
-    $RunTest = $false,
-
-    [Parameter(Mandatory = $false)]
-    [ValidateRange(0, 100000)]
-    [int]
-    $rows = 1000,
-
-    [Parameter(Mandatory = $false)]
-    [ValidateRange(0, 20)]
-    [int]
-    $columns = 10,
-
-    [Parameter(Mandatory = $false)]
-    [bool]
-    $ExportAllColumns = $true,
-
-    [Parameter(Mandatory = $false)]
-    [switch]
-    $Force
+    $ExportAllColumns = $true
 )
 
-# Define the input and output file paths
-$ActualCost=".\Detail_Account_196312_202309_en.csv"
-$outputFilePath=".\Detail_Account_196312_202309_en_filtered.csv"
-
-# Define the column mapping
-# The keys are the original column names, and the values are the new column names. If the value is the same as the key, the column will not be renamed.
-# If the value is not the same as the key, the column will be renamed and the value will be used as the new column name.
-# If the key is not present in the input data, the column will not be included in the output data.
-$columnMapping = @{
-    billingAccountId = 'BillingAccountId'
-    billingAccountName = 'BillingAccountName'
-    ftk_AccountType = 'ftk_AccountType'
-    BillingProfileId = 'BillingProfileId'
-    SubscriptionId = 'SubscriptionId'
-}
-
-<# Helper Functions #>
-function Add-AccountType {
+function Get-AccountType {
     [CmdletBinding()]
-    param 
-    (
+    param(
         [PSCustomObject]
         $Object
     )
 
     $ftk_AccountType = switch ($true) {
         { $Object.BillingAccountId -eq $Object.BillingProfileId } { "EA" }
-        { $null -eq $Object.BillingProfileId -or 
-          $Object.BillingProfileId -eq $Object.SubscriptionId } { "Other" }
-        default { "MCA" }
-    }
-    # Add or Update the ftk_AccountType property to the object.
-    if ($Object.PSObject.Properties["ftk_AccountType"]) {
-        $Object.PSObject.Properties["ftk_AccountType"].Value = $ftk_AccountType
-    } else {
-        $Object | Add-Member -MemberType NoteProperty -Name "ftk_AccountType" -Value $ftk_AccountType -Force
+        { $Object.BillingAccountId.Contains(":") } { "MCA" }
+        default { "Other" }
     }
     
-    return $Object
+    return $ftk_AccountType
 }
 
 
-<# Main Function #>
 function ConvertTo-FinOpsSchema {
     [CmdletBinding()]
-    param
-    (
-        [Parameter()]
+    param(
         [string]
         $ActualCost,
 
-        [Parameter()]
         [string]
-        $outputFilePath,
+        $Destination,
 
-        [Parameter()]
-        [hashtable]
-        $columnMapping,
-
-        [Parameter()]
         [bool]
-        $ExportAllColumns,
-
-        [Parameter()]
-        [switch]
-        $Force
+        $ExportAllColumns
     )
-    
+
     if (-not (Test-Path -Path $ActualCost)) {
         Write-Error "Input file $ActualCost does not exist."
         return
     }
     
-    $outputDirectory = [System.IO.Path]::GetDirectoryName($outputFilePath)
+    $outputDirectory = [System.IO.Path]::GetDirectoryName($Destination)
     if (-not (Test-Path -Path $outputDirectory -PathType Container)) {
         New-Item -Path $outputDirectory -ItemType Directory
     }
 
-    # Import the CSV data
     $csvData = Import-Csv -Path $ActualCost
     
-    # Iterate over each row and apply transformations
+    $rowCount = $csvData.Count
+    $processedCount = 0
+    $start = [DateTime]::Now
+    
     $transformedData = $csvData | ForEach-Object {
         $object = $_
-        $object = Add-AccountType -Object $object
-
+    
         # Create a new object with the mapped column names
-        $newObject = @{}
-        foreach ($column in $object.PSObject.Properties.Name) {
-            if ($ExportAllColumns -or $column -in $columnMapping.Keys) {
-                $newColumnName = if ($columnMapping.ContainsKey($column)) { $columnMapping[$column] } else { $column }
-                $newObject[$newColumnName] = $object.$column
-            }
+        # This will ensure that the output CSV has the correct column names
+        $newObject = @{
+            BillingAccountId     = $object.BillingAccountId
+            BillingAccountName   = $object.BillingAccountName
+            ftk_AccountType      = (Get-AccountType -Object $object)
+            BillingProfileId     = $object.BillingProfileId
+            SubscriptionId       = $object.SubscriptionId
+            #... other mappings ...
         }
 
-        # Output the new object
+    # TODO: 
+        # Unexpected Columns: When an unexpected column is encountered, the name of the column is added to $unexpectedColumns to notify the user after processing.
+        # $RemoveCustomColumns: When $RemoveCustomColumns is $false (or not set), the unexpected columns are allowed to pass through to the output data. 
+        # If $RemoveCustomColumns is $true, unexpected columns are omitted from the output. Write-Warning: A single warning with all unexpected column names is issued after processing, avoiding repetitive warnings during processing.
+            
+        $processedCount++
+        
+        # Time Estimation Logic.
+        # If we have processed less than 10 rows, we will use a constant value of .01 seconds per row.
+        # This is to avoid a divide by zero error. After 10 rows, we will use the average time per row.
+        $percent = [Math]::Round(($processedCount / $rowCount) * 100,1)
+        # $secPerRow is the average processing time per row.
+        $secPerRow = if ($processedCount -lt 10) { .01 } else { ([DateTime]::Now - $start).TotalSeconds/$processedCount }
+        # $remaining is the estimated remaining time for the processing of the rest of the data based on that average.
+        $remaining = $secPerRow * ($rowCount - $processedCount)
+
+        # Number Formatting.
+        # We want to format the numbers to be more readable. 
+        # We will use the current culture to determine the appropriate formatting.
+        $formattedProcessedCount = $processedCount.ToString('N0', [System.Globalization.CultureInfo]::CurrentCulture)
+        $formattedRowCount = $rowCount.ToString('N0', [System.Globalization.CultureInfo]::CurrentCulture)
+
+        Write-Progress -Activity "Converting to FinOps Schema" `
+            -Status "Row $formattedProcessedCount of $formattedRowCount, $percent% complete" `
+            -PercentComplete $percent `
+            -SecondsRemaining $remaining
+
         [PSCustomObject]$newObject
     }
-    
-    # Export the transformed data to the output CSV file
-    $transformedData | Export-Csv -Path $outputFilePath -NoTypeInformation -Encoding UTF8
-}
 
-
-
-
-<# Testing Framework #>
-# Define the number of rows and columns for testing and it will display an estimated processing time.
-if ($RunTest -and -not $Force) {
-    $host.UI.RawUI.ForegroundColor = "Yellow"
-    Write-Output "Running test..." 
-    .\Estimate-ProcessingTime.ps1 -rows $rows -columns $columns -columnMapping $columnMapping -ExportAllColumns $ExportAllColumns
-    $host.UI.RawUI.ForegroundColor = "White"
-    $confirmation = Read-Host "Do you want to continue? (Y/N)"
-    if ($confirmation -ne 'Y' -and $confirmation -ne 'y') {
-        $host.UI.RawUI.ForegroundColor = "Red"
-        Write-Output "Operation aborted by the user."
-        $host.UI.RawUI.ForegroundColor = "White"
-        return
+    if (-not $ExportAllColumns) {
+        $transformedData = $transformedData | Select-Object BillingAccountId,BillingAccountName,SubscriptionId #... other needed properties ...
     }
+    
+    $transformedData
+    Write-Output "Processing completed."
+    Write-Progress -Activity "Converting to FinOps Schema" -Completed
 }
-
-# The actual function call
-# Call the functions from the function with the specified parameters
-ConvertTo-FinOpsSchema -ActualCost $ActualCost -outputFilePath $outputFilePath -columnMapping $columnMapping -ExportAllColumns $ExportAllColumns
-$host.UI.RawUI.ForegroundColor = "Green"
-Write-Output "Processing completed."
-$host.UI.RawUI.ForegroundColor = "White"
