@@ -18,17 +18,16 @@
     Specifies the file path where the output CSV file, which contains the converted data, will be stored.
 
     .PARAMETER ExportAllColumns
-    Optionally specifies whether to export all columns in the input data or only the columns specified in the column mapping. When this parameter is set to $false, only the columns specified in the column mapping will be exported. Default value is $true, meaning all columns will be exported.
+    Optionally specifies whether to export all columns in the input data or only the columns specified in the column mapping (Select-Object). When this parameter is set to $false, only the columns specified in the column mapping will be exported. Default value is $true, meaning all columns will be exported.
 
 
     .EXAMPLE
-    ConvertTo-FinOpsSchema.ps1 -ActualCost ..\..\sample-data\EA_ActualCost.csv -Destination .\EA_ActualCost_Output.csv -ExportAllColumns $false
-    Converts the input data found in EA_ActualCost.csv, exporting only the columns specified in the column mapping, and stores the converted data in EA_ActualCost_Output.csv.
+    ConvertTo-FinOpsSchema -ActualCost ..\..\sample-data\EA_ActualCost.csv  -ExportAllColumns $false | Export-Csv -Path .\EA_ActualCost_Output.csv -NoTypeInformation
+    Converts the input data found in EA_ActualCost.csv, exporting only the columns specified in the column mapping (Select-Object), and stores the converted data in EA_ActualCost_Output.csv.
 
     .EXAMPLE
-    ConvertTo-FinOpsSchema.ps1 -ActualCost ..\..\sample-data\EA_ActualCost.csv -Destination .\EA_ActualCost_Output.csv -ExportAllColumns $true
-    Converts the input data found in EA_ActualCost.csv, exporting all available columns, and stores the converted data in EA_ActualCost_Output.csv. 
-
+    ConvertTo-FinOpsSchema -ActualCost ..\..\sample-data\EA_ActualCost.csv  -ExportAllColumns $true | Export-Csv -Path .\EA_ActualCost_Output.csv 
+    Converts the input data found in EA_ActualCost.csv, exporting all columns specified in the script, and stores the converted data in EA_ActualCost_Output.csv.
 
     .LINK
     https://aka.ms/ftk/ConvertTo-FinOpsSchema
@@ -38,10 +37,6 @@ param(
     [Parameter(Mandatory = $true)]
     [string]
     $ActualCost,
-
-    [Parameter(Mandatory = $true)]
-    [string]
-    $Destination,
 
     [Parameter(Mandatory = $false)]
     [bool]
@@ -71,9 +66,6 @@ function ConvertTo-FinOpsSchema {
         [string]
         $ActualCost,
 
-        [string]
-        $Destination,
-
         [bool]
         $ExportAllColumns
     )
@@ -81,11 +73,6 @@ function ConvertTo-FinOpsSchema {
     if (-not (Test-Path -Path $ActualCost)) {
         Write-Error "Input file $ActualCost does not exist."
         return
-    }
-    
-    $outputDirectory = [System.IO.Path]::GetDirectoryName($Destination)
-    if (-not (Test-Path -Path $outputDirectory -PathType Container)) {
-        New-Item -Path $outputDirectory -ItemType Directory
     }
 
     $csvData = Import-Csv -Path $ActualCost
@@ -99,15 +86,35 @@ function ConvertTo-FinOpsSchema {
     
         # Create a new object with the mapped column names
         # This will ensure that the output CSV has the correct column names
+        # If exporting all columns, we will use the columnnames mapped here. 
         $newObject = @{
+            AmortizedCost        = $object.AmortizedCost
+            AvailabilityZone     = $object.AvailabilityZone
+            BilledCost           = $object.BilledCost
             BillingAccountId     = $object.BillingAccountId
             BillingAccountName   = $object.BillingAccountName
+            BillingCurrency      = $object.BillingCurrency
+            BillingPeriodEnd     = $object.BillingPeriodEndDate
+            BillingPeriodStart   = $object.BillingPeriodStartDate
+            ChargePeriodEnd      = $object.ChargePeriodEndDate
+            ChargePeriodStart    = $object.ChargePeriodStartDate
+            ChargeType           = $object.ChargeType
+            ProviderName         = $object.ProviderName
+            PublisherName        = $object.PublisherName
+            Region               = $object.Region
+            ResourceId           = $object.ResourceId
+            ResourceName         = $object.ResourceName
+            ServiceCategory      = $object.ServiceCategory
+            ServiceName          = $object.ServiceName
+            SubAccountId         = $object.SubAccountId
+            SubAccountName       = $object.SubAccountName
             ftk_AccountType      = (Get-AccountType -Object $object)
-            BillingProfileId     = $object.BillingProfileId
-            SubscriptionId       = $object.SubscriptionId
+            ftk_BillingProfileId = $object.BillingProfileId
+            ftk_BillingProfileName = $object.BillingProfileName
+            ftk_SubscriptionId   = $object.SubscriptionId
+
             #... other mappings ...
         }
-
     # TODO: 
         # Unexpected Columns: When an unexpected column is encountered, the name of the column is added to $unexpectedColumns to notify the user after processing.
         # $RemoveCustomColumns: When $RemoveCustomColumns is $false (or not set), the unexpected columns are allowed to pass through to the output data. 
@@ -131,18 +138,23 @@ function ConvertTo-FinOpsSchema {
         $formattedRowCount = $rowCount.ToString('N0', [System.Globalization.CultureInfo]::CurrentCulture)
 
         Write-Progress -Activity "Converting to FinOps Schema" `
-            -Status "Row $formattedProcessedCount of $formattedRowCount, $percent% complete" `
+            -Status "Row $formattedProcessedCount of $formattedRowCount $percent% complete" `
             -PercentComplete $percent `
             -SecondsRemaining $remaining
 
         [PSCustomObject]$newObject
     }
 
+
+    # If $ExportAllColumns is $false, we will only export the columns specified below using Select-Object.
     if (-not $ExportAllColumns) {
-        $transformedData = $transformedData | Select-Object BillingAccountId,BillingAccountName,SubscriptionId #... other needed properties ...
+        $transformedData = $transformedData `
+        | Select-Object AmortizedCost, AvailabilityZone, BilledCost, BillingAccountId, 
+        BillingAccountName, BillingCurrency, BillingPeriodEnd, BillingPeriodStart, ChargePeriodEnd, 
+        ChargePeriodStart, ChargeType, ProviderName, PublisherName, Region, ResourceId, ResourceName,
+        ServiceCategory, ServiceName, SubAccountId, SubAccountName
     }
-    
+    # We will return all the transformed data if the value of $ExportAllColumns is $true.
     $transformedData
-    Write-Output "Processing completed."
     Write-Progress -Activity "Converting to FinOps Schema" -Completed
 }
