@@ -11,9 +11,6 @@
     .PARAMETER ActualCost
     Specifies the input cost data that will be converted. The object must adhere to a supported Microsoft Cost Management schema. Provide the filepath of the data to be converted. Example usage: ..\..\sample-data\EA_ActualCost.csv
 
-    .PARAMETER Destination
-    Specifies the file path where the output CSV file, which contains the converted data, will be stored.
-
     .PARAMETER ExportAllColumns
     Optionally specifies whether to export all columns in the input data or only the columns specified in the column mapping (Select-Object). When this parameter is set to $false, only the columns specified in the column mapping will be exported. Default value is $true, meaning all columns will be exported.
 
