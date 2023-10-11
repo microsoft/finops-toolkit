@@ -123,11 +123,12 @@ function ConvertTo-FinOpsSchema {
         $processedCount++
         
         # Time Estimation Logic.
-        # If we have processed less than 10 rows, we will use a constant value of .01 seconds per row.
+        # If we have processed less than 10 rows, we will use an estimated seconds per row based on testing.
+        $estimatedSecPerRow = 0.01
         # This is to avoid a divide by zero error. After 10 rows, we will use the average time per row.
         $percent = [Math]::Round(($processedCount / $rowCount) * 100,1)
         # $secPerRow is the average processing time per row.
-        $secPerRow = if ($processedCount -lt 10) { .01 } else { ([DateTime]::Now - $start).TotalSeconds/$processedCount }
+        $secPerRow = if ($processedCount -lt 10) { $estimatedSecPerRow } else { ([DateTime]::Now - $start).TotalSeconds/$processedCount }
         # $remaining is the estimated remaining time for the processing of the rest of the data based on that average.
         $remaining = $secPerRow * ($rowCount - $processedCount)
 
