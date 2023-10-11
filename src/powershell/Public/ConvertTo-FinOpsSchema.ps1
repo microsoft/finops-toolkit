@@ -1,6 +1,3 @@
-# Copyright (c) Microsoft Corporation.
-# Licensed under the MIT License.
-
 <#
     .SYNOPSIS
     Converts Microsoft Cost Management data to comply with the FinOps Open Cost and Usage Specification (FOCUS) schema version 0.5.
@@ -61,6 +58,9 @@ function Get-AccountType {
 
 
 function ConvertTo-FinOpsSchema {
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
     [CmdletBinding()]
     param(
         [string]
