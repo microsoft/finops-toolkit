@@ -24,16 +24,6 @@ $Debug = $DebugPreference -eq "Continue"
 $outDir = Join-Path .. .. release "$Workbook-workbook"
 $workbookDir = Join-Path .. workbooks $Workbook
 
-# Define workbooks metadata
-$workbooksMetdata = @(
-  [PSCustomObject]@{
-    optimization = @{
-      "Product"     = "Azure Advisor"
-      "GalleryName" = "Cost Optimization"
-    }
-  }
-)
-
 if (-not (Test-Path $workbookDir)) {
   return
 }
@@ -45,23 +35,25 @@ $templates = Get-ChildItem -Path $workbookDir -Directory
 if ($templates) {
   $workbookTemplate = Join-Path $workbookDir "workbook.json"
   $newTemplate = "$outDir/workbook.json"
-  $workbookProduct = $workbooksMetdata.$workbook["Product"]
-  $workbookGalleryName = $workbooksMetdata.$workbook["GalleryName"]
   ## Create a new template
   Copy-Item $workbookTemplate $newTemplate -Force
   $newWorkbookContent = Get-Content $newTemplate | ConvertFrom-Json
 
   ## Inject contents of each sub-template
-  foreach ($template in $templates) {
-    $templateName = $template.Name
+  $templateContent = $newWorkbookContent.items.content.items `
+  | Where-Object { $_.content.groupType -eq 'template' } `
+  | Select-Object -ExpandProperty content `
+  | Where-Object { $_.loadFromTemplateId.StartsWith("community-Workbooks") }
+
+  $templateContent  | ForEach-Object {
+    $subTemplate = $_
+    $templateName = $_.loadFromTemplateId.Split('/')[3]
     $tempTemplate = Get-Content "$workbookDir/$templateName/$templateName.workbook" -Raw
     $templateJson = $tempTemplate | ConvertFrom-Json
     $templateObjects = ($templateJson.items.content).items
-    $templateLoadString = "community-Workbooks/$workbookProduct/$workbookGalleryName/$templateName"
-    $templateContent = $newWorkbookContent.items.content.items | Where-Object { $_.content.groupType -eq 'template' } | Select-Object -ExpandProperty content | Where-Object { $_.loadFromTemplateId -eq $templateLoadString }
-    $templateContent.loadFromTemplateId = '""'
+    $subTemplate.loadFromTemplateId = '""'
     $templateObjects | ForEach-Object {
-      $templateContent.items += $_
+      $subTemplate.items += $_
     }
   }
   $newWorkbookContent = $newWorkbookContent | ConvertTo-Json -Depth 40
