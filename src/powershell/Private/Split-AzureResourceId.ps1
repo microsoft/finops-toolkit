@@ -3,10 +3,24 @@
 
 <#
     .SYNOPSIS
-    Returns the specified part of an Azure resource ID.
+    Parses an Azure resource ID and returns an object that includes resource details.
 
     .PARAMETER Id
     Azure resource ID to parse.
+
+    .DESCRIPTION
+    The Split-AzureResourceId command parses an Azure resource ID and returns an object with properties based on what is parseable from the resource ID string.
+    This command does not call any APIs and does not validate the resource exists.
+
+    Split-AzureResourceId will fix invalid resource IDs in the following cases:
+    - Adds a leading slash, if missing.
+    - Removes a trailing slash, if present.
+    - Removes the last segment if the resource ID has an odd number of segments.
+
+    .EXAMPLE
+    Split-AzureResourceId -Id '/subscriptions/##-#-#-#-###/resourceGroups/foo/providers/Microsoft.Bar/bazes/baz1'
+
+    Parses the resource ID and returns an object with resource details.
 #>
 function Split-AzureResourceId {
     [CmdletBinding()]
