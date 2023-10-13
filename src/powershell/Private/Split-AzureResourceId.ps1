@@ -26,13 +26,19 @@ function Split-AzureResourceId {
     [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory = $true, Position = 0)]
+        [AllowNull]
+        [AllowEmptyString]
+        [Parameter(Mandatory = $true)]
         [string]
         $Id
     )
 
     if ($Id) {
-        Write-Verbose "Parsing resource ID: $Id"
+        Write-Verbose "Parsing resource ID: '$Id'"
+
+        if (-not $Id) {
+            return @{ ResourceId = $null }
+        }
 
         # Add leading slash
         if (-not $Id.StartsWith('/')) {

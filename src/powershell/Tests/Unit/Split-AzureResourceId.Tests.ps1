@@ -129,4 +129,30 @@ Describe 'Split-AzureResourceId' {
         $result.Type | Should -Be "$rp/$type1/$type2"
         $result.ResourceId | Should -Be ($id.Split('/')[0..($id.Split('/').Count - 2)] -Join '/')
     }
+
+    It 'Should handle empty resource ID' {
+        $id = ""
+        $result = Split-AzureResourceId -Id $id
+        $result.SubscriptionId | Should -Be $null
+        $result.SubscriptionResourceId | Should -Be $null
+        $result.ResourceGroupId | Should -Be $null
+        $result.ResourceGroupName | Should -Be $null
+        $result.Provider | Should -Be $null
+        $result.Name | Should -Be $null
+        $result.Type | Should -Be $null
+        $result.ResourceId | Should -Be $null
+    }
+
+    It 'Should handle null resource ID' {
+        $id = $null
+        $result = Split-AzureResourceId -Id $id
+        $result.SubscriptionId | Should -Be $null
+        $result.SubscriptionResourceId | Should -Be $null
+        $result.ResourceGroupId | Should -Be $null
+        $result.ResourceGroupName | Should -Be $null
+        $result.Provider | Should -Be $null
+        $result.Name | Should -Be $null
+        $result.Type | Should -Be $null
+        $result.ResourceId | Should -Be $null
+    }
 }
