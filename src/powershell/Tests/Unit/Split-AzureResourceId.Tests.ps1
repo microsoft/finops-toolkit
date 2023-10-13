@@ -22,8 +22,8 @@ Describe 'Split-AzureResourceId' {
         $result.ResourceGroupName | Should -Be $null
         $result.Provider | Should -Be 'Microsoft.Resources'
         $result.Name | Should -Be $subId
+        $result.Type | Should -Be "Microsoft.Resources/tenants"
         $result.ResourceId | Should -Be $id
-        $result.ResourceType | Should -Be "Microsoft.Resources/tenants"
     }
 
     It 'Should parse tenant resource' {
@@ -35,8 +35,8 @@ Describe 'Split-AzureResourceId' {
         $result.ResourceGroupName | Should -Be $null
         $result.Provider | Should -Be $rp
         $result.Name | Should -Be $name1
+        $result.Type | Should -Be "$rp/$type1"
         $result.ResourceId | Should -Be $id
-        $result.ResourceType | Should -Be "$rp/$type1"
     }
 
     It 'Should parse tenant nested resource' {
@@ -48,8 +48,8 @@ Describe 'Split-AzureResourceId' {
         $result.ResourceGroupName | Should -Be $null
         $result.Provider | Should -Be $rp
         $result.Name | Should -Be "$name1/$name2"
+        $result.Type | Should -Be "$rp/$type1/$type2"
         $result.ResourceId | Should -Be $id
-        $result.ResourceType | Should -Be "$rp/$type1/$type2"
     }
 
     It 'Should parse subscription' {
@@ -61,8 +61,8 @@ Describe 'Split-AzureResourceId' {
         $result.ResourceGroupName | Should -Be $null
         $result.Provider | Should -Be 'Microsoft.Resources'
         $result.Name | Should -Be $subId
+        $result.Type | Should -Be "Microsoft.Resources/subscriptions"
         $result.ResourceId | Should -Be $id
-        $result.ResourceType | Should -Be "Microsoft.Resources/subscriptions"
     }
 
     It 'Should parse subscription resource' {
@@ -74,8 +74,8 @@ Describe 'Split-AzureResourceId' {
         $result.ResourceGroupName | Should -Be $null
         $result.Provider | Should -Be $rp
         $result.Name | Should -Be $name1
+        $result.Type | Should -Be "$rp/$type1"
         $result.ResourceId | Should -Be $id
-        $result.ResourceType | Should -Be "$rp/$type1"
     }
 
     It 'Should parse resource group' {
@@ -87,8 +87,8 @@ Describe 'Split-AzureResourceId' {
         $result.ResourceGroupName | Should -Be $rg
         $result.Provider | Should -Be 'Microsoft.Resources'
         $result.Name | Should -Be $rg
+        $result.Type | Should -Be "Microsoft.Resources/subscriptions/resourceGroups"
         $result.ResourceId | Should -Be $id
-        $result.ResourceType | Should -Be "Microsoft.Resources/subscriptions/resourceGroups"
     }
 
     It 'Should parse resource group resource' {
@@ -100,8 +100,8 @@ Describe 'Split-AzureResourceId' {
         $result.ResourceGroupName | Should -Be $rg
         $result.Provider | Should -Be $rp
         $result.Name | Should -Be $name1
+        $result.Type | Should -Be "$rp/$type1"
         $result.ResourceId | Should -Be $id
-        $result.ResourceType | Should -Be "$rp/$type1"
     }
 
     It 'Should parse nested resource group resource' {
@@ -113,8 +113,8 @@ Describe 'Split-AzureResourceId' {
         $result.ResourceGroupName | Should -Be $rg
         $result.Provider | Should -Be $rp
         $result.Name | Should -Be "$name1/$name2"
+        $result.Type | Should -Be "$rp/$type1/$type2"
         $result.ResourceId | Should -Be $id
-        $result.ResourceType | Should -Be "$rp/$type1/$type2"
     }
 
     It 'Should parse and fix invalid resource ID' {
@@ -126,7 +126,7 @@ Describe 'Split-AzureResourceId' {
         $result.ResourceGroupName | Should -Be $rg
         $result.Provider | Should -Be $rp
         $result.Name | Should -Be "$name1/$name2"
+        $result.Type | Should -Be "$rp/$type1/$type2"
         $result.ResourceId | Should -Be ($id.Split('/')[0..($id.Split('/').Count - 2)] -Join '/')
-        $result.ResourceType | Should -Be "$rp/$type1/$type2"
     }
 }

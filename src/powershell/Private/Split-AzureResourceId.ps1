@@ -60,7 +60,7 @@ function Split-AzureResourceId {
         $isTenant = $parts[1].ToLower() -eq 'tenants'
 
         Write-Verbose "Root? $isRoot"
-        Write-Verbose "Subscription? $isSubResource"
+        Write-Verbose "Subscription resource? $isSubResource"
         Write-Verbose "Resource group resource? $isRGResource"
         Write-Verbose "Resource group? $isRG"
         Write-Verbose "Tenant resource? $isTenantResource"
@@ -89,7 +89,7 @@ function Split-AzureResourceId {
             ResourceGroupId        = if ($isRGResource) { $parts[0..4] -Join '/' } else { $null }
             ResourceGroupName      = if ($isRGResource) { $parts[4] } else { $null }
             Provider               = $leafParts[0]
-            ResourceType           = @($leafParts[0]) + $leafParts[(1..($leafParts.Count - 1)).Where{ $_ % 2 -eq 1 }] -join '/'
+            Type                   = @($leafParts[0]) + $leafParts[(1..($leafParts.Count - 1)).Where{ $_ % 2 -eq 1 }] -join '/'
             Name                   = if ($isRG) { $leafParts[-1] } else { @($leafParts[(2..($leafParts.Count - 1)).Where{ $_ % 2 -eq 0 }]) -join '/' }
         }
     }
