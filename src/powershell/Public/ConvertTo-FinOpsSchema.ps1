@@ -48,9 +48,6 @@ function Get-AccountType {
 
 
 function ConvertTo-FinOpsSchema {
-# Copyright (c) Microsoft Corporation.
-# Licensed under the MIT License.
-
     [CmdletBinding()]
     param(
         [string]
