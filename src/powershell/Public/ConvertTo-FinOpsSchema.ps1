@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 <#
     .SYNOPSIS
     Converts Microsoft Cost Management data to comply with the FinOps Open Cost and Usage Specification (FOCUS) schema version 0.5.
@@ -26,16 +29,6 @@
     .LINK
     https://aka.ms/ftk/ConvertTo-FinOpsSchema
 #>
-
-param(
-    [Parameter(Mandatory = $true)]
-    [string]
-    $ActualCost,
-
-    [Parameter(Mandatory = $false)]
-    [bool]
-    $ExportAllColumns = $true
-)
 
 function Get-AccountType {
     [CmdletBinding()]
@@ -80,36 +73,95 @@ function ConvertTo-FinOpsSchema {
     
     $transformedData = $csvData | ForEach-Object {
         $object = $_
-    
+        $object | Add-Member -MemberType NoteProperty -Name IsActualCost -Value $true # TODO: Filter actual dataset to only commitment purchases
+        $object | Add-Member -MemberType NoteProperty -Name IsAmortizedCost -Value $false # TODO: Pull amortized cost from amortized dataset
+        $accountType = Get-AccountType $object    
+        $format = "MM/dd/yyyy"
         # Create a new object with the mapped column names
         # This will ensure that the output CSV has the correct column names
         # If exporting all columns, we will use the columnnames mapped here. 
         $newObject = @{
-            AmortizedCost        = $object.AmortizedCost
-            AvailabilityZone     = $object.AvailabilityZone
-            BilledCost           = $object.BilledCost
-            BillingAccountId     = $object.BillingAccountId
-            BillingAccountName   = $object.BillingAccountName
-            BillingCurrency      = $object.BillingCurrency
-            BillingPeriodEnd     = $object.BillingPeriodEndDate
-            BillingPeriodStart   = $object.BillingPeriodStartDate
-            ChargePeriodEnd      = $object.ChargePeriodEndDate
-            ChargePeriodStart    = $object.ChargePeriodStartDate
-            ChargeType           = $object.ChargeType
-            ProviderName         = $object.ProviderName
-            PublisherName        = $object.PublisherName
-            Region               = $object.Region
-            ResourceId           = $object.ResourceId
-            ResourceName         = $object.ResourceName
-            ServiceCategory      = $object.ServiceCategory
-            ServiceName          = $object.ServiceName
-            SubAccountId         = $object.SubAccountId
-            SubAccountName       = $object.SubAccountName
-            ftk_AccountType      = (Get-AccountType -Object $object)
-            ftk_BillingProfileId = $object.BillingProfileId
-            ftk_BillingProfileName = $object.BillingProfileName
-            ftk_SubscriptionId   = $object.SubscriptionId
-
+            AmortizedCost                    = if ($object.IsAmortizedCost) { $object.CostInBillingCurrency } else { 0 }            
+            AvailabilityZone                 = $object.AvailabilityZone
+            BilledCost                       = if ($object.IsActualCost) { $object.CostInBillingCurrency } else { 0 }            
+            BillingAccountId                 = '/providers/Microsoft.Billing/billingAccounts/' + $object.BillingAccountId  
+            BillingAccountName               = $object.BillingAccountName
+            BillingCurrency                  = $object.BillingCurrency
+            BillingPeriodEnd                 = [datetime]::ParseExact($object.BillingPeriodEndDate, $format, [System.Globalization.CultureInfo]::InvariantCulture).Date            
+            BillingPeriodStart               = [datetime]::ParseExact($object.BillingPeriodStartDate, $format, [System.Globalization.CultureInfo]::InvariantCulture).Date
+            ChargePeriodStart                = if ($object.PSObject.Properties.Name -contains 'ChargePeriodStart' -and -not [string]::IsNullOrEmpty($object.ChargePeriodStart)) {$object.ChargePeriodStart = [datetime]::ParseExact($object.ChargePeriodStart, $format, [System.Globalization.CultureInfo]::InvariantCulture).Date}
+            ChargePeriodEnd                  = if ($object.PSObject.Properties.Name -contains 'ChargePeriodEnd' -and -not [string]::IsNullOrEmpty($object.ChargePeriodEnd)) {$object.ChargePeriodEnd = [datetime]::ParseExact($object.ChargePeriodEnd, $format, [System.Globalization.CultureInfo]::InvariantCulture).Date}
+            ChargeType                       = if ($object.ChargeType.StartsWith('Unused')) { 'Usage' } elseif (@('Usage', 'Purchase') -contains $object.ChargeType) { $object.ChargeType } else { 'Adjustment' }
+            ServiceName                      = $object.ConsumedService # TODO: Convert to ServiceName
+            InvoiceIssuerName                = 'Microsoft' # TODO: Get partner name
+            ProviderName                     = $object.'Microsoft'
+            PublisherName                    = $object.PublisherName
+            ResourceId                       = $object.ResourceId
+            Region                           = $object.ResourceLocation # TODO: Convert to standard Azure region
+            ResourceName                     = $object.ResourceId # TODO: (Split-AzureResourceId $object.ResourceId).Name
+            SubAccountId                     = '/subscriptions/' + $object.SubscriptionId
+            SubAccountName                   = $object.SubscriptionName
+            ftk_AccountType                  = (Get-AccountType -Object $object)
+            ftk_AccountId                    = $object.AccountId
+            ftk_AccountName                  = $object.AccountName
+            ftk_AccountOwnerId               = $object.AccountOwnerId
+            ftk_AdditionalInfo               = $object.AdditionalInfo
+            ftk_EffectivePrice               = $object.EffectivePrice
+            ftk_BenefitId                    = $object.benefitId
+            ftk_BenefitName                  = $object.benefitName
+            ftk_BillingAccountId             = $object.BillingAccountId
+            ftk_BillingAccountName           = $object.BillingAccountName
+            ftk_BillingAccountType           = if ($accountType -eq 'EA') { 'Billing Account' } elseif ($accountType -eq 'MCA') { 'Billing Profile' } else { 'Subscription' }
+            ftk_BillingAccountResourceType   = if ($accountType -eq 'EA') { 'Microsoft.Billing/billingAccounts' } elseif ($accountType -eq 'MCA') { 'Microsoft.Billing/billingAccounts/billingProfiles' } else { 'Microsoft.Resources/subscriptions' }
+            ftk_BillingProfileId             = $object.BillingProfileId
+            ftk_BillingProfileName           = $object.BillingProfileName
+            ftk_ChargeType                   = $object.ChargeType
+            ftk_CostAllocationRuleName       = $object.CostAllocationRuleName
+            ftk_CostCenter                   = $object.CostCenter
+            ftk_CostInPricingCurrency        = $object.CostInBillingCurrency
+            ftk_BilledCostInUsd              = if ($object.IsActualCost) { $null } else { 0 } # TODO: Get CostInUsd for EA
+            ftk_AmortizedCostInUsd           = if ($object.IsAmortizedCost) { $null } else { 0 } # TODO: Get CostInUsd for EA
+            ftk_CustomerName                 = $null
+            ftk_CustomerTenantId             = $null
+            ftk_ExchangeRatePricingToBilling = if ($accountType -eq 'EA') { 1 } else { $null }
+            ftk_ExchangeRateDate             = $object.BillingPeriodStartDate
+            ftk_Frequency                    = $object.Frequency
+            ftk_InvoiceId                    = $null
+            ftk_InvoiceSectionId             = $object.InvoiceSectionId
+            ftk_InvoiceSectionName           = $object.InvoiceSectionName
+            ftk_IsAzureCreditEligible        = $object.IsAzureCreditEligible
+            ftk_MeterCategory                = $object.MeterCategory
+            ftk_MeterId                      = $object.MeterId
+            ftk_MeterName                    = $object.MeterName
+            ftk_MeterRegion                  = $object.MeterRegion
+            ftk_MeterSubCategory             = $object.MeterSubCategory
+            ftk_OfferId                      = $object.OfferId
+            ftk_PartNumber                   = $object.PartNumber
+            ftk_PartnerEarnedCreditApplied   = $null
+            ftk_PartnerEarnedCreditRate      = $null
+            ftk_InvoiceIssuerId              = $null
+            ftk_PaygCostInBillingCurrency    = $object.PayGPrice * $object.Quantity
+            ftk_PaygCostInUsd                = $object.PayGPriceUSD * $object.Quantity
+            ftk_PayGPrice                    = $object.PayGPrice
+            ftk_PlanName                     = $object.PlanName
+            ftk_PreviousInvoiceId            = $null
+            ftk_PricingCurrency              = $object.BillingCurrency
+            ftk_PricingModel                 = $object.PricingModel
+            ftk_ProductId                    = $object.ProductId
+            ftk_ProductName                  = $object.ProductName
+            ftk_ProductOrderId               = $object.ProductOrderId
+            ftk_ProductOrderName             = $object.ProductOrderName
+            ftk_Provider                     = $null
+            ftk_PublisherId                  = $object.PublisherId
+            ftk_ResourceGroupId              = $object.ResourceGroup # TODO: (Split-AzureResourceId $object.ResourceId).ResourceGroupId
+            ftk_ResourceGroupName            = $object.ResourceGroup # TODO: (Split-AzureResourceId $object.ResourceId).ResourceGroupName
+            ftk_PublisherType                = $object.PublisherType
+            ftk_Quantity                     = $object.Quantity
+            ftk_ResellerMpnId                = $null
+            ftk_ResellerName                 = $null
+            ftk_ResourceGroup                = $object.ResourceGroup
+            ftk_ResourceType                 = $object.ResourceId #  TODO: Parse type from ResourceId
+            ftk_ServiceFamily                = $object.ServiceFamily
             #... other mappings ...
         }
     # TODO: 
