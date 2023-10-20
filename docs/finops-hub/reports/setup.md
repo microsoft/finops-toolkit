@@ -1,6 +1,7 @@
 ---
 layout: default
-title: Power BI
+parent: Power BI
+title: How to setup
 has_children: true
 nav_order: 10
 description: 'Publish your next FinOps reporting with Power BI starter kits.'
