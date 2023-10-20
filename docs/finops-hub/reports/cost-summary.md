@@ -1,9 +1,8 @@
 ---
 layout: default
-grand_parent: FinOps hubs
-parent: Reports
+parent: Power BI
 title: Cost summary
-nav_order: 1
+nav_order: 20
 description: 'Identify top contributors, review changes over time, build a chargeback report, and summarize savings in Power BI.'
 permalink: /hubs/reports/cost-summary
 ---
@@ -13,12 +12,12 @@ Common breakdowns of your cost to identify top contributors, review changes over
 {: .fs-6 .fw-300 }
 
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostSummary.pbix){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[How to setup](./README.md#-how-to-setup-power-bi){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Connect your data](./README.md#-connect-to-your-data){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Common page layout](#common-page-layout)
+- [Working with this report](#working-with-this-report)
 - [Get started](#get-started)
 - [Summary](#summary)
 - [Services](#services)
@@ -27,8 +26,10 @@ Common breakdowns of your cost to identify top contributors, review changes over
 - [Resources](#resources)
 - [Commitments](#commitments)
 - [Hybrid Benefit](#hybrid-benefit)
+- [Prices](#prices)
 - [FOCUS](#focus)
 - [See also](#see-also)
+- [🙋‍♀️ Looking for more?](#️-looking-for-more)
 
 </details>
 
@@ -43,41 +44,30 @@ The **Cost summary report** provides an overview of amortized costs with a few c
 
 You can download the Cost summary report from the [latest release](https://github.com/microsoft/finops-toolkit/releases/latest).
 
-<blockquote class="important" markdown="1">
-  _FinOps hubs use [amortized costs](https://learn.microsoft.com/azure/cost-management-billing/reservations/reservation-amortization). Amortization breaks reservation and savings plan purchases down and allocates costs to the resources that received the benefit. Due to this, amortized costs will not show purchase costs and will not match your invoice. Please use [Cost Management](https://aka.ms/costmgmt) to review invoice charges._
+<blockquote class="note" markdown="1">
+  _FinOps hubs uses [amortized costs](https://learn.microsoft.com/azure/cost-management-billing/reservations/reservation-amortization). Amortization breaks reservation and savings plan purchases down and allocates costs to the resources that received the benefit. Due to this, amortized costs will not show purchase costs and will not match your invoice. Support for billed costs is coming in FinOps hubs 0.2. In the meantime, please use [Cost Management](https://aka.ms/costmgmt) to review invoice charges._
 </blockquote>
 
 <br>
 
-## Common page layout
+## Working with this report
 
-Most report pages follow a standard layout with filters, summary numbers (or KPIs), a chart, and table.
-
-### Filters
+This report includes the following filters on each page:
 
 - Date range
 - Subscription
 - Resource group
+- Location
 - Commitment (e.g., reservation, savings plan)
-- Service/Tier (meter category/subcategory)
+- Service (e.g., Virtual machines, SQL database)
 - Currency
 
+A few common KPIs you fill find in this report are:
+
+- **Amortized cost** shows the effective cost for the period with reservation purchases amortized across the commitment term.
+- **Total savings** shows how much you're saving compared to list prices.
+
 Note the currency must be single-select to ensure costs in different currencies aren't mixed.
-
-### Key performance indicators (KPIs)
-
-- Amortized cost
-- Discount savings
-
-Both numbers represent the sum for the entire period.
-
-### Chart
-
-The chart shows daily cost for the period. Each page breaks the costs down by a different attribute.
-
-### Table
-
-The table shows a breakdown of the cost, usually with columns for the months. The table differs on each page.
 
 <br>
 
@@ -165,11 +155,9 @@ This page filters usage down to only show charges related to commitment-based di
 
 ## Hybrid Benefit
 
-<!-- NOTE: This page is duplicated in the commitment-discounts.md. Please keep both updated at the same time. -->
+The **Hybrid Benefit** page shows Azure Hybrid Benefit (AHB) usage for Windows Server virtual machines (VMs).
 
-The **Hybrid Benefit** page shows Azure Hybrid Benefit (AHB) usage for Windows Server virtual machines (VMs). The page uses the standard filters, but differs with the other sections.
-
-Instead of cost KPIs, the page shows how many VMs are currently enabled and how many vCPUs are used.
+KPIs show how many VMs are using Azure Hybrid Benefit and how many vCPUs are used.
 
 There are 3 charts on the page:
 
@@ -179,7 +167,19 @@ There are 3 charts on the page:
 
 The table shows a list of VMs that are currently using or could be using AHB with their vCPU count, AHB vCPU count, resource group, subscription, cost and quantity.
 
-![Screenshot of the Hybrid Benefit page](https://user-images.githubusercontent.com/399533/216882954-a83d0c8a-fe6d-4d55-8e8b-45b3df3914a9.png)
+![Screenshot of the Hybrid Benefit page](https://github.com/microsoft/finops-toolkit/assets/399533/d77d515a-313a-4070-9496-64857ef888c6)
+
+<br>
+
+## Prices
+
+<!-- NOTE: There is a similar page in the cost-summary.md file. They are not identical. Please keep both updated at the same time. -->
+
+The **Prices** page shows the prices for all products that were used during the period.
+
+The chart shows a summary of the meters that were used the most.
+
+![Screenshot of the Prices page](https://github.com/microsoft/finops-toolkit/assets/399533/277e0f55-f3f6-496c-9557-6e4be6685794)
 
 <br>
 
@@ -204,7 +204,7 @@ The following changes were made to a new `FOCUS_0.5` table to align to the FOCUS
 | [`ChargePeriodEnd`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/chargeperiodend.md)       | `Date+1d`                 | FOCUS end dates are exclusive, meaning they are set to the start of the next period.                                               |
 | [`ChargePeriodStart`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/chargeperiodstart.md)   | `Date`                    |
 | [`ChargeType`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/chargetype.md)                 | `ChargeType`              | `UnusedReservation` and `UnusedSavingsPlan` are returned as `Usage`. `Refund` is returned as `Adjustment`.                         |
-| [`InvoiceIssuer`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/invoiceissuer.md)           | `"Microsoft"`             | Currently hard-coded.                                                                                                              |
+| [`InvoiceIssuerName`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/invoiceissuer.md)       | `"Microsoft"`             | Currently hard-coded.                                                                                                              |
 | [`ProviderName`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/provider.md)                 | `"Microsoft"`             | Currently hard-coded.                                                                                                              |
 | [`PublisherName`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/publisher.md)               | `PublisherName`           | If `PublisherName` is empty and `PublisherType` is `"Azure"`, `"Microsoft"` is used; otherwise, the `PublisherType` value is used. |
 | [`Region`](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/candidate_release/specification/dimensions/region.md)                         | `ResourceLocation`        | `"All regions"` and Microsoft Defender values are changed to `Global` for consistency.                                             |
@@ -226,7 +226,7 @@ A few open issues we've identified:
 3. `BillingPeriodEnd` and `ChargePeriodEnd` are exclusive, which is ideal for filtering, but may be confusing.
    - We are looking for feedback about this to understand if it is a problem and determine the best way to address it.
 4. `ChargeType` is missing support for unused commitments. This will be accounted for by FOCUS 1.0.
-5. `InvoiceIssuer` is not accounting for Cloud Solution Provider partners.
+5. `InvoiceIssuerName` is not accounting for Cloud Solution Provider partners.
    - FinOps hubs v0.0.1 only supports Enterprise Agreement accounts. Support for Microsoft Customer Agreement and Microsoft Partner Agreement accounts will be added in a future release.
 6. `Region` can include values that are not regions, such as `Unassigned`.
    - This is an underlying service issue and must be resolved by the service that is referencing invalid Azure locations in their usage data.
@@ -255,7 +255,15 @@ If you have feedback about FOCUS, please consider contributing to the FOCUS proj
 
 ## See also
 
-- [Power BI ideas and suggestions](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+label%3A%22Area%3A+Power+BI%22)
-- [Common terms](./terms.md)
+- [Common terms](../terms.md)
+- [Data dictionary](../data-dictionary.md)
+
+<br>
+
+## 🙋‍♀️ Looking for more?
+
+We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
+
+[Share feedback](https://github.com/microsoft/finops-toolkit/issues/new/choose){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>

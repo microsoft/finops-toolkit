@@ -18,6 +18,7 @@ Familiarize yourself with the terminology used in FinOps hubs.
 - [C](#c)
 - [D](#d)
 - [E](#e)
+- [L](#l)
 - [M](#m)
 - [N](#n)
 - [⏭️ Next steps](#️-next-steps)
@@ -47,6 +48,10 @@ See also:
 
 "Commitment-based discounts" refers to any discounts you can obtain by pre-committing to a specific amount of usage for a predetermined amount of time, like reservations, savings plans, or committed use discounts (CUDs).
 
+#### Commitment discounts
+
+See [Commitment-based discounts](#commitment-based-discounts).
+
 #### Commitment savings
 
 "Commitment savings" refers to the total amount saved compared to negotiated, on-demand rates. This only includes [commitment-based discounts](#commitment-based-discounts). To include negotiated discounts, use [Discount savings](#discount-savings).
@@ -66,6 +71,18 @@ See also:
 #### EA or Enterprise Agreement
 
 "Enterprise Agreement" is an agreement between Microsoft and an organization for how they can purchase, use, and pay for Azure.
+
+<br>
+
+## L
+
+#### List cost
+
+"List cost" is the cost of a product or service if it were billed at its [list price](#list-price).
+
+#### List price
+
+"List price" (aka "market price") is the publicly available price for a product or service. This is the price you would pay if you purchased the product or service without any discounts.
 
 <br>
 

@@ -6,7 +6,7 @@ description: 'Leverage open data to normalize and enhance your FinOps reporting.
 permalink: /data
 ---
 
-<span class="fs-9 d-block mb-4">Mappings</span>
+<span class="fs-9 d-block mb-4">Open data</span>
 Leverage open data to normalize and enhance your FinOps reporting.
 {: .fs-6 .fw-300 }
 

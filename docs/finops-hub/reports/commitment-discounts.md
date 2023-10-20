@@ -1,9 +1,8 @@
 ---
 layout: default
-grand_parent: FinOps hubs
-parent: Reports
+parent: Power BI
 title: Commitment discounts
-nav_order: 2
+nav_order: 21
 description: 'Summarize commitment-based discount cost, savings, and coverage in Power BI.'
 permalink: /hubs/reports/commitment-discounts
 ---
@@ -13,17 +12,22 @@ Commitment-based discount chargeback, savings, and coverage.
 {: .fs-6 .fw-300 }
 
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/CommitmentDiscounts.pbix){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[How to setup](./README.md#-how-to-setup-power-bi){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Connect your data](./README.md#-connect-to-your-data){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Common page layout](#common-page-layout)
+- [Working with this report](#working-with-this-report)
 - [Get started](#get-started)
-- [Hybrid Benefit](#hybrid-benefit)
 - [Commitments](#commitments)
+- [Savings](#savings)
+- [Chargeback](#chargeback)
 - [Coverage](#coverage)
+- [Purchases](#purchases)
+- [Hybrid Benefit](#hybrid-benefit)
+- [Prices](#prices)
 - [See also](#see-also)
+- [🙋‍♀️ Looking for more?](#️-looking-for-more)
 
 </details>
 
@@ -39,45 +43,35 @@ The **Commitment discounts report** summarizes existing and potential savings fr
 
 You can download the Commitment discount report from the [latest release](https://github.com/microsoft/finops-toolkit/releases).
 
-<blockquote class="important" markdown="1">
-  _FinOps hubs uses [amortized costs](https://learn.microsoft.com/azure/cost-management-billing/reservations/reservation-amortization). Amortization breaks reservation and savings plan purchases down and allocates costs to the resources that received the benefit. Due to this, amortized costs will not show purchase costs and will not match your invoice. Please use [Cost Management](https://aka.ms/costmgmt) to review invoice charges.
+<blockquote class="warning" markdown="1">
+  _The Cost Management connector uses an older API that does not include all details about savings plans. You will see unused commitment charges, but you will not be able to identify the usage that was covered by a savings plan. This may skew numbers, if you have savings plans._
+</blockquote>
+
+<blockquote class="note" markdown="1">
+  _FinOps hubs uses [amortized costs](https://learn.microsoft.com/azure/cost-management-billing/reservations/reservation-amortization). Amortization breaks reservation and savings plan purchases down and allocates costs to the resources that received the benefit. Due to this, amortized costs will not show purchase costs and will not match your invoice. Support for billed costs is coming in FinOps hubs 0.2. In the meantime, please use [Cost Management](https://aka.ms/costmgmt) to review invoice charges._
 </blockquote>
 
 <br>
 
-## Common page layout
+## Working with this report
 
-Most report pages follow a standard layout with filters, summary numbers (or KPIs), one or more charts, and a table.
-
-### Filters
-
-Filters differ on each page, but may include one or more of the following:
+This report includes the following filters on each page:
 
 - Date range
 - Subscription
-- Resource group
+- Location
 - Commitment (e.g., reservation, savings plan)
-- Service/Tier (meter category/subcategory)
+- Service (e.g., Virtual machines, SQL database)
 - Currency
 
-Note the currency must be single-select to ensure costs in different currencies aren't mixed.
+A few common KPIs you fill find in this report are:
 
-### Key performance indicators (KPIs)
-
-KPIs differ on each page, but may include one or more of the following:
-
-- Amortized cost
-- Commitment savings
-
-Both numbers represent the sum for the entire period.
-
-### Charts
-
-The charts section provides a visual summary of the page. Charts differ on each page.
-
-### Table
-
-The table shows a breakdown of the cost or recommendations, depending on the purpose of the page.
+- **Amortized cost** shows the effective cost for the period with reservation purchases amortized across the commitment term.
+- **Utilization** shows the percentage of your current commitments were used during the period.
+- **Commitment savings** shows how much you're saving with commitment-based discounts.
+  <blockquote class="important" markdown="1">
+    _Microsoft Cost Management does not include the pricing details for Microsoft Customer Agreement accounts, so commitment savings cannot be calculated. Please file a support request and speak to your field rep to escalate this._
+  </blockquote>
 
 <br>
 
@@ -85,17 +79,107 @@ The table shows a breakdown of the cost or recommendations, depending on the pur
 
 The **Get started** page includes a basic introduction to the report with additional links to learn more.
 
-![Screenshot of the Get started page](https://user-images.githubusercontent.com/399533/216883194-47ac6f41-c57f-491b-8b56-dfc2b1ef02f5.png)
+![Screenshot of the Get started page](https://github.com/microsoft/finops-toolkit/assets/399533/7afbbe2f-75b2-4cfd-b36c-bbbfff43406f)
+
+<br>
+
+## Commitments
+
+The **Commitments** page provides a list of your commitment-based discounts and offers a summary of the quantity used, utilization, savings, and effective cost for the period.
+
+The chart breaks down the cost of used (utilized) vs. unused charges. Unused charges are split out by commitment type (e.g., reservation, savings plan).
+
+![Screenshot of the Commitments page](https://github.com/microsoft/finops-toolkit/assets/399533/14c76b3c-9837-4834-bdbc-5fa8f5197dd4)
+
+<br>
+
+## Savings
+
+The **Savings** page summarizes cost savings obtained from commitment-based discounts. Commitments are grouped by program and service.
+
+The chart shows total cost savings for the period split out by commitment type (e.g., reservation, savings plan).
+
+<blockquote class="warning" markdown="1">
+  _Microsoft Cost Management does not include the pricing details for Microsoft Customer Agreement accounts, so commitment savings cannot be calculated. Please file a support request and speak to your field rep to escalate this._
+</blockquote>
+
+![Screenshot of the Savings page](https://github.com/microsoft/finops-toolkit/assets/399533/cb88d569-2d10-445a-973a-201c268bf535)
+
+<br>
+
+## Chargeback
+
+<!-- NOTE: This page is duplicated in the cost-summary.md file as "Commitments". Please keep both updated at the same time. -->
+
+The **Chargeback** page helps facilitate chargeback at a subscription, resource group, or resource level. Use the table for chargeback.
+
+The chart shows the amortized cost for each subscription that used a commitment. If you see **Unassigned**, that is the unused cost that is not associated with a subscription.
+
+<blockquote class="note" markdown="1">
+  _This page is also available in the Cost summary report as "Commitments" to show how commitments hare impacting resource costs._
+
+![Screenshot of the Chargeback page](https://github.com/microsoft/finops-toolkit/assets/399533/a91ca058-e03a-446c-9785-de33e4f6b276)
+
+### 🛠️ Chargeback customization tips
+
+- Consider changing the columns in the table based on your chargeback needs.
+- If you use tags for cost allocation, create custom columns in the CostDetails table that extract their values, then add those as columns into the visual for reporting.
+- Consider bringing in external data for additional allocation options.
+
+<br>
+
+## Coverage
+
+There are two **Coverage** pages that help you identify any places where you could potentially save even more based on your historical usage patterns with virtual machine reservations within a single subscription or shared across all subscriptions.
+
+These pages use the following filters for reservation recommendations:
+
+- **Term** – Length of time for a reservation.
+- **Lookback** – Period of historical time to use when recommending future reservations (e.g., 7-day, 30-day).
+- **Subscription** – Indicates which subscription you want to see recommendations for on the subscription coverage page. All are shown by default.
+
+The KPIs on this page cover:
+
+- **Potential savings** shows what you could save if you purchase the recommended VM reservations.
+- **On-demand cost** shows the cost that would be covered by the recommended reservations.
+
+There are 2 charts on the page that offer a breakdown of location, instance size flexibility group, and size; and, CPU hours over time. Your goal is to increase the committed usage in green and spend in blue in order to decrease the on-demand cost in red, which costs you more.
+
+The table below the charts shows the recommended reservations based on the specified lookback period.
+
+<blockquote class="important" markdown="1">
+  _Potential savings and on-demand cost estimations are only available for VM reservation recommendations. You can view savings plan and reservation recommendations for other services in the Azure portal._
+</blockquote>
+
+![Screenshot of the VM shared reservation coverage page](https://github.com/microsoft/finops-toolkit/assets/399533/5123b47d-cea2-4961-9237-6cbcae5a58e1)
+
+<br>
+
+## Purchases
+
+<!-- NOTE: There is a similar page in the cost-summary.md file. They are not identical. Please keep both updated at the same time. -->
+
+The **Purchases** page shows any new commitment-based discount purchases (either monthly or upfront payments) within the specified period.
+
+There is one, **Billed cost** KPI which shows the total cost of the purchases as it is shown on your invoice. Note this is different than the cost on other pages, which show amortized cost.
+
+The chart shows the purchases over time and the table shows a list of the commitments that were purchased, including the term, product, and payment frequency (**OneTime** is for upfront payments and **Recurring** is for monthly).
+
+<blockquote class="warning" markdown="1">
+  _FinOps hubs do not include actual cost data and cannot show commitment purchases. To view commitment purchases when using FinOps hubs, configure the billing account information and desired number of months and the report will pull only the commitment purchases from the Cost Management connector. Direct support for actual cost data is coming in FinOps hubs 0.2._
+</blockquote>
+
+![Screenshot of the Purchases page](https://github.com/microsoft/finops-toolkit/assets/399533/3d37fb02-ffcc-4a3e-bffa-04d5fb9d3b92)
 
 <br>
 
 ## Hybrid Benefit
 
-<!-- NOTE: This page is duplicated in the cost-summary.md. Please keep both updated at the same time. -->
+<!-- NOTE: This page is duplicated in the cost-summary.md file. Please keep both updated at the same time. -->
 
-The **Hybrid Benefit** page shows Azure Hybrid Benefit (AHB) usage for Windows Server virtual machines (VMs). The page uses the standard filters, but differs with the other sections.
+The **Hybrid Benefit** page shows Azure Hybrid Benefit (AHB) usage for Windows Server virtual machines (VMs).
 
-Instead of cost KPIs, the page shows how many VMs are currently enabled and how many vCPUs are used.
+KPIs show how many VMs are using Azure Hybrid Benefit and how many vCPUs are used.
 
 There are 3 charts on the page:
 
@@ -105,62 +189,33 @@ There are 3 charts on the page:
 
 The table shows a list of VMs that are currently using or could be using AHB with their vCPU count, AHB vCPU count, resource group, subscription, cost and quantity.
 
-![Screenshot of the Hybrid Benefit page](https://user-images.githubusercontent.com/399533/216882954-a83d0c8a-fe6d-4d55-8e8b-45b3df3914a9.png)
+![Screenshot of the Hybrid Benefit page](https://github.com/microsoft/finops-toolkit/assets/399533/d77d515a-313a-4070-9496-64857ef888c6)
 
 <br>
 
-## Commitments
+## Prices
 
-<!-- NOTE: This page is duplicated in the cost-summary.md. Please keep both updated at the same time. -->
+<!-- NOTE: There is a similar page in the cost-summary.md file. They are not identical. Please keep both updated at the same time. -->
 
-The **Commitments** page serves 3 primary purposes:
+The **Prices** page shows the prices for all products that were used with commitment-based discounts during the period.
 
-1. Determine if there are any under-utilized commitments.
-2. Facilitate chargeback at a subscription, resource group, or resource level.
-3. Summarize cost savings obtained from commitment-based discounts.
+The chart shows a summary of the meters that were used the most.
 
-This page uses the standard layout with a breakdown of commitment-based discounts in the chart and table.
-
-In addition to cost and savings KPIs, there is also a utilization KPI for the amount of commitment-based discounts that have been utilized during the period. Low utilization will result in lost savings potential, so this number is one of the most important KPIs on the page.
-
-The chart breaks down the cost of used (utilized) vs. unused charges. Unused charges are split out by commitment type (e.g., reservation, savings plan).
-
-The table shows resource usage against commitment-based discounts with columns for resource name, resource group, subscription, and commitment. Use the table for chargeback and savings calculations.
-
-This page filters usage down to only show charges related to commitment-based discounts, which means the total cost on the Commitments page won't match other pages, which aren't filtered by default.
-
-![Screenshot of the Commitment-based discounts page](https://user-images.githubusercontent.com/399533/216882916-bb7ecfa3-d092-4ae2-88e1-7a0425c14dca.png)
-
-### 🛠️ Customization tips
-
-- Consider changing the columns in the table based on your chargeback needs.
-
-<br>
-
-## Coverage
-
-There are two **Coverage** pages that help you identify any places where you could potentially save even more based on your historical usage patterns with virtual machine reservations within a single subscription or shared across all subscriptions. Each page uses the standard layout optimized to show recommendations rather than focusing on cost, so sections differ from other pages.
-
-Most of the common cost filters are not available. The following filters are available for recommendations:
-
-- Term – Length of time for a reservation.
-- Scope – Indicates how broadly reservations should be shared (i.e., Billing account, Management group, Subscription, Resource group).
-- Lookback – Period of historical time to use when recommending future reservations (e.g., 7-day, 30-day).
-
-The KPIs on this page cover:
-
-- Potential savings (from recommendations)
-- On-demand cost (based on the date range)
-
-There are 2 charts on the page that offer a breakdown of location, instance size flexibility group, and size; and, cost over time.
-
-![Screenshot of the VM shared reservation coverage page](https://github.com/microsoft/cloud-hubs/assets/399533/e33abb0b-6b2b-44d7-a9ec-8061b72d7857)
+![Screenshot of the Prices page](https://github.com/microsoft/finops-toolkit/assets/399533/acb81d62-7860-4368-9374-25814f599f15)
 
 <br>
 
 ## See also
 
-- [Power BI ideas and suggestions](https://github.com/microsoft/cloud-hubs/issues?q=is%3Aissue+is%3Aopen+label%3A%22Area%3A+Power+BI%22)
-- [Common terms](./terms.md)
+- [Common terms](../terms.md)
+- [Data dictionary](../data-dictionary.md)
+
+<br>
+
+## 🙋‍♀️ Looking for more?
+
+We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
+
+[Share feedback](https://github.com/microsoft/finops-toolkit/issues/new/choose){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
