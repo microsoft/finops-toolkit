@@ -1,11 +1,10 @@
 ---
 layout: default
-grand_parent: FinOps hubs
-parent: Reports
+parent: Power BI
 title: EA template app
 nav_order: zzz
 description: 'Cost Management template app for Enterprise Agreement accounts.'
-permalink: /hubs/reports/commitment-discounts
+permalink: /power-bi/template-app
 ---
 
 <span class="fs-9 d-block mb-4">EA template app</span>

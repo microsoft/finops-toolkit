@@ -4,7 +4,7 @@ parent: Power BI
 title: Commitment discounts
 nav_order: 21
 description: 'Summarize commitment-based discount cost, savings, and coverage in Power BI.'
-permalink: /hubs/reports/commitment-discounts
+permalink: /power-bi/commitment-discounts
 ---
 
 <span class="fs-9 d-block mb-4">Commitment discounts report</span>

@@ -4,7 +4,7 @@ parent: Power BI
 title: Cost summary
 nav_order: 20
 description: 'Identify top contributors, review changes over time, build a chargeback report, and summarize savings in Power BI.'
-permalink: /hubs/reports/cost-summary
+permalink: /power-bi/cost-summary
 ---
 
 <span class="fs-9 d-block mb-4">Cost summary report</span>

@@ -1,11 +1,10 @@
 ---
 layout: default
-grand_parent: FinOps hubs
-parent: Reports
+parent: Power BI
 title: FOCUS
 nav_order: 90
 description: 'Identify top contributors, review changes over time, build a chargeback report, and summarize savings in Power BI.'
-permalink: /hubs/reports/focus
+permalink: /power-bi/focus
 ---
 
 <span class="fs-9 d-block mb-4">FOCUS 0.5 sample report</span>
