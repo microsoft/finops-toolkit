@@ -10814,7 +10814,7 @@
             "value": "DateTime"
           }
         ],
-        "expression": "#datetime(2023, 1, 1, 0, 0, 0) meta [IsParameterQuery=true, Type=\"DateTime\", IsParameterQueryRequired=true]",
+        "expression": "#datetime(2023, 7, 1, 0, 0, 0) meta [IsParameterQuery=true, Type=\"DateTime\", IsParameterQueryRequired=true]",
         "kind": "m",
         "lineageTag": "e8c1fa56-ff6e-4ab0-b149-faadfc24c3b4",
         "queryGroup": "🛠️ Setup\\FinOps hubs"
@@ -13708,9 +13708,10 @@
             "source": {
               "expression": [
                 "let",
-                "    Source = ftk_LoadData(2)",
+                "    Source = ftk_LoadData(2),",
+                "    #\"Kept Errors\" = Table.SelectRowsWithErrors(Source, {\"AccountName\"})",
                 "in",
-                "    Source"
+                "    #\"Kept Errors\""
               ],
               "type": "m"
             }
