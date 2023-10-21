@@ -121,3 +121,5 @@ We'd love to hear about any reports, charts, or general reporting questions you'
 [Share feedback](https://github.com/microsoft/finops-toolkit/issues/new/choose){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
+
+{% include tools.md finops-hub optimization-workbook governance-workbook %}

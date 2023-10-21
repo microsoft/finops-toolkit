@@ -85,3 +85,5 @@ Get-FinOpsHub -Name foo -ResourceGroupName bar
 Returns all FinOps hubs named 'foo' in the 'bar' resource group.
 
 <br>
+
+{% include tools.md finops-hub %}

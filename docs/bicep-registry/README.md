@@ -52,3 +52,5 @@ Creates a [scheduled action](https://learn.microsoft.com/rest/api/cost-managemen
 Creates an [export](https://learn.microsoft.com/rest/api/cost-management/exports) to push cost data to a storage account on a daily or monthly schedule.
 
 <br>
+
+{% include tools.md powershell %}

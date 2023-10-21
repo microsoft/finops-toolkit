@@ -255,8 +255,8 @@ If you have feedback about FOCUS, please consider contributing to the FOCUS proj
 
 ## See also
 
-- [Common terms](../terms.md)
-- [Data dictionary](../data-dictionary.md)
+- [Common terms](../resources/terms.md)
+- [Data dictionary](../resources/data-dictionary.md)
 
 <br>
 

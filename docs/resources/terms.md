@@ -2,9 +2,9 @@
 layout: default
 parent: Resources
 title: Common terms
-nav_order: 4
+nav_order: 30
 description: 'Common terms and definitions used throughout FinOps hubs.'
-permalink: /hubs/terms
+permalink: /resources/terms
 ---
 
 <span class="fs-9 d-block mb-4">Common terms</span>
@@ -21,7 +21,7 @@ Familiarize yourself with the terminology used in FinOps hubs.
 - [L](#l)
 - [M](#m)
 - [N](#n)
-- [⏭️ Next steps](#️-next-steps)
+- [🧰 Related tools](#-related-tools)
 
 See also:
 
@@ -114,11 +114,10 @@ See [Commitment-based discounts](#commitment-based-discounts).
 
 <!-- markdownlint-restore -->
 
+<br>
+
 ---
 
-## ⏭️ Next steps
+## 🧰 Related tools
 
-[Deploy](./README.md#-create-a-new-hub){: .btn .btn-primary .mt-2 .mb-4 .mb-md-0 .mr-4 }
-[Learn more](./README.md#-why-finops-hubs){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-
-<br>
+{% include tools.md finops-hub power-bi %}

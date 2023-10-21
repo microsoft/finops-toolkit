@@ -175,11 +175,4 @@ Columns to add:
 
 <br>
 
----
-
-## ⏭️ Next steps
-
-[Deploy](./README.md#-create-a-new-hub){: .btn .btn-primary .mt-2 .mb-4 .mb-md-0 .mr-4 }
-[Learn more](./README.md#-why-finops-hubs){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-
-<br>
+{% include tools.md finops-hub power-bi %}

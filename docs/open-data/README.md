@@ -110,3 +110,5 @@ We'd love to hear about any datasets you're looking for. Create a new issue with
 [Share feedback](https://github.com/microsoft/finops-toolkit/issues/new/choose){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
+
+{% include tools.md power-bi %}

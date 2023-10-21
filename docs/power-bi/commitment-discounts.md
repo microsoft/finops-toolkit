@@ -208,8 +208,8 @@ The chart shows a summary of the meters that were used the most.
 
 ## See also
 
-- [Common terms](../terms.md)
-- [Data dictionary](../data-dictionary.md)
+- [Common terms](../resources/terms.md)
+- [Data dictionary](../resources/data-dictionary.md)
 
 <br>
 

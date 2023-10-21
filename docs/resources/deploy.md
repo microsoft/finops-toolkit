@@ -2,9 +2,9 @@
 layout: default
 parent: Resources
 title: Deployment options
-nav_order: yyy
+nav_order: 10
 description: 'Deploy FinOps toolkit solutions.'
-permalink: /deploy
+permalink: /resources/deploy
 ---
 
 <span class="fs-9 d-block mb-4">FinOps toolkit deployment options</span>
