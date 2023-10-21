@@ -31,7 +31,7 @@ Read on to learn about the tools and roadmap for the FinOps toolkit or how to ge
 
 ### In development
 
-- PowerShell module – Automate FinOps hubs management and convert Cost Management data to FOCUS.
+- PowerShell module – Manage FinOps hubs and convert Cost Management data to FOCUS.
 
 <br>
 

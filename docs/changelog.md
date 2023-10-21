@@ -37,9 +37,10 @@ Legend:
 
 ## 🔄️ Unreleased
 
-🏦 FinOps hubs{: .fs-5 .fw-500 .mt-4 mb-0 }
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
 
-> ➕ Added:{: .fs-5 .fw-500 .mt-4 mb-0 }
+> ➕ Added:
 >
 > 1. New PowerShell commands to manage FinOps hubs 0.1:
 >    1. Get-FinOpsHub
@@ -60,25 +61,28 @@ Legend:
 >       _This change requires re-ingesting historical data and is not backwards compatible. The unified schema used in this release is aligned with the future plans for Microsoft Cost Management exports. Note the next release will update the schema to align to the FinOps Open Cost and Usage Specification (FOCUS)._
 >    </blockquote>
 
-🖥️ PowerShell for Cost Management{: .fs-5 .fw-500 .mt-4 mb-0 }
+🖥️ PowerShell for Cost Management
+{: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
-> 1.  Get-FinOpsCostExport command
-> 2.  Remove-FinOpsCostExport command
+> 1. Get-FinOpsCostExport command
+> 2. Remove-FinOpsCostExport command
 
 <br>
 
 ## 🚚 v0.1
 
-🖥️ PowerShell{: .fs-5 .fw-500 .mt-4 mb-0 }
+🖥️ PowerShell
+{: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
 > 1. [FinOpsToolkit module](https://aka.ms/finops/toolkit/powershell) released in the PowerShell Gallery.
 > 2. [Get-FinOpsToolkitVersion](./powershell/toolkit/Get-FinOpsToolkitVersion) to get toolkit versions.
 
-🏦 FinOps hubs{: .fs-5 .fw-500 .mt-4 mb-0 }
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
@@ -91,7 +95,8 @@ Legend:
 > 1. Storage redundancy dropdown default not set correctly in the create form.
 > 2. Tags specified in the create form were causing the deployment to fail. See #331.
 
-📊 Power BI reports{: .fs-5 .fw-500 .mt-4 mb-0 }
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
@@ -104,7 +109,8 @@ Legend:
 
 > 1. Expanded the FinOps hubs Cost summary and Commitment discounts [Power BI reports](./power-bi/README.md) to support the Cost Management connector.
 
-📒 Azure Monitor workbooks{: .fs-5 .fw-500 .mt-4 mb-0 }
+📒 Azure Monitor workbooks
+{: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
@@ -114,7 +120,8 @@ Legend:
 >
 > 1. [Optimization workbook](./optimization-workbook/README.md) updated to cover more scenarios.
 
-🌐 Open data{: .fs-5 .fw-500 .mt-4 mb-0 }
+🌐 Open data
+{: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
@@ -128,7 +135,8 @@ Legend:
 
 ## 🌱 v0.0.1
 
-🏦 FinOps hubs{: .fs-5 .fw-500 .mt-4 mb-0 }
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
@@ -136,13 +144,15 @@ Legend:
 > 2. [Cost summary report](./finops-hub/reports/cost-summary.md) for various out-of-the-box cost breakdowns.
 > 3. [Commitment discounts report](./finops-hub/reports/commitment-discounts.md) for commitment-based discount reports.
 
-🦾 Bicep modules{: .fs-5 .fw-500 .mt-4 mb-0 }
+🦾 Bicep modules
+{: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
 > 1. [Scheduled action modules](./bicep-registry/README.md#scheduled-actions) submitted to the Bicep Registry.
 
-📒 Azure Monitor workbooks{: .fs-5 .fw-500 .mt-4 mb-0 }
+📒 Azure Monitor workbooks
+{: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
