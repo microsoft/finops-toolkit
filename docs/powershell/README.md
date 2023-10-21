@@ -2,7 +2,7 @@
 layout: default
 title: PowerShell
 has_children: true
-nav_order: 50
+nav_order: 40
 description: 'Automate and scale your FinOps efforts.'
 permalink: /powershell
 ---
@@ -11,7 +11,7 @@ permalink: /powershell
 Leverage PowerShell commands and scripts to streamline FinOps operations and accelerate adoption across projects and teams.
 {: .fs-6 .fw-300 }
 
-[Install](#️-install-the-module){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Install](#-install-the-module){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
 [Commands](#-commands){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <details open markdown="1">

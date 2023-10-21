@@ -79,7 +79,7 @@ A few common KPIs you fill find in this report are:
 
 The **Get started** page includes a basic introduction to the report with additional links to learn more.
 
-![Screenshot of the Get started page](https://github.com/microsoft/finops-toolkit/assets/399533/7afbbe2f-75b2-4cfd-b36c-bbbfff43406f)
+> ![Screenshot of the Get started page](https://github.com/microsoft/finops-toolkit/assets/399533/7afbbe2f-75b2-4cfd-b36c-bbbfff43406f)
 
 <br>
 
@@ -89,7 +89,7 @@ The **Commitments** page provides a list of your commitment-based discounts and 
 
 The chart breaks down the cost of used (utilized) vs. unused charges. Unused charges are split out by commitment type (e.g., reservation, savings plan).
 
-![Screenshot of the Commitments page](https://github.com/microsoft/finops-toolkit/assets/399533/14c76b3c-9837-4834-bdbc-5fa8f5197dd4)
+> ![Screenshot of the Commitments page](https://github.com/microsoft/finops-toolkit/assets/399533/14c76b3c-9837-4834-bdbc-5fa8f5197dd4)
 
 <br>
 
@@ -103,7 +103,7 @@ The chart shows total cost savings for the period split out by commitment type (
   _Microsoft Cost Management does not include the pricing details for Microsoft Customer Agreement accounts, so commitment savings cannot be calculated. Please file a support request and speak to your field rep to escalate this._
 </blockquote>
 
-![Screenshot of the Savings page](https://github.com/microsoft/finops-toolkit/assets/399533/cb88d569-2d10-445a-973a-201c268bf535)
+> ![Screenshot of the Savings page](https://github.com/microsoft/finops-toolkit/assets/399533/cb88d569-2d10-445a-973a-201c268bf535)
 
 <br>
 
@@ -118,7 +118,7 @@ The chart shows the amortized cost for each subscription that used a commitment.
 <blockquote class="note" markdown="1">
   _This page is also available in the Cost summary report as "Commitments" to show how commitments hare impacting resource costs._
 
-![Screenshot of the Chargeback page](https://github.com/microsoft/finops-toolkit/assets/399533/a91ca058-e03a-446c-9785-de33e4f6b276)
+> ![Screenshot of the Chargeback page](https://github.com/microsoft/finops-toolkit/assets/399533/a91ca058-e03a-446c-9785-de33e4f6b276)
 
 ### 🛠️ Chargeback customization tips
 
@@ -151,7 +151,7 @@ The table below the charts shows the recommended reservations based on the speci
   _Potential savings and on-demand cost estimations are only available for VM reservation recommendations. You can view savings plan and reservation recommendations for other services in the Azure portal._
 </blockquote>
 
-![Screenshot of the VM shared reservation coverage page](https://github.com/microsoft/finops-toolkit/assets/399533/5123b47d-cea2-4961-9237-6cbcae5a58e1)
+> ![Screenshot of the VM shared reservation coverage page](https://github.com/microsoft/finops-toolkit/assets/399533/5123b47d-cea2-4961-9237-6cbcae5a58e1)
 
 <br>
 
@@ -169,7 +169,7 @@ The chart shows the purchases over time and the table shows a list of the commit
   _FinOps hubs do not include actual cost data and cannot show commitment purchases. To view commitment purchases when using FinOps hubs, configure the billing account information and desired number of months and the report will pull only the commitment purchases from the Cost Management connector. Direct support for actual cost data is coming in FinOps hubs 0.2._
 </blockquote>
 
-![Screenshot of the Purchases page](https://github.com/microsoft/finops-toolkit/assets/399533/3d37fb02-ffcc-4a3e-bffa-04d5fb9d3b92)
+> ![Screenshot of the Purchases page](https://github.com/microsoft/finops-toolkit/assets/399533/3d37fb02-ffcc-4a3e-bffa-04d5fb9d3b92)
 
 <br>
 
@@ -189,7 +189,7 @@ There are 3 charts on the page:
 
 The table shows a list of VMs that are currently using or could be using AHB with their vCPU count, AHB vCPU count, resource group, subscription, cost and quantity.
 
-![Screenshot of the Hybrid Benefit page](https://github.com/microsoft/finops-toolkit/assets/399533/d77d515a-313a-4070-9496-64857ef888c6)
+> ![Screenshot of the Hybrid Benefit page](https://github.com/microsoft/finops-toolkit/assets/399533/d77d515a-313a-4070-9496-64857ef888c6)
 
 <br>
 
@@ -201,7 +201,7 @@ The **Prices** page shows the prices for all products that were used with commit
 
 The chart shows a summary of the meters that were used the most.
 
-![Screenshot of the Prices page](https://github.com/microsoft/finops-toolkit/assets/399533/acb81d62-7860-4368-9374-25814f599f15)
+> ![Screenshot of the Prices page](https://github.com/microsoft/finops-toolkit/assets/399533/acb81d62-7860-4368-9374-25814f599f15)
 
 <br>
 

@@ -28,8 +28,10 @@ Read on to learn about the tools and roadmap for the FinOps toolkit or how to ge
 ## 🧰 Available tools
 
 - [FinOps hubs](./finops-hub/README.md) – Open, extensible, and scalable cost reporting.
+- [Power BI reports](./power-bi/README.md) – Accelerate your reporting with Power BI starter kits.
 - [Cost optimization workbook](./optimization-workbook/README.md) – Central hub for cost optimization.
 - [Governance workbook](./governance-workbook/README.md) – Central hub for governance.
+- [PowerShell module](./powershell/README.md) – Commands to help you automate and manage FinOps solutions and capabilities.
 - [Bicep Registry modules](./bicep-registry/README.md) – Official repository for Bicep modules.
 - [Open data](./open-data/README.md) – Data available for anyone to access, use, and share without restriction.
   - [Regions](./open-data/README.md#-regions) – Cost Management locations and their corresponding Azure region IDs and names.

@@ -62,7 +62,7 @@ Note the currency must be single-select to ensure costs in different currencies 
 
 The **Get started** page includes a basic introduction to the report with additional links to learn more.
 
-![Screenshot of the Get started page](https://github.com/microsoft/finops-toolkit/assets/399533/9e427f36-414a-43bc-840e-167fab30b98e)
+> ![Screenshot of the Get started page](https://github.com/microsoft/finops-toolkit/assets/399533/9e427f36-414a-43bc-840e-167fab30b98e)
 
 <br>
 
@@ -70,7 +70,7 @@ The **Get started** page includes a basic introduction to the report with additi
 
 The **Raw data** page includes a table with all FOCUS columns (except the IDs to conserve space). This page is useful to familiarize yourself with the columns themselves.
 
-![Screenshot of the Raw data page](https://github.com/microsoft/finops-toolkit/assets/399533/3ed4a3a9-7060-44ff-bf35-9ebd5ffdfc6c)
+> ![Screenshot of the Raw data page](https://github.com/microsoft/finops-toolkit/assets/399533/3ed4a3a9-7060-44ff-bf35-9ebd5ffdfc6c)
 
 <br>
 
@@ -82,7 +82,7 @@ The **Services** page offers a breakdown of cost by service. Each service is gro
    _The FOCUS ServiceName column is not the same thing as MeterCategory or the ServiceName column for Enterprise Agreement accounts. FOCUS ServiceName is a grouping of resources in each category. This means bandwidth charges for a VM will be grouped under the Compute service category rather than the Network meter category. This distinction is very important when comparing numbers between FOCUS and Azure schemas._
 </blockquote>
 
-![Screenshot of the Services page](https://github.com/microsoft/finops-toolkit/assets/399533/c35b3400-821b-418b-ab42-fda7888d351a)
+> ![Screenshot of the Services page](https://github.com/microsoft/finops-toolkit/assets/399533/c35b3400-821b-418b-ab42-fda7888d351a)
 
 <br>
 
@@ -94,7 +94,7 @@ The **Regions** page includes a breakdown of cost by region.
    _FinOps toolkit reports perform additional data cleansing for ResourceLocation and FOCUS Region columns. What you see in FinOps toolkit reports may not match other reporting._
 </blockquote>
 
-![Screenshot of the Regions page](https://github.com/microsoft/finops-toolkit/assets/399533/7343323d-7344-414f-a2f3-a9ff443c9077)
+> ![Screenshot of the Regions page](https://github.com/microsoft/finops-toolkit/assets/399533/7343323d-7344-414f-a2f3-a9ff443c9077)
 
 <br>
 
@@ -102,7 +102,7 @@ The **Regions** page includes a breakdown of cost by region.
 
 The **Sub accounts** page includes a breakdown of cost by sub account (subscription).
 
-![Screenshot of the Sub accounts page](https://github.com/microsoft/finops-toolkit/assets/399533/6365f652-411f-4c52-aeb9-9e60e0627376)
+> ![Screenshot of the Sub accounts page](https://github.com/microsoft/finops-toolkit/assets/399533/6365f652-411f-4c52-aeb9-9e60e0627376)
 
 <br>
 
@@ -110,7 +110,7 @@ The **Sub accounts** page includes a breakdown of cost by sub account (subscript
 
 The **Resources** page includes a breakdown of cost by resource.
 
-![Screenshot of the Resources page](https://github.com/microsoft/finops-toolkit/assets/399533/1b566641-8af3-4f2f-abd6-c5a0efa2fbc6)
+> ![Screenshot of the Resources page](https://github.com/microsoft/finops-toolkit/assets/399533/1b566641-8af3-4f2f-abd6-c5a0efa2fbc6)
 
 <br>
 
@@ -120,7 +120,7 @@ The **Resources** page includes a breakdown of cost by resource.
 
 The **Data quality** page is for data validation purposes only; however, it can be used to explore service categories, names, regions, and charge types.
 
-![Screenshot of the Data quality page](https://github.com/microsoft/finops-toolkit/assets/399533/a1b55496-c395-4eca-a487-07f6abc1028d)
+> ![Screenshot of the Data quality page](https://github.com/microsoft/finops-toolkit/assets/399533/a1b55496-c395-4eca-a487-07f6abc1028d)
 
 <br>
 
