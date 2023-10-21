@@ -1,6 +1,6 @@
 ---
 layout: default
-parent: FinOps hubs
+parent: Resources
 title: Common terms
 nav_order: 4
 description: 'Common terms and definitions used throughout FinOps hubs.'

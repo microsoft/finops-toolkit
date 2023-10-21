@@ -1,5 +1,6 @@
 ---
 layout: default
+parent: Resources
 title: Deployment options
 nav_order: yyy
 description: 'Deploy FinOps toolkit solutions.'
