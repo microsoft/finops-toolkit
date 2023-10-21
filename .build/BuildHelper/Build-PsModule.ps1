@@ -9,7 +9,11 @@ function Build-PsModule {
     # Get version
     $version = Get-Version
     $baseVersion = $version.Split('-') | Select-Object -First 1
-    $prereleaseTag = $version -replace '^[^-]+-([^\.]+).*$', '$1'
+    $prereleaseTag = $null
+    if ($version -contains '-')
+    {
+        $prereleaseTag = $version.Split('-') | Select-Object -Last 1
+    }
 
     $rootPath = (Get-Item -Path $PSScriptRoot).Parent.Parent.FullName
     $moduleName = 'FinOpsToolkit'

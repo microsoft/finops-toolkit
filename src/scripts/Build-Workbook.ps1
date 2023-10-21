@@ -2,16 +2,17 @@
 # Licensed under the MIT License.
 
 <#
-.SYNOPSIS
+    .SYNOPSIS
     Builds all workbook templates for publishing to Azure Quickstart Templates.
-.DESCRIPTION
-    Run this from the /src/scripts folder.
-.EXAMPLE
+
+    .EXAMPLE
     ./Build-Workbook workbook-name
     Generates a template the specified workbook.
-.PARAMETER Workbook
+    
+    .PARAMETER Workbook
     Name of the workbook folder.
-.PARAMETER Debug
+    
+    .PARAMETER Debug
     Optional. Renders main module and test bicep code to the console instead of generating files. Line numbers map to original file.
 #>
 Param (
@@ -21,8 +22,8 @@ Param (
 # Use the debug flag from common parameters to determine whether to run in debug mode
 $Debug = $DebugPreference -eq "Continue"
 
-$outDir = Join-Path .. .. release "$Workbook-workbook"
-$workbookDir = Join-Path .. workbooks $Workbook
+$outDir = "$PSScriptRoot/../../release/$Workbook-workbook"
+$workbookDir = "$PSScriptRoot/../workbooks/$Workbook"
 
 if (-not (Test-Path $workbookDir)) {
   return
@@ -64,10 +65,11 @@ else {
 }
 
 # Copy scaffold and workbook files
-./New-Directory $outDir
-Copy-Item (Join-Path .. workbooks .scaffold *) $outDir -Exclude workbook.json
-Copy-Item (Join-Path $workbookDir createUiDefinition.json) $outDir
-Copy-Item (Join-Path $workbookDir README.md) $outDir
+& "$PSScriptRoot/New-Directory" $outDir
+Copy-Item "$PSScriptRoot/../workbooks/.scaffold/*" $outDir -Exclude workbook.json
+Copy-Item "$workbookDir/workbook.json" $outDir
+Copy-Item "$workbookDir/createUiDefinition.json" $outDir
+Copy-Item "$workbookDir/README.md" $outDir
 
 # Read workbook
 $workbookText = Get-Content (Join-Path $workbookDir workbook.json)

@@ -1,3 +1,21 @@
+---
+description: This template creates a new FinOps hub instance, including Data Lake storage and a Data Factory.
+page_type: sample
+products:
+  - azure
+  - azure-blob-storage
+  - azure-cost-management
+  - azure-data-factory
+  - azure-data-lake
+  - azure-key-vault
+  - azure-resource-manager
+  - azure-storage-accounts
+urlFragment: finops-hub
+languages:
+  - bicep
+  - json
+---
+
 # FinOps hub template
 
 ![Azure Public Test Date](https://azurequickstartsservice.blob.core.windows.net/badges/quickstarts/microsoft.costmanagement/finops-hub/PublicLastTestDate.svg)
@@ -49,6 +67,7 @@ If you run into any issues, see [Troubleshooting FinOps hubs](https://aka.ms/fin
 3. [Create a new cost export](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data?tabs=azure-portal) using the following settings:
    - **Metric** = `Amortized cost`
    - **Export type** = `Daily export of month-to-date costs`
+   - **File Partitioning** = On
    - **Storage account** = (Use subscription/resource from step 1)
    - **Container** = `msexports`
    - **Directory** = (Use the resource ID of the scope you're exporting without the first "/")

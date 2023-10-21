@@ -1,0 +1,5 @@
+<!-- markdownlint-disable MD041 -->
+
+The FinOps toolkit Power BI reports provide a great starting point for your FinOps reporting. We recommend customizing them to keep what works, edit and augment reports with your own data, and remove anything that isn't needed. You can also copy and paste visuals between reports to create your own custom reports.
+
+FinOps toolkit Power BI reports can be connected to your data through the [Cost Management connector](https://aka.ms/costmgmt/powerbi) or [FinOps hubs](../finops-hubs/README.md). The main difference between the two is that the connector is built into Power BI and requires no external setup, while FinOps hubs requires resources to be deployed to your subscription, which enable additional capabilities. Most organizations can use the connector, depending on the reporting requirements. FinOps hubs is generally for more advanced scenarios. For details, see [Cost Management connector vs. FinOps hubs](./README.md#️-cost-management-connector-vs-finops-hubs).

@@ -27,30 +27,21 @@ Read on to learn about the tools and roadmap for the FinOps toolkit or how to ge
 
 ## 🧰 Available tools
 
-- [FinOps hubs](./finops-hub/README.md) – Open, extensible, and scalable cost reporting.
-- [Cost optimization workbook](./optimization-workbook/README.md) – Central hub for cost optimization.
-- [Bicep Registry modules](./bicep-registry/README.md) – Official repository for Bicep modules.
-- [Open data](./open-data/README.md) – Data available for anyone to access, use, and share without restriction.
-  - [Regions](./open-data/README.md#-regions) – Cost Management locations and their corresponding Azure region IDs and names.
+{% include tools.md all="1" %}
 
 ### In development
 
-- PowerShell module – Commands to help you automate and manage FinOps solutions and capabilities.
-- Governance workbook – Comprehensive overview of the governance posture of your Azure environment.
-
-<!--
-Looking for more? See what's coming in the [Toolkit v1 release](https://github.com/microsoft/finops-toolkit/issues/104).
--->
+- PowerShell module – Manage FinOps hubs and convert Cost Management data to FOCUS.
 
 <br>
 
 ## 🗺️ Roadmap
 
-We track the short-term roadmap for FinOps toolkit as releases in our issue tracker. Each release includes overarching goals, tasks broken down into sub-releases, links to discussions for each sub-release, and tentative stretch tasks.
+We track the short-term roadmap for FinOps toolkit as milestones in GitHub. Each release includes the high-level goals, tasks, and a link to the release discussion.
 
 Please use discussions in GitHub if you have questions, comments, or requests for any specific release.
 
-[Discover what's next](https://github.com/microsoft/finops-toolkit/labels/Type%3A%20Release%20%F0%9F%9A%80){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Discover what's next](https://github.com/microsoft/finops-toolkit/milestones?direction=asc&sort=title&state=open){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [Join the conversation](https://github.com/microsoft/finops-toolkit/discussions){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
