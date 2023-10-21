@@ -122,4 +122,4 @@ We'd love to hear about any reports, charts, or general reporting questions you'
 
 <br>
 
-{% include tools.md finops-hub="1" optimization-workbook="1" governance-workbook="1" %}
+{% include tools.md finops-hub="1" optimization-workbook="1" governance-workbook="1" open-data="1" %}
