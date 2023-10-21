@@ -89,4 +89,4 @@ Deploys a new FinOps hub instance named MyHub to a new resource group named MyNe
 
 <br>
 
-{% include tools.md root="../" finops-hub="1" %}
+{% include tools.md finops-hub="1" %}

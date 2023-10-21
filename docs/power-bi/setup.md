@@ -245,4 +245,4 @@ Note the following columns are new in this release. These columns were not previ
 <br>
 -->
 
-{% include tools.md root="../" finops-hub="1" %}
+{% include tools.md finops-hub="1" %}
