@@ -53,6 +53,7 @@ Legend:
 > 5. Auto-backfill – Backfill historical data from Microsoft Cost Management.
 > 6. Remote hubs – Ingest cost data from other tenants.
 > 7. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
+> 8. Analytics engine – Ingest cost data into an Azure Data Explorer cluster.
 >
 > ✏️ Changed:
 >
@@ -61,7 +62,7 @@ Legend:
 >       _This change requires re-ingesting historical data and is not backwards compatible. The unified schema used in this release is aligned with the future plans for Microsoft Cost Management exports. Note the next release will update the schema to align to the FinOps Open Cost and Usage Specification (FOCUS)._
 >    </blockquote>
 
-🖥️ PowerShell for Cost Management
+🖥️ PowerShell
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
@@ -104,9 +105,9 @@ Legend:
 > 2. Prices page in the [Cost summary report](./power-bi/cost-summary.md).
 > 3. [FOCUS sample report](./power-bi/focus.md) – See your data in the FinOps Open Cost and Usage Specification (FOCUS) schema.
 > 4. [Cost Management template app](./power-bi/template-app.md) (EA only) – The original Cost Management template app as a customizable PBIX file.
-
-✏️ Changed:
-
+>
+> ✏️ Changed:
+>
 > 1. Expanded the FinOps hubs Cost summary and Commitment discounts [Power BI reports](./power-bi/README.md) to support the Cost Management connector.
 
 📒 Azure Monitor workbooks
@@ -125,7 +126,7 @@ Legend:
 
 > ➕ Added:
 >
-> 1. [PricingUnits](./open-data/README.md#-pricing-units) to map all pricing units (UnitOfMeasure values) to distinct units with a scaling factor.
+> 1. [Pricing units](./open-data/README.md#-pricing-units) to map all pricing units (UnitOfMeasure values) to distinct units with a scaling factor.
 > 2. [Regions](./open-data/README.md#-regions) to map historical resource location values in Microsoft Cost Management to standard Azure regions.
 > 3. [Services](./open-data/README.md#-services) to map all resource types to FOCUS service names and categories.
 
