@@ -175,4 +175,4 @@ Columns to add:
 
 <br>
 
-{% include tools.md finops-hub=1 power-bi="1" %}
+{% include tools.md root="../" finops-hub=1 power-bi="1" %}

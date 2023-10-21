@@ -53,4 +53,4 @@ Creates an [export](https://learn.microsoft.com/rest/api/cost-management/exports
 
 <br>
 
-{% include tools.md powershell="1" %}
+{% include tools.md root="../" powershell="1" %}

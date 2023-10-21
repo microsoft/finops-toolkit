@@ -27,7 +27,7 @@ Read on to learn about the tools and roadmap for the FinOps toolkit or how to ge
 
 ## 🧰 Available tools
 
-{% include tools.md all="1" %}
+{% include tools.md root="./" all="1" %}
 
 ### In development
 
