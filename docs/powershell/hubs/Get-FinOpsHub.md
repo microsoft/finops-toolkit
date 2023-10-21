@@ -91,6 +91,6 @@ Returns all FinOps hubs named 'foo' in the 'bar' resource group.
 
 ## 🧰 Related tools
 
-{% include tools.md finops-hub="1" %}
+{% include tools.md hubs="1" %}
 
 <br>

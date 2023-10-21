@@ -116,6 +116,6 @@ We'd love to hear about any datasets you're looking for. Create a new issue with
 
 ## 🧰 Related tools
 
-{% include tools.md power-bi="1" %}
+{% include tools.md pbi="1" %}
 
 <br>

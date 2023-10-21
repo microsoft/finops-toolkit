@@ -127,6 +127,6 @@ We'd love to hear about any reports, charts, or general reporting questions you'
 
 ## 🧰 Related tools
 
-{% include tools.md finops-hub="1" optimization-workbook="1" governance-workbook="1" open-data="1" %}
+{% include tools.md hubs="1" opt="1" gov="1" data="1" %}
 
 <br>

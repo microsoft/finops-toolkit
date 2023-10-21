@@ -250,6 +250,6 @@ Note the following columns are new in this release. These columns were not previ
 
 ## 🧰 Related tools
 
-{% include tools.md finops-hub="1" %}
+{% include tools.md hubs="1" %}
 
 <br>

@@ -174,6 +174,6 @@ If you access data in storage or are creating or customizing Power BI reports, p
 
 ## 🧰 Related tools
 
-{% include tools.md power-bi="1" powershell="1" optimization-workbook="1" %}
+{% include tools.md pbi="1" ps="1" opt="1" %}
 
 <br>

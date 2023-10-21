@@ -50,6 +50,6 @@ We'd love to hear about any commands or scripts you're looking for. Vote up (ðŸ‘
 
 ## ðŸ§° Related tools
 
-{% include tools.md finops-hub="1" %}
+{% include tools.md hubs="1" %}
 
 <br>

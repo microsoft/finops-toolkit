@@ -58,6 +58,6 @@ Creates an [export](https://learn.microsoft.com/rest/api/cost-management/exports
 
 ## 🧰 Related tools
 
-{% include tools.md powershell="1" %}
+{% include tools.md ps="1" %}
 
 <br>
