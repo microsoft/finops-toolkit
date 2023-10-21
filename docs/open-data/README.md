@@ -111,4 +111,4 @@ We'd love to hear about any datasets you're looking for. Create a new issue with
 
 <br>
 
-{% include tools.md power-bi %}
+{% include tools.md power-bi="1" %}

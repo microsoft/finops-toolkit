@@ -86,4 +86,4 @@ Returns all FinOps hubs named 'foo' in the 'bar' resource group.
 
 <br>
 
-{% include tools.md finops-hub=1 %}
+{% include tools.md finops-hub="1" %}
