@@ -7,8 +7,8 @@ description: 'Automate and scale your FinOps efforts.'
 permalink: /powershell
 ---
 
-<span class="fs-9 d-block mb-4">Automate and scale your FinOps efforts</span>
-Leverage PowerShell commands and scripts to streamline FinOps operations and accelerate adoption across projects and teams.
+<span class="fs-9 d-block mb-4">PowerShell module</span>
+Automate and scale your FinOps efforts with PowerShell commands that streamline operations and accelerate adoption across projects and teams.
 {: .fs-6 .fw-300 }
 
 [Install](#-install-the-module){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }

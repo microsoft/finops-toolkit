@@ -78,6 +78,7 @@ Legend:
 1. ➕ Added:
    1. [Deploy-FinOpsHub](./powershell/hubs/Deploy-FinOpsHub) to deploy or update a hub instance.
    2. [Get-FinOpsHub](./powershell/hubs/Get-FinOpsHub) to get details about a hub instance.
+   3. Support for Microsoft Customer Agreement (MCA) in Power BI reports.
 2. 🛠️ Fixed:
    1. Storage redundancy dropdown default not set correctly in the create form.
    2. Tags specified in the create form were causing the deployment to fail. See #331.
