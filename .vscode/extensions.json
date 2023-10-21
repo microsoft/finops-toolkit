@@ -5,6 +5,7 @@
     "davidanson.vscode-markdownlint",
     "ms-azuretools.vscode-bicep",
     "yzhang.markdown-all-in-one",
-    "bierner.markdown-mermaid"
+    "bierner.markdown-mermaid",
+    "powerquery.vscode-powerquery"
   ]
 }

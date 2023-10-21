@@ -88,3 +88,5 @@ Deploy-FinOpsHub `
 Deploys a new FinOps hub instance named MyHub to a new resource group named MyNewResourceGroup using version 0.1 of the template.
 
 <br>
+
+{% include tools.md finops-hub="1" %}

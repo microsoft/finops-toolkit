@@ -6,7 +6,7 @@ description: 'Leverage open data to normalize and enhance your FinOps reporting.
 permalink: /data
 ---
 
-<span class="fs-9 d-block mb-4">Mappings</span>
+<span class="fs-9 d-block mb-4">Open data</span>
 Leverage open data to normalize and enhance your FinOps reporting.
 {: .fs-6 .fw-300 }
 
@@ -110,3 +110,5 @@ We'd love to hear about any datasets you're looking for. Create a new issue with
 [Share feedback](https://github.com/microsoft/finops-toolkit/issues/new/choose){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
+
+{% include tools.md power-bi="1" %}
