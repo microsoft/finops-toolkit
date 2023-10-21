@@ -169,4 +169,4 @@ If you access data in storage or are creating or customizing Power BI reports, p
 
 <br>
 
-{% include tools.md power-bi powershell optimization-workbook %}
+{% include tools.md power-bi=1 powershell=1 optimization-workbook=1 %}
