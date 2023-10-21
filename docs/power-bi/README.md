@@ -7,8 +7,8 @@ description: 'Accelerate your FinOps reporting with Power BI starter kits.'
 permalink: /power-bi
 ---
 
-<span class="fs-9 d-block mb-4">Accelerate your reporting with Power BI</span>
-Take advantage of pre-built Power BI reports designed to answer targeted questions and get you up and running quickly. Summarize and break down costs or customize reports to meet your needs.
+<span class="fs-9 d-block mb-4">Power BI reports</span>
+Accelerate your analytics efforts with simple, targeted reports. Summarize and break costs down, or customize to meet your needs.
 {: .fs-6 .fw-300 }
 
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
