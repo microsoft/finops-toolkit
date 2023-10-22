@@ -257,6 +257,8 @@ configuration:
                   - filesMatchPattern:
                       pattern: ^docs\/[^-]+-workbook\/.*
                   - filesMatchPattern:
+                      pattern: ^src\/scripts\/Build-Workbook.ps1$
+                  - filesMatchPattern:
                       pattern: ^src\/workbooks\/.*
             then:
               - addLabel:
@@ -266,6 +268,8 @@ configuration:
                   - or:
                       - filesMatchPattern:
                           pattern: ^docs\/optimization-workbook\/.*
+                      - filesMatchPattern:
+                          pattern: ^src\/scripts\/Build-Workbook.ps1$
                       - filesMatchPattern:
                           pattern: ^src\/workbooks\/(\.scaffold|optimization)\/.*
                   - not:
@@ -282,6 +286,8 @@ configuration:
                       - filesMatchPattern:
                           pattern: ^docs\/governance-workbook\/.*
                       - filesMatchPattern:
+                          pattern: ^src\/scripts\/Build-Workbook.ps1$
+                      - filesMatchPattern:
                           pattern: ^src\/workbooks\/(\.scaffold|governance)\/.*
                   - not:
                       isActivitySender:
@@ -296,6 +302,8 @@ configuration:
                   - or:
                       - filesMatchPattern:
                           pattern: ^docs\/optimization-workbook\/.*
+                      - filesMatchPattern:
+                          pattern: ^src\/scripts\/Build-Workbook.ps1$
                       - filesMatchPattern:
                           pattern: ^src\/workbooks\/(\.scaffold|optimization)\/.*
                   - not:
