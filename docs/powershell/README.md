@@ -28,6 +28,8 @@ Automate and scale your FinOps efforts with PowerShell commands that streamline 
 
 The FinOps toolkit PowerShell module is a collection of commands to automate and manage FinOps solutions. We're just getting started so let us know what you'd like to see next.
 
+[PowerShell Gallery](https://www.powershellgallery.com/packages/FinOpsToolkit){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+
 <br>
 
 ## 📥 Install the module
