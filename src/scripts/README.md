@@ -63,11 +63,23 @@ Examples:
 
 [Build-Toolkit.ps1](./Build-Toolkit.ps1) builds toolkit modules and templates for local testing and and to prepare them for publishing.
 
-Example:
+Examples:
 
-```powershell
-./Build-Toolkit
-```
+- Build all toolkit modules and templates:
+
+  ```powershell
+  ./Build-Toolkit
+  ```
+
+- Build all toolkit modules and templates from any directory via NPM:
+
+  ```console
+  npm run build
+  ```
+
+- Build all toolkit modules and templates from VS Code:
+
+  <kbd>Ctrl+Shift+P</kbd> > <kbd>Run Build Task</kbd> > <kbd>Build Toolkit</kbd>
 
 Build-Toolkit runs the following scripts internally:
 
@@ -109,6 +121,18 @@ Examples:
 
   ```powershell
   ./Deploy-Toolkit "subscription-scheduled-action" -Build -Test
+  ```
+
+- Build and deploy a module from any directory via NPM:
+
+  ```console
+  npm run deploy "finops-hub"
+  ```
+
+- Build and deploy a module test (`main.test.bicep` file) from any directory via NPM:
+
+  ```console
+  npm run deploy-test "finops-hub"
   ```
 
 <br>

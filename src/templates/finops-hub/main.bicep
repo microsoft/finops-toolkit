@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/**
- * Parameters
- */
+//==============================================================================
+// Parameters
+//==============================================================================
 
 targetScope = 'resourceGroup'
 
@@ -35,9 +35,9 @@ param exportRetentionInDays int = 0
 @description('Optional. Number of months of cost data to retain in the ingestion container. Default: 13.')
 param ingestionRetentionInMonths int = 13
 
-/**
- * Resources
- */
+//==============================================================================
+// Resources
+//==============================================================================
 
 module hub 'modules/hub.bicep' = {
   name: 'hub'
@@ -53,9 +53,9 @@ module hub 'modules/hub.bicep' = {
   }
 }
 
-/**
- * Outputs
- */
+//==============================================================================
+// Outputs
+//==============================================================================
 
 @description('The name of the resource group.')
 output name string = hubName

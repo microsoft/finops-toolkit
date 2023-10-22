@@ -1,0 +1,29 @@
+{
+  "version": "2.0.22",
+  "author": {
+    "name": "Jan Pieter Posthuma",
+    "email": "mail@jppp.org"
+  },
+  "resources": [
+    {
+      "resourceId": "rId0",
+      "sourceType": 5,
+      "file": "resources/HierarchySlicer1458836712039.pbiviz.json"
+    }
+  ],
+  "visual": {
+    "guid": "HierarchySlicer1458836712039",
+    "name": "hierarchySlicer",
+    "displayName": "HierarchySlicer",
+    "version": "2.0.22",
+    "description": "With the hierarchy slicer it is possible to represent a hierarchy as a single slicer. The different levels are shown as a tree.",
+    "supportUrl": "https://azurebi-docs.jppp.org/powerbi-visuals/index.html",
+    "gitHubUrl": "https://github.com/liprec/powerbi-hierarchySlicer",
+    "visualClassName": "HierarchySlicer"
+  },
+  "metadata": {
+    "pbivizjson": {
+      "resourceId": "rId0"
+    }
+  }
+}

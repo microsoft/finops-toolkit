@@ -1,12 +1,12 @@
 ---
 layout: default
 title: Open data
-nav_order: 6
+nav_order: 60
 description: 'Leverage open data to normalize and enhance your FinOps reporting.'
 permalink: /data
 ---
 
-<span class="fs-9 d-block mb-4">Mappings</span>
+<span class="fs-9 d-block mb-4">Open data</span>
 Leverage open data to normalize and enhance your FinOps reporting.
 {: .fs-6 .fw-300 }
 
@@ -20,6 +20,7 @@ Leverage open data to normalize and enhance your FinOps reporting.
 - [🗺️ Regions](#️-regions)
 - [🎛️ Services](#️-services)
 - [🙋‍♀️ Looking for more?](#️-looking-for-more)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -108,5 +109,13 @@ A few important notes about the data:
 We'd love to hear about any datasets you're looking for. Create a new issue with the details that you'd like to see either included in existing or new datasets.
 
 [Share feedback](https://github.com/microsoft/finops-toolkit/issues/new/choose){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md pbi="1" %}
 
 <br>
