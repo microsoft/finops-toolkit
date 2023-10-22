@@ -10,6 +10,7 @@
     "build": "pwsh -Command ./src/scripts/Build-Toolkit",
     "deploy": "pwsh -Command ./src/scripts/Deploy-Toolkit -Build",
     "deploy-test": "pwsh -Command ./src/scripts/Deploy-Toolkit -Build -Test",
+    "package": "pwsh -Command ./src/scripts/Package-Toolkit -Build",
     "contrib": "all-contributors add"
   },
   "repository": {
