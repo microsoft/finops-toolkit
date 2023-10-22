@@ -37,6 +37,7 @@ Param(
     [Parameter(Position = 0)][string]$Template = "*",
     [string]$QuickstartRepo = "azure-quickstart-templates",
     [string]$RegistryRepo = "bicep-registry-modules",
+    [string]$appInsightsRepo = "Application-Insights-Workbooks",
     [switch]$Build,
     [switch]$Commit
 )
@@ -57,6 +58,12 @@ $repoConfig = @{
         possibleNames = @($RegistryRepo, 'bicep-registry-modules', 'brm', 'br')
         relativePath  = "modules/cost"
         requiredFiles = @("main.bicep", "main.json", "metadata.json", "README.md", "version.json")
+    }
+    appInsights = @{
+      mainBranch    = 'master'
+      possibleNames = @($appInsightsRepo, 'Application-Insights-Workbooks')
+      relativePath  = "Workbooks/Azure Advisor/Cost Optimization"
+      requiredFiles = @("CostOptimization.workbook","Storage.workbook","Networking.workbook","Compute.workbook","AHB.workbook","Reservations.workbook")
     }
 }
 
@@ -95,7 +102,7 @@ Get-ChildItem "$relDir/$Template*" -Directory `
         Write-Error "Template folder invalid. metadata.json required. Please ensure all required files are present. See src/<type>/README.md for details."
         return
     }
-        
+
     # Find target repo
     $schema = (Get-Content "$templateDir/metadata.json" -Raw | ConvertFrom-Json).PSObject.Properties['$schema'].Value
     if ($schema.Contains('azure-quickstart-templates')) {
@@ -145,7 +152,7 @@ Get-ChildItem "$relDir/$Template*" -Directory `
             Write-Host "  Switching to $($repo.mainBranch) branch..."
             git checkout $repo.mainBranch --quiet
         }
-            
+
         # Pull latest changes
         if (-not (git status | Select-String 'Your branch is behind')) {
             Write-Host '  Pulling latest changes...'
@@ -194,4 +201,4 @@ Get-ChildItem "$relDir/$Template*" -Directory `
 
     Write-Host '  Done!'
     Write-Host ''
-}    
+}
