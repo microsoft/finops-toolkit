@@ -31,7 +31,8 @@ Read on to learn about the tools and roadmap for the FinOps toolkit or how to ge
 
 ### In development
 
-- PowerShell module – Manage FinOps hubs and convert Cost Management data to FOCUS.
+- FinOps hubs – Ingest and normalize EA/MCA costs from multiple tenants into Azure Data Explorer.
+- PowerShell – Manage FinOps hubs and convert Cost Management data to FOCUS.
 
 <br>
 
