@@ -20,6 +20,7 @@ Deploy a new or update an existing FinOps hub instance.
 
 - [⚡ Commands](#-commands)
 - [🙋‍♀️ Looking for more?](#️-looking-for-more)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -42,5 +43,13 @@ We'd love to hear about any commands or scripts you're looking for. Vote up (�
 
 [Vote on ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+label%3A%22Area%3A+PowerShell%22+sort%3Areactions-%2B1-desc){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [Suggest an idea](https://github.com/microsoft/finops-toolkit/issues/new/choose){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md hubs="1" %}
 
 <br>

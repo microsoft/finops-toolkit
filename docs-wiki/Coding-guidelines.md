@@ -27,7 +27,7 @@ Here's a quick run-down of the main points:
 
 ## 🔤 Content (strings and microcopy)
 
-There's a ton to keep in mind in this space, from capitalization to terms to specific phrasing and more. A few quick tips to be aware of:
+We adhere to the [Microsoft style guide](https://docs.microsoft.com/style-guide/welcome). There's a ton to keep in mind in this space, from capitalization to terms to specific phrasing and more. A few quick tips to be aware of:
 
 - Use bigger ideas, fewer words
 - Write like you speak
@@ -40,8 +40,6 @@ There's a ton to keep in mind in this space, from capitalization to terms to spe
 - Don't be spacey
 - Revise weak writing
 
-See also:
-
-- [Microsoft style guide](https://docs.microsoft.com/style-guide/welcome)
+[Learn more](https://docs.microsoft.com/style-guide/welcome)
 
 <br>

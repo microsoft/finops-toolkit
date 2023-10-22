@@ -14,19 +14,20 @@ On this page:
 
 ## 📂 Folder structure
 
-| Name                                                        | Description                      |
-| ----------------------------------------------------------- | -------------------------------- |
-| [docs](../docs)                                             | Public-facing toolkit docs.      |
-| ├─ [bicep-registry](../docs/bicep-registry)                 | Bicep registry module docs.      |
-| ├─ [deploy](../docs/deploy)                                 | How to deploy the toolkit.       |
-| ├─ [finops-hub](../docs/finops-hub)                         | FinOps hub docs.                 |
-| └─ [optimization-workbook](../docs/optimization-workbook)   | Cost optimization workbook docs. |
-| [src](../src)                                               | Source code and dev docs.        |
-| ├─ [bicep-registry](../src/bicep-registry)                  | Bicep registry modules.          |
-| ├─ [powershell](../src/powershell)                          | PowerShell module functions.     |
-| ├─ [templates](../src/templates)                            | ARM deployment templates.        |
-| │ &nbsp;&nbsp; └─ [finops-hub](../src/templates/finops-hub) | FinOps hub template.             |
-| └─ [workbooks](../src/workbooks)                            | Azure Monitor workbooks.         |
+| Name                                                                 | Description                      |
+| -------------------------------------------------------------------- | -------------------------------- |
+| [docs](../docs)                                                      | Public-facing toolkit docs.      |
+| [docs-wiki](../docs-wiki)                                            | Repo wiki for internal dev docs. |
+| [src](../src)                                                        | Source code and dev docs.        |
+| ├─ [bicep-registry](../src/bicep-registry)                           | Bicep registry modules.          |
+| ├─ [open-data](../src/open-data)                                     | Open data.                       |
+| ├─ [power-bi](../src/power-bi)                                       | Power BI reports.                |
+| ├─ [powershell](../src/powershell)                                   | PowerShell module functions.     |
+| ├─ [templates](../src/templates)                                     | ARM deployment templates.        |
+| │ &nbsp;&nbsp; └─ [finops-hub](../src/templates/finops-hub)          | FinOps hub template.             |
+| └─ [workbooks](../src/workbooks)                                     | Azure Monitor workbooks.         |
+| &nbsp; &nbsp;&nbsp; ├─ [governance](../src/templates/governance)     | Governance workbook.             |
+| &nbsp; &nbsp;&nbsp; └─ [optimization](../src/templates/optimization) | Optimization workbook.           |
 
 Files and folders should use kebab casing (e.g., `this-is-my-folder`). The only exception is for RP namespaces in module paths.
 
