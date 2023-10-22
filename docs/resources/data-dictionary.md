@@ -8,7 +8,7 @@ permalink: /resources/data-dictionary
 ---
 
 <span class="fs-9 d-block mb-4">Data dictionary</span>
-Familiarize yourself with the columns used in FinOps hubs and Power BI solutions.
+Familiarize yourself with the columns used in FinOps hubs, Power BI, and PowerShell solutions.
 {: .fs-6 .fw-300 }
 
 <details open markdown="1">
@@ -71,6 +71,8 @@ Columns to add:
 | BillingAccountName                    | Name of the billing account.                                                                                                                                                                                                                                           |
 | BillingCurrency                       | Currency code for the Cost column.                                                                                                                                                                                                                                     |
 | BillingCurrencyCode                   | See BillingCurrency.                                                                                                                                                                                                                                                   |
+| BillingExchangeRate                   | Exchange rate to multiply by when converting from the pricing currency to the billing currency.                                                                                                                                                                        |
+| BillingExchangeRateDate               | Date the exchange rate was determined.                                                                                                                                                                                                                                 |
 | BillingPeriodEndDate                  | Last day of the invoice period. Usually the last day of the month.                                                                                                                                                                                                     |
 | BillingPeriodEnd                      | See BillingPeriodEndDate.                                                                                                                                                                                                                                              |
 | BillingPeriodStartDate                | First day of the invoice period. Usually the first of the month.                                                                                                                                                                                                       |
@@ -101,14 +103,14 @@ Columns to add:
 | DiscountSavings                       | Derived. Total amount saved factoring in both negotiated and commitment-based discounts. Will be negative for unused commitments.                                                                                                                                      |
 | DiscountSavingsRunningTotal           | Derived. Calculates the accumulated or running total of DiscountSavings for the day, including all previous day's values.                                                                                                                                              |
 | <a name="e"></a>EffectivePrice        | Amortized price per unit after commitment-based discounts.                                                                                                                                                                                                             |
-| ExchangeRate                          | Exchange rate to multiply by when converting from the pricing currency to the billing currency.                                                                                                                                                                        |
-| ExchangeRateDate                      | Date the exchange rate was determined.                                                                                                                                                                                                                                 |
 | <a name="f"></a>focus_ServiceCategory | Top-level category for the focus_ServiceName. This column aligns with the FOCUS requirements.                                                                                                                                                                          |
 | focus_ServiceName                     | Name of the service the resource type is a part of. This column aligns with the FOCUS requirements.                                                                                                                                                                    |
 | Frequency                             | Indicates how often the charge repeats. Allowed values: UsageBased, Recurring.                                                                                                                                                                                         |
 | <a name="h"></a>HybridBenefitCPUs     | Derived. Indicates the number of virtual CPUs required from on-prem licenses required to use Azure Hybrid Benefit for this resource. Extracted from AdditionalInfo.                                                                                                    |
 | HybridBenefitStatus                   | Derived. Indicates whether the charge used or was eligible for Azure Hybrid Benefit. Extracted from AdditionalInfo.                                                                                                                                                    |
 | <a name="i"></a>InvoiceId             | Unique identifier for the invoice the charge is included in. Only available for closed months after the invoice is published.                                                                                                                                          |
+| InvoiceIssuerId                       | Unique identifier of the organization that generated the invoice.                                                                                                                                                                                                      |
+| InvoiceIssuerName                     | Name of the organization that generated the invoice. Only supported for CSP accounts. Not supported for EA or MCA accounts that are managed by a partner due to data not being provided by Cost Management.                                                            |
 | InvoiceSectionId                      | Unique identifier (GUID) of a section within an invoice used for grouping related charges. Represents an EA department. Not applicable for MOSA.                                                                                                                       |
 | InvoiceSectionName                    | Name of a section within an invoice used for grouping related charges. Represents an EA department. Not applicable for MOSA.                                                                                                                                           |
 | IsAzureCreditEligible                 | Indicates if this charge can be deducted from credits. May be a string (`True` or `False` in legacy datasets).                                                                                                                                                         |
@@ -152,6 +154,7 @@ Columns to add:
 | <a name="r"></a>Region                | See ResourceLocation.                                                                                                                                                                                                                                                  |
 | ResellerId                            | Unique identifier for the Cloud Solution Provider (CSP) reseller.                                                                                                                                                                                                      |
 | ResellerName                          | Name of the Cloud Solution Provider (CSP) reseller.                                                                                                                                                                                                                    |
+| ResourceGroupId                       | Unique identifier for the ResourceGroupName.                                                                                                                                                                                                                           |
 | ResourceGroupName                     | Grouping of resources that make up an application or set of resources that share the same lifecycle (e.g., created and deleted together).                                                                                                                              |
 | ResourceGroupNameUnique               | Derived. Unique name of the resource, including the subscription name for uniqueness.                                                                                                                                                                                  |
 | ResourceId                            | Unique identifier for the resource. May be empty for purchases.                                                                                                                                                                                                        |
@@ -179,6 +182,6 @@ Columns to add:
 
 ## 🧰 Related tools
 
-{% include tools.md hubs="1" pbi="1" %}
+{% include tools.md hubs="1" pbi="1" ps="1" %}
 
 <br>
