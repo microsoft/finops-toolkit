@@ -14,17 +14,10 @@
     .PARAMETER ActualCost
     Specifies the input cost data that will be converted. The object must adhere to a supported Microsoft Cost Management schema. Provide the filepath of the data to be converted. Example usage: ..\..\sample-data\EA_ActualCost.csv
 
-    .PARAMETER ExportAllColumns
-    Optionally specifies whether to export all columns in the input data or only the columns specified in the column mapping (Select-Object). When this parameter is set to $false, only the columns specified in the column mapping will be exported. Default value is $true, meaning all columns will be exported.
-
-
     .EXAMPLE
-    ConvertTo-FinOpsSchema -ActualCost ..\..\sample-data\EA_ActualCost.csv  -ExportAllColumns $false | Export-Csv -Path .\EA_ActualCost_Output.csv -NoTypeInformation
-    Converts the input data found in EA_ActualCost.csv, exporting only the columns specified in the column mapping (Select-Object), and stores the converted data in EA_ActualCost_Output.csv.
+    ConvertTo-FinOpsSchema -ActualCost ActualCost.csv | Export-Csv -Path FOCUS.csv -NoTypeInformation
 
-    .EXAMPLE
-    ConvertTo-FinOpsSchema -ActualCost ..\..\sample-data\EA_ActualCost.csv  -ExportAllColumns $true | Export-Csv -Path .\EA_ActualCost_Output.csv 
-    Converts the input data found in EA_ActualCost.csv, exporting all columns specified in the script, and stores the converted data in EA_ActualCost_Output.csv.
+    Converts the input data found in ActualCost.csv to FOCUS and saves it to a FOCUS.csv file.
 
     .LINK
     https://aka.ms/ftk/ConvertTo-FinOpsSchema
@@ -33,10 +26,7 @@ function ConvertTo-FinOpsSchema {
     [CmdletBinding()]
     param(
         [string]
-        $ActualCost,
-
-        [bool]
-        $ExportAllColumns
+        $ActualCost
     )
 
     if (-not (Test-Path -Path $ActualCost)) {
@@ -176,13 +166,13 @@ function ConvertTo-FinOpsSchema {
 
 
     # If $ExportAllColumns is $false, we will only export the columns specified below using Select-Object.
-    if (-not $ExportAllColumns) {
-        $transformedData = $transformedData `
-        | Select-Object AmortizedCost, AvailabilityZone, BilledCost, BillingAccountId, 
-        BillingAccountName, BillingCurrency, BillingPeriodEnd, BillingPeriodStart, ChargePeriodEnd, 
-        ChargePeriodStart, ChargeType, ProviderName, PublisherName, Region, ResourceId, ResourceName,
-        ServiceCategory, ServiceName, SubAccountId, SubAccountName
-    }
+    # if (-not $ExportAllColumns) {
+    #     $transformedData = $transformedData `
+    #     | Select-Object AmortizedCost, AvailabilityZone, BilledCost, BillingAccountId, 
+    #     BillingAccountName, BillingCurrency, BillingPeriodEnd, BillingPeriodStart, ChargePeriodEnd, 
+    #     ChargePeriodStart, ChargeType, ProviderName, PublisherName, Region, ResourceId, ResourceName,
+    #     ServiceCategory, ServiceName, SubAccountId, SubAccountName
+    # }
     # We will return all the transformed data if the value of $ExportAllColumns is $true.
     $transformedData
     Write-Progress -Activity "Converting to FinOps Schema" -Completed
