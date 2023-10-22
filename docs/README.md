@@ -31,7 +31,7 @@ Read on to learn about the tools and roadmap for the FinOps toolkit or how to ge
 
 ### In development
 
-- FinOps hubs – Ingest, normalize, and store EA/MCA cost data from multiple tenants into Azure Data Explorer.
+- FinOps hubs – Ingest and normalize EA/MCA costs from multiple tenants into Azure Data Explorer.
 - PowerShell – Manage FinOps hubs and convert Cost Management data to FOCUS.
 
 <br>
