@@ -23,60 +23,53 @@ Param (
 $Debug = $DebugPreference -eq "Continue"
 
 $outDir = "$PSScriptRoot/../../release/$Workbook-workbook"
-$workbookDir = "$PSScriptRoot/../workbooks/$Workbook"
+$srcDir = "$PSScriptRoot/../workbooks/$Workbook"
 
-if (-not (Test-Path $workbookDir)) {
+if (-not (Test-Path $srcDir)) {
+  Write-Verbose "Workbook not found: $srcDir"
   return
-}
-
-# Get all directories within the workbook folder
-$templates = Get-ChildItem -Path $workbookDir -Directory
-
-# Check if any templates were found
-if ($templates) {
-  $workbookTemplate = Join-Path $workbookDir "workbook.json"
-  $newTemplate = "$outDir/workbook.json"
-  ## Create a new template
-  Copy-Item $workbookTemplate $newTemplate -Force
-  $newWorkbookContent = Get-Content $newTemplate | ConvertFrom-Json
-
-  ## Inject contents of each sub-template
-  $templateContent = $newWorkbookContent.items.content.items `
-  | Where-Object { $_.content.groupType -eq 'template' } `
-  | Select-Object -ExpandProperty content `
-  | Where-Object { $_.loadFromTemplateId.StartsWith("community-Workbooks") }
-
-  $templateContent  | ForEach-Object {
-    $subTemplate = $_
-    $templateName = $_.loadFromTemplateId.Split('/')[3]
-    $tempTemplate = Get-Content "$workbookDir/$templateName/$templateName.workbook" -Raw
-    $templateJson = $tempTemplate | ConvertFrom-Json
-    $templateObjects = ($templateJson.items.content).items
-    $subTemplate.loadFromTemplateId = '""'
-    $templateObjects | ForEach-Object {
-      $subTemplate.items += $_
-    }
-  }
-  $newWorkbookContent = $newWorkbookContent | ConvertTo-Json -Depth 40
-  $newWorkbookContent | Set-Content -Path $newTemplate
-}
-else {
-  Copy-Item (Join-Path $workbookDir workbook.json) $outDir
 }
 
 # Copy scaffold and workbook files
 & "$PSScriptRoot/New-Directory" $outDir
 Copy-Item "$PSScriptRoot/../workbooks/.scaffold/*" $outDir -Exclude workbook.json
-Copy-Item "$workbookDir/workbook.json" $outDir
-Copy-Item "$workbookDir/createUiDefinition.json" $outDir
-Copy-Item "$workbookDir/README.md" $outDir
+Copy-Item "$srcDir/workbook.json" $outDir
+Copy-Item "$srcDir/createUiDefinition.json" $outDir
+Copy-Item "$srcDir/README.md" $outDir
 
 # Read workbook
-$workbookText = Get-Content (Join-Path $workbookDir workbook.json)
+Write-Verbose "Reading workbook: $srcDir/workbook.json"
+$workbookJson = Get-Content "$srcDir/workbook.json" -Raw | ConvertFrom-Json
+
+# Replace nested templates
+$nestedTemplates = $workbookJson.items.content.items `
+| Where-Object { 
+  $_.content.groupType -eq 'template' `
+  -and $_.content.loadFromTemplateId.StartsWith("community-Workbooks")
+} `
+| ForEach-Object {
+  $template = $_.content
+  
+  # Read template
+  $nestedName = $template.loadFromTemplateId.Split('/')[-1]
+  Write-Verbose "Injecting $nestedName template..."
+  $nestedJson = Get-Content "$srcDir/$nestedName/$nestedName.workbook" -Raw | ConvertFrom-Json
+  Write-Verbose "...adding $($nestedJson.items.content.items.Count) items"
+  
+  # Update workbook
+  $template.loadFromTemplateId = ""
+  $template.items += $nestedJson.items.content.items
+  Write-Verbose "...added $($template.items.Count) items"
+
+  # Return so we can count the templates
+  return $nestedName
+}
+$workbookJson | ConvertTo-Json -Depth 100 | Set-Content -Path "$outDir/workbook.json"
+Write-Verbose "Saved workbook with $($nestedTemplates.Count) nested templates: $($nestedTemplates -join ', ')"
 
 # Load scaffold config and add workbook version
-$scaffoldMetadata = Get-Content (Join-Path $workbookDir scaffold.json) | ConvertFrom-Json
-$scaffoldMetadata['main.bicep'] | Add-Member version (($workbookText | ConvertFrom-Json).version)
+$scaffoldMetadata = Get-Content (Join-Path $srcDir scaffold.json) | ConvertFrom-Json
+$scaffoldMetadata['main.bicep'] | Add-Member version ($workbookJson.version)
 $scaffoldMetadata['metadata.json'] | Add-Member itemDisplayName "$($scaffoldMetadata['main.bicep'].displayName) workbook"
 
 # Update template files from scaffold config
@@ -105,6 +98,7 @@ $scaffoldMetadata.PSObject.Properties `
     $text -join [Environment]::NewLine | Out-File $path
   }
 
+  # Write the contents of the file if debugging
   if ($Debug) {
     Write-Host ""
     Write-Host "  $file"
