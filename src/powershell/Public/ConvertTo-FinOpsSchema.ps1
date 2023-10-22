@@ -29,24 +29,6 @@
     .LINK
     https://aka.ms/ftk/ConvertTo-FinOpsSchema
 #>
-
-function Get-AccountType {
-    [CmdletBinding()]
-    param(
-        [PSCustomObject]
-        $Object
-    )
-
-    $ftk_AccountType = switch ($true) {
-        { $Object.BillingAccountId -eq $Object.BillingProfileId } { "EA" }
-        { $Object.BillingAccountId.Contains(":") } { "MCA" }
-        default { "Other" }
-    }
-    
-    return $ftk_AccountType
-}
-
-
 function ConvertTo-FinOpsSchema {
     [CmdletBinding()]
     param(
@@ -204,4 +186,20 @@ function ConvertTo-FinOpsSchema {
     # We will return all the transformed data if the value of $ExportAllColumns is $true.
     $transformedData
     Write-Progress -Activity "Converting to FinOps Schema" -Completed
+}
+
+function Get-AccountType {
+    [CmdletBinding()]
+    param(
+        [PSCustomObject]
+        $Object
+    )
+
+    $ftk_AccountType = switch ($true) {
+        { $Object.BillingAccountId -eq $Object.BillingProfileId } { "EA" }
+        { $Object.BillingAccountId.Contains(":") } { "MCA" }
+        default { "Other" }
+    }
+    
+    return $ftk_AccountType
 }
