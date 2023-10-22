@@ -104,10 +104,9 @@ Once the above requirements have been met, the feature branch can be merged into
 
       > _The documentation site may take 5 minutes to update after the merge is committed. If not updated, look at GitHub actions to see if there are any failures._
 
-   4. Tag the release.
-   5. Publish the release.
-   6. Update the discussion.
-   7. Update all issues to `Status: Released`.
+   4. Tag and publish the release.
+   5. Update the discussion.
+   6. Update all issues to `Status: Released`.
 
 <br>
 
