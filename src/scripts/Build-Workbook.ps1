@@ -52,6 +52,10 @@ $nestedTemplates = $workbookJson.items.content.items `
   
   # Read template
   $nestedName = $template.loadFromTemplateId.Split('/')[-1]
+  if (-not (Test-Path "$srcDir/$nestedName/$nestedName.workbook")) {
+    Write-Verbose "Ignoring nested template $nestedName (not found)"
+    return
+  }
   Write-Verbose "Injecting $nestedName template..."
   $nestedJson = Get-Content "$srcDir/$nestedName/$nestedName.workbook" -Raw | ConvertFrom-Json
   Write-Verbose "...adding $($nestedJson.items.content.items.Count) items"
@@ -93,7 +97,7 @@ $scaffoldMetadata.PSObject.Properties `
   }
 
   if ($file.EndsWith('.json')) {
-    $json | ConvertTo-Json | Out-File $path
+    $json | ConvertTo-Json -Depth 100 | Out-File $path
   } else {
     $text -join [Environment]::NewLine | Out-File $path
   }
