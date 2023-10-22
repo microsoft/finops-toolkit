@@ -17,6 +17,8 @@ Give your engineers a single pane of glass for cost optimization with this handy
 
 The cost optimization workbook is an Azure Monitor workbook that provides a single pane of glass for cost optimization, modeled after the Well-Architected Framework guidance.
 
+![Screenshot of the Cost optimization workbook overview](https://github.com/microsoft/finops-toolkit/assets/399533/70b71cb4-d42e-40fc-8870-b4262ecc3633)
+
 <br>
 
 ## ➕ Deploy the workbook
