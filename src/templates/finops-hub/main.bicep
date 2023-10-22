@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/**
- * Parameters
- */
+//==============================================================================
+// Parameters
+//==============================================================================
 
 targetScope = 'resourceGroup'
 
@@ -29,9 +29,9 @@ param tagsByResource object = {}
 @description('Optional. List of scope IDs to create exports for.')
 param exportScopes array = []
 
-/**
- * Resources
- */
+//==============================================================================
+// Resources
+//==============================================================================
 
 module hub 'modules/hub.bicep' = {
   name: 'hub'
@@ -45,9 +45,9 @@ module hub 'modules/hub.bicep' = {
   }
 }
 
-/**
- * Outputs
- */
+//==============================================================================
+// Outputs
+//==============================================================================
 
 @description('The name of the resource group.')
 output name string = hubName

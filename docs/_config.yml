@@ -8,6 +8,7 @@ remote_theme: just-the-docs/just-the-docs
 
 url: https://microsoft.github.io/finops-toolkit
 
+# Links in header
 aux_links:
   FinOps toolkit on GitHub: https://github.com/microsoft/finops-toolkit
 
