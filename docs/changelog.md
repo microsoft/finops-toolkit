@@ -71,6 +71,13 @@ Legend:
 > 1. Get-FinOpsCostExport command
 > 2. Remove-FinOpsCostExport command
 
+🌐 Open data
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed:
+>
+> 1. [Pricing units](./open-data/README.md#-pricing-units) "UsageToPricingRate" column name changed to "PricingBlockSize" to align to standard terminology.
+
 <br>
 
 ## 🚚 v0.1

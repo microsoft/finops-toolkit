@@ -1,4 +1,4 @@
-UnitOfMeasure,AccountTypes,UsageToPricingRate,DistinctUnits
+UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "1","MCA, EA",1,Units
 "1 ",EA,1,Units
 "1 /Day",EA,1,Units/Day
