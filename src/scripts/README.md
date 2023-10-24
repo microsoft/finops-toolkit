@@ -5,6 +5,7 @@ FinOps toolkit scripts are used for local development, testing, and publishing o
 On this page:
 
 - [🆕 Init-Repo](#-init-repo)
+- [🌐 Build-OpenData](#-build-opendata)
 - [📦 Build-Toolkit](#-build-toolkit)
 - [🚀 Deploy-Toolkit](#-deploy-toolkit)
 - [🚚 Publish-Toolkit](#-publish-toolkit)
@@ -55,6 +56,26 @@ Examples:
 
   ```powershell
   ./Init-Repo -All
+  ```
+
+<br>
+
+## 🌐 Build-OpenData
+
+[Build-OpenData.ps1](./Build-OpenData.ps1) generates PowerShell commands for all open data sets. The PowerShell commands are private and not shared externally today. They must be manually checked in and the script only needs to be run when datasets are added or updated. These are meant to be used by other specifically-designed commands, which is outside the scope of Build-OpenData.
+
+Examples:
+
+- Build all data sets:
+
+  ```powershell
+  ./Build-OpenData
+  ```
+
+- Build one data set:
+
+  ```powershell
+  ./Build-OpenData -Name Regions
   ```
 
 <br>
