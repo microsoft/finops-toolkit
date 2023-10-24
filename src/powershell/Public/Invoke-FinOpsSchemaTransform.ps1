@@ -96,8 +96,6 @@ function Invoke-FinOpsSchemaTransform {
     Write-Verbose "----------------------------------------"
     Write-Verbose "  Converted $($converted.Count) rows to FOCUS"
 
-    $converted
-    
     # TODO: Consider exporting to other file formats in a future release
     $exportParams = @{}
     if ($Delimiter) { $exportParams.Delimiter = $Delimiter }
