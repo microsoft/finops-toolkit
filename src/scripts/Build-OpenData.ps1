@@ -81,7 +81,7 @@ Get-ChildItem "$srcDir/*.csv" `
 | ForEach-Object {
     $file = $_
     $dataType = $file.BaseName
-    $command = "Get-FinOps$($dataType)Data"
+    $command = "Get-OpenData$($dataType)"
     
     Write-Verbose "Generating $command from $dataType.csv..."
     Write-Command -Command $command -File $file  | Out-File "$outDir/Private/$command.ps1"          -Append:$false

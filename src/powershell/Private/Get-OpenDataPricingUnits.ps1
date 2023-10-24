@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-function Get-FinOpsPricingUnitsData {
+function Get-OpenDataPricingUnits {
     return [PSCustomObject]@(
         [PSCustomObject]@{ UnitOfMeasure = '1'; AccountTypes = 'MCA, EA'; PricingBlockSize = 1; DistinctUnits = 'Units'; }
         ,[PSCustomObject]@{ UnitOfMeasure = '1 '; AccountTypes = 'EA'; PricingBlockSize = 1; DistinctUnits = 'Units'; }
