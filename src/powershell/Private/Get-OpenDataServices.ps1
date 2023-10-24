@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-function Get-FinOpsServicesData {
+function Get-OpenDataServices {
     return [PSCustomObject]@(
         [PSCustomObject]@{ ConsumedService = 'Citrix.Services'; ResourceType = 'citrix.services/xenappessentials'; ServiceName = 'Citrix Virtual App Essentials'; ServiceCategory = 'Compute'; PublisherName = 'Citrix'; PublisherType = 'Marketplace'; }
         ,[PSCustomObject]@{ ConsumedService = 'Citrix.Services'; ResourceType = 'citrix.services/xendesktopessentials'; ServiceName = 'Citrix Virtual Desktop Essentials'; ServiceCategory = 'Compute'; PublisherName = 'Citrix'; PublisherType = 'Marketplace'; }
