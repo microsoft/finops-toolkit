@@ -10,4 +10,6 @@ ConvertFrom-StringData -StringData @'
     NewDirectory = Creating directory '{0}'.
     TemplateNotFound = Could not find template 'main.bicep' at path '{0}'.
     ContextNotFound = Could not retrieve Az context. Run Az-Login.
+    FinOpsSchemaTransform_Invoke_ActualCostPathNotFound = ActualCostPath not found. Please enter a valid path: {0}.
+    FinOpsSchemaTransform_Invoke_AmortizedCostPathNotFound = AmortizedCostPath not found. Please enter a valid path: {0}.
 '@
