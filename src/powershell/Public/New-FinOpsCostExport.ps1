@@ -47,8 +47,8 @@
     .EXAMPLE
 
     New-FinopsCostExport -Name 'July2023OneTime' `
-	-Scope "subscriptions/e690a198-d672-41ba-8e53-41c6441319fc" `
-	-StorageAccountId "/subscriptions/e690a198-d672-41ba-8e53-41c6441319fc/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
+	-Scope "subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" `
+	-StorageAccountId "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
 	-OneTime `
 	-DataSet ActualCost `
 	-StartDate "2023-07-01" `
@@ -60,8 +60,8 @@
     .EXAMPLE
 
     New-FinopsCostExport -Name 'DailyMTD' `
-	-Scope "subscriptions/e690a198-d672-41ba-8e53-41c6441319fc" `
-	-StorageAccountId "/subscriptions/e690a198-d672-41ba-8e53-41c6441319fc/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
+	-Scope "subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" `
+	-StorageAccountId "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
 	-DataSet AmortizedCost `
 	-EndDate "2024-12-31" `
 	-Execute `
@@ -72,8 +72,8 @@
 	.EXAMPLE
 
     New-FinopsCostExport -Name 'Monthly-Report' `
-	-Scope "subscriptions/e690a198-d672-41ba-8e53-41c6441319fc" `
-	-StorageAccountId "/subscriptions/e690a198-d672-41ba-8e53-41c6441319fc/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
+	-Scope "subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" `
+	-StorageAccountId "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
 	-DataSet AmortizedCost `
 	-StartDate $(get-date).adddays(5) `
 	-EndDate "2024-08-15" `
@@ -85,10 +85,10 @@
 
 	.EXAMPLE
 
-    New-FinopsCostExport -Name 'Daily-MTD' `
-	-Scope "subscriptions/e690a198-d672-41ba-8e53-41c6441319fc" `
-	-StorageAccountId "/subscriptions/e690a198-d672-41ba-8e53-41c6441319fc/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
-	-DataSet Usage `
+    New-FinopsCostExport -Name 'Daily--MTD' `
+	-Scope "subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" `
+	-StorageAccountId "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
+	-DataSet ActualCost `
 	-StorageContainer "costreports" `
 	-Backfill 4 `
 	-Execute `
