@@ -34,7 +34,7 @@
     Optional. This parameter allows overwriting files with the Read Only attribute.
     
     .EXAMPLE
-    Invoke-FinOpsSchemaTransform -ActualCostPath ActualCost.csv -AmortizedCostPath AmortizedCost.csv -Destination FOCUS.csv
+    Invoke-FinOpsSchemaTransform -ActualCostPath ActualCost.csv -AmortizedCostPath AmortizedCost.csv -OutputFile FOCUS.csv
 
     Converts previously downloaded ActualCost.csv and AmortizedCost.csv files to FOCUS and saves the combined data to a FOCUS.csv file.
 
@@ -46,13 +46,11 @@ function Invoke-FinOpsSchemaTransform {
     param(
         [Parameter(Mandatory = $true, ValueFromPipeline = $false)]
         [ValidateNotNullOrEmpty()]
-        [ValidateScript({ Test-Path -Path $_ -PathType Leaf })]
         [string]
         $ActualCostPath,
 
         [Parameter(Mandatory = $true, ValueFromPipeline = $false)]
         [ValidateNotNullOrEmpty()]
-        [ValidateScript({ Test-Path -Path $_ -PathType Leaf })]
         [string]
         $AmortizedCostPath,
 
@@ -73,16 +71,40 @@ function Invoke-FinOpsSchemaTransform {
         [switch]
         $Force
     )
-
-    # TODO: Consider importing from other file formats in a future release
-    $actual = Import-Csv -Path $ActualCostPath
-    $amortized = Import-Csv -Path $AmortizedCostPath
     
-    $converted = ConvertTo-FinOpsSchema -ActualCost $actual -AmortizedCost $amortized
+    Write-Verbose "Invoke-FinOpsSchemaTransform..."
 
+    # Validate parameters
+    if (-not (Test-Path $ActualCostPath)) {
+        throw [string]::Format($LocalizedData.FinOpsSchemaTransform_Invoke_ActualCostPathNotFound, $ActualCostPath)
+    }
+    if (-not (Test-Path $AmortizedCostPath)) {
+        throw [string]::Format($LocalizedData.FinOpsSchemaTransform_Invoke_ActualCostPathNotFound, $AmortizedCostPath)
+    }
+    
+    # TODO: Consider importing from other file formats in a future release
+    # Import-Excel / Export-Excel
+
+    $actual = Import-Csv -Path $ActualCostPath
+    Write-Verbose "  Imported $($actual.Count) rows from $ActualCostPath"
+    $amortized = Import-Csv -Path $AmortizedCostPath
+    Write-Verbose "  Imported $($amortized.Count) rows from $AmortizedCostPath"
+    
+    Write-Verbose "  Converting to FOCUS..."
+    Write-Verbose "----------------------------------------"
+    $converted = ConvertTo-FinOpsSchema -ActualCost $actual -AmortizedCost $amortized -Verbose:$false
+    Write-Verbose "----------------------------------------"
+    Write-Verbose "  Converted $($converted.Count) rows to FOCUS"
+
+    $converted
+    
     # TODO: Consider exporting to other file formats in a future release
     $exportParams = @{}
     if ($Delimiter) { $exportParams.Delimiter = $Delimiter }
     if ($Encoding) { $exportParams.Encoding = $Encoding }
-    Export-Csv -InputObject $converted -Path $OutputFile -NoTypeInformation @exportParams -NoClobber:$NoClobber -Force:$Force
+    Write-Verbose "  Exporting to CSV..."
+    $converted `
+    | Where-Object { $_ -ne $null } `
+    | Export-Csv -Path $OutputFile -NoTypeInformation @exportParams -NoClobber:$NoClobber -Force:$Force
+    Write-Verbose "...done"
 }
