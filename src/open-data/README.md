@@ -33,14 +33,14 @@ Meters
 | extend AccountTypes = replace_string(arraystring(AccountTypes), 'EA, MCA', 'MCA, EA')
 //
 // Parse number-only values
-| extend UsageToPricingRate = unabbrev(@'^(\d+[KMBT]?)$', replace_string(UnitOfMeasure, ' ', ''))
-| extend DistinctUnits = iff(isnotempty(UsageToPricingRate), 'Units', '')
+| extend PricingBlockSize = unabbrev(@'^(\d+[KMBT]?)$', replace_string(UnitOfMeasure, ' ', ''))
+| extend DistinctUnits = iff(isnotempty(PricingBlockSize), 'Units', '')
 //
 // Parse all other numbers
-| extend UsageToPricingRate = iff(isempty(UsageToPricingRate), unabbrev(@'^ *(\d+[KMBT]?)[ /]', toupper(UnitOfMeasure)), UsageToPricingRate)
+| extend PricingBlockSize = iff(isempty(PricingBlockSize), unabbrev(@'^ *(\d+[KMBT]?)[ /]', toupper(UnitOfMeasure)), PricingBlockSize)
 //
 // If no number, assume 1
-| extend UsageToPricingRate = iff(isempty(UsageToPricingRate), 1, UsageToPricingRate)
+| extend PricingBlockSize = iff(isempty(PricingBlockSize), 1, PricingBlockSize)
 //
 // Parse unit after number
 | extend DistinctUnits = iff(isempty(DistinctUnits), replace_regex(extract(@'^ *\d+[KMBT]? *(.*) *$', 1, UnitOfMeasure), @'^/', 'Units/'), DistinctUnits)
