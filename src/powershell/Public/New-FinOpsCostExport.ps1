@@ -90,11 +90,11 @@
 	-StorageAccountId "/subscriptions/e690a198-d672-41ba-8e53-41c6441319fc/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
 	-DataSet Usage `
 	-StorageContainer "costreports" `
-	-Backfill 1 `
+	-Backfill 4 `
 	-Execute `
 	-Verbose
 
-    Creates a new daily export called Daily-MTD with StartDate = DateTime.Now and EndDate 5 years from StartDate. Additiionally, export cost data for the previous 12 months and save all results in costreports container of the specified storage account.
+    Creates a new daily export called Daily-MTD with StartDate = DateTime.Now and EndDate 5 years from StartDate. Additiionally, export cost data for the previous 4 months and save all results in costreports container of the specified storage account.
     
 	.LINK
     https://aka.ms/ftk/New-FinOpsCostExport
