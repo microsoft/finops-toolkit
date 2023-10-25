@@ -48,7 +48,7 @@ $nestedTemplates = $workbookJson.items.content.items `
     -and $_.content.loadFromTemplateId.StartsWith("community-Workbooks") } `
 | Select-Object -ExpandProperty content `
 | ForEach-Object {
-  $template = $_.
+  $template = $_
   # Read template
   $nestedName = $template.loadFromTemplateId.Split('/')[-1]
   if (-not (Test-Path "$srcDir/$nestedName/$nestedName.workbook")) {
