@@ -17,6 +17,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
+- [🛠️ v0.1.1](#️-v011)
 - [🚚 v0.1](#-v01)
 - [🌱 v0.0.1](#-v001)
 
@@ -43,18 +44,13 @@ Legend:
 
 > ➕ Added:
 >
-> 1. New PowerShell commands to manage FinOps hubs 0.1:
->    1. Get-FinOpsHub
->    2. Initialize-FinOpsHubDeployment
->    3. Register-FinOpsHubProviders
->    4. Remove-FinOpsHub
-> 2. Managed exports – Let FinOps hubs manage exports for you.
-> 3. MCA support – Added support for Microsoft Customer Agreement accounts.
-> 4. Actual cost data – Ingest both actual and amortized costs.
-> 5. Auto-backfill – Backfill historical data from Microsoft Cost Management.
-> 6. Remote hubs – Ingest cost data from other tenants.
-> 7. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
-> 8. Analytics engine – Ingest cost data into an Azure Data Explorer cluster.
+> 1. Managed exports – Let FinOps hubs manage exports for you.
+> 2. MCA support – Added support for Microsoft Customer Agreement accounts.
+> 3. Actual cost data – Ingest both actual and amortized costs.
+> 4. Auto-backfill – Backfill historical data from Microsoft Cost Management.
+> 5. Remote hubs – Ingest cost data from other tenants.
+> 6. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
+> 7. Analytics engine – Ingest cost data into an Azure Data Explorer cluster.
 >
 > ✏️ Changed:
 >
@@ -68,13 +64,47 @@ Legend:
 
 > ➕ Added:
 >
-> 1. [ConvertTo-FinOpsSchema](./powershell/focus/ConvertTo-FinOpsSchema.md) to convert data to FOCUS.
-> 2. [Invoke-FinOpsSchemaTransform](./powershell/focus/Invoke-FinOpsSchemaTransform.md) to convert CSV data to FOCUS.
-> 3. Get-FinOpsCostExport command
-> 4. Remove-FinOpsCostExport command
-> 5. [Get-FinOpsPricingUnit](./powershell/data/Get-FinOpsPricingUnit.md) to support pricing unit data cleansing.
-> 6. [Get-FinOpsRegion](./powershell/data/Get-FinOpsRegion.md) to support region data cleansing.
-> 7. [Get-FinOpsService](./powershell/data/Get-FinOpsService.md) to support FOCUS service categories and data cleansing.
+> 1. New-FinOpsCostExport
+> 2. Remove-FinOpsHubScope
+
+<br>
+
+## 🛠️ v0.1.1
+
+🖥️ PowerShell
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. New PowerShell commands to convert data to FOCUS 0.5:
+>    1. [ConvertTo-FinOpsSchema](./powershell/focus/ConvertTo-FinOpsSchema.md)
+>    2. [Invoke-FinOpsSchemaTransform](./powershell/focus/Invoke-FinOpsSchemaTransform.md)
+> 2. New PowerShell commands to get and delete Cost Management exports:
+>    1. Get-FinOpsCostExport
+>    2. Remove-FinOpsCostExport
+
+🌐 Open data
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. New PowerShell commands to integrate open data to support data cleansing:
+>    1. [Get-FinOpsPricingUnit](./powershell/data/Get-FinOpsPricingUnit.md)
+>    2. [Get-FinOpsRegion](./powershell/data/Get-FinOpsRegion.md)
+>    3. [Get-FinOpsService](./powershell/data/Get-FinOpsService.md)
+
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. New PowerShell commands to manage FinOps hubs 0.1:
+>    1. Get-FinOpsHub
+>    2. Initialize-FinOpsHubDeployment
+>    3. Register-FinOpsHubProviders
+>    4. Remove-FinOpsHub
+
+<br>
 
 ## 🚚 v0.1
 

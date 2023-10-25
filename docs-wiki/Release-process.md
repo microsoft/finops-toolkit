@@ -40,8 +40,7 @@ Once the above requirements have been met, the feature branch can be merged into
 2. Update the version.
 
    ```powershell
-   cd <root>/src/scripts
-   ./Invoke-Task Version [-Major|Minor|Patch]
+   <root>/src/scripts/Update-Version [-Major|Minor|Patch]
    ```
 
 3. Build all toolkit templates and resolve any issues.
@@ -49,8 +48,7 @@ Once the above requirements have been met, the feature branch can be merged into
    > _This step is optional, but can catch issues earlier. You can also add the `-Build` parameter to the publish command in the next step._
 
    ```powershell
-   cd <root>/src/scripts
-   ./Build-Toolkit
+   <root>/src/scripts/Build-Toolkit
    ```
 
 4. Publish each template to the target repo.
