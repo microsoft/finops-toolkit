@@ -26,8 +26,8 @@ function Split-AzureResourceId {
     [CmdletBinding()]
     param
     (
-        [AllowNull]
-        [AllowEmptyString]
+        [AllowNull()]
+        [AllowEmptyString()]
         [Parameter(Mandatory = $true)]
         [string]
         $Id

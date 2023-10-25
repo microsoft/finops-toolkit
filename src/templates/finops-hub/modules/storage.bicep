@@ -42,6 +42,7 @@ var storageAccountName = '${take(safeHubName, 24 - length(storageAccountSuffix))
 // Roles needed to auto-start triggers
 var blobUploadRbacRoles = [
   'ba92f5b4-2d11-453d-a403-e96b0029c9fe' // Storage Blob Data Contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor
+  'e40ec5ca-96e0-45a2-b4ff-59039f2c2b59' // Managed Identity Contributor - https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#managed-identity-contributor
 ]
 
 //==============================================================================
@@ -114,7 +115,7 @@ resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' 
 // Assign access to the identity
 resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in blobUploadRbacRoles: {
   name: guid(storageAccount.id, role, identity.id)
-  scope: storageAccount
+  scope: resourceGroup()
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
     principalId: identity.properties.principalId
@@ -159,6 +160,48 @@ resource uploadSettings 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
       }
     ]
     scriptContent: loadTextContent('./scripts/Copy-FileToAzureBlob.ps1')
+  }
+}
+
+resource removeManagedIdentity_blobManager 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: 'removeManagedIdentity'
+  kind: 'AzurePowerShell'
+  location: location
+  tags: tags
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${identity.id}': {}
+    }
+  }
+  dependsOn: [
+    configContainer
+    identityRoleAssignments
+    uploadSettings
+  ]
+  properties: {
+    azPowerShellVersion: '8.0'
+    retentionInterval: 'PT1H'
+    environmentVariables: [
+      {
+        name: 'managedIdentityName'
+        value: identity.name
+      }
+      {
+        name: 'resourceGroupName'
+        value: resourceGroup().name
+      }
+      {
+        name: 'storageAccountName'
+        value: storageAccountName
+      }
+      {
+        name: 'containerName'
+        value: 'config'
+      }
+    ]
+    scriptContent: loadTextContent('./scripts/Remove-ManagedIdentity.ps1')
+    arguments: '-storage'
   }
 }
 

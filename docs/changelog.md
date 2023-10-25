@@ -11,6 +11,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
 {: .fs-6 .fw-300 }
 
 [Download the latest release](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[See changes](#-v01){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
@@ -69,6 +70,13 @@ Legend:
 >
 > 1. Get-FinOpsCostExport command
 > 2. Remove-FinOpsCostExport command
+
+🌐 Open data
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed:
+>
+> 1. [Pricing units](./open-data/README.md#-pricing-units) "UsageToPricingRate" column name changed to "PricingBlockSize" to align to standard terminology.
 
 <br>
 
@@ -130,7 +138,8 @@ Legend:
 > 2. [Regions](./open-data/README.md#-regions) to map historical resource location values in Microsoft Cost Management to standard Azure regions.
 > 3. [Services](./open-data/README.md#-services) to map all resource types to FOCUS service names and categories.
 
-[Download v0.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Download v0.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1){: .btn .btn-primary .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.0.1...v0.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
@@ -160,5 +169,6 @@ Legend:
 > 1. [Cost optimization workbook](./optimization-workbook/README.md) to centralize cost optimization.
 
 [Download v0.0.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.0.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Full changelog](https://github.com/microsoft/finops-toolkit/compare/878e4864ca785db4fc13bdd2ec3a6a00058688c3...v0.0.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
