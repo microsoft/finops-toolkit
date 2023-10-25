@@ -12,4 +12,13 @@ ConvertFrom-StringData -StringData @'
     ContextNotFound = Could not retrieve Az context. Run Az-Login.
     FinOpsSchemaTransform_Invoke_ActualCostPathNotFound = ActualCostPath not found. Please enter a valid path: {0}.
     FinOpsSchemaTransform_Invoke_AmortizedCostPathNotFound = AmortizedCostPath not found. Please enter a valid path: {0}.
+    RegisterProvider =  Registering resource provider {0}.
+    ResourceProviderRegistered =  Resource provider {0} is already registered.
+    ErrorRegisteringProvider =  Error registering resource provider: {0}.
+    DeleteCostExportFailed = Delete Cost Management export operation failed with message: '{0}' (Code: {1}).
+    GetCostExportNotFound = Cost Management export not found. Operation failed with message: '{0}' (Code: {1}).
+    DeleteCostExportFilesFailed = Delete export files operation failed.
+    DeleteFinOpsHub = FinOps hub could not be deleted. {0}.
+    ErrorResponse = {0} (Code: {1}).
+    FinOpsHubNotFound = FinOps hub '{0}' not found.
 '@
