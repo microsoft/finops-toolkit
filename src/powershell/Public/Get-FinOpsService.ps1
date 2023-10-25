@@ -27,29 +27,31 @@
     Optional. The publisher category to find services for. Default = null (all).
 
     .DESCRIPTION
-    The Get-FinOpsSchemaService command returns service details based on the specified filters.
+    The Get-FinOpsService command returns service details based on the specified filters. This command is designed to help map Cost Management cost data to the FinOps Open Cost and Usage Specification (FOCUS) schema but can also be useful for general data cleansing.
 
     Please note that both ConsumedService and ResourceType are required to find a unique service in many cases.
     
     .EXAMPLE
-    Get-FinOpsSchemaService -ConsumedService "Microsoft.C*" -ResourceType "Microsoft.Compute/virtualMachines"
+    Get-FinOpsService -ConsumedService "Microsoft.C*" -ResourceType "Microsoft.Compute/virtualMachines"
     
-    Returns all services who's resource provider starts with "Microsoft.C".
+    Returns all services with a resource provider that starts with "Microsoft.C".
     
     .LINK
-    https://aka.ms/ftk/Get-FinOpsSchemaService
+    https://aka.ms/ftk/Get-FinOpsService
 #>
-function Get-FinOpsSchemaService() {
+function Get-FinOpsService() {
     Param(
         [Parameter(Position = 0)]
         [Alias("ResourceProvider", "RP")]
         [string]
         $ConsumedService = "*",
         
+        # TODO: Add this to a parameter set separate from ResourceType
         [Parameter(Position = 1)]
         [string]
         $ResourceId,
         
+        # TODO: Add this to a parameter set separate from ResourceId
         [Parameter(Position = 2)]
         [string]
         $ResourceType = "*",
@@ -96,7 +98,7 @@ function Get-FinOpsSchemaService() {
             PublisherCategory = $_.PublisherType
             ProviderName      = 'Microsoft'
             ProviderCategory  = 'Cloud Provider'
-        } `
-        | Select-Object -Unique
-    }
+        }
+    } `
+    | Select-Object -Property * -Unique
 }

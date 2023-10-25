@@ -88,7 +88,7 @@ function Split-AzureResourceId {
 
         Write-Verbose "Leaf resource: $($leafParts -Join '/')"
  
-        return @{
+        return [PSCustomObject]@{
             ResourceId             = $Id
             SubscriptionId         = if ($isSubResource) { $parts[2] } else { $null }
             SubscriptionResourceId = if ($isSubResource) { $parts[0..2] -Join '/' } else { $null }

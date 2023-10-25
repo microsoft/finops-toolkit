@@ -4,14 +4,15 @@
 Remove-Module FinOpsToolkit -ErrorAction SilentlyContinue
 Import-Module -FullyQualifiedName "$PSScriptRoot/../../FinOpsToolkit.psm1"
 
-Describe 'Get-FinOpsSchemaPricingUnit' {
+Describe 'Get-FinOpsPricingUnit' {
     BeforeAll {
         . "$PSScriptRoot/../../Private/Get-OpenDataPricingUnits.ps1"
-        $allPricingUnits = Get-OpenDataPricingUnits
+        $allPricingUnits = Get-OpenDataPricingUnits `
+        | Select-Object -Property * -Unique
     }
     Context "No parameters" {
         BeforeAll {
-            $actual = Get-FinOpsSchemaPricingUnit
+            $actual = Get-FinOpsPricingUnit
         }
         It 'Should return all pricing units by default' {
             # Arrange
@@ -30,7 +31,7 @@ Describe 'Get-FinOpsSchemaPricingUnit' {
             $expected = $allPricingUnits | Where-Object { $_.UnitOfMeasure -like $filter }
     
             # Act
-            $actual = Get-FinOpsSchemaPricingUnit -UnitOfMeasure $filter
+            $actual = Get-FinOpsPricingUnit -UnitOfMeasure $filter
     
             # Assert
             $expected.Count | Should -BeGreaterThan 0
@@ -42,7 +43,7 @@ Describe 'Get-FinOpsSchemaPricingUnit' {
             $expected = $allPricingUnits | Where-Object { $_.DistinctUnits -like $filter }
     
             # Act
-            $actual = Get-FinOpsSchemaPricingUnit -DistinctUnits $filter
+            $actual = Get-FinOpsPricingUnit -DistinctUnits $filter
     
             # Assert
             $expected.Count | Should -BeGreaterThan 0
@@ -53,7 +54,7 @@ Describe 'Get-FinOpsSchemaPricingUnit' {
         It 'Should be a number (not a string)' {
             # Arrange
             # Act
-            $actual = Get-FinOpsSchemaPricingUnit -BlockSize 500
+            $actual = Get-FinOpsPricingUnit -BlockSize 500
     
             # Assert
             $actual[0].PricingBlockSize -is [string] | Should -BeFalse
@@ -64,7 +65,7 @@ Describe 'Get-FinOpsSchemaPricingUnit' {
             $expected = 500
     
             # Act
-            $actual = Get-FinOpsSchemaPricingUnit -BlockSize $expected
+            $actual = Get-FinOpsPricingUnit -BlockSize $expected
     
             # Assert
             $actual[0].PricingBlockSize | Should -Be $expected

@@ -3,21 +3,25 @@
 
 <#
     .SYNOPSIS
-    Converts Microsoft Cost Management data to comply with the FinOps Open Cost and Usage Specification (FOCUS) schema version 0.5.
+    Converts Cost Management cost data to the FinOps Open Cost and Usage Specification (FOCUS) schema.
 
     .DESCRIPTION
-    The ConvertTo-FinOpsSchema PowerShell script takes cost data adhering to the Microsoft Cost Management schema and converts it into a format that complies with the FinOps Open Cost and Usage Specification (FOCUS) schema version 0.5. 
-    This conversion aids in data management, analytics, and reporting by ensuring data consistency and adherence to standards. 
-    It's important to note that the script is specifically designed for schema version 0.5 (as of September 2023) and may not fully support older versions.
-    Please review output and report any issues to https://aka.ms/ftk.
+    The ConvertTo-FinOpsSchema command returns an object that adheres to the FinOps Open Cost and Usage Specification (FOCUS) schema.
+
+    ConvertTo-FinOpsSchema currently understands how to convert Cost Management cost data using the latest schemas as of September 2023. Older schemas may not be fully supported. Please review output and report any issues to https://aka.ms/ftk.
+
+    You can pipe objects to ConvertTo-FinOpsSchema from an exported or downloaded CSV file using Import-Csv or ConvertFrom-Csv and pipe to Export-Csv to save as a CSV file. Or use the Invoke-FinOpsSchemaTransform command to simplify the process.
 
     .PARAMETER ActualCost
-    Specifies the input cost data that will be converted. The object must adhere to a supported Microsoft Cost Management schema. Provide the filepath of the data to be converted. Example usage: ..\..\sample-data\EA_ActualCost.csv
+    Required. Specifies the actual cost data to be converted. Object must be a supported Microsoft Cost Management schema.
+
+    .PARAMETER AmortizedCost
+    Required. Specifies the amortized cost data to be converted. Object must be a supported Microsoft Cost Management schema.
 
     .EXAMPLE
-    ConvertTo-FinOpsSchema -ActualCost ActualCost.csv | Export-Csv -Path FOCUS.csv -NoTypeInformation
+    ConvertTo-FinOpsSchema -ActualCost (Import-Csv my-actual-cost-details.csv) -AmortizedCost (Import-Csv my-amortized-cost-details.csv) | Export-Csv my-cost-details-in-focus.csv
 
-    Converts the input data found in ActualCost.csv to FOCUS and saves it to a FOCUS.csv file.
+    Converts previously downloaded actual and amortized cost details to FOCUS 0.5 and saves it as a CSV file.
 
     .LINK
     https://aka.ms/ftk/ConvertTo-FinOpsSchema
@@ -113,7 +117,7 @@ function New-FinOpsSchemaRow {
     )
 
     function Select-First([array]$List) {
-        return $List | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -First 1
+        $List | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -First 1
     }
 
     # Determine what type of cost this is
@@ -147,41 +151,41 @@ function New-FinOpsSchemaRow {
     # TODO: Move outside the loop
     $accountType = Get-AccountType $Row    
     $schemaVersion = "$($accountType)_2023-10-preview"
-    
-    $resourceInfo = Split-AzureResourceId ($Row.ResourceId ?? $Row.InstanceName)
-    $regionInfo = Get-FinOpsSchemaRegion -ResourceLocation ($Row.ResourceLocation ?? $Row.Location ?? $Row.ResourceLocationNormalized ?? $Row.MeterRegion)
-    $serviceInfo = Get-FinOpsSchemaService `
+
+    $resourceInfo = Split-AzureResourceId (Select-First $Row.ResourceId, $Row.InstanceName)
+
+    $regionInfo = Get-FinOpsRegion `
+        -ResourceLocation (Select-First $Row.ResourceLocation, $Row.Location, $Row.ResourceLocationNormalized, $Row.MeterRegion) `
+    | Select-Object -First 1
+    # TODO: -MeterCategory $Row.MeterCategory -ProductName $Row.ProductName
+    $serviceInfo = Get-FinOpsService `
         -ConsumedService $Row.ConsumedService `
-        -ResourceId $Row.ResourceId `
-        -MeterCategory $Row.MeterCategory `
-        -ProductName $Row.ProductName `
-        -PublisherId $Row.PublisherId `
-        -PublisherName $Row.PublisherName `
-        -PublisherType $Row.PublisherType
-    $unitInfo = Get-FinOpsSchemaUnits -UnitOfMeasure $Row.UnitOfMeasure    
+        -ResourceType $resourceInfo.Type `
+    | Select-Object -First 1
+    $unitInfo = Get-FinOpsPricingUnit -UnitOfMeasure $Row.UnitOfMeasure | Select-Object -First 1
 
     # Create a new object with the mapped column names
     # This will ensure that the output CSV has the correct column names
     # If exporting all columns, we will use the columnnames mapped here.
     return [PSCustomObject]@{
-        AmortizedCost                  = -not $isAmortizedCost ? 0.0 : (Select-First @($Row.Cost, $Row.CostInBillingCurrency, $Row.PreTaxCost)) -as [double]
+        AmortizedCost                  = -not $isAmortizedCost ? 0.0 : (Select-First $Row.Cost, $Row.CostInBillingCurrency, $Row.PreTaxCost) -as [double]
         AvailabilityZone               = $Row.AvailabilityZone
-        BilledCost                     = -not $isActualCost ? 0.0 : (Select-First @($Row.Cost, $Row.CostInBillingCurrency, $Row.PreTaxCost)) -as [double]
+        BilledCost                     = -not $isActualCost ? 0.0 : (Select-First $Row.Cost, $Row.CostInBillingCurrency, $Row.PreTaxCost) -as [double]
         BillingAccountId               = if ($accountType -eq 'EA') { "/providers/Microsoft.Billing/billingAccounts/$($Row.BillingAccountId)" } elseif ($accountType -eq 'MCA') { "/providers/Microsoft.Billing/billingAccounts/$($Row.BillingAccountId)/billingProfiles/$($Row.BillingProfileId)" } else { "/subscriptions/$($Row.SubAccountId)" }
-        BillingAccountName             = $Row.BillingAccountName ?? $Row.SubscriptionName
-        BillingCurrency                = $Row.BillingCurrency ?? $Row.BillingCurrencyCode ?? $Row.Currency
+        BillingAccountName             = Select-First $Row.BillingAccountName, $Row.SubscriptionName
+        BillingCurrency                = Select-First $Row.BillingCurrency, $Row.BillingCurrencyCode, $Row.Currency
         BillingPeriodEnd               = (Parse-Date $Row.BillingPeriodEndDate -EndDate)
         BillingPeriodStart             = (Parse-Date $Row.BillingPeriodStartDate)
         ChargePeriodEnd                = (Parse-Date ($Row.Date ?? $Row.UsageDate) -EndDate)
         ChargePeriodStart              = (Parse-Date ($Row.Date ?? $Row.UsageDate))
         ChargeType                     = if ($Row.ChargeType.StartsWith('Unused')) { 'Usage' } elseif (@('Usage', 'Purchase') -contains $Row.ChargeType) { $Row.ChargeType } else { 'Adjustment' }
-        InvoiceIssuerName              = $Row.PartnerName ?? 'Microsoft'
-        ServiceCategory                = $serviceInfo.ServiceCategory
-        ServiceName                    = $serviceInfo.ServiceName
-        ProviderName                   = $serviceInfo.ProviderName
-        PublisherName                  = $serviceInfo.PublisherName
-        Region                         = $regionInfo.RegionName
-        ResourceId                     = $resourceInfo.ResourceId
+        InvoiceIssuerName              = Select-First $Row.PartnerName, 'Microsoft'
+        ServiceCategory                = Select-First $serviceInfo.ServiceCategory, 'Other'
+        ServiceName                    = Select-First $serviceInfo.ServiceName, $Row.MeterCategory, $Row.ConsumedService
+        ProviderName                   = Select-First $serviceInfo.ProviderName, 'Microsoft'
+        PublisherName                  = Select-First $serviceInfo.PublisherName, 'Microsoft'
+        Region                         = Select-First $regionInfo.RegionName, $Row.ResourceLocation, $Row.Location, $Row.ResourceLocationNormalized, $Row.MeterRegion
+        ResourceId                     = Select-First $resourceInfo.ResourceId, $Row.ResourceId, $Row.InstanceName
         ResourceName                   = $resourceInfo.Name
         SubAccountId                   = "/subscriptions/$($Row.SubscriptionId ?? $Row.SubscriptionGuid)"
         SubAccountName                 = $Row.SubscriptionName
@@ -220,9 +224,9 @@ function New-FinOpsSchemaRow {
         ftk_InvoiceSectionId           = $Row.InvoiceSectionId
         ftk_InvoiceSectionName         = $Row.InvoiceSectionName
         ftk_IsCreditEligible           = $Row.IsAzureCreditEligible
-        ftk_ListCost                   = $Row.PayGPrice * $Row.Quantity
-        ftk_ListCostInUsd              = $Row.PayGPriceUSD * $Row.Quantity
-        ftk_ListPricingCost            = $Row.PayGPrice * $Row.Quantity
+        ftk_ListCost                   = $Row.PayGCost -gt 0 ? $Row.PayGCost : $Row.PayGPrice * $Row.Quantity
+        ftk_ListCostInUsd              = $Row.PayGCostInUsd -gt 0 ? $Row.PayGCostInUsd : $Row.PayGPriceUSD * $Row.Quantity
+        ftk_ListPricingCost            = $Row.PayGCostInPricingCurrency -gt 0 ? $Row.PayGCostInPricingCurrency : $Row.PayGPrice * $Row.Quantity
         ftk_ListPrice                  = $Row.PayGPrice
         ftk_MeterCategory              = $Row.MeterCategory
         ftk_MeterId                    = $Row.MeterId
@@ -239,14 +243,14 @@ function New-FinOpsSchemaRow {
         ftk_PricingModel               = $Row.PricingModel
         ftk_PricingBlockSize           = $unitInfo.PricingBlockSize
         ftk_PricingQuantity            = $Row.Quantity * $unitInfo.PricingBlockSize
-        ftk_PricingUnit                = $unitInfo.PricingUnit
+        ftk_PricingUnit                = Select-First $unitInfo.PricingUnit, $Row.UnitOfMeasure
         ftk_ProductId                  = $Row.ProductId
         ftk_ProductName                = $Row.ProductName
         ftk_ProductOrderId             = $Row.ProductOrderId
         ftk_ProductOrderName           = $Row.ProductOrderName
         ftk_Provider                   = $Row.Provider
-        ftk_PublisherId                = $serviceInfo.PublisherId
-        ftk_PublisherType              = $serviceInfo.PublisherType
+        ftk_PublisherId                = $Row.PublisherId 
+        ftk_PublisherType              = Select-First $serviceInfo.PublisherCategory
         ftk_ResourceGroupId            = $resourceInfo.ResourceGroupId
         ftk_ResourceGroupName          = $resourceInfo.ResourceGroupName
         ftk_ResellerId                 = $Row.ResellerMpnId
@@ -279,7 +283,7 @@ function Get-AccountType {
 }
 
 # TODO: Make this its own public function
-function Get-FinOpsSchemaRegion([string]$ResourceLocation) {
+function Get-FinOpsRegion([string]$ResourceLocation) {
     # TODO: Look up from Regions.csv
     return @{
         RegionId   = ($ResourceLocation ?? "").ToLower() -replace " ", ""
@@ -288,7 +292,7 @@ function Get-FinOpsSchemaRegion([string]$ResourceLocation) {
 }
 
 # TODO: Make this its own public function
-function Get-FinOpsSchemaService([string]$ConsumedService, [string]$ResourceId, [string]$MeterCategory, [string]$ProductName, [string]$PublisherId, [string]$PublisherName, [string]$PublisherType) {
+function Get-FinOpsService([string]$ConsumedService, [string]$ResourceId, [string]$MeterCategory, [string]$ProductName, [string]$PublisherId, [string]$PublisherName, [string]$PublisherType) {
     # TODO: Look up from Services.csv
     return @{
         # ServiceType values = Infrastructure, Platform, Software, Other
