@@ -62,7 +62,7 @@ function Get-FinOpsSchemaRegion() {
             RegionId         = $_.RegionId
             RegionName       = $_.RegionName
         } `
-        | Select-Object -ExcludeProperty ($IncludeResourceLocation ? @() : @('ResourceLocation')) `
-        | Select-Object -Unique
-    }
+        | Select-Object -ExcludeProperty ($IncludeResourceLocation ? @() : @('ResourceLocation'))
+    } `
+    | Select-Object -Unique
 }

@@ -46,10 +46,12 @@ function Get-FinOpsSchemaService() {
         [string]
         $ConsumedService = "*",
         
+        # TODO: Add this to a parameter set separate from ResourceType
         [Parameter(Position = 1)]
         [string]
         $ResourceId,
         
+        # TODO: Add this to a parameter set separate from ResourceId
         [Parameter(Position = 2)]
         [string]
         $ResourceType = "*",
@@ -96,7 +98,7 @@ function Get-FinOpsSchemaService() {
             PublisherCategory = $_.PublisherType
             ProviderName      = 'Microsoft'
             ProviderCategory  = 'Cloud Provider'
-        } `
-        | Select-Object -Unique
-    }
+        }
+    } `
+    | Select-Object -Unique
 }

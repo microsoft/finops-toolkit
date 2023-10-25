@@ -113,7 +113,7 @@ function New-FinOpsSchemaRow {
     )
 
     function Select-First([array]$List) {
-        return $List | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -First 1
+        $List | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -First 1
     }
 
     # Determine what type of cost this is
@@ -147,41 +147,45 @@ function New-FinOpsSchemaRow {
     # TODO: Move outside the loop
     $accountType = Get-AccountType $Row    
     $schemaVersion = "$($accountType)_2023-10-preview"
-    
-    $resourceInfo = Split-AzureResourceId ($Row.ResourceId ?? $Row.InstanceName)
-    $regionInfo = Get-FinOpsSchemaRegion -ResourceLocation ($Row.ResourceLocation ?? $Row.Location ?? $Row.ResourceLocationNormalized ?? $Row.MeterRegion)
+
+    $resourceInfo = Split-AzureResourceId (Select-First $Row.ResourceId, $Row.InstanceName)
+
+    $regionInfo = Get-FinOpsSchemaRegion `
+        -ResourceLocation (Select-First $Row.ResourceLocation, $Row.Location, $Row.ResourceLocationNormalized, $Row.MeterRegion) `
+    | Select-Object -First 1
+    # TODO: -MeterCategory $Row.MeterCategory -ProductName $Row.ProductName
     $serviceInfo = Get-FinOpsSchemaService `
         -ConsumedService $Row.ConsumedService `
-        -ResourceId $Row.ResourceId `
-        -MeterCategory $Row.MeterCategory `
-        -ProductName $Row.ProductName `
-        -PublisherId $Row.PublisherId `
-        -PublisherName $Row.PublisherName `
-        -PublisherType $Row.PublisherType
-    $unitInfo = Get-FinOpsSchemaUnits -UnitOfMeasure $Row.UnitOfMeasure    
+        -ResourceType $resourceInfo.Type `
+    | Select-Object -First 1
+    Write-Host $Row.ConsumedService
+    Write-Host $resourceInfo.Type
+    Write-Host $serviceInfo
+    Write-Host ($serviceInfo = Get-FinOpsSchemaService -ConsumedService $Row.ConsumedService -ResourceType $resourceInfo.Type)
+    $unitInfo = Get-FinOpsSchemaPricingUnit -UnitOfMeasure $Row.UnitOfMeasure | Select-Object -First 1
 
     # Create a new object with the mapped column names
     # This will ensure that the output CSV has the correct column names
     # If exporting all columns, we will use the columnnames mapped here.
     return [PSCustomObject]@{
-        AmortizedCost                  = -not $isAmortizedCost ? 0.0 : (Select-First @($Row.Cost, $Row.CostInBillingCurrency, $Row.PreTaxCost)) -as [double]
+        AmortizedCost                  = -not $isAmortizedCost ? 0.0 : (Select-First $Row.Cost, $Row.CostInBillingCurrency, $Row.PreTaxCost) -as [double]
         AvailabilityZone               = $Row.AvailabilityZone
-        BilledCost                     = -not $isActualCost ? 0.0 : (Select-First @($Row.Cost, $Row.CostInBillingCurrency, $Row.PreTaxCost)) -as [double]
+        BilledCost                     = -not $isActualCost ? 0.0 : (Select-First $Row.Cost, $Row.CostInBillingCurrency, $Row.PreTaxCost) -as [double]
         BillingAccountId               = if ($accountType -eq 'EA') { "/providers/Microsoft.Billing/billingAccounts/$($Row.BillingAccountId)" } elseif ($accountType -eq 'MCA') { "/providers/Microsoft.Billing/billingAccounts/$($Row.BillingAccountId)/billingProfiles/$($Row.BillingProfileId)" } else { "/subscriptions/$($Row.SubAccountId)" }
-        BillingAccountName             = $Row.BillingAccountName ?? $Row.SubscriptionName
-        BillingCurrency                = $Row.BillingCurrency ?? $Row.BillingCurrencyCode ?? $Row.Currency
+        BillingAccountName             = Select-First $Row.BillingAccountName, $Row.SubscriptionName
+        BillingCurrency                = Select-First $Row.BillingCurrency, $Row.BillingCurrencyCode, $Row.Currency
         BillingPeriodEnd               = (Parse-Date $Row.BillingPeriodEndDate -EndDate)
         BillingPeriodStart             = (Parse-Date $Row.BillingPeriodStartDate)
         ChargePeriodEnd                = (Parse-Date ($Row.Date ?? $Row.UsageDate) -EndDate)
         ChargePeriodStart              = (Parse-Date ($Row.Date ?? $Row.UsageDate))
         ChargeType                     = if ($Row.ChargeType.StartsWith('Unused')) { 'Usage' } elseif (@('Usage', 'Purchase') -contains $Row.ChargeType) { $Row.ChargeType } else { 'Adjustment' }
-        InvoiceIssuerName              = $Row.PartnerName ?? 'Microsoft'
-        ServiceCategory                = $serviceInfo.ServiceCategory
-        ServiceName                    = $serviceInfo.ServiceName
-        ProviderName                   = $serviceInfo.ProviderName
-        PublisherName                  = $serviceInfo.PublisherName
-        Region                         = $regionInfo.RegionName
-        ResourceId                     = $resourceInfo.ResourceId
+        InvoiceIssuerName              = Select-First $Row.PartnerName, 'Microsoft'
+        ServiceCategory                = Select-First $serviceInfo.ServiceCategory, 'Other'
+        ServiceName                    = Select-First $serviceInfo.ServiceName, $Row.MeterCategory, $Row.ConsumedService
+        ProviderName                   = Select-First $serviceInfo.ProviderName, 'Microsoft'
+        PublisherName                  = Select-First $serviceInfo.PublisherName, 'Microsoft'
+        Region                         = Select-First $regionInfo.RegionName, $Row.ResourceLocation, $Row.Location, $Row.ResourceLocationNormalized, $Row.MeterRegion
+        ResourceId                     = Select-First $resourceInfo.ResourceId, $Row.ResourceId, $Row.InstanceName
         ResourceName                   = $resourceInfo.Name
         SubAccountId                   = "/subscriptions/$($Row.SubscriptionId ?? $Row.SubscriptionGuid)"
         SubAccountName                 = $Row.SubscriptionName
@@ -220,9 +224,9 @@ function New-FinOpsSchemaRow {
         ftk_InvoiceSectionId           = $Row.InvoiceSectionId
         ftk_InvoiceSectionName         = $Row.InvoiceSectionName
         ftk_IsCreditEligible           = $Row.IsAzureCreditEligible
-        ftk_ListCost                   = $Row.PayGPrice * $Row.Quantity
-        ftk_ListCostInUsd              = $Row.PayGPriceUSD * $Row.Quantity
-        ftk_ListPricingCost            = $Row.PayGPrice * $Row.Quantity
+        ftk_ListCost                   = $Row.PayGCost -gt 0 ? $Row.PayGCost : $Row.PayGPrice * $Row.Quantity
+        ftk_ListCostInUsd              = $Row.PayGCostInUsd -gt 0 ? $Row.PayGCostInUsd : $Row.PayGPriceUSD * $Row.Quantity
+        ftk_ListPricingCost            = $Row.PayGCostInPricingCurrency -gt 0 ? $Row.PayGCostInPricingCurrency : $Row.PayGPrice * $Row.Quantity
         ftk_ListPrice                  = $Row.PayGPrice
         ftk_MeterCategory              = $Row.MeterCategory
         ftk_MeterId                    = $Row.MeterId
@@ -239,14 +243,14 @@ function New-FinOpsSchemaRow {
         ftk_PricingModel               = $Row.PricingModel
         ftk_PricingBlockSize           = $unitInfo.PricingBlockSize
         ftk_PricingQuantity            = $Row.Quantity * $unitInfo.PricingBlockSize
-        ftk_PricingUnit                = $unitInfo.PricingUnit
+        ftk_PricingUnit                = Select-First $unitInfo.PricingUnit, $Row.UnitOfMeasure
         ftk_ProductId                  = $Row.ProductId
         ftk_ProductName                = $Row.ProductName
         ftk_ProductOrderId             = $Row.ProductOrderId
         ftk_ProductOrderName           = $Row.ProductOrderName
         ftk_Provider                   = $Row.Provider
-        ftk_PublisherId                = $serviceInfo.PublisherId
-        ftk_PublisherType              = $serviceInfo.PublisherType
+        ftk_PublisherId                = $Row.PublisherId 
+        ftk_PublisherType              = Select-First $serviceInfo.PublisherCategory
         ftk_ResourceGroupId            = $resourceInfo.ResourceGroupId
         ftk_ResourceGroupName          = $resourceInfo.ResourceGroupName
         ftk_ResellerId                 = $Row.ResellerMpnId

@@ -58,7 +58,7 @@ function Get-FinOpsSchemaPricingUnit() {
             DistinctUnits    = $_.DistinctUnits
             PricingBlockSize = $_.PricingBlockSize
             PricingUnit      = $_.UnitOfMeasure
-        } `
-        | Select-Object -Unique
-    }
+        }
+    } `
+    | Select-Object -Unique
 }
