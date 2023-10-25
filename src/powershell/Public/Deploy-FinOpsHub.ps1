@@ -96,6 +96,10 @@ function Deploy-FinOpsHub
         {
             New-Directory -Path $toolkitPath
         }
+        if($PSCmdlet.ShouldProcess('FinOps hub deployment','Initialize'))
+        {
+            Initialize-FinOpsToolkit 
+        }
 
         if ($PSCmdlet.ShouldProcess($Version, 'DownloadTemplate'))
         {
