@@ -18,22 +18,22 @@
     Optional. Indicates whether to include the ResourceLocation property in the output. Default = false.
 
     .DESCRIPTION
-    The Get-FinOpsSchemaRegion command returns an Azure region ID and name based on the specified resource location.
+    The Get-FinOpsRegion command returns an Azure region ID and name based on the specified resource location.
     
     .EXAMPLE
-    Get-FinOpsSchemaRegion -ResourceLocation "US East"
+    Get-FinOpsRegion -ResourceLocation "US East"
     
     Returns the region ID and name for the East US region.
     
     .EXAMPLE
-    Get-FinOpsSchemaRegion -RegionId "*asia*" -IncludeResourceLocation
+    Get-FinOpsRegion -RegionId "*asia*" -IncludeResourceLocation
     
     Returns all Asia regions with the original Cost Management ResourceLocation value.
     
     .LINK
-    https://aka.ms/ftk/Get-FinOpsSchemaRegion
+    https://aka.ms/ftk/Get-FinOpsRegion
 #>
-function Get-FinOpsSchemaRegion() {
+function Get-FinOpsRegion() {
     Param(
         [Parameter(Position = 0, ValueFromPipeline = $true)]
         [string]
@@ -64,5 +64,5 @@ function Get-FinOpsSchemaRegion() {
         } `
         | Select-Object -ExcludeProperty ($IncludeResourceLocation ? @() : @('ResourceLocation'))
     } `
-    | Select-Object -Unique
+    | Select-Object -Property * -Unique
 }

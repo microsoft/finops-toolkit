@@ -72,9 +72,9 @@ Legend:
 > 2. [Invoke-FinOpsSchemaTransform](./powershell/focus/Invoke-FinOpsSchemaTransform.md) to convert CSV data to FOCUS.
 > 3. Get-FinOpsCostExport command
 > 4. Remove-FinOpsCostExport command
-> 5. Get-FinOpsSchemaPricingUnit command
-> 6. Get-FinOpsSchemaRegion command
-> 7. Get-FinOpsSchemaService command
+> 5. [Get-FinOpsPricingUnit](./powershell/data/Get-FinOpsPricingUnit.md) to support pricing unit data cleansing.
+> 6. [Get-FinOpsRegion](./powershell/data/Get-FinOpsRegion.md) to support region data cleansing.
+> 7. [Get-FinOpsService](./powershell/data/Get-FinOpsService.md) to support FOCUS service categories and data cleansing.
 
 ## 🚚 v0.1
 

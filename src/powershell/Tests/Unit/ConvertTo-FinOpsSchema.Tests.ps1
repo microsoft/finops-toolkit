@@ -160,7 +160,7 @@ InModuleScope 'FinOpsToolkit' {
             }
             It 'Should have all 0.5 columns' {
                 # Arrange
-                $expectedService = Get-FinOpsSchemaService -ConsumedService $data.ConsumedService -ResourceType (Split-AzureResourceId $data.ResourceId).Type
+                $expectedService = Get-FinOpsService -ConsumedService $data.ConsumedService -ResourceType (Split-AzureResourceId $data.ResourceId).Type
 
                 # Act
                 $result = Run-Test $data $data | Select-Object -First 1
@@ -180,7 +180,7 @@ InModuleScope 'FinOpsToolkit' {
                 $result.InvoiceIssuerName  | Should -Be 'Microsoft'
                 $result.ProviderName       | Should -Be 'Microsoft'
                 $result.PublisherName      | Should -Be $data._PublisherName
-                $result.Region             | Should -Be (Get-FinOpsSchemaRegion $data.ResourceLocation).RegionName
+                $result.Region             | Should -Be (Get-FinOpsRegion $data.ResourceLocation).RegionName
                 $result.ResourceId         | Should -Be $data.ResourceId
                 $result.ResourceName       | Should -Be $data.ResourceName
                 $result.ServiceCategory    | Should -Be $expectedService.ServiceCategory

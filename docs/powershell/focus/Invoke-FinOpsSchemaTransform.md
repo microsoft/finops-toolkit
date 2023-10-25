@@ -39,8 +39,13 @@ Invoke-FinOpsSchemaTransform inherits the same schema constraints as ConvertTo-F
 
 ```powershell
 Invoke-FinOpsSchemaTransform `
-    [-ActualCost <object>] `
-    [-AmortizedCost <object>]
+    [-ActualCostPath <string>] `
+    [-AmortizedCostPath <string>] `
+    [-OutputFile <string>] `
+    [-Delimiter <string>] `
+    [-Encoding <string>] `
+    [-NoClobber] `
+    [-Force]
 ```
 
 <br>

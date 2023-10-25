@@ -3,7 +3,7 @@
 
 <#
     .SYNOPSIS
-    Converts Microsoft Cost Management cost details to the FinOps Open Cost and Usage Specification (FOCUS) schema.
+    Loads Microsoft Cost Management cost data from a CSV file, converts it to the FinOps Open Cost and Usage Specification (FOCUS) schema, and saves it to a new CSV file.
 
     .DESCRIPTION
     The Invoke-FinOpsSchemaTransform command reads actual and amortized cost data from files via Import-Csv, converts them to the FinOps Open Cost and Usage Specification (FOCUS) schema via ConvertTo-FinOpsSchema, and then saves the result to a CSV file using Export-Csv.

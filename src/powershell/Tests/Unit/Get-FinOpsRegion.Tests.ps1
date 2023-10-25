@@ -4,18 +4,22 @@
 Remove-Module FinOpsToolkit -ErrorAction SilentlyContinue
 Import-Module -FullyQualifiedName "$PSScriptRoot/../../FinOpsToolkit.psm1"
 
-Describe 'Get-FinOpsSchemaRegion' {
+Describe 'Get-FinOpsRegion' {
     BeforeAll {
         . "$PSScriptRoot/../../Private/Get-OpenDataRegions.ps1"
-        $allRegions = Get-OpenDataRegions
+        function getAllRegions([string]$ResourceLocation = "*") {
+            Get-OpenDataRegions `
+            | Where-Object { $_.OriginalValue -like $ResourceLocation } `
+            | Select-Object -Property RegionId, RegionName -Unique
+        }
     }
     Context "No parameters" {
         BeforeAll {
-            $actual = Get-FinOpsSchemaRegion
+            $actual = Get-FinOpsRegion
         }
         It 'Should return all regions by default' {
             # Arrange
-            $expected = $allRegions
+            $expected = getAllRegions
             
             # Act
             # Assert
@@ -38,10 +42,10 @@ Describe 'Get-FinOpsSchemaRegion' {
     Context "Wildcards" {
         It 'Should return wildcard ResourceLocation matches' {
             # Arrange
-            $expected = $allRegions | Where-Object { $_.Originalvalue -like 'a*' }
+            $expected = getAllRegions 'a*'
     
             # Act
-            $actual = Get-FinOpsSchemaRegion -ResourceLocation a*
+            $actual = Get-FinOpsRegion -ResourceLocation a*
     
             # Assert
             $expected.Count | Should -BeGreaterThan 0
@@ -49,10 +53,10 @@ Describe 'Get-FinOpsSchemaRegion' {
         }
         It 'Should return b* wildcard RegionId matches' {
             # Arrange
-            $expected = $allRegions | Where-Object { $_.RegionId -like 'b*' }
+            $expected = getAllRegions | Where-Object { $_.RegionId -like 'b*' }
     
             # Act
-            $actual = Get-FinOpsSchemaRegion -RegionId b*
+            $actual = Get-FinOpsRegion -RegionId b*
     
             # Assert
             $expected.Count | Should -BeGreaterThan 0
@@ -60,10 +64,10 @@ Describe 'Get-FinOpsSchemaRegion' {
         }
         It 'Should return c* wildcard RegionName matches' {
             # Arrange
-            $expected = $allRegions | Where-Object { $_.RegionName -like 'c*' }
+            $expected = getAllRegions | Where-Object { $_.RegionName -like 'c*' }
     
             # Act
-            $actual = Get-FinOpsSchemaRegion -RegionName c*
+            $actual = Get-FinOpsRegion -RegionName c*
     
             # Assert
             $expected.Count | Should -BeGreaterThan 0
@@ -76,7 +80,7 @@ Describe 'Get-FinOpsSchemaRegion' {
             $expected = "BR South"
 
             # Act
-            $actual = Get-FinOpsSchemaRegion $expected -IncludeResourceLocation
+            $actual = Get-FinOpsRegion $expected -IncludeResourceLocation
     
             # Assert
             $actual.Count | Should -Be 1
@@ -87,7 +91,7 @@ Describe 'Get-FinOpsSchemaRegion' {
         It 'Should exclude ResourceLocation property when false' {
             # Arrange
             # Act
-            $actual = Get-FinOpsSchemaRegion "br south" -IncludeResourceLocation:$false
+            $actual = Get-FinOpsRegion "br south" -IncludeResourceLocation:$false
     
             # Assert
             $actual.Count | Should -Be 1

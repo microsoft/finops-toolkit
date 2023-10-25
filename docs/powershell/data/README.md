@@ -1,15 +1,15 @@
 ---
 layout: default
 parent: PowerShell
-title: FOCUS
+title: Open data
 has_children: true
-nav_order: 3
-description: 'PowerShell commands to work with the FinOps Open Cost and Usage Specification.'
-permalink: /powershell/focus
+nav_order: 5
+description: 'PowerShell commands to work with FinOps toolkit open data.'
+permalink: /powershell/data
 ---
 
-<span class="fs-9 d-block mb-4">FOCUS automation</span>
-Work with the the FinOps Open Cost and Usage Specification (FOCUS).
+<span class="fs-9 d-block mb-4">Open data integration</span>
+Work with FinOps toolkit open data within your data ingestion and cleansing efforts.
 {: .fs-6 .fw-300 }
 
 [Install](../README.md#️-install-the-module){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
@@ -26,14 +26,15 @@ Work with the the FinOps Open Cost and Usage Specification (FOCUS).
 
 ---
 
-The FOCUS PowerShell commands help you work with the [FinOps Open Cost and Usage Specification (FOCUS)](https://focus.finops.org).
+The FinOps toolkit open data PowerShell commands help you integrate datasets into your workflow.
 
 <br>
 
 ## ⚡ Commands
 
-- [ConvertTo-FinOpsSchema](ConvertTo-FinOpsSchema.md) – Converts Cost Management cost data to the FOCUS schema.
-- [Invoke-FinOpsSchema](Invoke-FinOpsSchema.md) – Loads Cost Management data from a CSV file, converts it to FOCUS schema, and saves it to a new CSV file.
+- [Get-FinOpsPricingUnit](Get-FinOpsPricingUnit.md) – Gets an Azure region ID and name.
+- [Get-FinOpsRegion](Get-FinOpsRegion.md) – Gets an Azure region ID and name.
+- [Get-FinOpsService](Get-FinOpsService.md) – Gets the name and category for a service, publisher, and cloud provider.
 
 <br>
 

@@ -4,19 +4,23 @@
 Remove-Module FinOpsToolkit -ErrorAction SilentlyContinue
 Import-Module -FullyQualifiedName "$PSScriptRoot/../../FinOpsToolkit.psm1"
 
-Describe 'Get-FinOpsSchemaService' {
+Describe 'Get-FinOpsService' {
     BeforeAll {
         . "$PSScriptRoot/../../Private/Get-OpenDataServices.ps1"
-        $allServices = Get-OpenDataServices
+        function getAllServices([string]$ConsumedService = "*", [string]$ResourceType = "*") {
+            Get-OpenDataServices `
+            | Where-Object { $_.ConsumedService -like $ConsumedService -and $_.ResourceType -like $ResourceType } `
+            | Select-Object -Property ServiceCategory, ServiceName, PublisherName, PublisherType -Unique
+        }
     }
     Context "No parameters" {
         BeforeAll {
-            $actual = Get-FinOpsSchemaService
+            $actual = Get-FinOpsService
         }
         It 'Should return all services by default' {
             # Arrange
-            $expected = $allServices
-            
+            $expected = getAllServices
+
             # Act
             # Assert
             $expected.Count | Should -BeGreaterThan 0
@@ -27,10 +31,10 @@ Describe 'Get-FinOpsSchemaService' {
         It 'Should return Microsoft.A* wildcard ConsumedService matches' {
             # Arrange
             $filter = 'Microsoft.A*'
-            $expected = $allServices | Where-Object { $_.ConsumedService -like $filter }
+            $expected = getAllServices $filter
     
             # Act
-            $actual = Get-FinOpsSchemaService -ConsumedService $filter
+            $actual = Get-FinOpsService -ConsumedService $filter
     
             # Assert
             $expected.Count | Should -BeGreaterThan 0
@@ -39,10 +43,10 @@ Describe 'Get-FinOpsSchemaService' {
         It 'Should return *network* wildcard ResourceType matches' {
             # Arrange
             $filter = '*network*'
-            $expected = $allServices | Where-Object { $_.ResourceType -like $filter }
+            $expected = getAllServices -ResourceType $filter
     
             # Act
-            $actual = Get-FinOpsSchemaService -ResourceType $filter
+            $actual = Get-FinOpsService -ResourceType $filter
     
             # Assert
             $expected.Count | Should -BeGreaterThan 0
@@ -51,10 +55,10 @@ Describe 'Get-FinOpsSchemaService' {
         It 'Should return C* wildcard ServiceCategory matches' {
             # Arrange
             $filter = 'C*'
-            $expected = $allServices | Where-Object { $_.ServiceCategory -like $filter }
+            $expected = getAllServices | Where-Object { $_.ServiceCategory -like $filter }
     
             # Act
-            $actual = Get-FinOpsSchemaService -ServiceCategory $filter
+            $actual = Get-FinOpsService -ServiceCategory $filter
     
             # Assert
             $expected.Count | Should -BeGreaterThan 0
@@ -63,10 +67,10 @@ Describe 'Get-FinOpsSchemaService' {
         It 'Should return D* wildcard ServiceName matches' {
             # Arrange
             $filter = 'D*'
-            $expected = $allServices | Where-Object { $_.ServiceName -like $filter }
+            $expected = getAllServices | Where-Object { $_.ServiceName -like $filter }
     
             # Act
-            $actual = Get-FinOpsSchemaService -ServiceName $filter
+            $actual = Get-FinOpsService -ServiceName $filter
         
             # Assert
             $expected.Count | Should -BeGreaterThan 0
@@ -75,10 +79,10 @@ Describe 'Get-FinOpsSchemaService' {
         It 'Should return C* wildcard PublisherCategory matches' {
             # Arrange
             $filter = 'C*'
-            $expected = $allServices | Where-Object { $_.PublisherType -like $filter }
+            $expected = getAllServices | Where-Object { $_.PublisherType -like $filter }
     
             # Act
-            $actual = Get-FinOpsSchemaService -PublisherCategory $filter
+            $actual = Get-FinOpsService -PublisherCategory $filter
     
             # Assert
             $expected.Count | Should -BeGreaterThan 0
@@ -87,10 +91,10 @@ Describe 'Get-FinOpsSchemaService' {
         It 'Should return M* wildcard PublisherName matches' {
             # Arrange
             $filter = 'M*'
-            $expected = $allServices | Where-Object { $_.PublisherName -like $filter }
+            $expected = getAllServices | Where-Object { $_.PublisherName -like $filter }
     
             # Act
-            $actual = Get-FinOpsSchemaService -PublisherName $filter
+            $actual = Get-FinOpsService -PublisherName $filter
         
             # Assert
             $expected.Count | Should -BeGreaterThan 0
@@ -104,7 +108,7 @@ Describe 'Get-FinOpsSchemaService' {
             $expected = "Storage Accounts"
     
             # Act
-            $actual = Get-FinOpsSchemaService -ResourceId "/subscriptions/$([guid]::NewGuid())/providers/$type/foo"
+            $actual = Get-FinOpsService -ResourceId "/subscriptions/$([guid]::NewGuid())/providers/$type/foo"
     
             # Assert
             $actual.Count | Should -BeGreaterThan 0

@@ -15,22 +15,22 @@
     Optional. The number of units for block pricing (e.g., 100 for "100 Hours"). Default = null (all).
 
     .DESCRIPTION
-    The Get-FinOpsSchemaPricingUnit command returns a pricing unit (aka unit of measure) with the singular, distinct unit based on applicable block pricing rules, and the priciing block size.
+    The Get-FinOpsPricingUnit command returns a pricing unit (aka unit of measure) with the singular, distinct unit based on applicable block pricing rules, and the pricing block size.
     
     .EXAMPLE
-    Get-FinOpsSchemaPricingUnit -UnitOfMeasure "*hours*"
+    Get-FinOpsPricingUnit -UnitOfMeasure "*hours*"
     
     Returns all pricing units with "hours" in the name.
     
     .EXAMPLE
-    Get-FinOpsSchemaPricingUnit -DistinctUnits "GB"
+    Get-FinOpsPricingUnit -DistinctUnits "GB"
     
     Returns all pricing units measured in gigabytes.
     
     .LINK
-    https://aka.ms/ftk/Get-FinOpsSchemaPricingUnit
+    https://aka.ms/ftk/Get-FinOpsPricingUnit
 #>
-function Get-FinOpsSchemaPricingUnit() {
+function Get-FinOpsPricingUnit() {
     Param(
         [Parameter(Position = 0, ValueFromPipeline = $true)]
         [Alias("PricingUnit")]
@@ -60,5 +60,5 @@ function Get-FinOpsSchemaPricingUnit() {
             PricingUnit      = $_.UnitOfMeasure
         }
     } `
-    | Select-Object -Unique
+    | Select-Object -Property * -Unique
 }

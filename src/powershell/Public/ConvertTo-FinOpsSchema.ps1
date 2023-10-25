@@ -154,15 +154,15 @@ function New-FinOpsSchemaRow {
 
     $resourceInfo = Split-AzureResourceId (Select-First $Row.ResourceId, $Row.InstanceName)
 
-    $regionInfo = Get-FinOpsSchemaRegion `
+    $regionInfo = Get-FinOpsRegion `
         -ResourceLocation (Select-First $Row.ResourceLocation, $Row.Location, $Row.ResourceLocationNormalized, $Row.MeterRegion) `
     | Select-Object -First 1
     # TODO: -MeterCategory $Row.MeterCategory -ProductName $Row.ProductName
-    $serviceInfo = Get-FinOpsSchemaService `
+    $serviceInfo = Get-FinOpsService `
         -ConsumedService $Row.ConsumedService `
         -ResourceType $resourceInfo.Type `
     | Select-Object -First 1
-    $unitInfo = Get-FinOpsSchemaPricingUnit -UnitOfMeasure $Row.UnitOfMeasure | Select-Object -First 1
+    $unitInfo = Get-FinOpsPricingUnit -UnitOfMeasure $Row.UnitOfMeasure | Select-Object -First 1
 
     # Create a new object with the mapped column names
     # This will ensure that the output CSV has the correct column names
@@ -283,7 +283,7 @@ function Get-AccountType {
 }
 
 # TODO: Make this its own public function
-function Get-FinOpsSchemaRegion([string]$ResourceLocation) {
+function Get-FinOpsRegion([string]$ResourceLocation) {
     # TODO: Look up from Regions.csv
     return @{
         RegionId   = ($ResourceLocation ?? "").ToLower() -replace " ", ""
@@ -292,7 +292,7 @@ function Get-FinOpsSchemaRegion([string]$ResourceLocation) {
 }
 
 # TODO: Make this its own public function
-function Get-FinOpsSchemaService([string]$ConsumedService, [string]$ResourceId, [string]$MeterCategory, [string]$ProductName, [string]$PublisherId, [string]$PublisherName, [string]$PublisherType) {
+function Get-FinOpsService([string]$ConsumedService, [string]$ResourceId, [string]$MeterCategory, [string]$ProductName, [string]$PublisherId, [string]$PublisherName, [string]$PublisherType) {
     # TODO: Look up from Services.csv
     return @{
         # ServiceType values = Infrastructure, Platform, Software, Other
