@@ -17,8 +17,7 @@
     .EXAMPLE
     Invoke-Rest -Path "subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/providers/Microsoft.CostManagement/exports/August2023OneTime?api-version=2023-08-01" -Method GET
     Invoke GET method against a target resource url.
-
-    #>
+#>
 function Invoke-Rest
 {
     [CmdletBinding()]

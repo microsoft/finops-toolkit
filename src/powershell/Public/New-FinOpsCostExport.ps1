@@ -114,7 +114,7 @@ function New-FinOpsCostExport
 		$Scope,
 
 		[Parameter()]
-		[ValidateSet("ActualCost", "AmortizedCost", "Usage")]
+		[ValidateSet("ActualCost", "AmortizedCost")]
 		[string]
 		$DataSet = "ActualCost",
 
