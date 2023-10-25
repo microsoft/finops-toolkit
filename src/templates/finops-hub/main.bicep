@@ -29,6 +29,12 @@ param tagsByResource object = {}
 @description('Optional. List of scope IDs to create exports for.')
 param exportScopes array = []
 
+@description('Optional. Number of days of cost data to retain in the ms-cm-exports container. Default: 0.')
+param exportRetentionInDays int = 0
+
+@description('Optional. Number of months of cost data to retain in the ingestion container. Default: 13.')
+param ingestionRetentionInMonths int = 13
+
 //==============================================================================
 // Resources
 //==============================================================================
@@ -42,6 +48,8 @@ module hub 'modules/hub.bicep' = {
     tags: tags
     tagsByResource: tagsByResource
     exportScopes: exportScopes
+    exportRetentionInDays: exportRetentionInDays
+    ingestionRetentionInMonths: ingestionRetentionInMonths
   }
 }
 
@@ -66,3 +74,12 @@ output storageAccountName string = hub.outputs.storageAccountName
 
 @description('URL to use when connecting custom Power BI reports to your data.')
 output storageUrlForPowerBI string = hub.outputs.storageUrlForPowerBI
+
+@description('The resource ID of the Data Explorer cluster.')
+output clusterId string = hub.outputs.clusterId
+
+@description('The URI of the Data Explorer cluster.')
+output clusterUri string = hub.outputs.clusterUri
+
+@description('The name of the Data Explorer database.')
+output databaseName string = hub.outputs.databaseName
