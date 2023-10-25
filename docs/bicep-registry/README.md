@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Bicep Registry
-nav_order: 40
+nav_order: 50
 description: 'Include bicep modules in your templates.'
 permalink: /bicep
 ---
@@ -17,6 +17,7 @@ Leverage reusable bicep modules in your templates to accelerate your FinOps effo
 
 - [Scheduled actions](#scheduled-actions)
 - [Exports](#exports)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -50,5 +51,13 @@ Creates a [scheduled action](https://learn.microsoft.com/rest/api/cost-managemen
 {: .label .label-yellow .pt-0 .pl-3 .pr-3 .m-0 }
 
 Creates an [export](https://learn.microsoft.com/rest/api/cost-management/exports) to push cost data to a storage account on a daily or monthly schedule.
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md ps="1" %}
 
 <br>
