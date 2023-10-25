@@ -64,5 +64,5 @@ task Test.PowerShell.Lint PreRequisites, {
 task Test.PowerShell.All Test.PowerShell.Lint, Test.PowerShell.Unit, {}
 
 task Version PreRequisites, {
-    return (Update-Version -Major:$TaskParams.Major -Minor:$TaskParams.Minor -Patch:$TaskParams.Patch -Prerelease:$TaskParams.Prerelease -Label $TaskParams.Label -Version $TaskParams.Version -Verbose:$VerbosePreference)
+    return (& "$PSScriptRoot/../src/scripts/Update-Version" -Major:$TaskParams.Major -Minor:$TaskParams.Minor -Patch:$TaskParams.Patch -Prerelease:$TaskParams.Prerelease -Label $TaskParams.Label -Version $TaskParams.Version -Verbose:$VerbosePreference)
 }
