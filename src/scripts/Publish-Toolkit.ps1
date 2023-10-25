@@ -3,32 +3,41 @@
 
 <#
     .SYNOPSIS
-        Publishes a toolkit template or module to its destination repo.
+    Publishes a toolkit template or module to its destination repo.
+    
     .DESCRIPTION
-        Run this from the /src/scripts folder.
+    Run this from the /src/scripts folder.
+    
     .PARAMETER Template
-        Name of the template or module to publish. Default = * (all templates).
+    Name of the template or module to publish. Default = * (all templates).
+    
     .PARAMETER QuickstartRepo
-        Optional. Name of the folder where the Azure Quickstart Templates repo is cloned. Default = azure-quickstart-templates.
+    Optional. Name of the folder where the Azure Quickstart Templates repo is cloned. Default = azure-quickstart-templates.
+    
     .PARAMETER RegistryRepo
-        Optional. Name of the folder where the Bicep Registry repo is cloned. Default = bicep-registry-modules.
+    Optional. Name of the folder where the Bicep Registry repo is cloned. Default = bicep-registry-modules.
+    
     .PARAMETER Build
-        Optional. Indicates whether the the Build-Toolkit command should be executed first. Default = false.
+    Optional. Indicates whether the the Build-Toolkit command should be executed first. Default = false.
+    
     .PARAMETER Commit
-        Optional. Indicates whether the changes should be committed to the Git repo. Default = false.
+    Optional. Indicates whether the changes should be committed to the Git repo. Default = false.
+    
     .EXAMPLE
-        ./Publish-Toolkit "finops-hub"
+    ./Publish-Toolkit "finops-hub"
 
-        Publishes the FinOps hub template to the Azure Quickstart Templates repo.
+    Publishes the FinOps hub template to the Azure Quickstart Templates repo.
+    
     .EXAMPLE
-        ./Publish-Toolkit "resourcegroup-scheduled-action" -Build
+    ./Publish-Toolkit "resourcegroup-scheduled-action" -Build
 
-        Publishes the resource group scheduled action module to the Bicep Registry repo.
+    Publishes the resource group scheduled action module to the Bicep Registry repo.
 #>
 Param(
     [Parameter(Position = 0)][string]$Template = "*",
     [string]$QuickstartRepo = "azure-quickstart-templates",
     [string]$RegistryRepo = "bicep-registry-modules",
+    [string]$appInsightsRepo = "Application-Insights-Workbooks",
     [switch]$Build,
     [switch]$Commit
 )
@@ -49,6 +58,12 @@ $repoConfig = @{
         possibleNames = @($RegistryRepo, 'bicep-registry-modules', 'brm', 'br')
         relativePath  = "modules/cost"
         requiredFiles = @("main.bicep", "main.json", "metadata.json", "README.md", "version.json")
+    }
+    appInsights = @{
+      mainBranch    = 'master'
+      possibleNames = @($appInsightsRepo, 'Application-Insights-Workbooks')
+      relativePath  = "Workbooks/Azure Advisor/Cost Optimization"
+      requiredFiles = @("CostOptimization.workbook","Storage.workbook","Networking.workbook","Compute.workbook","AHB.workbook","Reservations.workbook")
     }
 }
 
@@ -87,7 +102,7 @@ Get-ChildItem "$relDir/$Template*" -Directory `
         Write-Error "Template folder invalid. metadata.json required. Please ensure all required files are present. See src/<type>/README.md for details."
         return
     }
-        
+
     # Find target repo
     $schema = (Get-Content "$templateDir/metadata.json" -Raw | ConvertFrom-Json).PSObject.Properties['$schema'].Value
     if ($schema.Contains('azure-quickstart-templates')) {
@@ -120,6 +135,9 @@ Get-ChildItem "$relDir/$Template*" -Directory `
     # Switch to main branch in local fork
     if ($Commit) {
         Push-Location
+        if (-not (Test-Path ($repo.path))) {
+            ./New-Directory $repo.path
+        }
         Set-Location $repo.path
 
         # Validate local repo is clean
@@ -134,7 +152,7 @@ Get-ChildItem "$relDir/$Template*" -Directory `
             Write-Host "  Switching to $($repo.mainBranch) branch..."
             git checkout $repo.mainBranch --quiet
         }
-            
+
         # Pull latest changes
         if (-not (git status | Select-String 'Your branch is behind')) {
             Write-Host '  Pulling latest changes...'
@@ -143,7 +161,7 @@ Get-ChildItem "$relDir/$Template*" -Directory `
 
         # Create new branch if needed
         if (-not (git status | Select-String 'Your branch is up to date')) {
-            $branch = "$Template_$(Get-Date -Format yyMMddHHmm)"
+            $branch = "$($templateName)_$(Get-Date -Format yyMMddHHmm)"
             Write-Host "  Creating new $branch..."
             git checkout -b $branch --quiet
             git branch --set-upstream-to="origin/$($repo.mainBranch)" --quiet
@@ -169,9 +187,9 @@ Get-ChildItem "$relDir/$Template*" -Directory `
         git add .
         $isNew = ((git status) | Select-String "new file: +$($repo.relativePath)/$templateName/main.bicep").length -eq 1
         if ($isNew) {
-            $commitMessage = "New Cost Management $templateName template"
+            $commitMessage = "New FinOps toolkit template - $templateName"
         } else {
-            $commitMessage = "Cost Management $templateName template update"
+            $commitMessage = "FinOps toolkit $ver - $templateName update"
         }
         git commit --message $commitMessage --quiet
         $branch = git rev-parse --abbrev-ref HEAD
@@ -183,4 +201,4 @@ Get-ChildItem "$relDir/$Template*" -Directory `
 
     Write-Host '  Done!'
     Write-Host ''
-}    
+}
