@@ -8,10 +8,10 @@
     .EXAMPLE
     ./Build-Workbook workbook-name
     Generates a template the specified workbook.
-    
+
     .PARAMETER Workbook
     Name of the workbook folder.
-    
+
     .PARAMETER Debug
     Optional. Renders main module and test bicep code to the console instead of generating files. Line numbers map to original file.
 #>
@@ -43,13 +43,12 @@ $workbookJson = Get-Content "$srcDir/workbook.json" -Raw | ConvertFrom-Json
 
 # Replace nested templates
 $nestedTemplates = $workbookJson.items.content.items `
-| Where-Object { 
+| Where-Object {
   $_.content.groupType -eq 'template' `
-  -and $_.content.loadFromTemplateId.StartsWith("community-Workbooks")
-} `
+    -and $_.content.loadFromTemplateId.StartsWith("community-Workbooks") } `
+| Select-Object -ExpandProperty content `
 | ForEach-Object {
-  $template = $_.content
-  
+  $template = $_
   # Read template
   $nestedName = $template.loadFromTemplateId.Split('/')[-1]
   if (-not (Test-Path "$srcDir/$nestedName/$nestedName.workbook")) {
@@ -59,10 +58,13 @@ $nestedTemplates = $workbookJson.items.content.items `
   Write-Verbose "Injecting $nestedName template..."
   $nestedJson = Get-Content "$srcDir/$nestedName/$nestedName.workbook" -Raw | ConvertFrom-Json
   Write-Verbose "...adding $($nestedJson.items.content.items.Count) items"
-  
+
   # Update workbook
+  $templateObjects = ($nestedJson.items.content).items
   $template.loadFromTemplateId = ""
-  $template.items += $nestedJson.items.content.items
+  $templateObjects | ForEach-Object {
+    $template.items += $_
+  }
   Write-Verbose "...added $($template.items.Count) items"
 
   # Return so we can count the templates

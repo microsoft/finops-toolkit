@@ -11,6 +11,7 @@
     "build-ps": "pwsh -Command ./src/scripts/Invoke-Task Build.PsModule",
     "deploy": "pwsh -Command ./src/scripts/Deploy-Toolkit -Build",
     "deploy-test": "pwsh -Command ./src/scripts/Deploy-Toolkit -Build -Test",
+    "package": "pwsh -Command ./src/scripts/Package-Toolkit -Build",
     "pester": "pwsh -Command Invoke-Pester -Output Detailed -Path ./src/powershell/Tests/Unit/*",
     "contrib": "all-contributors add"
   },
