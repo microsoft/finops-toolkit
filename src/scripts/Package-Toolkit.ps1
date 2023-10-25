@@ -34,10 +34,11 @@ $Debug = $DebugPreference -eq "Continue"
 
 # Build toolkit if requested
 if ($Build) {
-    ./Build-Toolkit $Template
+    Write-Verbose "Building $(if ($Template -eq "*") { "all templates" } else { "the $Template template" })..."
+    & "$PSScriptRoot/Build-Toolkit" $Template
 }
 
-$relDir = "../../release"
+$relDir = "$PSScriptRoot/../../release"
 
 # Validate template
 if ($Template -ne "*" -and -not (Test-Path $relDir)) {
@@ -47,15 +48,18 @@ if ($Template -ne "*" -and -not (Test-Path $relDir)) {
 
 Write-Host "Packaging templates..."
 
-# Package files for release
-$version = ./Invoke-Task Version
+# Package templates
+$version = & "$PSScriptRoot/Get-Version"
+
+Write-Verbose "Removing existing ZIP files..."
 Remove-Item "$relDir/*-$version.zip" -Force
-Get-ChildItem $relDir -Directory `
+
+$templates = Get-ChildItem $relDir -Directory `
 | ForEach-Object {
-    Write-Verbose "Packaging $_"
+    Write-Verbose ("Packaging $_" -replace (Get-Item $relDir).FullName, '.')
     $path = $_
     $versionSubFolder = (Join-Path $path $version)
-    $zip = Join-Path $relDir "$($path.Name)-$version.zip"
+    $zip = Join-Path (Get-Item $relDir) "$($path.Name)-$version.zip"
 
     Write-Verbose "Checking for a nested version folder: $versionSubFolder"
     if ((Test-Path -Path $versionSubFolder -PathType Container) -eq $true) {
@@ -68,13 +72,26 @@ Get-ChildItem $relDir -Directory `
     if (Test-Path $path/version.json) {
         $versionSchema = (Get-Content "$path\version.json" -Raw | ConvertFrom-Json | Select-Object -ExpandProperty '$schema')
         if ($versionSchema -like '*bicep-registry-module*') {
-            Write-Path "Skipping Bicep Registry module (not included in releases)"
+            Write-Verbose "Skipping Bicep Registry module (not included in releases)"
             return;
         }
     }
 
-    Write-Verbose "Compressing $path to $zip"
+    Write-Verbose ("Compressing $path to $zip" -replace (Get-Item $relDir).FullName, '.')
     Compress-Archive -Path "$path/*" -DestinationPath $zip
+    return $zip
 }
+Write-Host "✅ $($templates.Count) templates"
 
+# Copy open data files
+Write-Verbose "Copying open data files..."
+Copy-Item "$PSScriptRoot/../open-data/*.csv" $relDir
+Write-Host "✅ $((Get-ChildItem "$relDir/*.csv").Count) open data files"
+
+# Open Power BI reports
+$pbi = Get-ChildItem "$PSScriptRoot/../power-bi/*.pbip"
+Write-Host "⚠️ $($pbi.Count) Power BI reports must be converted manually... Opening..."
+$pbi | Invoke-Item
+
+Write-Host '...done!'
 Write-Host ''
