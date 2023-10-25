@@ -158,10 +158,6 @@ function New-FinOpsSchemaRow {
         -ConsumedService $Row.ConsumedService `
         -ResourceType $resourceInfo.Type `
     | Select-Object -First 1
-    Write-Host $Row.ConsumedService
-    Write-Host $resourceInfo.Type
-    Write-Host $serviceInfo
-    Write-Host ($serviceInfo = Get-FinOpsSchemaService -ConsumedService $Row.ConsumedService -ResourceType $resourceInfo.Type)
     $unitInfo = Get-FinOpsSchemaPricingUnit -UnitOfMeasure $Row.UnitOfMeasure | Select-Object -First 1
 
     # Create a new object with the mapped column names
