@@ -1,13 +1,14 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-function Build-PsModule {
+function Build-PsModule
+{
     [CmdletBinding()]
     param
     ()
 
     # Get version
-    $version = Get-Version
+    $version = & "$PSScriptRoot/../../src/scripts/Get-Version"
     $baseVersion = $version.Split('-') | Select-Object -First 1
     $prereleaseTag = $null
     if ($version -contains '-')
@@ -26,11 +27,14 @@ function Build-PsModule {
     $manifestPath = Join-Path -Path $releasePath -ChildPath "$moduleName.psd1"
 
     # Make sure we can import module properly. Capture exported functions.
-    try {
+    try
+    {
         Import-Module -FullyQualifiedName $modulePath -ErrorAction 'Stop'
         $exportedCommands = Get-Command -Module $moduleName
         Remove-Module -Name $moduleName -Force -ErrorAction 'SilentlyContinue'
-    } catch {
+    }
+    catch
+    {
         throw ("Error importing module at path: '{0}', {1}" -f $modulePath, $_.Exception.Message)
     }
 
@@ -67,7 +71,8 @@ function Build-PsModule {
         Tags              = @('FinOps', 'Cost', 'CostManagement', 'Azure', 'MicrosoftCloud')
     }
 
-    if ($prereleaseTag) {
+    if ($prereleaseTag)
+    {
         $manifestProperties.Add('Prerelease', $prereleaseTag)
     }
 
