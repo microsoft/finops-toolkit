@@ -3,21 +3,25 @@
 
 <#
     .SYNOPSIS
-    Converts Microsoft Cost Management data to comply with the FinOps Open Cost and Usage Specification (FOCUS) schema version 0.5.
+    Converts Cost Management cost data to the FinOps Open Cost and Usage Specification (FOCUS) schema.
 
     .DESCRIPTION
-    The ConvertTo-FinOpsSchema PowerShell script takes cost data adhering to the Microsoft Cost Management schema and converts it into a format that complies with the FinOps Open Cost and Usage Specification (FOCUS) schema version 0.5. 
-    This conversion aids in data management, analytics, and reporting by ensuring data consistency and adherence to standards. 
-    It's important to note that the script is specifically designed for schema version 0.5 (as of September 2023) and may not fully support older versions.
-    Please review output and report any issues to https://aka.ms/ftk.
+    The ConvertTo-FinOpsSchema command returns an object that adheres to the FinOps Open Cost and Usage Specification (FOCUS) schema.
+
+    ConvertTo-FinOpsSchema currently understands how to convert Cost Management cost data using the latest schemas as of September 2023. Older schemas may not be fully supported. Please review output and report any issues to https://aka.ms/ftk.
+
+    You can pipe objects to ConvertTo-FinOpsSchema from an exported or downloaded CSV file using Import-Csv or ConvertFrom-Csv and pipe to Export-Csv to save as a CSV file. Or use the Invoke-FinOpsSchemaTransform command to simplify the process.
 
     .PARAMETER ActualCost
-    Specifies the input cost data that will be converted. The object must adhere to a supported Microsoft Cost Management schema. Provide the filepath of the data to be converted. Example usage: ..\..\sample-data\EA_ActualCost.csv
+    Required. Specifies the actual cost data to be converted. Object must be a supported Microsoft Cost Management schema.
+
+    .PARAMETER AmortizedCost
+    Required. Specifies the amortized cost data to be converted. Object must be a supported Microsoft Cost Management schema.
 
     .EXAMPLE
-    ConvertTo-FinOpsSchema -ActualCost ActualCost.csv | Export-Csv -Path FOCUS.csv -NoTypeInformation
+    ConvertTo-FinOpsSchema -ActualCost (Import-Csv my-actual-cost-details.csv) -AmortizedCost (Import-Csv my-amortized-cost-details.csv) | Export-Csv my-cost-details-in-focus.csv
 
-    Converts the input data found in ActualCost.csv to FOCUS and saves it to a FOCUS.csv file.
+    Converts previously downloaded actual and amortized cost details to FOCUS 0.5 and saves it as a CSV file.
 
     .LINK
     https://aka.ms/ftk/ConvertTo-FinOpsSchema

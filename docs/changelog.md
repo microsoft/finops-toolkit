@@ -68,17 +68,13 @@ Legend:
 
 > ➕ Added:
 >
-> 1. Get-FinOpsCostExport command
-> 2. Remove-FinOpsCostExport command
-
-🌐 Open data
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ✏️ Changed:
->
-> 1. [Pricing units](./open-data/README.md#-pricing-units) "UsageToPricingRate" column name changed to "PricingBlockSize" to align to standard terminology.
-
-<br>
+> 1. [ConvertTo-FinOpsSchema](./powershell/focus/ConvertTo-FinOpsSchema.md) to convert data to FOCUS.
+> 2. [Invoke-FinOpsSchemaTransform](./powershell/focus/Invoke-FinOpsSchemaTransform.md) to convert CSV data to FOCUS.
+> 3. Get-FinOpsCostExport command
+> 4. Remove-FinOpsCostExport command
+> 5. Get-FinOpsSchemaPricingUnit command
+> 6. Get-FinOpsSchemaRegion command
+> 7. Get-FinOpsSchemaService command
 
 ## 🚚 v0.1
 
