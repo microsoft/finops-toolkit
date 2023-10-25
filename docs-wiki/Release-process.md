@@ -100,7 +100,7 @@ Once the above requirements have been met, the feature branch can be merged into
 
    3. Verify [documentation](https://aka.ms/finops/toolkit) updated correctly
 
-      > _The documentation site may take 5 minutes to update after the merge is committed. If not updated, look at GitHub actions to see if there are any failures._
+      > _The documentation site may take 5 minutes to update after the merge is committed. If not updated, look at [GitHub actions](https://github.com/microsoft/finops-toolkit/actions/workflows/pages/pages-build-deployment) to see if there are any failures._
 
    4. Tag and publish the release.
    5. Update the discussion.
