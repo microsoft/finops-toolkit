@@ -57,7 +57,12 @@ A few important notes about the data:
    _`UnitOfMeasure` maps to `PricingUnit` in FOCUS 1.0._
 </blockquote>
 
+<blockquote class="tip" markdown="1">
+   _You can also integrate service data into your workflow with the [Get-FinOpsService](../powershell/data/Get-FinOpsService) PowerShell command._
+</blockquote>
+
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/PricingUnits.csv){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[See PowerShell](../powershell/data/Get-FinOpsPricingUnit){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
@@ -75,7 +80,12 @@ Sample data:
 | NO West       | norwaywest    | Norway West    |
 | TW North      | taiwannorth   | Taiwan North   |
 
+<blockquote class="tip" markdown="1">
+   _You can also integrate service data into your workflow with the [Get-FinOpsRegion](../powershell/data/Get-FinOpsRegion) PowerShell command._
+</blockquote>
+
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[See PowerShell](../powershell/data/Get-FinOpsRegion){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
@@ -100,7 +110,12 @@ A few important notes about the data:
 3. `ServiceName` values should match the product marketing name for the closest possible service. Some services reuse resource types and cannot be distinguished from the resource type alone (e.g., Azure functions will show as App Service).
 4. `ServiceCategory` values are aligned with the allowed values in FOCUS.
 
+<blockquote class="tip" markdown="1">
+   _You can also integrate service data into your workflow with the [Get-FinOpsService](../powershell/data/Get-FinOpsService) PowerShell command._
+</blockquote>
+
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Services.csv){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[See PowerShell](../powershell/data/Get-FinOpsService){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
@@ -116,6 +131,6 @@ We'd love to hear about any datasets you're looking for. Create a new issue with
 
 ## 🧰 Related tools
 
-{% include tools.md pbi="1" %}
+{% include tools.md pbi="1" ps="1" %}
 
 <br>
