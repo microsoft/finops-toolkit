@@ -33,7 +33,7 @@ The FOCUS PowerShell commands help you work with the [FinOps Open Cost and Usage
 ## ⚡ Commands
 
 - [ConvertTo-FinOpsSchema](ConvertTo-FinOpsSchema.md) – Converts Cost Management cost data to the FOCUS schema.
-- [Invoke-FinOpsSchema](Invoke-FinOpsSchemaTransform.md) – Loads Cost Management data from a CSV file, converts it to FOCUS schema, and saves it to a new CSV file.
+- [Invoke-FinOpsSchemaTransform](Invoke-FinOpsSchemaTransform.md) – Loads Cost Management data from a CSV file, converts it to FOCUS schema, and saves it to a new CSV file.
 
 <br>
 
