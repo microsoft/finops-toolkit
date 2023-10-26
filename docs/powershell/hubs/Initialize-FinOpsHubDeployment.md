@@ -4,7 +4,7 @@ grand_parent: PowerShell
 parent: FinOps hubs
 title: Initialize-FinOpsHubDeployment
 nav_order: 1
-description: 'Initialize a FinOps hub deployment in order to enable resource group owners to deployment hubs via the portal.'
+description: 'Initialize a FinOps hub deployment.'
 permalink: /powershell/hubs/Initialize-FinOpsHubDeployment
 ---
 
