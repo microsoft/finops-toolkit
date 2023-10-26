@@ -45,7 +45,18 @@ FinOps hubs include:
 
 Please ensure the following prerequisites are met before deploying this template:
 
-1. You must have permission to create the [deployed resources](#️-resources).
+1. You must have the following permissions to create the [deployed resources](#️-resources).
+
+| Resource                            | Minimum RBAC                                            |
+|-------------------------------------|---------------------------------------------------------|
+| Create Cost export*       | [Cost Management Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#cost-management-contributor)                         |
+| Deploy and configure Data Factory   | [Data Factory Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles)                            |
+| Create a Key Vault and assign secrets | [Key Vault Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#key-vault-contributor) + [Key Vault Administrator](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#key-vault-administrator) |
+| Create Managed Identity              | [Managed Identity Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#managed-identity-contributor)                        |
+| Deploy and configure Blob Storage   | [Storage Blob Data Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)                       |
+
+*Cost Management reader permission should be assigned at the scope where you want to export your costs from. 
+
 2. The Microsoft.EventGrid resource provider must be registered in your subscription. See [Register a resource provider](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) for details.
 
    <blockquote class="important" markdown="1">
