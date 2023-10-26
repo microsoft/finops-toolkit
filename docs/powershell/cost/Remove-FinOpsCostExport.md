@@ -34,7 +34,7 @@ The **Remove-FinOpsCostExport** command  deletes a Cost Management export and op
 ## 🧮 Syntax
 
 ```powershell
-Deploy-FinOpsHub `
+Remove-FinOpsCostExport `
     -Name <string> `
     -Scope <string> `
     [-RemoveData <switch>] `
