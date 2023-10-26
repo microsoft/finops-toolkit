@@ -109,7 +109,7 @@ Get-FinOpsCostExport `
 
 Gets all exports within the subscription scope for a specific container. Supports wildcard.
 
-### Gets all exports using a specific API version
+### Get exports using a specific API version
 
 ```powershell
 Get-FinOpsCostExport `
