@@ -103,7 +103,8 @@ Gets all exports within the subscription scope filtered by a specific storage ac
 
 ```powershell
 Get-FinOpsCostExport `
-    -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageContainer "MyContainer*"
+    -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" `
+    -StorageContainer "MyContainer*"
 ```
 
 Gets all exports within the subscription scope for a specific container. Supports wildcard.
