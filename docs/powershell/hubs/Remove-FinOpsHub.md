@@ -36,9 +36,14 @@ The **Remove-FinOpsHub** command removes a FinOps hub instance and optionally ke
 ```powershell
 Remove-FinOpsHub `
     -Name <string> `
+    [-ResourceGroup <string>] `
+    [-KeepStorageAccount <switch>]
+```
+
+```powershell
+Remove-FinOpsHub `
     -InputObject <psobject> `
-    [-ResourceGroup <string> `]
-    [-KeepStorageAccount <switch> `]
+    [-KeepStorageAccount <switch>]
 ```
 
 <br>
