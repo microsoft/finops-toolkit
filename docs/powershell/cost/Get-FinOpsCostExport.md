@@ -89,7 +89,7 @@ Get-FinOpsCostExport `
 
 Gets all exports within the current context subscription scope and filtered by dataset AmortizedCost.
 
-### Gets all exports within the subscription scope filtered by a specific storage account.
+### Get exports in a subscription for a specific storage account
 
 ```powershell
 Get-FinOpsCostExport `
