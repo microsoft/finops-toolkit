@@ -99,7 +99,7 @@ Get-FinOpsCostExport `
 
 Gets all exports within the subscription scope filtered by a specific storage account.
 
-### Gets all exports within the subscription scope for a specific container.
+### Get subscription exports using a specific container.
 
 ```powershell
 Get-FinOpsCostExport `
