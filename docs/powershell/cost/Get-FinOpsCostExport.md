@@ -80,7 +80,7 @@ Get-FinOpsCostExport `
 
 Gets export with name matching wildcard mtd* within the specified billing account scope. Does not include exports in nested resource groups.
 
-### Get all exports filtered by a dataset.
+### Get all amortized cost exports
 
 ```powershell
 Get-FinOpsCostExport `
