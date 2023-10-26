@@ -57,9 +57,6 @@ Remove-FinOpsCostExport `
 
 ## 🌟 Examples
 
-Remove-FinOpsCostExport 
-
-
 ### Delete a Cost Management export
 
 ```powershell
