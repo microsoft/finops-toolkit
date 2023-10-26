@@ -1,7 +1,7 @@
 ---
 layout: default
 grand_parent: PowerShell
-parent: Cost
+parent: Cost Management
 title: Get-FinOpsCostExport
 nav_order: 1
 description: 'Get a list of Cost Management exports.'
