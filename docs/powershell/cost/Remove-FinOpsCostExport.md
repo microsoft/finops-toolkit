@@ -4,7 +4,7 @@ grand_parent: PowerShell
 parent: Cost Management
 title: Remove-FinOpsCostExport
 nav_order: 1
-description: ' Delete a Cost Management export and optionally data associated with the export.'
+description: 'Delete a Cost Management export and optionally data associated with the export'
 permalink: /powershell/cost/Remove-FinOpsCostExport
 ---
 
