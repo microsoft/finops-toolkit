@@ -1,7 +1,7 @@
 ---
 layout: default
 grand_parent: PowerShell
-parent: Cost
+parent: Cost Management
 title: Remove-FinOpsCostExport.md
 nav_order: 1
 description: ' Delete a Cost Management export and optionally data associated with the export.'
