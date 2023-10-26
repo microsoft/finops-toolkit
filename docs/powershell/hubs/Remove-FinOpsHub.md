@@ -9,7 +9,7 @@ permalink: /powershell/hubs/Remove-FinOpsHub
 ---
 
 <span class="fs-9 d-block mb-4">Remove-FinOpsHub</span>
-Remove a FinOps hub instance.
+Delete a FinOps hub instance, including all dependent resources.
 {: .fs-6 .fw-300 }
 
 [Syntax](#-syntax){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
