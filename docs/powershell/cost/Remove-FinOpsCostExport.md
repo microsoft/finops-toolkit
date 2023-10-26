@@ -48,7 +48,7 @@ Remove-FinOpsCostExport `
 | Name          | Description                                                                                                                                                                          |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Name          | Required. Name of the Cost Management export.                                                                                                                   |
-| Scope | Required. Resource ID of the scope to export data for.context.                                                                      |
+| Scope | Required. Resource ID of the scope to export data for context.                                                                      |
 | RemoveData      | Optional. Optional. Indicates that all cost data associated with the Export scope should be deleted.                                                                      |
 | ApiVersion    | Optional. API version to use when calling the Cost Management exports API. Default = 2023-03-01. |
 |
