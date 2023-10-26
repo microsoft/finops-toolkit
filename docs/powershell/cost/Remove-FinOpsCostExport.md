@@ -66,6 +66,8 @@ Remove-FinOpsCostExport `
     -RemoveData
 ```
 
+Deletes a Cost Management export and removes the exported data from the linked storage account.
+
 <br>
 
 ---
