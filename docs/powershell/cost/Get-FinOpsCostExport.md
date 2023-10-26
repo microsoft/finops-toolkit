@@ -27,7 +27,7 @@ Get a list of Cost Management exports.
 
 ---
 
-The Get-FinOpsCostExport command gets a list of Cost Management exports for a given scope.
+The **Get-FinOpsCostExport** command gets a list of Cost Management exports for a given scope.
 
 <br>
 
