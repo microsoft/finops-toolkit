@@ -8,7 +8,7 @@ function Build-PsModule
     ()
 
     # Get version
-    $version = & "$PSScriptRoot/../../src/scripts/Get-Version"
+    $version = & "$PSScriptRoot/../../src/scripts/Get-Version.ps1"
     $baseVersion = $version.Split('-') | Select-Object -First 1
     $prereleaseTag = $null
     if ($version -contains '-')
