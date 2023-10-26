@@ -74,7 +74,7 @@ Gets all exports for a subscription. Does not include exports in nested resource
 
 ```powershell
 Get-FinOpsCostExport `
-    --Name mtd* `
+    -Name mtd* `
     -Scope "providers/Microsoft.Billing/billingAccounts/00000000" 
 ```
 
