@@ -61,10 +61,6 @@ Deploy-FinOpsHub `
 
 ## 🌟 Examples
 
-Get-FinOpsCostExport 
-
-
-
 ### Get all cost exports for a subscription
 
 ```powershell
