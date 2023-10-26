@@ -27,7 +27,7 @@ Delete a Cost Management export and optionally data associated with the export.
 
 ---
 
-The Remove-FinOpsCostExport command  deletes a Cost Management export and optionally data associated with the export.
+The **Remove-FinOpsCostExport** command  deletes a Cost Management export and optionally data associated with the export.
 
 <br>
 
