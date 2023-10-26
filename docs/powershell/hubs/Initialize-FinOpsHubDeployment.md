@@ -57,7 +57,7 @@ Initialize-FinOpsHubDeployment `
 
 ```powershell
 Initialize-FinOpsHubDeployment `
-    -WhatIf `
+    -WhatIf
 ```
 
 Shows what would happen if the command runs without actually running it.
