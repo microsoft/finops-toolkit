@@ -58,12 +58,22 @@ function Get-FinOpsRegion()
             -and $_.RegionName -like $RegionName
     } `
     | ForEach-Object {
+        if ($IncludeResourceLocation)
+        {
+            $loc = $_.OriginalValue
+            $exclude = @()
+        }
+        else
+        {
+            $loc = $null
+            $exclude = @('ResourceLocation')
+        }
         [PSCustomObject]@{
-            ResourceLocation = if ($IncludeResourceLocation) { $_.OriginalValue } else { $null }
+            ResourceLocation = $loc
             RegionId         = $_.RegionId
             RegionName       = $_.RegionName
         } `
-        | Select-Object -ExcludeProperty (if ($IncludeResourceLocation) { @() } else { @('ResourceLocation') })
+        | Select-Object -ExcludeProperty $exclude
     } `
     | Select-Object -Property * -Unique
 }

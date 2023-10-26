@@ -301,9 +301,18 @@ function Parse-Date([string]$Date, [switch]$EndDate, [switch]$StartOfMonth)
     try
     {
         $parsedDate = [datetime]::ParseExact($Date, "MM/dd/yyyy", [System.Globalization.CultureInfo]::InvariantCulture).ToUniversalTime().Date
-        return if ($EndDate) { $parsedDate.AddDays(1) } `
-            elseif ($StartOfMonth) { Get-Date $parsedDate -Day 1 } `
-            else { $parsedDate }
+        if ($EndDate)
+        { 
+            return $parsedDate.AddDays(1)
+        }
+        elseif ($StartOfMonth)
+        { 
+            return Get-Date $parsedDate -Day 1
+        }
+        else
+        { 
+            return $parsedDate
+        }
     }
     catch
     {
