@@ -26,7 +26,8 @@
     .LINK
     https://aka.ms/ftk/ConvertTo-FinOpsSchema
 #>
-function ConvertTo-FinOpsSchema {
+function ConvertTo-FinOpsSchema
+{
     [CmdletBinding()]
     param(
         [array]
@@ -39,12 +40,17 @@ function ConvertTo-FinOpsSchema {
     # Validate we have both input files
     $hasActual = $ActualCost -is [array] -and $ActualCost.Count -gt 0
     $hasAmortized = $AmortizedCost -is [array] -and $AmortizedCost.Count -gt 0
-    if (-not $hasActual -and -not $hasAmortized) {
+    if (-not $hasActual -and -not $hasAmortized)
+    {
         Write-Error "ActualCost and AmortizedCost are empty. Nothing to convert."
         return @()
-    } elseif (-not $hasActual) {
+    }
+    elseif (-not $hasActual)
+    {
         Write-Warning "ActualCost was not specified. Results will not include commitment purchases."
-    } elseif (-not $hasAmortized) {
+    }
+    elseif (-not $hasAmortized)
+    {
         Write-Warning "AmortizedCost was not specified. Results will not include amortized costs for purchased commitments."
     }
 
@@ -103,7 +109,8 @@ function ConvertTo-FinOpsSchema {
     return $response
 }
 
-function New-FinOpsSchemaRow {
+function New-FinOpsSchemaRow
+{
     param(
         [ValidateSet('ActualCost', 'AmortizedCost')]
         [string]
@@ -116,7 +123,8 @@ function New-FinOpsSchemaRow {
         $Row
     )
 
-    function Select-First([array]$List) {
+    function Select-First([array]$List)
+    {
         $List | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -First 1
     }
 
@@ -135,16 +143,20 @@ function New-FinOpsSchemaRow {
     $isAmortizedCost = -not $isCommitmentPurchase
 
     # Write error if dataset doesn't match data
-    if ($DataSet -eq 'ActualCost' -and $isCommitmentUsage -and -not $script:foundCommitmentUsage) {
+    if ($DataSet -eq 'ActualCost' -and $isCommitmentUsage -and -not $script:foundCommitmentUsage)
+    {
         $script:foundCommitmentUsage = $true
         Write-Error "Commitment usage found in actual cost data. Your cost may not be accurate. Please verify you specified the datasets correctly."
-    } elseif ($DataSet -eq 'AmortizedCost' -and $isCommitmentPurchase -and -not $script:foundCommitmentPurchase) {
+    }
+    elseif ($DataSet -eq 'AmortizedCost' -and $isCommitmentPurchase -and -not $script:foundCommitmentPurchase)
+    {
         $script:foundCommitmentPurchase = $true
         Write-Error "Commitment purchase found in amortized cost data. Your cost may not be accurate. Please verify you specified the datasets correctly."
     }
 
     # Only convert rows non-commitment purchase records from the default dataset
-    if (-not $IsDefault -and -not $isCommitmentPurchase) {
+    if (-not $IsDefault -and -not $isCommitmentPurchase)
+    {
         return $null
     }
     
@@ -168,16 +180,16 @@ function New-FinOpsSchemaRow {
     # This will ensure that the output CSV has the correct column names
     # If exporting all columns, we will use the columnnames mapped here.
     return [PSCustomObject]@{
-        AmortizedCost                  = -not $isAmortizedCost ? 0.0 : (Select-First $Row.Cost, $Row.CostInBillingCurrency, $Row.PreTaxCost) -as [double]
+        AmortizedCost                  = if (-not $isAmortizedCost) { 0.0 } else { (Select-First $Row.Cost, $Row.CostInBillingCurrency, $Row.PreTaxCost) -as [double] }
         AvailabilityZone               = $Row.AvailabilityZone
-        BilledCost                     = -not $isActualCost ? 0.0 : (Select-First $Row.Cost, $Row.CostInBillingCurrency, $Row.PreTaxCost) -as [double]
+        BilledCost                     = if (-not $isActualCost) { 0.0 } else { (Select-First $Row.Cost, $Row.CostInBillingCurrency, $Row.PreTaxCost) -as [double] }
         BillingAccountId               = if ($accountType -eq 'EA') { "/providers/Microsoft.Billing/billingAccounts/$($Row.BillingAccountId)" } elseif ($accountType -eq 'MCA') { "/providers/Microsoft.Billing/billingAccounts/$($Row.BillingAccountId)/billingProfiles/$($Row.BillingProfileId)" } else { "/subscriptions/$($Row.SubAccountId)" }
         BillingAccountName             = Select-First $Row.BillingAccountName, $Row.SubscriptionName
         BillingCurrency                = Select-First $Row.BillingCurrency, $Row.BillingCurrencyCode, $Row.Currency
         BillingPeriodEnd               = (Parse-Date $Row.BillingPeriodEndDate -EndDate)
         BillingPeriodStart             = (Parse-Date $Row.BillingPeriodStartDate)
-        ChargePeriodEnd                = (Parse-Date ($Row.Date ?? $Row.UsageDate) -EndDate)
-        ChargePeriodStart              = (Parse-Date ($Row.Date ?? $Row.UsageDate))
+        ChargePeriodEnd                = (Parse-Date (Select-First $Row.Date, $Row.UsageDate) -EndDate)
+        ChargePeriodStart              = (Parse-Date (Select-First $Row.Date, $Row.UsageDate))
         ChargeType                     = if ($Row.ChargeType.StartsWith('Unused')) { 'Usage' } elseif (@('Usage', 'Purchase') -contains $Row.ChargeType) { $Row.ChargeType } else { 'Adjustment' }
         InvoiceIssuerName              = Select-First $Row.PartnerName, 'Microsoft'
         ServiceCategory                = Select-First $serviceInfo.ServiceCategory, 'Other'
@@ -187,7 +199,7 @@ function New-FinOpsSchemaRow {
         Region                         = Select-First $regionInfo.RegionName, $Row.ResourceLocation, $Row.Location, $Row.ResourceLocationNormalized, $Row.MeterRegion
         ResourceId                     = Select-First $resourceInfo.ResourceId, $Row.ResourceId, $Row.InstanceName
         ResourceName                   = $resourceInfo.Name
-        SubAccountId                   = "/subscriptions/$($Row.SubscriptionId ?? $Row.SubscriptionGuid)"
+        SubAccountId                   = "/subscriptions/$(Select-First $Row.SubscriptionId, $Row.SubscriptionGuid)"
         SubAccountName                 = $Row.SubscriptionName
         
         ftk_AccountName                = $Row.AccountName
@@ -195,10 +207,10 @@ function New-FinOpsSchemaRow {
         ftk_AccountType                = $accountType
         # TODO: Add an -ExpandJSON parameter to expand objects so we don't break CSV output by default
         ftk_AdditionalInfo             = $Row.AdditionalInfo
-        ftk_AmortizedCostInUsd         = -not $isAmortizedCost ? 0.0 : $Row.CostInUsd -as [double]
-        ftk_AmortizedPricingCost       = -not $isAmortizedCost ? 0.0 : $Row.CostInPricingCurrency -as [double]
-        ftk_BilledCostInUsd            = -not $isActualCost ? 0.0 : $Row.CostInUsd -as [double]
-        ftk_BilledPricingCost          = -not $isActualCost ? 0.0 : $Row.CostInPricingCurrency -as [double]
+        ftk_AmortizedCostInUsd         = if (-not $isAmortizedCost) { 0.0 } else { $Row.CostInUsd -as [double] }
+        ftk_AmortizedPricingCost       = if (-not $isAmortizedCost) { 0.0 } else { $Row.CostInPricingCurrency -as [double] }
+        ftk_BilledCostInUsd            = if (-not $isActualCost) { 0.0 } else { $Row.CostInUsd -as [double] }
+        ftk_BilledPricingCost          = if (-not $isActualCost) { 0.0 } else { $Row.CostInPricingCurrency -as [double] }
         ftk_BillingAccountId           = $Row.BillingAccountId
         ftk_BillingAccountName         = $Row.BillingAccountName
         ftk_BillingAccountResourceType = if ($accountType -eq 'EA') { 'Microsoft.Billing/billingAccounts' } elseif ($accountType -eq 'MCA') { 'Microsoft.Billing/billingAccounts/billingProfiles' } else { 'Microsoft.Resources/subscriptions' }
@@ -224,9 +236,9 @@ function New-FinOpsSchemaRow {
         ftk_InvoiceSectionId           = $Row.InvoiceSectionId
         ftk_InvoiceSectionName         = $Row.InvoiceSectionName
         ftk_IsCreditEligible           = $Row.IsAzureCreditEligible
-        ftk_ListCost                   = $Row.PayGCost -gt 0 ? $Row.PayGCost : $Row.PayGPrice * $Row.Quantity
-        ftk_ListCostInUsd              = $Row.PayGCostInUsd -gt 0 ? $Row.PayGCostInUsd : $Row.PayGPriceUSD * $Row.Quantity
-        ftk_ListPricingCost            = $Row.PayGCostInPricingCurrency -gt 0 ? $Row.PayGCostInPricingCurrency : $Row.PayGPrice * $Row.Quantity
+        ftk_ListCost                   = if ($Row.PayGCost -gt 0) { $Row.PayGCost } else { $Row.PayGPrice * $Row.Quantity }
+        ftk_ListCostInUsd              = if ($Row.PayGCostInUsd -gt 0) { $Row.PayGCostInUsd } else { $Row.PayGPriceUSD * $Row.Quantity }
+        ftk_ListPricingCost            = if ($Row.PayGCostInPricingCurrency -gt 0) { $Row.PayGCostInPricingCurrency } else { $Row.PayGPrice * $Row.Quantity }
         ftk_ListPrice                  = $Row.PayGPrice
         ftk_MeterCategory              = $Row.MeterCategory
         ftk_MeterId                    = $Row.MeterId
@@ -239,7 +251,7 @@ function New-FinOpsSchemaRow {
         ftk_PartnerCreditRate          = $Row.PartnerEarnedCreditRate
         ftk_PlanName                   = $Row.PlanName
         ftk_PreviousInvoiceId          = $Row.PreviousInvoiceId
-        ftk_PricingCurrency            = $Row.PricingCurrency ?? $Row.BillingCurrency
+        ftk_PricingCurrency            = Select-First $Row.PricingCurrency, $Row.BillingCurrency
         ftk_PricingModel               = $Row.PricingModel
         ftk_PricingBlockSize           = $unitInfo.PricingBlockSize
         ftk_PricingQuantity            = $Row.Quantity * $unitInfo.PricingBlockSize
@@ -261,19 +273,21 @@ function New-FinOpsSchemaRow {
         # TODO: Add an -ExpandJSON parameter to expand objects so we don't break CSV output by default
         ftk_Tags                       = if (-not $Row.Tags) { "{}" } elseif ($Row.Tags.StartsWith("{")) { $Row.Tags } else { "{$($Row.Tags)}" }
         ftk_Term                       = $Row.Term
-        ftk_UsageQuantity              = $Row.Quantity ?? $Row.UsageQuantity
+        ftk_UsageQuantity              = Select-First $Row.Quantity, $Row.UsageQuantity
         ftk_UsageUnit                  = $unitInfo.DistinctUnits
     }
 }
 
-function Get-AccountType {
+function Get-AccountType
+{
     [CmdletBinding()]
     param(
         [PSCustomObject]
         $Row
     )
 
-    $ftk_AccountType = switch ($true) {
+    $ftk_AccountType = switch ($true)
+    {
         { $Row.BillingAccountId -eq $Row.BillingProfileId } { "EA" }
         { $Row.BillingAccountId.Contains(":") } { "MCA" }
         default { "Other" }
@@ -282,53 +296,26 @@ function Get-AccountType {
     return $ftk_AccountType
 }
 
-# TODO: Make this its own public function
-function Get-FinOpsRegion([string]$ResourceLocation) {
-    # TODO: Look up from Regions.csv
-    return @{
-        RegionId   = ($ResourceLocation ?? "").ToLower() -replace " ", ""
-        RegionName = $ResourceLocation
-    }
-}
-
-# TODO: Make this its own public function
-function Get-FinOpsService([string]$ConsumedService, [string]$ResourceId, [string]$MeterCategory, [string]$ProductName, [string]$PublisherId, [string]$PublisherName, [string]$PublisherType) {
-    # TODO: Look up from Services.csv
-    return @{
-        # ServiceType values = Infrastructure, Platform, Software, Other
-        ServiceType     = $ConsumedService
-        ServiceCategory = $ConsumedService -replace "[Mm]icrosoft\.", ""
-        ServiceName     = $ConsumedService -replace "[Mm]icrosoft\.", ""
-        PublisherId     = $PublisherId
-        PublisherName   = $PublisherName
-        # PublisherType values = Cloud Provider, Vendor, Other???
-        PublisherType   = ($PublisherType -eq "Marketplace") ? "Vendor" : "Cloud Provider"
-        ProviderName    = $PublisherName ?? "Microsoft"
-        ProviderType    = "Cloud Provider" # Cloud Provider, Vendor, Other???
-    }
-}
-
-# TODO: Make this its own public function
-function Get-FinOpsSchemaUnits([string]$UnitOfMeasure) {
-    # TODO: Look up from PricingUnits.csv
-    return @{
-        DistinctUnit     = $UnitOfMeasure
-        PricingBlockSize = 1
-        PricingUnit      = $UnitOfMeasure
-    }
-}
-
-function Parse-Date([string]$Date, [switch]$EndDate, [switch]$StartOfMonth) {
-    try {
+function Parse-Date([string]$Date, [switch]$EndDate, [switch]$StartOfMonth)
+{
+    try
+    {
         $parsedDate = [datetime]::ParseExact($Date, "MM/dd/yyyy", [System.Globalization.CultureInfo]::InvariantCulture).ToUniversalTime().Date
-        return ($EndDate `
-                ? $parsedDate.AddDays(1) `
-                : ($StartOfMonth `
-                    ? (Get-Date $parsedDate -Day 1) `
-                    : $parsedDate `
-            ) `
-        )
-    } catch {
+        if ($EndDate)
+        { 
+            return $parsedDate.AddDays(1)
+        }
+        elseif ($StartOfMonth)
+        { 
+            return Get-Date $parsedDate -Day 1
+        }
+        else
+        { 
+            return $parsedDate
+        }
+    }
+    catch
+    {
         return $null
     }
 }

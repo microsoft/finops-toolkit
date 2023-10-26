@@ -33,7 +33,8 @@
     .LINK
     https://aka.ms/ftk/Get-FinOpsRegion
 #>
-function Get-FinOpsRegion() {
+function Get-FinOpsRegion()
+{
     Param(
         [Parameter(Position = 0, ValueFromPipeline = $true)]
         [string]
@@ -57,12 +58,22 @@ function Get-FinOpsRegion() {
             -and $_.RegionName -like $RegionName
     } `
     | ForEach-Object {
+        if ($IncludeResourceLocation)
+        {
+            $loc = $_.OriginalValue
+            $exclude = @()
+        }
+        else
+        {
+            $loc = $null
+            $exclude = @('ResourceLocation')
+        }
         [PSCustomObject]@{
-            ResourceLocation = $IncludeResourceLocation ? $_.OriginalValue : $null
+            ResourceLocation = $loc
             RegionId         = $_.RegionId
             RegionName       = $_.RegionName
         } `
-        | Select-Object -ExcludeProperty ($IncludeResourceLocation ? @() : @('ResourceLocation'))
+        | Select-Object -ExcludeProperty $exclude
     } `
     | Select-Object -Property * -Unique
 }

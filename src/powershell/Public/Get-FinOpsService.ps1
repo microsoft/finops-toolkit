@@ -39,7 +39,8 @@
     .LINK
     https://aka.ms/ftk/Get-FinOpsService
 #>
-function Get-FinOpsService() {
+function Get-FinOpsService()
+{
     Param(
         [Parameter(Position = 0)]
         [Alias("ResourceProvider", "RP")]
@@ -71,10 +72,13 @@ function Get-FinOpsService() {
     )
 
     # Convert the resource ID to a resource type
-    if ($ResourceId) {
+    if ($ResourceId)
+    {
         $resourceInfo = Split-AzureResourceId -Id $ResourceId
         $type = $resourceInfo.Type
-    } else {
+    }
+    else
+    {
         $type = $ResourceType
     }
 
