@@ -36,7 +36,7 @@ The **Initialize-FinOpsHubDeployment** command performs any initialization tasks
 
 ```powershell
 Initialize-FinOpsHubDeployment `
-    [-WhatIf <string>] `
+    [-WhatIf <string>]
 ```
 
 <br>
