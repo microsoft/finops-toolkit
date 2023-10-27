@@ -55,7 +55,8 @@ Please ensure the following prerequisites are met before deploying this template
 | Create Managed Identity              | [Managed Identity Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#managed-identity-contributor)                        |
 | Deploy and configure Blob Storage   | [Storage Blob Data Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)                       |
 
-*Cost Management reader permission should be assigned at the scope where you want to export your costs from. 
+   <sup>_1. Cost Management permissions must be assigned on the scope where you want to export your costs from. ._</sup>
+   <sup>_2. Blob data permissions are required to access exported cost data from Power BI or other client tools._</sup>
 
 2. The Microsoft.EventGrid resource provider must be registered in your subscription. See [Register a resource provider](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) for details.
 
