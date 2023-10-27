@@ -252,6 +252,15 @@
       "contributions": [
         "review"
       ]
+    },
+    {
+      "login": "arjenhuitema",
+      "name": "Arjen Huitema",
+      "avatar_url": "https://avatars.githubusercontent.com/u/15944031?v=4",
+      "profile": "https://github.com/arjenhuitema",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "commitType": "docs",
