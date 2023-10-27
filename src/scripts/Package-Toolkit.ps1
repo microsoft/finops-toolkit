@@ -33,7 +33,8 @@ Param(
 $Debug = $DebugPreference -eq "Continue"
 
 # Build toolkit if requested
-if ($Build) {
+if ($Build)
+{
     Write-Verbose "Building $(if ($Template -eq "*") { "all templates" } else { "the $Template template" })..."
     & "$PSScriptRoot/Build-Toolkit" $Template
 }
@@ -41,7 +42,8 @@ if ($Build) {
 $relDir = "$PSScriptRoot/../../release"
 
 # Validate template
-if ($Template -ne "*" -and -not (Test-Path $relDir)) {
+if ($Template -ne "*" -and -not (Test-Path $relDir))
+{
     Write-Error "$Template template not found. Please confirm template name."
     return
 }
@@ -62,18 +64,21 @@ $templates = Get-ChildItem $relDir -Directory `
     $zip = Join-Path (Get-Item $relDir) "$($path.Name)-$version.zip"
 
     Write-Verbose "Checking for a nested version folder: $versionSubFolder"
-    if ((Test-Path -Path $versionSubFolder -PathType Container) -eq $true) {
+    if ((Test-Path -Path $versionSubFolder -PathType Container) -eq $true)
+    {
         Write-Verbose "  Switching to sub folder"
         $path = $versionSubFolder
     }
     
     # Skip if template is a Bicep Registry module
     Write-Verbose "Checking version.json to see if it's targeting the Bicep Registry"
-    if (Test-Path $path/version.json) {
+    if (Test-Path $path/version.json)
+    {
         $versionSchema = (Get-Content "$path\version.json" -Raw | ConvertFrom-Json | Select-Object -ExpandProperty '$schema')
-        if ($versionSchema -like '*bicep-registry-module*') {
+        if ($versionSchema -like '*bicep-registry-module*')
+        {
             Write-Verbose "Skipping Bicep Registry module (not included in releases)"
-            return;
+            return
         }
     }
 
@@ -92,6 +97,11 @@ Write-Host "✅ $((Get-ChildItem "$relDir/*.csv").Count) open data files"
 $pbi = Get-ChildItem "$PSScriptRoot/../power-bi/*.pbip"
 Write-Host "⚠️ $($pbi.Count) Power BI reports must be converted manually... Opening..."
 $pbi | Invoke-Item
+
+# Update version in docs
+Write-Verbose "Updating version in docs..."
+$version | Out-File "$PSScriptRoot/../../docs/_includes/version.txt" -NoNewline
+Write-Host "ℹ️ Version updated in docs. Please commit the changes manually."
 
 Write-Host '...done!'
 Write-Host ''
