@@ -36,10 +36,13 @@ $outDir = "$PSScriptRoot/../../release"
 
 # Update version
 Write-Host ''
-$ver = & "$PSScriptRoot/Invoke-Task" Version -Major:$Major -Minor:$Minor -Patch:$Patch -Prerelease:$Prerelease -Label $Label
-if ($Major -or $Minor -or $Patch -or $Prerelease) {
+$ver = & "$PSScriptRoot/Update-Version" -Major:$Major -Minor:$Minor -Patch:$Patch -Prerelease:$Prerelease -Label $Label
+if ($Major -or $Minor -or $Patch -or $Prerelease)
+{
     Write-Host "Updated version to $ver"
-} else {
+}
+else
+{
     Write-Host "Building version $ver"
 }
 Write-Host ''
@@ -52,11 +55,12 @@ Get-ChildItem "$PSScriptRoot/../bicep-registry/$($Template -replace '(subscripti
 }
 
 # Generate deployment parameters file from main.bicep in the target directory
-function Build-MainBicepParameters($dir) {
+function Build-MainBicepParameters($dir)
+{
     Write-Host "  Generating parameters..."
     bicep generate-params "$dir/main.bicep" --outfile "$dir/azuredeploy.json"
     $paramFilePath = "$dir/azuredeploy.parameters.json"
-    $params = Get-Content $paramFilePath -Raw | ConvertFrom-Json;
+    $params = Get-Content $paramFilePath -Raw | ConvertFrom-Json
     $params.parameters.psobject.Properties `
     | ForEach-Object {
         # Add placeholder values for required parameters
@@ -74,7 +78,7 @@ Get-ChildItem "$PSScriptRoot/../workbooks/$($Template -replace '-workbook$','')*
     Write-Host "Building workbook $workbook..."
     & "$PSScriptRoot/Build-Workbook" $workbook
     Build-MainBicepParameters "$outdir/$workbook-workbook"
-    $ver | Out-File "$outdir/$workbook-workbook/version.txt" -NoNewLine
+    $ver | Out-File "$outdir/$workbook-workbook/version.txt" -NoNewline
     Write-Host ''
 }
 | ForEach-Object { Build-QuickstartTemplate $_ }
@@ -100,7 +104,8 @@ Get-ChildItem "$PSScriptRoot/../templates/$Template*" -Directory -ErrorAction Si
     Get-Content "$srcDir/.buildignore" `
     | ForEach-Object {
         $file = $_
-        if (Test-Path "$destDir/$file") {
+        if (Test-Path "$destDir/$file")
+        {
             Remove-Item "$destDir/$file" -Recurse -Force
         }
     }
@@ -108,7 +113,7 @@ Get-ChildItem "$PSScriptRoot/../templates/$Template*" -Directory -ErrorAction Si
     Build-MainBicepParameters $destDir
    
     # Copy version file last to override placeholder
-    $ver | Out-File "$destDir/modules/version.txt" -NoNewLine
+    $ver | Out-File "$destDir/modules/version.txt" -NoNewline
 
     Write-Host ''
 }

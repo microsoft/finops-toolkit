@@ -104,6 +104,9 @@ Legend:
 >    3. Register-FinOpsHubProviders
 >    4. Remove-FinOpsHub
 
+[Download v0.1.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.1...v0.1.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+
 <br>
 
 ## 🚚 v0.1
