@@ -47,13 +47,17 @@ Please ensure the following prerequisites are met before deploying this template
 
 1. You must have the following permissions to create the [deployed resources](#️-resources).
 
-| Resource                            | Minimum RBAC                                            |
-|-------------------------------------|---------------------------------------------------------|
-| Create Cost export*       | [Cost Management Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#cost-management-contributor)                         |
-| Deploy and configure Data Factory   | [Data Factory Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles)                            |
-| Create a Key Vault and assign secrets | [Key Vault Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#key-vault-contributor) + [Key Vault Administrator](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#key-vault-administrator) |
-| Create Managed Identity              | [Managed Identity Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#managed-identity-contributor)                        |
-| Deploy and configure Blob Storage   | [Storage Blob Data Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)                       |
+   | Resource                            | Minimum RBAC                                            |
+   |-------------------------------------|---------------------------------------------------------|
+   | Deploy and configure Data Factory   | [Data Factory Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles)                            |
+   | Deploy Key Vault | [Key Vault Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#key-vault-contributor) |
+   | Configure Key Vault secrets | [Key Vault Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#key-vault-administrator) |
+   | Create managed identity              | [Managed Identity Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#managed-identity-contributor)                        |
+   | Deploy and configure storage   | [Storage Account Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-account-contributor)                       |
+   | Create a subscription or resource group cost export<sup>1</sup>       | [Cost Management Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cost-management-contributor)                         |
+   | Create an EA billing cost export<sup>1</sup>       | Enterprise Reader, Department Reader, or Enrollment Account Owner ([Learn more](https://learn.microsoft.com/azure/cost-management-billing/manage/understand-ea-roles)) |
+   | Create an MCA billing cost export<sup>1</sup>       | [Contributor](https://learn.microsoft.com/azure/cost-management-billing/manage/understand-mca-roles) |
+   | Read blob data in storage<sup>2</sup>   | [Storage Blob Data Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)                       |
 
    <sup>_1. Cost Management permissions must be assigned on the scope where you want to export your costs from. ._</sup>
    <sup>_2. Blob data permissions are required to access exported cost data from Power BI or other client tools._</sup>
