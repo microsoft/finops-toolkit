@@ -102,7 +102,7 @@ resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-0
 // Stop hub triggers if they're already running
 resource stopHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: '${dataFactoryName}_stopHubTriggers'
-  location: location
+  location: startsWith(location, 'china') ? 'chinaeast2' : location // Pin to the only region(chinaeast2) that supports deployment scripts in China
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -677,7 +677,7 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
 // Start hub triggers
 resource startHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: '${dataFactoryName}_startHubTriggers'
-  location: location
+  location: startsWith(location, 'china') ? 'chinaeast2' : location // Pin to the only region(chinaeast2) that supports deployment scripts in China
   tags: tags
   identity: {
     type: 'UserAssigned'

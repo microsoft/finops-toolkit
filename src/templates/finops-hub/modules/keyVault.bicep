@@ -1,4 +1,3 @@
-// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 //==============================================================================
@@ -65,7 +64,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-11-01' = {
     tenantId: subscription().tenantId
     accessPolicies: formattedAccessPolicies
     sku: {
-      name: sku
+      name: startsWith(location, 'china') ? 'standard' : sku // Pin to "standard" keyvault which is the only supported sku in China
       family: 'A'
     }
   }
