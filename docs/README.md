@@ -29,12 +29,14 @@ Read on to learn about the tools and roadmap for the FinOps toolkit or how to ge
 
 {% include tools.md all="1" %}
 
-[Download {% include version.txt %}](https://aka.ms/ftk/latest){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-
 ### In development
 
 - FinOps hubs – Ingest and normalize EA/MCA costs from multiple tenants into Azure Data Explorer.
 - PowerShell – Manage FinOps hubs and convert Cost Management data to FOCUS.
+
+<br>
+
+[Download FinOps toolkit {% include version.txt %}](https://aka.ms/ftk/latest){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
