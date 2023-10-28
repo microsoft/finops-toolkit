@@ -91,20 +91,17 @@ function Deploy-FinOpsHub
             }
         }
 
-        $toolkitPath = Join-Path $env:temp -ChildPath 'FinOps'
-        if ($PSCmdlet.ShouldProcess($toolkitPath, 'CreateDirectory'))
+        $toolkitPath = Join-Path $env:temp -ChildPath 'FinOpsToolkit'
+        if ($PSCmdlet.ShouldProcess($toolkitPath, 'CreateTempDirectory'))
         {
             New-Directory -Path $toolkitPath
         }
-        if($PSCmdlet.ShouldProcess('FinOps hub deployment','Initialize'))
-        {
-            Initialize-FinOpsToolkit 
-        }
+        Initialize-FinOpsHubDeployment -WhatIf:$WhatIfPreference
 
         if ($PSCmdlet.ShouldProcess($Version, 'DownloadTemplate'))
         {
             Save-FinOpsHubTemplate -Version $Version -Preview:$Preview -Destination $toolkitPath
-            $toolkitFile = Get-ChildItem -Path $toolkitPath -Include 'main.bicep' -Recurse | Where-Object -FilterScript {$_.FullName -like '*finops-hub-v*'}
+            $toolkitFile = Get-ChildItem -Path $toolkitPath -Include 'main.bicep' -Recurse | Where-Object -FilterScript { $_.FullName -like '*finops-hub-v*' }
             if (-not $toolkitFile)
             {
                 throw ($LocalizedData.TemplateNotFound -f $toolkitPath)

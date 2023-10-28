@@ -49,8 +49,8 @@ if ($Cost) { $testsToRun += '*-FinOpsCost*' }
 if ($Data) { $testsToRun += '*-OpenData*', '*-FinOpsPricingUnit*', '*-FinOpsRegion*', '*-FinOpsService*' }
 if ($Exports) { $testsToRun += '*-FinOpsCostExport*' }
 if ($FOCUS) { $testsToRun += '*-FinOpsSchema*' }
-if ($Hubs) { $testsToRun += '*-FinOpsHubs*' }
-if ($Toolkit) { $testsToRun += '*-FinOpsToolkit*' }
+if ($Hubs) { $testsToRun += '*-FinOpsHub*' }
+if ($Toolkit) { $testsToRun += '*FinOpsToolkit.Tests.ps1' }
 
 Push-Location
 Set-Location "$PSScriptRoot/../powershell/Tests/Unit"
