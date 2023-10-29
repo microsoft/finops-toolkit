@@ -44,10 +44,10 @@ Get-FinOpsHub `
 
 ## 📥 Parameters
 
-| Name              | Description                                                                              |
-| ----------------- | ---------------------------------------------------------------------------------------- |
-| Name              | Optional. Name of the FinOps hub instance. Supports wildcards.                           |
-| ResourceGroupName | Optional. Name of the resource group the FinOps hub was deployed to. Supports wildcards. |
+| Name                 | Description                                                                              |
+| -------------------- | ---------------------------------------------------------------------------------------- |
+| '‑Name'              | Optional. Name of the FinOps hub instance. Supports wildcards.                           |
+| '‑ResourceGroupName' | Optional. Name of the resource group the FinOps hub was deployed to. Supports wildcards. |
 
 <br>
 

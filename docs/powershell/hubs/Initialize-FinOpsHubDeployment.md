@@ -29,7 +29,6 @@ Initialize a FinOps hub deployment in order to enable resource group owners to d
 
 The **Initialize-FinOpsHubDeployment** command performs any initialization tasks required for a resource group contributor to be able to deploy a FinOps hub instance in Azure, like registering resource providers. To view the full list of tasks performed, run the command with the -WhatIf option.
 
-
 <br>
 
 ## 🧮 Syntax
@@ -43,11 +42,11 @@ Initialize-FinOpsHubDeployment `
 
 ## 📥 Parameters
 
-| Name          | Description                                                                                                                                                                          |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| WhatIf          | Optional. Shows what would happen if the command runs without actually running it.   |
-|
+| Name      | Description                                                                        |
+| --------- | ---------------------------------------------------------------------------------- |
+| '‑WhatIf' | Optional. Shows what would happen if the command runs without actually running it. |
 
+|
 
 <br>
 

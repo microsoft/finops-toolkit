@@ -35,14 +35,14 @@ The **Remove-FinOpsHub** command removes a FinOps hub instance and optionally ke
 
 ```powershell
 Remove-FinOpsHub `
-    -Name <string> `
+    [-Name] <string> `
     [-ResourceGroup <string>] `
     [-KeepStorageAccount <switch>]
 ```
 
 ```powershell
 Remove-FinOpsHub `
-    -InputObject <psobject> `
+    [-InputObject] <psobject> `
     [-KeepStorageAccount <switch>]
 ```
 
@@ -50,13 +50,12 @@ Remove-FinOpsHub `
 
 ## 📥 Parameters
 
-| Name          | Description                                                                                                                                                                          |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Name          | Required. Name of the FinOps hub instance.                                                                                                                                           |
-| InputObject      | Required when specifying InputObject. Expected object is the output of Get-FinOpsHub.                                                                                                     |
-| ResourceGroup | Optional when specifying Name. Resource Group Name for the FinOps Hub.                                                                                              |
-| KeepStorageAccount       | Optional. Indicates that the storage account associated with the FinOps Hub should be retained.                                                                                                            |
-
+| Name                  | Description                                                                                     |
+| --------------------- | ----------------------------------------------------------------------------------------------- |
+| `‑Name`               | Required. Name of the FinOps hub instance.                                                      |
+| `‑InputObject`        | Required when specifying InputObject. Expected object is the output of Get-FinOpsHub.           |
+| `‑ResourceGroup`      | Optional when specifying Name. Resource Group Name for the FinOps Hub.                          |
+| `‑KeepStorageAccount` | Optional. Indicates that the storage account associated with the FinOps Hub should be retained. |
 
 <br>
 
@@ -72,7 +71,6 @@ Remove-FinOpsHub `
 ```
 
 Deletes a FinOps Hub named MyHub and deletes all associated resource except the storage account.
-
 
 <br>
 
