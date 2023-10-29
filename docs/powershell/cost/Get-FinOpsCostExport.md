@@ -47,16 +47,15 @@ Get-FinOpsCostExport `
 
 ## 📥 Parameters
 
-| Name             | Description                                                                                                         |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Name             | Optional. Name of the export. Supports wildcards.                                                                   |
-| Scope            | Optional. Resource ID of the scope the export was created for. If empty, defaults to current subscription context.  |
-| DataSet          | Optional. Dataset to get exports for. Allowed values = "ActualCost", "AmortizedCost". Default = null (all exports). |
-| StorageAccountId | Optional. Resource ID of the storage account to get exports for. Default = null (all exports).                      |
-| StorageContainer | Optional. Name of the container to get exports for. Supports wildcards. Default = null (all exports).               |
-| ApiVersion       | Optional. API version to use when calling the Cost Management exports API. Default = 2023-03-01.                    |
+| Name                | Description                                                                                                         |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `‑Name`             | Optional. Name of the export. Supports wildcards.                                                                   |
+| `‑Scope`            | Optional. Resource ID of the scope the export was created for. If empty, defaults to current subscription context.  |
+| `‑DataSet`          | Optional. Dataset to get exports for. Allowed values = "ActualCost", "AmortizedCost". Default = null (all exports). |
+| `‑StorageAccountId` | Optional. Resource ID of the storage account to get exports for. Default = null (all exports).                      |
+| `‑StorageContainer` | Optional. Name of the container to get exports for. Supports wildcards. Default = null (all exports).               |
+| `‑ApiVersion`       | Optional. API version to use when calling the Cost Management exports API. Default = 2023-03-01.                    |
 
-|
 
 <br>
 
