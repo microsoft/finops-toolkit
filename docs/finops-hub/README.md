@@ -2,7 +2,7 @@
 layout: default
 title: FinOps hubs
 has_children: true
-nav_order: 2
+nav_order: 20
 description: 'Reliable, trustworthy platform for cost analytics, insights, and optimization.'
 permalink: /hubs
 ---
@@ -22,6 +22,7 @@ Open, extensible, and scalable cost governance for the enterprise.
 - [📦 What's included](#-whats-included)
 - [➕ Create a new hub](#-create-a-new-hub)
 - [🛫 Get started with hubs](#-get-started-with-hubs)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -92,7 +93,7 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
 ## ➕ Create a new hub
 
 1. Register the Microsoft.EventGrid and Microsoft.CostManagementExports resource providers. See [Register a resource provider](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) for details.
-2. [Deploy the **finops-hub** template](../deploy/README.md).
+2. [Deploy the **finops-hub** template](../resources/deploy.md).
 
    [![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy) &nbsp; [![Deploy To Azure US Gov](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy/gov) &nbsp; [![Deploy To Azure China](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazurechina.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy/china) 
 
@@ -166,5 +167,13 @@ No matter what you choose to do, we recommend creating a new Bicep module to sup
 If you need to change `hub.bicep`, be sure to track those changes and re-apply them when upgrading to the latest release. We generally don't recommend modifying the template or modules directly to avoid conflicts with future updates. Instead, consider contributing those changes back to the open source project. [Learn more](https://github.com/microsoft/finops-toolkit/blob/main/CONTRIBUTING.md).
 
 If you access data in storage or are creating or customizing Power BI reports, please refer to the [data dictionary](data-dictionary.md) for details about the available columns.
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md pbi="1" ps="1" opt="1" %}
 
 <br>

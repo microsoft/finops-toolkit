@@ -5,6 +5,7 @@ FinOps toolkit scripts are used for local development, testing, and publishing o
 On this page:
 
 - [🆕 Init-Repo](#-init-repo)
+- [🌐 Build-OpenData](#-build-opendata)
 - [📦 Build-Toolkit](#-build-toolkit)
 - [🚀 Deploy-Toolkit](#-deploy-toolkit)
 - [🚚 Publish-Toolkit](#-publish-toolkit)
@@ -21,7 +22,61 @@ On this page:
 [Init-Repo.ps1](./Init-Repo.ps1) initializes your local dev environment with the following tools, which are required for development and testing:
 
 - Az PowerShell module
-- Bicep
+- Bicep CLI
+
+The following optional apps/modules can be installed with the corresponding parameters or with the `-All` parameter:
+
+- Visual Studio Code
+- Bicep PowerShell module
+- NodeJS and configured modules (-NPM parameter)
+
+If an app or module is already installed, it will be skipped. To see which apps would be installed, use the -WhatIf parameter.
+
+Examples:
+
+- Checks to see what apps/modules would be installed:
+
+  ```powershell
+  ./Init-Repo -All -WhatIf
+  ```
+
+- Installs only required apps/modules:
+
+  ```powershell
+  ./Init-Repo
+  ```
+
+- Installs all required and specific apps/modules:
+
+  ```powershell
+  ./Init-Repo -VSCode -NPM
+  ```
+
+- Installs all required and optional apps/modules:
+
+  ```powershell
+  ./Init-Repo -All
+  ```
+
+<br>
+
+## 🌐 Build-OpenData
+
+[Build-OpenData.ps1](./Build-OpenData.ps1) generates PowerShell commands for all open data sets. The PowerShell commands are private and not shared externally today. They must be manually checked in and the script only needs to be run when datasets are added or updated. These are meant to be used by other specifically-designed commands, which is outside the scope of Build-OpenData.
+
+Examples:
+
+- Build all data sets:
+
+  ```powershell
+  ./Build-OpenData
+  ```
+
+- Build one data set:
+
+  ```powershell
+  ./Build-OpenData -Name Regions
+  ```
 
 <br>
 
@@ -29,11 +84,23 @@ On this page:
 
 [Build-Toolkit.ps1](./Build-Toolkit.ps1) builds toolkit modules and templates for local testing and and to prepare them for publishing.
 
-Example:
+Examples:
 
-```powershell
-./Build-Toolkit
-```
+- Build all toolkit modules and templates:
+
+  ```powershell
+  ./Build-Toolkit
+  ```
+
+- Build all toolkit modules and templates from any directory via NPM:
+
+  ```console
+  npm run build
+  ```
+
+- Build all toolkit modules and templates from VS Code:
+
+  <kbd>Ctrl+Shift+P</kbd> > <kbd>Run Build Task</kbd> > <kbd>Build Toolkit</kbd>
 
 Build-Toolkit runs the following scripts internally:
 
@@ -75,6 +142,18 @@ Examples:
 
   ```powershell
   ./Deploy-Toolkit "subscription-scheduled-action" -Build -Test
+  ```
+
+- Build and deploy a module from any directory via NPM:
+
+  ```console
+  npm run deploy "finops-hub"
+  ```
+
+- Build and deploy a module test (`main.test.bicep` file) from any directory via NPM:
+
+  ```console
+  npm run deploy-test "finops-hub"
   ```
 
 <br>
@@ -201,7 +280,8 @@ Examples:
   ./Merge-DevBranch features/foo -TortoiseGit
   ```
 
-- Merge the `dev` branch into main and all feature branches. Does not resolve conflicts.
+- Merge the `dev` branch into all feature branches. Does not resolve conflicts.
+
   ```powershell
   ./Merge-DevBranch *
   ```

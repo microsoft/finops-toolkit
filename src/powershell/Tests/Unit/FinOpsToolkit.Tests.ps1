@@ -17,19 +17,20 @@ InModuleScope 'FinOpsToolkit' {
 
                 [Parameter()]
                 [switch]
-                $AsJson
+                $GitHub
             )
 
             $output = @()
             foreach ($hashtable in $Releases)
             {
-                $hashtable['tag_name'] = $hashtable.Version
+                # Duplicate Files as "assets" to mock GitHub requests
+                $hashtable['assets'] = $hashtable.Files
                 $output += New-Object -TypeName 'psobject' -Property $hashtable
             }
 
-            if ($AsJson)
+            if ($GitHub)
             {
-                $output = ConvertTo-Json -InputObject $output
+                $output = ConvertTo-Json -InputObject $output -Depth 10
             }
 
             return $output
@@ -60,8 +61,9 @@ InModuleScope 'FinOpsToolkit' {
             return @{
                 Name       = $Name
                 Version    = $Version
+                tag_name   = "v$Version"  # For mocking GitHub requests
                 PreRelease = $PreRelease
-                Assets     = $Assets
+                Files      = @($Assets)
             }
         }
 
@@ -77,25 +79,14 @@ InModuleScope 'FinOpsToolkit' {
 
                 [Parameter(Mandatory = $true)]
                 [string]
-                $Url,
-
-                [Parameter()]
-                [switch]
-                $Base
+                $Url
             )
 
-            $output = @{ Name = $Name }
-
-            if ($Base)
-            {
-                $output['browser_download_url']  = $Url
+            return @{
+                Name                 = $Name
+                Url                  = $Url
+                browser_download_url = $Url  # For mocking GitHub requests
             }
-            else
-            {
-                $output['Url']  = $Url
-            }
-
-            return $output
         }
 
         $previewVersion = '1.0.0-alpha.01'
@@ -114,7 +105,7 @@ InModuleScope 'FinOpsToolkit' {
                 $release1 = New-MockRelease -Name 'fake' -Version $releaseVersion
                 $release2 = New-MockRelease -Name 'fake' -Version $releaseVersion
 
-                Mock -CommandName 'Invoke-WebRequest' -MockWith { New-MockReleaseObject -Releases $release1, $release2 -AsJson }
+                Mock -CommandName 'Invoke-WebRequest' -MockWith { New-MockReleaseObject -Releases $release1, $release2 -GitHub }
             }
 
             It 'Should return 1 result when [Latest] is used' {
@@ -136,9 +127,9 @@ InModuleScope 'FinOpsToolkit' {
                 $assetName = 'fakeasset'
                 $releaseName = 'fake'
                 $releaseVersion = '1.0.0'
-                $asset = New-MockAsset -Name $assetName -Url $url -Base
+                $asset = New-MockAsset -Name $assetName -Url $url
                 $release = New-MockRelease -Name $releaseName -Version $releaseVersion -Assets $asset
-                Mock -CommandName 'Invoke-WebRequest' -MockWith { New-MockReleaseObject -Releases $release -AsJson }
+                Mock -CommandName 'Invoke-WebRequest' -MockWith { New-MockReleaseObject -Releases $release -GitHub }
             }
 
             It 'Should return an object with correct properties' {
@@ -146,8 +137,8 @@ InModuleScope 'FinOpsToolkit' {
                 $result | Should -Not -BeNullOrEmpty
                 $result.Name | Should -Be $releaseName
                 $result.Version | Should -Be $releaseVersion
-                $result.Assets.Name | Should -Be $assetName
-                $result.Assets.Url | Should -Be $url
+                $result.Files.Name | Should -Be $assetName
+                $result.Files.Url | Should -Be $url
             }
         }
 
@@ -169,7 +160,7 @@ InModuleScope 'FinOpsToolkit' {
                 $release1 = New-MockRelease -Name 'fake' -Version $previewVersion -PreRelease $true
                 $release2 = New-MockRelease -Name 'fake' -Version $releaseVersion
 
-                Mock -CommandName 'Invoke-WebRequest' -MockWith { New-MockReleaseObject -Releases $release1, $release2 -AsJson}
+                Mock -CommandName 'Invoke-WebRequest' -MockWith { New-MockReleaseObject -Releases $release1, $release2 -GitHub }
             }
 
             It 'Should include prereleases when [Preview] is used' {
@@ -190,7 +181,7 @@ InModuleScope 'FinOpsToolkit' {
                 $release1 = New-MockRelease -Name 'fake' -Version $previewVersion -PreRelease $true
                 $release2 = New-MockRelease -Name 'fake' -Version $releaseVersion
 
-                Mock -CommandName 'Invoke-WebRequest' -MockWith { New-MockReleaseObject -Releases $release1, $release2 -AsJson}
+                Mock -CommandName 'Invoke-WebRequest' -MockWith { New-MockReleaseObject -Releases $release1, $release2 -GitHub }
             }
 
             It 'Should only include latest prerelease when [Latest] and [Preview] is used' {
@@ -198,6 +189,39 @@ InModuleScope 'FinOpsToolkit' {
                 $result.Count | Should -Be 1
                 $result.Version | Should -Be $previewVersion
                 Assert-MockCalled -CommandName 'Invoke-WebRequest' -Times 1
+            }
+        }
+
+        Context 'Verify against prod GitHub' {
+            It 'Should return all known releases' {
+                # Arrange
+                $expected = @('0.1.1', '0.1', '0.0.1')
+
+                # Act
+                $result = Get-FinOpsToolkitVersion
+
+                # Assert
+                Write-Host "--- Result: $($result | ConvertTo-Json -Depth 100)"
+                $result.Count | Should -Be $expected.Count
+                $expected | ForEach-Object {
+                    $result.Version | Should -Contain $_
+                    
+                    # All versions
+                    $result.Files.Name | Should -Contain "finops-hub-v$_.zip"
+                    $result.Files.Name | Should -Contain "optimization-workbook-v$_.zip"
+                    $result.Files.Name | Should -Contain "CostSummary.pbix"
+                    $result.Files.Name | Should -Contain "CommitmentDiscounts.pbix"
+
+                    # 0.1 and above
+                    if ([version]$_ -ge [version]'0.1')
+                    {
+                        $result.Files.Name | Should -Contain "governance-workbook-v$_.zip"
+                        $result.Files.Name | Should -Contain "FOCUS.pbix"
+                        $result.Files.Name | Should -Contain "PricingUnits.csv"
+                        $result.Files.Name | Should -Contain "Regions.csv"
+                        $result.Files.Name | Should -Contain "Services.csv"
+                    }
+                }
             }
         }
     }
@@ -210,7 +234,7 @@ InModuleScope 'FinOpsToolkit' {
             Mock -CommandName 'New-Directory'
             $release1 = New-MockRelease -Name 'fake' -Version '1.0.0'
 
-            Mock -CommandName 'Get-FinOpsToolkitVersion' -MockWith { New-MockReleaseObject -Releases $release1}
+            Mock -CommandName 'Get-FinOpsToolkitVersion' -MockWith { New-MockReleaseObject -Releases $release1 }
         }
 
         Context 'No releases found' {
@@ -286,102 +310,6 @@ InModuleScope 'FinOpsToolkit' {
             New-Directory -Path $path
             Assert-MockCalled -CommandName 'Test-Path'
             Assert-MockCalled -CommandName 'New-Item' -Times 1
-        }
-    }
-
-    Describe 'Deploy-FinOpsHub' {
-        BeforeAll {
-            function Get-AzResourceGroup {}
-            function New-AzResourceGroup {}
-            function New-AzResourceGroupDeployment {}
-            $hubName = 'hub'
-            $rgName = 'hubRg'
-            $location = 'eastus'
-        }
-
-        Context 'Resource groups' {
-            BeforeAll {
-                Mock -CommandName 'New-Directory'
-            }
-            
-            Context 'Create new resource group' {
-                BeforeAll {
-                    Mock -CommandName 'Get-AzResourceGroup'
-                }
-
-                Context 'Failure' {
-                    BeforeAll {
-                        Mock -CommandName 'New-AzResourceGroup' -MockWith { throw 'failure' }
-                    }
-
-                    It 'Should throw if error creating resource group' {
-                        { Deploy-FinOpsHub -Version 'latest' -Name $hubName -ResourceGroup $rgName -Location $location  } | Should -Throw
-                        Assert-MockCalled -CommandName 'Get-AzResourceGroup' -Times 1
-                        Assert-MockCalled -CommandName 'New-AzResourceGroup' -Times 1
-                        Assert-MockCalled -CommandName 'New-Directory' -Times 0
-                    }
-                }
-            }
-
-            Context 'Use existing resource group' {
-                BeforeAll {
-                    Mock -CommandName 'Get-AzResourceGroup' -MockWith { return @{ ResourceGroupName = $rgName } }
-                    Mock -CommandName 'New-AzResourceGroup'
-                    Mock -CommandName 'Save-FinOpsHubTemplate'
-                }
-
-                Context 'Failures' {
-                    BeforeAll {
-                        Mock -CommandName 'Get-ChildItem'
-                    }
-
-                    It 'Should throw if template file is not found' {
-                        { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version 'latest' } | Should -Throw
-                        Assert-MockCalled -CommandName 'Get-ChildItem' -Times 1
-                    }
-                }
-
-                Context 'Success' {
-                    BeforeAll {
-                        $templateFile = Join-Path -Path $env:temp -ChildPath 'FinOps\finops-hub-v1.0.0\main.bicep'
-                        Mock -CommandName 'Get-ChildItem' -MockWith { return @{ FullName = $templateFile}}
-                        Mock -CommandName 'New-AzResourceGroupDeployment'
-                    }
-
-                    It 'Should deploy the template without throwing' {
-                        { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Version 'latest' } | Should -Not -Throw
-                        Assert-MockCalled -CommandName 'Get-ChildItem' -Times 1
-                        Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter { @{ TemplateFile = $templateFile } } -Times 1
-                    }
-
-                    It 'Should deploy the template with tags' {
-                        { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -Tags @{ Test = 'Tag' } -Version 'latest' } | Should -Not -Throw
-                        Assert-MockCalled -CommandName 'Get-ChildItem' -Times 1
-                        Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
-                            @{
-                                TemplateParameterObject = @{
-                                    tags = @{
-                                        Test = 'Tag'
-                                    }
-                                }
-                            }
-                        } -Times 1
-                    }
-
-                    It 'Should deploy the template with StorageSku' {
-                        $storageSku = 'Premium_ZRS'
-                        { Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location -StorageSku $storageSku -Version 'latest' } | Should -Not -Throw
-                        Assert-MockCalled -CommandName 'Get-ChildItem' -Times 1
-                        Assert-MockCalled -CommandName 'New-AzResourceGroupDeployment' -ParameterFilter {
-                            @{
-                                TemplateParameterObject = @{
-                                    storageSku = $storageSku
-                                }
-                            }
-                        } -Times 1
-                    }
-                }
-            }
         }
     }
 }

@@ -30,7 +30,9 @@ configuration:
               reply: >- # spell-checker:enable
                 @${issueAuthor}, thanks for the PR!
 
+
                 Unfortunately, you opened a PR against the `main` branch and we don't accept PRs into this branch.
+
 
                 Please create a new PR against either `dev` or a `features/*` branch.
               # spell-checker:disable
