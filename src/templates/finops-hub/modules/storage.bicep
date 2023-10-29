@@ -126,7 +126,8 @@ resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-0
 resource uploadSettings 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: 'uploadSettings'
   kind: 'AzurePowerShell'
-  location: location
+  // chinaeast2 is the only region in China that supports deployment scripts
+  location: startsWith(location, 'china') ? 'chinaeast2' : location
   tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
   identity: {
     type: 'UserAssigned'
