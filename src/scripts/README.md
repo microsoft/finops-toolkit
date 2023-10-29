@@ -8,6 +8,7 @@ On this page:
 - [🌐 Build-OpenData](#-build-opendata)
 - [📦 Build-Toolkit](#-build-toolkit)
 - [🚀 Deploy-Toolkit](#-deploy-toolkit)
+- [🧪 Test-PowerShell](#-test-powershell)
 - [🚚 Publish-Toolkit](#-publish-toolkit)
 - [📦 Package-Toolkit](#-package-toolkit)
 - [©️ Add-CopyrightHeader](#️-add-copyrightheader)
@@ -24,7 +25,7 @@ On this page:
 - Az PowerShell module
 - Bicep CLI
 
-The following optional apps/modules can be installed with the corresponding parameters or with the `-All` parameter:
+The following optional apps/modules can be installed with the corresponding parameters or with the `‑All` parameter:
 
 - Visual Studio Code
 - Bicep PowerShell module
@@ -115,14 +116,14 @@ Build-Toolkit runs the following scripts internally:
 
 | Parameter        | Description                                                                                                                        |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `-Template`      | Required. Name of the template or module to deploy. Default = finops-hub.                                                          |
-| `-ResourceGroup` | Optional. Name of the resource group to deploy to. Will be created if it doesn't exist. Default = `ftk-<username>-<computername>`. |
-| `-Location`      | Optional. Azure location to execute the deployment from. Default = `westus`.                                                       |
-| `-Parameters`    | Optional. Parameters to pass thru to the deployment. Defaults per template/module are configured in the script.                    |
-| `-Build`         | Optional. Indicates whether the the `Build-Toolkit` command should be executed first. Default = `false`.                           |
-| `-Test`          | Optional. Indicates whether to run the template or module test instead of the template or module itself. Default = `false`.        |
-| `-Debug`         | Optional. Writes script execution troubleshooting details to console. Does not execute deployment.                                 |
-| `-WhatIf`        | Optional. Validates the deployment without executing it or changing resources.                                                     |
+| `‑Template`      | Required. Name of the template or module to deploy. Default = finops-hub.                                                          |
+| `‑ResourceGroup` | Optional. Name of the resource group to deploy to. Will be created if it doesn't exist. Default = `ftk-<username>-<computername>`. |
+| `‑Location`      | Optional. Azure location to execute the deployment from. Default = `westus`.                                                       |
+| `‑Parameters`    | Optional. Parameters to pass thru to the deployment. Defaults per template/module are configured in the script.                    |
+| `‑Build`         | Optional. Indicates whether the the `Build-Toolkit` command should be executed first. Default = `false`.                           |
+| `‑Test`          | Optional. Indicates whether to run the template or module test instead of the template or module itself. Default = `false`.        |
+| `‑Debug`         | Optional. Writes script execution troubleshooting details to console. Does not execute deployment.                                 |
+| `‑WhatIf`        | Optional. Validates the deployment without executing it or changing resources.                                                     |
 
 Examples:
 
@@ -158,16 +159,75 @@ Examples:
 
 <br>
 
+## 🧪 Test-PowerShell
+
+[Test-PowerShell.ps1](./Test-PowerShell.ps1) runs Pester tests.
+
+By default, only unit tests are run. If only one test type is specified, only that test type will be run. If multiple are specified, each of them will be run. Other options will apply to all test types that are selected. Select -AllTests to run all test types.
+
+To investigate the previous test run, use `$global:ftk_TestPowerShell_Results`.
+
+To view a summary of only the failed tests, use `$global:ftk_TestPowerShell_Summary`.
+
+To view the configuration used to re-run previously failed tests, use `$global:ftk_TestPowerShell_FailedTests`.
+
+| Parameter      | Description                                                                                                                                            |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `‑Cost`        | Optional. Indicates whether to run Cost Management tests.                                                                                              |
+| `‑Data`        | Optional. Indicates whether to run open data tests.                                                                                                    |
+| `‑Exports`     | Optional. Indicates whether to run Cost Management export tests.                                                                                       |
+| `‑FOCUS`       | Optional. Indicates whether to run FOCUS tests.                                                                                                        |
+| `‑Hubs`        | Optional. Indicates whether to run FinOps hubs tests.                                                                                                  |
+| `‑Toolkit`     | Optional. Indicates whether to run generic toolkit tests.                                                                                              |
+| `‑Integration` | Optional. Indicates whether to run integration tests, which take more time than unit tests by testing external dependencies. Default = false.          |
+| `‑Lint`        | Optional. Indicates whether to run lint tests, which validate local files are meeting dev standards. Default = false.                                  |
+| `‑Unit`        | Optional. Indicates whether to run unit tests. Default = true.                                                                                         |
+| `‑AllTests`    | Optional. Indicates whether to run all lint, unit, and integration tests. If set, this overrides Lint, Unit, and Integration options. Default = false. |
+
+Examples:
+
+- Run all unit tests:
+
+  ```powershell
+  ./Test-PowerShell
+  ```
+
+- Run all integration tests:
+
+  ```powershell
+  ./Test-PowerShell -Integration
+  ```
+
+- Run unit and integration tests for a specific area:
+
+  ```powershell
+  ./Test-PowerShell -Hubs -Integration
+  ```
+
+- Run all tests:
+
+  ```powershell
+  ./Test-PowerShell -AllTests
+  ```
+
+- Re-run failed tests:
+
+  ```powershell
+  ./Test-PowerShell -RunFailed
+  ```
+
+<br>
+
 ## 🚚 Publish-Toolkit
 
 [Publish-Toolkit.ps1](./Publish-Toolkit.ps1) publishes a template to the Azure Quickstart Templates repository.
 
 | Parameter      | Description                                                                                                              |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `-Template`    | Required. Name of the template or module to deploy.                                                                      |
-| `-Destination` | Required. Path to the local clone of the Azure Quickstart Templates repository.                                          |
-| `-Build`       | Optional. Indicates whether the the `Build-Toolkit` command should be executed first. Default = `false`.                 |
-| `-Commit`      | Optional. Indicates whether to commit the changes and start a pull request in the Azure Quickstart Templates repository. |
+| `‑Template`    | Required. Name of the template or module to deploy.                                                                      |
+| `‑Destination` | Required. Path to the local clone of the Azure Quickstart Templates repository.                                          |
+| `‑Build`       | Optional. Indicates whether the the `Build-Toolkit` command should be executed first. Default = `false`.                 |
+| `‑Commit`      | Optional. Indicates whether to commit the changes and start a pull request in the Azure Quickstart Templates repository. |
 
 Example:
 
@@ -183,8 +243,8 @@ Example:
 
 | Parameter   | Description                                                                                      |
 | ----------- | ------------------------------------------------------------------------------------------------ |
-| `-Template` | Optional. Name of the template or module to package. Default = \* (all).                         |
-| `-Build`    | Optional. Indicates whether the Build-Toolkit command should be executed first. Default = false. |
+| `‑Template` | Optional. Name of the template or module to package. Default = \* (all).                         |
+| `‑Build`    | Optional. Indicates whether the Build-Toolkit command should be executed first. Default = false. |
 
 Examples:
 
@@ -262,9 +322,9 @@ Example:
 
 | Parameter      | Description                                                                                                                                                                                                 |
 | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `-Branch`      | Optional. Name of the branch to merge into. Default = "." (current branch).                                                                                                                                 |
-| `-TortoiseGit` | Optional. Indicates whether to use TortoiseGit to resolve conflicts. Default = false.                                                                                                                       |
-| `-Silent`      | Optional. Indicates whether to hide informational output. Will abort merge if there are any conflicts. Use `$LASTEXITCODE` to determine status (0 = successful, 1 = error, 2 = conflicts). Default = false. |
+| `‑Branch`      | Optional. Name of the branch to merge into. Default = "." (current branch).                                                                                                                                 |
+| `‑TortoiseGit` | Optional. Indicates whether to use TortoiseGit to resolve conflicts. Default = false.                                                                                                                       |
+| `‑Silent`      | Optional. Indicates whether to hide informational output. Will abort merge if there are any conflicts. Use `$LASTEXITCODE` to determine status (0 = successful, 1 = error, 2 = conflicts). Default = false. |
 
 Examples:
 
