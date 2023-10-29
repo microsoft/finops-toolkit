@@ -52,10 +52,10 @@ function Save-FinOpsHubTemplate
         }
         else
         {
-            $release = $releases | Where-Object -FilterScript {$_.Version -eq $Version}
+            $release = $releases | Where-Object -FilterScript { $_.Version -eq $Version }
         }
 
-        foreach ($asset in $release.Assets)
+        foreach ($asset in $release.Files)
         {
             Write-Verbose -Message ($script:localizedData.FoundAsset -f $asset.Name)
             $saveFilePath = Join-Path -Path $Destination -ChildPath $asset.Name
@@ -64,7 +64,7 @@ function Save-FinOpsHubTemplate
                 Remove-Item -Path $saveFilePath -Recurse -Force
             }
 
-            $null = Invoke-Webrequest -Uri $asset.Url -OutFile $saveFilePath -Verbose:$false
+            $null = Invoke-WebRequest -Uri $asset.Url -OutFile $saveFilePath -Verbose:$false
             if ([System.IO.Path]::GetExtension($saveFilePath) -eq '.zip')
             {
                 Write-Verbose -Message ($script:localizedData.ExpandingZip -f $saveFilePath)

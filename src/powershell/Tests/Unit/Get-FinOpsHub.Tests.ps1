@@ -28,11 +28,14 @@ InModuleScope 'FinOpsToolkit' {
                 $Name
             )
 
-            $tagTemplate = '/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Cloud/hubs/{2}'
-
+            $rg = "/subscriptions/$SubscriptionId/resourceGroups/$ResourceGroupName"
+            
             return @{
+                Id   = "$rg/providers/Microsoft.Storage/storageAccounts/$Name-store"
+                Type = 'Microsoft.Storage/storageAccounts'
+                Name = "$Name-store"
                 Tags = @{
-                    'cm-resource-parent' = $tagTemplate -f  $SubscriptionId, $ResourceGroupName, $Name
+                    'cm-resource-parent' = "$rg/providers/Microsoft.Cloud/hubs/$Name"
                 }
             }
         }
@@ -82,7 +85,7 @@ InModuleScope 'FinOpsToolkit' {
                 $rgWild = 'test*'
                 $noMatch = 'fake'
                 $tagTemplate = "/subscriptions/$id/resourceGroups/{0}/providers/Microsoft.Cloud/hubs/{1}"
-                Mock -CommandName 'Get-AzContext' -MockWith { @{Subscription = @{Id = $id}}}
+                Mock -CommandName 'Get-AzContext' -MockWith { @{Subscription = @{Id = $id } } }
             }
 
             It "Returns 3 FinOps Hubs: '$hubPartial', '$hub1', '$hub2' [ResourceGroup]: '$rgFull' with [Name filter]: '$hubWild' and [ResourceGroup filter]: 'null'" {

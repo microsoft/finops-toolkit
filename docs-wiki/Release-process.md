@@ -91,20 +91,29 @@ Once the above requirements have been met, the feature branch can be merged into
       1. Review all issues in the milestone, move anything that needs to be pushed, and close any completed items.
       2. Close the milestone when all issues have been closed or moved.
 
-   2. Merge to main:
+   2. Ensure all tests pass:
+
+      ```powershell
+      <root>/src/scripts/Test-PowerShell
+      ```
+
+   3. Merge to main:
 
       ```powershell
       cd <root>/src/scripts
       ./Merge-DevBranch main
       ```
 
-   3. Verify [documentation](https://aka.ms/finops/toolkit) updated correctly
+   4. Verify [documentation](https://aka.ms/finops/toolkit) updated correctly
 
       > _The documentation site may take 5 minutes to update after the merge is committed. If not updated, look at [GitHub actions](https://github.com/microsoft/finops-toolkit/actions/workflows/pages/pages-build-deployment) to see if there are any failures._
 
-   4. Tag and publish the release.
-   5. Update the discussion.
-   6. Update all issues to `Status: Released`.
+   5. Tag and publish the release.
+   6. Update the discussion.
+   7. Update all issues to `Status: Released`.
+   8. Update the download test to include any new files/versions.
+
+      > _See `FinOpsToolkit.Tests.ps1` > `Verify against prod GitHub`_
 
 <br>
 

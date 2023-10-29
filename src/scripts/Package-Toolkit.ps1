@@ -54,14 +54,14 @@ Write-Host "Packaging templates..."
 $version = & "$PSScriptRoot/Get-Version"
 
 Write-Verbose "Removing existing ZIP files..."
-Remove-Item "$relDir/*-$version.zip" -Force
+Remove-Item "$relDir/*-v$version.zip" -Force
 
 $templates = Get-ChildItem $relDir -Directory `
 | ForEach-Object {
     Write-Verbose ("Packaging $_" -replace (Get-Item $relDir).FullName, '.')
     $path = $_
     $versionSubFolder = (Join-Path $path $version)
-    $zip = Join-Path (Get-Item $relDir) "$($path.Name)-$version.zip"
+    $zip = Join-Path (Get-Item $relDir) "$($path.Name)-v$version.zip"
 
     Write-Verbose "Checking for a nested version folder: $versionSubFolder"
     if ((Test-Path -Path $versionSubFolder -PathType Container) -eq $true)
