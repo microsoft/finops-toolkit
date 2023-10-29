@@ -1,12 +1,12 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-Remove-Module FinOpsToolkit -ErrorAction SilentlyContinue
-Import-Module -FullyQualifiedName "$PSScriptRoot/../../FinOpsToolkit.psm1"
+& "$PSScriptRoot/../Initialize-Tests.ps1"
 
 InModuleScope 'FinOpsToolkit' {
     BeforeAll {
-        function Get-MockCostDetails {
+        function Get-MockCostDetails
+        {
             return @(
                 @{
                     # EA actual cost row
@@ -78,7 +78,8 @@ InModuleScope 'FinOpsToolkit' {
             )
         }
 
-        function Run-Test($actual, $amortized) {
+        function Run-Test($actual, $amortized)
+        {
             ConvertTo-FinOpsSchema -ActualCost $actual -AmortizedCost $amortized
         }
     }
