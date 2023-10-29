@@ -58,7 +58,7 @@ function ConvertTo-FinOpsSchema
     $start = [DateTime]::Now
     $rowCount = $ActualCost.Count + $AmortizedCost.Count
     $processedCount = 0
-    $estimatedSecPerRow = 0.01  # Estimated time to process a single row of data based on local testing
+    $estimatedSecPerRow = 0.03  # Estimated time to process a single row of data based on local testing
 
     # TODO: Consider adding validation to ensure the files are consistent (same on-demand usage, same non-commitment purcahses, no commitment purchases in amortized, etc.)
     
