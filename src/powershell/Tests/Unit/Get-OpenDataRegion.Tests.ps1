@@ -1,14 +1,14 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-Describe 'Get-OpenDataServices' {
+Describe 'Get-OpenDataRegion' {
     It 'Should return same rows as the CSV file' {
         # Arrange
-        . "$PSScriptRoot/../../Private/Get-OpenDataServices.ps1"
-        $csv = Import-Csv "$PSScriptRoot/../../../open-data/Services.csv"
+        . "$PSScriptRoot/../../Private/Get-OpenDataRegion.ps1"
+        $csv = Import-Csv "$PSScriptRoot/../../../open-data/Regions.csv"
 
         # Act
-        $cmd = Get-OpenDataServices
+        $cmd = Get-OpenDataRegion
 
         # Assert
         $cmd.Count | Should -Be $csv.Count
