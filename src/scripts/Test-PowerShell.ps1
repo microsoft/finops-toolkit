@@ -107,12 +107,12 @@ else
     if ($typesToRun.Count -eq 3) { $typesToRun = '*' }
     
     $testsToRun = @()
-    if ($Cost) { $testsToRun += '*-FinOpsCost*' }
+    if ($Cost) { $testsToRun += '*Cost*' }
     if ($Data) { $testsToRun += '*-OpenData*', '*-FinOpsPricingUnit*', '*-FinOpsRegion*', '*-FinOpsService*' }
-    if ($Exports) { $testsToRun += '*-FinOpsCostExport*' }
-    if ($FOCUS) { $testsToRun += '*-FinOpsSchema*' }
-    if ($Hubs) { $testsToRun += '*-FinOpsHub*' }
-    if ($Toolkit) { $testsToRun += '*FinOpsToolkit.Tests.ps1' }
+    if ($Exports) { $testsToRun += '*CostExport*' }
+    if ($FOCUS) { $testsToRun += '*-FinOpsSchema*', '*FOCUS*' }
+    if ($Hubs) { $testsToRun += '*Hub*' }
+    if ($Toolkit) { $testsToRun += '*Toolkit*' }
     if (-not $testsToRun) { $testsToRun = "*" }
     
     $testsToRun = $typesToRun `
