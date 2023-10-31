@@ -12,7 +12,7 @@
       },
       {
         "name": "PBI_QueryOrder",
-        "value": "[\"CostDetails\",\"Data Source\",\"Billing Account ID\",\"Billing Profile ID\",\"Number of Months\",\"Storage URL\",\"File Type\",\"RangeStart\",\"RangeEnd\",\"ftk_LoadData\",\"ftk_NormalizeSchema\",\"▶️  START HERE\"]"
+        "value": "[\"CostDetails\",\"▶️  START HERE\",\"Data Source\",\"Billing Account ID\",\"Billing Profile ID\",\"Number of Months\",\"Storage URL\",\"File Type\",\"RangeStart\",\"RangeEnd\",\"ftk_LoadData\",\"ftk_NormalizeSchema\",\"Errors in CostDetails\"]"
       },
       {
         "name": "PBI_ProTooling",
@@ -10711,7 +10711,7 @@
         "expression": "\"FinOps hubs\" meta [IsParameterQuery=true, List={\"Cost Management connector\", \"FinOps hubs\"}, DefaultValue=\"Cost Management connector\", Type=\"Text\", IsParameterQueryRequired=true]",
         "kind": "m",
         "lineageTag": "e7c31d4f-63c6-41e9-9398-31c4f7e682b3",
-        "queryGroup": "🛠️ Setup"
+        "queryGroup": "🛠️ Setup\\Instructions"
       },
       {
         "name": "Billing Account ID",
@@ -11354,20 +11354,20 @@
           "    ChargeId = Table.AddColumn(Month, \"ChargeId\", each Text.Combine(List.RemoveItems({",
           "        Date.ToText([Date]),",
           "        [BillingAccountId],",
-          "        if [BillingProfileId] = [BillingAccountId]       then null else [BillingProfileId], // Only add BP if not the same as the BA (all EA)",
+          "        if [BillingProfileId] = [BillingAccountId] then null else [BillingProfileId], // Only add BP if not the same as the BA (all EA)",
           "        [InvoiceSectionId],",
-          "        if Text.Contains([ResourceId], [SubscriptionId]) then null else [SubscriptionId], // Only add sub if not in the resource ID",
+          "        if _isNotBlank([ResourceId]) and Text.Contains([ResourceId], [SubscriptionId]) then null else [SubscriptionId], // Only add sub if not in the resource ID",
           "        [ResourceId],",
           "        [ResourceLocation],",
           "        [OfferId],",
           "        [ProductId],",
           "        [MeterId],",
           "        [PartNumber],",
-          "        if _isBlank([CommitmentDiscountId])               then null else List.Last(Text.Split([CommitmentDiscountId], \"/\")),",
+          "        if _isBlank([CommitmentDiscountId])        then null else List.Last(Text.Split([CommitmentDiscountId], \"/\")),",
           "        [CostAllocationRuleName],",
           "        [CostCenter],",
-          "        if _isBlank([Tags])                               then null else Text.Remove([Tags], {\"{\",\"\"\"\",\"}\"}),",
-          "        if _isBlank([AdditionalInfo])                     then null else Text.Remove([AdditionalInfo], {\"{\",\"\"\"\",\"}\"})",
+          "        if _isBlank([Tags])                        then null else Text.Remove([Tags], {\"{\",\"\"\"\",\"}\"}),",
+          "        if _isBlank([AdditionalInfo])              then null else Text.Remove([AdditionalInfo], {\"{\",\"\"\"\",\"}\"})",
           "    }, {null, \"\"}), \"-\")),",
           "   ",
           "    // Cleanup",
@@ -11565,7 +11565,42 @@
         ],
         "kind": "m",
         "lineageTag": "ed70f0c9-8b05-46a6-b70e-99f9b2cf21df",
-        "queryGroup": "🛠️ Setup"
+        "queryGroup": "🛠️ Setup\\Instructions"
+      },
+      {
+        "name": "Errors in CostDetails",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "expression": [
+          "let",
+          "Source = CostDetails,",
+          "  #\"Detected Type Mismatches\" = let",
+          "    tableWithOnlyPrimitiveTypes = Table.SelectColumns(Source, Table.ColumnsOfType(Source, {type nullable number, type nullable text, type nullable logical, type nullable date, type nullable datetime, type nullable datetimezone, type nullable time, type nullable duration})),",
+          "    recordTypeFields = Type.RecordFields(Type.TableRow(Value.Type(tableWithOnlyPrimitiveTypes))),",
+          "    fieldNames = Record.FieldNames(recordTypeFields),",
+          "    fieldTypes = List.Transform(Record.ToList(recordTypeFields), each [Type]),",
+          "    pairs = List.Transform(List.Positions(fieldNames), (i) => {fieldNames{i}, (v) => if v = null or Value.Is(v, fieldTypes{i}) then v else error [Message = \"The type of the value does not match the type of the column.\", Detail = v], fieldTypes{i}})",
+          "in",
+          "    Table.TransformColumns(Source, pairs),",
+          "  #\"Added Index\" = Table.AddIndexColumn(#\"Detected Type Mismatches\", \"Row Number\" ,1),",
+          "    #\"Sorted Rows\" = Table.Sort(#\"Added Index\",{{\"ChargeType\", Order.Ascending}}),",
+          "  #\"Kept Errors\" = Table.SelectRowsWithErrors(#\"Sorted Rows\", {\"AccountName\", \"AccountOwnerId\", \"AccountType\", \"AdditionalInfo\", \"AmortizedCost\", \"AmortizedCostInUsd\", \"AmortizedPricingCost\", \"BilledCost\", \"BilledCostInUsd\", \"BilledPricingCost\", \"BillingAccountId\", \"BillingAccountName\", \"BillingCurrency\", \"BillingPeriodEndDate\", \"BillingPeriodStartDate\", \"BillingProfileId\", \"BillingProfileName\", \"CPUHours\", \"CapacityCommitmentId\", \"ChargeId\", \"ChargeType\", \"CommitmentDiscounKey\", \"CommitmentDiscountId\", \"CommitmentDiscountName\", \"CommitmentDiscountNameUnique\", \"CommitmentDiscountProgram\", \"CommitmentSavings\", \"CommitmentUtilizationAmount\", \"CommitmentUtilizationPotential\", \"ConsumedService\", \"CostAllocationRuleName\", \"CostCenter\", \"CustomerId\", \"CustomerName\", \"DataSet\", \"Date\", \"DiscountSavings\", \"EffectivePrice\", \"ExchangeRate\", \"ExchangeRateDate\", \"Frequency\", \"HybridBenefitCPUs\", \"HybridBenefitStatus\", \"InvoiceId\", \"InvoiceSectionId\", \"InvoiceSectionName\", \"IsAzureCreditEligible\", \"ListCost\", \"ListCostInUsd\", \"ListPrice\", \"ListPriceSavings\", \"MeterCategory\", \"MeterId\", \"MeterName\", \"MeterRegion\", \"MeterSubCategory\", \"Month\", \"NegotiatedSavings\", \"OfferId\", \"OnDemandCost\", \"OnDemandPrice\", \"OnDemandPriceSavings\", \"PartNumber\", \"PartnerCreditApplied\", \"PartnerCreditRate\", \"PartnerId\", \"PartnerName\", \"PlanName\", \"PreviousInvoiceId\", \"PricingCurrency\", \"PricingModel\", \"ProductCPUs\", \"ProductId\", \"ProductImageType\", \"ProductName\", \"ProductOrderId\", \"ProductOrderName\", \"ProductSKU\", \"ProductUsageType\", \"ProductVMProperties\", \"Provider\", \"PublisherId\", \"PublisherName\", \"PublisherType\", \"Quantity\", \"ResellerId\", \"ResellerName\", \"ResourceGroupName\", \"ResourceGroupNameUnique\", \"ResourceId\", \"ResourceLocation\", \"ResourceMachineName\", \"ResourceName\", \"ResourceNameUnique\", \"ResourceType\", \"SchemaVersion\", \"ServiceFamily\", \"ServicePeriodEndDate\", \"ServicePeriodStartDate\", \"SubscriptionId\", \"SubscriptionName\", \"SubscriptionNameUnique\", \"Tags\", \"TagsDictionary\", \"Term\", \"UnitOfMeasure\", \"focus_ServiceCategory\", \"focus_ServiceName\"}),",
+          "  #\"Reordered Columns\" = Table.ReorderColumns(#\"Kept Errors\", {\"Row Number\", \"AccountName\", \"AccountOwnerId\", \"AccountType\", \"AdditionalInfo\", \"AmortizedCost\", \"AmortizedCostInUsd\", \"AmortizedPricingCost\", \"BilledCost\", \"BilledCostInUsd\", \"BilledPricingCost\", \"BillingAccountId\", \"BillingAccountName\", \"BillingCurrency\", \"BillingPeriodEndDate\", \"BillingPeriodStartDate\", \"BillingProfileId\", \"BillingProfileName\", \"CPUHours\", \"CapacityCommitmentId\", \"ChargeId\", \"ChargeType\", \"CommitmentDiscounKey\", \"CommitmentDiscountId\", \"CommitmentDiscountName\", \"CommitmentDiscountNameUnique\", \"CommitmentDiscountProgram\", \"CommitmentSavings\", \"CommitmentUtilizationAmount\", \"CommitmentUtilizationPotential\", \"ConsumedService\", \"CostAllocationRuleName\", \"CostCenter\", \"CustomerId\", \"CustomerName\", \"DataSet\", \"Date\", \"DiscountSavings\", \"EffectivePrice\", \"ExchangeRate\", \"ExchangeRateDate\", \"Frequency\", \"HybridBenefitCPUs\", \"HybridBenefitStatus\", \"InvoiceId\", \"InvoiceSectionId\", \"InvoiceSectionName\", \"IsAzureCreditEligible\", \"ListCost\", \"ListCostInUsd\", \"ListPrice\", \"ListPriceSavings\", \"MeterCategory\", \"MeterId\", \"MeterName\", \"MeterRegion\", \"MeterSubCategory\", \"Month\", \"NegotiatedSavings\", \"OfferId\", \"OnDemandCost\", \"OnDemandPrice\", \"OnDemandPriceSavings\", \"PartNumber\", \"PartnerCreditApplied\", \"PartnerCreditRate\", \"PartnerId\", \"PartnerName\", \"PlanName\", \"PreviousInvoiceId\", \"PricingCurrency\", \"PricingModel\", \"ProductCPUs\", \"ProductId\", \"ProductImageType\", \"ProductName\", \"ProductOrderId\", \"ProductOrderName\", \"ProductSKU\", \"ProductUsageType\", \"ProductVMProperties\", \"Provider\", \"PublisherId\", \"PublisherName\", \"PublisherType\", \"Quantity\", \"ResellerId\", \"ResellerName\", \"ResourceGroupName\", \"ResourceGroupNameUnique\", \"ResourceId\", \"ResourceLocation\", \"ResourceMachineName\", \"ResourceName\", \"ResourceNameUnique\", \"ResourceType\", \"SchemaVersion\", \"ServiceFamily\", \"ServicePeriodEndDate\", \"ServicePeriodStartDate\", \"SubscriptionId\", \"SubscriptionName\", \"SubscriptionNameUnique\", \"Tags\", \"TagsDictionary\", \"Term\", \"UnitOfMeasure\", \"focus_ServiceCategory\", \"focus_ServiceName\"}),",
+          "    ChargeId = #\"Reordered Columns\"{0}[ChargeId]",
+          "in",
+          "  ChargeId"
+        ],
+        "kind": "m",
+        "lineageTag": "897d1943-9b54-4285-a7a6-c2e68c0ecd60",
+        "queryGroup": "Query Errors - 10/30/2023 6:42:08 PM"
       }
     ],
     "queryGroups": [
@@ -11613,6 +11648,25 @@
           }
         ],
         "folder": "🛠️ Setup\\Functions"
+      },
+      {
+        "annotations": [
+          {
+            "name": "PBI_QueryGroupOrder",
+            "value": "5"
+          }
+        ],
+        "description": "Errors in queries that were loaded on 10/30/2023 6:42:08 PM.",
+        "folder": "Query Errors - 10/30/2023 6:42:08 PM"
+      },
+      {
+        "annotations": [
+          {
+            "name": "PBI_QueryGroupOrder",
+            "value": "0"
+          }
+        ],
+        "folder": "🛠️ Setup\\Instructions"
       }
     ],
     "relationships": [
@@ -13708,10 +13762,9 @@
             "source": {
               "expression": [
                 "let",
-                "    Source = ftk_LoadData(2),",
-                "    #\"Kept Errors\" = Table.SelectRowsWithErrors(Source, {\"AccountName\"})",
+                "    Source = ftk_LoadData(2)",
                 "in",
-                "    #\"Kept Errors\""
+                "    Source"
               ],
               "type": "m"
             }

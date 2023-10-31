@@ -10,8 +10,6 @@
     }
   ],
   "publicCustomVisuals": [
-    "RadarChart1446119667547",
-    "sankey02300D1BE6F5427989F3DE31CCA9E0F32020",
     "Sunburst1445472000808"
   ],
   "resourcePackages": [
@@ -61,32 +59,6 @@
         ],
         "name": "SharedResources",
         "type": 2
-      }
-    },
-    {
-      "resourcePackage": {
-        "disabled": false,
-        "items": [
-          {
-            "path": "hierarchyChartByAkvelon6F792A8745784877BCD8F4ACA5AD4207.pbiviz.json",
-            "type": 5
-          }
-        ],
-        "name": "hierarchyChartByAkvelon6F792A8745784877BCD8F4ACA5AD4207",
-        "type": 0
-      }
-    },
-    {
-      "resourcePackage": {
-        "disabled": false,
-        "items": [
-          {
-            "path": "HierarchySlicer1458836712039.pbiviz.json",
-            "type": 5
-          }
-        ],
-        "name": "HierarchySlicer1458836712039",
-        "type": 0
       }
     }
   ],
