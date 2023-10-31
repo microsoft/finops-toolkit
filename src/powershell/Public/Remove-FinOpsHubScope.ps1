@@ -32,9 +32,15 @@ function Remove-FinOpsHubScope {
         [Parameter(Mandatory = $true)]
         [string]
         $Id,
+
         [Parameter()]
         [string]
         $HubName,
+        
+        [Parameter()]
+        [string]
+        $ResourceGroup,
+        
         [Parameter()]
         [switch]
         $RemoveData
@@ -43,10 +49,9 @@ function Remove-FinOpsHubScope {
     try {
         
 
-        $hub = Get-FinOpsHub -Name $HubName
+        $hub = Get-FinOpsHub -Name $HubName -ResourceGroup $ResourceGroup
         $storageAccount = $hub.Resources | Where-Object { $_.Type.ToLower() -eq 'microsoft.storage/storageaccounts' }
         $storageAccountId = $storageAccount.ResourceId
-
         $exports = Get-FinOpsCostExport -Scope $Id | Where-Object { $storageAccountId -contains $_.StorageAccountId }
 
         # Delete the exports
@@ -61,18 +66,19 @@ function Remove-FinOpsHubScope {
         }
 
         # Delete the data if requested
-        if ($RemoveData) {
-            foreach ($export in $exports) {
-                if ($PSCmdlet.ShouldProcess("Cost Management Export Data","Delete")) {
+        if ($RemoveData) 
+        {
+            foreach ($export in $exports) 
+            {
                     $storageAccountName = $export.StorageAccountId.Split("/")[-1]
                     $resourceGroup = (Get-AzResource -ResourceType "Microsoft.Storage/storageAccounts" -Name $storageAccountName).ResourceGroupName
                     $storageAccountKey = (Get-AzStorageAccountKey -ResourceGroupName $resourceGroup -Name $storageAccountName).Value[0]
                     $context = New-AzStorageContext -StorageAccountName $storageAccountName -StorageAccountKey $storageAccountKey
                     Write-Verbose -Message "Deleting data for Cost Management export $($export.Name) in storage account $($export.StorageAccountId.Split("/")[-1]) at path $($export.StoragePath)."
-                    Remove-AzDataLakeGen2Item -FileSystem "ingestion" -Path $export.StoragePath -Context $context -Force
+                    Remove-AzDataLakeGen2Item -FileSystem "ingestion" -Path $export.Id.ToLower().Split("/provider/microsoft.costmanagement/exports/")[0] -Context $context -Force
                     Write-Verbose -Message "Complete: Deleted data for Cost Management export $($export.Name) in storage account $($export.StorageAccountId.Split("/")[-1]) at path $($export.StoragePath)."          
-                }
             }
+            
         }
     }
     catch {
