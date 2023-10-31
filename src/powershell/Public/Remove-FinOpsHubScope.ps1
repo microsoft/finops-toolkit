@@ -16,9 +16,12 @@
 
     .EXAMPLE
     Remove-FinOpsHubScope -Id "/providers/Microsoft.Billing/billingAccounts/123" -HubName "FooHub" 
+
     Deletes the exports configured to use the FooHub hub instance. Existing data is retained in the storage account.
     
+    .EXAMPLE
     Remove-FinOpsHubScope -Id "/subscriptions/##-#-#-#-###" -HubName "FooHub" -RemoveData
+    
     Deletes the exports configured to use the FooHub hub instance and removes data for that scope.
     
     .LINK
