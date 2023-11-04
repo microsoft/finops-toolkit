@@ -20,6 +20,7 @@ Here are a few simple solutions to issues you may have faced:
 - [Power BI: Exception of type 'Microsoft.Mashup.Engine.Interface.ResourceAccessForbiddenException' was thrown](#power-bi-exception-of-type-microsoftmashupengineinterfaceresourceaccessforbiddenexception-was-thrown)
 - [Power BI: The remote name could not be resolved: '\<storage-account\>.dfs.core.windows.net'](#power-bi-the-remote-name-could-not-be-resolved-storage-accountdfscorewindowsnet)
 - [Power BI: We cannot convert the value null to type Logical](#power-bi-we-cannot-convert-the-value-null-to-type-logical)
+- [FinOps hubs: We cannot convert the value null to type Table](#finops-hubs-we-cannot-convert-the-value-null-to-type-table)
 
 Didn't find what you're looking for?
 
@@ -82,6 +83,12 @@ Indicates that the storage account name is incorrect. If using FinOps hubs, veri
 Indicates that the **Billing Account ID** parameter is empty. If using FinOps hubs, set the value to the desired billing account ID. If you do not have access to the billing account or do not want to include commitment purchases and refunds, set the value to `0` and open the **CostDetails** query in the advanced editor and change the `2` to a `1`. This will inform the report to not load actual/billed cost data from the Cost Management connector. See [How to setup Power BI](../power-bi/setup.md#-setup-your-first-report) for details.
 
 Applicable versions: **0.1 - 0.1.1** (fixed in **0.1.2**)
+
+---
+
+## FinOps hubs: We cannot convert the value null to type Table
+
+This error typically indicates that data was not ingested into the **ingestion** container. See [Reports are empty (no data)](#reports-are-empty-no-data) for details.
 
 ---
 

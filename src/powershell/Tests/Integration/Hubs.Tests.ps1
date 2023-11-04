@@ -124,7 +124,6 @@ Describe 'Hubs' {
                     'microsoft.storage/storageaccounts'
                 ) -ErrorAction Continue -Because "hub should have expected resources (v$ver)"
 
-
                 # TODO: Test 'StorageOnly' status
                 # TODO: Test 0.0.1 'DeployedWithExtraResources' status = storage + DF + KV + 1???
                 # TODO: Test 0.1 'DeployedWithExtraResources' status = storage + DF + KV + 3+???
