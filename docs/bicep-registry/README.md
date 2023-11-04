@@ -27,7 +27,7 @@ Leverage reusable bicep modules in your templates to accelerate your FinOps effo
 
 Bicep modules developed within the toolkit are published to the [official Bicep Registry](https://azure.github.io/bicep-registry-modules). These modules are not included directly in the toolkit release.
 
-[Bicep Registry](https://azure.github.io/bicep-registry-modules/#cost){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Bicep Registry](https://azure.github.io/bicep-registry-modules/#cost){: .btn .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 

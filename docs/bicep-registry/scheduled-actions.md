@@ -31,8 +31,8 @@ Scheduled actions allow you to configure email alerts on a daily, weekly, or mon
 
 You can also use scheduled actions to configure anomaly detection alerts for subscriptions.
 
-[About scheduled alerts](https://learn.microsoft.com/azure/cost-management-billing/costs/save-share-views#subscribe-to-scheduled-alerts){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[About anomaly alerts](https://learn.microsoft.com/azure/cost-management-billing/understand/analyze-unexpected-charges){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[About scheduled alerts](https://learn.microsoft.com/azure/cost-management-billing/costs/save-share-views#subscribe-to-scheduled-alerts){: .btn .mb-4 .mb-md-0 .mr-4 }
+[About anomaly alerts](https://learn.microsoft.com/azure/cost-management-billing/understand/analyze-unexpected-charges){: .btn .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
