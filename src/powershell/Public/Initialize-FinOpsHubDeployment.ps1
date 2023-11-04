@@ -21,5 +21,5 @@ function Initialize-FinOpsHubDeployment
     [CmdletBinding(SupportsShouldProcess)]
     param()
 
-    Register-FinOpsHubProviders -WhatIf:$WhatIfPreference
+    Register-FinOpsHubProviders -WhatIf:$WhatIfPreference | Out-Null
 }

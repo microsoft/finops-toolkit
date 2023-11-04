@@ -30,9 +30,9 @@ function Start-Monitor
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true, Position = 0)][string]$Name,
-        [Parameter(Position = 1)][string]$Indent,
-        [Parameter(Position = 2)][scriptblock]$ScriptBlock,
-        [Parameter()][switch]$CatchExceptions
+        [Parameter()][string]$Indent,
+        [Parameter()][switch]$CatchExceptions,
+        [Parameter(Position = 1)][scriptblock]$ScriptBlock
     )
     
     if ($script:__MonitorConfig.Indentation.Length -gt 0) { Write-MonitorMessage }
