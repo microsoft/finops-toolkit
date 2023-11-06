@@ -1,0 +1,15 @@
+<svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<circle cx="8.83" cy="9.08" r="8.5" fill="#a0a1a2"/>
+	<circle cx="8.81" cy="9.05" r="7.22" fill="#fff"/>
+	<rect x="12.19" y="4.82" width="1.27" height=".41" transform="rotate(-45 12.823 5.029)" fill="#7a7a7a"/>
+	<rect x="13.81" y="8.87" width="1.27" height=".41" fill="#7a7a7a"/>
+	<rect x="12.56" y="12.42" width=".41" height="1.27" transform="rotate(-45 12.761 13.064)" fill="#7a7a7a"/>
+	<rect x="8.58" y="14.09" width=".41" height="1.27" fill="#7a7a7a"/>
+	<rect x="4.49" y="4.35" width=".41" height="1.27" transform="rotate(-45 4.695 4.985)" fill="#7a7a7a"/>
+	<rect x="4.12" y="12.89" width="1.27" height=".41" transform="rotate(-45 4.756 13.1)" fill="#7a7a7a"/>
+	<rect x="2.4" y="8.87" width="1.27" height=".41" fill="#7a7a7a"/>
+	<path d="M8.84.58a.61.61 0 0 0-.61.62.63.63 0 0 0 .62.63 7.26 7.26 0 1 1-5.36 2.35l.51.74 1.42-3.16-3.42.4.75 1A8.49 8.49 0 1 0 8.84.58z" fill="#804998"/>
+	<rect x="8.29" y="2.84" width="1.14" height="6.51" rx=".52" fill="#7a7a7a"/>
+	<rect x="9.82" y="8.65" width="1.14" height="4.08" rx=".52" transform="rotate(135 10.385 10.693)" fill="#7a7a7a"/>
+	<circle cx="8.81" cy="9.08" r="1.2" fill="#1e1e1e"/>
+</svg>
