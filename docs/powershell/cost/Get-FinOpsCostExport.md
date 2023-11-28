@@ -34,27 +34,28 @@ The **Get-FinOpsCostExport** command gets a list of Cost Management exports for 
 ## 🧮 Syntax
 
 ```powershell
-Deploy-FinOpsHub `
+Get-FinOpsCostExport `
     [-Name <string>] `
     [-Scope <string>] `
     [-DataSet <string>] `
     [-StorageAccountId <string>] `
     [-StorageContainer <string>] `
-    [-ApiVersion <string>] `
+    [-ApiVersion <string>]
 ```
 
 <br>
 
 ## 📥 Parameters
 
-| Name          | Description                                                                                                                                                                          |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Name          | Optional. Name of the export. Supports wildcards.                                                                                                                                           |
-| Scope | Optional. Resource ID of the scope the export was created for. If empty, defaults to current subscription context.                                                                      |
-| DataSet      | Optional. Dataset to get exports for. Allowed values = "ActualCost", "AmortizedCost". Default = null (all exports).                                                                                                                  |
-| StorageAccountId       | Optional. Resource ID of the storage account to get exports for. Default = null (all exports).                                                                                           |
-| StorageContainer       |  Optional. Name of the container to get exports for. Supports wildcards. Default = null (all exports).                                                                     |
-| ApiVersion    | Optional. API version to use when calling the Cost Management exports API. Default = 2023-03-01. |
+| Name             | Description                                                                                                         |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Name             | Optional. Name of the export. Supports wildcards.                                                                   |
+| Scope            | Optional. Resource ID of the scope the export was created for. If empty, defaults to current subscription context.  |
+| DataSet          | Optional. Dataset to get exports for. Allowed values = "ActualCost", "AmortizedCost". Default = null (all exports). |
+| StorageAccountId | Optional. Resource ID of the storage account to get exports for. Default = null (all exports).                      |
+| StorageContainer | Optional. Name of the container to get exports for. Supports wildcards. Default = null (all exports).               |
+| ApiVersion       | Optional. API version to use when calling the Cost Management exports API. Default = 2023-03-01.                    |
+
 |
 
 <br>
@@ -65,7 +66,7 @@ Deploy-FinOpsHub `
 
 ```powershell
 Get-FinOpsCostExport `
-    -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" 
+    -Scope "/subscriptions/00000000-0000-0000-0000-000000000000"
 ```
 
 Gets all exports for a subscription. Does not include exports in nested resource groups.
@@ -75,10 +76,10 @@ Gets all exports for a subscription. Does not include exports in nested resource
 ```powershell
 Get-FinOpsCostExport `
     -Name mtd* `
-    -Scope "providers/Microsoft.Billing/billingAccounts/00000000" 
+    -Scope "providers/Microsoft.Billing/billingAccounts/00000000"
 ```
 
-Gets export with name matching wildcard mtd* within the specified billing account scope. Does not include exports in nested resource groups.
+Gets export with name matching wildcard mtd\* within the specified billing account scope. Does not include exports in nested resource groups.
 
 ### Get all amortized cost exports
 
@@ -94,7 +95,7 @@ Gets all exports within the current context subscription scope and filtered by d
 ```powershell
 Get-FinOpsCostExport `
     -Scope "/subscriptions/00000000-0000-0000-0000-000000000000"`
-    -StorageAccountId "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/MyResourceGroup/providers/Microsoft.Storage/storageAccounts/MyStorageAccount" 
+    -StorageAccountId "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/MyResourceGroup/providers/Microsoft.Storage/storageAccounts/MyStorageAccount"
 ```
 
 Gets all exports within the subscription scope filtered by a specific storage account.
@@ -113,7 +114,7 @@ Gets all exports within the subscription scope for a specific container. Support
 
 ```powershell
 Get-FinOpsCostExport `
-    -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" 
+    -Scope "/subscriptions/00000000-0000-0000-0000-000000000000"
     -StorageContainer "mtd*"
     -ApiVersion "2023-08-01"
     -StorageContainer "MyContainer*"
