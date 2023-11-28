@@ -25,7 +25,8 @@ Param(
 # Some columns may have numbers and strings. Use the following list to force them to be handled as string.
 $stringColumnNames = @('UnitOfMeasure')
 
-function Write-Command($Command, $File) {
+function Write-Command($Command, $File)
+{
     $columns = (Get-Content $File -TotalCount 1).Split(",") | ForEach-Object { $_.Trim('"') }
     $data = Import-Csv $File
 
@@ -53,7 +54,8 @@ function Write-Command($Command, $File) {
     Write-Output "}"
 }
 
-function Write-Test($DataType, $Command) {
+function Write-Test($DataType, $Command)
+{
     Write-Output "# Copyright (c) Microsoft Corporation."
     Write-Output "# Licensed under the MIT License."
     Write-Output ""
@@ -128,11 +130,29 @@ $metadataJson = Get-Content $tempMetadata -Raw | ConvertFrom-Json -Depth 100
 $overrides = Get-Content "$srcDir/ResourceTypes.Overrides.json" -Raw | ConvertFrom-Json -Depth 5
 $resourceTypes = ($metadataJson.assets + @(@{ addOverrides = $true })) | ForEach-Object {
     $asset = $_
+    $defaultIcon = (Get-Content "$svgDir/microsoft.resources/resources.svg" -Raw)
 
     function processResourceType($resourceType, $asset, $override)
     {
         # Clean and save SVG
-        $icon = $override.icon ?? $asset.icon.data
+        if ($override.icon)
+        {
+            if ($override.icon -eq $asset.icon) { Write-Warning "Remove redundant icon override for $resourceType" }
+            if ($asset.icon -and $override.icon -ne $asset.icon -and (-not $override.originalIcon -or $override.originalIcon -ne $asset.icon)) { Write-Verbose "Overriding icon for $resourceType @ file:///$((Join-Path $svgDir $resourceType) -replace '\\', '/').svg" }
+        }
+        elseif (-not $asset.icon)
+        {
+            $oldIcon = Get-Content "$svgDir/$resourceType.svg" -Raw
+            if ($oldIcon)
+            {
+                Write-Warning "Icon no longer available; using old icon for $resourceType" 
+            }
+            else
+            {
+                Write-Warning "Using fallback cube icon for $resourceType" 
+            }
+        }
+        $icon = $override.icon ?? $asset.icon.data ?? $oldIcon ?? $defaultIcon
         if ($icon)
         {
             # replace SVG classes with their fill equivalents
@@ -155,16 +175,42 @@ $resourceTypes = ($metadataJson.assets + @(@{ addOverrides = $true })) | ForEach
         
         $isPreview = ($asset.singularDisplayName + $asset.pluralDisplayName + $asset.lowerSingularDisplayName + $asset.lowerPluralDisplayName) -match 'preview'
         function noPreview($name) { return ($name -replace ' *\(preview\) *$', '' -replace ' *\| *preview *$', '').Trim() }
+        function logOverrides($knownOld, $newVal, $oldVal, $valType)
+        {
+            if (-not $newVal -or -not $oldVal)
+            {
+                return 
+            }
+            elseif ($newVal -ceq $oldVal)
+            {
+                # Override is the same as the original; should remove the override config
+                Write-Warning "Remove redundant $resourceType $valType '$($oldVal)'" 
+            }
+            elseif ($newVal -eq $oldVal)
+            {
+                # Do nothing; ignore case fixes
+                return
+            }
+            elseif (-not $knownOld -or $knownOld -ne $oldVal)
+            {
+                # Unexpected overrides should be verified
+                Write-Warning "Overriding $resourceType $valType '$oldVal' → '$newVal'" 
+            }
+        }
+        logOverrides $override.originalSingular      $override.singular      $asset.singularDisplayName      'singular display name'
+        logOverrides $override.originalPlural        $override.plural        $asset.pluralDisplayName        'plural display name'
+        logOverrides $override.originalLowerSingular $override.lowerSingular $asset.lowerSingularDisplayName 'lower singular display name'
+        logOverrides $override.originalLowerPlural   $override.lowerPlural   $asset.lowerPluralDisplayName   'lower plural display name'
         $typeInfo = [ordered]@{
             resourceType             = $resourceType
             singularDisplayName      = noPreview ($override.singular ?? $asset.singularDisplayName)
             pluralDisplayName        = noPreview ($override.plural ?? $asset.pluralDisplayName)
-            lowerSingularDisplayName = noPreview ($asset.lowerSingularDisplayName ?? $override.singular ?? $asset.singularDisplayName)
-            lowerPluralDisplayName   = noPreview ($asset.lowerPluralDisplayName ?? $override.plural ?? $asset.pluralDisplayName)
+            lowerSingularDisplayName = noPreview ($override.lowerSingular ?? $asset.lowerSingularDisplayName ?? $override.singular ?? $asset.singularDisplayName)
+            lowerPluralDisplayName   = noPreview ($override.lowerPlural ?? $asset.lowerPluralDisplayName ?? $override.plural ?? $asset.pluralDisplayName)
             isPreview                = $isPreview
             description              = ($asset.description ?? '') -replace '[\n\r]', ' ' -replace '  *', ' ' ?? $null
-            links                    = $asset.links
             icon                     = $icon ? "https://microsoft.github.io/finops-toolkit/svg/$resourceType.svg" : $null
+            links                    = $asset.links
         }
     
         # Warn if names are missing
@@ -172,6 +218,9 @@ $resourceTypes = ($metadataJson.assets + @(@{ addOverrides = $true })) | ForEach
         {
             Write-Warning "Missing display name for $($resourceType): $($typeInfo | ConvertTo-Json -Depth 10)"
         }
+
+        # PowerShell isn't respecting wrapping the value in @(), so forcing it with string manipulation
+        function forceArray($val) { if ($val -and $val.Length -gt 0 -and $val[0] -ne '[') { return "[$val]" } else { return $val } }
      
         # Write output
         return @{
@@ -182,7 +231,10 @@ $resourceTypes = ($metadataJson.assets + @(@{ addOverrides = $true })) | ForEach
                 PluralDisplayName        = $typeInfo.pluralDisplayName
                 LowerSingularDisplayName = $typeInfo.lowerSingularDisplayName
                 LowerPluralDisplayName   = $typeInfo.lowerPluralDisplayName
+                IsPreview                = $typeInfo.isPreview ? 'true' : 'false'
                 Description              = $typeInfo.description ?? '' # Convert null to empty string for Export-Csv
+                Icon                     = $typeInfo.icon
+                Links                    = ($null -eq $typeInfo.links -or $typeInfo.links.Count -eq 0) ? '' : (forceArray ($typeInfo.links | ConvertTo-Json -Depth 2 -Compress))
             }
             json = $typeInfo
         }
