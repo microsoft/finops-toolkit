@@ -59,6 +59,19 @@ Legend:
 >       _This change requires re-ingesting historical data and is not backwards compatible. The unified schema used in this release is aligned with the future plans for Microsoft Cost Management exports. Note the next release will update the schema to align to the FinOps Open Cost and Usage Specification (FOCUS)._
 >    </blockquote>
 
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed:
+>
+> 1. Removed unused custom visualizations.
+> 2. Organized setup instructions in Cost summary to match other reports.
+>
+> 🛠️ Fixed:
+>
+> 1. Removed sensitivity labels.
+> 2. Fixed error in ChargeId column when ResourceId is empty.
+
 🖥️ PowerShell
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
