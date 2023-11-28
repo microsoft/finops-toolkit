@@ -40,7 +40,7 @@ Get-FinOpsCostExport `
     [-DataSet <string>] `
     [-StorageAccountId <string>] `
     [-StorageContainer <string>] `
-    [-ApiVersion <string>] `
+    [-ApiVersion <string>]
 ```
 
 <br>
