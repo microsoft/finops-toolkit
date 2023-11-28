@@ -36,7 +36,7 @@
                     "durationMs": 86400000
                   },
                   "defaultValue": "value::all",
-                  "label": " Subscription"
+                  "label": "Subscription"
                 },
                 {
                   "id": "faa42c49-ab77-42a1-9aaf-d8508b9408af",
