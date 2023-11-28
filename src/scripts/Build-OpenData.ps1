@@ -25,14 +25,17 @@ Param(
 # Some columns may have numbers and strings. Use the following list to force them to be handled as string.
 $stringColumnNames = @('UnitOfMeasure')
 
-function Write-Command($Command, $File) {
+function Write-Command($Command, $File)
+{
     $columns = (Get-Content $File -TotalCount 1).Split(",")
     $data = Import-Csv $File
 
     Write-Output "# Copyright (c) Microsoft Corporation."
     Write-Output "# Licensed under the MIT License."
     Write-Output ""
-    Write-Output "function $Command {"
+    Write-Output "function $Command"
+    Write-Output "{"
+    Write-Output "    param()"
     Write-Output "    return [PSCustomObject]@("
 
     $first = $true
@@ -53,7 +56,8 @@ function Write-Command($Command, $File) {
     Write-Output "}"
 }
 
-function Write-Test($DataType, $Command) {
+function Write-Test($DataType, $Command)
+{
     Write-Output "# Copyright (c) Microsoft Corporation."
     Write-Output "# Licensed under the MIT License."
     Write-Output ""
@@ -81,9 +85,9 @@ Get-ChildItem "$srcDir/*.csv" `
 | ForEach-Object {
     $file = $_
     $dataType = $file.BaseName
-    $command = "Get-OpenData$($dataType)"
+    $command = "Get-OpenData$($dataType.TrimEnd('s'))"
     
     Write-Verbose "Generating $command from $dataType.csv..."
-    Write-Command -Command $command -File $file  | Out-File "$outDir/Private/$command.ps1"          -Append:$false
-    Write-Test -DataType $dataType -Command $command | Out-File "$outDir/Tests/Unit/$command.Tests.ps1" -Append:$false
+    Write-Command -Command $command -File $file  | Out-File "$outDir/Private/$command.ps1" -Encoding ascii -Append:$false
+    Write-Test -DataType $dataType -Command $command | Out-File "$outDir/Tests/Unit/$command.Tests.ps1" -Encoding ascii -Append:$false
 }
