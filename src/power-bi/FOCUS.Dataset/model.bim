@@ -8,11 +8,11 @@
       },
       {
         "name": "PBIDesktopVersion",
-        "value": "2.122.746.0 (23.10)"
+        "value": "2.123.742.0 (23.11)"
       },
       {
         "name": "PBI_QueryOrder",
-        "value": "[\"CostDetails\",\"Data Source\",\"Billing Account ID\",\"Billing Profile ID\",\"Number of Months\",\"Storage URL\",\"File Type\",\"RangeStart\",\"RangeEnd\",\"ftk_LoadData\",\"ftk_NormalizeSchema\",\"▶️  START HERE\",\"Errors in CostDetails\"]"
+        "value": "[\"CostDetails\",\"Billing Account ID\",\"Billing Profile ID\",\"Number of Months\",\"Storage URL\",\"File Type\",\"RangeStart\",\"RangeEnd\",\"ftk_LoadData\",\"ftk_NormalizeSchema\",\"▶️  START HERE\",\"Data Source\"]"
       },
       {
         "name": "PBI_ProTooling",
@@ -10848,13 +10848,17 @@
           {
             "name": "PBI_ResultType",
             "value": "Text"
+          },
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
           }
         ],
         "description": "Do you want to connect to the Cost Management connector or a FinOps hubs instance?",
         "expression": "\"FinOps hubs\" meta [IsParameterQuery=true, List={\"Cost Management connector\", \"FinOps hubs\"}, DefaultValue=\"Cost Management connector\", Type=\"Text\", IsParameterQueryRequired=true]",
         "kind": "m",
         "lineageTag": "e7c31d4f-63c6-41e9-9398-31c4f7e682b3",
-        "queryGroup": "🛠️ Setup"
+        "queryGroup": "🛠️ Setup\\▶️ Instructions"
       },
       {
         "name": "Billing Account ID",
@@ -11129,10 +11133,6 @@
       {
         "name": "ftk_NormalizeSchema",
         "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
           {
             "name": "PBI_ResultType",
             "value": "Function"
@@ -11475,7 +11475,7 @@
           "        [BillingAccountId],",
           "        if [BillingProfileId] = [BillingAccountId]       then null else [BillingProfileId], // Only add BP if not the same as the BA (all EA)",
           "        [InvoiceSectionId],",
-          "        if Text.Contains([ResourceId], [SubscriptionId]) then null else [SubscriptionId], // Only add sub if not in the resource ID",
+          "        if _isNotBlank([ResourceId]) and Text.Contains([ResourceId], [SubscriptionId]) then null else [SubscriptionId], // Only add sub if not in the resource ID",
           "        [ResourceId],",
           "        [ResourceLocation],",
           "        [OfferId],",
@@ -11684,36 +11684,7 @@
         ],
         "kind": "m",
         "lineageTag": "ed70f0c9-8b05-46a6-b70e-99f9b2cf21df",
-        "queryGroup": "🛠️ Setup"
-      },
-      {
-        "name": "Errors in CostDetails",
-        "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          }
-        ],
-        "expression": [
-          "let",
-          "Source = CostDetails,",
-          "  #\"Detected Type Mismatches\" = let",
-          "    tableWithOnlyPrimitiveTypes = Table.SelectColumns(Source, Table.ColumnsOfType(Source, {type nullable number, type nullable text, type nullable logical, type nullable date, type nullable datetime, type nullable datetimezone, type nullable time, type nullable duration})),",
-          "    recordTypeFields = Type.RecordFields(Type.TableRow(Value.Type(tableWithOnlyPrimitiveTypes))),",
-          "    fieldNames = Record.FieldNames(recordTypeFields),",
-          "    fieldTypes = List.Transform(Record.ToList(recordTypeFields), each [Type]),",
-          "    pairs = List.Transform(List.Positions(fieldNames), (i) => {fieldNames{i}, (v) => if v = null or Value.Is(v, fieldTypes{i}) then v else error [Message = \"The type of the value does not match the type of the column.\", Detail = v], fieldTypes{i}})",
-          "in",
-          "    Table.TransformColumns(Source, pairs),",
-          "  #\"Added Index\" = Table.AddIndexColumn(#\"Detected Type Mismatches\", \"Row Number\" ,1),",
-          "  #\"Kept Errors\" = Table.SelectRowsWithErrors(#\"Added Index\", {\"AccountName\", \"AccountOwnerId\", \"AccountType\", \"AdditionalInfo\", \"AmortizedCost\", \"AmortizedCostInUsd\", \"AmortizedPricingCost\", \"BilledCost\", \"BilledCostInUsd\", \"BilledPricingCost\", \"BillingAccountId\", \"BillingAccountName\", \"BillingCurrency\", \"BillingPeriodEndDate\", \"BillingPeriodStartDate\", \"BillingProfileId\", \"BillingProfileName\", \"CPUHours\", \"CapacityCommitmentId\", \"ChargeId\", \"ChargeType\", \"CommitmentDiscounKey\", \"CommitmentDiscountId\", \"CommitmentDiscountName\", \"CommitmentDiscountNameUnique\", \"CommitmentDiscountProgram\", \"CommitmentSavings\", \"CommitmentUtilizationAmount\", \"CommitmentUtilizationPotential\", \"ConsumedService\", \"CostAllocationRuleName\", \"CostCenter\", \"CustomerId\", \"CustomerName\", \"DataSet\", \"Date\", \"DiscountSavings\", \"EffectivePrice\", \"ExchangeRate\", \"ExchangeRateDate\", \"Frequency\", \"HybridBenefitCPUs\", \"HybridBenefitStatus\", \"InvoiceId\", \"InvoiceSectionId\", \"InvoiceSectionName\", \"IsAzureCreditEligible\", \"ListCost\", \"ListCostInUsd\", \"ListPrice\", \"ListPriceSavings\", \"MeterCategory\", \"MeterId\", \"MeterName\", \"MeterRegion\", \"MeterSubCategory\", \"Month\", \"NegotiatedSavings\", \"OfferId\", \"OnDemandCost\", \"OnDemandPrice\", \"OnDemandPriceSavings\", \"PartNumber\", \"PartnerCreditApplied\", \"PartnerCreditRate\", \"PartnerId\", \"PartnerName\", \"PlanName\", \"PreviousInvoiceId\", \"PricingCurrency\", \"PricingModel\", \"ProductCPUs\", \"ProductId\", \"ProductImageType\", \"ProductName\", \"ProductOrderId\", \"ProductOrderName\", \"ProductSKU\", \"ProductUsageType\", \"ProductVMProperties\", \"Provider\", \"PublisherId\", \"PublisherName\", \"PublisherType\", \"Quantity\", \"ResellerId\", \"ResellerName\", \"ResourceGroupName\", \"ResourceGroupNameUnique\", \"ResourceId\", \"ResourceLocation\", \"ResourceMachineName\", \"ResourceName\", \"ResourceNameUnique\", \"ResourceType\", \"SchemaVersion\", \"ServiceFamily\", \"ServicePeriodEndDate\", \"ServicePeriodStartDate\", \"SubscriptionId\", \"SubscriptionName\", \"SubscriptionNameUnique\", \"Tags\", \"TagsDictionary\", \"Term\", \"UnitOfMeasure\", \"focus_ServiceCategory\", \"focus_ServiceName\"}),",
-          "  #\"Reordered Columns\" = Table.ReorderColumns(#\"Kept Errors\", {\"Row Number\", \"AccountName\", \"AccountOwnerId\", \"AccountType\", \"AdditionalInfo\", \"AmortizedCost\", \"AmortizedCostInUsd\", \"AmortizedPricingCost\", \"BilledCost\", \"BilledCostInUsd\", \"BilledPricingCost\", \"BillingAccountId\", \"BillingAccountName\", \"BillingCurrency\", \"BillingPeriodEndDate\", \"BillingPeriodStartDate\", \"BillingProfileId\", \"BillingProfileName\", \"CPUHours\", \"CapacityCommitmentId\", \"ChargeId\", \"ChargeType\", \"CommitmentDiscounKey\", \"CommitmentDiscountId\", \"CommitmentDiscountName\", \"CommitmentDiscountNameUnique\", \"CommitmentDiscountProgram\", \"CommitmentSavings\", \"CommitmentUtilizationAmount\", \"CommitmentUtilizationPotential\", \"ConsumedService\", \"CostAllocationRuleName\", \"CostCenter\", \"CustomerId\", \"CustomerName\", \"DataSet\", \"Date\", \"DiscountSavings\", \"EffectivePrice\", \"ExchangeRate\", \"ExchangeRateDate\", \"Frequency\", \"HybridBenefitCPUs\", \"HybridBenefitStatus\", \"InvoiceId\", \"InvoiceSectionId\", \"InvoiceSectionName\", \"IsAzureCreditEligible\", \"ListCost\", \"ListCostInUsd\", \"ListPrice\", \"ListPriceSavings\", \"MeterCategory\", \"MeterId\", \"MeterName\", \"MeterRegion\", \"MeterSubCategory\", \"Month\", \"NegotiatedSavings\", \"OfferId\", \"OnDemandCost\", \"OnDemandPrice\", \"OnDemandPriceSavings\", \"PartNumber\", \"PartnerCreditApplied\", \"PartnerCreditRate\", \"PartnerId\", \"PartnerName\", \"PlanName\", \"PreviousInvoiceId\", \"PricingCurrency\", \"PricingModel\", \"ProductCPUs\", \"ProductId\", \"ProductImageType\", \"ProductName\", \"ProductOrderId\", \"ProductOrderName\", \"ProductSKU\", \"ProductUsageType\", \"ProductVMProperties\", \"Provider\", \"PublisherId\", \"PublisherName\", \"PublisherType\", \"Quantity\", \"ResellerId\", \"ResellerName\", \"ResourceGroupName\", \"ResourceGroupNameUnique\", \"ResourceId\", \"ResourceLocation\", \"ResourceMachineName\", \"ResourceName\", \"ResourceNameUnique\", \"ResourceType\", \"SchemaVersion\", \"ServiceFamily\", \"ServicePeriodEndDate\", \"ServicePeriodStartDate\", \"SubscriptionId\", \"SubscriptionName\", \"SubscriptionNameUnique\", \"Tags\", \"TagsDictionary\", \"Term\", \"UnitOfMeasure\", \"focus_ServiceCategory\", \"focus_ServiceName\"})",
-          "in",
-          "  #\"Reordered Columns\""
-        ],
-        "kind": "m",
-        "lineageTag": "9785dc31-1ce8-460e-8444-51476bfb12cd",
-        "queryGroup": "Query Errors - 10/20/2023 3:43:53 AM"
+        "queryGroup": "🛠️ Setup\\▶️ Instructions"
       }
     ],
     "queryGroups": [
@@ -11721,7 +11692,7 @@
         "annotations": [
           {
             "name": "PBI_QueryGroupOrder",
-            "value": "1"
+            "value": "2"
           }
         ],
         "folder": "FinOps toolkit"
@@ -11766,11 +11737,10 @@
         "annotations": [
           {
             "name": "PBI_QueryGroupOrder",
-            "value": "5"
+            "value": "0"
           }
         ],
-        "description": "Errors in queries that were loaded on 10/20/2023 3:43:53 AM.",
-        "folder": "Query Errors - 10/20/2023 3:43:53 AM"
+        "folder": "🛠️ Setup\\▶️ Instructions"
       }
     ],
     "relationships": [
@@ -12190,7 +12160,7 @@
           },
           {
             "name": "PBI_ResultType",
-            "value": "Exception"
+            "value": "Table"
           },
           {
             "name": "PBI_NavigationStepName",

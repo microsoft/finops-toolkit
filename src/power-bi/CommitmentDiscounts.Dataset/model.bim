@@ -8,7 +8,7 @@
       },
       {
         "name": "PBIDesktopVersion",
-        "value": "2.122.746.0 (23.10)"
+        "value": "2.123.742.0 (23.11)"
       },
       {
         "name": "PBI_QueryOrder",
@@ -11303,20 +11303,20 @@
           "    ChargeId = Table.AddColumn(Month, \"ChargeId\", each Text.Combine(List.RemoveItems({",
           "        Date.ToText([Date]),",
           "        [BillingAccountId],",
-          "        if [BillingProfileId] = [BillingAccountId]       then null else [BillingProfileId], // Only add BP if not the same as the BA (all EA)",
+          "        if [BillingProfileId] = [BillingAccountId] then null else [BillingProfileId], // Only add BP if not the same as the BA (all EA)",
           "        [InvoiceSectionId],",
-          "        if Text.Contains([ResourceId], [SubscriptionId]) then null else [SubscriptionId], // Only add sub if not in the resource ID",
+          "        if _isNotBlank([ResourceId]) and Text.Contains([ResourceId], [SubscriptionId]) then null else [SubscriptionId], // Only add sub if not in the resource ID",
           "        [ResourceId],",
           "        [ResourceLocation],",
           "        [OfferId],",
           "        [ProductId],",
           "        [MeterId],",
           "        [PartNumber],",
-          "        if _isBlank([CommitmentDiscountId])               then null else List.Last(Text.Split([CommitmentDiscountId], \"/\")),",
+          "        if _isBlank([CommitmentDiscountId])        then null else List.Last(Text.Split([CommitmentDiscountId], \"/\")),",
           "        [CostAllocationRuleName],",
           "        [CostCenter],",
-          "        if _isBlank([Tags])                               then null else Text.Remove([Tags], {\"{\",\"\"\"\",\"}\"}),",
-          "        if _isBlank([AdditionalInfo])                     then null else Text.Remove([AdditionalInfo], {\"{\",\"\"\"\",\"}\"})",
+          "        if _isBlank([Tags])                        then null else Text.Remove([Tags], {\"{\",\"\"\"\",\"}\"}),",
+          "        if _isBlank([AdditionalInfo])              then null else Text.Remove([AdditionalInfo], {\"{\",\"\"\"\",\"}\"})",
           "    }, {null, \"\"}), \"-\")),",
           "   ",
           "    // Cleanup",
@@ -11964,6 +11964,10 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
+          },
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
           }
         ],
         "columns": [
