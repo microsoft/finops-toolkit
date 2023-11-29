@@ -107,31 +107,40 @@ else
     if ($typesToRun.Count -eq 3) { $typesToRun = '*' }
     
     $testsToRun = @()
-    if ($Cost) { $testsToRun += '*-FinOpsCost*' }
+    if ($Cost) { $testsToRun += '*-FinOpsCost*', 'Cost*' }
     if ($Data) { $testsToRun += '*-OpenData*', '*-FinOpsPricingUnit*', '*-FinOpsRegion*', '*-FinOpsResourceType*', '*-FinOpsService*' }
-    if ($Exports) { $testsToRun += '*-FinOpsCostExport*' }
-    if ($FOCUS) { $testsToRun += '*-FinOpsSchema*', '*FOCUS*' }
-    if ($Hubs) { $testsToRun += '*-FinOpsHub*' }
-    if ($Toolkit) { $testsToRun += '*FinOpsToolkit.Tests.ps1' }
+    if ($Exports) { $testsToRun += '*-FinOpsCostExport*', 'CostExports.Tests.ps1' }
+    if ($FOCUS) { $testsToRun += '*-FinOpsSchema*', 'FOCUS.Tests.ps1' }
+    if ($Hubs) { $testsToRun += '*-FinOpsHub*', 'Hubs.Tests.ps1' }
+    if ($Toolkit) { $testsToRun += 'FinOpsToolkit.Tests.ps1' }
     if (-not $testsToRun) { $testsToRun = "*" }
+    
+    Write-Host ''
+    Write-Host ("Finding <$($typesToRun -join '|')>/<$($testsToRun -join '|')> tests..." -replace '<\*>/', '' -replace '<([^\|>]+)>', '$1' -replace '\*\-?', '' -replace '/ tests', ' tests') -NoNewline
     
     $testsToRun = $typesToRun `
     | ForEach-Object { 
         $testType = $_
         $testsToRun | ForEach-Object { 
             $path = "$PSScriptRoot/../powershell/Tests/$testType/$_"
-            if ((Get-ChildItem $path).Count -gt 0)
+            if ((Get-ChildItem $path -ErrorAction SilentlyContinue).Count -gt 0)
             {
                 return $path
             }
         }
     }
 
+    Write-Host "$($testsToRun.Count) found"
+    Write-Host ''
+    if (-not $testsToRun)
+    {
+        return
+    }
+
     $config = New-PesterConfiguration
     $config.Run.Path = $testsToRun | Select-Object -Unique
 }
 
-Write-Host ''
 Write-Host '--------------------------------------------------'
 Write-Host ''
 #$relativePath = ($_ -replace '\\', '/' -split '/')[-2..-1] -join '/' -replace '.Tests.ps1', ''
