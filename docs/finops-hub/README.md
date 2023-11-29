@@ -85,7 +85,7 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
 <img alt="Screenshot of the services cost report" style="max-width:200px" src="https://user-images.githubusercontent.com/399533/216882700-4e04b589-0580-4e49-9b40-9f5948792975.png">
 <img alt="Screenshot of the commitment-based discounts coverage report" style="max-width:200px" src="https://user-images.githubusercontent.com/399533/216882916-bb7ecfa3-d092-4ae2-88e1-7a0425c14dca.png">
 
-[Browse reports](./reports/README.md){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Browse reports](../power-bi/README.md){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [See the template](./template.md){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
@@ -95,7 +95,7 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
 1. Register the Microsoft.EventGrid and Microsoft.CostManagementExports resource providers. See [Register a resource provider](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) for details.
 2. [Deploy the **finops-hub** template](../resources/deploy.md).
 
-   [![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy) &nbsp; [![Deploy To Azure US Gov](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy/gov) &nbsp; [![Deploy To Azure China](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazurechina.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy/china) 
+   [![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy) &nbsp; [![Deploy To Azure US Gov](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy/gov) &nbsp; [![Deploy To Azure China](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazurechina.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy/china)
 
 3. [Create a new cost export](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data?tabs=azure-portal) using the following settings:
 
@@ -114,9 +114,9 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
    - Use the **Run now** command at the top of the Cost Management Exports page.
    - Your data should be available within 15 minutes or so, depending on how big your account is.
 5. Download one or more of the available Power BI starter templates from the [latest release](https://github.com/microsoft/finops-toolkit/releases):
-   - [Cost summary](./reports/cost-summary.md) for standard cost roll-ups.
-   - [Commitment discounts](./reports/commitment-discounts.md) for commitment-based savings utilization and coverage.
-6. [Connect Power BI to your hub](./reports/README.md#setup-a-finops-hub-report)
+   - [Cost summary](../power-bi/cost-summary.md) for standard cost roll-ups.
+   - [Commitment discounts](../power-bi/commitment-discounts.md) for commitment-based savings utilization and coverage.
+6. [Connect Power BI to your hub](../power-bi/README.md#-connect-to-your-data)
 
 If you run into any issues, see [Troubleshooting Power BI reports](./troubleshooting.md).
 
@@ -128,11 +128,11 @@ After deploying a hub instance, there are several ways for you to get started:
 
 1. Customize the built-in Power BI reports.
 
-   Our Power BI reports are starter templates and intended to be customized. We encourage you to customize as needed. [Learn more](./reports/README.md).
+   Our Power BI reports are starter templates and intended to be customized. We encourage you to customize as needed. [Learn more](../power-bi/README.md).
 
 2. Create your own Power BI reports.
 
-   If you'd like to create your own reports or add cost data to an existing report, you can either [copy queries from a pre-built report](./reports/README.md#setup-a-finops-hub-report) or [connect manually](./reports/README.md#connect-manually) using the Azure Data Lake Storage Gen2 connector.
+   If you'd like to create your own reports or add cost data to an existing report, you can either [copy queries from a pre-built report](../power-bi/README.md#setup-a-finops-hub-report) or [connect manually](../power-bi/README.md#connect-manually) using the Azure Data Lake Storage Gen2 connector.
 
    <!-- NOTE TO CONTRIBUTORS: Keep this info note in sync with the same one under #3 below. -->
 
