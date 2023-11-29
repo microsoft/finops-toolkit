@@ -1,7 +1,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-function Get-FinOpsRegionsData {
+function Get-OpenDataRegion
+{
+    param()
     return [PSCustomObject]@(
         [PSCustomObject]@{ OriginalValue = 'AE Central'; RegionId = 'uaecentral'; RegionName = 'UAE Central'; }
         ,[PSCustomObject]@{ OriginalValue = 'AE North'; RegionId = 'uaenorth'; RegionName = 'UAE North'; }

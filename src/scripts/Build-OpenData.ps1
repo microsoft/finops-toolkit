@@ -33,7 +33,9 @@ function Write-Command($Command, $File)
     Write-Output "# Copyright (c) Microsoft Corporation."
     Write-Output "# Licensed under the MIT License."
     Write-Output ""
-    Write-Output "function $Command {"
+    Write-Output "function $Command"
+    Write-Output "{"
+    Write-Output "    param()"
     Write-Output "    return [PSCustomObject]@("
 
     $first = $true
@@ -290,9 +292,9 @@ Get-ChildItem "$srcDir/*.csv" `
 | ForEach-Object {
     $file = $_
     $dataType = $file.BaseName
-    $command = "Get-OpenData$($dataType)"
+    $command = "Get-OpenData$($dataType.TrimEnd('s'))"
     
     Write-Verbose "Generating $command from $dataType.csv..."
-    Write-Command -Command $command -File $file      | Out-File "$outDir/Private/$command.ps1"          -Append:$false
-    Write-Test -DataType $dataType -Command $command | Out-File "$outDir/Tests/Unit/$command.Tests.ps1" -Append:$false
+    Write-Command -Command $command -File $file      | Out-File "$outDir/Private/$command.ps1"          -Encoding ascii -Append:$false
+    Write-Test -DataType $dataType -Command $command | Out-File "$outDir/Tests/Unit/$command.Tests.ps1" -Encoding ascii -Append:$false
 }

@@ -60,26 +60,32 @@ param
 )
 
 $update = if ($Major) { "major" } elseif ($Minor) { "minor" } elseif ($Patch) { "patch" } elseif ($Prerelease) { "prerelease" } 
-if ($update) {
+if ($update)
+{
     Write-Verbose "Updating $update version."
-} elseif ($Version) {
+}
+elseif ($Version)
+{
     $update = $Version
     Write-Verbose "Updating to version $update."
 }
 
 $newLabel = if (-not $Label) { "dev" } else { $Label.ToLower() -replace '[^a-z]', '' }
-if ($update -eq "prerelease") {
+if ($update -eq "prerelease")
+{
     Write-Verbose "Using label '$newLabel'."
 }
 
 # Only update version if requested
-if ($update -or $Version) {
+if ($update -or $Version)
+{
     $null = npm --no-git-tag-version --preid $newLabel version $update
 }
 
 $ver = & "$PSScriptRoot/Get-Version"
 
-if ($update -or $Version) {
+if ($update -or $Version)
+{
     Write-Verbose "Updated to version $ver."
 }
 
