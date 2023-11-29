@@ -67,6 +67,14 @@ Legend:
 > 1. New-FinOpsCostExport
 > 2. Remove-FinOpsHubScope
 
+🌐 Open data
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. [Resource types](./open-data/README.md#-resource-types) to map Azure resource types to friendly display names.
+> 2. [Get-FinOpsResourceType](./powershell/data/Get-FinOpsResourceType.md) PowerShell command to support resource type to display name mapping.
+
 <br>
 
 ## 🛠️ v0.1.1

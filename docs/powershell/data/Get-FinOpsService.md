@@ -3,7 +3,7 @@ layout: default
 grand_parent: PowerShell
 parent: Open data
 title: Get-FinOpsService
-nav_order: 30
+nav_order: 40
 description: 'Gets the name and category for a service, publisher, and cloud provider'
 permalink: /powershell/data/Get-FinOpsService
 ---
