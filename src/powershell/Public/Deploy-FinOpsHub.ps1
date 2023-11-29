@@ -6,9 +6,9 @@
     Deploys a FinOps hub instance.
 
     .DESCRIPTION
-    The Deploy-FinOpsHub command creates a new FinOps hub instance. The FinOps hub template is downloaded from GitHub.
+    The Deploy-FinOpsHub command either creates a new or updates an existing FinOps hub instance by deploying an Azure Resource Manager deployment template. The FinOps hub template is downloaded from GitHub.
 
-    Before running this command, register the Microsoft.EventGrid and Microsoft.CostManagementExports providers. Resource provider registration must be done by a subscription contributor.
+    Deploy-FinOpsHub calls Initialize-FinOpsHubDeployment before deploying the template.
 
     .PARAMETER Name
     Required. Name of the FinOps hub instance.
