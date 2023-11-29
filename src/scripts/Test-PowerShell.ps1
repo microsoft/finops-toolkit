@@ -112,7 +112,7 @@ else
     if ($Exports) { $testsToRun += '*-FinOpsCostExport*', 'CostExports.Tests.ps1' }
     if ($FOCUS) { $testsToRun += '*-FinOpsSchema*', 'FOCUS.Tests.ps1' }
     if ($Hubs) { $testsToRun += '*-FinOpsHub*', 'Hubs.Tests.ps1' }
-    if ($Toolkit) { $testsToRun += 'FinOpsToolkit.Tests.ps1' }
+    if ($Toolkit) { $testsToRun += 'Toolkit.Tests.ps1', '*-FinOpsToolkit*' }
     if (-not $testsToRun) { $testsToRun = "*" }
     
     Write-Host ''
