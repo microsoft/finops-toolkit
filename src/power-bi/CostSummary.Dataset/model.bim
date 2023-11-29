@@ -8,11 +8,11 @@
       },
       {
         "name": "PBIDesktopVersion",
-        "value": "2.122.746.0 (23.10)"
+        "value": "2.123.742.0 (23.11)"
       },
       {
         "name": "PBI_QueryOrder",
-        "value": "[\"CostDetails\",\"Data Source\",\"Billing Account ID\",\"Billing Profile ID\",\"Number of Months\",\"Storage URL\",\"File Type\",\"RangeStart\",\"RangeEnd\",\"ftk_LoadData\",\"ftk_NormalizeSchema\",\"▶️  START HERE\"]"
+        "value": "[\"CostDetails\",\"▶️  START HERE\",\"Data Source\",\"Billing Account ID\",\"Billing Profile ID\",\"Number of Months\",\"Storage URL\",\"File Type\",\"RangeStart\",\"RangeEnd\",\"ftk_LoadData\",\"ftk_NormalizeSchema\"]"
       },
       {
         "name": "PBI_ProTooling",
@@ -10711,7 +10711,7 @@
         "expression": "\"FinOps hubs\" meta [IsParameterQuery=true, List={\"Cost Management connector\", \"FinOps hubs\"}, DefaultValue=\"Cost Management connector\", Type=\"Text\", IsParameterQueryRequired=true]",
         "kind": "m",
         "lineageTag": "e7c31d4f-63c6-41e9-9398-31c4f7e682b3",
-        "queryGroup": "🛠️ Setup"
+        "queryGroup": "🛠️ Setup\\Instructions"
       },
       {
         "name": "Billing Account ID",
@@ -11354,20 +11354,20 @@
           "    ChargeId = Table.AddColumn(Month, \"ChargeId\", each Text.Combine(List.RemoveItems({",
           "        Date.ToText([Date]),",
           "        [BillingAccountId],",
-          "        if [BillingProfileId] = [BillingAccountId]       then null else [BillingProfileId], // Only add BP if not the same as the BA (all EA)",
+          "        if [BillingProfileId] = [BillingAccountId] then null else [BillingProfileId], // Only add BP if not the same as the BA (all EA)",
           "        [InvoiceSectionId],",
-          "        if Text.Contains([ResourceId], [SubscriptionId]) then null else [SubscriptionId], // Only add sub if not in the resource ID",
+          "        if _isNotBlank([ResourceId]) and Text.Contains([ResourceId], [SubscriptionId]) then null else [SubscriptionId], // Only add sub if not in the resource ID",
           "        [ResourceId],",
           "        [ResourceLocation],",
           "        [OfferId],",
           "        [ProductId],",
           "        [MeterId],",
           "        [PartNumber],",
-          "        if _isBlank([CommitmentDiscountId])               then null else List.Last(Text.Split([CommitmentDiscountId], \"/\")),",
+          "        if _isBlank([CommitmentDiscountId])        then null else List.Last(Text.Split([CommitmentDiscountId], \"/\")),",
           "        [CostAllocationRuleName],",
           "        [CostCenter],",
-          "        if _isBlank([Tags])                               then null else Text.Remove([Tags], {\"{\",\"\"\"\",\"}\"}),",
-          "        if _isBlank([AdditionalInfo])                     then null else Text.Remove([AdditionalInfo], {\"{\",\"\"\"\",\"}\"})",
+          "        if _isBlank([Tags])                        then null else Text.Remove([Tags], {\"{\",\"\"\"\",\"}\"}),",
+          "        if _isBlank([AdditionalInfo])              then null else Text.Remove([AdditionalInfo], {\"{\",\"\"\"\",\"}\"})",
           "    }, {null, \"\"}), \"-\")),",
           "   ",
           "    // Cleanup",
@@ -11565,7 +11565,7 @@
         ],
         "kind": "m",
         "lineageTag": "ed70f0c9-8b05-46a6-b70e-99f9b2cf21df",
-        "queryGroup": "🛠️ Setup"
+        "queryGroup": "🛠️ Setup\\Instructions"
       }
     ],
     "queryGroups": [
@@ -11613,6 +11613,15 @@
           }
         ],
         "folder": "🛠️ Setup\\Functions"
+      },
+      {
+        "annotations": [
+          {
+            "name": "PBI_QueryGroupOrder",
+            "value": "0"
+          }
+        ],
+        "folder": "🛠️ Setup\\Instructions"
       }
     ],
     "relationships": [
@@ -13708,10 +13717,9 @@
             "source": {
               "expression": [
                 "let",
-                "    Source = ftk_LoadData(2),",
-                "    #\"Kept Errors\" = Table.SelectRowsWithErrors(Source, {\"AccountName\"})",
+                "    Source = ftk_LoadData(2)",
                 "in",
-                "    #\"Kept Errors\""
+                "    Source"
               ],
               "type": "m"
             }

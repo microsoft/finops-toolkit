@@ -18,6 +18,7 @@ Leverage open data to normalize and enhance your FinOps reporting.
 
 - [📏 Pricing units](#-pricing-units)
 - [🗺️ Regions](#️-regions)
+- [📚 Resource types](#-resource-types)
 - [🎛️ Services](#️-services)
 - [🙋‍♀️ Looking for more?](#️-looking-for-more)
 - [🧰 Related tools](#-related-tools)
@@ -86,6 +87,33 @@ Sample data:
 
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 [See PowerShell](../powershell/data/Get-FinOpsRegion){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+
+<br>
+
+## 📚 Resource types
+
+Azure resource types are a semi-readable code that represents what kind of resource it is. Currently, there's no mapping of the resource type to a user-friendly string, description, or its icon. The ResourceTypes file provides a list of resource type values you'll find in the Azure portal along with their display names, description, and a link to the icon, when available.
+
+Sample data:
+
+| ResourceType                      | SingularDisplayName     | PluralDisplayName        | LowerSingularDisplayName | LowerPluralDisplayName | Description                                                |
+| --------------------------------- | ----------------------- | ------------------------ | ------------------------ | ---------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| microsoft.compute/virtualmachines | Virtual machine         | Virtual machines         | virtual machine          | virtual machines       | Create a virtual machine                                   | that runs Linux or Windows. Select an image from the marketplace or use your own customized image."                                                                         |
+| microsoft.insights/workbooks      | Azure Workbook          | Azure Workbooks          | azure workbook           | azure workbooks        | Azure Monitor Workbooks is a canvas                        | for data analysis or reporting in the Azure Portal"                                                                                                                         |
+| microsoft.logic/workflows         | Logic app               | Logic apps               | logic app                | logic apps             | Create workflows leveraging hundreds of connectors and the | visual designer."                                                                                                                                                           |
+| microsoft.network/virtualnetworks | Virtual network         | Virtual networks         | virtual network          | virtual networks       | Create a virtual network                                   | to securely connect your Azure resources to each other. Connect your virtual network to your on-premises network using an Azure VPN Gateway or ExpressRoute."               |
+| microsoft.recoveryservices/vaults | Recovery Services vault | Recovery Services vaults | recovery services vault  | recovery services      | vaults                                                     | A disaster recovery and data protection strategy keeps your business running when unexpected events occur. Get started by creating a Recovery Services vault."              |
+| microsoft.search/searchservices   | Search service          | Search services          | search service           | search services        | "                                                          |
+| microsoft.sql/servers             | SQL server              | SQL servers              | SQL server               | SQL servers            | "                                                          |
+| microsoft.sql/servers/databases   | SQL database            | SQL databases            | SQL database             | SQL databases          | "                                                          |
+| microsoft.web/sites               | App Service web app     | App Service web apps     | app service              | app services           | Create, build, deploy, and manage                          | powerful web, mobile, and API apps for employees or customers using a single back-end. Build standards-based web apps and APIs using .NET, Java, Node.js, PHP, and Python." |
+
+<blockquote class="tip" markdown="1">
+   _You can also integrate resource type data into your workflow with the [Get-FinOpsResourceType](../powershell/data/Get-FinOpsResourceType) PowerShell command._
+</blockquote>
+
+[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[See PowerShell](../powershell/data/Get-FinOpsResourceType){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
