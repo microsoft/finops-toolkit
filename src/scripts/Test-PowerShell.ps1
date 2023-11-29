@@ -110,7 +110,7 @@ else
     if ($Cost) { $testsToRun += '*-FinOpsCost*' }
     if ($Data) { $testsToRun += '*-OpenData*', '*-FinOpsPricingUnit*', '*-FinOpsRegion*', '*-FinOpsResourceType*', '*-FinOpsService*' }
     if ($Exports) { $testsToRun += '*-FinOpsCostExport*' }
-    if ($FOCUS) { $testsToRun += '*-FinOpsSchema*' }
+    if ($FOCUS) { $testsToRun += '*-FinOpsSchema*', '*FOCUS*' }
     if ($Hubs) { $testsToRun += '*-FinOpsHub*' }
     if ($Toolkit) { $testsToRun += '*FinOpsToolkit.Tests.ps1' }
     if (-not $testsToRun) { $testsToRun = "*" }
