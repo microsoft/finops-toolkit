@@ -241,10 +241,11 @@ Example:
 
 [Package-Toolkit.ps1](./Package-Toolkit.ps1) packages all toolkit templates as ZIP files for release.
 
-| Parameter   | Description                                                                                      |
-| ----------- | ------------------------------------------------------------------------------------------------ |
-| `‑Template` | Optional. Name of the template or module to package. Default = \* (all).                         |
-| `‑Build`    | Optional. Indicates whether the Build-Toolkit command should be executed first. Default = false. |
+| Parameter   | Description                                                                                           |
+| ----------- | ----------------------------------------------------------------------------------------------------- |
+| `‑Template` | Optional. Name of the template or module to package. Default = \* (all).                              |
+| `‑Build`    | Optional. Indicates whether the Build-Toolkit command should be executed first. Default = false.      |
+| `‑PowerBI`  | Optional. Indicates whether to open Power BI files as part of the packaging process. Default = false. |
 
 Examples:
 

@@ -14,6 +14,9 @@
     .PARAMETER Build
     Optional. Indicates whether the Build-Toolkit command should be executed first. Default = false.
 
+    .PARAMETER PowerBI
+    Optional. Indicates whether to open Power BI files as part of the packaging process. Default = false.
+
     .EXAMPLE
     ./Package-Toolkit
 
@@ -26,7 +29,8 @@
 #>
 Param(
     [Parameter(Position = 0)][string]$Template = "*",
-    [switch]$Build
+    [switch]$Build,
+    [switch]$PowerBI
 )
 
 # Use the debug flag from common parameters to determine whether to run in debug mode
@@ -48,10 +52,11 @@ if ($Template -ne "*" -and -not (Test-Path $relDir))
     return
 }
 
-Write-Host "Packaging templates..."
+Write-Host "Packaging v$version templates..."
 
 # Package templates
 $version = & "$PSScriptRoot/Get-Version"
+$isPrerelease = $version -like '*-*'
 
 Write-Verbose "Removing existing ZIP files..."
 Remove-Item "$relDir/*-v$version.zip" -Force
@@ -95,13 +100,39 @@ Write-Host "✅ $((Get-ChildItem "$relDir/*.csv").Count) open data files"
 
 # Open Power BI reports
 $pbi = Get-ChildItem "$PSScriptRoot/../power-bi/*.pbip"
-Write-Host "⚠️ $($pbi.Count) Power BI reports must be converted manually... Opening..."
-$pbi | Invoke-Item
+if ($PowerBI)
+{
+    Write-Host "ℹ️ $($pbi.Count) Power BI reports must be converted manually... Opening..."
+    $pbi | Invoke-Item
+}
+elseif ($isPrerelease)
+{
+    Write-Host "✖️ Skipping $($pbi.Count) Power BI reports for prerelease version"
+}
+else
+{
+    Write-Host "⚠️ $($pbi.Count) Power BI reports must be converted manually!"
+    Write-Host '     To open them, run: ' -NoNewline
+    Write-Host './Package-Toolkit -PowerBI' -ForegroundColor Cyan
+}
 
 # Update version in docs
-Write-Verbose "Updating version in docs..."
-$version | Out-File "$PSScriptRoot/../../docs/_includes/version.txt" -NoNewline
-Write-Host "ℹ️ Version updated in docs. Please commit the changes manually."
+$docVersionPath = "$PSScriptRoot/../../docs/_includes/version.txt"
+$versionInDocs = Get-Content $docVersionPath -Raw
+if ($isPrerelease)
+{
+    Write-Host "✖️ Skipping version in docs ($versionInDocs) for prerelease version"
+}
+elseif ($versionInDocs -eq $version)
+{
+    Write-Host "✅ Version in docs ($versionInDocs) already up-to-date"
+}
+else 
+{
+    Write-Verbose "Updating version in docs..."
+    $version | Out-File $docVersionPath -NoNewline
+    Write-Host "ℹ️ Version updated in docs... Please commit the changes manually..."
+}
 
 Write-Host '...done!'
 Write-Host ''
