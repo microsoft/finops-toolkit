@@ -40,8 +40,8 @@ The following reports are currently available for within the FinOps toolkit:
 - [FOCUS](./focus.md) – See your data in the FinOps Open Cost and Usage Specification (FOCUS) schema.
 - [Cost Management template app](./template-app.md) (EA only) – The original Cost Management template app as a customizable PBIX file.
 
-[Download](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[How to setup](#-connect-to-your-data){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Download](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .mb-4 .mb-md-0 .mr-4 }
+[How to setup](#-connect-to-your-data){: .btn .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 

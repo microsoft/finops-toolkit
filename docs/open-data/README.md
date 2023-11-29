@@ -62,8 +62,8 @@ A few important notes about the data:
    _You can also integrate service data into your workflow with the [Get-FinOpsService](../powershell/data/Get-FinOpsService) PowerShell command._
 </blockquote>
 
-[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/PricingUnits.csv){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[See PowerShell](../powershell/data/Get-FinOpsPricingUnit){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/PricingUnits.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
+[See PowerShell](../powershell/data/Get-FinOpsPricingUnit){: .btn .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
@@ -85,8 +85,8 @@ Sample data:
    _You can also integrate service data into your workflow with the [Get-FinOpsRegion](../powershell/data/Get-FinOpsRegion) PowerShell command._
 </blockquote>
 
-[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[See PowerShell](../powershell/data/Get-FinOpsRegion){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
+[See PowerShell](../powershell/data/Get-FinOpsRegion){: .btn .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
@@ -142,8 +142,8 @@ A few important notes about the data:
    _You can also integrate service data into your workflow with the [Get-FinOpsService](../powershell/data/Get-FinOpsService) PowerShell command._
 </blockquote>
 
-[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Services.csv){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[See PowerShell](../powershell/data/Get-FinOpsService){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Services.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
+[See PowerShell](../powershell/data/Get-FinOpsService){: .btn .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
