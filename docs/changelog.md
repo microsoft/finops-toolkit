@@ -201,8 +201,8 @@ Legend:
 > ➕ Added:
 >
 > 1. [FinOps hub template](./finops-hub/README.md) to deploy a storage account and Data Factory instance.
-> 2. [Cost summary report](./finops-hub/reports/cost-summary.md) for various out-of-the-box cost breakdowns.
-> 3. [Commitment discounts report](./finops-hub/reports/commitment-discounts.md) for commitment-based discount reports.
+> 2. [Cost summary report](./power-bi/cost-summary.md) for various out-of-the-box cost breakdowns.
+> 3. [Commitment discounts report](./power-bi/commitment-discounts.md) for commitment-based discount reports.
 
 🦾 Bicep modules
 {: .fs-5 .fw-500 .mt-4 mb-0 }
