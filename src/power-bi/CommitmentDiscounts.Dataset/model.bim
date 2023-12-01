@@ -10745,7 +10745,7 @@
           }
         ],
         "description": "Do you want to connect to the Cost Management connector or a FinOps hubs instance?",
-        "expression": "\"Cost Management connector\" meta [IsParameterQuery=true, List={\"Cost Management connector\", \"FinOps hubs\"}, DefaultValue=\"Cost Management connector\", Type=\"Text\", IsParameterQueryRequired=true]",
+        "expression": "\"FinOps hubss\" meta [IsParameterQuery=true, List={\"Cost Management connector\", \"FinOps hubs\"}, DefaultValue=\"Cost Management connector\", Type=\"Text\", IsParameterQueryRequired=true]",
         "kind": "m",
         "lineageTag": "a3ad5d11-4fa5-425f-8d18-6cdb6822244a",
         "queryGroup": "🛠️ Setup\\Instructions"
@@ -10796,10 +10796,6 @@
         "name": "ftk_LoadData",
         "annotations": [
           {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
             "name": "PBI_ResultType",
             "value": "Function"
           }
@@ -10823,9 +10819,10 @@
           "            bp = #\"Billing Profile ID\",",
           "            mo = #\"Number of Months\",",
           "",
-          "            IsMCA = Text.Contains(ba, \"-\"),",
+          "            IsMCA = ba <> null and Text.Contains(ba, \"-\"),",
           "            Scope = ",
-          "                if IsMCA then \"/providers/Microsoft.Billing/billingAccounts/\" & ba & (if Text.Length(bp) = 0 then \"\" else (\"/billingProfiles/\" & bp))",
+          "                if ba = null then null",
+          "                else if IsMCA then \"/providers/Microsoft.Billing/billingAccounts/\" & ba & (if Text.Length(bp) = 0 then \"\" else (\"/billingProfiles/\" & bp))",
           "                else if Text.Length(ba) > 0 then ba",
           "                else null,",
           "",
@@ -11964,10 +11961,6 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "columns": [

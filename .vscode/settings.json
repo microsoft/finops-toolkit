@@ -36,5 +36,9 @@
   "powershell.codeFormatting.useCorrectCasing": true,
   "powershell.codeFormatting.whitespaceBeforeOpenBrace": true,
   "powershell.codeFormatting.whitespaceBeforeOpenParen": true,
-  "powershell.codeFormatting.whitespaceInsideBrace": true
+  "powershell.codeFormatting.whitespaceInsideBrace": true,
+  "[powerquery]": {
+    "editor.formatOnSave": false
+  },
+  "powerquery.general.experimental": false
 }

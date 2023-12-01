@@ -17,8 +17,9 @@ Here are a few simple solutions to issues you may have faced:
 
 - [Reports are empty (no data)](#reports-are-empty-no-data)
 - [The Microsoft.EventGrid resource provider is not registered in subscription \<guid\>](#the-microsofteventgrid-resource-provider-is-not-registered-in-subscription-guid)
-- [Exception of type 'Microsoft.Mashup.Engine.Interface.ResourceAccessForbiddenException' was thrown](#exception-of-type-microsoftmashupengineinterfaceresourceaccessforbiddenexception-was-thrown)
-- [The remote name could not be resolved: '\<storage-account\>.dfs.core.windows.net'](#the-remote-name-could-not-be-resolved-storage-accountdfscorewindowsnet)
+- [Power BI: Exception of type 'Microsoft.Mashup.Engine.Interface.ResourceAccessForbiddenException' was thrown](#power-bi-exception-of-type-microsoftmashupengineinterfaceresourceaccessforbiddenexception-was-thrown)
+- [Power BI: The remote name could not be resolved: '\<storage-account\>.dfs.core.windows.net'](#power-bi-the-remote-name-could-not-be-resolved-storage-accountdfscorewindowsnet)
+- [Power BI: We cannot convert the value null to type Logical](#power-bi-we-cannot-convert-the-value-null-to-type-logical)
 
 Didn't find what you're looking for?
 
@@ -61,15 +62,23 @@ Open the subscription in the Azure portal, then select **Settings** > **Resource
 
 ---
 
-## Exception of type 'Microsoft.Mashup.Engine.Interface.ResourceAccessForbiddenException' was thrown
+## Power BI: Exception of type 'Microsoft.Mashup.Engine.Interface.ResourceAccessForbiddenException' was thrown
 
 Indicates that the account loading data in Power BI does not have the [Storage Blob Data Reader role](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-reader). Grant this role to the account loading data in Power BI.
 
 ---
 
-## The remote name could not be resolved: '\<storage-account>.dfs.core.windows.net'
+## Power BI: The remote name could not be resolved: '\<storage-account>.dfs.core.windows.net'
 
 Indicates that the storage account name is incorrect. Verify the **StorageUrl** parameter. See [Setup a FinOps hub report](#setup-a-finops-hub-report) for details.
+
+---
+
+## Power BI: We cannot convert the value null to type Logical
+
+Indicates that the **Billing Account ID** parameter is empty. If using FinOps hubs, set the value to the desired billing account ID. If you do not have access to the billing account or do not want to include commitment purchases and refunds, set the value to `0` and open the **CostDetails** query in the advanced editor and change the `2` to a `1`. This will inform the report to not load actual/billed cost data from the Cost Management connector. See [How to setup Power BI](../power-bi/setup.md#-setup-your-first-report) for details.
+
+Applicable versions: **0.1 - 0.1.1** (fixed in **0.1.2**)
 
 ---
 

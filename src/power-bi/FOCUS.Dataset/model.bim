@@ -12,7 +12,7 @@
       },
       {
         "name": "PBI_QueryOrder",
-        "value": "[\"CostDetails\",\"Billing Account ID\",\"Billing Profile ID\",\"Number of Months\",\"Storage URL\",\"File Type\",\"RangeStart\",\"RangeEnd\",\"ftk_LoadData\",\"ftk_NormalizeSchema\",\"▶️  START HERE\",\"Data Source\"]"
+        "value": "[\"CostDetails\",\"PricingUnits\",\"Regions\",\"Services\",\"Billing Account ID\",\"Billing Profile ID\",\"Number of Months\",\"Storage URL\",\"File Type\",\"RangeStart\",\"RangeEnd\",\"ftk_LoadData\",\"ftk_NormalizeSchema\",\"▶️  START HERE\",\"Data Source\"]"
       },
       {
         "name": "PBI_ProTooling",
@@ -10848,17 +10848,13 @@
           {
             "name": "PBI_ResultType",
             "value": "Text"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "description": "Do you want to connect to the Cost Management connector or a FinOps hubs instance?",
         "expression": "\"FinOps hubs\" meta [IsParameterQuery=true, List={\"Cost Management connector\", \"FinOps hubs\"}, DefaultValue=\"Cost Management connector\", Type=\"Text\", IsParameterQueryRequired=true]",
         "kind": "m",
         "lineageTag": "e7c31d4f-63c6-41e9-9398-31c4f7e682b3",
-        "queryGroup": "🛠️ Setup\\▶️ Instructions"
+        "queryGroup": "🛠️ Setup\\Instructions"
       },
       {
         "name": "Billing Account ID",
@@ -10963,10 +10959,6 @@
         "name": "ftk_LoadData",
         "annotations": [
           {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
             "name": "PBI_ResultType",
             "value": "Function"
           }
@@ -10991,9 +10983,10 @@
           "            bp = #\"Billing Profile ID\",",
           "            mo = #\"Number of Months\",",
           "",
-          "            IsMCA = Text.Contains(ba, \"-\"),",
+          "            IsMCA = ba <> null and Text.Contains(ba, \"-\"),",
           "            Scope = ",
-          "                if IsMCA then \"/providers/Microsoft.Billing/billingAccounts/\" & ba & (if Text.Length(bp) = 0 then \"\" else (\"/billingProfiles/\" & bp))",
+          "                if ba = null then null",
+          "                else if IsMCA then \"/providers/Microsoft.Billing/billingAccounts/\" & ba & (if Text.Length(bp) = 0 then \"\" else (\"/billingProfiles/\" & bp))",
           "                else if Text.Length(ba) > 0 then ba",
           "                else null,",
           "",
@@ -11684,7 +11677,7 @@
         ],
         "kind": "m",
         "lineageTag": "ed70f0c9-8b05-46a6-b70e-99f9b2cf21df",
-        "queryGroup": "🛠️ Setup\\▶️ Instructions"
+        "queryGroup": "🛠️ Setup\\Instructions"
       }
     ],
     "queryGroups": [
@@ -11740,7 +11733,7 @@
             "value": "0"
           }
         ],
-        "folder": "🛠️ Setup\\▶️ Instructions"
+        "folder": "🛠️ Setup\\Instructions"
       }
     ],
     "relationships": [
@@ -11867,7 +11860,7 @@
       {
         "name": "742a2cd7-013f-4719-9bf1-8710e65fd34e",
         "fromColumn": "BillingPeriodStart",
-        "fromTable": "FOCUS_draft",
+        "fromTable": "FOCUS_1.0-preview",
         "joinOnDateBehavior": "datePartOnly",
         "toColumn": "Date",
         "toTable": "LocalDateTable_89094a88-3add-411e-b584-2e41fafa60a1"
@@ -11875,23 +11868,23 @@
       {
         "name": "d83c9efd-5c82-48aa-a2ea-278320582b1a",
         "fromColumn": "BillingPeriodEnd",
-        "fromTable": "FOCUS_draft",
+        "fromTable": "FOCUS_1.0-preview",
         "joinOnDateBehavior": "datePartOnly",
         "toColumn": "Date",
         "toTable": "LocalDateTable_5e924525-40ba-4849-b7b8-e6aff6608e5f"
       },
       {
         "name": "b7e50d6b-4ac1-468d-8b4f-3445cf01379c",
-        "fromColumn": "ftk_Date",
-        "fromTable": "FOCUS_draft",
+        "fromColumn": "x_Date",
+        "fromTable": "FOCUS_1.0-preview",
         "joinOnDateBehavior": "datePartOnly",
         "toColumn": "Date",
         "toTable": "LocalDateTable_f5f56fbf-5bfa-4cc5-a7f5-f581f8ddd336"
       },
       {
         "name": "297e9f6a-0d11-4569-b248-d71d00d63ff6",
-        "fromColumn": "ftk_Month",
-        "fromTable": "FOCUS_draft",
+        "fromColumn": "x_Month",
+        "fromTable": "FOCUS_1.0-preview",
         "joinOnDateBehavior": "datePartOnly",
         "toColumn": "Date",
         "toTable": "LocalDateTable_6a075f32-cc53-489c-8859-fcbdf682daca"
@@ -11899,7 +11892,7 @@
       {
         "name": "6f5a6d8a-a354-49a1-bccf-9cceb7ca072c",
         "fromColumn": "ChargePeriodStart",
-        "fromTable": "FOCUS_draft",
+        "fromTable": "FOCUS_1.0-preview",
         "joinOnDateBehavior": "datePartOnly",
         "toColumn": "Date",
         "toTable": "LocalDateTable_0bb5a84a-f0b7-4a2b-9004-29b01651e0d9"
@@ -11907,31 +11900,31 @@
       {
         "name": "ac52f692-eac3-4cd7-af25-a02bcadca572",
         "fromColumn": "ChargePeriodEnd",
-        "fromTable": "FOCUS_draft",
+        "fromTable": "FOCUS_1.0-preview",
         "joinOnDateBehavior": "datePartOnly",
         "toColumn": "Date",
         "toTable": "LocalDateTable_6de3ae35-e2cc-4437-9e86-e3d4bc85bbd9"
       },
       {
         "name": "7d352be5-8cee-4713-92fd-15aaae8af438",
-        "fromColumn": "ftk_ExchangeRateDate",
-        "fromTable": "FOCUS_draft",
+        "fromColumn": "x_BillingExchangeRateDate",
+        "fromTable": "FOCUS_1.0-preview",
         "joinOnDateBehavior": "datePartOnly",
         "toColumn": "Date",
         "toTable": "LocalDateTable_d57e7e97-0849-46eb-9f01-a27a39864349"
       },
       {
         "name": "dc482128-3210-4c9a-99db-91e5543c8cce",
-        "fromColumn": "ftk_ServicePeriodEndDate",
-        "fromTable": "FOCUS_draft",
+        "fromColumn": "x_ServicePeriodEndDate",
+        "fromTable": "FOCUS_1.0-preview",
         "joinOnDateBehavior": "datePartOnly",
         "toColumn": "Date",
         "toTable": "LocalDateTable_eb15f035-941b-4d3a-ba02-68251d2dff84"
       },
       {
         "name": "fdb276d0-4b30-4c8e-bc91-42b9d8599f37",
-        "fromColumn": "ftk_ServicePeriodStartDate",
-        "fromTable": "FOCUS_draft",
+        "fromColumn": "x_ServicePeriodStartDate",
+        "fromTable": "FOCUS_1.0-preview",
         "joinOnDateBehavior": "datePartOnly",
         "toColumn": "Date",
         "toTable": "LocalDateTable_02db8f18-63b0-4d7b-8532-19bdacd0e2bb"
@@ -14437,6 +14430,33 @@
             "lineageTag": "a6c9fd6b-0921-4437-992b-0d5bb0f42972",
             "summarizeBy": "none",
             "type": "calculated"
+          },
+          {
+            "name": "PricingBlockSize",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "9d8aa6bc-0204-40f4-a8ab-a9e60e24e3d8",
+            "sourceColumn": "PricingBlockSize",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "UsageUnits",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "ab1d0b86-92b1-450e-ab04-1517339da0e2",
+            "sourceColumn": "UsageUnits",
+            "summarizeBy": "none"
           }
         ],
         "isHidden": true,
@@ -14604,9 +14624,11 @@
             "source": {
               "expression": [
                 "let",
-                "    Source = ftk_LoadData(2)",
+                "    Source = ftk_LoadData(2),",
+                "    #\"Merged Queries\" = Table.NestedJoin(Source, {\"UnitOfMeasure\"}, PricingUnits, {\"UnitOfMeasure\"}, \"PricingUnits\", JoinKind.LeftOuter),",
+                "    #\"Expanded PricingUnits\" = Table.ExpandTableColumn(#\"Merged Queries\", \"PricingUnits\", {\"PricingBlockSize\", \"DistinctUnits\"}, {\"PricingBlockSize\", \"UsageUnits\"})",
                 "in",
-                "    Source"
+                "    #\"Expanded PricingUnits\""
               ],
               "type": "m"
             }
@@ -17307,6 +17329,39 @@
             "lineageTag": "58b3cad0-aaf3-414a-9810-2b815c5210f7",
             "summarizeBy": "none",
             "type": "calculated"
+          },
+          {
+            "name": "PricingBlockSize",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "205cfc75-0012-48f7-a016-eb5993631876",
+            "sourceColumn": "CostDetails[PricingBlockSize]",
+            "summarizeBy": "sum",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "UsageUnits",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "50508d1f-5124-4575-8c1f-9a3db801f5b0",
+            "sourceColumn": "CostDetails[UsageUnits]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
           }
         ],
         "lineageTag": "0d972719-3a8f-48d4-b644-683ed62c03c5",
@@ -19796,7 +19851,7 @@
         "showAsVariationsOnly": true
       },
       {
-        "name": "FOCUS_draft",
+        "name": "FOCUS_1.0-preview",
         "annotations": [
           {
             "name": "PBI_Id",
@@ -19805,7 +19860,7 @@
         ],
         "columns": [
           {
-            "name": "ftk_BillingAccountId",
+            "name": "x_BillingAccountId",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -19814,14 +19869,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "efd2eb58-edb3-463d-b0fc-1011bfff8489",
             "sourceColumn": "FOCUS_0.5[ftk_BillingAccountId]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_BillingAccountName",
+            "name": "x_BillingAccountName",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -19830,7 +19885,7 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "9a1923b1-cb92-494c-9572-ddd85a0179c9",
             "sourceColumn": "FOCUS_0.5[ftk_BillingAccountName]",
             "summarizeBy": "none",
@@ -19925,7 +19980,7 @@
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_AccountOwnerId",
+            "name": "x_AccountOwnerId",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -19934,14 +19989,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "4fbe77bc-c512-4348-bfc8-b25ed72c494f",
             "sourceColumn": "FOCUS_0.5[ftk_AccountOwnerId]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_AccountName",
+            "name": "x_AccountName",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -19950,7 +20005,7 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "4f7f45d3-5a63-4670-91bd-f02883331894",
             "sourceColumn": "FOCUS_0.5[ftk_AccountName]",
             "summarizeBy": "none",
@@ -19989,7 +20044,7 @@
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_Date",
+            "name": "x_Date",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -19999,7 +20054,7 @@
             "dataType": "dateTime",
             "formatString": "General Date",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "fc6d88ef-1cf4-420b-a162-ea0203af81cf",
             "sourceColumn": "FOCUS_0.5[ftk_Date]",
             "summarizeBy": "none",
@@ -20017,7 +20072,7 @@
             ]
           },
           {
-            "name": "ftk_PartNumber",
+            "name": "x_SkuPartNumber",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20026,14 +20081,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "b3c7b215-051c-4642-bc14-d6aa5cf02293",
             "sourceColumn": "FOCUS_0.5[ftk_PartNumber]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_MeterId",
+            "name": "x_SkuMeterId",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20042,14 +20097,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "8cd3e416-0a1d-43ad-addc-5119cc4b751a",
             "sourceColumn": "FOCUS_0.5[ftk_MeterId]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_ServiceFamily",
+            "name": "x_SkuServiceFamily",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20058,14 +20113,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "2b227805-8614-4e2f-97ae-657e433d5125",
             "sourceColumn": "FOCUS_0.5[ftk_ServiceFamily]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_MeterCategory",
+            "name": "x_SkuMeterCategory",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20074,14 +20129,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "1202dce0-0794-4138-92a7-f8519cca7079",
             "sourceColumn": "FOCUS_0.5[ftk_MeterCategory]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_MeterSubCategory",
+            "name": "x_SkuMeterSubcategory",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20090,14 +20145,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "57887cbb-5f09-441d-8b0e-a885a6543ae4",
             "sourceColumn": "FOCUS_0.5[ftk_MeterSubCategory]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_MeterRegion",
+            "name": "x_SkuMeterRegion",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20106,14 +20161,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "b9389de4-8dc0-4d90-b9a7-4d3793eec817",
             "sourceColumn": "FOCUS_0.5[ftk_MeterRegion]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_MeterName",
+            "name": "x_SkuMeterName",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20122,14 +20177,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "d3b6b9a3-11fe-46cf-a0d0-58dd9c93e08a",
             "sourceColumn": "FOCUS_0.5[ftk_MeterName]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_Quantity",
+            "name": "UsageQuantity",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20142,14 +20197,14 @@
             ],
             "dataType": "double",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "5c75e545-2afa-4cc7-8a08-88dc26f96a9e",
             "sourceColumn": "FOCUS_0.5[ftk_Quantity]",
             "summarizeBy": "sum",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_EffectivePrice",
+            "name": "x_EffectivePrice",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20162,7 +20217,7 @@
             ],
             "dataType": "double",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "0f0a6deb-cfd8-42ce-a879-a73d05d3f530",
             "sourceColumn": "FOCUS_0.5[ftk_EffectivePrice]",
             "summarizeBy": "sum",
@@ -20185,7 +20240,7 @@
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_ConsumedService",
+            "name": "x_ConsumedService",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20194,7 +20249,7 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "21c1a974-c6cd-4187-9698-c2fa3da11c2b",
             "sourceColumn": "FOCUS_0.5[ftk_ConsumedService]",
             "summarizeBy": "none",
@@ -20217,7 +20272,7 @@
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_AdditionalInfo",
+            "name": "x_SkuDetails",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20226,14 +20281,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "0b0f260e-255c-4d09-a969-cf794c367192",
             "sourceColumn": "FOCUS_0.5[ftk_AdditionalInfo]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_InvoiceSectionId",
+            "name": "x_InvoiceSectionId",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20242,14 +20297,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "7186ad1a-5c7c-4b3f-a503-5acc2cf454a1",
             "sourceColumn": "FOCUS_0.5[ftk_InvoiceSectionId]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_CostCenter",
+            "name": "x_CostCenter",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20258,14 +20313,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "c755fa01-f90d-488c-9181-853dd8e6872c",
             "sourceColumn": "FOCUS_0.5[ftk_CostCenter]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_UnitOfMeasure",
+            "name": "x_PricingUnitDescription",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20274,14 +20329,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "83c57065-68f5-452b-b031-3d7ba8b79283",
             "sourceColumn": "FOCUS_0.5[ftk_UnitOfMeasure]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_ProductOrderId",
+            "name": "x_SkuOrderId",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20290,14 +20345,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "d80c1e23-8cc3-4bcc-b08d-69c543c39c40",
             "sourceColumn": "FOCUS_0.5[ftk_ProductOrderId]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_ProductOrderName",
+            "name": "x_SkuOrderName",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20306,14 +20361,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "5108c600-e508-4d18-bc22-ed049c2959ba",
             "sourceColumn": "FOCUS_0.5[ftk_ProductOrderName]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_OfferId",
+            "name": "x_OfferId",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20322,14 +20377,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "90ca67f8-ea9a-4d88-9bbc-8831b979126a",
             "sourceColumn": "FOCUS_0.5[ftk_OfferId]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_Term",
+            "name": "x_SkuTerm",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20342,14 +20397,14 @@
             ],
             "dataType": "double",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "42ed4a43-1706-4cc6-9006-61352c57cb10",
             "sourceColumn": "FOCUS_0.5[ftk_Term]",
             "summarizeBy": "sum",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_PlanName",
+            "name": "x_PlanName",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20358,14 +20413,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "699cd97c-f515-481e-87f6-d7010df32780",
             "sourceColumn": "FOCUS_0.5[ftk_PlanName]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_ChargeType",
+            "name": "x_ChargeType",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20374,14 +20429,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "ef3695a4-9af4-4d7d-a6d6-ba8197a502b1",
             "sourceColumn": "FOCUS_0.5[ftk_ChargeType]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_Frequency",
+            "name": "x_Frequency",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20390,14 +20445,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "f5b992e9-3b90-4254-a3ca-e6b7a79b563d",
             "sourceColumn": "FOCUS_0.5[ftk_Frequency]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_PublisherType",
+            "name": "x_PublisherType",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20406,14 +20461,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "e69b5e9c-c5b6-4686-8e79-b390e48321e4",
             "sourceColumn": "FOCUS_0.5[ftk_PublisherType]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_Tags",
+            "name": "Tags",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20422,14 +20477,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "1015e13b-ecf4-4cb5-a416-2acba58b4def",
             "sourceColumn": "FOCUS_0.5[ftk_Tags]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_InvoiceSectionName",
+            "name": "x_InvoiceSectionName",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20438,14 +20493,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "b75e5a12-5390-4ed6-b22e-7118016bafcc",
             "sourceColumn": "FOCUS_0.5[ftk_InvoiceSectionName]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_ProductName",
+            "name": "ChargeDescription",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20454,14 +20509,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "67846ad9-9d63-4c15-ba30-25190bd70b36",
             "sourceColumn": "FOCUS_0.5[ftk_ProductName]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_IsAzureCreditEligible",
+            "name": "x_SkuIsCreditEligible",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20470,14 +20525,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "9c2e191f-7eda-4712-8cf0-720b775de2bd",
             "sourceColumn": "FOCUS_0.5[ftk_IsAzureCreditEligible]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_Month",
+            "name": "x_Month",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20487,7 +20542,7 @@
             "dataType": "dateTime",
             "formatString": "General Date",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "47d3f327-f50a-40cf-8046-33e18ced7474",
             "sourceColumn": "FOCUS_0.5[ftk_Month]",
             "summarizeBy": "none",
@@ -20505,7 +20560,7 @@
             ]
           },
           {
-            "name": "ftk_ResourceNameUnique",
+            "name": "x_ResourceNameUnique",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20514,14 +20569,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "f7829c4e-d042-458e-b610-097810433eb2",
             "sourceColumn": "FOCUS_0.5[ftk_ResourceNameUnique]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_ResourceGroupNameUnique",
+            "name": "x_ResourceGroupNameUnique",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20530,7 +20585,7 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "5360b24e-1c3d-47f8-96bb-8ccfe085288c",
             "sourceColumn": "FOCUS_0.5[ftk_ResourceGroupNameUnique]",
             "summarizeBy": "none",
@@ -20553,7 +20608,7 @@
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_CommitmentUtilizationAmount",
+            "name": "x_CommitmentUtilizationAmount",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20566,14 +20621,14 @@
             ],
             "dataType": "double",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "db78ecd5-5efb-4ec5-a855-7d53201dfa72",
             "sourceColumn": "FOCUS_0.5[ftk_CommitmentUtilizationAmount]",
             "summarizeBy": "sum",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_CommitmentUtilizationPotential",
+            "name": "x_CommitmentUtilizationPotential",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20586,14 +20641,14 @@
             ],
             "dataType": "double",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "b53048ad-2177-45d7-8636-9879202faa1e",
             "sourceColumn": "FOCUS_0.5[ftk_CommitmentUtilizationPotential]",
             "summarizeBy": "sum",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_OnDemandCost",
+            "name": "x_OnDemandCost",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20606,14 +20661,14 @@
             ],
             "dataType": "double",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "fe581407-6d7a-4e48-ba54-6d81d72109e4",
             "sourceColumn": "FOCUS_0.5[ftk_OnDemandCost]",
             "summarizeBy": "sum",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_CommitmentSavings",
+            "name": "x_CommitmentSavings_draft",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20626,14 +20681,14 @@
             ],
             "dataType": "double",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "96c6e403-6d82-464c-9308-1dd6ff81cc0e",
             "sourceColumn": "FOCUS_0.5[ftk_CommitmentSavings]",
             "summarizeBy": "sum",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_DiscountSavings",
+            "name": "x_DiscountSavings",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20646,14 +20701,14 @@
             ],
             "dataType": "double",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "2311f0d8-2ad8-4403-b7af-ab5be7efdf2f",
             "sourceColumn": "FOCUS_0.5[ftk_DiscountSavings]",
             "summarizeBy": "sum",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_NegotiatedSavings",
+            "name": "x_NegotiatedSavings_draft",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20666,14 +20721,14 @@
             ],
             "dataType": "double",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "28555c70-0589-4f80-8565-1a4adc3e40c5",
             "sourceColumn": "FOCUS_0.5[ftk_NegotiatedSavings]",
             "summarizeBy": "sum",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_CPUHours",
+            "name": "x_SkuCpuHours",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20686,14 +20741,14 @@
             ],
             "dataType": "double",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "687cede4-ff58-406a-9fb1-8ee2719d06b4",
             "sourceColumn": "FOCUS_0.5[ftk_CPUHours]",
             "summarizeBy": "sum",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ChargeType",
+            "name": "ChargeCategory",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20702,7 +20757,7 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "c49b4ffb-576d-45aa-aa87-9c0f4326fe3e",
             "sourceColumn": "FOCUS_0.5[ChargeType]",
             "summarizeBy": "none",
@@ -20857,7 +20912,7 @@
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_ResourceGroupName",
+            "name": "x_ResourceGroupName",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20866,14 +20921,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "63e96dc8-2edd-4ca1-9ad8-cefaca1f6055",
             "sourceColumn": "FOCUS_0.5[ftk_ResourceGroupName]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_TagsDictionary",
+            "name": "TagsDictionary",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20882,14 +20937,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "a269e016-3e21-4940-863e-1bb10a693f10",
             "sourceColumn": "FOCUS_0.5[ftk_TagsDictionary]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_DataSet",
+            "name": "x_DataSet",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20898,14 +20953,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "5bbdac8a-540e-4a8b-8dfa-83e914b00774",
             "sourceColumn": "FOCUS_0.5[ftk_DataSet]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_AccountType",
+            "name": "x_AccountType",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20914,7 +20969,7 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "5b0d1bfd-07ef-4f1a-b2ef-c019be24ad88",
             "sourceColumn": "FOCUS_0.5[ftk_AccountType]",
             "summarizeBy": "none",
@@ -20953,7 +21008,7 @@
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_CommitmentDiscountProgram",
+            "name": "CommitmentDiscountType",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20962,14 +21017,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "907f55ad-73b9-4198-b612-13aa9670ba35",
             "sourceColumn": "FOCUS_0.5[ftk_CommitmentDiscountProgram]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_ListCost",
+            "name": "ListCost",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -20982,7 +21037,7 @@
             ],
             "dataType": "double",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "dd80cadd-e167-4b73-91f0-ae8ff3d33cf1",
             "sourceColumn": "FOCUS_0.5[ftk_ListCost]",
             "summarizeBy": "sum",
@@ -21041,7 +21096,7 @@
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_CommitmentDiscountNameUnique",
+            "name": "x_CommitmentDiscountNameUnique",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21050,14 +21105,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "70708e78-11c6-4b62-b90c-cac194a55a6e",
             "sourceColumn": "FOCUS_0.5[ftk_CommitmentDiscountNameUnique]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_AmortizedCostInUsd",
+            "name": "x_EffectiveCostInUsd",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21070,14 +21125,14 @@
             ],
             "dataType": "double",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "274aee5c-757b-4de8-b8c0-3d2a8f9be80a",
             "sourceColumn": "FOCUS_0.5[ftk_AmortizedCostInUsd]",
             "summarizeBy": "sum",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_AmortizedPricingCost",
+            "name": "x_AmortizedPricingCost",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21090,14 +21145,14 @@
             ],
             "dataType": "double",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "10aed748-aeb4-4b36-a673-b7cd60a8f3f5",
             "sourceColumn": "FOCUS_0.5[ftk_AmortizedPricingCost]",
             "summarizeBy": "sum",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_BilledCostInUsd",
+            "name": "x_BilledCostInUsd",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21110,14 +21165,14 @@
             ],
             "dataType": "double",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "4373b72a-49a9-4e8b-9c36-811f52c7d951",
             "sourceColumn": "FOCUS_0.5[ftk_BilledCostInUsd]",
             "summarizeBy": "sum",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_BilledPricingCost",
+            "name": "x_BilledPricingCost",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21130,14 +21185,14 @@
             ],
             "dataType": "double",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "80b550a2-642e-4f75-a093-bbc354b3a463",
             "sourceColumn": "FOCUS_0.5[ftk_BilledPricingCost]",
             "summarizeBy": "sum",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_CapacityCommitmentId",
+            "name": "x_CapacityCommitmentId",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21146,14 +21201,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "8065d911-fdf4-4c49-9b5f-0ab9eee99369",
             "sourceColumn": "FOCUS_0.5[ftk_CapacityCommitmentId]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_ChargeId",
+            "name": "x_ChargeId",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21162,14 +21217,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "f582b7ef-2ebb-48a2-aef3-cbcc1cbd6b75",
             "sourceColumn": "FOCUS_0.5[ftk_ChargeId]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_CommitmentDiscounKey",
+            "name": "x_CommitmentDiscounKey",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21178,14 +21233,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "f8a2d4e7-10fc-4545-bc91-d18f66148656",
             "sourceColumn": "FOCUS_0.5[ftk_CommitmentDiscounKey]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_CostAllocationRuleName",
+            "name": "x_CostAllocationRuleName",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21194,14 +21249,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "9f9030b1-6627-4250-97cc-88cc321217c1",
             "sourceColumn": "FOCUS_0.5[ftk_CostAllocationRuleName]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_CustomerId",
+            "name": "x_CustomerId",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21210,14 +21265,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "e971bd2d-40e8-401b-bcd5-262b8e5e627a",
             "sourceColumn": "FOCUS_0.5[ftk_CustomerId]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_CustomerName",
+            "name": "x_CustomerName",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21226,14 +21281,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "76cfeace-af2b-44fa-8bb7-6834ab27f5a5",
             "sourceColumn": "FOCUS_0.5[ftk_CustomerName]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_ExchangeRate",
+            "name": "x_BillingExchangeRate",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21246,14 +21301,14 @@
             ],
             "dataType": "double",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "5207a399-d4a9-4745-9cd4-533a4869dfd8",
             "sourceColumn": "FOCUS_0.5[ftk_ExchangeRate]",
             "summarizeBy": "sum",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_ExchangeRateDate",
+            "name": "x_BillingExchangeRateDate",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21263,7 +21318,7 @@
             "dataType": "dateTime",
             "formatString": "General Date",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "58bdecf8-b45f-4402-94be-b3dda4848034",
             "sourceColumn": "FOCUS_0.5[ftk_ExchangeRateDate]",
             "summarizeBy": "none",
@@ -21281,7 +21336,7 @@
             ]
           },
           {
-            "name": "ftk_HybridBenefitCPUs",
+            "name": "x_HybridBenefitCPUs",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21294,14 +21349,14 @@
             ],
             "dataType": "double",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "d5850fc5-ab34-44c3-844c-c3d76c64c59a",
             "sourceColumn": "FOCUS_0.5[ftk_HybridBenefitCPUs]",
             "summarizeBy": "sum",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_HybridBenefitStatus",
+            "name": "x_HybridBenefitStatus",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21310,14 +21365,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "e992d092-1491-413b-b538-fc8cb85924a7",
             "sourceColumn": "FOCUS_0.5[ftk_HybridBenefitStatus]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_InvoiceId",
+            "name": "x_InvoiceId",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21326,14 +21381,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "bd1a1724-8fe4-4b56-9d73-60a7ce12e87a",
             "sourceColumn": "FOCUS_0.5[ftk_InvoiceId]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_ListCostInUsd",
+            "name": "x_ListCostInUsd",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21346,14 +21401,14 @@
             ],
             "dataType": "double",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "88763069-b2cb-4f71-b636-b40c246f5dd5",
             "sourceColumn": "FOCUS_0.5[ftk_ListCostInUsd]",
             "summarizeBy": "sum",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_ListPriceSavings",
+            "name": "x_ListPriceSavings",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21366,14 +21421,14 @@
             ],
             "dataType": "double",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "8225a9a5-9559-4767-a0d4-1974c3231b40",
             "sourceColumn": "FOCUS_0.5[ftk_ListPriceSavings]",
             "summarizeBy": "sum",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_OnDemandPrice",
+            "name": "x_OnDemandPrice",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21386,14 +21441,14 @@
             ],
             "dataType": "double",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "1c3199b2-83f9-4c8d-98dc-60fe8fc1511c",
             "sourceColumn": "FOCUS_0.5[ftk_OnDemandPrice]",
             "summarizeBy": "sum",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_OnDemandPriceSavings",
+            "name": "x_OnDemandPriceSavings",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21406,14 +21461,14 @@
             ],
             "dataType": "double",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "f4cf0e3c-59dd-4ce3-9046-e0678069fd30",
             "sourceColumn": "FOCUS_0.5[ftk_OnDemandPriceSavings]",
             "summarizeBy": "sum",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_PartnerCreditApplied",
+            "name": "x_PartnerCreditApplied",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21422,14 +21477,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "f31b030b-e1e4-4d86-bfa4-b2e09560f7fb",
             "sourceColumn": "FOCUS_0.5[ftk_PartnerCreditApplied]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_PartnerCreditRate",
+            "name": "x_PartnerCreditRate",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21442,14 +21497,14 @@
             ],
             "dataType": "double",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "305bdbbd-4342-41a3-bb81-0d3ac11393ff",
             "sourceColumn": "FOCUS_0.5[ftk_PartnerCreditRate]",
             "summarizeBy": "sum",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_PartnerId",
+            "name": "x_PartnerId",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21458,14 +21513,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "aa9f7cd7-3dac-4c08-9909-d204c3a57b3d",
             "sourceColumn": "FOCUS_0.5[ftk_PartnerId]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_PartnerName",
+            "name": "x_PartnerName",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21474,14 +21529,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "6b838040-cea3-42b6-8f3f-05f16e70879b",
             "sourceColumn": "FOCUS_0.5[ftk_PartnerName]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_PreviousInvoiceId",
+            "name": "x_PreviousInvoiceId",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21490,14 +21545,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "e2d062f9-11f1-4f34-9069-f78ea09e297b",
             "sourceColumn": "FOCUS_0.5[ftk_PreviousInvoiceId]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_PricingCurrency",
+            "name": "x_PricingCurrency",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21506,14 +21561,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "f87c9e33-09ee-48c4-b233-3123be958d31",
             "sourceColumn": "FOCUS_0.5[ftk_PricingCurrency]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_PricingModel",
+            "name": "x_PricingModel",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21522,14 +21577,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "722c90f2-5b6e-4594-b2a1-655fb976809d",
             "sourceColumn": "FOCUS_0.5[ftk_PricingModel]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_ProductCPUs",
+            "name": "x_SkuCPUs",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21539,14 +21594,14 @@
             "dataType": "int64",
             "formatString": "0",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "956155b6-7b46-4bb8-9c5a-f802db87cd0f",
             "sourceColumn": "FOCUS_0.5[ftk_ProductCPUs]",
             "summarizeBy": "sum",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_ProductId",
+            "name": "SkuId",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21555,14 +21610,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "97f41c15-414c-4ece-8fac-54a30ba4df28",
             "sourceColumn": "FOCUS_0.5[ftk_ProductId]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_ProductImageType",
+            "name": "x_SkuImageType",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21571,14 +21626,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "0fee3776-a0cc-4fcf-bfb7-e9c3e6860b45",
             "sourceColumn": "FOCUS_0.5[ftk_ProductImageType]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_ProductSKU",
+            "name": "x_SkuLabel",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21587,14 +21642,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "1db2a6c1-8dde-4fbe-8924-470e235dd47e",
             "sourceColumn": "FOCUS_0.5[ftk_ProductSKU]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_ProductUsageType",
+            "name": "x_SkuUsageType",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21603,14 +21658,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "b6072add-f475-4eb2-92ec-2677376593e2",
             "sourceColumn": "FOCUS_0.5[ftk_ProductUsageType]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_ProductVMProperties",
+            "name": "x_SkuVMProperties",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21619,14 +21674,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "44206c21-4a2b-4c19-b9ec-40df8e7b6655",
             "sourceColumn": "FOCUS_0.5[ftk_ProductVMProperties]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_Provider",
+            "name": "x_Provider",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21635,14 +21690,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "c112504e-fefa-4d02-bb81-fda9a9f3affb",
             "sourceColumn": "FOCUS_0.5[ftk_Provider]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_PublisherId",
+            "name": "x_PublisherId",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21651,7 +21706,7 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "39b5a19e-0aa2-4b61-9c33-ff8fe223d2f3",
             "sourceColumn": "FOCUS_0.5[ftk_PublisherId]",
             "summarizeBy": "none",
@@ -21674,7 +21729,7 @@
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_ResellerId",
+            "name": "x_ResellerId",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21683,14 +21738,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "863c2dc6-e59c-4a7a-bc13-deeecb455ee3",
             "sourceColumn": "FOCUS_0.5[ftk_ResellerId]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_ResellerName",
+            "name": "x_ResellerName",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21699,14 +21754,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "b265b404-b8aa-4bd0-83ff-d8006e3d5920",
             "sourceColumn": "FOCUS_0.5[ftk_ResellerName]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_ResourceMachineName",
+            "name": "x_ResourceMachineName",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21715,7 +21770,7 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "bab5ad76-5d07-4c55-9f7c-6b4b0d7edb2e",
             "sourceColumn": "FOCUS_0.5[ftk_ResourceMachineName]",
             "summarizeBy": "none",
@@ -21738,7 +21793,7 @@
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_ResourceType",
+            "name": "x_ResourceType",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21747,14 +21802,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "04487392-d0b1-4d2d-9a05-0c4b198a8643",
             "sourceColumn": "FOCUS_0.5[ftk_ResourceType]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_SchemaVersion",
+            "name": "x_SchemaVersion",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21763,14 +21818,14 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "cf16e540-1b3e-491d-b7f9-3015e3fc254f",
             "sourceColumn": "FOCUS_0.5[ftk_SchemaVersion]",
             "summarizeBy": "none",
             "type": "calculatedTableColumn"
           },
           {
-            "name": "ftk_ServicePeriodEndDate",
+            "name": "x_ServicePeriodEndDate",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21780,7 +21835,7 @@
             "dataType": "dateTime",
             "formatString": "General Date",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "9e8dc5ec-505a-4661-b197-7648cad5666c",
             "sourceColumn": "FOCUS_0.5[ftk_ServicePeriodEndDate]",
             "summarizeBy": "none",
@@ -21798,7 +21853,7 @@
             ]
           },
           {
-            "name": "ftk_ServicePeriodStartDate",
+            "name": "x_ServicePeriodStartDate",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21808,7 +21863,7 @@
             "dataType": "dateTime",
             "formatString": "General Date",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "a543a229-eea8-48fc-b7ed-4a69eb27dcc9",
             "sourceColumn": "FOCUS_0.5[ftk_ServicePeriodStartDate]",
             "summarizeBy": "none",
@@ -21826,7 +21881,7 @@
             ]
           },
           {
-            "name": "ftk_TermLabel",
+            "name": "x_SkuTermLabel",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -21835,7 +21890,7 @@
             ],
             "dataType": "string",
             "isDataTypeInferred": true,
-            "isNameInferred": true,
+            "isNameInferred": false,
             "lineageTag": "3d42d9d2-d348-416f-9459-6e6f94b52331",
             "sourceColumn": "FOCUS_0.5[ftk_TermLabel]",
             "summarizeBy": "none",
@@ -21866,10 +21921,213 @@
               }
             ],
             "dataType": "string",
-            "expression": "IF([ftk_Frequency] = \"OneTime\", \"One-Time\", IF([ftk_Frequency] = \"Recurring\", \"Recurring\", \"Usage-Based\"))",
+            "expression": "IF([x_Frequency] = \"OneTime\", \"One-Time\", IF([x_Frequency] = \"Recurring\", \"Recurring\", \"Usage-Based\"))",
             "isDataTypeInferred": true,
             "lineageTag": "52ae6ca9-a202-4017-9a5f-cb0207dc57e8",
             "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "ResourceType",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "expression": "'FOCUS_1.0-preview'[x_ResourceType]",
+            "isDataTypeInferred": true,
+            "lineageTag": "bcc3e1bc-40fc-4dce-be2e-fef25fb7c0c8",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "ChargeSubcategory",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "expression": "IF('FOCUS_1.0-preview'[ChargeCategory]=\"Usage\", IF(LEFT('FOCUS_1.0-preview'[x_PricingModel], 6)=\"Unused\", \"Unused Commitment\", IF('FOCUS_1.0-preview'[CommitmentDiscountType]<>\"\", \"Used Commitment\", \"On-Demand\")), IF('FOCUS_1.0-preview'[ChargeCategory]=\"Adjustment\", IF('FOCUS_1.0-preview'[x_ChargeType]=\"Refund\", \"Refund\", IF('FOCUS_1.0-preview'[x_ChargeType]=\"RoundingAdjustment\", \"Rounding Error\", \"\"))))",
+            "isDataTypeInferred": true,
+            "lineageTag": "c96deb2d-9492-40f2-8fc5-58b1e5146eb5",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "CommitmentDiscountCategory",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "expression": "IF('FOCUS_1.0-preview'[CommitmentDiscountType]=\"Reservation\",\"Usage\", IF('FOCUS_1.0-preview'[CommitmentDiscountType]=\"Savings Plan\",\"Spend\", \"\"))",
+            "isDataTypeInferred": true,
+            "lineageTag": "1972b162-8883-4f97-ae89-f6556cb3bccc",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "PricingBlockSize",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "f99dcff9-492c-4430-ba4d-88f0708c012f",
+            "sourceColumn": "FOCUS_0.5[PricingBlockSize]",
+            "summarizeBy": "sum",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "UsageUnits",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "cb14c08a-3854-453b-a6ad-097a457f3cac",
+            "sourceColumn": "FOCUS_0.5[UsageUnits]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "PricingCategory",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "expression": "IF('FOCUS_1.0-preview'[ChargeCategory]=\"Purchase\", \"On-Demand\", IF('FOCUS_1.0-preview'[ChargeCategory]=\"Adjustment\", IF('FOCUS_1.0-preview'[ChargeSubcategory]=\"Refund\", 'FOCUS_1.0-preview'[x_PricingModel], \"\"), IF('FOCUS_1.0-preview'[x_PricingModel]=\"Spot\", \"Dynamic\", IF(RIGHT('FOCUS_1.0-preview'[ChargeSubcategory],10)=\"Commitment\", \"Commitment-Based\", \"On-Demand\"))))",
+            "isDataTypeInferred": true,
+            "lineageTag": "7e7c98af-54b4-4f68-95ee-215852288944",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "x_PricingSubcategory",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "expression": "IF('FOCUS_1.0-preview'[PricingCategory]=\"Commitment-Based\", \"Committed \"&'FOCUS_1.0-preview'[CommitmentDiscountCategory], IF('FOCUS_1.0-preview'[PricingCategory]=\"On-Demand\", IF(IFERROR(FIND(\"Tier\", 'FOCUS_1.0-preview'[ChargeDescription]), 0)>0, \"Tiered\", \"Standard\"), IF('FOCUS_1.0-preview'[PricingCategory]=\"Dynamic\", \"Spot\", IF(ISBLANK('FOCUS_1.0-preview'[PricingCategory]), \"\", \"Other\"))))",
+            "isDataTypeInferred": true,
+            "lineageTag": "6128772d-e190-41c2-a2c6-9dc40b02b960",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "ListCost_padded",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "expression": "'FOCUS_1.0-preview'[ListCost] * 1.15",
+            "isDataTypeInferred": true,
+            "lineageTag": "8e20d796-99e7-41c5-ad8d-5e2369f1e406",
+            "summarizeBy": "sum",
+            "type": "calculated"
+          },
+          {
+            "name": "OnDemandCost_padded",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "expression": "'FOCUS_1.0-preview'[x_OnDemandCost] * 1.05",
+            "isDataTypeInferred": true,
+            "lineageTag": "f307fba2-bb80-4ed2-887b-b211cd60ac0c",
+            "summarizeBy": "sum",
+            "type": "calculated"
+          },
+          {
+            "name": "x_CommitmentSavings",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "expression": "'FOCUS_1.0-preview'[OnDemandCost_padded] - 'FOCUS_1.0-preview'[EffectiveCost] ",
+            "isDataTypeInferred": true,
+            "lineageTag": "78009a50-564e-493a-bd7c-6e138264c370",
+            "summarizeBy": "sum",
+            "type": "calculated"
+          },
+          {
+            "name": "x_NegotiatedSavings",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "expression": "'FOCUS_1.0-preview'[ListCost_padded] - 'FOCUS_1.0-preview'[OnDemandCost_padded]",
+            "isDataTypeInferred": true,
+            "lineageTag": "2d3b3897-ac22-4fe6-8503-57cb27b0955f",
+            "summarizeBy": "sum",
+            "type": "calculated"
+          },
+          {
+            "name": "x_TotalSavings",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "expression": "'FOCUS_1.0-preview'[ListCost_padded] - 'FOCUS_1.0-preview'[EffectiveCost]",
+            "isDataTypeInferred": true,
+            "lineageTag": "d05be069-8352-4d0d-8be0-64c183c18f6d",
+            "summarizeBy": "sum",
             "type": "calculated"
           }
         ],
@@ -21883,7 +22141,7 @@
         ],
         "partitions": [
           {
-            "name": "FOCUS_draft",
+            "name": "FOCUS_1.0-preview",
             "mode": "import",
             "source": {
               "expression": "'FOCUS_0.5'",
@@ -22086,7 +22344,7 @@
             "name": "LocalDateTable_89094a88-3add-411e-b584-2e41fafa60a1",
             "mode": "import",
             "source": {
-              "expression": "Calendar(Date(Year(MIN('FOCUS_draft'[BillingPeriodStart])), 1, 1), Date(Year(MAX('FOCUS_draft'[BillingPeriodStart])), 12, 31))",
+              "expression": "Calendar(Date(Year(MIN('FOCUS_1.0-preview'[BillingPeriodStart])), 1, 1), Date(Year(MAX('FOCUS_1.0-preview'[BillingPeriodStart])), 12, 31))",
               "type": "calculated"
             }
           }
@@ -22287,7 +22545,7 @@
             "name": "LocalDateTable_5e924525-40ba-4849-b7b8-e6aff6608e5f",
             "mode": "import",
             "source": {
-              "expression": "Calendar(Date(Year(MIN('FOCUS_draft'[BillingPeriodEnd])), 1, 1), Date(Year(MAX('FOCUS_draft'[BillingPeriodEnd])), 12, 31))",
+              "expression": "Calendar(Date(Year(MIN('FOCUS_1.0-preview'[BillingPeriodEnd])), 1, 1), Date(Year(MAX('FOCUS_1.0-preview'[BillingPeriodEnd])), 12, 31))",
               "type": "calculated"
             }
           }
@@ -22488,7 +22746,7 @@
             "name": "LocalDateTable_f5f56fbf-5bfa-4cc5-a7f5-f581f8ddd336",
             "mode": "import",
             "source": {
-              "expression": "Calendar(Date(Year(MIN('FOCUS_draft'[ftk_Date])), 1, 1), Date(Year(MAX('FOCUS_draft'[ftk_Date])), 12, 31))",
+              "expression": "Calendar(Date(Year(MIN('FOCUS_1.0-preview'[x_Date])), 1, 1), Date(Year(MAX('FOCUS_1.0-preview'[x_Date])), 12, 31))",
               "type": "calculated"
             }
           }
@@ -22689,7 +22947,7 @@
             "name": "LocalDateTable_6a075f32-cc53-489c-8859-fcbdf682daca",
             "mode": "import",
             "source": {
-              "expression": "Calendar(Date(Year(MIN('FOCUS_draft'[ftk_Month])), 1, 1), Date(Year(MAX('FOCUS_draft'[ftk_Month])), 12, 31))",
+              "expression": "Calendar(Date(Year(MIN('FOCUS_1.0-preview'[x_Month])), 1, 1), Date(Year(MAX('FOCUS_1.0-preview'[x_Month])), 12, 31))",
               "type": "calculated"
             }
           }
@@ -22890,7 +23148,7 @@
             "name": "LocalDateTable_0bb5a84a-f0b7-4a2b-9004-29b01651e0d9",
             "mode": "import",
             "source": {
-              "expression": "Calendar(Date(Year(MIN('FOCUS_draft'[ChargePeriodStart])), 1, 1), Date(Year(MAX('FOCUS_draft'[ChargePeriodStart])), 12, 31))",
+              "expression": "Calendar(Date(Year(MIN('FOCUS_1.0-preview'[ChargePeriodStart])), 1, 1), Date(Year(MAX('FOCUS_1.0-preview'[ChargePeriodStart])), 12, 31))",
               "type": "calculated"
             }
           }
@@ -23091,7 +23349,7 @@
             "name": "LocalDateTable_6de3ae35-e2cc-4437-9e86-e3d4bc85bbd9",
             "mode": "import",
             "source": {
-              "expression": "Calendar(Date(Year(MIN('FOCUS_draft'[ChargePeriodEnd])), 1, 1), Date(Year(MAX('FOCUS_draft'[ChargePeriodEnd])), 12, 31))",
+              "expression": "Calendar(Date(Year(MIN('FOCUS_1.0-preview'[ChargePeriodEnd])), 1, 1), Date(Year(MAX('FOCUS_1.0-preview'[ChargePeriodEnd])), 12, 31))",
               "type": "calculated"
             }
           }
@@ -23292,7 +23550,7 @@
             "name": "LocalDateTable_d57e7e97-0849-46eb-9f01-a27a39864349",
             "mode": "import",
             "source": {
-              "expression": "Calendar(Date(Year(MIN('FOCUS_draft'[ftk_ExchangeRateDate])), 1, 1), Date(Year(MAX('FOCUS_draft'[ftk_ExchangeRateDate])), 12, 31))",
+              "expression": "Calendar(Date(Year(MIN('FOCUS_1.0-preview'[x_BillingExchangeRateDate])), 1, 1), Date(Year(MAX('FOCUS_1.0-preview'[x_BillingExchangeRateDate])), 12, 31))",
               "type": "calculated"
             }
           }
@@ -23493,7 +23751,7 @@
             "name": "LocalDateTable_eb15f035-941b-4d3a-ba02-68251d2dff84",
             "mode": "import",
             "source": {
-              "expression": "Calendar(Date(Year(MIN('FOCUS_draft'[ftk_ServicePeriodEndDate])), 1, 1), Date(Year(MAX('FOCUS_draft'[ftk_ServicePeriodEndDate])), 12, 31))",
+              "expression": "Calendar(Date(Year(MIN('FOCUS_1.0-preview'[x_ServicePeriodEndDate])), 1, 1), Date(Year(MAX('FOCUS_1.0-preview'[x_ServicePeriodEndDate])), 12, 31))",
               "type": "calculated"
             }
           }
@@ -23694,12 +23952,282 @@
             "name": "LocalDateTable_02db8f18-63b0-4d7b-8532-19bdacd0e2bb",
             "mode": "import",
             "source": {
-              "expression": "Calendar(Date(Year(MIN('FOCUS_draft'[ftk_ServicePeriodStartDate])), 1, 1), Date(Year(MAX('FOCUS_draft'[ftk_ServicePeriodStartDate])), 12, 31))",
+              "expression": "Calendar(Date(Year(MIN('FOCUS_1.0-preview'[x_ServicePeriodStartDate])), 1, 1), Date(Year(MAX('FOCUS_1.0-preview'[x_ServicePeriodStartDate])), 12, 31))",
               "type": "calculated"
             }
           }
         ],
         "showAsVariationsOnly": true
+      },
+      {
+        "name": "PricingUnits",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          },
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          }
+        ],
+        "columns": [
+          {
+            "name": "UnitOfMeasure",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "a6ad4257-150c-4dd6-8984-15e96d938a1f",
+            "sourceColumn": "UnitOfMeasure",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "AccountTypes",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "eba1ab15-ac46-49af-a928-aa1714e2acf1",
+            "sourceColumn": "AccountTypes",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "PricingBlockSize",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "7b0b2ef1-96c2-4086-87d6-59035409fb56",
+            "sourceColumn": "PricingBlockSize",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "DistinctUnits",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "257d674d-e811-42fe-b76c-1f1fecd90f2f",
+            "sourceColumn": "DistinctUnits",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "c80c6d3d-b257-43f7-a6a9-7ea4940d4193",
+        "partitions": [
+          {
+            "name": "PricingUnits",
+            "mode": "import",
+            "queryGroup": "FinOps toolkit",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Csv.Document(Web.Contents(\"https://github.com/microsoft/finops-toolkit/releases/latest/download/PricingUnits.csv\"),[Delimiter=\",\", Columns=4, Encoding=65001, QuoteStyle=QuoteStyle.None]),",
+                "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Promoted Headers\",{{\"UnitOfMeasure\", type text}, {\"AccountTypes\", type text}, {\"PricingBlockSize\", Int64.Type}, {\"DistinctUnits\", type text}})",
+                "in",
+                "    #\"Changed Type\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Regions",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "OriginalValue",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "6942f5a0-4bde-4557-a87f-405eca780d7c",
+            "sourceColumn": "OriginalValue",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "RegionId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "6d59b9d4-7328-4bde-89d6-c460792fbcd9",
+            "sourceColumn": "RegionId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "RegionName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "6d470d53-e9bd-4a23-9f7c-fc93cfffb150",
+            "sourceColumn": "RegionName",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "379d1afb-6235-4ae4-9e79-5b044222d3da",
+        "partitions": [
+          {
+            "name": "Regions",
+            "mode": "import",
+            "queryGroup": "FinOps toolkit",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Csv.Document(Web.Contents(\"https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv\"),[Delimiter=\",\", Columns=3, Encoding=1252, QuoteStyle=QuoteStyle.None]),",
+                "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true])",
+                "in",
+                "    #\"Promoted Headers\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Services",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "ConsumedService",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "1a475c2a-487b-4fa0-9b11-3a21a23308ef",
+            "sourceColumn": "ConsumedService",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ResourceType",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "7edba730-e280-4012-bf95-4ce204f9a7d7",
+            "sourceColumn": "ResourceType",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ServiceName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "4fed88ae-587e-46b2-a306-a613c0b70413",
+            "sourceColumn": "ServiceName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ServiceCategory",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "2c2d2a22-0dae-47bb-a3ae-f93eaa1076f7",
+            "sourceColumn": "ServiceCategory",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "PublisherName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "8f4f3abf-4456-4936-80e4-f01f8ea74674",
+            "sourceColumn": "PublisherName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "PublisherType",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "efbd734c-78b7-462b-ab27-201b25dcc927",
+            "sourceColumn": "PublisherType",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "ed843531-7c56-45d2-9660-cb50dd5d2362",
+        "partitions": [
+          {
+            "name": "Services",
+            "mode": "import",
+            "queryGroup": "FinOps toolkit",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Csv.Document(Web.Contents(\"https://github.com/microsoft/finops-toolkit/releases/latest/download/Services.csv\"),[Delimiter=\",\", Columns=6, Encoding=1252, QuoteStyle=QuoteStyle.None]),",
+                "    #\"Promoted Headers\" = Table.PromoteHeaders(Source, [PromoteAllScalars=true])",
+                "in",
+                "    #\"Promoted Headers\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
       }
     ]
   }
