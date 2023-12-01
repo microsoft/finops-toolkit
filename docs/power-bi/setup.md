@@ -82,7 +82,7 @@ The FinOps toolkit Power BI reports include pre-configured visuals, but are not 
 
 6. Select the **Close & Apply** to save your settings.
 
-If you run into any issues syncing your data, see [Troubleshooting Power BI reports](../troubleshooting.md).
+If you run into any issues syncing your data, see [Troubleshooting Power BI reports](../resources/troubleshooting.md).
 
 <br>
 

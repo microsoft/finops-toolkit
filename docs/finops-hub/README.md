@@ -118,7 +118,7 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
    - [Commitment discounts](../power-bi/commitment-discounts.md) for commitment-based savings utilization and coverage.
 6. [Connect Power BI to your hub](../power-bi/README.md#-connect-to-your-data)
 
-If you run into any issues, see [Troubleshooting Power BI reports](./troubleshooting.md).
+If you run into any issues, see [Troubleshooting Power BI reports](../resources/troubleshooting.md).
 
 <br>
 
