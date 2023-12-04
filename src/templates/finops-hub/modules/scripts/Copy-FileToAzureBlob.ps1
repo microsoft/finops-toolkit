@@ -64,7 +64,7 @@ $json.version = $env:ftkVersion
 if ($newScopes) {
     Write-Output "Merging $($newScopes.Count) scopes..."
     $json.scopes = Compare-Object -ReferenceObject $json.scopes -DifferenceObject $newScopes -Property scope -PassThru -IncludeEqual
-    
+
     # Remove the SideIndicator property from the Compare-Object output
     $json.scopes | ForEach-Object { $_.PSObject.Properties.Remove('SideIndicator') } | ConvertTo-Json
 

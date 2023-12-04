@@ -39,11 +39,11 @@ function Get-FinOpsRegion()
         [Parameter(Position = 0, ValueFromPipeline = $true)]
         [string]
         $ResourceLocation = "*",
-        
+
         [Parameter()]
         [string]
         $RegionId = "*",
-        
+
         [Parameter()]
         [string]
         $RegionName = "*",
@@ -52,7 +52,7 @@ function Get-FinOpsRegion()
         $IncludeResourceLocation
     )
     return Get-OpenDataRegion `
-    | Where-Object { 
+    | Where-Object {
         $_.OriginalValue -like $ResourceLocation `
             -and $_.RegionId -like $RegionId `
             -and $_.RegionName -like $RegionName

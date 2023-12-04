@@ -16,12 +16,12 @@ Describe 'Invoke-FinOpsSchemaTransform' {
 
         $minSecondsPerRow = 0.01  # Decrease the max if you lower this number
         $maxSecondsPerRow = 0.08  # DO NOT INCREASE THIS NUMBER!!!
-        
+
         $rowsToTest = 200
         Import-Csv $actualCostPathLarge | Select-Object -First ($rowsToTest / 2) | Export-Csv $actualPath
         Import-Csv $amortizedCostPathLarge | Select-Object -First ($rowsToTest / 2) | Export-Csv $amortizedPath
     }
-    
+
     It 'Should complete in expected time for small files' {
         # Arrange
         $rowCount = (Import-Csv $actualCostPath).Count + (Import-Csv $amortizedCostPath).Count
@@ -30,7 +30,7 @@ Describe 'Invoke-FinOpsSchemaTransform' {
         $time = Measure-Command -Expression {
             Invoke-FinOpsSchemaTransform -ActualCostPath $actualCostPath -AmortizedCostPath $amortizedCostPath -OutputFile $outputPath
         }
-        
+
         # Assert
         $time.TotalSeconds / $rowCount | Should -BeLessThan $maxSecondsPerRow -Because "it should not get any slower than $maxSecondsPerRow per row"
         $time.TotalSeconds / $rowCount | Should -BeGreaterThan $minSecondsPerRow -Because "if faster than $minSecondsPerRow, lower both min and max in test"
@@ -44,7 +44,7 @@ Describe 'Invoke-FinOpsSchemaTransform' {
         $time = Measure-Command -Expression {
             Invoke-FinOpsSchemaTransform -ActualCostPath $actualPath -AmortizedCostPath $amortizedPath -OutputFile $outputPath
         }
-        
+
         # Assert
         $time.TotalSeconds / $rowCount | Should -BeLessThan $maxSecondsPerRow -Because "Do not let this get any slower than $maxSecondsPerRow per row"
         $time.TotalSeconds / $rowCount | Should -BeGreaterThan $minSecondsPerRow -Because "If faster than $minSecondsPerRow, lower both min and max in test"

@@ -49,5 +49,5 @@ Describe 'Style tests - [<_>]' -ForEach $files.FullName {
         }
 
         $result | Should -BeNullOrEmpty
-    }   
+    }
 }

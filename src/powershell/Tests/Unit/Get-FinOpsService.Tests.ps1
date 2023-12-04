@@ -32,10 +32,10 @@ InModuleScope 'FinOpsToolkit' {
                 # Arrange
                 $filter = 'Microsoft.A*'
                 $expected = getAllServices $filter
-    
+
                 # Act
                 $actual = Get-FinOpsService -ConsumedService $filter
-    
+
                 # Assert
                 $expected.Count | Should -BeGreaterThan 0
                 $actual.Count | Should -Be $expected.Count
@@ -44,10 +44,10 @@ InModuleScope 'FinOpsToolkit' {
                 # Arrange
                 $filter = '*network*'
                 $expected = getAllServices -ResourceType $filter
-    
+
                 # Act
                 $actual = Get-FinOpsService -ResourceType $filter
-    
+
                 # Assert
                 $expected.Count | Should -BeGreaterThan 0
                 $actual.Count | Should -Be $expected.Count
@@ -56,10 +56,10 @@ InModuleScope 'FinOpsToolkit' {
                 # Arrange
                 $filter = 'C*'
                 $expected = getAllServices | Where-Object { $_.ServiceCategory -like $filter }
-    
+
                 # Act
                 $actual = Get-FinOpsService -ServiceCategory $filter
-    
+
                 # Assert
                 $expected.Count | Should -BeGreaterThan 0
                 $actual.Count | Should -Be $expected.Count
@@ -68,10 +68,10 @@ InModuleScope 'FinOpsToolkit' {
                 # Arrange
                 $filter = 'D*'
                 $expected = getAllServices | Where-Object { $_.ServiceName -like $filter }
-    
+
                 # Act
                 $actual = Get-FinOpsService -ServiceName $filter
-        
+
                 # Assert
                 $expected.Count | Should -BeGreaterThan 0
                 $actual.Count | Should -Be $expected.Count
@@ -80,10 +80,10 @@ InModuleScope 'FinOpsToolkit' {
                 # Arrange
                 $filter = 'C*'
                 $expected = getAllServices | Where-Object { $_.PublisherType -like $filter }
-    
+
                 # Act
                 $actual = Get-FinOpsService -PublisherCategory $filter
-    
+
                 # Assert
                 $expected.Count | Should -BeGreaterThan 0
                 $actual.Count | Should -Be $expected.Count
@@ -92,10 +92,10 @@ InModuleScope 'FinOpsToolkit' {
                 # Arrange
                 $filter = 'M*'
                 $expected = getAllServices | Where-Object { $_.PublisherName -like $filter }
-    
+
                 # Act
                 $actual = Get-FinOpsService -PublisherName $filter
-        
+
                 # Assert
                 $expected.Count | Should -BeGreaterThan 0
                 $actual.Count | Should -Be $expected.Count
@@ -106,10 +106,10 @@ InModuleScope 'FinOpsToolkit' {
                 # Arrange
                 $type = 'Microsoft.Storage/storageAccounts'
                 $expected = "Storage Accounts"
-    
+
                 # Act
                 $actual = Get-FinOpsService -ResourceId "/subscriptions/$([guid]::NewGuid())/providers/$type/foo"
-    
+
                 # Assert
                 $actual.Count | Should -BeGreaterThan 0
                 $actual[0].ServiceName | Should -Be $expected

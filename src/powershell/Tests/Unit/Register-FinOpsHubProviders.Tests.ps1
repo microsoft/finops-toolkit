@@ -18,7 +18,7 @@ InModuleScope 'FinOpsToolkit' {
 
                 # Act
                 Register-FinOpsHubProviders -WhatIf -Verbose
-            
+
                 # Assert
                 $requiredRPs | ForEach-Object {
                     Assert-MockCalled -CommandName 'Get-AzResourceProvider' -Times 1 -ParameterFilter { $ProviderNamespace -eq $_ }
@@ -35,7 +35,7 @@ InModuleScope 'FinOpsToolkit' {
                 # Arrange
                 Mock -CommandName 'Get-AzResourceProvider' { return @{ RegistrationState = $state } }
                 Mock -CommandName 'Register-AzResourceProvider'
-                
+
                 # Act
                 Register-FinOpsHubProviders
 

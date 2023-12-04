@@ -25,25 +25,25 @@
 
     .PARAMETER FOCUS
     Optional. Indicates whether to run FOCUS tests.
-    
+
     .PARAMETER Hubs
     Optional. Indicates whether to run FinOps hubs tests.
-    
+
     .PARAMETER Toolkit
     Optional. Indicates whether to run FinOps toolkit tests.
 
     .PARAMETER Integration
     Optional. Indicates whether to run integration tests, which take more time than unit tests by testing external dependencies. Default = false.
-    
+
     .PARAMETER Lint
     Optional. Indicates whether to run lint tests, which validate local files are meeting dev standards. Default = false.
-    
+
     .PARAMETER Unit
     Optional. Indicates whether to run unit tests. Default = true.
-    
+
     .PARAMETER AllTests
     Optional. Indicates whether to run all lint, unit, and integration tests. If set, this overrides Lint, Unit, and Integration options. Default = false.
-    
+
     .PARAMETER RunFailed
     Optional. Indicates whether to re-run previously failed tests. This can only be run after a run fails. Only the failed tests will be re-run. If there a no previous run details, nothing will run. Default = false.
 #>
@@ -57,19 +57,19 @@ param (
 
     [switch]
     $Exports,
-    
+
     [switch]
     $FOCUS,
-    
+
     [switch]
     $Hubs,
-    
+
     [switch]
     $Toolkit,
 
     [switch]
     $Integration,
-    
+
     [switch]
     $Lint,
 
@@ -105,7 +105,7 @@ else
         if ($AllTests -or $Unit -or (-not $Lint -and -not $Integration)) { 'Unit' }
     )
     if ($typesToRun.Count -eq 3) { $typesToRun = '*' }
-    
+
     $testsToRun = @()
     if ($Cost) { $testsToRun += '*-FinOpsCost*', 'Cost*' }
     if ($Data) { $testsToRun += '*-OpenData*', '*-FinOpsPricingUnit*', '*-FinOpsRegion*', '*-FinOpsResourceType*', '*-FinOpsService*' }
@@ -114,14 +114,14 @@ else
     if ($Hubs) { $testsToRun += '*-FinOpsHub*', 'Hubs.Tests.ps1' }
     if ($Toolkit) { $testsToRun += 'Toolkit.Tests.ps1', '*-FinOpsToolkit*' }
     if (-not $testsToRun) { $testsToRun = "*" }
-    
+
     Write-Host ''
     Write-Host ("Finding <$($typesToRun -join '|')>/<$($testsToRun -join '|')> tests..." -replace '<\*>/', '' -replace '<([^\|>]+)>', '$1' -replace '\*\-?', '' -replace '/ tests', ' tests') -NoNewline
-    
+
     $testsToRun = $typesToRun `
-    | ForEach-Object { 
+    | ForEach-Object {
         $testType = $_
-        $testsToRun | ForEach-Object { 
+        $testsToRun | ForEach-Object {
             $path = "$PSScriptRoot/../powershell/Tests/$testType/$_"
             if ((Get-ChildItem $path -ErrorAction SilentlyContinue).Count -gt 0)
             {
@@ -176,7 +176,7 @@ function summarize($info)
         {
             $level = 0
         }
-        
+
         $script:testSummary += [PSCustomObject]@{
             Id    = $_.ExpandedPath
             Name  = $_.ExpandedName
@@ -235,7 +235,7 @@ if ($results.FailedCount -gt 0 -or $results.FailedContainerCount -gt 0 -or $resu
         }
         else
         {
-            $x = '   ' 
+            $x = '   '
             $color = 'DarkGray'
         }
 

@@ -59,7 +59,7 @@ param
     $Version
 )
 
-$update = if ($Major) { "major" } elseif ($Minor) { "minor" } elseif ($Patch) { "patch" } elseif ($Prerelease) { "prerelease" } 
+$update = if ($Major) { "major" } elseif ($Minor) { "minor" } elseif ($Patch) { "patch" } elseif ($Prerelease) { "prerelease" }
 if ($update)
 {
     Write-Verbose "Updating $update version."

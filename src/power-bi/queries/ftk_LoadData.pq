@@ -4,12 +4,12 @@ let
     // datasets -- Allowed values: 0 = actual, 1 = amortized, 2 = both
     // DoNotNormalize -- For testing only; true/false
 
-    // VS Code: Uncomment for intellisense in VS Code, but do not include in Power BI reports -- 
+    // VS Code: Uncomment for intellisense in VS Code, but do not include in Power BI reports --
     AzureCostManagement.Tables = () => "", ftk_NormalizeSchema = () => "", #"Data Source" = "FinOps hubs", #"Storage URL" = "", #"File Type" = "", #"RangeStart" = null, #"RangeEnd" = null, #"Billing Account ID" = "123", #"Billing Profile ID" = "", #"Number of Months" = 3,
-    
+
 // TODO: Remove SourceType
     SourceType = #"Data Source",
-    Connector = 
+    Connector =
         let
             // Default values
             ba = #"Billing Account ID",
@@ -17,7 +17,7 @@ let
             mo = #"Number of Months",
 
             IsMCA = ba <> null and Text.Contains(ba, "-"),
-            Scope = 
+            Scope =
                 if ba = null then null
                 else if IsMCA then "/providers/Microsoft.Billing/billingAccounts/" & ba & (if Text.Length(bp) = 0 then "" else ("/billingProfiles/" & bp))
                 else if Text.Length(ba) > 0 then ba
@@ -51,8 +51,8 @@ let
             _usdCol2     = _colName(secondaryCol, "CostInUsd"),
 
             RenamePrimary = Table.RenameColumns(tbl, {
-                { (if Table.HasColumns(tbl, "CostInBillingCurrency") then "CostInBillingCurrency" else if Table.HasColumns(tbl, "Cost") then "Cost" else "PreTaxCost"), primaryCol }, 
-                { "CostInPricingCurrency", _pricingCol1 }, 
+                { (if Table.HasColumns(tbl, "CostInBillingCurrency") then "CostInBillingCurrency" else if Table.HasColumns(tbl, "Cost") then "Cost" else "PreTaxCost"), primaryCol },
+                { "CostInPricingCurrency", _pricingCol1 },
                 { "CostInUsd",             _usdCol1 }
             }, MissingField.UseNull),
             PrimaryTypes  = Table.TransformColumnTypes(RenamePrimary, {{ primaryCol, type number }, { _pricingCol1, type number }, { _usdCol1, type number }}),
@@ -65,9 +65,9 @@ let
             SecondaryUsdCurrency
     ,
 
-    AmortizedData = if datasets = 0 then null else  
+    AmortizedData = if datasets = 0 then null else
         let
-            Data = if SourceType <> "FinOps hubs" then Connector{[Key="usagedetailsamortized"]}[Data] else 
+            Data = if SourceType <> "FinOps hubs" then Connector{[Key="usagedetailsamortized"]}[Data] else
                 // Load from hub
                 let
                     // Default values
@@ -90,34 +90,34 @@ let
                     FilterFilesByMetricAndFileType = Table.SelectRows(SplitDates_type, each [Metric] = "amortizedcost" and [Extension] = ext),
 
                     // Only process files for months within the date range
-                    FilterFilesByDate = 
+                    FilterFilesByDate =
                         if start = null and end = null then FilterFilesByMetricAndFileType
                         else Table.SelectRows(FilterFilesByMetricAndFileType, each (start = null or [StartDate] >= Date.StartOfMonth(Date.From(start))) and (end = null or [EndDate] <= Date.EndOfMonth(Date.From(end)))),
-                    
+
                     // Extract
                     unpack = (zipData) => Table.PromoteHeaders(Csv.Document(Binary.Decompress(zipData, Compression.GZip), [Delimiter=",", Columns=60, Encoding=1252, QuoteStyle=QuoteStyle.Csv, CsvStyle=CsvStyle.QuoteAlways]), [PromoteAllScalars=true]),
                     SelectContent = Table.SelectColumns(FilterFilesByDate, {"Content"}),
                     UnpackContent = Table.AddColumn(SelectContent, "Custom", each if ext = ".gz" then unpack([Content]) else Parquet.Document([Content])),
                     ExpandedColumns = Table.ExpandTableColumn(UnpackContent, "Custom", List.Sort(Table.ColumnNames(List.First(UnpackContent[Custom], null)))),
                     RemovedContent = Table.RemoveColumns(ExpandedColumns, {"Content"}),
-                    
+
                     // Only pull from the predefined date range (if specified)
                     tbl = RemovedContent,
-                    FilterRowsByDate = 
+                    FilterRowsByDate =
                         if start = null and end = null then tbl
-                        else Table.SelectRows(tbl, each 
-                            (start = null or (if Table.HasColumns(tbl, "Date") then Date.From([Date]) else Date.From([date])) >= Date.From(start)) 
+                        else Table.SelectRows(tbl, each
+                            (start = null or (if Table.HasColumns(tbl, "Date") then Date.From([Date]) else Date.From([date])) >= Date.From(start))
                             and (end = null or (if Table.HasColumns(tbl, "Date") then Date.From([Date]) else Date.From([date])) < Date.From(end))
                         )
                 in
                     FilterRowsByDate
             ,
             DataSet       = if Data = null then null else Table.AddColumn(_capitalizeAndSortColumns(Data), "DataSet", each "AmortizedCost"),
-            AmortizedCost = _renameCost(DataSet, "AmortizedCost", "BilledCost", (col) => each 
-                if (_isBlank([ReservationId]) 
-                    and [PricingModel] <> "Reservation" 
-                    and [PricingModel] <> "SavingsPlan" 
-                    and Text.Lower([ConsumedService]) <> "microsoft.capacity" 
+            AmortizedCost = _renameCost(DataSet, "AmortizedCost", "BilledCost", (col) => each
+                if (_isBlank([ReservationId])
+                    and [PricingModel] <> "Reservation"
+                    and [PricingModel] <> "SavingsPlan"
+                    and Text.Lower([ConsumedService]) <> "microsoft.capacity"
                     and (Table.HasColumns(DataSet, "BenefitId") = false or _isBlank([BenefitId]))
                 ) then Record.Field(_, col) else 0.0)
         in
@@ -129,13 +129,13 @@ let
             // Pull actual cost from connector, filter down to commitment purcahses
             Data                    = Connector{[Key="usagedetails"]}[Data],
             DataSet                 = Table.AddColumn(Data, "DataSet", each "ActualCost"),
-            CommitmentPurchasesOnly = 
+            CommitmentPurchasesOnly =
                 if datasets = 0 then
                     // Don't filter if only using the actual dataset
                     DataSet
-                else if Table.HasColumns(DataSet, "ChargeType") then 
-                    Table.SelectRows(DataSet, each [ChargeType] = "Purchase" and ([PricingModel] <> "Reservation" or [PricingModel] <> "SavingsPlan" or Text.Lower([ConsumedService]) = "microsoft.capacity")) 
-                else 
+                else if Table.HasColumns(DataSet, "ChargeType") then
+                    Table.SelectRows(DataSet, each [ChargeType] = "Purchase" and ([PricingModel] <> "Reservation" or [PricingModel] <> "SavingsPlan" or Text.Lower([ConsumedService]) = "microsoft.capacity"))
+                else
                     // If no ChargeType, then there aren't any commitment purchases
                     null
             ,

@@ -60,7 +60,7 @@ Describe 'Hubs' {
                 $rp = Get-AzResourceProvider -ProviderNamespace $_
                 $rp.RegistrationState | Should -BeIn 'Registered', 'Registering' -Because "RP '$_' should be registered" -inc
             }
-            
+
             # Assert hub state
             @($hub).Count | Should -Be 1 -Because "there should only be one hub with name '$name' in resource group '$rg' (v$_)"
             $hub.Location.ToLower() -replace ' ', '' | Should -Be $location -Because "hub should be in location '$location' (v$_)"
@@ -79,7 +79,7 @@ Describe 'Hubs' {
             # TODO: Test 0.0.1 'DeployedWithExtraResources' status = storage + DF + KV + 1???
             # TODO: Test 0.1 'DeployedWithExtraResources' status = storage + DF + KV + 3+???
         }
-        
+
         # TODO: Deploy local version to verify upgrade still works
     }
 }
