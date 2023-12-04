@@ -48,6 +48,7 @@ Describe 'Hubs' {
         # Loop thru each version
         $versions | ForEach-Object {
             # Act
+            [Diagnostics.CodeAnalysis.SuppressMessageAttribute ('PSUseDeclaredVarsMoreThanAssignments', Scope = 'Function', Target = '*')]
             $result = Deploy-FinOpsHub `
                 -Name $name `
                 -Location $location `

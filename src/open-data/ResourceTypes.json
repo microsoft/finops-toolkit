@@ -456,6 +456,26 @@
     ]
   },
   {
+    "resourceType": "microsoft.arcnetworking/arcnwloadbalancers",
+    "singularDisplayName": "Arc LB",
+    "pluralDisplayName": "Arc LB",
+    "lowerSingularDisplayName": "arc lb",
+    "lowerPluralDisplayName": "arc lb",
+    "isPreview": false,
+    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.arcnetworking/arcnwloadbalancers.svg",
+    "links": [
+      {
+        "title": "Get consistent",
+        "uri": "https://aka.ms/portalfx/designpatterns"
+      },
+      {
+        "title": "Learn more",
+        "uri": "https://aka.ms/portalfx/browse"
+      }
+    ]
+  },
+  {
     "resourceType": "microsoft.attestation/attestationproviders",
     "singularDisplayName": "Attestation provider",
     "pluralDisplayName": "Attestation providers",
@@ -1159,12 +1179,12 @@
   },
   {
     "resourceType": "microsoft.cdn/profiles",
-    "singularDisplayName": "Front Door and CDN profile",
+    "singularDisplayName": "Front Door and CDN profiles",
     "pluralDisplayName": "Front Door and CDN profiles",
-    "lowerSingularDisplayName": "front door and CDN profile",
+    "lowerSingularDisplayName": "front door and CDN profiles",
     "lowerPluralDisplayName": "front door and CDN profiles",
     "isPreview": false,
-    "description": "Azure Front Door and CDN profiles is security led, modern cloud CDN that provides static and dynamic content acceleration, global load balancing and enhanced security for your apps, APIs and websites with intelligent threat protection.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.cdn/profiles.svg",
     "links": null
   },
@@ -1826,26 +1846,6 @@
     "links": null
   },
   {
-    "resourceType": "microsoft.community/communitytrainings",
-    "singularDisplayName": "Community Training",
-    "pluralDisplayName": "Community Training",
-    "lowerSingularDisplayName": "community training",
-    "lowerPluralDisplayName": "community training",
-    "isPreview": false,
-    "description": "Community Training is an Azure offering to allow skilling and provide employment oppurtunities to people.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.community/communitytrainings.svg",
-    "links": [
-      {
-        "title": "Learn more about Pricing",
-        "uri": "https://communitytraining.microsoft.com/pricing/"
-      },
-      {
-        "title": "Learn how to use this service using our documentation",
-        "uri": "https://learn.microsoft.com/en-us/azure/industry/training-services/microsoft-community-training/"
-      }
-    ]
-  },
-  {
     "resourceType": "microsoft.compute/availabilitysets",
     "singularDisplayName": "Availability set",
     "pluralDisplayName": "Availability sets",
@@ -2131,7 +2131,7 @@
     "lowerSingularDisplayName": "guest assignment",
     "lowerPluralDisplayName": "guest assignments",
     "isPreview": false,
-    "description": "Guest Assignment",
+    "description": "A guest assignment links a virtual machine to a specific configuration defined by Azure Policy. Use guest assignments to enforce compliance and security policies on your virtual machines, such as ensuring that only certain users have administrative privileges, or that certain software is installed and updated. A guest assignment can also perform actions on your virtual machines, such as installing or removing software, or changing settings.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.compute/virtualmachines/providers/guestconfigurationassignments.svg",
     "links": null
   },
@@ -3585,7 +3585,7 @@
     "pluralDisplayName": "Microsoft Fabric",
     "lowerSingularDisplayName": "Fabric Capacity",
     "lowerPluralDisplayName": "Microsoft Fabric",
-    "isPreview": true,
+    "isPreview": false,
     "description": "Microsoft Fabric delivers an end-to-end analytics platform that goes from the data lake to the business user.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.fabric/capacities.svg",
     "links": [
@@ -3641,6 +3641,17 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.genomics/accounts.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.graphservices/accounts",
+    "singularDisplayName": "Metered API Account",
+    "pluralDisplayName": "Metered API accounts",
+    "lowerSingularDisplayName": "metered api account",
+    "lowerPluralDisplayName": "metered api accounts",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.graphservices/accounts.svg",
     "links": null
   },
   {
@@ -3805,7 +3816,7 @@
     "pluralDisplayName": "Health Models",
     "lowerSingularDisplayName": "health model",
     "lowerPluralDisplayName": "health models",
-    "isPreview": false,
+    "isPreview": true,
     "description": "A health model augments metric and logs with critical business context of a workload, enabling the automated evaluation of quantified health states.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.healthmodel/healthmodels.svg",
     "links": [
@@ -3873,7 +3884,7 @@
     "lowerSingularDisplayName": "guest assignment",
     "lowerPluralDisplayName": "guest assignments",
     "isPreview": false,
-    "description": "Guest Assignment",
+    "description": "A guest assignment links a virtual machine to a specific configuration defined by Azure Policy. Use guest assignments to enforce compliance and security policies on your virtual machines, such as ensuring that only certain users have administrative privileges, or that certain software is installed and updated. A guest assignment can also perform actions on your virtual machines, such as installing or removing software, or changing settings.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.hybridcompute/machines/providers/guestconfigurationassignments.svg",
     "links": null
   },
@@ -6929,17 +6940,6 @@
     "links": null
   },
   {
-    "resourceType": "microsoft.portal/dashboardsv2",
-    "singularDisplayName": "Dashboard",
-    "pluralDisplayName": "Dashboards",
-    "lowerSingularDisplayName": "dashboard",
-    "lowerPluralDisplayName": "dashboards",
-    "isPreview": false,
-    "description": "",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.portal/dashboardsv2.svg",
-    "links": null
-  },
-  {
     "resourceType": "microsoft.portal/virtual-privatedashboards",
     "singularDisplayName": "Private dashboard",
     "pluralDisplayName": "Private dashboards",
@@ -6948,6 +6948,17 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.portal/virtual-privatedashboards.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.portalservices/dashboards",
+    "singularDisplayName": "DashboardV2",
+    "pluralDisplayName": "DashboardsV2",
+    "lowerSingularDisplayName": "dashboardV2",
+    "lowerPluralDisplayName": "dashboardsV2",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.portalservices/dashboards.svg",
     "links": null
   },
   {
@@ -8543,6 +8554,39 @@
     ]
   },
   {
+    "resourceType": "oracle.database/cloudexadatainfrastructures",
+    "singularDisplayName": "Oracle Exadata Infrastructure",
+    "pluralDisplayName": "Oracle Exadata Infrastructures",
+    "lowerSingularDisplayName": "cloud exadata infrastructure",
+    "lowerPluralDisplayName": "cloud exadata infrastructures",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/oracle.database/cloudexadatainfrastructures.svg",
+    "links": null
+  },
+  {
+    "resourceType": "oracle.database/cloudvmclusters",
+    "singularDisplayName": "Oracle Exadata VM Cluster",
+    "pluralDisplayName": "Oracle Exadata VM Clusters",
+    "lowerSingularDisplayName": "Oracle Exadata VM Cluster",
+    "lowerPluralDisplayName": "Oracle Exadata VM Clusters",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/oracle.database/cloudvmclusters.svg",
+    "links": null
+  },
+  {
+    "resourceType": "oracle.database/oraclesubscriptions",
+    "singularDisplayName": "Oracle Purchase",
+    "pluralDisplayName": "Oracle Purchases",
+    "lowerSingularDisplayName": "oracle purchase",
+    "lowerPluralDisplayName": "oracle purchases",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/oracle.database/oraclesubscriptions.svg",
+    "links": null
+  },
+  {
     "resourceType": "paloaltonetworks.cloudngfw/firewalls",
     "singularDisplayName": "Cloud NGFW by Palo Alto Networks",
     "pluralDisplayName": "Cloud NGFWs by Palo Alto Networks",
@@ -8577,13 +8621,24 @@
   },
   {
     "resourceType": "private.akshybrid/provisionedclusters",
-    "singularDisplayName": "Arc AKS Hybrid Cluster (Private)",
-    "pluralDisplayName": "Arc AKS Hybrid Clusters (Private)",
-    "lowerSingularDisplayName": "arc AKS hybrid cluster (private)",
-    "lowerPluralDisplayName": "arc AKS hybrid clusters (private)",
+    "singularDisplayName": "AKS Hybrid Cluster for Light Edge",
+    "pluralDisplayName": "AKS Hybrid Clusters for Light Edge",
+    "lowerSingularDisplayName": "AKS hybrid cluster for light edge",
+    "lowerPluralDisplayName": "AKS hybrid clusters for light edge",
     "isPreview": false,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/private.akshybrid/provisionedclusters.svg",
+    "links": null
+  },
+  {
+    "resourceType": "private.aszlabhardware/labservers",
+    "singularDisplayName": "Private.AszLabHardware labserver",
+    "pluralDisplayName": "Private.AszLabHardware labservers",
+    "lowerSingularDisplayName": "private.aszlabhardware labserver",
+    "lowerPluralDisplayName": "private.aszlabhardware labservers",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/private.aszlabhardware/labservers.svg",
     "links": null
   },
   {
@@ -8686,26 +8741,24 @@
     "links": null
   },
   {
-    "resourceType": "private.oracledatabasedev/cloudexadatainfrastructures",
-    "singularDisplayName": "Oracle Exadata Infrastructure",
-    "pluralDisplayName": "Oracle Exadata Infrastructures",
-    "lowerSingularDisplayName": "cloud exadata infrastructure",
-    "lowerPluralDisplayName": "cloud exadata infrastructures",
+    "resourceType": "private.learning/communitytraining",
+    "singularDisplayName": "Community Training",
+    "pluralDisplayName": "Community Training",
+    "lowerSingularDisplayName": "community training",
+    "lowerPluralDisplayName": "community training",
     "isPreview": false,
-    "description": "",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/private.oracledatabasedev/cloudexadatainfrastructures.svg",
-    "links": null
-  },
-  {
-    "resourceType": "private.oracledatabasedev/cloudvmclusters",
-    "singularDisplayName": "Oracle Exadata VM Cluster",
-    "pluralDisplayName": "Oracle Exadata VM Clusters",
-    "lowerSingularDisplayName": "Oracle Exadata VM Cluster",
-    "lowerPluralDisplayName": "Oracle Exadata VM Clusters",
-    "isPreview": false,
-    "description": "",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/private.oracledatabasedev/cloudvmclusters.svg",
-    "links": null
+    "description": "Community Training is an Azure offering to allow skilling and provide employment oppurtunities to people.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/private.learning/communitytraining.svg",
+    "links": [
+      {
+        "title": "Learn more about Pricing",
+        "uri": "https://communitytraining.microsoft.com/pricing/"
+      },
+      {
+        "title": "Learn how to use this service using our documentation",
+        "uri": "https://learn.microsoft.com/en-us/azure/industry/training-services/microsoft-community-training/"
+      }
+    ]
   },
   {
     "resourceType": "private.search/indexes",
