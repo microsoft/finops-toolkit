@@ -71,6 +71,7 @@ Legend:
 >
 > 1. Removed sensitivity labels.
 > 2. Fixed error in ChargeId column when ResourceId is empty.
+> 3. Fixed null error when Billing Account ID is empty ([#473](https://github.com/microsoft/finops-toolkit/issues/473)).
 
 🖥️ PowerShell
 {: .fs-5 .fw-500 .mt-4 mb-0 }

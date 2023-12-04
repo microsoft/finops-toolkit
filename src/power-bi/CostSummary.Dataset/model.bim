@@ -10722,7 +10722,7 @@
           },
           {
             "name": "PBI_ResultType",
-            "value": "Text"
+            "value": "Null"
           }
         ],
         "description": "Enter your EA or MCA billing account ID (aka enrollment number). You must have at least read access to use Power BI. For more options, please use https://aka.ms/finops/hubs.",
@@ -10868,9 +10868,10 @@
           "            bp = #\"Billing Profile ID\",",
           "            mo = #\"Number of Months\",",
           "",
-          "            IsMCA = Text.Contains(ba, \"-\"),",
+          "            IsMCA = ba <> null and Text.Contains(ba, \"-\"),",
           "            Scope = ",
-          "                if IsMCA then \"/providers/Microsoft.Billing/billingAccounts/\" & ba & (if Text.Length(bp) = 0 then \"\" else (\"/billingProfiles/\" & bp))",
+          "                if ba = null or ba = \"\" then null",
+          "                else if IsMCA then \"/providers/Microsoft.Billing/billingAccounts/\" & ba & (if Text.Length(bp) = 0 then \"\" else (\"/billingProfiles/\" & bp))",
           "                else if Text.Length(ba) > 0 then ba",
           "                else null,",
           "",
