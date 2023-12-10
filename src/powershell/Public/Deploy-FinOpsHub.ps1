@@ -104,7 +104,7 @@ function Deploy-FinOpsHub
             $toolkitFile = Get-ChildItem -Path $toolkitPath -Include 'main.bicep' -Recurse | Where-Object -FilterScript { $_.FullName -like '*finops-hub-v*' }
             if (-not $toolkitFile)
             {
-                throw ($LocalizedData.TemplateNotFound -f $toolkitPath)
+                throw ($LocalizedData.Hub_Deploy_TemplateNotFound -f $toolkitPath)
             }
 
             $parameterSplat = @{
@@ -123,10 +123,8 @@ function Deploy-FinOpsHub
 
         if ($PSCmdlet.ShouldProcess($ResourceGroupName, 'DeployFinOpsHub'))
         {
-            Write-Verbose -Message ($LocalizedData.DeployFinOpsHub -f $toolkitFile.FullName, $resourceGroupObject.ResourceGroupName)
-            $deployment = New-AzResourceGroupDeployment @parameterSplat -ResourceGroupName $resourceGroupObject.ResourceGroupName
-
-            return $deployment
+            Write-Verbose -Message ($LocalizedData.Hub_Deploy_Deploy -f $toolkitFile.FullName, $resourceGroupObject.ResourceGroupName)
+            return New-AzResourceGroupDeployment @parameterSplat -ResourceGroupName $resourceGroupObject.ResourceGroupName
         }
     }
     catch
