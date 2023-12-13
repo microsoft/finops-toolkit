@@ -64,7 +64,7 @@ function Get-FinOpsHub
     $context = Get-AzContext
     if (-not $context)
     {
-        throw $script:localizedData.ContextNotFound
+        throw $script:LocalizedData.Common_ContextNotFound
     }
 
     $tagTemplate = '/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Cloud/hubs/{2}'
