@@ -32,6 +32,9 @@
     .PARAMETER Toolkit
     Optional. Indicates whether to run FinOps toolkit tests.
 
+    .PARAMETER Private
+    Optional. Indicates whether to run private tests. Default = false.
+
     .PARAMETER Integration
     Optional. Indicates whether to run integration tests, which take more time than unit tests by testing external dependencies. Default = false.
     
@@ -66,6 +69,9 @@ param (
     
     [switch]
     $Toolkit,
+    
+    [switch]
+    $Private,
 
     [switch]
     $Integration,
@@ -111,8 +117,9 @@ else
     if ($Data) { $testsToRun += '*-OpenData*', '*-FinOpsPricingUnit*', '*-FinOpsRegion*', '*-FinOpsResourceType*', '*-FinOpsService*' }
     if ($Exports) { $testsToRun += '*-FinOpsCostExport*', 'CostExports.Tests.ps1' }
     if ($FOCUS) { $testsToRun += '*-FinOpsSchema*', 'FOCUS.Tests.ps1' }
-    if ($Hubs) { $testsToRun += '*-FinOpsHub*', 'Hubs.Tests.ps1' }
+    if ($Hubs) { $testsToRun += '*-FinOpsHub*', '*-Hub*', 'Hubs.Tests.ps1' }
     if ($Toolkit) { $testsToRun += 'Toolkit.Tests.ps1', '*-FinOpsToolkit*' }
+    if ($Private) { $testsToRun += 'New-Directory*', 'Split-AzureResourceId*', 'Test-ShouldProcess*' }
     if (-not $testsToRun) { $testsToRun = "*" }
     
     Write-Host ''
