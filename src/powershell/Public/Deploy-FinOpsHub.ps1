@@ -85,30 +85,30 @@ function Deploy-FinOpsHub
         $resourceGroupObject = Get-AzResourceGroup -Name $ResourceGroupName -ErrorAction 'SilentlyContinue'
         if (-not $resourceGroupObject)
         {
-            if ($PSCmdlet.ShouldProcess($ResourceGroupName, 'CreateResourceGroup'))
+            if (Test-ShouldProcess $PSCmdlet $ResourceGroupName 'CreateResourceGroup')
             {
                 $resourceGroupObject = New-AzResourceGroup -Name $ResourceGroupName -Location $Location
             }
         }
 
         $toolkitPath = Join-Path $env:temp -ChildPath 'FinOpsToolkit'
-        if ($PSCmdlet.ShouldProcess($toolkitPath, 'CreateTempDirectory'))
+        if (Test-ShouldProcess $PSCmdlet $toolkitPath 'CreateTempDirectory')
         {
             New-Directory -Path $toolkitPath
         }
         Initialize-FinOpsHubDeployment -WhatIf:$WhatIfPreference
 
-        if ($PSCmdlet.ShouldProcess($Version, 'DownloadTemplate'))
+        if (Test-ShouldProcess $PSCmdlet $Version 'DownloadTemplate')
         {
             Save-FinOpsHubTemplate -Version $Version -Preview:$Preview -Destination $toolkitPath
-            $toolkitFile = Get-ChildItem -Path $toolkitPath -Include 'main.bicep' -Recurse | Where-Object -FilterScript { $_.FullName -like '*finops-hub-v*' }
-            if (-not $toolkitFile)
+            $bicepFile = Get-ChildItem -Path $toolkitPath -Include 'main.bicep' -Recurse | Where-Object -FilterScript { $_.FullName -like '*finops-hub-v*' }
+            if (-not $bicepFile)
             {
                 throw ($LocalizedData.Hub_Deploy_TemplateNotFound -f $toolkitPath)
             }
 
             $parameterSplat = @{
-                TemplateFile            = $toolkitFile.FullName
+                TemplateFile            = $bicepFile.FullName
                 TemplateParameterObject = @{
                     hubName    = $Name
                     storageSku = $StorageSku
@@ -121,9 +121,9 @@ function Deploy-FinOpsHub
             }
         }
 
-        if ($PSCmdlet.ShouldProcess($ResourceGroupName, 'DeployFinOpsHub'))
+        if (Test-ShouldProcess $PSCmdlet $ResourceGroupName 'DeployFinOpsHub')
         {
-            Write-Verbose -Message ($LocalizedData.Hub_Deploy_Deploy -f $toolkitFile.FullName, $resourceGroupObject.ResourceGroupName)
+            Write-Verbose -Message ($LocalizedData.Hub_Deploy_Deploy -f $bicepFile.FullName, $resourceGroupObject.ResourceGroupName)
             return New-AzResourceGroupDeployment @parameterSplat -ResourceGroupName $resourceGroupObject.ResourceGroupName
         }
     }
