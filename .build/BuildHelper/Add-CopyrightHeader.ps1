@@ -4,10 +4,10 @@
 <#
     .SYNOPSIS
     Adds a standard copyright header to all files in the repository that don't already have it.
-    
+
     .DESCRIPTION
     Run this from the /src/scripts folder.
-    
+
     .EXAMPLE
     ./Add-CopyrightHeader
 
@@ -19,12 +19,12 @@ function Add-CopyrightHeader
     param
     (
         [Parameter()]
-        [ValidateScript({Test-Path -Path $_})]
+        [ValidateScript({ Test-Path -Path $_ })]
         [string]
         $Path = "$PSScriptRoot/../.."
     )
 
-    $Path = (Resolve-Path -Path $Path).Path    
+    $Path = (Resolve-Path -Path $Path).Path
 
     # Header lines to add to the top of each file
     $headerLines = @( "Copyright (c) Microsoft Corporation.", "Licensed under the MIT License." )
@@ -37,7 +37,7 @@ function Add-CopyrightHeader
         psm1  = "#"
     }
 
-    $exclude = '*.abf', '*.xml', '*.yml', '*.bim', '.buildignore', '.editorconfig', '.prettierrc', '.gitignore', '*.json', '*.md', '*.pbidataset', '*.pbip', '*.pbir', '*.pbix', '*.png', '*.svg' 
+    $exclude = '*.abf', '*.xml', '*.yml', '*.bim', '.buildignore', '.editorconfig', '.prettierrc', '.gitignore', '*.json', '*.md', '*.pbidataset', '*.pbip', '*.pbir', '*.pbix', '*.png', '*.svg'
     $newLine = [Environment]::NewLine
 
     $valid = 0
@@ -59,7 +59,7 @@ function Add-CopyrightHeader
             $notSupported++
             continue
         }
-        
+
         # Build the header
         $header = "$commentChar " + ($headerLines -join "$newLine$commentChar ") + $newLine + $newLine
 

@@ -15,7 +15,7 @@ InModuleScope 'FinOpsToolkit' {
 
             # Act
             New-Directory -Path $path
-            
+
             # Assert
             Test-Path $path | Should -Be $true
 

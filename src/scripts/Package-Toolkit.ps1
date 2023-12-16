@@ -74,7 +74,7 @@ $templates = Get-ChildItem $relDir -Directory `
         Write-Verbose "  Switching to sub folder"
         $path = $versionSubFolder
     }
-    
+
     # Skip if template is a Bicep Registry module
     Write-Verbose "Checking version.json to see if it's targeting the Bicep Registry"
     if (Test-Path $path/version.json)
@@ -127,7 +127,7 @@ elseif ($versionInDocs -eq $version)
 {
     Write-Host "✅ Version in docs ($versionInDocs) already up-to-date"
 }
-else 
+else
 {
     Write-Verbose "Updating version in docs..."
     $version | Out-File $docVersionPath -NoNewline

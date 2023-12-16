@@ -29,7 +29,7 @@ InModuleScope 'FinOpsToolkit' {
             )
 
             $rg = "/subscriptions/$SubscriptionId/resourceGroups/$ResourceGroupName"
-            
+
             return @{
                 Id   = "$rg/providers/Microsoft.Storage/storageAccounts/$Name-store"
                 Type = 'Microsoft.Storage/storageAccounts'
@@ -70,7 +70,7 @@ InModuleScope 'FinOpsToolkit' {
                 $newRg = 'newRg'
                 $rgWild = 'test*'
                 $noMatch = 'fake'
-                $tagTemplate = "/subscriptions/$id/resourceGroups/{0}/providers/Microsoft.Cloud/hubs/{1}"    
+                $tagTemplate = "/subscriptions/$id/resourceGroups/{0}/providers/Microsoft.Cloud/hubs/{1}"
             }
 
             BeforeAll {

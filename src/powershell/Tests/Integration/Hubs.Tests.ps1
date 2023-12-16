@@ -109,7 +109,7 @@ Describe 'Hubs' {
                     | Select-Object -ExpandProperty RegistrationState -First 1 `
                     | Should -BeIn 'Registered', 'Registering' -ErrorAction Continue -Because "RP '$_' should be registered"
                 }
-            
+
                 # Assert hub state
                 @($script:getResult).Count | Should -Be 1 -ErrorAction Continue -Because "there should only be one hub with name '$name' in resource group '$rg' (v$ver)"
                 $script:getResult.Location.ToLower() -replace ' ', '' | Should -Be $location -ErrorAction Continue -Because "hub should be in location '$location' (v$ver)"
@@ -123,6 +123,7 @@ Describe 'Hubs' {
                 (if ([version]$ver -ge [version]'0.1') { 'microsoft.managedidentity/userassignedidentities', 'microsoft.managedidentity/userassignedidentities' }),
                     'microsoft.storage/storageaccounts'
                 ) -ErrorAction Continue -Because "hub should have expected resources (v$ver)"
+
 
                 # TODO: Test 'StorageOnly' status
                 # TODO: Test 0.0.1 'DeployedWithExtraResources' status = storage + DF + KV + 1???

@@ -46,26 +46,26 @@ function Get-FinOpsService()
         [Alias("ResourceProvider", "RP")]
         [string]
         $ConsumedService = "*",
-        
+
         # TODO: Add this to a parameter set separate from ResourceType
         [Parameter(Position = 1)]
         [string]
         $ResourceId,
-        
+
         # TODO: Add this to a parameter set separate from ResourceId
         [Parameter(Position = 2)]
         [string]
         $ResourceType = "*",
-        
+
         [string]
         $ServiceName = "*",
-        
+
         [string]
         $ServiceCategory = "*",
-        
+
         [string]
         $PublisherName = "*",
-        
+
         [Alias("PublisherType")]
         [string]
         $PublisherCategory = "*"

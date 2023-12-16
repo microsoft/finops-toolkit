@@ -4,15 +4,15 @@
 <#
     .SYNOPSIS
     Compiles CSV contents into a PowerShell function.
-    
+
     .EXAMPLE
     ./Build-OpenData Services
-    
+
     Generates a private Get-FinOpsServicesData PowerShell function from the contents of open-data/Services.csv.
-    
+
     .PARAMETER Name
     Name of the CSV file to convert into a function. Default = *.
-    
+
     .LINK
     https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md#-build-opendata
 #>
@@ -147,11 +147,11 @@ $resourceTypes = ($metadataJson.assets + @(@{ addOverrides = $true })) | ForEach
             $oldIcon = Get-Content "$svgDir/$resourceType.svg" -Raw
             if ($oldIcon)
             {
-                Write-Warning "Icon no longer available; using old icon for $resourceType" 
+                Write-Warning "Icon no longer available; using old icon for $resourceType"
             }
             else
             {
-                Write-Warning "Using fallback cube icon for $resourceType" 
+                Write-Warning "Using fallback cube icon for $resourceType"
             }
         }
         $icon = $override.icon ?? $asset.icon.data ?? $oldIcon ?? $defaultIcon
@@ -164,29 +164,29 @@ $resourceTypes = ($metadataJson.assets + @(@{ addOverrides = $true })) | ForEach
             $icon = $icon.Replace("class=' fxs-portal-svg'", "")
             $icon = $icon.Replace("class='fxs-portal-svg'", "")
             $icon = $icon.Replace("class=""fxs-portal-svg""", "")
-    
+
             # remove unnecessary properties/tags and switch opacity to fill-opacity (ffimg bug)
             $icon = ($icon.Replace(" opacity=", " fill-opacity=") -replace ' xmlns:svg=', ' xmlns=' -replace " (focusable|role|xmlns:[^=]+)='[^']+'", "") -replace "<title>[^<]*</title>", ""
-         
+
             # save SVG to file
             $resourceTypeParent = $resourceType -split '/'
             $resourceTypeParent = $resourceTypeParent[0..($resourceTypeParent.Length - 2)] -join '/'
             & $PSScriptRoot/New-Directory "$svgDir/$resourceTypeParent"
             $icon | Out-File "$svgDir/$resourceType.svg" -Encoding utf8
         }
-        
+
         $isPreview = ($asset.singularDisplayName + $asset.pluralDisplayName + $asset.lowerSingularDisplayName + $asset.lowerPluralDisplayName) -match 'preview'
         function noPreview($name) { return ($name -replace ' *\(preview\) *$', '' -replace ' *\| *preview *$', '').Trim() }
         function logOverrides($knownOld, $newVal, $oldVal, $valType)
         {
             if (-not $newVal -or -not $oldVal)
             {
-                return 
+                return
             }
             elseif ($newVal -ceq $oldVal)
             {
                 # Override is the same as the original; should remove the override config
-                Write-Warning "Remove redundant $resourceType $valType '$($oldVal)'" 
+                Write-Warning "Remove redundant $resourceType $valType '$($oldVal)'"
             }
             elseif ($newVal -eq $oldVal)
             {
@@ -196,7 +196,7 @@ $resourceTypes = ($metadataJson.assets + @(@{ addOverrides = $true })) | ForEach
             elseif (-not $knownOld -or $knownOld -ne $oldVal)
             {
                 # Unexpected overrides should be verified
-                Write-Warning "Overriding $resourceType $valType '$oldVal' → '$newVal'" 
+                Write-Warning "Overriding $resourceType $valType '$oldVal' → '$newVal'"
             }
         }
         logOverrides $override.originalSingular      $override.singular      $asset.singularDisplayName      'singular display name'
@@ -214,7 +214,7 @@ $resourceTypes = ($metadataJson.assets + @(@{ addOverrides = $true })) | ForEach
             icon                     = $icon ? "https://microsoft.github.io/finops-toolkit/svg/$resourceType.svg" : $null
             links                    = $asset.links
         }
-    
+
         # Warn if names are missing
         if ($asset.resourceType -and (-not $typeInfo.singularDisplayName -or -not $typeInfo.pluralDisplayName -or -not $typeInfo.lowerSingularDisplayName -or -not $typeInfo.lowerPluralDisplayName))
         {
@@ -223,7 +223,7 @@ $resourceTypes = ($metadataJson.assets + @(@{ addOverrides = $true })) | ForEach
 
         # PowerShell isn't respecting wrapping the value in @(), so forcing it with string manipulation
         function forceArray($val) { if ($val -and $val.Length -gt 0 -and $val[0] -ne '[') { return "[$val]" } else { return $val } }
-     
+
         # Write output
         return @{
             type = $typeInfo.resourceType
@@ -241,11 +241,11 @@ $resourceTypes = ($metadataJson.assets + @(@{ addOverrides = $true })) | ForEach
             json = $typeInfo
         }
     }
-    
+
     if ($asset.addOverrides)
     {
         Write-Host "Adding $($overrides.Count) overrides..."
-        $overrides | ForEach-Object { 
+        $overrides | ForEach-Object {
             if (-not $_.singular -or -not $_.plural -or -not $_.icon)
             {
                 Write-Information "Skipping $($_.type) override"
@@ -260,11 +260,11 @@ $resourceTypes = ($metadataJson.assets + @(@{ addOverrides = $true })) | ForEach
         $resourceType = $resourceType.ToLower()
 
         if (-not $asset -or -not $resourceType -or -not $asset.resourceType.resourceTypeName -or -not $asset.singularDisplayName)
-        { 
+        {
             Write-Warning "Skipping $resourceType..."
-            return 
+            return
         }
-        
+
         # Look for override and remove from array
         $override = $overrides | Where-Object { $_.type.ToLower() -eq $resourceType }
         if ($override)
@@ -293,7 +293,7 @@ Get-ChildItem "$srcDir/*.csv" `
     $file = $_
     $dataType = $file.BaseName
     $command = "Get-OpenData$($dataType.TrimEnd('s'))"
-    
+
     Write-Verbose "Generating $command from $dataType.csv..."
     Write-Command -Command $command -File $file      | Out-File "$outDir/Private/$command.ps1"          -Encoding ascii -Append:$false
     Write-Test -DataType $dataType -Command $command | Out-File "$outDir/Tests/Unit/$command.Tests.ps1" -Encoding ascii -Append:$false

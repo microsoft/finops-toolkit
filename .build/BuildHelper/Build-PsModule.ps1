@@ -65,7 +65,7 @@ function Build-PsModule
                 ModuleVersion = '6.5.1'
             }
         )
-        IconUri           = 'https://raw.githubusercontent.com/microsoft/finops-toolkit/4747859b1c800f49d5b0c3cd7894a40fe8641c3a/src/images/FinOpsHubs.svg'
+        IconUri           = 'https://raw.githubusercontent.com/microsoft/finops-toolkit/4747859b1c800f49d5b0c3cd7894a40fe8641c3a/src/images/FinOpsToolkit.svg'
         LicenseUri        = 'https://github.com/microsoft/finops-toolkit/blob/main/LICENSE'
         ProjectUri        = 'https://github.com/microsoft/finops-toolkit'
         Tags              = @('FinOps', 'Cost', 'CostManagement', 'Azure', 'MicrosoftCloud')

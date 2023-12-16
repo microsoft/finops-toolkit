@@ -95,11 +95,11 @@ Get-ChildItem "$PSScriptRoot/../templates/$Template*" -Directory -ErrorAction Si
     $destDir = "$outdir/$templateName"
     Remove-Item $destDir -Recurse -ErrorAction SilentlyContinue
     & "$PSScriptRoot/New-Directory" $destDir
-    
+
     # Copy required files
     Write-Host "  Copying files..."
     Get-ChildItem $srcDir | Copy-Item -Destination $destDir -Recurse -Exclude ".buildignore,scaffold.json"
-    
+
     # Remove ignored files
     Get-Content "$srcDir/.buildignore" `
     | ForEach-Object {
@@ -109,9 +109,9 @@ Get-ChildItem "$PSScriptRoot/../templates/$Template*" -Directory -ErrorAction Si
             Remove-Item "$destDir/$file" -Recurse -Force
         }
     }
-    
+
     Build-MainBicepParameters $destDir
-   
+
     # Copy version file last to override placeholder
     $ver | Out-File "$destDir/modules/version.txt" -NoNewline
 

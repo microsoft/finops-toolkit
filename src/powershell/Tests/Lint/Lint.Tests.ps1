@@ -49,5 +49,5 @@ Describe 'Style tests - [<_>]' -ForEach $files.FullName {
         }
 
         ($result | ConvertTo-Json -Depth 1) -replace 'null', '' | Should -BeNullOrEmpty
-    }   
+    }
 }
