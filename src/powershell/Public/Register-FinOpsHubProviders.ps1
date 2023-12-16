@@ -27,8 +27,8 @@ function Register-FinOpsHubProviders
         @('Microsoft.EventGrid', 'Microsoft.CostManagementExports') `
         | ForEach-Object {
             $provider = $_
-            $registered = Get-AzResourceProvider -ProviderNamespace $provider 
-    
+            $registered = Get-AzResourceProvider -ProviderNamespace $provider
+
             # If registered, log it; otherwise, register it
             if ($registered.RegistrationState -eq 'Registered')
             {

@@ -152,7 +152,7 @@ InModuleScope 'FinOpsToolkit' {
                 { Get-FinOpsToolkitVersion } | Should -Throw
                 Assert-MockCalled -CommandName 'Invoke-WebRequest'
                 Assert-MockCalled -CommandName 'New-Object' -Times 0
-            }            
+            }
         }
 
         Context 'Parameter [Preview]' {

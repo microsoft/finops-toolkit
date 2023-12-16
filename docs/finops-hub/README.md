@@ -38,7 +38,7 @@ We are very early in our journey. Today, FinOps hubs extend Cost Management by e
 
 <blockquote class="highlight-green-title" markdown="1">
   💵 Estimated cost: $25 per $1M in cost
-  
+
   Exact cost of the solution may vary. Cost is primarily for data storage and number of times data is ingested. Pipelines will run once a day per export.
 </blockquote>
 

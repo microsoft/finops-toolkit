@@ -14,11 +14,11 @@ $maxRetries = 5
 $retryInterval = 180 # seconds
 
 for ($i = 1; $i -le $maxRetries; $i++) {
-    
+
     If ($dataFactory) {
         try {
             $trigger = Get-AzDataFactoryV2Trigger -DataFactoryName $env:dataFactoryName -ResourceGroupName $env:resourceGroupName -TriggerName msexports | Where-Object { $_.RuntimeState -eq "Started" }
-    
+
             If ($trigger.RuntimeState -eq "Started") {
                 Remove-AzUserAssignedIdentity -Name $env:managedIdentityName -ResourceGroupName $env:resourceGroupName
                 Write-Output "Operation succeeded. Managed identity: $env:managedIdentityName has been removed."
@@ -36,7 +36,7 @@ for ($i = 1; $i -le $maxRetries; $i++) {
         try {
             $ctx = New-AzStorageContext -StorageAccountName $env:storageAccountName -UseConnectedAccount
             $settingsFile = Get-AzStorageBlob -Container $env:containerName -Context $ctx -Blob settings.json
-            
+
             If ($settingsFile) {
                 Remove-AzUserAssignedIdentity -Name $env:managedIdentityName -ResourceGroupName $env:resourceGroupName
                 Write-Output "Operation succeeded. Managed identity: $env:managedIdentityName has been removed."

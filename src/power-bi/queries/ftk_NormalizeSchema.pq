@@ -3,7 +3,7 @@ let
 //     DataSet = Schema, // Table.AddColumn(AccountType, "DataSet", each "AmortizedCost"),
 
     // What version should we generate? Allowed values: -1 = EA, 0 = Interim, 0.5 = FOCUS 0.5, 1.0 = FOCUS 1.0
-    _targetSchema = if SchemaVersion = null then -1 else SchemaVersion, 
+    _targetSchema = if SchemaVersion = null then -1 else SchemaVersion,
 
     // Known schemas
     // _unifiedSchema = {"AccountName",    "AccountOwnerId",    "AdditionalInfo",     "AvailabilityZone", "BenefitId",                "BenefitName",                "BillingAccountId",    "BillingAccountName",    "BillingCurrency",     "BillingPeriodEndDate", "BillingPeriodStartDate", "BillingProfileId",    "BillingProfileName",    "ChargeType",     "ConsumedService",     "CostAllocationRuleName",    "CostCenter",    "CostInBillingCurrency",     "CostInPricingCurrency", "CostInUsd",     "CustomerName",    "CustomerTenantId",    "Date",              "EffectivePrice",     "ExchangeRatePricingToBilling", "ExchangeRateDate",     "Frequency",          "InvoiceId",    "InvoiceSectionId",    "InvoiceSectionName",    "IsAzureCreditEligible",    "MeterCategory",    "MeterId",    "MeterName",    "MeterRegion",    "MeterSubCategory",    "OfferId",    "PartNumber",    "PartnerEarnedCreditApplied", "PartnerEarnedCreditRate", "PartnerName",           "PartnerTenantId",     "PaygCostInBillingCurrency", "PaygCostInUsd",     "PayGPrice",     "PlanName",    "PreviousInvoiceId",    "PricingCurrency",     "PricingModel",     "ProductId",    "ProductName",    "ProductOrderId",    "ProductOrderName",    "Provider",    "PublisherId",    "PublisherName", "PublisherType",     "Quantity",      "ResellerMpnId",    "ResellerName",    "ReservationId",     "ReservationName",     "ResourceGroup",        "ResourceId", "ResourceLocation",     "ResourceName",     "ResourceType",     "ServiceFamily",    "ServicePeriodEndDate",     "ServicePeriodStartDate",    "SubscriptionId",     "SubscriptionName",     "Tags",     "Term",    "UnitOfMeasure",    "UnitPrice"},
@@ -19,70 +19,70 @@ let
     _originalColumns = Table.ColumnNames(input),
     _nameChanges = [
         // Passthrough
-        AccountName                  = "AccountName", 
-        AccountOwnerId               = "AccountOwnerId", 
-        AdditionalInfo               = "AdditionalInfo", 
-        AmortizedCost                = "AmortizedCost", 
-        AmortizedCostInUsd           = "AmortizedCostInUsd", 
-        AmortizedPricingCost         = "AmortizedPricingCost", 
-        BilledCost                   = "BilledCost", 
-        BilledCostInUsd              = "BilledCostInUsd", 
-        BilledPricingCost            = "BilledPricingCost", 
-        BillingAccountId             = "BillingAccountId", 
-        BillingAccountName           = "BillingAccountName", 
-        BillingCurrency              = "BillingCurrency", 
-        BillingPeriodEndDate         = "BillingPeriodEndDate", 
-        BillingPeriodStartDate       = "BillingPeriodStartDate", 
-        BillingProfileId             = "BillingProfileId", 
-        BillingProfileName           = "BillingProfileName", 
-        ChargeType                   = "ChargeType", 
-        ConsumedService              = "ConsumedService", 
-        CostAllocationRuleName       = "CostAllocationRuleName", 
-        CostCenter                   = "CostCenter", 
-        CustomerName                 = "CustomerName", 
-        DataSet                      = "DataSet", 
-        Date                         = "Date", 
+        AccountName                  = "AccountName",
+        AccountOwnerId               = "AccountOwnerId",
+        AdditionalInfo               = "AdditionalInfo",
+        AmortizedCost                = "AmortizedCost",
+        AmortizedCostInUsd           = "AmortizedCostInUsd",
+        AmortizedPricingCost         = "AmortizedPricingCost",
+        BilledCost                   = "BilledCost",
+        BilledCostInUsd              = "BilledCostInUsd",
+        BilledPricingCost            = "BilledPricingCost",
+        BillingAccountId             = "BillingAccountId",
+        BillingAccountName           = "BillingAccountName",
+        BillingCurrency              = "BillingCurrency",
+        BillingPeriodEndDate         = "BillingPeriodEndDate",
+        BillingPeriodStartDate       = "BillingPeriodStartDate",
+        BillingProfileId             = "BillingProfileId",
+        BillingProfileName           = "BillingProfileName",
+        ChargeType                   = "ChargeType",
+        ConsumedService              = "ConsumedService",
+        CostAllocationRuleName       = "CostAllocationRuleName",
+        CostCenter                   = "CostCenter",
+        CustomerName                 = "CustomerName",
+        DataSet                      = "DataSet",
+        Date                         = "Date",
         EffectivePrice               = "EffectivePrice",
-        Frequency                    = "Frequency", 
-        InvoiceId                    = "InvoiceId", 
-        InvoiceSectionId             = "InvoiceSectionId", 
-        InvoiceSectionName           = "InvoiceSectionName", 
-        IsAzureCreditEligible        = "IsAzureCreditEligible", 
-        MeterCategory                = "MeterCategory", 
-        MeterId                      = "MeterId", 
-        MeterName                    = "MeterName", 
-        MeterRegion                  = "MeterRegion", 
-        MeterSubCategory             = "MeterSubCategory", 
-        OfferId                      = "OfferId", 
-        PartNumber                   = "PartNumber", 
-        PartnerName                  = "PartnerName", 
-        PlanName                     = "PlanName", 
-        PreviousInvoiceId            = "PreviousInvoiceId", 
-        ProductId                    = "ProductId", 
-        ProductName                  = "ProductName", 
-        ProductOrderId               = "ProductOrderId", 
-        ProductOrderName             = "ProductOrderName", 
-        Provider                     = "Provider", 
-        PublisherId                  = "PublisherId", 
-        PublisherType                = "PublisherType", 
-        Quantity                     = "Quantity", 
+        Frequency                    = "Frequency",
+        InvoiceId                    = "InvoiceId",
+        InvoiceSectionId             = "InvoiceSectionId",
+        InvoiceSectionName           = "InvoiceSectionName",
+        IsAzureCreditEligible        = "IsAzureCreditEligible",
+        MeterCategory                = "MeterCategory",
+        MeterId                      = "MeterId",
+        MeterName                    = "MeterName",
+        MeterRegion                  = "MeterRegion",
+        MeterSubCategory             = "MeterSubCategory",
+        OfferId                      = "OfferId",
+        PartNumber                   = "PartNumber",
+        PartnerName                  = "PartnerName",
+        PlanName                     = "PlanName",
+        PreviousInvoiceId            = "PreviousInvoiceId",
+        ProductId                    = "ProductId",
+        ProductName                  = "ProductName",
+        ProductOrderId               = "ProductOrderId",
+        ProductOrderName             = "ProductOrderName",
+        Provider                     = "Provider",
+        PublisherId                  = "PublisherId",
+        PublisherType                = "PublisherType",
+        Quantity                     = "Quantity",
         ResourceId                   = "ResourceId",
-        ResourceType                 = "ResourceType", 
-        ResellerName                 = "ResellerName", 
-        ServiceFamily                = "ServiceFamily", 
-        ServicePeriodEndDate         = "ServicePeriodEndDate", 
-        ServicePeriodStartDate       = "ServicePeriodStartDate", 
-        SubscriptionId               = "SubscriptionId", 
-        SubscriptionName             = "SubscriptionName", 
-        Tags                         = "Tags", 
-        Term                         = "Term", 
+        ResourceType                 = "ResourceType",
+        ResellerName                 = "ResellerName",
+        ServiceFamily                = "ServiceFamily",
+        ServicePeriodEndDate         = "ServicePeriodEndDate",
+        ServicePeriodStartDate       = "ServicePeriodStartDate",
+        SubscriptionId               = "SubscriptionId",
+        SubscriptionName             = "SubscriptionName",
+        Tags                         = "Tags",
+        Term                         = "Term",
         UnitOfMeasure                = "UnitOfMeasure",
         // Changes
-        BenefitId                    = "tmp_BenefitId", 
-        BenefitName                  = "tmp_BenefitName", 
-        BillingCurrencyCode          = "BillingCurrency", 
-        Currency                     = "BillingCurrency", 
-        CustomerTenantId             = "CustomerId", 
+        BenefitId                    = "tmp_BenefitId",
+        BenefitName                  = "tmp_BenefitName",
+        BillingCurrencyCode          = "BillingCurrency",
+        Currency                     = "BillingCurrency",
+        CustomerTenantId             = "CustomerId",
         DepartmentName               = "InvoiceSectionName",
         EffectiveUnitPrice           = "EffectivePrice",
         ExchangeRate                 = "tmp_ExchangeRate",
@@ -90,32 +90,32 @@ let
         ExchangeRatePricingToBilling = "tmp_ExchangeRate",
         InvoiceSection               = "InvoiceSectionName",
         MeterSubcategory             = "MeterSubCategory",
-        PartnerEarnedCreditApplied   = "PartnerCreditApplied", 
+        PartnerEarnedCreditApplied   = "PartnerCreditApplied",
         PartnerEarnedCreditRate      = "PartnerCreditRate",
         PartnerTenantId              = "PartnerId",
         PaygCostInBillingCurrency    = "tmp_ListCost",
         PaygCostInUsd                = "tmp_ListCostInUsd",
         PayGPrice                    = "tmp_ListPrice",
-        PricingCurrency              = "tmp_PricingCurrency", 
-        PricingModel                 = "tmp_PricingModel", 
+        PricingCurrency              = "tmp_PricingCurrency",
+        PricingModel                 = "tmp_PricingModel",
         Product                      = "ProductName",
         ProductCategory              = "ServiceFamily",
-        PublisherName                = "tmp_PublisherName", 
+        PublisherName                = "tmp_PublisherName",
         ResellerMpnId                = "ResellerId",
-        ReservationId                = "tmp_ReservationId", 
-        ReservationName              = "tmp_ReservationName", 
-        ResourceGroup                = "ResourceGroupName", 
-        ResourceLocation             = "tmp_ResourceLocation", 
-        ResourceName                 = "tmp_ResourceName", 
+        ReservationId                = "tmp_ReservationId",
+        ReservationName              = "tmp_ReservationName",
+        ResourceGroup                = "ResourceGroupName",
+        ResourceLocation             = "tmp_ResourceLocation",
+        ResourceName                 = "tmp_ResourceName",
         ResourceRate                 = "tmp_OnDemandPrice",
         SubscriptionGuid             = "SubscriptionId",
         UnitPrice                    = "tmp_OnDemandPrice",
         UsageDateTime                = "Date",
         UsageQuantity                = "Quantity",
         // Colums to remove
-        AvailabilityZone             = "__DELETE_AvailabilityZone", 
-        Location                     = "__DELETE_Location", 
-        ResourceLocationNormalized   = "__DELETE_ResourceLocationNormalized", 
+        AvailabilityZone             = "__DELETE_AvailabilityZone",
+        Location                     = "__DELETE_Location",
+        ResourceLocationNormalized   = "__DELETE_ResourceLocationNormalized",
         ServiceInfo1                 = "__DELETE_ServiceInfo1",
         ServiceInfo2                 = "__DELETE_ServiceInfo2"
     ],
@@ -124,9 +124,9 @@ let
 
     // Add missing columns + remove unecessary ones
     BackfillAndTrim = Table.SelectColumns(
-        RenameColumns, 
+        RenameColumns,
         List.Sort(List.Distinct(List.Select(List.Union({
-            Record.FieldValues(_nameChanges), 
+            Record.FieldValues(_nameChanges),
             Table.ColumnNames(RenameColumns)
         }), each Text.StartsWith(_, "__DELETE_") = false))),
         MissingField.UseNull
@@ -163,12 +163,12 @@ let
 
     // Transform metadata
 // TODO: Add more thorough schema/account validation + use real API versions
-    Schema =  Table.AddColumn(FixTypes, "SchemaVersion", 
-        each if Table.HasColumns(input, "DepartmentName")   then "MG_2023-09" 
-        else if Table.HasColumns(input, "SubscriptionGuid") then "MOSA_2023-09" 
-        else if Table.HasColumns(input, "BillingAccountId") then "EA_2023-09" 
-        else if Table.HasColumns(input, "partnerTenantId") and [partnerName] <> "" then "MPA_2023-09" 
-        else if Table.HasColumns(input, "billingAccountId") then "MCA_2023-09" 
+    Schema =  Table.AddColumn(FixTypes, "SchemaVersion",
+        each if Table.HasColumns(input, "DepartmentName")   then "MG_2023-09"
+        else if Table.HasColumns(input, "SubscriptionGuid") then "MOSA_2023-09"
+        else if Table.HasColumns(input, "BillingAccountId") then "EA_2023-09"
+        else if Table.HasColumns(input, "partnerTenantId") and [partnerName] <> "" then "MPA_2023-09"
+        else if Table.HasColumns(input, "billingAccountId") then "MCA_2023-09"
         else "Unknown_2023-09"
     ),
     AccountType = Table.AddColumn(Schema, "AccountType", each Text.Split([SchemaVersion], "_"){0}),
@@ -187,22 +187,22 @@ let
         Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(
         Text.Lower(
             try
-                if Number.FromText(Text.At(loc, Text.Length(loc) - 1)) <> null then 
+                if Number.FromText(Text.At(loc, Text.Length(loc) - 1)) <> null then
                     Text.Range(loc, 0, Text.Length(loc) - 1) & " " & Text.At(loc, Text.Length(loc) - 1) & " "
-                else 
+                else
                     loc
             otherwise loc
-        ), 
-        "central",     " Central "), 
-        "north",       " North "), 
+        ),
+        "central",     " Central "),
+        "north",       " North "),
         "northeast",   " Northeast "),
         "northwest",   " Northwest "),
-        "south",       " South "), 
+        "south",       " South "),
         "southeast",   " Southeast "),
         "southwest",   " Southwest "),
         "east",        " East "),
-        "west",        " West "), 
-        "2euap",       " 2 EUAP "), 
+        "west",        " West "),
+        "2euap",       " 2 EUAP "),
         "africa",      " Africa "),
         "arizona",     " Arizona "),
         "asia",        " Asia "),
@@ -239,9 +239,9 @@ let
         "texas",       " Texas "),
         "uae",         " UAE "),
         "uk",          " UK "),
-        "usdod",       " US DoD "), 
-        "usgov",       " US Gov "), 
-        "ussec",       " US Sec "), 
+        "usdod",       " US DoD "),
+        "usgov",       " US Gov "),
+        "ussec",       " US Sec "),
         "us",          " US "),
         "virginia",    " Virginia "),
         " US  South ", " South US "),
@@ -259,8 +259,8 @@ let
     // Parse AddlInfo
     AddlInfoDict            = Table.AddColumn(TagsDictionary_errors, "AdditionalInfoDictionary", each if _isNotBlank([AdditionalInfo]) then Json.Document([AdditionalInfo]) else null),
     AddlInfoDict_errors     = Table.ReplaceErrorValues(AddlInfoDict, {{"AdditionalInfoDictionary", null}}),
-    AddlInfoDict_expand     = Table.ExpandRecordColumn(AddlInfoDict_errors, "AdditionalInfoDictionary", 
-        {"UsageType",        "ImageType",        "ServiceType", "VMName",     "VMProperties",        "VCPUs",       "ReservationOrderId",         "ReservationId",         "VMCapacityReservationId", "AHB",        "vCores"}, 
+    AddlInfoDict_expand     = Table.ExpandRecordColumn(AddlInfoDict_errors, "AdditionalInfoDictionary",
+        {"UsageType",        "ImageType",        "ServiceType", "VMName",     "VMProperties",        "VCPUs",       "ReservationOrderId",         "ReservationId",         "VMCapacityReservationId", "AHB",        "vCores"},
         {"ProductUsageType", "ProductImageType", "ProductSKU",  "tmp_VMName", "ProductVMProperties", "tmp_VMvCPUs", "tmp_AddlReservationOrderId", "tmp_AddlReservationId", "CapacityCommitmentId",    "tmp_SQLAHB", "tmp_SQLvCores"}
     ),
     AddlInfoDict_types      = Table.TransformColumnTypes(AddlInfoDict_expand, {{"tmp_VMvCPUs", Int64.Type}, {"tmp_SQLvCores", Int64.Type}}),
@@ -271,13 +271,13 @@ let
     PricingCurrency         = _swapCol(ExchangeRateDate,       "tmp_PricingCurrency",  "PricingCurrency",  each if _isBlank([tmp_PricingCurrency])    then [BillingCurrency]        else [tmp_PricingCurrency]),
     PricingModel            = _swapCol(PricingCurrency,        "tmp_PricingModel",     "PricingModel",     each if _isNotBlank([tmp_PricingModel])    then [tmp_PricingModel]       else if _isNotBlank([tmp_ReservationId])    then "Reservation" else if [ConsumedService] = "Microsoft.Capacity" then "SavingsPlan" else "OnDemand"),
     PublisherName           = _swapCol(PricingModel,           "tmp_PublisherName",    "PublisherName",    each if _isNotBlank([tmp_PublisherName])   then [tmp_PublisherName]      else "Microsoft"),
-    ResourceLocation        = _swapCol(PublisherName,          "tmp_ResourceLocation", "ResourceLocation", each 
+    ResourceLocation        = _swapCol(PublisherName,          "tmp_ResourceLocation", "ResourceLocation", each
 // TODO: Region = Unassigned
         if Text.StartsWith([ChargeType], "Unused") and [tmp_ResourceLocation] = "Unassigned" then "Global"
         else if [ChargeType] = "RoundingAdjustment"                                          then "Global"
         else if [tmp_ResourceLocation] = "All Regions"                                       then "Global"
         else if _isNotBlank([tmp_DefenderFor]) and _isBlank([tmp_ResourceLocation])          then "Global"
-        else if _isBlank([tmp_ResourceLocation])                                             then null 
+        else if _isBlank([tmp_ResourceLocation])                                             then null
         else _regionCleanup([tmp_ResourceLocation])
     ),
 // TODO: Parse ResourceName
@@ -347,10 +347,10 @@ let
         if _isBlank([Tags])                        then null else Text.Remove([Tags], {"{","""","}"}),
         if _isBlank([AdditionalInfo])              then null else Text.Remove([AdditionalInfo], {"{","""","}"})
     }, {null, ""}), "-")),
-   
+
     // Cleanup
     // FOCUS ServiceName
-    ServiceName = Table.AddColumn(ChargeId, "focus_ServiceName", each 
+    ServiceName = Table.AddColumn(ChargeId, "focus_ServiceName", each
         if [tmp_DefenderFor] <> null then (
             if [tmp_DefenderFor] = "DNS"                   then "Azure DNS"
             else if [tmp_DefenderFor] = "MySQL"            then "Azure Database for MySQL"
@@ -380,7 +380,7 @@ let
     ),
 
     // FOCUS ServiceCategory
-    ServiceCategory = Table.AddColumn(ServiceName, "focus_ServiceCategory", each 
+    ServiceCategory = Table.AddColumn(ServiceName, "focus_ServiceCategory", each
         if [focus_ServiceName] = "Functions"                            then "Compute"
         else if [focus_ServiceName] = "App Service"                     then "Web"
         else if [focus_ServiceName] = "Azure DNS"                       then "Networking"
@@ -416,8 +416,8 @@ let
         else if [tmp_RPName] = "synapse"                          then "Analytics"
         else if [tmp_RPName] = "virtual network"                  then "Networking"
         else if [tmp_RPName] = "web"                              then "Web"
-        else if Text.Contains(Text.Lower([focus_ServiceName]), "quantum")  then "Compute" 
-        else if Text.Contains(Text.Lower([focus_ServiceName]), "redis")    then "Storage" 
+        else if Text.Contains(Text.Lower([focus_ServiceName]), "quantum")  then "Compute"
+        else if Text.Contains(Text.Lower([focus_ServiceName]), "redis")    then "Storage"
         else if Text.Contains(Text.Lower([focus_ServiceName]), "sendgrid") then "Web"
         else if [MeterCategory] = "RoundingAdjustment"            then "Other"
         else "Other"

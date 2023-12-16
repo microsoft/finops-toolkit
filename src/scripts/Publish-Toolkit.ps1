@@ -4,30 +4,30 @@
 <#
     .SYNOPSIS
     Publishes a toolkit template or module to its destination repo.
-    
+
     .DESCRIPTION
     Run this from the /src/scripts folder.
-    
+
     .PARAMETER Template
     Name of the template or module to publish. Default = * (all templates).
-    
+
     .PARAMETER QuickstartRepo
     Optional. Name of the folder where the Azure Quickstart Templates repo is cloned. Default = azure-quickstart-templates.
-    
+
     .PARAMETER RegistryRepo
     Optional. Name of the folder where the Bicep Registry repo is cloned. Default = bicep-registry-modules.
-    
+
     .PARAMETER Build
     Optional. Indicates whether the the Build-Toolkit command should be executed first. Default = false.
-    
+
     .PARAMETER Commit
     Optional. Indicates whether the changes should be committed to the Git repo. Default = false.
-    
+
     .EXAMPLE
     ./Publish-Toolkit "finops-hub"
 
     Publishes the FinOps hub template to the Azure Quickstart Templates repo.
-    
+
     .EXAMPLE
     ./Publish-Toolkit "resourcegroup-scheduled-action" -Build
 

@@ -37,11 +37,11 @@ function Get-FinOpsPricingUnit()
         [Alias("PricingUnit")]
         [string]
         $UnitOfMeasure = "*",
-        
+
         [Parameter()]
         [string]
         $DistinctUnits = "*",
-        
+
         [Parameter()]
         [Alias("PricingBlockSize")]
         [AllowNull()]

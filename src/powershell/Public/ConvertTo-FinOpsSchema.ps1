@@ -61,7 +61,7 @@ function ConvertTo-FinOpsSchema
     $estimatedSecPerRow = 0.03  # Estimated time to process a single row of data based on local testing
 
     # TODO: Consider adding validation to ensure the files are consistent (same on-demand usage, same non-commitment purcahses, no commitment purchases in amortized, etc.)
-    
+
     # TODO: Add SchemaVersion
     # TODO: Warn if schema version is not supported (option to continue anyway?)
 
@@ -72,17 +72,17 @@ function ConvertTo-FinOpsSchema
     ) | ForEach-Object {
         $dataSet = $_.DataSet
         $data = $_.Data
-        
+
         # Need to determien the default dataset to pull costs from so we don't get duplicate rows
         # Amortized cost is the default unless not provided, then fall back to the actual cost dataset
         $isDefaultDataset = $dataSet -eq 'AmortizedCost' -or -not $hasAmortized
-        
-        $data | ForEach-Object { 
+
+        $data | ForEach-Object {
             New-FinOpsSchemaRow `
                 -DataSet $dataSet `
                 -IsDefault:$isDefaultDataSet `
                 -Row $_
-                
+
             # Time Estimation Logic.
             # If we have processed less than 10 rows, we will use an estimated seconds per row based on testing.
             # This is to avoid a divide by zero error. After 10 rows, we will use the average time per row.
@@ -91,13 +91,13 @@ function ConvertTo-FinOpsSchema
             $secPerRow = if ($processedCount -lt 10) { $estimatedSecPerRow } else { ([DateTime]::Now - $start).TotalSeconds / $processedCount }
             # $remaining is the estimated remaining time for the processing of the rest of the data based on that average.
             $remaining = $secPerRow * ($rowCount - $processedCount)
-        
+
             # Number Formatting.
-            # We want to format the numbers to be more readable. 
+            # We want to format the numbers to be more readable.
             # We will use the current culture to determine the appropriate formatting.
             $formattedProcessedCount = $processedCount.ToString('N0', [System.Globalization.CultureInfo]::CurrentCulture)
             $formattedRowCount = $rowCount.ToString('N0', [System.Globalization.CultureInfo]::CurrentCulture)
-        
+
             Write-Progress -Activity "Converting to FOCUS" `
                 -Status "$percent% complete - $formattedProcessedCount of $formattedRowCount" `
                 -PercentComplete $percent `
@@ -159,9 +159,9 @@ function New-FinOpsSchemaRow
     {
         return $null
     }
-    
+
     # TODO: Move outside the loop
-    $accountType = Get-AccountType $Row    
+    $accountType = Get-AccountType $Row
     $schemaVersion = "$($accountType)_2023-10-preview"
 
     $resourceInfo = Split-AzureResourceId (Select-First $Row.ResourceId, $Row.InstanceName)
@@ -201,7 +201,7 @@ function New-FinOpsSchemaRow
         ResourceName                   = $resourceInfo.Name
         SubAccountId                   = "/subscriptions/$(Select-First $Row.SubscriptionId, $Row.SubscriptionGuid)"
         SubAccountName                 = $Row.SubscriptionName
-        
+
         ftk_AccountName                = $Row.AccountName
         ftk_AccountOwnerId             = $Row.AccountOwnerId
         ftk_AccountType                = $accountType
@@ -261,7 +261,7 @@ function New-FinOpsSchemaRow
         ftk_ProductOrderId             = $Row.ProductOrderId
         ftk_ProductOrderName           = $Row.ProductOrderName
         ftk_Provider                   = $Row.Provider
-        ftk_PublisherId                = $Row.PublisherId 
+        ftk_PublisherId                = $Row.PublisherId
         ftk_PublisherType              = Select-First $serviceInfo.PublisherCategory
         ftk_ResourceGroupId            = $resourceInfo.ResourceGroupId
         ftk_ResourceGroupName          = $resourceInfo.ResourceGroupName
@@ -292,7 +292,7 @@ function Get-AccountType
         { $Row.BillingAccountId.Contains(":") } { "MCA" }
         default { "Other" }
     }
-    
+
     return $ftk_AccountType
 }
 
@@ -302,15 +302,15 @@ function Parse-Date([string]$Date, [switch]$EndDate, [switch]$StartOfMonth)
     {
         $parsedDate = [datetime]::ParseExact($Date, "MM/dd/yyyy", [System.Globalization.CultureInfo]::InvariantCulture).ToUniversalTime().Date
         if ($EndDate)
-        { 
+        {
             return $parsedDate.AddDays(1)
         }
         elseif ($StartOfMonth)
-        { 
+        {
             return Get-Date $parsedDate -Day 1
         }
         else
-        { 
+        {
             return $parsedDate
         }
     }

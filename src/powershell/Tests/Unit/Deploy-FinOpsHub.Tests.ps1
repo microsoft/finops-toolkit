@@ -19,7 +19,7 @@ InModuleScope 'FinOpsToolkit' {
                 # Arrange
                 # Act
                 Deploy-FinOpsHub -WhatIf -Name "ftk-test-Deploy-FinOpsHub" -ResourceGroupName "ftk-test" -Location "westus2"
-            
+
                 # Assert
             }
         }
@@ -28,7 +28,7 @@ InModuleScope 'FinOpsToolkit' {
             BeforeAll {
                 Mock -CommandName 'New-Directory'
             }
-        
+
             Context 'Create new resource group' {
                 BeforeAll {
                     Mock -CommandName 'Get-AzResourceGroup'

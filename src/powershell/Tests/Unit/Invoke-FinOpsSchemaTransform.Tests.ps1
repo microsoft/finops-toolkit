@@ -16,10 +16,10 @@ Describe 'Invoke-FinOpsSchemaTransform' {
         Mock -ModuleName FinOpsToolkit -CommandName ConvertTo-FinOpsSchema -MockWith { param($ActualCost, $AmortizedCost) return $ActualCost + $AmortizedCost }
         $actualRows = (Import-Csv $actualCostPath).Count
         $amortizedRows = (Import-Csv $amortizedCostPath).Count
-        
+
         # Act
         Invoke-FinOpsSchemaTransform -ActualCostPath $actualCostPath -AmortizedCostPath $amortizedCostPath -OutputFile $outputPath
-        
+
         # Assert
         Should -Invoke -ModuleName FinOpsToolkit -CommandName ConvertTo-FinOpsSchema -Exactly -Times 1
         # DEBUG -- Write-Host "$actualRows actual + $amortizedRows amortized = $((Import-Csv $outputPath).Count) rows"
