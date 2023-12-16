@@ -37,7 +37,7 @@ function Get-FinOpsResourceType()
         [Nullable[bool]]
         $IsPreview = $null
     )
-    return Get-OpenDataResourceTypes `
+    return Get-OpenDataResourceType `
     | Where-Object {
         $_.ResourceType -like $ResourceType `
             -and ($null -eq $IsPreview -or $_.IsPreview -eq $IsPreview)

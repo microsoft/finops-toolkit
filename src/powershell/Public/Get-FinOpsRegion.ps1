@@ -5,7 +5,7 @@
     .SYNOPSIS
     Gets an Azure region ID and name.
 
-    .PARAMETER ResouceLocation
+    .PARAMETER ResourceLocation
     Optional. Resource location value from a Cost Management cost/usage details dataset. Accepts wildcards. Default = * (all).
 
     .PARAMETER RegionId

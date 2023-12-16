@@ -75,11 +75,13 @@ function Invoke-FinOpsSchemaTransform {
     Write-Verbose "Invoke-FinOpsSchemaTransform..."
 
     # Validate parameters
-    if (-not (Test-Path $ActualCostPath)) {
-        throw [string]::Format($LocalizedData.FinOpsSchemaTransform_Invoke_ActualCostPathNotFound, $ActualCostPath)
+    if (-not (Test-Path $ActualCostPath))
+    {
+        throw [string]::Format($LocalizedData.SchemaTransform_Invoke_ActualCostPathNotFound, $ActualCostPath)
     }
-    if (-not (Test-Path $AmortizedCostPath)) {
-        throw [string]::Format($LocalizedData.FinOpsSchemaTransform_Invoke_ActualCostPathNotFound, $AmortizedCostPath)
+    if (-not (Test-Path $AmortizedCostPath))
+    {
+        throw [string]::Format($LocalizedData.SchemaTransform_Invoke_ActualCostPathNotFound, $AmortizedCostPath)
     }
 
     # TODO: Consider importing from other file formats in a future release

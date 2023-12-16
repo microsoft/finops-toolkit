@@ -56,7 +56,7 @@ function Remove-FinOpsHub
     $context = Get-AzContext
     if (-not $context)
     {
-        throw $script:localizedData.ContextNotFound
+        throw $script:LocalizedData.Common_ContextNotFound
     }
 
     try
@@ -83,13 +83,13 @@ function Remove-FinOpsHub
 
         if (-not $hub)
         {
-            throw $script:localizedData.FinOpsHubNotFound -f $Name
+            throw $script:LocalizedData.Hub_Remove_NotFound -f $Name
         }
 
         $uniqueId = Get-HubIdentifier -Collection $hub.Resources.Name
         Write-Verbose -Message "Unique identifier: $uniqueId"
 
-        $resources = Get-AzResource -ResourceGroupName $ResourceGroupName | Where-Object -FilterScript {$_.Name -like "*$uniqueId*" -and ((-not $KeepStorageAccount) -or $_.ResourceType -ne "Microsoft.Storage/storageAccounts")}
+        $resources = Get-AzResource -ResourceGroupName $ResourceGroupName | Where-Object -FilterScript { $_.Name -like "*$uniqueId*" -and ((-not $KeepStorageAccount) -or $_.ResourceType -ne "Microsoft.Storage/storageAccounts") }
 
         if ($PSCmdlet.ShouldProcess($Name, 'DeleteFinOpsHub'))
         {
@@ -98,6 +98,6 @@ function Remove-FinOpsHub
     }
     catch
     {
-        throw ($script:localizedData.DeleteFinOpsHub -f $_)
+        throw ($script:LocalizedData.Hub_Remove_Failed -f $_)
     }
 }

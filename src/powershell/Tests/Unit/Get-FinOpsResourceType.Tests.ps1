@@ -6,16 +6,17 @@ Import-Module -FullyQualifiedName "$PSScriptRoot/../../FinOpsToolkit.psm1"
 
 Describe 'Get-FinOpsResourceType' {
     BeforeAll {
-        . "$PSScriptRoot/../../Private/Get-OpenDataResourceTypes.ps1"
+        . "$PSScriptRoot/../../Private/Get-OpenDataResourceType.ps1"
         function getAllResourceTypes([string]$ResourceType = "*")
         {
-            Get-OpenDataResourceTypes `
+            Get-OpenDataResourceType `
             | Where-Object { $_.ResourceType -like $ResourceType } `
             | Select-Object -Property * -Unique
         }
     }
     Context "No parameters" {
         BeforeAll {
+            [Diagnostics.CodeAnalysis.SuppressMessageAttribute ('PSUseDeclaredVarsMoreThanAssignments', Scope = 'Function', Target = '*')]
             $actual = Get-FinOpsResourceType
         }
         It 'Should return all resource types by default' {

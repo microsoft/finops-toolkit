@@ -95,7 +95,7 @@ InModuleScope 'FinOpsToolkit' {
 
     Describe 'Localized Data' {
         It 'Should import FinOpsToolKit.strings.psd1' {
-            $script:localizedData | Should -Not -BeNullOrEmpty
+            $script:LocalizedData | Should -Not -BeNullOrEmpty
         }
     }
 

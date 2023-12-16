@@ -32,18 +32,18 @@ function Register-FinOpsHubProviders
             # If registered, log it; otherwise, register it
             if ($registered.RegistrationState -eq 'Registered')
             {
-                Write-Verbose -Message $($LocalizedData.ResourceProviderRegistered -f $provider)
+                Write-Verbose -Message $($LocalizedData.HubProviders_Register_AlreadyRegistered -f $provider)
             }
             else
             {
-                Write-Verbose -Message $($LocalizedData.RegisterProvider -f $provider)
+                Write-Verbose -Message $($LocalizedData.HubProviders_Register_Register -f $provider)
                 Register-AzResourceProvider -ProviderNamespace $provider -WhatIf:$WhatIfPreference
             }
         }
     }
     catch
     {
-        Write-Verbose -Message $($LocalizedData.ErrorRegisteringProvider -f $_.Exception.Message)
+        Write-Verbose -Message $($LocalizedData.HubProviders_Register_RegisterError -f $_.Exception.Message)
         throw
     }
 }

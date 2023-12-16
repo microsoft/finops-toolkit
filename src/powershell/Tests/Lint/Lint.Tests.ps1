@@ -48,6 +48,6 @@ Describe 'Style tests - [<_>]' -ForEach $files.FullName {
             Write-PsScriptAnalyzerWarning -FileName $file -RuleName $_ -PssaRuleOutput $result
         }
 
-        $result | Should -BeNullOrEmpty
+        ($result | ConvertTo-Json -Depth 1) -replace 'null', '' | Should -BeNullOrEmpty
     }
 }

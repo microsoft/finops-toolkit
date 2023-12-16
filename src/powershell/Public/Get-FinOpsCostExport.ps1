@@ -91,7 +91,7 @@ function Get-FinOpsCostExport
     $context = Get-AzContext
     if (-not $context)
     {
-        throw $script:localizedData.ContextNotFound
+        throw $script:LocalizedData.Common_ContextNotFound
     }
     # if Scope is not passed, use current subscription scope
     if ([System.String]::IsNullOrEmpty($Scope))
@@ -174,6 +174,6 @@ function Get-FinOpsCostExport
         $errorobject = $($httpResponse.Content | ConvertFrom-Json).error
         $errorcode = $errorobject.code
         $errorcodemessage = $errorobject.message
-        Write-Error -Message $($script:localizedData.ErrorResponse -f $errorcodemessage, $errorcode)
+        Write-Error -Message $($script:LocalizedData.Common_ErrorResponse -f $errorcodemessage, $errorcode)
     }
 }
