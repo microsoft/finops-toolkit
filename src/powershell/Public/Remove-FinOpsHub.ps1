@@ -5,6 +5,11 @@
     .SYNOPSIS
     Delete a FinOps hub instance and optionally keep the storage account hosting cost data.
 
+    .DESCRIPTION
+    The Remove-FinOpsHub command deletes a FinOps Hub instance and optionally deletes the storage account hosting cost data. If the storage account is not deleted, it can be reused by another FinOps hub instance.
+
+    The comamnd returns a boolean value indicating whether all resources were successfully deleted.
+
     .PARAMETER Name
     Required when specifying Name. Name of the FinOps Hub.
 
@@ -93,7 +98,7 @@ function Remove-FinOpsHub
 
         if ($PSCmdlet.ShouldProcess($Name, 'DeleteFinOpsHub'))
         {
-            $resources | Remove-AzResource -Force:$Force
+            return ($resources | Remove-AzResource -Force:$Force).Reduce({ $args[0] -and $args[1] }, $true)            
         }
     }
     catch
