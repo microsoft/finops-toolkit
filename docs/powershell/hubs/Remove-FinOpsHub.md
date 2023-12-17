@@ -29,6 +29,8 @@ Delete a FinOps hub instance, including all dependent resources.
 
 The **Remove-FinOpsHub** command removes a FinOps hub instance and optionally keep the storage account hosting cost data.
 
+The comamnd returns a boolean value indicating whether all resources were successfully deleted.
+
 <br>
 
 ## 🧮 Syntax

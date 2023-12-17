@@ -58,6 +58,7 @@ Legend:
 >    <blockquote class="important" markdown="1">
 >       _This change requires re-ingesting historical data and is not backwards compatible. The unified schema used in this release is aligned with the future plans for Microsoft Cost Management exports. Note the next release will update the schema to align to the FinOps Open Cost and Usage Specification (FOCUS)._
 >    </blockquote>
+> 2. Return a single boolean value from the Remove-FinOpsHub command.
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
