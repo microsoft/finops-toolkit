@@ -48,10 +48,6 @@ The **Cost summary report** provides a general overview of cost and savings with
 
 You can download the Cost summary report from the [latest release](https://github.com/microsoft/finops-toolkit/releases/latest).
 
-<blockquote class="note" markdown="1">
-  _FinOps hubs uses [amortized costs](https://learn.microsoft.com/azure/cost-management-billing/reservations/reservation-amortization). Amortization breaks reservation and savings plan purchases down and allocates costs to the resources that received the benefit. Due to this, amortized costs will not show purchase costs and will not match your invoice. Support for billed costs is coming in FinOps hubs 0.2. In the meantime, please use [Cost Management](https://aka.ms/costmgmt) to review invoice charges._
-</blockquote>
-
 <br>
 
 ## Working with this report

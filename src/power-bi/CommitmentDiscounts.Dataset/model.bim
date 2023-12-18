@@ -8,11 +8,11 @@
       },
       {
         "name": "PBIDesktopVersion",
-        "value": "2.124.1052.0 (23.12)"
+        "value": "2.124.1554.0 (23.12)"
       },
       {
         "name": "PBI_QueryOrder",
-        "value": "[\"Storage URL\",\"File Type\",\"RangeStart\",\"RangeEnd\",\"CostDetails\",\"RecommendationsSingle\",\"RecommendationsShared\",\"ftk_LoadData\",\"ftk_NormalizeSchema\",\"▶️  START HERE\",\"Data Source\",\"Billing Account ID\",\"Billing Profile ID\",\"Number of Months\",\"InstanceSizeFlexibility\",\"Errors in CostDetails (2)\",\"Errors in CostDetails\",\"ftk_CMConnector\",\"Errors in CostDetails (3)\"]"
+        "value": "[\"Storage URL\",\"File Type\",\"RangeStart\",\"RangeEnd\",\"CostDetails\",\"RecommendationsSingle\",\"RecommendationsShared\",\"ftk_Hub\",\"ftk_CostDetails\",\"▶️  START HERE\",\"Data Source\",\"Billing Account ID\",\"Billing Profile ID\",\"Number of Months\",\"InstanceSizeFlexibility\",\"ftk_CMConnector\",\"Errors in CostDetails\"]"
       },
       {
         "name": "PBI_ProTooling",
@@ -2457,15 +2457,6 @@
                   }
                 ]
               },
-              "costdetails.chargeperiod": {
-                "Definition": {
-                  "Binding": {
-                    "ConceptualEntity": "CostDetails",
-                    "ConceptualProperty": "ChargePeriod"
-                  }
-                },
-                "State": "Generated"
-              },
               "costdetails.chargeperiodstart": {
                 "Definition": {
                   "Binding": {
@@ -2880,27 +2871,6 @@
                 "Terms": [
                   {
                     "On-demand": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  }
-                ]
-              },
-              "costdetails.x_publishertype": {
-                "Definition": {
-                  "Binding": {
-                    "ConceptualEntity": "CostDetails",
-                    "ConceptualProperty": "x_PublisherType"
-                  }
-                },
-                "State": "Generated",
-                "Terms": [
-                  {
-                    "Publisher type": {
                       "Source": {
                         "Agent": "PowerBI.VisualColumnRename",
                         "Type": "External"
@@ -6784,7 +6754,7 @@
           }
         ],
         "description": "Name of the Azure DataLake Gen2 storage account to pull data from.",
-        "expression": "\"https://finopshubdej33rzckeakmum.dfs.core.windows.net/ingestion\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
+        "expression": "\"https://ftkmicfland5pd7gdo37oozc.dfs.core.windows.net/ingestion\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
         "kind": "m",
         "lineageTag": "421c1232-0e40-45a4-bc59-257ce648478c",
         "queryGroup": "🛠️ Setup\\FinOps hubs"
@@ -6849,7 +6819,7 @@
           }
         ],
         "description": "Do you want to connect to the Cost Management connector or a FinOps hubs instance?",
-        "expression": "\"Cost Management connector\" meta [IsParameterQuery=true, List={\"Cost Management connector\", \"FinOps hubs\"}, DefaultValue=\"Cost Management connector\", Type=\"Text\", IsParameterQueryRequired=true]",
+        "expression": "\"FinOps hubs\" meta [IsParameterQuery=true, List={/*\"Cost Management exports\",*/ \"FinOps hubs\"}, DefaultValue=\"FinOps hus\", Type=\"Text\", IsParameterQueryRequired=true]",
         "kind": "m",
         "lineageTag": "a3ad5d11-4fa5-425f-8d18-6cdb6822244a",
         "queryGroup": "🛠️ Setup\\Instructions"
@@ -6901,7 +6871,7 @@
         "queryGroup": "🛠️ Setup\\CM connector"
       },
       {
-        "name": "ftk_LoadData",
+        "name": "ftk_Hub",
         "annotations": [
           {
             "name": "PBI_ResultType",
@@ -6917,134 +6887,64 @@
           "datasets = 0 (Actual cost), 1 (Amortized cost), 2 (Both)"
         ],
         "expression": [
-          "(optional datasets, optional DoNotNormalize) =>",
+          "(datasetType) =>",
           "let",
-          "    // datasets -- Allowed values: 0 = actual, 1 = amortized, 2 = both",
-          "    // DoNotNormalize -- For testing only; true/false",
+          "    // Config",
+          "    url     = #\"Storage URL\",",
+          "    ext     = if Text.Length(#\"File Type\") > 0 then #\"File Type\" else \".parquet\",",
+          "    start   = RangeStart,",
+          "    end     = RangeEnd,",
+          "// TODO: Allow pulling other datasets -- if datasetType = null or datasetType = \"\" then \"focuscost\" else datasetType",
+          "    dataset = \"focuscost\",",
           "",
-          "// TODO: Remove SourceType",
-          "    SourceType = #\"Data Source\",",
-          "    Connector = ftk_CMConnector(),",
+          "    ADLS = AzureStorage.DataLake(url),",
+          "    FilterHiddenFiles = Table.SelectRows(ADLS, each [Attributes]?[Hidden]? <> true),",
           "",
-          "    // Helper functions",
-          "    _isBlank = (val) => val = null or val = \"\",",
-          "    _capitalizeAndSortColumns = (tbl) =>",
-          "        let",
-          "            _capitalize = (text) => Text.Upper(Text.Start(text, 1)) & Text.Range(text, 1),",
-          "            _original = Table.ColumnNames(tbl),",
-          "            _updated = List.Transform(_original, each _capitalize(_)),",
-          "            Capitalized = Table.RenameColumns(tbl, List.Zip({_original, _updated})),",
-          "            Sorted = Table.SelectColumns(Capitalized, List.Sort(Table.ColumnNames(Capitalized)))",
-          "        in",
-          "            Sorted",
-          "    ,",
-          "    _renameCost = (tbl, primaryCol, secondaryCol, secondaryValFunc) => if tbl = null then null else",
-          "        let",
-          "            _colName     = (col, var) => Text.Replace(col, \"Cost\", var),",
-          "            _hasPricing  = Table.HasColumns(tbl, \"CostInPricingCurrency\"),",
-          "            _hasUsd      = Table.HasColumns(tbl, \"CostInUsd\"),",
-          "            _pricingCol1 = _colName(primaryCol,   \"PricingCost\"),",
-          "            _pricingCol2 = _colName(secondaryCol, \"PricingCost\"),",
-          "            _usdCol1     = _colName(primaryCol,   \"CostInUsd\"),",
-          "            _usdCol2     = _colName(secondaryCol, \"CostInUsd\"),",
+          "    // Parse folder path",
+          "    Dataset   = Table.AddColumn(FilterHiddenFiles, \"Dataset\",   each List.Last(List.RemoveLastN(Text.Split([Folder Path],\"/\"), 1))),",
+          "    Month     = Table.AddColumn(Dataset,           \"Month\",     each List.Last(List.RemoveLastN(List.RemoveLastN(Text.Split([Folder Path],\"/\"), 1), 1) )),",
+          "// TODO: Update date handling for raw exports",
+          "    StartDate = Table.AddColumn(Month,             \"StartDate\", each [Month] & \"01\"),",
+          "    StartDate_type = Table.TransformColumnTypes(StartDate, {{\"StartDate\", type date}}),",
+          "    EndDate   = Table.AddColumn(StartDate_type,    \"EndDate\",   each Date.EndOfMonth([StartDate])),",
           "",
-          "            RenamePrimary = Table.RenameColumns(tbl, {",
-          "                { (if Table.HasColumns(tbl, \"CostInBillingCurrency\") then \"CostInBillingCurrency\" else if Table.HasColumns(tbl, \"Cost\") then \"Cost\" else \"PreTaxCost\"), primaryCol },",
-          "                { \"CostInPricingCurrency\", _pricingCol1 },",
-          "                { \"CostInUsd\",             _usdCol1 }",
-          "            }, MissingField.UseNull),",
-          "            PrimaryTypes  = Table.TransformColumnTypes(RenamePrimary, {{ primaryCol, type number }, { _pricingCol1, type number }, { _usdCol1, type number }}),",
+          "    // Only FOCUS costs",
+          "// TODO: Get metric from the manifest",
+          "    FilterFilesByMetricAndFileType = Table.SelectRows(EndDate, each [Dataset] = dataset and [Extension] = ext),",
           "",
-          "            // Add secondary cost columns",
-          "            SecondaryBillingCurrency = Table.AddColumn(PrimaryTypes,             secondaryCol, secondaryValFunc(primaryCol),                                                 type number),",
-          "            SecondaryPricingCurrency = Table.AddColumn(SecondaryBillingCurrency, _pricingCol2, if _hasPricing then secondaryValFunc(\"CostInPricingCurrency\") else each null, type number),",
-          "            SecondaryUsdCurrency     = Table.AddColumn(SecondaryPricingCurrency, _usdCol2,     if _hasUsd     then secondaryValFunc(\"CostInUsd\")             else each null, type number)",
-          "        in",
-          "            SecondaryUsdCurrency",
-          "    ,",
+          "    // Only process files for months within the date range",
+          "    FilterFilesByDate =",
+          "        if start = null and end = null then FilterFilesByMetricAndFileType",
+          "        else Table.SelectRows(FilterFilesByMetricAndFileType, each (start = null or [StartDate] >= Date.StartOfMonth(Date.From(start))) and (end = null or [EndDate] <= Date.EndOfMonth(Date.From(end)))),",
           "",
-          "    AmortizedData = if datasets = 0 then null else",
-          "        let",
-          "            Data = if SourceType <> \"FinOps hubs\" then Connector{[Key=\"usagedetailsamortized\"]}[Data] else",
-          "                // Load from hub",
-          "                let",
-          "                    // Default values",
-          "                    url   = #\"Storage URL\",",
-          "                    ext   = if Text.Length(#\"File Type\") > 0 then #\"File Type\" else \".parquet\",",
-          "                    start = RangeStart,",
-          "                    end   = RangeEnd,",
+          "    // Extract",
+          "    unpack = (zipData) => Table.PromoteHeaders(Csv.Document(Binary.Decompress(zipData, Compression.GZip), [Delimiter=\",\", Columns=60, Encoding=1252, QuoteStyle=QuoteStyle.Csv, CsvStyle=CsvStyle.QuoteAlways]), [PromoteAllScalars=true]),",
+          "    SelectContent = Table.SelectColumns(FilterFilesByDate, {\"Content\"}),",
+          "    UnpackContent = Table.AddColumn(SelectContent, \"Custom\", each if ext = \".gz\" then unpack([Content]) else Parquet.Document([Content])),",
+          "    ExpandedColumns = Table.ExpandTableColumn(UnpackContent, \"Custom\", List.Sort(Table.ColumnNames(List.First(UnpackContent[Custom], null)))),",
+          "    RemovedContent = Table.RemoveColumns(ExpandedColumns, {\"Content\"}),",
           "",
-          "                    Hub = AzureStorage.DataLake(url),",
-          "                    FilterHiddenFiles = Table.SelectRows(Hub, each [Attributes]?[Hidden]? <> true),",
+          "    // Only pull from the predefined date range (if specified)",
+          "    tbl = RemovedContent,",
+          "    FilterRowsByDate =",
+          "        if start = null and end = null then tbl",
+          "        else Table.SelectRows(tbl, each",
+          "            (start = null or Date.From(Text.Range([ChargePeriodEnd], 0, 10)) >= Date.From(start))",
+          "            and (end = null or Date.From(Text.Range([ChargePeriodStart], 0, 10)) < Date.From(end))",
+          "        ),",
           "",
-          "                    // Parse folder path",
-          "                    Metric            = Table.AddColumn(FilterHiddenFiles, \"Metric\", each List.Last(List.RemoveLastN(Text.Split([Folder Path],\"/\"), 1))),",
-          "                    DateRange         = Table.AddColumn(Metric,            \"Range\",  each List.Last(List.RemoveLastN(List.RemoveLastN(Text.Split([Folder Path],\"/\"), 1), 1) )),",
-          "                    SplitDates        = Table.SplitColumn(DateRange,       \"Range\",  Splitter.SplitTextByDelimiter(\"-\", QuoteStyle.Csv), {\"StartDate\", \"EndDate\"}),",
-          "// TODO: Will this work in 0.2 with the shorter paths (yyyyMM)?",
-          "                    SplitDates_type   = Table.TransformColumnTypes(SplitDates, {{\"StartDate\", type date}, {\"EndDate\", type date}}),",
+          "    // TODO: Extract from the manifest",
+          "    _armResourceName = (id) => List.Last(Text.Split(id, \"/\")),",
+          "    DataSet = Table.AddColumn(FilterRowsByDate, \"x_DatasetType\", each \"FocusCost\"),",
+          "    Schema =  Table.AddColumn(DataSet, \"x_DatasetVersion\", each \"1.0-preview (v1)\"),",
+          "    AccountType = Table.AddColumn(Schema, \"x_AccountType\", ",
+          "        each if [BillingAccountId] = [SubAccountId] then \"MOSA\"",
+          "        else if _armResourceName([BillingAccountId]) = [x_BillingAccountId] then \"EA\"",
+          "        else if _armResourceName([BillingAccountId]) = [x_BillingProfileId] then (if [InvoiceIssuerName] = \"Microsoft\" then \"MCA\" else \"MPA\")",
+          "        else \"Unknown\"",
+          "    ),",
           "",
-          "                    // Only amortized costs",
-          "                    FilterFilesByMetricAndFileType = Table.SelectRows(SplitDates_type, each [Metric] = \"amortizedcost\" and [Extension] = ext),",
-          "",
-          "                    // Only process files for months within the date range",
-          "                    FilterFilesByDate =",
-          "                        if start = null and end = null then FilterFilesByMetricAndFileType",
-          "                        else Table.SelectRows(FilterFilesByMetricAndFileType, each (start = null or [StartDate] >= Date.StartOfMonth(Date.From(start))) and (end = null or [EndDate] <= Date.EndOfMonth(Date.From(end)))),",
-          "",
-          "                    // Extract",
-          "                    unpack = (zipData) => Table.PromoteHeaders(Csv.Document(Binary.Decompress(zipData, Compression.GZip), [Delimiter=\",\", Columns=60, Encoding=1252, QuoteStyle=QuoteStyle.Csv, CsvStyle=CsvStyle.QuoteAlways]), [PromoteAllScalars=true]),",
-          "                    SelectContent = Table.SelectColumns(FilterFilesByDate, {\"Content\"}),",
-          "                    UnpackContent = Table.AddColumn(SelectContent, \"Custom\", each if ext = \".gz\" then unpack([Content]) else Parquet.Document([Content])),",
-          "                    ExpandedColumns = Table.ExpandTableColumn(UnpackContent, \"Custom\", List.Sort(Table.ColumnNames(List.First(UnpackContent[Custom], null)))),",
-          "                    RemovedContent = Table.RemoveColumns(ExpandedColumns, {\"Content\"}),",
-          "",
-          "                    // Only pull from the predefined date range (if specified)",
-          "                    tbl = RemovedContent,",
-          "                    FilterRowsByDate =",
-          "                        if start = null and end = null then tbl",
-          "                        else Table.SelectRows(tbl, each",
-          "                            (start = null or (if Table.HasColumns(tbl, \"Date\") then Date.From([Date]) else Date.From([date])) >= Date.From(start))",
-          "                            and (end = null or (if Table.HasColumns(tbl, \"Date\") then Date.From([Date]) else Date.From([date])) < Date.From(end))",
-          "                        )",
-          "                in",
-          "                    FilterRowsByDate",
-          "            ,",
-          "            DataSet       = if Data = null then null else Table.AddColumn(_capitalizeAndSortColumns(Data), \"DataSet\", each \"AmortizedCost\"),",
-          "            AmortizedCost = _renameCost(DataSet, \"AmortizedCost\", \"BilledCost\", (col) => each",
-          "                if (_isBlank([ReservationId])",
-          "                    and [PricingModel] <> \"Reservation\"",
-          "                    and [PricingModel] <> \"SavingsPlan\"",
-          "                    and Text.Lower([ConsumedService]) <> \"microsoft.capacity\"",
-          "                    and (Table.HasColumns(DataSet, \"BenefitId\") = false or _isBlank([BenefitId]))",
-          "                ) then Record.Field(_, col) else 0.0)",
-          "        in",
-          "            AmortizedCost",
-          "    ,",
-          "",
-          "    BilledData = if Connector = null or datasets = 1 then null else",
-          "        let",
-          "            // Pull actual cost from connector, filter down to commitment purcahses",
-          "            Data                    = Connector{[Key=\"usagedetails\"]}[Data],",
-          "            DataSet                 = Table.AddColumn(Data, \"DataSet\", each \"ActualCost\"),",
-          "            CommitmentPurchasesOnly =",
-          "                if datasets = 0 then",
-          "                    // Don't filter if only using the actual dataset",
-          "                    DataSet",
-          "                else if Table.HasColumns(DataSet, \"ChargeType\") then",
-          "                    Table.SelectRows(DataSet, each ([ChargeType] = \"Purchase\" or [ChargeType] = \"Refund\") and ([PricingModel] = \"Reservation\" or [PricingModel] = \"SavingsPlan\" or Text.Lower([ConsumedService]) = \"microsoft.capacity\"))",
-          "                else",
-          "                    // If no ChargeType, then there aren't any commitment purchases",
-          "                    null",
-          "            ,",
-          "            BilledCost = _renameCost(CommitmentPurchasesOnly, \"BilledCost\", \"AmortizedCost\", (col) => each 0.0)",
-          "        in",
-          "            BilledCost",
-          "    ,",
-          "",
-          "    // Join actual and amortized datasets",
-          "    _normalize = (tbl) => if (DoNotNormalize <> null and DoNotNormalize = true) or tbl = null then tbl else ftk_NormalizeSchema(tbl),",
-          "    Output = Table.Combine(List.RemoveNulls({_normalize(AmortizedData), _normalize(BilledData)}))",
+          "    Output = AccountType",
           "in",
           "    Output"
         ],
@@ -7053,395 +6953,112 @@
         "queryGroup": "🛠️ Setup\\Functions"
       },
       {
-        "name": "ftk_NormalizeSchema",
+        "name": "ftk_CostDetails",
         "annotations": [
           {
             "name": "PBI_ResultType",
             "value": "Function"
+          },
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
           }
         ],
         "expression": [
-          "(input, optional SchemaVersion) =>",
+          "() =>",
           "let",
-          "//     DataSet = Schema, // Table.AddColumn(AccountType, \"DataSet\", each \"AmortizedCost\"),",
-          "",
-          "    // What version should we generate? Allowed values: -1 = EA, 0 = Interim, 0.5 = FOCUS 0.5, 1.0 = FOCUS 1.0",
-          "    _targetSchema = if SchemaVersion = null then -1 else SchemaVersion,",
-          "",
-          "    // Known schemas",
-          "    // _unifiedSchema = {\"AccountName\",   \"AccountOwnerId\",   \"AdditionalInfo\", \"AvailabilityZone\", \"BenefitId\",                \"BenefitName\",                \"BillingAccountId\",    \"BillingAccountName\",    \"BillingCurrency\",     \"BillingPeriodEndDate\", \"BillingPeriodStartDate\", \"BillingProfileId\",   \"BillingProfileName\",   \"ChargeType\",     \"ConsumedService\",   \"CostAllocationRuleName\",   \"CostCenter\",   \"CostInBillingCurrency\",     \"CostInPricingCurrency\", \"CostInUsd\",     \"CustomerName\",   \"CustomerTenantId\", \"Date\",              \"x_EffectiveUnitPrice\", \"ExchangeRatePricingToBilling\", \"ExchangeRateDate\",     \"Frequency\",          \"InvoiceId\",   \"InvoiceSectionId\",   \"InvoiceSectionName\",   \"IsAzureCreditEligible\", \"MeterCategory\",      \"MeterId\",      \"MeterName\",      \"MeterRegion\", \"MeterSubcategory\",      \"OfferId\",      \"PartNumber\",      \"PartnerEarnedCreditApplied\", \"PartnerEarnedCreditRate\", \"PartnerName\",           \"PartnerTenantId\",     \"PaygCostInBillingCurrency\", \"PaygCostInUsd\",     \"PayGPrice\",     \"PlanName\",      \"PreviousInvoiceId\",   \"PricingCurrency\",     \"PricingModel\",     \"ProductId\",      \"ProductName\",             \"ProductOrderId\", \"ProductOrderName\", \"Provider\",      \"PublisherId\",    \"PublisherName\", \"PublisherType\",   \"Quantity\",        \"ResellerMpnId\", \"ResellerName\",   \"ReservationId\",     \"ReservationName\",     \"ResourceGroup\",       \"ResourceId\", \"ResourceLocation\",     \"ResourceName\",     \"ResourceType\",     \"ServiceFamily\",      \"ServicePeriodEndDate\", \"ServicePeriodStartDate\", \"SubscriptionId\",   \"SubscriptionName\",   \"Tags\",     \"Term\",      \"UnitOfMeasure\",            \"UnitPrice\"},",
-          "    // _eaSchema      = {\"AccountName\",   \"AccountOwnerId\",   \"AdditionalInfo\", \"AvailabilityZone\", \"benefitId\",                \"benefitName\",                \"BillingAccountId\",    \"BillingAccountName\",    \"BillingCurrencyCode\", \"BillingPeriodEndDate\", \"BillingPeriodStartDate\", \"BillingProfileId\",   \"BillingProfileName\",   \"ChargeType\",     \"ConsumedService\",   \"CostAllocationRuleName\",   \"CostCenter\",   \"CostInBillingCurrency\",     \"PricingCost\",           \"costInUsd\",     \"CustomerName\",   \"CustomerTenantId\", \"Date\",              \"x_EffectiveUnitPrice\", \"tmp_ExchangeRate\",             \"tmp_ExchangeRateDate\", \"Frequency\",          \"InvoiceId\",   \"InvoiceSectionId\",   \"InvoiceSectionName\",   \"IsAzureCreditEligible\", \"MeterCategory\",      \"MeterId\",      \"MeterName\",      \"MeterRegion\", \"MeterSubcategory\",      \"OfferId\",      \"PartNumber\",      \"PartnerEarnedCreditApplied\", \"PartnerEarnedCreditRate\", \"PartnerName\",           \"PartnerTenantId\",     \"tmp_ListCost\",              \"paygCostInUsd\",     \"PayGPrice\",     \"PlanName\",      \"PreviousInvoiceId\",   \"tmp_PricingCurrency\", \"PricingModel\",     \"ProductId\",      \"ProductName\",             \"ProductOrderId\", \"ProductOrderName\", \"Provider\",      \"PublisherId\",    \"PublisherName\", \"PublisherType\",   \"Quantity\",        \"ResellerMpnId\", \"ResellerName\",   \"ReservationId\",     \"ReservationName\",     \"ResourceGroup\",       \"ResourceId\", \"ResourceLocation\",     \"ResourceName\",     \"ResourceType\",     \"ServiceFamily\",      \"ServicePeriodEndDate\", \"ServicePeriodStartDate\", \"SubscriptionId\",   \"SubscriptionName\",   \"Tags\",     \"Term\",      \"UnitOfMeasure\",            \"UnitPrice\"},",
-          "    // _mcaSchema     = {\"AccountName\",   \"AccountOwnerId\",   \"additionalInfo\", \"AvailabilityZone\", \"benefitId\",                \"benefitName\",                \"billingAccountId\",    \"billingAccountName\",    \"billingCurrency\",     \"billingPeriodEndDate\", \"billingPeriodStartDate\", \"billingProfileId\",   \"billingProfileName\",   \"chargeType\",     \"consumedService\",   \"costAllocationRuleName\",   \"costCenter\",   \"costInBillingCurrency\",     \"costInPricingCurrency\", \"costInUsd\",     \"customerName\",   \"customerTenantId\", \"date\",              \"x_EffectiveUnitPrice\", \"exchangeRatePricingToBilling\", \"exchangeRateDate\",     \"frequency\",          \"invoiceId\",   \"invoiceSectionId\",   \"invoiceSectionName\",   \"isAzureCreditEligible\", \"meterCategory\",      \"meterId\",      \"meterName\",      \"meterRegion\", \"meterSubcategory\",      \"OfferId\",      \"PartNumber\",      \"partnerEarnedCreditApplied\", \"partnerEarnedCreditRate\", \"partnerName\",           \"partnerTenantId\",     \"paygCostInBillingCurrency\", \"paygCostInUsd\",     \"PayGPrice\",     \"PlanName\",      \"previousInvoiceId\",   \"pricingCurrency\",     \"pricingModel\",     \"ProductId\",      \"ProductName\",             \"productOrderId\", \"productOrderName\", \"provider\",      \"publisherId\",    \"publisherName\", \"publisherType\",   \"quantity\",        \"resellerMpnId\", \"resellerName\",   \"reservationId\",     \"reservationName\",     \"resourceGroupName\",   \"ResourceId\", \"resourceLocation\",     \"ResourceName\",     \"ResourceType\",     \"serviceFamily\",      \"servicePeriodEndDate\", \"servicePeriodStartDate\", \"SubscriptionId\",   \"subscriptionName\",   \"tags\",     \"term\",      \"unitOfMeasure\",            \"unitPrice\"},",
-          "    // _otherSchema   = {\"AccountName\",   \"AccountOwnerId\",   \"AdditionalInfo\", \"AvailabilityZone\", \"BenefitId\",                \"BenefitName\",                \"BillingAccountId\",    \"BillingAccountName\",    \"Currency\",            \"BillingPeriodEndDate\", \"BillingPeriodStartDate\", \"BillingProfileId\",   \"BillingProfileName\",   \"ChargeType\",     \"ConsumedService\",   \"CostAllocationRuleName\",   \"CostCenter\",   \"PreTaxCost\",                \"PricingCost\",           \"CostInUsd\",     \"CustomerName\",   \"CustomerTenantId\", \"UsageDateTime\",     \"EffectiveUnitPrice\",     \"ExchangeRatePricingToBilling\", \"ExchangeRateDate\",     \"Frequency\",          \"InvoiceId\",   \"InvoiceSectionId\",   \"DepartmentName\",       \"IsAzureCreditEligible\", \"MeterCategory\",      \"MeterId\",      \"MeterName\",      \"MeterRegion\", \"MeterSubcategory\",      \"OfferId\",      \"PartNumber\",      \"PartnerEarnedCreditApplied\", \"PartnerEarnedCreditRate\", \"PartnerName\",           \"PartnerTenantId\",     \"tmp_ListCost\",              \"paygCostInUsd\",     \"PayGPrice\",     \"PlanName\",      \"PreviousInvoiceId\",   \"PricingCurrency\",     \"PricingModel\",     \"ProductId\",      \"ProductName\",             \"ProductOrderId\", \"ProductOrderName\", \"Provider\",      \"PublisherId\",    \"PublisherName\", \"PublisherType\",   \"UsageQuantity\",   \"ResellerMpnId\", \"ResellerName\",   \"ReservationId\",     \"ReservationName\",     \"ResourceGroup\",       \"ResourceId\", \"ResourceLocation\",     \"ResourceName\",     \"ResourceType\",     \"ProductCategory\",    \"ServicePeriodEndDate\", \"ServicePeriodStartDate\", \"SubscriptionGuid\", \"SubscriptionName\",   \"Tags\",     \"Term\",      \"UnitOfMeasure\",            \"ResourceRate\"},",
-          "    // _focus10       = {\"x_AccountName\", \"x_AccountOwnerId\", \"x_SkuDetails\",   \"AvailabilityZone\", \"tmp_CommitmentDiscountId\", \"tmp_CommitmentDiscountName\", \"x_BillingAccountId\",  \"x_BillingAccountName\",  \"BillingCurrency\",     \"tmp_BillingPeriodEnd\", \"BillingPeriodStart\",     \"x_BillingProfileId\", \"x_BillingProfileName\", \"tmp_ChargeType\", \"x_ConsumedService\", \"x_CostAllocationRuleName\", \"x_CostCenter\", \"tmp_CostInBillingCurrency\", \"tmp_PricingCost\",       \"tmp_CostInUsd\", \"x_CustomerName\", \"x_CustomerId\",     \"ChargePeriodStart\", \"x_EffectiveUnitPrice\", \"tmp_ExchangeRate\",             \"tmp_ExchangeRateDate\", \"tmp_ChargeFrequency\",\"x_InvoiceId\", \"x_InvoiceSectionId\", \"x_InvoiceSectionName\", \"x_IsCreditEligible\",    \"x_SkuMeterCategory\", \"x_SkuMeterId\", \"x_SkuMeterName\", \"x_SkuRegion\", \"x_SkuMeterSubcategory\", \"x_SkuOfferId\", \"x_SkuPartNumber\", \"x_PartnerCreditApplied\",     \"x_PartnerCreditRate\",     \"tmp_InvoiceIssuerName\", \"tmp_InvoiceIssuerId\", \"tmp_ListCost\",              \"tmp_ListCostInUsd\", \"tmp_ListUnitPrice\", \"x_SkuPlanName\", \"x_PreviousInvoiceId\", \"tmp_PricingCurrency\", \"tmp_PricingModel\", \"x_SkuProductId\", \"x_SkuProductDescription\", \"x_SkuOrderId\",   \"x_SkuOrderName\",   \"x_SkuProvider\", \"x_PublisherId\",  \"PublisherName\", \"x_PublisherType\", \"x_UsageQuantity\", \"x_ResellerId\",  \"x_ResellerName\", \"tmp_ReservationId\", \"tmp_ReservationName\", \"x_ResourceGroupName\", \"ResourceId\", \"tmp_ResourceLocation\", \"tmp_ResourceName\", \"tmp_ResourceType\", \"x_SkuServiceFamily\", \"tmp_ServicePeriodEnd\", \"x_ServicePeriodStart\",   \"x_SubscriptionId\", \"x_SubscriptionName\", \"tmp_Tags\", \"x_SkuTerm\", \"x_PricingUnitDescription\", \"tmp_OnDemandUnitPrice\"},",
-          "",
-          "    // Mapping of old names to new names",
-          "    // TODO: Needed? -- _pickSchema = (ea, interim, focus05, focus10) => if _targetSchema = 0 then interim else if _targetSchema = 0.5 then focus05 else if _targetSchema = 1.0 then focus10 else ea,",
-          "    _originalColumns = Table.ColumnNames(input),",
-          "    _nameChanges = [",
-          "        // Passthrough",
-          "        AccountName                  = \"x_AccountName\",",
-          "        AccountOwnerId               = \"x_AccountOwnerId\",",
-          "        AdditionalInfo               = \"x_SkuDetails\",",
-          "        AmortizedCost                = \"EffectiveCost\",",
-          "        AmortizedCostInUsd           = \"x_EffectiveCostInUsd\",",
-          "        AmortizedPricingCost         = \"x_EffectivePricingCost\",",
-          "        BilledCost                   = \"BilledCost\",",
-          "        BilledCostInUsd              = \"x_BilledCostInUsd\",",
-          "        BilledPricingCost            = \"x_BilledPricingCost\",",
-          "        BillingAccountId             = \"x_BillingAccountId\",",
-          "        BillingAccountName           = \"x_BillingAccountName\",",
-          "        BillingCurrency              = \"BillingCurrency\",",
-          "        BillingCurrencyCode          = \"BillingCurrency\",",
-          "        BillingProfileId             = \"x_BillingProfileId\",",
-          "        BillingProfileName           = \"x_BillingProfileName\",",
-          "        ConsumedService              = \"x_ConsumedService\",",
-          "        CostAllocationRuleName       = \"x_CostAllocationRuleName\",",
-          "        CostCenter                   = \"x_CostCenter\",",
-          "        Currency                     = \"BillingCurrency\",",
-          "        CustomerName                 = \"x_CustomerName\",",
-          "        CustomerTenantId             = \"x_CustomerId\",",
-          "        DataSet                      = \"x_DataSet\",",
-          "        Date                         = \"ChargePeriodStart\",",
-          "        DepartmentName               = \"x_InvoiceSectionName\",",
-          "        EffectivePrice               = \"x_EffectiveUnitPrice\",",
-          "        InvoiceId                    = \"x_InvoiceId\",",
-          "        InvoiceSection               = \"x_InvoiceSectionName\",",
-          "        InvoiceSectionId             = \"x_InvoiceSectionId\",",
-          "        InvoiceSectionName           = \"x_InvoiceSectionName\",",
-          "        IsAzureCreditEligible        = \"x_IsCreditEligible\",",
-          "        MeterCategory                = \"x_SkuMeterCategory\",",
-          "        MeterId                      = \"x_SkuMeterId\",",
-          "        MeterName                    = \"x_SkuMeterName\",",
-          "        MeterRegion                  = \"x_SkuRegion\",",
-          "        MeterSubCategory             = \"x_SkuMeterSubcategory\",",
-          "        OfferId                      = \"x_SkuOfferId\",",
-          "        PartnerEarnedCreditApplied   = \"x_PartnerCreditApplied\",",
-          "        PartnerEarnedCreditRate      = \"x_PartnerCreditRate\",",
-          "        PartnerName                  = \"tmp_InvoiceIssuerName\",",
-          "        PartnerTenantId              = \"InvoiceIssuerId\",",
-          "        PartNumber                   = \"x_SkuPartNumber\",",
-          "        PlanName                     = \"x_SkuPlanName\",",
-          "        PreviousInvoiceId            = \"x_PreviousInvoiceId\",",
-          "        Product                      = \"x_SkuDescription\",",
-          "        ProductCategory              = \"x_SkuServiceFamily\",",
-          "        ProductName                  = \"x_SkuDescription\",",
-          "        ProductId                    = \"SkuId\",",
-          "        ProductOrderId               = \"x_SkuOrderId\",",
-          "        ProductOrderName             = \"x_SkuOrderName\",",
-          "        Provider                     = \"x_SkuProvider\",",
-          "        PublisherId                  = \"x_PublisherId\",",
-          "        PublisherType                = \"x_PublisherType\",",
-          "        Quantity                     = \"UsageQuantity\",",
-          "        ResellerMpnId                = \"x_ResellerId\",",
-          "        ResellerName                 = \"x_ResellerName\",",
-          "        ResourceGroup                = \"x_ResourceGroupName\",",
-          "        ResourceId                   = \"ResourceId\",",
-          "        ResourceType                 = \"ResourceType\",",
-          "        ServiceFamily                = \"x_SkuServiceFamily\",",
-          "        ServicePeriodEndDate         = \"x_ServicePeriodEnd\",",
-          "        ServicePeriodStartDate       = \"x_ServicePeriodStart\",",
-          "        SubscriptionGuid             = \"x_SubscriptionId\",",
-          "        SubscriptionId               = \"x_SubscriptionId\",",
-          "        SubscriptionName             = \"x_SubscriptionName\",",
-          "        Term                         = \"x_SkuTerm\",",
-          "        UnitOfMeasure                = \"x_PricingUnitDescription\",",
-          "        UsageDateTime                = \"ChargePeriodStart\",",
-          "        UsageQuantity                = \"UsageQuantity\",",
-          "        // Require cleanup",
-          "        BenefitId                    = \"tmp_CommitmentDiscountId\",",
-          "        BenefitName                  = \"tmp_CommitmentDiscountName\",",
-          "        BillingPeriodEndDate         = \"tmp_BillingPeriodEnd\",",
-          "        BillingPeriodStartDate       = \"tmp_BillingPeriodStart\",",
-          "        ChargeType                   = \"tmp_ChargeType\",",
-          "        ExchangeRate                 = \"tmp_ExchangeRate\",",
-          "        ExchangeRateDate             = \"tmp_ExchangeRateDate\",",
-          "        ExchangeRatePricingToBilling = \"tmp_ExchangeRate\",",
-          "        Frequency                    = \"tmp_Frequency\",",
-          "        PaygCostInBillingCurrency    = \"tmp_ListCost\",",
-          "        PaygCostInUsd                = \"tmp_ListCostInUsd\",",
-          "        PayGPrice                    = \"tmp_ListUnitPrice\",",
-          "        PricingCurrency              = \"tmp_PricingCurrency\",",
-          "        PricingModel                 = \"tmp_PricingModel\",",
-          "        PublisherName                = \"tmp_PublisherName\",",
-          "        ReservationId                = \"tmp_ReservationId\",",
-          "        ReservationName              = \"tmp_ReservationName\",",
-          "        ResourceLocation             = \"tmp_ResourceLocation\",",
-          "        ResourceName                 = \"tmp_ResourceName\",",
-          "        ResourceRate                 = \"tmp_OnDemandUnitPrice\",",
-          "        ServiceName                  = \"tmp_ServiceName\",",
-          "        Tags                         = \"tmp_Tags\",",
-          "        UnitPrice                    = \"tmp_OnDemandUnitPrice\",",
-          "        // Columns to remove",
-          "        AvailabilityZone             = \"__DELETE_AvailabilityZone\",",
-          "        Location                     = \"__DELETE_Location\",",
-          "        ResourceLocationNormalized   = \"__DELETE_ResourceLocationNormalized\",",
-          "        ServiceInfo1                 = \"__DELETE_ServiceInfo1\",",
-          "        ServiceInfo2                 = \"__DELETE_ServiceInfo2\"",
-          "    ],",
-          "    _unrecognizedColumns = List.Transform(_originalColumns, each Record.FieldOrDefault(_nameChanges, _, \"__NEW_\" & _)),",
-          "    RenameColumns = Table.RenameColumns(input, List.Zip({_originalColumns, _unrecognizedColumns})),",
-          "",
-          "    // Add missing columns + remove unecessary ones",
-          "    BackfillAndTrim = Table.SelectColumns(",
-          "        RenameColumns,",
-          "        List.Sort(List.Distinct(List.Select(List.Union({",
-          "            Record.FieldValues(_nameChanges),",
-          "            Table.ColumnNames(RenameColumns)",
-          "        }), each Text.StartsWith(_, \"__DELETE_\") = false))),",
-          "        MissingField.UseNull",
-          "    ),",
+          "    // Get the data",
+          "    rawData = ftk_Hub(\"focuscost\"),",
           "",
           "    // Fix types",
-          "    FixTypes = Table.TransformColumnTypes(BackfillAndTrim, {",
+          "    FixTypes = Table.TransformColumnTypes(rawData, {",
           "        // Date columns",
-          "        {\"tmp_BillingPeriodStart\", type date},",
-          "        {\"tmp_BillingPeriodEnd\",   type date},",
-          "        {\"ChargePeriodStart\",      type date},",
-          "        {\"x_ServicePeriodStart\",   type date},",
-          "        {\"x_ServicePeriodEnd\",     type date},",
-          "        {\"tmp_ExchangeRateDate\",   type date},",
-          "        // Price columns",
-          "        {\"x_EffectiveUnitPrice\",   type number},",
-          "        {\"tmp_ListUnitPrice\",      type number},",
-          "        {\"tmp_OnDemandUnitPrice\",  type number},",
-          "        // Cost columns",
-          "        {\"x_EffectiveCostInUsd\",   type number},",
-          "        {\"x_EffectivePricingCost\", type number},",
-          "        {\"x_BilledCostInUsd\",      type number},",
-          "        {\"x_BilledPricingCost\",    type number},",
-          "        {\"tmp_ListCost\",           type number},",
-          "        {\"tmp_ListCostInUsd\",      type number},",
+          "        {\"BillingPeriodEnd\",          type datetimezone},",
+          "        {\"BillingPeriodStart\",        type datetimezone},",
+          "        {\"ChargePeriodEnd\",           type datetimezone},",
+          "        {\"ChargePeriodStart\",         type datetimezone},",
+          "        {\"x_BillingExchangeRateDate\", type datetimezone},",
+          "        {\"x_ServicePeriodStart\",      type datetimezone},",
+          "        {\"x_ServicePeriodEnd\",        type datetimezone},",
+          "        // Cost/price columns",
+          "        {\"BilledCost\",                type number},",
+          "        {\"EffectiveCost\",             type number},",
+          "        {\"ListCost\",                  type number},",
+          "        {\"ListUnitPrice\",             type number},",
+          "        {\"x_BilledCostInUsd\",         type number},",
+          "        {\"x_BilledUnitPrice\",         type number},",
+          "        {\"x_EffectiveCostInUsd\",      type number},",
+          "        {\"x_EffectiveUnitPrice\",      type number},",
+          "        {\"x_OnDemandCost\",            type number},",
+          "        {\"x_OnDemandCostInUsd\",       type number},",
+          "        {\"x_OnDemandUnitPrice\",       type number},",
           "        // Other columns",
-          "        {\"x_PartnerCreditRate\",    type number},",
-          "        {\"UsageQuantity\",          type number},",
-          "        {\"x_SkuTerm\",              type number},",
-          "        {\"tmp_ExchangeRate\",       type number}",
-          "        // TODO: {\"IsAzureCreditEligible\", type logical}",
-          "        // TODO: {\"PartnerCreditApplied\",   type logical}",
+          "        {\"PricingQuantity\",           type number},",
+          "        {\"UsageQuantity\",             type number},",
+          "        {\"x_BillingExchangeRate\",     type number},",
+          "        {\"x_PartnerCreditRate\",       type number},",
+          "        {\"x_PricingBlockSize\",        type number},",
+          "        {\"x_SkuTerm\",                 type number}",
+          "        // TODO: {\"x_SkuIsCreditEligible\", type logical}",
+          "        // TODO: {\"x_PartnerCreditApplied\",  type logical}",
           "    }),",
           "",
-          "    // Transform metadata",
-          "// TODO: Add more thorough schema/account validation + use real API versions",
-          "    Schema =  Table.AddColumn(FixTypes, \"x_SchemaVersion\",",
-          "        each if Table.HasColumns(input, \"DepartmentName\")   then \"MG_2023-09\"",
-          "        else if Table.HasColumns(input, \"SubscriptionGuid\") then \"MOSA_2023-09\"",
-          "        else if Table.HasColumns(input, \"BillingAccountId\") then \"EA_2023-09\"",
-          "        else if Table.HasColumns(input, \"partnerTenantId\") and [partnerName] <> \"\" then \"MPA_2023-09\"",
-          "        else if Table.HasColumns(input, \"billingAccountId\") then \"MCA_2023-09\"",
-          "        else \"Unknown_2023-09\"",
-          "    ),",
-          "    AccountType = Table.AddColumn(Schema, \"x_AccountType\", each Text.Split([x_SchemaVersion], \"_\"){0}),",
-          "",
           "    // Helper functions",
-          "    _exists        = (col) => Table.HasColumns(RenameColumns, col),",
-          "    _isMissing     = (col) => _exists(col) = false,",
-          "    _isBlank       = (val) => val = null or val = \"\",",
-          "    _isNotBlank    = (val) => _isBlank(val) = false,",
-          "    _isPositive    = (val) => val <> null and val > 0,",
-          "    _isNotPositive = (val) => val = null or val <= 0,",
-          "    _swapCol       = (tbl, oldCol, newCol, newVal, optional newType) => let add = Table.AddColumn(tbl, newCol, newVal, newType), del = if Table.HasColumns(add, oldCol) then Table.RemoveColumns(add, {oldCol}) else add in del,",
-          "    _regionCleanup = (loc) => Text.Trim(",
-          "        Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(",
-          "        Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(",
-          "        Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(",
-          "        Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(",
-          "        Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(",
-          "        Text.Lower(",
-          "            try",
-          "                if Number.FromText(Text.At(loc, Text.Length(loc) - 1)) <> null then",
-          "                    Text.Range(loc, 0, Text.Length(loc) - 1) & \" \" & Text.At(loc, Text.Length(loc) - 1) & \" \"",
-          "                else",
-          "                    loc",
-          "            otherwise loc",
-          "        ),",
-          "        \"central\",     \" Central \"),",
-          "        \"north\",       \" North \"),",
-          "        \"northeast\",   \" Northeast \"),",
-          "        \"northwest\",   \" Northwest \"),",
-          "        \"south\",       \" South \"),",
-          "        \"southeast\",   \" Southeast \"),",
-          "        \"southwest\",   \" Southwest \"),",
-          "        \"east\",        \" East \"),",
-          "        \"west\",        \" West \"),",
-          "        \"2euap\",       \" 2 EUAP \"),",
-          "        \"africa\",      \" Africa \"),",
-          "        \"arizona\",     \" Arizona \"),",
-          "        \"asia\",        \" Asia \"),",
-          "        \"australia\",   \" Australia \"),",
-          "        \"austria\",     \" Austria \"),",
-          "        \"belgium\",     \" Belgium \"),",
-          "        \"brazil\",      \" Brazil \"),",
-          "        \"canada\",      \" Canada \"),",
-          "        \"chile\",       \" Chile \"),",
-          "        \"china\",       \" China \"),",
-          "        \"denmark\",     \" Denmark \"),",
-          "        \"europe\",      \" Europe \"),",
-          "        \"finland\",     \" Finland \"),",
-          "        \"france\",      \" France \"),",
-          "        \"germany\",     \" Germany \"),",
-          "        \"greece\",      \" Greece \"),",
-          "        \"india\",       \" India \"),",
-          "        \"indonesia\",   \" Indonesia \"),",
-          "        \"israel\",      \" Israel \"),",
-          "        \"italy\",       \" Italy \"),",
-          "        \"japan\",       \" Japan \"),",
-          "        \"korea\",       \" Korea \"),",
-          "        \"malaysia\",    \" Malaysia \"),",
-          "        \"mexico\",      \" Mexico \"),",
-          "        \"newzealand\",  \" New Zealand \"),",
-          "        \"norway\",      \" Norway \"),",
-          "        \"poland\",      \" Poland \"),",
-          "        \"qatar\",       \" Qatar \"),",
-          "        \"saudiarabia\", \" Saudi Arabia \"),",
-          "        \"spain\",       \" Sweeden \"),",
-          "        \"sweden\",      \" Sweden \"),",
-          "        \"switzerland\", \" Switzerland \"),",
-          "        \"taiwan\",      \" Taiwan \"),",
-          "        \"texas\",       \" Texas \"),",
-          "        \"uae\",         \" UAE \"),",
-          "        \"uk\",          \" UK \"),",
-          "        \"usdod\",       \" US DoD \"),",
-          "        \"usgov\",       \" US Gov \"),",
-          "        \"ussec\",       \" US Sec \"),",
-          "        \"us\",          \" US \"),",
-          "        \"virginia\",    \" Virginia \"),",
-          "        \" US  South \", \" South US \"),",
-          "        \" US  West \",  \" West US \"),",
-          "        \"  \",  \" \")",
-          "    ),",
+          "    _exists     = (col) => Table.HasColumns(rawData, col),",
+          "    _isMissing  = (col) => _exists(col) = false,",
+          "    _isBlank    = (val) => val = null or val = \"\",",
+          "    _isNotBlank = (val) => _isBlank(val) = false,",
+          "    _swapCol    = (tbl, oldCol, newCol, newVal, optional newType) => let add = Table.AddColumn(tbl, newCol, newVal, newType), del = if Table.HasColumns(add, oldCol) then Table.RemoveColumns(add, {oldCol}) else add in del,",
+          "    _armResourceName = (id) => List.Last(Text.Split(id, \"/\")),",
           "",
-          "    tmp_DefenderFor            = Table.AddColumn(AccountType,            \"tmp_DefenderFor\",        each if Text.StartsWith([x_SkuDescription], \"Microsoft Defender for\") then Text.Range([x_SkuDescription], 23, Text.PositionOf([x_SkuDescription], \"-\") - 24) else null),",
-          "    tmp_RPName                 = Table.AddColumn(tmp_DefenderFor,        \"tmp_RPName\",             each Text.Replace(Text.Replace(Text.Lower([x_ConsumedService]), \"microsoft.classic\", \"\"), \"microsoft.\", \"\")),",
+          "    // Parse arrays",
+          "    SkuDetailsDict        = Table.AddColumn(FixTypes, \"x_SkuDetailsDictionary\", each if _isNotBlank([x_SkuDetails]) then Json.Document([x_SkuDetails]) else null),",
+          "    SkuDetailsDict_errors = Table.ReplaceErrorValues(SkuDetailsDict, {{\"x_SkuDetailsDictionary\", null}}),",
+          "    TagsDictionary        = Table.AddColumn(SkuDetailsDict_errors, \"x_TagsDictionary\", each if _isNotBlank([Tags]) then Json.Document([Tags]) else null),",
+          "    TagsDictionary_errors = Table.ReplaceErrorValues(TagsDictionary, {{\"x_TagsDictionary\", null}}),",
+          "    ParsedArrays = TagsDictionary_errors,",
           "",
-          "    // Parse AddlInfo",
-          "    SkuDetailsDict             = Table.AddColumn(tmp_RPName,             \"x_SkuDetailsDictionary\", each if _isNotBlank([x_SkuDetails]) then Json.Document([x_SkuDetails]) else null),",
-          "    SkuDetailsDict_errors      = Table.ReplaceErrorValues(SkuDetailsDict, {{\"x_SkuDetailsDictionary\", null}}),",
-          "    SkuDetailsDict_expand      = Table.ExpandRecordColumn(SkuDetailsDict_errors, \"x_SkuDetailsDictionary\",",
+          "    // AHB columns",
+          "    SkuDetails_expand   = Table.ExpandRecordColumn(ParsedArrays, \"x_SkuDetailsDictionary\",",
           "        {\"UsageType\",      \"ImageType\",      \"ServiceType\", \"VMName\",     \"VMProperties\",      \"VCPUs\",       \"ReservationOrderId\",         \"ReservationId\",         \"VMCapacityReservationId\", \"AHB\",        \"vCores\"},",
           "        {\"x_SkuUsageType\", \"x_SkuImageType\", \"x_SkuType\",   \"tmp_VMName\", \"x_SkuVMProperties\", \"tmp_VMvCPUs\", \"tmp_AddlReservationOrderId\", \"tmp_AddlReservationId\", \"x_CapacityCommitmentId\",  \"tmp_SQLAHB\", \"tmp_SQLvCores\"}",
           "    ),",
-          "    SkuDetailsDict_types       = Table.TransformColumnTypes(SkuDetailsDict_expand, {{\"tmp_VMvCPUs\", Int64.Type}, {\"tmp_SQLvCores\", Int64.Type}}),",
-          "",
-          "    // Columns from AddlInfo -- Must be after ResourceName cleanup",
-          "    ResourceMachineName = _swapCol(SkuDetailsDict_types,       \"tmp_VMName\",         \"x_ResourceMachineName\", each if _isNotBlank([tmp_VMName]) then [tmp_VMName] else null),",
+          "    SkuDetails_types    = Table.TransformColumnTypes(SkuDetails_expand, {{\"tmp_VMvCPUs\", Int64.Type}, {\"tmp_SQLvCores\", Int64.Type}}),",
+          "    ResourceMachineName = _swapCol(SkuDetails_types,           \"tmp_VMName\",         \"x_ResourceMachineName\", each if _isNotBlank([tmp_VMName]) then [tmp_VMName] else null),",
           "    ProductCPUs         = Table.AddColumn(ResourceMachineName, \"x_SkuCPUs\",          each if [tmp_VMvCPUs] <> null then [tmp_VMvCPUs] else if [tmp_SQLvCores] <> null then [tmp_SQLvCores] else null, Int64.Type),",
           "    CPUHours            = Table.AddColumn(ProductCPUs,         \"x_UsageCPUHours\",    each if [x_SkuCPUs] <> null then [x_SkuCPUs] * [UsageQuantity] else null, type number),",
           "    HybridBenefitStatus = Table.AddColumn(CPUHours,            \"x_SkuLicenseStatus\", each if _isNotBlank([x_SkuMeterSubcategory]) and Text.Contains([x_SkuMeterSubcategory], \"Windows\") or [tmp_SQLAHB] = \"False\" then \"Not enabled\" else if (_isNotBlank([x_SkuImageType]) and Text.Contains([x_SkuImageType], \"Windows Server BYOL\")) or [tmp_SQLAHB] = \"True\" or (_isNotBlank([x_SkuMeterSubcategory]) and Text.Contains([x_SkuMeterSubcategory], \"Azure Hybrid Benefit\")) then \"Enabled\" else \"Not supported\"),",
           "    HybridBenefitCPUs   = Table.AddColumn(HybridBenefitStatus, \"x_SkuLicenseCPUs\",   each if [x_SkuCPUs] = null then 0 else if [x_SkuCPUs] <= 8 then 8 else if [x_SkuCPUs] <= 16 then 16 else if [x_SkuCPUs] = 20 then 24 else if [x_SkuCPUs] > 20 then [x_SkuCPUs] else 0, type number),",
           "// TODO: Add SQL AHB handling",
-          "    AHB = HybridBenefitCPUs,",
+          "    AHB = Table.RemoveColumns(HybridBenefitCPUs, { \"tmp_AddlReservationOrderId\", \"tmp_AddlReservationId\", \"tmp_SQLAHB\", \"tmp_SQLvCores\", \"tmp_VMvCPUs\" }),",
           "",
-          "    // Transform commitment columns before others due to bug making PricingModel empty",
-          "    CommitmentDiscountId       = _swapCol(AHB,                           \"tmp_CommitmentDiscountId\",   \"CommitmentDiscountId\",   each if _isNotBlank([tmp_CommitmentDiscountId])   then [tmp_CommitmentDiscountId]   else if _isNotBlank([tmp_ReservationId])   then (if _isMissing(\"tmp_AddlReservationId\") or [tmp_ReservationId] <> [tmp_AddlReservationId] then [tmp_ReservationId] else \"/providers/Microsoft.Capacity/reservationOrders/\" & [tmp_AddlReservationOrderId] & \"/reservations/\" & [tmp_AddlReservationId]) else null),",
-          "    CommitmentDiscountName     = _swapCol(CommitmentDiscountId,          \"tmp_CommitmentDiscountName\", \"CommitmentDiscountName\", each if _isNotBlank([tmp_CommitmentDiscountName]) then [tmp_CommitmentDiscountName] else if _isNotBlank([tmp_ReservationName]) then [tmp_ReservationName] else null),",
-          "    _isReservation = (ct, pm, cdi, ri) => pm = \"Reservation\" or ct = \"UnusedReservation\" or _isNotBlank(ri) or (_isNotBlank(cdi) and Text.Contains(Text.Lower(cdi), \"/microsoft.capacity/\")),",
-          "    _isSavingsPlan = (ct, pm, cdi) => pm = \"SavingsPlan\" or ct = \"UnusedSavingsPlan\" or (_isNotBlank(cdi) and Text.Contains(Text.Lower(cdi), \"/microsoft.billingbenefits/\")),",
-          "    _isCommitmentDiscount = (ct, pm, cdi, ri) => _isReservation(ct, pm, cdi, ri) or _isSavingsPlan(ct, pm, cdi),",
-          "    CommitmentDiscountType     = Table.AddColumn(CommitmentDiscountName, \"CommitmentDiscountType\",     each ",
-          "        if _isReservation([tmp_ChargeType], [tmp_PricingModel], [CommitmentDiscountId], [tmp_ReservationId]) then \"Reservation\" ",
-          "        else if _isSavingsPlan([tmp_ChargeType], [tmp_PricingModel], [CommitmentDiscountId]) then \"Savings Plan\" else null",
-          "    ),",
-          "    CommitmentDiscountCategory = Table.AddColumn(CommitmentDiscountType, \"CommitmentDiscountCategory\", each if [CommitmentDiscountType] = \"Reservation\" then \"Usage\" else if [CommitmentDiscountType] = \"Savings Plan\" then \"Spend\" else null),",
-          "",
-          "    // Transform placeholder columns",
-          "    BillingAccountId           = Table.AddColumn(CommitmentDiscountCategory, \"BillingAccountId\",   each if [x_AccountType] = \"MCA\" then [x_BillingProfileId]   else if [x_AccountType] = \"EA\" then [x_BillingAccountId]   else [x_SubscriptionId]),",
-          "    BillingAccountName         = Table.AddColumn(BillingAccountId,           \"BillingAccountName\", each if [x_AccountType] = \"MCA\" then [x_BillingProfileName] else if [x_AccountType] = \"EA\" then [x_BillingAccountName] else [x_SubscriptionName]),",
-          "    BillingAccountType         = Table.AddColumn(BillingAccountName,         \"BillingAccountType\", each if [x_AccountType] = \"MCA\" then \"Billing Profile\" else if [x_AccountType] = \"EA\" then \"Billing Account\" else \"Subscription\"),",
-          "    BillingPeriodEnd           = _swapCol(BillingAccountType,                \"tmp_BillingPeriodEnd\",   \"BillingPeriodEnd\",          each if _isMissing(\"tmp_BillingPeriodEnd\") then Date.StartOfMonth(Date.AddDays([ChargePeriodStart], 31)) else Date.AddDays([tmp_BillingPeriodEnd], 1), type date),",
-          "    BillingPeriodStart         = _swapCol(BillingPeriodEnd,                  \"tmp_BillingPeriodStart\", \"BillingPeriodStart\",        each if _isBlank([tmp_BillingPeriodStart]) then Date.StartOfMonth([ChargePeriodStart]) else [tmp_BillingPeriodStart], type date),",
-          "    ChargeCategory             = Table.AddColumn(BillingPeriodStart,         \"ChargeCategory\",     each if _isBlank([tmp_ChargeType]) then \"Usage\" else if [tmp_ChargeType] = \"Usage\" or [tmp_ChargeType] = \"Purchase\" or [tmp_ChargeType] = \"Tax\" then [tmp_ChargeType] else if Text.StartsWith([tmp_ChargeType], \"Unused\") then \"Usage\" else \"Adjustment\"),",
-          "    ChargeDescription          = Table.AddColumn(ChargeCategory,             \"ChargeDescription\",  each [x_SkuDescription]),",
-          "    ChargeSubcategory          = Table.AddColumn(ChargeDescription,          \"ChargeSubcategory\",  each ",
-          "        if [ChargeCategory] = \"Usage\" then (",
-          "            if Text.StartsWith([tmp_ChargeType], \"Unused\") then \"Unused Commitment\" ",
-          "            else if [tmp_ChargeType] = \"Usage\" and _isCommitmentDiscount([tmp_ChargeType], [tmp_PricingModel], [CommitmentDiscountId], [tmp_ReservationId]) then \"Used Commitment\" ",
-          "            else \"Other\"",
-          "        ) ",
-          "        else if [ChargeCategory] = \"Adjustment\" then (",
-          "            if [tmp_ChargeType] = \"Refund\" then [tmp_ChargeType]",
-          "            else if [tmp_ChargeType] = \"RoundingAdjustment\" then \"Rounding Error\"",
-          "            else \"Other\"",
-          "        )",
-          "        else null",
-          "    ),",
-          "// TODO: PricingQuantity,SkuId,SkuPriceId",
-          "// TODO: x_BilledUnitPrice,x_EffectiveCostInUsd,x_EffectiveUnitPrice,x_OnDemandCost,x_OnDemandCostInUsd,x_PricingBlockSize",
-          "    ChargeFrequency            = _swapCol(ChargeSubcategory,                \"tmp_Frequency\",         \"ChargeFrequency\",             each if _isMissing(\"tmp_Frequency\") or [tmp_Frequency] = \"UsageBased\" then \"Usage-Based\" else if [tmp_Frequency] = \"OneTime\" then \"One-Time\" else if [tmp_Frequency] = \"OnDemand\" then \"On-Demand\" else \"Other\"),",
-          "    ChargePeriodEnd            = Table.AddColumn(ChargeFrequency,           \"ChargePeriodEnd\",       each Date.AddDays([ChargePeriodStart], 1), type date),",
-          "    ExchangeRate               = _swapCol(ChargePeriodEnd,                  \"tmp_ExchangeRate\",      \"x_BillingExchangeRate\",       each if _isMissing(\"tmp_ExchangeRate\")      or _isBlank([tmp_ExchangeRate])      then 1                    else [tmp_ExchangeRate],       type number),",
-          "    ExchangeRateDate           = _swapCol(ExchangeRate,                     \"tmp_ExchangeRateDate\",  \"x_BillingExchangeRateDate\",   each if _isMissing(\"tmp_ExchangeRateDate\")  or _isBlank([tmp_ExchangeRateDate])  then [BillingPeriodStart] else [tmp_ExchangeRateDate],   type date),",
-          "    InvoiceIssuerName          = _swapCol(ExchangeRateDate,                 \"tmp_InvoiceIssuerName\", \"InvoiceIssuerName\",           each if _isMissing(\"tmp_InvoiceIssuerName\") or _isBlank([tmp_InvoiceIssuerName]) then \"Microsoft\"          else [tmp_InvoiceIssuerName]),",
-          "    PricingCurrency            = _swapCol(InvoiceIssuerName,                \"tmp_PricingCurrency\",   \"x_PricingCurrency\",           each if _isBlank([tmp_PricingCurrency])                                          then [BillingCurrency]    else [tmp_PricingCurrency]),",
-          "    PricingCategory            = Table.AddColumn(PricingCurrency,           \"PricingCategory\",       each ",
-          "        if _isCommitmentDiscount([tmp_ChargeType], [tmp_PricingModel], [CommitmentDiscountId], [tmp_ReservationId]) or _isNotBlank([CommitmentDiscountId]) then \"Commitment Discount\"",
-          "        else if [tmp_PricingModel] = \"Spot\" then \"Dynamic\"",
-          "        else if [tmp_PricingModel] = \"OnDemand\" then \"On-Demand\"",
-          "        else if [ChargeCategory] = \"Adjustment\" or [ChargeCategory] = \"Tax\" then null",
-          "        else \"Other\"",
-          "    ),",
-          "    PricingSubcategory    = Table.AddColumn(PricingCategory,                \"x_PricingSubcategory\",  each ",
-          "        if [PricingCategory] = null then null",
-          "        else if [PricingCategory] = \"OnDemand\" then \"Standard\"",
-          "        else if [tmp_PricingModel] = \"Spot\" then \"Spot\"",
-          "        else if _isNotBlank([CommitmentDiscountCategory]) then \"Committed \" & [CommitmentDiscountCategory]",
-          "        else \"Other\"",
-          "    ),",
-          "    ProviderName               = Table.AddColumn(PricingSubcategory,        \"ProviderName\",          each \"Microsoft\"),",
-          "    PublisherName              = _swapCol(ProviderName,                     \"tmp_PublisherName\",     \"PublisherName\", each if _isNotBlank([tmp_PublisherName]) then [tmp_PublisherName]      else \"Microsoft\"),",
-          "    Region                     = Table.AddColumn(PublisherName,             \"Region\",                each",
-          "// TODO: Region = Unassigned",
-          "        if Text.StartsWith([tmp_ChargeType], \"Unused\") and [tmp_ResourceLocation] = \"Unassigned\" then \"Global\"",
-          "        else if [tmp_ChargeType] = \"RoundingAdjustment\"                                          then \"Global\"",
-          "        else if [tmp_ResourceLocation] = \"All Regions\"                                           then \"Global\"",
-          "        else if _isNotBlank([tmp_DefenderFor]) and _isBlank([tmp_ResourceLocation])              then \"Global\"",
-          "        else if _isBlank([tmp_ResourceLocation])                                                 then null",
-          "        else _regionCleanup([tmp_ResourceLocation])",
-          "    ),",
-          "// TODO: Parse ResourceName",
-          "// TODO: VMName???",
-          "    ResourceName               = _swapCol(Region,                           \"tmp_ResourceName\",       \"ResourceName\",              each if _isNotBlank([tmp_ResourceName])  then [tmp_ResourceName]       else if _isNotBlank([tmp_DefenderFor])      then \"Microsoft Defender for \" & [tmp_DefenderFor] else if [tmp_ChargeType] = \"Purchase\" and [tmp_ReservationName] <> \"\" then [tmp_ReservationName] else null),",
-          "// TODO: Parse ResourceType",
-          "    SubAccountId               = Table.AddColumn(ResourceName,              \"SubAccountId\",           each [x_SubscriptionId]),",
-          "    SubAccountName             = Table.AddColumn(SubAccountId,              \"SubAccountName\",         each [x_SubscriptionName]),",
-          "    SubAccountType             = Table.AddColumn(SubAccountName,            \"SubAccountType\",         each \"Subscription\"),",
-          "    Tags                       = _swapCol(SubAccountType,                   \"tmp_Tags\",               \"Tags\",                      each if _isNotBlank([tmp_Tags])          then if Text.StartsWith([tmp_Tags], \"{\") then [tmp_Tags] else \"{\" & [tmp_Tags] & \"}\" else null),",
-          "// TODO: Map x_PricingUnitDescription to UsageUnit/PricingUnit/PricingBlockSize",
-          "    UsageUnit                  = Table.AddColumn(Tags,                      \"UsageUnit\",              each [x_PricingUnitDescription]),",
-          "    PricingUnit                = Table.AddColumn(UsageUnit,                 \"PricingUnit\",            each [x_PricingUnitDescription]),",
-          "",
-          "    // Parse tags",
-          "    TagsDictionary             = Table.AddColumn(PricingUnit,               \"x_TagsDictionary\",       each if _isNotBlank([Tags]) then Json.Document([Tags]) else null),",
-          "    TagsDictionary_errors      = Table.ReplaceErrorValues(TagsDictionary, {{\"x_TagsDictionary\", null}}),",
-          "",
-          "    // Commitment columns -- Must be after AHB and PricingModel cleanup",
-          "    CommitmentDiscountKey          = Table.AddColumn(TagsDictionary_errors,          \"x_CommitmentDiscountKey\",          each [x_SkuType] & [x_SkuMeterId]),",
+          "    // Commitment metadata",
+          "    CommitmentDiscountKey          = Table.AddColumn(AHB,                            \"x_CommitmentDiscountKey\",          each [x_SkuType] & [x_SkuMeterId]),",
           "    CommitmentUtilizationPotential = Table.AddColumn(CommitmentDiscountKey,          \"x_CommitmentUtilizationPotential\", each if [CommitmentDiscountCategory] = \"Usage\" then [UsageQuantity] else if [CommitmentDiscountCategory] = \"Spend\" then [EffectiveCost] else 0, type number),",
           "    CommitmentUtilizationAmount    = Table.AddColumn(CommitmentUtilizationPotential, \"x_CommitmentUtilizationAmount\",    each if [ChargeSubcategory] = \"Used Commitment\" then [x_CommitmentUtilizationPotential] else 0, type number),",
           "    Commitments = CommitmentUtilizationAmount,",
           "",
-          "    // Price + cost columns",
-          "    OnDemandUnitPrice        = _swapCol(Commitments,                     \"tmp_OnDemandUnitPrice\",      \"x_OnDemandUnitPrice\", each (if [tmp_OnDemandUnitPrice] <> null and [tmp_OnDemandUnitPrice] > 0.0 then [tmp_OnDemandUnitPrice] else [x_EffectiveUnitPrice]),     type number),",
-          "    ListUnitPrice            = _swapCol(OnDemandUnitPrice,               \"tmp_ListUnitPrice\",          \"ListUnitPrice\",       each (if [tmp_ListUnitPrice]     <> null and [tmp_ListUnitPrice]     > 0.0 then [tmp_ListUnitPrice]     else [x_OnDemandUnitPrice]),        type number),",
-          "    ListCost                 = _swapCol(ListUnitPrice,                   \"tmp_ListCost\",               \"ListCost\",            each (if [tmp_ListCost]          <> null and [tmp_ListCost]          > 0.0 then [tmp_ListCost]          else [ListUnitPrice] * [UsageQuantity]),   type number),",
-          "    ListCostInUsd            = _swapCol(ListCost,                        \"tmp_ListCostInUsd\",          \"x_ListCostInUsd\",     each (if [tmp_ListCostInUsd]     <> null and [tmp_ListCostInUsd]     > 0.0 then [tmp_ListCostInUsd]     else [ListCost] * [x_BillingExchangeRate]),  type number),",
-          "    OnDemandCost             = Table.AddColumn(ListCostInUsd,            \"x_OnDemandCost\",             each [UsageQuantity] * [x_OnDemandUnitPrice],               type number),",
-          "    OnDemandUnitPriceSavings = Table.AddColumn(OnDemandCost,             \"x_OnDemandUnitPriceSavings\", each [x_OnDemandUnitPrice] - [x_EffectiveUnitPrice], type number),",
-          "    ListUnitPriceSavings     = Table.AddColumn(OnDemandUnitPriceSavings, \"x_ListUnitPriceSavings\",     each [ListUnitPrice] - [x_EffectiveUnitPrice],       type number),",
-          "    CommitmentSavings        = Table.AddColumn(ListUnitPriceSavings,     \"x_CommitmentSavings\",        each if _isBlank([CommitmentDiscountCategory]) then 0 else [x_OnDemandCost] - [EffectiveCost], type number),",
+          "    // Savings calculations",
+          "    ListUnitPriceSavings     = Table.AddColumn(Commitments,              \"x_ListUnitPriceSavings\",     each [ListUnitPrice] - [x_EffectiveUnitPrice],       type number),",
+          "    OnDemandUnitPriceSavings = Table.AddColumn(ListUnitPriceSavings,     \"x_OnDemandUnitPriceSavings\", each [x_OnDemandUnitPrice] - [x_EffectiveUnitPrice], type number),",
+          "    CommitmentSavings        = Table.AddColumn(OnDemandUnitPriceSavings, \"x_CommitmentSavings\",        each if _isBlank([CommitmentDiscountCategory]) then 0 else [x_OnDemandCost] - [EffectiveCost], type number),",
           "    NegotiatedSavings        = Table.AddColumn(CommitmentSavings,        \"x_NegotiatedSavings\",        each [ListCost] - [x_OnDemandCost], type number),",
           "    DiscountSavings          = Table.AddColumn(NegotiatedSavings,        \"x_DiscountSavings\",          each [ListCost] - [EffectiveCost], type number),",
+          "    Savings = DiscountSavings,",
+          "",
+          "    // Data cleansing",
+          "    // TODO: BUG: SkuId == SkuPriceId for EA???",
           "",
           "    // Unique names -- Must be after ResourceName cleanup and Commitment columns",
           "// TODO: Only add differentiators when the name is not unique",
-          "    CommitmentDiscountNameUnique = Table.AddColumn(DiscountSavings,              \"CommitmentDiscountNameUnique\", each if _isBlank([CommitmentDiscountName]) then null else [CommitmentDiscountName] & \" (\" & [CommitmentDiscountType] & \")\"),",
-          "// TODO: Change ResourceName differentiator to be the type",
-          "    ResourceNameUnique           = Table.AddColumn(CommitmentDiscountNameUnique, \"ResourceNameUnique\",           each if _isBlank([ResourceName])           then null else [ResourceName] & \" (\" & [ResourceId] & \")\"),",
-          "    ResourceGroupNameUnique      = Table.AddColumn(ResourceNameUnique,           \"x_ResourceGroupNameUnique\",    each if _isBlank([x_ResourceGroupName])    then null else [x_ResourceGroupName] & \" (\" & [x_SubscriptionName] & \")\"),",
-          "    SubscriptionNameUnique       = Table.AddColumn(ResourceGroupNameUnique,      \"SubAccountNameUnique\",         each if _isBlank([x_SubscriptionName])     then null else [x_SubscriptionName] & \" (\" & [x_SubscriptionId] & \")\"),",
+          "    CommitmentDiscountNameUnique = Table.AddColumn(Savings,                      \"CommitmentDiscountNameUnique\", each if _isBlank([CommitmentDiscountId]) then null else [CommitmentDiscountName] & \" (\" & [CommitmentDiscountType] & \")\"),",
+          "    ResourceNameUnique           = Table.AddColumn(CommitmentDiscountNameUnique, \"ResourceNameUnique\",           each if _isBlank([ResourceId])           then null else [ResourceName] & \" (\" & [ResourceType] & \")\"),",
+          "    ResourceGroupNameUnique      = Table.AddColumn(ResourceNameUnique,           \"x_ResourceGroupNameUnique\",    each if _isBlank([x_ResourceGroupName])  then null else [x_ResourceGroupName] & \" (\" & [SubAccountName] & \")\"),",
+          "    SubscriptionNameUnique       = Table.AddColumn(ResourceGroupNameUnique,      \"SubAccountNameUnique\",         each if _isBlank([SubAccountId])         then null else [SubAccountName] & \" (\" & _armResourceName([SubAccountId]) & \")\"),",
+          "    Names = SubscriptionNameUnique,",
           "",
           "    // Month column",
-          "    Month = Table.AddColumn(SubscriptionNameUnique, \"x_Month\", each Date.StartOfMonth([ChargePeriodStart])),",
+          "    Month = Table.AddColumn(Names, \"x_Month\", each Date.StartOfMonth([ChargePeriodStart])),",
           "",
           "    // Unique key for the record -- WARNING: This increases the data size significantly.",
           "    /*",
@@ -7455,7 +7072,7 @@
           "        [ResourceId],",
           "        [tmp_ResourceLocation],",
           "        [x_SkuOfferId],",
-          "        [SkuId],",
+          "        [SkuPriceId],",
           "        [x_SkuMeterId],",
           "        [x_SkuPartNumber],",
           "        if _isBlank([CommitmentDiscountId]) then null else List.Last(Text.Split([CommitmentDiscountId], \"/\")),",
@@ -7466,101 +7083,8 @@
           "    }, {null, \"\"}), \"-\")),",
           "    */",
           "",
-          "    // Cleanup",
-          "    // FOCUS ServiceName",
-          "    ServiceName = Table.AddColumn(Month, \"ServiceName\", each",
-          "        if [tmp_DefenderFor] <> null then (",
-          "            if [tmp_DefenderFor] = \"DNS\"                   then \"Azure DNS\"",
-          "            else if [tmp_DefenderFor] = \"MySQL\"            then \"Azure Database for MySQL\"",
-          "            else if [tmp_DefenderFor] = \"Resource Manager\" then \"Azure Resource Manager\"",
-          "            else if [tmp_DefenderFor] = \"Servers\"          then \"Virtual Machines\"",
-          "            else if [tmp_DefenderFor] = \"SQL\"              then \"Azure SQL Database\"",
-          "            else [tmp_DefenderFor]",
-          "        )",
-          "// TODO: Need a better check for AKS RG names",
-          "        else if _isNotBlank([x_ResourceGroupName]) and ((Text.StartsWith(Text.Lower([x_ResourceGroupName]), \"mc_\") and Text.EndsWith(Text.Lower([x_ResourceGroupName]), \"_\"&Text.Lower(Text.Replace([tmp_ResourceLocation], \" \", \"\")))) or (_isNotBlank([x_SkuVMProperties]) and Text.Contains([x_SkuVMProperties], \"Microsoft.AKS\"))) then \"Azure Kubernetes Service\"",
-          "        else if [tmp_RPName] = \"capacity\"                then if Text.StartsWith(Text.Lower([ResourceId]), \"/providers/microsoft.billingbenefits/savingsplan\") then \"Azure Savings Plans for Compute\" else if [x_SkuMeterCategory] <> \"\" then [x_SkuMeterCategory] else \"Azure Reservations\"",
-          "        else if [tmp_RPName] = \"compute\"                 then \"Virtual Machines\"",
-          "        else if [tmp_RPName] = \"dbformariadb\"            then \"Azure Database for MariaDB\"",
-          "        else if [tmp_RPName] = \"dbformysql\"              then \"Azure Database for MySQL\"",
-          "        else if [tmp_RPName] = \"dbforpostgresql\"         then \"Azure Database for PostgreSQL\"",
-          "        else if [tmp_RPName] = \"insights\"                then \"Azure Monitor\"",
-          "        else if [tmp_RPName] = \"keyvault\"                then \"Key Vault\"",
-          "        else if [tmp_RPName] = \"machinelearningservices\" then \"Azure Machine Learning\"",
-          "        else if [tmp_RPName] = \"operationalinsights\"     then \"Azure Monitor\"",
-          "        else if [tmp_RPName] = \"sql\"                     then [x_SkuMeterCategory]",
-          "        else if [tmp_RPName] = \"storage\"                 then \"Storage Accounts\"",
-          "        else if [tmp_RPName] = \"synapse\"                 then \"Azure Synapse Analytics\"",
-          "        else if [tmp_RPName] = \"web\"                     then \"App Service\"",
-          "        else if [x_PublisherType] = \"Marketplace\" and ([x_SkuMeterCategory] = \"SaaS\" or [x_SkuMeterCategory] = \"Azure Applications\") then [x_SkuMeterSubcategory]",
-          "        else if _exists(\"tmp_ServiceName\") then [tmp_ServiceName]",
-          "        else [x_SkuMeterCategory]",
-          "    ),",
-          "",
-          "    // FOCUS ServiceCategory",
-          "    ServiceCategory = Table.AddColumn(ServiceName, \"ServiceCategory\", each",
-          "        if [ServiceName] = \"Functions\"                               then \"Compute\"",
-          "        else if [ServiceName] = \"App Service\"                        then \"Web\"",
-          "        else if [ServiceName] = \"Azure DNS\"                          then \"Networking\"",
-          "        else if [ServiceName] = \"Azure Kubernetes Service\"           then \"Compute\"",
-          "        else if [ServiceName] = \"Azure Resource Manager\"             then \"Management and Governance\"",
-          "        else if [ServiceName] = \"Azure Savings Plans for Compute\"    then \"Compute\"",
-          "        else if [ServiceName] = \"Backup\"                             then \"Storage\"",
-          "        else if [ServiceName] = \"Virtual Machines\"                   then \"Compute\"",
-          "        else if [tmp_RPName] = \"api management\"                      then \"Integration\"",
-          "        else if [tmp_RPName] = \"appconfiguration\"                    then \"Web\"",
-          "        else if [tmp_RPName] = \"compute\"                             then \"Compute\"",
-          "        else if [tmp_RPName] = \"containerinstance\"                   then \"Compute\"",
-          "        else if [tmp_RPName] = \"containerservice\"                    then \"Compute\"",
-          "        else if [tmp_RPName] = \"datafactory\"                         then \"Integration\"",
-          "        else if [tmp_RPName] = \"dbformysql\"                          then \"Databases\"",
-          "        else if [tmp_RPName] = \"dbforpostgressql\"                    then \"Databases\"",
-          "        else if [tmp_RPName] = \"digitaltwins\"                        then \"Internet of Things\"",
-          "        else if [tmp_RPName] = \"eventgrid\"                           then \"Integration\"",
-          "        else if [tmp_RPName] = \"insights\"                            then \"Management and Governance\"",
-          "        else if [tmp_RPName] = \"keyvault\"                            then \"Security\"",
-          "        else if [tmp_RPName] = \"loadtestservice\"                     then \"Developer Tools\"",
-          "        else if [tmp_RPName] = \"logic\"                               then \"Integration\"",
-          "        else if [tmp_RPName] = \"machinelearningservices\"             then \"AI and Machine Learning\"",
-          "        else if [tmp_RPName] = \"network\"                             then \"Networking\"",
-          "        else if [tmp_RPName] = \"operationalinsights\"                 then \"Management and Governance\"",
-          "        else if [tmp_RPName] = \"recoveryservices\"                    then \"Management and Governance\"",
-          "        else if [tmp_RPName] = \"search\"                              then \"Web\"",
-          "        else if [tmp_RPName] = \"security\"                            then \"Security\"",
-          "        else if [tmp_RPName] = \"servicebus\"                          then \"Integration\"",
-          "        else if [tmp_RPName] = \"storagesync\"                         then \"Storage\"",
-          "        else if [tmp_RPName] = \"sql\"                                 then \"Databases\"",
-          "        else if [tmp_RPName] = \"storage\"                             then \"Storage\"",
-          "        else if [tmp_RPName] = \"synapse\"                             then \"Analytics\"",
-          "        else if [tmp_RPName] = \"virtual network\"                     then \"Networking\"",
-          "        else if [tmp_RPName] = \"web\"                                 then \"Web\"",
-          "        else if Text.Contains(Text.Lower([ServiceName]), \"quantum\")  then \"Compute\"",
-          "        else if Text.Contains(Text.Lower([ServiceName]), \"redis\")    then \"Storage\"",
-          "        else if Text.Contains(Text.Lower([ServiceName]), \"sendgrid\") then \"Web\"",
-          "        else if [x_SkuMeterCategory] = \"RoundingAdjustment\"          then \"Other\"",
-          "        else \"Other\"",
-          "    ),",
-          "",
-          "    // Clean up temp columns and re-sort",
-          "    RemoveColumns = Table.RemoveColumns(ServiceCategory, {",
-          "        // Original columns",
-          "        \"tmp_ChargeType\",",
-          "        \"tmp_PricingModel\",",
-          "        \"tmp_ReservationId\",",
-          "        \"tmp_ReservationName\",",
-          "        \"tmp_ResourceLocation\",",
-          "        \"tmp_ServiceName\",",
-          "        // AdditionalInfo",
-          "        \"tmp_AddlReservationOrderId\", ",
-          "        \"tmp_AddlReservationId\",",
-          "        \"tmp_SQLAHB\",",
-          "        \"tmp_SQLvCores\",",
-          "        \"tmp_VMvCPUs\",",
-          "        // Helpers",
-          "        \"tmp_DefenderFor\",",
-          "        \"tmp_RPName\"",
-          "    }),",
-          "    Output = Table.ReorderColumns(RemoveColumns, List.Sort(Table.ColumnNames(RemoveColumns)))",
+          "    // Sort columns alphabetically",
+          "    Output = Table.ReorderColumns(Month, List.Sort(Table.ColumnNames(Month)))",
           "in",
           "    Output"
         ],
@@ -7583,17 +7107,11 @@
         "expression": [
           "let",
           "    SourceType = #\"Data Source\",",
-          "    IsConnector = SourceType = \"Cost Management connector\",",
+          "    IsExpors = SourceType = \"Cost Management exports\",",
           "    IsHubs = SourceType = \"FinOps hubs\",",
           "    SourceCheck = ",
           "        if SourceType = \"\" then {\"✖ Missing\", \"Please select either the Cost Mangaement connector or FinOps hubs as a data source.\"}",
-          "        else if IsConnector then (",
-          "            {\"✔️ Specified\", \"Connecting to the \" & SourceType & \".\"}",
-          "        )",
-          "        else if IsHubs then (",
-          "            {\"✔️ Specified\", \"Connecting to \" & SourceType & \".\"}",
-          "        )",
-          "        else {\"✖ Invalid\", \"Please select either the Cost Mangaement connector or FinOps hubs as a data source.\"},",
+          "        else {\"✔️ Specified\", \"Connecting to the \" & SourceType & \".\"},",
           "",
           "    AccountId = #\"Billing Account ID\",",
           "    AccountType = if AccountId = \"\" or AccountId = null then \"\" else if Text.Contains(AccountId, \"-\") then \"MCA\" else \"EA\",",
@@ -7607,11 +7125,9 @@
           "",
           "    ProfileId = #\"Billing Profile ID\",",
           "    ProfileCheck = ",
-          "        if AccountType = \"EA\" and (ProfileId = \"\" or ProfileId = null) then {\"➖️ Ignored\", \"Will get costs for all departments in this billing account.\"}",
-          "        else if AccountType = \"MCA\" and (ProfileId = \"\" or ProfileId = null) then {\"➖️ Ignored\", \"Will get costs for all billing profiles in this billing account.\"}",
-          "        else if AccountType = \"EA\" then {\"✖ Invalid\", \"You specified an EA enrollment and an MCA billing profile ID. Did you mean to use an MCA billing account ID?\"}",
-          "        else if AccountType = \"MCA\" then {\"✔️ Specified\", \"Will get costs for billing profile \" & ProfileId & \".\"}",
-          "        else {\"➖️ Ignored\", \"\"},",
+          "        if AccountType <> \"MCA\" then {\"➖️ Not applicable\", \"\"} ",
+          "        else if ProfileId = \"\" or ProfileId = null then {\"✖ Missing\", \"Recommendations will not be available for this report.\"}",
+          "        else {\"✔️ Specified\", \"Will get recommendations for billing profile \" & ProfileId & \".\"},",
           "",
           "    Months = #\"Number of Months\",",
           "    MonthCheck = ",
@@ -7633,118 +7149,50 @@
           "        else if DateStart > DateEnd then {\"✖ Invalid\", \"The start date must be before the end date.\"}",
           "        else {\"✔️ Specified\", \"Will pull costs for \" & Number.ToText(Duration.Days(DateEnd - DateStart)) & \" days.\"},",
           "",
+          "    /*",
           "    Step1 = Table.InsertRows(#table({\"Instructions\", \"Value\", \"Status\", \"Message\"}, {}), 0, {",
           "        [ Instructions = \"① Set the data source parameter on the left\", Value = SourceType, Status = SourceCheck{0}, Message = SourceCheck{1} ],",
-          "        [ Instructions = \"        ➖ About the connector @ https://aka.ms/costmgmt/powerbi\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        ➖ About exports @ https://aka.ms/finops/toolkit/exports\", Value = \"\", Status = \"\", Message = \"\" ],",
           "        [ Instructions = \"        ➖ About FinOps hubs @ https://aka.ms/finops/hubs\", Value = \"\", Status = \"\", Message = \"\" ],",
           "        [ Instructions = \"\", Value = \"\", Status = \"\", Message = \"\" ]",
           "    }),",
           "",
-          "    AllChecks = Table.InsertRows(Step1, 4, ",
-          "        if IsHubs then {",
-          "            [ Instructions = \"②️ Set the hub storage URL parameter on the left\", Value = StorageUrl, Status = StorageCheck{0}, Message = StorageCheck{1} ],",
-          "            [ Instructions = \"        ➖ Go to your hub resource group\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "            [ Instructions = \"        ➖ Open Deployments > `hub` > Outputs\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "            [ Instructions = \"        ➖ Copy the 'storageUrlForPowerBI' value\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "            [ Instructions = \"\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "            [ Instructions = \"③ Set the start/end dates\", Value = DateTime.ToText(DateStart, [Format=\"MMM d, yyyy\"]) & \" - \" & DateTime.ToText(DateEnd, [Format=\"MMM d, yyyy\"]), Status = DateCheck{0}, Message = DateCheck{1} ],",
-          "            [ Instructions = \"        ➖ NOTE: Power BI can only support ~$16M in cost details!\", Value = \"\", Status = \"\", Message = \"\" ]",
-          "        } else {",
-          "            [ Instructions = \"②️ Set the billing account ID parameter on the left\", Value = AccountId, Status = AccountCheck{0}, Message = AccountCheck{1} ],",
-          "            [ Instructions = \"        ➖ Go to https://aka.ms/costmgmt/config\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "            [ Instructions = \"        ➖ Change scope to the desired billing account or billing profile\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "            [ Instructions = \"        ➖ Select the Properties tile\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "            [ Instructions = \"        ➖ Copy the 'ID' or 'Billing account ID' value\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "            [ Instructions = \"        ➖ Paste the value in 'CM connector' > 'Billing Account ID'\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "            [ Instructions = \"\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "            [ Instructions = \"③ To filter to an MCA billing profile, set the billing profile ID\", Value = ProfileId, Status = ProfileCheck{0}, Message = ProfileCheck{1} ],",
-          "            [ Instructions = \"        ➖ From billing profile properties, copy the 'ID' value\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "            [ Instructions = \"        ➖ Paste the value into the 'Billing Profile ID' parameter on the left\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "            [ ",
-          "                Instructions = \"        ➖ Billing profile is required for MCA reservation recommendations\", ",
-          "                Value        = \"\", ",
-          "                Status       = if AccountType = \"MCA\" then (if ProfileId = \"\" or ProfileId = null then \"⚠️ Missing\" else \"✔️ Specified\") else \"\", ",
-          "                Message      = if AccountType = \"MCA\" then (if ProfileId = \"\" or ProfileId = null then \"Recommendations will not be available for this report.\" else \"\") else \"\" ],",
-          "            [ Instructions = \"\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "            [ Instructions = \"④ Set the number of months to include (more = slower load time)\", Value = Months, Status = MonthCheck{0}, Message = MonthCheck{1} ],",
-          "            [ Instructions = \"        ➖ 0  = current month only\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "            [ Instructions = \"        ➖ 1  = current month and 1 previous month\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "            [ Instructions = \"        ➖ 2+ = current month and 2+ previous months\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "            [ Instructions = \"        ➖ NOTE: Power BI can only support ~$16M in cost details!\", Value = \"\", Status = \"\", Message = \"\" ]",
-          "        }",
-          "    )",
+          "    MainChecks = Table.InsertRows(Step1, 4, ",
+          "    */",
+          "",
+          "    MainChecks = Table.InsertRows(#table({\"Instructions\", \"Value\", \"Status\", \"Message\"}, {}), 0, {",
+          "        [ Instructions = \"① Set the storage URL parameter on the left\", Value = StorageUrl, Status = StorageCheck{0}, Message = StorageCheck{1} ],",
+          "        [ Instructions = \"        ➖ Go to your hub resource group\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        ➖ Open Deployments > `hub` > Outputs\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        ➖ Copy the 'storageUrlForPowerBI' value\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        \", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"② Set the start/end dates\", Value = DateTime.ToText(DateStart, [Format=\"MMM d, yyyy\"]) & \" - \" & DateTime.ToText(DateEnd, [Format=\"MMM d, yyyy\"]), Status = DateCheck{0}, Message = DateCheck{1} ],",
+          "        [ Instructions = \"        ➖ NOTE: Power BI can only support ~$16M in cost details!\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        \", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        \", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"The following are only needed for reservation recommendations\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        \", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"③️ Set the billing account ID\", Value = AccountId, Status = AccountCheck{0}, Message = AccountCheck{1} ],",
+          "        [ Instructions = \"        ➖ Go to https://aka.ms/costmgmt/config\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        ➖ Change scope to the desired billing account or billing profile\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        ➖ Select the Properties tile\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        ➖ Copy the 'Billing account ID' value\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        ➖ Paste the value in 'CM connector' > 'Billing Account ID'\", Value = \"\", Status = \"\", Message = \"\" ]",
+          "    }),",
+          "",
+          "    McaChecks = if AccountType = \"MCA\" then MainChecks else Table.InsertRows(MainChecks, Table.RowCount(MainChecks), {",
+          "        [ Instructions = \"        \", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"④ Set the billing profile ID\", Value = ProfileId, Status = ProfileCheck{0}, Message = ProfileCheck{1} ],",
+          "        [ Instructions = \"        ➖ From billing profile properties, copy the 'ID' value\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        ➖ Paste the value in 'CM connector' > 'Billing Profile ID'\", Value = \"\", Status = \"\", Message = \"\" ]",
+          "    })",
           "in",
-          "    AllChecks"
+          "    McaChecks"
         ],
         "kind": "m",
         "lineageTag": "6cfe80b8-1c4b-4c11-9916-43fc98b49dac",
         "queryGroup": "🛠️ Setup\\Instructions"
-      },
-      {
-        "name": "Errors in CostDetails (2)",
-        "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
-            "name": "PBI_ResultType",
-            "value": "Exception"
-          }
-        ],
-        "expression": [
-          "let",
-          "Source = CostDetails,",
-          "  #\"Detected Type Mismatches\" = let",
-          "    tableWithOnlyPrimitiveTypes = Table.SelectColumns(Source, Table.ColumnsOfType(Source, {type nullable number, type nullable text, type nullable logical, type nullable date, type nullable datetime, type nullable datetimezone, type nullable time, type nullable duration})),",
-          "    recordTypeFields = Type.RecordFields(Type.TableRow(Value.Type(tableWithOnlyPrimitiveTypes))),",
-          "    fieldNames = Record.FieldNames(recordTypeFields),",
-          "    fieldTypes = List.Transform(Record.ToList(recordTypeFields), each [Type]),",
-          "    pairs = List.Transform(List.Positions(fieldNames), (i) => {fieldNames{i}, (v) => if v = null or Value.Is(v, fieldTypes{i}) then v else error [Message = \"The type of the value does not match the type of the column.\", Detail = v], fieldTypes{i}})",
-          "in",
-          "    Table.TransformColumns(Source, pairs),",
-          "  #\"Added Index\" = Table.AddIndexColumn(#\"Detected Type Mismatches\", \"Row Number\" ,1),",
-          "  #\"Kept Errors\" = Table.SelectRowsWithErrors(#\"Added Index\", {\"BilledCost\", \"BillingAccountId\", \"BillingAccountName\", \"BillingAccountType\", \"BillingCurrency\", \"BillingPeriodEnd\", \"BillingPeriodStart\", \"ChargeCategory\", \"ChargeFrequency\", \"ChargePeriodEnd\", \"ChargePeriodStart\", \"ChargeSubcategory\", \"CommitmentDiscountCategory\", \"CommitmentDiscountId\", \"CommitmentDiscountName\", \"CommitmentDiscountNameUnique\", \"CommitmentDiscountType\", \"EffectiveCost\", \"InvoiceIssuerId\", \"InvoiceIssuerName\", \"ListCost\", \"ListUnitPrice\", \"Month\", \"PricingCategory\", \"x_PricingSubcategory\", \"PricingUnit\", \"ProviderName\", \"PublisherName\", \"Region\", \"ResourceGroupNameUnique\", \"ResourceId\", \"ResourceName\", \"ResourceNameUnique\", \"ResourceType\", \"ServiceCategory\", \"ServiceName\", \"SkuId\", \"SubAccountId\", \"SubAccountName\", \"SubAccountType\", \"SubscriptionNameUnique\", \"Tags\", \"UsageQuantity\", \"UsageUnit\", \"x_AccountName\", \"x_AccountOwnerId\", \"x_AccountType\", \"x_BilledCostInUsd\", \"x_BilledPricingCost\", \"x_BillingAccountId\", \"x_BillingAccountName\", \"x_BillingExchangeRate\", \"x_BillingExchangeRateDate\", \"x_BillingProfileId\", \"x_BillingProfileName\", \"x_CapacityCommitmentId\", \"x_ChargeId\", \"x_CommitmentDiscountKey\", \"x_CommitmentSavings\", \"x_CommitmentUtilizationAmount\", \"x_CommitmentUtilizationPotential\", \"x_ConsumedService\", \"x_CostAllocationRuleName\", \"x_CostCenter\", \"x_CustomerId\", \"x_CustomerName\", \"x_DataSet\", \"x_DiscountSavings\", \"x_EffectiveCostInUsd\", \"x_EffectivePricingCost\", \"x_InvoiceId\", \"x_InvoiceSectionId\", \"x_InvoiceSectionName\", \"x_IsCreditEligible\", \"x_ListCostInUsd\", \"x_ListUnitPriceSavings\", \"x_NegotiatedSavings\", \"x_OnDemandCost\", \"x_OnDemandUnitPrice\", \"x_OnDemandUnitPriceSavings\", \"x_PartnerCreditApplied\", \"x_PartnerCreditRate\", \"x_PreviousInvoiceId\", \"x_PricingCurrency\", \"x_PricingUnitDescription\", \"x_PublisherId\", \"x_PublisherType\", \"x_ResellerId\", \"x_ResellerName\", \"x_ResourceGroupName\", \"x_ResourceMachineName\", \"x_SchemaVersion\", \"x_ServicePeriodEnd\", \"x_ServicePeriodStart\", \"x_SkuCPUs\", \"x_SkuDescription\", \"x_SkuDetails\", \"x_SkuImageType\", \"x_SkuLicenseCPUs\", \"x_SkuLicenseStatus\", \"x_SkuMeterCategory\", \"x_SkuMeterId\", \"x_SkuMeterName\", \"x_SkuMeterSubcategory\", \"x_SkuOfferId\", \"x_SkuOrderId\", \"x_SkuOrderName\", \"x_SkuPartNumber\", \"x_SkuPlanName\", \"x_SkuProvider\", \"x_SkuRegion\", \"x_SkuServiceFamily\", \"x_SkuTerm\", \"x_SkuType\", \"x_SkuUsageType\", \"x_SkuVMProperties\", \"x_SubscriptionId\", \"x_SubscriptionName\", \"x_TagsDictionary\", \"x_UsageCPUHours\"}),",
-          "  #\"Reordered Columns\" = Table.ReorderColumns(#\"Kept Errors\", {\"Row Number\", \"BilledCost\", \"BillingAccountId\", \"BillingAccountName\", \"BillingAccountType\", \"BillingCurrency\", \"BillingPeriodEnd\", \"BillingPeriodStart\", \"ChargeCategory\", \"ChargeFrequency\", \"ChargePeriodEnd\", \"ChargePeriodStart\", \"ChargeSubcategory\", \"CommitmentDiscountCategory\", \"CommitmentDiscountId\", \"CommitmentDiscountName\", \"CommitmentDiscountNameUnique\", \"CommitmentDiscountType\", \"EffectiveCost\", \"InvoiceIssuerId\", \"InvoiceIssuerName\", \"ListCost\", \"ListUnitPrice\", \"Month\", \"PricingCategory\", \"PricingSubcategory\", \"PricingUnit\", \"ProviderName\", \"PublisherName\", \"Region\", \"ResourceGroupNameUnique\", \"ResourceId\", \"ResourceName\", \"ResourceNameUnique\", \"ResourceType\", \"ServiceCategory\", \"ServiceName\", \"SkuId\", \"SubAccountId\", \"SubAccountName\", \"SubAccountType\", \"SubscriptionNameUnique\", \"Tags\", \"UsageQuantity\", \"UsageUnit\", \"__NEW_EffectivePrice\", \"x_AccountName\", \"x_AccountOwnerId\", \"x_AccountType\", \"x_BilledCostInUsd\", \"x_BilledPricingCost\", \"x_BillingAccountId\", \"x_BillingAccountName\", \"x_BillingExchangeRate\", \"x_BillingExchangeRateDate\", \"x_BillingProfileId\", \"x_BillingProfileName\", \"x_CapacityCommitmentId\", \"x_ChargeId\", \"x_CommitmentDiscounKey\", \"x_CommitmentSavings\", \"x_CommitmentUtilizationAmount\", \"x_CommitmentUtilizationPotential\", \"x_ConsumedService\", \"x_CostAllocationRuleName\", \"x_CostCenter\", \"x_CustomerId\", \"x_CustomerName\", \"x_DataSet\", \"x_DiscountSavings\", \"x_EffectiveCostInUsd\", \"x_EffectivePricingCost\", \"x_InvoiceId\", \"x_InvoiceSectionId\", \"x_InvoiceSectionName\", \"x_IsCreditEligible\", \"x_ListCostInUsd\", \"x_ListUnitPriceSavings\", \"x_NegotiatedSavings\", \"x_OnDemandCost\", \"x_OnDemandUnitPrice\", \"x_OnDemandUnitPriceSavings\", \"x_PartnerCreditApplied\", \"x_PartnerCreditRate\", \"x_PreviousInvoiceId\", \"x_PricingCurrency\", \"x_PricingUnitDescription\", \"x_PublisherId\", \"x_PublisherType\", \"x_ResellerId\", \"x_ResellerName\", \"x_ResourceGroupName\", \"x_ResourceMachineName\", \"x_SchemaVersion\", \"x_ServicePeriodEnd\", \"x_ServicePeriodStart\", \"x_SkuCPUs\", \"x_SkuDescription\", \"x_SkuDetails\", \"x_SkuImageType\", \"x_SkuLicenseCPUs\", \"x_SkuLicenseStatus\", \"x_SkuMeterCategory\", \"x_SkuMeterId\", \"x_SkuMeterName\", \"x_SkuMeterSubcategory\", \"x_SkuOfferId\", \"x_SkuOrderId\", \"x_SkuOrderName\", \"x_SkuPartNumber\", \"x_SkuPlanName\", \"x_SkuProvider\", \"x_SkuRegion\", \"x_SkuServiceFamily\", \"x_SkuTerm\", \"x_SkuType\", \"x_SkuUsageType\", \"x_SkuVMProperties\", \"x_SubscriptionId\", \"x_SubscriptionName\", \"x_TagsDictionary\", \"x_UsageCPUHours\"})",
-          "in",
-          "  #\"Reordered Columns\""
-        ],
-        "kind": "m",
-        "lineageTag": "ddaf20ad-f90b-4ff5-8dbf-b90de0f27356",
-        "queryGroup": "Query Errors - 1/2/2024 3:00:56 PM"
-      },
-      {
-        "name": "Errors in CostDetails",
-        "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
-            "name": "PBI_ResultType",
-            "value": "Exception"
-          }
-        ],
-        "expression": [
-          "let",
-          "Source = CostDetails,",
-          "  #\"Detected Type Mismatches\" = let",
-          "    tableWithOnlyPrimitiveTypes = Table.SelectColumns(Source, Table.ColumnsOfType(Source, {type nullable number, type nullable text, type nullable logical, type nullable date, type nullable datetime, type nullable datetimezone, type nullable time, type nullable duration})),",
-          "    recordTypeFields = Type.RecordFields(Type.TableRow(Value.Type(tableWithOnlyPrimitiveTypes))),",
-          "    fieldNames = Record.FieldNames(recordTypeFields),",
-          "    fieldTypes = List.Transform(Record.ToList(recordTypeFields), each [Type]),",
-          "    pairs = List.Transform(List.Positions(fieldNames), (i) => {fieldNames{i}, (v) => if v = null or Value.Is(v, fieldTypes{i}) then v else error [Message = \"The type of the value does not match the type of the column.\", Detail = v], fieldTypes{i}})",
-          "in",
-          "    Table.TransformColumns(Source, pairs),",
-          "  #\"Added Index\" = Table.AddIndexColumn(#\"Detected Type Mismatches\", \"Row Number\" ,1),",
-          "  #\"Kept Errors\" = Table.SelectRowsWithErrors(#\"Added Index\", {\"tmp_PricingModel\", \"tmp_ReservationId\", \"tmp_ReservationName\", \"tmp_ChargeType\",\"BilledCost\", \"BillingAccountId\", \"BillingAccountName\", \"BillingAccountType\", \"BillingCurrency\", \"BillingPeriodEnd\", \"BillingPeriodStart\", \"ChargeCategory\", \"ChargeFrequency\", \"ChargePeriodEnd\", \"ChargePeriodStart\", \"ChargeSubcategory\", \"CommitmentDiscountCategory\", \"CommitmentDiscountId\", \"CommitmentDiscountName\", \"CommitmentDiscountNameUnique\", \"CommitmentDiscountType\", \"EffectiveCost\", \"InvoiceIssuerId\", \"InvoiceIssuerName\", \"ListCost\", \"ListUnitPrice\", \"Month\", \"PricingCategory\", \"PricingUnit\", \"ProviderName\", \"PublisherName\", \"Region\", \"ResourceGroupNameUnique\", \"ResourceId\", \"ResourceName\", \"ResourceNameUnique\", \"ResourceType\", \"ServiceCategory\", \"ServiceName\", \"SkuId\", \"SubAccountId\", \"SubAccountName\", \"SubAccountType\", \"SubscriptionNameUnique\", \"Tags\", \"UsageQuantity\", \"UsageUnit\", \"x_AccountName\", \"x_AccountOwnerId\", \"x_AccountType\", \"x_BilledCostInUsd\", \"x_BilledPricingCost\", \"x_BillingAccountId\", \"x_BillingAccountName\", \"x_BillingExchangeRate\", \"x_BillingExchangeRateDate\", \"x_BillingProfileId\", \"x_BillingProfileName\", \"x_CapacityCommitmentId\", \"x_ChargeId\", \"x_CommitmentDiscountKey\", \"x_CommitmentSavings\", \"x_CommitmentUtilizationAmount\", \"x_CommitmentUtilizationPotential\", \"x_ConsumedService\", \"x_CostAllocationRuleName\", \"x_CostCenter\", \"x_CustomerId\", \"x_CustomerName\", \"x_DataSet\", \"x_DiscountSavings\", \"x_EffectiveCostInUsd\", \"x_EffectivePricingCost\", \"x_InvoiceId\", \"x_InvoiceSectionId\", \"x_InvoiceSectionName\", \"x_IsCreditEligible\", \"x_ListCostInUsd\", \"x_ListUnitPriceSavings\", \"x_NegotiatedSavings\", \"x_OnDemandCost\", \"x_OnDemandUnitPrice\", \"x_OnDemandUnitPriceSavings\", \"x_PartnerCreditApplied\", \"x_PartnerCreditRate\", \"x_PreviousInvoiceId\", \"x_PricingCurrency\", \"x_PricingSubcategory\", \"x_PricingUnitDescription\", \"x_PublisherId\", \"x_PublisherType\", \"x_ResellerId\", \"x_ResellerName\", \"x_ResourceGroupName\", \"x_ResourceMachineName\", \"x_SchemaVersion\", \"x_ServicePeriodEnd\", \"x_ServicePeriodStart\", \"x_SkuCPUs\", \"x_SkuDescription\", \"x_SkuDetails\", \"x_SkuImageType\", \"x_SkuLicenseCPUs\", \"x_SkuLicenseStatus\", \"x_SkuMeterCategory\", \"x_SkuMeterId\", \"x_SkuMeterName\", \"x_SkuMeterSubcategory\", \"x_SkuOfferId\", \"x_SkuOrderId\", \"x_SkuOrderName\", \"x_SkuPartNumber\", \"x_SkuPlanName\", \"x_SkuProvider\", \"x_SkuRegion\", \"x_SkuServiceFamily\", \"x_SkuTerm\", \"x_SkuType\", \"x_SkuUsageType\", \"x_SkuVMProperties\", \"x_SubscriptionId\", \"x_SubscriptionName\", \"x_TagsDictionary\", \"x_UsageCPUHours\"}),",
-          "  #\"Reordered Columns\" = Table.ReorderColumns(#\"Kept Errors\", {\"Row Number\", \"tmp_PricingModel\", \"tmp_ReservationId\", \"tmp_ReservationName\", \"tmp_ChargeType\",\"BilledCost\", \"BillingAccountId\", \"BillingAccountName\", \"BillingAccountType\", \"BillingCurrency\", \"BillingPeriodEnd\", \"BillingPeriodStart\", \"ChargeCategory\", \"ChargeFrequency\", \"ChargePeriodEnd\", \"ChargePeriodStart\", \"ChargeSubcategory\", \"CommitmentDiscountCategory\", \"CommitmentDiscountId\", \"CommitmentDiscountName\", \"CommitmentDiscountNameUnique\", \"CommitmentDiscountType\", \"EffectiveCost\", \"InvoiceIssuerId\", \"InvoiceIssuerName\", \"ListCost\", \"ListUnitPrice\", \"Month\", \"PricingCategory\", \"PricingUnit\", \"ProviderName\", \"PublisherName\", \"Region\", \"ResourceGroupNameUnique\", \"ResourceId\", \"ResourceName\", \"ResourceNameUnique\", \"ResourceType\", \"ServiceCategory\", \"ServiceName\", \"SkuId\", \"SubAccountId\", \"SubAccountName\", \"SubAccountType\", \"SubscriptionNameUnique\", \"Tags\", \"UsageQuantity\", \"UsageUnit\", \"x_AccountName\", \"x_AccountOwnerId\", \"x_AccountType\", \"x_BilledCostInUsd\", \"x_BilledPricingCost\", \"x_BillingAccountId\", \"x_BillingAccountName\", \"x_BillingExchangeRate\", \"x_BillingExchangeRateDate\", \"x_BillingProfileId\", \"x_BillingProfileName\", \"x_CapacityCommitmentId\", \"x_ChargeId\", \"x_CommitmentDiscountKey\", \"x_CommitmentSavings\", \"x_CommitmentUtilizationAmount\", \"x_CommitmentUtilizationPotential\", \"x_ConsumedService\", \"x_CostAllocationRuleName\", \"x_CostCenter\", \"x_CustomerId\", \"x_CustomerName\", \"x_DataSet\", \"x_DiscountSavings\", \"x_EffectiveCostInUsd\", \"x_EffectivePricingCost\", \"x_InvoiceId\", \"x_InvoiceSectionId\", \"x_InvoiceSectionName\", \"x_IsCreditEligible\", \"x_ListCostInUsd\", \"x_ListUnitPriceSavings\", \"x_NegotiatedSavings\", \"x_OnDemandCost\", \"x_OnDemandUnitPrice\", \"x_OnDemandUnitPriceSavings\", \"x_PartnerCreditApplied\", \"x_PartnerCreditRate\", \"x_PreviousInvoiceId\", \"x_PricingCurrency\", \"x_PricingSubcategory\", \"x_PricingUnitDescription\", \"x_PublisherId\", \"x_PublisherType\", \"x_ResellerId\", \"x_ResellerName\", \"x_ResourceGroupName\", \"x_ResourceMachineName\", \"x_SchemaVersion\", \"x_ServicePeriodEnd\", \"x_ServicePeriodStart\", \"x_SkuCPUs\", \"x_SkuDescription\", \"x_SkuDetails\", \"x_SkuImageType\", \"x_SkuLicenseCPUs\", \"x_SkuLicenseStatus\", \"x_SkuMeterCategory\", \"x_SkuMeterId\", \"x_SkuMeterName\", \"x_SkuMeterSubcategory\", \"x_SkuOfferId\", \"x_SkuOrderId\", \"x_SkuOrderName\", \"x_SkuPartNumber\", \"x_SkuPlanName\", \"x_SkuProvider\", \"x_SkuRegion\", \"x_SkuServiceFamily\", \"x_SkuTerm\", \"x_SkuType\", \"x_SkuUsageType\", \"x_SkuVMProperties\", \"x_SubscriptionId\", \"x_SubscriptionName\", \"x_TagsDictionary\", \"x_UsageCPUHours\"})",
-          "in",
-          "  #\"Reordered Columns\""
-        ],
-        "kind": "m",
-        "lineageTag": "99e2dfe4-425e-4268-85df-411363828c8b",
-        "queryGroup": "Query Errors - 1/4/2024 1:50:40 AM"
       },
       {
         "name": "ftk_CMConnector",
@@ -7767,7 +7215,7 @@
           "let",
           "    ba = #\"Billing Account ID\",",
           "    bp = #\"Billing Profile ID\",",
-          "    mo = #\"Number of Months\",",
+          "    mo = 1, // Since we only use recommendations, this doesnt need to be customizable",
           "    IsMCA = ba <> null and Text.Contains(ba, \"-\"),",
           "    Scope =",
           "        if ba = null then null",
@@ -7784,7 +7232,7 @@
         "queryGroup": "🛠️ Setup\\Functions"
       },
       {
-        "name": "Errors in CostDetails (3)",
+        "name": "Errors in CostDetails",
         "annotations": [
           {
             "name": "PBI_NavigationStepName",
@@ -7792,12 +7240,12 @@
           },
           {
             "name": "PBI_ResultType",
-            "value": "Exception"
+            "value": "Table"
           }
         ],
         "expression": [
           "let",
-          "Source = Record.ToTable(CostDetails),",
+          "Source = CostDetails,",
           "  #\"Detected Type Mismatches\" = let",
           "    tableWithOnlyPrimitiveTypes = Table.SelectColumns(Source, Table.ColumnsOfType(Source, {type nullable number, type nullable text, type nullable logical, type nullable date, type nullable datetime, type nullable datetimezone, type nullable time, type nullable duration})),",
           "    recordTypeFields = Type.RecordFields(Type.TableRow(Value.Type(tableWithOnlyPrimitiveTypes))),",
@@ -7807,14 +7255,14 @@
           "in",
           "    Table.TransformColumns(Source, pairs),",
           "  #\"Added Index\" = Table.AddIndexColumn(#\"Detected Type Mismatches\", \"Row Number\" ,1),",
-          "  #\"Kept Errors\" = Table.SelectRowsWithErrors(#\"Added Index\", {\"Name\", \"Value\"}),",
-          "  #\"Reordered Columns\" = Table.ReorderColumns(#\"Kept Errors\", {\"Row Number\", \"Name\", \"Value\"})",
+          "  #\"Kept Errors\" = Table.SelectRowsWithErrors(#\"Added Index\", {\"AvailabilityZone\", \"BilledCost\", \"BillingAccountId\", \"BillingAccountName\", \"BillingAccountType\", \"BillingCurrency\", \"BillingPeriodEnd\", \"BillingPeriodStart\", \"ChargeCategory\", \"ChargeDescription\", \"ChargeFrequency\", \"ChargePeriodEnd\", \"ChargePeriodStart\", \"ChargeSubcategory\", \"CommitmentDiscountCategory\", \"CommitmentDiscountId\", \"CommitmentDiscountName\", \"CommitmentDiscountNameUnique\", \"CommitmentDiscountType\", \"EffectiveCost\", \"InvoiceIssuerName\", \"ListCost\", \"ListUnitPrice\", \"PricingCategory\", \"PricingQuantity\", \"PricingUnit\", \"ProviderName\", \"PublisherName\", \"Region\", \"ResourceId\", \"ResourceName\", \"ResourceNameUnique\", \"ResourceType\", \"ServiceCategory\", \"ServiceName\", \"SkuId\", \"SkuPriceId\", \"SubAccountId\", \"SubAccountName\", \"SubAccountNameUnique\", \"SubAccountType\", \"Tags\", \"UsageQuantity\", \"UsageUnit\", \"x_AccountName\", \"x_AccountOwnerId\", \"x_AccountType\", \"x_BilledCostInUsd\", \"x_BilledUnitPrice\", \"x_BillingAccountId\", \"x_BillingAccountName\", \"x_BillingExchangeRate\", \"x_BillingExchangeRateDate\", \"x_BillingProfileId\", \"x_BillingProfileName\", \"x_CapacityCommitmentId\", \"x_ChargeId\", \"x_CommitmentDiscountKey\", \"x_CommitmentSavings\", \"x_CommitmentUtilizationAmount\", \"x_CommitmentUtilizationPotential\", \"x_CostAllocationRuleName\", \"x_CostCenter\", \"x_CustomerId\", \"x_CustomerName\", \"x_DatasetType\", \"x_DatasetVersion\", \"x_DiscountSavings\", \"x_EffectiveCostInUsd\", \"x_EffectiveUnitPrice\", \"x_InvoiceId\", \"x_InvoiceIssuerId\", \"x_InvoiceSectionId\", \"x_InvoiceSectionName\", \"x_ListUnitPriceSavings\", \"x_Month\", \"x_NegotiatedSavings\", \"x_OnDemandCost\", \"x_OnDemandCostInUsd\", \"x_OnDemandUnitPrice\", \"x_OnDemandUnitPriceSavings\", \"x_PartnerCreditApplied\", \"x_PartnerCreditRate\", \"x_PricingBlockSize\", \"x_PricingCurrency\", \"x_PricingSubcategory\", \"x_PricingUnitDescription\", \"x_PublisherCategory\", \"x_PublisherId\", \"x_ResellerId\", \"x_ResellerName\", \"x_ResourceGroupName\", \"x_ResourceGroupNameUnique\", \"x_ResourceMachineName\", \"x_ResourceType\", \"x_ServicePeriodEnd\", \"x_ServicePeriodStart\", \"x_SkuCPUs\", \"x_SkuDescription\", \"x_SkuDetails\", \"x_SkuImageType\", \"x_SkuIsCreditEligible\", \"x_SkuLicenseCPUs\", \"x_SkuLicenseStatus\", \"x_SkuMeterCategory\", \"x_SkuMeterId\", \"x_SkuMeterName\", \"x_SkuMeterSubcategory\", \"x_SkuOfferId\", \"x_SkuOrderId\", \"x_SkuOrderName\", \"x_SkuPartNumber\", \"x_SkuRegion\", \"x_SkuServiceFamily\", \"x_SkuTerm\", \"x_SkuTier\", \"x_SkuType\", \"x_SkuUsageType\", \"x_SkuVMProperties\", \"x_TagsDictionary\", \"x_UsageCPUHours\"}),",
+          "  #\"Reordered Columns\" = Table.ReorderColumns(#\"Kept Errors\", {\"Row Number\", \"AvailabilityZone\", \"BilledCost\", \"BillingAccountId\", \"BillingAccountName\", \"BillingAccountType\", \"BillingCurrency\", \"BillingPeriodEnd\", \"BillingPeriodStart\", \"ChargeCategory\", \"ChargeDescription\", \"ChargeFrequency\", \"ChargePeriodEnd\", \"ChargePeriodStart\", \"ChargeSubcategory\", \"CommitmentDiscountCategory\", \"CommitmentDiscountId\", \"CommitmentDiscountName\", \"CommitmentDiscountNameUnique\", \"CommitmentDiscountType\", \"EffectiveCost\", \"InvoiceIssuerName\", \"ListCost\", \"ListUnitPrice\", \"PricingCategory\", \"PricingQuantity\", \"PricingUnit\", \"ProviderName\", \"PublisherName\", \"Region\", \"ResourceId\", \"ResourceName\", \"ResourceNameUnique\", \"ResourceType\", \"ServiceCategory\", \"ServiceName\", \"SkuId\", \"SkuPriceId\", \"SubAccountId\", \"SubAccountName\", \"SubAccountNameUnique\", \"SubAccountType\", \"Tags\", \"UsageQuantity\", \"UsageUnit\", \"x_AccountName\", \"x_AccountOwnerId\", \"x_AccountType\", \"x_BilledCostInUsd\", \"x_BilledUnitPrice\", \"x_BillingAccountId\", \"x_BillingAccountName\", \"x_BillingExchangeRate\", \"x_BillingExchangeRateDate\", \"x_BillingProfileId\", \"x_BillingProfileName\", \"x_CapacityCommitmentId\", \"x_ChargeId\", \"x_CommitmentDiscountKey\", \"x_CommitmentSavings\", \"x_CommitmentUtilizationAmount\", \"x_CommitmentUtilizationPotential\", \"x_CostAllocationRuleName\", \"x_CostCenter\", \"x_CustomerId\", \"x_CustomerName\", \"x_DatasetType\", \"x_DatasetVersion\", \"x_DiscountSavings\", \"x_EffectiveCostInUsd\", \"x_EffectiveUnitPrice\", \"x_InvoiceId\", \"x_InvoiceIssuerId\", \"x_InvoiceSectionId\", \"x_InvoiceSectionName\", \"x_ListUnitPriceSavings\", \"x_Month\", \"x_NegotiatedSavings\", \"x_OnDemandCost\", \"x_OnDemandCostInUsd\", \"x_OnDemandUnitPrice\", \"x_OnDemandUnitPriceSavings\", \"x_PartnerCreditApplied\", \"x_PartnerCreditRate\", \"x_PricingBlockSize\", \"x_PricingCurrency\", \"x_PricingSubcategory\", \"x_PricingUnitDescription\", \"x_PublisherCategory\", \"x_PublisherId\", \"x_ResellerId\", \"x_ResellerName\", \"x_ResourceGroupName\", \"x_ResourceGroupNameUnique\", \"x_ResourceMachineName\", \"x_ResourceType\", \"x_ServicePeriodEnd\", \"x_ServicePeriodStart\", \"x_SkuCPUs\", \"x_SkuDescription\", \"x_SkuDetails\", \"x_SkuImageType\", \"x_SkuIsCreditEligible\", \"x_SkuLicenseCPUs\", \"x_SkuLicenseStatus\", \"x_SkuMeterCategory\", \"x_SkuMeterId\", \"x_SkuMeterName\", \"x_SkuMeterSubcategory\", \"x_SkuOfferId\", \"x_SkuOrderId\", \"x_SkuOrderName\", \"x_SkuPartNumber\", \"x_SkuRegion\", \"x_SkuServiceFamily\", \"x_SkuTerm\", \"x_SkuTier\", \"x_SkuType\", \"x_SkuUsageType\", \"x_SkuVMProperties\", \"x_TagsDictionary\", \"x_UsageCPUHours\"})",
           "in",
           "  #\"Reordered Columns\""
         ],
         "kind": "m",
-        "lineageTag": "d0a0368d-2507-49c4-9097-5bca0f7fc4c3",
-        "queryGroup": "Query Errors - 1/4/2024 11:09:04 PM"
+        "lineageTag": "f2b1d73f-1a83-4ce3-b449-999962f4f011",
+        "queryGroup": "Query Errors - 1/11/2024 8:34:56 PM"
       }
     ],
     "queryGroups": [
@@ -7876,31 +7324,11 @@
         "annotations": [
           {
             "name": "PBI_QueryGroupOrder",
-            "value": "7"
+            "value": "6"
           }
         ],
-        "description": "Errors in queries that were loaded on 1/2/2024 3:00:56 PM.",
-        "folder": "Query Errors - 1/2/2024 3:00:56 PM"
-      },
-      {
-        "annotations": [
-          {
-            "name": "PBI_QueryGroupOrder",
-            "value": "7"
-          }
-        ],
-        "description": "Errors in queries that were loaded on 1/4/2024 1:50:40 AM.",
-        "folder": "Query Errors - 1/4/2024 1:50:40 AM"
-      },
-      {
-        "annotations": [
-          {
-            "name": "PBI_QueryGroupOrder",
-            "value": "8"
-          }
-        ],
-        "description": "Errors in queries that were loaded on 1/4/2024 11:09:04 PM.",
-        "folder": "Query Errors - 1/4/2024 11:09:04 PM"
+        "description": "Errors in queries that were loaded on 1/11/2024 8:34:56 PM.",
+        "folder": "Query Errors - 1/11/2024 8:34:56 PM"
       }
     ],
     "relationships": [
@@ -8434,10 +7862,6 @@
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
-              },
-              {
-                "name": "UnderlyingDateTimeDataType",
-                "value": "Date"
               }
             ],
             "dataType": "dateTime",
@@ -8483,19 +7907,6 @@
             "lineageTag": "13c25b5f-483d-4508-a5b6-24db10ae794f",
             "sourceColumn": "EffectiveCost",
             "summarizeBy": "sum"
-          },
-          {
-            "name": "InvoiceIssuerId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "57fe11d7-a573-4b31-a426-024158758d92",
-            "sourceColumn": "InvoiceIssuerId",
-            "summarizeBy": "none"
           },
           {
             "name": "InvoiceIssuerName",
@@ -8744,23 +8155,6 @@
             "summarizeBy": "sum"
           },
           {
-            "name": "x_BilledPricingCost",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ],
-            "dataType": "double",
-            "lineageTag": "d2ef5cd4-8949-4f30-a4b2-caf898be44be",
-            "sourceColumn": "x_BilledPricingCost",
-            "summarizeBy": "sum"
-          },
-          {
             "name": "x_BillingAccountId",
             "annotations": [
               {
@@ -8809,10 +8203,6 @@
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
-              },
-              {
-                "name": "UnderlyingDateTimeDataType",
-                "value": "Date"
               }
             ],
             "dataType": "dateTime",
@@ -8923,19 +8313,6 @@
             "summarizeBy": "sum"
           },
           {
-            "name": "x_ConsumedService",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "9901be3c-4ca0-40de-89a7-974be73db936",
-            "sourceColumn": "x_ConsumedService",
-            "summarizeBy": "none"
-          },
-          {
             "name": "x_CostAllocationRuleName",
             "annotations": [
               {
@@ -8988,19 +8365,6 @@
             "summarizeBy": "none"
           },
           {
-            "name": "x_DataSet",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "d76bab89-56ce-46e8-9f05-0bbf7623471a",
-            "sourceColumn": "x_DataSet",
-            "summarizeBy": "none"
-          },
-          {
             "name": "x_DiscountSavings",
             "annotations": [
               {
@@ -9032,23 +8396,6 @@
             "dataType": "double",
             "lineageTag": "d456dce0-8883-46b1-b39d-660ae9afecaf",
             "sourceColumn": "x_EffectiveCostInUsd",
-            "summarizeBy": "sum"
-          },
-          {
-            "name": "x_EffectivePricingCost",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ],
-            "dataType": "double",
-            "lineageTag": "818c45b9-451c-49b0-943c-4a35cf880b92",
-            "sourceColumn": "x_EffectivePricingCost",
             "summarizeBy": "sum"
           },
           {
@@ -9089,36 +8436,6 @@
             "lineageTag": "4596ba3c-0ae2-4aa5-892d-c8071d86e868",
             "sourceColumn": "x_InvoiceSectionName",
             "summarizeBy": "none"
-          },
-          {
-            "name": "x_IsCreditEligible",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "e36239d7-0e93-4bf9-8811-e85367a6cd3d",
-            "sourceColumn": "x_IsCreditEligible",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_ListCostInUsd",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ],
-            "dataType": "double",
-            "lineageTag": "acf15e3a-1ff2-4a20-a175-4205d39fb227",
-            "sourceColumn": "x_ListCostInUsd",
-            "summarizeBy": "sum"
           },
           {
             "name": "x_ListUnitPriceSavings",
@@ -9236,19 +8553,6 @@
             "summarizeBy": "sum"
           },
           {
-            "name": "x_PreviousInvoiceId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "6a401f4d-13b7-4256-ae8d-7549ec3f6f88",
-            "sourceColumn": "x_PreviousInvoiceId",
-            "summarizeBy": "none"
-          },
-          {
             "name": "x_PricingCurrency",
             "annotations": [
               {
@@ -9285,19 +8589,6 @@
             "dataType": "string",
             "lineageTag": "c2fe9800-1ae2-468c-9bec-ae8aac943897",
             "sourceColumn": "x_PublisherId",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_PublisherType",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "dce97a81-f230-4a02-8ca1-ad1da6a43646",
-            "sourceColumn": "x_PublisherType",
             "summarizeBy": "none"
           },
           {
@@ -9353,28 +8644,11 @@
             "summarizeBy": "none"
           },
           {
-            "name": "x_SchemaVersion",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "1b1f992f-3a57-480a-ad2d-c454617c7e6c",
-            "sourceColumn": "x_SchemaVersion",
-            "summarizeBy": "none"
-          },
-          {
             "name": "x_ServicePeriodEnd",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
-              },
-              {
-                "name": "UnderlyingDateTimeDataType",
-                "value": "Date"
               }
             ],
             "dataType": "dateTime",
@@ -9400,10 +8674,6 @@
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
-              },
-              {
-                "name": "UnderlyingDateTimeDataType",
-                "value": "Date"
               }
             ],
             "dataType": "dateTime",
@@ -9611,32 +8881,6 @@
             "summarizeBy": "none"
           },
           {
-            "name": "x_SkuPlanName",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "56056c2e-60ef-4855-9655-36e94caeb1da",
-            "sourceColumn": "x_SkuPlanName",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_SkuProvider",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "4a765589-4dc6-4e43-9e3c-8f29592844fd",
-            "sourceColumn": "x_SkuProvider",
-            "summarizeBy": "none"
-          },
-          {
             "name": "x_SkuRegion",
             "annotations": [
               {
@@ -9716,32 +8960,6 @@
             "dataType": "string",
             "lineageTag": "7e202b1c-f405-4e2d-aa5d-30f24d9d29fc",
             "sourceColumn": "x_SkuVMProperties",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_SubscriptionId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "3c41e65d-bfbf-45b1-90dd-7e961dfa306d",
-            "sourceColumn": "x_SubscriptionId",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_SubscriptionName",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "924def80-4549-47c7-8e50-a30dd96003b3",
-            "sourceColumn": "x_SubscriptionName",
             "summarizeBy": "none"
           },
           {
@@ -9845,10 +9063,6 @@
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
-              },
-              {
-                "name": "UnderlyingDateTimeDataType",
-                "value": "Date"
               }
             ],
             "dataType": "dateTime",
@@ -9874,10 +9088,6 @@
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
-              },
-              {
-                "name": "UnderlyingDateTimeDataType",
-                "value": "Date"
               }
             ],
             "dataType": "dateTime",
@@ -9929,10 +9139,6 @@
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
-              },
-              {
-                "name": "UnderlyingDateTimeDataType",
-                "value": "Date"
               }
             ],
             "dataType": "dateTime",
@@ -10045,6 +9251,204 @@
             "dataType": "string",
             "lineageTag": "cb28c95c-b237-41c2-b596-f7c8e6283178",
             "sourceColumn": "ChargeDescription",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "AvailabilityZone",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "fa8726de-d358-4cd6-bd5e-6f4dbd85f973",
+            "sourceColumn": "AvailabilityZone",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "PricingQuantity",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "lineageTag": "e7f752f8-95d2-4fc2-9e86-19a2bc17d62b",
+            "sourceColumn": "PricingQuantity",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "SkuPriceId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "22cb2e66-fd86-48f7-baf8-2381735335f8",
+            "sourceColumn": "SkuPriceId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_BilledUnitPrice",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "lineageTag": "5c146585-99e9-439a-bf58-1b2a336514c3",
+            "sourceColumn": "x_BilledUnitPrice",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "x_ChargeId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "ca064e1d-9243-406b-83e3-c09e6eec4c7f",
+            "sourceColumn": "x_ChargeId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_DatasetType",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "47fcf209-57d6-4c70-9b47-dc82f6ff4454",
+            "sourceColumn": "x_DatasetType",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_DatasetVersion",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "ae4954b3-ca2a-44f8-8f32-38ca8619f4d3",
+            "sourceColumn": "x_DatasetVersion",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_InvoiceIssuerId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "8ca7b114-d9d4-4763-bdab-91c0ba2774d8",
+            "sourceColumn": "x_InvoiceIssuerId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_OnDemandCostInUsd",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "lineageTag": "46e718da-3139-4d18-9cb1-4bbe0637c341",
+            "sourceColumn": "x_OnDemandCostInUsd",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "x_PricingBlockSize",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "lineageTag": "9be6db8b-9965-4da0-9abe-99e263894536",
+            "sourceColumn": "x_PricingBlockSize",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "x_PublisherCategory",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "6047b550-ee95-45c7-9ca9-d15694df36f3",
+            "sourceColumn": "x_PublisherCategory",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_ResourceType",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "dc5e9c7e-404b-43d3-b8df-5fcd3566dd81",
+            "sourceColumn": "x_ResourceType",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_SkuIsCreditEligible",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "2fad9447-3c42-44ff-8add-b5857a826802",
+            "sourceColumn": "x_SkuIsCreditEligible",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_SkuTier",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "a58ffae4-b0d9-4711-a0e0-b117334cbc81",
+            "sourceColumn": "x_SkuTier",
             "summarizeBy": "none"
           }
         ],
@@ -10172,6 +9576,16 @@
             ],
             "formatString": "#,0.00",
             "lineageTag": "e7a16003-35ee-4024-8a5e-94e071aeaf0c"
+          },
+          {
+            "name": "ChargePeriod",
+            "expression": "FORMAT(MIN([ChargePeriodStart]), \"Mmm dd\") & \"-\" & FORMAT(MAX([ChargePeriodEnd]), \"Mmm dd\")",
+            "lineageTag": "e2fc22d0-4f7f-479f-b751-3de08d8ec892"
+          },
+          {
+            "name": "BillingPeriod",
+            "expression": "FORMAT(MIN([BillingPeriodStart]), \"Mmm dd\") & \"-\" & FORMAT(MAX([BillingPeriodEnd]), \"Mmm dd\")",
+            "lineageTag": "aba7700d-40b5-4f19-8830-c8151c234a8c"
           }
         ],
         "partitions": [
@@ -10182,10 +9596,9 @@
             "source": {
               "expression": [
                 "let",
-                "    Source = ftk_LoadData(2),",
-                "    #\"Filtered Rows\" = Table.SelectRows(Source, each ([ChargeSubcategory] <> \"Other\") and ([CommitmentDiscountCategory] <> null))",
+                "    Source = ftk_CostDetails()",
                 "in",
-                "    #\"Filtered Rows\""
+                "    Source"
               ],
               "type": "m"
             }
@@ -10198,10 +9611,6 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "columns": [
@@ -10853,10 +10262,6 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "columns": [
