@@ -17,6 +17,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
+- [🛠️ v0.1.2](#️-v012)
 - [🛠️ v0.1.1](#️-v011)
 - [🚚 v0.1](#-v01)
 - [🌱 v0.0.1](#-v001)
@@ -60,20 +61,6 @@ Legend:
 >    </blockquote>
 > 2. Return a single boolean value from the Remove-FinOpsHub command.
 
-📊 Power BI reports
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ✏️ Changed:
->
-> 1. Removed unused custom visualizations.
-> 2. Organized setup instructions in Cost summary to match other reports.
->
-> 🛠️ Fixed:
->
-> 1. Removed sensitivity labels.
-> 2. Fixed error in ChargeId column when ResourceId is empty.
-> 3. Fixed null error when Billing Account ID is empty ([#473](https://github.com/microsoft/finops-toolkit/issues/473)).
-
 🖥️ PowerShell
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
@@ -82,6 +69,10 @@ Legend:
 > 1. New-FinOpsCostExport
 > 2. Remove-FinOpsHubScope
 
+<br>
+
+## 🛠️ v0.1.2
+
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
@@ -89,6 +80,36 @@ Legend:
 >
 > 1. [Resource types](./open-data/README.md#-resource-types) to map Azure resource types to friendly display names.
 > 2. [Get-FinOpsResourceType](./powershell/data/Get-FinOpsResourceType.md) PowerShell command to support resource type to display name mapping.
+
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed:
+>
+> 1. Removed unused custom visualizations.
+> 2. Organized setup instructions in Cost summary to match other reports.
+> 3. Updated troubleshooting documentation.
+>
+> 🛠️ Fixed:
+>
+> 1. Removed sensitivity labels.
+> 2. Fixed error in ChargeId column when ResourceId is empty.
+> 3. Fixed null error when Billing Account ID is empty ([#473](https://github.com/microsoft/finops-toolkit/issues/473)).
+> 4. Added missing commitment discount refunds to the actual cost data ([#447](https://github.com/microsoft/finops-toolkit/issues/447)).
+
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> 🛠️ Fixed:
+>
+> 1. Fixed error in some China regions where deployment scripts were not supported ([#259](https://github.com/microsoft/finops-toolkit/issues/259)).
+
+🖥️ PowerShell
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> 🛠️ Fixed:
+>
+> 1. Fixed typo in Deploy-FinOpsHub causing it to fail.
 
 <br>
 
