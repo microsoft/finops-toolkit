@@ -22,6 +22,7 @@ Open, extensible, and scalable cost governance for the enterprise.
 - [📦 What's included](#-whats-included)
 - [➕ Create a new hub](#-create-a-new-hub)
 - [🛫 Get started with hubs](#-get-started-with-hubs)
+- [🔐 Required permissions](#-required-permissions)
 - [🧰 Related tools](#-related-tools)
 
 </details>
@@ -39,7 +40,8 @@ We are very early in our journey. Today, FinOps hubs extend Cost Management by e
 <blockquote class="highlight-green-title" markdown="1">
   💵 Estimated cost: $25 per $1M in cost
 
-  Exact cost of the solution may vary. Cost is primarily for data storage and number of times data is ingested. Pipelines will run once a day per export.
+Exact cost of the solution may vary. Cost is primarily for data storage and number of times data is ingested. Pipelines will run once a day per export.
+
 </blockquote>
 
 <br>
@@ -167,6 +169,22 @@ No matter what you choose to do, we recommend creating a new Bicep module to sup
 If you need to change `hub.bicep`, be sure to track those changes and re-apply them when upgrading to the latest release. We generally don't recommend modifying the template or modules directly to avoid conflicts with future updates. Instead, consider contributing those changes back to the open source project. [Learn more](https://github.com/microsoft/finops-toolkit/blob/main/CONTRIBUTING.md).
 
 If you access data in storage or are creating or customizing Power BI reports, please refer to the [data dictionary](data-dictionary.md) for details about the available columns.
+
+<br>
+
+## 🔐 Required permissions
+
+Required permissions for deploying or updating hub instances are covered in the [template details](./template.md#-prerequisites).
+
+You will need one or more of the following to export your cost data:
+
+| Scope                             | Permission                                                                                                                            |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Subscriptions and resource groups | [Cost Management Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cost-management-contributor) |
+| EA billing scope                  | Enterprise Reader, Department Reader, or Account Owner (aka enrollment account)                                                       |
+| MCA billing scope                 | Contributor on the billing account, billing profile, customer (CSP partners only), or invoice section                                 |
+
+For additional details, refer to [Cost Management documentation](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data).
 
 <br>
 
