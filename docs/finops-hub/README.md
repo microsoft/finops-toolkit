@@ -109,7 +109,7 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
    - **File Partitioning** = On
    - **Storage account** = (Use subscription/resource from step 1)
    - **Container** = `msexports`
-   - **Directory** = (Use the resource ID of the scope you're exporting without the first "/")
+   - **Directory** = (Use the resource ID of the scope<sup>1</sup> you're exporting without the first "/")
 
 4. Run your export.
    - Exports can take up to a day to show up after first created.
@@ -121,6 +121,8 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
 6. [Connect Power BI to your hub](../power-bi/README.md#-connect-to-your-data)
 
 If you run into any issues, see [Troubleshooting Power BI reports](../resources/troubleshooting.md).
+
+_<sup>1) A "scope" is an Azure construct that contains resources or enables purchasing services, like a resource group, subscription, management group, or billing account. The resource ID for a scope will be the Azure Resource Manager URI that identifies the scope (e.g., "/subscriptions/###" for a subscription or "/providers/Microsoft.Billing/billingAccounts/###" for a billing account). To learn more, see [Understand and work with scopes](https://aka.ms/costmgmt/scopes).</sup>_
 
 <br>
 
