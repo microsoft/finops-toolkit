@@ -13,6 +13,10 @@ Sorry to hear you're having a problem. We're here to help!
 
 ---
 
+<blockquote class="important" markdown="1">
+  _Source code within the FinOps toolkit is provided as-is with no guarantees and is not officially covered by Microsoft Support. However, the underlying services **are** fully supported. If you encounter an issue, we generally recommend that you [create an issue](https://aka.ms/finops/toolkit/ideas) **and** file a support request. We will do our best to help you resolve any issues through GitHub issues and discussions but Microsoft Support will be better equipped to resolve issues in the underlying products and services. Microsoft Support may request code samples to help resolve the issue, which can be provided from the GitHub repository._
+</blockquote>
+
 Here are a few simple solutions to issues you may have faced:
 
 - [Reports are empty (no data)](#reports-are-empty-no-data)
