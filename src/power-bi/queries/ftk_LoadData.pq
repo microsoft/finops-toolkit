@@ -1,3 +1,4 @@
+// TODO: Make sure you delete this comment and comment out the "VS Code:" line below before using in Power BI. You will get an "Account URL is not valid" error if you don't.
 let
     Source = (optional datasets, optional DoNotNormalize) =>
 let
@@ -134,7 +135,7 @@ let
                     // Don't filter if only using the actual dataset
                     DataSet
                 else if Table.HasColumns(DataSet, "ChargeType") then
-                    Table.SelectRows(DataSet, each [ChargeType] = "Purchase" and ([PricingModel] <> "Reservation" or [PricingModel] <> "SavingsPlan" or Text.Lower([ConsumedService]) = "microsoft.capacity"))
+                    Table.SelectRows(DataSet, each ([ChargeType] = "Purchase" or [ChargeType] = "Refund") and ([PricingModel] = "Reservation" or [PricingModel] = "SavingsPlan" or Text.Lower([ConsumedService]) = "microsoft.capacity"))
                 else
                     // If no ChargeType, then there aren't any commitment purchases
                     null
