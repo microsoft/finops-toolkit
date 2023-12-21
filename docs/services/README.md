@@ -78,6 +78,6 @@ Did we miss anything? Would you like to see something added? We'd love to hear a
 
 ## 🧰 Related tools
 
-{% include tools.md hubs="0" pbi="1" opt="1" gov="1" ps="0" bicep="0" data="0" %}
+{% include tools.md hubs="1" pbi="1" opt="1" gov="1" ps="0" bicep="0" data="0" %}
 
 <br>
