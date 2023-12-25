@@ -20,6 +20,7 @@ Leverage open data to normalize and enhance your FinOps reporting.
 - [🗺️ Regions](#️-regions)
 - [📚 Resource types](#-resource-types)
 - [🎛️ Services](#️-services)
+- [⬇️ Sample exports](#️-sample-exports)
 - [🙋‍♀️ Looking for more?](#️-looking-for-more)
 - [🧰 Related tools](#-related-tools)
 
@@ -144,6 +145,21 @@ A few important notes about the data:
 
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Services.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
 [See PowerShell](../powershell/data/Get-FinOpsService){: .btn .mb-4 .mb-md-0 .mr-4 }
+
+<br>
+
+## ⬇️ Sample exports
+
+The following files are examples of what you will find when you export data from Microsoft Cost Management. These files are provided to help you understand the data structure and format. They are from an Enterprise Agreement (EA) demo account and are not intended to be used for ingestion or reporting.
+
+- Cost and usage
+  - [Actual (billed)](https://github.com/microsoft/finops-toolkit/tree/main/src/sample-data/EA-Cost-Actual.csv) (`2021-10-01`)
+  - [Amortized](https://github.com/microsoft/finops-toolkit/tree/main/src/sample-data/EA-Cost-Amortized.csv) (`2021-10-01`)
+  - [FOCUS](https://github.com/microsoft/finops-toolkit/tree/main/src/sample-data/EA-Cost-FOCUS.csv) (`1.0-preview (v1)`)
+- [Prices](https://github.com/microsoft/finops-toolkit/tree/main/src/sample-data/EA-Prices.csv) (`2023-05-01`)
+- [Reservation details](https://github.com/microsoft/finops-toolkit/tree/main/src/sample-data/EA-Reservation-Details.csv) (`2023-03-01`)
+- [Reservation transactions](https://github.com/microsoft/finops-toolkit/tree/main/src/sample-data/EA-Reservation-Transactions.csv) (`2023-05-01`)
+- [Reservation recommendations](https://github.com/microsoft/finops-toolkit/tree/main/src/sample-data/EA-Reservation-Recommendations.csv) (`2023-05-01`)
 
 <br>
 

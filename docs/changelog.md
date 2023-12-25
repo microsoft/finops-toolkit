@@ -89,6 +89,7 @@ Legend:
 >
 > 1. [Resource types](./open-data/README.md#-resource-types) to map Azure resource types to friendly display names.
 > 2. [Get-FinOpsResourceType](./powershell/data/Get-FinOpsResourceType.md) PowerShell command to support resource type to display name mapping.
+> 3. [Sample exports](./open-data/README.md#-sample-data) for each of the datasets that can be exported from Cost Management.
 
 <br>
 
