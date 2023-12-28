@@ -12,6 +12,8 @@
 
     You can pipe objects to ConvertTo-FinOpsSchema from an exported or downloaded CSV file using Import-Csv or ConvertFrom-Csv and pipe to Export-Csv to save as a CSV file. Or use the Invoke-FinOpsSchemaTransform command to simplify the process.
 
+    The ConvertTo-FinOpsSchema command was implemented before Microsoft Cost Management supported a native FOCUS export. Going forward, we recommend using the native export. The ConvertTo-FinOpsSchema command will remain available but will not be updated to support FOCUS 1.0-preview. If you have a scenario where you need a PowerShell converter, please leave feedback at https://aka.ms/ftk.
+
     .PARAMETER ActualCost
     Required. Specifies the actual cost data to be converted. Object must be a supported Microsoft Cost Management schema.
 
