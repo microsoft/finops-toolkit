@@ -35,6 +35,11 @@ Legend:
 🛠️✨ Patch
 🪛⬆️ Update
 🌱 Pre-release
+
+➕ Added
+✏️ Changed
+🛠️ Fixed
+🗑️ Removed
 -->
 
 ## 🔄️ Unreleased
@@ -81,6 +86,12 @@ Legend:
 >
 > 1. New-FinOpsCostExport
 > 2. Remove-FinOpsHubScope
+>
+> 🗑️ Removed:
+>
+> 1. `ConvertTo-FinOpsSchema` and `Invoke-FinOpsSchemaTransform` are no longer being maintained and will be removed in a future update.
+>    - With native support for FOCUS 1.0 preview in Cost Management, we are deprecating both commands, which only support FOCUS 0.5.
+>    - If you would like to see the PowerShell commands updated to 1.0 preview, please let us know in discussions or via a GitHub issue.
 
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
