@@ -65,19 +65,45 @@ Legend:
 >    </blockquote>
 > 2. Return a single boolean value from the Remove-FinOpsHub command.
 
+🖥️ PowerShell
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. New-FinOpsCostExport
+> 2. Remove-FinOpsHubScope
+
+<br>
+
+## 🛠️ v0.2
+
+🌐 Open data
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. [Resource types](./open-data/README.md#-resource-types) to map Azure resource types to friendly display names.
+> 2. [Get-FinOpsResourceType](./powershell/data/Get-FinOpsResourceType.md) PowerShell command to support resource type to display name mapping.
+> 3. [Sample exports](./open-data/README.md#-sample-data) for each of the datasets that can be exported from Cost Management.
+
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ✏️ Changed:
 >
-> 1. Removed unused custom visualizations.
-> 2. Organized setup instructions in Cost summary to match other reports.
+> 1. Updated [Cost summary](./power-bi/cost-summary.md) and [Commitment discounts](./power-bi/commitment-discounts.md) reports to [FOCUS 1.0 preview](./focus/README.md).
+> 2. Removed unused custom visualizations.
+> 3. Organized setup instructions in Cost summary to match other reports.
+> 4. Updated troubleshooting documentation.
 >
 > 🛠️ Fixed:
 >
 > 1. Removed sensitivity labels.
 > 2. Fixed error in ChargeId column when ResourceId is empty.
-> 3. Fixed null error when Billing Account ID is empty ([#473](https://github.com/microsoft/finops-toolkit/issues/473)).
+> 3. Removed the ChargeId column due to it bloating the data size.
+>    - The field is commented out. If interested, you can enable uncomment it in the ftk_NormalizeSchema function. Just be aware that it duplicates a lot of columns to ensure uniqueness which bloats the data size significantly.
+> 4. Fixed null error when Billing Account ID is empty ([#473](https://github.com/microsoft/finops-toolkit/issues/473)).
+> 5. Added missing commitment discount refunds to the actual cost data ([#447](https://github.com/microsoft/finops-toolkit/issues/447)).
 
 🖥️ PowerShell
 {: .fs-5 .fw-500 .mt-4 mb-0 }

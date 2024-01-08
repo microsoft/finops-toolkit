@@ -1,33 +1,15 @@
 // TODO: Make sure you delete this comment and comment out the "VS Code:" line below before using in Power BI. You will get an "Account URL is not valid" error if you don't.
-let
-    Source = (optional datasets, optional DoNotNormalize) =>
+(optional datasets, optional DoNotNormalize) =>
 let
     // datasets -- Allowed values: 0 = actual, 1 = amortized, 2 = both
     // DoNotNormalize -- For testing only; true/false
 
     // VS Code: Uncomment for intellisense in VS Code, but do not include in Power BI reports --
-    AzureCostManagement.Tables = () => "", ftk_NormalizeSchema = () => "", #"Data Source" = "FinOps hubs", #"Storage URL" = "", #"File Type" = "", #"RangeStart" = null, #"RangeEnd" = null, #"Billing Account ID" = "123", #"Billing Profile ID" = "", #"Number of Months" = 3,
+    ftk_CMConnector = () => "", ftk_NormalizeSchema = () => "", #"Data Source" = "FinOps hubs", #"Storage URL" = "", #"File Type" = "", #"RangeStart" = null, #"RangeEnd" = null,
 
 // TODO: Remove SourceType
     SourceType = #"Data Source",
-    Connector =
-        let
-            // Default values
-            ba = #"Billing Account ID",
-            bp = #"Billing Profile ID",
-            mo = #"Number of Months",
-
-            IsMCA = ba <> null and Text.Contains(ba, "-"),
-            Scope =
-                if ba = null then null
-                else if IsMCA then "/providers/Microsoft.Billing/billingAccounts/" & ba & (if Text.Length(bp) = 0 then "" else ("/billingProfiles/" & bp))
-                else if Text.Length(ba) > 0 then ba
-                else null,
-
-            Connector = if Scope = null then null else AzureCostManagement.Tables((if IsMCA then "Manually Input Scope" else "Enrollment Number"), Scope, mo, [])
-        in
-            Connector
-    ,
+    Connector = ftk_CMConnector(),
 
     // Helper functions
     _isBlank = (val) => val = null or val = "",
@@ -150,5 +132,3 @@ let
     Output = Table.Combine(List.RemoveNulls({_normalize(AmortizedData), _normalize(BilledData)}))
 in
     Output
-in
-    Source

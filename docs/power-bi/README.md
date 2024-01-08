@@ -29,15 +29,18 @@ Accelerate your analytics efforts with simple, targeted reports. Summarize and b
 
 <!-- markdownlint-disable-line --> {% include_relative _intro.md %}
 
+<blockquote class="note" markdown="1">
+   _As of FinOps toolkit 0.1.2, all reports have been updated to use the FinOps Open Cost and Usage Specification (FOCUS). To learn more, see [About FOCUS](../focus/README.md)._
+</blockquote>
+
 <br>
 
 ## 📈 Available reports
 
-The following reports are currently available for within the FinOps toolkit:
+The FinOps toolkit includes the following reports:
 
 - [Cost summary](./cost-summary.md) – Overview of amortized costs with common breakdowns.
 - [Commitment discounts](./commitment-discounts.md) – Summarizes existing and potential savings from commitment-based discounts.
-- [FOCUS](./focus.md) – See your data in the FinOps Open Cost and Usage Specification (FOCUS) schema.
 - [Cost Management template app](./template-app.md) (EA only) – The original Cost Management template app as a customizable PBIX file.
 
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .mb-4 .mb-md-0 .mr-4 }
