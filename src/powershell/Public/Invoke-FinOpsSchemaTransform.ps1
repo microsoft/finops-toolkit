@@ -12,6 +12,8 @@
 
     Invoke-FinOpsSchemaTransform inherits the same schema constraints as ConvertTo-FinOpsSchema. Refer to that documentation for details.
 
+    The Invoke-FinOpsSchemaTransform command was implemented before Microsoft Cost Management supported a native FOCUS export. Going forward, we recommend using the native export. The Invoke-FinOpsSchemaTransform command will remain available but will not be updated to support FOCUS 1.0-preview. If you have a scenario where you need a PowerShell converter, please leave feedback at https://aka.ms/ftk.
+
     .PARAMETER ActualCostPath
     Required. Specifies the path to the actual cost data file. File must be a supported Microsoft Cost Management schema.
 
