@@ -152,6 +152,46 @@ resource pipelineIdentityRoleAssignments 'Microsoft.Authorization/roleAssignment
 }]
 
 //------------------------------------------------------------------------------
+// Delete old triggers and pipelines
+//------------------------------------------------------------------------------
+
+resource deleteOldResources 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: '${dataFactory.name}_deleteOldResources'
+  location: location
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${identity.id}': {}
+    }
+  }
+  kind: 'AzurePowerShell'
+  dependsOn: [
+    identityRoleAssignments
+  ]
+  tags: tags
+  properties: {
+    azPowerShellVersion: '8.0'
+    retentionInterval: 'PT1H'
+    cleanupPreference: 'OnSuccess'
+    scriptContent: loadTextContent('./scripts/Remove-OldResources.ps1')
+    environmentVariables: [
+      {
+        name: 'DataFactorySubscriptionId'
+        value: subscription().id
+      }
+      {
+        name: 'DataFactoryResourceGroup'
+        value: resourceGroup().name
+      }
+      {
+        name: 'DataFactoryName'
+        value: dataFactory.name
+      }
+    ]
+  }
+}
+
+//------------------------------------------------------------------------------
 // Stop all triggers before deploying
 //------------------------------------------------------------------------------
 
