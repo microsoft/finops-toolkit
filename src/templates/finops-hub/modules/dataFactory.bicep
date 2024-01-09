@@ -1709,7 +1709,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         typeProperties: {
           variableName: 'date'
           value: {
-            value: '@split(pipeline().parameters.folderName, \'/\')[sub(length(split(pipeline().parameters.folderName, \'/\')), 3)]'
+            value: '@substring(split(pipeline().parameters.folderName, \'/\')[sub(length(split(pipeline().parameters.folderName, \'/\')), 3)], 0, 6)'
             type: 'Expression'
           }
         }
