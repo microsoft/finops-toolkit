@@ -70,41 +70,23 @@ Legend:
 >    </blockquote>
 > 2. Return a single boolean value from the Remove-FinOpsHub command.
 
-🖥️ PowerShell
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. New-FinOpsCostExport
-> 2. Remove-FinOpsHubScope
-
-
-📒 Cost Optimization Workbook
-
-> ➕ Added:
->
-> 1. Storage: Identify Idle Backups: Review protected items' backup activity to spot items not backed up in the last 90 days.
-> 2. Storage: Review Replication Settings: Evaluate and improve your backup strategy by identifying resources with default geo-redundant storage (GRS) replication.
-> 3. Networking: Azure Firewall Premium Features: Identify Azure Firewalls with Premium SKU and ensure associated policies leverage premium-only features.
-> 4. Networking: Firewall Optimization: Streamline Azure Firewall usage by centralizing instances in the hub virtual network or Virtual WAN secure hub.
-> 5. Top 10 services: Improved Monitoring Tabs: Enhance your monitoring experience with updated Azure Advisor recommendations for Log Analytics.
->
-> 🛠️ Fixed:
->
-> 1. AHB: Fixed AHB to support Windows 10/Windows 11
-
 <br>
 
 ## 🚚 v0.2
 
-🌐 Open data
+🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
-> ➕ Added:
+> 🛠️ Fixed:
 >
-> 1. [Resource types](./open-data/README.md#-resource-types) to map Azure resource types to friendly display names.
-> 2. [Get-FinOpsResourceType](./powershell/data/Get-FinOpsResourceType.md) PowerShell command to support resource type to display name mapping.
-> 3. [Sample exports](./open-data/README.md#-sample-data) for each of the datasets that can be exported from Cost Management.
+> 1. Fixed error in some China regions where deployment scripts were not supported ([#259](https://github.com/microsoft/finops-toolkit/issues/259)).
+>
+> ✏️ Changed:
+>
+> 1. Switch from amortized cost exports to FOCUS cost exports.
+> 2. Updated ingestion container month folders from `yyyyMMdd-yyyyMMdd` to `yyyyMM`.
+> 3. Renamed **msexports_extract** pipeline to **msexports_ExecuteETL**.
+> 4. Renamed **msexports_transform** pipeline to **msexports_ETL_ingestion**.
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -130,19 +112,26 @@ Legend:
 > 4. Fixed null error when Billing Account ID is empty ([#473](https://github.com/microsoft/finops-toolkit/issues/473)).
 > 5. Added missing commitment discount refunds to the actual cost data ([#447](https://github.com/microsoft/finops-toolkit/issues/447)).
 
-🏦 FinOps hubs
+📒 Azure Monitor workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
-> 🛠️ Fixed:
+> ➕ Added:
 >
-> 1. Fixed error in some China regions where deployment scripts were not supported ([#259](https://github.com/microsoft/finops-toolkit/issues/259)).
+> - [Optimization workbook](./optimization-workbook/README.md):
+>   1. Storage: Identify Idle Backups: Review protected items' backup activity to spot items not backed up in the last 90 days.
+>   2. Storage: Review Replication Settings: Evaluate and improve your backup strategy by identifying resources with default geo-redundant storage (GRS) replication.
+>   3. Networking: Azure Firewall Premium Features: Identify Azure Firewalls with Premium SKU and ensure associated policies leverage premium-only features.
+>   4. Networking: Firewall Optimization: Streamline Azure Firewall usage by centralizing instances in the hub virtual network or Virtual WAN secure hub.
 >
 > ✏️ Changed:
 >
-> 1. Switch from amortized cost exports to FOCUS cost exports.
-> 2. Updated ingestion container month folders from `yyyyMMdd-yyyyMMdd` to `yyyyMM`.
-> 3. Renamed **msexports_extract** pipeline to **msexports_ExecuteETL**.
-> 4. Renamed **msexports_transform** pipeline to **msexports_ETL_ingestion**.
+> - [Optimization workbook](./optimization-workbook/README.md):
+>   1. Top 10 services: Improved Monitoring tabs: Enhance your monitoring experience with updated Azure Advisor recommendations for Log Analytics.
+>
+> 🛠️ Fixed:
+>
+> - [Optimization workbook](./optimization-workbook/README.md):
+>   1. AHB: Fixed AHB to support Windows 10/Windows 11
 
 🖥️ PowerShell
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -167,6 +156,15 @@ Legend:
 > 1. `ConvertTo-FinOpsSchema` and `Invoke-FinOpsSchemaTransform` are no longer being maintained and will be removed in a future update.
 >    - With native support for FOCUS 1.0 preview in Cost Management, we are deprecating both commands, which only support FOCUS 0.5.
 >    - If you would like to see the PowerShell commands updated to 1.0 preview, please let us know in discussions or via a GitHub issue.
+
+🌐 Open data
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. [Resource types](./open-data/README.md#-resource-types) to map Azure resource types to friendly display names.
+> 2. [Get-FinOpsResourceType](./powershell/data/Get-FinOpsResourceType.md) PowerShell command to support resource type to display name mapping.
+> 3. [Sample exports](./open-data/README.md#-sample-data) for each of the datasets that can be exported from Cost Management.
 
 <br>
 
