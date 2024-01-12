@@ -1,18 +1,17 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-# Load the function into the current context
-. "$PSScriptRoot/../../Private/Split-AzureResourceId.ps1"
-
-$subId = (New-Guid).Guid
-$rg = 'testRg'
-$rp = 'Microsoft.Cloud'
-$type1 = 'hubs'
-$name1 = 'hub1'
-$type2 = 'scopes'
-$name2 = 'scope2'
-
 Describe 'Split-AzureResourceId' {
+    BeforeAll {
+        . "$PSScriptRoot/../../Private/Split-AzureResourceId.ps1"
+        $subId = (New-Guid).Guid
+        $rg = 'testRg'
+        $rp = 'Microsoft.Cloud'
+        $type1 = 'hubs'
+        $name1 = 'hub1'
+        $type2 = 'scopes'
+        $name2 = 'scope2'
+    }
     It 'Should parse tenant' {
         $id = "/tenants/$subId"
         $result = Split-AzureResourceId -Id $id

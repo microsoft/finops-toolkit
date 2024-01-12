@@ -17,6 +17,8 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
+- [🛠️ v0.2](#️-v02)
+- [🛠️ v0.1.1](#️-v011)
 - [🚚 v0.1](#-v01)
 - [🌱 v0.0.1](#-v001)
 
@@ -34,9 +36,133 @@ Legend:
 🛠️✨ Patch
 🪛⬆️ Update
 🌱 Pre-release
+
+➕ Added
+✏️ Changed
+🛠️ Fixed
+🗑️ Removed
 -->
 
 ## 🔄️ Unreleased
+
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Managed exports – Let FinOps hubs manage exports for you.
+> 2. MCA support – Added support for Microsoft Customer Agreement accounts.
+> 3. Actual cost data – Ingest both actual and amortized costs.
+> 4. Auto-backfill – Backfill historical data from Microsoft Cost Management.
+> 5. Remote hubs – Ingest cost data from other tenants.
+> 6. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
+> 7. Analytics engine – Ingest cost data into an Azure Data Explorer cluster.
+>
+> ✏️ Changed:
+>
+> 1. Unified schema – Normalize EA and MCA data to a single, "unified" schema.
+>    <blockquote class="important" markdown="1">
+>       _This change requires re-ingesting historical data and is not backwards compatible. The unified schema used in this release is aligned with the future plans for Microsoft Cost Management exports. Note the next release will update the schema to align to the FinOps Open Cost and Usage Specification (FOCUS)._
+>    </blockquote>
+> 2. Return a single boolean value from the Remove-FinOpsHub command.
+
+🖥️ PowerShell
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. New-FinOpsCostExport
+> 2. Remove-FinOpsHubScope
+
+<br>
+
+## 🛠️ v0.2
+
+🌐 Open data
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. [Resource types](./open-data/README.md#-resource-types) to map Azure resource types to friendly display names.
+> 2. [Get-FinOpsResourceType](./powershell/data/Get-FinOpsResourceType.md) PowerShell command to support resource type to display name mapping.
+> 3. [Sample exports](./open-data/README.md#-sample-data) for each of the datasets that can be exported from Cost Management.
+
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. [Cost Management connector report](./power-bi/connector.md) to support the Cost Management connector.
+>
+> ✏️ Changed:
+>
+> 1. Updated [Cost summary](./power-bi/cost-summary.md) and [Commitment discounts](./power-bi/commitment-discounts.md) reports to [FOCUS 1.0 preview](./focus/README.md).
+> 2. Updated [Cost summary](./power-bi/cost-summary.md) and [Commitment discounts](./power-bi/commitment-discounts.md) reports to only use [FinOps hubs](./finops-hub/README.md).
+> 3. Removed unused custom visualizations.
+> 4. Organized setup instructions in Cost summary to match other reports.
+> 5. Updated troubleshooting documentation.
+>
+> 🛠️ Fixed:
+>
+> 1. Removed sensitivity labels.
+> 2. Fixed error in ChargeId column when ResourceId is empty.
+> 3. Removed the ChargeId column due to it bloating the data size.
+>    - The field is commented out. If interested, you can enable uncomment it in the ftk_NormalizeSchema function. Just be aware that it duplicates a lot of columns to ensure uniqueness which bloats the data size significantly.
+> 4. Fixed null error when Billing Account ID is empty ([#473](https://github.com/microsoft/finops-toolkit/issues/473)).
+> 5. Added missing commitment discount refunds to the actual cost data ([#447](https://github.com/microsoft/finops-toolkit/issues/447)).
+
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> 🛠️ Fixed:
+>
+> 1. Fixed error in some China regions where deployment scripts were not supported ([#259](https://github.com/microsoft/finops-toolkit/issues/259)).
+>
+> ✏️ Changed:
+>
+> 1. Switch from amortized cost exports to FOCUS cost exports.
+> 2. Updated ingestion container month folders from `yyyyMMdd-yyyyMMdd` to `yyyyMM`.
+> 3. Renamed **msexports_extract** pipeline to **msexports_ExecuteETL**.
+> 4. Renamed **msexports_transform** pipeline to **msexports_ETL_ingestion**.
+
+🖥️ PowerShell
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> 🛠️ Fixed:
+>
+> 1. Fixed typo in Deploy-FinOpsHub causing it to fail.
+>
+> 🗑️ Removed:
+>
+> 1. `ConvertTo-FinOpsSchema` and `Invoke-FinOpsSchemaTransform` are no longer being maintained and will be removed in a future update.
+>    - With native support for FOCUS 1.0 preview in Cost Management, we are deprecating both commands, which only support FOCUS 0.5.
+>    - If you would like to see the PowerShell commands updated to 1.0 preview, please let us know in discussions or via a GitHub issue.
+
+<br>
+
+## 🛠️ v0.1.1
+
+🖥️ PowerShell
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. New PowerShell commands to convert data to FOCUS 0.5:
+>    1. [ConvertTo-FinOpsSchema](./powershell/focus/ConvertTo-FinOpsSchema.md)
+>    2. [Invoke-FinOpsSchemaTransform](./powershell/focus/Invoke-FinOpsSchemaTransform.md)
+> 2. New PowerShell commands to get and delete Cost Management exports:
+>    1. Get-FinOpsCostExport
+>    2. Remove-FinOpsCostExport
+
+🌐 Open data
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. New PowerShell commands to integrate open data to support data cleansing:
+>    1. [Get-FinOpsPricingUnit](./powershell/data/Get-FinOpsPricingUnit.md)
+>    2. [Get-FinOpsRegion](./powershell/data/Get-FinOpsRegion.md)
+>    3. [Get-FinOpsService](./powershell/data/Get-FinOpsService.md)
 
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -48,35 +174,9 @@ Legend:
 >    2. Initialize-FinOpsHubDeployment
 >    3. Register-FinOpsHubProviders
 >    4. Remove-FinOpsHub
-> 2. Managed exports – Let FinOps hubs manage exports for you.
-> 3. MCA support – Added support for Microsoft Customer Agreement accounts.
-> 4. Actual cost data – Ingest both actual and amortized costs.
-> 5. Auto-backfill – Backfill historical data from Microsoft Cost Management.
-> 6. Remote hubs – Ingest cost data from other tenants.
-> 7. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
-> 8. Analytics engine – Ingest cost data into an Azure Data Explorer cluster.
->
-> ✏️ Changed:
->
-> 1. Unified schema – Normalize EA and MCA data to a single, "unified" schema.
->    <blockquote class="important" markdown="1">
->       _This change requires re-ingesting historical data and is not backwards compatible. The unified schema used in this release is aligned with the future plans for Microsoft Cost Management exports. Note the next release will update the schema to align to the FinOps Open Cost and Usage Specification (FOCUS)._
->    </blockquote>
 
-🖥️ PowerShell
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. Get-FinOpsCostExport command
-> 2. Remove-FinOpsCostExport command
-
-🌐 Open data
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ✏️ Changed:
->
-> 1. [Pricing units](./open-data/README.md#-pricing-units) "UsageToPricingRate" column name changed to "PricingBlockSize" to align to standard terminology.
+[Download v0.1.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.1...v0.1.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
@@ -151,8 +251,8 @@ Legend:
 > ➕ Added:
 >
 > 1. [FinOps hub template](./finops-hub/README.md) to deploy a storage account and Data Factory instance.
-> 2. [Cost summary report](./finops-hub/reports/cost-summary.md) for various out-of-the-box cost breakdowns.
-> 3. [Commitment discounts report](./finops-hub/reports/commitment-discounts.md) for commitment-based discount reports.
+> 2. [Cost summary report](./power-bi/cost-summary.md) for various out-of-the-box cost breakdowns.
+> 3. [Commitment discounts report](./power-bi/commitment-discounts.md) for commitment-based discount reports.
 
 🦾 Bicep modules
 {: .fs-5 .fw-500 .mt-4 mb-0 }

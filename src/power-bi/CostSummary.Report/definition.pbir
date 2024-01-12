@@ -2,7 +2,7 @@
   "version": "1.0",
   "datasetReference": {
     "byPath": {
-      "path": "../CostSummary.Dataset"
+      "path": "../Shared.Dataset"
     },
     "byConnection": null
   }

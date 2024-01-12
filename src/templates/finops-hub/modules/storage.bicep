@@ -126,7 +126,8 @@ resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-0
 resource uploadSettings 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: 'uploadSettings'
   kind: 'AzurePowerShell'
-  location: location
+  // chinaeast2 is the only region in China that supports deployment scripts
+  location: startsWith(location, 'china') ? 'chinaeast2' : location
   tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
   identity: {
     type: 'UserAssigned'
@@ -163,47 +164,47 @@ resource uploadSettings 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   }
 }
 
-resource removeManagedIdentity_blobManager 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: 'removeManagedIdentity'
-  kind: 'AzurePowerShell'
-  location: location
-  tags: tags
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${identity.id}': {}
-    }
-  }
-  dependsOn: [
-    configContainer
-    identityRoleAssignments
-    uploadSettings
-  ]
-  properties: {
-    azPowerShellVersion: '8.0'
-    retentionInterval: 'PT1H'
-    environmentVariables: [
-      {
-        name: 'managedIdentityName'
-        value: identity.name
-      }
-      {
-        name: 'resourceGroupName'
-        value: resourceGroup().name
-      }
-      {
-        name: 'storageAccountName'
-        value: storageAccountName
-      }
-      {
-        name: 'containerName'
-        value: 'config'
-      }
-    ]
-    scriptContent: loadTextContent('./scripts/Remove-ManagedIdentity.ps1')
-    arguments: '-storage'
-  }
-}
+// resource removeManagedIdentity_blobManager 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//   name: 'removeManagedIdentity_blobManager'
+//   kind: 'AzurePowerShell'
+//   location: location
+//   tags: tags
+//   identity: {
+//     type: 'UserAssigned'
+//     userAssignedIdentities: {
+//       '${identity.id}': {}
+//     }
+//   }
+//   dependsOn: [
+//     configContainer
+//     identityRoleAssignments
+//     uploadSettings
+//   ]
+//   properties: {
+//     azPowerShellVersion: '8.0'
+//     retentionInterval: 'PT1H'
+//     environmentVariables: [
+//       {
+//         name: 'managedIdentityName'
+//         value: identity.name
+//       }
+//       {
+//         name: 'resourceGroupName'
+//         value: resourceGroup().name
+//       }
+//       {
+//         name: 'storageAccountName'
+//         value: storageAccountName
+//       }
+//       {
+//         name: 'containerName'
+//         value: 'config'
+//       }
+//     ]
+//     scriptContent: loadTextContent('./scripts/Remove-ManagedIdentity.ps1')
+//     arguments: '-storage'
+//   }
+// }
 
 //==============================================================================
 // Outputs

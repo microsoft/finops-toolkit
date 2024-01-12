@@ -27,7 +27,7 @@
     Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000"
 
     Gets all exports for a subscription. Does not include exports in nested resource groups.
-    
+
     .EXAMPLE
     Get-FinOpsCostExport -Name mtd* -Scope "providers/Microsoft.Billing/billingAccounts/00000000"
 
@@ -91,7 +91,7 @@ function Get-FinOpsCostExport
     $context = Get-AzContext
     if (-not $context)
     {
-        throw $script:localizedData.ContextNotFound
+        throw $script:LocalizedData.Common_ContextNotFound
     }
     # if Scope is not passed, use current subscription scope
     if ([System.String]::IsNullOrEmpty($Scope))
@@ -104,10 +104,10 @@ function Get-FinOpsCostExport
 
     $scope = $scope.Trim("/")
     $path = "$scope/providers/Microsoft.CostManagement/exports?api-version=$ApiVersion"
-    
+
     # Get operation does not allow wildcards. Fetching all exports using list operation and then filtering in script
     # https://learn.microsoft.com/en-us/rest/api/cost-management/exports/list?tabs=HTTP
-    
+
     Write-Verbose -Message "fetching all exports for scope:$scope"
     $httpResponse = Invoke-AzRestMethod -Path $path
 
@@ -115,7 +115,7 @@ function Get-FinOpsCostExport
 
     if ($httpResponse.StatusCode -eq 200)
     {
-      
+
         $content = $(ConvertFrom-Json -InputObject $httpResponse.Content -Depth 20).Value
         Write-Verbose -Message "found $($content.count) export items for the scope $scope"
 
@@ -125,24 +125,24 @@ function Get-FinOpsCostExport
             $content = $content | Where-Object { $_.name -like $Name }
             Write-Verbose -Message "$($content.count) items left after filtering for Name $Name"
         }
-        if (-not [System.String]::IsNullOrEmpty($DataSet)) 
+        if (-not [System.String]::IsNullOrEmpty($DataSet))
         {
             $content = $content | Where-Object { $_.properties.definition.type -like $DataSet }
             Write-Verbose -Message "$($content.count) items left after filtering for DataSet $DataSet"
         }
         if (-not [System.String]::IsNullOrEmpty($StorageAccountId))
-        {    
+        {
             $content = $content | Where-Object { $_.properties.deliveryInfo.destination.resourceId.tostring() -eq $StorageAccountId }
             Write-Verbose -Message "found $($content.count) items after filtering for storageaccountid $StorageAccountId"
         }
         if (-not [System.String]::IsNullOrEmpty($StorageContainer))
-        {    
+        {
             $content = $content | Where-Object { $_.properties.deliveryInfo.destination.container.tostring() -like $StorageContainer }
             Write-Verbose -Message "found $($content.count) items after filtering for StorageContainer $StorageContainer"
         }
         $exportdetails = @()
         $content | ForEach-Object {
-           
+
             $item = [PSCustomObject]@{
 
                 Name                = $_.name
@@ -162,18 +162,18 @@ function Get-FinOpsCostExport
                 DataSetTimeFrame    = $_.properties.definition.timeframe
                 DataSetStartDate    = $_.properties.definition.timePeriod.from
                 DataSetEndDate      = $_.properties.definition.timePeriod.to
-                DatasetGranularity  = $_.properties.definition.dataset.granularity        
+                DatasetGranularity  = $_.properties.definition.dataset.granularity
             }
             $exportdetails += $item
-           
+
         }
-        return $exportdetails 
+        return $exportdetails
     }
     else
     {
         $errorobject = $($httpResponse.Content | ConvertFrom-Json).error
         $errorcode = $errorobject.code
         $errorcodemessage = $errorobject.message
-        Write-Error -Message $($script:localizedData.ErrorResponse -f $errorcodemessage, $errorcode)
+        Write-Error -Message $($script:LocalizedData.Common_ErrorResponse -f $errorcodemessage, $errorcode)
     }
 }

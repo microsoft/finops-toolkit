@@ -28,7 +28,7 @@ Automate and scale your FinOps efforts with PowerShell commands that streamline 
 
 The FinOps toolkit PowerShell module is a collection of commands to automate and manage FinOps solutions. We're just getting started so let us know what you'd like to see next.
 
-[PowerShell Gallery](https://www.powershellgallery.com/packages/FinOpsToolkit){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[PowerShell Gallery](https://www.powershellgallery.com/packages/FinOpsToolkit){: .btn .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
@@ -50,6 +50,17 @@ Import-Module -Name FinOpsToolkit
 
 - [Deploy-FinOpsHub](hubs/Deploy-FinOpsHub.md) – Deploy your first hub or update to the latest version.
 - [Get-FinOpsHub](hubs/Get-FinOpsHub.md) – Get details about your FinOps hub instance.
+
+### FinOps Open Cost and Usage Specification (FOCUS) commands
+
+- [ConvertTo-FinOpsSchema](ConvertTo-FinOpsSchema.md) – Converts Cost Management cost data to the FOCUS schema.
+- [Invoke-FinOpsSchema](Invoke-FinOpsSchemaTransform.md) – Loads Cost Management data from a CSV file, converts it to FOCUS schema, and saves it to a new CSV file.
+
+### Open data commands
+
+- [Get-FinOpsPricingUnit](Get-FinOpsPricingUnit.md) – Gets an Azure region ID and name.
+- [Get-FinOpsRegion](Get-FinOpsRegion.md) – Gets an Azure region ID and name.
+- [Get-FinOpsService](Get-FinOpsService.md) – Gets the name and category for a service, publisher, and cloud provider.
 
 <br>
 
