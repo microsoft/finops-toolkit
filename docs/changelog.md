@@ -40,6 +40,10 @@ Legend:
 ✏️ Changed
 🛠️ Fixed
 🗑️ Removed
+
+📒 Workbook
+🏦 FinOps hubs
+🖥️ PowerShell
 -->
 
 ## 🔄️ Unreleased
@@ -72,6 +76,24 @@ Legend:
 >
 > 1. New-FinOpsCostExport
 > 2. Remove-FinOpsHubScope
+
+
+📒 Cost Optimization Workbook
+
+> ➕ Added:
+>📊 Storage Tab:
+> Identify Idle Backups: Review protected items' backup activity to spot items not backed up in the last 90 days.
+> Review Replication Settings: Evaluate and improve your backup strategy by identifying resources with default geo-redundant storage (GRS) replication.
+>
+> 🌐 Networking Tab:
+> Azure Firewall Premium Features: Identify Azure Firewalls with Premium SKU and ensure associated policies leverage premium-only features.
+> Firewall Optimization: Streamline Azure Firewall usage by centralizing instances in the hub virtual network or Virtual WAN secure hub.
+> 📈 Top 10 Services:
+> Improved Monitoring Tabs: Enhance your monitoring experience with updated Azure Advisor recommendations for Log Analytics.
+>
+> 🛠️ Fixed:
+>🔄 Fixed AHB Tab: Fixed AHB to support Windows 10/Windows 11
+> 
 
 <br>
 
@@ -127,8 +149,6 @@ Legend:
 > 1. [Resource types](./open-data/README.md#-resource-types) to map Azure resource types to friendly display names.
 > 2. [Get-FinOpsResourceType](./powershell/data/Get-FinOpsResourceType.md) PowerShell command to support resource type to display name mapping.
 > 3. [Sample exports](./open-data/README.md#-sample-data) for each of the datasets that can be exported from Cost Management.
-
-<br>
 
 ## 🛠️ v0.1.1
 
