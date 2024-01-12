@@ -30,7 +30,7 @@ Accelerate your analytics efforts with simple, targeted reports. Summarize and b
 <!-- markdownlint-disable-line --> {% include_relative _intro.md %}
 
 <blockquote class="note" markdown="1">
-   _As of FinOps toolkit 0.1.2, all reports have been updated to use the FinOps Open Cost and Usage Specification (FOCUS). To learn more, see [About FOCUS](../focus/README.md)._
+   _As of FinOps toolkit 0.2, all reports have been updated to use the FinOps Open Cost and Usage Specification (FOCUS). To learn more, see [About FOCUS](../focus/README.md)._
 </blockquote>
 
 <br>
@@ -41,6 +41,7 @@ The FinOps toolkit includes the following reports:
 
 - [Cost summary](./cost-summary.md) – Overview of amortized costs with common breakdowns.
 - [Commitment discounts](./commitment-discounts.md) – Summarizes existing and potential savings from commitment-based discounts.
+- [Cost Management connector](./connector.md) – Summarizes costs, savings, and commitment discounts using the Cost Management connector.
 - [Cost Management template app](./template-app.md) (EA only) – The original Cost Management template app as a customizable PBIX file.
 
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .mb-4 .mb-md-0 .mr-4 }
@@ -52,7 +53,7 @@ The FinOps toolkit includes the following reports:
 
 Microsoft offers several ways to analyze and report on your cloud costs. For quick exploration of subscriptions and billing accounts, we recommend starting with smart views in [Cost analysis](https://aka.ms/costanalysis/docs) in the Azure portal or Microsoft 365 admin center. When you need more control or to save and share charts, switch to customizable views.
 
-When you need more advanced reporting or to merge with your own data, we recommend using Fabric, Power BI, or a custom or third-party solution. Use the following to determine the best approach for you:
+When you need more advanced reporting or to merge with your own data, we recommend using Microsoft Fabric, Power BI, or a custom or third-party solution. Use the following to determine the best approach for you:
 
 1. For costs under $2-5M in total<sup>1</sup> that don't need savings plan data, you can use the Cost Management connector for Power BI.
    - The connector uses existing raw cost data APIs and cannot scale to data sizes beyond $5M<sup>1</sup>.
