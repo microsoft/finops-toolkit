@@ -47,7 +47,7 @@ function Split-AzureResourceId {
 
         # Remove trailing slash
         $parts = $Id.TrimEnd('/').Split('/')
-        
+
         # Check for odd number of segments
         if ($parts.Count % 2 -eq 0) {
             Write-Verbose "Resource ID has odd number of segments and is invalid: $Id"
@@ -83,12 +83,12 @@ function Split-AzureResourceId {
             $leafParts = @($parts[0], 'providers', 'Microsoft.Resources') + $parts[1..($parts.Count - 1)]
 
             # Find last providers segment
-            $leafParts = (($leafParts -replace '/PROVIDERS/', '/providers/') -Join '/').Split('/providers/')[-1].Split('/')        
+            $leafParts = (($leafParts -replace '/PROVIDERS/', '/providers/') -Join '/').Split('/providers/')[-1].Split('/')
         }
 
         Write-Verbose "Leaf resource: $($leafParts -Join '/')"
- 
-        return @{
+
+        return [PSCustomObject]@{
             ResourceId             = $Id
             SubscriptionId         = if ($isSubResource) { $parts[2] } else { $null }
             SubscriptionResourceId = if ($isSubResource) { $parts[0..2] -Join '/' } else { $null }

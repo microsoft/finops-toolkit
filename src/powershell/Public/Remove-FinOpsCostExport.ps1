@@ -48,7 +48,7 @@ function Remove-FinOpsCostExport
   $context = Get-AzContext
   if (-not $context)
   {
-    throw $script:localizedData.ContextNotFound
+    throw $script:LocalizedData.Common_ContextNotFound
   }
 
   try
@@ -58,14 +58,15 @@ function Remove-FinOpsCostExport
     # Switch to use the Get-FinOpsCostExport function once it is available
     $httpResponse = Invoke-AzRestMethod -Path $path -Method "GET"
 
-    if ($httpResponse.StatusCode -eq 404) {
+    if ($httpResponse.StatusCode -eq 404)
+    {
       Write-Verbose -Message "Cost Management export not found."
       break
     }
     elseif ($httpResponse.StatusCode -ne 200)
     {
       $errorResponse = ConvertFrom-Json -InputObject $httpResponse.Content
-      throw ($script:localizedData.GetCostExportNotFound -f $($errorResponse.error.message), $($errorResponse.error.code))
+      throw ($script:LocalizedData.CostExport_Remove_NotFound -f $($errorResponse.error.message), $($errorResponse.error.code))
     }
     else
     {
@@ -98,14 +99,15 @@ function Remove-FinOpsCostExport
     {
       $httpResponse = Invoke-AzRestMethod -Path $path -Method "DELETE"
 
-      if ($httpResponse.StatusCode -eq 404) {
+      if ($httpResponse.StatusCode -eq 404)
+      {
         Write-Verbose -Message "Cost Management export folder not found in storage account."
         break
       }
       elseif ($httpResponse.StatusCode -ne 200)
       {
         $errorResponse = ConvertFrom-Json -InputObject $httpResponse.Content
-        throw ($script:localizedData.DeleteCostExportFailed -f $($errorResponse.Content), $($errorResponse.StatusCode))
+        throw ($script:LocalizedData.CostExport_Remove_Failed -f $($errorResponse.Content), $($errorResponse.StatusCode))
       }
     }
   }

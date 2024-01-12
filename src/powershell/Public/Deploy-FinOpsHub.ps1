@@ -6,9 +6,9 @@
     Deploys a FinOps hub instance.
 
     .DESCRIPTION
-    The Deploy-FinOpsHub command creates a new FinOps hub instance. The FinOps hub template is downloaded from GitHub.
+    The Deploy-FinOpsHub command either creates a new or updates an existing FinOps hub instance by deploying an Azure Resource Manager deployment template. The FinOps hub template is downloaded from GitHub.
 
-    Before running this command, register the Microsoft.EventGrid and Microsoft.CostManagementExports providers. Resource provider registration must be done by a subscription contributor.
+    Deploy-FinOpsHub calls Initialize-FinOpsHubDeployment before deploying the template.
 
     .PARAMETER Name
     Required. Name of the FinOps hub instance.
@@ -85,33 +85,30 @@ function Deploy-FinOpsHub
         $resourceGroupObject = Get-AzResourceGroup -Name $ResourceGroupName -ErrorAction 'SilentlyContinue'
         if (-not $resourceGroupObject)
         {
-            if ($PSCmdlet.ShouldProcess($ResourceGroupName, 'CreateResourceGroup'))
+            if (Test-ShouldProcess $PSCmdlet $ResourceGroupName 'CreateResourceGroup')
             {
                 $resourceGroupObject = New-AzResourceGroup -Name $ResourceGroupName -Location $Location
             }
         }
 
-        $toolkitPath = Join-Path $env:temp -ChildPath 'FinOps'
-        if ($PSCmdlet.ShouldProcess($toolkitPath, 'CreateDirectory'))
+        $toolkitPath = Join-Path $env:temp -ChildPath 'FinOpsToolkit'
+        if (Test-ShouldProcess $PSCmdlet $toolkitPath 'CreateTempDirectory')
         {
             New-Directory -Path $toolkitPath
         }
-        if($PSCmdlet.ShouldProcess('FinOps hub deployment','Initialize'))
-        {
-            Initialize-FinOpsToolkit 
-        }
+        Initialize-FinOpsHubDeployment -WhatIf:$WhatIfPreference
 
-        if ($PSCmdlet.ShouldProcess($Version, 'DownloadTemplate'))
+        if (Test-ShouldProcess $PSCmdlet $Version 'DownloadTemplate')
         {
             Save-FinOpsHubTemplate -Version $Version -Preview:$Preview -Destination $toolkitPath
-            $toolkitFile = Get-ChildItem -Path $toolkitPath -Include 'main.bicep' -Recurse | Where-Object -FilterScript {$_.FullName -like '*finops-hub-v*'}
-            if (-not $toolkitFile)
+            $bicepFile = Get-ChildItem -Path $toolkitPath -Include 'main.bicep' -Recurse | Where-Object -FilterScript { $_.FullName -like '*finops-hub-v*' }
+            if (-not $bicepFile)
             {
-                throw ($LocalizedData.TemplateNotFound -f $toolkitPath)
+                throw ($LocalizedData.Hub_Deploy_TemplateNotFound -f $toolkitPath)
             }
 
             $parameterSplat = @{
-                TemplateFile            = $toolkitFile.FullName
+                TemplateFile            = $bicepFile.FullName
                 TemplateParameterObject = @{
                     hubName    = $Name
                     storageSku = $StorageSku
@@ -124,12 +121,10 @@ function Deploy-FinOpsHub
             }
         }
 
-        if ($PSCmdlet.ShouldProcess($ResourceGroupName, 'DeployFinOpsHub'))
+        if (Test-ShouldProcess $PSCmdlet $ResourceGroupName 'DeployFinOpsHub')
         {
-            Write-Verbose -Message ($LocalizedData.DeployFinOpsHub -f $toolkitFile.FullName, $resourceGroupObject.ResourceGroupName)
-            $deployment = New-AzResourceGroupDeployment @parameterSplat -ResourceGroupName $resourceGroupObject.ResourceGroupName
-
-            return $deployment
+            Write-Verbose -Message ($LocalizedData.Hub_Deploy_Deploy -f $bicepFile.FullName, $resourceGroupObject.ResourceGroupName)
+            return New-AzResourceGroupDeployment @parameterSplat -ResourceGroupName $resourceGroupObject.ResourceGroupName
         }
     }
     catch

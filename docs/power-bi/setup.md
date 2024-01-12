@@ -28,7 +28,7 @@ Publish new Power BI reports based on FinOps toolkit starter kits, extend them t
 
 ---
 
-{% include_relative _intro.md %}
+<!-- markdownlint-disable-line --> {% include_relative _intro.md %}
 
 Use the guides below to connect and customize FinOps toolkit and other Power BI reports.
 
@@ -60,9 +60,12 @@ The FinOps toolkit Power BI reports include pre-configured visuals, but are not 
    - If you customized the deployment to use compressed CSV instead of Parquet, change **FileType** to `.gz`. Most people will not change this.
    - Change **Start Date** and **End Date** to the desired start/end dates for your report. The default is the current calendar year. Consider using your fiscal year.
      <blockquote class="warning" markdown="1">
-       _Power BI reports can only support 35GB of data (~$16M in raw cost details). You may need to adjust the number of months in your report to fit within this limit._
+       _Enable incremental refresh to load more than $5M of raw cost details. Power BI reports can only support $2-5M of data when incremental refresh is not enabled. After incremental refresh is enabled, they can support $2-5M/month for a total of ~$65M in raw cost details._
      </blockquote>
-   - **CM connector** settings are required for any reports that rely on data not supported in FinOps hubs yet (e.g., reservation recommendations). Be sure to also supply those settings in the next section.
+   - **CM connector** settings are required for any reports that rely on data not supported in FinOps hubs yet (i.e., actual costs, reservation recommendations). Be sure to also supply those settings in the next section.
+   - Actual costs are included by default when the connector details are specified. If you do not want to include actual cost data from the Cost Management connector, open the **CostDetails** query in the advanced editor and change the `2` to a `1`. This will avoid calling the Cost Management connector.
+
+   ![Screenshot of instructions to connect to a FinOps hub](https://github.com/microsoft/finops-toolkit/assets/399533/5582b428-e811-4d7e-83d0-4a8fbb905d30)
 
 5. If you selected `Cost Management connector`, set the following properties in the **🛠️ Setup** > **CM connector** folder:
 
@@ -73,14 +76,14 @@ The FinOps toolkit Power BI reports include pre-configured visuals, but are not 
      </blockquote>
    - **Number of Months** is the number of months of data to include in the report.
      <blockquote class="warning" markdown="1">
-       _Power BI reports can only support 35GB of data (~$16M in raw cost details). You may need to adjust the number of months in your report to fit within this limit._
+       _The Cost Management connector does not support incremental refresh and Power BI reports can only support ~$2-5M of data when incremental refresh is not enabled. You may need to adjust the number of months in your report to fit within this limit._
      </blockquote>
 
-   ![Screenshot of instructions to connect to the Cost Management connector](https://github.com/microsoft/finops-toolkit/assets/399533/3bc5eb22-a7e7-4d13-a3a3-91d0bc48800e)
+   ![Screenshot of instructions to connect to the Cost Management connector](https://github.com/microsoft/finops-toolkit/assets/399533/efeb85d6-cdd3-40f8-a501-e1959fdb1d4f)
 
 6. Select the **Close & Apply** to save your settings.
 
-If you run into any issues syncing your data, see [Troubleshooting Power BI reports](../troubleshooting.md).
+If you run into any issues syncing your data, see [Troubleshooting Power BI reports](../resources/troubleshooting.md).
 
 <br>
 
@@ -187,7 +190,9 @@ The Cost Management connector provides separate queries for actual (billed) and 
 
 If interested in custom columns and measures, see [Copy queries from a toolkit report](#-copy-queries-from-a-toolkit-report) for required steps.
 
+<!--
 See [Queries and datasets](#️-queries-and-datasets) below for additional details.
+-->
 
 <br>
 

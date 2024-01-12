@@ -6,6 +6,7 @@ On this page:
 
 - [📏 Pricing units](#-pricing-units)
 - [🗺️ Regions](#️-regions)
+- [🗺️ Resource types](#️-resource-types)
 - [🎛️ Services](#️-services)
 
 ---
@@ -108,6 +109,23 @@ Meters
 The [Regions.csv](./Regions.csv) file contains data from several internal sources. We shouldn't need to update this file as Cost Management data is standardizing on Azure regions.
 
 > ℹ️ _Internal only: Contact the CPDM PM team for any updates._
+
+<br>
+
+## 🗺️ Resource types
+
+<sup>
+    📅 Updated: Nov 11, 2023<br>
+    ➡️ Source: Azure portal / Azure mobile app<br>
+</sup>
+
+<br>
+
+The [ResourceTypes.csv](./ResourceTypes.csv) file contains data from the Azure portal. The Build-OpenData script generates the flie without any additional work.
+
+If you find a resource type is missing, add it to [ResourceTypes.Overrides.csv](./ResourceTypes.Overrides.json). The override file supports overriding names and icons.
+
+If you run into any issues with the script that gets the data, you can look at examples from the Azure mobile app repo @ https://aka.ms/azureapp/code.
 
 <br>
 

@@ -5,6 +5,11 @@
     .SYNOPSIS
     Delete a FinOps hub instance and optionally keep the storage account hosting cost data.
 
+    .DESCRIPTION
+    The Remove-FinOpsHub command deletes a FinOps Hub instance and optionally deletes the storage account hosting cost data.
+
+    The comamnd returns a boolean value indicating whether all resources were successfully deleted.
+
     .PARAMETER Name
     Required when specifying Name. Name of the FinOps Hub.
 
@@ -56,7 +61,7 @@ function Remove-FinOpsHub
     $context = Get-AzContext
     if (-not $context)
     {
-        throw $script:localizedData.ContextNotFound
+        throw $script:LocalizedData.Common_ContextNotFound
     }
 
     try
@@ -83,21 +88,21 @@ function Remove-FinOpsHub
 
         if (-not $hub)
         {
-            throw $script:localizedData.FinOpsHubNotFound -f $Name
+            throw $script:LocalizedData.Hub_Remove_NotFound -f $Name
         }
 
         $uniqueId = Get-HubIdentifier -Collection $hub.Resources.Name
         Write-Verbose -Message "Unique identifier: $uniqueId"
 
-        $resources = Get-AzResource -ResourceGroupName $ResourceGroupName | Where-Object -FilterScript {$_.Name -like "*$uniqueId*" -and ((-not $KeepStorageAccount) -or $_.ResourceType -ne "Microsoft.Storage/storageAccounts")}
+        $resources = Get-AzResource -ResourceGroupName $ResourceGroupName | Where-Object -FilterScript { $_.Name -like "*$uniqueId*" -and ((-not $KeepStorageAccount) -or $_.ResourceType -ne "Microsoft.Storage/storageAccounts") }
 
         if ($PSCmdlet.ShouldProcess($Name, 'DeleteFinOpsHub'))
         {
-            $resources | Remove-AzResource -Force:$Force
+            return ($resources | Remove-AzResource -Force:$Force).Reduce({ $args[0] -and $args[1] }, $true)            
         }
     }
     catch
     {
-        throw ($script:localizedData.DeleteFinOpsHub -f $_)
+        throw ($script:LocalizedData.Hub_Remove_Failed -f $_)
     }
 }
