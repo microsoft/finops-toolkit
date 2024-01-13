@@ -81,19 +81,16 @@ Legend:
 📒 Cost Optimization Workbook
 
 > ➕ Added:
->📊 Storage Tab:
-> Identify Idle Backups: Review protected items' backup activity to spot items not backed up in the last 90 days.
-> Review Replication Settings: Evaluate and improve your backup strategy by identifying resources with default geo-redundant storage (GRS) replication.
 >
-> 🌐 Networking Tab:
-> Azure Firewall Premium Features: Identify Azure Firewalls with Premium SKU and ensure associated policies leverage premium-only features.
-> Firewall Optimization: Streamline Azure Firewall usage by centralizing instances in the hub virtual network or Virtual WAN secure hub.
-> 📈 Top 10 Services:
-> Improved Monitoring Tabs: Enhance your monitoring experience with updated Azure Advisor recommendations for Log Analytics.
+> 1. Storage: Identify Idle Backups: Review protected items' backup activity to spot items not backed up in the last 90 days.
+> 2. Storage: Review Replication Settings: Evaluate and improve your backup strategy by identifying resources with default geo-redundant storage (GRS) replication.
+> 3. Networking: Azure Firewall Premium Features: Identify Azure Firewalls with Premium SKU and ensure associated policies leverage premium-only features.
+> 4. Networking: Firewall Optimization: Streamline Azure Firewall usage by centralizing instances in the hub virtual network or Virtual WAN secure hub.
+> 5. Top 10 services: Improved Monitoring Tabs: Enhance your monitoring experience with updated Azure Advisor recommendations for Log Analytics.
 >
 > 🛠️ Fixed:
->🔄 Fixed AHB Tab: Fixed AHB to support Windows 10/Windows 11
-> 
+>
+> 1. AHB: Fixed AHB to support Windows 10/Windows 11
 
 <br>
 
