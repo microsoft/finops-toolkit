@@ -17,6 +17,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
+- [🛠️ v0.2](#️-v02)
 - [🛠️ v0.1.1](#️-v011)
 - [🚚 v0.1](#-v01)
 - [🌱 v0.0.1](#-v001)
@@ -108,12 +109,17 @@ Legend:
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
+> ➕ Added:
+>
+> 1. [Cost Management connector report](./power-bi/connector.md) to support the Cost Management connector.
+>
 > ✏️ Changed:
 >
 > 1. Updated [Cost summary](./power-bi/cost-summary.md) and [Commitment discounts](./power-bi/commitment-discounts.md) reports to [FOCUS 1.0 preview](./focus/README.md).
-> 2. Removed unused custom visualizations.
-> 3. Organized setup instructions in Cost summary to match other reports.
-> 4. Updated troubleshooting documentation.
+> 2. Updated [Cost summary](./power-bi/cost-summary.md) and [Commitment discounts](./power-bi/commitment-discounts.md) reports to only use [FinOps hubs](./finops-hub/README.md).
+> 3. Removed unused custom visualizations.
+> 4. Organized setup instructions in Cost summary to match other reports.
+> 5. Updated troubleshooting documentation.
 >
 > 🛠️ Fixed:
 >
@@ -124,13 +130,26 @@ Legend:
 > 4. Fixed null error when Billing Account ID is empty ([#473](https://github.com/microsoft/finops-toolkit/issues/473)).
 > 5. Added missing commitment discount refunds to the actual cost data ([#447](https://github.com/microsoft/finops-toolkit/issues/447)).
 
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> 🛠️ Fixed:
+>
+> 1. Fixed error in some China regions where deployment scripts were not supported ([#259](https://github.com/microsoft/finops-toolkit/issues/259)).
+>
+> ✏️ Changed:
+>
+> 1. Switch from amortized cost exports to FOCUS cost exports.
+> 2. Updated ingestion container month folders from `yyyyMMdd-yyyyMMdd` to `yyyyMM`.
+> 3. Renamed **msexports_extract** pipeline to **msexports_ExecuteETL**.
+> 4. Renamed **msexports_transform** pipeline to **msexports_ETL_ingestion**.
+
 🖥️ PowerShell
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
-> ➕ Added:
+> 🛠️ Fixed:
 >
-> 1. New-FinOpsCostExport
-> 2. Remove-FinOpsHubScope
+> 1. Fixed typo in Deploy-FinOpsHub causing it to fail.
 >
 > 🗑️ Removed:
 >
@@ -138,14 +157,7 @@ Legend:
 >    - With native support for FOCUS 1.0 preview in Cost Management, we are deprecating both commands, which only support FOCUS 0.5.
 >    - If you would like to see the PowerShell commands updated to 1.0 preview, please let us know in discussions or via a GitHub issue.
 
-🌐 Open data
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. [Resource types](./open-data/README.md#-resource-types) to map Azure resource types to friendly display names.
-> 2. [Get-FinOpsResourceType](./powershell/data/Get-FinOpsResourceType.md) PowerShell command to support resource type to display name mapping.
-> 3. [Sample exports](./open-data/README.md#-sample-data) for each of the datasets that can be exported from Cost Management.
+<br>
 
 ## 🛠️ v0.1.1
 

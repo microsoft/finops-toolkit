@@ -47,17 +47,17 @@ Please ensure the following prerequisites are met before deploying this template
 
 1. You must have the following permissions to create the [deployed resources](#️-resources).
 
-   | Resource                            | Minimum RBAC                                            |
-   |-------------------------------------|---------------------------------------------------------|
-   | Deploy and configure Data Factory   | [Data Factory Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles)                            |
-   | Deploy Key Vault | [Key Vault Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#key-vault-contributor) |
-   | Configure Key Vault secrets | [Key Vault Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#key-vault-administrator) |
-   | Create managed identity              | [Managed Identity Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#managed-identity-contributor)                        |
-   | Deploy and configure storage   | [Storage Account Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-account-contributor)                       |
-   | Create a subscription or resource group cost export<sup>1</sup>       | [Cost Management Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cost-management-contributor)                         |
-   | Create an EA billing cost export<sup>1</sup>       | Enterprise Reader, Department Reader, or Enrollment Account Owner ([Learn more](https://learn.microsoft.com/azure/cost-management-billing/manage/understand-ea-roles)) |
-   | Create an MCA billing cost export<sup>1</sup>       | [Contributor](https://learn.microsoft.com/azure/cost-management-billing/manage/understand-mca-roles) |
-   | Read blob data in storage<sup>2</sup>   | [Storage Blob Data Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)                       |
+   | Resource                                                        | Minimum RBAC                                                                                                                                                           |
+   | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+   | Deploy and configure Data Factory                               | [Data Factory Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles)                                                                 |
+   | Deploy Key Vault                                                | [Key Vault Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#key-vault-contributor)                                              |
+   | Configure Key Vault secrets                                     | [Key Vault Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#key-vault-administrator)                                          |
+   | Create managed identity                                         | [Managed Identity Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#managed-identity-contributor)                          |
+   | Deploy and configure storage                                    | [Storage Account Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-account-contributor)                                  |
+   | Create a subscription or resource group cost export<sup>1</sup> | [Cost Management Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cost-management-contributor)                                  |
+   | Create an EA billing cost export<sup>1</sup>                    | Enterprise Reader, Department Reader, or Enrollment Account Owner ([Learn more](https://learn.microsoft.com/azure/cost-management-billing/manage/understand-ea-roles)) |
+   | Create an MCA billing cost export<sup>1</sup>                   | [Contributor](https://learn.microsoft.com/azure/cost-management-billing/manage/understand-mca-roles)                                                                   |
+   | Read blob data in storage<sup>2</sup>                           | [Storage Blob Data Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)                              |
 
    <sup>_1. Cost Management permissions must be assigned on the scope where you want to export your costs from. ._</sup>
    <sup>_2. Blob data permissions are required to access exported cost data from Power BI or other client tools._</sup>
@@ -97,19 +97,19 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
       - `settings.json` – Hub settings.
 - `<hubName>-engine-<unique-suffix>` Data Factory instance
   - Pipelines:
-    - `msexport_extract` – Triggers the ingestion process for Cost Management exports to account for Data Factory pipeline trigger limits.
-    - `msexports_transform` – Converts Cost Management exports into parquet or gzipped CSV and removes historical data duplicated in each day's export.
+    - `msexport_ExecuteETL` – Triggers the ingestion process for Cost Management exports to account for Data Factory pipeline trigger limits.
+    - `msexports_ETL_transform` – Converts Cost Management exports into parquet or gzipped CSV and removes historical data duplicated in each day's export.
   - Triggers:
-    - `msexport` – Triggers the `msexport_extract` pipeline when Cost Management exports complete.
+    - `msexport_FileAdded` – Triggers the `msexport_extract` pipeline when Cost Management exports complete.
 - `<hubName>-vault-<unique-suffix>` Key Vault instance
   - Secrets:
     - Data Factory system managed identity
 
-In addition to the above, the following resources are created to automate the deployment process. Each of these can be safely removed after deployment without impacting runtime functionality. Note they will be recreated if you redeploy the template.
+In addition to the above, the following resources are created to automate the deployment process. The deployment scripts should be deleted automatically but please do not delete the managed identities as this may cause errors when upgrading to the next release.
 
 - Managed identities:
-  - `<storage>_config_blobManager` ([Storage Blob Data Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)) – Uploads the settings.json file.
-  - `<datafactory>_msexports_extract_triggerManager` ([Data Factory Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#data-factory-contributor)) – Stops triggers before deployment and starts them after deployment.
+  - `<storage>_blobManager` ([Storage Blob Data Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)) – Uploads the settings.json file.
+  - `<datafactory>_triggerManager` ([Data Factory Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#data-factory-contributor)) – Stops triggers before deployment and starts them after deployment.
 - Deployment scripts (automatically deleted after a successful deployment):
   - `<datafactory>_stopHubTriggers` – Stops all triggers in the hub using the triggerManager identity.
   - `<datafactory>_startHubTriggers` – Starts all triggers in the hub using the triggerManager identity.
