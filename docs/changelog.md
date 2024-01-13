@@ -41,6 +41,10 @@ Legend:
 ✏️ Changed
 🛠️ Fixed
 🗑️ Removed
+
+📒 Workbook
+🏦 FinOps hubs
+🖥️ PowerShell
 -->
 
 ## 🔄️ Unreleased
@@ -73,6 +77,21 @@ Legend:
 >
 > 1. New-FinOpsCostExport
 > 2. Remove-FinOpsHubScope
+
+
+📒 Cost Optimization Workbook
+
+> ➕ Added:
+>
+> 1. Storage: Identify Idle Backups: Review protected items' backup activity to spot items not backed up in the last 90 days.
+> 2. Storage: Review Replication Settings: Evaluate and improve your backup strategy by identifying resources with default geo-redundant storage (GRS) replication.
+> 3. Networking: Azure Firewall Premium Features: Identify Azure Firewalls with Premium SKU and ensure associated policies leverage premium-only features.
+> 4. Networking: Firewall Optimization: Streamline Azure Firewall usage by centralizing instances in the hub virtual network or Virtual WAN secure hub.
+> 5. Top 10 services: Improved Monitoring Tabs: Enhance your monitoring experience with updated Azure Advisor recommendations for Log Analytics.
+>
+> 🛠️ Fixed:
+>
+> 1. AHB: Fixed AHB to support Windows 10/Windows 11
 
 <br>
 
