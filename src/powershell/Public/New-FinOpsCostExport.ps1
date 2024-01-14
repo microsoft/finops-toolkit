@@ -5,6 +5,9 @@
     .SYNOPSIS
     Creates a new Cost Management export.
 
+    .DESCRIPTION
+    The New-FinOpsCostExport command creates a new Cost Management export for the specified scope.
+
     .PARAMETER Name
     Required. Name of the export.
 
@@ -34,7 +37,7 @@
 
     .PARAMETER StoragePath
     Optional. Path to export data to within the storage container. Default = (scope ID).
-    
+
     .PARAMETER Execute
     Optional. Indicates that the export should be run immediately after created.
 
@@ -45,58 +48,50 @@
     Optional. API version to use when calling the Cost Management Exports API. Default = 2023-03-01.
 
     .EXAMPLE
-
     New-FinopsCostExport -Name 'July2023OneTime' `
-	-Scope "subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" `
-	-StorageAccountId "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
-	-OneTime `
-	-DataSet ActualCost `
-	-StartDate "2023-07-01" `
-	-EndDate "2023-07-31" `
-	-Verbose
+        -Scope "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" `
+        -StorageAccountId "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
+        -DataSet ActualCost `
+        -OneTime `
+        -StartDate "2023-07-01" `
+        -EndDate "2023-07-31"
 
     Creates a new one time export called 'July2023OneTime from 2023-07-01 to 2023-07-31 with Dataset = Actual and execute it once.
 
     .EXAMPLE
-
     New-FinopsCostExport -Name 'DailyMTD' `
-	-Scope "subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" `
-	-StorageAccountId "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
-	-DataSet AmortizedCost `
-	-EndDate "2024-12-31" `
-	-Execute `
-	-Verbose
+        -Scope "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" `
+        -StorageAccountId "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
+        -DataSet AmortizedCost `
+        -EndDate "2024-12-31" `
+        -Execute
 
     Creates a new scheduled export called Daily-MTD with StartDate = DateTime.Now and EndDate = 2024-12-31. Export is run immediately after creation.
 
-	.EXAMPLE
-
+    .EXAMPLE
     New-FinopsCostExport -Name 'Monthly-Report' `
-	-Scope "subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" `
-	-StorageAccountId "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
-	-DataSet AmortizedCost `
-	-StartDate $(get-date).adddays(5) `
-	-EndDate "2024-08-15" `
-	-Monthly `
-	-Execute `
-	-Verbose
+        -Scope "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" `
+        -StorageAccountId "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
+        -DataSet AmortizedCost `
+        -StartDate $(Get-Date).AddDays(5) `
+        -EndDate "2024-08-15" `
+        -Monthly `
+        -Execute
 
     Creates a new monthly export called Monthly-Report with StartDate = 1 day from DateTime.Now and EndDate 2024-08-15. Export is run immediately after creation.
 
-	.EXAMPLE
-
+    .EXAMPLE
     New-FinopsCostExport -Name 'Daily--MTD' `
-	-Scope "subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" `
-	-StorageAccountId "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
-	-DataSet ActualCost `
-	-StorageContainer "costreports" `
-	-Backfill 4 `
-	-Execute `
-	-Verbose
+        -Scope "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" `
+        -StorageAccountId "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
+        -DataSet ActualCost `
+        -StorageContainer "costreports" `
+        -Backfill 4 `
+        -Execute
 
     Creates a new daily export called Daily-MTD with StartDate = DateTime.Now and EndDate 5 years from StartDate. Additiionally, export cost data for the previous 4 months and save all results in costreports container of the specified storage account.
     
-	.LINK
+    .LINK
     https://aka.ms/ftk/New-FinOpsCostExport
 #>
 
@@ -173,8 +168,8 @@ function New-FinOpsCostExport
 	{
 		$StoragePath = $Scope
 	}
-	
-    $StorageContainer=$StorageContainer.tolower()
+    
+	$StorageContainer = $StorageContainer.tolower()
 	$path = "$scope/providers/Microsoft.CostManagement/exports/$Name`?api-version=$ApiVersion"
 
 	# Register the Microsoft.CostManagementExports resource provider.
@@ -272,33 +267,33 @@ function New-FinOpsCostExport
     
 	#Check if export with same name exists in scope. If it exists, update will be performed using etag.
 
-	write-verbose "Checking if Export $Name exists with path $path"
+	Write-Verbose "Checking if Export $Name exists with path $path"
 	$getresult = Invoke-Rest -Path $path -Method GET -ErrorAction SilentlyContinue
-	
+    
 	if ($getresult.StatusCode -eq 200)
 	{
 		Write-Output "Export with name $name already exists in scope $scope. Updating export."
-        $etag = $($getresult.Content | ConvertFrom-Json).etag #needed for update
+		$etag = $($getresult.Content | ConvertFrom-Json).etag #needed for update
 
-		$propobj=$propertiesobj 
-		write-verbose "Adding etag to the request for modify request"
-		$propobj | Add-Member -Name eTag -Value $etag -MemberType NoteProperty -Force | convertto-json -Depth 100
-		$properties = $propobj | convertto-json -Depth 100
+		$propobj = $propertiesobj 
+		Write-Verbose "Adding etag to the request for modify request"
+		$propobj | Add-Member -Name eTag -Value $etag -MemberType NoteProperty -Force | ConvertTo-Json -Depth 100
+		$properties = $propobj | ConvertTo-Json -Depth 100
 		$createresponse = Invoke-Rest -Path "$path" -Method PUT -Payload $properties
 
 		if ($Execute -eq $true -and !($($createresponse.Content | ConvertFrom-Json).error))
+		{
+			$runpath = "$scope/providers/Microsoft.CostManagement/exports/$Name/run?api-version=$ApiVersion"
+			Write-Verbose "Executing export $runpath"
+			$executeresponse = Invoke-Rest -Path $runpath -Method POST
+			if ($executeresponse.StatusCode -eq 200) 
 			{
-				$runpath = "$scope/providers/Microsoft.CostManagement/exports/$Name/run?api-version=$ApiVersion"
-				Write-Verbose "Executing export $runpath"
-				$executeresponse=Invoke-Rest -Path $runpath -Method POST
-				if($executeresponse.StatusCode -eq 200) 
-				{
-					write-verbose "Export executed successfully"
-				}
+				Write-Verbose "Export executed successfully"
 			}
-		
-		
-		
+		}
+        
+        
+        
 	}
 	else
 	{
@@ -311,14 +306,14 @@ function New-FinOpsCostExport
 		{
 			$runpath = "$scope/providers/Microsoft.CostManagement/exports/$Name/run?api-version=$ApiVersion"
 			Write-Verbose "Executing export $runpath"
-			$runresponse=Invoke-Rest -Path $runpath -Method POST
-			if($runresponse.StatusCode -eq 200) 
-				{
-					write-verbose "Export executed successfully"
-				}
+			$runresponse = Invoke-Rest -Path $runpath -Method POST
+			if ($runresponse.StatusCode -eq 200) 
+			{
+				Write-Verbose "Export executed successfully"
+			}
 		}
 	}
-	
+    
 	#once set, change the export to be a one-time export for the previous month. Keep all other settings as-is. This should auto-trigger a run and repeat for each month
 
 	if ($Backfill -gt 0 -and !($($createresponse.Content | ConvertFrom-Json).error))
@@ -329,14 +324,14 @@ function New-FinOpsCostExport
 		$propertiesobj.properties.definition.timeframe = "Custom"      
 		do
 		{
-			
-			$getresult=$null
+            
+			$getresult = $null
 			#run get to fetch etag since this is an update operation.
 			$getresult = Invoke-Rest -Path $path -Method GET
 			$etag = $($getresult.Content | ConvertFrom-Json).etag #needed for update
 
 			#insert etag in the properies object and convert it to json
-			$propertiesobj | Add-Member -Name eTag -Value $etag -MemberType NoteProperty -Force | convertto-json -Depth 100
+			$propertiesobj | Add-Member -Name eTag -Value $etag -MemberType NoteProperty -Force | ConvertTo-Json -Depth 100
 
 			Write-Verbose "Month $counter of $backfill"
 			$startofcurrentmonth = [datetime]$(Get-Date -Day 1).tostring("yyyy-MM-dd")
@@ -360,12 +355,12 @@ function New-FinOpsCostExport
 				$httpResponse = $null
 				$runpath = "$scope/providers/Microsoft.CostManagement/exports/$Name/run?api-version=$ApiVersion"
 				Write-Verbose "Executing export $runpath"
-				$runresponse=Invoke-Rest -Path $runpath -Method POST
-				if($runresponse.StatusCode -eq 200) 
+				$runresponse = Invoke-Rest -Path $runpath -Method POST
+				if ($runresponse.StatusCode -eq 200) 
 				{
 					Write-Output "Export executed successfully for month $startofpreviousmonth to $endofpreviousmonth"
 				}
-			
+            
 			}
 
 			$counter += 1
@@ -377,12 +372,12 @@ function New-FinOpsCostExport
 		$getresult = Invoke-Rest -Path $path -Method GET
 		$etag = $($getresult.Content | ConvertFrom-Json).etag #needed for update
 
-		
+        
 		$propertiesobj = $properties | ConvertFrom-Json
-		$propertiesobj | Add-Member -Name eTag -Value $etag -MemberType NoteProperty -Force | convertto-json -Depth 100
-		$properties = $propertiesobj | convertto-json -Depth 100
+		$propertiesobj | Add-Member -Name eTag -Value $etag -MemberType NoteProperty -Force | ConvertTo-Json -Depth 100
+		$properties = $propertiesobj | ConvertTo-Json -Depth 100
 		$httpResponse = Invoke-Rest -Path $path -Method PUT -Payload $properties
-		
+        
 
 	}
 }

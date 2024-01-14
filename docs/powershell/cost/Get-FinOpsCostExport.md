@@ -56,7 +56,6 @@ Get-FinOpsCostExport `
 | `‑StorageContainer` | Optional. Name of the container to get exports for. Supports wildcards. Default = null (all exports).               |
 | `‑ApiVersion`       | Optional. API version to use when calling the Cost Management exports API. Default = 2023-03-01.                    |
 
-
 <br>
 
 ## 🌟 Examples
