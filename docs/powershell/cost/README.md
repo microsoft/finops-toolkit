@@ -35,6 +35,7 @@ The Cost Management PowerShell commands help you manage Cost Management features
 - [Get-FinOpsCostExport](Get-FinOpsCostExport.md) – Get details about Cost Management exports.
 - [New-FinOpsCostExport](New-FinOpsCostExport.md) – Create a new Cost Management export.
 - [Remove-FinOpsCostExport](Remove-FinOpsCostExport.md) – Delete a Cost Management export and optionally data associated with the export.
+- [Start-FinOpsCostExport](Start-FinOpsCostExport.md) – Initiates a Cost Management export run for the most recent period.
 
 <br>
 

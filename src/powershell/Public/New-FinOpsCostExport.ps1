@@ -90,111 +90,111 @@
         -Execute
 
     Creates a new daily export called Daily-MTD with StartDate = DateTime.Now and EndDate 5 years from StartDate. Additiionally, export cost data for the previous 4 months and save all results in costreports container of the specified storage account.
-    
+
     .LINK
     https://aka.ms/ftk/New-FinOpsCostExport
 #>
 
 function New-FinOpsCostExport
 {
-	[cmdletBinding()]
-	param
-	(
-		[Parameter(Mandatory = $true)]
-		[string]
-		$Name,
+    [cmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [string]
+        $Name,
 
-		[Parameter(Mandatory = $true)]
-		[string]
-		$Scope,
+        [Parameter(Mandatory = $true)]
+        [string]
+        $Scope,
 
-		[Parameter()]
-		[ValidateSet("ActualCost", "AmortizedCost")]
-		[string]
-		$DataSet = "ActualCost",
+        [Parameter()]
+        [ValidateSet("ActualCost", "AmortizedCost")]
+        [string]
+        $DataSet = "ActualCost",
 
-		[Parameter(ParameterSetName = "Scheduled")]
-		[switch]
-		$Monthly,
+        [Parameter(ParameterSetName = "Scheduled")]
+        [switch]
+        $Monthly,
 
-		[Parameter(ParameterSetName = "OneTime")]
-		[switch]
-		$OneTime,
+        [Parameter(ParameterSetName = "OneTime")]
+        [switch]
+        $OneTime,
 
-		[Parameter(ParameterSetName = "OneTime", Mandatory = $true)]
-		[Parameter(ParameterSetName = "Scheduled")]
-		[System.DateTime]
-		$StartDate = $(Get-Date),
+        [Parameter(ParameterSetName = "OneTime", Mandatory = $true)]
+        [Parameter(ParameterSetName = "Scheduled")]
+        [System.DateTime]
+        $StartDate = $(Get-Date),
 
-		[Parameter(ParameterSetName = "OneTime", Mandatory = $true)]
-		[Parameter(ParameterSetName = "Scheduled")]
-		[System.DateTime]
-		$EndDate = $StartDate.addyears(5),
+        [Parameter(ParameterSetName = "OneTime", Mandatory = $true)]
+        [Parameter(ParameterSetName = "Scheduled")]
+        [System.DateTime]
+        $EndDate = $StartDate.addyears(5),
 
-		[Parameter(Mandatory = $true)]
-		[string]
-		$StorageAccountId,
+        [Parameter(Mandatory = $true)]
+        [string]
+        $StorageAccountId,
 
-		[Parameter()]
-		[string]
-		$StorageContainer = "cost-management",
+        [Parameter()]
+        [string]
+        $StorageContainer = "cost-management",
 
-		[Parameter()]
-		[string]
-		$StoragePath,
+        [Parameter()]
+        [string]
+        $StoragePath,
 
-		[Parameter()]
-		[switch]
-		$Execute,
+        [Parameter()]
+        [switch]
+        $Execute,
 
-		[Parameter(ParameterSetName = "Scheduled")]
-		[int32]
-		$Backfill = 0,
+        [Parameter(ParameterSetName = "Scheduled")]
+        [int32]
+        $Backfill = 0,
 
-		[Parameter()]
-		[string]
-		$ApiVersion = '2023-08-01'
-	)  
+        [Parameter()]
+        [string]
+        $ApiVersion = '2023-08-01'
+    )  
 
-	$context = Get-AzContext
-	if (-not $context)
-	{
-		throw $script:localizedData.ContextNotFound
-	}
+    $context = Get-AzContext
+    if (-not $context)
+    {
+        throw $script:localizedData.ContextNotFound
+    }
 
-	$scope = $scope.Trim("/")
+    $scope = $scope.Trim("/")
 
-	if ([System.String]::IsNullOrEmpty($StoragePath))
-	{
-		$StoragePath = $Scope
-	}
-    
-	$StorageContainer = $StorageContainer.tolower()
-	$path = "$scope/providers/Microsoft.CostManagement/exports/$Name`?api-version=$ApiVersion"
+    if ([System.String]::IsNullOrEmpty($StoragePath))
+    {
+        $StoragePath = $Scope
+    }
 
-	# Register the Microsoft.CostManagementExports resource provider.
+    $StorageContainer = $StorageContainer.tolower()
+    $path = "$scope/providers/Microsoft.CostManagement/exports/$Name`?api-version=$ApiVersion"
 
-	if ($(Get-AzResourceProvider -ProviderNamespace Microsoft.CostManagementExports).RegistrationState -ne 'Registered')
-	{
-		Write-Verbose "Microsoft.CostManagementExports provider is not registered. Registering provider."
-		Register-AzResourceProvider -ProviderNamespace 'Microsoft.CostManagementExports'
-	}
-	else
-	{
-		Write-Verbose "Provider Microsoft.CostManagementExports is registered"
-	}
+    # Register the Microsoft.CostManagementExports resource provider.
 
-
-	if ($Monthly) { $recurrence = "Monthly" } else { $recurrence = "Daily" }
-
-	# Use "MonthToDate" unless -OneTime is enabled, then use "Custom"
-	if ($OneTime) { $timeframe = "Custom"; $schedulestatus = "Inactive" } else { $timeframe = "MonthToDate"; $schedulestatus = "Active" }
+    if ($(Get-AzResourceProvider -ProviderNamespace Microsoft.CostManagementExports).RegistrationState -ne 'Registered')
+    {
+        Write-Verbose "Microsoft.CostManagementExports provider is not registered. Registering provider."
+        Register-AzResourceProvider -ProviderNamespace 'Microsoft.CostManagementExports'
+    }
+    else
+    {
+        Write-Verbose "Provider Microsoft.CostManagementExports is registered"
+    }
 
 
-	$StartDatestr = "$($StartDate.tostring("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'"))"
-	$EndDatestr = $EndDate.tostring("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'")
+    if ($Monthly) { $recurrence = "Monthly" } else { $recurrence = "Daily" }
 
-	$scheduledproperties = @"
+    # Use "MonthToDate" unless -OneTime is enabled, then use "Custom"
+    if ($OneTime) { $timeframe = "Custom"; $schedulestatus = "Inactive" } else { $timeframe = "MonthToDate"; $schedulestatus = "Active" }
+
+
+    $StartDatestr = "$($StartDate.tostring("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'"))"
+    $EndDatestr = $EndDate.tostring("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'")
+
+    $scheduledproperties = @"
 {
   
   "identity": {
@@ -229,7 +229,7 @@ function New-FinOpsCostExport
 }
 "@ 
 
-	$onetimeproperties = @"
+    $onetimeproperties = @"
 {
   
   "identity": {
@@ -260,126 +260,99 @@ function New-FinOpsCostExport
 }
 "@ 
 
-	if ($onetime) { $properties = $onetimeproperties ; $execute = $true } else { $properties = $scheduledproperties }
+    if ($onetime) { $properties = $onetimeproperties ; $execute = $true } else { $properties = $scheduledproperties }
 
-	$propertiesobj = $properties | ConvertFrom-Json
-	$createresponse = $null
-    
-	#Check if export with same name exists in scope. If it exists, update will be performed using etag.
+    $propertiesobj = $properties | ConvertFrom-Json
+    $createresponse = $null
 
-	Write-Verbose "Checking if Export $Name exists with path $path"
-	$getresult = Invoke-Rest -Path $path -Method GET -ErrorAction SilentlyContinue
-    
-	if ($getresult.StatusCode -eq 200)
-	{
-		Write-Output "Export with name $name already exists in scope $scope. Updating export."
-		$etag = $($getresult.Content | ConvertFrom-Json).etag #needed for update
+    #Check if export with same name exists in scope. If it exists, update will be performed using etag.
 
-		$propobj = $propertiesobj 
-		Write-Verbose "Adding etag to the request for modify request"
-		$propobj | Add-Member -Name eTag -Value $etag -MemberType NoteProperty -Force | ConvertTo-Json -Depth 100
-		$properties = $propobj | ConvertTo-Json -Depth 100
-		$createresponse = Invoke-Rest -Path "$path" -Method PUT -Payload $properties
+    Write-Verbose "Checking if Export $Name exists with path $path"
+    $getresult = Invoke-Rest -Path $path -Method GET -ErrorAction SilentlyContinue
 
-		if ($Execute -eq $true -and !($($createresponse.Content | ConvertFrom-Json).error))
-		{
-			$runpath = "$scope/providers/Microsoft.CostManagement/exports/$Name/run?api-version=$ApiVersion"
-			Write-Verbose "Executing export $runpath"
-			$executeresponse = Invoke-Rest -Path $runpath -Method POST
-			if ($executeresponse.StatusCode -eq 200) 
-			{
-				Write-Verbose "Export executed successfully"
-			}
-		}
-        
-        
-        
-	}
-	else
-	{
-		# Create the export using the JSON properties below.
-		Write-Output "Creating new export with name $Name"
-		Write-Verbose "Creating a new export from $startdatestr to $enddatestr : $path"
-		$createresponse = Invoke-Rest -Path "$path" -Method PUT -Payload $properties
+    if ($getresult.StatusCode -eq 200)
+    {
+        Write-Output "Export with name $name already exists in scope $scope. Updating export."
+        $etag = $($getresult.Content | ConvertFrom-Json).etag #needed for update
 
-		if ($Execute -eq $true -and !($($createresponse.Content | ConvertFrom-Json).error))
-		{
-			$runpath = "$scope/providers/Microsoft.CostManagement/exports/$Name/run?api-version=$ApiVersion"
-			Write-Verbose "Executing export $runpath"
-			$runresponse = Invoke-Rest -Path $runpath -Method POST
-			if ($runresponse.StatusCode -eq 200) 
-			{
-				Write-Verbose "Export executed successfully"
-			}
-		}
-	}
-    
-	#once set, change the export to be a one-time export for the previous month. Keep all other settings as-is. This should auto-trigger a run and repeat for each month
+        $propobj = $propertiesobj 
+        Write-Verbose "Adding etag to the request for modify request"
+        $propobj | Add-Member -Name eTag -Value $etag -MemberType NoteProperty -Force | ConvertTo-Json -Depth 100
+        $properties = $propobj | ConvertTo-Json -Depth 100
+        $createresponse = Invoke-Rest -Path "$path" -Method PUT -Payload $properties
 
-	if ($Backfill -gt 0 -and !($($createresponse.Content | ConvertFrom-Json).error))
-	{
-		$propertiesobj = $onetimeproperties | ConvertFrom-Json
-		Write-Output "Running backfill for $backfill months"
-		$counter = 1
-		$propertiesobj.properties.definition.timeframe = "Custom"      
-		do
-		{
-            
-			$getresult = $null
-			#run get to fetch etag since this is an update operation.
-			$getresult = Invoke-Rest -Path $path -Method GET
-			$etag = $($getresult.Content | ConvertFrom-Json).etag #needed for update
+        if ($Execute -eq $true -and !($($createresponse.Content | ConvertFrom-Json).error))
+        {
+            Start-FinOpsCostExport -Name $Name -Scope $Scope
+        }
+    }
+    else
+    {
+        # Create the export using the JSON properties below.
+        Write-Output "Creating new export with name $Name"
+        Write-Verbose "Creating a new export from $startdatestr to $enddatestr : $path"
+        $createresponse = Invoke-Rest -Path "$path" -Method PUT -Payload $properties
 
-			#insert etag in the properies object and convert it to json
-			$propertiesobj | Add-Member -Name eTag -Value $etag -MemberType NoteProperty -Force | ConvertTo-Json -Depth 100
+        if ($Execute -eq $true -and !($($createresponse.Content | ConvertFrom-Json).error))
+        {
+            Start-FinOpsCostExport -Name $Name -Scope $Scope
+        }
+    }
 
-			Write-Verbose "Month $counter of $backfill"
-			$startofcurrentmonth = [datetime]$(Get-Date -Day 1).tostring("yyyy-MM-dd")
+    #once set, change the export to be a one-time export for the previous month. Keep all other settings as-is. This should auto-trigger a run and repeat for each month
 
-			$startofpreviousmonth = $startofcurrentmonth.AddMonths($counter * -1)
-			$endofpreviousmonth = $startofpreviousmonth.AddMonths(1).AddMilliseconds($counter * -1).tostring("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'")
-			$startofpreviousmonth = $startofpreviousmonth.tostring("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'")
-			$propertiesobj.properties.definition.timePeriod.to = $endofpreviousmonth
-			$propertiesobj.properties.definition.timePeriod.from = $startofpreviousmonth
+    if ($Backfill -gt 0 -and !($($createresponse.Content | ConvertFrom-Json).error))
+    {
+        $propertiesobj = $onetimeproperties | ConvertFrom-Json
+        Write-Output "Running backfill for $backfill months"
+        $counter = 1
+        $propertiesobj.properties.definition.timeframe = "Custom"  
+        do
+        {
+            $getresult = $null
+            #run get to fetch etag since this is an update operation.
+            $getresult = Invoke-Rest -Path $path -Method GET
+            $etag = $($getresult.Content | ConvertFrom-Json).etag #needed for update
 
-			$backfillsettings = $null
-			$backfillsettings = $propertiesobj | ConvertTo-Json -Depth 100
+            #insert etag in the properies object and convert it to json
+            $propertiesobj | Add-Member -Name eTag -Value $etag -MemberType NoteProperty -Force | ConvertTo-Json -Depth 100
 
-			Write-Verbose -Message "Running backfill export from $startofpreviousmonth to $endofpreviousmonth"
-			Write-Verbose -Message "$($backfillsettings)" 
-			$httpResponse = Invoke-Rest -Path $path -Method PUT -Payload $backfillsettings
+            Write-Verbose "Month $counter of $backfill"
+            $startofcurrentmonth = [datetime]$(Get-Date -Day 1).tostring("yyyy-MM-dd")
 
-			if (!($($httpResponse.Content | ConvertFrom-Json).error))
-			{
-				Write-Verbose "Updated export for onetime export of previous month. Executing export"
-				$httpResponse = $null
-				$runpath = "$scope/providers/Microsoft.CostManagement/exports/$Name/run?api-version=$ApiVersion"
-				Write-Verbose "Executing export $runpath"
-				$runresponse = Invoke-Rest -Path $runpath -Method POST
-				if ($runresponse.StatusCode -eq 200) 
-				{
-					Write-Output "Export executed successfully for month $startofpreviousmonth to $endofpreviousmonth"
-				}
-            
-			}
+            $startofpreviousmonth = $startofcurrentmonth.AddMonths($counter * -1)
+            $endofpreviousmonth = $startofpreviousmonth.AddMonths(1).AddMilliseconds($counter * -1).tostring("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'")
+            $startofpreviousmonth = $startofpreviousmonth.tostring("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'")
+            $propertiesobj.properties.definition.timePeriod.to = $endofpreviousmonth
+            $propertiesobj.properties.definition.timePeriod.from = $startofpreviousmonth
 
-			$counter += 1
-			Start-Sleep 2
-		}while ($counter -le $Backfill)
+            $backfillsettings = $null
+            $backfillsettings = $propertiesobj | ConvertTo-Json -Depth 100
 
-		Write-Output "Backfill complete. Updating export settings back to original scheduled settings"
+            Write-Verbose -Message "Running backfill export from $startofpreviousmonth to $endofpreviousmonth"
+            Write-Verbose -Message "$($backfillsettings)" 
+            $httpResponse = Invoke-Rest -Path $path -Method PUT -Payload $backfillsettings
 
-		$getresult = Invoke-Rest -Path $path -Method GET
-		$etag = $($getresult.Content | ConvertFrom-Json).etag #needed for update
+            if (!($($httpResponse.Content | ConvertFrom-Json).error))
+            {
+                Write-Verbose "Updated export for onetime export of previous month. Executing export"
+                Start-FinOpsCostExport -Name $Name -Scope $Scope
+            }
 
-        
-		$propertiesobj = $properties | ConvertFrom-Json
-		$propertiesobj | Add-Member -Name eTag -Value $etag -MemberType NoteProperty -Force | ConvertTo-Json -Depth 100
-		$properties = $propertiesobj | ConvertTo-Json -Depth 100
-		$httpResponse = Invoke-Rest -Path $path -Method PUT -Payload $properties
-        
+            $counter += 1
+            Start-Sleep 2
+        } while ($counter -le $Backfill)
 
-	}
+        Write-Output "Backfill complete. Updating export settings back to original scheduled settings"
+
+        $getresult = Invoke-Rest -Path $path -Method GET
+        $etag = $($getresult.Content | ConvertFrom-Json).etag #needed for update
+
+        $propertiesobj = $properties | ConvertFrom-Json
+        $propertiesobj | Add-Member -Name eTag -Value $etag -MemberType NoteProperty -Force | ConvertTo-Json -Depth 100
+        $properties = $propertiesobj | ConvertTo-Json -Depth 100
+        $httpResponse = Invoke-Rest -Path $path -Method PUT -Payload $properties
+    }
 }
 
 
