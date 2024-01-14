@@ -7,8 +7,8 @@ Describe 'Invoke-FinOpsSchemaTransform' {
     BeforeAll {
         $actualCostPath = Get-Item "$PSScriptRoot/../assets/EA_ActualCost_Small.csv"
         $amortizedCostPath = Get-Item "$PSScriptRoot/../assets/EA_AmortizedCost_Small.csv"
-        $actualCostPathLarge = Get-Item "$PSScriptRoot/../../../sample-data/EA_ActualCost.csv"
-        $amortizedCostPathLarge = Get-Item "$PSScriptRoot/../../../sample-data/EA_AmortizedCost.csv"
+        $actualCostPathLarge = Get-Item "$PSScriptRoot/../../../sample-data/EA-Cost-Actual.csv"
+        $amortizedCostPathLarge = Get-Item "$PSScriptRoot/../../../sample-data/EA-Cost-Amortized.csv"
 
         $actualPath = New-TemporaryFile
         $amortizedPath = New-TemporaryFile
