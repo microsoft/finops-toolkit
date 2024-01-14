@@ -18,7 +18,7 @@ assignees: flanakin
 As a **<TODO: What persona is this for?>**, I need to **<TODO: What action does the user need to perform?>** in order to **<TODO: What is the goal? Why is this needed?>**
 
 ## 🚀 Goal
-TODO: Add a clear and concise description of what people will be able to do when this release is available. Focus on the outcome, not the implementation details. 
+TODO: Add a clear and concise description of what people will be able to do when this release is available. Focus on the outcome, not the implementation details.
 
 ## 📋 Tasks
 <!-- TODO: Create separate task lists for each sub-release. It's okay to only have 1. -->
@@ -32,7 +32,7 @@ TODO: Add a clear and concise description of what people will be able to do when
 <!-- TODO: Add stretch items to a separate task list. -->
 ```[tasklist]
 ### Stretch
-- [ ] TODO: Add tasks 
+- [ ] TODO: Add tasks
 ```
 
 ## 🙋‍♀️ Ask for the community

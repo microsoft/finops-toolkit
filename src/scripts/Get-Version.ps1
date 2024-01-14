@@ -18,7 +18,21 @@
 
     Gets the current version number.
 #>
-return (Get-Content (Join-Path $PSScriptRoot ../../package.json) | ConvertFrom-Json).version `
+param(
+    [switch]
+    $AsDotNetVersion
+)
+
+$ver = (Get-Content (Join-Path $PSScriptRoot ../../package.json) | ConvertFrom-Json).version `
     -replace '^[^\d]*((\d+\.\d+)(\.\d+)?(-[a-z]+)?(\.\d+)?)[^\d]*$', '$1' `
     -replace '^(\d+\.\d+)(\.\d+)?(-[a-z]+)?(\.0)?$', '$1$2$3' `
     -replace '^(\d+\.\d+)(\.0)?(-[a-z]+)?(\.\d+)?$', '$1$3$4'
+
+if ($AsDotNetVersion -and $ver.Contains('-'))
+{
+    $arr = (($ver -replace '-[^\.0-9]+', '') -split '\.') + @(0, 0)
+    $arr[3] += 1000000000
+    return $arr[0..3] -Join '.'
+}
+
+return $ver

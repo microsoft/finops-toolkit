@@ -82,6 +82,46 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
 }
 
 //------------------------------------------------------------------------------
+// Delete old triggers and pipelines
+//------------------------------------------------------------------------------
+
+resource deleteOldResources 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: '${dataFactory.name}_deleteOldResources'
+  location: location
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${identity.id}': {}
+    }
+  }
+  kind: 'AzurePowerShell'
+  dependsOn: [
+    identityRoleAssignments
+  ]
+  tags: tags
+  properties: {
+    azPowerShellVersion: '8.0'
+    retentionInterval: 'PT1H'
+    cleanupPreference: 'OnSuccess'
+    scriptContent: loadTextContent('./scripts/Remove-OldResources.ps1')
+    environmentVariables: [
+      {
+        name: 'DataFactorySubscriptionId'
+        value: subscription().id
+      }
+      {
+        name: 'DataFactoryResourceGroup'
+        value: resourceGroup().name
+      }
+      {
+        name: 'DataFactoryName'
+        value: dataFactory.name
+      }
+    ]
+  }
+}
+
+//------------------------------------------------------------------------------
 // Stop all triggers before deploying
 //------------------------------------------------------------------------------
 
@@ -95,7 +135,7 @@ resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' 
 // Assign access to the identity
 resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in autoStartRbacRoles: {
   name: guid(dataFactory.id, role, identity.id)
-  scope: resourceGroup()
+  scope: dataFactory
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
     principalId: identity.properties.principalId
@@ -106,7 +146,8 @@ resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-0
 // Stop hub triggers if they're already running
 resource stopHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: '${dataFactoryName}_stopHubTriggers'
-  location: location
+  // chinaeast2 is the only region in China that supports deployment scripts
+  location: startsWith(location, 'china') ? 'chinaeast2' : location
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -263,19 +304,19 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing 
 }
 
 // Create trigger
-resource trigger_exportContainer 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
-  name: safeExportContainerName
+resource trigger_msexports_FileAdded 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
+  name: '${safeExportContainerName}_FileAdded'
   parent: dataFactory
   dependsOn: [
     stopHubTriggers
-    pipeline_extractExport
+    pipeline_ExecuteETL
   ]
   properties: {
     annotations: []
     pipelines: [
       {
         pipelineReference: {
-          referenceName: '${exportContainerName}_extract'
+          referenceName: '${exportContainerName}_ExecuteETL'
           type: 'PipelineReference'
         }
         parameters: {
@@ -297,11 +338,11 @@ resource trigger_exportContainer 'Microsoft.DataFactory/factories/triggers@2018-
   }
 }
 
-resource pipeline_extractExport 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
-  name: '${safeExportContainerName}_extract'
+resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: '${safeExportContainerName}_ExecuteETL'
   parent: dataFactory
   dependsOn: [
-    pipeline_transformExport
+    pipeline_msexports_ETL_ingestion
   ]
   properties: {
     activities: [
@@ -312,7 +353,7 @@ resource pipeline_extractExport 'Microsoft.DataFactory/factories/pipelines@2018-
         userProperties: []
         typeProperties: {
           pipeline: {
-            referenceName: '${safeExportContainerName}_transform'
+            referenceName: '${safeExportContainerName}_ETL_${safeIngestionContainerName}'
             type: 'PipelineReference'
           }
           waitOnCompletion: false
@@ -343,13 +384,13 @@ resource pipeline_extractExport 'Microsoft.DataFactory/factories/pipelines@2018-
 
 //------------------------------------------------------------------------------
 // Export container transform pipeline
-// Trigger: pipeline_extractExport
+// Trigger: pipeline_ExecuteETL
 //
 // Converts CSV files to Parquet or .CSV.GZ files.
 //------------------------------------------------------------------------------
 
-resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
-  name: '${safeExportContainerName}_transform'
+resource pipeline_msexports_ETL_ingestion 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: '${safeExportContainerName}_ETL_${safeIngestionContainerName}'
   parent: dataFactory
   dependsOn: [
     dataset_msexports
@@ -357,7 +398,7 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
   ]
   properties: {
     activities: [
-      // (start) -> Wait -> Scope -> Metric -> Date -> File -> Folder -> Delete Target -> Convert CSV -> Delete CSV -> (end)
+      // (start) -> Wait -> FolderArray -> Scope -> Metric -> Date -> File -> Folder -> Delete Target -> Convert CSV -> Delete CSV -> (end)
       // Wait
       {
         name: 'Wait'
@@ -368,9 +409,9 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
           waitTimeInSeconds: 60
         }
       }
-      // Set Scope
+      // Set FolderArray
       {
-        name: 'Set Scope'
+        name: 'Set FolderArray'
         type: 'SetVariable'
         dependsOn: [
           {
@@ -382,9 +423,30 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
         ]
         userProperties: []
         typeProperties: {
+          variableName: 'folderArray'
+          value: {
+            value: '@split(pipeline().parameters.folderName, \'/\')'
+            type: 'Expression'
+          }
+        }
+      }
+      // Set Scope
+      {
+        name: 'Set Scope'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Set FolderArray'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
           variableName: 'scope'
           value: {
-            value: '@replace(split(pipeline().parameters.folderName,split(pipeline().parameters.folderName, \'/\')[sub(length(split(pipeline().parameters.folderName, \'/\')), 4)])[0],\'${exportContainerName}\',\'${ingestionContainerName}\')'
+            value: '@replace(split(pipeline().parameters.folderName,variables(\'folderArray\')[sub(length(variables(\'folderArray\')), 3)])[0],\'${exportContainerName}\',\'${ingestionContainerName}\')'
             type: 'Expression'
           }
         }
@@ -405,8 +467,8 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
         typeProperties: {
           variableName: 'metric'
           value: {
-            // TODO: Parse metric out of the export path with self-managed exports -- value: '@first(split(split(pipeline().parameters.folderName, \'/\')[sub(length(split(pipeline().parameters.folderName, \'/\')), 4)], \'-\'))'
-            value: 'amortizedcost'
+            // TODO: Parse metric out of the export path with self-managed exports -- value: '@first(split(variables(\'folderArray\')[sub(length(variables(\'folderArray\')), 4)], \'-\'))'
+            value: 'focuscost'
             type: 'Expression'
           }
         }
@@ -427,7 +489,7 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
         typeProperties: {
           variableName: 'date'
           value: {
-            value: '@split(pipeline().parameters.folderName, \'/\')[sub(length(split(pipeline().parameters.folderName, \'/\')), 3)]'
+            value: '@substring(variables(\'folderArray\')[sub(length(variables(\'folderArray\')), 2)], 0, 6)'
             type: 'Expression'
           }
         }
@@ -660,6 +722,9 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
       destinationFolder: {
         type: 'String'
       }
+      folderArray: {
+        type: 'Array'
+      }
       scope: {
         type: 'String'
       }
@@ -681,7 +746,8 @@ resource pipeline_transformExport 'Microsoft.DataFactory/factories/pipelines@201
 // Start hub triggers
 resource startHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: '${dataFactoryName}_startHubTriggers'
-  location: location
+  // chinaeast2 is the only region in China that supports deployment scripts
+  location: startsWith(location, 'china') ? 'chinaeast2' : location
   tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
   identity: {
     type: 'UserAssigned'
@@ -692,7 +758,7 @@ resource startHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzurePowerShell'
   dependsOn: [
     identityRoleAssignments
-    trigger_exportContainer
+    trigger_msexports_FileAdded
   ]
   properties: {
     azPowerShellVersion: '8.0'
@@ -720,43 +786,43 @@ resource startHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   }
 }
 
-resource removeManagedIdentity_triggerManager 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: 'removeManagedIdentity'
-  kind: 'AzurePowerShell'
-  location: location
-  tags: tags
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${identity.id}': {}
-    }
-  }
-  dependsOn: [
-    identityRoleAssignments
-    trigger_exportContainer
-    startHubTriggers
-  ]
-  properties: {
-    azPowerShellVersion: '8.0'
-    retentionInterval: 'PT1H'
-    environmentVariables: [
-      {
-        name: 'managedIdentityName'
-        value: identity.name
-      }
-      {
-        name: 'resourceGroupName'
-        value: resourceGroup().name
-      }
-      {
-        name: 'dataFactoryName'
-        value: dataFactoryName
-      }
-    ]
-    scriptContent: loadTextContent('./scripts/Remove-ManagedIdentity.ps1')
-    arguments: '-dataFactory'
-  }
-}
+// resource removeManagedIdentity_triggerManager 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//   name: 'removeManagedIdentity_triggerManager'
+//   kind: 'AzurePowerShell'
+//   location: location
+//   tags: tags
+//   identity: {
+//     type: 'UserAssigned'
+//     userAssignedIdentities: {
+//       '${identity.id}': {}
+//     }
+//   }
+//   dependsOn: [
+//     identityRoleAssignments
+//     trigger_msexports_FileAdded
+//     startHubTriggers
+//   ]
+//   properties: {
+//     azPowerShellVersion: '8.0'
+//     retentionInterval: 'PT1H'
+//     environmentVariables: [
+//       {
+//         name: 'managedIdentityName'
+//         value: identity.name
+//       }
+//       {
+//         name: 'resourceGroupName'
+//         value: resourceGroup().name
+//       }
+//       {
+//         name: 'dataFactoryName'
+//         value: dataFactoryName
+//       }
+//     ]
+//     scriptContent: loadTextContent('./scripts/Remove-ManagedIdentity.ps1')
+//     arguments: '-dataFactory'
+//   }
+// }
 
 //==============================================================================
 // Outputs

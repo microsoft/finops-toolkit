@@ -64,7 +64,7 @@ function Get-FinOpsHub
     $context = Get-AzContext
     if (-not $context)
     {
-        throw $script:localizedData.ContextNotFound
+        throw $script:LocalizedData.Common_ContextNotFound
     }
 
     $tagTemplate = '/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Cloud/hubs/{2}'
@@ -73,14 +73,15 @@ function Get-FinOpsHub
     $tagValue = $tagTemplate -f $subscriptionId, $ResourceGroupName, $Name
     $resourceMatches = @()
     $resources = Get-AzResource -TagName $tagName
+
     foreach ($resource in $resources)
     {
-        $tagMatch = $resource.Tags.Values | Where-Object -FilterScript {$_ -like $tagValue}
+        $tagMatch = $resource.Tags.Values | Where-Object -FilterScript { $_ -like $tagValue }
         if ($tagMatch)
         {
             $properties = [ordered]@{
-                Name = $tagMatch.Split('/')[-1]
-                HubId = $tagMatch
+                Name     = $tagMatch.Split('/')[-1]
+                HubId    = $tagMatch
                 Resource = $resource
             }
 
@@ -96,34 +97,45 @@ function Get-FinOpsHub
         {
             # Determine version and status
             $allResources = $group.Group.Resource
-            $hasStorage = $allResources.ResourceType.ToLower() -contains 'microsoft.storage/storageaccounts'
-            $hasFactory = $allResources.ResourceType.ToLower() -contains 'microsoft.datafactory/factories'
-            $hasVault = $allResources.ResourceType.ToLower() -contains 'microsoft.keyvault/vaults'
-            $hasIdentities = $allResources.ResourceType.ToLower() -contains 'microsoft.managedidentity/userassignedidentities'
-            if (($allResources.Count -eq 1) -and $hasStorage) {
+            $hasStorage = $allResources.ResourceType -like 'microsoft.storage/storageaccounts'
+            $hasFactory = $allResources.ResourceType -like 'microsoft.datafactory/factories'
+            $hasVault = $allResources.ResourceType -like 'microsoft.keyvault/vaults'
+            $hasIdentities = $allResources.ResourceType -like 'microsoft.managedidentity/userassignedidentities'
+            if (($allResources.Count -eq 1) -and $hasStorage)
+            {
                 $status = 'StorageOnly'
-            } elseif ($allResources.Count -eq 3 -and $hasStorage -and $hasFactory -and $hasVault) {
+            }
+            elseif ($allResources.Count -eq 3 -and $hasStorage -and $hasFactory -and $hasVault)
+            {
                 $status = 'Deployed'
                 $version = '0.0.1'
-            } elseif ($allResources.Count -eq 4 -and $hasStorage -and $hasFactory -and $hasVault) {
+            }
+            elseif ($allResources.Count -eq 4 -and $hasStorage -and $hasFactory -and $hasVault)
+            {
                 $status = 'DeployedWithExtraResources'
                 $version = '0.0.1'
-            } elseif ($allResources.Count -eq 5) {
+            }
+            elseif ($allResources.Count -eq 5)
+            {
                 $status = 'Deployed'
                 $version = '0.1'
-            } elseif ($allResources.Count -ge 6 -and $hasStorage -and $hasFactory -and $hasVault -and $hasIdentities) {
+            }
+            elseif ($allResources.Count -ge 6 -and $hasStorage -and $hasFactory -and $hasVault -and $hasIdentities)
+            {
                 $status = 'DeployedWithExtraResources'
                 $version = '0.1'
-            } else {
+            }
+            else
+            {
                 $status = 'Unknown'
             }
 
             $groupProperties = [ordered]@{
-                Name = $group.Group.Name | Select-Object -Unique
-                HubId = $group.Group.HubId | Select-Object -Unique
-                Location = $group.Group.Resource.Location | Select-Object -Unique
-                Version = $version
-                Status = $status
+                Name      = $group.Group.Name | Select-Object -Unique
+                HubId     = $group.Group.HubId | Select-Object -Unique
+                Location  = $group.Group.Resource.Location | Select-Object -Unique
+                Version   = $version
+                Status    = $status
                 Resources = $allResources
             }
 
