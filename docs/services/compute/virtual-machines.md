@@ -49,7 +49,7 @@ An Azure virtual machine gives you the flexibility of virtualization without hav
 
 Azure virtual machines (VMs) are a fundamental component of your cloud infrastructure, providing on-demand computing resources tailored to your specific needs. To effectively manage costs associated with VMs, it's crucial to understand the various factors that contribute to their pricing, as well as costs related to associated services.
 
-## Virtual Machines:
+## Virtual machines:
 
 - **Hourly Billing:** VMs are billed based on the number of hours they are provisioned. The longer a VM runs, the higher the associated cost.
 
