@@ -51,7 +51,10 @@ Azure virtual machines (VMs) are a fundamental component of your cloud infrastru
 
 ## Virtual machines:
 
-- **Hourly Billing:** VMs are billed based on the number of hours they are provisioned. The longer a VM runs, the higher the associated cost.
+- **Hourly billing:** VMs are billed based on the number of hours they are provisioned. The longer a VM runs, the higher the associated cost.
+  <blockquote class="important" markdown="1">
+     _A "Stopped" VM is still "provisioned" in the cloud and will incur charges. Make sure you "deallocate" your VMs to stop incurring compute charges. Other charges, like storage, are still applicable even in a deallocated state._
+  </blockquote>
 
 - **VM Size:** The pricing of VMs varies based on the chosen size or configuration. Larger and more powerful VMs generally incur higher costs.
 
