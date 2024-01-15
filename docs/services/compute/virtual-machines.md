@@ -137,7 +137,7 @@ Anomaly detection helps pinpoint unexpected spikes or irregularities in VM spend
 
 <br>
 
-## Optimize cloud usage and cost
+## Quantify business value
 
 ### Unit economics
 
