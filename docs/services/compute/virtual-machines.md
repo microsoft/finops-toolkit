@@ -66,7 +66,7 @@ Azure virtual machines (VMs) are a fundamental component of your cloud infrastru
 
 - **Disk Size:** Storage costs are determined by the size of disks attached to VMs, measured in gigabytes (GB). Larger disk sizes contribute to higher storage costs.
 
-- **Transactions:** Transaction-based costs apply to storage and are influenced by the number of transactions per hour. Refer to the [storage billing documentation](https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-billing) for detailed information on transaction costs.
+- **Transactions:** Transaction-based costs apply to storage and are influenced by the number of transactions per hour. Refer to the [storage billing documentation](https://docs.microsoft.com/azure/storage/blobs/storage-blobs-billing) for detailed information on transaction costs.
 
 ## Virtual Network and Bandwidth:
 
