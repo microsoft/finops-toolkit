@@ -20,6 +20,9 @@
     .PARAMETER StorageContainer
     Optional. Name of the container to get exports for. Supports wildcards. Default = null (all exports).
 
+    .PARAMETER RunHistory
+    Optional. Indicates whether the run history should be expanded. Default = false.
+
     .PARAMETER ApiVersion
     Optional. API version to use when calling the Cost Management exports API. Default = 2023-03-01.
 
@@ -84,6 +87,10 @@ function Get-FinOpsCostExport
         $StorageContainer,
 
         [Parameter()]
+        [switch]
+        $RunHistory,
+
+        [Parameter()]
         [string]
         $ApiVersion = '2023-08-01'
     )
@@ -103,7 +110,7 @@ function Get-FinOpsCostExport
     }
 
     $scope = $scope.Trim("/")
-    $path = "$scope/providers/Microsoft.CostManagement/exports?api-version=$ApiVersion"
+    $path = "$scope/providers/Microsoft.CostManagement/exports?api-version=$ApiVersion&`$expand=$(if ($RunHistory) { 'runHistory' })"
 
     # Get operation does not allow wildcards. Fetching all exports using list operation and then filtering in script
     # https://learn.microsoft.com/en-us/rest/api/cost-management/exports/list?tabs=HTTP
@@ -160,6 +167,18 @@ function Get-FinOpsCostExport
                 DataSetStartDate    = $_.properties.definition.timePeriod.from
                 DataSetEndDate      = $_.properties.definition.timePeriod.to
                 DatasetGranularity  = $_.properties.definition.dataset.granularity
+                RunHistory          = $_.properties.runHistory.value | Where-Object { $_ -ne $null } | ForEach-Object {
+                    [PSCustomObject]@{
+                        Id            = $_.id
+                        ExecutionType = $_.properties.executionType
+                        FileName      = $_.fileName
+                        StartTime     = $_.processingStartTime
+                        EndTime       = $_.processingEndTime
+                        Status        = $_.status
+                        SubmittedBy   = $_.submittedBy
+                        SubmittedTime = $_.submittedTime
+                    }
+                }
             }
             $exportdetails += $item
         }

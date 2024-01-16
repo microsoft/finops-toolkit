@@ -132,6 +132,7 @@ Legend:
 >
 > 1. [New-FinOpsCostExport](./powershell/cost/New-FinOpsCostExport.md) to create and update Cost Management exports.
 > 2. [Start-FinOpsCostExport](./powershell/cost/Start-FinOpsCostExport.md) to run a Cost Management export immediately.
+> 3. [Get-FinOpsCostExport](./powershell/cost/Get-FinOpsCostExport.md) now has a `-RunHistory` option to include the run history of each export.
 >
 > 🛠️ Fixed:
 >

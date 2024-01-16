@@ -30,18 +30,20 @@ Describe 'CostExports' {
                 
                 # Assert
                 Report -Object $newResult
-                $newResult | Should -Not -BeNull
+                $newResult.Name | Should -Be $exportName
+                $newResult.RunHistory | Should -BeNullOrEmpty -Because "the -RunHistory option was not specified"
             }
 
             Monitor "Getting $exportName..." {
                 # Act -- read
-                $getResult = Get-FinOpsCostExport -Name $exportName -Scope $scope
+                $getResult = Get-FinOpsCostExport -Name $exportName -Scope $scope -RunHistory
 
                 # Assert
-                Report "  Found $($getResult.Count) export(s)"
+                Report "Found $($getResult.Count) export(s)"
                 Report -Object $getResult
                 $getResult.Count | Should -Be 1
                 $getResult.Name | Should -Be $exportName
+                $getResult.RunHistory.Count | Should -BeGreaterThan 0 -Because "-Execute -Backfill 1 was specified during creation"
             }
 
             Monitor "Running $exportName..." {
