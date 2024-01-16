@@ -47,16 +47,21 @@ function Start-FinOpsCostExport
     
     if (-not $export)
     {
-        Write-Output "Export $Name not found. Did you specify the correct scope?"
+        Write-Error "Export $Name not found. Did you specify the correct scope?" -ErrorAction Stop
     }
     else
     {
-        $runpath = "$(export.Id)/run?api-version=$ApiVersion"
+        $runpath = "$($export.Id)/run?api-version=$ApiVersion"
         Write-Verbose "Executing export $runpath"
-        $executeresponse = Invoke-Rest -Path $runpath -Method POST
-        if ($executeresponse.StatusCode -eq 200) 
+        $response = Invoke-Rest -Method POST -Uri $runpath -CommandName "Start-FinOpsCostExport"
+        if ($response.Success)
         {
             Write-Verbose "Export executed successfully"
         }
+        else
+        {
+            Write-Verbose "Export failed to execute"
+        }
+        return $response.Success
     }
 }

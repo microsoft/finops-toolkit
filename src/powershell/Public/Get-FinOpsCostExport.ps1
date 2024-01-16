@@ -109,14 +109,13 @@ function Get-FinOpsCostExport
     # https://learn.microsoft.com/en-us/rest/api/cost-management/exports/list?tabs=HTTP
 
     Write-Verbose -Message "fetching all exports for scope:$scope"
-    $httpResponse = Invoke-AzRestMethod -Path $path
+    $response = Invoke-Rest -Method GET -Uri $path -CommandName "Get-FinOpsCostExport"
 
-    Write-Verbose -Message "response received with status code $($httpResponse.StatusCode)"
+    Write-Verbose -Message "response received with status code $($response.StatusCode)"
 
-    if ($httpResponse.StatusCode -eq 200)
+    if ($response.Success)
     {
-
-        $content = $(ConvertFrom-Json -InputObject $httpResponse.Content -Depth 20).Value
+        $content = $response.Content.Value
         Write-Verbose -Message "found $($content.count) export items for the scope $scope"
 
         # Name parameter received
@@ -142,9 +141,7 @@ function Get-FinOpsCostExport
         }
         $exportdetails = @()
         $content | ForEach-Object {
-
             $item = [PSCustomObject]@{
-
                 Name                = $_.name
                 Id                  = $_.id
                 Type                = $_.type
@@ -165,15 +162,7 @@ function Get-FinOpsCostExport
                 DatasetGranularity  = $_.properties.definition.dataset.granularity
             }
             $exportdetails += $item
-
         }
         return $exportdetails
-    }
-    else
-    {
-        $errorobject = $($httpResponse.Content | ConvertFrom-Json).error
-        $errorcode = $errorobject.code
-        $errorcodemessage = $errorobject.message
-        Write-Error -Message $($script:LocalizedData.Common_ErrorResponse -f $errorcodemessage, $errorcode)
     }
 }
