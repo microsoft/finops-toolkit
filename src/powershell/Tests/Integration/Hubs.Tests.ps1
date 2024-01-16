@@ -29,7 +29,7 @@ Describe 'Hubs' {
                 # TODO: It's possible this could take some time; if this tests fails, add a wait, accept 'Registering', or remove it
                 Get-AzResourceProvider -ProviderNamespace $_ `
                 | Select-Object -ExpandProperty RegistrationState -First 1 `
-                | Should -Be 'Registered'
+                | Should -BeIn @('Registered', 'Registering')
             }
         }
     }
