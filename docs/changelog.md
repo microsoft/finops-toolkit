@@ -134,6 +134,11 @@ Legend:
 > 2. [Start-FinOpsCostExport](./powershell/cost/Start-FinOpsCostExport.md) to run a Cost Management export immediately.
 > 3. [Get-FinOpsCostExport](./powershell/cost/Get-FinOpsCostExport.md) now has a `-RunHistory` option to include the run history of each export.
 >
+> ✏️ Changed:
+>
+> 1. Updated the default API version for export commands to `2023-07-01-preview` to leverage new datasets and features.
+>    - Specify `2023-08-01` explicitly for the previous API version.
+>
 > 🛠️ Fixed:
 >
 > 1. Fixed typo in Deploy-FinOpsHub causing it to fail.

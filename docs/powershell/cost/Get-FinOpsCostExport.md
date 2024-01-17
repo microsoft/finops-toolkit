@@ -29,6 +29,12 @@ Get a list of Cost Management exports.
 
 The **Get-FinOpsCostExport** command gets a list of Cost Management exports for a given scope.
 
+This command has been tested with the following API versions:
+
+- 2023-07-01-preview (default) – Enables FocusCost and other datasets.
+- 2023-08-01
+- 2023-03-01
+
 <br>
 
 ## 🧮 Syntax
@@ -56,7 +62,7 @@ Get-FinOpsCostExport `
 | `‑StorageAccountId` | Optional. Resource ID of the storage account to get exports for. Default = null (all exports).                      |
 | `‑StorageContainer` | Optional. Name of the container to get exports for. Supports wildcards. Default = null (all exports).               |
 | `‑RunHistory`       | Optional. Indicates whether the run history should be expanded. Default = false.                                    |
-| `‑ApiVersion`       | Optional. API version to use when calling the Cost Management exports API. Default = 2023-03-01.                    |
+| `‑ApiVersion`       | Optional. API version to use when calling the Cost Management exports API. Default = 2023-07-01-preview.            |
 
 <br>
 

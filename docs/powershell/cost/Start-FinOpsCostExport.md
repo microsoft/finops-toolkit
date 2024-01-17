@@ -29,6 +29,11 @@ Initiates a Cost Management export run for the most recent period.
 
 The **Start-FinOpsCostExport** command runs a Cost Management export for the most recent period using the Run API.
 
+This command has been tested with the following API versions:
+
+- 2023-07-01-preview (default) – Enables FocusCost and other datasets.
+- 2023-08-01
+
 <br>
 
 ## 🧮 Syntax
@@ -44,11 +49,11 @@ Start-FinOpsCostExport `
 
 ## 📥 Parameters
 
-| Name                | Description                                                                                                         |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `‑Name`             | Optional. Name of the export. Supports wildcards.                                                                   |
-| `‑Scope`            | Optional. Resource ID of the scope the export was created for. If empty, defaults to current subscription context.  |
-| `‑ApiVersion`       | Optional. API version to use when calling the Cost Management exports API. Default = 2023-03-01.                    |
+| Name          | Description                                                                                                        |
+| ------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `‑Name`       | Optional. Name of the export. Supports wildcards.                                                                  |
+| `‑Scope`      | Optional. Resource ID of the scope the export was created for. If empty, defaults to current subscription context. |
+| `‑ApiVersion` | Optional. API version to use when calling the Cost Management exports API. Default = 2023-03-01.                   |
 
 <br>
 

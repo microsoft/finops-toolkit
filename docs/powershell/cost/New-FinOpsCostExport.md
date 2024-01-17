@@ -29,6 +29,11 @@ Creates a new Cost Management export.
 
 The **New-FinOpsCostExport** command creates a new Cost Management export for the specified scope.
 
+This command has been tested with the following API versions:
+
+- 2023-07-01-preview (default) – Enables FocusCost and other datasets.
+- 2023-08-01
+
 <br>
 
 ## 🧮 Syntax
@@ -39,27 +44,38 @@ New-FinOpsCostExport `
     [-Name] <string> `
     -Scope <string> `
     [-Dataset <string>] `
+    [-DatasetVersion <string>] `
+    [-DatasetFilters <hashtable>] `
     [-Monthly] `
     [-StartDate <DateTime>] `
     [-EndDate <DateTime>] `
     -StorageAccountId <string> `
     [-StorageContainer <string>] `
     [-StoragePath <string>] `
+    [-Location] `
+    [-DoNotPartition] `
+    [-DoNotOverwrite] `
     [-Execute] `
     [-Backfill <int>] `
     [-ApiVersion <string>]
+```
 
+```powershell
 # Create a new one-time export
 New-FinOpsCostExport `
     [-Name] <string> `
     -Scope <string> `
     [-Dataset <string>] `
-    -StorageAccountId <string> `
-    [-StorageContainer <string>] `
-    [-StoragePath <string>] `
+    [-DatasetVersion <string>] `
+    [-DatasetFilters <hashtable>] `
     -OneTime `
     -StartDate <DateTime> `
     -EndDate <DateTime> `
+    -StorageAccountId <string> `
+    [-StorageContainer <string>] `
+    [-StoragePath <string>] `
+    [-Location] `
+    [-DoNotPartition] `
     [-ApiVersion <string>]
 ```
 
@@ -67,21 +83,28 @@ New-FinOpsCostExport `
 
 ## 📥 Parameters
 
-| Name                | Description                                                                                                                                                                              |
-| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `‑Name`             | Required. Name of the export.                                                                                                                                                            |
-| `‑Scope`            | Required. Resource ID of the scope to export data for.                                                                                                                                   |
-| `‑Dataset`          | Optional. Dataset to export. Allowed values = "ActualCost", "AmortizedCost". Default = "ActualCost".                                                                                     |
-| `‑Monthly`          | Optional. Indicates that the export should be executed monthly (instead of daily). Default = false.                                                                                      |
-| `‑OneTime`          | Optional. Indicates that the export should only be executed once. When set, the start/end dates are the dates to query data for. Cannot be used in conjunction with the -Monthly option. |
-| `‑StartDate`        | Optional. Day to start running exports. If -OneTime is set, this is required (not defaulted) and is used as the first day to query data for. Default = DateTime.Now.                     |
-| `‑EndDate`          | Optional. Last day to run the export. If -OneTime is set, this is required (not defaulted) and is used as the last day to query data for. Default = 5 years from -StartDate.             |
-| `‑StorageAccountId` | Required. Resource ID of the storage account to export data to.                                                                                                                          |
-| `‑StorageContainer` | Optional. Name of the container to export data to. Container is created if it doesn't exist. Default = "cost-management".                                                                |
-| `‑StoragePath`      | Optional. Path to export data to within the storage container. Default = (scope ID).                                                                                                     |
-| `‑Execute`          | Optional. Indicates that the export should be run immediately after created.                                                                                                             |
-| `‑Backfill`         | Optional. Number of months to export the data for. This is only run once at create time. Failed exports are not re-attempted. Not supported when -OneTime is set. Default = 0.           |
-| `‑ApiVersion`       | Optional. API version to use when calling the Cost Management Exports API. Default = 2023-03-01.                                                                                         |
+| Name                | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `‑Name`             | Required. Name of the export.                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `‑Scope`            | Required. Resource ID of the scope to export data for.                                                                                                                                                                                                                                                                                                                                                                                                           |
+| `‑Dataset`          | Optional. Dataset to export. Allowed values = "ActualCost", "AmortizedCost". Default = "ActualCost".                                                                                                                                                                                                                                                                                                                                                             |
+| `‑DatasetVersion`   | Optional. Schema version of the dataset to export. Default = "1.0-preview (v1)" (applies to FocusCost only).                                                                                                                                                                                                                                                                                                                                                     |
+| `‑DatasetFilters`   | Optional. Dictionary of key/value pairs to filter the dataset with. Only applies to ReservationRecommendations dataset in 2023-07-01-preview. Valid filters are reservationScope (Shared or Single), resourceType (e.g., VirtualMachines), lookBackPeriod (Last7Days, Last30Days, Last60Days).                                                                                                                                                                   |
+| `‑Monthly`          | Optional. Indicates that the export should be executed monthly (instead of daily). Default = false.                                                                                                                                                                                                                                                                                                                                                              |
+| `‑OneTime`          | Optional. Indicates that the export should only be executed once. When set, the start/end dates are the dates to query data for. Cannot be used in conjunction with the -Monthly option.                                                                                                                                                                                                                                                                         |
+| `‑StartDate`        | Optional. Day to start running exports. If -OneTime is set, this is required (not defaulted) and is used as the first day to query data for. Default = DateTime.Now.                                                                                                                                                                                                                                                                                             |
+| `‑EndDate`          | Optional. Last day to run the export. If -OneTime is set, this is required (not defaulted) and is used as the last day to query data for. Default = 5 years from -StartDate.                                                                                                                                                                                                                                                                                     |
+| `‑StorageAccountId` | Required. Resource ID of the storage account to export data to.                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `‑StorageContainer` | Optional. Name of the container to export data to. Container is created if it doesn't exist. Default = "cost-management".                                                                                                                                                                                                                                                                                                                                        |
+| `‑StoragePath`      | Optional. Path to export data to within the storage container. Default = (scope ID).                                                                                                                                                                                                                                                                                                                                                                             |
+| `‑Location`         | Optional. Indicates the Azure location to use for the managed identity used to push data to the storage account. Managed identity is required in order to work with storage accounts behind a firewall but require access to grant permissions (e.g., Owner). If specified, managed identity will be used; otherwise, managed identity will not be used and your export will not be able to push data to a storage account behind a firewall. Default = (empty). |
+| `‑DoNotPartition`   | Optional. Indicates whether to partition the exported data into multiple files. Partitioning is recommended for reliability so this option is to disable partitioning. Default = false.                                                                                                                                                                                                                                                                          |
+| `‑DoNotOverwrite`   | Optional. Indicates whether to overwrite previously exported data for the current month. Overwriting is recommended to keep storage size and costs down so this option is to disable overwriting. Default = false.                                                                                                                                                                                                                                               |
+| `‑Execute`          | Optional. Indicates that the export should be run immediately after created.                                                                                                                                                                                                                                                                                                                                                                                     |
+| `‑Backfill`         | Optional. Number of months to export the data for. This is only run once at create time. Failed exports are not re-attempted. Not supported when -OneTime is set. Default = 0.                                                                                                                                                                                                                                                                                   |
+| `‑Execute`          | Optional. Indicates that the export should be run immediately after created.                                                                                                                                                                                                                                                                                                                                                                                     |
+| `‑Backfill`         | Optional. Number of months to export the data for. This is only run once at create time. Failed exports are not re-attempted. Not supported when -OneTime is set. Default = 0.                                                                                                                                                                                                                                                                                   |
+| `‑ApiVersion`       | Optional. API version to use when calling the Cost Management Exports API. Default = 2023-07-01-preview.                                                                                                                                                                                                                                                                                                                                                         |
 
 <br>
 

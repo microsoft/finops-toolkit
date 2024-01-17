@@ -5,6 +5,13 @@
     .SYNOPSIS
     Get list of Cost Management exports.
 
+    .DESCRIPTION
+    The Get-FinOpsCostExport command gets a list of Cost Management exports for a given scope.
+
+    This command has been tested with the following API versions:
+    - 2023-07-01-preview (default) – Enables FocusCost and other datasets.
+    - 2023-08-01
+
     .PARAMETER Name
     Optional. Name of the export. Supports wildcards.
 
@@ -24,7 +31,7 @@
     Optional. Indicates whether the run history should be expanded. Default = false.
 
     .PARAMETER ApiVersion
-    Optional. API version to use when calling the Cost Management exports API. Default = 2023-03-01.
+    Optional. API version to use when calling the Cost Management exports API. Default = 2023-07-01-preview.
 
     .EXAMPLE
     Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000"
@@ -52,7 +59,7 @@
     Gets all exports within the subscription scope for a specific container. Supports wildcard.
 
     .EXAMPLE
-    Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageContainer "mtd*" -ApiVersion "2023-08-01"
+    Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageContainer "mtd*" -ApiVersion "2023-07-01-preview"
 
     Gets all exports within the subscription scope for a container matching wildcard pattern and using a specific API version.
 
@@ -92,7 +99,7 @@ function Get-FinOpsCostExport
 
         [Parameter()]
         [string]
-        $ApiVersion = '2023-08-01'
+        $ApiVersion = '2023-07-01-preview'
     )
 
     $context = Get-AzContext
@@ -110,7 +117,7 @@ function Get-FinOpsCostExport
     }
 
     $scope = $scope.Trim("/")
-    $path = "$scope/providers/Microsoft.CostManagement/exports?api-version=$ApiVersion&`$expand=$(if ($RunHistory) { 'runHistory' })"
+    $path = "$scope/providers/Microsoft.CostManagement/exports?api-version=$ApiVersion$(if ($RunHistory) { '&$expand=runHistory' })"
 
     # Get operation does not allow wildcards. Fetching all exports using list operation and then filtering in script
     # https://learn.microsoft.com/en-us/rest/api/cost-management/exports/list?tabs=HTTP
@@ -153,6 +160,14 @@ function Get-FinOpsCostExport
                 Id                  = $_.id
                 Type                = $_.type
                 eTag                = $_.eTag
+                Description         = $_.properties.exportDescription
+                Dataset             = $_.properties.definition.type
+                DatasetVersion      = $_.properties.definition.configuration.dataVersion
+                DatasetFilters      = $_.properties.definition.configuration.filter
+                DatasetTimeFrame    = $_.properties.definition.timeframe
+                DatasetStartDate    = $_.properties.definition.timePeriod.from
+                DatasetEndDate      = $_.properties.definition.timePeriod.to
+                DatasetGranularity  = $_.properties.definition.dataset.granularity
                 ScheduleStatus      = $_.properties.schedule.status
                 ScheduleRecurrence  = $_.properties.schedule.recurrence
                 ScheduleStartDate   = $_.properties.schedule.recurrencePeriod.from
@@ -162,11 +177,9 @@ function Get-FinOpsCostExport
                 StorageAccountId    = $_.properties.deliveryInfo.destination.resourceId
                 StorageContainer    = $_.properties.deliveryInfo.destination.container
                 StoragePath         = $_.properties.deliveryInfo.destination.rootfolderpath
-                DataSet             = $_.properties.definition.type
-                DataSetTimeFrame    = $_.properties.definition.timeframe
-                DataSetStartDate    = $_.properties.definition.timePeriod.from
-                DataSetEndDate      = $_.properties.definition.timePeriod.to
-                DatasetGranularity  = $_.properties.definition.dataset.granularity
+                OverwriteData       = $_.properties.deliveryInfo.dataOverwriteBehavior -eq "OverwritePreviousReport"
+                PartitionData       = $_.properties.deliveryInfo.partitionData
+                CompressionMode     = $_.properties.deliveryInfo.compressionMode
                 RunHistory          = $_.properties.runHistory.value | Where-Object { $_ -ne $null } | ForEach-Object {
                     [PSCustomObject]@{
                         Id            = $_.id

@@ -8,6 +8,11 @@
     .DESCRIPTION
     The Start-FinOpsCostExport command runs a Cost Management export for the most recent period using the Run API.
 
+    This command has been tested with the following API versions:
+    - 2023-07-01-preview (default) – Enables FocusCost and other datasets.
+    - 2023-08-01
+    - 2023-03-01
+
     .PARAMETER Name
     Required. Name of the export.
 
@@ -15,7 +20,7 @@
     Optional. Resource ID of the scope to export data for. If empty, defaults to current subscription context.
 
     .PARAMETER ApiVersion
-    Optional. API version to use when calling the Cost Management Exports API. Default = 2023-03-01.
+    Optional. API version to use when calling the Cost Management Exports API. Default = 2023-07-01-preview.
 
     .EXAMPLE
     Start-FinopsCostExport -Name 'July2023OneTime'
@@ -40,7 +45,7 @@ function Start-FinOpsCostExport
 
         [Parameter()]
         [string]
-        $ApiVersion = '2023-08-01'
+        $ApiVersion = '2023-07-01-preview'
     )
 
     $export = Get-FinOpsCostExport -Name $Name -Scope $Scope

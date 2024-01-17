@@ -40,7 +40,7 @@ function Invoke-Rest
         $Uri,
         
         [Parameter()]
-        [string]
+        [PSCustomObject]
         $Body,
         
         [Parameter(Mandatory = $true)]
@@ -68,12 +68,16 @@ function Invoke-Rest
         }
         ErrorAction = "Stop"
     }
+    if ($Body)
+    {
+        $params.Body = $Body | ConvertTo-Json -Depth 100
+    }
     
     Write-Verbose "Invoking $Method $fullUri with request body $Body`n"
 
     try
     {
-        $response = Invoke-WebRequest @params -Body $Body
+        $response = Invoke-WebRequest @params
         $content = $response.Content | ConvertFrom-Json -Depth 100
     }
     catch

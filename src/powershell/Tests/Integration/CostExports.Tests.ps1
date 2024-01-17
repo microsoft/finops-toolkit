@@ -27,6 +27,7 @@ Describe 'CostExports' {
             Monitor "Creating $exportName export..." {
                 # Act -- create
                 $newResult = New-FinOpsCostExport -Name $exportName -Scope $scope -StorageAccountId $storage.Id -Execute -Backfill 1
+                # TODO: Run tests for all supported API versions: -ApiVersion '2023-08-01'
                 
                 # Assert
                 Report -Object $newResult
