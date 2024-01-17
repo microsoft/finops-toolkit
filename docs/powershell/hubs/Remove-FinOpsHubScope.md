@@ -78,6 +78,6 @@ Removes the exports configured to use the FooHub hub instance and removes data f
 
 ## 🧰 Related tools
 
-{% include tools.md hubs="1" %}
+{% include tools.md hubs="1" pbi="1" %}
 
 <br>

@@ -51,6 +51,7 @@ Import-Module -Name FinOpsToolkit
 - [Get-FinOpsCostExport](cost/Get-FinOpsCostExport.md) – Get details about Cost Management exports.
 - [New-FinOpsCostExport](cost/New-FinOpsCostExport.md) – Create a new Cost Management export.
 - [Remove-FinOpsCostExport](cost/Remove-FinOpsCostExport.md) – Delete a Cost Management export and optionally data associated with the export.
+- [Start-FinOpsCostExport](cost/Start-FinOpsCostExport.md) – Initiates a Cost Management export run for the most recent period.
 
 ### FinOps hubs commands
 

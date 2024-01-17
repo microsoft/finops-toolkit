@@ -73,6 +73,6 @@ Runs an export called 'July2023OneTime'.
 
 ## 🧰 Related tools
 
-{% include tools.md hubs="1" ps="1" %}
+{% include tools.md hubs="1" pbi="1" %}
 
 <br>
