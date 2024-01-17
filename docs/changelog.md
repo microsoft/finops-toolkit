@@ -17,7 +17,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
-- [🛠️ v0.2](#️-v02)
+- [🚚 v0.2](#-v02)
 - [🛠️ v0.1.1](#️-v011)
 - [🚚 v0.1](#-v01)
 - [🌱 v0.0.1](#-v001)
@@ -95,7 +95,7 @@ Legend:
 
 <br>
 
-## 🛠️ v0.2
+## 🚚 v0.2
 
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -147,6 +147,17 @@ Legend:
 🖥️ PowerShell
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
+> ➕ Added:
+>
+> 1. [New-FinOpsCostExport](./powershell/cost/New-FinOpsCostExport.md) to create and update Cost Management exports.
+> 2. [Start-FinOpsCostExport](./powershell/cost/Start-FinOpsCostExport.md) to run a Cost Management export immediately.
+> 3. [Get-FinOpsCostExport](./powershell/cost/Get-FinOpsCostExport.md) now has a `-RunHistory` option to include the run history of each export.
+>
+> ✏️ Changed:
+>
+> 1. Updated the default API version for export commands to `2023-07-01-preview` to leverage new datasets and features.
+>    - Specify `2023-08-01` explicitly for the previous API version.
+>
 > 🛠️ Fixed:
 >
 > 1. Fixed typo in Deploy-FinOpsHub causing it to fail.
@@ -170,8 +181,8 @@ Legend:
 >    1. [ConvertTo-FinOpsSchema](./powershell/focus/ConvertTo-FinOpsSchema.md)
 >    2. [Invoke-FinOpsSchemaTransform](./powershell/focus/Invoke-FinOpsSchemaTransform.md)
 > 2. New PowerShell commands to get and delete Cost Management exports:
->    1. Get-FinOpsCostExport
->    2. Remove-FinOpsCostExport
+>    1. [Get-FinOpsCostExport](./powershell/cost/Get-FinOpsCostExport.md)
+>    2. [Remove-FinOpsCostExport](./powershell/cost/Remove-FinOpsCostExport.md)
 
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }

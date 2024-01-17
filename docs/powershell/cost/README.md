@@ -1,15 +1,15 @@
 ---
 layout: default
 parent: PowerShell
-title: Open data
+title: Cost Management
 has_children: true
-nav_order: 9
-description: 'PowerShell commands to work with FinOps toolkit open data.'
-permalink: /powershell/data
+nav_order: 2
+description: 'PowerShell commands to support Cost Management capabilities.'
+permalink: /powershell/hubs
 ---
 
-<span class="fs-9 d-block mb-4">Open data integration</span>
-Work with FinOps toolkit open data within your data ingestion and cleansing efforts.
+<span class="fs-9 d-block mb-4">Cost Management automation</span>
+Leverage and manage Cost Management capabilities.
 {: .fs-6 .fw-300 }
 
 [Install](../README.md#️-install-the-module){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
@@ -26,15 +26,16 @@ Work with FinOps toolkit open data within your data ingestion and cleansing effo
 
 ---
 
-The FinOps toolkit open data PowerShell commands help you integrate datasets into your workflow.
+The Cost Management PowerShell commands help you manage Cost Management features.
 
 <br>
 
 ## ⚡ Commands
 
-- [Get-FinOpsPricingUnit](Get-FinOpsPricingUnit.md) – Gets an Azure region ID and name.
-- [Get-FinOpsRegion](Get-FinOpsRegion.md) – Gets an Azure region ID and name.
-- [Get-FinOpsService](Get-FinOpsService.md) – Gets the name and category for a service, publisher, and cloud provider.
+- [Get-FinOpsCostExport](Get-FinOpsCostExport.md) – Get details about Cost Management exports.
+- [New-FinOpsCostExport](New-FinOpsCostExport.md) – Create a new Cost Management export.
+- [Remove-FinOpsCostExport](Remove-FinOpsCostExport.md) – Delete a Cost Management export and optionally data associated with the export.
+- [Start-FinOpsCostExport](Start-FinOpsCostExport.md) – Initiates a Cost Management export run for the most recent period.
 
 <br>
 
@@ -51,6 +52,6 @@ We'd love to hear about any commands or scripts you're looking for. Vote up (�
 
 ## 🧰 Related tools
 
-{% include tools.md hubs="1" pbi="1" data="1" %}
+{% include tools.md data="1" hubs="1" pbi="1" %}
 
 <br>

@@ -29,6 +29,12 @@ Get a list of Cost Management exports.
 
 The **Get-FinOpsCostExport** command gets a list of Cost Management exports for a given scope.
 
+This command has been tested with the following API versions:
+
+- 2023-07-01-preview (default) – Enables FocusCost and other datasets.
+- 2023-08-01
+- 2023-03-01
+
 <br>
 
 ## 🧮 Syntax
@@ -40,6 +46,7 @@ Get-FinOpsCostExport `
     [-DataSet <string>] `
     [-StorageAccountId <string>] `
     [-StorageContainer <string>] `
+    [-RunHistory] `
     [-ApiVersion <string>]
 ```
 
@@ -54,8 +61,8 @@ Get-FinOpsCostExport `
 | `‑DataSet`          | Optional. Dataset to get exports for. Allowed values = "ActualCost", "AmortizedCost". Default = null (all exports). |
 | `‑StorageAccountId` | Optional. Resource ID of the storage account to get exports for. Default = null (all exports).                      |
 | `‑StorageContainer` | Optional. Name of the container to get exports for. Supports wildcards. Default = null (all exports).               |
-| `‑ApiVersion`       | Optional. API version to use when calling the Cost Management exports API. Default = 2023-03-01.                    |
-
+| `‑RunHistory`       | Optional. Indicates whether the run history should be expanded. Default = false.                                    |
+| `‑ApiVersion`       | Optional. API version to use when calling the Cost Management exports API. Default = 2023-07-01-preview.            |
 
 <br>
 
@@ -70,7 +77,7 @@ Get-FinOpsCostExport `
 
 Gets all exports for a subscription. Does not include exports in nested resource groups.
 
-### Get export with name matching wildcard within a specific scope.
+### Get exports matching a wildcard name
 
 ```powershell
 Get-FinOpsCostExport `
@@ -89,7 +96,7 @@ Get-FinOpsCostExport `
 
 Gets all exports within the current context subscription scope and filtered by dataset AmortizedCost.
 
-### Get exports in a subscription for a specific storage account
+### Get exports using a specific storage account
 
 ```powershell
 Get-FinOpsCostExport `
@@ -99,7 +106,7 @@ Get-FinOpsCostExport `
 
 Gets all exports within the subscription scope filtered by a specific storage account.
 
-### Get subscription exports using a specific container.
+### Get exports using a specific container
 
 ```powershell
 Get-FinOpsCostExport `
@@ -126,6 +133,6 @@ Gets all exports within the subscription scope for a container matching wildcard
 
 ## 🧰 Related tools
 
-{% include tools.md hubs="1" %}
+{% include tools.md hubs="1" pbi="1" %}
 
 <br>
