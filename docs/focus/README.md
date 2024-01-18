@@ -57,51 +57,51 @@ FOCUS is the **best** version of cost and usage data you can get from Cost Manag
 
 - 💰 **Save 30% on storage and compute costs**
 
-  FOCUS combines billed (actual) and amortized costs in a single row, which results in 49% fewer rows compared to actual and amortized datasets together. Factoring in new FOCUS columns, the total data size is ~30% smaller than actual and amortized datasets, which is a direct savings on storage costs. You'll also save on compute costs since you'll be processing fewer rows. Exact compute savings will vary depending on your solution.
+  > FOCUS combines billed (actual) and amortized costs in a single row, which results in 49% fewer rows compared to actual and amortized datasets together. Factoring in new FOCUS columns, the total data size is ~30% smaller than actual and amortized datasets, which is a direct savings on storage costs. You'll also save on compute costs since you'll be processing fewer rows. Exact compute savings will vary depending on your solution.
 
 - 🔀 **Designed to handle multiple accounts and clouds**
 
-  Whether you're using multiple clouds or you have multiple account types in a single cloud (e.g., EA and MCA), FOCUS aligns your cost data into a single schema with consistent terminology that makes it easy to understand and optimize your costs across all your accounts.
+  > Whether you're using multiple clouds or you have multiple account types in a single cloud (e.g., EA and MCA), FOCUS aligns your cost data into a single schema with consistent terminology that makes it easy to understand and optimize your costs across all your accounts.
 
 - 🍎 **Easier to learn and aligned with the FinOps Framework**
 
-  FOCUS is the new "language" of FinOps. All FinOps Framework guidance will be updated to use FOCUS terminology and also include FOCUS queries and examples. This will make it easier to understand and implement FinOps best practices without requiring an extra layer of translation from cloud-agnostic guidance to cloud-specific implementation details. FOCUS enables cloud-agnostic patterns and guidance to go deeper and help you accomplish more with less effort.
+  > FOCUS is the new "language" of FinOps. All FinOps Framework guidance will be updated to use FOCUS terminology and also include FOCUS queries and examples. This will make it easier to understand and implement FinOps best practices without requiring an extra layer of translation from cloud-agnostic guidance to cloud-specific implementation details. FOCUS enables cloud-agnostic patterns and guidance to go deeper and help you accomplish more with less effort.
 
 - 🪪 **Clean, human-readable display names**
 
-  FOCUS uses clean, human-readable display names for all names, types, and categories. Friendly display names are available for services, resource types, regions, pricing, commitment discounts, and more.
+  > FOCUS uses clean, human-readable display names for all names, types, and categories. Friendly display names are available for services, resource types, regions, pricing, commitment discounts, and more.
 
 - 💲 **Uniquely identify the exact price-point**
 
-  FOCUS includes an identifier for the specific SKU price-point used for each charge (SkuPriceId). This is a unique identifier for the SKU inclusive of all pricing variations, like tiering and discounts, which is not currently available in actual or amortized datasets. Each charge also includes the unit prices you need to understand how you are or could be charged. List (or retail) unit price is what you would pay per unit without any negotiated discounts, your on-demand unit price is after negotiated discounts are applied, your effective (or amortized) unit price shows the conceptual price after pre-purchase commitment discounts were applied, and your billed unit price represents what was or will be invoiced.
+  > FOCUS includes an identifier for the specific SKU price-point used for each charge (SkuPriceId). This is a unique identifier for the SKU inclusive of all pricing variations, like tiering and discounts, which is not currently available in actual or amortized datasets. Each charge also includes the unit prices you need to understand how you are or could be charged. List (or retail) unit price is what you would pay per unit without any negotiated discounts, your on-demand unit price is after negotiated discounts are applied, your effective (or amortized) unit price shows the conceptual price after pre-purchase commitment discounts were applied, and your billed unit price represents what was or will be invoiced.
 
 - 💹 **Easier to quantify cost savings**
 
-  In addition to unit prices, FOCUS also includes columns to identify the specific pricing model used for each charge with list, on-demand, effective, and billed cost which makes it easier to quantify cost savings from negotiated and commitment discounts.
+  > In addition to unit prices, FOCUS also includes columns to identify the specific pricing model used for each charge with list, on-demand, effective, and billed cost which makes it easier to quantify cost savings from negotiated and commitment discounts.
 
 - 💎 **All prices and costs in a consistent currency**
 
-  FOCUS uses the billing currency for all prices and costs, which makes it easier to verify costs within the cost and usage data. Note this will differ from the prices in the native Cost Management datasets, which use the pricing currency.
+  > FOCUS uses the billing currency for all prices and costs, which makes it easier to verify costs within the cost and usage data. Note this will differ from the prices in the native Cost Management datasets, which use the pricing currency.
 
 - 🔡 **Organize and differentiate costs by service, resource, and SKU**
 
-  FOCUS clearly delineates between services, resources, and SKUs, which makes it easier to organize and differentiate costs. Service categorization is consistent across providers and offers a new perspective as it groups all resources consumed for a specific service together, regardless of the underlying product or SKU (e.g., bandwidth and compute costs both fall under the Virtual Machines service).
+  > FOCUS clearly delineates between services, resources, and SKUs, which makes it easier to organize and differentiate costs. Service categorization is consistent across providers and offers a new perspective as it groups all resources consumed for a specific service together, regardless of the underlying product or SKU (e.g., bandwidth and compute costs both fall under the Virtual Machines service).
 
 - 🌏 **More consistent regions**
 
-  The FOCUS dataset in Cost Management provides an extra layer of data cleansing to ensure regions are consistent with Azure Resource Manager. This means you'll see the same region names in FOCUS as you do in the Azure portal and Azure Resource Manager APIs.
+  > The FOCUS dataset in Cost Management provides an extra layer of data cleansing to ensure regions are consistent with Azure Resource Manager. This means you'll see the same region names in FOCUS as you do in the Azure portal and Azure Resource Manager APIs.
 
 - 📅 **Simpler date logic**
 
-  FOCUS uses exclusive end dates and industry standard ISO 8601 date formats for billing and charge periods, which makes it easier to filter and compare dates. This is especially useful when comparing to other dates, like the current date, since you don't have to guess about time zones or time of day.
+  > FOCUS uses exclusive end dates and industry standard ISO 8601 date formats for billing and charge periods, which makes it easier to filter and compare dates. This is especially useful when comparing to other dates, like the current date, since you don't have to guess about time zones or time of day.
 
 - 🏷️ **Tags and SKU details are provided in a consistent JSON format**
 
-  If you have an Enterprise Agreement account, you may know that tags are not formatted as JSON in actual and amortized datasets. FOCUS fixes this by providing tags and SKU details (AdditionalInfo) in a consistent JSON format.
+  > If you have an Enterprise Agreement account, you may know that tags are not formatted as JSON in actual and amortized datasets. FOCUS fixes this by providing tags and SKU details (AdditionalInfo) in a consistent JSON format.
 
 - 🎛️ **Identify and break usage down to discrete units**
 
-  FOCUS provides discrete pricing and usage units for each charge to help you understand how you're being charged compared to real-world usage units. This accounts for different pricing strategies like block pricing and makes it easier to verify pricing and usage quantities by providing data in separate columns.
+  > FOCUS provides discrete pricing and usage units for each charge to help you understand how you're being charged compared to real-world usage units. This accounts for different pricing strategies like block pricing and makes it easier to verify pricing and usage quantities by providing data in separate columns.
 
 <br>
 
