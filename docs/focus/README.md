@@ -278,6 +278,26 @@ Use the following table to update existing automation and reporting solutions to
 | Term                         | (All)                      | Use **x_SkuTerm**                                                                                                                                               |
 | UnitOfMeasure                | (All)                      | For the exact value, use **x_PricingUnitDescription**; for distinct units, use **PricingUnit** or **UsageUnit**; for the block size, use **x_PricingBlockSize** |
 
+### Generating a unique ID per row
+
+Use the following columns in the Cost Management FOCUS dataset to generate a unique ID:
+
+1. BillingAccountId
+2. ChargePeriodStart
+3. CommitmentDiscountId
+4. Region
+5. ResourceId
+6. SkuPriceId
+7. SubAccountId
+8. Tags
+9. x_AccountId
+10. x_CostCenter
+11. x_InvoiceSectionId
+12. x_SkuDetails
+13. x_SkuMeterId
+14. x_SkuOfferId
+15. x_SkuPartNumber
+
 <br>
 
 ## ⚠️ Important notes about FOCUS support
