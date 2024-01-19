@@ -279,6 +279,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "elvismangarae",
+      "name": "elvismangarae",
+      "avatar_url": "https://avatars.githubusercontent.com/u/73974080?v=4",
+      "profile": "https://github.com/elvismangarae",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "commitType": "docs",
