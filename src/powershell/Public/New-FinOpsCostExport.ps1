@@ -34,10 +34,10 @@
     Optional. Indicates that the export should only be executed once. When set, the start/end dates are the dates to query data for. Cannot be used in conjunction with the -Monthly option.
 
     .PARAMETER StartDate
-    Optional. Day to start running exports. If -OneTime is set, this is required (not defaulted) and is used as the first day to query data for. Default = DateTime.Now.
+    Optional. Day to start running exports. Default = First day of the previous month if -OneTime is set; otherwise, tomorrow (DateTime.Now.AddDays(1)).
 
     .PARAMETER EndDate
-    Optional. Last day to run the export. If -OneTime is set, this is required (not defaulted) and is used as the last day to query data for. Default = 5 years from -StartDate.
+    Optional. Last day to run the export. Default = Last day of the previous month if -OneTime is set; otherwise, 5 years from -StartDate.
 
     .PARAMETER StorageAccountId
     Required. Resource ID of the storage account to export data to.
@@ -92,7 +92,7 @@
         -Scope "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" `
         -StorageAccountId "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
         -DataSet AmortizedCost `
-        -StartDate $(Get-Date).AddDays(5) `
+        -StartDate $(Get-Date -AsUTC).AddDays(5) `
         -EndDate "2024-08-15" `
         -Monthly `
         -Execute
@@ -148,15 +148,15 @@ function New-FinOpsCostExport
         [switch]
         $OneTime,
 
-        [Parameter(ParameterSetName = "OneTime", Mandatory = $true)]
+        [Parameter(ParameterSetName = "OneTime")]
         [Parameter(ParameterSetName = "Scheduled")]
         [System.DateTime]
-        $StartDate = $(Get-Date).AddDays(1),
+        $StartDate,
 
-        [Parameter(ParameterSetName = "OneTime", Mandatory = $true)]
+        [Parameter(ParameterSetName = "OneTime")]
         [Parameter(ParameterSetName = "Scheduled")]
         [System.DateTime]
-        $EndDate = $StartDate.AddYears(5),
+        $EndDate,
 
         [Parameter(Mandatory = $true)]
         [string]
@@ -197,9 +197,35 @@ function New-FinOpsCostExport
 
     function getProperties()
     {
+        # Set default dates based on schedule type
+        $start = $StartDate
+        $end = $EndDate
+        if (-not $start)
+        {
+            if ($OneTime)
+            {
+                $start = $(Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0 -AsUTC).AddMonths(-1) 
+            }
+            else
+            {
+                $start = $(Get-Date -AsUTC).AddDays(1) 
+            }
+        }
+        if (-not $end)
+        {
+            if ($OneTime)
+            {
+                $end = $start.AddMonths(1).AddMilliseconds(-1)
+            }
+            else
+            {
+                $end = $start.AddYears(5)
+            }
+        }
+
         $timePeriod = @{
-            from = $StartDate.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'")
-            to   = $EndDate.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'")
+            from = $start.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")
+            to   = $end.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")
         }
 
         # Default storage path to scope ID
@@ -218,7 +244,7 @@ function New-FinOpsCostExport
                         granularity   = "Daily"
                     }
                 }
-                schedule      = @{ status = "Inctive" }
+                schedule      = @{ status = "Inactive" }
                 format        = "Csv"
                 deliveryInfo  = @{
                     destination = @{
@@ -243,7 +269,7 @@ function New-FinOpsCostExport
         # Add scheduling-specific settings
         if ($OneTime)
         {
-            $props.properties.definition.dataset | Add-Member -Name timePerod -Value $timePeriod -MemberType NoteProperty -Force
+            $props.properties.definition = $props.properties.definition | Add-Member -Name timePeriod -Value $timePeriod -MemberType NoteProperty -Force -PassThru
         }
         else
         {
@@ -289,16 +315,16 @@ function New-FinOpsCostExport
             
             # Add 2023-07-01-preview settings
             $props | Add-Member -Name name -Value $Name -MemberType NoteProperty -Force
-            $props.properties | Add-Member -Name exportDescription -Value $Description -MemberType NoteProperty -Force
-            $props.properties | Add-Member -Name dataOverwriteBehavior -Value "$(if ($DoNotOverwrite) { "CreateNewReport" } else { "OverwritePreviousReport" })" -MemberType NoteProperty -Force
-            $props.properties | Add-Member -Name compressionMode -Value "None" -MemberType NoteProperty -Force
-            $props.properties.definition.dataSet.configuration | Add-Member -Name dataVersion -Value $DatasetVersion -MemberType NoteProperty -Force
+            $props.properties = $props.properties | Add-Member -Name exportDescription -Value $Description -MemberType NoteProperty -Force -PassThru
+            $props.properties = $props.properties | Add-Member -Name dataOverwriteBehavior -Value "$(if ($DoNotOverwrite) { "CreateNewReport" } else { "OverwritePreviousReport" })" -MemberType NoteProperty -Force -PassThru
+            $props.properties = $props.properties | Add-Member -Name compressionMode -Value "None" -MemberType NoteProperty -Force -PassThru
+            $props.properties.definition.dataSet.configuration = $props.properties.definition.dataSet.configuration | Add-Member -Name dataVersion -Value $DatasetVersion -MemberType NoteProperty -Force -PassThru
             $props.properties.deliveryInfo.destination.type = "AzureBlob"
             
             # Add dataset filters
             if ($DatasetFilters.Count -gt 0)
             {
-                $props.properties.definition.dataSet.configuration | Add-Member -Name filters -Value $DatasetFilters -MemberType NoteProperty -Force
+                $props.properties.definition.dataSet.configuration = $props.properties.definition.dataSet.configuration | Add-Member -Name filters -Value $DatasetFilters -MemberType NoteProperty -Force -PassThru
             }
         }
         elseif ($Dataset -ne 'ActualCost' -and $Dataset -ne 'AmortizedCost')
@@ -344,7 +370,7 @@ function New-FinOpsCostExport
         Write-Verbose "Export with name $name already exists in scope $scope. Updating export."
         $etag = $export.etag
         Write-Verbose "Adding etag to the request for modify request"
-        $properties | Add-Member -Name eTag -Value $etag -MemberType NoteProperty -Force
+        $properties = $properties | Add-Member -Name eTag -Value $etag -MemberType NoteProperty -Force -PassThru
     }
     else
     {
@@ -352,9 +378,6 @@ function New-FinOpsCostExport
         Write-Verbose "Creating a new export from $startdateString to $enddateString : $uri"
     }
 
-    Write-Host $uri
-    Write-Host ($properties | ConvertTo-Json -Depth 100)
-    
     # Create/update export
     $createResponse = Invoke-Rest -Method PUT -Uri $uri -Body $properties @commandDetails
     if ($createResponse.Failure)
@@ -383,15 +406,15 @@ function New-FinOpsCostExport
             $etag = (Get-FinOpsCostExport -Name $Name -Scope $Scope -ApiVersion $ApiVersion).etag
 
             # insert etag in the properies object and convert it to json
-            $properties | Add-Member -Name eTag -Value $etag -MemberType NoteProperty -Force
+            $properties = $properties | Add-Member -Name eTag -Value $etag -MemberType NoteProperty -Force -PassThru
 
             Write-Verbose "Month $counter of $backfill"
-            $startofcurrentmonth = [datetime]$(Get-Date -Day 1).ToString("yyyy-MM-dd")
+            $startofcurrentmonth = [datetime]$(Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0 -AsUTC).ToString("yyyy-MM-dd")
 
             $startofpreviousmonth = $startofcurrentmonth.AddMonths($counter * -1)
             $endofpreviousmonth = $startofpreviousmonth.AddMonths(1).AddMilliseconds($counter * -1).ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'")
             $startofpreviousmonth = $startofpreviousmonth.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'")
-            $properties.properties.definition | Add-Member -Name timePeriod -Value @{ to = $endofpreviousmonth; from = $startofpreviousmonth } -MemberType NoteProperty -Force
+            $properties.properties.definition = $properties.properties.definition | Add-Member -Name timePeriod -Value @{ to = $endofpreviousmonth; from = $startofpreviousmonth } -MemberType NoteProperty -Force -PassThru
 
             $backfillsettings = $null
             $backfillsettings = $properties
@@ -420,7 +443,7 @@ function New-FinOpsCostExport
         Write-Verbose "Backfill complete. Updating export settings back to original scheduled settings"
         $etag = (Get-FinOpsCostExport -Name $Name -Scope $Scope -ApiVersion $ApiVersion).etag
         $properties = getProperties
-        $properties | Add-Member -Name eTag -Value $etag -MemberType NoteProperty -Force
+        $properties = $properties | Add-Member -Name eTag -Value $etag -MemberType NoteProperty -Force -PassThru
         $updateResponse = Invoke-Rest -Method PUT -Uri $uri -Body $properties @commandDetails
         if ($updateResponse.Failure)
         {
