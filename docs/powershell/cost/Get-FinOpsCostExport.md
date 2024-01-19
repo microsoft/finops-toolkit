@@ -20,6 +20,7 @@ Get a list of Cost Management exports.
 
 - [🧮 Syntax](#-syntax)
 - [📥 Parameters](#-parameters)
+- [📤 Return value](#-return-value)
 - [🌟 Examples](#-examples)
 - [🧰 Related tools](#-related-tools)
 
@@ -63,6 +64,53 @@ Get-FinOpsCostExport `
 | `‑StorageContainer` | Optional. Name of the container to get exports for. Supports wildcards. Default = null (all exports).               |
 | `‑RunHistory`       | Optional. Indicates whether the run history should be expanded. Default = false.                                    |
 | `‑ApiVersion`       | Optional. API version to use when calling the Cost Management exports API. Default = 2023-07-01-preview.            |
+
+<br>
+
+## 📤 Return value
+
+### FinOpsCostExport object
+
+| Property                                      | JSON path                                                                    |
+| --------------------------------------------- | ---------------------------------------------------------------------------- |
+| `Name`                                        | `name`                                                                       |
+| `Id`                                          | `id`                                                                         |
+| `Type`                                        | `type`                                                                       |
+| `eTag`                                        | `eTag`                                                                       |
+| `Description`                                 | `properties.exportDescription`                                               |
+| `Dataset`                                     | `properties.definition.type`                                                 |
+| `DatasetVersion`                              | `properties.definition.configuration.dataVersion`                            |
+| `DatasetFilters`                              | `properties.definition.configuration.filter`                                 |
+| `DatasetTimeFrame`                            | `properties.definition.timeframe`                                            |
+| `DatasetStartDate`                            | `properties.definition.timePeriod.from`                                      |
+| `DatasetEndDate`                              | `properties.definition.timePeriod.to`                                        |
+| `DatasetGranularity`                          | `properties.definition.dataset.granularity`                                  |
+| `ScheduleStatus`                              | `properties.schedule.status`                                                 |
+| `ScheduleRecurrence`                          | `properties.schedule.recurrence`                                             |
+| `ScheduleStartDate`                           | `properties.schedule.recurrencePeriod.from`                                  |
+| `ScheduleEndDate`                             | `properties.schedule.recurrencePeriod.to`                                    |
+| `NextRuntimeEstimate`                         | `properties.nextRunTimeEstimate`                                             |
+| `Format`                                      | `properties.format`                                                          |
+| `StorageAccountId`                            | `properties.deliveryInfo.destination.resourceId`                             |
+| `StorageContainer`                            | `properties.deliveryInfo.destination.container`                              |
+| `StoragePath`                                 | `properties.deliveryInfo.destination.rootfolderpath`                         |
+| `OverwriteData`                               | `properties.deliveryInfo.dataOverwriteBehavior` == "OverwritePreviousReport" |
+| `PartitionData`                               | `properties.deliveryInfo.partitionData`                                      |
+| `CompressionMode`                             | `properties.deliveryInfo.compressionMode`                                    |
+| `RunHistory` (see FinOpsCostExportRunHistory) | `properties.runHistory.value`                                                |
+
+### FinOpsCostExportRunHistory object
+
+| Property        | JSON path                                                |
+| --------------- | -------------------------------------------------------- |
+| `Id`            | `properties.runHistory.value[].id`                       |
+| `ExecutionType` | `properties.runHistory.value[].properties.executionType` |
+| `FileName`      | `properties.runHistory.value[].fileName`                 |
+| `StartTime`     | `properties.runHistory.value[].processingStartTime`      |
+| `EndTime`       | `properties.runHistory.value[].processingEndTime`        |
+| `Status`        | `properties.runHistory.value[].status`                   |
+| `SubmittedBy`   | `properties.runHistory.value[].submittedBy`              |
+| `SubmittedTime` | `properties.runHistory.value[].submittedTime`            |
 
 <br>
 
