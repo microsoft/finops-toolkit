@@ -297,6 +297,15 @@
       "contributions": [
         "question"
       ]
+    },
+    {
+      "login": "NavidKhan8",
+      "name": "NavidKhan8",
+      "avatar_url": "https://avatars.githubusercontent.com/u/114067987?v=4",
+      "profile": "https://github.com/NavidKhan8",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "commitType": "docs",
