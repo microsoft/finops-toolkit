@@ -115,6 +115,9 @@ All the main changes are tracked in the changelog. For additional details, refer
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/chris-bowman"><img src="https://avatars.githubusercontent.com/u/20289947?v=4?s=100" width="100px;" alt="Chris Bowman"/><br /><sub><b>Chris Bowman</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Achris-bowman" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/elvismangarae"><img src="https://avatars.githubusercontent.com/u/73974080?v=4?s=100" width="100px;" alt="elvismangarae"/><br /><sub><b>elvismangarae</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Aelvismangarae" title="Bug reports">🐛</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/erincon01"><img src="https://avatars.githubusercontent.com/u/7208487?v=4?s=100" width="100px;" alt="erincon01"/><br /><sub><b>erincon01</b></sub></a><br /><a href="#question-erincon01" title="Answering Questions">💬</a></td>
+    </tr>
   </tbody>
 </table>
 
