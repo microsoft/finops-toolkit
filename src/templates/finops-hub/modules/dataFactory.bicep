@@ -72,6 +72,108 @@ var autoStartRbacRoles = [
   'e40ec5ca-96e0-45a2-b4ff-59039f2c2b59' // Managed Identity Contributor - https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#managed-identity-contributor
 ]
 
+// FocusCost 1.0-preview (v1) columns
+var focusCostColumns = [
+  { name: 'AvailabilityZone', type: 'string' }
+  { name: 'BilledCost', type: 'decimal' }
+  { name: 'BillingAccountId', type: 'string' }
+  { name: 'BillingAccountName', type: 'string' }
+  { name: 'BillingAccountType', type: 'string' }
+  { name: 'BillingCurrency', type: 'string' }
+  { name: 'BillingPeriodEnd', type: 'datetime' }
+  { name: 'BillingPeriodStart', type: 'datetime' }
+  { name: 'ChargeCategory', type: 'string' }
+  { name: 'ChargeDescription', type: 'string' }
+  { name: 'ChargeFrequency', type: 'string' }
+  { name: 'ChargePeriodEnd', type: 'datetime' }
+  { name: 'ChargePeriodStart', type: 'datetime' }
+  { name: 'ChargeSubcategory', type: 'string' }
+  { name: 'CommitmentDiscountCategory', type: 'string' }
+  { name: 'CommitmentDiscountId', type: 'string' }
+  { name: 'CommitmentDiscountName', type: 'string' }
+  { name: 'CommitmentDiscountType', type: 'string' }
+  { name: 'EffectiveCost', type: 'decimal' }
+  { name: 'InvoiceIssuerName', type: 'string' }
+  { name: 'ListCost', type: 'decimal' }
+  { name: 'ListUnitPrice', type: 'decimal' }
+  { name: 'PricingCategory', type: 'string' }
+  { name: 'PricingQuantity', type: 'decimal' }
+  { name: 'PricingUnit', type: 'string' }
+  { name: 'ProviderName', type: 'string' }
+  { name: 'PublisherName', type: 'string' }
+  { name: 'Region', type: 'string' }
+  { name: 'ResourceId', type: 'string' }
+  { name: 'ResourceName', type: 'string' }
+  { name: 'ResourceType', type: 'string' }
+  { name: 'ServiceCategory', type: 'string' }
+  { name: 'ServiceName', type: 'string' }
+  { name: 'SkuId', type: 'string' }
+  { name: 'SkuPriceId', type: 'string' }
+  { name: 'SubAccountId', type: 'string' }
+  { name: 'SubAccountName', type: 'string' }
+  { name: 'SubAccountType', type: 'string' }
+  { name: 'Tags', type: 'string' }
+  { name: 'UsageQuantity', type: 'decimal' }
+  { name: 'UsageUnit', type: 'string' }
+  { name: 'x_AccountName', type: 'string' }
+  { name: 'x_AccountOwnerId', type: 'string' }
+  { name: 'x_BilledCostInUsd', type: 'decimal' }
+  { name: 'x_BilledUnitPrice', type: 'decimal' }
+  { name: 'x_BillingAccountId', type: 'string' }
+  { name: 'x_BillingAccountName', type: 'string' }
+  { name: 'x_BillingExchangeRate', type: 'decimal' }
+  { name: 'x_BillingExchangeRateDate', type: 'datetime' }
+  { name: 'x_BillingProfileId', type: 'string' }
+  { name: 'x_BillingProfileName', type: 'string' }
+  { name: 'x_ChargeId', type: 'string' }
+  { name: 'x_CostAllocationRuleName', type: 'string' }
+  { name: 'x_CostCenter', type: 'string' }
+  { name: 'x_CustomerId', type: 'string' }
+  { name: 'x_CustomerName', type: 'string' }
+  { name: 'x_EffectiveCostInUsd', type: 'decimal' }
+  { name: 'x_EffectiveUnitPrice', type: 'decimal' }
+  { name: 'x_InvoiceId', type: 'string' }
+  { name: 'x_InvoiceIssuerId', type: 'string' }
+  { name: 'x_InvoiceSectionId', type: 'string' }
+  { name: 'x_InvoiceSectionName', type: 'string' }
+  { name: 'x_OnDemandCost', type: 'decimal' }
+  { name: 'x_OnDemandCostInUsd', type: 'decimal' }
+  { name: 'x_OnDemandUnitPrice', type: 'decimal' }
+  { name: 'x_PartnerCreditApplied', type: 'boolean' }
+  { name: 'x_PartnerCreditRate', type: 'datetime' }
+  { name: 'x_PricingBlockSize', type: 'datetime' }
+  { name: 'x_PricingCurrency', type: 'string' }
+  { name: 'x_PricingSubcategory', type: 'string' }
+  { name: 'x_PricingUnitDescription', type: 'string' }
+  { name: 'x_PublisherCategory', type: 'string' }
+  { name: 'x_PublisherId', type: 'string' }
+  { name: 'x_ResellerId', type: 'string' }
+  { name: 'x_ResellerName', type: 'string' }
+  { name: 'x_ResourceGroupName', type: 'string' }
+  { name: 'x_ResourceType', type: 'string' }
+  { name: 'x_ServicePeriodEnd', type: 'datetime' }
+  { name: 'x_ServicePeriodStart', type: 'datetime' }
+  { name: 'x_SkuDescription', type: 'string' }
+  { name: 'x_SkuDetails', type: 'string' }
+  { name: 'x_SkuIsCreditEligible', type: 'boolean' }
+  { name: 'x_SkuMeterCategory', type: 'string' }
+  { name: 'x_SkuMeterId', type: 'string' }
+  { name: 'x_SkuMeterName', type: 'string' }
+  { name: 'x_SkuMeterSubcategory', type: 'string' }
+  { name: 'x_SkuOfferId', type: 'string' }
+  { name: 'x_SkuOrderId', type: 'string' }
+  { name: 'x_SkuOrderName', type: 'string' }
+  { name: 'x_SkuPartNumber', type: 'string' }
+  { name: 'x_SkuRegion', type: 'string' }
+  { name: 'x_SkuServiceFamily', type: 'string' }
+  { name: 'x_SkuTerm', type: 'string' }
+  { name: 'x_SkuTier', type: 'string' }
+]
+var focusCostMappings = [for i in range(0, length(focusCostColumns)): {
+  source: { name: focusCostColumns[i].name, type: 'string' }
+  sink: { name: focusCostColumns[i].name, type: focusCostColumns[i].type }
+}]
+
 //==============================================================================
 // Resources
 //==============================================================================
@@ -629,6 +731,10 @@ resource pipeline_msexports_ETL_ingestion 'Microsoft.DataFactory/factories/pipel
           enableStaging: false
           parallelCopies: 1
           validateDataConsistency: false
+          translator: {
+            type: 'TabularTranslator'
+            mappings: focusCostMappings
+          }
         }
         inputs: [
           {
