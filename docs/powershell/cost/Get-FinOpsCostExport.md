@@ -71,46 +71,46 @@ Get-FinOpsCostExport `
 
 ### FinOpsCostExport object
 
-| Property                                      | JSON path                                                                    |
-| --------------------------------------------- | ---------------------------------------------------------------------------- |
-| `Name`                                        | `name`                                                                       |
-| `Id`                                          | `id`                                                                         |
-| `Type`                                        | `type`                                                                       |
-| `eTag`                                        | `eTag`                                                                       |
-| `Description`                                 | `properties.exportDescription`                                               |
-| `Dataset`                                     | `properties.definition.type`                                                 |
-| `DatasetVersion`                              | `properties.definition.configuration.dataVersion`                            |
-| `DatasetFilters`                              | `properties.definition.configuration.filter`                                 |
-| `DatasetTimeFrame`                            | `properties.definition.timeframe`                                            |
-| `DatasetStartDate`                            | `properties.definition.timePeriod.from`                                      |
-| `DatasetEndDate`                              | `properties.definition.timePeriod.to`                                        |
-| `DatasetGranularity`                          | `properties.definition.dataset.granularity`                                  |
-| `ScheduleStatus`                              | `properties.schedule.status`                                                 |
-| `ScheduleRecurrence`                          | `properties.schedule.recurrence`                                             |
-| `ScheduleStartDate`                           | `properties.schedule.recurrencePeriod.from`                                  |
-| `ScheduleEndDate`                             | `properties.schedule.recurrencePeriod.to`                                    |
-| `NextRuntimeEstimate`                         | `properties.nextRunTimeEstimate`                                             |
-| `Format`                                      | `properties.format`                                                          |
-| `StorageAccountId`                            | `properties.deliveryInfo.destination.resourceId`                             |
-| `StorageContainer`                            | `properties.deliveryInfo.destination.container`                              |
-| `StoragePath`                                 | `properties.deliveryInfo.destination.rootfolderpath`                         |
-| `OverwriteData`                               | `properties.deliveryInfo.dataOverwriteBehavior` == "OverwritePreviousReport" |
-| `PartitionData`                               | `properties.deliveryInfo.partitionData`                                      |
-| `CompressionMode`                             | `properties.deliveryInfo.compressionMode`                                    |
-| `RunHistory` (see FinOpsCostExportRunHistory) | `properties.runHistory.value`                                                |
+| Property              | Type                         | JSON path                                                                    |
+| --------------------- | ---------------------------- | ---------------------------------------------------------------------------- |
+| `Name`                | String                       | `name`                                                                       |
+| `Id`                  | String                       | `id`                                                                         |
+| `Type`                | String                       | `type`                                                                       |
+| `eTag`                | String                       | `eTag`                                                                       |
+| `Description`         | String                       | `properties.exportDescription`                                               |
+| `Dataset`             | String                       | `properties.definition.type`                                                 |
+| `DatasetVersion`      | String                       | `properties.definition.configuration.dataVersion`                            |
+| `DatasetFilters`      | String                       | `properties.definition.configuration.filter`                                 |
+| `DatasetTimeFrame`    | String                       | `properties.definition.timeframe`                                            |
+| `DatasetStartDate`    | DateTime                     | `properties.definition.timePeriod.from`                                      |
+| `DatasetEndDate`      | DateTime                     | `properties.definition.timePeriod.to`                                        |
+| `DatasetGranularity`  | String                       | `properties.definition.dataset.granularity`                                  |
+| `ScheduleStatus`      | String                       | `properties.schedule.status`                                                 |
+| `ScheduleRecurrence`  | String                       | `properties.schedule.recurrence`                                             |
+| `ScheduleStartDate`   | DateTime                     | `properties.schedule.recurrencePeriod.from`                                  |
+| `ScheduleEndDate`     | DateTime                     | `properties.schedule.recurrencePeriod.to`                                    |
+| `NextRuntimeEstimate` | DateTime                     | `properties.nextRunTimeEstimate`                                             |
+| `Format`              | String                       | `properties.format`                                                          |
+| `StorageAccountId`    | String                       | `properties.deliveryInfo.destination.resourceId`                             |
+| `StorageContainer`    | String                       | `properties.deliveryInfo.destination.container`                              |
+| `StoragePath`         | String                       | `properties.deliveryInfo.destination.rootfolderpath`                         |
+| `OverwriteData`       | Boolean                      | `properties.deliveryInfo.dataOverwriteBehavior` == "OverwritePreviousReport" |
+| `PartitionData`       | Boolean                      | `properties.deliveryInfo.partitionData`                                      |
+| `CompressionMode`     | String                       | `properties.deliveryInfo.compressionMode`                                    |
+| `RunHistory`          | FinOpsCostExportRunHistory[] | `properties.runHistory.value`                                                |
 
 ### FinOpsCostExportRunHistory object
 
-| Property        | JSON path                                                |
-| --------------- | -------------------------------------------------------- |
-| `Id`            | `properties.runHistory.value[].id`                       |
-| `ExecutionType` | `properties.runHistory.value[].properties.executionType` |
-| `FileName`      | `properties.runHistory.value[].fileName`                 |
-| `StartTime`     | `properties.runHistory.value[].processingStartTime`      |
-| `EndTime`       | `properties.runHistory.value[].processingEndTime`        |
-| `Status`        | `properties.runHistory.value[].status`                   |
-| `SubmittedBy`   | `properties.runHistory.value[].submittedBy`              |
-| `SubmittedTime` | `properties.runHistory.value[].submittedTime`            |
+| Property        | Type     | JSON path                                                |
+| --------------- | -------- | -------------------------------------------------------- |
+| `Id`            | String   | `properties.runHistory.value[].id`                       |
+| `ExecutionType` | String   | `properties.runHistory.value[].properties.executionType` |
+| `FileName`      | String   | `properties.runHistory.value[].fileName`                 |
+| `StartTime`     | DateTime | `properties.runHistory.value[].processingStartTime`      |
+| `EndTime`       | DateTime | `properties.runHistory.value[].processingEndTime`        |
+| `Status`        | String   | `properties.runHistory.value[].status`                   |
+| `SubmittedBy`   | String   | `properties.runHistory.value[].submittedBy`              |
+| `SubmittedTime` | DateTime | `properties.runHistory.value[].submittedTime`            |
 
 <br>
 
