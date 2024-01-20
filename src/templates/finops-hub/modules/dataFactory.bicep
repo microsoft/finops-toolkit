@@ -446,7 +446,7 @@ resource pipeline_msexports_ETL_ingestion 'Microsoft.DataFactory/factories/pipel
         typeProperties: {
           variableName: 'scope'
           value: {
-            value: '@replace(split(pipeline().parameters.folderName,variables(\'folderArray\')[sub(length(variables(\'folderArray\')), 3)])[0],\'${exportContainerName}\',\'${ingestionContainerName}\')'
+            value: '@replace(split(pipeline().parameters.folderName,variables(\'folderArray\')[sub(length(variables(\'folderArray\')), if(greater(length(variables(\'folderArray\')[sub(length(variables(\'folderArray\')), 2)]), 12), 3, 4))])[0],\'${exportContainerName}\',\'${ingestionContainerName}\')'
             type: 'Expression'
           }
         }
@@ -467,7 +467,7 @@ resource pipeline_msexports_ETL_ingestion 'Microsoft.DataFactory/factories/pipel
         typeProperties: {
           variableName: 'metric'
           value: {
-            // TODO: Parse metric out of the export path with self-managed exports -- value: '@first(split(variables(\'folderArray\')[sub(length(variables(\'folderArray\')), 4)], \'-\'))'
+            // TODO: Parse metric out of the manifest file @ msexports/<scope>/<export-name>/<date-range>/[<timestamp?>/]<guid>/manifest.json
             value: 'focuscost'
             type: 'Expression'
           }
@@ -489,7 +489,7 @@ resource pipeline_msexports_ETL_ingestion 'Microsoft.DataFactory/factories/pipel
         typeProperties: {
           variableName: 'date'
           value: {
-            value: '@substring(variables(\'folderArray\')[sub(length(variables(\'folderArray\')), 2)], 0, 6)'
+            value: '@substring(variables(\'folderArray\')[sub(length(variables(\'folderArray\')), if(greater(length(variables(\'folderArray\')[sub(length(variables(\'folderArray\')), 2)]), 12), 2, 3))], 0, 6)'
             type: 'Expression'
           }
         }
@@ -785,44 +785,6 @@ resource startHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     ]
   }
 }
-
-// resource removeManagedIdentity_triggerManager 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//   name: 'removeManagedIdentity_triggerManager'
-//   kind: 'AzurePowerShell'
-//   location: location
-//   tags: tags
-//   identity: {
-//     type: 'UserAssigned'
-//     userAssignedIdentities: {
-//       '${identity.id}': {}
-//     }
-//   }
-//   dependsOn: [
-//     identityRoleAssignments
-//     trigger_msexports_FileAdded
-//     startHubTriggers
-//   ]
-//   properties: {
-//     azPowerShellVersion: '8.0'
-//     retentionInterval: 'PT1H'
-//     environmentVariables: [
-//       {
-//         name: 'managedIdentityName'
-//         value: identity.name
-//       }
-//       {
-//         name: 'resourceGroupName'
-//         value: resourceGroup().name
-//       }
-//       {
-//         name: 'dataFactoryName'
-//         value: dataFactoryName
-//       }
-//     ]
-//     scriptContent: loadTextContent('./scripts/Remove-ManagedIdentity.ps1')
-//     arguments: '-dataFactory'
-//   }
-// }
 
 //==============================================================================
 // Outputs
