@@ -315,6 +315,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "rodneyjoyce",
+      "name": "Rodney",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3522966?v=4",
+      "profile": "https://data-driven.ai",
+      "contributions": [
+        "review"
+      ]
     }
   ],
   "commitType": "docs",
