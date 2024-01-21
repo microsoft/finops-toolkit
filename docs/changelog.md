@@ -124,11 +124,13 @@ Legend:
 > 🛠️ Fixed:
 >
 > 1. Removed sensitivity labels.
-> 2. Fixed error in ChargeId column when ResourceId is empty.
-> 3. Removed the ChargeId column due to it bloating the data size.
+> 2. Fixed dynamic data source error when the Power BI service refreshes data.
+>    - Error message: "You can't schedule refresh for this semantic model because the following data sources currently don't support refresh..."
+> 3. Fixed error in ChargeId column when ResourceId is empty.
+> 4. Removed the ChargeId column due to it bloating the data size.
 >    - The field is commented out. If interested, you can enable uncomment it in the ftk_NormalizeSchema function. Just be aware that it duplicates a lot of columns to ensure uniqueness which bloats the data size significantly.
-> 4. Fixed null error when Billing Account ID is empty ([#473](https://github.com/microsoft/finops-toolkit/issues/473)).
-> 5. Added missing commitment discount refunds to the actual cost data ([#447](https://github.com/microsoft/finops-toolkit/issues/447)).
+> 5. Fixed null error when Billing Account ID is empty ([#473](https://github.com/microsoft/finops-toolkit/issues/473)).
+> 6. Added missing commitment discount refunds to the actual cost data ([#447](https://github.com/microsoft/finops-toolkit/issues/447)).
 
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
