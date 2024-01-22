@@ -6907,6 +6907,10 @@
           {
             "name": "PBI_ResultType",
             "value": "Function"
+          },
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
           }
         ],
         "description": [
@@ -6915,7 +6919,7 @@
           "Learn more @ https://aka.ms/finops/hubs"
         ],
         "expression": [
-          "(start, end) =>",
+          "(optional start as datetime, optional end as datetime) =>",
           "let",
           "    // Get the data",
           "    rawData = ftk_Hub(\"focuscost\", start, end),",
@@ -7048,6 +7052,10 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
+          },
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
           }
         ],
         "expression": [
@@ -7110,38 +7118,38 @@
           "    */",
           "",
           "    MainChecks = Table.InsertRows(#table({\"Instructions\", \"Value\", \"Status\", \"Message\"}, {}), 0, {",
-          "        [ Instructions = \"1️⃣ Set the storage URL parameter on the left\", Value = StorageUrl, Status = StorageCheck{0}, Message = StorageCheck{1} ],",
-          "        [ Instructions = \"     ➖ Go to your hub resource group\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"     ➖ Open Deployments > `hub` > Outputs\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"     ➖ Copy the 'storageUrlForPowerBI' value\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"① Set the storage URL parameter on the left\", Value = StorageUrl, Status = StorageCheck{0}, Message = StorageCheck{1} ],",
+          "        [ Instructions = \"        ➖ Go to your hub resource group\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        ➖ Open Deployments > `hub` > Outputs\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        ➖ Copy the 'storageUrlForPowerBI' value\", Value = \"\", Status = \"\", Message = \"\" ],",
           "        [ Instructions = \"        \", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"2️⃣ Set the start/end dates\", Value = DateTime.ToText(DateStart, [Format=\"MMM d, yyyy\"]) & \" - \" & DateTime.ToText(DateEnd, [Format=\"MMM d, yyyy\"]), Status = DateCheck{0}, Message = DateCheck{1} ],",
-          "        [ Instructions = \"     ➖ NOTE: Power BI can only support ~$16M in cost details!\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"     \", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"② Set the start/end dates\", Value = DateTime.ToText(DateStart, [Format=\"MMM d, yyyy\"]) & \" - \" & DateTime.ToText(DateEnd, [Format=\"MMM d, yyyy\"]), Status = DateCheck{0}, Message = DateCheck{1} ],",
+          "        [ Instructions = \"        ➖ NOTE: Power BI can only support ~$16M in cost details!\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        \", Value = \"\", Status = \"\", Message = \"\" ],",
           "        [ Instructions = \"▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"     \", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        \", Value = \"\", Status = \"\", Message = \"\" ],",
           "        [ Instructions = \"The following are only needed for reservation recommendations\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"     \", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"3️⃣ Set the Scope parameter on the left\", Value = Scope, Status = ScopeCheck{0}, Message = ScopeCheck{1} ],",
-          "        [ Instructions = \"     ➖ If using EA, set it to your enrollment number\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"     ➖ If using MCA, use the following steps to set your scope ID\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"           1. Go to https://aka.ms/costmgmt/config\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"           2. Change scope to the desired billing profile\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"           3. Select the Properties tile\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"           4. Use the 'ID' and 'Billing account ID' values to generate the scope ID\", Value = \"\", Status = \"\", Message = \"Example: /providers/Microsoft.Billing/billingAccounts/<id>/billingProfiles/<id>\" ],",
-          "        [ Instructions = \"                NOTE: Billing profile is required for MCA reservation recommendations\", Value = \"\", Status = (if CDSupported then \"✔️ Specified\" else \"⚠️ Missing\"), Message = (if CDSupported then \"\" else \"Reservation recommendations require a billing account.\") ],",
-          "        [ Instructions = \"           5. Save the value in 'CM connector' > 'Scope'\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"     \", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"4️⃣ Set the Type parameter based on your account type\", Value = Type, Status = TypeCheck{0}, Message = TypeCheck{1} ],",
-          "        [ Instructions = \"     ➖ For EA, use 'Enrollment Number'\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"     ➖ For MCA, use 'Manually Input Scope'\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"     ➖ This value is required for the Cost Management connector\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"     \", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"5️⃣ Set the number of months to include (more = slower load time)\", Value = Months, Status = MonthCheck{0}, Message = MonthCheck{1} ],",
-          "        [ Instructions = \"     ➖ 0  = current month only\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"     ➖ 1  = current month and 1 previous month\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"     ➖ 2+ = current month and 2+ previous months\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"     ➖ NOTE: Power BI can only support ~$16M in cost details!\", Value = \"\", Status = \"\", Message = \"\" ]",
+          "        [ Instructions = \"        \", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"③ Set the Scope parameter on the left\", Value = Scope, Status = ScopeCheck{0}, Message = ScopeCheck{1} ],",
+          "        [ Instructions = \"        ➖ If using EA, set it to your enrollment number\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        ➖ If using MCA, use the following steps to set your scope ID\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"              1. Go to https://aka.ms/costmgmt/config\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"              2. Change scope to the desired billing profile\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"              3. Select the Properties tile\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"              4. Use the 'ID' and 'Billing account ID' values to generate the scope ID\", Value = \"\", Status = \"\", Message = \"Example: /providers/Microsoft.Billing/billingAccounts/<id>/billingProfiles/<id>\" ],",
+          "        [ Instructions = \"                   NOTE: Billing profile is required for MCA reservation recommendations\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"              5. Save the value in 'CM connector' > 'Scope'\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        \", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"④ Set the Type parameter based on your account type\", Value = Type, Status = TypeCheck{0}, Message = TypeCheck{1} ],",
+          "        [ Instructions = \"        ➖ For EA, use 'Enrollment Number'\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        ➖ For MCA, use 'Manually Input Scope'\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        ➖ This value is required for the Cost Management connector\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        \", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"⑤ Set the number of months to include (more = slower load time)\", Value = Months, Status = MonthCheck{0}, Message = MonthCheck{1} ],",
+          "        [ Instructions = \"        ➖ 0  = current month only\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        ➖ 1  = current month and 1 previous month\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        ➖ 2+ = current month and 2+ previous months\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        ➖ NOTE: Power BI can only support ~$16M in cost details!\", Value = \"\", Status = \"\", Message = \"\" ]",
           "    })",
           "in",
           "    MainChecks"
@@ -7604,6 +7612,10 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
+          },
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
           }
         ],
         "columns": [
