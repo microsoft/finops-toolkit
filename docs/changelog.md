@@ -168,6 +168,9 @@ Legend:
 > 2. [Get-FinOpsResourceType](./powershell/data/Get-FinOpsResourceType.md) PowerShell command to support resource type to display name mapping.
 > 3. [Sample exports](./open-data/README.md#-sample-data) for each of the datasets that can be exported from Cost Management.
 
+[Download v0.2](https://github.com/microsoft/finops-toolkit/releases/tag/v0.2){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.1.1...v0.2){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+
 <br>
 
 ## 🛠️ v0.1.1
