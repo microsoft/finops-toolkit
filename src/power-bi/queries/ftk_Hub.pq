@@ -44,8 +44,8 @@ let
     FilterRowsByDate =
         if start = null and end = null then tbl
         else Table.SelectRows(tbl, each
-            (start = null or Date.From(Text.Range([ChargePeriodEnd], 0, 10)) >= Date.From(start))
-            and (end = null or Date.From(Text.Range([ChargePeriodStart], 0, 10)) < Date.From(end))
+            (start = null or [ChargePeriodEnd] >= DateTime.From(start))
+            and (end = null or [ChargePeriodStart] < DateTime.From(end))
         ),
 
     // TODO: Extract from the manifest
