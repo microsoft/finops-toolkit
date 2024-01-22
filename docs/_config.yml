@@ -39,6 +39,13 @@ callouts:
     title: 🆕 New
     color: purple
 
+highlighter: rouge
+
+rouge:
+  languages:
+    - bicep
+    - powershell
+
 # Mermaid versions @ https://cdn.jsdelivr.net/npm/mermaid
 mermaid:
   version: '10.3.1'

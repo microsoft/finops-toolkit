@@ -13,7 +13,7 @@ param
     [Parameter()]
     [string]
     $ApiKey,
-    
+
     [Parameter()]
     [switch]
     $Major,
@@ -48,7 +48,7 @@ if (-not $env:CI)
         if ($repository.InstallationPolicy -ne 'Trusted') {
             Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
         }
-    
+
         try {
             Install-Module -Name 'PsDepend' -Force -AllowClobber -Scope CurrentUser -ErrorAction 'Stop'
         } catch {

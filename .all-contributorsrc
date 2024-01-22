@@ -120,7 +120,8 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/53261392?v=4",
       "profile": "https://github.com/arthurclares",
       "contributions": [
-        "code"
+        "code",
+        "doc"
       ]
     },
     {
@@ -248,6 +249,78 @@
       "name": "soumyananda",
       "avatar_url": "https://avatars.githubusercontent.com/u/7952916?v=4",
       "profile": "https://github.com/soumyananda",
+      "contributions": [
+        "review"
+      ]
+    },
+    {
+      "login": "arjenhuitema",
+      "name": "Arjen Huitema",
+      "avatar_url": "https://avatars.githubusercontent.com/u/15944031?v=4",
+      "profile": "https://github.com/arjenhuitema",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "mutansee",
+      "name": "Mubarak Tanseer",
+      "avatar_url": "https://avatars.githubusercontent.com/u/64589176?v=4",
+      "profile": "https://github.com/mutansee",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "chris-bowman",
+      "name": "Chris Bowman",
+      "avatar_url": "https://avatars.githubusercontent.com/u/20289947?v=4",
+      "profile": "https://github.com/chris-bowman",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "elvismangarae",
+      "name": "elvismangarae",
+      "avatar_url": "https://avatars.githubusercontent.com/u/73974080?v=4",
+      "profile": "https://github.com/elvismangarae",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "erincon01",
+      "name": "erincon01",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7208487?v=4",
+      "profile": "https://github.com/erincon01",
+      "contributions": [
+        "question"
+      ]
+    },
+    {
+      "login": "NavidKhan8",
+      "name": "NavidKhan8",
+      "avatar_url": "https://avatars.githubusercontent.com/u/114067987?v=4",
+      "profile": "https://github.com/NavidKhan8",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "maikvandergaag",
+      "name": "Maik van der Gaag",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9531411?v=4",
+      "profile": "https://msftplayground.com",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "rodneyjoyce",
+      "name": "Rodney",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3522966?v=4",
+      "profile": "https://data-driven.ai",
       "contributions": [
         "review"
       ]

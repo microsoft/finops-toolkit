@@ -68,7 +68,8 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-11-01' = {
     tenantId: subscription().tenantId
     accessPolicies: formattedAccessPolicies
     sku: {
-      name: sku
+      // chinaeast2 is the only region in China that supports deployment scripts
+      name: startsWith(location, 'china') ? 'standard' : sku
       family: 'A'
     }
   }

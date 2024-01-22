@@ -3,12 +3,12 @@ layout: default
 parent: Power BI
 title: Commitment discounts
 nav_order: 21
-description: 'Summarize commitment-based discount cost, savings, and coverage in Power BI.'
+description: 'Summarize commitment discount cost, savings, and coverage in Power BI.'
 permalink: /power-bi/commitment-discounts
 ---
 
 <span class="fs-9 d-block mb-4">Commitment discounts report</span>
-Commitment-based discount chargeback, savings, and coverage.
+Commitment discount chargeback, savings, and coverage.
 {: .fs-6 .fw-300 }
 
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/CommitmentDiscounts.pbix){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
@@ -33,23 +33,15 @@ Commitment-based discount chargeback, savings, and coverage.
 
 ---
 
-The **Commitment discounts report** summarizes existing and potential savings from commitment-based discounts, like reservations and savings plans. This report enables you to:
+The **Commitment discounts report** summarizes existing and potential savings from commitment discounts, like reservations and savings plans. This report enables you to:
 
 - Review Azure Hybrid Benefit usage.
 - Identify and resolve any under-utilized commitments (aka utilization).
-- Identify opportunity to save with more commitment-based discounts (aka coverage).
-- Determine which resources used commitment-based discounts (aka chargeback).
-- Summarize cost savings from commitment-based discounts.
+- Identify opportunity to save with more commitment discounts (aka coverage).
+- Determine which resources used commitment discounts (aka chargeback).
+- Summarize cost savings from commitment discounts.
 
 You can download the Commitment discount report from the [latest release](https://github.com/microsoft/finops-toolkit/releases).
-
-<blockquote class="warning" markdown="1">
-  _The Cost Management connector uses an older API that does not include all details about savings plans. You will see unused commitment charges, but you will not be able to identify the usage that was covered by a savings plan. This may skew numbers, if you have savings plans._
-</blockquote>
-
-<blockquote class="note" markdown="1">
-  _FinOps hubs uses [amortized costs](https://learn.microsoft.com/azure/cost-management-billing/reservations/reservation-amortization). Amortization breaks reservation and savings plan purchases down and allocates costs to the resources that received the benefit. Due to this, amortized costs will not show purchase costs and will not match your invoice. Support for billed costs is coming in FinOps hubs 0.2. In the meantime, please use [Cost Management](https://aka.ms/costmgmt) to review invoice charges._
-</blockquote>
 
 <br>
 
@@ -57,18 +49,18 @@ You can download the Commitment discount report from the [latest release](https:
 
 This report includes the following filters on each page:
 
-- Date range
-- Subscription
-- Location
+- Charge period (date range)
+- Subscription and resource group
+- Region
 - Commitment (e.g., reservation, savings plan)
 - Service (e.g., Virtual machines, SQL database)
 - Currency
 
 A few common KPIs you fill find in this report are:
 
-- **Amortized cost** shows the effective cost for the period with reservation purchases amortized across the commitment term.
+- **Effective cost** shows the effective cost for the period with reservation purchases amortized across the commitment term.
 - **Utilization** shows the percentage of your current commitments were used during the period.
-- **Commitment savings** shows how much you're saving with commitment-based discounts.
+- **Commitment savings** shows how much you're saving with commitment discounts.
   <blockquote class="important" markdown="1">
     _Microsoft Cost Management does not include the pricing details for Microsoft Customer Agreement accounts, so commitment savings cannot be calculated. Please file a support request and speak to your field rep to escalate this._
   </blockquote>
@@ -85,7 +77,7 @@ The **Get started** page includes a basic introduction to the report with additi
 
 ## Commitments
 
-The **Commitments** page provides a list of your commitment-based discounts and offers a summary of the quantity used, utilization, savings, and effective cost for the period.
+The **Commitments** page provides a list of your commitment discounts and offers a summary of the quantity used, utilization, savings, and effective cost for the period.
 
 The chart breaks down the cost of used (utilized) vs. unused charges. Unused charges are split out by commitment type (e.g., reservation, savings plan).
 
@@ -95,7 +87,7 @@ The chart breaks down the cost of used (utilized) vs. unused charges. Unused cha
 
 ## Savings
 
-The **Savings** page summarizes cost savings obtained from commitment-based discounts. Commitments are grouped by program and service.
+The **Savings** page summarizes cost savings obtained from commitment discounts. Commitments are grouped by program and service.
 
 The chart shows total cost savings for the period split out by commitment type (e.g., reservation, savings plan).
 
@@ -116,7 +108,7 @@ The **Chargeback** page helps facilitate chargeback at a subscription, resource 
 The chart shows the amortized cost for each subscription that used a commitment. If you see **Unassigned**, that is the unused cost that is not associated with a subscription.
 
 <blockquote class="note" markdown="1">
-  _This page is also available in the Cost summary report as "Commitments" to show how commitments hare impacting resource costs._
+  _This page is also available in the Cost summary report as "Commitments" to show how commitments impact resource costs._
 </blockquote>
 
 > ![Screenshot of the Chargeback page](https://github.com/microsoft/finops-toolkit/assets/399533/a91ca058-e03a-446c-9785-de33e4f6b276)
@@ -160,15 +152,11 @@ The table below the charts shows the recommended reservations based on the speci
 
 <!-- NOTE: There is a similar page in the cost-summary.md file. They are not identical. Please keep both updated at the same time. -->
 
-The **Purchases** page shows any new commitment-based discount purchases (either monthly or upfront payments) within the specified period.
+The **Purchases** page shows any new commitment discount purchases (either monthly or upfront payments) within the specified period.
 
 There is one, **Billed cost** KPI which shows the total cost of the purchases as it is shown on your invoice. Note this is different than the cost on other pages, which show amortized cost.
 
 The chart shows the purchases over time and the table shows a list of the commitments that were purchased, including the term, product, and payment frequency (**OneTime** is for upfront payments and **Recurring** is for monthly).
-
-<blockquote class="warning" markdown="1">
-  _FinOps hubs do not include actual cost data and cannot show commitment purchases. To view commitment purchases when using FinOps hubs, configure the billing account information and desired number of months and the report will pull only the commitment purchases from the Cost Management connector. Direct support for actual cost data is coming in FinOps hubs 0.2._
-</blockquote>
 
 > ![Screenshot of the Purchases page](https://github.com/microsoft/finops-toolkit/assets/399533/3d37fb02-ffcc-4a3e-bffa-04d5fb9d3b92)
 
@@ -198,7 +186,7 @@ The table shows a list of VMs that are currently using or could be using AHB wit
 
 <!-- NOTE: There is a similar page in the cost-summary.md file. They are not identical. Please keep both updated at the same time. -->
 
-The **Prices** page shows the prices for all products that were used with commitment-based discounts during the period.
+The **Prices** page shows the prices for all products that were used with commitment discounts during the period.
 
 The chart shows a summary of the meters that were used the most.
 

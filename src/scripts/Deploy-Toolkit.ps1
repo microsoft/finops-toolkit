@@ -4,38 +4,38 @@
 <#
     .SYNOPSIS
     Deploys a toolkit template or module for local testing purposes.
-    
+
     .EXAMPLE
     Deploy-Toolkit "finops-hub"
-    
+
     Deploys a new FinOps hub instance.
-    
+
     .EXAMPLE
     Deploy-Toolkit -WhatIf
-    
+
     Validates the deployment template or module without changing resources.
-    
+
     .PARAMETER Template
     Name of the template or module to deploy. Default = finops-hub.
-    
+
     .PARAMETER ResourceGroup
     Optional. Name of the resource group to deploy to. Will be created if it doesn't exist. Default = ftk-<username>-<computername>.
-    
+
     .PARAMETER Location
     Optional. Azure location to execute the deployment from. Default = westus.
-    
+
     .PARAMETER Parameters
     Optional. Parameters to pass thru to the deployment.
-    
+
     .PARAMETER Build
     Optional. Indicates whether the the Build-Toolkit command should be executed first. Default = false.
-    
+
     .PARAMETER Test
     Optional. Indicates whether to run the template or module test instead of the template or module itself. Default = false.
-    
+
     .PARAMETER Demo
     Optional. Indicates whether to deploy the template to the FinOps-Toolkit-Demo resource group. Default = false.
-    
+
     .PARAMETER WhatIf
     Optional. Displays a message that describes the effect of the command, instead of executing the command.
 
@@ -109,11 +109,11 @@ $templateFolders `
     $templateName = iff $Test ($templateFile.Directory.Parent.Name + "/test") $templateFile.Directory.Name
     $parentFolder = iff $Test $templateFile.Directory.Parent.Parent.Name $templateFile.Directory.Parent.Name
     $targetScope = (Get-Content $templateFile | Select-String "targetScope = '([^']+)'").Matches[0].Captures[0].Groups[1].Value
-    
+
     # Fall back to default parameters if none were provided
     $Parameters = iff ($null -eq $Parameters) $defaultParameters["$templateName$(iff $Demo '/demo' '')"] $Parameters
     $Parameters = iff ($null -eq $Parameters) @{} $Parameters
-    
+
     Write-Host "Deploying $templateName (from $parentFolder)..."
     switch ($targetScope) {
         "resourceGroup" {
@@ -126,10 +126,10 @@ $templateFolders `
                 # Use "ftk-<username>-<computername>" for local testing
                 $ResourceGroup = Get-UniqueName
             }
-            
+
             Write-Host "  → [rg] $ResourceGroup..."
             $Parameters.Keys | ForEach-Object { Write-Host "         $($_) = $($Parameters[$_])" }
-            
+
             if ($Debug) {
                 Write-Host "         $templateFile"
             } else {

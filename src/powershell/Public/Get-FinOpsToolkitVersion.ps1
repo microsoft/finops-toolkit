@@ -58,7 +58,7 @@ function Get-FinOpsToolkitVersion
         if ($Latest)
         {
             $releases = $releases | Select-Object -First 1
-            Write-Verbose -Message ($script:localizedData.FoundLatestRelease -f $releases.tag_name)
+            Write-Verbose -Message ($script:LocalizedData.ToolkitVersion_Get_FoundLatestRelease -f $releases.tag_name)
         }
 
         $output = @()
