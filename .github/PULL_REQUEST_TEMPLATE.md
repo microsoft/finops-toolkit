@@ -19,9 +19,11 @@ Fixes # <!-- TODO: Add related issues (e.g., Fixes #123, #246, #369) -->
 
 ### 🔬 How did you test this change?
 
+> - [ ] 🤏 Lint tests
 > - [ ] 🤞 PS -WhatIf / az validate
 > - [ ] 👍 Manually deployed + verified
 > - [ ] 💪 Unit tests
+> - [ ] 🙌 Integration tests
 
 ### 🙋‍♀️ Do any of the following that apply?
 

@@ -222,17 +222,17 @@ Examples:
 
 [Publish-Toolkit.ps1](./Publish-Toolkit.ps1) publishes a template to the Azure Quickstart Templates repository.
 
-| Parameter      | Description                                                                                                              |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `‑Template`    | Required. Name of the template or module to deploy.                                                                      |
-| `‑Destination` | Required. Path to the local clone of the Azure Quickstart Templates repository.                                          |
-| `‑Build`       | Optional. Indicates whether the the `Build-Toolkit` command should be executed first. Default = `false`.                 |
-| `‑Commit`      | Optional. Indicates whether to commit the changes and start a pull request in the Azure Quickstart Templates repository. |
+| Parameter      | Description                                                                                              |
+| -------------- | -------------------------------------------------------------------------------------------------------- |
+| `‑Template`    | Required. Name of the template or module to deploy.                                                      |
+| `‑Destination` | Required. Path to the local clone of the Azure Quickstart Templates repository.                          |
+| `‑Build`       | Optional. Indicates whether the the `Build-Toolkit` command should be executed first. Default = `false`. |
+| `‑Branch`      | Optional. Indicates whether to commit the changes to a new branch in the Git repo. Default = `false`.    |
 
 Example:
 
 ```powershell
-./Publish-Toolkit "finops-hub" "../../../aqt" -Build -Commit
+./Publish-Toolkit "finops-hub" "../../../aqt" -Build -Branch
 ```
 
 <br>

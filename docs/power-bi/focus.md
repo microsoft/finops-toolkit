@@ -11,7 +11,7 @@ permalink: /power-bi/focus
 Explore the FinOps Open Cost and Usage Specification (FOCUS) with an interactive dashboard and connect to your data.
 {: .fs-6 .fw-300 }
 
-[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/FOCUS.pbix){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Download](https://github.com/microsoft/finops-toolkit/releases/download/v0.1.1/FOCUS.pbix){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
 [Connect your data](./README.md#-connect-to-your-data){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <details open markdown="1">
@@ -21,10 +21,8 @@ Explore the FinOps Open Cost and Usage Specification (FOCUS) with an interactive
 - [Get started](#get-started)
 - [Raw data](#raw-data)
 - [Services](#services)
-- [Regions](#regions)
 - [Sub accounts](#sub-accounts)
 - [Resources](#resources)
-- [DQ](#dq)
 - [Working draft](#working-draft)
 - [🙋‍♀️ Looking for more?](#️-looking-for-more)
 
@@ -32,9 +30,13 @@ Explore the FinOps Open Cost and Usage Specification (FOCUS) with an interactive
 
 ---
 
+<blockquote class="note" markdown="1">
+   _As of FinOps toolkit 0.2, the FOCUS report was merged into the Cost summary report. Both Cost summary and Commitment discounts now use FOCUS 1.0 preview. If you would like to use the FOCUS report, you can download it from the FinOps toolkit 0.1.1 release._
+</blockquote>
+
 The **FOCUS report** is an example Azure dataset that aligns to the FinOps Open Cost and Usage Specification (FOCUS), an open specification that provides a common schema for cost and usage data. To learn more, see [focus.finops.org](https://focus.finops.org).
 
-You can download the FOCUS report from the [latest release](https://github.com/microsoft/finops-toolkit/releases/latest).
+You can download the FOCUS report from the [FinOps toolkit 0.1.1 release](https://github.com/microsoft/finops-toolkit/releases/v0.1.1).
 
 <br>
 
@@ -86,18 +88,6 @@ The **Services** page offers a breakdown of cost by service. Each service is gro
 
 <br>
 
-## Regions
-
-The **Regions** page includes a breakdown of cost by region.
-
-<blockquote class="note" markdown="1">
-   _FinOps toolkit reports perform additional data cleansing for ResourceLocation and FOCUS Region columns. What you see in FinOps toolkit reports may not match other reporting._
-</blockquote>
-
-> ![Screenshot of the Regions page](https://github.com/microsoft/finops-toolkit/assets/399533/7343323d-7344-414f-a2f3-a9ff443c9077)
-
-<br>
-
 ## Sub accounts
 
 The **Sub accounts** page includes a breakdown of cost by sub account (subscription).
@@ -111,16 +101,6 @@ The **Sub accounts** page includes a breakdown of cost by sub account (subscript
 The **Resources** page includes a breakdown of cost by resource.
 
 > ![Screenshot of the Resources page](https://github.com/microsoft/finops-toolkit/assets/399533/1b566641-8af3-4f2f-abd6-c5a0efa2fbc6)
-
-<br>
-
-## DQ
-
-<!-- NOTE: This page is duplicated in the commitment-discounts.md. Please keep both updated at the same time. -->
-
-The **Data quality** page is for data validation purposes only; however, it can be used to explore service categories, names, regions, and charge types.
-
-> ![Screenshot of the Data quality page](https://github.com/microsoft/finops-toolkit/assets/399533/a1b55496-c395-4eca-a487-07f6abc1028d)
 
 <br>
 

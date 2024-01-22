@@ -3,7 +3,7 @@ layout: default
 parent: PowerShell
 title: FinOps hubs
 has_children: true
-nav_order: 2
+nav_order: 3
 description: 'PowerShell commands to deploy and manage FinOps hubs.'
 permalink: /powershell/hubs
 ---

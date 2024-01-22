@@ -5,6 +5,14 @@
     .SYNOPSIS
     Delete a Cost Management export and optionally data associated with the export.
 
+    .DESCRIPTION
+    The Remove-FinOpsCostExport command deletes a Cost Management export and optionally deletes all data associated with the export from the related storage account.
+
+    This command has been tested with the following API versions:
+    - 2023-07-01-preview (default) – Enables FocusCost and other datasets.
+    - 2023-08-01
+    - 2023-03-01
+
     .PARAMETER Name
     Name of the Cost Management export.
 
@@ -15,7 +23,7 @@
     Optional. Indicates that all cost data associated with the Export scope should be deleted.
 
     .PARAMETER APIVersion
-    Optional. API version to use when calling the Cost Management Exports API. Default = 2023-03-01.
+    Optional. API version to use when calling the Cost Management Exports API. Default = 2023-07-01-preview.
 
     .EXAMPLE
     Remove-FinOpsCostExport -Name MyExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -RemoveData
@@ -25,94 +33,78 @@
 
 function Remove-FinOpsCostExport
 {
-  [CmdletBinding(SupportsShouldProcess)]
-  param
-  (
-    [Parameter(Mandatory = $true)]
-    [string]
-    $Name,
+    [CmdletBinding(SupportsShouldProcess)]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [string]
+        $Name,
 
-    [Parameter(Mandatory = $true)]
-    [string]
-    $Scope,
+        [Parameter(Mandatory = $true)]
+        [string]
+        $Scope,
 
-    [Parameter()]
-    [switch]
-    $RemoveData,
+        [Parameter()]
+        [switch]
+        $RemoveData,
 
-    [Parameter()]
-    [string]
-    $ApiVersion = '2023-03-01'
-  )
+        [Parameter()]
+        [string]
+        $ApiVersion = '2023-07-01-preview'
+    )
 
-  $context = Get-AzContext
-  if (-not $context)
-  {
-    throw $script:LocalizedData.Common_ContextNotFound
-  }
-
-  try
-  {
-    $path = "/{0}/providers/Microsoft.CostManagement/exports/{1}?api-version={2}" -f $Scope, $Name, $ApiVersion
-
-    # Switch to use the Get-FinOpsCostExport function once it is available
-    $httpResponse = Invoke-AzRestMethod -Path $path -Method "GET"
-
-    if ($httpResponse.StatusCode -eq 404)
+    $context = Get-AzContext
+    if (-not $context)
     {
-      Write-Verbose -Message "Cost Management export not found."
-      break
+        throw $script:LocalizedData.Common_ContextNotFound
     }
-    elseif ($httpResponse.StatusCode -ne 200)
-    {
-      $errorResponse = ConvertFrom-Json -InputObject $httpResponse.Content
-      throw ($script:LocalizedData.CostExport_Remove_NotFound -f $($errorResponse.error.message), $($errorResponse.error.code))
-    }
-    else
-    {
-      # Delete associated data from storage account
-      if ($RemoveData)
-      {
-        # Export details retreived
-        $exportDetails = ConvertFrom-Json -InputObject $httpResponse.Content
-        $storageAccountId = $exportDetails.properties.deliveryInfo.destination.resourceId
-        $resourceGroupName = $storageAccountID.Split('/')[4]
-        $storageAccountName = $storageAccountID.Split('/')[8]
-        $path = $exportDetails.properties.deliveryInfo.destination.rootFolderPath + "/" + $Name
 
-        if ($PSCmdlet.ShouldProcess($path, 'DeleteCostReports'))
+    try
+    {
+        $export = Get-FinOpsCostExport -Name $Name -Scope $Scope -ApiVersion $ApiVersion
+        if ($export)
         {
-          Write-Verbose "Resource group: $resourceGroupName"
-          Write-Verbose "Storage account: $storageAccountName"
-          Write-Verbose "Scope: $scope"
+            # Delete associated data from storage account
+            if ($RemoveData)
+            {
+                # Export details retreived
+                $storageAccountId = $export.properties.deliveryInfo.destination.resourceId
+                $resourceGroupName = $storageAccountId.Split('/')[4]
+                $storageAccountName = $storageAccountId.Split('/')[8]
+                $path = $export.properties.deliveryInfo.destination.rootFolderPath + "/" + $Name
 
-          $getSta = Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageAccountName
-          if ($getSta -and $getSta.EnableHierarchicalNamespace)
-          {
-            $getSta | Remove-AzDataLakeGen2Item -FileSystem $exportDetails.properties.deliveryInfo.destination.container -Path $path -Force
-          }
+                if ($PSCmdlet.ShouldProcess($path, 'DeleteExportedData'))
+                {
+                    Write-Verbose "Resource group: $resourceGroupName"
+                    Write-Verbose "Storage account: $storageAccountName"
+                    Write-Verbose "Scope: $scope"
+
+                    $getSta = Get-AzStorageAccount -ResourceGroupName $resourceGroupName -Name $storageAccountName
+                    if ($getSta -and $getSta.EnableHierarchicalNamespace)
+                    {
+                        $getSta | Remove-AzDataLakeGen2Item -FileSystem $export.properties.deliveryInfo.destination.container -Path $path -Force
+                    }
+                }
+            }
         }
-      }
+        else
+        {
+            Write-Warning "Cost Management export '$Name' not found."
+            return $true
+        }
+        
+        if ($PSCmdlet.ShouldProcess($Name, 'DeleteExport'))
+        {
+            $response = Invoke-Rest -Method "DELETE" -Uri "$($export.Id)?api-version=$ApiVersion" -CommandName "Remove-FinOpsCostExport"
+            if ($response.Failure)
+            {
+                Write-Error "Unable to delete export '$Name'. Error: $($response.Content.error.message) ($($response.Content.error.code))." -ErrorAction Stop
+            }
+            return $response.Success
+        }
     }
-
-    if ($PSCmdlet.ShouldProcess($Name, 'DeleteCostExport'))
+    catch
     {
-      $httpResponse = Invoke-AzRestMethod -Path $path -Method "DELETE"
-
-      if ($httpResponse.StatusCode -eq 404)
-      {
-        Write-Verbose -Message "Cost Management export folder not found in storage account."
-        break
-      }
-      elseif ($httpResponse.StatusCode -ne 200)
-      {
-        $errorResponse = ConvertFrom-Json -InputObject $httpResponse.Content
-        throw ($script:LocalizedData.CostExport_Remove_Failed -f $($errorResponse.Content), $($errorResponse.StatusCode))
-      }
+        throw $_.Exception
     }
-  }
-  catch
-  {
-    throw $_.Exception
-  }
 }

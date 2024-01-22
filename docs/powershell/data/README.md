@@ -3,7 +3,7 @@ layout: default
 parent: PowerShell
 title: Open data
 has_children: true
-nav_order: 5
+nav_order: 9
 description: 'PowerShell commands to work with FinOps toolkit open data.'
 permalink: /powershell/data
 ---
@@ -34,6 +34,7 @@ The FinOps toolkit open data PowerShell commands help you integrate datasets int
 
 - [Get-FinOpsPricingUnit](Get-FinOpsPricingUnit.md) – Gets an Azure region ID and name.
 - [Get-FinOpsRegion](Get-FinOpsRegion.md) – Gets an Azure region ID and name.
+- [Get-FinOpsResourceType](Get-FinOpsResourceType.md) – Gets details about an Azure resource type.
 - [Get-FinOpsService](Get-FinOpsService.md) – Gets the name and category for a service, publisher, and cloud provider.
 
 <br>

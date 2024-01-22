@@ -104,14 +104,51 @@ Once the above requirements have been met, the feature branch can be merged into
       ./Merge-DevBranch main
       ```
 
-   4. Verify [documentation](https://aka.ms/finops/toolkit) updated correctly
+   4. Verify [documentation](https://aka.ms/finops/toolkit) updated correctly.
 
       > _The documentation site may take 5 minutes to update after the merge is committed. If not updated, look at [GitHub actions](https://github.com/microsoft/finops-toolkit/actions/workflows/pages/pages-build-deployment) to see if there are any failures._
 
-   5. Tag and publish the release.
-   6. Update the discussion.
-   7. Update all issues to `Status: Released`.
-   8. Update the download test to include any new files/versions.
+   5. Run `Package-Toolkit -Build` script.
+      - For each Power BI report:
+        1. Change the sensitivity to **Public**.
+           > ⚠️ _Power BI does not remember the sensitivity setting for Power BI projects so this needs to be done for each release. If not done, the report will not open for anyone outside of Microsoft._
+        2. Update the version on the **Get started** tab.
+        3. For the Cost summary report, remove the following from the Transform data (query editor):
+           1. Delete both **Recommendations\*** queries.
+           2. Delete the **InstanceSizeFlexibility** query.
+           3. Open the **▶️ START HERE** query in the advanced editor and remove connector settings and generated rows in the table from the separator line to the end.
+        4. Save as a PBIX in the release folder.
+           > ⚠️ _**DO NOT** save the above changes back to the Power BI project files!_
+        5. Copy the first paragraph from the **Get started** page and save as PBIT in the release folder. Use the copied text for the description and add "Learn more at https://aka.ms/ftk/{report-name}" as a separate paragraph in the description.
+   6. Tag and publish a [new release](https://github.com/microsoft/finops-toolkit/releases/new):
+      1. Create a tag on publish using the "vX.X" format.
+      2. Set the **Target** to `main`.
+      3. Set the **Previous tag** to the previous release tag.
+      4. Set the name to `Toolkit vX.X`.
+      5. Copy the body from the previous release to use as a template.
+      6. Change the "New in" header to use the new version number.
+      7. Summarize changes from the changelog in the **New in** and **Updated** sections.
+         - Simplify to only include one line per tool.
+         - Each tool should be linked to its doc page.
+         - Don't link features to their respective pages (e.g., PowerShell commands).
+         - Don't list every small change. Use "various bug fixes and improvements" to keep it simple.
+      8. If the Azure Quickstart Templates repo is not updated, add a note. Otherwise, comment the note out for use in the next release.
+         > 💡 _Don't forget to comment this out after the AQT repo is updated!_
+      9. Update the list of direct and indirect contributors.
+         - Use the "Generate release notes" feature to get a list of all code contributors.
+         - Carefully review the list to ensure everyone is covered since feature branch PRs get merged, which can hide contributors.
+         - If they made a code change, add them to the contributor list.
+         - If they filed an issue, reviewed a PR, or participated in on- or offline discussions, add them to the list of supporters.
+      10. Update the discussion and changelog links in the footer. Comment out the AQT link if not ready.
+      11. Upload all files from the release folder:
+          - ZIP files for templates like hubs and workbooks.
+          - Power BI PBIX and PBIT files.
+          - Open data CSV and JSON files.
+          - ZIP file for sample data files.
+          - **DO NOT** copy Bicep, PowerShell, PBIP, or image files.
+   7. Update the related discussion.
+   8. Update all issues to `Status: Released`.
+   9. Update the download test to include any new files/versions.
 
       > _See `FinOpsToolkit.Tests.ps1` > `Verify against prod GitHub`_
 
