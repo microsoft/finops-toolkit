@@ -108,7 +108,7 @@ The **Chargeback** page helps facilitate chargeback at a subscription, resource 
 The chart shows the amortized cost for each subscription that used a commitment. If you see **Unassigned**, that is the unused cost that is not associated with a subscription.
 
 <blockquote class="note" markdown="1">
-  _This page is also available in the Cost summary report as "Commitments" to show how commitments hare impacting resource costs._
+  _This page is also available in the Cost summary report as "Commitments" to show how commitments impact resource costs._
 </blockquote>
 
 > ![Screenshot of the Chargeback page](https://github.com/microsoft/finops-toolkit/assets/399533/a91ca058-e03a-446c-9785-de33e4f6b276)

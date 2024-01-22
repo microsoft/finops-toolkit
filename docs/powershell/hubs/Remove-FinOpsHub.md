@@ -39,13 +39,13 @@ The comamnd returns a boolean value indicating whether all resources were succes
 Remove-FinOpsHub `
     [-Name] <string> `
     [-ResourceGroup <string>] `
-    [-KeepStorageAccount <switch>]
+    [-KeepStorageAccount]
 ```
 
 ```powershell
 Remove-FinOpsHub `
-    [-InputObject] <psobject> `
-    [-KeepStorageAccount <switch>]
+    [-InputObject] <PSObject> `
+    [-KeepStorageAccount]
 ```
 
 <br>

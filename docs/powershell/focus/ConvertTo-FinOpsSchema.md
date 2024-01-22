@@ -28,12 +28,12 @@ Converts Cost Management cost data to the FinOps Open Cost and Usage Specificati
 ---
 
 <blockquote class="warning" markdown="1">
-    _The ConvertTo-FinOpsSchema command was implemented before Microsoft Cost Management supported a native FOCUS export. Going forward, we recommend using the native export. The ConvertTo-FinOpsSchema command will remain available but will not be updated to support FOCUS 1.0-preview. If you have a scenario where you need a PowerShell converter, please leave feedback at https://aka.ms/ftk._
+    _The ConvertTo-FinOpsSchema command was implemented before Microsoft Cost Management supported a native FOCUS export. Going forward, we recommend using the native export. The ConvertTo-FinOpsSchema command will remain available but will not be updated to support FOCUS 1.0-preview. If you have a scenario where you need a PowerShell converter, please leave feedback at [aka.ms/ftk](https://aka.ms/ftk)._
 </blockquote>
 
 The **ConvertTo-FinOpsSchema** command returns an object that adheres to the [FinOps Open Cost and Usage Specification (FOCUS)](https://focus.finops.org) schema.
 
-ConvertTo-FinOpsSchema currently understands how to convert Cost Management cost data using the latest schemas as of September 2023. Older schemas may not be fully supported. Please review output and report any issues to https://aka.ms/ftk.
+ConvertTo-FinOpsSchema currently understands how to convert Cost Management cost data using the latest schemas as of September 2023. Older schemas may not be fully supported. Please review output and report any issues to [aka.ms/ftk](https://aka.ms/ftk).
 
 You can pipe objects to ConvertTo-FinOpsSchema from an exported or downloaded CSV file using Import-Csv or ConvertFrom-Csv and pipe to Export-Csv to save as a CSV file. Or use the [Invoke-FinOpsSchemaTransform](./Invoke-FinOpsSchema.md) command to simplify the process.
 

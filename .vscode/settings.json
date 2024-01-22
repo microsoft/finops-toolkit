@@ -40,5 +40,6 @@
   "[powerquery]": {
     "editor.formatOnSave": false
   },
-  "powerquery.general.experimental": false
+"powerquery.general.experimental": false,
+"editor.detectIndentation": false
 }
