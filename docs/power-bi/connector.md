@@ -83,7 +83,7 @@ This report includes the following pages:
 - **Resources** includes a breakdown of cost by resource. This is useful for determining which resources are accruing the most cost.
 - **Regions** includes a breakdown of cost by region with a map showing the cost from each region. The map shows approximate locations and is not exact.
   <blockquote class="note" markdown="1">
-     _FinOps toolkit reports perform additional data cleansing FOCUS Region columns. What you see in FinOps toolkit reports may not match other reporting._
+     _The Cost Management connector report performs additional data cleansing for the Region column to better align with Azure regions and may not match values you see in actual and amortized datasets in Cost Management._
   </blockquote>
 - **Charge breakdown** shows a breakdown of all charges using the following information hierarchy:
 - **Prices** shows the prices for all products that were used during the period.

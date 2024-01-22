@@ -28,7 +28,7 @@ Loads a Cost Management CSV file, converts it to the FinOps Open Cost and Usage 
 ---
 
 <blockquote class="warning" markdown="1">
-    _The Invoke-FinOpsSchemaTransform command was implemented before Microsoft Cost Management supported a native FOCUS export. Going forward, we recommend using the native export. The Invoke-FinOpsSchemaTransform command will remain available but will not be updated to support FOCUS 1.0-preview. If you have a scenario where you need a PowerShell converter, please leave feedback at https://aka.ms/ftk._
+    _The Invoke-FinOpsSchemaTransform command was implemented before Microsoft Cost Management supported a native FOCUS export. Going forward, we recommend using the native export. The Invoke-FinOpsSchemaTransform command will remain available but will not be updated to support FOCUS 1.0-preview. If you have a scenario where you need a PowerShell converter, please leave feedback at [aka.ms/ftk](https://aka.ms/ftk)._
 </blockquote>
 
 The **Invoke-FinOpsSchemaTransform** command reads actual and amortized cost data from files via Import-Csv, converts them to the FinOps Open Cost and Usage Specification (FOCUS) schema via [ConvertTo-FinOpsSchema](./ConvertTo-FinOpsSchema.md), and then saves the result to a CSV file using Export-Csv.

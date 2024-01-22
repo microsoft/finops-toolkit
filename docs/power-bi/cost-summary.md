@@ -133,7 +133,7 @@ The page uses the standard layout with a breakdown of resources in the chart and
 The **Regions** page includes a breakdown of cost by region with a map showing the cost from each region. The map shows approximate locations and is not exact.
 
 <blockquote class="note" markdown="1">
-   _FinOps toolkit reports perform additional data cleansing FOCUS Region columns. What you see in FinOps toolkit reports may not match other reporting._
+   _Regions in the Cost Management FOCUS dataset include additional data cleansing for consistency with Azure regions and may not match the exact values in actual and amortized datasets._
 </blockquote>
 
 > ![Screenshot of the Regions page](https://github.com/microsoft/finops-toolkit/assets/399533/dd95301a-4227-46d5-8a62-e31b812dee2a)

@@ -61,7 +61,7 @@ Import-Module -Name FinOpsToolkit
 ### FinOps Open Cost and Usage Specification (FOCUS) commands (deprecated)
 
 <blockquote class="warning" markdown="1">
-    _FOCUS commands were implemented before Microsoft Cost Management supported a native FOCUS export. Going forward, we recommend using the native export. These commands will remain available but will not be updated to support FOCUS 1.0-preview. If you have a scenario where you need a PowerShell converter, please leave feedback at https://aka.ms/ftk._
+    _FOCUS commands were implemented before Microsoft Cost Management supported a native FOCUS export. Going forward, we recommend using the native export. These commands will remain available but will not be updated to support FOCUS 1.0-preview. If you have a scenario where you need a PowerShell converter, please leave feedback at [aka.ms/ftk](https://aka.ms/ftk)._
 </blockquote>
 
 - [ConvertTo-FinOpsSchema](ConvertTo-FinOpsSchema.md) – Converts Cost Management cost data to the FOCUS schema.
@@ -71,6 +71,7 @@ Import-Module -Name FinOpsToolkit
 
 - [Get-FinOpsPricingUnit](Get-FinOpsPricingUnit.md) – Gets an Azure region ID and name.
 - [Get-FinOpsRegion](Get-FinOpsRegion.md) – Gets an Azure region ID and name.
+- [Get-FinOpsResourceType](Get-FinOpsResourceType.md) – Gets details about an Azure resource type.
 - [Get-FinOpsService](Get-FinOpsService.md) – Gets the name and category for a service, publisher, and cloud provider.
 
 <br>
