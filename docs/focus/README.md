@@ -21,7 +21,7 @@ Learn about the new billing data specification that will make it easier to under
 - [🤔 Why FOCUS?](#-why-focus)
 - [🌟 Benefits](#-benefits)
 - [▶️ Getting started](#️-getting-started)
-- [↔️ Mapping to FOCUS](#️-mapping-to-focus)
+- [🔀 Mapping to FOCUS](#-mapping-to-focus)
 - [⚠️ Important notes about FOCUS support](#️-important-notes-about-focus-support)
 - [🧰 Related tools](#-related-tools)
 
@@ -142,7 +142,7 @@ Beyond these, each provider can include additional columns prefixed with **x\_**
 
 <br>
 
-## ↔️ Mapping to FOCUS
+## 🔀 Mapping to FOCUS
 
 Use the following sections to either generate FOCUS-compliant data from existing datasets or to update existing reporting to leverage FOCUS columns.
 

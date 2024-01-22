@@ -5,7 +5,7 @@ title: Cost Management
 has_children: true
 nav_order: 2
 description: 'PowerShell commands to support Cost Management capabilities.'
-permalink: /powershell/hubs
+permalink: /powershell/cost
 ---
 
 <span class="fs-9 d-block mb-4">Cost Management automation</span>
