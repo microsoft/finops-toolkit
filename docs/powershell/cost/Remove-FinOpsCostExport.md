@@ -29,6 +29,12 @@ Delete a Cost Management export and optionally data associated with the export.
 
 The **Remove-FinOpsCostExport** command deletes a Cost Management export and optionally data associated with the export.
 
+This command has been tested with the following API versions:
+
+- 2023-07-01-preview (default) – Enables FocusCost and other datasets.
+- 2023-08-01
+- 2023-03-01
+
 <br>
 
 ## 🧮 Syntax
@@ -51,8 +57,6 @@ Remove-FinOpsCostExport `
 | `‑Scope`      | Required. Resource ID of the scope to export data for context.                                       |
 | `‑RemoveData` | Optional. Optional. Indicates that all cost data associated with the Export scope should be deleted. |
 | `‑ApiVersion` | Optional. API version to use when calling the Cost Management exports API. Default = 2023-03-01.     |
-
-|
 
 <br>
 

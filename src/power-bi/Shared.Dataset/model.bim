@@ -8,11 +8,11 @@
       },
       {
         "name": "PBIDesktopVersion",
-        "value": "2.124.1554.0 (23.12)"
+        "value": "2.124.1582.0 (23.12)"
       },
       {
         "name": "PBI_QueryOrder",
-        "value": "[\"Storage URL\",\"File Type\",\"RangeStart\",\"RangeEnd\",\"CostDetails\",\"RecommendationsSingle\",\"RecommendationsShared\",\"ftk_Hub\",\"ftk_CostDetails\",\"▶️  START HERE\",\"Data Source\",\"Billing Account ID\",\"Billing Profile ID\",\"Number of Months\",\"InstanceSizeFlexibility\",\"ftk_CMConnector\",\"Errors in CostDetails\"]"
+        "value": "[\"Storage URL\",\"File Type\",\"RangeStart\",\"RangeEnd\",\"CostDetails\",\"RecommendationsSingle\",\"RecommendationsShared\",\"ftk_Hub\",\"ftk_CostDetails\",\"▶️  START HERE\",\"Data Source\",\"Scope\",\"Type\",\"Number of Months\",\"InstanceSizeFlexibility\",\"ftk_CMConnector\"]"
       },
       {
         "name": "PBI_ProTooling",
@@ -6747,14 +6747,10 @@
           {
             "name": "PBI_ResultType",
             "value": "Text"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "description": "Name of the Azure DataLake Gen2 storage account to pull data from.",
-        "expression": "\"https://ftkmicfland5pd7gdo37oozc.dfs.core.windows.net/ingestion\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
+        "expression": "\"https://ftkmicfland5pd7gdo37oozc.dfs.core.windows.net/ingestion\" meta [IsParameterQuery = true, IsParameterQueryRequired = true, Type = type text]",
         "kind": "m",
         "lineageTag": "421c1232-0e40-45a4-bc59-257ce648478c",
         "queryGroup": "🛠️ Setup\\FinOps hubs"
@@ -6767,7 +6763,7 @@
             "value": "Text"
           }
         ],
-        "expression": "\".parquet\" meta [IsParameterQuery=true, List={\".parquet\", \".gz\"}, DefaultValue=\".parquet\", Type=\"Text\", IsParameterQueryRequired=true]",
+        "expression": "\".parquet\" meta [IsParameterQuery = true, IsParameterQueryRequired = true, Type = type text, List = {\".parquet\", \".gz\"}, DefaultValue = \".parquet\"]",
         "kind": "m",
         "lineageTag": "72b5bbfd-a222-4629-b5e5-0d57245f25ff",
         "queryGroup": "🛠️ Setup\\FinOps hubs"
@@ -6778,13 +6774,9 @@
           {
             "name": "PBI_ResultType",
             "value": "DateTime"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
-        "expression": "#datetime(2023, 12, 1, 0, 0, 0) meta [IsParameterQuery=true, Type=\"DateTime\", IsParameterQueryRequired=true]",
+        "expression": "#datetime(2023, 12, 1, 0, 0, 0) meta [IsParameterQuery = true, IsParameterQueryRequired = true, Type = type datetime]",
         "kind": "m",
         "lineageTag": "90085870-f708-4bc2-90c1-3a343e88a26b",
         "queryGroup": "🛠️ Setup\\FinOps hubs"
@@ -6795,13 +6787,9 @@
           {
             "name": "PBI_ResultType",
             "value": "DateTime"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
-        "expression": "#datetime(2025, 1, 1, 0, 0, 0) meta [IsParameterQuery=true, Type=\"DateTime\", IsParameterQueryRequired=true]",
+        "expression": "#datetime(2025, 1, 1, 0, 0, 0) meta [IsParameterQuery = true, IsParameterQueryRequired = true, Type = type datetime]",
         "kind": "m",
         "lineageTag": "695f1d3b-7b1a-49fa-8d83-f2c25dc787de",
         "queryGroup": "🛠️ Setup\\FinOps hubs"
@@ -6812,45 +6800,13 @@
           {
             "name": "PBI_ResultType",
             "value": "Text"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "description": "Do you want to connect to the Cost Management connector or a FinOps hubs instance?",
-        "expression": "\"FinOps hubs\" meta [IsParameterQuery=true, List={/*\"Cost Management exports\",*/ \"FinOps hubs\"}, DefaultValue=\"FinOps hus\", Type=\"Text\", IsParameterQueryRequired=true]",
+        "expression": "\"FinOps hubs\" meta [IsParameterQuery = true, IsParameterQueryRequired = true, Type = type text, List = {\"FinOps hubs\"}, DefaultValue = \"FinOps hus\"]",
         "kind": "m",
         "lineageTag": "a3ad5d11-4fa5-425f-8d18-6cdb6822244a",
         "queryGroup": "🛠️ Setup\\Instructions"
-      },
-      {
-        "name": "Billing Account ID",
-        "annotations": [
-          {
-            "name": "PBI_ResultType",
-            "value": "Text"
-          }
-        ],
-        "description": "Enter your EA or MCA billing account ID (aka enrollment number). You must have at least read access to use Power BI. For more options, please use https://aka.ms/finops/hubs.",
-        "expression": "\"8611537\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
-        "kind": "m",
-        "lineageTag": "8f7a2100-304e-4c17-8bca-1b38b4d70532",
-        "queryGroup": "🛠️ Setup\\CM connector"
-      },
-      {
-        "name": "Billing Profile ID",
-        "annotations": [
-          {
-            "name": "PBI_ResultType",
-            "value": "Null"
-          }
-        ],
-        "description": "Enter your MCA billing profile ID. Leave empty if using EA. You must have at least read access to use Power BI. For more options, please use https://aka.ms/finops/hubs.",
-        "expression": "null meta [IsParameterQuery=true, Type=\"Any\", IsParameterQueryRequired=false]",
-        "kind": "m",
-        "lineageTag": "f40f8b9f-5885-4d71-8e31-4d1d6ee90bec",
-        "queryGroup": "🛠️ Setup\\CM connector"
       },
       {
         "name": "Number of Months",
@@ -6858,14 +6814,10 @@
           {
             "name": "PBI_ResultType",
             "value": "Number"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "description": "Enter the number of months",
-        "expression": "1 meta [IsParameterQuery=true, Type=\"Number\", IsParameterQueryRequired=false]",
+        "expression": "1 meta [IsParameterQuery = true, IsParameterQueryRequired = false, Type = type number]",
         "kind": "m",
         "lineageTag": "2ddc095d-bca9-471d-b5e9-70a45facb053",
         "queryGroup": "🛠️ Setup\\CM connector"
@@ -6876,24 +6828,21 @@
           {
             "name": "PBI_ResultType",
             "value": "Function"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "description": [
-          "Loads data from the configured FinOps hubs instance or from a billing account using the Cost Management connector.",
-          "datasets = 0 (Actual cost), 1 (Amortized cost), 2 (Both)"
+          "Loads data from the configured FinOps hub.",
+          "",
+          "Learn more @ https://aka.ms/finops/hubs"
         ],
         "expression": [
-          "(datasetType) =>",
+          "(optional datasetType as text, optional startDate as datetime, optional endDate as datetime) =>",
           "let",
           "    // Config",
           "    url     = #\"Storage URL\",",
           "    ext     = if Text.Length(#\"File Type\") > 0 then #\"File Type\" else \".parquet\",",
-          "    start   = RangeStart,",
-          "    end     = RangeEnd,",
+          "    start   = if startDate = null then RangeStart else startDate,",
+          "    end     = if endDate = null then RangeEnd else endDate,",
           "// TODO: Allow pulling other datasets -- if datasetType = null or datasetType = \"\" then \"focuscost\" else datasetType",
           "    dataset = \"focuscost\",",
           "",
@@ -6929,8 +6878,8 @@
           "    FilterRowsByDate =",
           "        if start = null and end = null then tbl",
           "        else Table.SelectRows(tbl, each",
-          "            (start = null or Date.From(Text.Range([ChargePeriodEnd], 0, 10)) >= Date.From(start))",
-          "            and (end = null or Date.From(Text.Range([ChargePeriodStart], 0, 10)) < Date.From(end))",
+          "            (start = null or [ChargePeriodEnd] >= DateTime.From(start))",
+          "            and (end = null or [ChargePeriodStart] < DateTime.From(end))",
           "        ),",
           "",
           "    // TODO: Extract from the manifest",
@@ -6964,11 +6913,16 @@
             "value": "Navigation"
           }
         ],
+        "description": [
+          "Loads FOCUS cost and usage data from the configured FinOps hub.",
+          "",
+          "Learn more @ https://aka.ms/finops/hubs"
+        ],
         "expression": [
-          "() =>",
+          "(optional start as datetime, optional end as datetime) =>",
           "let",
           "    // Get the data",
-          "    rawData = ftk_Hub(\"focuscost\"),",
+          "    rawData = ftk_Hub(\"focuscost\", start, end),",
           "",
           "    // Fix types",
           "    FixTypes = Table.TransformColumnTypes(rawData, {",
@@ -7096,12 +7050,12 @@
         "name": "▶️  START HERE",
         "annotations": [
           {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
             "name": "PBI_ResultType",
             "value": "Table"
+          },
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
           }
         ],
         "expression": [
@@ -7113,34 +7067,14 @@
           "        if SourceType = \"\" then {\"✖ Missing\", \"Please select either the Cost Mangaement connector or FinOps hubs as a data source.\"}",
           "        else {\"✔️ Specified\", \"Connecting to the \" & SourceType & \".\"},",
           "",
-          "    AccountId = #\"Billing Account ID\",",
-          "    AccountType = if AccountId = \"\" or AccountId = null then \"\" else if Text.Contains(AccountId, \"-\") then \"MCA\" else \"EA\",",
-          "    AccountCheck = ",
-          "        if AccountType = \"\" then {\"✖ Missing\", \"Please specify an EA enrollment number or MCA billing account ID.\"}",
-          "        else if AccountType = \"MCA\" then (",
-          "            if Text.Length(AccountId) <= 36 then {\"✖ Invalid\", \"Please verify the billing account ID '\" & AccountId & \"'. Is this a billing profile ID?\"}",
-          "            else {\"✔️ Specified\", \"Connecting to MCA billing account \" & AccountId & \".\"}",
-          "        )",
-          "        else {\"✔️ Specified\", \"Connecting to EA enrollment \" & AccountId & \".\"},",
-          "",
-          "    ProfileId = #\"Billing Profile ID\",",
-          "    ProfileCheck = ",
-          "        if AccountType <> \"MCA\" then {\"➖️ Not applicable\", \"\"} ",
-          "        else if ProfileId = \"\" or ProfileId = null then {\"✖ Missing\", \"Recommendations will not be available for this report.\"}",
-          "        else {\"✔️ Specified\", \"Will get recommendations for billing profile \" & ProfileId & \".\"},",
-          "",
-          "    Months = #\"Number of Months\",",
-          "    MonthCheck = ",
-          "        if Months = \"\" or Months = null then {\"✖ Missing\", \"Please specify the number of months to include.\"}",
-          "        else if Months < 0 then {\"✖ Invalid\", \"Please specify 0 for only the current month or 1+ to include one or more previous months.\"}",
-          "        else {\"✔️ Specified\", \"Will get costs for \" & Text.From(Months) & (if Months = 1 then \" month.\" else \" months.\")},",
-          "",
+          "    // Storage",
           "    StorageUrl = #\"Storage URL\",",
           "    StorageCheck = ",
           "        if StorageUrl = \"\" or StorageUrl = null then {\"✖ Missing\", \"Please specify the storage URL.\"}",
           "        else if Text.StartsWith(StorageUrl, \"https://\") = false or Text.EndsWith(StorageUrl, \"/ingestion\") = false then {\"✖ Invalid\", \"Please check your storage URL.\"}",
           "        else {\"✔️ Specified\", \"Will pull costs from \" & Splitter.SplitTextByAnyDelimiter({\"/\", \".\"})(StorageUrl){2} & \".\"},",
           "",
+          "    // Incremental refresh",
           "    DateStart = RangeStart,",
           "    DateEnd = RangeEnd,",
           "    DateCheck = ",
@@ -7149,6 +7083,29 @@
           "        else if DateStart > DateEnd then {\"✖ Invalid\", \"The start date must be before the end date.\"}",
           "        else {\"✔️ Specified\", \"Will pull costs for \" & Number.ToText(Duration.Days(DateEnd - DateStart)) & \" days.\"},",
           "",
+          "    // Connector",
+          "    ScopeType = if Scope = \"\" or Scope = null then \"\" else if Text.Contains(Scope, \"-\") then \"MCA\" else \"EA\",",
+          "    ScopeCheck = ",
+          "        if ScopeType = \"\" then {\"✖ Missing\", \"Please specify an EA enrollment number or MCA scope ID.\"}",
+          "        else if ScopeType = \"MCA\" then (",
+          "            if Text.StartsWith(Text.Lower(Scope), \"/providers/microsoft.billing/billingaccounts/\") = false then {\"✖ Invalid\", \"Please specify a fully-qualified scope ID to connect to an MCA account.\"}",
+          "            else if Text.Contains(Text.Lower(Scope), \"/billingprofiles/\") then {\"✔️ Specified\", \"Connecting to MCA billing profile.\"}",
+          "            else {\"✖ Invalid\", \"Please specify a billing profile to include reservation recommendations.\"}",
+          "        )",
+          "        else {\"✔️ Specified\", \"Connecting to EA enrollment \" & Scope & \".\"},",
+          "    TypeCheck = ",
+          "        if ScopeType = \"EA\" then (if Type = \"Enrollment Number\" then {\"✔️ Specified\", \"Connecting to an EA account.\"} else {\"✖ Invalid\", \"Type must be 'Enrollment Number' for EA accounts.\"})",
+          "        else if ScopeType = \"MCA\" then (if Type = \"Manually Input Scope\" then {\"✔️ Specified\", \"Connecting to an MCA account.\"} else {\"✖ Invalid\", \"Type must be 'Manually Input Scope' for MCA accounts.\"})",
+          "        else if Type = \"Enrollment Number\" then {\"✔️ Specified\", \"Expecting an EA account. Please specify the Scope parameter.\"}",
+          "        else if Type = \"Manually Input Scope\" then {\"✔️ Specified\", \"Expecting an MCA account. Please specify the Scope parameter.\"}",
+          "        else {\"✖ Invalid\", \"Please select a Type value.\"},",
+          "    Months = #\"Number of Months\",",
+          "    MonthCheck = ",
+          "        if Months = \"\" or Months = null then {\"✖ Missing\", \"Please specify the number of months to include.\"}",
+          "        else if Months < 0 then {\"✖ Invalid\", \"Please specify 0 for only the current month or 1+ to include one or more previous months.\"}",
+          "        else {\"✔️ Specified\", \"Will get data for \" & Text.From(Months) & (if Months = 1 then \" month.\" else \" months.\")},",
+          "",
+          "    // ",
           "    /*",
           "    Step1 = Table.InsertRows(#table({\"Instructions\", \"Value\", \"Status\", \"Message\"}, {}), 0, {",
           "        [ Instructions = \"① Set the data source parameter on the left\", Value = SourceType, Status = SourceCheck{0}, Message = SourceCheck{1} ],",
@@ -7173,22 +7130,29 @@
           "        [ Instructions = \"        \", Value = \"\", Status = \"\", Message = \"\" ],",
           "        [ Instructions = \"The following are only needed for reservation recommendations\", Value = \"\", Status = \"\", Message = \"\" ],",
           "        [ Instructions = \"        \", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"③️ Set the billing account ID\", Value = AccountId, Status = AccountCheck{0}, Message = AccountCheck{1} ],",
-          "        [ Instructions = \"        ➖ Go to https://aka.ms/costmgmt/config\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"        ➖ Change scope to the desired billing account or billing profile\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"        ➖ Select the Properties tile\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"        ➖ Copy the 'Billing account ID' value\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"        ➖ Paste the value in 'CM connector' > 'Billing Account ID'\", Value = \"\", Status = \"\", Message = \"\" ]",
-          "    }),",
-          "",
-          "    McaChecks = if AccountType = \"MCA\" then MainChecks else Table.InsertRows(MainChecks, Table.RowCount(MainChecks), {",
+          "        [ Instructions = \"③ Set the Scope parameter on the left\", Value = Scope, Status = ScopeCheck{0}, Message = ScopeCheck{1} ],",
+          "        [ Instructions = \"        ➖ If using EA, set it to your enrollment number\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        ➖ If using MCA, use the following steps to set your scope ID\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"              1. Go to https://aka.ms/costmgmt/config\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"              2. Change scope to the desired billing profile\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"              3. Select the Properties tile\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"              4. Use the 'ID' and 'Billing account ID' values to generate the scope ID\", Value = \"\", Status = \"\", Message = \"Example: /providers/Microsoft.Billing/billingAccounts/<id>/billingProfiles/<id>\" ],",
+          "        [ Instructions = \"                   NOTE: Billing profile is required for MCA reservation recommendations\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"              5. Save the value in 'CM connector' > 'Scope'\", Value = \"\", Status = \"\", Message = \"\" ],",
           "        [ Instructions = \"        \", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"④ Set the billing profile ID\", Value = ProfileId, Status = ProfileCheck{0}, Message = ProfileCheck{1} ],",
-          "        [ Instructions = \"        ➖ From billing profile properties, copy the 'ID' value\", Value = \"\", Status = \"\", Message = \"\" ],",
-          "        [ Instructions = \"        ➖ Paste the value in 'CM connector' > 'Billing Profile ID'\", Value = \"\", Status = \"\", Message = \"\" ]",
+          "        [ Instructions = \"④ Set the Type parameter based on your account type\", Value = Type, Status = TypeCheck{0}, Message = TypeCheck{1} ],",
+          "        [ Instructions = \"        ➖ For EA, use 'Enrollment Number'\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        ➖ For MCA, use 'Manually Input Scope'\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        ➖ This value is required for the Cost Management connector\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        \", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"⑤ Set the number of months to include (more = slower load time)\", Value = Months, Status = MonthCheck{0}, Message = MonthCheck{1} ],",
+          "        [ Instructions = \"        ➖ 0  = current month only\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        ➖ 1  = current month and 1 previous month\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        ➖ 2+ = current month and 2+ previous months\", Value = \"\", Status = \"\", Message = \"\" ],",
+          "        [ Instructions = \"        ➖ NOTE: Power BI can only support ~$16M in cost details!\", Value = \"\", Status = \"\", Message = \"\" ]",
           "    })",
           "in",
-          "    McaChecks"
+          "    MainChecks"
         ],
         "kind": "m",
         "lineageTag": "6cfe80b8-1c4b-4c11-9916-43fc98b49dac",
@@ -7197,10 +7161,6 @@
       {
         "name": "ftk_CMConnector",
         "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
           {
             "name": "PBI_ResultType",
             "value": "Function"
@@ -7213,16 +7173,7 @@
         "expression": [
           "(optional dataset) =>",
           "let",
-          "    ba = #\"Billing Account ID\",",
-          "    bp = #\"Billing Profile ID\",",
-          "    mo = 1, // Since we only use recommendations, this doesnt need to be customizable",
-          "    IsMCA = ba <> null and Text.Contains(ba, \"-\"),",
-          "    Scope =",
-          "        if ba = null then null",
-          "        else if IsMCA then \"/providers/Microsoft.Billing/billingAccounts/\" & ba & (if Text.Length(bp) = 0 then \"\" else (\"/billingProfiles/\" & bp))",
-          "        else if Text.Length(ba) > 0 then ba",
-          "        else null,",
-          "    Connector = if Scope = null then null else AzureCostManagement.Tables((if IsMCA then \"Manually Input Scope\" else \"Enrollment Number\"), Scope, mo, []),",
+          "    Connector = AzureCostManagement.Tables(Type, Scope, #\"Number of Months\", []),",
           "    Data = if dataset = \"\" or dataset = null then Connector else Connector{[Key=dataset]}[Data]",
           "in",
           "    Data"
@@ -7232,37 +7183,42 @@
         "queryGroup": "🛠️ Setup\\Functions"
       },
       {
-        "name": "Errors in CostDetails",
+        "name": "Scope",
         "annotations": [
           {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
             "name": "PBI_ResultType",
-            "value": "Table"
+            "value": "Text"
           }
         ],
+        "description": "Enter your EA enrollment number or fully-qualified MCA billing profile resource ID. You must have at least read access to use Power BI. For more options, please use https://aka.ms/finops/hubs.",
         "expression": [
           "let",
-          "Source = CostDetails,",
-          "  #\"Detected Type Mismatches\" = let",
-          "    tableWithOnlyPrimitiveTypes = Table.SelectColumns(Source, Table.ColumnsOfType(Source, {type nullable number, type nullable text, type nullable logical, type nullable date, type nullable datetime, type nullable datetimezone, type nullable time, type nullable duration})),",
-          "    recordTypeFields = Type.RecordFields(Type.TableRow(Value.Type(tableWithOnlyPrimitiveTypes))),",
-          "    fieldNames = Record.FieldNames(recordTypeFields),",
-          "    fieldTypes = List.Transform(Record.ToList(recordTypeFields), each [Type]),",
-          "    pairs = List.Transform(List.Positions(fieldNames), (i) => {fieldNames{i}, (v) => if v = null or Value.Is(v, fieldTypes{i}) then v else error [Message = \"The type of the value does not match the type of the column.\", Detail = v], fieldTypes{i}})",
+          "    Source = \"8611537\" meta [IsParameterQuery = true, IsParameterQueryRequired = true, Type = type text]",
           "in",
-          "    Table.TransformColumns(Source, pairs),",
-          "  #\"Added Index\" = Table.AddIndexColumn(#\"Detected Type Mismatches\", \"Row Number\" ,1),",
-          "  #\"Kept Errors\" = Table.SelectRowsWithErrors(#\"Added Index\", {\"AvailabilityZone\", \"BilledCost\", \"BillingAccountId\", \"BillingAccountName\", \"BillingAccountType\", \"BillingCurrency\", \"BillingPeriodEnd\", \"BillingPeriodStart\", \"ChargeCategory\", \"ChargeDescription\", \"ChargeFrequency\", \"ChargePeriodEnd\", \"ChargePeriodStart\", \"ChargeSubcategory\", \"CommitmentDiscountCategory\", \"CommitmentDiscountId\", \"CommitmentDiscountName\", \"CommitmentDiscountNameUnique\", \"CommitmentDiscountType\", \"EffectiveCost\", \"InvoiceIssuerName\", \"ListCost\", \"ListUnitPrice\", \"PricingCategory\", \"PricingQuantity\", \"PricingUnit\", \"ProviderName\", \"PublisherName\", \"Region\", \"ResourceId\", \"ResourceName\", \"ResourceNameUnique\", \"ResourceType\", \"ServiceCategory\", \"ServiceName\", \"SkuId\", \"SkuPriceId\", \"SubAccountId\", \"SubAccountName\", \"SubAccountNameUnique\", \"SubAccountType\", \"Tags\", \"UsageQuantity\", \"UsageUnit\", \"x_AccountName\", \"x_AccountOwnerId\", \"x_AccountType\", \"x_BilledCostInUsd\", \"x_BilledUnitPrice\", \"x_BillingAccountId\", \"x_BillingAccountName\", \"x_BillingExchangeRate\", \"x_BillingExchangeRateDate\", \"x_BillingProfileId\", \"x_BillingProfileName\", \"x_CapacityCommitmentId\", \"x_ChargeId\", \"x_CommitmentDiscountKey\", \"x_CommitmentSavings\", \"x_CommitmentUtilizationAmount\", \"x_CommitmentUtilizationPotential\", \"x_CostAllocationRuleName\", \"x_CostCenter\", \"x_CustomerId\", \"x_CustomerName\", \"x_DatasetType\", \"x_DatasetVersion\", \"x_DiscountSavings\", \"x_EffectiveCostInUsd\", \"x_EffectiveUnitPrice\", \"x_InvoiceId\", \"x_InvoiceIssuerId\", \"x_InvoiceSectionId\", \"x_InvoiceSectionName\", \"x_ListUnitPriceSavings\", \"x_Month\", \"x_NegotiatedSavings\", \"x_OnDemandCost\", \"x_OnDemandCostInUsd\", \"x_OnDemandUnitPrice\", \"x_OnDemandUnitPriceSavings\", \"x_PartnerCreditApplied\", \"x_PartnerCreditRate\", \"x_PricingBlockSize\", \"x_PricingCurrency\", \"x_PricingSubcategory\", \"x_PricingUnitDescription\", \"x_PublisherCategory\", \"x_PublisherId\", \"x_ResellerId\", \"x_ResellerName\", \"x_ResourceGroupName\", \"x_ResourceGroupNameUnique\", \"x_ResourceMachineName\", \"x_ResourceType\", \"x_ServicePeriodEnd\", \"x_ServicePeriodStart\", \"x_SkuCPUs\", \"x_SkuDescription\", \"x_SkuDetails\", \"x_SkuImageType\", \"x_SkuIsCreditEligible\", \"x_SkuLicenseCPUs\", \"x_SkuLicenseStatus\", \"x_SkuMeterCategory\", \"x_SkuMeterId\", \"x_SkuMeterName\", \"x_SkuMeterSubcategory\", \"x_SkuOfferId\", \"x_SkuOrderId\", \"x_SkuOrderName\", \"x_SkuPartNumber\", \"x_SkuRegion\", \"x_SkuServiceFamily\", \"x_SkuTerm\", \"x_SkuTier\", \"x_SkuType\", \"x_SkuUsageType\", \"x_SkuVMProperties\", \"x_TagsDictionary\", \"x_UsageCPUHours\"}),",
-          "  #\"Reordered Columns\" = Table.ReorderColumns(#\"Kept Errors\", {\"Row Number\", \"AvailabilityZone\", \"BilledCost\", \"BillingAccountId\", \"BillingAccountName\", \"BillingAccountType\", \"BillingCurrency\", \"BillingPeriodEnd\", \"BillingPeriodStart\", \"ChargeCategory\", \"ChargeDescription\", \"ChargeFrequency\", \"ChargePeriodEnd\", \"ChargePeriodStart\", \"ChargeSubcategory\", \"CommitmentDiscountCategory\", \"CommitmentDiscountId\", \"CommitmentDiscountName\", \"CommitmentDiscountNameUnique\", \"CommitmentDiscountType\", \"EffectiveCost\", \"InvoiceIssuerName\", \"ListCost\", \"ListUnitPrice\", \"PricingCategory\", \"PricingQuantity\", \"PricingUnit\", \"ProviderName\", \"PublisherName\", \"Region\", \"ResourceId\", \"ResourceName\", \"ResourceNameUnique\", \"ResourceType\", \"ServiceCategory\", \"ServiceName\", \"SkuId\", \"SkuPriceId\", \"SubAccountId\", \"SubAccountName\", \"SubAccountNameUnique\", \"SubAccountType\", \"Tags\", \"UsageQuantity\", \"UsageUnit\", \"x_AccountName\", \"x_AccountOwnerId\", \"x_AccountType\", \"x_BilledCostInUsd\", \"x_BilledUnitPrice\", \"x_BillingAccountId\", \"x_BillingAccountName\", \"x_BillingExchangeRate\", \"x_BillingExchangeRateDate\", \"x_BillingProfileId\", \"x_BillingProfileName\", \"x_CapacityCommitmentId\", \"x_ChargeId\", \"x_CommitmentDiscountKey\", \"x_CommitmentSavings\", \"x_CommitmentUtilizationAmount\", \"x_CommitmentUtilizationPotential\", \"x_CostAllocationRuleName\", \"x_CostCenter\", \"x_CustomerId\", \"x_CustomerName\", \"x_DatasetType\", \"x_DatasetVersion\", \"x_DiscountSavings\", \"x_EffectiveCostInUsd\", \"x_EffectiveUnitPrice\", \"x_InvoiceId\", \"x_InvoiceIssuerId\", \"x_InvoiceSectionId\", \"x_InvoiceSectionName\", \"x_ListUnitPriceSavings\", \"x_Month\", \"x_NegotiatedSavings\", \"x_OnDemandCost\", \"x_OnDemandCostInUsd\", \"x_OnDemandUnitPrice\", \"x_OnDemandUnitPriceSavings\", \"x_PartnerCreditApplied\", \"x_PartnerCreditRate\", \"x_PricingBlockSize\", \"x_PricingCurrency\", \"x_PricingSubcategory\", \"x_PricingUnitDescription\", \"x_PublisherCategory\", \"x_PublisherId\", \"x_ResellerId\", \"x_ResellerName\", \"x_ResourceGroupName\", \"x_ResourceGroupNameUnique\", \"x_ResourceMachineName\", \"x_ResourceType\", \"x_ServicePeriodEnd\", \"x_ServicePeriodStart\", \"x_SkuCPUs\", \"x_SkuDescription\", \"x_SkuDetails\", \"x_SkuImageType\", \"x_SkuIsCreditEligible\", \"x_SkuLicenseCPUs\", \"x_SkuLicenseStatus\", \"x_SkuMeterCategory\", \"x_SkuMeterId\", \"x_SkuMeterName\", \"x_SkuMeterSubcategory\", \"x_SkuOfferId\", \"x_SkuOrderId\", \"x_SkuOrderName\", \"x_SkuPartNumber\", \"x_SkuRegion\", \"x_SkuServiceFamily\", \"x_SkuTerm\", \"x_SkuTier\", \"x_SkuType\", \"x_SkuUsageType\", \"x_SkuVMProperties\", \"x_TagsDictionary\", \"x_UsageCPUHours\"})",
-          "in",
-          "  #\"Reordered Columns\""
+          "    Source"
         ],
         "kind": "m",
-        "lineageTag": "f2b1d73f-1a83-4ce3-b449-999962f4f011",
-        "queryGroup": "Query Errors - 1/11/2024 8:34:56 PM"
+        "lineageTag": "244a1951-f3fa-4d07-913e-c5770a195267",
+        "queryGroup": "🛠️ Setup\\CM connector"
+      },
+      {
+        "name": "Type",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Text"
+          }
+        ],
+        "description": "Select \"Enrollment Number\" if using EA; otherwise, select \"Manually Input Scope\". These values are required in order to refresh data from the connector in the Power BI service.",
+        "expression": [
+          "let",
+          "    Source = \"Enrollment Number\" meta [IsParameterQuery = true, IsParameterQueryRequired = true, Type = type text, List = {\"Enrollment Number\", \"Manually Input Scope\"}, DefaultValue = \"Enrollment Number\"]",
+          "in",
+          "    Source"
+        ],
+        "kind": "m",
+        "lineageTag": "e700b3d3-f2af-45a3-af15-199df0040f7b",
+        "queryGroup": "🛠️ Setup\\CM connector"
       }
     ],
     "queryGroups": [
@@ -7319,16 +7275,6 @@
           }
         ],
         "folder": "🛠️ Setup\\Instructions"
-      },
-      {
-        "annotations": [
-          {
-            "name": "PBI_QueryGroupOrder",
-            "value": "6"
-          }
-        ],
-        "description": "Errors in queries that were loaded on 1/11/2024 8:34:56 PM.",
-        "folder": "Query Errors - 1/11/2024 8:34:56 PM"
       }
     ],
     "relationships": [
@@ -9452,6 +9398,12 @@
             "summarizeBy": "none"
           }
         ],
+        "description": [
+          "Cost and usage (FOCUS) data from Cost Management exports.",
+          "",
+          "Data version = 1.0-preview (v1)",
+          "Learn more @ https://aka.ms/finops/hubs"
+        ],
         "lineageTag": "4b9830c4-e7c7-43ee-823c-d6b15359c25f",
         "measures": [
           {
@@ -9596,9 +9548,9 @@
             "source": {
               "expression": [
                 "let",
-                "    Source = ftk_CostDetails()",
+                "  Source = ftk_CostDetails(RangeStart, RangeEnd)",
                 "in",
-                "    Source"
+                "  Source"
               ],
               "type": "m"
             }

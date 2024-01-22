@@ -4,7 +4,7 @@ parent: Bicep Registry
 title: Scheduled actions
 nav_order: 10
 description: 'Send an email on a schedule or when an anomaly is detected'
-permalink: /powershell/hubs/Deploy-FinOpsHub
+permalink: /bicep/scheduled-actions
 ---
 
 <span class="fs-9 d-block mb-4">Scheduled actions</span>

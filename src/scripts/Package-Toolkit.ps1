@@ -59,7 +59,7 @@ $version = & "$PSScriptRoot/Get-Version"
 $isPrerelease = $version -like '*-*'
 
 Write-Verbose "Removing existing ZIP files..."
-Remove-Item "$relDir/*-v$version.zip" -Force
+Remove-Item "$relDir/*.zip" -Force
 
 $templates = Get-ChildItem $relDir -Directory `
 | ForEach-Object {
@@ -96,9 +96,20 @@ Write-Host "✅ $($templates.Count) templates"
 # Copy open data files
 Write-Verbose "Copying open data files..."
 Copy-Item "$PSScriptRoot/../open-data/*.csv" $relDir
-Write-Host "✅ $((Get-ChildItem "$relDir/*.csv").Count) open data files"
+Copy-Item "$PSScriptRoot/../open-data/*.json" $relDir
+Write-Host "✅ $((@(Get-ChildItem "$relDir/*.csv") + @(Get-ChildItem "$relDir/*.json")).Count) open data files"
 
-# Open Power BI reports
+# Package sample data files together
+Write-Verbose "Packaging sample data files..."
+Compress-Archive -Path "$PSScriptRoot/../sample-data/*.csv" -DestinationPath "$relDir/sample-data.zip"
+Write-Host "✅ $((Get-ChildItem "$PSScriptRoot/../sample-data/*.csv").Count) sample data files"
+
+# Copy PBIX files
+Write-Verbose "Copying PBIX files..."
+Copy-Item "$PSScriptRoot/../power-bi/*.pbix" $relDir -Force
+Write-Host "✅ $((Get-ChildItem "$PSScriptRoot/../power-bi/*.pbix").Count) PBIX files"
+
+# Open Power BI projects
 $pbi = Get-ChildItem "$PSScriptRoot/../power-bi/*.pbip"
 if ($PowerBI)
 {

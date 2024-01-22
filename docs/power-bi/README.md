@@ -73,47 +73,50 @@ _<sup>2) The $2-5M limits are for Power BI data refreshes and apply on a monthly
 
 In general, we recommend starting with the Cost Management connector when getting started with Power BI reports. The most common reasons to switch to FinOps hubs are for additional account types and scopes or to enable more advanced capabilities. Use the following comparison to help you make the decision:
 
-| Capabilities                                                 |                   Connector                   |       Exports<sup>4</sup>        |              FinOps hubs              | Microsoft Fabric<sup>5</sup> |
-| ------------------------------------------------------------ | :-------------------------------------------: | :------------------------------: | :-----------------------------------: | :--------------------------: |
-| Cost                                                         |                      $0                       |           ~$25 per $1M           |             ~$25 per $1M              |             TBD              |
-| Data storage                                                 |                   Power BI                    |        Data Lake Storage         |           Data Lake Storage           |      Data Lake Storage       |
-| Estimated maximum raw cost details per month<sup>1</sup>     |       $2M/mo (Pro)<br>$5M/mo (Premium)        | $2M/mo (Pro)<br>$5M/mo (Premium) |   $2M/mo (Pro)<br>$5M/mo (Premium)    |             TBD              |
-| Estimated maximum total with incremental refresh<sup>2</sup> |          $2M (Pro)<br>$5M (Premium)           |   $2M (Pro)<br>$65M (Premium)    |      $2M (Pro)<br>$65M (Premium)      |             TBD              |
-| Does not require a deployment                                |                      ✅                       |                ❌                |                  ✅                   |         ✅ (Exports)         |
-| Latest API version<sup>3</sup>                               |                      ❌                       |                ✅                |                  ✅                   |              ✅              |
-| Azure Government                                             |                      ❌                       |                ✅                |                  🔜                   |          ✅ (Hubs)           |
-| Azure China                                                  |                      ❌                       |                ✅                |                  🔜                   |          ✅ (Hubs)           |
-| Enterprise Agreement                                         |                      ✅                       |                ✅                |                  ✅                   |              ✅              |
-| Microsoft Customer Agreement                                 |                      ✅                       |                ✅                |                  ✅                   |              ✅              |
-| Microsoft Partner Agreement                                  |                      ✅                       |                ✅                |                  ✅                   |              ✅              |
-| Microsoft Online Services Agreement                          |                      ❌                       |                ❌                |           ❌ (if requested)           |              ❌              |
-| Billing accounts                                             |                      ✅                       |                ✅                |                  ✅                   |              ✅              |
-| Billing profiles                                             |                      ✅                       |                ✅                |                  ✅                   |              ✅              |
-| Invoice sections                                             |                      ❌                       |                ✅                |                  ✅                   |              ✅              |
-| CSP customers (partner only)                                 |                      ❌                       |                ✅                |                  ✅                   |              ✅              |
-| Management groups                                            |                      ❌                       |                ❌                |           ❌ (if requested)           |              ❌              |
-| Subscriptions                                                |                      ❌                       |                ✅                |                  ✅                   |              ✅              |
-| Resource groups                                              |                      ❌                       |                ✅                |                  ✅                   |              ✅              |
-| Supports savings plans<sup>3</sup>                           |                      ❌                       |                ✅                |                  ✅                   |              ✅              |
-| Supports savings plan recommendations                        |                      ❌                       |                🔜                |               🔜 (0.3)                |              🔜              |
-| Supports multiple scopes                                     |                      ❌                       |                ✅                |                  ✅                   |              ✅              |
-| Supports scopes in different tenants                         |                      ❌                       |                ❌                |               🔜 (0.2)                |          🔜 (Hubs)           |
-| Faster data load times                                       |                      ❌                       |                🔜                |                  ✅                   |          ✅ (Hubs)           |
-| Actual and amortized cost data                               |                      ✅                       |                ✅                |               🔜 (0.2)                |         ✅ (Exports)         |
-| Supports >$65M in cost details                               |                      ❌                       |                ❌                |               🔜 (0.3)                |              ✅              |
-| Analytical engine                                            |                      ❌                       |                ❌                |               🔜 (0.3)                |              ✅              |
-| Can be used outside of Power BI                              |                      ❌                       |                ✅                |                  ✅                   |              ✅              |
-| Learn more                                                   | [Learn more](https://aka.ms/costmgmt/powerbi) |                                  | [Learn more](../finops-hub/README.md) |
+| Capabilities                                        |            Connector             |       Exports<sup>1</sup>        |           FinOps hubs            | Microsoft Fabric<sup>2</sup> |
+| --------------------------------------------------- | :------------------------------: | :------------------------------: | :------------------------------: | :--------------------------: |
+| Cost                                                |                $0                |           ~$10 per $1M           |           ~$25 per $1M           |             TBD              |
+| Data storage                                        |             Power BI             |        Data Lake Storage         |        Data Lake Storage         |      Data Lake Storage       |
+| Est. max raw cost details per month<sup>3</sup>     | $2M/mo (Pro)<br>$5M/mo (Premium) | $2M/mo (Pro)<br>$5M/mo (Premium) | $2M/mo (Pro)<br>$5M/mo (Premium) |             TBD              |
+| Est. max total with incremental refresh<sup>4</sup> |    $2M (Pro)<br>$5M (Premium)    |   $2M (Pro)<br>$65M (Premium)    |   $2M (Pro)<br>$65M (Premium)    |             TBD              |
+| Does not require a deployment                       |                ✅                 |         ❌ (storage only)         |   ❌ ([details][hubs-template])   |              ❌               |
+| Latest API version<sup>5</sup>                      |                ❌                 |                ✅                 |                ✅                 |              ✅               |
+| Azure Government                                    |                ❌                 |                🔜                 |                ✅                 |           ✅ (Hubs)           |
+| Azure China                                         |                ❌                 |                🔜                 |                ✅                 |           ✅ (Hubs)           |
+| Enterprise Agreement                                |                ✅                 |                ✅                 |                ✅                 |              ✅               |
+| Microsoft Customer Agreement                        |                ✅                 |                ✅                 |                ✅                 |              ✅               |
+| Microsoft Partner Agreement                         |                ✅                 |                ✅                 |                ✅                 |              ✅               |
+| Microsoft Online Services Agreement                 |                ❌                 |         ❌ (if requested)         |         ❌ (if requested)         |              ❌               |
+| Billing accounts                                    |                ✅                 |                ✅                 |                ✅                 |              ✅               |
+| Billing profiles                                    |                ✅                 |                ✅                 |                ✅                 |              ✅               |
+| Invoice sections                                    |                ❌                 |                ✅                 |                ✅                 |              ✅               |
+| CSP customers (partner only)                        |                ❌                 |                ✅                 |                ✅                 |              ✅               |
+| Management groups                                   |                ❌                 |                ❌                 |         ❌ (if requested)         |              ❌               |
+| Subscriptions                                       |                ❌                 |                ✅                 |                ✅                 |              ✅               |
+| Resource groups                                     |                ❌                 |                ✅                 |                ✅                 |              ✅               |
+| Supports savings plans<sup>5</sup>                  |                ❌                 |                ✅                 |                ✅                 |              ✅               |
+| Supports savings plan recommendations               |                ❌                 |                ❌                 |             🔜 (0.4)              |              🔜               |
+| Supports multiple scopes                            |                ❌                 |                ✅                 |                ✅                 |              ✅               |
+| Supports scopes in different tenants                |                ❌                 |                ❌                 |             🔜 (0.3)              |           🔜 (Hubs)           |
+| Faster data load times                              |                ❌                 |                🔜                 |                ✅                 |           ✅ (Hubs)           |
+| Supports >$65M in cost details                      |                ❌                 |                ❌                 |             🔜 (0.4)              |              ✅               |
+| Analytical engine                                   |                ❌                 |                ❌                 |             🔜 (0.4)              |              ✅               |
+| Accessible outside of Power BI                      |                ❌                 |                ✅                 |                ✅                 |              ✅               |
+| Learn more                                          |  [Learn more][about-connector]   |                                  |     [Learn more][about-hubs]     |
 
-_<sup>1) Power BI constraints are based on data size and processing time. Monitored spend estimations are for reference only. You may see different limits based on services you use and other datasets you ingest.</sup>_
+[about-connector]: https://aka.ms/costmgmt/powerbi
+[about-hubs]: ../finops-hub/README.md
+[hubs-template]: ../finops-hub/template.md
 
-_<sup>2) The Cost Management connector for Power BI does not support incremental refresh, so the limits are the same as the per-month estimation. The FinOps hub estimate is based on incremental refresh being enabled, which requires additional configuration after your report is published.</sup>_
+_<sup>1) Support for raw exports requires a Cost Management preview feature available from [Cost Management Labs](https://aka.ms/costmgmt/trypreview). The FinOps toolkit does not support raw exports yet but will in a future release.</sup>_
 
-_<sup>3) The Cost Management connector uses an old API version and does not include details for some features, like savings plans. Please use FinOps hubs for the latest version with all details.</sup>_
+_<sup>2) Microsoft Fabric can connect to either raw exports or FinOps hubs. FinOps toolkit reports do not support Microsoft Fabric yet but will in a future release.</sup>_
 
-_<sup>4) Support for raw exports requires a Cost Management preview feature available from [Cost Management Labs](https://aka.ms/costmgmt/trypreview). The FinOps toolkit does not support raw exports yet but will in a future release.</sup>_
+_<sup>3) Power BI constraints are based on data size and processing time. Monitored spend estimations are for reference only. You may see different limits based on services you use and other datasets you ingest.</sup>_
 
-_<sup>5) Microsoft Fabric can connect to either raw exports or FinOps hubs. FinOps toolkit reports do not support Microsoft Fabric yet but will in a future release.</sup>_
+_<sup>4) The Cost Management connector for Power BI does not support incremental refresh, so the limits are the same as the per-month estimation. The FinOps hub estimate is based on incremental refresh being enabled, which requires additional configuration after your report is published.</sup>_
+
+_<sup>5) The Cost Management connector uses an old API version and does not include details for some features, like savings plans. Please use FinOps hubs for the latest version with all details.</sup>_
 
 If you're not sure, start with the Cost Management connector. You will usually be able to tell if that works for you within the first 5-10 minutes. If you experience delays in pulling your data, try requesting fewer months. If you still experience issues, it's time to consider switching to FinOps hubs.
 
