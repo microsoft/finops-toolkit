@@ -27,30 +27,26 @@ Read on to learn about the tools and roadmap for the FinOps toolkit or how to ge
 
 ## 🧰 Available tools
 
-- [FinOps hubs](./finops-hub/README.md) – Open, extensible, and scalable cost reporting.
-- [Cost optimization workbook](./optimization-workbook/README.md) – Central hub for cost optimization.
-- [Bicep Registry modules](./bicep-registry/README.md) – Official repository for Bicep modules.
-- [Open data](./open-data/README.md) – Data available for anyone to access, use, and share without restriction.
-  - [Regions](./open-data/README.md#-regions) – Cost Management locations and their corresponding Azure region IDs and names.
+{% include tools.md all="1" %}
 
 ### In development
 
-- PowerShell module – Commands to help you automate and manage FinOps solutions and capabilities.
-- Governance workbook – Comprehensive overview of the governance posture of your Azure environment.
+- FinOps hubs – Ingest and normalize EA/MCA costs from multiple tenants into Azure Data Explorer.
+- PowerShell – Manage FinOps hubs and convert Cost Management data to FOCUS.
 
-<!--
-Looking for more? See what's coming in the [Toolkit v1 release](https://github.com/microsoft/finops-toolkit/issues/104).
--->
+<br>
+
+[Download FinOps toolkit {% include version.txt %}](https://aka.ms/ftk/latest){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
 ## 🗺️ Roadmap
 
-We track the short-term roadmap for FinOps toolkit as releases in our issue tracker. Each release includes overarching goals, tasks broken down into sub-releases, links to discussions for each sub-release, and tentative stretch tasks.
+We track the short-term roadmap for FinOps toolkit as milestones in GitHub. Each release includes the high-level goals, tasks, and a link to the release discussion.
 
 Please use discussions in GitHub if you have questions, comments, or requests for any specific release.
 
-[Discover what's next](https://github.com/microsoft/finops-toolkit/labels/Type%3A%20Release%20%F0%9F%9A%80){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Discover what's next](https://github.com/microsoft/finops-toolkit/milestones?direction=asc&sort=title&state=open){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [Join the conversation](https://github.com/microsoft/finops-toolkit/discussions){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
@@ -93,7 +89,7 @@ All the main changes are tracked in the changelog. For additional details, refer
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/ankur-ms"><img src="https://avatars.githubusercontent.com/u/118343862?v=4?s=100" width="100px;" alt="Ankur Sharma"/><br /><sub><b>Ankur Sharma</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3Aankur-ms" title="Reviewed Pull Requests">👀</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/sri-"><img src="https://avatars.githubusercontent.com/u/4493254?v=4?s=100" width="100px;" alt="srilatha inavolu"/><br /><sub><b>srilatha inavolu</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=sri-" title="Code">💻</a> <a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3Asri-" title="Reviewed Pull Requests">👀</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/lkshck"><img src="https://avatars.githubusercontent.com/u/46962619?v=4?s=100" width="100px;" alt="lkshck"/><br /><sub><b>lkshck</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Alkshck" title="Bug reports">🐛</a></td>
-      <td align="center" valign="top" width="16.66%"><a href="https://github.com/arthurclares"><img src="https://avatars.githubusercontent.com/u/53261392?v=4?s=100" width="100px;" alt="Arthur Clares"/><br /><sub><b>Arthur Clares</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=arthurclares" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/arthurclares"><img src="https://avatars.githubusercontent.com/u/53261392?v=4?s=100" width="100px;" alt="Arthur Clares"/><br /><sub><b>Arthur Clares</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=arthurclares" title="Code">💻</a> <a href="https://github.com/microsoft/finops-toolkit/commits?author=arthurclares" title="Documentation">📖</a></td>
     </tr>
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://www.seifbassem.com/"><img src="https://avatars.githubusercontent.com/u/38246040?v=4?s=100" width="100px;" alt="Seif Bassem"/><br /><sub><b>Seif Bassem</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=sebassem" title="Code">💻</a></td>
@@ -114,6 +110,16 @@ All the main changes are tracked in the changelog. For additional details, refer
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/renanalmeidjr"><img src="https://avatars.githubusercontent.com/u/41745296?v=4?s=100" width="100px;" alt="renanalmeidjr"/><br /><sub><b>renanalmeidjr</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Arenanalmeidjr" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/soumyananda"><img src="https://avatars.githubusercontent.com/u/7952916?v=4?s=100" width="100px;" alt="soumyananda"/><br /><sub><b>soumyananda</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3Asoumyananda" title="Reviewed Pull Requests">👀</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/arjenhuitema"><img src="https://avatars.githubusercontent.com/u/15944031?v=4?s=100" width="100px;" alt="Arjen Huitema"/><br /><sub><b>Arjen Huitema</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=arjenhuitema" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/mutansee"><img src="https://avatars.githubusercontent.com/u/64589176?v=4?s=100" width="100px;" alt="Mubarak Tanseer"/><br /><sub><b>Mubarak Tanseer</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Amutansee" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/chris-bowman"><img src="https://avatars.githubusercontent.com/u/20289947?v=4?s=100" width="100px;" alt="Chris Bowman"/><br /><sub><b>Chris Bowman</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Achris-bowman" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/elvismangarae"><img src="https://avatars.githubusercontent.com/u/73974080?v=4?s=100" width="100px;" alt="elvismangarae"/><br /><sub><b>elvismangarae</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Aelvismangarae" title="Bug reports">🐛</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/erincon01"><img src="https://avatars.githubusercontent.com/u/7208487?v=4?s=100" width="100px;" alt="erincon01"/><br /><sub><b>erincon01</b></sub></a><br /><a href="#question-erincon01" title="Answering Questions">💬</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/NavidKhan8"><img src="https://avatars.githubusercontent.com/u/114067987?v=4?s=100" width="100px;" alt="NavidKhan8"/><br /><sub><b>NavidKhan8</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3ANavidKhan8" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://msftplayground.com"><img src="https://avatars.githubusercontent.com/u/9531411?v=4?s=100" width="100px;" alt="Maik van der Gaag"/><br /><sub><b>Maik van der Gaag</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Amaikvandergaag" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://data-driven.ai"><img src="https://avatars.githubusercontent.com/u/3522966?v=4?s=100" width="100px;" alt="Rodney"/><br /><sub><b>Rodney</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3Arodneyjoyce" title="Reviewed Pull Requests">👀</a></td>
     </tr>
   </tbody>
 </table>

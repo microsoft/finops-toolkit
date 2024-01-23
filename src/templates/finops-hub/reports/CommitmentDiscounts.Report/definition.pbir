@@ -1,9 +1,0 @@
-{
-  "version": "1.0",
-  "datasetReference": {
-    "byPath": {
-      "path": "../CommitmentDiscounts.Dataset"
-    },
-    "byConnection": null
-  }
-}

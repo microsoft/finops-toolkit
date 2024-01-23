@@ -21,6 +21,7 @@ Gets details about a FinOps hub instance.
 - [🧮 Syntax](#-syntax)
 - [📥 Parameters](#-parameters)
 - [🌟 Examples](#-examples)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -43,10 +44,10 @@ Get-FinOpsHub `
 
 ## 📥 Parameters
 
-| Name              | Description                                                                              |
-| ----------------- | ---------------------------------------------------------------------------------------- |
-| Name              | Optional. Name of the FinOps hub instance. Supports wildcards.                           |
-| ResourceGroupName | Optional. Name of the resource group the FinOps hub was deployed to. Supports wildcards. |
+| Name                 | Description                                                                              |
+| -------------------- | ---------------------------------------------------------------------------------------- |
+| '‑Name'              | Optional. Name of the FinOps hub instance. Supports wildcards.                           |
+| '‑ResourceGroupName' | Optional. Name of the resource group the FinOps hub was deployed to. Supports wildcards. |
 
 <br>
 
@@ -83,5 +84,13 @@ Get-FinOpsHub -Name foo -ResourceGroupName bar
 ```
 
 Returns all FinOps hubs named 'foo' in the 'bar' resource group.
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md hubs="1" %}
 
 <br>

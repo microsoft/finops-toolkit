@@ -6,6 +6,7 @@ On this page:
 
 - [📏 Pricing units](#-pricing-units)
 - [🗺️ Regions](#️-regions)
+- [🗺️ Resource types](#️-resource-types)
 - [🎛️ Services](#️-services)
 
 ---
@@ -33,14 +34,14 @@ Meters
 | extend AccountTypes = replace_string(arraystring(AccountTypes), 'EA, MCA', 'MCA, EA')
 //
 // Parse number-only values
-| extend UsageToPricingRate = unabbrev(@'^(\d+[KMBT]?)$', replace_string(UnitOfMeasure, ' ', ''))
-| extend DistinctUnits = iff(isnotempty(UsageToPricingRate), 'Units', '')
+| extend PricingBlockSize = unabbrev(@'^(\d+[KMBT]?)$', replace_string(UnitOfMeasure, ' ', ''))
+| extend DistinctUnits = iff(isnotempty(PricingBlockSize), 'Units', '')
 //
 // Parse all other numbers
-| extend UsageToPricingRate = iff(isempty(UsageToPricingRate), unabbrev(@'^ *(\d+[KMBT]?)[ /]', toupper(UnitOfMeasure)), UsageToPricingRate)
+| extend PricingBlockSize = iff(isempty(PricingBlockSize), unabbrev(@'^ *(\d+[KMBT]?)[ /]', toupper(UnitOfMeasure)), PricingBlockSize)
 //
 // If no number, assume 1
-| extend UsageToPricingRate = iff(isempty(UsageToPricingRate), 1, UsageToPricingRate)
+| extend PricingBlockSize = iff(isempty(PricingBlockSize), 1, PricingBlockSize)
 //
 // Parse unit after number
 | extend DistinctUnits = iff(isempty(DistinctUnits), replace_regex(extract(@'^ *\d+[KMBT]? *(.*) *$', 1, UnitOfMeasure), @'^/', 'Units/'), DistinctUnits)
@@ -108,6 +109,23 @@ Meters
 The [Regions.csv](./Regions.csv) file contains data from several internal sources. We shouldn't need to update this file as Cost Management data is standardizing on Azure regions.
 
 > ℹ️ _Internal only: Contact the CPDM PM team for any updates._
+
+<br>
+
+## 🗺️ Resource types
+
+<sup>
+    📅 Updated: Nov 11, 2023<br>
+    ➡️ Source: Azure portal / Azure mobile app<br>
+</sup>
+
+<br>
+
+The [ResourceTypes.csv](./ResourceTypes.csv) file contains data from the Azure portal. The Build-OpenData script generates the flie without any additional work.
+
+If you find a resource type is missing, add it to [ResourceTypes.Overrides.csv](./ResourceTypes.Overrides.json). The override file supports overriding names and icons.
+
+If you run into any issues with the script that gets the data, you can look at examples from the Azure mobile app repo @ https://aka.ms/azureapp/code.
 
 <br>
 

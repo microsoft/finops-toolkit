@@ -8,6 +8,7 @@
     "FinOps",
     "Lookback",
     "MOSA",
+    "msexports",
     "PBIX",
     "Quickstart",
     "quickstarts",
@@ -27,5 +28,18 @@
     "no-bare-urls": false,
     "no-inline-html": false
   },
-  "powershell.codeFormatting.newLineAfterCloseBrace": false
+  "powershell.codeFormatting.alignPropertyValuePairs": true,
+  "powershell.codeFormatting.avoidSemicolonsAsLineTerminators": true,
+  "powershell.codeFormatting.newLineAfterCloseBrace": true,
+  "powershell.codeFormatting.newLineAfterOpenBrace": true,
+  "powershell.codeFormatting.openBraceOnSameLine": false,
+  "powershell.codeFormatting.useCorrectCasing": true,
+  "powershell.codeFormatting.whitespaceBeforeOpenBrace": true,
+  "powershell.codeFormatting.whitespaceBeforeOpenParen": true,
+  "powershell.codeFormatting.whitespaceInsideBrace": true,
+  "[powerquery]": {
+    "editor.formatOnSave": false
+  },
+"powerquery.general.experimental": false,
+"editor.detectIndentation": false
 }

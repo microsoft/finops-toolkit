@@ -21,14 +21,15 @@ Deploys a FinOps hub instance.
 - [🧮 Syntax](#-syntax)
 - [📥 Parameters](#-parameters)
 - [🌟 Examples](#-examples)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
 ---
 
-The Deploy-FinOpsHub command creates a new FinOps hub instance. The FinOps hub template is downloaded from GitHub.
+The **Deploy-FinOpsHub** command either creates a new or updates an existing FinOps hub instance by deploying an Azure Resource Manager deployment template. The FinOps hub template is downloaded from GitHub. To learn more about the template, see the [FinOps hub template](../../finops-hub/template.md).
 
-Before running this command, register the Microsoft.EventGrid and Microsoft.CostManagementExports providers. Resource provider registration must be done by a subscription contributor.
+Deploy-FinOpsHub calls [Initialize-FinOpsHubDeployment](Initialize-FinOpsHubDeployment.md) before deploying the template.
 
 <br>
 
@@ -50,15 +51,15 @@ Deploy-FinOpsHub `
 
 ## 📥 Parameters
 
-| Name          | Description                                                                                                                                                                          |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Name          | Required. Name of the FinOps hub instance.                                                                                                                                           |
-| ResourceGroup | Required. Name of the resource group to deploy to. Will be created if it doesn't exist.                                                                                              |
-| Location      | Required. Azure location to execute the deployment from.                                                                                                                             |
-| Version       | Optional. Version of the FinOps hub template to use. Default = "latest".                                                                                                             |
-| Preview       | Optional. Indicates that preview releases should also be included. Default = false.                                                                                                  |
-| StorageSku    | Optional. Storage account SKU. Premium_LRS = Lowest cost, Premium_ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Default = "Premium_LRS". |
-| Tags          | Optional. Tags for all resources.                                                                                                                                                    |
+| Name             | Description                                                                                                                                                                          |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `‑Name`          | Required. Name of the FinOps hub instance.                                                                                                                                           |
+| `‑ResourceGroup` | Required. Name of the resource group to deploy to. Will be created if it doesn't exist.                                                                                              |
+| `‑Location`      | Required. Azure location to execute the deployment from.                                                                                                                             |
+| `‑Version`       | Optional. Version of the FinOps hub template to use. Default = "latest".                                                                                                             |
+| `‑Preview`       | Optional. Indicates that preview releases should also be included. Default = false.                                                                                                  |
+| `‑StorageSku`    | Optional. Storage account SKU. Premium_LRS = Lowest cost, Premium_ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Default = "Premium_LRS". |
+| `‑Tags`          | Optional. Tags for all resources.                                                                                                                                                    |
 
 <br>
 
@@ -82,9 +83,17 @@ Deploy-FinOpsHub `
     -Name MyHub `
     -ResourceGroup MyExistingResourceGroup `
     -Location westus `
-    -Version 0.1
+    -Version {% include version.txt %}
 ```
 
-Deploys a new FinOps hub instance named MyHub to a new resource group named MyNewResourceGroup using version 0.1 of the template.
+Deploys a new FinOps hub instance named MyHub to a new resource group named MyNewResourceGroup using version {% include version.txt %} of the template.
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md hubs="1" %}
 
 <br>

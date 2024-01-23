@@ -1,0 +1,61 @@
+{%- comment -%}
+  Include as: {%- include head.html -%}
+  Depends on: site.ga_tracking, site.ga_tracking_anonymize_ip,
+    site.search_enabled, site.static_files, site.favicon_ico.
+  Results in: HTML for the head element.
+  Includes:
+    css/activation.scss.liquid, head_custom.html.
+  Overwrites:
+    ga_tracking_ids, ga_property, file, favicon.
+  Should not be cached, because included files depend on page.
+{%- endcomment -%}
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+  {%- comment -%} ===| Theme toggle |======================================================= {%- endcomment -%}
+  <script>
+    if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-mode');
+  </script>
+  <script type="text/javascript" src="{{ '/assets/js/theme-switch.js' | relative_url }}" defer></script>
+  <link rel="stylesheet" href="{{ '/assets/css/just-the-docs-switchable.css' | relative_url }}">
+  {%- comment -%} =========================================================================== {%- endcomment -%}
+
+  <link rel="stylesheet" href="{{ '/assets/css/just-the-docs-default.css' | relative_url }}">
+
+  <link rel="stylesheet" href="{{ '/assets/css/just-the-docs-head-nav.css' | relative_url }}">
+
+  <style id="jtd-nav-activation">
+  {% include css/activation.scss.liquid %}
+  </style>
+
+  {% if site.ga_tracking != nil %}
+    {% assign ga_tracking_ids = site.ga_tracking | split: "," %}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_tracking_ids.first }}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      {% for ga_property in ga_tracking_ids %}
+        gtag('config', '{{ ga_property }}'{% unless site.ga_tracking_anonymize_ip == nil %}, { 'anonymize_ip': true }{% endunless %});
+      {% endfor %}
+    </script>
+  {% endif %}
+
+  {% if site.search_enabled != false %}
+    <script src="{{ '/assets/js/vendor/lunr.min.js' | relative_url }}"></script>
+  {% endif %}
+
+  <script src="{{ '/assets/js/just-the-docs.js' | relative_url }}"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  {% include_cached favicon.html %}
+
+  {% seo title=false %}
+
+  {% include head_custom.html %}
+
+</head>
