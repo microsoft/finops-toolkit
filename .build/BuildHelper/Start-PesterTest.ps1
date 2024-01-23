@@ -6,20 +6,25 @@ function Start-PesterTest
     param
     (
         [Parameter(Mandatory = $true)]
-        [ValidateSet('Unit', 'Meta')]
+        [ValidateSet('Unit', 'Lint', 'Integration')]
         [string]
         $Type
     )
 
     $rootPath = ((Get-Item -Path $PSScriptRoot).Parent.Parent).FullName
-    $pesterArgs = [PesterConfiguration]::Default
+    $pesterArgs = New-PesterConfiguration
     $pesterArgs.Output.Verbosity = 'Detailed'
 
     switch ($Type)
     {
-        'Meta'
+        'Integration'
         {
-            $testPath = Join-Path -Path $rootPath -ChildPath 'src/powershell/Tests/Meta'
+            $testPath = Join-Path -Path $rootPath -ChildPath 'src/powershell/Tests/Integration'
+        }
+
+        'Lint'
+        {
+            $testPath = Join-Path -Path $rootPath -ChildPath 'src/powershell/Tests/Lint'
         }
 
         'Unit'

@@ -24,11 +24,14 @@ param sku string = 'Premium_LRS'
 @description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
 param tags object = {}
 
+@description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
+param tagsByResource object = {}
+
 @description('Optional. List of scope IDs to monitor and ingest cost for.')
 param scopesToMonitor array
 
 @description('Optional. Number of days of cost data to retain in the ms-cm-exports container. Default: 0.')
-param exportRetentionInDays int = 0
+param msexportRetentionInDays int = 0
 
 @description('Optional. Number of months of cost data to retain in the ingestion container. Default: 13.')
 param ingestionRetentionInMonths int = 13
@@ -41,13 +44,11 @@ param ingestionRetentionInMonths int = 13
 var safeHubName = replace(replace(toLower(hubName), '-', ''), '_', '')
 var storageAccountSuffix = uniqueSuffix
 var storageAccountName = '${take(safeHubName, 24 - length(storageAccountSuffix))}${storageAccountSuffix}'
-var schema_ea_normalized = loadTextContent('../schema/schema_ea_normalized.json')
-var schema_mca_normalized = loadTextContent('../schema/schema_mca_normalized.json')
-var uploadScript = loadTextContent('./scripts/Copy-FileToAzureBlob.ps1')
 
 // Roles needed to auto-start triggers
 var blobUploadRbacRoles = [
   'ba92f5b4-2d11-453d-a403-e96b0029c9fe' // Storage Blob Data Contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor
+  'e40ec5ca-96e0-45a2-b4ff-59039f2c2b59' // Managed Identity Contributor - https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#managed-identity-contributor
 ]
 
 //==============================================================================
@@ -61,7 +62,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     name: sku
   }
   kind: 'BlockBlobStorage'
-  tags: tags
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Storage/storageAccounts') ? tagsByResource['Microsoft.Storage/storageAccounts'] : {})
   properties: {
     supportsHttpsTrafficOnly: true
     isHnsEnabled: true
@@ -112,15 +113,15 @@ resource ingestionContainer 'Microsoft.Storage/storageAccounts/blobServices/cont
 
 // Create managed identity to upload files
 resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: '${storageAccountName}_${configContainer.name}_blobManager'
-  tags: tags
+  name: '${storageAccountName}_blobManager'
+  tags: union(tags, contains(tagsByResource, 'Microsoft.ManagedIdentity/userAssignedIdentities') ? tagsByResource['Microsoft.ManagedIdentity/userAssignedIdentities'] : {})
   location: location
 }
 
 // Assign access to the identity
 resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in blobUploadRbacRoles: {
   name: guid(storageAccount.id, role, identity.id)
-  scope: storageAccount
+  scope: resourceGroup()
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
     principalId: identity.properties.principalId
@@ -131,8 +132,9 @@ resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-0
 resource uploadSettings 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: 'uploadSettings'
   kind: 'AzurePowerShell'
-  location: location
-  tags: tags
+  // chinaeast2 is the only region in China that supports deployment scripts
+  location: startsWith(location, 'china') ? 'chinaeast2' : location
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -148,12 +150,16 @@ resource uploadSettings 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     retentionInterval: 'PT1H'
     environmentVariables: [
       {
+        name: 'ftkVersion'
+        value: loadTextContent('./version.txt')
+      }
+      {
         name: 'scopes'
         value: join(scopesToMonitor, '|')
       }
       {
-        name: 'exportRetentionInDays'
-        value: string(exportRetentionInDays)
+        name: 'msexportRetentionInDays'
+        value: string(msexportRetentionInDays)
       }
       {
         name: 'ingestionRetentionInMonths'
@@ -167,16 +173,8 @@ resource uploadSettings 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
         name: 'containerName'
         value: 'config'
       }
-      {
-        name: 'schema_ea_normalized'
-        value: schema_ea_normalized
-      }
-      {
-        name: 'schema_mca_normalized'
-        value: schema_mca_normalized
-      }
     ]
-    scriptContent: uploadScript
+    scriptContent: loadTextContent('./scripts/Copy-FileToAzureBlob.ps1')
   }
 }
 

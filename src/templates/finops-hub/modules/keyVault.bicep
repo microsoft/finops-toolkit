@@ -31,6 +31,9 @@ param sku string = 'premium'
 @description('Optional. Resource tags.')
 param tags object = {}
 
+@description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
+param tagsByResource object = {}
+
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
@@ -55,7 +58,7 @@ var formattedAccessPolicies = [for accessPolicy in accessPolicies: {
 resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = {
   name: keyVaultName
   location: location
-  tags: tags
+  tags: union(tags, contains(tagsByResource, 'Microsoft.KeyVault/vaults') ? tagsByResource['Microsoft.KeyVault/vaults'] : {})
   properties: {
     enabledForDeployment: true
     enabledForTemplateDeployment: true
@@ -67,7 +70,8 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = {
     tenantId: subscription().tenantId
     accessPolicies: formattedAccessPolicies
     sku: {
-      name: sku
+      // chinaeast2 is the only region in China that supports deployment scripts
+      name: startsWith(location, 'china') ? 'standard' : sku
       family: 'A'
     }
   }

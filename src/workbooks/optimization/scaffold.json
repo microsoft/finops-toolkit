@@ -1,13 +1,14 @@
 {
   "main.bicep": {
     "displayName": "Cost optimization",
-    "description": "Reports to help you optimize your cost."
+    "description": "Reports to help you optimize your cost.",
+    "workbookId": "0b2"
   },
   "metadata.json": {
     "itemDisplayName": "Cost optimization workbook",
     "summary": "Create a new cost optimization workbook",
     "description": "This template creates a new Azure Monitor workbook for cost optimization based on the Well-Architected Framework.",
     "githubUsername": "arthurclares",
-    "dateUpdated": "2023-05-26"
+    "dateUpdated": "2024-01-21"
   }
 }

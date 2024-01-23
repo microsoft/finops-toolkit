@@ -52,22 +52,22 @@ function Save-FinOpsHubTemplate
         }
         else
         {
-            $release = $releases | Where-Object -FilterScript {$_.Version -eq $Version}
+            $release = $releases | Where-Object -FilterScript { $_.Version -eq $Version }
         }
 
-        foreach ($asset in $release.Assets)
+        foreach ($asset in $release.Files)
         {
-            Write-Verbose -Message ($script:localizedData.FoundAsset -f $asset.Name)
+            Write-Verbose -Message ($script:LocalizedData.HubTemplate_Save_FoundAsset -f $asset.Name)
             $saveFilePath = Join-Path -Path $Destination -ChildPath $asset.Name
             if (Test-Path -Path $saveFilePath)
             {
                 Remove-Item -Path $saveFilePath -Recurse -Force
             }
 
-            $null = Invoke-Webrequest -Uri $asset.Url -OutFile $saveFilePath -Verbose:$false
+            $null = Invoke-WebRequest -Uri $asset.Url -OutFile $saveFilePath -Verbose:$false
             if ([System.IO.Path]::GetExtension($saveFilePath) -eq '.zip')
             {
-                Write-Verbose -Message ($script:localizedData.ExpandingZip -f $saveFilePath)
+                Write-Verbose -Message ($script:LocalizedData.HubTemplate_Save_ExpandingZip -f $saveFilePath)
                 Expand-Archive -Path $saveFilePath -DestinationPath ($saveFilePath -replace '.zip', '')
                 Remove-Item -Path $saveFilePath -Recurse -Force
             }

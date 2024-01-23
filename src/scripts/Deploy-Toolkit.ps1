@@ -2,32 +2,45 @@
 # Licensed under the MIT License.
 
 <#
-.SYNOPSIS
+    .SYNOPSIS
     Deploys a toolkit template or module for local testing purposes.
-.DESCRIPTION
-    Run this from the /src/scripts folder.
-.EXAMPLE
-    ./Deploy-Toolkit "finops-hub"
+
+    .EXAMPLE
+    Deploy-Toolkit "finops-hub"
+
     Deploys a new FinOps hub instance.
-.EXAMPLE
-    ./Deploy-Toolkit -WhatIf
+
+    .EXAMPLE
+    Deploy-Toolkit -WhatIf
+
     Validates the deployment template or module without changing resources.
-.PARAMETER Template
+
+    .PARAMETER Template
     Name of the template or module to deploy. Default = finops-hub.
-.PARAMETER ResourceGroup
+
+    .PARAMETER ResourceGroup
     Optional. Name of the resource group to deploy to. Will be created if it doesn't exist. Default = ftk-<username>-<computername>.
-.PARAMETER Location
+
+    .PARAMETER Location
     Optional. Azure location to execute the deployment from. Default = westus.
-.PARAMETER Parameters
+
+    .PARAMETER Parameters
     Optional. Parameters to pass thru to the deployment.
-.PARAMETER Build
+
+    .PARAMETER Build
     Optional. Indicates whether the the Build-Toolkit command should be executed first. Default = false.
-.PARAMETER Test
+
+    .PARAMETER Test
     Optional. Indicates whether to run the template or module test instead of the template or module itself. Default = false.
-.PARAMETER Demo
+
+    .PARAMETER Demo
     Optional. Indicates whether to deploy the template to the FinOps-Toolkit-Demo resource group. Default = false.
-.PARAMETER WhatIf
+
+    .PARAMETER WhatIf
     Optional. Displays a message that describes the effect of the command, instead of executing the command.
+
+    .LINK
+    https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md#-deploy-toolkit
 #>
 Param(
     [Parameter(Position = 0)][string]$Template = "finops-hub",
@@ -49,11 +62,12 @@ function iff([bool]$Condition, $IfTrue, $IfFalse) {
 
 # Build toolkit if requested
 if ($Build) {
-    ./Build-Toolkit -Template $Template
-    $templateFolders = @("../../release")
+    & "$PSScriptRoot/Build-Toolkit" -Template $Template
+    # NOTE: Include templates after release to account for test templates, which are not included in release builds
+    $templateFolders = @("$PSScriptRoot/../../release", "$PSScriptRoot/../templates")
 } else {
     # NOTE: Do not include the workbooks folder since they must be built first; they're included in the release folder
-    $templateFolders = @("../templates", "../bicep-registry", "../../release")
+    $templateFolders = @("$PSScriptRoot/../templates", "$PSScriptRoot/../bicep-registry", "$PSScriptRoot/../../release")
 }
 
 # Don't run test and demo deployment at the same time
@@ -83,7 +97,7 @@ $defaultParameters = @{
 $global:ftkDeployment = $null
 
 # If deploying a workbook, switch to the release folder name
-if (Test-Path (Join-Path .. workbooks $Template)) {
+if (Test-Path "$PSScriptRoot/../workbooks/$Template") {
     $Template = "$Template-workbook"
 }
 
@@ -95,11 +109,11 @@ $templateFolders `
     $templateName = iff $Test ($templateFile.Directory.Parent.Name + "/test") $templateFile.Directory.Name
     $parentFolder = iff $Test $templateFile.Directory.Parent.Parent.Name $templateFile.Directory.Parent.Name
     $targetScope = (Get-Content $templateFile | Select-String "targetScope = '([^']+)'").Matches[0].Captures[0].Groups[1].Value
-    
+
     # Fall back to default parameters if none were provided
     $Parameters = iff ($null -eq $Parameters) $defaultParameters["$templateName$(iff $Demo '/demo' '')"] $Parameters
     $Parameters = iff ($null -eq $Parameters) @{} $Parameters
-    
+
     Write-Host "Deploying $templateName (from $parentFolder)..."
     switch ($targetScope) {
         "resourceGroup" {
@@ -112,10 +126,10 @@ $templateFolders `
                 # Use "ftk-<username>-<computername>" for local testing
                 $ResourceGroup = Get-UniqueName
             }
-            
+
             Write-Host "  → [rg] $ResourceGroup..."
             $Parameters.Keys | ForEach-Object { Write-Host "         $($_) = $($Parameters[$_])" }
-            
+
             if ($Debug) {
                 Write-Host "         $templateFile"
             } else {

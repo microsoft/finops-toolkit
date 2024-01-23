@@ -8,6 +8,7 @@ remote_theme: just-the-docs/just-the-docs
 
 url: https://microsoft.github.io/finops-toolkit
 
+# Links in header
 aux_links:
   FinOps toolkit on GitHub: https://github.com/microsoft/finops-toolkit
 
@@ -37,6 +38,13 @@ callouts:
   new:
     title: 🆕 New
     color: purple
+
+highlighter: rouge
+
+rouge:
+  languages:
+    - bicep
+    - powershell
 
 # Mermaid versions @ https://cdn.jsdelivr.net/npm/mermaid
 mermaid:

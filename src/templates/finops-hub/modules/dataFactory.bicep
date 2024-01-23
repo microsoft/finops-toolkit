@@ -38,6 +38,9 @@ param remoteHubStorageUri string
 @description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
 param tags object = {}
 
+@description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
+param tagsByResource object = {}
+
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
@@ -83,6 +86,7 @@ var allHubTriggers = [
 // Roles needed to auto-start triggers
 var autoStartRbacRoles = [
   '673868aa-7521-48a0-acc6-0f60742d39f5' // Data Factory contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#data-factory-contributor
+  'e40ec5ca-96e0-45a2-b4ff-59039f2c2b59' // Managed Identity Contributor - https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#managed-identity-contributor
 ]
 
 // Storage roles needed for ADF to create CM exports and process the output
@@ -92,6 +96,108 @@ var storageRbacRoles = [
   'ba92f5b4-2d11-453d-a403-e96b0029c9fe' // Storage Blob Data Contributor https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor
   'acdd72a7-3385-48ef-bd42-f606fba81ae7' // Reader https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#reader
 ]
+
+// FocusCost 1.0-preview (v1) columns
+var focusCostColumns = [
+  { name: 'AvailabilityZone', type: 'String' }
+  { name: 'BilledCost', type: 'Decimal' }
+  { name: 'BillingAccountId', type: 'String' }
+  { name: 'BillingAccountName', type: 'String' }
+  { name: 'BillingAccountType', type: 'String' }
+  { name: 'BillingCurrency', type: 'String' }
+  { name: 'BillingPeriodEnd', type: 'DateTime' }
+  { name: 'BillingPeriodStart', type: 'DateTime' }
+  { name: 'ChargeCategory', type: 'String' }
+  { name: 'ChargeDescription', type: 'String' }
+  { name: 'ChargeFrequency', type: 'String' }
+  { name: 'ChargePeriodEnd', type: 'DateTime' }
+  { name: 'ChargePeriodStart', type: 'DateTime' }
+  { name: 'ChargeSubcategory', type: 'String' }
+  { name: 'CommitmentDiscountCategory', type: 'String' }
+  { name: 'CommitmentDiscountId', type: 'String' }
+  { name: 'CommitmentDiscountName', type: 'String' }
+  { name: 'CommitmentDiscountType', type: 'String' }
+  { name: 'EffectiveCost', type: 'Decimal' }
+  { name: 'InvoiceIssuerName', type: 'String' }
+  { name: 'ListCost', type: 'Decimal' }
+  { name: 'ListUnitPrice', type: 'Decimal' }
+  { name: 'PricingCategory', type: 'String' }
+  { name: 'PricingQuantity', type: 'Decimal' }
+  { name: 'PricingUnit', type: 'String' }
+  { name: 'ProviderName', type: 'String' }
+  { name: 'PublisherName', type: 'String' }
+  { name: 'Region', type: 'String' }
+  { name: 'ResourceId', type: 'String' }
+  { name: 'ResourceName', type: 'String' }
+  { name: 'ResourceType', type: 'String' }
+  { name: 'ServiceCategory', type: 'String' }
+  { name: 'ServiceName', type: 'String' }
+  { name: 'SkuId', type: 'String' }
+  { name: 'SkuPriceId', type: 'String' }
+  { name: 'SubAccountId', type: 'String' }
+  { name: 'SubAccountName', type: 'String' }
+  { name: 'SubAccountType', type: 'String' }
+  { name: 'Tags', type: 'String' }
+  { name: 'UsageQuantity', type: 'Decimal' }
+  { name: 'UsageUnit', type: 'String' }
+  { name: 'x_AccountName', type: 'String' }
+  { name: 'x_AccountOwnerId', type: 'String' }
+  { name: 'x_BilledCostInUsd', type: 'Decimal' }
+  { name: 'x_BilledUnitPrice', type: 'Decimal' }
+  { name: 'x_BillingAccountId', type: 'String' }
+  { name: 'x_BillingAccountName', type: 'String' }
+  { name: 'x_BillingExchangeRate', type: 'Decimal' }
+  { name: 'x_BillingExchangeRateDate', type: 'DateTime' }
+  { name: 'x_BillingProfileId', type: 'String' }
+  { name: 'x_BillingProfileName', type: 'String' }
+  { name: 'x_ChargeId', type: 'String' }
+  { name: 'x_CostAllocationRuleName', type: 'String' }
+  { name: 'x_CostCenter', type: 'String' }
+  { name: 'x_CustomerId', type: 'String' }
+  { name: 'x_CustomerName', type: 'String' }
+  { name: 'x_EffectiveCostInUsd', type: 'Decimal' }
+  { name: 'x_EffectiveUnitPrice', type: 'Decimal' }
+  { name: 'x_InvoiceId', type: 'String' }
+  { name: 'x_InvoiceIssuerId', type: 'String' }
+  { name: 'x_InvoiceSectionId', type: 'String' }
+  { name: 'x_InvoiceSectionName', type: 'String' }
+  { name: 'x_OnDemandCost', type: 'Decimal' }
+  { name: 'x_OnDemandCostInUsd', type: 'Decimal' }
+  { name: 'x_OnDemandUnitPrice', type: 'Decimal' }
+  { name: 'x_PartnerCreditApplied', type: 'Boolean' }
+  { name: 'x_PartnerCreditRate', type: 'Decimal' }
+  { name: 'x_PricingBlockSize', type: 'Decimal' }
+  { name: 'x_PricingCurrency', type: 'String' }
+  { name: 'x_PricingSubcategory', type: 'String' }
+  { name: 'x_PricingUnitDescription', type: 'String' }
+  { name: 'x_PublisherCategory', type: 'String' }
+  { name: 'x_PublisherId', type: 'String' }
+  { name: 'x_ResellerId', type: 'String' }
+  { name: 'x_ResellerName', type: 'String' }
+  { name: 'x_ResourceGroupName', type: 'String' }
+  { name: 'x_ResourceType', type: 'String' }
+  { name: 'x_ServicePeriodEnd', type: 'DateTime' }
+  { name: 'x_ServicePeriodStart', type: 'DateTime' }
+  { name: 'x_SkuDescription', type: 'String' }
+  { name: 'x_SkuDetails', type: 'String' }
+  { name: 'x_SkuIsCreditEligible', type: 'Boolean' }
+  { name: 'x_SkuMeterCategory', type: 'String' }
+  { name: 'x_SkuMeterId', type: 'String' }
+  { name: 'x_SkuMeterName', type: 'String' }
+  { name: 'x_SkuMeterSubcategory', type: 'String' }
+  { name: 'x_SkuOfferId', type: 'String' }
+  { name: 'x_SkuOrderId', type: 'String' }
+  { name: 'x_SkuOrderName', type: 'String' }
+  { name: 'x_SkuPartNumber', type: 'String' }
+  { name: 'x_SkuRegion', type: 'String' }
+  { name: 'x_SkuServiceFamily', type: 'String' }
+  { name: 'x_SkuTerm', type: 'String' }
+  { name: 'x_SkuTier', type: 'String' }
+]
+var focusCostMappings = [for i in range(0, length(focusCostColumns)): {
+  source: { name: focusCostColumns[i].name, type: focusCostColumns[i].type }
+  sink: { name: focusCostColumns[i].name }
+}]
 
 //==============================================================================
 // Resources
@@ -127,7 +233,7 @@ module azuretimezones 'azuretimezones.bicep' = {
 resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: '${dataFactory.name}_triggerManager'
   location: location
-  tags: tags
+  tags: union(tags, contains(tagsByResource, 'Microsoft.ManagedIdentity/userAssignedIdentities') ? tagsByResource['Microsoft.ManagedIdentity/userAssignedIdentities'] : {})
 }
 
 resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in autoStartRbacRoles: {
@@ -157,7 +263,8 @@ resource pipelineIdentityRoleAssignments 'Microsoft.Authorization/roleAssignment
 
 resource deleteOldResources 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: '${dataFactory.name}_deleteOldResources'
-  location: location
+  // chinaeast2 is the only region in China that supports deployment scripts
+  location: startsWith(location, 'china') ? 'chinaeast2' : location
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -168,7 +275,7 @@ resource deleteOldResources 'Microsoft.Resources/deploymentScripts@2020-10-01' =
   dependsOn: [
     identityRoleAssignments
   ]
-  tags: tags
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
   properties: {
     azPowerShellVersion: '8.0'
     retentionInterval: 'PT1H'
@@ -290,6 +397,7 @@ resource linkedService_remoteHubStorage 'Microsoft.DataFactory/factories/linkeds
 //------------------------------------------------------------------------------
 // Datasets
 //------------------------------------------------------------------------------
+
 resource dataset_config 'Microsoft.DataFactory/factories/datasets@2018-06-01' = {
   name: safeConfigContainerName
   parent: dataFactory
@@ -368,6 +476,8 @@ resource dataset_ingestion 'Microsoft.DataFactory/factories/datasets@2018-06-01'
 //------------------------------------------------------------------------------
 // Triggers
 //------------------------------------------------------------------------------
+
+// Create trigger
 resource trigger_FileAdded 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
   name: fileAddedExportTriggerName
   parent: dataFactory
@@ -1677,7 +1787,7 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
 
 //------------------------------------------------------------------------------
 // msexports_ETL_ingestion pipeline
-// Triggered by msexports_ExecuteETL
+// Trigger: msexports_ExecuteETL
 //------------------------------------------------------------------------------
 @description('Transforms CSV data to a standard schema and converts to Parquet.')
 resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
@@ -1685,6 +1795,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
   parent: dataFactory
   properties: {
     activities: [
+      // (start) -> Wait -> FolderArray -> Scope -> Metric -> Date -> File -> Folder -> Delete Target -> Convert CSV -> Delete CSV -> (end)
+      // Wait
       {
         name: 'Wait'
         type: 'Wait'
@@ -1694,8 +1806,9 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           waitTimeInSeconds: 60
         }
       }
+      // Set FolderArray
       {
-        name: 'Set Scope'
+        name: 'Set FolderArray'
         type: 'SetVariable'
         dependsOn: [
           {
@@ -1707,9 +1820,30 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         ]
         userProperties: []
         typeProperties: {
+          variableName: 'folderArray'
+          value: {
+            value: '@split(pipeline().parameters.folderName, \'/\')'
+            type: 'Expression'
+          }
+        }
+      }
+      // Set Scope
+      {
+        name: 'Set Scope'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Set FolderArray'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
           variableName: 'scope'
           value: {
-            value: '@replace(split(pipeline().parameters.folderName,split(pipeline().parameters.folderName, \'/\')[sub(length(split(pipeline().parameters.folderName, \'/\')), 4)])[0],\'${exportContainerName}\',\'${ingestionContainerName}\')'
+            value: '@replace(split(pipeline().parameters.folderName,variables(\'folderArray\')[sub(length(variables(\'folderArray\')), if(greater(length(variables(\'folderArray\')[sub(length(variables(\'folderArray\')), 2)]), 12), 3, 4))])[0],\'${exportContainerName}\',\'${ingestionContainerName}\')'
             type: 'Expression'
           }
         }
@@ -1729,7 +1863,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         typeProperties: {
           variableName: 'metric'
           value: {
-            value: '@if(contains(toLower(pipeline().parameters.folderName), \'amortizedcost\'), \'amortizedcost\', \'actualcost\')'
+            // TODO: Parse metric out of the manifest file @ msexports/<scope>/<export-name>/<date-range>/[<timestamp?>/]<guid>/manifest.json
+            value: 'focuscost'
             type: 'Expression'
           }
         }
@@ -1749,7 +1884,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         typeProperties: {
           variableName: 'date'
           value: {
-            value: '@substring(split(pipeline().parameters.folderName, \'/\')[sub(length(split(pipeline().parameters.folderName, \'/\')), 3)], 0, 6)'
+            value: '@substring(variables(\'folderArray\')[sub(length(variables(\'folderArray\')), if(greater(length(variables(\'folderArray\')[sub(length(variables(\'folderArray\')), 2)]), 12), 2, 3))], 0, 6)'
             type: 'Expression'
           }
         }
@@ -1886,8 +2021,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           parallelCopies: 1
           validateDataConsistency: false
           translator: {
-            value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
-            type: 'Expression'
+            type: 'TabularTranslator'
+            mappings: focusCostMappings
           }
         }
         inputs: [
@@ -2140,6 +2275,9 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
       destinationFolder: {
         type: 'String'
       }
+      folderArray: {
+        type: 'Array'
+      }
       scope: {
         type: 'String'
       }
@@ -2165,8 +2303,9 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
 
 resource startTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: '${dataFactory.name}_startTriggers'
-  location: location
-  tags: tags
+  // chinaeast2 is the only region in China that supports deployment scripts
+  location: startsWith(location, 'china') ? 'chinaeast2' : location
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {

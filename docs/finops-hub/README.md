@@ -2,7 +2,7 @@
 layout: default
 title: FinOps hubs
 has_children: true
-nav_order: 2
+nav_order: 20
 description: 'Reliable, trustworthy platform for cost analytics, insights, and optimization.'
 permalink: /hubs
 ---
@@ -22,7 +22,8 @@ Open, extensible, and scalable cost governance for the enterprise.
 - [📦 What's included](#-whats-included)
 - [➕ Create a new hub](#-create-a-new-hub)
 - [🛫 Get started with hubs](#-get-started-with-hubs)
-- [⏭️ Next steps](#️-next-steps)
+- [🔐 Required permissions](#-required-permissions)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -60,14 +61,15 @@ FinOps hubs will streamline implementing the FinOps Framework, are being designe
 - Clean up duplicated data in daily Cost Management exports (and save money on storage).
 - Convert exported data to parquet for faster data access.
 - Connect Power BI to subscriptions, resource groups, and other scopes.
-- Connect Power BI to Azure Government and Microsoft Online Services Agreement accounts.
+- Connect Power BI to Azure Government and Azure China.
+- Connect Power BI to Microsoft Online Services Agreement (MOSA) subscriptions<sup>1</sup>.
 - Report on multiple subscriptions, resource groups, or billing accounts.
-- Preview cost data in the [FinOps Open Cost and Usage Specification (FOCUS)](https://focus.finops.org) schema.
+- Streamlined deployment and management with PowerShell.
+- Full alignment with the [FinOps Open Cost and Usage Specification (FOCUS)](../focus/README.md).
 - _Coming soon: Ingest data from subscriptions in multiple tenants into a single storage account._
-- _Coming soon: Normalize cost data across account types._
-- _Coming soon: Connect Power BI to Azure China accounts._
-- _Coming soon: Streamlined deployment and management with PowerShell._
 - _Coming soon: Ingest data into Azure Data Explorer._
+
+_<sup>1) MOSA (or PAYG) subscriptions are only supported in FinOps hubs 0.1.x. FinOps hubs 0.2 requires FOCUS cost data from Cost Management exports, which are not supported for MOSA subscriptions. Please contact support about transitioning to a Microsoft Customer Agreement account.</sup>_
 
 <br>
 
@@ -81,20 +83,11 @@ The FinOps hub template includes the following resources:
 
 Once deployed, you can report on the data in Power BI or by connecting to the storage account directly.
 
-<img
-   alt="Screenshot of the cost summary report"
-   style="max-width:200px"
-   src="https://user-images.githubusercontent.com/399533/216882658-45f026f1-c895-48ca-81e2-35765af8e29e.png">
-<img
-   alt="Screenshot of the services cost report"
-   style="max-width:200px"
-   src="https://user-images.githubusercontent.com/399533/216882700-4e04b589-0580-4e49-9b40-9f5948792975.png">
-<img
-   alt="Screenshot of the commitment-based discounts coverage report"
-   style="max-width:200px"
-   src="https://user-images.githubusercontent.com/399533/216882916-bb7ecfa3-d092-4ae2-88e1-7a0425c14dca.png">
+<img alt="Screenshot of the cost summary report" style="max-width:200px" src="https://user-images.githubusercontent.com/399533/216882658-45f026f1-c895-48ca-81e2-35765af8e29e.png">
+<img alt="Screenshot of the services cost report" style="max-width:200px" src="https://user-images.githubusercontent.com/399533/216882700-4e04b589-0580-4e49-9b40-9f5948792975.png">
+<img alt="Screenshot of the commitment discounts coverage report" style="max-width:200px" src="https://user-images.githubusercontent.com/399533/216882916-bb7ecfa3-d092-4ae2-88e1-7a0425c14dca.png">
 
-[Browse reports](./reports/README.md){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Browse reports](../power-bi/README.md){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [See the template](./template.md){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
@@ -109,13 +102,13 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
 
 2. **Deploy your FinOps hub.**
 
-   [![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy) &nbsp; [![Deploy To Azure US Gov](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy/gov)<!-- &nbsp; [![Deploy To Azure China](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazurechina.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy/china)-->
+   [![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy) &nbsp; [![Deploy To Azure US Gov](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy/gov) &nbsp; [![Deploy To Azure China](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazurechina.svg?sanitize=true)](https://aka.ms/finops/hubs/deploy/china)
 
-   [Learn more](../deploy/README.md)
+   [Learn more](../resources/deploy.md)
 
 3. **Configure scopes to monitor.**
 
-   FinOps hubs use Cost Management exports to load the cost data you want to monitor. You can configure exports manually or grant access to your hub to manage exports for you.
+   FinOps hubs use Cost Management exports to load the data you want to monitor. You can configure exports manually or grant access to your hub to manage exports for you.
 
    [Learn more](./configure-scopes.md)
 
@@ -123,7 +116,9 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
 
    You can connect to your data from any system that supports Azure storage. For ideas, see [get started with hubs](#-get-started-with-hubs) below. We recommend using pre-built Power BI starter templates to get started quickly.
 
-   [Learn more](./reports/README.md#setup-a-finops-hub-report)
+   [Learn more](../power-bi/README.md#-connect-to-your-data)
+
+If you run into any issues, see [Troubleshooting Power BI reports](../resources/troubleshooting.md).
 
 <br>
 
@@ -133,29 +128,21 @@ After deploying a hub instance, there are several ways for you to get started:
 
 1. Customize the pre-built Power BI reports.
 
-   Our Power BI reports are starter templates and intended to be customized. We encourage you to customize as needed. [Learn more](./reports/README.md).
+   Our Power BI reports are starter templates and intended to be customized. We encourage you to customize as needed. [Learn more](../power-bi/README.md).
 
 2. Create your own Power BI reports.
 
-   If you'd like to create your own reports or add cost data to an existing report, you can either [copy queries from a pre-built report](./reports/README.md#setup-a-finops-hub-report) or [connect manually](./reports/README.md#connect-manually) using the Azure Data Lake Storage Gen2 connector.
+   If you'd like to create your own reports or add cost data to an existing report, you can either [copy queries from a pre-built report](../power-bi/README.md#setup-a-finops-hub-report) or [connect manually](../power-bi/README.md#connect-manually) using the Azure Data Lake Storage Gen2 connector.
 
-   <!-- NOTE TO CONTRIBUTORS: Keep this info note in sync with the same one under #3 below. -->
+3. Connect to Microsoft Fabric for advanced queries.
 
-   <blockquote class="note" markdown="1">
-     _The schema may change multiple times before the 0.1 release. We will ensure Power BI reports have backwards compatibility, but if you access data directly, you may run into breaking changes with new releases. Familiarize yourself with [upcoming releases](https://aka.ms/finops/toolkit/roadmap) and review the [changelog](../changelog.md) for breaking changes before you update._
-   </blockquote>
+   If you use OneLake in Microsoft Fabric, you can create a shortcut to the `ingestion` container in your hubs storage account to run SQL or KQL queries directly against the data in hubs. [Learn more](https://learn.microsoft.com/fabric/real-time-analytics/onelake-shortcuts?tabs=adlsgen2).
 
-3. Access the cost data from custom tools.
+4. Access the cost data from custom tools.
 
    Cost data is stored in an [Azure Data Lake Storage Gen2](https://learn.microsoft.com/azure/storage/blobs/data-lake-storage-introduction) account. You can use any tool that supports Azure Data Lake Storage Gen2 to access the data. Refer to the [data dictionary](./data-dictionary.md) for details about available columns.
 
-   <!-- NOTE TO CONTRIBUTORS: Keep this info note in sync with the same one under #2 above. -->
-
-   <blockquote class="note" markdown="1">
-     _The schema may change multiple times before the 0.1 release. We will ensure Power BI reports have backwards compatibility, but if you access data directly, you may run into breaking changes with new releases. Familiarize yourself with [upcoming releases](https://aka.ms/finops/toolkit/roadmap) and review the [changelog](changelog.md) for breaking changes before you update._
-   </blockquote>
-
-4. Apply cost allocation logic, augment, or manipulate your cost data using Data Factory.
+5. Apply cost allocation logic, augment, or manipulate your cost data using Data Factory.
 
    [Data Factory](https://learn.microsoft.com/azure/data-factory/introduction) is used to ingest and transform data. We recommend using Data Factory as a cost-efficient solution to apply custom logic to your cost data. Do not modify built-in pipelines or data in the **msexports** container. If you create custom pipelines, monitor new data in the **ingestion** container and use a consistent prefix to ensure they don't overlap with new pipelines. Refer to [data processing](./data-processing.md) for details about how data is processed.
 
@@ -163,7 +150,7 @@ After deploying a hub instance, there are several ways for you to get started:
      _Keep in mind this is the primary area we are planning to evolve in [upcoming FinOps toolkit releases](https://aka.ms/finops/toolkit/roadmap). Please familiarize yourself with our roadmap to avoid conflicts with future updates. Consider [contributing to the project](../CONTRIBUTING.md) to add support for new scenarios to avoid conflicts._
    </blockquote>
 
-5. Generate custom alerts using Power Automate.
+6. Generate custom alerts using Power Automate.
 
    You have many options for generating custom alerts. [Power Automate](https://powerautomate.microsoft.com/connectors/details/shared_azureblob/azure-blob-storage) is a great option for people who are new to automation but you can also use [Data Factory](https://learn.microsoft.com/azure/data-factory/introduction), [Functions](https://learn.microsoft.com/azure/azure-functions/functions-overview), or any other service that supports custom code or direct access to data in Azure Data Lake Storage Gen2.
 
@@ -173,11 +160,28 @@ If you need to change `hub.bicep`, be sure to track those changes and re-apply t
 
 If you access data in storage or are creating or customizing Power BI reports, please refer to the [data dictionary](data-dictionary.md) for details about the available columns.
 
+<br>
+
+## 🔐 Required permissions
+
+Required permissions for deploying or updating hub instances are covered in the [template details](./template.md#-prerequisites).
+
+You will need one or more of the following to export your cost data:
+
+| Scope                             | Permission                                                                                                                            |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Subscriptions and resource groups | [Cost Management Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cost-management-contributor) |
+| EA billing scope                  | Enterprise Reader, Department Reader, or Account Owner (aka enrollment account)                                                       |
+| MCA billing scope                 | Contributor on the billing account, billing profile, customer (CSP partners only), or invoice section                                 |
+
+For additional details, refer to [Cost Management documentation](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data).
+
+<br>
+
 ---
 
-## ⏭️ Next steps
+## 🧰 Related tools
 
-[Configure scopes](./configure.md){: .btn .btn-primary .mt-2 .mb-4 .mb-md-0 .mr-4 }
-[Connect to Power BI](./reports/README.md){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+{% include tools.md pbi="1" ps="1" opt="1" %}
 
 <br>

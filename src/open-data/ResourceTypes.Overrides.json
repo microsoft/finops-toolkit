@@ -1,0 +1,342 @@
+[
+  {
+    "type": "microsoft.aad/domainservices",
+    "originalIcon": "<svg viewBox='0 0 18 18' xmlns='http://www.w3.org/2000/svg'><g><defs><linearGradient id='a' x1='7.697' y1='779.107' x2='14.082' y2='786.57' gradientTransform='matrix(1 0 0 -1 0 791.516)' gradientUnits='userSpaceOnUse'><stop offset='0' stop-color='#225086'/><stop offset='1' stop-color='#0055c5'/></linearGradient><linearGradient id='b' x1='6.364' y1='778.103' x2='6.364' y2='794.351' gradientTransform='matrix(1 0 0 -1 0 791.516)' gradientUnits='userSpaceOnUse'><stop offset='0' stop-color='#6df'/><stop offset='1' stop-color='#0294e4'/></linearGradient><linearGradient id='c' x1='9.001' y1='775.895' x2='9.001' y2='794.784' gradientTransform='matrix(1 0 0 -1 0 791.516)' gradientUnits='userSpaceOnUse'><stop offset='0' stop-color='#44dbf9'/><stop offset='1' stop-color='#cbf8ff'/></linearGradient><linearGradient id='d' x1='13.5' y1='774.66' x2='13.5' y2='790.721' gradientTransform='matrix(1 0 0 -1 0 791.516)' gradientUnits='userSpaceOnUse'><stop offset='0' stop-color='#041642'/><stop offset='1' stop-color='#041642' stop-opacity='.25'/></linearGradient></defs><path d='m17.647 9.967-7.5-8.461a1.55 1.55 0 0 0-2.294 0l-7.5 8.461c-.579.654-.428 1.641.323 2.111l7.499 4.688c.5.313 1.148.313 1.648 0l7.499-4.688c.751-.469.902-1.457.323-2.111Z' fill='url(#a)'/><path d='M10.148 1.506a1.55 1.55 0 0 0-2.294 0l-7.5 8.461c-.579.654-.428 1.641.323 2.111l3.126 1.954c.388.242 1.033.511 1.715.511.621 0 1.197-.18 1.676-.487l.002-.001L9 12.927l-4.364-2.728L9.11 5.152a3.053 3.053 0 0 1 2.302-1.026c.472 0 .917.107 1.314.292l-2.579-2.909v-.002Z' fill='url(#b)'/><path fill='url(#c)' d='m4.636 10.199.052.032 4.313 2.696 4.364-2.728h.001-.001L9.001 5.274l-4.365 4.925z'/><path d='M9.001 17c.287 0 .574-.078.824-.234l7.499-4.688c.751-.469.902-1.457.323-2.111l-7.499-8.461A1.526 1.526 0 0 0 9.001.999V17Z' fill='url(#d)' fill-opacity='.5' fill-opacity='.5'/><path fill='#773adc' d='M12.925 8.752 8.37 15.131l4.555 1.854 4.555-1.854-4.555-6.379z'/><path fill='#f9f9f9' fill-opacity='.5' d='M12.925 8.752 8.37 15.131l4.555 1.854V8.752z'/></g></svg>",
+    "icon": "<svg viewBox='0 0 18 18' xmlns='http://www.w3.org/2000/svg'><g><defs><linearGradient id='a' x1='7.697' y1='779.107' x2='14.082' y2='786.57' gradientTransform='matrix(1 0 0 -1 0 791.516)' gradientUnits='userSpaceOnUse'><stop offset='0' stop-color='#225086'/><stop offset='1' stop-color='#0055c5'/></linearGradient><linearGradient id='b' x1='6.364' y1='778.103' x2='6.364' y2='794.351' gradientTransform='matrix(1 0 0 -1 0 791.516)' gradientUnits='userSpaceOnUse'><stop offset='0' stop-color='#6df'/><stop offset='1' stop-color='#0294e4'/></linearGradient><linearGradient id='c' x1='9.001' y1='775.895' x2='9.001' y2='794.784' gradientTransform='matrix(1 0 0 -1 0 791.516)' gradientUnits='userSpaceOnUse'><stop offset='0' stop-color='#44dbf9'/><stop offset='1' stop-color='#cbf8ff'/></linearGradient><linearGradient id='d' x1='13.5' y1='774.66' x2='13.5' y2='790.721' gradientTransform='matrix(1 0 0 -1 0 791.516)' gradientUnits='userSpaceOnUse'><stop offset='0' stop-color='#041642'/><stop offset='1' stop-color='#041642' stop-opacity='.25'/></linearGradient></defs><path d='m17.647 9.967-7.5-8.461a1.55 1.55 0 0 0-2.294 0l-7.5 8.461c-.579.654-.428 1.641.323 2.111l7.499 4.688c.5.313 1.148.313 1.648 0l7.499-4.688c.751-.469.902-1.457.323-2.111Z' fill='url(#a)'/><path d='M10.148 1.506a1.55 1.55 0 0 0-2.294 0l-7.5 8.461c-.579.654-.428 1.641.323 2.111l3.126 1.954c.388.242 1.033.511 1.715.511.621 0 1.197-.18 1.676-.487l.002-.001L9 12.927l-4.364-2.728L9.11 5.152a3.053 3.053 0 0 1 2.302-1.026c.472 0 .917.107 1.314.292l-2.579-2.909v-.002Z' fill='url(#b)'/><path fill='url(#c)' d='m4.636 10.199.052.032 4.313 2.696 4.364-2.728h.001-.001L9.001 5.274l-4.365 4.925z'/><path d='M9.001 17c.287 0 .574-.078.824-.234l7.499-4.688c.751-.469.902-1.457.323-2.111l-7.499-8.461A1.526 1.526 0 0 0 9.001.999V17Z' fill='url(#d)' fill-opacity='.5'/><path fill='#773adc' d='M12.925 8.752 8.37 15.131l4.555 1.854 4.555-1.854-4.555-6.379z'/><path fill='#f9f9f9' fill-opacity='.5' d='M12.925 8.752 8.37 15.131l4.555 1.854V8.752z'/></g></svg>",
+    "comment": "2023-11-12: Icon had extra fill-opacity, which was causing a rendering error"
+  },
+  {
+    "type": "microsoft.analysisservices/servers",
+    "originalPlural": "Analysis Services",
+    "originalSingular": "Analysis Services",
+    "plural": "Analysis Services servers",
+    "singular": "Analysis Services server"
+  },
+  {
+    "type": "microsoft.appservice/apiapps",
+    "plural": "API apps",
+    "singular": "API app"
+  },
+  {
+    "type": "microsoft.appservice/apiapps/mobileapps",
+    "plural": "Mobile apps",
+    "singular": "Mobile app",
+    "lowerPlural": "mobile apps",
+    "lowerSingular": "mobile app"
+  },
+  {
+    "type": "microsoft.automation/automationaccounts",
+    "plural": "Automation accounts",
+    "singular": "Automation account"
+  },
+  {
+    "type": "microsoft.automation/automationaccounts/hybridrunbookworkergroups",
+    "originalPlural": "Hybrid Worker Groups",
+    "originalSingular": "Hybrid Worker Group",
+    "plural": "Automation hybrid worker groups",
+    "singular": "Automation hybrid worker group"
+  },
+  {
+    "type": "microsoft.automation/automationaccounts/modules",
+    "plural": "Automation modules",
+    "singular": "Automation module"
+  },
+  {
+    "type": "microsoft.automation/automationaccounts/runbooks",
+    "plural": "Automation runbooks",
+    "singular": "Automation runbook",
+    "icon": "<svg x='0px' y='0px' viewBox='0 0 50 50'><path fill-rule='evenodd' clip-rule='evenodd' fill='#7A7A7A' d='M39.1,23.2H10.9c-1.2,0-2.3,1-2.3,2.5v10.7l3.9,1.1V27.1h24.9v10.3 l3.9-1.1V25.7C41.3,24.2,40.2,23.2,39.1,23.2z'/><rect x='23' y='16.4' fill-rule='evenodd' clip-rule='evenodd' fill='#7A7A7A' width='3.9' height='10.4'/><path fill-rule='evenodd' clip-rule='evenodd' fill='#59B4D9' d='M31.3,0H18.7c-1.3,0-2.4,1.1-2.4,2.4v11.7c0,1.3,1.1,2.4,2.4,2.4 h12.5c1.3,0,2.4-1.1,2.4-2.4V2.4C33.7,1.1,32.6,0,31.3,0z'/><path fill-rule='evenodd' clip-rule='evenodd' fill='#59B4D9' d='M16.8,33.4H4.3c-1.3,0-2.4,1.1-2.4,2.4v11.7c0,1.3,1.1,2.4,2.4,2.4 h12.5c1.3,0,2.4-1.1,2.4-2.4V35.8C19.2,34.5,18.1,33.4,16.8,33.4z'/><path fill-rule='evenodd' clip-rule='evenodd' fill='#59B4D9' d='M45.7,33.4H33.2c-1.3,0-2.4,1.1-2.4,2.4v11.7 c0,1.3,1.1,2.4,2.4,2.4h12.5c1.3,0,2.4-1.1,2.4-2.4V35.8C48.2,34.5,47.1,33.4,45.7,33.4z'/></svg>"
+  },
+  {
+    "type": "microsoft.azureactivedirectory/b2cdirectories",
+    "originalPlural": "B2C Tenants",
+    "originalSingular": "B2C Tenant",
+    "plural": "B2C tenants",
+    "singular": "B2C tenant"
+  },
+  {
+    "type": "microsoft.biztalkservices/biztalk",
+    "plural": "BizTalk services",
+    "singular": "BizTalk service"
+  },
+  {
+    "type": "microsoft.cache/redis",
+    "originalPlural": "Azure Cache for Redis",
+    "originalSingular": "Azure Cache for Redis",
+    "plural": "Redis caches",
+    "singular": "Redis cache"
+  },
+  {
+    "type": "microsoft.cdn/profiles/endpoints",
+    "originalPlural": "Endpoints",
+    "originalSingular": "Endpoint",
+    "plural": "CDN endpoints",
+    "singular": "CDN endpoint"
+  },
+  {
+    "type": "microsoft.cdn/profiles/endpoints/customdomains",
+    "originalPlural": "Custom domains",
+    "originalSingular": "Custom domain",
+    "plural": "CDN custom domains",
+    "singular": "CDN custom domain"
+  },
+  {
+    "type": "microsoft.cdn/profiles/endpoints/origins",
+    "originalPlural": "Origins",
+    "originalSingular": "Origin",
+    "plural": "CDN origins",
+    "singular": "CDN origin"
+  },
+  {
+    "type": "microsoft.certificateregistration/certificateorders",
+    "plural": "App Service certificates",
+    "singular": "App Service certificate"
+  },
+  {
+    "type": "microsoft.classicnetwork/ipv4vip",
+    "plural": "IPv4 virtual IPs",
+    "singular": "IPv4 virtual IP"
+  },
+  {
+    "type": "microsoft.cloud/hubs",
+    "plural": "FinOps hubs",
+    "singular": "FinOps hub",
+    "icon": "<svg width='276' height='276' viewBox='0 0 276 276' fill='none' xmlns='http://www.w3.org/2000/svg'><path d='M130.145 4.46016L24.6026 64.4294C19.6291 67.2557 16.56 72.5328 16.56 78.2515V197.748C16.56 203.467 19.6291 208.744 24.6026 211.571L130.145 271.54C135.014 274.305 140.981 274.305 145.855 271.54L251.397 211.571C256.371 208.744 259.44 203.467 259.44 197.748V78.2515C259.44 72.5328 256.371 67.2557 251.397 64.4294L145.855 4.46016C140.981 1.69464 135.019 1.69464 130.145 4.46016Z' fill='url(#paint0_linear_301_521)'/><g filter='url(#filter0_d_301_521)'><path d='M138 60.168C146.841 60.168 154.008 53.001 154.008 44.16C154.008 35.319 146.841 28.152 138 28.152C129.159 28.152 121.992 35.319 121.992 44.16C121.992 53.001 129.159 60.168 138 60.168Z' fill='white'/></g><g filter='url(#filter1_d_301_521)'><path d='M138 247.848C146.841 247.848 154.008 240.681 154.008 231.84C154.008 222.999 146.841 215.832 138 215.832C129.159 215.832 121.992 222.999 121.992 231.84C121.992 240.681 129.159 247.848 138 247.848Z' fill='white'/></g><g filter='url(#filter2_d_301_521)'><path d='M193.316 169.16C193.316 192.582 170.088 209.578 138.077 209.578C109.936 209.578 92.2944 198.974 84.2021 177.17L111.675 171.998C115.23 179.676 123.079 188.442 140.368 188.442C157.668 188.442 164.115 178.053 164.115 171.506C164.115 157.889 147.693 153.169 140.628 151.772C110.637 145.822 89.4075 138.96 89.4075 104.621C89.4075 76.4244 115.622 66.4221 138.072 66.4221C162.63 66.4221 178.6 74.5421 186.858 91.2345L163.122 98.7693C158.142 90.2796 149.642 85.7918 138.491 85.7918C122.207 85.7918 117.902 97.014 117.902 102.948C117.902 111.123 126.055 118.288 138.668 121.219C154.488 124.89 165.6 127.711 172.08 130.438C182.348 134.76 193.316 147.202 193.316 169.16Z' fill='white'/></g><defs><filter id='filter0_d_301_521' x='101.992' y='8.15201' width='72.016' height='72.016' filterUnits='userSpaceOnUse' color-interpolation-filters='sRGB'><feFlood flood-opacity='0' result='BackgroundImageFix'/><feColorMatrix in='SourceAlpha' type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0' result='hardAlpha'/><feOffset/><feGaussianBlur stdDeviation='10'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.4 0'/><feBlend mode='normal' in2='BackgroundImageFix' result='effect1_dropShadow_301_521'/><feBlend mode='normal' in='SourceGraphic' in2='effect1_dropShadow_301_521' result='shape'/></filter><filter id='filter1_d_301_521' x='101.992' y='195.832' width='72.016' height='72.016' filterUnits='userSpaceOnUse' color-interpolation-filters='sRGB'><feFlood flood-opacity='0' result='BackgroundImageFix'/><feColorMatrix in='SourceAlpha' type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0' result='hardAlpha'/><feOffset/><feGaussianBlur stdDeviation='10'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.4 0'/><feBlend mode='normal' in2='BackgroundImageFix' result='effect1_dropShadow_301_521'/><feBlend mode='normal' in='SourceGraphic' in2='effect1_dropShadow_301_521' result='shape'/></filter><filter id='filter2_d_301_521' x='64.2021' y='46.4221' width='149.114' height='183.156' filterUnits='userSpaceOnUse' color-interpolation-filters='sRGB'><feFlood flood-opacity='0' result='BackgroundImageFix'/><feColorMatrix in='SourceAlpha' type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0' result='hardAlpha'/><feOffset/><feGaussianBlur stdDeviation='10'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.4 0'/><feBlend mode='normal' in2='BackgroundImageFix' result='effect1_dropShadow_301_521'/><feBlend mode='normal' in='SourceGraphic' in2='effect1_dropShadow_301_521' result='shape'/></filter><linearGradient id='paint0_linear_301_521' x1='67.424' y1='34.4399' x2='135.53' y2='271.171' gradientUnits='userSpaceOnUse'><stop stop-color='#7B33C0'/><stop offset='1' stop-color='#4E2E7A'/></linearGradient></defs></svg>"
+  },
+  {
+    "type": "microsoft.compute/virtualmachinescalesets/virtualmachines/networkinterfaces",
+    "icon": "<svg version='1.0' id='e0050721-e8d8-4c79-ae50-d8fc2871d932' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 18 18' enable-background='new 0 0 18 18' xml:space='preserve'><path fill='#FFCA00' d='M15.89,2.91h1.27c0.188,0,0.34,0.152,0.34,0.34l0,0v3.5c0,0.188-0.152,0.34-0.34,0.34l0,0h-1.27l0,0V2.91 L15.89,2.91z'/><path fill='#FFCA00' d='M15.89,9h1.27c0.188,0,0.34,0.152,0.34,0.34l0,0v5.86c0,0.188-0.152,0.34-0.34,0.34l0,0h-1.27l0,0V9L15.89,9 z'/><linearGradient id='bb847533-c351-4b52-ba55-1be31e7d1b3f' gradientUnits='userSpaceOnUse' x1='9.01' y1='3.5' x2='9.01' y2='18.5' gradientTransform='matrix(1 0 0 -1 0 20)'><stop offset='0' style='stop-color:#5E9641'/><stop  offset='0.34' style='stop-color:#6BAA42'/><stop  offset='0.67' style='stop-color:#73B743'/><stop  offset='1' style='stop-color:#76BB43'/></linearGradient><path fill='url(#bb847533-c351-4b52-ba55-1be31e7d1b3f)' d='M2.82,1.5H15.2c0.381,0,0.69,0.309,0.69,0.69v13.62c0,0.381-0.309,0.69-0.69,0.69H2.82 c-0.381,0-0.69-0.309-0.69-0.69V2.19C2.13,1.809,2.439,1.5,2.82,1.5z'/><path fill='#B4EC36' d='M5.9,12.9H5.19C5.08,12.895,4.995,12.801,5,12.69c0,0,0,0,0,0V4.34c-0.006-0.105,0.075-0.194,0.18-0.2 c0.003,0,0.007,0,0.01,0h1.93c0.105,0,0.19,0.085,0.19,0.19c0,0.003,0,0.007,0,0.01c0.006,0.11-0.079,0.204-0.19,0.21c0,0,0,0,0,0 H5.38v7.93H5.9c0.11,0.005,0.195,0.099,0.19,0.21c0,0,0,0,0,0C6.09,12.799,6.008,12.89,5.9,12.9z'/><path fill='#B4EC36' d='M6,13.92H4.4c-0.11-0.005-0.195-0.099-0.19-0.21c0,0,0,0,0,0L4.08,3.38C4.078,3.324,4.1,3.269,4.14,3.23 c0.031-0.039,0.08-0.062,0.13-0.06h2.85v0.41H4.47l0.12,9.92H6V13.92z'/><path fill='#B4EC36' d='M12,13h-1.59c-0.055-0.002-0.106-0.028-0.14-0.07c-0.04-0.035-0.062-0.087-0.06-0.14V7.9 c-0.006-0.105,0.075-0.194,0.18-0.2c0.003,0,0.007,0,0.01,0h0.91V5.45h0.38v2.44c0.006,0.107-0.073,0.199-0.18,0.21H10.6v4.42H12V13 z'/><path fill='#365615' d='M7.33,2.29h5.62c0.144,0,0.26,0.116,0.26,0.26v2.59c0,0.144-0.116,0.26-0.26,0.26H7.33 c-0.144,0-0.26-0.116-0.26-0.26V2.55C7.07,2.406,7.186,2.29,7.33,2.29z'/><path fill='#365615' d='M8.85,11.05v4.38c0,0.144-0.116,0.26-0.26,0.26H8.02c-0.144,0-0.26-0.116-0.26-0.26v-4.38 c0-0.144,0.116-0.26,0.26-0.26h0.57C8.734,10.79,8.85,10.906,8.85,11.05z'/><path fill='#365615' d='M6.99,11.07v4.38c0,0.144-0.116,0.26-0.26,0.26H6.16c-0.144,0-0.26-0.116-0.26-0.26v-4.38 c0-0.144,0.116-0.26,0.26-0.26h0.57C6.874,10.81,6.99,10.926,6.99,11.07z'/><path fill='#F2F2F2' d='M12.97,11.07v4.38c0,0.144-0.116,0.26-0.26,0.26h-0.57c-0.144,0-0.26-0.116-0.26-0.26v-4.38 c0-0.144,0.116-0.26,0.26-0.26h0.57C12.854,10.81,12.97,10.926,12.97,11.07z'/><ellipse fill='#F2F2F2' cx='8.11' cy='8.06' rx='1.04' ry='1.12'/><path fill='#3B3B3B' d='M2.11,12.25H0.84c-0.173,0.001-0.32-0.128-0.34-0.3V6.09c0-0.188,0.152-0.34,0.34-0.34h0h1.27l0,0V12.25 L2.11,12.25z'/></svg>"
+  },
+  {
+    "type": "microsoft.compute/capacityreservationgroups/capacityreservations",
+    "plural": "Capacity reservations",
+    "singular": "Capacity reservation"
+  },
+  {
+    "type": "microsoft.compute/virtualmachinescalesets/virtualmachines/networkinterfaces/ipconfigurations/publicipaddresses",
+    "plural": "Public IP addresses",
+    "singular": "Public IP address",
+    "icon": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18'><defs><linearGradient id='a' x1='9' y1='15.83' x2='9' y2='5.79' gradientUnits='userSpaceOnUse'><stop offset='0' stop-color='#32bedd'/><stop offset='.18' stop-color='#32caea'/><stop offset='.41' stop-color='#32d2f2'/><stop offset='.78' stop-color='#32d4f5'/></linearGradient></defs><path d='M.5 5.79h17v9.48a.57.57 0 01-.57.57H1.07a.57.57 0 01-.57-.57V5.79z' fill='url(#a)'/><path d='M1.07 2.17h15.86a.57.57 0 01.57.57v3.05H.5V2.73a.57.57 0 01.57-.56z' fill='#767676'/><circle cx='12.82' cy='10.19' r='1.38' fill='#f2f2f2'/><circle cx='9.06' cy='10.19' r='1.38' fill='#f2f2f2'/><circle cx='5.18' cy='10.19' r='1.38' fill='#f2f2f2'/><rect x='2.79' y='3.25' width='12.43' height='1.46' rx='.28' fill='#f2f2f2'/></svg>"
+  },
+  {
+    "type": "microsoft.datalakeanalytics/accounts",
+    "originalPlural": "Data Lake Analytics",
+    "originalSingular": "Data Lake Analytics",
+    "plural": "Data Lake Analytics accounts",
+    "singular": "Data Lake Analytics account"
+  },
+  {
+    "type": "microsoft.datafactory/factories/pipelines",
+    "plural": "Data Factory pipelines",
+    "singular": "Data Factory pipeline",
+    "icon": "<svg viewBox='0 0 18 18' xmlns='http://www.w3.org/2000/svg'><g><defs><linearGradient id='a' x1='.5' y1='9.77' x2='9' y2='9.77' gradientUnits='userSpaceOnUse'><stop offset='0' stop-color='#005ba1'/><stop offset='.07' stop-color='#0060a9'/><stop offset='.36' stop-color='#0071c8'/><stop offset='.52' stop-color='#0078d4'/><stop offset='.64' stop-color='#0074cd'/><stop offset='.81' stop-color='#006abb'/><stop offset='.99' stop-color='#005ba1'/></linearGradient></defs><path d='M13.25 10.48V6.57a.14.14 0 0 0-.24-.1l-4 4-4.16 4.16v2.87h12.08a.56.56 0 0 0 .57-.57V6.57a.14.14 0 0 0-.24-.1Z' fill='#005ba1'/><path d='M4.75 3.58C2.4 3.58.5 2.89.5 2v14.93a.56.56 0 0 0 .57.57H9V2c0 .89-1.9 1.58-4.25 1.58Z' fill='url(#a)'/><rect x='12.91' y='12.97' width='2.27' height='2.27' rx='.28' fill='#ffffff'/><rect x='8.97' y='12.97' width='2.27' height='2.27' rx='.28' fill='#ffffff'/><rect x='5.03' y='12.97' width='2.27' height='2.27' rx='.28' fill='#ffffff'/><path d='M9 2c0 .85-1.9 1.54-4.25 1.54S.5 2.89.5 2 2.4.5 4.75.5 9 1.19 9 2' fill='#eaeaea'/><path d='M8 1.91c0 .55-1.46 1-3.26 1s-3.26-.43-3.26-1S3 .94 4.75.94 8 1.37 8 1.91' fill='#50e6ff'/><path d='M4.75 2.14a8.07 8.07 0 0 0-2.58.37 7.64 7.64 0 0 0 2.58.38 7.64 7.64 0 0 0 2.58-.38 8.07 8.07 0 0 0-2.58-.37Z' fill='#198ab3'/></g></svg>"
+  },
+  {
+    "type": "microsoft.datafactory/factories/triggers",
+    "plural": "Data Factory triggers",
+    "singular": "Data Factory trigger",
+    "icon": "<svg viewBox='0 0 18 18' xmlns='http://www.w3.org/2000/svg'><g><defs><linearGradient id='a' x1='.5' y1='9.77' x2='9' y2='9.77' gradientUnits='userSpaceOnUse'><stop offset='0' stop-color='#005ba1'/><stop offset='.07' stop-color='#0060a9'/><stop offset='.36' stop-color='#0071c8'/><stop offset='.52' stop-color='#0078d4'/><stop offset='.64' stop-color='#0074cd'/><stop offset='.81' stop-color='#006abb'/><stop offset='.99' stop-color='#005ba1'/></linearGradient></defs><path d='M13.25 10.48V6.57a.14.14 0 0 0-.24-.1l-4 4-4.16 4.16v2.87h12.08a.56.56 0 0 0 .57-.57V6.57a.14.14 0 0 0-.24-.1Z' fill='#005ba1'/><path d='M4.75 3.58C2.4 3.58.5 2.89.5 2v14.93a.56.56 0 0 0 .57.57H9V2c0 .89-1.9 1.58-4.25 1.58Z' fill='url(#a)'/><rect x='12.91' y='12.97' width='2.27' height='2.27' rx='.28' fill='#ffffff'/><rect x='8.97' y='12.97' width='2.27' height='2.27' rx='.28' fill='#ffffff'/><rect x='5.03' y='12.97' width='2.27' height='2.27' rx='.28' fill='#ffffff'/><path d='M9 2c0 .85-1.9 1.54-4.25 1.54S.5 2.89.5 2 2.4.5 4.75.5 9 1.19 9 2' fill='#eaeaea'/><path d='M8 1.91c0 .55-1.46 1-3.26 1s-3.26-.43-3.26-1S3 .94 4.75.94 8 1.37 8 1.91' fill='#50e6ff'/><path d='M4.75 2.14a8.07 8.07 0 0 0-2.58.37 7.64 7.64 0 0 0 2.58.38 7.64 7.64 0 0 0 2.58-.38 8.07 8.07 0 0 0-2.58-.37Z' fill='#198ab3'/></g></svg>"
+  },
+  {
+    "type": "microsoft.dbformysql/servers",
+    "originalPlural": "Azure Database for MySQL servers",
+    "originalSingular": "Azure Database for MySQL single server",
+    "plural": "MySQL servers",
+    "singular": "MySQL server"
+  },
+  {
+    "type": "microsoft.dbforpostgresql/servers",
+    "originalPlural": "Azure Database for PostgreSQL servers",
+    "originalSingular": "Azure Database for PostgreSQL single server",
+    "plural": "PostgreSQL servers",
+    "singular": "PostgreSQL server"
+  },
+  {
+    "type": "microsoft.devices/iothubs",
+    "originalPlural": "IoT Hub",
+    "originalSingular": "IoT Hub",
+    "plural": "IoT hubs",
+    "singular": "IoT hub"
+  },
+  {
+    "type": "microsoft.devtestlab/labcenters",
+    "plural": "DevTest Lab centers",
+    "singular": "DevTest Lab center"
+  },
+  {
+    "type": "microsoft.devtestlab/labs",
+    "plural": "DevTest labs",
+    "singular": "DevTest lab"
+  },
+  {
+    "type": "microsoft.devtestlab/labs/virtualmachines",
+    "originalPlural": "Virtual machines",
+    "originalSingular": "Virtual machine",
+    "plural": "DevTest Lab virtual machines",
+    "singular": "DevTest Lab virtual machine"
+  },
+  {
+    "type": "microsoft.documentdb/databaseaccounts",
+    "originalPlural": "Azure Cosmos DB accounts",
+    "originalSingular": "Azure Cosmos DB account",
+    "plural": "Cosmos DB accounts",
+    "singular": "Cosmos DB account"
+  },
+  {
+    "type": "microsoft.eventgrid/extensiontopics",
+    "plural": "Event Grid extension topics",
+    "singular": "Event Grid extension topic"
+  },
+  {
+    "type": "microsoft.eventhub/namespaces",
+    "originalPlural": "Event Hubs Namespaces",
+    "originalSingular": "Event Hubs Namespace",
+    "plural": "Event Hubs namespaces",
+    "singular": "Event Hubs namespace"
+  },
+  {
+    "type": "microsoft.insights/components",
+    "originalPlural": "Application Insights",
+    "originalSingular": "Application Insights",
+    "plural": "Application Insights apps",
+    "singular": "Application Insights app"
+  },
+  {
+    "type": "microsoft.insights/webtests",
+    "originalPlural": "Availability tests",
+    "originalSingular": "Availability test",
+    "plural": "Application Insights availability tests",
+    "singular": "Application Insights availability test"
+  },
+  {
+    "type": "microsoft.kusto/clusters",
+    "icon": "<svg version='1.0' id='b6c98345-0c39-4f6f-b933-5283deff5690' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 18 18' enable-background='new 0 0 18 18' xml:space='preserve'><linearGradient id='1ff39e1e-df5e-454e-80ba-86faa2de28e3' gradientUnits='userSpaceOnUse' x1='1.306' y1='11.3871' x2='17.506' y2='11.3871' gradientTransform='matrix(1 0 0 -1 0 20)'><stop  offset='0.1' style='stop-color:#54AEF0'/><stop  offset='1' style='stop-color:#1988D9'/></linearGradient><path fill='url(#1ff39e1e-df5e-454e-80ba-86faa2de28e3)' d='M1.47,1.47l15.06,15.06c0.206,0.238,0.566,0.263,0.804,0.057c0.132-0.114,0.204-0.283,0.196-0.457 V1.07c0-0.315-0.254-0.57-0.569-0.571c-0.01,0-0.021,0-0.031,0.001H1.87C1.555,0.503,1.303,0.761,1.306,1.076 C1.308,1.224,1.366,1.365,1.47,1.47z'/><path id='f582129e-1fd7-440c-a5c4-799b0a032e7c' fill='#50E6FF' d='M5.591,5.53l6.94,6.94l5-5v-6.4c0-0.303-0.237-0.554-0.54-0.57 h-6.37L5.591,5.53z'/><linearGradient id='b55df55b-2ac6-4f92-ba84-9d8becd854da_1_' gradientUnits='userSpaceOnUse' x1='0.5007' y1='6.2998' x2='8.1047' y2='6.2998' gradientTransform='matrix(1 0 0 -1 -0.0013 20.0031)'><stop  offset='0' style='stop-color:#B3B2B3'/><stop  offset='1' style='stop-color:#979797'/></linearGradient><path id='b55df55b-2ac6-4f92-ba84-9d8becd854da' fill='url(#b55df55b-2ac6-4f92-ba84-9d8becd854da_1_)' d='M0.579,16.224L6.822,9.98 c0.105-0.105,0.276-0.105,0.382,0l0.82,0.82c0.105,0.105,0.105,0.276,0,0.382l-6.244,6.244c-0.105,0.105-0.276,0.105-0.382,0 l-0.82-0.82C0.473,16.5,0.473,16.33,0.579,16.224z'/><linearGradient id='a1d88672-156d-4d85-8ddb-d3d546338b0e_1_' gradientUnits='userSpaceOnUse' x1='0.5' y1='9.9202' x2='5.72' y2='9.9202' gradientTransform='matrix(1 0 0 -1 -0.0045 19.9952)'><stop  offset='0' style='stop-color:#B3B2B3'/><stop  offset='1' style='stop-color:#979797'/></linearGradient><path id='a1d88672-156d-4d85-8ddb-d3d546338b0e' fill='url(#a1d88672-156d-4d85-8ddb-d3d546338b0e_1_)' d='M0.582,11.401 l3.854-3.854c0.105-0.105,0.276-0.105,0.382,0l0.82,0.82c0.105,0.105,0.105,0.276,0,0.382l-3.854,3.854 c-0.105,0.105-0.276,0.105-0.382,0l-0.82-0.82C0.477,11.677,0.477,11.506,0.582,11.401z'/><linearGradient id='a50d2abb-ca8f-44bb-a92d-5a79f17e98d0_1_' gradientUnits='userSpaceOnUse' x1='5.28' y1='5.1119' x2='10.494' y2='5.1119' gradientTransform='matrix(1 0 0 -1 0.0037 19.9951)'><stop  offset='0' style='stop-color:#B3B2B3'/><stop  offset='1' style='stop-color:#979797'/></linearGradient><path id='a50d2abb-ca8f-44bb-a92d-5a79f17e98d0' fill='url(#a50d2abb-ca8f-44bb-a92d-5a79f17e98d0_1_)' d='M5.356,16.209 l3.854-3.854c0.105-0.105,0.276-0.105,0.382,0l0.82,0.82c0.105,0.105,0.105,0.276,0,0.382l-3.854,3.854 c-0.105,0.105-0.276,0.105-0.382,0l-0.82-0.82C5.251,16.486,5.251,16.315,5.356,16.209z'/><path id='abef2dbd-e94f-4bb4-9503-d2b3cf2041a9' fill='#FFFFFF' d='M9.106,5.332L9.77,4.667c0.148-0.148,0.389-0.148,0.537,0 l0.665,0.665c0.148,0.148,0.148,0.389,0,0.537l-0.665,0.665c-0.148,0.148-0.389,0.148-0.537,0L9.106,5.869 C8.957,5.721,8.957,5.48,9.106,5.332z'/><path id='a157044f-57ca-43a1-b77d-760bafa34854' fill='#FFFFFF' d='M11.506,2.928l0.665-0.665c0.148-0.148,0.389-0.148,0.537,0 l0.665,0.665c0.148,0.148,0.148,0.389,0,0.537L12.708,4.13c-0.148,0.148-0.389,0.148-0.537,0l-0.665-0.665 C11.357,3.317,11.357,3.076,11.506,2.928z'/><path id='b637d7ff-a1d5-4533-b34f-12a87620ff68' fill='#FFFFFF' d='M11.51,7.732l0.665-0.665c0.148-0.148,0.389-0.148,0.537,0 l0.665,0.665c0.148,0.148,0.148,0.389,0,0.537l-0.665,0.665c-0.148,0.148-0.389,0.148-0.537,0L11.51,8.269 C11.361,8.121,11.361,7.88,11.51,7.732z'/><path id='f613147f-9647-4c5d-a52a-663abb19234f' fill='#FFFFFF' d='M13.91,5.33l0.66-0.66c0.148-0.149,0.388-0.15,0.537-0.003 c0.001,0.001,0.002,0.002,0.003,0.003l0.66,0.66c0.149,0.148,0.15,0.388,0.003,0.537c-0.001,0.001-0.002,0.002-0.003,0.003 l-0.66,0.66c-0.148,0.149-0.388,0.15-0.537,0.003c-0.001-0.001-0.002-0.002-0.003-0.003l-0.66-0.66 c-0.149-0.148-0.15-0.388-0.003-0.537C13.908,5.332,13.909,5.331,13.91,5.33'/></svg>"
+  },
+  {
+    "type": "microsoft.logic/integrationaccounts",
+    "originalPlural": "Integration accounts",
+    "originalSingular": "Integration account",
+    "plural": "Logic app integration accounts",
+    "singular": "Logic app integration account"
+  },
+  {
+    "type": "microsoft.mobileengagement/appcollections",
+    "plural": "Mobile Engagement app collections",
+    "singular": "Mobile Engagement app collection"
+  },
+  {
+    "type": "microsoft.network/applicationgateways",
+    "icon": "<svg version='1.0' id='acac5a34-a032-49f9-9397-37f4f1b4ae9a' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 18 18' enable-background='new 0 0 18 18' xml:space='preserve'><linearGradient id='766656a3-64b7-432e-b9e8-32c5eb0cc5b7' gradientUnits='userSpaceOnUse' x1='-570.1228' y1='-996.5237' x2='-570.1228' y2='-976.8137' gradientTransform='matrix(1 0 0 -1 579.1228 -977.2751)'><stop  offset='0' style='stop-color:#5E9624'/><stop  offset='0.55' style='stop-color:#6DAD2A'/><stop offset='1' style='stop-color:#76BC2D'/></linearGradient><path fill='url(#766656a3-64b7-432e-b9e8-32c5eb0cc5b7)' d='M0.67,8.597L8.597,0.67c0.223-0.223,0.584-0.223,0.806,0l7.927,7.927 c0.223,0.223,0.223,0.584,0,0.806L9.403,17.33c-0.223,0.223-0.584,0.223-0.806,0L0.67,9.403C0.448,9.18,0.448,8.82,0.67,8.597z'/><g><path fill='#FFFFFF' d='M13.751,7.46c-0.035-0.004-0.07,0.011-0.091,0.04l-0.78,0.78v0.05c-0.039,0.038-0.101,0.038-0.14,0 l-3.47-3.42c-0.039-0.038-0.101-0.038-0.14,0L8.914,5.125L8.699,4.91c-0.039-0.038-0.101-0.038-0.14,0l-3.45,3.42 c-0.039,0.038-0.101,0.038-0.14,0V8.28L4.179,7.5C4.161,7.482,4.136,7.472,4.111,7.471C4.055,7.471,4.01,7.515,4.009,7.57v2.83 c-0.002,0.051,0.031,0.096,0.08,0.11h2.84c0.012-0.006,0.022-0.015,0.031-0.025C7,10.439,6.995,10.37,6.949,10.33l-0.78-0.78V9.5 c-0.039-0.042-0.039-0.108,0-0.15l2.745-2.745l2.745,2.745c0.039,0.042,0.039,0.108,0,0.15l-0.05,0.05l-0.78,0.78 c-0.039,0.046-0.033,0.116,0.013,0.155c0.016,0.014,0.036,0.022,0.057,0.025h2.84c0.057-0.005,0.1-0.053,0.1-0.11V7.57 C13.845,7.515,13.805,7.466,13.751,7.46z'/><path fill='#FFFFFF' d='M10.899,12.9h-1.17c-0.053-0.005-0.095-0.047-0.1-0.1V8C9.635,7.945,9.595,7.896,9.54,7.891 c-0.004,0-0.007-0.001-0.01,0h-1.24c-0.061,0-0.11,0.049-0.11,0.11v4.8c0,0.055-0.045,0.1-0.1,0.1h-1.18 c-0.055,0.001-0.099,0.046-0.099,0.101c0,0.026,0.011,0.05,0.029,0.069l2,2c0.039,0.038,0.101,0.038,0.14,0l2-2 c0.039-0.039,0.038-0.103-0.001-0.141C10.949,12.911,10.925,12.9,10.899,12.9z'/></g><circle fill='none' cx='9.369' cy='7.13' r='0.56'/><g><path id='Path_1237_7_' fill='#0078D4' d='M10.608,7.726c-1.162,0.901-2.835,0.69-3.737-0.472C5.97,6.091,6.181,4.418,7.344,3.516 c0.009-0.007,0.018-0.014,0.027-0.021c1.174-0.887,2.844-0.654,3.731,0.52C11.98,5.179,11.76,6.832,10.608,7.726'/><linearGradient id='b9814fa8-2742-41d6-b747-dcbfbf469c2e' gradientUnits='userSpaceOnUse' x1='7.5341' y1='6.3996' x2='7.5245' y2='5.159'><stop  offset='0' style='stop-color:#CCCCCC'/><stop  offset='0.1227' style='stop-color:#D7D7D7'/><stop  offset='0.421' style='stop-color:#EBEBEB'/><stop  offset='0.7156' style='stop-color:#F8F8F8'/><stop  offset='1' style='stop-color:#FCFCFC'/></linearGradient><circle fill='url(#b9814fa8-2742-41d6-b747-dcbfbf469c2e)' cx='7.527' cy='5.521' r='0.856'/><g><path opacity='0.55' fill='#F2F2F2' enable-background='new    ' d='M8.775,7.085c0-0.156,0.064-0.297,0.168-0.398 C8.655,6.528,8.388,6.332,8.152,6.105C8.03,6.236,7.868,6.328,7.684,6.362c0.134,0.14,0.285,0.275,0.455,0.403 C8.351,6.924,8.566,7.052,8.78,7.156C8.777,7.133,8.775,7.109,8.775,7.085z'/><path opacity='0.55' fill='#F2F2F2' enable-background='new    ' d='M10.749,7.151c-0.296,0-0.585-0.035-0.863-0.1 c0.001,0.011,0.002,0.023,0.002,0.034c0,0.151-0.061,0.288-0.158,0.388c0.403,0.08,0.772,0.092,1.069,0.076 c0.135-0.127,0.255-0.268,0.361-0.421C11.023,7.143,10.886,7.151,10.749,7.151z'/></g><linearGradient id='b780a297-7128-416d-bbcf-443eda12b114' gradientUnits='userSpaceOnUse' x1='9.3315' y1='7.6407' x2='9.3315' y2='6.5283'><stop  offset='0' style='stop-color:#CCCCCC'/><stop  offset='0.1227' style='stop-color:#D7D7D7'/><stop  offset='0.421' style='stop-color:#EBEBEB'/><stop  offset='0.7156' style='stop-color:#F8F8F8'/><stop  offset='1' style='stop-color:#FCFCFC'/></linearGradient><circle fill='url(#b780a297-7128-416d-bbcf-443eda12b114)' cx='9.332' cy='7.085' r='0.556'/><circle fill='#F2F2F2' cx='10.599' cy='5.705' r='0.591'/><g><path opacity='0.55' fill='#F2F2F2' enable-background='new    ' d='M6.671,6.959c0.058,0.098,0.118,0.187,0.195,0.289 C6.922,7.32,6.977,7.385,7.04,7.451c0.085-0.408,0.201-0.768,0.339-1.087c-0.172-0.03-0.326-0.111-0.446-0.227 C6.829,6.393,6.742,6.667,6.671,6.959z'/><path opacity='0.55' fill='#F2F2F2' enable-background='new    ' d='M7.24,4.716c-0.108-0.292-0.183-0.6-0.216-0.923 C6.893,3.932,6.777,4.085,6.679,4.249C6.71,4.463,6.764,4.718,6.857,4.99C6.956,4.865,7.088,4.77,7.24,4.716z'/><path opacity='0.55' fill='#F2F2F2' enable-background='new    ' d='M9.183,4.398c0.804-0.41,1.577-0.454,1.861-0.453 c-0.137-0.171-0.291-0.321-0.466-0.453c-0.505,0.032-1.005,0.15-1.471,0.347C9.005,3.883,8.905,3.933,8.807,3.985 C8.569,3.702,8.363,3.399,8.188,3.073c-0.117,0.036-0.231,0.08-0.341,0.131C7.96,3.428,8.162,3.768,8.492,4.173 c-0.24,0.158-0.463,0.34-0.662,0.548C8.006,4.788,8.153,4.91,8.252,5.067C8.446,4.875,8.65,4.716,8.857,4.584 c0.297,0.312,0.674,0.659,1.159,1.015c0.029-0.121,0.096-0.23,0.192-0.31C9.785,4.977,9.452,4.674,9.183,4.398z'/><path opacity='0.55' fill='#F2F2F2' enable-background='new    ' d='M11.491,6.051l-0.01-0.005 c-0.031-0.017-0.062-0.033-0.093-0.05l-0.017-0.009c-0.028-0.015-0.056-0.031-0.084-0.046c-0.007-0.004-0.014-0.008-0.021-0.012 c-0.033-0.019-0.066-0.038-0.099-0.056c-0.034,0.116-0.104,0.217-0.199,0.29c0.039,0.022,0.078,0.045,0.117,0.067l0.026,0.015 c0.036,0.02,0.072,0.04,0.109,0.06l0.011,0.006c0.088,0.048,0.178,0.095,0.27,0.143h0c0.039-0.113,0.065-0.232,0.089-0.349 C11.556,6.085,11.526,6.069,11.491,6.051z'/></g><circle fill='#F2F2F2' cx='7.527' cy='5.521' r='0.856'/><circle fill='#F2F2F2' cx='9.332' cy='7.085' r='0.556'/></g></svg>"
+  },
+  {
+    "type": "microsoft.network/networkinterfaces",
+    "icon": "<svg version='1.0' id='e0050721-e8d8-4c79-ae50-d8fc2871d932' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 18 18' enable-background='new 0 0 18 18' xml:space='preserve'><path fill='#FFCA00' d='M15.89,2.91h1.27c0.188,0,0.34,0.152,0.34,0.34l0,0v3.5c0,0.188-0.152,0.34-0.34,0.34l0,0h-1.27l0,0V2.91 L15.89,2.91z'/><path fill='#FFCA00' d='M15.89,9h1.27c0.188,0,0.34,0.152,0.34,0.34l0,0v5.86c0,0.188-0.152,0.34-0.34,0.34l0,0h-1.27l0,0V9L15.89,9 z'/><linearGradient id='bb847533-c351-4b52-ba55-1be31e7d1b3f' gradientUnits='userSpaceOnUse' x1='9.01' y1='3.5' x2='9.01' y2='18.5' gradientTransform='matrix(1 0 0 -1 0 20)'><stop offset='0' style='stop-color:#5E9641'/><stop  offset='0.34' style='stop-color:#6BAA42'/><stop  offset='0.67' style='stop-color:#73B743'/><stop  offset='1' style='stop-color:#76BB43'/></linearGradient><path fill='url(#bb847533-c351-4b52-ba55-1be31e7d1b3f)' d='M2.82,1.5H15.2c0.381,0,0.69,0.309,0.69,0.69v13.62c0,0.381-0.309,0.69-0.69,0.69H2.82 c-0.381,0-0.69-0.309-0.69-0.69V2.19C2.13,1.809,2.439,1.5,2.82,1.5z'/><path fill='#B4EC36' d='M5.9,12.9H5.19C5.08,12.895,4.995,12.801,5,12.69c0,0,0,0,0,0V4.34c-0.006-0.105,0.075-0.194,0.18-0.2 c0.003,0,0.007,0,0.01,0h1.93c0.105,0,0.19,0.085,0.19,0.19c0,0.003,0,0.007,0,0.01c0.006,0.11-0.079,0.204-0.19,0.21c0,0,0,0,0,0 H5.38v7.93H5.9c0.11,0.005,0.195,0.099,0.19,0.21c0,0,0,0,0,0C6.09,12.799,6.008,12.89,5.9,12.9z'/><path fill='#B4EC36' d='M6,13.92H4.4c-0.11-0.005-0.195-0.099-0.19-0.21c0,0,0,0,0,0L4.08,3.38C4.078,3.324,4.1,3.269,4.14,3.23 c0.031-0.039,0.08-0.062,0.13-0.06h2.85v0.41H4.47l0.12,9.92H6V13.92z'/><path fill='#B4EC36' d='M12,13h-1.59c-0.055-0.002-0.106-0.028-0.14-0.07c-0.04-0.035-0.062-0.087-0.06-0.14V7.9 c-0.006-0.105,0.075-0.194,0.18-0.2c0.003,0,0.007,0,0.01,0h0.91V5.45h0.38v2.44c0.006,0.107-0.073,0.199-0.18,0.21H10.6v4.42H12V13 z'/><path fill='#365615' d='M7.33,2.29h5.62c0.144,0,0.26,0.116,0.26,0.26v2.59c0,0.144-0.116,0.26-0.26,0.26H7.33 c-0.144,0-0.26-0.116-0.26-0.26V2.55C7.07,2.406,7.186,2.29,7.33,2.29z'/><path fill='#365615' d='M8.85,11.05v4.38c0,0.144-0.116,0.26-0.26,0.26H8.02c-0.144,0-0.26-0.116-0.26-0.26v-4.38 c0-0.144,0.116-0.26,0.26-0.26h0.57C8.734,10.79,8.85,10.906,8.85,11.05z'/><path fill='#365615' d='M6.99,11.07v4.38c0,0.144-0.116,0.26-0.26,0.26H6.16c-0.144,0-0.26-0.116-0.26-0.26v-4.38 c0-0.144,0.116-0.26,0.26-0.26h0.57C6.874,10.81,6.99,10.926,6.99,11.07z'/><path fill='#F2F2F2' d='M12.97,11.07v4.38c0,0.144-0.116,0.26-0.26,0.26h-0.57c-0.144,0-0.26-0.116-0.26-0.26v-4.38 c0-0.144,0.116-0.26,0.26-0.26h0.57C12.854,10.81,12.97,10.926,12.97,11.07z'/><ellipse fill='#F2F2F2' cx='8.11' cy='8.06' rx='1.04' ry='1.12'/><path fill='#3B3B3B' d='M2.11,12.25H0.84c-0.173,0.001-0.32-0.128-0.34-0.3V6.09c0-0.188,0.152-0.34,0.34-0.34h0h1.27l0,0V12.25 L2.11,12.25z'/></svg>"
+  },
+  {
+    "type": "microsoft.relay/namespaces/hybridconnections",
+    "originalPlural": "Hybrid Connections",
+    "originalSingular": "Hybrid Connection",
+    "plural": "Hybrid connections",
+    "singular": "Hybrid connection"
+  },
+  {
+    "type": "microsoft.relay/namespaces/wcfrelays",
+    "originalPlural": "WCF Relays",
+    "originalSingular": "WCF Relay",
+    "plural": "WCF relays",
+    "singular": "WCF relay"
+  },
+  {
+    "type": "microsoft.resources/resources",
+    "plural": "Resources",
+    "singular": "Resource",
+    "lowerPlural": "resources",
+    "lowerSingular": "resource",
+    "icon": "<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'><path fill='#32bedd' d='M16.18 4.79v8.46L8.87 17.5V9.03l7.31-4.24z'/><path fill='#9cebff' d='M16.18 4.79L8.87 9.04 1.55 4.78 8.87.53l7.31 4.26z'/><path fill='#50e6ff' d='M8.87 9.04v8.46l-7.32-4.25V4.78l7.32 4.26z'/><path fill='#9cebff' d='M1.55 13.25l7.32-4.22v8.47l-7.32-4.25z'/><path fill='#50e6ff' d='M16.18 13.25L8.87 9.03v8.47l7.31-4.25z'/></svg>"
+  },
+  {
+    "type": "microsoft.scheduler/jobcollections",
+    "plural": "Scheduler job collections",
+    "singular": "Scheduler job collection"
+  },
+  {
+    "type": "microsoft.scheduler/jobcollections/jobs",
+    "plural": "Scheduler jobs",
+    "singular": "Scheduler job"
+  },
+  {
+    "type": "microsoft.security/pricings",
+    "plural": "Defender for Cloud",
+    "singular": "Defender for Cloud",
+    "comment": "2023-11-07: Placeholder icon. Replace when available. Added name since this isn't a real resource type.",
+    "icon": "<svg viewBox='0 0 22 22' xmlns='http://www.w3.org/2000/svg'><g><path d='M20.533 10.26c0 5.915-7.285 10.676-8.85 11.651a.555.555 0 0 1-.602 0C9.485 20.965 2.2 16.175 2.2 10.261V3.164c0-.296.24-.562.572-.562C8.432 2.454 7.107 0 11.352 0c4.244 0 2.95 2.454 8.61 2.602.3 0 .571.266.571.562v7.097Z' fill='#0078D4'/><path d='M19.8 10.302c0 5.554-6.71 9.991-8.161 10.897a.578.578 0 0 1-.544 0c-1.451-.906-8.162-5.373-8.162-10.897v-6.64a.53.53 0 0 1 .514-.514c5.2-.15 4.02-2.415 7.92-2.415 3.899 0 2.72 2.294 7.92 2.415a.53.53 0 0 1 .513.513v6.641Z' fill='url(#d642512e-2099-4fdd-84de-27756766f6bb)'/><path d='M11.367 15.4a1.1 1.1 0 1 0 0-2.2 1.1 1.1 0 0 0 0 2.2Zm.55-2.933h-1.1c-.303 0-.55-.235-.55-.52V4.92c0-.286.247-.52.55-.52h1.1c.302 0 .55.234.55.52v7.026c0 .286-.248.52-.55.52Z' fill='#ffffff'/><defs><linearGradient id='d642512e-2099-4fdd-84de-27756766f6bb' x1='11.376' y1='1.465' x2='11.376' y2='22.059' gradientUnits='userSpaceOnUse'><stop offset='.18' stop-color='#5EA0EF'/><stop offset='1' stop-color='#0078D4'/></linearGradient></defs></g></svg>"
+  },
+  {
+    "type": "microsoft.servicebus/namespaces",
+    "originalPlural": "Service Bus Namespaces",
+    "originalSingular": "Service Bus Namespace",
+    "plural": "Service Bus namespaces",
+    "singular": "Service Bus namespace"
+  },
+  {
+    "type": "microsoft.servicebus/namespaces/queues",
+    "originalPlural": "Service Bus Queues",
+    "originalSingular": "Service Bus Queue",
+    "plural": "Service Bus queues",
+    "singular": "Service Bus queue"
+  },
+  {
+    "type": "microsoft.servicebus/namespaces/topics",
+    "originalPlural": "Service Bus Topics",
+    "originalSingular": "Service Bus Topic",
+    "plural": "Service Bus topics",
+    "singular": "Service Bus topic"
+  },
+  {
+    "type": "microsoft.sql/managedinstances",
+    "comment": "2018-12-10. Changed viewbox to be a square",
+    "icon": "<svg viewBox='0 0 61538 61538'><g><rect fill='#777' x='10578' width='36538' height='61538' rx='3846' ry='3846'></rect><path fill='#000' d='M18270 5770c-2124 0-3846 1722-3846 3846s1722 3846 3846 3846h21154c2124 0 3846-1722 3846-3846s-1722-3846-3846-3846H18270z'></path><circle cx='18270' cy='9616' r='1923' fill='#b8d432'></circle><path fill='#000' d='M18270 17309c-2124 0-3846 1722-3846 3845 0 2124 1722 3846 3846 3846h21154c2124 0 3846-1722 3846-3846 0-2123-1722-3845-3846-3845H18270z'></path><circle cx='18270' cy='21154' r='1923' fill='#b8d432'></circle><path fill='#000' d='M18270 28847c-2124 0-3846 1722-3846 3846s1722 3845 3846 3845h21154c2124 0 3846-1721 3846-3845s-1722-3846-3846-3846H18270z'></path><circle cx='18270' cy='32693' r='1923' fill='#b8d432'></circle><path d='M40384 59619c3186 0 5770-2583 5770-5770 0-3438-2975-6091-6378-5738 1833-8898-4950-17340-14127-17340-6009 0-11160 3676-13327 8901C6048 38260 0 43016 0 49522c0 5575 4520 10095 10096 10095l30288 2z' fill='#ffffff'></path><path fill='#C0ECFC' d='M39778 42283c-1347-6570-7161-11512-14129-11512-6009 0-11160 3676-13327 8901-716-161-1461-246-2226-246C4520 39426 0 43946 0 49522c0 5575 4520 10095 10096 10095h6788c-4526 0-8195-3669-8195-8195s3669-8195 8195-8195c621 0 1226 68 1807 200 1760-4241 5940-7225 10818-7225 4426 0 8279 2457 10269 6081z'></path><path fill='#8BA208' d='M27884 55768c564 0 1100-121 1583-339l340 340h1923v-1923l-339-340c219-483 339-1019 339-1584v-1922c0-2124-1721-3846-3846-3846-2124 0-3846 1722-3846 3846v1922c0 2125 1722 3846 3846 3846zm-10577-9614c-1592 0-2884 1292-2884 2884 0 1594 1292 2885 2884 2885h1923c532 0 962 430 962 962 0 530-430 961-962 961h-4807v1923h4807c1594 0 2885-1292 2885-2884 0-1593-1291-2885-2885-2885h-1923c-530 0-961-430-961-962 0-530 431-960 961-960h4808v-1924h-4808zm16347 0h1923v7692h3846v1924h-5769v-9616zm-3847 5768h-1923v1924c-1062 0-1922-862-1922-1924v-1922c0-1062 860-1922 1922-1922s1923 860 1923 1922v1922z'></path></g></svg>"
+  },
+  {
+    "type": "microsoft.sql/servers/elasticpools",
+    "icon": "<svg viewBox='0 0 18 18'><g><defs><linearGradient id='a3e5dfd8-a5f0-49b4-8cf9-1d0f89138e2c' x1='-3071.86' y1='6711.69' x2='-3071.86' y2='6747.69' gradientTransform='matrix(.35 .35 .35 -.35 -1284.32 3474.58)' gradientUnits='userSpaceOnUse'><stop offset='0' stop-color='#005ba1'></stop><stop offset='.1' stop-color='#0060a9'></stop><stop offset='.52' stop-color='#0071c8'></stop><stop offset='.75' stop-color='#0078d4'></stop></linearGradient></defs><rect x='2.46' y='2.46' width='13.08' height='13.08' rx='.61' transform='rotate(-45 8.999 9.003)' fill='url(#a3e5dfd8-a5f0-49b4-8cf9-1d0f89138e2c)'></rect><path d='M9 3.41c-.95 0-1.71-.24-1.71-.55v2.91c0 .29.75.54 1.68.54H9c.94 0 1.71-.24 1.71-.54V2.86c.01.31-.71.55-1.71.55z' fill='#50e6ff'></path><path d='M10.72 2.86c0 .31-.77.55-1.71.55S7.3 3.17 7.3 2.86s.76-.54 1.7-.54 1.71.24 1.71.54' fill='#eaeaea'></path><path d='M10.32 2.82c0 .19-.59.35-1.31.35S7.7 3 7.7 2.82s.58-.35 1.3-.35 1.31.16 1.31.35' fill='#50e6ff'></path><path d='M9 2.9A3.57 3.57 0 0 0 8 3a3.52 3.52 0 0 0 1 .14A3.52 3.52 0 0 0 10 3a3.62 3.62 0 0 0-1-.1z' fill='#32bedd'></path><path d='M9 12.82c-.95 0-1.71-.24-1.71-.55v2.91c0 .29.75.54 1.68.54H9c.94 0 1.71-.24 1.71-.54v-2.91c.01.31-.71.55-1.71.55z' fill='#50e6ff'></path><path d='M10.72 12.27c0 .31-.77.55-1.71.55s-1.71-.24-1.71-.55.76-.54 1.71-.54 1.71.24 1.71.54' fill='#eaeaea'></path><path d='M10.32 12.23c0 .19-.59.35-1.31.35s-1.31-.16-1.31-.35.58-.35 1.31-.35 1.31.16 1.31.35' fill='#50e6ff'></path><path d='M9 12.31a3.57 3.57 0 0 0-1 .13 3.52 3.52 0 0 0 1 .14 3.52 3.52 0 0 0 1-.14 3.62 3.62 0 0 0-1-.13z' fill='#32bedd'></path><path d='M13.22 8.09c-1 0-1.71-.24-1.71-.54v2.9c0 .3.75.54 1.69.55.94 0 1.71-.25 1.71-.55v-2.9c.02.3-.75.54-1.69.54z' fill='#50e6ff'></path><path d='M14.93 7.55c0 .3-.77.54-1.71.54s-1.71-.24-1.71-.54.76-.55 1.71-.55 1.71.25 1.71.55' fill='#eaeaea'></path><path d='M14.53 7.5c0 .2-.59.35-1.31.35s-1.31-.15-1.31-.35.58-.34 1.31-.34 1.31.15 1.31.34' fill='#50e6ff'></path><path d='M13.22 7.58a3.52 3.52 0 0 0-1 .14 3.57 3.57 0 0 0 1 .13 3.57 3.57 0 0 0 1-.13 3.57 3.57 0 0 0-1-.14z' fill='#32bedd'></path><path d='M4.92 8.09c-.95 0-1.71-.24-1.71-.54v2.9c0 .3.75.54 1.68.55.94 0 1.71-.25 1.71-.55v-2.9c.03.3-.74.54-1.68.54z' fill='#50e6ff'></path><path d='M6.63 7.55c0 .3-.77.54-1.71.54s-1.71-.24-1.71-.54S4 7 4.92 7s1.71.25 1.71.55' fill='#eaeaea'></path><path d='M6.23 7.5c0 .2-.59.35-1.31.35S3.61 7.7 3.61 7.5s.58-.34 1.31-.34 1.31.15 1.31.34' fill='#50e6ff'></path><path d='M4.92 7.58a3.52 3.52 0 0 0-1 .14 3.57 3.57 0 0 0 1 .13 3.57 3.57 0 0 0 1-.13 3.57 3.57 0 0 0-1-.14z' fill='#32bedd'></path></g></svg>"
+  },
+  {
+    "type": "microsoft.storsimple/managers",
+    "plural": "StorSimple device managers",
+    "singular": "StorSimple device manager"
+  },
+  {
+    "type": "microsoft.web/connectiongateways",
+    "originalPlural": "On-premises data gateways",
+    "originalSingular": "On-premises data gateway",
+    "plural": "App Service on-premises data gateways",
+    "singular": "App Service on-premises data gateway"
+  },
+  {
+    "type": "microsoft.web/connections",
+    "originalPlural": "API connections",
+    "originalSingular": "API connection",
+    "plural": "App Service API connections",
+    "singular": "App Service API connection"
+  },
+  {
+    "type": "microsoft.web/managedhostingenvironments",
+    "plural": "App Service environments",
+    "singular": "App Service environment"
+  },
+  {
+    "type": "microsoft.web/sites",
+    "originalPlural": "App Services",
+    "originalSingular": "App Service",
+    "plural": "App Service web apps",
+    "singular": "App Service web app"
+  },
+  {
+    "type": "microsoft.web/sites/slots",
+    "originalPlural": "App Service (Slots)",
+    "originalSingular": "App Service (Slot)",
+    "plural": "App Service deployment slots",
+    "singular": "App Service deployment slot"
+  }
+]

@@ -63,7 +63,26 @@ sequenceDiagram
 
 <br>
 
-## FinOps hubs v0.0.1
+## FinOps hubs v0.2
+
+```mermaid
+sequenceDiagram
+    Cost Management->>msexports: ① Export data
+    msexports->>msexports: ② msexports_ExecuteETL
+    msexports->>ingestion: ② msexports_ETL_ingestion
+    Power BI-->>ingestion: ③ Read data
+```
+
+<br>
+
+1. Cost Management exports raw cost details to the **msexports** container.
+2. The **msexports_ExecuteETL** pipeline kicks off the extract-transform-load (ETL) process when files are added to storage.
+3. The **msexports_ETL_ingestion** pipeline transforms the data to a standard schema and saves the raw data in parquet format to the **ingestion** container.
+4. Power BI reads cost data from the **ingestion** container.
+
+<br>
+
+## FinOps hubs v0.1
 
 ```mermaid
 sequenceDiagram
