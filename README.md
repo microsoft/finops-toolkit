@@ -80,6 +80,7 @@ There are many ways to participate. From reporting bugs and requesting features 
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/NavidKhan8"><img src="https://avatars.githubusercontent.com/u/114067987?v=4?s=100" width="100px;" alt="NavidKhan8"/><br /><sub><b>NavidKhan8</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3ANavidKhan8" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://msftplayground.com"><img src="https://avatars.githubusercontent.com/u/9531411?v=4?s=100" width="100px;" alt="Maik van der Gaag"/><br /><sub><b>Maik van der Gaag</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Amaikvandergaag" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://data-driven.ai"><img src="https://avatars.githubusercontent.com/u/3522966?v=4?s=100" width="100px;" alt="Rodney"/><br /><sub><b>Rodney</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3Arodneyjoyce" title="Reviewed Pull Requests">👀</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/thecloudman"><img src="https://avatars.githubusercontent.com/u/28718362?v=4?s=100" width="100px;" alt="Graham"/><br /><sub><b>Graham</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Athecloudman" title="Bug reports">🐛</a></td>
     </tr>
   </tbody>
 </table>
