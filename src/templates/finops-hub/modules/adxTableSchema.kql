@@ -1,6 +1,8 @@
 .create-merge table Focus (
   Timestamp:datetime,
+  AmortizedCost:decimal,
   AvailabilityZone:string,
+  BilledCost:decimal,
   BillingAccountId:string,
   BillingAccountName:string,
   BillingCurrency:string,
@@ -18,7 +20,5 @@
   ServiceCategory:string,
   ServiceName:string,
   SubAccountId:string,
-  SubAccountName:string,
-  AmortizedCost:decimal,
-  BilledCost:decimal
+  SubAccountName:string
   )
