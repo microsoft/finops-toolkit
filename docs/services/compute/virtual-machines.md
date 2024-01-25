@@ -307,7 +307,7 @@ TODO: Add link to MS or F2 doc explaining the capability
 -->
 
 <!---
-Let's get more specific and actionable. ARG queries, PBI reports, etc.
+TODO: Let's get more specific and actionable. ARG queries, PBI reports, etc.
 -->
 
 Commitment-based discounts, such as Reserved Instances (RIs) and Azure Savings Plans, offer significant cost savings for organizations utilizing VMs in Azure.
