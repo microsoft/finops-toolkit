@@ -322,7 +322,7 @@ Commitment discounts, such as reservations and savings plans, offer significant 
    - For workloads with varying usage or the need for flexibility, explore Azure Savings Plans. Savings Plans provide discounts while accommodating changes in VM size, family, or region.
 
 4. **Cost analysis:**
-   - Utilize tools like Azure Pricing Calculator and Azure Cost Management to perform cost analysis. Compare the potential savings of RIs and Savings Plans against pay-as-you-go pricing.
+   - Utilize tools like Azure Pricing Calculator and Microsoft Cost Management to perform cost analysis. Compare the potential savings of commitment discounts against on-demand pricing.
 
 5. **Regular review:**
    - Periodically review VM workloads and commitments. Adjust Reserved Instances or Savings Plans as needed to align with evolving usage patterns.
