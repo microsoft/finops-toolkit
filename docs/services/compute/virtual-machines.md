@@ -203,7 +203,7 @@ TODO: Add link to MS or F2 doc explaining the capability
 
 ## Quantify business value
 <!---
-Add link to MS or F2 doc explaining the capability
+TODO: Add link to MS or F2 doc explaining the capability
 -->
 
 ### Architecting for cloud
