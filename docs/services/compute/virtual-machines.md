@@ -310,7 +310,7 @@ TODO: Add link to MS or F2 doc explaining the capability
 TODO: Let's get more specific and actionable. ARG queries, PBI reports, etc.
 -->
 
-Commitment-based discounts, such as Reserved Instances (RIs) and Azure Savings Plans, offer significant cost savings for organizations utilizing VMs in Azure.
+Commitment discounts, such as reservations and savings plans, offer significant cost savings for organizations utilizing VMs in Azure.
 
 1. **Evaluate workload stability:**
    - Assess VM workloads to understand stability and usage patterns. Stable workloads with predictable usage are prime candidates for Reserved Instances.
