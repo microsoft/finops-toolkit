@@ -197,7 +197,7 @@ Effectively budgeting for VMs in Azure involves considersing different factors, 
 
 ### Benchmarking
 <!---
-Add link to MS or F2 doc explaining the capability
+TODO: Add link to MS or F2 doc explaining the capability
 -->
 <br>
 
