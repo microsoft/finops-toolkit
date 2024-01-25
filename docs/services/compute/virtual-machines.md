@@ -188,7 +188,7 @@ Understanding and proactively managing the costs associated with VMs and related
 
 ### Budgeting
 <!---
-Add link to MS or F2 doc explaining the capability
+TODO: Add link to MS or F2 doc explaining the capability
 -->
 
 Effectively budgeting for VMs in Azure involves considersing different factors, including VM sizes, usage patterns, and potential discounts.
