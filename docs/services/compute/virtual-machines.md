@@ -179,7 +179,7 @@ TODO: Add link to MS or F2 doc explaining the capability
 
 ### Estimation + forecasting
 <!---
-Add link to MS or F2 doc explaining the capability
+TODO: Add link to MS or F2 doc explaining the capability
 -->
 
 Before creating a VM, leverage the [Azure Pricing Calculator](https://azure.microsoft.com/en-us/pricing/calculator/) to simulate costs. This tool allows you to estimate expenses based on your selected VM configurations, helping you make informed decisions and plan budgets effectively.
