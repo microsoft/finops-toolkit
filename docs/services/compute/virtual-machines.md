@@ -269,7 +269,7 @@ TODO: Might also be good to call out what recommendations are available in Advis
 ### Workload management
 
 <!---
-Add link to MS or F2 doc explaining the capability
+TODO: Add link to MS or F2 doc explaining the capability
 -->
 
 <!---
