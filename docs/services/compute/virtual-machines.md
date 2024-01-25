@@ -224,7 +224,7 @@ TODO: Add link to MS or F2 doc explaining the capability
 ## Existing commitment discounts:
 
 - **Reserved instances (RIs):**
-   - Leverage Reserved Instances for VMs to benefit from significant cost savings. Commit to a one or three-year term for VMs that require ongoing, predictable usage.
+   - Leverage reservations for VMs that have consistent usage patterns to benefit from significant cost savings. Commit to a one-, three-, or five-year term for VMs with ongoing, predictable usage.
 
 - **Azure hybrid benefit (AHB):**
    - If you have on-premises Windows Server licenses with Software Assurance, consider utilizing Azure Hybrid Benefit for additional cost savings on VMs.
