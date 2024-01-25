@@ -253,7 +253,7 @@ Optimizing the utilization efficiency of VMs in Azure is essential for achieving
    - Conduct regular reviews of VM sizes based on performance assessments and Azure Advisor recommendations. Right-size VMs to align with actual usage patterns.
 
 <!---
-Might also be good to call out what recommendations are available in Advisor and include some ARG queries for pulling them.
+TODO: Might also be good to call out what recommendations are available in Advisor and include some ARG queries for pulling them.
 -->
 
 
