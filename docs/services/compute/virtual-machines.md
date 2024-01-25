@@ -286,7 +286,7 @@ TODO: add new feature to a tool: something in the workload management section ab
 
 2. **Automation implementation:**
 <!---
-- FYI - Autostop is part of the workload management capability. Just calling it out in case I forget by the time I get down to that section :-)
+TODO: Move to workload management
 -->
 
    - Implement automation for routine workload management tasks. This includes auto stop and start VMs based on schedule.
