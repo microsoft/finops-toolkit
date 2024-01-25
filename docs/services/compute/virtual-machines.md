@@ -209,7 +209,7 @@ TODO: Add link to MS or F2 doc explaining the capability
 ### Architecting for cloud
 
 <!---
-Add link to MS or F2 doc explaining the capability
+TODO: Add link to MS or F2 doc explaining the capability
 -->
 
 ## Understanding VM sizes (SKUs):
