@@ -226,7 +226,7 @@ TODO: Add link to MS or F2 doc explaining the capability
 - **Reserved instances (RIs):**
    - Leverage reservations for VMs that have consistent usage patterns to benefit from significant cost savings. Commit to a one-, three-, or five-year term for VMs with ongoing, predictable usage.
 
-- **Azure hybrid benefit (AHB):**
+- **Azure Hybrid Benefit (AHB):**
    - If you have on-premises Windows Server licenses with Software Assurance, consider utilizing Azure Hybrid Benefit for additional cost savings on VMs.
 
 ## Underlying services:
