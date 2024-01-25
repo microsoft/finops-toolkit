@@ -315,7 +315,7 @@ Commitment discounts, such as reservations and savings plans, offer significant 
 1. **Evaluate workload stability:**
    - Assess VM workloads to understand stability and usage patterns. Stable workloads with predictable usage are prime candidates for Reserved Instances.
 
-2. **Long-Term commitments:**
+2. **Long-term commitments:**
    - If your organization can commit to long-term usage, consider Reserved Instances. Evaluate the one or three-year commitment options based on budgetary considerations.
 
 3. **Flexibility and usage variation:**
