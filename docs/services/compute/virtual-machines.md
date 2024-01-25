@@ -50,7 +50,7 @@ TODO: Add link to MS or F2 doc explaining the capability
 Azure VMs are a fundamental component of your cloud infrastructure, providing on-demand computing resources tailored to your specific needs. To effectively manage costs associated with VMs, it's crucial to understand the various factors that contribute to their pricing, as well as costs related to associated services.
 
 <!---
-Include a table with billing meters.
+TODO: Include a table with billing meters.
 What are the billing meters that represents the cost of a VM? SKU, License (if windows), Storage, backup, monitoring etc 
 -->
 
