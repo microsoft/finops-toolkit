@@ -330,7 +330,7 @@ Commitment discounts, such as reservations and savings plans, offer significant 
 
 ### Cloud sustainability
 <!---
-Add link to MS or F2 doc explaining the capability
+TODO: Add link to MS or F2 doc explaining the capability
 -->
 
 <br>
