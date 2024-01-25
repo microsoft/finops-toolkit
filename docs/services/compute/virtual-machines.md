@@ -68,7 +68,7 @@ What are the billing meters that represents the cost of a VM? SKU, License (if w
 - **Regional pricing:** The cost of a VM is influenced by the region where it is deployed. Different regions may have varying pricing structures, impacting the overall cost of VM usage. Additionally, it's worth noting that carbon emissions associated with cloud services, including VM usage, can also be region-specific. 
 
 <!---
-Include carbon emissions to the Cost Optimization advisor workbook
+TODO: Include carbon emissions to the Cost Optimization advisor workbook
 -->
 
 - **VM states:** As VM instances transition through different states (running, stopped, deallocated), they may incur different billing rates. Ensure efficient VM management to minimize unnecessary costs during idle periods.
