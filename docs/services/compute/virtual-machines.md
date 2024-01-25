@@ -128,7 +128,7 @@ Implementing tag inheritance and following these tagging best practices enhances
 
 
 <!---
-Side note: Cost analysis has a feature where you can add a "cm-resource-parent" tag to your child resources (e.g., storage accounts) to link them to their logical parent and then Cost analysis will show the costs grouped together. We should inform them about this somewhere. It should be a separate doc that we reference probably in the reporting capability and possibly from here, if we end up calling out the issue.
+TODO: Cost analysis has a feature where you can add a "cm-resource-parent" tag to your child resources (e.g., storage accounts) to link them to their logical parent and then Cost analysis will show the costs grouped together. We should inform them about this somewhere. It should be a separate doc that we reference probably in the reporting capability and possibly from here, if we end up calling out the issue.
 -->
 
 
