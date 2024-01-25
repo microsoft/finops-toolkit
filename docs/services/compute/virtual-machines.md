@@ -273,7 +273,7 @@ TODO: Add link to MS or F2 doc explaining the capability
 -->
 
 <!---
- add new feature to a tool: something in the workload management section about moving VMs between regions based on regional pricing. That's probably a good opportunity for a workbook, PBI report, or AOE recommendation :-)
+TODO: add new feature to a tool: something in the workload management section about moving VMs between regions based on regional pricing. That's probably a good opportunity for a workbook, PBI report, or AOE recommendation :-)
 
  There's also an opportunity for us to build some tooling to recommend cm-resource-parent tags you should apply to your resources, then offering an approval workflow to apply them on your behalf.
 
