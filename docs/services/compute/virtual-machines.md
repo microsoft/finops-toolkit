@@ -149,7 +149,7 @@ Once you've identified all the costs associated with a VM, the next crucial step
 
 ### Anomalies
 <!---
-Add link to MS or F2 doc explaining the capability
+TODO: Add link to MS or F2 doc explaining the capability
 -->
 Anomaly detection helps pinpoint unexpected spikes or irregularities in VM spending, enabling timely intervention to optimize costs. Identifying irregularities helps in optimizing resource allocation, ensuring resources are used efficiently.
 
