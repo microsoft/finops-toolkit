@@ -263,7 +263,8 @@ TODO: Might also be good to call out what recommendations are available in Advis
 3. **Continuous monitoring and alerts:**
    - Implement continuous monitoring using Azure Monitor and set up
 
-4. - **Automated tagging with Azure policy:** Simplify and standardize tagging by utilizing Azure Policy to automatically apply tags to VMs. This streamlines the allocation process, ensuring adherence to tagging standards.
+4. **Automated tagging with Azure policy:**
+   - Simplify and standardize tagging by utilizing Azure Policy to automatically apply tags to VMs. This streamlines the allocation process, ensuring adherence to tagging standards.
 
 ### Workload management
 
