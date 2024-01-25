@@ -352,7 +352,7 @@ Add link to MS or F2 doc explaining the capability
 
 ### FinOps assessment
 <!---
-Add link to MS or F2 doc explaining the capability
+TODO: Add link to MS or F2 doc explaining the capability
 -->
 
 ### Cloud policy + governance
