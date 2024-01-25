@@ -154,8 +154,8 @@ TODO: Add link to MS or F2 doc explaining the capability
 Anomaly detection helps pinpoint unexpected spikes or irregularities in VM spending, enabling timely intervention to optimize costs. Identifying irregularities helps in optimizing resource allocation, ensuring resources are used efficiently.
 
 
-1. **Utilize Azure monitor:**
-   - Leverage Azure monitor to access detailed insights into VM performance metrics. Set up alerts for key metrics such as CPU usage, memory utilization, and disk activity.
+1. **Utilize Azure Monitor:**
+   - Leverage Azure Monitor to access detailed insights into VM performance metrics. Set up alerts for key metrics such as CPU usage, memory utilization, and disk activity.
 
 2. **Cost management tools:**
    - Leverage the cost management tools, such as Azure Cost Management and Power BI, to analyze spending patterns and detect unusual spikes in VM costs.
