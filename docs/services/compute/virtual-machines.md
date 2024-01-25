@@ -74,7 +74,7 @@ TODO: Include carbon emissions to the Cost Optimization advisor workbook
 - **VM states:** As VM instances transition through different states (running, stopped, deallocated), they may incur different billing rates. Ensure efficient VM management to minimize unnecessary costs during idle periods.
 
 <!---
-Add docs link
+TODO: Add docs link
 -->
 
 ## Storage:
