@@ -325,7 +325,7 @@ Commitment discounts, such as reservations and savings plans, offer significant 
    - Utilize tools like Azure Pricing Calculator and Microsoft Cost Management to perform cost analysis. Compare the potential savings of commitment discounts against on-demand pricing.
 
 5. **Regular review:**
-   - Periodically review VM workloads and commitments. Adjust Reserved Instances or Savings Plans as needed to align with evolving usage patterns.
+   - Periodically review VM workloads and commitments. Adjust commitment discounts as needed to align with evolving usage patterns.
 
 
 ### Cloud sustainability
