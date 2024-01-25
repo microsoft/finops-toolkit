@@ -173,7 +173,7 @@ Anomaly detection helps pinpoint unexpected spikes or irregularities in VM spend
 ### Unit economics
 
 <!---
-Add link to MS or F2 doc explaining the capability
+TODO: Add link to MS or F2 doc explaining the capability
 -->
 
 
