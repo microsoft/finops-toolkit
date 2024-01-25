@@ -243,7 +243,7 @@ TODO: Add link to MS or F2 doc explaining the capability
 
 ### Utilization efficiency
 <!---
-Add link to MS or F2 doc explaining the capability
+TODO: Add link to MS or F2 doc explaining the capability
 -->
 
 Optimizing the utilization efficiency of VMs in Azure is essential for achieving cost savings and maximizing resource efficiency. 
