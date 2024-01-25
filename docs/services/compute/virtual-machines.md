@@ -221,7 +221,7 @@ TODO: Add link to MS or F2 doc explaining the capability
 - **Continuous vs. scheduled usage:**
    - Determine if VMs need to run continuously or if there are periods when they can be powered off. Schedule VMs to align with actual workload demands, optimizing costs during idle periods.
 
-## Existing commitment-based discounts:
+## Existing commitment discounts:
 
 - **Reserved instances (RIs):**
    - Leverage Reserved Instances for VMs to benefit from significant cost savings. Commit to a one or three-year term for VMs that require ongoing, predictable usage.
