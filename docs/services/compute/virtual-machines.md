@@ -79,7 +79,7 @@ TODO: Add docs link
 
 ## Storage:
 <!---
-Add docs link (pricing)
+TODO: Add docs link (pricing)
 -->
 - **Disk size:** Storage costs are determined by the size of disks attached to VMs, measured in gigabytes (GB). Larger disk sizes contribute to higher storage costs.
 
