@@ -357,7 +357,7 @@ TODO: Add link to MS or F2 doc explaining the capability
 
 ### Cloud policy + governance
 <!---
-Add link to MS or F2 doc explaining the capability
+TODO: Add link to MS or F2 doc explaining the capability
 -->
 
 ### FinOps tools + services
