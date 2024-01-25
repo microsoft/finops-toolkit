@@ -367,7 +367,7 @@ TODO: Add link to MS or F2 doc explaining the capability
 
 ### Chargeback + invoicing
 <!---
-Add link to MS or F2 doc explaining the capability
+TODO: Add link to MS or F2 doc explaining the capability
 -->
 
 ### Intersecting disciplines
