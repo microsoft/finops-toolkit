@@ -98,7 +98,7 @@ Add docs link (pricing)
 TODO: Add docs link (pricing)
 -->
 
-- **Azure monitor:** Costs for Azure Monitor are based on the volume of data ingested. Monitor and optimize the data ingested to manage associated expenses effectively.
+- **Azure Monitor:** Costs for Azure Monitor are based on the volume of data ingested. Monitor and optimize the data ingested to manage associated expenses effectively.
 
 - **Azure bastion:** Billing for Azure Bastion is determined by the volume of data transferred. Monitor and control data transfer to regulate costs.
 
