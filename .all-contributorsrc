@@ -324,6 +324,15 @@
       "contributions": [
         "review"
       ]
+    },
+    {
+      "login": "thecloudman",
+      "name": "Graham",
+      "avatar_url": "https://avatars.githubusercontent.com/u/28718362?v=4",
+      "profile": "https://github.com/thecloudman",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "commitType": "docs",
