@@ -108,7 +108,7 @@ module storage 'storage.bicep' = {
     tags: resourceTags
     tagsByResource: tagsByResource
     scopesToMonitor: scopesToMonitor
-    exportRetentionInDays: exportRetentionInDays
+    msexportRetentionInDays: exportRetentionInDays
     ingestionRetentionInMonths: ingestionRetentionInMonths
   }
 }
@@ -162,7 +162,7 @@ module keyVault 'keyVault.bicep' = {
     location: location
     tags: resourceTags
     tagsByResource: tagsByResource
-    storageAccountName: storage.outputs.name
+    // storageAccountName: storage.outputs.name
     storageAccountKey: remoteHubStorageKey
     accessPolicies: [
       {

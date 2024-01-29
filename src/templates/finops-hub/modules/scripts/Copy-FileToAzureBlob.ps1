@@ -10,7 +10,7 @@ $validateScopes = { $_.Length -gt 45 }
 # Initialize variables
 $fileName = 'settings.json'
 $filePath = Join-Path -Path . -ChildPath $fileName
-$newScopes = $env:exportScopes.Split('|') | Where-Object $validateScopes | ForEach-Object { @{ scope = $_ } }
+$newScopes = $env:scopes.Split('|') | Where-Object $validateScopes | ForEach-Object { @{ scope = $_ } }
 
 # Get storage context
 $storageContext = @{
@@ -72,6 +72,33 @@ $json.retention['msexports'].days = [Int32]::Parse($env:msexportRetentionInDays)
 $json.retention.ingestion.months = [Int32]::Parse($env:ingestionRetentionInMonths)
 
 $ctx = New-AzStorageContext -StorageAccountName $env:storageAccountName -UseConnectedAccount
+
+# Save schema_ea_normalized file to storage
+$fileName = 'schema_ea_normalized.json'
+$fileToUpload = Join-Path -Path .\ -ChildPath $fileName
+$env:schema_ea_normalized | Out-File $fileToUpload
+$existingFile = Get-AzStorageBlob -Container config -Context $ctx -Blob $fileName -ErrorAction SilentlyContinue
+if ($null -eq $existingFile) {
+    Set-AzStorageBlobContent -Container config -Context $ctx -File $fileToUpload
+}
+
+# Save schema_mca_normalized file to storage
+$fileName = 'schema_mca_normalized.json'
+$fileToUpload = Join-Path -Path .\ -ChildPath $fileName
+$env:schema_mca_normalized | Out-File $fileToUpload
+$existingFile = Get-AzStorageBlob -Container config -Context $ctx -Blob $fileName -ErrorAction SilentlyContinue
+if ($null -eq $existingFile) {
+    Set-AzStorageBlobContent -Container config -Context $ctx -File $fileToUpload
+}
+
+# Save schema_focus_normalized file to storage
+$fileName = 'schema_focus_normalized.json'
+$fileToUpload = Join-Path -Path .\ -ChildPath $fileName
+$env:schema_mca_normalized | Out-File $fileToUpload
+$existingFile = Get-AzStorageBlob -Container config -Context $ctx -Blob $fileName -ErrorAction SilentlyContinue
+if ($null -eq $existingFile) {
+    Set-AzStorageBlobContent -Container config -Context $ctx -File $fileToUpload
+}
 
 # Save config file to storage
 $fileName = 'settings.json'
