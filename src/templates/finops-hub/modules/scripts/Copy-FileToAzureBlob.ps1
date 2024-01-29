@@ -21,13 +21,13 @@ $storageContext = @{
 # Download existing settings, if they exist
 $blob = Get-AzStorageBlobContent @storageContext -Blob $fileName -Destination $filePath -Force
 if ($blob) {
-    Write-Output "Existing settings.json file found. Updating..."
+    
     $text = Get-Content $filePath -Raw
     Write-Output "---------"
     Write-Output $text
     Write-Output "---------"
     $json = $text | ConvertFrom-Json
-
+    Write-Output "Existing settings.json file found. Updating..."
     # Rename exportScopes to scopes + convert to object array
     if ($json.exportScopes) {
         Write-Output "  Updating exportScopes..."
@@ -64,50 +64,16 @@ if (!$json) {
             }
         }
     }
+
+    $text = $json | ConvertTo-Json
+    Write-Output "---------"
+    Write-Output $text
+    Write-Output "---------"
 }
 
 # Set values from inputs
-$json.scopes = $env:scopes.Split('|') | ForEach-Object { @{ 'scope' = $_ } }
 $json.retention.msexports.days = [Int32]::Parse($env:msexportRetentionInDays)
 $json.retention.ingestion.months = [Int32]::Parse($env:ingestionRetentionInMonths)
-
-$ctx = New-AzStorageContext -StorageAccountName $env:storageAccountName -UseConnectedAccount
-
-# Save schema_ea_normalized file to storage
-$fileName = 'schema_ea_normalized.json'
-$fileToUpload = Join-Path -Path .\ -ChildPath $fileName
-$env:schema_ea_normalized | Out-File $fileToUpload
-$existingFile = Get-AzStorageBlob -Container config -Context $ctx -Blob $fileName -ErrorAction SilentlyContinue
-if ($null -eq $existingFile) {
-    Set-AzStorageBlobContent -Container config -Context $ctx -File $fileToUpload
-}
-
-# Save schema_mca_normalized file to storage
-$fileName = 'schema_mca_normalized.json'
-$fileToUpload = Join-Path -Path .\ -ChildPath $fileName
-$env:schema_mca_normalized | Out-File $fileToUpload
-$existingFile = Get-AzStorageBlob -Container config -Context $ctx -Blob $fileName -ErrorAction SilentlyContinue
-if ($null -eq $existingFile) {
-    Set-AzStorageBlobContent -Container config -Context $ctx -File $fileToUpload
-}
-
-# Save schema_focus_normalized file to storage
-$fileName = 'schema_focus_normalized.json'
-$fileToUpload = Join-Path -Path .\ -ChildPath $fileName
-$env:schema_mca_normalized | Out-File $fileToUpload
-$existingFile = Get-AzStorageBlob -Container config -Context $ctx -Blob $fileName -ErrorAction SilentlyContinue
-if ($null -eq $existingFile) {
-    Set-AzStorageBlobContent -Container config -Context $ctx -File $fileToUpload
-}
-
-# Save config file to storage
-$fileName = 'settings.json'
-$fileToUpload = Join-Path -Path .\ -ChildPath $fileName
-$json | ConvertTo-Json -Depth 99 | Out-File $fileToUpload
-$existingFile = Get-AzStorageBlob -Container config -Context $ctx -Blob $fileName -ErrorAction SilentlyContinue
-if ($null -eq $existingFile) {
-    Set-AzStorageBlobContent -Container config -Context $ctx -File $fileToUpload
-}
 
 # Updating settings
 Write-Output "Updating version to $env:ftkVersion..."
@@ -133,3 +99,10 @@ $text | Out-File $filePath
 # Upload new/updated settings
 Write-Output "Uploading settings.json file..."
 Set-AzStorageBlobContent @storageContext -File $filePath -Force
+
+# Save schema_focus_normalized file to storage
+Write-Output "Uploading schema_focus_normalized.json file..."
+$focusSchema = 'schema_focus_normalized.json'
+$schemaToUpload = Join-Path -Path .\ -ChildPath $focusSchema
+$env:schema_focus_normalized | Out-File $schemaToUpload
+Set-AzStorageBlobContent @storageContext -File $schemaToUpload -Force
