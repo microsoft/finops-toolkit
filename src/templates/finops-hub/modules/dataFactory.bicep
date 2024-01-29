@@ -972,44 +972,6 @@ resource pipeline_RunBackfill 'Microsoft.DataFactory/factories/pipelines@2018-06
           isSequential: true
           activities: [
             {
-              name: 'Create or update backfill export'
-              type: 'WebActivity'
-              dependsOn: [
-                {
-                  activity: 'Set backfill export name'
-                  dependencyConditions: [
-                    'Completed'
-                  ]
-                }
-              ]
-              policy: {
-                timeout: '0.00:05:00'
-                retry: 2
-                retryIntervalInSeconds: 30
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                url: {
-                  value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}?api-version=2023-07-01-preview'
-                  type: 'Expression'
-                }
-                method: 'PUT'
-                body: {
-                  value: '{\n    "properties": {\n        "definition": {\n            "dataSet": {\n                "configuration": {\n                    "dataVersion": "1.0-preview (v1)",\n                    "filters": []\n                },\n                "granularity": "Daily"\n            },\n            "timeframe": "Custom",\n            "timePeriod" : {\n              "from" : "@{pipeline().parameters.StartDate}",\n              "to" : "@{pipeline().parameters.EndDate}"\n            },\n            "type": "FocusCost"\n        },\n        "deliveryInfo": {\n            "destination": {\n                "container": "${exportContainerName}",\n                "rootFolderPath": "@{item().scope}",\n                "type": "AzureBlob",\n                "resourceId": "@{variables(\'storageAccountId\')}"\n            }\n        },\n        "schedule": { "status": "Inactive" },\n        "format": "Csv",\n        "partitionData": true,\n        "dataOverwriteBehavior": "OverwritePreviousReport",\n        "compressionMode": "None"\n    },\n    "id": "@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}",\n    "name": "@{variables(\'exportName\')}",\n    "type": "Microsoft.CostManagement/reports",\n    "identity": {\n        "type": "systemAssigned"\n    },\n    "location": "global"\n}'
-                  type: 'Expression'
-                }
-                authentication: {
-                  type: 'MSI'
-                  resource: {
-                    value: '@variables(\'resourceManagementUri\')'
-                    type: 'Expression'
-                  }
-                }
-              }
-            }
-            {
               name: 'Set backfill export name'
               type: 'SetVariable'
               dependsOn: []
@@ -1017,7 +979,7 @@ resource pipeline_RunBackfill 'Microsoft.DataFactory/factories/pipelines@2018-06
               typeProperties: {
                 variableName: 'exportName'
                 value: {
-                  value: '@toLower(concat(variables(\'finOpsHub\'), \'-backfill-costdetails\'))'
+                  value: '@toLower(concat(variables(\'finOpsHub\'), \'-monthly-costdetails\'))'
                   type: 'Expression'
                 }
               }
@@ -1027,7 +989,7 @@ resource pipeline_RunBackfill 'Microsoft.DataFactory/factories/pipelines@2018-06
               type: 'WebActivity'
               dependsOn: [
                 {
-                  activity: 'Create or update backfill amortized export'
+                  activity: 'Set backfill export name'
                   dependencyConditions: [
                     'Completed'
                   ]
@@ -1047,7 +1009,12 @@ resource pipeline_RunBackfill 'Microsoft.DataFactory/factories/pipelines@2018-06
                   type: 'Expression'
                 }
                 method: 'POST'
-                body: '{}'
+                headers: {
+                  'X-Ms-Command-Name': 'Microsoft_Azure_CostManagement.ACM.Exports.HttpRequest.ExecuteReportWithDates'
+                  'Content-Type': 'application/json'
+                  'Clienttype': 'Exports'
+                }
+                body: '{"timePeriod" : { "from" : "@{pipeline().parameters.StartDate}", "to" : "@{pipeline().parameters.EndDate}" }}'
                 authentication: {
                   type: 'MSI'
                   resource: {
