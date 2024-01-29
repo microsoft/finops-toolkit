@@ -800,7 +800,7 @@ resource pipeline_BackfillData 'Microsoft.DataFactory/factories/pipelines@2018-0
                 {
                   activity: 'Backfill data'
                   dependencyConditions: [
-                    'Succeeded'
+                    'Completed'
                   ]
                 }
               ]
@@ -820,7 +820,7 @@ resource pipeline_BackfillData 'Microsoft.DataFactory/factories/pipelines@2018-0
                 {
                   activity: 'Update export start date'
                   dependencyConditions: [
-                    'Succeeded'
+                    'Completed'
                   ]
                 }
               ]
@@ -972,13 +972,13 @@ resource pipeline_RunBackfill 'Microsoft.DataFactory/factories/pipelines@2018-06
           isSequential: true
           activities: [
             {
-              name: 'Create or update backfill amortized export'
+              name: 'Create or update backfill export'
               type: 'WebActivity'
               dependsOn: [
                 {
-                  activity: 'Set backfill amortized export name'
+                  activity: 'Set backfill export name'
                   dependencyConditions: [
-                    'Succeeded'
+                    'Completed'
                   ]
                 }
               ]
@@ -997,7 +997,7 @@ resource pipeline_RunBackfill 'Microsoft.DataFactory/factories/pipelines@2018-06
                 }
                 method: 'PUT'
                 body: {
-                  value: '{\n      "properties": {\n        "schedule": {\n          "status": "Inactive",\n          "recurrence": "daily",\n          "recurrencePeriod": {\n            "from": "2099-06-01T00:00:00Z",\n            "to": "2099-10-31T00:00:00Z"\n          }\n        },\n        "partitionData": "true",\n        "format": "Csv",\n        "deliveryInfo": {\n          "destination": {\n            "resourceId": "@{variables(\'storageAccountId\')}",\n            "container": "${exportContainerName}",\n            "rootFolderPath": "@{item().scope}"\n          }\n        },\n        "definition": {\n          "type": "amortizedcost",\n          "timeframe": "Custom",\n          "timePeriod" : {\n            "from" : "@{pipeline().parameters.StartDate}",\n            "to" : "@{pipeline().parameters.EndDate}"\n          },\n          "dataSet": {\n            "granularity": "Daily"\n          }\n        }\n      }\n    }'
+                  value: '{\n    "properties": {\n        "definition": {\n            "dataSet": {\n                "configuration": {\n                    "dataVersion": "1.0-preview (v1)",\n                    "filters": []\n                },\n                "granularity": "Daily"\n            },\n            "timeframe": "Custom",\n            "timePeriod" : {\n              "from" : "@{pipeline().parameters.StartDate}",\n              "to" : "@{pipeline().parameters.EndDate}"\n            },\n            "type": "FocusCost"\n        },\n        "deliveryInfo": {\n            "destination": {\n                "container": "${exportContainerName}",\n                "rootFolderPath": "@{item().scope}",\n                "type": "AzureBlob",\n                "resourceId": "@{variables(\'storageAccountId\')}"\n            }\n        },\n        "schedule": { "status": "Inactive" },\n        "format": "Csv",\n        "partitionData": true,\n        "dataOverwriteBehavior": "OverwritePreviousReport",\n        "compressionMode": "None"\n    },\n    "id": "@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}",\n    "name": "@{variables(\'exportName\')}",\n    "type": "Microsoft.CostManagement/reports",\n    "identity": {\n        "type": "systemAssigned"\n    },\n    "location": "global"\n}'
                   type: 'Expression'
                 }
                 authentication: {
@@ -1010,119 +1010,26 @@ resource pipeline_RunBackfill 'Microsoft.DataFactory/factories/pipelines@2018-06
               }
             }
             {
-              name: 'Set backfill amortized export name'
+              name: 'Set backfill export name'
               type: 'SetVariable'
               dependsOn: []
               userProperties: []
               typeProperties: {
                 variableName: 'exportName'
                 value: {
-                  value: '@toLower(concat(variables(\'finOpsHub\'), \'-custom-amortizedcost\'))'
+                  value: '@toLower(concat(variables(\'finOpsHub\'), \'-backfill-costdetails\'))'
                   type: 'Expression'
                 }
               }
             }
             {
-              name: 'Trigger backfill amortized export'
+              name: 'Trigger backfill export'
               type: 'WebActivity'
               dependsOn: [
                 {
                   activity: 'Create or update backfill amortized export'
                   dependencyConditions: [
-                    'Succeeded'
-                  ]
-                }
-              ]
-              policy: {
-                timeout: '0.00:05:00'
-                retry: 1
-                retryIntervalInSeconds: 30
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                url: {
-                  value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}/run?api-version=2023-07-01-preview'
-                  type: 'Expression'
-                }
-                method: 'POST'
-                body: '{}'
-                authentication: {
-                  type: 'MSI'
-                  resource: {
-                    value: '@variables(\'resourceManagementUri\')'
-                    type: 'Expression'
-                  }
-                }
-              }
-            }
-            {
-              name: 'Create or update backfill actual export'
-              type: 'WebActivity'
-              dependsOn: [
-                {
-                  activity: 'Set backfill actual export name'
-                  dependencyConditions: [
-                    'Succeeded'
-                  ]
-                }
-              ]
-              policy: {
-                timeout: '0.00:05:00'
-                retry: 2
-                retryIntervalInSeconds: 30
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                url: {
-                  value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}?api-version=2023-07-01-preview'
-                  type: 'Expression'
-                }
-                method: 'PUT'
-                body: {
-                  value: '{\n      "properties": {\n        "schedule": {\n          "status": "Inactive",\n          "recurrence": "daily",\n          "recurrencePeriod": {\n            "from": "2099-06-01T00:00:00Z",\n            "to": "2099-10-31T00:00:00Z"\n          }\n        },\n        "partitionData": "true",\n        "format": "Csv",\n        "deliveryInfo": {\n          "destination": {\n            "resourceId": "@{variables(\'storageAccountId\')}",\n            "container": "${exportContainerName}",\n            "rootFolderPath": "@{item().scope}"\n          }\n        },\n        "definition": {\n          "type": "actualcost",\n          "timeframe": "Custom",\n          "timePeriod" : {\n            "from" : "@{pipeline().parameters.StartDate}",\n            "to" : "@{pipeline().parameters.EndDate}"\n          },\n          "dataSet": {\n            "granularity": "Daily"\n          }\n        }\n      }\n    }'
-                  type: 'Expression'
-                }
-                authentication: {
-                  type: 'MSI'
-                  resource: {
-                    value: '@variables(\'resourceManagementUri\')'
-                    type: 'Expression'
-                  }
-                }
-              }
-            }
-            {
-              name: 'Set backfill actual export name'
-              type: 'SetVariable'
-              dependsOn: [
-                {
-                  activity: 'Trigger backfill amortized export'
-                  dependencyConditions: [
-                    'Succeeded'
-                  ]
-                }
-              ]
-              userProperties: []
-              typeProperties: {
-                variableName: 'exportName'
-                value: {
-                  value: '@toLower(concat(variables(\'finOpsHub\'), \'-custom-actualcost\'))'
-                  type: 'Expression'
-                }
-              }
-            }
-            {
-              name: 'Trigger backfill actual export'
-              type: 'WebActivity'
-              dependsOn: [
-                {
-                  activity: 'Create or update backfill actual export'
-                  dependencyConditions: [
-                    'Succeeded'
+                    'Completed'
                   ]
                 }
               ]
@@ -1676,7 +1583,7 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
   name: '${safeExportContainerName}_ExecuteETL'
   parent: dataFactory
   properties: {
-activities: [
+  activities: [
       {
         name: 'Read manifest'
         type: 'Lookup'
@@ -1800,14 +1707,6 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
             {
         name: 'Set Scope'
         type: 'SetVariable'
-        dependsOn: [
-          {
-            activity: 'Set FolderArray'
-            dependencyConditions: [
-              'Completed'
-            ]
-          }
-        ]
         userProperties: []
         typeProperties: {
           variableName: 'scope'
@@ -1920,10 +1819,6 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         typeProperties: {
           source: {
             type: 'DelimitedTextSource'
-            additionalColumns: {
-              type: 'Expression'
-              value: '@activity(\'Load Schema Mappings\').output.firstRow.additionalColumns'
-            }
             storeSettings: {
               type: 'AzureBlobFSReadSettings'
               recursive: true
@@ -2210,7 +2105,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
       {
         name: 'Delete Source'
         type: 'Delete'
-state: 'Inactive'
+        state: 'Inactive'
         dependsOn: [
           {
             activity: 'Convert File'
