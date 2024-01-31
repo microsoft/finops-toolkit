@@ -44,8 +44,6 @@ param ingestionRetentionInMonths int = 13
 var safeHubName = replace(replace(toLower(hubName), '-', ''), '_', '')
 var storageAccountSuffix = uniqueSuffix
 var storageAccountName = '${take(safeHubName, 24 - length(storageAccountSuffix))}${storageAccountSuffix}'
-var schema_ea_normalized = loadTextContent('../schema/schema_ea_normalized.json')
-var schema_mca_normalized = loadTextContent('../schema/schema_mca_normalized.json')
 var schema_focus_normalized = loadTextContent('../schema/schema_focus_normalized.json')
 
 // Roles needed to auto-start triggers
@@ -175,14 +173,6 @@ resource uploadSettings 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
       {
         name: 'containerName'
         value: 'config'
-      }
-      {
-        name: 'schema_ea_normalized'
-        value: schema_ea_normalized
-      }
-      {
-        name: 'schema_mca_normalized'
-        value: schema_mca_normalized
       }
       {
         name: 'schema_focus_normalized'
