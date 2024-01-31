@@ -12,7 +12,7 @@
       },
       {
         "name": "PBI_QueryOrder",
-        "value": "[\"Storage URL\",\"File Type\",\"RangeStart\",\"RangeEnd\",\"CostDetails\",\"RecommendationsSingle\",\"RecommendationsShared\",\"ftk_Hub\",\"ftk_CostDetails\",\"▶️  START HERE\",\"Data Source\",\"Scope\",\"Type\",\"Number of Months\",\"InstanceSizeFlexibility\",\"ftk_CMConnector\"]"
+        "value": "[\"Storage URL\",\"File Type\",\"RangeStart\",\"RangeEnd\",\"CostDetails\",\"RecommendationsSingle\",\"RecommendationsShared\",\"ftk_Hub\",\"ftk_CostDetails\",\"▶️  START HERE\",\"Data Source\",\"Scope\",\"Type\",\"Number of Months\",\"InstanceSizeFlexibility\",\"ftk_CMConnector\",\"Prices\"]"
       },
       {
         "name": "PBI_ProTooling",
@@ -1670,16 +1670,6 @@
                       "Type": "Noun",
                       "Weight": 0.727
                     }
-                  },
-                  {
-                    "Cost": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
                   }
                 ]
               },
@@ -1904,16 +1894,6 @@
                       "State": "Suggested",
                       "Type": "Noun",
                       "Weight": 0.727
-                    }
-                  },
-                  {
-                    "Total savings": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
                     }
                   }
                 ]
@@ -2235,16 +2215,6 @@
                       "Type": "Noun",
                       "Weight": 0.727
                     }
-                  },
-                  {
-                    "Negotiated savings": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
                   }
                 ]
               },
@@ -2443,10 +2413,19 @@
                     "ConceptualProperty": "ChargeDescription"
                   }
                 },
+                "State": "Generated"
+              },
+              "costdetails.chargefrequency": {
+                "Definition": {
+                  "Binding": {
+                    "ConceptualEntity": "CostDetails",
+                    "ConceptualProperty": "ChargeFrequency"
+                  }
+                },
                 "State": "Generated",
                 "Terms": [
                   {
-                    "Product": {
+                    "Frequency": {
                       "Source": {
                         "Agent": "PowerBI.VisualColumnRename",
                         "Type": "External"
@@ -2489,6 +2468,16 @@
                 "Terms": [
                   {
                     "Usage": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  },
+                  {
+                    "Charge subcategory": {
                       "Source": {
                         "Agent": "PowerBI.VisualColumnRename",
                         "Type": "External"
@@ -2547,16 +2536,6 @@
                       "State": "Suggested",
                       "Weight": 0.9
                     }
-                  },
-                  {
-                    "Commitment": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
                   }
                 ]
               },
@@ -2597,19 +2576,7 @@
                     "ConceptualProperty": "ListUnitPrice"
                   }
                 },
-                "State": "Generated",
-                "Terms": [
-                  {
-                    "List": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  }
-                ]
+                "State": "Generated"
               },
               "costdetails.providername": {
                 "Definition": {
@@ -2627,19 +2594,7 @@
                     "ConceptualProperty": "PublisherName"
                   }
                 },
-                "State": "Generated",
-                "Terms": [
-                  {
-                    "Publisher": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  }
-                ]
+                "State": "Generated"
               },
               "costdetails.region": {
                 "Definition": {
@@ -2648,19 +2603,7 @@
                     "ConceptualProperty": "Region"
                   }
                 },
-                "State": "Generated",
-                "Terms": [
-                  {
-                    "Location": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  }
-                ]
+                "State": "Generated"
               },
               "costdetails.resourcename": {
                 "Definition": {
@@ -2673,16 +2616,6 @@
                 "Terms": [
                   {
                     "Resource": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  },
-                  {
-                    "Resource Name": {
                       "Source": {
                         "Agent": "PowerBI.VisualColumnRename",
                         "Type": "External"
@@ -2794,6 +2727,16 @@
                       "State": "Suggested",
                       "Weight": 0.9
                     }
+                  },
+                  {
+                    "Sub account": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
                   }
                 ]
               },
@@ -2804,19 +2747,7 @@
                     "ConceptualProperty": "SubAccountNameUnique"
                   }
                 },
-                "State": "Generated",
-                "Terms": [
-                  {
-                    "Subscription": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  }
-                ]
+                "State": "Generated"
               },
               "costdetails.termlabel": {
                 "Definition": {
@@ -2846,19 +2777,7 @@
                     "ConceptualProperty": "x_EffectiveUnitPrice"
                   }
                 },
-                "State": "Generated",
-                "Terms": [
-                  {
-                    "Effective": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  }
-                ]
+                "State": "Generated"
               },
               "costdetails.x_ondemandunitprice": {
                 "Definition": {
@@ -2867,19 +2786,7 @@
                     "ConceptualProperty": "x_OnDemandUnitPrice"
                   }
                 },
-                "State": "Generated",
-                "Terms": [
-                  {
-                    "On-demand": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  }
-                ]
+                "State": "Generated"
               },
               "costdetails.x_resourcegroupname": {
                 "Definition": {
@@ -2891,7 +2798,7 @@
                 "State": "Generated",
                 "Terms": [
                   {
-                    "Resource Group": {
+                    "Resource group": {
                       "Source": {
                         "Agent": "PowerBI.VisualColumnRename",
                         "Type": "External"
@@ -2909,19 +2816,7 @@
                     "ConceptualProperty": "x_ResourceGroupNameUnique"
                   }
                 },
-                "State": "Generated",
-                "Terms": [
-                  {
-                    "Resource Group": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  }
-                ]
+                "State": "Generated"
               },
               "costdetails.x_resourcemachinename": {
                 "Definition": {
@@ -2996,7 +2891,17 @@
                 "State": "Generated",
                 "Terms": [
                   {
-                    "AHB Status": {
+                    "Hybrid Benefit status": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  },
+                  {
+                    "AHB status": {
                       "Source": {
                         "Agent": "PowerBI.VisualColumnRename",
                         "Type": "External"
@@ -3014,19 +2919,7 @@
                     "ConceptualProperty": "x_SkuMeterCategory"
                   }
                 },
-                "State": "Generated",
-                "Terms": [
-                  {
-                    "Service": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  }
-                ]
+                "State": "Generated"
               },
               "costdetails.x_skumetername": {
                 "Definition": {
@@ -3035,19 +2928,7 @@
                     "ConceptualProperty": "x_SkuMeterName"
                   }
                 },
-                "State": "Generated",
-                "Terms": [
-                  {
-                    "x_SkuMeter": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  }
-                ]
+                "State": "Generated"
               },
               "costdetails.x_skumetersubcategory": {
                 "Definition": {
@@ -3056,19 +2937,7 @@
                     "ConceptualProperty": "x_SkuMeterSubcategory"
                   }
                 },
-                "State": "Generated",
-                "Terms": [
-                  {
-                    "Tier": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  }
-                ]
+                "State": "Generated"
               },
               "costdetails.x_skuordername": {
                 "Definition": {
@@ -3077,19 +2946,7 @@
                     "ConceptualProperty": "x_SkuOrderName"
                   }
                 },
-                "State": "Generated",
-                "Terms": [
-                  {
-                    "Product order": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  }
-                ]
+                "State": "Generated"
               },
               "costdetails.x_skutype": {
                 "Definition": {
@@ -3119,7 +2976,19 @@
                     "ConceptualProperty": "ArmSkuName"
                   }
                 },
-                "State": "Generated"
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "SKU": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
               },
               "instancesizeflexibility.resourcelocation": {
                 "Definition": {
@@ -3128,7 +2997,19 @@
                     "ConceptualProperty": "ResourceLocation"
                   }
                 },
-                "State": "Generated"
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "Location": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
               },
               "recommendations.instanceflexibilitygroup": {
                 "Definition": {
@@ -3137,7 +3018,19 @@
                     "ConceptualProperty": "instanceFlexibilityGroup"
                   }
                 },
-                "State": "Generated"
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "Flexibility Group": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
               },
               "recommendations.lookbackperiod": {
                 "Definition": {
@@ -3146,7 +3039,19 @@
                     "ConceptualProperty": "lookBackPeriod"
                   }
                 },
-                "State": "Generated"
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "Lookback": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
               },
               "recommendations.normalizedsize": {
                 "Definition": {
@@ -3155,7 +3060,19 @@
                     "ConceptualProperty": "normalizedSize"
                   }
                 },
-                "State": "Generated"
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "Normalized Size": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
               },
               "recommendationsscoped.instanceflexibilitygroup": {
                 "Definition": {
@@ -3164,7 +3081,19 @@
                     "ConceptualProperty": "instanceFlexibilityGroup"
                   }
                 },
-                "State": "Generated"
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "Flexibility group": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
               },
               "recommendationsscoped.lookbackperiod": {
                 "Definition": {
@@ -3173,7 +3102,19 @@
                     "ConceptualProperty": "lookBackPeriod"
                   }
                 },
-                "State": "Generated"
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "Lookback": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
               },
               "recommendationsscoped.normalizedsize": {
                 "Definition": {
@@ -3182,7 +3123,19 @@
                     "ConceptualProperty": "normalizedSize"
                   }
                 },
-                "State": "Generated"
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "NormalizedSize": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
               },
               "recommendationsscoped.termlabel": {
                 "Definition": {
@@ -3191,7 +3144,19 @@
                     "ConceptualProperty": "TermLabel"
                   }
                 },
-                "State": "Generated"
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "Term": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
               },
               "recommendationsshared.termlabel": {
                 "Definition": {
@@ -3200,7 +3165,19 @@
                     "ConceptualProperty": "TermLabel"
                   }
                 },
-                "State": "Generated"
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "Term": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
               }
             },
             "Language": "en-US",
@@ -7612,10 +7589,6 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "columns": [
@@ -9396,6 +9369,21 @@
             "lineageTag": "a58ffae4-b0d9-4711-a0e0-b117334cbc81",
             "sourceColumn": "x_SkuTier",
             "summarizeBy": "none"
+          },
+          {
+            "name": "x_PricingGroup",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "expression": "IF([PricingCategory] = \"On-Demand\", [PricingCategory], IF([PricingCategory] = \"Dynamic\", [x_PricingSubcategory], IF([ChargeSubcategory] = \"Used Commitment\", [CommitmentDiscountType], IF([ChargeSubcategory] = \"Unused Commitment\", \"Unused \" & [CommitmentDiscountType]))))",
+            "isDataTypeInferred": true,
+            "lineageTag": "4f3f5b22-dfad-4268-b265-9fcb5ead26c2",
+            "summarizeBy": "none",
+            "type": "calculated"
           }
         ],
         "description": [
@@ -12102,6 +12090,1354 @@
           }
         ],
         "showAsVariationsOnly": true
+      },
+      {
+        "name": "Prices",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "AvailabilityZone",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "6a66a068-4b15-47bd-aa63-0a485c570640",
+            "sourceColumn": "AvailabilityZone",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "BilledCost",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "bf00c36d-bdcd-4c21-ba03-a3154d72fc9e",
+            "sourceColumn": "BilledCost",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "BillingAccountId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "70611073-13f9-4966-ac2c-a11e6ef381d8",
+            "sourceColumn": "BillingAccountId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "BillingAccountName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "94018c0a-3a8c-4c76-9497-c4176b12d156",
+            "sourceColumn": "BillingAccountName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "BillingAccountType",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "e58df872-3ddc-4113-b09b-f686dcf8b4f9",
+            "sourceColumn": "BillingAccountType",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "BillingCurrency",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "cc93d1c4-3bf3-4b3b-b0b2-7e303eae6b55",
+            "sourceColumn": "BillingCurrency",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "BillingPeriodEnd",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "777f7923-6ae0-4c5e-ae7b-bd06080036db",
+            "sourceColumn": "BillingPeriodEnd",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "BillingPeriodStart",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "6e0d8014-1825-4ac8-b3d9-f791bf09458d",
+            "sourceColumn": "BillingPeriodStart",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ChargeCategory",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "5cb65fa4-3915-4b55-8788-6c058e7deec4",
+            "sourceColumn": "ChargeCategory",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ChargeDescription",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "9902055f-db25-4793-b866-ac6471d6bff7",
+            "sourceColumn": "ChargeDescription",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ChargeFrequency",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "b070628d-c9cf-4b60-a335-8addf563c8fe",
+            "sourceColumn": "ChargeFrequency",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ChargePeriodEnd",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "e13c1a1d-1391-4904-967d-15b59d09a616",
+            "sourceColumn": "ChargePeriodEnd",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ChargePeriodStart",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "29b2f865-1b62-45c8-91ba-e0bf57b755b6",
+            "sourceColumn": "ChargePeriodStart",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ChargeSubcategory",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "9c8bc6b9-d85a-43e8-b4d2-0da858418fb8",
+            "sourceColumn": "ChargeSubcategory",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "CommitmentDiscountCategory",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "9a6dad28-372c-4154-a6fd-ad2179e8964d",
+            "sourceColumn": "CommitmentDiscountCategory",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "CommitmentDiscountId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "ab2f3454-9d51-4c8e-a09d-cbf0292ba193",
+            "sourceColumn": "CommitmentDiscountId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "CommitmentDiscountName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "974cdbe4-e7c2-449b-8d27-1e40e77e8736",
+            "sourceColumn": "CommitmentDiscountName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "CommitmentDiscountType",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "f21c6295-a97b-41bc-9c1f-1f0ada111465",
+            "sourceColumn": "CommitmentDiscountType",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "EffectiveCost",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "373d8ba8-66e4-4c0a-a3cd-f5ae8282f0e5",
+            "sourceColumn": "EffectiveCost",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "InvoiceIssuerName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "5e12168c-2cf0-4fe8-91e6-8285f6b6b60f",
+            "sourceColumn": "InvoiceIssuerName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ListCost",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "5f140d0e-27ee-4ab2-af07-cf6f3248c461",
+            "sourceColumn": "ListCost",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ListUnitPrice",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "4f5e9cec-0b2c-42b7-b793-44c58442c87e",
+            "sourceColumn": "ListUnitPrice",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "PricingCategory",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "2cd4f8cf-94b7-4cd2-b0bc-252b05d99ebd",
+            "sourceColumn": "PricingCategory",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "PricingQuantity",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "8a80841d-4e1f-48b4-b2ad-2905ba03d041",
+            "sourceColumn": "PricingQuantity",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "PricingUnit",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "7295089a-7e56-4172-a5f4-36d4d4744146",
+            "sourceColumn": "PricingUnit",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ProviderName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "d53909db-d594-409a-91c8-29911fff0f92",
+            "sourceColumn": "ProviderName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "PublisherName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "31195cd2-223b-485c-b7ac-6883449ed70e",
+            "sourceColumn": "PublisherName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Region",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "375443eb-c425-4300-a00c-1eb3412028e5",
+            "sourceColumn": "Region",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ResourceId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "c557069c-5054-4202-9240-b893c7929823",
+            "sourceColumn": "ResourceId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ResourceName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "96d2715d-a1a5-4194-8d97-d368f6ac4d55",
+            "sourceColumn": "ResourceName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ResourceType",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "c371e367-6747-4795-940c-ad22b012fa3c",
+            "sourceColumn": "ResourceType",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ServiceCategory",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "7c071c00-043f-4368-a006-0d877836be9c",
+            "sourceColumn": "ServiceCategory",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ServiceName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "70c7a568-e133-4b3e-85c2-2e2c29c34fdc",
+            "sourceColumn": "ServiceName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "SkuId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "d3e86aab-9bb8-4bc9-825b-a2bbc264ae0a",
+            "sourceColumn": "SkuId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "SkuPriceId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "3a155580-826c-42fa-9e65-8ad02bb79d60",
+            "sourceColumn": "SkuPriceId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "SubAccountId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "b7cb32a8-2547-4c90-8cc2-965e1167cef7",
+            "sourceColumn": "SubAccountId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "SubAccountName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "6f0d6edd-e77b-4968-83c2-92c5ac9898f0",
+            "sourceColumn": "SubAccountName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "SubAccountType",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "e1ef609a-dd2f-4738-8998-51e9ce8b711c",
+            "sourceColumn": "SubAccountType",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Tags",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "f78dca38-4231-4cee-8027-dc4e65315de1",
+            "sourceColumn": "Tags",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "UsageQuantity",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "5e95c93f-5153-4df7-9f4c-0c2c3dee0a7d",
+            "sourceColumn": "UsageQuantity",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "UsageUnit",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "7cccc4a3-e32c-423f-a52b-6af87f36f816",
+            "sourceColumn": "UsageUnit",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_AccountName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "4125f154-e2b4-4135-a59c-244dc56bf364",
+            "sourceColumn": "x_AccountName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_AccountOwnerId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "8fb5cacb-fcb7-4128-a739-8177a318eee8",
+            "sourceColumn": "x_AccountOwnerId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_BilledCostInUsd",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "c5a8894c-bbe4-45b8-8dc4-0e00e9300fc3",
+            "sourceColumn": "x_BilledCostInUsd",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_BilledUnitPrice",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "2628e57a-b530-46a8-a70e-423946a16e8c",
+            "sourceColumn": "x_BilledUnitPrice",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_BillingAccountId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "fbf0db26-0add-4d5f-9ae4-f812435a3b3b",
+            "sourceColumn": "x_BillingAccountId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_BillingAccountName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "5dbec0da-adab-4fd3-b699-eb55bcabd8b2",
+            "sourceColumn": "x_BillingAccountName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_BillingExchangeRate",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "a0ad30d5-0ae6-4e2e-838f-8fe92567b98c",
+            "sourceColumn": "x_BillingExchangeRate",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_BillingExchangeRateDate",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "e4bc5668-be05-48c4-852b-5bce348d0a4d",
+            "sourceColumn": "x_BillingExchangeRateDate",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_BillingProfileId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "c676c2b1-0193-4d21-a87f-fcab8f18044f",
+            "sourceColumn": "x_BillingProfileId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_BillingProfileName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "20576894-1cf1-4788-a2dd-e8e93aa465fe",
+            "sourceColumn": "x_BillingProfileName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_ChargeId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "c11b86f4-ab3e-42e5-8c0d-a3997ab37c44",
+            "sourceColumn": "x_ChargeId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_CostAllocationRuleName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "e28705ff-9b83-4436-a8f1-463e38437a2b",
+            "sourceColumn": "x_CostAllocationRuleName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_CostCenter",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "438ce547-f0e7-42fe-ab0e-65c234f4435c",
+            "sourceColumn": "x_CostCenter",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_CustomerId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "3a662f4f-0605-4c51-980a-ff2caf7fa7ea",
+            "sourceColumn": "x_CustomerId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_CustomerName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "b30d57fa-096a-4438-8baf-65ca0f8fea13",
+            "sourceColumn": "x_CustomerName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_EffectiveCostInUsd",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "e388391a-8fed-4af7-95c3-7958bcbb5ad6",
+            "sourceColumn": "x_EffectiveCostInUsd",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_EffectiveUnitPrice",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "7eb9c921-9f75-4282-8367-bf51042f3498",
+            "sourceColumn": "x_EffectiveUnitPrice",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_InvoiceId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "809d7df5-6ed8-42db-8899-9c913aaa9e09",
+            "sourceColumn": "x_InvoiceId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_InvoiceIssuerId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "1f7d47b1-3056-4034-b266-8686e0a8638f",
+            "sourceColumn": "x_InvoiceIssuerId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_InvoiceSectionId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "d032c10c-8e99-41c7-a68d-f1d3b8b93e59",
+            "sourceColumn": "x_InvoiceSectionId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_InvoiceSectionName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "db1d0f10-5792-404f-9ec3-d90be2b30e4d",
+            "sourceColumn": "x_InvoiceSectionName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_OnDemandCost",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "bf37fa93-fb0c-4f82-b4ab-43a126cdab6e",
+            "sourceColumn": "x_OnDemandCost",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_OnDemandCostInUsd",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "5b5d92ed-944c-436c-96e1-5964c1babecd",
+            "sourceColumn": "x_OnDemandCostInUsd",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_OnDemandUnitPrice",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "efd6bdb7-08e4-4344-9562-0c326ece9303",
+            "sourceColumn": "x_OnDemandUnitPrice",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_PartnerCreditApplied",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "8e54866e-7900-4721-b03c-37522e3b07a4",
+            "sourceColumn": "x_PartnerCreditApplied",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_PartnerCreditRate",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "0bd867ab-402f-47c8-ab07-55d20acc1ed4",
+            "sourceColumn": "x_PartnerCreditRate",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_PricingBlockSize",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "173462bc-4eb5-4be9-8847-46e2a9babad0",
+            "sourceColumn": "x_PricingBlockSize",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_PricingCurrency",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "f13aa998-4666-4580-b852-4a9bce75b945",
+            "sourceColumn": "x_PricingCurrency",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_PricingSubcategory",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "06795651-4d08-4d45-9219-8a64647c4838",
+            "sourceColumn": "x_PricingSubcategory",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_PricingUnitDescription",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "ff410572-591d-41f1-a0fd-c94d767e41e8",
+            "sourceColumn": "x_PricingUnitDescription",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_PublisherCategory",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "b21c83c2-ba60-48e5-bdf4-3bd3ed23b36c",
+            "sourceColumn": "x_PublisherCategory",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_PublisherId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "42a26bc1-2aff-4ff4-988d-947032598ed3",
+            "sourceColumn": "x_PublisherId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_ResellerId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "34639892-677e-4ddb-a7a7-b4e37e19f9b3",
+            "sourceColumn": "x_ResellerId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_ResellerName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "bf64c953-a1e7-4e76-8c1d-84a2e34bf4d6",
+            "sourceColumn": "x_ResellerName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_ResourceGroupName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "639e01e8-c165-4eed-8e42-304e67592d7e",
+            "sourceColumn": "x_ResourceGroupName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_ResourceType",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "8f1ccef2-09df-49f6-bd32-7ee89112d927",
+            "sourceColumn": "x_ResourceType",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_ServicePeriodEnd",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "43b5fb6e-393d-4b0f-9a15-69c2be708d0b",
+            "sourceColumn": "x_ServicePeriodEnd",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_ServicePeriodStart",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "42c5ab61-d869-4352-8c0b-224894ce8779",
+            "sourceColumn": "x_ServicePeriodStart",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_SkuDescription",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "15709d54-0b71-444f-9ad2-a87c5bc2c251",
+            "sourceColumn": "x_SkuDescription",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_SkuDetails",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "37d9eb5d-c60d-488a-9382-db227c88e4c8",
+            "sourceColumn": "x_SkuDetails",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_SkuIsCreditEligible",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "9e681ed2-6c27-488b-8292-84ad1e51dc02",
+            "sourceColumn": "x_SkuIsCreditEligible",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_SkuMeterCategory",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "67ad8e30-7410-4baa-838d-307b19f5c58d",
+            "sourceColumn": "x_SkuMeterCategory",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_SkuMeterId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "10640675-102a-4839-a8be-c072d6f65495",
+            "sourceColumn": "x_SkuMeterId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_SkuMeterName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "3a3e9725-0213-438c-9a19-438c55b55239",
+            "sourceColumn": "x_SkuMeterName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_SkuMeterSubcategory",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "5218df3f-4fb5-4ac4-9431-c3ad7491bc5b",
+            "sourceColumn": "x_SkuMeterSubcategory",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_SkuOfferId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "95eb9ec0-71a1-4c11-a079-9024c1e2dd8a",
+            "sourceColumn": "x_SkuOfferId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_SkuOrderId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "2753500e-fd87-4be6-8811-0f29290a9fd8",
+            "sourceColumn": "x_SkuOrderId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_SkuOrderName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "9cb27364-8dd4-4fcb-b289-041f85b2af99",
+            "sourceColumn": "x_SkuOrderName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_SkuPartNumber",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "aebeae34-a646-4adf-9760-dd35dff6af63",
+            "sourceColumn": "x_SkuPartNumber",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_SkuRegion",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "24c49e3a-c507-4e2f-81ff-13140a9a6c32",
+            "sourceColumn": "x_SkuRegion",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_SkuServiceFamily",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "d229768c-846b-4803-abf8-9f6df6c28878",
+            "sourceColumn": "x_SkuServiceFamily",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_SkuTerm",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "2f77cdd4-5dbd-4987-98b8-4261b93c46f6",
+            "sourceColumn": "x_SkuTerm",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_SkuTier",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "3e1f0d94-494e-46ca-b38e-a513b8276b52",
+            "sourceColumn": "x_SkuTier",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_DatasetType",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "822e02fc-364c-409b-8568-51c17a866f69",
+            "sourceColumn": "x_DatasetType",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_DatasetVersion",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "ef0117f3-9ad2-4cfb-bc02-93eec170e678",
+            "sourceColumn": "x_DatasetVersion",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_AccountType",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "6d1268fe-34ee-4b8b-bc6b-5a158ec7521f",
+            "sourceColumn": "x_AccountType",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "bf93513a-0d28-4865-b879-67fe2b866ef7",
+        "partitions": [
+          {
+            "name": "Prices",
+            "mode": "import",
+            "queryGroup": "FinOps toolkit",
+            "source": {
+              "expression": [
+                "let",
+                "    // Config",
+                "    url     = #\"Storage URL\",",
+                "    ext     = if Text.Length(#\"File Type\") > 0 then #\"File Type\" else \".parquet\",",
+                "    start   = RangeStart,",
+                "    end     = RangeEnd,",
+                "// TODO: Allow pulling other datasets -- if datasetType = null or datasetType = \"\" then \"focuscost\" else datasetType",
+                "    dataset = \"focuscost\",",
+                "",
+                "    ADLS = AzureStorage.DataLake(url),",
+                "    FilterHiddenFiles = Table.SelectRows(ADLS, each [Attributes]?[Hidden]? <> true),",
+                "",
+                "    // Parse folder path",
+                "    Dataset   = Table.AddColumn(FilterHiddenFiles, \"Dataset\",   each List.Last(List.RemoveLastN(Text.Split([Folder Path],\"/\"), 1))),",
+                "    Month     = Table.AddColumn(Dataset,           \"Month\",     each List.Last(List.RemoveLastN(List.RemoveLastN(Text.Split([Folder Path],\"/\"), 1), 1) )),",
+                "// TODO: Update date handling for raw exports",
+                "    StartDate = Table.AddColumn(Month,             \"StartDate\", each [Month] & \"01\"),",
+                "    StartDate_type = Table.TransformColumnTypes(StartDate, {{\"StartDate\", type date}}),",
+                "    EndDate   = Table.AddColumn(StartDate_type,    \"EndDate\",   each Date.EndOfMonth([StartDate])),",
+                "",
+                "    // Only FOCUS costs",
+                "// TODO: Get metric from the manifest",
+                "    FilterFilesByMetricAndFileType = Table.SelectRows(EndDate, each [Dataset] = dataset and [Extension] = ext),",
+                "",
+                "    // Only process files for months within the date range",
+                "    FilterFilesByDate =",
+                "        if start = null and end = null then FilterFilesByMetricAndFileType",
+                "        else Table.SelectRows(FilterFilesByMetricAndFileType, each (start = null or [StartDate] >= Date.StartOfMonth(Date.From(start))) and (end = null or [EndDate] <= Date.EndOfMonth(Date.From(end)))),",
+                "",
+                "    // Extract",
+                "    unpack = (zipData) => Table.PromoteHeaders(Csv.Document(Binary.Decompress(zipData, Compression.GZip), [Delimiter=\",\", Columns=60, Encoding=1252, QuoteStyle=QuoteStyle.Csv, CsvStyle=CsvStyle.QuoteAlways]), [PromoteAllScalars=true]),",
+                "    SelectContent = Table.SelectColumns(FilterFilesByDate, {\"Content\"}),",
+                "    UnpackContent = Table.AddColumn(SelectContent, \"Custom\", each if ext = \".gz\" then unpack([Content]) else Parquet.Document([Content])),",
+                "    ExpandedColumns = Table.ExpandTableColumn(UnpackContent, \"Custom\", List.Sort(Table.ColumnNames(List.First(UnpackContent[Custom], null)))),",
+                "    RemovedContent = Table.RemoveColumns(ExpandedColumns, {\"Content\"}),",
+                "",
+                "    // Only pull from the predefined date range (if specified)",
+                "    tbl = RemovedContent,",
+                "    FilterRowsByDate =",
+                "        if start = null and end = null then tbl",
+                "        else Table.SelectRows(tbl, each",
+                "            (start = null or [ChargePeriodEnd] >= DateTime.From(start))",
+                "            and (end = null or [ChargePeriodStart] < DateTime.From(end))",
+                "        ),",
+                "",
+                "    // TODO: Extract from the manifest",
+                "    _armResourceName = (id) => List.Last(Text.Split(id, \"/\")),",
+                "    DataSet = Table.AddColumn(FilterRowsByDate, \"x_DatasetType\", each \"FocusCost\"),",
+                "    Schema =  Table.AddColumn(DataSet, \"x_DatasetVersion\", each \"1.0-preview (v1)\"),",
+                "    AccountType = Table.AddColumn(Schema, \"x_AccountType\", ",
+                "        each if [BillingAccountId] = [SubAccountId] then \"MOSA\"",
+                "        else if _armResourceName([BillingAccountId]) = [x_BillingAccountId] then \"EA\"",
+                "        else if _armResourceName([BillingAccountId]) = [x_BillingProfileId] then (if [InvoiceIssuerName] = \"Microsoft\" then \"MCA\" else \"MPA\")",
+                "        else \"Unknown\"",
+                "    ),",
+                "",
+                "    Output = AccountType",
+                "in",
+                "    Output"
+              ],
+              "type": "m"
+            }
+          }
+        ]
       }
     ]
   }
