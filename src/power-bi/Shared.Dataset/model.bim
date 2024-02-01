@@ -12100,12 +12100,12 @@
           },
           {
             "name": "PBI_ResultType",
-            "value": "Exception"
+            "value": "Table"
           }
         ],
         "columns": [
           {
-            "name": "AvailabilityZone",
+            "name": "Column1",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12113,12 +12113,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "6a66a068-4b15-47bd-aa63-0a485c570640",
-            "sourceColumn": "AvailabilityZone",
+            "lineageTag": "1cd5a297-6dd3-487f-a50a-bac8f4e06353",
+            "sourceColumn": "Column1",
             "summarizeBy": "none"
           },
           {
-            "name": "BilledCost",
+            "name": "BasePrice",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12126,12 +12126,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "bf00c36d-bdcd-4c21-ba03-a3154d72fc9e",
-            "sourceColumn": "BilledCost",
+            "lineageTag": "c659d857-fb8b-4c06-881c-17557286b89d",
+            "sourceColumn": "BasePrice",
             "summarizeBy": "none"
           },
           {
-            "name": "BillingAccountId",
+            "name": "CurrencyCode",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12139,12 +12139,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "70611073-13f9-4966-ac2c-a11e6ef381d8",
-            "sourceColumn": "BillingAccountId",
+            "lineageTag": "16e7b44d-f15d-46cd-b53f-07ba67f731ab",
+            "sourceColumn": "CurrencyCode",
             "summarizeBy": "none"
           },
           {
-            "name": "BillingAccountName",
+            "name": "EffectiveEndDate",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12152,12 +12152,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "94018c0a-3a8c-4c76-9497-c4176b12d156",
-            "sourceColumn": "BillingAccountName",
+            "lineageTag": "8edb95bd-c7a0-4ece-a473-b73b2c2303e8",
+            "sourceColumn": "EffectiveEndDate",
             "summarizeBy": "none"
           },
           {
-            "name": "BillingAccountType",
+            "name": "EffectiveStartDate",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12165,12 +12165,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "e58df872-3ddc-4113-b09b-f686dcf8b4f9",
-            "sourceColumn": "BillingAccountType",
+            "lineageTag": "7c5eb2e0-99ee-4ec5-92c2-8011528b6e1c",
+            "sourceColumn": "EffectiveStartDate",
             "summarizeBy": "none"
           },
           {
-            "name": "BillingCurrency",
+            "name": "EnrollmentNumber",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12178,12 +12178,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "cc93d1c4-3bf3-4b3b-b0b2-7e303eae6b55",
-            "sourceColumn": "BillingCurrency",
+            "lineageTag": "64ee898c-2ea6-492a-9575-e095ac8c1582",
+            "sourceColumn": "EnrollmentNumber",
             "summarizeBy": "none"
           },
           {
-            "name": "BillingPeriodEnd",
+            "name": "IncludedQuantity",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12191,12 +12191,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "777f7923-6ae0-4c5e-ae7b-bd06080036db",
-            "sourceColumn": "BillingPeriodEnd",
+            "lineageTag": "30f08f52-8fcd-4fc3-813b-ec5a1c8467ad",
+            "sourceColumn": "IncludedQuantity",
             "summarizeBy": "none"
           },
           {
-            "name": "BillingPeriodStart",
+            "name": "MarketPrice",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12204,12 +12204,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "6e0d8014-1825-4ac8-b3d9-f791bf09458d",
-            "sourceColumn": "BillingPeriodStart",
+            "lineageTag": "82faa062-3ef1-4455-b0fc-07f70e6a7195",
+            "sourceColumn": "MarketPrice",
             "summarizeBy": "none"
           },
           {
-            "name": "ChargeCategory",
+            "name": "MeterCategory",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12217,12 +12217,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "5cb65fa4-3915-4b55-8788-6c058e7deec4",
-            "sourceColumn": "ChargeCategory",
+            "lineageTag": "c0c44c15-f6c8-4491-8f69-ebc7173b4123",
+            "sourceColumn": "MeterCategory",
             "summarizeBy": "none"
           },
           {
-            "name": "ChargeDescription",
+            "name": "MeterID",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12230,12 +12230,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "9902055f-db25-4793-b866-ac6471d6bff7",
-            "sourceColumn": "ChargeDescription",
+            "lineageTag": "6a46da80-c211-47de-a91d-a49294d6d5a8",
+            "sourceColumn": "MeterID",
             "summarizeBy": "none"
           },
           {
-            "name": "ChargeFrequency",
+            "name": "MeterName",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12243,12 +12243,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "b070628d-c9cf-4b60-a335-8addf563c8fe",
-            "sourceColumn": "ChargeFrequency",
+            "lineageTag": "d63db9e2-ba44-4f0f-9c20-fc6e484df880",
+            "sourceColumn": "MeterName",
             "summarizeBy": "none"
           },
           {
-            "name": "ChargePeriodEnd",
+            "name": "MeterRegion",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12256,12 +12256,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "e13c1a1d-1391-4904-967d-15b59d09a616",
-            "sourceColumn": "ChargePeriodEnd",
+            "lineageTag": "e6768c5a-bea4-43b3-9715-e58dd4f026e0",
+            "sourceColumn": "MeterRegion",
             "summarizeBy": "none"
           },
           {
-            "name": "ChargePeriodStart",
+            "name": "MeterSubCategory",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12269,12 +12269,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "29b2f865-1b62-45c8-91ba-e0bf57b755b6",
-            "sourceColumn": "ChargePeriodStart",
+            "lineageTag": "912379b4-9317-4530-a3bf-f45ba62f1d8a",
+            "sourceColumn": "MeterSubCategory",
             "summarizeBy": "none"
           },
           {
-            "name": "ChargeSubcategory",
+            "name": "MeterType",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12282,12 +12282,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "9c8bc6b9-d85a-43e8-b4d2-0da858418fb8",
-            "sourceColumn": "ChargeSubcategory",
+            "lineageTag": "910bbb79-1530-4656-8c21-88885bd2424b",
+            "sourceColumn": "MeterType",
             "summarizeBy": "none"
           },
           {
-            "name": "CommitmentDiscountCategory",
+            "name": "OfferID",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12295,12 +12295,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "9a6dad28-372c-4154-a6fd-ad2179e8964d",
-            "sourceColumn": "CommitmentDiscountCategory",
+            "lineageTag": "ee216893-b303-4ba6-a482-8fc91edd247b",
+            "sourceColumn": "OfferID",
             "summarizeBy": "none"
           },
           {
-            "name": "CommitmentDiscountId",
+            "name": "PartNumber",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12308,12 +12308,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "ab2f3454-9d51-4c8e-a09d-cbf0292ba193",
-            "sourceColumn": "CommitmentDiscountId",
+            "lineageTag": "3c934453-c2e9-41b5-8415-a60e46ffea04",
+            "sourceColumn": "PartNumber",
             "summarizeBy": "none"
           },
           {
-            "name": "CommitmentDiscountName",
+            "name": "PriceType",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12321,12 +12321,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "974cdbe4-e7c2-449b-8d27-1e40e77e8736",
-            "sourceColumn": "CommitmentDiscountName",
+            "lineageTag": "f38a930f-e97d-4c83-9519-c9b207df968a",
+            "sourceColumn": "PriceType",
             "summarizeBy": "none"
           },
           {
-            "name": "CommitmentDiscountType",
+            "name": "Product",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12334,12 +12334,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "f21c6295-a97b-41bc-9c1f-1f0ada111465",
-            "sourceColumn": "CommitmentDiscountType",
+            "lineageTag": "0e28b27c-22de-444d-8a1f-21b916433ad1",
+            "sourceColumn": "Product",
             "summarizeBy": "none"
           },
           {
-            "name": "EffectiveCost",
+            "name": "ProductID",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12347,12 +12347,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "373d8ba8-66e4-4c0a-a3cd-f5ae8282f0e5",
-            "sourceColumn": "EffectiveCost",
+            "lineageTag": "da75bbeb-50e4-459d-a5d6-827d1f4a32c6",
+            "sourceColumn": "ProductID",
             "summarizeBy": "none"
           },
           {
-            "name": "InvoiceIssuerName",
+            "name": "ServiceFamily",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12360,12 +12360,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "5e12168c-2cf0-4fe8-91e6-8285f6b6b60f",
-            "sourceColumn": "InvoiceIssuerName",
+            "lineageTag": "7c2a0606-1304-4b85-bba8-0119b7e8f71a",
+            "sourceColumn": "ServiceFamily",
             "summarizeBy": "none"
           },
           {
-            "name": "ListCost",
+            "name": "SkuID",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12373,12 +12373,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "5f140d0e-27ee-4ab2-af07-cf6f3248c461",
-            "sourceColumn": "ListCost",
+            "lineageTag": "4b97b9de-8efa-485a-9d32-59f5dd69fa66",
+            "sourceColumn": "SkuID",
             "summarizeBy": "none"
           },
           {
-            "name": "ListUnitPrice",
+            "name": "Term",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12386,12 +12386,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "4f5e9cec-0b2c-42b7-b793-44c58442c87e",
-            "sourceColumn": "ListUnitPrice",
+            "lineageTag": "af2dcf9e-ae2c-4c9b-94c5-4f0aa1755fb4",
+            "sourceColumn": "Term",
             "summarizeBy": "none"
           },
           {
-            "name": "PricingCategory",
+            "name": "UnitOfMeasure",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12399,12 +12399,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "2cd4f8cf-94b7-4cd2-b0bc-252b05d99ebd",
-            "sourceColumn": "PricingCategory",
+            "lineageTag": "29d66391-bc6f-4d67-b8e7-d77ab80d457d",
+            "sourceColumn": "UnitOfMeasure",
             "summarizeBy": "none"
           },
           {
-            "name": "PricingQuantity",
+            "name": "UnitPrice",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12412,12 +12412,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "8a80841d-4e1f-48b4-b2ad-2905ba03d041",
-            "sourceColumn": "PricingQuantity",
+            "lineageTag": "608c071c-ed4d-43e6-93c0-8d1a8d0ddb94",
+            "sourceColumn": "UnitPrice",
             "summarizeBy": "none"
           },
           {
-            "name": "PricingUnit",
+            "name": "_1",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12425,12 +12425,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "7295089a-7e56-4172-a5f4-36d4d4744146",
-            "sourceColumn": "PricingUnit",
+            "lineageTag": "1c2c644f-5a6d-43c8-ae4a-7db26a89002f",
+            "sourceColumn": "_1",
             "summarizeBy": "none"
           },
           {
-            "name": "ProviderName",
+            "name": "_10",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12438,12 +12438,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "d53909db-d594-409a-91c8-29911fff0f92",
-            "sourceColumn": "ProviderName",
+            "lineageTag": "038982c1-269b-4a11-93a0-501a25135ae8",
+            "sourceColumn": "_10",
             "summarizeBy": "none"
           },
           {
-            "name": "PublisherName",
+            "name": "_11",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12451,12 +12451,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "31195cd2-223b-485c-b7ac-6883449ed70e",
-            "sourceColumn": "PublisherName",
+            "lineageTag": "e38266d8-30d3-444b-b2fc-3bc12aede699",
+            "sourceColumn": "_11",
             "summarizeBy": "none"
           },
           {
-            "name": "Region",
+            "name": "_12",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12464,12 +12464,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "375443eb-c425-4300-a00c-1eb3412028e5",
-            "sourceColumn": "Region",
+            "lineageTag": "4a0d5a97-268d-41ae-8a05-de70cf76049f",
+            "sourceColumn": "_12",
             "summarizeBy": "none"
           },
           {
-            "name": "ResourceId",
+            "name": "_13",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12477,12 +12477,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "c557069c-5054-4202-9240-b893c7929823",
-            "sourceColumn": "ResourceId",
+            "lineageTag": "05b3144d-e1eb-4ee6-b449-581fe32a639a",
+            "sourceColumn": "_13",
             "summarizeBy": "none"
           },
           {
-            "name": "ResourceName",
+            "name": "_14",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12490,12 +12490,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "96d2715d-a1a5-4194-8d97-d368f6ac4d55",
-            "sourceColumn": "ResourceName",
+            "lineageTag": "e0e9c758-7a14-4b31-a254-0e5090c12611",
+            "sourceColumn": "_14",
             "summarizeBy": "none"
           },
           {
-            "name": "ResourceType",
+            "name": "_15",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12503,12 +12503,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "c371e367-6747-4795-940c-ad22b012fa3c",
-            "sourceColumn": "ResourceType",
+            "lineageTag": "2ef22378-a4a3-48cf-9a93-c0108963eeb6",
+            "sourceColumn": "_15",
             "summarizeBy": "none"
           },
           {
-            "name": "ServiceCategory",
+            "name": "_16",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12516,12 +12516,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "7c071c00-043f-4368-a006-0d877836be9c",
-            "sourceColumn": "ServiceCategory",
+            "lineageTag": "256209cf-14dd-45d7-a848-a77fd650c426",
+            "sourceColumn": "_16",
             "summarizeBy": "none"
           },
           {
-            "name": "ServiceName",
+            "name": "_17",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12529,12 +12529,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "70c7a568-e133-4b3e-85c2-2e2c29c34fdc",
-            "sourceColumn": "ServiceName",
+            "lineageTag": "020180f0-c0b5-4351-a0ea-c6b9d5273f2f",
+            "sourceColumn": "_17",
             "summarizeBy": "none"
           },
           {
-            "name": "SkuId",
+            "name": "_18",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12542,12 +12542,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "d3e86aab-9bb8-4bc9-825b-a2bbc264ae0a",
-            "sourceColumn": "SkuId",
+            "lineageTag": "0ed3f548-7907-4139-9028-129a2397976f",
+            "sourceColumn": "_18",
             "summarizeBy": "none"
           },
           {
-            "name": "SkuPriceId",
+            "name": "_19",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12555,12 +12555,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "3a155580-826c-42fa-9e65-8ad02bb79d60",
-            "sourceColumn": "SkuPriceId",
+            "lineageTag": "5aeb4368-b4f3-4219-8941-df5f0542aa8b",
+            "sourceColumn": "_19",
             "summarizeBy": "none"
           },
           {
-            "name": "SubAccountId",
+            "name": "_2",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12568,12 +12568,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "b7cb32a8-2547-4c90-8cc2-965e1167cef7",
-            "sourceColumn": "SubAccountId",
+            "lineageTag": "95daa16a-92b7-4e86-bec6-1eea7c254224",
+            "sourceColumn": "_2",
             "summarizeBy": "none"
           },
           {
-            "name": "SubAccountName",
+            "name": "_20",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12581,12 +12581,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "6f0d6edd-e77b-4968-83c2-92c5ac9898f0",
-            "sourceColumn": "SubAccountName",
+            "lineageTag": "74fba5e3-17e0-47ad-8f91-c4924ed60e2c",
+            "sourceColumn": "_20",
             "summarizeBy": "none"
           },
           {
-            "name": "SubAccountType",
+            "name": "_21",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12594,12 +12594,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "e1ef609a-dd2f-4738-8998-51e9ce8b711c",
-            "sourceColumn": "SubAccountType",
+            "lineageTag": "89024eb2-d042-4041-b73f-1b2b87bffb9b",
+            "sourceColumn": "_21",
             "summarizeBy": "none"
           },
           {
-            "name": "Tags",
+            "name": "_22",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12607,12 +12607,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "f78dca38-4231-4cee-8027-dc4e65315de1",
-            "sourceColumn": "Tags",
+            "lineageTag": "993cb8b4-917f-499c-80d5-a032458cf415",
+            "sourceColumn": "_22",
             "summarizeBy": "none"
           },
           {
-            "name": "UsageQuantity",
+            "name": "_23",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12620,12 +12620,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "5e95c93f-5153-4df7-9f4c-0c2c3dee0a7d",
-            "sourceColumn": "UsageQuantity",
+            "lineageTag": "5ecb07e8-bab5-492c-bb8d-dc3b23eb8747",
+            "sourceColumn": "_23",
             "summarizeBy": "none"
           },
           {
-            "name": "UsageUnit",
+            "name": "_24",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12633,12 +12633,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "7cccc4a3-e32c-423f-a52b-6af87f36f816",
-            "sourceColumn": "UsageUnit",
+            "lineageTag": "d56a0794-bb77-4a2b-8e51-c2c2a5972bf0",
+            "sourceColumn": "_24",
             "summarizeBy": "none"
           },
           {
-            "name": "x_AccountName",
+            "name": "_25",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12646,12 +12646,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "4125f154-e2b4-4135-a59c-244dc56bf364",
-            "sourceColumn": "x_AccountName",
+            "lineageTag": "03896ef4-171f-4f41-9566-410b08553d55",
+            "sourceColumn": "_25",
             "summarizeBy": "none"
           },
           {
-            "name": "x_AccountOwnerId",
+            "name": "_26",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12659,12 +12659,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "8fb5cacb-fcb7-4128-a739-8177a318eee8",
-            "sourceColumn": "x_AccountOwnerId",
+            "lineageTag": "0b7e45a6-101f-43c4-9af3-65a6fd22d855",
+            "sourceColumn": "_26",
             "summarizeBy": "none"
           },
           {
-            "name": "x_BilledCostInUsd",
+            "name": "_27",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12672,12 +12672,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "c5a8894c-bbe4-45b8-8dc4-0e00e9300fc3",
-            "sourceColumn": "x_BilledCostInUsd",
+            "lineageTag": "1f8791dd-fb0b-456f-a0ed-b3157ee5e24c",
+            "sourceColumn": "_27",
             "summarizeBy": "none"
           },
           {
-            "name": "x_BilledUnitPrice",
+            "name": "_28",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12685,12 +12685,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "2628e57a-b530-46a8-a70e-423946a16e8c",
-            "sourceColumn": "x_BilledUnitPrice",
+            "lineageTag": "1cfc629d-3852-4ccd-bc9b-6818729d9fe8",
+            "sourceColumn": "_28",
             "summarizeBy": "none"
           },
           {
-            "name": "x_BillingAccountId",
+            "name": "_29",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12698,12 +12698,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "fbf0db26-0add-4d5f-9ae4-f812435a3b3b",
-            "sourceColumn": "x_BillingAccountId",
+            "lineageTag": "75242c8d-b07d-460b-aff6-b67dcae47a2c",
+            "sourceColumn": "_29",
             "summarizeBy": "none"
           },
           {
-            "name": "x_BillingAccountName",
+            "name": "_3",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12711,12 +12711,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "5dbec0da-adab-4fd3-b699-eb55bcabd8b2",
-            "sourceColumn": "x_BillingAccountName",
+            "lineageTag": "d3fad904-b2ae-4866-8854-4d02c8516f3f",
+            "sourceColumn": "_3",
             "summarizeBy": "none"
           },
           {
-            "name": "x_BillingExchangeRate",
+            "name": "_30",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12724,12 +12724,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "a0ad30d5-0ae6-4e2e-838f-8fe92567b98c",
-            "sourceColumn": "x_BillingExchangeRate",
+            "lineageTag": "f7537a5b-35ee-4ac8-abce-a49ad13efa12",
+            "sourceColumn": "_30",
             "summarizeBy": "none"
           },
           {
-            "name": "x_BillingExchangeRateDate",
+            "name": "_31",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12737,12 +12737,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "e4bc5668-be05-48c4-852b-5bce348d0a4d",
-            "sourceColumn": "x_BillingExchangeRateDate",
+            "lineageTag": "f1dfcdac-6141-4f11-b2ef-1973a27e327e",
+            "sourceColumn": "_31",
             "summarizeBy": "none"
           },
           {
-            "name": "x_BillingProfileId",
+            "name": "_32",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12750,12 +12750,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "c676c2b1-0193-4d21-a87f-fcab8f18044f",
-            "sourceColumn": "x_BillingProfileId",
+            "lineageTag": "3b25ceec-9602-4a1f-8f3f-350b1ddae297",
+            "sourceColumn": "_32",
             "summarizeBy": "none"
           },
           {
-            "name": "x_BillingProfileName",
+            "name": "_33",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12763,12 +12763,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "20576894-1cf1-4788-a2dd-e8e93aa465fe",
-            "sourceColumn": "x_BillingProfileName",
+            "lineageTag": "8ca4e969-8b8a-4931-bcf4-dff53a409cd5",
+            "sourceColumn": "_33",
             "summarizeBy": "none"
           },
           {
-            "name": "x_ChargeId",
+            "name": "_34",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12776,12 +12776,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "c11b86f4-ab3e-42e5-8c0d-a3997ab37c44",
-            "sourceColumn": "x_ChargeId",
+            "lineageTag": "09dd6b91-1e52-49cb-b55b-fa17ba09256e",
+            "sourceColumn": "_34",
             "summarizeBy": "none"
           },
           {
-            "name": "x_CostAllocationRuleName",
+            "name": "_35",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12789,12 +12789,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "e28705ff-9b83-4436-a8f1-463e38437a2b",
-            "sourceColumn": "x_CostAllocationRuleName",
+            "lineageTag": "ed003873-96b5-4c52-adab-b8d60bcc08ef",
+            "sourceColumn": "_35",
             "summarizeBy": "none"
           },
           {
-            "name": "x_CostCenter",
+            "name": "_36",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12802,12 +12802,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "438ce547-f0e7-42fe-ab0e-65c234f4435c",
-            "sourceColumn": "x_CostCenter",
+            "lineageTag": "55fbfdcc-553e-4c70-af41-f71daa103ee5",
+            "sourceColumn": "_36",
             "summarizeBy": "none"
           },
           {
-            "name": "x_CustomerId",
+            "name": "_4",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12815,12 +12815,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "3a662f4f-0605-4c51-980a-ff2caf7fa7ea",
-            "sourceColumn": "x_CustomerId",
+            "lineageTag": "70544f22-8564-4030-a0c0-f8eb5532b6b4",
+            "sourceColumn": "_4",
             "summarizeBy": "none"
           },
           {
-            "name": "x_CustomerName",
+            "name": "_5",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12828,12 +12828,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "b30d57fa-096a-4438-8baf-65ca0f8fea13",
-            "sourceColumn": "x_CustomerName",
+            "lineageTag": "17a7b59a-166c-4d56-8a37-7dcbbc0638ff",
+            "sourceColumn": "_5",
             "summarizeBy": "none"
           },
           {
-            "name": "x_EffectiveCostInUsd",
+            "name": "_6",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12841,12 +12841,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "e388391a-8fed-4af7-95c3-7958bcbb5ad6",
-            "sourceColumn": "x_EffectiveCostInUsd",
+            "lineageTag": "b2e11c58-d1e3-4722-b156-ad1f427063ea",
+            "sourceColumn": "_6",
             "summarizeBy": "none"
           },
           {
-            "name": "x_EffectiveUnitPrice",
+            "name": "_7",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12854,12 +12854,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "7eb9c921-9f75-4282-8367-bf51042f3498",
-            "sourceColumn": "x_EffectiveUnitPrice",
+            "lineageTag": "4f6c1836-0c51-47b1-b367-cfd634344190",
+            "sourceColumn": "_7",
             "summarizeBy": "none"
           },
           {
-            "name": "x_InvoiceId",
+            "name": "_8",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12867,12 +12867,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "809d7df5-6ed8-42db-8899-9c913aaa9e09",
-            "sourceColumn": "x_InvoiceId",
+            "lineageTag": "f1b7289e-00be-490f-b4ab-b5b43ce064bb",
+            "sourceColumn": "_8",
             "summarizeBy": "none"
           },
           {
-            "name": "x_InvoiceIssuerId",
+            "name": "_9",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -12880,489 +12880,8 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "1f7d47b1-3056-4034-b266-8686e0a8638f",
-            "sourceColumn": "x_InvoiceIssuerId",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_InvoiceSectionId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "d032c10c-8e99-41c7-a68d-f1d3b8b93e59",
-            "sourceColumn": "x_InvoiceSectionId",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_InvoiceSectionName",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "db1d0f10-5792-404f-9ec3-d90be2b30e4d",
-            "sourceColumn": "x_InvoiceSectionName",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_OnDemandCost",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "bf37fa93-fb0c-4f82-b4ab-43a126cdab6e",
-            "sourceColumn": "x_OnDemandCost",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_OnDemandCostInUsd",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "5b5d92ed-944c-436c-96e1-5964c1babecd",
-            "sourceColumn": "x_OnDemandCostInUsd",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_OnDemandUnitPrice",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "efd6bdb7-08e4-4344-9562-0c326ece9303",
-            "sourceColumn": "x_OnDemandUnitPrice",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_PartnerCreditApplied",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "8e54866e-7900-4721-b03c-37522e3b07a4",
-            "sourceColumn": "x_PartnerCreditApplied",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_PartnerCreditRate",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "0bd867ab-402f-47c8-ab07-55d20acc1ed4",
-            "sourceColumn": "x_PartnerCreditRate",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_PricingBlockSize",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "173462bc-4eb5-4be9-8847-46e2a9babad0",
-            "sourceColumn": "x_PricingBlockSize",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_PricingCurrency",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "f13aa998-4666-4580-b852-4a9bce75b945",
-            "sourceColumn": "x_PricingCurrency",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_PricingSubcategory",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "06795651-4d08-4d45-9219-8a64647c4838",
-            "sourceColumn": "x_PricingSubcategory",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_PricingUnitDescription",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "ff410572-591d-41f1-a0fd-c94d767e41e8",
-            "sourceColumn": "x_PricingUnitDescription",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_PublisherCategory",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "b21c83c2-ba60-48e5-bdf4-3bd3ed23b36c",
-            "sourceColumn": "x_PublisherCategory",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_PublisherId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "42a26bc1-2aff-4ff4-988d-947032598ed3",
-            "sourceColumn": "x_PublisherId",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_ResellerId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "34639892-677e-4ddb-a7a7-b4e37e19f9b3",
-            "sourceColumn": "x_ResellerId",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_ResellerName",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "bf64c953-a1e7-4e76-8c1d-84a2e34bf4d6",
-            "sourceColumn": "x_ResellerName",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_ResourceGroupName",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "639e01e8-c165-4eed-8e42-304e67592d7e",
-            "sourceColumn": "x_ResourceGroupName",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_ResourceType",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "8f1ccef2-09df-49f6-bd32-7ee89112d927",
-            "sourceColumn": "x_ResourceType",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_ServicePeriodEnd",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "43b5fb6e-393d-4b0f-9a15-69c2be708d0b",
-            "sourceColumn": "x_ServicePeriodEnd",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_ServicePeriodStart",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "42c5ab61-d869-4352-8c0b-224894ce8779",
-            "sourceColumn": "x_ServicePeriodStart",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_SkuDescription",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "15709d54-0b71-444f-9ad2-a87c5bc2c251",
-            "sourceColumn": "x_SkuDescription",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_SkuDetails",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "37d9eb5d-c60d-488a-9382-db227c88e4c8",
-            "sourceColumn": "x_SkuDetails",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_SkuIsCreditEligible",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "9e681ed2-6c27-488b-8292-84ad1e51dc02",
-            "sourceColumn": "x_SkuIsCreditEligible",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_SkuMeterCategory",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "67ad8e30-7410-4baa-838d-307b19f5c58d",
-            "sourceColumn": "x_SkuMeterCategory",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_SkuMeterId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "10640675-102a-4839-a8be-c072d6f65495",
-            "sourceColumn": "x_SkuMeterId",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_SkuMeterName",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "3a3e9725-0213-438c-9a19-438c55b55239",
-            "sourceColumn": "x_SkuMeterName",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_SkuMeterSubcategory",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "5218df3f-4fb5-4ac4-9431-c3ad7491bc5b",
-            "sourceColumn": "x_SkuMeterSubcategory",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_SkuOfferId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "95eb9ec0-71a1-4c11-a079-9024c1e2dd8a",
-            "sourceColumn": "x_SkuOfferId",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_SkuOrderId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "2753500e-fd87-4be6-8811-0f29290a9fd8",
-            "sourceColumn": "x_SkuOrderId",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_SkuOrderName",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "9cb27364-8dd4-4fcb-b289-041f85b2af99",
-            "sourceColumn": "x_SkuOrderName",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_SkuPartNumber",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "aebeae34-a646-4adf-9760-dd35dff6af63",
-            "sourceColumn": "x_SkuPartNumber",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_SkuRegion",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "24c49e3a-c507-4e2f-81ff-13140a9a6c32",
-            "sourceColumn": "x_SkuRegion",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_SkuServiceFamily",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "d229768c-846b-4803-abf8-9f6df6c28878",
-            "sourceColumn": "x_SkuServiceFamily",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_SkuTerm",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "2f77cdd4-5dbd-4987-98b8-4261b93c46f6",
-            "sourceColumn": "x_SkuTerm",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_SkuTier",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "3e1f0d94-494e-46ca-b38e-a513b8276b52",
-            "sourceColumn": "x_SkuTier",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_DatasetType",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "822e02fc-364c-409b-8568-51c17a866f69",
-            "sourceColumn": "x_DatasetType",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_DatasetVersion",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "ef0117f3-9ad2-4cfb-bc02-93eec170e678",
-            "sourceColumn": "x_DatasetVersion",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "x_AccountType",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "6d1268fe-34ee-4b8b-bc6b-5a158ec7521f",
-            "sourceColumn": "x_AccountType",
+            "lineageTag": "0c0ccf89-1da7-4d78-8c93-ec80f9244add",
+            "sourceColumn": "_9",
             "summarizeBy": "none"
           }
         ],
@@ -13383,54 +12902,54 @@
                 "// TODO: Allow pulling other datasets -- if datasetType = null or datasetType = \"\" then \"focuscost\" else datasetType",
                 "    dataset = \"focuscost\",",
                 "",
-                "    ADLS = AzureStorage.DataLake(url),",
+                "    ADLS = AzureStorage.DataLake(url&\"/../msexports\"),",
                 "    FilterHiddenFiles = Table.SelectRows(ADLS, each [Attributes]?[Hidden]? <> true),",
                 "",
-                "    // Parse folder path",
-                "    Dataset   = Table.AddColumn(FilterHiddenFiles, \"Dataset\",   each List.Last(List.RemoveLastN(Text.Split([Folder Path],\"/\"), 1))),",
-                "    Month     = Table.AddColumn(Dataset,           \"Month\",     each List.Last(List.RemoveLastN(List.RemoveLastN(Text.Split([Folder Path],\"/\"), 1), 1) )),",
-                "// TODO: Update date handling for raw exports",
-                "    StartDate = Table.AddColumn(Month,             \"StartDate\", each [Month] & \"01\"),",
-                "    StartDate_type = Table.TransformColumnTypes(StartDate, {{\"StartDate\", type date}}),",
-                "    EndDate   = Table.AddColumn(StartDate_type,    \"EndDate\",   each Date.EndOfMonth([StartDate])),",
+                "//     // Parse folder path",
+                "    Dataset   = Table.AddColumn(FilterHiddenFiles, \"Dataset\",   each List.Last(List.RemoveLastN(Text.Split([Folder Path],\"/\"), 4))),",
+                "//     Month     = Table.AddColumn(Dataset,           \"Month\",     each List.Last(List.RemoveLastN(List.RemoveLastN(Text.Split([Folder Path],\"/\"), 1), 1) )),",
+                "// // TODO: Update date handling for raw exports",
+                "//     StartDate = Table.AddColumn(Month,             \"StartDate\", each [Month] & \"01\"),",
+                "//     StartDate_type = Table.TransformColumnTypes(StartDate, {{\"StartDate\", type date}}),",
+                "//     EndDate   = Table.AddColumn(StartDate_type,    \"EndDate\",   each Date.EndOfMonth([StartDate])),",
                 "",
                 "    // Only FOCUS costs",
                 "// TODO: Get metric from the manifest",
-                "    FilterFilesByMetricAndFileType = Table.SelectRows(EndDate, each [Dataset] = dataset and [Extension] = ext),",
+                "    FilterFilesByMetricAndFileType = Table.SelectRows(Dataset, each [Dataset] = \"ftk-micflan-prices\" and [Extension] = \".csv\"),",
                 "",
                 "    // Only process files for months within the date range",
-                "    FilterFilesByDate =",
-                "        if start = null and end = null then FilterFilesByMetricAndFileType",
-                "        else Table.SelectRows(FilterFilesByMetricAndFileType, each (start = null or [StartDate] >= Date.StartOfMonth(Date.From(start))) and (end = null or [EndDate] <= Date.EndOfMonth(Date.From(end)))),",
+                "    // FilterFilesByDate =",
+                "    //     if start = null and end = null then FilterFilesByMetricAndFileType",
+                "    //     else Table.SelectRows(FilterFilesByMetricAndFileType, each (start = null or [StartDate] >= Date.StartOfMonth(Date.From(start))) and (end = null or [EndDate] <= Date.EndOfMonth(Date.From(end)))),",
                 "",
                 "    // Extract",
-                "    unpack = (zipData) => Table.PromoteHeaders(Csv.Document(Binary.Decompress(zipData, Compression.GZip), [Delimiter=\",\", Columns=60, Encoding=1252, QuoteStyle=QuoteStyle.Csv, CsvStyle=CsvStyle.QuoteAlways]), [PromoteAllScalars=true]),",
-                "    SelectContent = Table.SelectColumns(FilterFilesByDate, {\"Content\"}),",
-                "    UnpackContent = Table.AddColumn(SelectContent, \"Custom\", each if ext = \".gz\" then unpack([Content]) else Parquet.Document([Content])),",
+                "    unpack = (zipData) => Table.PromoteHeaders(Csv.Document(Binary.Decompress(zipData, Compression.None), [Delimiter=\",\", Columns=60, Encoding=1252, QuoteStyle=QuoteStyle.Csv, CsvStyle=CsvStyle.QuoteAlways]), [PromoteAllScalars=true]),",
+                "    SelectContent = Table.SelectColumns(FilterFilesByMetricAndFileType, {\"Content\"}),",
+                "    UnpackContent = Table.AddColumn(SelectContent, \"Custom\", each unpack([Content])),",
                 "    ExpandedColumns = Table.ExpandTableColumn(UnpackContent, \"Custom\", List.Sort(Table.ColumnNames(List.First(UnpackContent[Custom], null)))),",
                 "    RemovedContent = Table.RemoveColumns(ExpandedColumns, {\"Content\"}),",
                 "",
                 "    // Only pull from the predefined date range (if specified)",
-                "    tbl = RemovedContent,",
-                "    FilterRowsByDate =",
-                "        if start = null and end = null then tbl",
-                "        else Table.SelectRows(tbl, each",
-                "            (start = null or [ChargePeriodEnd] >= DateTime.From(start))",
-                "            and (end = null or [ChargePeriodStart] < DateTime.From(end))",
-                "        ),",
+                "   // tbl = RemovedContent,",
+                "    // FilterRowsByDate =",
+                "    //     if start = null and end = null then tbl",
+                "    //     else Table.SelectRows(tbl, each",
+                "    //         (start = null or [ChargePeriodEnd] >= DateTime.From(start))",
+                "    //         and (end = null or [ChargePeriodStart] < DateTime.From(end))",
+                "    //     ),",
                 "",
                 "    // TODO: Extract from the manifest",
-                "    _armResourceName = (id) => List.Last(Text.Split(id, \"/\")),",
-                "    DataSet = Table.AddColumn(FilterRowsByDate, \"x_DatasetType\", each \"FocusCost\"),",
-                "    Schema =  Table.AddColumn(DataSet, \"x_DatasetVersion\", each \"1.0-preview (v1)\"),",
-                "    AccountType = Table.AddColumn(Schema, \"x_AccountType\", ",
-                "        each if [BillingAccountId] = [SubAccountId] then \"MOSA\"",
-                "        else if _armResourceName([BillingAccountId]) = [x_BillingAccountId] then \"EA\"",
-                "        else if _armResourceName([BillingAccountId]) = [x_BillingProfileId] then (if [InvoiceIssuerName] = \"Microsoft\" then \"MCA\" else \"MPA\")",
-                "        else \"Unknown\"",
-                "    ),",
+                "    // _armResourceName = (id) => List.Last(Text.Split(id, \"/\")),",
+                "    // DataSet = Table.AddColumn(FilterRowsByDate, \"x_DatasetType\", each \"FocusCost\"),",
+                "    // Schema =  Table.AddColumn(DataSet, \"x_DatasetVersion\", each \"1.0-preview (v1)\"),",
+                "    // AccountType = Table.AddColumn(Schema, \"x_AccountType\", ",
+                "    //     each if [BillingAccountId] = [SubAccountId] then \"MOSA\"",
+                "    //     else if _armResourceName([BillingAccountId]) = [x_BillingAccountId] then \"EA\"",
+                "    //     else if _armResourceName([BillingAccountId]) = [x_BillingProfileId] then (if [InvoiceIssuerName] = \"Microsoft\" then \"MCA\" else \"MPA\")",
+                "    //     else \"Unknown\"",
+                "    // ),",
                 "",
-                "    Output = AccountType",
+                "    Output = RemovedContent",
                 "in",
                 "    Output"
               ],
