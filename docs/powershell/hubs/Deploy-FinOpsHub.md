@@ -74,7 +74,7 @@ Deploy-FinOpsHub `
     -Location westus
 ```
 
-Deploys a new FinOps hub instance named MyHub to a new resource group named MyNewResourceGroup.
+Deploys a FinOps hub instance named MyHub to the MyNewResourceGroup resource group. If the resource group does not exist, it will be created. If the hub already exists, it will be updated to the latest version.
 
 ### Deploy specific version
 
@@ -86,7 +86,7 @@ Deploy-FinOpsHub `
     -Version {% include ftkver.txt %}
 ```
 
-Deploys a new FinOps hub instance named MyHub to a new resource group named MyNewResourceGroup using version {% include ftkver.txt %} of the template.
+Deploys a FinOps hub instance named MyHub to the MyExistingResourceGroup resource group using version {% include version.txt %} of the template. If the resource group does not exist, it will be created. If the hub already exists, it will be updated to version {% include version.txt %}.
 
 <br>
 
