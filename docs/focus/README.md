@@ -290,7 +290,7 @@ Use the following columns in the Cost Management FOCUS dataset to generate a uni
 6. SkuPriceId
 7. SubAccountId
 8. Tags
-9. x_AccountId
+9. x_AccountOwnerId
 10. x_CostCenter
 11. x_InvoiceSectionId
 12. x_SkuDetails
