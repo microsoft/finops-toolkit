@@ -5,11 +5,11 @@
 // Parameters
 //==============================================================================
 
-@description('Optional. Name of the hub. Used to ensure unique resource names. Default: "finops-hub".')
+@description('Required. Name of the hub. Used to ensure unique resource names.')
 param dataFactoryName string
 
-@description('Required. The name of the Azure Key Vault instance.')
-param keyVaultName string
+@description('Optional. The resource ID of the Azure Key Vault instance.')
+param keyVaultId string
 
 @description('Required. The name of the Azure storage account instance.')
 param storageAccountName string
@@ -293,7 +293,8 @@ resource stopHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //------------------------------------------------------------------------------
 
 resource keyVault 'Microsoft.KeyVault/vaults@2022-11-01' existing = {
-  name: keyVaultName
+  name: last(split(keyVaultId, '/'))
+  scope: resourceGroup(split(keyVaultId, '/')[2], split(keyVaultId, '/')[4])
 }
 
 resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {

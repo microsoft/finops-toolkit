@@ -70,7 +70,10 @@ Legend:
 
 > ➕ Added:
 >
-> 1. Started archiving template versions so they can be referenced easily via URL (microsoft.github.io/finops-toolkit/deploy/finops-hub-{version}.json).
+> 1. Allow specifying an existing Key Vault instance.
+>    - If using template deployment, set the `existingKeyVaultId` parameter to the fully-qualified resource ID.
+>    - If using the `Deploy-FinOpsHub` PowerShell command, set the `-ExistingKeyVaultId` parameter to the fully-qualified resource ID.
+> 2. Started archiving template versions so they can be referenced easily via URL (microsoft.github.io/finops-toolkit/deploy/finops-hub-{version}.json).
 >
 > 🛠️ Fixed:
 >

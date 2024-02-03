@@ -20,6 +20,9 @@ param location string = resourceGroup().location
 @description('Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: Premium_LRS, Premium_ZRS. Default: Premium_LRS.')
 param storageSku string = 'Premium_LRS'
 
+@description('Optional. Resource ID of the existing Key Vault resource to use. If not specified, a new Key Vault instance will be created.')
+param existingKeyVaultId string = ''
+
 @description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
 param tags object = {}
 
@@ -39,6 +42,7 @@ module hub 'modules/hub.bicep' = {
     hubName: hubName
     location: location
     storageSku: storageSku
+    existingKeyVaultId: existingKeyVaultId
     tags: tags
     tagsByResource: tagsByResource
     exportScopes: exportScopes

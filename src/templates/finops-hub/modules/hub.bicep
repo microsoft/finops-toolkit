@@ -18,6 +18,9 @@ param location string = resourceGroup().location
 @description('Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: Premium_LRS, Premium_ZRS. Default: Premium_LRS.')
 param storageSku string = 'Premium_LRS'
 
+@description('Optional. Resource ID of the existing Key Vault resource to use. If not specified, a new Key Vault instance will be created.')
+param existingKeyVaultId string = ''
+
 @description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
 param tags object = {}
 
@@ -122,7 +125,7 @@ module dataFactoryResources 'dataFactory.bicep' = {
   params: {
     dataFactoryName: dataFactoryName
     convertToParquet: convertToParquet
-    keyVaultName: keyVault.outputs.name
+    keyVaultId: keyVault.outputs.resourceId
     storageAccountName: storage.outputs.name
     exportContainerName: storage.outputs.exportContainer
     ingestionContainerName: storage.outputs.ingestionContainer
@@ -138,8 +141,10 @@ module dataFactoryResources 'dataFactory.bicep' = {
 
 module keyVault 'keyVault.bicep' = {
   name: 'keyVault'
+  scope: empty(existingKeyVaultId) ? resourceGroup() : resourceGroup(split(existingKeyVaultId, '/')[2], split(existingKeyVaultId, '/')[4])
   params: {
     hubName: hubName
+    existingKeyVaultName: last(split(existingKeyVaultId, '/'))
     uniqueSuffix: uniqueSuffix
     location: location
     tags: resourceTags

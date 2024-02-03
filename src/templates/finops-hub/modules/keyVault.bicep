@@ -11,6 +11,9 @@ param hubName string
 @description('Required. Suffix to add to the KeyVault instance name to ensure uniqueness.')
 param uniqueSuffix string
 
+@description('Optional. Resource ID of the existing Key Vault resource to use. If not specified, a new Key Vault instance will be created.')
+param existingKeyVaultName string
+
 @description('Optional. Location for all resources.')
 param location string = resourceGroup().location
 
@@ -49,11 +52,42 @@ var formattedAccessPolicies = [for accessPolicy in accessPolicies: {
   tenantId: contains(accessPolicy, 'tenantId') ? accessPolicy.tenantId : tenant().tenantId
 }]
 
+var storageSecretProperties = {
+  attributes: {
+    enabled: true
+    exp: 1702648632
+    nbf: 10000
+  }
+  value: storageRef.listKeys().keys[0].value
+}
+
 //==============================================================================
 // Resources
 //==============================================================================
 
-resource keyVault 'Microsoft.KeyVault/vaults@2022-11-01' = {
+resource storageRef 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+  name: storageAccountName
+}
+
+// Get existing key vault, if existingKeyVaultName is set
+resource existingKeyVault 'Microsoft.KeyVault/vaults@2023-07-01' existing = if (!empty(existingKeyVaultName)) {
+  name: empty(existingKeyVaultName) ? 'placeholder' : existingKeyVaultName
+
+  resource existingKeyVault_accessPolicies 'accessPolicies@2023-07-01' = if (!empty(accessPolicies)) {
+    name: 'add'
+    properties: {
+      accessPolicies: formattedAccessPolicies
+    }
+  }
+  
+  resource existingKeyVault_secrets 'secrets@2023-07-01' = {
+    name: storageRef.name
+    properties: storageSecretProperties
+  }
+}
+
+// Create new key vault, if existingKeyVaultName is not set
+resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = if (empty(existingKeyVaultName)) {
   name: keyVaultName
   location: location
   tags: union(tags, contains(tagsByResource, 'Microsoft.KeyVault/vaults') ? tagsByResource['Microsoft.KeyVault/vaults'] : {})
@@ -73,30 +107,17 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-11-01' = {
       family: 'A'
     }
   }
-}
 
-resource keyVault_accessPolicies 'Microsoft.KeyVault/vaults/accessPolicies@2022-11-01' = if (!empty(accessPolicies)) {
-  name: 'add'
-  parent: keyVault
-  properties: {
-    accessPolicies: formattedAccessPolicies
-  }
-}
-
-resource storageRef 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
-  name: storageAccountName
-}
-
-resource keyVault_secrets 'Microsoft.KeyVault/vaults/secrets@2022-11-01' = {
-  name: storageRef.name
-  parent: keyVault
-  properties: {
-    attributes: {
-      enabled: true
-      exp: 1702648632
-      nbf: 10000
+  resource keyVault_accessPolicies 'accessPolicies@2023-07-01' = if (!empty(accessPolicies)) {
+    name: 'add'
+    properties: {
+      accessPolicies: formattedAccessPolicies
     }
-    value: storageRef.listKeys().keys[0].value
+  }
+  
+  resource keyVault_secrets 'secrets@2023-07-01' = {
+    name: storageRef.name
+    properties: storageSecretProperties
   }
 }
 
@@ -105,10 +126,10 @@ resource keyVault_secrets 'Microsoft.KeyVault/vaults/secrets@2022-11-01' = {
 //==============================================================================
 
 @description('The resource ID of the key vault.')
-output resourceId string = keyVault.id
+output resourceId string = empty(existingKeyVaultName) ? keyVault.id : existingKeyVault.id
 
 @description('The name of the key vault.')
-output name string = keyVault.name
+output name string = empty(existingKeyVaultName) ? keyVault.name : existingKeyVault.name
 
 @description('The URI of the key vault.')
-output uri string = keyVault.properties.vaultUri
+output uri string = empty(existingKeyVaultName) ? keyVault.properties.vaultUri : existingKeyVault.properties.vaultUri

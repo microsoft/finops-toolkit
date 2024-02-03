@@ -19,6 +19,9 @@
     .PARAMETER Location
     Required. Azure location to execute the deployment from.
 
+    .PARAMETER KeyVaultId
+    Optional. Resource ID of the existing Key Vault instance to use. If not specified, one will be created.
+
     .PARAMETER Version
     Optional. Version of the FinOps hub template to use. Default = "latest".
 
@@ -35,11 +38,16 @@
     Deploy-FinOpsHub -Name MyHub -ResourceGroupName MyExistingResourceGroup -Location westus
 
     Deploys a new FinOps hub instance named MyHub to an existing resource group named MyExistingResourceGroup.
-
+    
     .EXAMPLE
     Deploy-FinOpsHub -Name MyHub -Location westus -Version 0.1
-
+    
     Deploys a new FinOps hub instance named MyHub using version 0.1 of the template.
+
+    .EXAMPLE
+    Deploy-FinOpsHub -Name MyHub -ResourceGroupName MyExistingResourceGroup -Location westus -KeyVaultId "/subscriptions/###/resourceGroups/###/providers/Microsoft.KeyVault/vaults/foo"
+
+    Deploys a new FinOps hub instance named MyHub using an existing Key Vault instance.
 
     .LINK
     https://aka.ms/ftk/Deploy-FinOpsHub
@@ -61,6 +69,10 @@ function Deploy-FinOpsHub
         [Parameter(Mandatory = $true)]
         [string]
         $Location,
+
+        [Parameter(Mandatory = $false)]
+        [string]
+        $KeyVaultId = '',
 
         [Parameter()]
         [string]
@@ -112,6 +124,7 @@ function Deploy-FinOpsHub
                 TemplateParameterObject = @{
                     hubName    = $Name
                     storageSku = $StorageSku
+                    existingKeyVaultId = $KeyVaultId
                 }
             }
 

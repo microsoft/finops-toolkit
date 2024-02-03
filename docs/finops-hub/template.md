@@ -72,13 +72,14 @@ Please ensure the following prerequisites are met before deploying this template
 
 ## 📥 Parameters
 
-| Parameter        | Type   | Description                                                                                                                                                                       | Default value             |
-| ---------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- |
-| **hubName**      | String | Optional. Name of the hub. Used to ensure unique resource names.                                                                                                                  | `"finops-hub"`            |
-| **location**     | String | Optional. Azure location where all resources should be created. See https://aka.ms/azureregions.                                                                                  | (resource group location) |
-| **storageSku**   | String | Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: `Premium_LRS`, `Premium_ZRS`. | `Premium_LRS`             |
-| **tags**         | Object | Optional. Tags to apply to all resources. We will also add the `cm-resource-parent` tag for improved cost roll-ups in Cost Management.                                            |
-| **exportScopes** | Array  | Optional. List of scope IDs to create exports for.                                                                                                                                |
+| Parameter              | Type   | Description                                                                                                                                                                       | Default value             |
+| ---------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- |
+| **hubName**            | String | Optional. Name of the hub. Used to ensure unique resource names.                                                                                                                  | `"finops-hub"`            |
+| **location**           | String | Optional. Azure location where all resources should be created. See https://aka.ms/azureregions.                                                                                  | (resource group location) |
+| **storageSku**         | String | Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: `Premium_LRS`, `Premium_ZRS`. | `Premium_LRS`             |
+| **existingKeyVaultId** | String | Optional. Resource ID of the existing Key Vault resource to use. If not specified, a new Key Vault instance will be created.                                                      |                           |
+| **tags**               | Object | Optional. Tags to apply to all resources. We will also add the `cm-resource-parent` tag for improved cost roll-ups in Cost Management.                                            |                           |
+| **exportScopes**       | Array  | Optional. List of scope IDs to create exports for.                                                                                                                                |                           |
 
 <br>
 

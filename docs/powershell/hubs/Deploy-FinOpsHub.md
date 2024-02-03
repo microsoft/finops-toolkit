@@ -40,6 +40,7 @@ Deploy-FinOpsHub `
     -Name <string> `
     -ResourceGroup <string> `
     -Location <string> `
+    [-KeyVaultId <string>] `
     [-Version <string>] `
     [-Preview] `
     [-StorageSku <string>] `
@@ -57,6 +58,7 @@ Deploy-FinOpsHub `
 | `‑ResourceGroup` | Required. Name of the resource group to deploy to. Will be created if it doesn't exist.                                                                                              |
 | `‑Location`      | Required. Azure location to execute the deployment from.                                                                                                                             |
 | `‑Version`       | Optional. Version of the FinOps hub template to use. Default = "latest".                                                                                                             |
+| `‑KeyVaultId`    | Optional. Resource ID of the existing Key Vault instance to use. If not specified, one will be created.                                                                              |
 | `‑Preview`       | Optional. Indicates that preview releases should also be included. Default = false.                                                                                                  |
 | `‑StorageSku`    | Optional. Storage account SKU. Premium_LRS = Lowest cost, Premium_ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Default = "Premium_LRS". |
 | `‑Tags`          | Optional. Tags for all resources.                                                                                                                                                    |
@@ -88,12 +90,24 @@ Deploy-FinOpsHub `
 
 Deploys a new FinOps hub instance named MyHub to a new resource group named MyNewResourceGroup using version {% include version.txt %} of the template.
 
+### Use existing Key Vault instance
+
+```powershell
+Deploy-FinOpsHub `
+    -Name MyHub `
+    -ResourceGroupName MyExistingResourceGroup `
+    -Location westus `
+    -KeyVaultId "/subscriptions/###/resourceGroups/###/providers/Microsoft.KeyVault/vaults/foo"
+```
+
+Deploys a new FinOps hub instance named MyHub using an existing Key Vault instance.
+
 <br>
 
 ---
 
 ## 🧰 Related tools
 
-{% include tools.md hubs="1" %}
+{% include tools.md hubs="1" pbi="1" %}
 
 <br>
