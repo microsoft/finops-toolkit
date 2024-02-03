@@ -280,6 +280,10 @@ Use the following table to update existing automation and reporting solutions to
 
 ### Generating a unique ID per row
 
+<blockquote class="warning" markdown="1">
+  _Microsoft Cost Management introduced a change in how data is processed that updates cost and usage data in a lower-latency, more streaming fashion. This means cost and usage data is available in Cost Management ~2 hours after the resource provider submits it into the billing pipeline and budget alerts are able to be triggered significantly faster. Unfortunately, this change may have also introduced cases where data can be split across multiple rows where the only difference is the quantity and cost. Based on this, a unique ID cannot be determined as of February 2, 2024. As of the time of this writing, the issue was just identified. Investigation is underway. If you experience this in your data, please raise a support request._
+</blockquote>
+
 Use the following columns in the Cost Management FOCUS dataset to generate a unique ID:
 
 1. BillingAccountId
