@@ -62,6 +62,11 @@ Legend:
 > 6. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
 > 7. Analytics engine – Ingest cost data into an Azure Data Explorer cluster.
 >
+> 🛠️ Fixed:
+>
+> 1. Fixed "missing period" error Data Factory Studio.
+> 2. Fixed bug where `msexports_FileAdded` trigger was not getting started.
+>
 > ✏️ Changed:
 >
 > 1. Unified schema – Normalize EA and MCA data to a single, "unified" schema.
