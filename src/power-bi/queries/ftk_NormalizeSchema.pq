@@ -344,7 +344,7 @@ let
 // TODO: VMName???
     ResourceName               = _swapCol(Region,                           "tmp_ResourceName",       "ResourceName",              each if _isNotBlank([tmp_ResourceName])  then [tmp_ResourceName]       else if _isNotBlank([tmp_DefenderFor])      then "Microsoft Defender for " & [tmp_DefenderFor] else if [tmp_ChargeType] = "Purchase" and [tmp_ReservationName] <> "" then [tmp_ReservationName] else null),
 // TODO: Parse ResourceType
-    SkuTerm                    = Table.AddColumn(ResourceName,              "x_SkuTerm",              each if _isBlank([tmp_SkuTerm]) then null else if [tmp_SkuTerm] = "1Year" then 12 else if [tmp_SkuTerm] = "3Years" then 36 else if [tmp_SkuTerm] = "5Years" then 60 else [tmp_SkuTerm], type number),
+    SkuTerm                    = Table.AddColumn(ResourceName,              "x_SkuTerm",              each if _isBlank([tmp_SkuTerm]) then null else if [tmp_SkuTerm] = "1Year" or [tmp_SkuTerm] = "12" then 12 else if [tmp_SkuTerm] = "3Years" or [tmp_SkuTerm] = "36" then 36 else if [tmp_SkuTerm] = "5Years" or [tmp_SkuTerm] = "60" then 60 else [tmp_SkuTerm], type number),
     SubAccountId               = Table.AddColumn(SkuTerm,                   "SubAccountId",           each [x_SubscriptionId]),
     SubAccountName             = Table.AddColumn(SubAccountId,              "SubAccountName",         each [x_SubscriptionName]),
     SubAccountType             = Table.AddColumn(SubAccountName,            "SubAccountType",         each "Subscription"),

@@ -82,6 +82,17 @@ Legend:
 >
 > 1. Return a single boolean value from the Remove-FinOpsHub command.
 
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> 🛠️ Fixed:
+>
+> 1. Fixed numerous errors causing the CostManagementConnector report to not load for MCA accounts
+>
+> ✏️ Changed:
+>
+> 1. Changed "Other" ChargeSubcategory for usage to "On-Demand" to be consistent with Cost Management exports
+
 📒 Azure Monitor workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
