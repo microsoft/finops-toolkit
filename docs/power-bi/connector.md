@@ -19,6 +19,7 @@ Power BI report covering cost summaries, breakdowns, and commitment discounts us
 
 - [Working with this report](#working-with-this-report)
 - [Pages](#pages)
+- [Known issues](#known-issues)
 - [See also](#see-also)
 - [🙋‍♀️ Looking for more?](#️-looking-for-more)
 
@@ -101,6 +102,18 @@ This report includes the following pages:
 - There are two **Reservation coverage** pages that help you identify any places where you could potentially save even more based on your historical usage patterns with virtual machine reservations within a single subscription or shared across all subscriptions.
 - **Raw data** shows a table with most columns to help you explore FOCUS columns.
 - **Data quality** is for data validation purposes only; however, it can be used to explore charge categories, pricing categories, services, and regions.
+
+<br>
+
+## Known issues
+
+1. `ChargeSubcategory` for uncommitted usage shows "On-Demand". This value should be null. (Applies to all Cost Management data.)
+2. `InvoiceIssuerName` does not account for indirect EA and MCA partners. The value will show as "Microsoft". (Applies to all Cost Management data.)
+3. `ListUnitPrice` and `ListCost` can be 0 when the data is not available. (Applies to all Cost Management data.)
+4. `PricingUnit` and `UsageUnit` both include the pricing block size. Exports (and FinOps hubs) separate the block size into `x_PricingBlockSize`.
+5. `SkuPriceId` is not set due to the connector not having the data to populate the value.
+6. `ServiceName` is empty for unused savings plan records (`ChargeSubcategory == "Unused Commitment" and CommitmentDiscountType == "Savings Plan"`).
+7. Savings plan usage is not identifiable in the connector. Please use [FinOps hubs](../finops-hub/README.md) to report on savings plans.
 
 <br>
 
