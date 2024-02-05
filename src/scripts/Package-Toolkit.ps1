@@ -57,11 +57,11 @@ if ($Template -ne "*" -and -not (Test-Path $relDir))
     return
 }
 
-Write-Host "Packaging v$version templates..."
-
 # Package templates
 $version = & "$PSScriptRoot/Get-Version"
 $isPrerelease = $version -like '*-*'
+
+Write-Host "Packaging v$version templates..."
 
 Write-Verbose "Removing existing ZIP files..."
 Remove-Item "$relDir/*.zip" -Force
@@ -93,9 +93,9 @@ $templates = Get-ChildItem $relDir -Directory `
     }
 
     # Copy azuredeploy.json to docs/deploy folder
-    if ($isPrerelease -and -not $Docs)
+    if ($Docs -or -not $isPrerelease)
     {
-        Write-Verbose "Updating $($path.Name) deployment file in docs..."
+        Write-Verbose "Updating $($path.Name) deployment files in docs..."
         Copy-Item "$path/azuredeploy.json" "$deployDir/$($path.Name)-$version.json"
         Copy-Item "$path/azuredeploy.json" "$deployDir/$($path.Name)-latest.json"
     }
@@ -105,7 +105,10 @@ $templates = Get-ChildItem $relDir -Directory `
     return $zip
 }
 Write-Host "✅ $($templates.Count) templates"
-Write-Host "ℹ️ Deployment files updated... Please commit the changes manually..."
+if ($Docs -or -not $isPrerelease)
+{
+    Write-Host "ℹ️ Deployment files updated... Please commit the changes manually..."
+}
 
 # Copy open data files
 Write-Verbose "Copying open data files..."
