@@ -73,6 +73,7 @@ let
         ResellerMpnId                = "x_ResellerId",
         ResellerName                 = "x_ResellerName",
         ResourceGroup                = "x_ResourceGroupName",
+        ResourceGroupName            = "x_ResourceGroupName",
         ResourceId                   = "ResourceId",
         ResourceType                 = "ResourceType",
         ServiceFamily                = "x_SkuServiceFamily",
@@ -81,7 +82,8 @@ let
         SubscriptionGuid             = "x_SubscriptionId",
         SubscriptionId               = "x_SubscriptionId",
         SubscriptionName             = "x_SubscriptionName",
-        Term                         = "x_SkuTerm",
+        Tags2                        = "Tags2", // TODO: Confirm whether this ever has a value for MCA; seems to be a bug in the connector or UsageDetails API
+        Term                         = "tmp_SkuTerm",
         UnitOfMeasure                = "x_PricingUnitDescription",
         UsageDateTime                = "ChargePeriodStart",
         UsageQuantity                = "UsageQuantity",
@@ -152,23 +154,11 @@ let
         // Other columns
         {"x_PartnerCreditRate",    type number},
         {"UsageQuantity",          type number},
-        {"x_SkuTerm",              type number},
         {"tmp_ExchangeRate",       type number}
+        // TODO: {"x_SkuTerm",              type number},
         // TODO: {"IsAzureCreditEligible", type logical}
         // TODO: {"PartnerCreditApplied",   type logical}
     }),
-
-    // Transform metadata
-// TODO: Add more thorough schema/account validation + use real API versions
-    Schema =  Table.AddColumn(FixTypes, "x_SchemaVersion",
-        each if Table.HasColumns(input, "DepartmentName")   then "MG_2023-09"
-        else if Table.HasColumns(input, "SubscriptionGuid") then "MOSA_2023-09"
-        else if Table.HasColumns(input, "BillingAccountId") then "EA_2023-09"
-        else if Table.HasColumns(input, "partnerTenantId") and [partnerName] <> "" then "MPA_2023-09"
-        else if Table.HasColumns(input, "billingAccountId") then "MCA_2023-09"
-        else "Unknown_2023-09"
-    ),
-    AccountType = Table.AddColumn(Schema, "x_AccountType", each Text.Split([x_SchemaVersion], "_"){0}),
 
     // Helper functions
     _exists        = (col) => Table.HasColumns(RenameColumns, col),
@@ -178,6 +168,20 @@ let
     _isPositive    = (val) => val <> null and val > 0,
     _isNotPositive = (val) => val = null or val <= 0,
     _swapCol       = (tbl, oldCol, newCol, newVal, optional newType) => let add = Table.AddColumn(tbl, newCol, newVal, newType), del = if Table.HasColumns(add, oldCol) then Table.RemoveColumns(add, {oldCol}) else add in del,
+
+    // Transform metadata
+// TODO: Add more thorough schema/account validation + use real API versions
+    Schema =  Table.AddColumn(FixTypes, "x_SchemaVersion",
+        each if Table.HasColumns(input, "DepartmentName")   then "MG_2023-09"
+        else if Table.HasColumns(input, "SubscriptionGuid") then "MOSA_2023-09"
+        else if [x_BillingAccountId] = [x_BillingProfileId] then "EA_2023-09"
+        else if _isNotBlank([InvoiceIssuerId]) or [InvoiceIssuerName] <> "Microsoft" then "MPA_2023-09"
+        else if [x_BillingAccountId] <> [x_BillingProfileId] then "MCA_2023-09"
+        else "Unknown_2023-09"
+    ),
+    AccountType = Table.AddColumn(Schema, "x_AccountType", each Text.Split([x_SchemaVersion], "_"){0}),
+
+    // Region cleanup
     _regionCleanup = (loc) => Text.Trim(
         Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(
         Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(
@@ -293,7 +297,8 @@ let
         if [ChargeCategory] = "Usage" then (
             if Text.StartsWith([tmp_ChargeType], "Unused") then "Unused Commitment" 
             else if [tmp_ChargeType] = "Usage" and _isCommitmentDiscount([tmp_ChargeType], [tmp_PricingModel], [CommitmentDiscountId], [tmp_ReservationId]) then "Used Commitment" 
-            else "Other"
+            // TODO: This is supposed to be null for non-committed usage. Using "On-Demand" to be consistent with exports.
+            else "On-Demand"
         ) 
         else if [ChargeCategory] = "Adjustment" then (
             if [tmp_ChargeType] = "Refund" then [tmp_ChargeType]
@@ -339,7 +344,8 @@ let
 // TODO: VMName???
     ResourceName               = _swapCol(Region,                           "tmp_ResourceName",       "ResourceName",              each if _isNotBlank([tmp_ResourceName])  then [tmp_ResourceName]       else if _isNotBlank([tmp_DefenderFor])      then "Microsoft Defender for " & [tmp_DefenderFor] else if [tmp_ChargeType] = "Purchase" and [tmp_ReservationName] <> "" then [tmp_ReservationName] else null),
 // TODO: Parse ResourceType
-    SubAccountId               = Table.AddColumn(ResourceName,              "SubAccountId",           each [x_SubscriptionId]),
+    SkuTerm                    = Table.AddColumn(ResourceName,              "x_SkuTerm",              each if _isBlank([tmp_SkuTerm]) then null else if [tmp_SkuTerm] = "1Year" or [tmp_SkuTerm] = "12" then 12 else if [tmp_SkuTerm] = "3Years" or [tmp_SkuTerm] = "36" then 36 else if [tmp_SkuTerm] = "5Years" or [tmp_SkuTerm] = "60" then 60 else [tmp_SkuTerm], type number),
+    SubAccountId               = Table.AddColumn(SkuTerm,                   "SubAccountId",           each [x_SubscriptionId]),
     SubAccountName             = Table.AddColumn(SubAccountId,              "SubAccountName",         each [x_SubscriptionName]),
     SubAccountType             = Table.AddColumn(SubAccountName,            "SubAccountType",         each "Subscription"),
     Tags                       = _swapCol(SubAccountType,                   "tmp_Tags",               "Tags",                      each if _isNotBlank([tmp_Tags])          then if Text.StartsWith([tmp_Tags], "{") then [tmp_Tags] else "{" & [tmp_Tags] & "}" else null),
@@ -489,6 +495,7 @@ let
         "tmp_ReservationName",
         "tmp_ResourceLocation",
         "tmp_ServiceName",
+        "tmp_SkuTerm",
         // AdditionalInfo
         "tmp_AddlReservationOrderId", 
         "tmp_AddlReservationId",
