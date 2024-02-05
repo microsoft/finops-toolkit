@@ -6,19 +6,19 @@
     Updates the current version.
 
     .PARAMETER Major
-    Optional. Updates the major version number.
+    Optional. Updates the major version number (x.0).
 
     .PARAMETER Minor
-    Optional. Updates the minor version number.
+    Optional. Updates the minor version number (0.x).
 
     .PARAMETER Patch
-    Optional. Updates the patch version number.
+    Optional. Updates the patch version number (0.0.x).
 
     .PARAMETER Prerelease
-    Optional. Updates the prerelease version number.
+    Optional. Updates the prerelease version number (0.0.0-ooo.x).
 
     .PARAMETER Label
-    Optional. Indicates the label to use for prerelease versions. Default = "dev".
+    Optional. Indicates the label to use for prerelease versions. Allowed: dev, rc, alpha, preview. Default = "dev".
 
     .EXAMPLE
     ./Update-Version -Major
@@ -51,7 +51,7 @@ param
     [Parameter()]
     [AllowEmptyString()]
     [AllowNull()]
-    [ValidateSet($null, '', 'dev', 'alpha', 'preview')]
+    [ValidateSet($null, '', 'dev', 'alpha', 'rc', 'preview')]
     [string]
     $Label = 'dev',
 

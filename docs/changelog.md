@@ -17,6 +17,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
+- [🛠️ v0.2.1](#️-v021)
 - [🚚 v0.2](#-v02)
 - [🛠️ v0.1.1](#️-v011)
 - [🚚 v0.1](#-v01)
@@ -55,25 +56,45 @@ Legend:
 > ➕ Added:
 >
 > 1. Managed exports – Let FinOps hubs manage exports for you.
-> 2. MCA support – Added support for Microsoft Customer Agreement accounts.
-> 3. Actual cost data – Ingest both actual and amortized costs.
-> 4. Auto-backfill – Backfill historical data from Microsoft Cost Management.
-> 5. Remote hubs – Ingest cost data from other tenants.
-> 6. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
-> 7. Analytics engine – Ingest cost data into an Azure Data Explorer cluster.
+> 2. Auto-backfill – Backfill historical data from Microsoft Cost Management.
+> 3. Remote hubs – Ingest cost data from other tenants.
+> 4. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
+> 5. Analytics engine – Ingest cost data into an Azure Data Explorer cluster.
+
+<br>
+
+## 🛠️ v0.2.1
+
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Started archiving template versions so they can be referenced easily via URL (microsoft.github.io/finops-toolkit/deploy/finops-hub-{version}.json).
 >
 > 🛠️ Fixed:
 >
 > 1. Fixed "missing period" error Data Factory Studio.
 > 2. Fixed bug where `msexports_FileAdded` trigger was not getting started.
+> 3. Fixed deploy to Azure buttons to point to the latest release.
 >
 > ✏️ Changed:
 >
-> 1. Unified schema – Normalize EA and MCA data to a single, "unified" schema.
->    <blockquote class="important" markdown="1">
->       _This change requires re-ingesting historical data and is not backwards compatible. The unified schema used in this release is aligned with the future plans for Microsoft Cost Management exports. Note the next release will update the schema to align to the FinOps Open Cost and Usage Specification (FOCUS)._
->    </blockquote>
-> 2. Return a single boolean value from the Remove-FinOpsHub command.
+> 1. Return a single boolean value from the Remove-FinOpsHub command.
+
+📒 Azure Monitor workbooks
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Started archiving template versions so they can be referenced easily via URL (microsoft.github.io/finops-toolkit/deploy/{template}-{version}.json).
+>
+> 🛠️ Fixed:
+>
+> 1. Fixed deploy to Azure buttons to point to the latest release.
+
+[Download v0.2.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.2.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.2...v0.2.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
@@ -82,6 +103,9 @@ Legend:
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
+<small>**Breaking change**</small>
+{: .label .label-red .pt-0 .pl-3 .pr-3 .m-0 }
+
 > 🛠️ Fixed:
 >
 > 1. Fixed error in some China regions where deployment scripts were not supported ([#259](https://github.com/microsoft/finops-toolkit/issues/259)).
@@ -89,6 +113,9 @@ Legend:
 > ✏️ Changed:
 >
 > 1. Switch from amortized cost exports to FOCUS cost exports.
+>    <blockquote class="important" markdown="1">
+>       _This change requires re-ingesting historical data and is not backwards compatible. The unified schema used in this release is aligned with the future plans for Microsoft Cost Management exports. Note the next release will update the schema to align to the FinOps Open Cost and Usage Specification (FOCUS)._
+>    </blockquote>
 > 2. Updated ingestion container month folders from `yyyyMMdd-yyyyMMdd` to `yyyyMM`.
 > 3. Renamed **msexports_extract** pipeline to **msexports_ExecuteETL**.
 > 4. Renamed **msexports_transform** pipeline to **msexports_ETL_ingestion**.
