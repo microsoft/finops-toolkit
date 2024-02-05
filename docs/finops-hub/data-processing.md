@@ -15,13 +15,8 @@ From data cleanup to normalization, FinOps hubs do the work so you can focus on 
 
 FinOps hubs perform a number of data processing activities to clean up, normalize, and optimize data. The following diagram shows how data flows from Cost Management into a hub instance:
 
-```mermaid
-sequenceDiagram
-    Cost Management->>msexports: ① Export data
-    msexports->>msexports: ② msexports_ExecuteETL
-    msexports->>ingestion: ② msexports_ETL_ingestion
-    Power BI-->>ingestion: ③ Read data
-```
+![Hubs Data processing flow](src/images/hubs-data-cleansing.jpg)
+
 
 <br>
 
