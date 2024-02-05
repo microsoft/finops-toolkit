@@ -54,10 +54,11 @@ Get-ChildItem "$PSScriptRoot/../bicep-registry/$($Template -replace '(subscripti
     ./Build-Bicep $_.Name
 }
 
-# Generate deployment parameters file from main.bicep in the target directory
-function Build-MainBicepParameters($dir)
+# Generate deployment files from main.bicep in the target directory
+function Build-MainBicep($dir)
 {
     Write-Host "  Generating parameters..."
+    bicep build "$dir/main.bicep" --outfile "$dir/azuredeploy.json"
     bicep generate-params "$dir/main.bicep" --outfile "$dir/azuredeploy.json"
     $paramFilePath = "$dir/azuredeploy.parameters.json"
     $params = Get-Content $paramFilePath -Raw | ConvertFrom-Json
@@ -65,7 +66,7 @@ function Build-MainBicepParameters($dir)
     | ForEach-Object {
         # Add placeholder values for required parameters
         # See AQT docs for allowed values: https://github.com/Azure/azure-quickstart-templates/tree/4a6e5eae3c860208bf1731b392ae2b8a5fb24f4b/1-CONTRIBUTION-GUIDE#azure-devops-ci
-        if ($_.Name.EndsWith('Name')) { $_.Value.value = "GEN-UNIQUE" }
+        if ($_ -and $_.Name.EndsWith('Name')) { $_.Value.value = "GEN-UNIQUE" }
     }
     $params | ConvertTo-Json -Depth 100 | Out-File $paramFilePath
 }
@@ -77,13 +78,13 @@ Get-ChildItem "$PSScriptRoot/../workbooks/$($Template -replace '-workbook$','')*
     $workbook = $_.Name
     Write-Host "Building workbook $workbook..."
     & "$PSScriptRoot/Build-Workbook" $workbook
-    Build-MainBicepParameters "$outdir/$workbook-workbook"
+    Build-MainBicep "$outdir/$workbook-workbook"
     $ver | Out-File "$outdir/$workbook-workbook/version.txt" -NoNewline
     Write-Host ''
 }
 | ForEach-Object { Build-QuickstartTemplate $_ }
 
-# Package Azure Quickstart Template folders
+# Package templates
 Get-ChildItem "$PSScriptRoot/../templates/$Template*" -Directory -ErrorAction SilentlyContinue `
 | ForEach-Object {
     $srcDir = $_
@@ -110,7 +111,7 @@ Get-ChildItem "$PSScriptRoot/../templates/$Template*" -Directory -ErrorAction Si
         }
     }
 
-    Build-MainBicepParameters $destDir
+    Build-MainBicep $destDir
 
     # Copy version file last to override placeholder
     $ver | Out-File "$destDir/modules/version.txt" -NoNewline
