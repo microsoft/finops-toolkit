@@ -6,16 +6,16 @@
     Updates the current version.
 
     .PARAMETER Major
-    Optional. Updates the major version number (x.0).
+    Optional. Increments the major version number (x.0).
 
     .PARAMETER Minor
-    Optional. Updates the minor version number (0.x).
+    Optional. Increments the minor version number (0.x).
 
     .PARAMETER Patch
-    Optional. Updates the patch version number (0.0.x).
+    Optional. Increments the patch version number (0.0.x).
 
     .PARAMETER Prerelease
-    Optional. Updates the prerelease version number (0.0.0-ooo.x).
+    Optional. Increments the prerelease version number (0.0.0-ooo.x).
 
     .PARAMETER Label
     Optional. Indicates the label to use for prerelease versions. Allowed: dev, rc, alpha, preview. Default = "dev".
@@ -23,12 +23,12 @@
     .EXAMPLE
     ./Update-Version -Major
 
-    Updates the major version number.
+    Increments the major version number.
 
     .EXAMPLE
     ./Update-Version -Prerelease -Label "alpha"
 
-    Updates the prerelease version number with an "alpha" preview label.
+    Increments the prerelease version number with an "alpha" preview label.
 #>
 param
 (

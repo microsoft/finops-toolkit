@@ -9,6 +9,8 @@ On this page:
 - [📦 Build-Toolkit](#-build-toolkit)
 - [🚀 Deploy-Toolkit](#-deploy-toolkit)
 - [🧪 Test-PowerShell](#-test-powershell)
+- [🏷️ Get-Version](#️-get-version)
+- [🏷️ Update-Version](#️-update-version)
 - [🚚 Publish-Toolkit](#-publish-toolkit)
 - [📦 Package-Toolkit](#-package-toolkit)
 - [©️ Add-CopyrightHeader](#️-add-copyrightheader)
@@ -214,6 +216,55 @@ Examples:
 
   ```powershell
   ./Test-PowerShell -RunFailed
+  ```
+
+<br>
+
+## 🏷️ Get-Version
+
+[Get-Version.ps1](./Get-Version.ps1) gets the latest version of the toolkit.
+
+| Parameter          | Description                                                                                                                               |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `‑AsDotNetVersion` | Optional. Indicates that the returned version should be in the format "x.x.x.x". Otherwise, semantic versioning is used. Deafult = false. |
+
+Example:
+
+```powershell
+./Get-Version
+```
+
+<br>
+
+## 🏷️ Update-Version
+
+[Update-Version.ps1](./Update-Version.ps1) updates the toolkit version in the following places:
+
+- NPM (central tracking for the version)
+- PowerShell's private Get-VersionNumber command (used for internal version number usage)
+- All `ftkver.txt` files in the repo (used for templates and docs)
+
+| Parameter     | Description                                                                                                      |
+| ------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `‑Major`      | Optional. Increments the major version number (x.0).                                                             |
+| `‑Minor`      | Optional. Increments the minor version number (0.x).                                                             |
+| `‑Patch`      | Optional. Increments the patch version number (0.0.x).                                                           |
+| `‑Prerelease` | Optional. Increments the prerelease version number (0.0.0-ooo.x).                                                |
+| `‑Label`      | Optional. Indicates the label to use for prerelease versions. Allowed: dev, rc, alpha, preview. Default = "dev". |
+| `‑Version`    | Optional. Sets the version number to an explicit value.                                                          |
+
+Examples:
+
+- Increments the major version number (e.g., `1.0` to `2.0`).
+
+  ```powershell
+  ./Update-Version -Major
+  ```
+
+- Increments the prerelease version number with an "alpha" preview label (e.g., `1.0` to `1.0.1-alpha`).
+
+  ```powershell
+  ./Update-Version -Prerelease -Label "alpha"
   ```
 
 <br>
