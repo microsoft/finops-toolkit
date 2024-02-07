@@ -20,6 +20,9 @@
     .PARAMETER Label
     Optional. Indicates the label to use for prerelease versions. Allowed: dev, rc, alpha, preview. Default = "dev".
 
+    .PARAMETER Version
+    Optional. Sets the version number to an explicit value.
+
     .EXAMPLE
     ./Update-Version -Major
 
