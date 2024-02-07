@@ -54,16 +54,19 @@ function Invoke-Rest
 
     $VerbosePreference = $PSCmdlet.GetVariableValue('VerbosePreference')
     $ErrorActionPreference = $PSCmdlet.GetVariableValue('ErrorActionPreference')
-    
+
+    $ver = 'unknown'
+    try { $ver = Get-VersionNumber } catch {}
+
     $arm = (Get-AzContext).Environment.ResourceManagerUrl
     $params = @{
         Method      = $Method
         Uri         = $arm.Trim('/') + '/' + $Uri.Trim('/')
         Headers     = @{
             Authorization             = "Bearer $((Get-AzAccessToken).Token)"
-            ClientType                = 'FinOpsToolkit'
+            ClientType                = "FinOpsToolkit.PowerShell.$CommandName@$ver"
             "Content-Type"            = 'application/json'
-            "x-ms-command-name"       = $CommandName
+            "x-ms-command-name"       = "FinOpsToolkit.PowerShell.$CommandName@$ver"
             "x-ms-parameter-set-name" = $ParameterSetName
         }
         ErrorAction = "Stop"

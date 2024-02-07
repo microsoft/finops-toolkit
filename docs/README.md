@@ -36,7 +36,7 @@ Read on to learn about the tools and roadmap for the FinOps toolkit or how to ge
 
 <br>
 
-[Download FinOps toolkit {% include version.txt %}](https://aka.ms/ftk/latest){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 }
+[Download FinOps toolkit {% include ftkver.txt %}](https://aka.ms/ftk/latest){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 

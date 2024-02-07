@@ -79,7 +79,7 @@ Get-ChildItem "$PSScriptRoot/../workbooks/$($Template -replace '-workbook$','')*
     Write-Host "Building workbook $workbook..."
     & "$PSScriptRoot/Build-Workbook" $workbook
     Build-MainBicep "$outdir/$workbook-workbook"
-    $ver | Out-File "$outdir/$workbook-workbook/version.txt" -NoNewline
+    $ver | Out-File "$outdir/$workbook-workbook/ftkver.txt" -NoNewline
     Write-Host ''
 }
 | ForEach-Object { Build-QuickstartTemplate $_ }
@@ -114,7 +114,7 @@ Get-ChildItem "$PSScriptRoot/../templates/$Template*" -Directory -ErrorAction Si
     Build-MainBicep $destDir
 
     # Copy version file last to override placeholder
-    $ver | Out-File "$destDir/modules/version.txt" -NoNewline
+    $ver | Out-File "$destDir/modules/ftkver.txt" -NoNewline
 
     Write-Host ''
 }

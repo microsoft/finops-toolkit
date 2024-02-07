@@ -17,9 +17,6 @@
     .PARAMETER PowerBI
     Optional. Indicates whether to open Power BI files as part of the packaging process. Default = false.
 
-    .PARAMETER Docs
-    Optional. Indicates whether to update the version and deployment files in the documentation folder. Default = false for prerelease versions; otherwise, true.
-
     .EXAMPLE
     ./Package-Toolkit
 
@@ -33,8 +30,7 @@
 Param(
     [Parameter(Position = 0)][string]$Template = "*",
     [switch]$Build,
-    [switch]$PowerBI,
-    [switch]$Docs
+    [switch]$PowerBI
 )
 
 # Use the debug flag from common parameters to determine whether to run in debug mode
@@ -93,13 +89,10 @@ $templates = Get-ChildItem $relDir -Directory `
     }
 
     # Copy azuredeploy.json to docs/deploy folder
-    if ($isPrerelease -and -not $Docs)
-    {
-        Write-Verbose "Updating $($path.Name) deployment file in docs..."
-        Copy-Item "$path/azuredeploy.json" "$deployDir/$($path.Name)-$version.json"
-        Copy-Item "$path/azuredeploy.json" "$deployDir/$($path.Name)-latest.json"
-    }
-    
+    Write-Verbose "Updating $($path.Name) deployment file in docs..."
+    Copy-Item "$path/azuredeploy.json" "$deployDir/$($path.Name)-$version.json"
+    Copy-Item "$path/azuredeploy.json" "$deployDir/$($path.Name)-latest.json"
+
     Write-Verbose ("Compressing $path to $zip" -replace (Get-Item $relDir).FullName, '.')
     Compress-Archive -Path "$path/*" -DestinationPath $zip
     return $zip
@@ -142,13 +135,9 @@ else
 }
 
 # Update version in docs
-$docVersionPath = "$PSScriptRoot/../../docs/_includes/version.txt"
+$docVersionPath = "$PSScriptRoot/../../docs/_includes/ftkver.txt"
 $versionInDocs = Get-Content $docVersionPath -Raw
-if ($isPrerelease -and -not $Docs)
-{
-    Write-Host "✖️ Skipping version in docs ($versionInDocs) for prerelease version"
-}
-elseif ($versionInDocs -eq $version)
+if ($versionInDocs -eq $version)
 {
     Write-Host "✅ Version in docs ($versionInDocs) already up-to-date"
 }
