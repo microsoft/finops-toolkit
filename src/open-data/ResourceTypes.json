@@ -70,17 +70,6 @@
     ]
   },
   {
-    "resourceType": "github.enterprise/accounts",
-    "singularDisplayName": "GitHub AE",
-    "pluralDisplayName": "GitHub AE",
-    "lowerSingularDisplayName": "GitHub AE account",
-    "lowerPluralDisplayName": "GitHub AE accounts",
-    "isPreview": false,
-    "description": "",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/github.enterprise/accounts.svg",
-    "links": null
-  },
-  {
     "resourceType": "informatica.datamanagement/organizations",
     "singularDisplayName": "Informatica Organization",
     "pluralDisplayName": "Informatica Intelligent Data Management Cloud - An Azure Native ISV Service",
@@ -183,26 +172,6 @@
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.alertsmanagement/smartdetectoralertrules.svg",
     "links": null
-  },
-  {
-    "resourceType": "microsoft.alicespringsdataplane/e4k",
-    "singularDisplayName": "IoT Operations Ops MQ",
-    "pluralDisplayName": "IoT Operations Ops MQs",
-    "lowerSingularDisplayName": "ioT operations ops mq",
-    "lowerPluralDisplayName": "iot operations ops mqs",
-    "isPreview": false,
-    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.alicespringsdataplane/e4k.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
   },
   {
     "resourceType": "microsoft.all/arcvirtualmachines",
@@ -457,10 +426,10 @@
   },
   {
     "resourceType": "microsoft.arcnetworking/arcnwloadbalancers",
-    "singularDisplayName": "Arc LB",
-    "pluralDisplayName": "Arc LB",
-    "lowerSingularDisplayName": "arc lb",
-    "lowerPluralDisplayName": "arc lb",
+    "singularDisplayName": "Arc Load Balancer",
+    "pluralDisplayName": "Arc Load Balancer",
+    "lowerSingularDisplayName": "arc load balancer",
+    "lowerPluralDisplayName": "arc load balancer",
     "isPreview": false,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.arcnetworking/arcnwloadbalancers.svg",
@@ -773,6 +742,17 @@
     ]
   },
   {
+    "resourceType": "microsoft.azurelargeinstance/azurelargeinstances",
+    "singularDisplayName": "AzureLargeInstance",
+    "pluralDisplayName": "AzureLargeInstances",
+    "lowerSingularDisplayName": "azureLargeInstance",
+    "lowerPluralDisplayName": "azureLargeInstances",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurelargeinstance/azurelargeinstances.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.azureplaywrightservice/accounts",
     "singularDisplayName": "Playwright Testing",
     "pluralDisplayName": "Playwright Testing",
@@ -845,7 +825,7 @@
     "pluralDisplayName": "Azure Stack HCI Gallery images - Azure Arc",
     "lowerSingularDisplayName": "azure stack hci gallery image - azure arc",
     "lowerPluralDisplayName": "azure stack hci gallery images - azure arc",
-    "isPreview": true,
+    "isPreview": false,
     "description": "Azure Stack HCI Gallery Images",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurestackhci/galleryimages.svg",
     "links": [
@@ -861,7 +841,7 @@
     "pluralDisplayName": "Azure Stack HCI Logical networks - Azure Arc",
     "lowerSingularDisplayName": "azure stack hci logical network - azure arc",
     "lowerPluralDisplayName": "azure stack hci logical networks - azure arc",
-    "isPreview": true,
+    "isPreview": false,
     "description": "Azure Stack HCI Logical Networks",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurestackhci/logicalnetworks.svg",
     "links": [
@@ -877,7 +857,7 @@
     "pluralDisplayName": "Azure Stack HCI Marketplace Gallery images - Azure Arc",
     "lowerSingularDisplayName": "azure stack hci marketplace gallery image - azure arc",
     "lowerPluralDisplayName": "azure stack hci marketplace gallery images - azure arc",
-    "isPreview": true,
+    "isPreview": false,
     "description": "Azure Stack HCI Marketplace Gallery Images",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurestackhci/marketplacegalleryimages.svg",
     "links": [
@@ -893,7 +873,7 @@
     "pluralDisplayName": "Azure Stack HCI Storage paths - Azure Arc",
     "lowerSingularDisplayName": "azure stack hci storage path - azure arc",
     "lowerPluralDisplayName": "azure stack hci storage paths - azure arc",
-    "isPreview": true,
+    "isPreview": false,
     "description": "Azure Stack HCI Storage Paths",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurestackhci/storagecontainers.svg",
     "links": [
@@ -1469,6 +1449,26 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.cloudhealth/healthmodels",
+    "singularDisplayName": "Health Model",
+    "pluralDisplayName": "Health Models",
+    "lowerSingularDisplayName": "health model",
+    "lowerPluralDisplayName": "health models",
+    "isPreview": false,
+    "description": "A health model augments metric and logs with critical business context of a workload, enabling the automated evaluation of quantified health states.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.cloudhealth/healthmodels.svg",
+    "links": [
+      {
+        "title": "Build health models",
+        "uri": "https://aka.ms/portalfx/designpatterns"
+      },
+      {
+        "title": "Learn more",
+        "uri": "https://aka.ms/portalfx/browse"
+      }
+    ]
+  },
+  {
     "resourceType": "microsoft.cloudtest/accounts",
     "singularDisplayName": "CloudTest Account",
     "pluralDisplayName": "CloudTest Accounts",
@@ -1553,21 +1553,10 @@
     ]
   },
   {
-    "resourceType": "microsoft.cognitivesearch/indexes",
-    "singularDisplayName": "Search index",
-    "pluralDisplayName": "Search indexes",
-    "lowerSingularDisplayName": "search index",
-    "lowerPluralDisplayName": "search indexes",
-    "isPreview": false,
-    "description": "",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.cognitivesearch/indexes.svg",
-    "links": null
-  },
-  {
     "resourceType": "microsoft.cognitiveservices/accounts",
-    "singularDisplayName": "Azure AI service",
+    "singularDisplayName": "Azure AI services",
     "pluralDisplayName": "Azure AI services",
-    "lowerSingularDisplayName": "Azure AI service",
+    "lowerSingularDisplayName": "Azure AI services",
     "lowerPluralDisplayName": "Azure AI services",
     "isPreview": false,
     "description": "Embed the ability to see, hear, speak, search, understand and accelerate decision-making with Azure AI services.",
@@ -1846,6 +1835,26 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.community/communitytrainings",
+    "singularDisplayName": "Community Training",
+    "pluralDisplayName": "Community Training",
+    "lowerSingularDisplayName": "community training",
+    "lowerPluralDisplayName": "community training",
+    "isPreview": false,
+    "description": "Community Training is an Azure offering to allow skilling and provide employment oppurtunities to people.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.community/communitytrainings.svg",
+    "links": [
+      {
+        "title": "Learn more about Pricing",
+        "uri": "https://communitytraining.microsoft.com/pricing/"
+      },
+      {
+        "title": "Learn how to use this service using our documentation",
+        "uri": "https://learn.microsoft.com/en-us/azure/industry/training-services/microsoft-community-training/"
+      }
+    ]
+  },
+  {
     "resourceType": "microsoft.compute/availabilitysets",
     "singularDisplayName": "Availability set",
     "pluralDisplayName": "Availability sets",
@@ -2105,6 +2114,17 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.compute/virtualmachineflexinstances",
+    "singularDisplayName": "Instance",
+    "pluralDisplayName": "Instances",
+    "lowerSingularDisplayName": "instance",
+    "lowerPluralDisplayName": "instances",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.compute/virtualmachineflexinstances.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.compute/virtualmachines",
     "singularDisplayName": "Virtual machine",
     "pluralDisplayName": "Virtual machines",
@@ -2131,7 +2151,7 @@
     "lowerSingularDisplayName": "guest assignment",
     "lowerPluralDisplayName": "guest assignments",
     "isPreview": false,
-    "description": "A guest assignment links a virtual machine to a specific configuration defined by Azure Policy. Use guest assignments to enforce compliance and security policies on your virtual machines, such as ensuring that only certain users have administrative privileges, or that certain software is installed and updated. A guest assignment can also perform actions on your virtual machines, such as installing or removing software, or changing settings.",
+    "description": "Guest Assignment",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.compute/virtualmachines/providers/guestconfigurationassignments.svg",
     "links": null
   },
@@ -2214,9 +2234,9 @@
   {
     "resourceType": "microsoft.confluent/organizations",
     "singularDisplayName": "Confluent organization",
-    "pluralDisplayName": "Apache Kafka® on Confluent Cloud™ - Azure Native ISV service",
+    "pluralDisplayName": "Apache Kafka® & Apache Flink® on Confluent Cloud™ - An Azure Native ISV Service",
     "lowerSingularDisplayName": "Confluent organization",
-    "lowerPluralDisplayName": "Apache Kafka® on Confluent Cloud™ - Azure Native ISV service",
+    "lowerPluralDisplayName": "Apache Kafka® & Apache Flink® on Confluent Cloud™ - An Azure Native ISV Service",
     "isPreview": false,
     "description": "Create a Confluent organization using Azure Marketplace with Pay as you Go or Commits",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.confluent/organizations.svg",
@@ -3107,6 +3127,22 @@
     ]
   },
   {
+    "resourceType": "microsoft.devopsinfrastructure/pools",
+    "singularDisplayName": "Managed DevOps Pool",
+    "pluralDisplayName": "Managed DevOps Pools",
+    "lowerSingularDisplayName": "managed devops pool",
+    "lowerPluralDisplayName": "managed devops pools",
+    "isPreview": false,
+    "description": "Managed DevOps Pools that meet your team needs.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.devopsinfrastructure/pools.svg",
+    "links": [
+      {
+        "title": "Learn more",
+        "uri": "https://aka.ms/mdp-documentation"
+      }
+    ]
+  },
+  {
     "resourceType": "microsoft.devtestlab/labs",
     "singularDisplayName": "DevTest lab",
     "pluralDisplayName": "DevTest labs",
@@ -3600,14 +3636,14 @@
     ]
   },
   {
-    "resourceType": "microsoft.features/featureproviders/subscriptionfeatureregistrations",
+    "resourceType": "microsoft.features/featureprovidernamespaces/featureconfigurations",
     "singularDisplayName": "Preview features",
     "pluralDisplayName": "Preview features",
     "lowerSingularDisplayName": "Preview features",
     "lowerPluralDisplayName": "Preview features",
     "isPreview": true,
     "description": " You can now opt in and out of pre-release features with Preview Features. Register, unregister, and keep track of registration state. ",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.features/featureproviders/subscriptionfeatureregistrations.svg",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.features/featureprovidernamespaces/featureconfigurations.svg",
     "links": null
   },
   {
@@ -3831,11 +3867,31 @@
     ]
   },
   {
+    "resourceType": "microsoft.hybridcompute/arcserverwithwac",
+    "singularDisplayName": "Machine - Azure Arc",
+    "pluralDisplayName": "Machines - Azure Arc",
+    "lowerSingularDisplayName": "machine - Azure Arc",
+    "lowerPluralDisplayName": "machines - Azure Arc",
+    "isPreview": false,
+    "description": "Ensure compliance across all your environments by adding your Linux and Windows servers to Azure. Once in Azure, you can leverage Azure management and governance, and view and organize your inventory in one place.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.hybridcompute/arcserverwithwac.svg",
+    "links": [
+      {
+        "title": "Learn more about Azure Arc",
+        "uri": "https://aka.ms/moreaboutazurearc"
+      },
+      {
+        "title": "Learn more about Azure Arc for servers",
+        "uri": "https://aka.ms/moreaboutazurearcforservers"
+      }
+    ]
+  },
+  {
     "resourceType": "microsoft.hybridcompute/licenses",
-    "singularDisplayName": "Extended Security Updates license",
-    "pluralDisplayName": "Extended Security Updates licenses",
-    "lowerSingularDisplayName": "Extended Security Updates license",
-    "lowerPluralDisplayName": "Extended Security Updates licenses",
+    "singularDisplayName": "Extended Security Updates - Windows Server 2012/R2",
+    "pluralDisplayName": "Extended Security Updates - Windows Server 2012/R2",
+    "lowerSingularDisplayName": "Extended Security Updates - Windows Server 2012/R2",
+    "lowerPluralDisplayName": "Extended Security Updates - Windows Server 2012/R2",
     "isPreview": false,
     "description": "Create and attach an Extended Security Updates (ESUs) license to eligible Arc-enabled machines to continue receiving critical security updates automatically.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.hybridcompute/licenses.svg",
@@ -3884,7 +3940,7 @@
     "lowerSingularDisplayName": "guest assignment",
     "lowerPluralDisplayName": "guest assignments",
     "isPreview": false,
-    "description": "A guest assignment links a virtual machine to a specific configuration defined by Azure Policy. Use guest assignments to enforce compliance and security policies on your virtual machines, such as ensuring that only certain users have administrative privileges, or that certain software is installed and updated. A guest assignment can also perform actions on your virtual machines, such as installing or removing software, or changing settings.",
+    "description": "Guest Assignment",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.hybridcompute/machines/providers/guestconfigurationassignments.svg",
     "links": null
   },
@@ -4288,6 +4344,26 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.iotoperationsmq/mq",
+    "singularDisplayName": "IoT Operations Ops MQ",
+    "pluralDisplayName": "IoT Operations Ops MQs",
+    "lowerSingularDisplayName": "ioT operations ops mq",
+    "lowerPluralDisplayName": "iot operations ops mqs",
+    "isPreview": false,
+    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.iotoperationsmq/mq.svg",
+    "links": [
+      {
+        "title": "Get consistent",
+        "uri": "https://aka.ms/portalfx/designpatterns"
+      },
+      {
+        "title": "Learn more",
+        "uri": "https://aka.ms/portalfx/browse"
+      }
+    ]
+  },
+  {
     "resourceType": "microsoft.keyvault/managedhsms",
     "singularDisplayName": "Azure Key Vault Managed HSM",
     "pluralDisplayName": "Azure Key Vault Managed HSMs",
@@ -4614,7 +4690,7 @@
     "lowerSingularDisplayName": "Azure AI Studio",
     "lowerPluralDisplayName": "Azure AI Studio",
     "isPreview": false,
-    "description": "Azure AI Studio description",
+    "description": "Your platform to build generative AI solutions and custom copilots",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.machinelearningservices/aistudio.svg",
     "links": null
   },
@@ -4911,6 +4987,22 @@
     ]
   },
   {
+    "resourceType": "microsoft.mission/communities/communityendpoints",
+    "singularDisplayName": "Community Endpoint",
+    "pluralDisplayName": "Community Endpoints",
+    "lowerSingularDisplayName": "community endpoint",
+    "lowerPluralDisplayName": "community endpoints",
+    "isPreview": false,
+    "description": "Endpoints are metadata properties that describes how to connect to Virtual Enclave resources intended to be exposed to other Virtual Enclaves or Communities.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mission/communities/communityendpoints.svg",
+    "links": [
+      {
+        "title": "Learn more",
+        "uri": "https://azure.microsoft.com/en-us/"
+      }
+    ]
+  },
+  {
     "resourceType": "microsoft.mission/communities/transithubs",
     "singularDisplayName": "Transit hub",
     "pluralDisplayName": "Transit hubs",
@@ -4975,6 +5067,22 @@
     ]
   },
   {
+    "resourceType": "microsoft.mission/virtualenclaves/enclaveendpoints",
+    "singularDisplayName": "Enclave Endpoint",
+    "pluralDisplayName": "Enclave Endpoints",
+    "lowerSingularDisplayName": "enclave endpoint",
+    "lowerPluralDisplayName": "enclave endpoints",
+    "isPreview": false,
+    "description": "Endpoints are metadata properties that describes how to connect to Virtual Enclave resources intended to be exposed to other Virtual Enclaves or Communities.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mission/virtualenclaves/enclaveendpoints.svg",
+    "links": [
+      {
+        "title": "Learn more",
+        "uri": "https://azure.microsoft.com/en-us/"
+      }
+    ]
+  },
+  {
     "resourceType": "microsoft.mission/virtualenclaves/endpoints",
     "singularDisplayName": "Endpoint",
     "pluralDisplayName": "Endpoints",
@@ -4997,7 +5105,7 @@
     "lowerSingularDisplayName": "workload",
     "lowerPluralDisplayName": "workloads",
     "isPreview": false,
-    "description": "Create a workload within an enclave. Workloads are a collection of managed resource groups and their underlying resources.",
+    "description": "Creating a workload establishes a platform-managed resource group protected by Azure Policy.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mission/virtualenclaves/workloads.svg",
     "links": [
       {
@@ -5210,369 +5318,6 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilenetwork/simgroups/sims.svg",
-    "links": null
-  },
-  {
-    "resourceType": "microsoft.mobilepacketcore/mobilepacketcores",
-    "singularDisplayName": "Operator 5G Core",
-    "pluralDisplayName": "Operator 5G Core",
-    "lowerSingularDisplayName": "operator 5G core",
-    "lowerPluralDisplayName": "operator 5G core",
-    "isPreview": false,
-    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilepacketcore/mobilepacketcores.svg",
-    "links": null
-  },
-  {
-    "resourceType": "microsoft.mobilepacketcore/mobilepacketcores/amfprofiles",
-    "singularDisplayName": "AMF profile",
-    "pluralDisplayName": "AMF profiles",
-    "lowerSingularDisplayName": "AMF profile",
-    "lowerPluralDisplayName": "AMF profiles",
-    "isPreview": false,
-    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilepacketcore/mobilepacketcores/amfprofiles.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
-  },
-  {
-    "resourceType": "microsoft.mobilepacketcore/mobilepacketcores/configsnapshots",
-    "singularDisplayName": "Config snapshot",
-    "pluralDisplayName": "Config snapshots",
-    "lowerSingularDisplayName": "config snapshot",
-    "lowerPluralDisplayName": "config snapshots",
-    "isPreview": false,
-    "description": "",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilepacketcore/mobilepacketcores/configsnapshots.svg",
-    "links": null
-  },
-  {
-    "resourceType": "microsoft.mobilepacketcore/mobilepacketcores/datanetworks",
-    "singularDisplayName": "Data Network",
-    "pluralDisplayName": "Data Networks",
-    "lowerSingularDisplayName": "data network",
-    "lowerPluralDisplayName": "data networks",
-    "isPreview": false,
-    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilepacketcore/mobilepacketcores/datanetworks.svg",
-    "links": null
-  },
-  {
-    "resourceType": "microsoft.mobilepacketcore/mobilepacketcores/deploymentareas",
-    "singularDisplayName": "Deployment Area",
-    "pluralDisplayName": "Deployment Areas",
-    "lowerSingularDisplayName": "deployment area",
-    "lowerPluralDisplayName": "deployment areas",
-    "isPreview": false,
-    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilepacketcore/mobilepacketcores/deploymentareas.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
-  },
-  {
-    "resourceType": "microsoft.mobilepacketcore/mobilepacketcores/networkslices",
-    "singularDisplayName": "Network slice",
-    "pluralDisplayName": "Network slices",
-    "lowerSingularDisplayName": "network slice",
-    "lowerPluralDisplayName": "network slices",
-    "isPreview": false,
-    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilepacketcore/mobilepacketcores/networkslices.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
-  },
-  {
-    "resourceType": "microsoft.mobilepacketcore/mobilepacketcores/nfvis",
-    "singularDisplayName": "Infrastructure",
-    "pluralDisplayName": "Infrastructures",
-    "lowerSingularDisplayName": "infrastructure",
-    "lowerPluralDisplayName": "infrastructures",
-    "isPreview": false,
-    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilepacketcore/mobilepacketcores/nfvis.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
-  },
-  {
-    "resourceType": "microsoft.mobilepacketcore/mobilepacketcores/nfvis/clusters",
-    "singularDisplayName": "Cluster",
-    "pluralDisplayName": "Clusters",
-    "lowerSingularDisplayName": "cluster",
-    "lowerPluralDisplayName": "clusters",
-    "isPreview": false,
-    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilepacketcore/mobilepacketcores/nfvis/clusters.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
-  },
-  {
-    "resourceType": "microsoft.mobilepacketcore/mobilepacketcores/nfvis/clusters/amfdeployments",
-    "singularDisplayName": "AMF Deployment",
-    "pluralDisplayName": "AMF Deployments",
-    "lowerSingularDisplayName": "amf deployment",
-    "lowerPluralDisplayName": "amf deployments",
-    "isPreview": false,
-    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilepacketcore/mobilepacketcores/nfvis/clusters/amfdeployments.svg",
-    "links": null
-  },
-  {
-    "resourceType": "microsoft.mobilepacketcore/mobilepacketcores/nfvis/clusters/nrfdeployments",
-    "singularDisplayName": "NRF Deployment",
-    "pluralDisplayName": "NRF Deployments",
-    "lowerSingularDisplayName": "NRF deployment",
-    "lowerPluralDisplayName": "NRF deployments",
-    "isPreview": false,
-    "description": "Create NRF deployment object from GUI",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilepacketcore/mobilepacketcores/nfvis/clusters/nrfdeployments.svg",
-    "links": null
-  },
-  {
-    "resourceType": "microsoft.mobilepacketcore/mobilepacketcores/nfvis/clusters/nssfdeployments",
-    "singularDisplayName": "NSSF Deployment",
-    "pluralDisplayName": "NSSF Deployments",
-    "lowerSingularDisplayName": "nssf deployment",
-    "lowerPluralDisplayName": "nssf deployments",
-    "isPreview": false,
-    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilepacketcore/mobilepacketcores/nfvis/clusters/nssfdeployments.svg",
-    "links": null
-  },
-  {
-    "resourceType": "microsoft.mobilepacketcore/mobilepacketcores/nfvis/clusters/smfdeployments",
-    "singularDisplayName": "SMF Deployment",
-    "pluralDisplayName": "SMF Deployments",
-    "lowerSingularDisplayName": "smf deployment",
-    "lowerPluralDisplayName": "smf deployments",
-    "isPreview": false,
-    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilepacketcore/mobilepacketcores/nfvis/clusters/smfdeployments.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
-  },
-  {
-    "resourceType": "microsoft.mobilepacketcore/mobilepacketcores/nfvis/clusters/upfdeployments",
-    "singularDisplayName": "UPF Deployment",
-    "pluralDisplayName": "UPF Deployments",
-    "lowerSingularDisplayName": "upf deployment",
-    "lowerPluralDisplayName": "upf deployments",
-    "isPreview": false,
-    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilepacketcore/mobilepacketcores/nfvis/clusters/upfdeployments.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
-  },
-  {
-    "resourceType": "microsoft.mobilepacketcore/mobilepacketcores/nrfprofiles",
-    "singularDisplayName": "NRF Profile",
-    "pluralDisplayName": "NRF Profiles",
-    "lowerSingularDisplayName": "NRF profile",
-    "lowerPluralDisplayName": "NRF profile",
-    "isPreview": false,
-    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilepacketcore/mobilepacketcores/nrfprofiles.svg",
-    "links": null
-  },
-  {
-    "resourceType": "microsoft.mobilepacketcore/mobilepacketcores/packetdetectionrules",
-    "singularDisplayName": "Packet detection rule",
-    "pluralDisplayName": "Packet detection rules",
-    "lowerSingularDisplayName": "packet detection rule",
-    "lowerPluralDisplayName": "packet detection rules",
-    "isPreview": false,
-    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilepacketcore/mobilepacketcores/packetdetectionrules.svg",
-    "links": null
-  },
-  {
-    "resourceType": "microsoft.mobilepacketcore/mobilepacketcores/packetflowdescriptions",
-    "singularDisplayName": "Packet Flow Description",
-    "pluralDisplayName": "Packet Flow Descriptions",
-    "lowerSingularDisplayName": "packet flow description",
-    "lowerPluralDisplayName": "packet flow descriptions",
-    "isPreview": false,
-    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilepacketcore/mobilepacketcores/packetflowdescriptions.svg",
-    "links": null
-  },
-  {
-    "resourceType": "microsoft.mobilepacketcore/mobilepacketcores/pccrulebases",
-    "singularDisplayName": "PCC Rule Base",
-    "pluralDisplayName": "PCC Rule Bases",
-    "lowerSingularDisplayName": "PCC rule base",
-    "lowerPluralDisplayName": "PCC rule bases",
-    "isPreview": false,
-    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilepacketcore/mobilepacketcores/pccrulebases.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
-  },
-  {
-    "resourceType": "microsoft.mobilepacketcore/mobilepacketcores/pccrules",
-    "singularDisplayName": "PCC Rule",
-    "pluralDisplayName": "PCC Rules",
-    "lowerSingularDisplayName": "PCC rule",
-    "lowerPluralDisplayName": "PCC rules",
-    "isPreview": false,
-    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilepacketcore/mobilepacketcores/pccrules.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
-  },
-  {
-    "resourceType": "microsoft.mobilepacketcore/mobilepacketcores/plmns",
-    "singularDisplayName": "Public Land Mobile Network",
-    "pluralDisplayName": "Public Land Mobile Networks",
-    "lowerSingularDisplayName": "public land mobile network",
-    "lowerPluralDisplayName": "public land mobile networks",
-    "isPreview": false,
-    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilepacketcore/mobilepacketcores/plmns.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
-  },
-  {
-    "resourceType": "microsoft.mobilepacketcore/mobilepacketcores/serviceareas",
-    "singularDisplayName": "Service Area",
-    "pluralDisplayName": "Service Areas",
-    "lowerSingularDisplayName": "service area",
-    "lowerPluralDisplayName": "service areas",
-    "isPreview": false,
-    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilepacketcore/mobilepacketcores/serviceareas.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
-  },
-  {
-    "resourceType": "microsoft.mobilepacketcore/mobilepacketcores/serviceareas/trackingareas",
-    "singularDisplayName": "Tracking Area",
-    "pluralDisplayName": "Tracking Areas",
-    "lowerSingularDisplayName": "tracking area",
-    "lowerPluralDisplayName": "tracking areas",
-    "isPreview": false,
-    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilepacketcore/mobilepacketcores/serviceareas/trackingareas.svg",
-    "links": null
-  },
-  {
-    "resourceType": "microsoft.mobilepacketcore/mobilepacketcores/smfprofiles",
-    "singularDisplayName": "SMF Profile",
-    "pluralDisplayName": "SMF Profiles",
-    "lowerSingularDisplayName": "smf profile",
-    "lowerPluralDisplayName": "smf profile",
-    "isPreview": false,
-    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilepacketcore/mobilepacketcores/smfprofiles.svg",
-    "links": null
-  },
-  {
-    "resourceType": "microsoft.mobilepacketcore/mobilepacketcores/subscriberanalyzers",
-    "singularDisplayName": "UPF Profile",
-    "pluralDisplayName": "UPF Profiles",
-    "lowerSingularDisplayName": "upf profile",
-    "lowerPluralDisplayName": "upf profile",
-    "isPreview": false,
-    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilepacketcore/mobilepacketcores/subscriberanalyzers.svg",
-    "links": null
-  },
-  {
-    "resourceType": "microsoft.mobilepacketcore/mobilepacketcores/upfprofiles",
-    "singularDisplayName": "UPF Profile",
-    "pluralDisplayName": "UPF Profiles",
-    "lowerSingularDisplayName": "upf profile",
-    "lowerPluralDisplayName": "upf profile",
-    "isPreview": false,
-    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilepacketcore/mobilepacketcores/upfprofiles.svg",
     "links": null
   },
   {
@@ -6132,7 +5877,7 @@
     "lowerSingularDisplayName": "load balancer",
     "lowerPluralDisplayName": "load balancers",
     "isPreview": false,
-    "description": "With built-in load balancing for cloud services and virtual machines, you can create highly-available and scalable applications in minutes. Azure Load Balancer supports TCP/UDP-based protocols such as HTTP, HTTPS, and SMTP, and protocols used for real-time voice and video messaging applications.",
+    "description": "Azure Load Balancer enables your applications to be highly available and scalable. You can scale up and down based on your traffic patterns. Azure Load Balancer is best suited for network traffic requiring high performance and ultra-low latency.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.network/loadbalancers.svg",
     "links": [
       {
@@ -6164,7 +5909,7 @@
     "lowerSingularDisplayName": "NAT gateway",
     "lowerPluralDisplayName": "NAT gateways",
     "isPreview": false,
-    "description": "A NAT gateway allows you to connect your private resources in a virtual network to the internet without using public IP addresses. It performs source network address translation (SNAT) for outbound traffic by replacing the private source IP address with a public IP address. NAT gateways provide dynamic SNAT port functionality which improves scalability and helps to avoid SNAT port exhaustion.",
+    "description": "Use Azure NAT Gateway to provide highly resilient and secure outbound connectivity to the internet from private instances in your virtual network. NAT gateway is a fully managed network address translation service that dynamically scales outbound connectivity and helps avoid connectivity failures due to port exhaustion. You can use a single instance to scale across multiple VMs in your network with predictable outbound addresses.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.network/natgateways.svg",
     "links": null
   },
@@ -6284,6 +6029,17 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.network/networkmanagers/securityuserconfigurations.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.network/networkmanagers/verifierworkspaces",
+    "singularDisplayName": "Verifier Workspace",
+    "pluralDisplayName": "Verifier workspace",
+    "lowerSingularDisplayName": "verifier workspace",
+    "lowerPluralDisplayName": "verifier workspaces",
+    "isPreview": false,
+    "description": "Azure Virtual Network Manager Verifier Workspace enables you to verify your virtual network configurations.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.network/networkmanagers/verifierworkspaces.svg",
     "links": null
   },
   {
@@ -6423,7 +6179,7 @@
     "lowerSingularDisplayName": "public IP address",
     "lowerPluralDisplayName": "public IP addresses",
     "isPreview": false,
-    "description": "Create a public IP address and associate it to resources, like virtual machines. Internet resources communicate inbound to Azure resources through a public IP address.",
+    "description": "Public IP addresses allow internet resources to communicate inbound to your Azure resources. You can also associate public IP addresses to Azure resources, like virtual machines, to communicate to the internet and public facing Azure services.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.network/publicipaddresses.svg",
     "links": [
       {
@@ -6439,7 +6195,7 @@
     "lowerSingularDisplayName": "public ip prefix",
     "lowerPluralDisplayName": "public ip prefixes",
     "isPreview": false,
-    "description": "Azure Public IP Prefixes allow you to reserve a range of public IP addresses and use them for your Azure resources. You can then create public IP addresses from your prefix and assign them to Azure resources, such as virtual machines, load balancers, application gateways, and VPN gateways. When you delete the individual public IPs, they're returned to your reserved range for later reuse.",
+    "description": "Azure Public IP Prefixes allow you to reserve a range of public IP addresses and use them for your Azure resources. You can create public IP addresses from this static range and assign them to Azure resources, such as virtual machines, NAT gateways, Load balancers, Application gateways, and VPN gateways. This range of IPs can be used to communicate to and from the internet.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.network/publicipprefixes.svg",
     "links": null
   },
@@ -6918,17 +6674,6 @@
     "links": null
   },
   {
-    "resourceType": "microsoft.policyinsights/policystates",
-    "singularDisplayName": "Policy State",
-    "pluralDisplayName": "Policy States",
-    "lowerSingularDisplayName": "policy state",
-    "lowerPluralDisplayName": "policy states",
-    "isPreview": false,
-    "description": "",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.policyinsights/policystates.svg",
-    "links": null
-  },
-  {
     "resourceType": "microsoft.portal/dashboards",
     "singularDisplayName": "Shared dashboard",
     "pluralDisplayName": "Shared dashboards",
@@ -7023,7 +6768,7 @@
     "lowerSingularDisplayName": "professional service",
     "lowerPluralDisplayName": "professional services",
     "isPreview": false,
-    "description": "Description",
+    "description": "Professional service",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.professionalservice/resources.svg",
     "links": null
   },
@@ -7500,17 +7245,6 @@
     "links": null
   },
   {
-    "resourceType": "microsoft.search/allsearchresources",
-    "singularDisplayName": "AI Search Resource",
-    "pluralDisplayName": "AI Search Resources",
-    "lowerSingularDisplayName": "AI search resource",
-    "lowerPluralDisplayName": "AI search resources",
-    "isPreview": false,
-    "description": "",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.search/allsearchresources.svg",
-    "links": null
-  },
-  {
     "resourceType": "microsoft.search/searchservices",
     "singularDisplayName": "Search service",
     "pluralDisplayName": "Search services",
@@ -7542,6 +7276,26 @@
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.security/pricings.svg",
     "links": null
+  },
+  {
+    "resourceType": "microsoft.securitycopilot/capacities",
+    "singularDisplayName": "My Resource",
+    "pluralDisplayName": "My Resources",
+    "lowerSingularDisplayName": "my resource",
+    "lowerPluralDisplayName": "my resources",
+    "isPreview": false,
+    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.securitycopilot/capacities.svg",
+    "links": [
+      {
+        "title": "Get consistent",
+        "uri": "https://aka.ms/portalfx/designpatterns"
+      },
+      {
+        "title": "Learn more",
+        "uri": "https://aka.ms/portalfx/browse"
+      }
+    ]
   },
   {
     "resourceType": "microsoft.securitydetonation/chambers",
@@ -7926,14 +7680,14 @@
     ]
   },
   {
-    "resourceType": "microsoft.storage/storagetasks",
-    "singularDisplayName": "Storage task",
-    "pluralDisplayName": "Storage tasks",
-    "lowerSingularDisplayName": "storage task",
-    "lowerPluralDisplayName": "storage tasks",
+    "resourceType": "microsoft.storageactions/storagetasks",
+    "singularDisplayName": "Storage task - Azure Storage Actions",
+    "pluralDisplayName": "Storage tasks - Azure Storage Actions",
+    "lowerSingularDisplayName": "storage task - azure storage actions",
+    "lowerPluralDisplayName": "storage tasks - azure storage actions",
     "isPreview": false,
     "description": "",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.storage/storagetasks.svg",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.storageactions/storagetasks.svg",
     "links": [
       {
         "title": "Learn more",
@@ -8156,6 +7910,17 @@
     "isPreview": false,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.testbase/testbaseaccounts.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.testbase/testbaseaccounts/customimages",
+    "singularDisplayName": "Custom Images",
+    "pluralDisplayName": "Custom Images",
+    "lowerSingularDisplayName": "Custom Images",
+    "lowerPluralDisplayName": "Custom Images",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.testbase/testbaseaccounts/customimages.svg",
     "links": null
   },
   {
@@ -8451,6 +8216,17 @@
     ]
   },
   {
+    "resourceType": "microsoft.workloads/epicvirtualinstances",
+    "singularDisplayName": "Virtual Instance for Epic solution",
+    "pluralDisplayName": "Virtual Instance for Epic solutions",
+    "lowerSingularDisplayName": "virtual instance for epic solution",
+    "lowerPluralDisplayName": "virtual instance for epic solutions",
+    "isPreview": false,
+    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.workloads/epicvirtualinstances.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.workloads/insights",
     "singularDisplayName": "Microsoft.Workloads insight",
     "pluralDisplayName": "Microsoft.Workloads insights",
@@ -8577,10 +8353,10 @@
   },
   {
     "resourceType": "oracle.database/oraclesubscriptions",
-    "singularDisplayName": "Oracle Purchase",
-    "pluralDisplayName": "Oracle Purchases",
-    "lowerSingularDisplayName": "oracle purchase",
-    "lowerPluralDisplayName": "oracle purchases",
+    "singularDisplayName": "OracleSubscription",
+    "pluralDisplayName": "OracleSubscription",
+    "lowerSingularDisplayName": "oracleSubscription",
+    "lowerPluralDisplayName": "oracleSubscription",
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/oracle.database/oraclesubscriptions.svg",
@@ -8632,13 +8408,35 @@
   },
   {
     "resourceType": "private.aszlabhardware/labservers",
-    "singularDisplayName": "Private.AszLabHardware labserver",
-    "pluralDisplayName": "Private.AszLabHardware labservers",
-    "lowerSingularDisplayName": "private.aszlabhardware labserver",
-    "lowerPluralDisplayName": "private.aszlabhardware labservers",
+    "singularDisplayName": "AszLabHardware Lab Server",
+    "pluralDisplayName": "AszLabHardware Lab Servers",
+    "lowerSingularDisplayName": "aszlabhardware lab server",
+    "lowerPluralDisplayName": "aszlabhardware lab servers",
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/private.aszlabhardware/labservers.svg",
+    "links": null
+  },
+  {
+    "resourceType": "private.aszlabhardware/reservations",
+    "singularDisplayName": "Private.AszLabHardware reservation",
+    "pluralDisplayName": "Private.AszLabHardware reservations",
+    "lowerSingularDisplayName": "private.aszlabhardware reservation",
+    "lowerPluralDisplayName": "private.aszlabhardware reservations",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/private.aszlabhardware/reservations.svg",
+    "links": null
+  },
+  {
+    "resourceType": "private.aszlabhardware/reservations/servers",
+    "singularDisplayName": "Private.AszLabHardware reservations server",
+    "pluralDisplayName": "Private.AszLabHardware reservations servers",
+    "lowerSingularDisplayName": "private.aszlabhardware reservations server",
+    "lowerPluralDisplayName": "private.aszlabhardware reservations servers",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/private.aszlabhardware/reservations/servers.svg",
     "links": null
   },
   {
@@ -8741,55 +8539,37 @@
     "links": null
   },
   {
-    "resourceType": "private.learning/communitytraining",
-    "singularDisplayName": "Community Training",
-    "pluralDisplayName": "Community Training",
-    "lowerSingularDisplayName": "community training",
-    "lowerPluralDisplayName": "community training",
-    "isPreview": false,
-    "description": "Community Training is an Azure offering to allow skilling and provide employment oppurtunities to people.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/private.learning/communitytraining.svg",
-    "links": [
-      {
-        "title": "Learn more about Pricing",
-        "uri": "https://communitytraining.microsoft.com/pricing/"
-      },
-      {
-        "title": "Learn how to use this service using our documentation",
-        "uri": "https://learn.microsoft.com/en-us/azure/industry/training-services/microsoft-community-training/"
-      }
-    ]
-  },
-  {
-    "resourceType": "private.search/indexes",
-    "singularDisplayName": "Search index (private RP)",
-    "pluralDisplayName": "Search indexes (private RP)",
-    "lowerSingularDisplayName": "search index (private RP)",
-    "lowerPluralDisplayName": "search indexes (private RP)",
+    "resourceType": "purestorage.block/reservations",
+    "singularDisplayName": "PureStorage.Block reservation",
+    "pluralDisplayName": "PureStorage.Block reservations",
+    "lowerSingularDisplayName": "purestorage.block reservation",
+    "lowerPluralDisplayName": "purestorage.block reservations",
     "isPreview": false,
     "description": "",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/private.search/indexes.svg",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/purestorage.block/reservations.svg",
     "links": null
   },
   {
-    "resourceType": "providers.test/statefulibizaengines",
-    "singularDisplayName": "My Resource",
-    "pluralDisplayName": "My Resources",
-    "lowerSingularDisplayName": "my resource",
-    "lowerPluralDisplayName": "my resources",
+    "resourceType": "purestorage.block/storagepools",
+    "singularDisplayName": "PureStorage.Block storage pool",
+    "pluralDisplayName": "PureStorage.Block storage pools",
+    "lowerSingularDisplayName": "purestorage.block storage pool",
+    "lowerPluralDisplayName": "purestorage.block storage pools",
     "isPreview": false,
-    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/providers.test/statefulibizaengines.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/purestorage.block/storagepools.svg",
+    "links": null
+  },
+  {
+    "resourceType": "purestorage.block/storagepools/avsstoragecontainers",
+    "singularDisplayName": "PureStorage.Block storage pools avs storage container",
+    "pluralDisplayName": "PureStorage.Block storage pools avs storage containers",
+    "lowerSingularDisplayName": "purestorage.block storage pools avs storage container",
+    "lowerPluralDisplayName": "purestorage.block storage pools avs storage containers",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/purestorage.block/storagepools/avsstoragecontainers.svg",
+    "links": null
   },
   {
     "resourceType": "qumulo.storage/filesystems",
@@ -8816,6 +8596,26 @@
     "isPreview": false,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/solarwinds.observability/organizations.svg",
+    "links": [
+      {
+        "title": "Get consistent",
+        "uri": "https://aka.ms/portalfx/designpatterns"
+      },
+      {
+        "title": "Learn more",
+        "uri": "https://aka.ms/portalfx/browse"
+      }
+    ]
+  },
+  {
+    "resourceType": "splitio.experimentation/experimentationworkspaces",
+    "singularDisplayName": "Split IO",
+    "pluralDisplayName": "Split IO",
+    "lowerSingularDisplayName": "split io",
+    "lowerPluralDisplayName": "split io",
+    "isPreview": false,
+    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/splitio.experimentation/experimentationworkspaces.svg",
     "links": [
       {
         "title": "Get consistent",
