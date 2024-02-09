@@ -14,6 +14,7 @@
     - VS Code
     - Bicep PowerShell
     - NodeJS and configured modules (-NPM parameter)
+    - Pester
 
     If an app or module is already installed, it will be skipped. To see which apps would be installed, use the -WhatIf parameter.
 
@@ -26,6 +27,9 @@
     .PARAMETER NPM
     Installs NodeJS via winget, then installs configured NPM modules. NPM is used for local dev build tasks.
 
+    .PARAMETER Pester
+    Installs Pester PowerShell module for testing PowerShell commands.
+
     .PARAMETER All
     Installs optional apps and modules.
 #>
@@ -34,6 +38,7 @@ Param(
     [switch] $VSCode,
     [switch] $BicepPowerShell,
     [switch] $NPM,
+    [switch] $Pester,
     [switch] $All
 )
 
@@ -43,17 +48,25 @@ $winget = if ($IsWindows) { Get-AppxPackage -Name Microsoft.DesktopAppInstaller 
 Write-Verbose "...$(if (-not $winget) { 'not ' })installed"
 
 # VS Code
-if ($VSCode -or $All) {
+if ($VSCode -or $All)
+{
     Write-Verbose "Checking for VS Code..."
-    if ((pwsh -NoProfile -Command 'code --version' | Join-String).Contains('not recognized') -eq $false) {
+    if ((pwsh -NoProfile -Command 'code --version' | Join-String).Contains('not recognized') -eq $false)
+    {
         Write-Verbose "...already installed"
-    } else {
+    }
+    else
+    {
         Write-Verbose "...not installed"
-        if ($PSCmdlet.ShouldProcess("VS Code", 'Install')) {
-            if ($winget) {
+        if ($PSCmdlet.ShouldProcess("VS Code", 'Install'))
+        {
+            if ($winget)
+            {
                 Write-Host 'Installing VS Code...'
                 winget install -e --id Microsoft.VisualStudioCode
-            } else {
+            }
+            else
+            {
                 Write-Host 'Please install VS Code from https://code.visualstudio.com/Download'
             }
         }
@@ -62,24 +75,33 @@ if ($VSCode -or $All) {
 
 # Az -- required for testing
 Write-Verbose "Checking for Az PowerShell..."
-if (Get-Module -Name Az -ListAvailable) {
+if (Get-Module -Name Az -ListAvailable)
+{
     Write-Verbose "...installed"
-} else {
+}
+else
+{
     Write-Verbose "...not installed"
-    if ($PSCmdlet.ShouldProcess("Az PowerShell module", 'Install')) {
+    if ($PSCmdlet.ShouldProcess("Az PowerShell module", 'Install'))
+    {
         Write-Host 'Installing Az PowerShell...'
         Install-Module -Name Az -Scope CurrentUser -Repository PSGallery -Force
     }
 }
 
 # Bicep PowerShell
-if ($BicepPowerShell -or $All) {
+if ($BicepPowerShell -or $All)
+{
     Write-Verbose "Checking for Bicep PowerShell..."
-    if (Get-Module -Name Bicep -ListAvailable) {
+    if (Get-Module -Name Bicep -ListAvailable)
+    {
         Write-Verbose "...installed"
-    } else {
+    }
+    else
+    {
         Write-Verbose "...not installed"
-        if ($PSCmdlet.ShouldProcess("Bicep PowerShell", 'Install')) {
+        if ($PSCmdlet.ShouldProcess("Bicep PowerShell", 'Install'))
+        {
             Write-Host 'Installing Bicep PowerShell...'
             Install-Module -Name Bicep -Scope CurrentUser -Repository PSGallery -Force
         }
@@ -88,15 +110,22 @@ if ($BicepPowerShell -or $All) {
 
 # Bicep CLI -- required for testing
 Write-Verbose "Checking for bicep..."
-if ((pwsh -NoProfile -Command 'bicep --version' | Join-String).Contains('not recognized') -eq $false) {
+if ((pwsh -NoProfile -Command 'bicep --version' | Join-String).Contains('not recognized') -eq $false)
+{
     Write-Verbose "...already installed"
-} else {
+}
+else
+{
     Write-Verbose "...not installed"
-    if ($PSCmdlet.ShouldProcess("Bicep CLI", 'Install')) {
-        if ($winget) {
+    if ($PSCmdlet.ShouldProcess("Bicep CLI", 'Install'))
+    {
+        if ($winget)
+        {
             Write-Host 'Installing Bicep CLI...'
             winget install -e --id Microsoft.Bicep
-        } elseif ($IsWindows) {
+        }
+        elseif ($IsWindows)
+        {
             Write-Host 'Installing Bicep CLI...'
             # Copied from https://learn.microsoft.com/azure/azure-resource-manager/bicep/install#manual-with-powershell
             # Create the install folder
@@ -106,40 +135,64 @@ if ((pwsh -NoProfile -Command 'bicep --version' | Join-String).Contains('not rec
             # Fetch the latest Bicep CLI binary
             (New-Object Net.WebClient).DownloadFile("https://github.com/Azure/bicep/releases/latest/download/bicep-win-x64.exe", "$installPath\bicep.exe")
             # Add bicep to your PATH
-            $currentPath = (Get-Item -path "HKCU:\Environment" ).GetValue('Path', '', 'DoNotExpandEnvironmentNames')
+            $currentPath = (Get-Item -Path "HKCU:\Environment" ).GetValue('Path', '', 'DoNotExpandEnvironmentNames')
             if (-not $currentPath.Contains("%USERPROFILE%\.bicep")) { setx PATH ($currentPath + ";%USERPROFILE%\.bicep") }
             if (-not $env:path.Contains($installPath)) { $env:path += ";$installPath" }
             # Verify you can now access the 'bicep' command.
             bicep --version
-        } else {
+        }
+        else
+        {
             Write-Host 'Please install Bicep from https://github.com/Azure/bicep/releases/latest/download'
         }
     }
 }
 
 # NodeJS -- used for local dev scripts
-if ($NPM -or $All) {
+$npmVer = (pwsh -NoProfile -Command 'npm -v' | Join-String).Contains('not recognized') -eq $false
+if ($NPM -or $All)
+{
     Write-Verbose "Checking for npm..."
-    $npm = (pwsh -NoProfile -Command 'npm -v' | Join-String).Contains('not recognized') -eq $false
-    if ($npm) {
+    if ($npmVer)
+    {
         Write-Verbose "...already installed"
-    } else {
+    }
+    else
+    {
         Write-Verbose "...not installed"
-        if ($PSCmdlet.ShouldProcess("NodeJS", 'Install')) {
-            if ($winget) {
+        if ($PSCmdlet.ShouldProcess("NodeJS", 'Install'))
+        {
+            if ($winget)
+            {
                 Write-Host 'Installing NodeJS...'
                 winget install OpenJS.NodeJS.LTS
-                $npm = $? -eq 0
+                $npmVer = $? -eq 0
             }
-            if (-not $npm) {
+            if (-not $npmVer)
+            {
                 Write-Host 'Please install NPM from https://nodejs.org/en/download'
             }
         }
     }
 
     # NPM modules
-    if ($npm -and $PSCmdlet.ShouldProcess("NPM modules", 'Install')) {
+    if ($npmVer -and $PSCmdlet.ShouldProcess("NPM modules", 'Install'))
+    {
         Write-Host 'Updating NPM modules...'
         npm install
     }
+}
+elseif (-not $npmVer)
+{
+    Write-Host "⚠️ Skipping NPM. You will not be able to run scripts from any directory or update versions."
+}
+
+# Pester -- Used for testing PowerShell commands
+if ($Pester -or $All)
+{
+    Install-Module -Name Pester -Force
+}
+elseif (-not (Get-Module Pester))
+{
+    Write-Host "⚠️ Skipping Pester. You will not be able to run tests."
 }

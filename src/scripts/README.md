@@ -32,6 +32,7 @@ The following optional apps/modules can be installed with the corresponding para
 - Visual Studio Code
 - Bicep PowerShell module
 - NodeJS and configured modules (-NPM parameter)
+- Pester PowerShell module
 
 If an app or module is already installed, it will be skipped. To see which apps would be installed, use the -WhatIf parameter.
 
@@ -52,7 +53,7 @@ Examples:
 - Installs all required and specific apps/modules:
 
   ```powershell
-  ./Init-Repo -VSCode -NPM
+  ./Init-Repo -VSCode -NPM -Pester
   ```
 
 - Installs all required and optional apps/modules:
