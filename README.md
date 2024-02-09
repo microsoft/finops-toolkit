@@ -83,6 +83,9 @@ There are many ways to participate. From reporting bugs and requesting features 
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/thecloudman"><img src="https://avatars.githubusercontent.com/u/28718362?v=4?s=100" width="100px;" alt="Graham"/><br /><sub><b>Graham</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Athecloudman" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/psilantropy"><img src="https://avatars.githubusercontent.com/u/79955883?v=4?s=100" width="100px;" alt="psilantropy"/><br /><sub><b>psilantropy</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Apsilantropy" title="Bug reports">🐛</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/msamendinger"><img src="https://avatars.githubusercontent.com/u/13642442?v=4?s=100" width="100px;" alt="Marc Samendinger"/><br /><sub><b>Marc Samendinger</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=msamendinger" title="Documentation">📖</a></td>
+    </tr>
   </tbody>
 </table>
 
