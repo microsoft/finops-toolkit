@@ -1,11 +1,7 @@
-// TODO: Make sure you delete this comment and comment out the "VS Code:" line below before using in Power BI. You will get an "Account URL is not valid" error if you don't.
-() =>
+(optional start as datetime, optional end as datetime) =>
 let
-    // VS Code: Uncomment for intellisense in VS Code, but do not include in Power BI reports --
-    ftk_Hub = () => "",
-
     // Get the data
-    rawData = ftk_Hub("focuscost"),
+    rawData = ftk_Hub("focuscost", start, end),
 
     // Fix types
     FixTypes = Table.TransformColumnTypes(rawData, {
@@ -35,7 +31,7 @@ let
         {"x_BillingExchangeRate",     type number},
         {"x_PartnerCreditRate",       type number},
         {"x_PricingBlockSize",        type number},
-        {"x_SkuTerm",                 type number}
+        {"x_SkuTerm",                 type text}  // Text due to a bug in CM data; converted to a number below
         // TODO: {"x_SkuIsCreditEligible", type logical}
         // TODO: {"x_PartnerCreditApplied",  type logical}
     }),
@@ -46,10 +42,14 @@ let
     _isBlank    = (val) => val = null or val = "",
     _isNotBlank = (val) => _isBlank(val) = false,
     _swapCol    = (tbl, oldCol, newCol, newVal, optional newType) => let add = Table.AddColumn(tbl, newCol, newVal, newType), del = if Table.HasColumns(add, oldCol) then Table.RemoveColumns(add, {oldCol}) else add in del,
+    _resetCol   = (tbl, col, newVal, optional newType) => let tmpCol = Text.Combine({"tmp_", col}), tmp = _swapCol(tbl, col, tmpCol, newVal, newType), ren = Table.RenameColumns(tmp, {{tmpCol, col}}) in ren,
     _armResourceName = (id) => List.Last(Text.Split(id, "/")),
 
+    // FOCUS "1.0-preview (v1)" bugs
+    SkuTerm = _resetCol(FixTypes, "x_SkuTerm", each if [x_SkuTerm] = "1Year" then 12 else if [x_SkuTerm] = "3Years" then 36 else if [x_SkuTerm] = "5Years" then 60 else Number.FromText([x_SkuTerm]), type number),
+
     // Parse arrays
-    SkuDetailsDict        = Table.AddColumn(FixTypes, "x_SkuDetailsDictionary", each if _isNotBlank([x_SkuDetails]) then Json.Document([x_SkuDetails]) else null),
+    SkuDetailsDict        = Table.AddColumn(SkuTerm, "x_SkuDetailsDictionary", each if _isNotBlank([x_SkuDetails]) then Json.Document([x_SkuDetails]) else null),
     SkuDetailsDict_errors = Table.ReplaceErrorValues(SkuDetailsDict, {{"x_SkuDetailsDictionary", null}}),
     TagsDictionary        = Table.AddColumn(SkuDetailsDict_errors, "x_TagsDictionary", each if _isNotBlank([Tags]) then Json.Document([Tags]) else null),
     TagsDictionary_errors = Table.ReplaceErrorValues(TagsDictionary, {{"x_TagsDictionary", null}}),
