@@ -77,7 +77,6 @@ Legend:
 > 1. Fixed "missing period" error Data Factory Studio.
 > 2. Fixed bug where `msexports_FileAdded` trigger was not getting started.
 > 3. Fixed deploy to Azure buttons to point to the latest release.
-> 4. Fixed incorrect filter in the Commitment discounts report ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
 >
 > ✏️ Changed:
 >
@@ -89,6 +88,7 @@ Legend:
 > 🛠️ Fixed:
 >
 > 1. Fixed numerous errors causing the CostManagementConnector report to not load for MCA accounts
+> 2. Fixed incorrect filter in the Commitment discounts report ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
 >
 > ✏️ Changed:
 >
