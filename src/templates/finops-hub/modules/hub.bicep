@@ -50,7 +50,7 @@ var dataFactoryName = replace('${take(dataFactoryPrefix, 63 - length(dataFactory
 
 // The last segment of the telemetryId is used to identify this module
 var telemetryId = '00f120b5-2007-6120-0000-40b000000000'
-var finOpsToolkitVersion = loadTextContent('version.txt')
+var finOpsToolkitVersion = loadTextContent('ftkver.txt')
 
 //==============================================================================
 // Resources

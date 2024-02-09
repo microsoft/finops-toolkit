@@ -83,10 +83,10 @@ Deploy-FinOpsHub `
     -Name MyHub `
     -ResourceGroup MyExistingResourceGroup `
     -Location westus `
-    -Version {% include version.txt %}
+    -Version {% include ftkver.txt %}
 ```
 
-Deploys a new FinOps hub instance named MyHub to a new resource group named MyNewResourceGroup using version {% include version.txt %} of the template.
+Deploys a new FinOps hub instance named MyHub to a new resource group named MyNewResourceGroup using version {% include ftkver.txt %} of the template.
 
 <br>
 
