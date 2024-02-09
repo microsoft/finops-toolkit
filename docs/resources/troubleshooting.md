@@ -105,16 +105,11 @@ If you've deleted FinOps Hubs and are attempting to redeploy it with the same va
 "code": "RoleAssignmentUpdateNotPermitted",
 "message": "Tenant ID, application ID, principal ID, and scope are not allowed to be updated."
 ```
-
-### Resolution Options:
-
-1. **Remove Stale Identity:**
+To fix that issue you will have to remove the stale identity:
    - Navigate to "Storage Account >> Access Control IAM" >> "Role assignments."
    - Identify a role assignment with an "unknown" identity and delete it.
 
-2. **Update Role Assignment Name (GUID):**
-   - Choose a GUID that hasn't been used previously.
-   - Retry the deployment with the updated role assignment name.
+
 
 ---
 
