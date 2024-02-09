@@ -97,7 +97,7 @@ This error typically indicates that data was not ingested into the **ingestion**
 
 ---
 
-## Deployment error: The resource write operation failed to complete successfully, because it reached terminal provisioning state 'Failed'. (Code: ResourceDeploymentFailure, Target: /subscriptions/subscription/resourceGroups/resourcegroup/providers/Microsoft.Resources/deployments/storage)
+## FinOps hubs: Deployment failed with RoleAssignmentUpdateNotPermitted error
 
 If you've deleted FinOps Hubs and are attempting to redeploy it with the same values, including the Managed Identity name, you might encounter the following known issue:
 
