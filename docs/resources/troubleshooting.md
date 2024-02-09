@@ -25,7 +25,7 @@ Here are a few simple solutions to issues you may have faced:
 - [Power BI: The remote name could not be resolved: '\<storage-account\>.dfs.core.windows.net'](#power-bi-the-remote-name-could-not-be-resolved-storage-accountdfscorewindowsnet)
 - [Power BI: We cannot convert the value null to type Logical](#power-bi-we-cannot-convert-the-value-null-to-type-logical)
 - [FinOps hubs: We cannot convert the value null to type Table](#finops-hubs-we-cannot-convert-the-value-null-to-type-table)
-- [Deployment failed "code": "RoleAssignmentUpdateNotPermitteA"](#deployment-failed-code-roleassignmentupdatenotpermittea)
+- [FinOps hubs: Deployment failed with RoleAssignmentUpdateNotPermitted error](#finops-hubs-deployment-failed-with-roleassignmentupdatenotpermitted-error)
 
 Didn't find what you're looking for?
 
