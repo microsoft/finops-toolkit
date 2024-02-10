@@ -88,6 +88,7 @@ Legend:
 > 🛠️ Fixed:
 >
 > 1. Fixed numerous errors causing the CostManagementConnector report to not load for MCA accounts
+> 2. Fixed incorrect filter in the Commitment discounts report ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
 >
 > ✏️ Changed:
 >
