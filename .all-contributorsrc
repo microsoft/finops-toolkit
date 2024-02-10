@@ -295,7 +295,8 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/7208487?v=4",
       "profile": "https://github.com/erincon01",
       "contributions": [
-        "question"
+        "question",
+        "review"
       ]
     },
     {
@@ -350,6 +351,15 @@
       "profile": "https://github.com/msamendinger",
       "contributions": [
         "doc"
+      ]
+    },
+    {
+      "login": "patkje75",
+      "name": "Patric K.",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5085382?v=4",
+      "profile": "https://github.com/patkje75",
+      "contributions": [
+        "bug"
       ]
     }
   ],
