@@ -25,6 +25,7 @@ Here are a few simple solutions to issues you may have faced:
 - [Power BI: The remote name could not be resolved: '\<storage-account\>.dfs.core.windows.net'](#power-bi-the-remote-name-could-not-be-resolved-storage-accountdfscorewindowsnet)
 - [Power BI: We cannot convert the value null to type Logical](#power-bi-we-cannot-convert-the-value-null-to-type-logical)
 - [FinOps hubs: We cannot convert the value null to type Table](#finops-hubs-we-cannot-convert-the-value-null-to-type-table)
+- [FinOps hubs: Deployment failed with RoleAssignmentUpdateNotPermitted error](#finops-hubs-deployment-failed-with-roleassignmentupdatenotpermitted-error)
 
 Didn't find what you're looking for?
 
@@ -93,6 +94,22 @@ Applicable versions: **0.1 - 0.1.1** (fixed in **0.1.2**)
 ## FinOps hubs: We cannot convert the value null to type Table
 
 This error typically indicates that data was not ingested into the **ingestion** container. See [Reports are empty (no data)](#reports-are-empty-no-data) for details.
+
+---
+
+## FinOps hubs: Deployment failed with RoleAssignmentUpdateNotPermitted error
+
+If you've deleted FinOps Hubs and are attempting to redeploy it with the same values, including the Managed Identity name, you might encounter the following known issue:
+
+```json
+"code": "RoleAssignmentUpdateNotPermitted",
+"message": "Tenant ID, application ID, principal ID, and scope are not allowed to be updated."
+```
+To fix that issue you will have to remove the stale identity:
+   - Navigate to "Storage Account >> Access Control IAM" >> "Role assignments."
+   - Identify a role assignment with an "unknown" identity and delete it.
+
+
 
 ---
 
