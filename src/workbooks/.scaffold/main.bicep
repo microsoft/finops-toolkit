@@ -34,6 +34,12 @@ var workbookId = '000'
 var telemetryId = '00f120b5-2007-6120-0000-${workbookId}30126b006'
 var finOpsToolkitVersion = loadTextContent('ftkver.txt')
 
+// Add tags to all resources
+var resourceTags = union(tags, {
+    'ftk-version': finOpsToolkitVersion
+    'ftk-tool': '${displayName} workbook'
+  })
+
 //==============================================================================
 // Resources
 //==============================================================================
@@ -70,7 +76,7 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (ena
 resource workbook 'Microsoft.Insights/workbooks@2022-04-01' = {
   name: guid(resourceGroup().id, 'Microsoft.Insights/workbooks', displayName)
   location: location
-  tags: tags
+  tags: resourceTags
   kind: 'shared'
   properties: {
     category: 'workbook'
