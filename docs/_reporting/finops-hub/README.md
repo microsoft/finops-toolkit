@@ -44,7 +44,7 @@ We are very early in our journey. Today, FinOps hubs extend Cost Management by e
 </blockquote>
 
 <blockquote class="note" markdown="1">
-    _FinOps hubs requires an Enterprise Agreement (EA) or Microsoft Customer Agreement (MCA) account. If you have a Microsoft Online Services Agreement (MOSA, aka PAYG) or a Microsoft internal subscription, you will need to use FinOps hubs 0.1.1. Please note Power BI reports have not been tested extensively with MOSA and MS Internal subscriptions. Speak to a Microsoft representative or file a billing support request to ask about migrating your subscription to Microsoft Customer Agreement._
+    _FinOps hubs requires an Enterprise Agreement (EA) or Microsoft Customer Agreement (MCA) account (including Cloud Solution Provider subscriptions). If you have a Microsoft Online Services Agreement (MOSA, aka PAYG) or a Microsoft internal subscription, you will need to use FinOps hubs 0.1.1. Please note Power BI reports have not been tested extensively with MOSA and MS Internal subscriptions. Speak to a Microsoft representative or file a billing support request to ask about migrating your subscription to Microsoft Customer Agreement._
 </blockquote>
 
 <br>
@@ -123,6 +123,10 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
        _Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range._
      </blockquote>
    - **File partitioning** = On
+   - **Overwrite data** = Off
+     <blockquote class="note" markdown="1">
+       _While most settings are required, overwriting is optional. We recommend **not** overwriting files so you can monitor your ingestion pipeline using the [Data ingestion](../power-bi/data-ingestion.md) report. If you do not plan to use that report, please enable overwriting._
+     </blockquote>
    - **Storage account** = (Use subscription/resource from step 1)
    - **Container** = `msexports`
    - **Directory** = (Use the resource ID of the scope<sup>1</sup> you're exporting without the first "/")

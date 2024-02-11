@@ -50,13 +50,36 @@ let
 
     // Parse arrays
     SkuDetailsDict        = Table.AddColumn(SkuTerm, "x_SkuDetailsDictionary", each if _isNotBlank([x_SkuDetails]) then Json.Document([x_SkuDetails]) else null),
-    SkuDetailsDict_errors = Table.ReplaceErrorValues(SkuDetailsDict, {{"x_SkuDetailsDictionary", null}}),
+    SkuDetailsDict_copy   = Table.AddColumn(SkuDetailsDict, "tmp_SkuDetails",         each [x_SkuDetailsDictionary]),
+    SkuDetailsDict_errors = Table.ReplaceErrorValues(SkuDetailsDict_copy, {{"tmp_SkuDetails", null}}),
     TagsDictionary        = Table.AddColumn(SkuDetailsDict_errors, "x_TagsDictionary", each if _isNotBlank([Tags]) then Json.Document([Tags]) else null),
-    TagsDictionary_errors = Table.ReplaceErrorValues(TagsDictionary, {{"x_TagsDictionary", null}}),
+    TagsDictionary_copy   = Table.AddColumn(TagsDictionary, "tmp_Tags",         each [x_TagsDictionary]),
+    TagsDictionary_errors = Table.ReplaceErrorValues(TagsDictionary_copy, {{"tmp_Tags", null}}),
     ParsedArrays = TagsDictionary_errors,
 
+    // FTK columns
+    Tags_expand  = Table.ExpandRecordColumn(ParsedArrays, "tmp_Tags",
+        {"cm-resource-parent", "ms-resource-parent", "hidden-managedby", "costanalysis-parent", "ftk-version",      "ftk-tool"},
+        {"tmp_cmParent",       "tmp_msParent",       "tmp_ManagedBy",    "tmp_caParent",        "x_ToolkitVersion", "tmp_ToolkitTool"}
+    ),
+    ResourceParentId   = Table.AddColumn(Tags_expand,        "x_ResourceParentId",   
+        each if _isNotBlank([tmp_cmParent])  then [tmp_cmParent] 
+        else if _isNotBlank([tmp_msParent])  then [tmp_msParent] 
+        else if _isNotBlank([tmp_ManagedBy]) then [tmp_ManagedBy] 
+        else if _isNotBlank([tmp_caParent])  then [tmp_caParent] 
+        else null),
+// TODO: Add support for hierarchical resource parent types
+    ResourceParentType = Table.AddColumn(ResourceParentId,   "x_ResourceParentType", each if _isBlank([x_ResourceParentId]) then null else Text.Combine(List.Range(Text.Split(List.Last(Text.Split([x_ResourceParentId], "/providers/")), "/"), 0, 2), "/")),
+    ResourceParentName = Table.AddColumn(ResourceParentType, "x_ResourceParentName", each if _isBlank([x_ResourceParentId]) then null else Text.Split(List.Last(Text.Split([x_ResourceParentId], [x_ResourceParentType])), "/"){1}),
+    Tool = _swapCol(ResourceParentName, "tmp_ToolkitTool", "x_ToolkitTool", 
+        each if _isNotBlank([tmp_ToolkitTool]) then [tmp_ToolkitTool] 
+        else if _isBlank([x_ResourceParentId]) then null 
+        else if Text.Contains(Text.Lower([x_ResourceParentId]), "/providers/microsoft.cloud/hubs/") then "FinOps hubs"
+        else null),
+    ExpandedTags = Table.RemoveColumns(Tool, { "tmp_cmParent", "tmp_msParent", "tmp_caParent", "tmp_ManagedBy" }),
+
     // AHB columns
-    SkuDetails_expand   = Table.ExpandRecordColumn(ParsedArrays, "x_SkuDetailsDictionary",
+    SkuDetails_expand   = Table.ExpandRecordColumn(ExpandedTags, "tmp_SkuDetails",
         {"UsageType",      "ImageType",      "ServiceType", "VMName",     "VMProperties",      "VCPUs",       "ReservationOrderId",         "ReservationId",         "VMCapacityReservationId", "AHB",        "vCores"},
         {"x_SkuUsageType", "x_SkuImageType", "x_SkuType",   "tmp_VMName", "x_SkuVMProperties", "tmp_VMvCPUs", "tmp_AddlReservationOrderId", "tmp_AddlReservationId", "x_CapacityCommitmentId",  "tmp_SQLAHB", "tmp_SQLvCores"}
     ),
@@ -106,7 +129,7 @@ let
     Names = SubscriptionNameUnique,
 
     // Month column
-    Month = Table.AddColumn(Names, "x_Month", each Date.StartOfMonth([ChargePeriodStart]), type datetimezone),
+    Month = Table.AddColumn(Names, "x_Month", each DateTime.Date(Date.StartOfMonth([ChargePeriodStart])), type date),
 
     // Unique key for the record -- WARNING: This increases the data size significantly.
     /*
