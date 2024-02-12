@@ -95,7 +95,7 @@ let
     Names = SubscriptionNameUnique,
 
     // Month column
-    Month = Table.AddColumn(Names, "x_Month", each Date.StartOfMonth([ChargePeriodStart])),
+    Month = Table.AddColumn(Names, "x_Month", each Date.StartOfMonth([ChargePeriodStart]), type datetimezone),
 
     // Unique key for the record -- WARNING: This increases the data size significantly.
     /*
