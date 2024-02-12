@@ -384,7 +384,7 @@ let
     SubscriptionNameUnique       = Table.AddColumn(ResourceGroupNameUnique,      "SubAccountNameUnique",         each if _isBlank([x_SubscriptionName])     then null else [x_SubscriptionName] & " (" & [x_SubscriptionId] & ")"),
 
     // Month column
-    Month = Table.AddColumn(SubscriptionNameUnique, "x_Month", each Date.StartOfMonth([ChargePeriodStart])),
+    Month = Table.AddColumn(SubscriptionNameUnique, "x_Month", each Date.StartOfMonth([ChargePeriodStart]), type datetime),
 
     // Unique key for the record -- WARNING: This increases the data size significantly.
     /*
