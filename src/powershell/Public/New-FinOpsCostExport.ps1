@@ -116,7 +116,7 @@
 
 function New-FinOpsCostExport
 {
-    [cmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = "Scheduled")]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -346,7 +346,6 @@ function New-FinOpsCostExport
     {
         throw $script:localizedData.ContextNotFound
     }
-
     
     # Register the Microsoft.CostManagementExports RP
     if ((Get-AzResourceProvider -ProviderNamespace Microsoft.CostManagementExports).RegistrationState -ne 'Registered')
@@ -387,13 +386,14 @@ function New-FinOpsCostExport
     }
 
     # Run now if requested
-    if ($Execute -eq $true -or $OneTime -eq $true)
-    {
-        Start-FinOpsCostExport -Name $Name -Scope $Scope
-    }
-    elseif ($Backfill -gt 0)
+    if ($Backfill -gt 0 -and $OneTime -eq $false)
     {
         Start-FinOpsCostExport -Name $Name -Scope $Scope -Backfill $Backfill
+    }
+    elseif ($Execute -eq $true -or $OneTime -eq $true)
+    {
+        Write-Host "exec or onetime"
+        Start-FinOpsCostExport -Name $Name -Scope $Scope
     }
 
     return (Get-FinOpsCostExport -Name $Name -Scope $Scope -ApiVersion $ApiVersion)
