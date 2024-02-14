@@ -1,12 +1,12 @@
-ConsumedService;ResourceType;ServiceName;ServiceCategory;PublisherName;PublisherType;Location;Service Model
+﻿  ;ResourceType;ServiceName;ServiceCategory;PublisherName;PublisherType;Environment;Service Model
 Citrix.Services;citrix.services/xenappessentials;Citrix Virtual App Essentials;Compute;Citrix;Marketplace;Cloud;SaaS
 Citrix.Services;citrix.services/xendesktopessentials;Citrix Virtual Desktop Essentials;Compute;Citrix;Marketplace;Cloud;SaaS
 GitHub.Enterprise;github.enterprise/accounts;GitHub Enterprise Cloud;Developer Tools;Microsoft;Cloud Provider;Cloud;SaaS
 GitHub;github/enterpriseaccount;GitHub Enterprise Cloud;Developer Tools;Microsoft;Cloud Provider;Cloud;SaaS
 Marketplace;marketplace/account;Azure Marketplace;Other;Microsoft;Cloud Provider;Cloud;SaaS
-MFA;mfa/perauthentication;Microsoft Entra ID;Identity;Microsoft;Cloud Provider;Cloud;PaaS
-MFA;mfa/peruser;Microsoft Entra ID;Identity;Microsoft;Cloud Provider;Cloud;PaaS
-Microsoft.AAD;microsoft.aad/domainservices;Azure Active Directory Domain Services;Identity;Microsoft;Cloud Provider;Cloud;PaaS
+MFA;mfa/perauthentication;Microsoft Entra ID;Identity;Microsoft;Cloud Provider;Cloud;SaaS
+MFA;mfa/peruser;Microsoft Entra ID;Identity;Microsoft;Cloud Provider;Cloud;SaaS
+Microsoft.AAD;microsoft.aad/domainservices;Azure Active Directory Domain Services;Identity;Microsoft;Cloud Provider;Cloud;SaaS
 Microsoft.AgFoodPlatform;microsoft.agfoodplatform/farmbeats;Azure Data Manager for Agriculture;Integration;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.AnalysisServices;microsoft.analysisservices/servers;Azure Analysis Services;Analytics;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.ApiManagement;microsoft.apimanagement/service;API Management;Web;Microsoft;Cloud Provider;Cloud;PaaS
@@ -21,33 +21,33 @@ microsoft.automation;microsoft.automation/automationaccounts;Azure Automation;Ma
 Microsoft.AutonomousDevelopmentPlatform;microsoft.autonomousdevelopmentplatform/workspaces;Microsoft Autonomous Systems;AI and Machine Learning;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.EventGrid;microsoft.autonomousdevelopmentplatform/workspaces;Microsoft Autonomous Systems;AI and Machine Learning;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.AVS;microsoft.avs/privateclouds;Azure VMware Solution;Compute;Microsoft;Cloud Provider;Cloud;IaaS
-Microsoft.AzureActiveDirectory;microsoft.azureactivedirectory/b2cdirectories;Azure Active Directory External Identities;Identity;Microsoft;Cloud Provider;Cloud;PaaS
-Microsoft.AzureActiveDirectory;microsoft.azureactivedirectory/guestusages;Azure Active Directory External Identities;Identity;Microsoft;Cloud Provider;Cloud;PaaS
-Microsoft.AzureArcData;microsoft.azurearcdata/postgresinstances;Azure Arc;Multicloud;Microsoft;Cloud Provider;Both;SaaS
-Microsoft.AzureArcData;microsoft.azurearcdata/sqlmanagedinstances;Azure Arc;Multicloud;Microsoft;Cloud Provider;Both;SaaS
-Microsoft.AzureArcData;microsoft.azurearcdata/sqlserverinstances;Azure Arc;Multicloud;Microsoft;Cloud Provider;On-premises;SaaS
+Microsoft.AzureActiveDirectory;microsoft.azureactivedirectory/b2cdirectories;Azure Active Directory External Identities;Identity;Microsoft;Cloud Provider;Cloud;SaaS
+Microsoft.AzureActiveDirectory;microsoft.azureactivedirectory/guestusages;Azure Active Directory External Identities;Identity;Microsoft;Cloud Provider;Cloud;SaaS
+Microsoft.AzureArcData;microsoft.azurearcdata/postgresinstances;Azure Arc;Multicloud;Microsoft;Cloud Provider;Hybrid;SaaS
+Microsoft.AzureArcData;microsoft.azurearcdata/sqlmanagedinstances;Azure Arc;Multicloud;Microsoft;Cloud Provider;Hybrid;SaaS
+Microsoft.AzureArcData;microsoft.azurearcdata/sqlserverinstances;Azure Arc;Multicloud;Microsoft;Cloud Provider;Hybrid;SaaS
 Microsoft.AzureStackHCI;microsoft.azurestackhci/clusters;Azure Stack HCI;Multicloud;Microsoft;Cloud Provider;On-premises;IaaS
-Microsoft.BareMetalInfrastructure;microsoft.baremetalinfrastructure/baremetalstorageinstances;BareMetal Infrastructure;Compute;Microsoft;Cloud Provider;Both;IaaS
+Microsoft.BareMetalInfrastructure;microsoft.baremetalinfrastructure/baremetalstorageinstances;BareMetal Infrastructure;Compute;Microsoft;Cloud Provider;Hybrid;IaaS
 Microsoft.Batch;microsoft.batch/batchaccounts;Batch;Compute;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.Bing;microsoft.bing/accounts;Microsoft Bing;Web;Microsoft;Cloud Provider;Cloud;SaaS
-Microsoft.BotService;microsoft.botservice/botservices;Azure AI Bot Service;AI and Machine Learning;Microsoft;Cloud Provider;Cloud;SaaS
+Microsoft.BotService;microsoft.botservice/botservices;Azure AI Bot Service;AI and Machine Learning;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.Cache;microsoft.cache/redis;Azure Cache for Redis;Storage;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.EventGrid;microsoft.cache/redis;Azure Cache for Redis;Storage;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.Cache;microsoft.cache/redisenterprise;Azure Cache for Redis;Storage;Microsoft;Cloud Provider;Cloud;PaaS
 microsoft.cdn;microsoft.cdn/cdnwebapplicationfirewallpolicies;Content Delivery Network;Networking;Microsoft;Cloud Provider;Cloud;SaaS
 Microsoft.Cdn;microsoft.cdn/profiles;Content Delivery Network;Networking;Microsoft;Cloud Provider;Cloud;SaaS
-microsoft.certificateregistration;microsoft.certificateregistration/certificateorders;Azure App Service;Web;Microsoft;Cloud Provider;Both;PaaS
-microsoft.classiccompute;microsoft.classiccompute/domainnames;Virtual Machines;Compute;Microsoft;Cloud Provider;Both;IaaS
-microsoft.classiccompute;microsoft.classiccompute/virtualmachines;Virtual Machines;Compute;Microsoft;Cloud Provider;Both;IaaS
-Microsoft.ClassicNetwork;microsoft.classicnetwork/ipv4vip;Virtual Network;Networking;Microsoft;Cloud Provider;Both;IaaS
-Microsoft.ClassicNetwork;microsoft.classicnetwork/publicip;Virtual Network;Networking;Microsoft;Cloud Provider;Both;IaaS
+microsoft.certificateregistration;microsoft.certificateregistration/certificateorders;Azure App Service;Web;Microsoft;Cloud Provider;Hybrid;PaaS
+microsoft.classiccompute;microsoft.classiccompute/domainnames;Virtual Machines;Compute;Microsoft;Cloud Provider;Hybrid;IaaS
+microsoft.classiccompute;microsoft.classiccompute/virtualmachines;Virtual Machines;Compute;Microsoft;Cloud Provider;Hybrid;IaaS
+Microsoft.ClassicNetwork;microsoft.classicnetwork/ipv4vip;Virtual Network;Networking;Microsoft;Cloud Provider;Hybrid;IaaS
+Microsoft.ClassicNetwork;microsoft.classicnetwork/publicip;Virtual Network;Networking;Microsoft;Cloud Provider;Hybrid;IaaS
 Microsoft.ClassicNetwork;microsoft.classicnetwork/publicipaddresses;Virtual Network;Networking;Microsoft;Cloud Provider;Cloud;IaaS
 Microsoft.ClassicStorage;microsoft.classicstorage/storageaccounts;Storage Accounts;Storage;Microsoft;Cloud Provider;Cloud;IaaS
-Microsoft.CognitiveServices;microsoft.cognitiveservices/accounts;Azure AI Services;AI and Machine Learning;Microsoft;Cloud Provider;Cloud;SaaS
+Microsoft.CognitiveServices;microsoft.cognitiveservices/accounts;Azure AI Services;AI and Machine Learning;Microsoft;Cloud Provider;Cloud;PaaS
 microsoft.communication;microsoft.communication/communicationservices;Azure Communication Services;Web;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.EventGrid;microsoft.communication/communicationservices;Azure Communication Services;Web;Microsoft;Cloud Provider;Cloud;PaaS
-Microsoft.Compute;microsoft.compute/capacityreservationgroups;Virtual Machines;Compute;Microsoft;Cloud Provider;Cloud;PaaS
-Microsoft.Compute;microsoft.compute/cloudservices;Cloud Services;Compute;Microsoft;Cloud Provider;Cloud;SaaS
+Microsoft.Compute;microsoft.compute/capacityreservationgroups;Virtual Machines;Compute;Microsoft;Cloud Provider;Cloud;IaaS
+Microsoft.Compute;microsoft.compute/cloudservices;Cloud Services;Compute;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.Compute;microsoft.compute/disks;Virtual Machines;Compute;Microsoft;Cloud Provider;Cloud;IaaS
 Microsoft.Compute;microsoft.compute/galleries;Virtual Machines;Compute;Microsoft;Cloud Provider;Cloud;IaaS
 Microsoft.Compute;microsoft.compute/hostgroups;Azure Dedicated Host;Compute;Microsoft;Cloud Provider;Cloud;IaaS
@@ -58,14 +58,14 @@ Microsoft.Compute;microsoft.compute/snapshots;Virtual Machines;Compute;Microsoft
 microsoft.compute;microsoft.compute/virtualmachines;Virtual Machines;Compute;Microsoft;Cloud Provider;Cloud;IaaS
 microsoft.compute;microsoft.compute/virtualmachinescalesets;Virtual Machine Scale Sets;Compute;Microsoft;Cloud Provider;Cloud;IaaS
 Microsoft.ConfidentialLedger;microsoft.confidentialledger/ledgers;Azure Confidential Ledger;Databases;Microsoft;Cloud Provider;Cloud;PaaS
-Microsoft.ContainerInstance;microsoft.containerinstance/containergroups;Azure Container Instances;Compute;Microsoft;Cloud Provider;Cloud;PaaS
+Microsoft.ContainerInstance;microsoft.containerinstance/containergroups;Azure Container Instances;Compute;Microsoft;Cloud Provider;Cloud;IaaS
 microsoft.containerregistry;microsoft.containerregistry/registries;Azure Container Registry;Compute;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.EventGrid;microsoft.containerregistry/registries;Azure Container Registry;Compute;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.ContainerService;microsoft.containerservice/containerservices;Azure Container Service;Compute;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.ContainerService;microsoft.containerservice/managedclusters;Azure Kubernetes Service;Compute;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.EventGrid;microsoft.containerservice/managedclusters;Azure Kubernetes Service;Compute;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.KubernetesConfiguration;microsoft.containerservice/managedclusters;Azure Kubernetes Service;Compute;Microsoft;Cloud Provider;Cloud;PaaS
-MICROSOFT.DASHBOARD;microsoft.dashboard/grafana;Azure Managed Grafana;Developer Tools;Microsoft;Cloud Provider;Cloud;PaaS
+MICROSOFT.DASHBOARD;microsoft.dashboard/grafana;Azure Managed Grafana;Developer Tools;Microsoft;Cloud Provider;Cloud;SaaS
 Microsoft.DataBox;microsoft.databox/jobs;Azure Data Box;Storage;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.DataBoxEdge;microsoft.databoxedge/databoxedgedevices;Azure Data Box;Storage;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.Databricks;microsoft.databricks/workspaces;Azure Databricks;Analytics;Microsoft;Cloud Provider;Cloud;PaaS
@@ -73,7 +73,7 @@ Microsoft.DataCatalog;microsoft.datacatalog/catalogs;Data Catalog;Analytics;Micr
 Microsoft.DataFactory;microsoft.datafactory/datafactories;Azure Data Factory;Integration;Microsoft;Cloud Provider;Cloud;PaaS
 MICROSOFT.DATAFACTORY;microsoft.datafactory/factories;Azure Data Factory;Integration;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.DataLakeAnalytics;microsoft.datalakeanalytics/accounts;Azure Data Lake Analytics;Analytics;Microsoft;Cloud Provider;Cloud;PaaS
-Microsoft.DataLakeStore;microsoft.datalakestore/accounts;Azure Data Lake Store;Storage;Microsoft;Cloud Provider;Cloud;PaaS
+Microsoft.DataLakeStore;microsoft.datalakestore/accounts;Azure Data Lake Store;Storage;Microsoft;Cloud Provider;Cloud;IaaS
 MICROSOFT.DATAMIGRATION;microsoft.datamigration/sqlmigrationservices;Azure Database Migration Service;Migration;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.DataProtection;microsoft.dataprotection/backupvaults;Azure Backup;Management and Governance;Microsoft;Cloud Provider;Cloud;SaaS
 Microsoft.DataShare;microsoft.datashare/accounts;Azure Data Share;Storage;Microsoft;Cloud Provider;Cloud;SaaS
@@ -120,21 +120,21 @@ Microsoft.HealthBot;microsoft.healthbot/healthbots;Health Bot;AI and Machine Lea
 Microsoft.HealthcareApis;microsoft.healthcareapis/services;Azure Health Data Services;Integration;Microsoft;Cloud Provider;Cloud;SaaS
 Microsoft.EventGrid;microsoft.healthcareapis/workspaces;Azure Health Data Services;Integration;Microsoft;Cloud Provider;Cloud;SaaS
 Microsoft.HealthcareApis;microsoft.healthcareapis/workspaces;Azure Health Data Services;Integration;Microsoft;Cloud Provider;Cloud;SaaS
-microsoft.hybridcompute;microsoft.hybridcompute/machines;Azure Arc;Multicloud;Microsoft;Cloud Provider;Cloud;SaaS
+microsoft.hybridcompute;microsoft.hybridcompute/machines;Azure Arc;Multicloud;Microsoft;Cloud Provider;Hybrid;SaaS
 ;microsoft.hybridnetwork/devices;Azure Network Function Manager;Networking;Microsoft;Cloud Provider;Cloud;IaaS
 Microsoft.ImportExport;microsoft.importexport/jobs;Azure Storage;Storage;Microsoft;Cloud Provider;Cloud;IaaS
-microsoft.insights;microsoft.insights/actiongroups;Azure Monitor;Management and Governance;Microsoft;Cloud Provider;Cloud;PaaS
-microsoft.insights;microsoft.insights/components;Azure Monitor;Management and Governance;Microsoft;Cloud Provider;Cloud;PaaS
-microsoft.insights;microsoft.insights/metricalerts;Azure Monitor;Management and Governance;Microsoft;Cloud Provider;Cloud;PaaS
-Microsoft.Insights;microsoft.insights/pricings;Azure Monitor;Management and Governance;Microsoft;Cloud Provider;Cloud;PaaS
-microsoft.insights;microsoft.insights/scheduledqueryrules;Azure Monitor;Management and Governance;Microsoft;Cloud Provider;Cloud;PaaS
+microsoft.insights;microsoft.insights/actiongroups;Azure Monitor;Management and Governance;Microsoft;Cloud Provider;Cloud;SaaS
+microsoft.insights;microsoft.insights/components;Azure Monitor;Management and Governance;Microsoft;Cloud Provider;Cloud;SaaS
+microsoft.insights;microsoft.insights/metricalerts;Azure Monitor;Management and Governance;Microsoft;Cloud Provider;Cloud;SaaS
+Microsoft.Insights;microsoft.insights/pricings;Azure Monitor;Management and Governance;Microsoft;Cloud Provider;Cloud;SaaS
+microsoft.insights;microsoft.insights/scheduledqueryrules;Azure Monitor;Management and Governance;Microsoft;Cloud Provider;Cloud;SaaS
 Microsoft.IoTCentral;microsoft.iotcentral/iotapps;Azure IoT Central;Internet of Things;Microsoft;Cloud Provider;Cloud;SaaS
-default;microsoft.iotsecurity/defendersettings;Microsoft Defender for IoT;Internet of Things;Microsoft;Cloud Provider;Cloud;PaaS
-Microsoft.IoTSecurity;microsoft.iotsecurity/defendersettings;Microsoft Defender for IoT;Internet of Things;Microsoft;Cloud Provider;Cloud;PaaS
-Microsoft.KeyVault;microsoft.keyvault/hsmpools;Key Vault;Security;Microsoft;Cloud Provider;Both;PaaS
-Microsoft.KeyVault;microsoft.keyvault/managedhsms;Key Vault;Security;Microsoft;Cloud Provider;Both;PaaS
-Microsoft.EventGrid;microsoft.keyvault/vaults;Azure KeyVault;Security;Microsoft;Cloud Provider;Both;PaaS
-MICROSOFT.KEYVAULT;microsoft.keyvault/vaults;Key Vault;Security;Microsoft;Cloud Provider;Both;PaaS
+default;microsoft.iotsecurity/defendersettings;Microsoft Defender for IoT;Internet of Things;Microsoft;Cloud Provider;Hybrid;SaaS
+Microsoft.IoTSecurity;microsoft.iotsecurity/defendersettings;Microsoft Defender for IoT;Internet of Things;Microsoft;Cloud Provider;Hybrid;SaaS
+Microsoft.KeyVault;microsoft.keyvault/hsmpools;Key Vault;Security;Microsoft;Cloud Provider;Cloud;PaaS
+Microsoft.KeyVault;microsoft.keyvault/managedhsms;Key Vault;Security;Microsoft;Cloud Provider;Cloud;PaaS
+Microsoft.EventGrid;microsoft.keyvault/vaults;Azure KeyVault;Security;Microsoft;Cloud Provider;Cloud;PaaS
+MICROSOFT.KEYVAULT;microsoft.keyvault/vaults;Key Vault;Security;Microsoft;Cloud Provider;Cloud;PaaS
 microsoft.kubernetes;microsoft.kubernetes/connectedclusters;Azure Arc;Multicloud;Microsoft;Cloud Provider;Cloud;SaaS
 Microsoft.Kusto;microsoft.kusto/clusters;Azure Data Explorer;Analytics;Microsoft;Cloud Provider;Cloud;PaaS
 microsoft.labservices;microsoft.labservices/labaccounts;Azure Lab Services;Compute;Microsoft;Cloud Provider;Cloud;PaaS
@@ -160,7 +160,7 @@ Microsoft.MixedReality;microsoft.mixedreality/spatialanchorsaccounts;Spatial Anc
 Microsoft.MobileNetwork;microsoft.mobilenetwork/mobilenetworks;Azure Private 5G Core;Networking;Microsoft;Cloud Provider;Cloud;IaaS
 microsoft.mobilenetwork;microsoft.mobilenetwork/packetcorecontrolplanes;Azure Private 5G Core;Networking;Microsoft;Cloud Provider;Cloud;IaaS
 microsoft.monitor;microsoft.monitor/accounts;Azure Monitor;Management and Governance;Microsoft;Cloud Provider;Cloud;PaaS
-Microsoft.NetApp;microsoft.netapp/netappaccounts;Azure NetApp Files;Networking;Microsoft;Cloud Provider;Cloud;SaaS
+Microsoft.NetApp;microsoft.netapp/netappaccounts;Azure NetApp Files;Networking;Microsoft;Cloud Provider;Cloud;PaaS
 microsoft.network;microsoft.network/applicationgateways;Application Gateway;Networking;Microsoft;Cloud Provider;Cloud;IaaS
 Microsoft.Network;microsoft.network/azurefirewalls;Azure Firewall;Networking;Microsoft;Cloud Provider;Cloud;IaaS
 Microsoft.Network;microsoft.network/bastionhosts;Azure Bastion;Networking;Microsoft;Cloud Provider;Cloud;PaaS
@@ -172,7 +172,7 @@ Microsoft.Network;microsoft.network/dnszones;Azure DNS;Networking;Microsoft;Clou
 microsoft.network;microsoft.network/expressroutecircuits;Azure ExpressRoute;Networking;Microsoft;Cloud Provider;Cloud;IaaS
 Microsoft.Network;microsoft.network/expressroutegateways;Azure ExpressRoute;Networking;Microsoft;Cloud Provider;Cloud;IaaS
 Microsoft.Network;microsoft.network/expressrouteports;Azure ExpressRoute;Networking;Microsoft;Cloud Provider;Cloud;IaaS
-Microsoft.Network;microsoft.network/firewallpolicies;Azure Firewall Manager;Networking;Microsoft;Cloud Provider;Cloud;IaaS
+Microsoft.Network;microsoft.network/firewallpolicies;Azure Firewall Manager;Networking;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.Network;microsoft.network/frontdoors;Azure Front Door;Networking;Microsoft;Cloud Provider;Cloud;SaaS
 Microsoft.Network;microsoft.network/frontdoorwebapplicationfirewallpolicies;Azure Front Door;Networking;Microsoft;Cloud Provider;Cloud;SaaS
 ;microsoft.network/internetanalyzerprofiles;Azure Internet Analyzer;Networking;Microsoft;Cloud Provider;Cloud;SaaS
@@ -205,9 +205,9 @@ Microsoft.OperationalInsights;microsoft.operationalinsights/virtualnetworkgatewa
 microsoft.operationalinsights;microsoft.operationalinsights/workspaces;Azure Monitor;Management and Governance;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.Orbital;microsoft.orbital/spacecrafts;Azure Orbital;Networking;Microsoft;Cloud Provider;Cloud;SaaS
 MICROSOFT.ORBITAL;microsoft.orbital/terminals;Azure Orbital;Networking;Microsoft;Cloud Provider;Cloud;SaaS
-Microsoft.Peering;microsoft.peering/peerings;Azure Peering Service;Networking;Microsoft;Cloud Provider;Cloud;PaaS
-Microsoft.PowerBIDedicated;microsoft.powerbidedicated/autoscalevcores;Power BI Embedded;Analytics;Microsoft;Cloud Provider;Cloud;SaaS
-Microsoft.PowerBIDedicated;microsoft.powerbidedicated/capacities;Power BI Embedded;Analytics;Microsoft;Cloud Provider;Cloud;SaaS
+Microsoft.Peering;microsoft.peering/peerings;Azure Peering Service;Networking;Microsoft;Cloud Provider;Cloud;IaaS
+Microsoft.PowerBIDedicated;microsoft.powerbidedicated/autoscalevcores;Power BI Embedded;Analytics;Microsoft;Cloud Provider;Cloud;PaaS
+Microsoft.PowerBIDedicated;microsoft.powerbidedicated/capacities;Power BI Embedded;Analytics;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.PowerPlatform;microsoft.powerplatform/accounts;Power Platform;Integration;Microsoft;Cloud Provider;Cloud;SaaS
 Microsoft.Purview;microsoft.purview/accounts;Microsoft Purview;Management and Governance;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.Quantum;microsoft.quantum/workspaces;Azure Quantum;Compute;Microsoft;Cloud Provider;Cloud;PaaS
@@ -216,7 +216,7 @@ Microsoft.Relay;microsoft.relay/namespaces;Azure Relay;Integration;Microsoft;Clo
 Microsoft.SaaS;microsoft.saas/resources;Azure Marketplace;Other;Microsoft;Marketplace;Cloud;SaaS
 Microsoft.SaaS;microsoft.saas/saasresources;Azure Marketplace;Other;Microsoft;Marketplace;Cloud;SaaS
 Microsoft.Search;microsoft.search/searchservices;Azure Cognitive Search;Web;Microsoft;Cloud Provider;Cloud;SaaS
-Microsoft.Security;microsoft.security/mdeservers;Microsoft Defender for Endpoint;Multicloud;Microsoft;Cloud Provider;Cloud;PaaS?
+Microsoft.Security;microsoft.security/mdeservers;Microsoft Defender for Endpoint;Multicloud;Microsoft;Cloud Provider;Cloud;PaaS
 AppServices;microsoft.security/pricings;Azure App Service;Web;Microsoft;Cloud Provider;Cloud;PaaS
 ContainerRegistry;microsoft.security/pricings;Azure Container Registry;Compute;Microsoft;Cloud Provider;Cloud;PaaS
 KubernetesService;microsoft.security/pricings;Azure Kubernetes Service;Compute;Microsoft;Cloud Provider;Cloud;PaaS
@@ -265,10 +265,10 @@ Microsoft.Sql;microsoft.sql/managedinstances;Azure SQL Database;Databases;Micros
 Microsoft.Sql;microsoft.sql/servers;Azure SQL Database;Databases;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.EventGrid;microsoft.storage/storageaccounts;Storage Accounts;Storage;Microsoft;Cloud Provider;Cloud;IaaS
 MICROSOFT.STORAGE;microsoft.storage/storageaccounts;Storage Accounts;Storage;Microsoft;Cloud Provider;Cloud;IaaS
-Microsoft.StorageCache;microsoft.storagecache/amlfilesystems;Azure HPC Cache;Storage;Microsoft;Cloud Provider;Cloud;IaaS
-Microsoft.StorageCache;microsoft.storagecache/caches;Azure HPC Cache;Storage;Microsoft;Cloud Provider;Cloud;IaaS
-Microsoft.StorageSync;microsoft.storagesync/storagesyncservices;Azure File Sync;Storage;Microsoft;Cloud Provider;Cloud;PaaS
-Microsoft.StorSimple;microsoft.storsimple/managers;Azure StorSimple;Multicloud;Microsoft;Cloud Provider;Cloud;IaaS
+Microsoft.StorageCache;microsoft.storagecache/amlfilesystems;Azure HPC Cache;Storage;Microsoft;Cloud Provider;Hybrid;IaaS
+Microsoft.StorageCache;microsoft.storagecache/caches;Azure HPC Cache;Storage;Microsoft;Cloud Provider;Hybrid;IaaS
+Microsoft.StorageSync;microsoft.storagesync/storagesyncservices;Azure File Sync;Storage;Microsoft;Cloud Provider;Hybrid;PaaS
+Microsoft.StorSimple;microsoft.storsimple/managers;Azure StorSimple;Multicloud;Microsoft;Cloud Provider;Hybrid;IaaS
 Microsoft.StreamAnalytics;microsoft.streamanalytics/clusters;Azure Stream Analytics;Analytics;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.StreamAnalytics;microsoft.streamanalytics/streamingjobs;Azure Stream Analytics;Analytics;Microsoft;Cloud Provider;Cloud;PaaS
 MICROSOFT.SYNAPSE;microsoft.synapse/workspaces;Azure Synapse Analytics;Analytics;Microsoft;Cloud Provider;Cloud;PaaS
@@ -278,7 +278,7 @@ MICROSOFT.TESTBASE;microsoft.testbase/testbaseaccounts;Test Base for Microsoft 3
 Microsoft.TimeSeriesInsights;microsoft.timeseriesinsights/environments;Azure Time Series Insights;Internet of Things;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.VideoIndexer;microsoft.videoindexer/accounts;Azure AI Video Indexer;AI and Machine Learning;Microsoft;Cloud Provider;Cloud;SaaS
 microsoft.visualstudio;microsoft.visualstudio/organizations;Visual Studio;Developer Tools;Microsoft;Cloud Provider;Cloud;SaaS
-Microsoft.VoiceServices;microsoft.voiceservices/communicationsgateways;Azure Communitcations Gateway;Networking;Microsoft;Cloud Provider;Cloud;IaaS
+Microsoft.VoiceServices;microsoft.voiceservices/communicationsgateways;Azure Communitcations Gateway;Networking;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.Web.Admin;microsoft.web.admin/role;Azure App Service;Web;Microsoft;Cloud Provider;Cloud;PaaS
 MICROSOFT.WEB;microsoft.web/connections;Azure App Service;Web;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.Web;microsoft.web/containerapps;Azure App Service;Web;Microsoft;Cloud Provider;Cloud;PaaS
@@ -288,7 +288,7 @@ microsoft.web;microsoft.web/serverfarms;Azure App Service;Web;Microsoft;Cloud Pr
 Microsoft.EventGrid;microsoft.web/sites;Azure App Service;Web;Microsoft;Cloud Provider;Cloud;PaaS
 Microsoft.Web;microsoft.web/sites;Azure App Service;Web;Microsoft;Cloud Provider;Cloud;PaaS
 microsoft.web;microsoft.web/staticsites;Azure App Service;Web;Microsoft;Cloud Provider;Cloud;PaaS
-Microsoft.WindowsIoT;microsoft.windowsiot/deviceservices;Windows for IoT;Internet of Things;Microsoft;Cloud Provider;Cloud;SaaS
+Microsoft.WindowsIoT;microsoft.windowsiot/deviceservices;Windows for IoT;Internet of Things;Microsoft;Cloud Provider;Cloud;PaaS
 NGINX.NGINXPLUS;nginx.nginxplus/nginxdeployments;NGINX Plus;Networking;NGINX;Marketplace;Cloud;PaaS
 PlayFabBillingService;playfabbillingservice/blobs;Azure PlayFab;Media;Microsoft;Cloud Provider;Cloud;SaaS
 PlayFabBillingService;playfabbillingservice/catalogrequests;Azure PlayFab;Media;Microsoft;Cloud Provider;Cloud;SaaS
