@@ -154,3 +154,22 @@ union cluster('<shard-cluster>').database('<shard>*').UCDD
 ```
 
 <br>
+
+## 🎛️ Service Model
+
+<sup>
+    📅 Updated: Feb 02nd, 2024 <br>
+    ➡️ Source: Cost Management team<br>
+</sup>
+
+<br>
+
+In our table, we've made a number of choices to categorize our services: 
+
+- We have chosen to always categorize a service by its deepest service model.
+
+- We have grouped all Defender for Cloud-related services under its umbrella, so as to find them more easily and to have a unity for them.
+
+- As for Microsoft Fabric, we've decided to follow Microsoft's lead and categorize it as a SaaS.
+
+<br>
