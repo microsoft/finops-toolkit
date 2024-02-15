@@ -32,6 +32,14 @@ param convertToParquet bool = true
 
 @description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
+@description('Optional. To use Private Endpoints, add target subnet resource Id.')
+param subnetResourceId string = ''
+
+@description('Optional. To disable Public Network Access, set to "Disabled".')
+param publicNetworkAccess string = ''
+
+@description('Optional. To allow Self-Hosted Integration Runtime access to the stroage account.')
+param integrationRuntimeSubnetResourceId string = ''
 
 //------------------------------------------------------------------------------
 // Variables
@@ -51,6 +59,22 @@ var dataFactoryName = replace('${take(dataFactoryPrefix, 63 - length(dataFactory
 // The last segment of the telemetryId is used to identify this module
 var telemetryId = '00f120b5-2007-6120-0000-40b000000000'
 var finOpsToolkitVersion = loadTextContent('ftkver.txt')
+// Private Endpoints for ADF
+var adfPrivateEndpoints = [
+  {
+    name: 'adf'
+    groupIds: [
+      'dataFactory'
+    ]
+  }
+  {
+    name: 'adf-portal'
+    groupIds: [
+      'portal'
+    ]
+  }
+]
+
 
 //==============================================================================
 // Resources
@@ -95,6 +119,9 @@ module storage 'storage.bicep' = {
     tags: resourceTags
     tagsByResource: tagsByResource
     exportScopes: exportScopes
+    subnetResourceId:!empty(subnetResourceId) ? subnetResourceId : ''  
+    publicNetworkAccess: !empty(publicNetworkAccess) ? publicNetworkAccess : 'Enabled'
+    integrationRuntimeSubnetResourceId:!empty(integrationRuntimeSubnetResourceId) ? integrationRuntimeSubnetResourceId : ''
   }
 }
 
@@ -109,11 +136,13 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
   identity: { type: 'SystemAssigned' }
   properties: union(
     // Using union() to hide the error that gets surfaced because globalConfigurations is not in the ADF schema yet.
-    {},
+    {    
+    },
     {
       globalConfigurations: {
         PipelineBillingEnabled: 'true'
       }
+      publicNetworkAccess: !empty(publicNetworkAccess) ? publicNetworkAccess : 'Enabled'
     })
 }
 
@@ -128,7 +157,7 @@ module dataFactoryResources 'dataFactory.bicep' = {
     ingestionContainerName: storage.outputs.ingestionContainer
     location: location
     tags: resourceTags
-    tagsByResource: tagsByResource
+    tagsByResource: tagsByResource    
   }
 }
 
@@ -145,6 +174,7 @@ module keyVault 'keyVault.bicep' = {
     tags: resourceTags
     tagsByResource: tagsByResource
     storageAccountName: storage.outputs.name
+    publicNetworkAccess: !empty(publicNetworkAccess) ? publicNetworkAccess : 'Enabled'
     accessPolicies: [
       {
         objectId: dataFactory.identity.principalId
@@ -158,6 +188,60 @@ module keyVault 'keyVault.bicep' = {
     ]
   }
 }
+//------------------------------------------------------------------------------
+// Private Endpoints
+//------------------------------------------------------------------------------
+
+resource privateEndpointADF 'Microsoft.Network/privateEndpoints@2022-05-01' = [for (privateEndpoint,index) in adfPrivateEndpoints: if (subnetResourceId != '')   {
+  name: 'pve-${privateEndpoint.name}-${dataFactory.name}'
+  location: location
+  properties: {
+
+    customNetworkInterfaceName: 'nic-${privateEndpoint.name}-${dataFactory.name}'
+    privateLinkServiceConnections: [
+      {
+        name: 'pve-${privateEndpoint.name}-${dataFactory.name}'
+        properties: {
+          privateLinkServiceId: dataFactory.id
+          groupIds: privateEndpoint.groupIds
+        }
+      }
+    ]
+    subnet: {
+      id: subnetResourceId
+      properties: {
+        privateEndpointNetworkPolicies: 'Enabled'
+      }
+
+    }
+  }
+}]
+
+resource privateEndpointKeyVault 'Microsoft.Network/privateEndpoints@2022-05-01' = if (subnetResourceId != '')   {
+  name: 'pve-kv-${keyVault.name}'
+  location: location
+  properties: {
+
+    customNetworkInterfaceName: 'nic-kv-${keyVault.name}'
+    privateLinkServiceConnections: [
+      {
+        name: 'pve-kv-${keyVault.name}'
+        properties: {
+          privateLinkServiceId: keyVault.outputs.resourceId
+          groupIds: ['vault']
+        }
+      }
+    ]
+    subnet: {
+      id: subnetResourceId
+      properties: {
+        privateEndpointNetworkPolicies: 'Enabled'
+      }
+
+    }
+  }
+}
+
 
 //==============================================================================
 // Outputs

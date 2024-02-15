@@ -29,6 +29,15 @@ param tagsByResource object = {}
 @description('Optional. List of scope IDs to create exports for.')
 param exportScopes array = []
 
+@description('Optional. To use Private Endpoints, add target subnet resource Id.')
+param subnetResourceId string = '' 
+
+@description('Optional. To disable Public Network Access, set to "Disabled".')
+param publicNetworkAccess string = ''
+
+@description('Optional. To allow Self-Hosted Integration Runtime access to the stroage account.')
+param integrationRuntimeSubnetResourceId string = ''
+
 //==============================================================================
 // Resources
 //==============================================================================
@@ -42,6 +51,9 @@ module hub 'modules/hub.bicep' = {
     tags: tags
     tagsByResource: tagsByResource
     exportScopes: exportScopes
+    subnetResourceId: !empty(subnetResourceId) ? subnetResourceId : ''
+    publicNetworkAccess: !empty(publicNetworkAccess) ? publicNetworkAccess : 'Enabled'
+    integrationRuntimeSubnetResourceId: !empty(integrationRuntimeSubnetResourceId) ? integrationRuntimeSubnetResourceId : ''
   }
 }
 
