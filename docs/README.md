@@ -41,6 +41,37 @@ Read on to learn about the tools and roadmap for the FinOps toolkit or how to ge
 
 <br>
 
+## 🍎 Learning resources
+
+New to FinOps? Start with a quick intro and get to know the principles:
+
+- [What is FinOps?](./_docs/what-is-finops.md) – Quick introduction to FinOps.
+- [FinOps on Azure e-book](https://aka.ms/finops/ebook) – Executive walkthrough of the FinOps principles.
+
+Start implementing FinOps capabilities or learn how to mature your FinOps practice:
+
+- [Conduct a FinOps iteration](./_docs/conduct-finops-iteration.md) – Plan your first or next iteration.
+- [FinOps review assessment](https://aka.ms/finops/review) – Review and refine your process.
+- [FinOps Framework](./_docs/framework/README.md) – Implement FinOps in the Microsoft Cloud.
+
+Learn the products you need to be successful:
+
+- [FinOps Open Cost and Usage Specification](./_docs/focus/README.md) – Cloud agnostic format for cost and usage data.
+- [Interactive product guides](https://aka.ms/finops/guides) – Hands on experience with Microsoft products.
+- [Intro for cloud migration](https://info.microsoft.com/ww-ondemand-implement-finops-for-azure.html) – Great context when migrating from on-premises.
+- [FinOps Foundation YouTube channel](https://www.youtube.com/channel/UCyl26lvnoySlGWlF5oNHvYA) – All topics from the FinOps community.
+- [FinOps certification and training](https://learn.finops.org) – Advance your knowledge
+
+Stay up to date on the latest news:
+
+- [FinOps blog](https://aka.ms/finops/blog) – Latest FinOps news from Microsoft.
+
+[FinOps e-book](https://aka.ms/finops/ebook){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Review assessment](https://aka.ms/finops/review){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Interactive guides](https://aka.ms/finops/guides){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+
+<br>
+
 ## 🗺️ Roadmap
 
 We track the short-term roadmap for FinOps toolkit as milestones in GitHub. Each release includes the high-level goals, tasks, and a link to the release discussion.
