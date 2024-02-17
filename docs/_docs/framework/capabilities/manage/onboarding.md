@@ -53,7 +53,7 @@ Onboarding projects is an internal process that depends solely on your technical
   - Who has access to provision new workloads in the cloud? How are you notified that they're created?
   - What governance measures exist to structure and tag new cloud resources? For example, Azure Policy enforcing tagging requirements.
 - In the beginning, keep it simple and focus on the basics.
-  - Introduce new stakeholders to the FinOps Framework by having them review [What is FinOps](../../../overview-finops.md).
+  - Introduce new stakeholders to the FinOps Framework by having them review [What is FinOps](../../../what-is-finops.md).
   - Help them learn your culture and processes.
   - Determine if you have the budget.
     - Ensure the team runs through the [Forecasting capability](../quantify/forecasting.md) to estimate costs.
