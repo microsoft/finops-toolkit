@@ -114,7 +114,7 @@ Next, you identify specific, measurable goals based on your current experience w
 
     <!-->[!IMPORTANT]-->
     <blockquote class="important" markdown="1">
-        _Before establishing a dedicated FinOps team, consider how much time each individual team is spending on FinOps efforts, what the potential business value is with more savings and efficiency (or lost opportunity), and how much a dedicated team can accelerate those goals. A dedicated team is not for everyone. Ensure you have the right return on investment._
+      _Before establishing a dedicated FinOps team, consider how much time each individual team is spending on FinOps efforts, what the potential business value is with more savings and efficiency (or lost opportunity), and how much a dedicated team can accelerate those goals. A dedicated team is not for everyone. Ensure you have the right return on investment._
     </blockquote>
 
 - **Automation** – Has the capability been automated to minimize manual effort?

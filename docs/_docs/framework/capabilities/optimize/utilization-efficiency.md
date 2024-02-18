@@ -1,8 +1,9 @@
 ---
 layout: default
-parent: ___
+grand_parent: FinOps Framework
+parent: Optimize
 title: Resource utilization and efficiency
-permalink: /framework/capabilities/___/Resource utilization and efficiency
+permalink: /framework/capabilities/optimize/utilization-efficiency
 nav_order: 1
 description: This article helps you understand the resource utilization and efficiency capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft

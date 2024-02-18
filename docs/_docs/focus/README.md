@@ -3,11 +3,11 @@ layout: default
 title: FOCUS
 has_children: true
 nav_order: zzz
-description: 'About FOCUS, the FinOps Open Cost + Usage Specification.'
+description: 'Cloud agnostics format for cost and usage data.'
 permalink: /focus
 ---
 
-<span class="fs-9 d-block mb-4">FinOps Open Cost + Usage Specification</span>
+<span class="fs-9 d-block mb-4">FinOps Open Cost and Usage Specification</span>
 Learn about the new billing data specification that will make it easier to understand and optimize cost and usage across any cloud, SaaS, or on-prem provider.
 {: .fs-6 .fw-300 }
 
@@ -34,6 +34,8 @@ Learn about the new billing data specification that will make it easier to under
 The FinOps Open Cost and Usage Specification (FOCUS) is a groundbreaking initiative to define a common format for billing data that empowers organizations to better understand cost and usage patterns and optimize spending and performance across multiple cloud, SaaS, and even on-premises service offerings.
 
 FOCUS will provide organizations with a consistent, clear, and accessible view of their cost data explicitly designed for FinOps needs such as allocation, analytics, monitoring, and optimization. As the new “language” of FinOps, FOCUS will enable practitioners to collaborate more efficiently and effectively with peers throughout the organization and even maximize transferability and onboarding for new team members, getting people up and running quicker. Paired with the FinOps Framework, practitioners will be armed with the tools needed to build a streamlined FinOps practice that maximizes the value of the cloud.
+
+<br>
 
 ## 🤔 Why FOCUS?
 

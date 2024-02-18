@@ -1,5 +1,6 @@
 ---
 layout: default
+grand_parent: FinOps Framework
 parent: Manage
 title: Policy + governance
 permalink: /framework/capabilities/manage/policy

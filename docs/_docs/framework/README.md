@@ -1,9 +1,8 @@
 ---
 layout: default
-parent: FinOps Framework
 title: FinOps Framework
 has_children: true
-nav_order: 1
+nav_order: 20
 description: 'Learn about what the FinOps Framework is and how you can use it to accelerate your cost management and optimization goals.'
 permalink: /framework
 ---

@@ -1,5 +1,6 @@
 ---
 layout: default
+grand_parent: FinOps Framework
 parent: Quantify
 title: Budgeting
 permalink: /framework/capabilities/quantify/budgeting
