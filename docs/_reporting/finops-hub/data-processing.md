@@ -2,7 +2,7 @@
 layout: default
 parent: FinOps hubs
 title: Data processing
-nav_order: 30
+nav_order: 20
 description: 'Details about how data is handled in FinOps hubs.'
 permalink: /hubs/data
 ---

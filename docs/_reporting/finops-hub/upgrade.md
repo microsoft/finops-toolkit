@@ -2,7 +2,7 @@
 layout: default
 parent: FinOps hubs
 title: Upgrade
-nav_order: 20
+nav_order: 30
 description: 'Upgrade an existing FinOps hub instance to the latest version.'
 permalink: /hubs/upgrade
 ---
@@ -29,7 +29,7 @@ Upgrade an existing FinOps hub instance to the latest version to leverage new ca
 Upgrading a FinOps hub instance is usually the same as the initial setup but depending on what version you're moving from or to, you may have specific steps that are needed. Use the following sections to move from one version to another. If you have any questions, please [start a discussion](https://github.com/microsoft/finops-toolkit/discussions).
 
 <blockquote class="warning" markdown="1">
-    _The most common issue people face when upgrading to `0.2` is trying to use **new** Power BI reports with an **old** hub or using **old** Power BI reports with an **upgraded** hub. FinOps hubs and reports from the `0.0.1` and `0.1.x` releases are compatible, but they are not compatible with `0.2`._
+  _The most common issue people face when upgrading to `0.2` is trying to use **new** Power BI reports with an **old** hub or using **old** Power BI reports with an **upgraded** hub. FinOps hubs and reports from the `0.0.1` and `0.1.x` releases are compatible, but they are not compatible with `0.2`._
 </blockquote>
 
 <br>
@@ -86,7 +86,7 @@ Microsoft Online Services Agreement (MOSA, aka PAYG) and Microsoft internal subs
 FinOps hubs `0.2` and later use the [FOCUS](../../_docs/focus/README.md) cost data format which covers both billed (actual) and amortized costs. FOCUS allows viewing EA and MCA data together and is 30% smaller than actual + amortized datasets combined, which reduces your (storage costs). See [FOCUS benefits](../../_docs/focus/README.md#-benefits) for additional benefits.
 
 <blockquote class="important" markdown="1">
-    _Cost Management has a limitation with the new exports that limits them to the last 13 months. If you need data older than 13 months, please contact support to request support for historical data. The following details are based on this current limitation (as of January 2024)._
+  _Cost Management has a limitation with the new exports that limits them to the last 13 months. If you need data older than 13 months, please contact support to request support for historical data. The following details are based on this current limitation (as of January 2024)._
 </blockquote>
 
 Before you upgrade, consider the following:
@@ -115,6 +115,8 @@ Based on the above, use the following steps to upgrade your hub instance from `0
 ---
 
 ## ⏭️ Next steps
+
+<br>
 
 [Deploy](./README.md#-create-a-new-hub){: .btn .btn-primary .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [Learn more](./README.md#-why-finops-hubs){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
