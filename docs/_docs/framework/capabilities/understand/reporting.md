@@ -1,5 +1,6 @@
 ---
 layout: default
+grand_parent: FinOps Framework
 parent: Understand
 title: Data analysis
 permalink: /framework/capabilities/understand/reporting
@@ -65,7 +66,7 @@ Before you can effectively analyze usage and costs, you need to familiarize your
 
 <!-->[!NOTE]-->
 <blockquote class="note" markdown="1">
-    _For example, many people understand "VMs are not billed when they're not running." However, this is only partially true. There's a slight nuance for VMs where a "stopped" VM _will_ continue to charge you, because the cloud provider is still reserving that capacity for you. To stop billing, you must "deallocate" the VM. But you also need to remember that compute time isn't the only charge for a VM – you're also charged for network bandwidth, disk storage, and other connected resources. In the simplest example, a deallocated VM will always charge you for disk storage, even if the VM is not running. Depending on what other services you have connected, there could be other charges as well. This is why it's important to understand how the services and features you use will charge you._
+  _For example, many people understand "VMs are not billed when they're not running." However, this is only partially true. There's a slight nuance for VMs where a "stopped" VM _will_ continue to charge you, because the cloud provider is still reserving that capacity for you. To stop billing, you must "deallocate" the VM. But you also need to remember that compute time isn't the only charge for a VM – you're also charged for network bandwidth, disk storage, and other connected resources. In the simplest example, a deallocated VM will always charge you for disk storage, even if the VM is not running. Depending on what other services you have connected, there could be other charges as well. This is why it's important to understand how the services and features you use will charge you._
 </blockquote>
 
 We also recommend learning about [how cost data is tracked, stored, and refreshed in Microsoft Cost Management](https://learn.microsoft.com/azure/cost-management-billing/costs/understand-cost-mgt-data.md). Some examples include:

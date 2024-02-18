@@ -1,5 +1,6 @@
 ---
 layout: default
+grand_parent: FinOps Framework
 parent: Manage
 title: Intersecting frameworks
 permalink: /framework/capabilities/manage/intersecting-disciplines

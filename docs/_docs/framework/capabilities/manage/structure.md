@@ -1,5 +1,6 @@
 ---
 layout: default
+grand_parent: FinOps Framework
 parent: Manage
 title: Decision and accountability structure
 permalink: /framework/capabilities/manage/structure

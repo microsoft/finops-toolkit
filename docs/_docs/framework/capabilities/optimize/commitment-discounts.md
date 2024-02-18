@@ -1,5 +1,6 @@
 ---
 layout: default
+grand_parent: FinOps Framework
 parent: Optimize
 title: Commitment discounts
 permalink: /framework/capabilities/optimize/commitment-discounts

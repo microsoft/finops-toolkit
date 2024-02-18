@@ -1,5 +1,6 @@
 ---
 layout: default
+grand_parent: FinOps Framework
 parent: Manage
 title: Chargeback
 permalink: /framework/capabilities/manage/invoicing-chargeback

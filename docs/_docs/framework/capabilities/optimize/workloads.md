@@ -1,5 +1,6 @@
 ---
 layout: default
+grand_parent: FinOps Framework
 parent: Optimize
 title: Workload management
 permalink: /framework/capabilities/optimize/workloads

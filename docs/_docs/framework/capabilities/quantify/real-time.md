@@ -1,7 +1,7 @@
 ---
 layout: default
 grand_parent: FinOps Framework
-parent: Capabilities
+parent: Quantify
 title: Real-time
 has_children: true
 nav_order: 2

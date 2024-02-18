@@ -1,5 +1,6 @@
 ---
 layout: default
+grand_parent: FinOps Framework
 parent: Quantify
 title: Unit costs
 permalink: /framework/capabilities/quantify/unit-economics
