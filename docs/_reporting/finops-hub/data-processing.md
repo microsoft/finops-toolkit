@@ -2,7 +2,7 @@
 layout: default
 parent: FinOps hubs
 title: Data processing
-nav_order: 3
+nav_order: 30
 description: 'Details about how data is handled in FinOps hubs.'
 permalink: /hubs/data
 ---
@@ -79,6 +79,7 @@ msexports/{scope-id}/{date-range}/{export-name}/{export-time}/{guid}/{file}
   > Hubs only monitor the **msexports** container, so this is required.
 - `{scope-id}` is the folder path specified on the export.
   > Hubs use this to identify which scope the data is coming from. We recommend using the scope ID but any value can be used. Example scope IDs include:
+  >
   > | Scope type      | Example value                                                          |
   > | --------------- | ---------------------------------------------------------------------- |
   > | Subscription    | `/subscriptions/###`                                                   |
