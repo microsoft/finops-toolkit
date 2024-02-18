@@ -4,7 +4,6 @@ parent: FinOps Framework
 title: Manage
 has_children: true
 nav_order: zzz
-nav_exclude: true
 description: 'Establish your FinOps practice and drive organizational accountability.'
 permalink: /framework/capabilities/manage
 ---
