@@ -105,8 +105,8 @@ In general, we recommend starting with the Cost Management connector when gettin
 | Learn more                                          |  [Learn more][about-connector]   |                                  |     [Learn more][about-hubs]     |
 
 [about-connector]: https://aka.ms/costmgmt/powerbi
-[about-hubs]: ../finops-hub/README.md
-[hubs-template]: ../finops-hub/template.md
+[about-hubs]: ../hubs/README.md
+[hubs-template]: ../hubs/template.md
 
 _<sup>1) Support for raw exports requires a Cost Management preview feature available from [Cost Management Labs](https://aka.ms/costmgmt/trypreview). The FinOps toolkit does not support raw exports yet but will in a future release.</sup>_
 

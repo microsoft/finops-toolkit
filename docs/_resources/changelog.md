@@ -174,7 +174,7 @@ Legend:
 > ✏️ Changed:
 >
 > 1. Updated [Cost summary](../_reporting/power-bi/cost-summary.md) and [Commitment discounts](../_reporting/power-bi/commitment-discounts.md) reports to [FOCUS 1.0 preview](../_docs/focus/README.md).
-> 2. Updated [Cost summary](../_reporting/power-bi/cost-summary.md) and [Commitment discounts](../_reporting/power-bi/commitment-discounts.md) reports to only use [FinOps hubs](../_reporting/finops-hub/README.md).
+> 2. Updated [Cost summary](../_reporting/power-bi/cost-summary.md) and [Commitment discounts](../_reporting/power-bi/commitment-discounts.md) reports to only use [FinOps hubs](../_reporting/hubs/README.md).
 > 3. Removed unused custom visualizations.
 > 4. Organized setup instructions in Cost summary to match other reports.
 > 5. Updated troubleshooting documentation.
@@ -366,7 +366,7 @@ Legend:
 
 > ➕ Added:
 >
-> 1. [FinOps hub template](../_reporting/finops-hub/README.md) to deploy a storage account and Data Factory instance.
+> 1. [FinOps hub template](../_reporting/hubs/README.md) to deploy a storage account and Data Factory instance.
 > 2. [Cost summary report](../_reporting/power-bi/cost-summary.md) for various out-of-the-box cost breakdowns.
 > 3. [Commitment discounts report](../_reporting/power-bi/commitment-discounts.md) for commitment-based discount reports.
 
