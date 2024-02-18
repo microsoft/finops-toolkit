@@ -44,7 +44,7 @@ We are very early in our journey. Today, FinOps hubs extend Cost Management by e
 </blockquote>
 
 <blockquote class="note" markdown="1">
-    _FinOps hubs requires an Enterprise Agreement (EA) or Microsoft Customer Agreement (MCA) account (including Cloud Solution Provider subscriptions). If you have a Microsoft Online Services Agreement (MOSA, aka PAYG) or a Microsoft internal subscription, you will need to use FinOps hubs 0.1.1. Please note Power BI reports have not been tested extensively with MOSA and MS Internal subscriptions. Speak to a Microsoft representative or file a billing support request to ask about migrating your subscription to Microsoft Customer Agreement._
+  _FinOps hubs requires an Enterprise Agreement (EA) or Microsoft Customer Agreement (MCA) account (including Cloud Solution Provider subscriptions). If you have a Microsoft Online Services Agreement (MOSA, aka PAYG) or a Microsoft internal subscription, you will need to use FinOps hubs 0.1.1. Please note Power BI reports have not been tested extensively with MOSA and MS Internal subscriptions. Speak to a Microsoft representative or file a billing support request to ask about migrating your subscription to Microsoft Customer Agreement._
 </blockquote>
 
 <br>
@@ -99,13 +99,13 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
 ## ➕ Create a new hub
 
 <blockquote class="note" markdown="1">
-    _To upgrading an existing hub instance, please refer to the [Upgrade guide](./upgrade.md)._
+  _FinOps hubs 0.2 is a breaking change. To upgrade an existing hub instance, please refer to the [Upgrade guide](./upgrade.md)._
 </blockquote>
 
 1. Register the Microsoft.EventGrid and Microsoft.CostManagementExports resource providers. See [Register a resource provider](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) for details.
 2. [Deploy the **finops-hub** template](../../_resources/deploy.md).
 
-   [![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Foptimization-workbook-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Foptimization-workbook%2FcreateUiDefinition.json) &nbsp; [![Deploy To Azure US Gov](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.svg?sanitize=true)](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Foptimization-workbook-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Foptimization-workbook%2FcreateUiDefinition.json) &nbsp; [![Deploy To Azure China](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazurechina.svg?sanitize=true)](https://portal.azure.cn/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Foptimization-workbook-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Foptimization-workbook%2FcreateUiDefinition.json)
+   [![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub%2FcreateUiDefinition.json) &nbsp; [![Deploy To Azure US Gov](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.svg?sanitize=true)](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub%2FcreateUiDefinition.json) &nbsp; [![Deploy To Azure China](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazurechina.svg?sanitize=true)](https://portal.azure.cn/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub%2FcreateUiDefinition.json)
 
 3. [Create a new FOCUS cost export](https://aka.ms/exportsv2) using the following settings:
 
