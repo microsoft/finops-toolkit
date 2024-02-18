@@ -2,7 +2,7 @@
 layout: default
 parent: FinOps hubs
 title: Template
-nav_order: 2
+nav_order: 10
 description: "Details about what's included in the FinOps hub template."
 permalink: /hubs/template
 ---
@@ -131,6 +131,8 @@ In addition to the above, the following resources are created to automate the de
 ---
 
 ## ⏭️ Next steps
+
+<br>
 
 [Deploy](./README.md#-create-a-new-hub){: .btn .btn-primary .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [Learn more](./README.md#-why-finops-hubs){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
