@@ -11,8 +11,8 @@ permalink: /hubs/upgrade
 Upgrade an existing FinOps hub instance to the latest version to leverage new capabilities.
 {: .fs-6 .fw-300 }
 
-[Deploy](#-create-a-new-hub){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Learn more](#️-why-finops-hubs){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Get started](#before-you-begin){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Deploy](./README.md#-create-a-new-hub){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
@@ -62,7 +62,7 @@ Microsoft Online Services Agreement (MOSA, aka PAYG) and Microsoft internal subs
 
 ### EA and MCA accounts for 0.0.1
 
-If you have an EA or MCA account, please upgrade to `0.2` which uses the new [FOCUS](../_docs/focus/README.md) cost data format and covers both billed (actual) and amortized costs with 30% less data size (and storage costs). This will be the baseline for all future updates.
+If you have an EA or MCA account, please upgrade to `0.2` which uses the new [FOCUS](../../_docs/focus/README.md) cost data format and covers both billed (actual) and amortized costs with 30% less data size (and storage costs). This will be the baseline for all future updates.
 
 [See 0.2 upgrade instructions](#ea-and-mca-accounts-for-01x){: .btn .mb-4 .mb-md-0 .mr-4 }
 
@@ -104,11 +104,11 @@ Based on the above, use the following steps to upgrade your hub instance from `0
 2. If desired, delete the historical amortized cost data to keep storage costs down.
 3. Deploy FinOps hubs `0.2` and create new FOCUS exports using the [Create a new hub](./README.md#-create-a-new-hub) instructions.
    <blockquote class="note" markdown="1">
-      _You can skip step 1 since resource providers have already been registered._
+     _You can skip step 1 since resource providers have already been registered._
    </blockquote>
 4. Backfill historical data using the FOCUS export.
 
-[Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.2){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.2){: .btn .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
