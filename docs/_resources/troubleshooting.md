@@ -124,7 +124,7 @@ This error happens when you try to update an Azure role assignment with a new id
 
 This error typically indicates that data was not ingested into the **ingestion** container.
 
-If you just upgraded to FinOps hubs 0.2, this may be due to the Power BI report being old (from 0.1.x) or because you are not using FOCUS exports. See the [Upgrade guide](../_reporting/finops-hub/upgrade.md) for details.
+If you just upgraded to FinOps hubs 0.2, this may be due to the Power BI report being old (from 0.1.x) or because you are not using FOCUS exports. See the [Upgrade guide](../_reporting/hubs/upgrade.md) for details.
 
 See [Reports are empty (no data)](#reports-are-empty-no-data) for additional troubleshooting steps.
 

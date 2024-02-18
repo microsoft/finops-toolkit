@@ -114,7 +114,7 @@ This report includes the following pages:
 4. `PricingUnit` and `UsageUnit` both include the pricing block size. Exports (and FinOps hubs) separate the block size into `x_PricingBlockSize`.
 5. `SkuPriceId` is not set due to the connector not having the data to populate the value.
 6. `ServiceName` is empty for unused savings plan records (`ChargeSubcategory == "Unused Commitment" and CommitmentDiscountType == "Savings Plan"`).
-7. Savings plan usage is not identifiable in the connector. Please use [FinOps hubs](../finops-hub/README.md) to report on savings plans.
+7. Savings plan usage is not identifiable in the connector. Please use [FinOps hubs](../hubs/README.md) to report on savings plans.
 
 <br>
 

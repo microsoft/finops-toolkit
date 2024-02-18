@@ -12,7 +12,7 @@ Upgrade an existing FinOps hub instance to the latest version to leverage new ca
 {: .fs-6 .fw-300 }
 
 [Get started](#before-you-begin){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Deploy](./README.md#-create-a-new-hub){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Deploy](README.md#-create-a-new-hub){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
