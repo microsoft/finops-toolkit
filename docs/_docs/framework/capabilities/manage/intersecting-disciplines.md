@@ -7,11 +7,11 @@ permalink: /framework/capabilities/manage/intersecting-disciplines
 nav_order: zzz
 description: This article helps you understand the FinOps and intersecting frameworks capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
-ms.author: banders
-ms.date: 06/22/2023
-ms.topic: conceptual
-ms.service: finops
-ms.reviewer: micflan
+"ms.author": banders
+"ms.date": 06/22/2023
+"ms.topic": conceptual
+"ms.service": finops
+"ms.reviewer": micflan
 ---
 
 <span class="fs-9 d-block mb-4">FinOps and intersecting frameworks</span>
