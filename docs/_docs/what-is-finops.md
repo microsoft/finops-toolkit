@@ -5,12 +5,15 @@ nav_order: 10
 description: FinOps combines financial management principles with cloud engineering and operations to provide organizations with a better understanding of their cloud spending. It also helps them make informed decisions on how to allocate and manage their cloud costs.
 permalink: /what-is-finops
 author: bandersmsft
-"ms.author": banders
-"ms.date": 06/21/2023
-"ms.topic": overview
-"ms.service": finops
-"ms.reviewer": micflan
 ---
+
+<!--
+ms.author: banders
+ms.date: 06/21/2023
+ms.topic: overview
+ms.service: finops
+ms.reviewer: micflan
+-->
 
 <span class="fs-9 d-block mb-4">What is FinOps?</span>
 FinOps is an operational framework and cultural practice which maximizes the business value of cloud, enables timely data-driven decision making, and creates financial accountability through collaboration between engineering, finance, and business teams.

@@ -7,12 +7,15 @@ permalink: /framework/capabilities/optimize/workloads
 nav_order: 2
 description: This article helps you understand the workload management and automation capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
-"ms.author": banders
-"ms.date": 06/23/2023
-"ms.topic": conceptual
-"ms.service": finops
-"ms.reviewer": micflan
 ---
+
+<!--
+ms.author: banders
+ms.date: 06/23/2023
+ms.topic: conceptual
+ms.service: finops
+ms.reviewer: micflan
+-->
 
 <span class="fs-9 d-block mb-4">Workload management and automation</span>
 This article helps you understand the workload management and automation capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
