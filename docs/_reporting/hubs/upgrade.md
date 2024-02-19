@@ -98,17 +98,17 @@ Before you upgrade, consider the following:
    - If you modified the reports, you will need to re-apply your changes to the new reports. Refer to [How to update existing reports to FOCUS](../../_docs/focus/README.md#how-to-update-existing-reports-to-focus) for details.
    - If you need your customized reports to continue to run while you upgrade, deploy a second instance of FinOps hubs using a different storage account to avoid data processing errors.
 
-Based on the above, use the following steps to upgrade your hub instance from `0.1.x` to `0.2`:
+Based on the above, use the following steps to upgrade your hub instance from `0.1.x` to `0.2.x`:
 
 1. Delete any amortized cost exports pointing to your hub instance.
 2. If desired, delete the historical amortized cost data to keep storage costs down.
-3. Deploy FinOps hubs `0.2` and create new FOCUS exports using the [Create a new hub](./README.md#-create-a-new-hub) instructions.
+3. Deploy FinOps hubs `0.2.1` and create new FOCUS exports using the [Create a new hub](./README.md#-create-a-new-hub) instructions.
    <blockquote class="note" markdown="1">
      _You can skip step 1 since resource providers have already been registered._
    </blockquote>
 4. Backfill historical data using the FOCUS export.
 
-[Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.2){: .btn .mb-4 .mb-md-0 .mr-4 }
+[Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.2.1){: .btn .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 

@@ -34,9 +34,9 @@ sequenceDiagram
 
 <br>
 
-1. Cost Management exports raw cost details to the **msexports** container. [Learn more](#about-exports).
+1. Cost Management exports raw cost details to the **msexports** container. [Learn more](#ℹ️-about-exports).
 2. The **msexports_ExecuteETL** pipeline kicks off the extract-transform-load (ETL) process when files are added to storage.
-3. The **msexports_ETL_ingestion** pipeline saves exported data in parquet format in the **ingestion** container. [Learn more](#about-ingestion).
+3. The **msexports_ETL_ingestion** pipeline saves exported data in parquet format in the **ingestion** container. [Learn more](#ℹ️-about-ingestion).
 4. Power BI reads cost data from the **ingestion** container.
 
 <br>
@@ -55,9 +55,7 @@ ingestion/{scope-id}/{month}/focuscost
 - `focuscost` is the exported dataset.
   > Hubs 0.2 only supports FOCUS cost exports. Other export types will be added in a future release.
 
-If you need to 
-
-If you need to use hubs to monitor non-Azure data, convert the data to [FOCUS](../focus/README.md) and drop it into the **ingestion** container. Please note this has not been explicitly tested in the latest release. If you experience any issues, please [create an issue](https://aka.ms/finops/toolkit/ideas).
+If you need to use hubs to monitor non-Azure data, convert the data to [FOCUS](../../_docs/focus/README.md) and drop it into the **ingestion** container. Please note this has not been explicitly tested in the latest release. If you experience any issues, please [create an issue](https://aka.ms/finops/toolkit/ideas).
 
 <br>
 

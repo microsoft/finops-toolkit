@@ -69,7 +69,7 @@ FinOps hubs will streamline implementing the FinOps Framework, are being designe
 - Connect Power BI to Microsoft Online Services Agreement (MOSA) subscriptions<sup>1</sup>.
 - Report on multiple subscriptions, resource groups, or billing accounts.
 - Streamlined deployment and management with PowerShell.
-- Full alignment with the [FinOps Open Cost and Usage Specification (FOCUS)](../_docs/focus/README.md).
+- Full alignment with the [FinOps Open Cost and Usage Specification (FOCUS)](../../_docs/focus/README.md).
 - _Coming soon: Ingest data from subscriptions in multiple tenants into a single storage account._
 - _Coming soon: Ingest data into Azure Data Explorer._
 
@@ -135,9 +135,10 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
    - Exports can take up to a day to show up after first created.
    - Use the **Run now** command at the top of the Cost Management Exports page.
    - Your data should be available within 15 minutes or so, depending on how big your account is.
-5. Download one or more of the available Power BI starter templates from the [latest release](https://github.com/microsoft/finops-toolkit/releases):
+5. Download one or more of the available Power BI starter templates from the [latest release](https://aka.ms/ftk/latest):
    - [Cost summary](../power-bi/cost-summary.md) for standard cost roll-ups.
    - [Commitment discounts](../power-bi/commitment-discounts.md) for commitment-based savings utilization and coverage.
+   - [Data ingestion](../power-bi/data-ingestion.md) for insight into your hub storage.
 6. [Connect Power BI to your hub](../power-bi/README.md#-connect-to-your-data)
 
 If you run into any issues, refer to the [Troubleshooting guide](../../_resources/troubleshooting.md).
@@ -156,7 +157,7 @@ After deploying a hub instance, there are several ways for you to get started:
 
 2. Create your own Power BI reports.
 
-   If you'd like to create your own reports or add cost data to an existing report, you can either [copy queries from a pre-built report](../power-bi/README.md#setup-a-finops-hub-report) or [connect manually](../power-bi/README.md#connect-manually) using the Azure Data Lake Storage Gen2 connector.
+   If you'd like to create your own reports or add cost data to an existing report, you can either [copy queries from a pre-built report](../power-bi/README.md#setup-a-finops-hub-report) or connect manually using the Azure Data Lake Storage Gen2 connector.
 
 3. Connect to Microsoft Fabric for advanced queries.
 
@@ -164,7 +165,7 @@ After deploying a hub instance, there are several ways for you to get started:
 
 4. Access the cost data from custom tools.
 
-   Cost data is stored in an [Azure Data Lake Storage Gen2](https://learn.microsoft.com/azure/storage/blobs/data-lake-storage-introduction) account. You can use any tool that supports Azure Data Lake Storage Gen2 to access the data. Refer to the [data dictionary](./data-dictionary.md) for details about available columns.
+   Cost data is stored in an [Azure Data Lake Storage Gen2](https://learn.microsoft.com/azure/storage/blobs/data-lake-storage-introduction) account. You can use any tool that supports Azure Data Lake Storage Gen2 to access the data. Refer to the [data dictionary](../../_resources/data-dictionary.md) for details about available columns.
 
 5. Apply cost allocation logic, augment, or manipulate your cost data using Data Factory.
 
@@ -206,6 +207,6 @@ For additional details, refer to [Cost Management documentation](https://learn.m
 
 ## 🧰 Related tools
 
-{% include tools.md pbi="1" ps="1" opt="1" %}
+{% include tools.md bicep="0" data="1" gov="0" pbi="1" ps="1" opt="1" %}
 
 <br>

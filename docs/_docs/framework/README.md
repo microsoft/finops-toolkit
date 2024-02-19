@@ -69,6 +69,11 @@ FinOps requires a holistic and cross-functional approach that involves various s
 - **Engineering teams** – Deliver high quality, cost-effective services.
 - **FinOps practitioners** – Educate, standardize, and promote FinOps best practices.
 
+<!--
+You can also find related videos on the FinOps Foundation YouTube channel:
+{% include video.md title="FinOps personas" id="gXzGwWDQmI0CFrHM" list="PLUSCToibAswkRhkO_PfxqD8et5j0F6VcC" %}
+-->
+
 <br>
 
 ## Lifecycle

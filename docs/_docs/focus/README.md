@@ -25,6 +25,7 @@ Learn about the new billing data specification that will make it easier to under
 - [ℹ️ Important notes about FOCUS columns](#ℹ️-important-notes-about-focus-columns)
 - [🙋‍♀️ Feedback about FOCUS columns](#️-feedback-about-focus-columns)
 - [🧐 See also](#-see-also)
+- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
 - [🧰 Related tools](#-related-tools)
 
 </details>
@@ -183,6 +184,17 @@ Please note the following when working with FOCUS data:
 - [Generating a unique ID](../../_resources/data-dictionary.md#-generating-a-unique-id)
 - [Known issues](../../_resources/data-dictionary.md#-known-issues)
 - [Common terms](../../_resources/terms.md)
+
+<br>
+
+## 🍎 Learn more at the FinOps Foundation
+
+The FinOps Open Cost and Usage Specification (FOCUS) was built in collaboration with the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FOCUS, see the [FOCUS project site](https://focus.finops.org) article in the FinOps Framework documentation.
+
+You can also find related videos on the FinOps Foundation YouTube channel:
+
+<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
+{% include video.md title="FinOps Open Cost and Usage Specification videos" id="w-RiyFpUhTSXtixI" list="PLUSCToibAswmzF4s0HHYlyoN9J9wi4Aur" %}
 
 <br>
 

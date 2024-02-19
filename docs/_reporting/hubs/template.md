@@ -12,7 +12,7 @@ Behind the scenes peek at what makes up the FinOps hub template, including input
 {: .fs-6 .fw-300 }
 
 [Deploy](./README.md#-create-a-new-hub){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Learn more](️#-why-finops-hubs){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Prerequisites](️#-prerequisites){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <details open markdown="1">
   <summary class="fs-2 text-uppercase">On this page</summary>
@@ -65,7 +65,7 @@ Please ensure the following prerequisites are met before deploying this template
 2. The Microsoft.EventGrid resource provider must be registered in your subscription. See [Register a resource provider](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) for details.
 
    <blockquote class="important" markdown="1">
-     _If you forget this step, the deployment will succeed, but the pipeline trigger will not be started and data will not be ready. See [Troubleshooting Power BI reports](../resources/troubleshooting.md) for details._
+     _If you forget this step, the deployment will succeed, but the pipeline trigger will not be started and data will not be ready. See [Troubleshooting Power BI reports](../../_resources/troubleshooting.md) for details._
    </blockquote>
 
 <br>
