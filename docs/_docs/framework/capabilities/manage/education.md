@@ -87,6 +87,11 @@ At this point, you have a central repository for training content and targeted i
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [FinOps education and enablement capability](https://www.finops.org/framework/capabilities/education-enablement/) article in the FinOps Framework documentation.
 
+You can also find related videos on the FinOps Foundation YouTube channel:
+
+<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
+{% include video.md title="FinOps education and enablement videos" id="q5R582G-fTvpQihE" list="PLUSCToibAswlxVgiIoTvTYwIJTXCxO3k4" %}
+
 <br>
 
 ## Next steps

@@ -143,6 +143,11 @@ At this point, you're likely productively utilizing the native reporting and ana
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Data analysis and showback capability](https://www.finops.org/framework/capabilities/analysis-showback/) article in the FinOps Framework documentation.
 
+You can also find related videos on the FinOps Foundation YouTube channel:
+
+<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
+{% include video.md title="Data analysis and showback videos" id="CVTJLdcozj1eEpxT" list="PLUSCToibAswlDSQdehKhi7ysP2hmetigl" %}
+
 <br>
 
 ## Next steps

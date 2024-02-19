@@ -126,6 +126,11 @@ At this point, you have a manual process for generating a forecast. As you move 
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Forecasting capability](https://www.finops.org/framework/capabilities/forecasting) article in the FinOps Framework documentation.
 
+You can also find related videos on the FinOps Foundation YouTube channel:
+
+<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
+{% include video.md title="Forecasting videos" id="MC5erhroC6W7gedh" list="PLUSCToibAswkduSzBonLR4Btu4ogHNDSv" %}
+
 <br>
 
 ## Next steps

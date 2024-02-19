@@ -77,6 +77,11 @@ At this point, you've implemented all the basic cost optimization recommendation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Resource utilization and efficiency capability](https://www.finops.org/framework/capabilities/utilization-efficiency/) article in the FinOps Framework documentation.
 
+You can also find related videos on the FinOps Foundation YouTube channel:
+
+<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
+{% include video.md title="Resource utilization and efficiency videos" id="DIcO8EulN8PuXuWL" list="PLUSCToibAswlL6Ms76cl9GDmcpM85nlWA" %}
+
 <br>
 
 ## Next steps
