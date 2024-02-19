@@ -153,23 +153,12 @@ union cluster('<shard-cluster>').database('<shard>*').UCDD
 | order by ConsumedServiceId asc, ResourceType asc
 ```
 
-<br>
+The **ServiceModel** column is manually applied using the following logic:
 
-## 🎛️ Service Model
+- Select the service model that best describes the level of effort required to maintain the service.
+- If multiple service models apply, select the one with the highest requirements.
+- Supporting services, like Defender for Cloud, are aligned to the service model of the service they are in support of.
+- Use the service model declared by the service owner (e.g., Microsoft), if documented on their website.
 
-<sup>
-    📅 Updated: Feb 02nd, 2024 <br>
-    ➡️ Source: Cost Management team<br>
-</sup>
-
-<br>
-
-In our table, we've made a number of choices to categorize our services: 
-
-- We have chosen to always categorize a service by its deepest service model.
-
-- We have grouped all Defender for Cloud-related services under its umbrella, so as to find them more easily and to have a unity for them.
-
-- As for Microsoft Fabric, we've decided to follow Microsoft's lead and categorize it as a SaaS.
 
 <br>
