@@ -101,6 +101,11 @@ At this point, you have a cost allocation strategy with detailed cloud managemen
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Cost allocation (metadata & hierarchy) capability](https://www.finops.org/framework/capabilities/cost-allocation/) article in the FinOps Framework documentation.
 
+You can also find related videos on the FinOps Foundation YouTube channel:
+
+<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
+{% include video.md title="Cost allocation (metadata & hierarchy) videos" id="n1TZmZG562F4_VSy" list="PLUSCToibAswmQicVCOwicTWHGjB3ykikr" %}
+
 <br>
 
 ## Next steps

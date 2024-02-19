@@ -80,6 +80,11 @@ At this point, you have a steering committee that has early wins under its belt 
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Establishing a FinOps culture capability](https://www.finops.org/framework/capabilities/establish-finops-culture/) article in the FinOps Framework documentation.
 
+You can also find related videos on the FinOps Foundation YouTube channel:
+
+<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
+{% include video.md title="Establishing a FinOps culture videos" id="UCYaEsPRPl_ADMuf" list="PLUSCToibAswmpT97lQBmVo4-lH9u1qpOw" %}
+
 <br>
 
 ## Next steps

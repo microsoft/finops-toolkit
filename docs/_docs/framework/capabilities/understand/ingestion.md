@@ -112,6 +112,11 @@ At this point, you have a data pipeline and are ingesting data into a central da
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Data ingestion and normalization capability](https://www.finops.org/framework/capabilities/data-normalization/) article in the FinOps Framework documentation.
 
+You can also find related videos on the FinOps Foundation YouTube channel:
+
+<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
+{% include video.md title="Data ingestion and normalization videos" id="qd4e8_6KFFh0vNaL" list="PLUSCToibAswkNY0BoImEsOxwuYA_nd_gu" %}
+
 <br>
 
 ## Next steps

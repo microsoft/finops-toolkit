@@ -87,6 +87,11 @@ At this point, your simple cost allocation scenarios may be addressed. You're le
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Managing shared cost](https://www.finops.org/framework/capabilities/manage-shared-cloud-cost/) article in the FinOps Framework documentation.
 
+You can also find related videos on the FinOps Foundation YouTube channel:
+
+<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
+{% include video.md title="Managing shared cost videos" id="JcYoq8LdWpmv5NdH" list="PLUSCToibAswkwFlxjOE6BL-IBbs9nby5z" %}
+
 <br>
 
 ## Next steps
