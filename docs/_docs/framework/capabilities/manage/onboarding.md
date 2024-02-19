@@ -7,12 +7,15 @@ permalink: /framework/capabilities/manage/onboarding
 nav_order: 4
 description: This article helps you understand the onboarding workloads capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
-"ms.author": banders
-"ms.date": 06/22/2023
-"ms.topic": conceptual
-"ms.service": finops
-"ms.reviewer": micflan
 ---
+
+<!--
+ms.author: banders
+ms.date: 06/22/2023
+ms.topic: conceptual
+ms.service: finops
+ms.reviewer: micflan
+-->
 
 <span class="fs-9 d-block mb-4">Onboarding workloads</span>
 This article helps you understand the onboarding workloads capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
