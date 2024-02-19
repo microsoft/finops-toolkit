@@ -7,22 +7,19 @@ permalink: /framework/capabilities/manage/invoicing-chargeback
 nav_order: 6
 description: This article helps you understand the chargeback and finance integration capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
----
-
-<!--
 ms.author: banders
 ms.date: 06/23/2023
 ms.topic: conceptual
 ms.service: finops
 ms.reviewer: micflan
--->
+---
 
 <span class="fs-9 d-block mb-4">Chargeback and finance integration</span>
 This article helps you understand the chargeback and finance integration capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 {: .fs-6 .fw-300 }
 
 <details open markdown="1">
-    <summary class="fs-2 text-uppercase">On this page</summary>
+  <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [Before you begin](#before-you-begin)
 - [Getting started](#getting-started)

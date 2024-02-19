@@ -5,15 +5,12 @@ nav_order: 11
 description: This tutorial helps you learn how to take an iterative approach to FinOps adoption.
 permalink: /conduct-an-iteration
 author: bandersmsft
----
-
-<!--
 ms.author: banders
 ms.date: 06/21/2023
 ms.topic: tutorial
 ms.service: finops
 ms.reviewer: micflan
--->
+---
 
 <span class="fs-9 d-block mb-4">How to conduct a FinOps iteration</span>
 Learn how to take an iterative approach to FinOps adoption within your organization.

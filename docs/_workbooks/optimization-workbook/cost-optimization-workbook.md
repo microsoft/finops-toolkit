@@ -5,15 +5,12 @@ nav_order: 30
 description: How to install and edit the Cost optimization workbook.
 permalink: /optimization-workbook/customize
 author: bandersmsft
----
-
-<!--
 ms.author: banders
 ms.date: 11/02/2023
 ms.topic: how-to
 ms.service: finops
 ms.reviewer: arclares
--->
+---
 
 <span class="fs-9 d-block mb-4">Use and customize the Cost optimization workbook</span>
 How to install and edit the Cost optimization workbook.

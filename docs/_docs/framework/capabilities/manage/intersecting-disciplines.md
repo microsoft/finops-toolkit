@@ -22,7 +22,7 @@ This article helps you understand the FinOps and intersecting frameworks capabil
 {: .fs-6 .fw-300 }
 
 <details open markdown="1">
-    <summary class="fs-2 text-uppercase">On this page</summary>
+  <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [Getting started](#getting-started)
 - [Learn more at the FinOps Foundation](#learn-more-at-the-finops-foundation)
