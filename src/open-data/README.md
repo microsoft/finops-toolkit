@@ -153,4 +153,12 @@ union cluster('<shard-cluster>').database('<shard>*').UCDD
 | order by ConsumedServiceId asc, ResourceType asc
 ```
 
+The **ServiceModel** column is manually applied using the following logic:
+
+- Select the service model that best describes the level of effort required to maintain the service.
+- If multiple service models apply, select the one with the highest requirements.
+- Supporting services, like Defender for Cloud, are aligned to the service model of the service they are in support of.
+- Use the service model declared by the service owner (e.g., Microsoft), if documented on their website.
+
+
 <br>
