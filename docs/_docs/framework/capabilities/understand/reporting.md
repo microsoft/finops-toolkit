@@ -7,22 +7,19 @@ permalink: /framework/capabilities/understand/reporting
 nav_order: 3
 description: This article helps you understand the data analysis and showback capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
----
-
-<!--
 ms.author: banders
 ms.date: 06/22/2023
 ms.topic: conceptual
 ms.service: finops
 ms.reviewer: micflan
--->
+---
 
 <span class="fs-9 d-block mb-4">Data analysis and showback</span>
 This article helps you understand the data analysis and showback capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 {: .fs-6 .fw-300 }
 
 <details open markdown="1">
-    <summary class="fs-2 text-uppercase">On this page</summary>
+  <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [When to prioritize](#when-to-prioritize)
 - [Before you begin](#before-you-begin)

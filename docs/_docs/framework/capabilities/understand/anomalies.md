@@ -1,14 +1,15 @@
 ---
 layout: default
+grand_parent: FinOps Framework
 parent: Understand
 title: Anomalies
-permalink: /framework/capabilities/understand/anomalies
 nav_order: 4
 description: This article helps you understand the managing anomalies capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
-author: bandersmsft
+permalink: /framework/capabilities/understand/anomalies
 ---
 
 <!--
+author: bandersmsft
 ms.author: banders
 ms.date: 06/22/2023
 ms.topic: conceptual
@@ -21,7 +22,7 @@ This article helps you understand the managing anomalies capability within the F
 {: .fs-6 .fw-300 }
 
 <details open markdown="1">
-    <summary class="fs-2 text-uppercase">On this page</summary>
+  <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [Getting started](#getting-started)
 - [Building on the basics](#building-on-the-basics)
@@ -84,6 +85,11 @@ At this point, you have automated alerts configured and ideally views and report
 ## Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Managing anomalies capability](https://www.finops.org/framework/capabilities/manage-anomalies/) article in the FinOps Framework documentation.
+
+You can also find related videos on the FinOps Foundation YouTube channel:
+
+<!--[!VIDEO https://www.youtube.com/embed/EYnitoLLesDteeSv?list=PLUSCToibAswl7gsq9Zt4sol0Dp3ibfl1L]-->
+{% include video.md title="Anomaly management" id="EYnitoLLesDteeSv" list="PLUSCToibAswl7gsq9Zt4sol0Dp3ibfl1L" %}
 
 <br>
 

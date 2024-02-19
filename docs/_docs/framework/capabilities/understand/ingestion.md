@@ -1,27 +1,25 @@
 ---
 layout: default
+grand_parent: FinOps Framework
 parent: Understand
 title: Data ingestion
 permalink: /framework/capabilities/understand/ingestion
 nav_order: 1
 description: This article helps you understand the data ingestion and normalization capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
----
-
-<!--
 ms.author: banders
 ms.date: 06/22/2023
 ms.topic: conceptual
 ms.service: finops
 ms.reviewer: micflan
--->
+---
 
 <span class="fs-9 d-block mb-4">Data ingestion and normalization</span>
 This article helps you understand the data ingestion and normalization capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 {: .fs-6 .fw-300 }
 
 <details open markdown="1">
-    <summary class="fs-2 text-uppercase">On this page</summary>
+  <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [Before you begin](#before-you-begin)
 - [Getting started](#getting-started)
