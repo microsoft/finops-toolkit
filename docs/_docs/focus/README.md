@@ -23,6 +23,7 @@ Learn about the new billing data specification that will make it easier to under
 - [▶️ Getting started](#️-getting-started)
 - [🔀 Mapping to FOCUS](#-mapping-to-focus)
 - [⚠️ Important notes about FOCUS support](#️-important-notes-about-focus-support)
+- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
 - [🧰 Related tools](#-related-tools)
 
 </details>
@@ -346,6 +347,17 @@ The following known issues have been identified compared to the FOCUS 1.0-previe
 If you have feedback about our mappings or about our full FOCUS support plans, please start a thread in [discussions](https://github.com/microsoft/finops-toolkit/discussions). If you believe you've found a bug, please [create an issue](https://github.com/microsoft/finops-toolkit/issues/new/choose).
 
 If you have feedback about FOCUS, please [create an issue in the FOCUS repository](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/issues/new/choose). We also encourage you to consider contributing to the FOCUS project. The project is looking for more practitioners to help bring their experience to help guide efforts and make this the most useful spec it can be. To learn more about FOCUS or to contribute to the project, visit [focus.finops.org](https://focus.finops.org).
+
+<br>
+
+## 🍎 Learn more at the FinOps Foundation
+
+The FinOps Open Cost and Usage Specification (FOCUS) was built in collaboration with the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FOCUS, see the [FOCUS project site](https://focus.finops.org) article in the FinOps Framework documentation.
+
+You can also find related videos on the FinOps Foundation YouTube channel:
+
+<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
+{% include video.md title="FinOps Open Cost and Usage Specification videos" id="w-RiyFpUhTSXtixI" list="PLUSCToibAswmzF4s0HHYlyoN9J9wi4Aur" %}
 
 ---
 
