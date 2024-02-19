@@ -7,11 +7,11 @@ permalink: /framework/capabilities/manage/policy
 nav_order: 5
 description: This article helps you understand the cloud policy and governance capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
-ms.author: banders
-ms.date: 06/22/2023
-ms.topic: conceptual
-ms.service: finops
-ms.reviewer: micflan
+"ms.author": banders
+"ms.date": 06/22/2023
+"ms.topic": conceptual
+"ms.service": finops
+"ms.reviewer": micflan
 ---
 
 <span class="fs-9 d-block mb-4">Cloud policy and governance</span>

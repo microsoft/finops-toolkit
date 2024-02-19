@@ -2,16 +2,16 @@
 layout: default
 grand_parent: FinOps Framework
 parent: Manage
-title: Decision and accountability structure
+title: Structure
 permalink: /framework/capabilities/manage/structure
 nav_order: 3
 description: This article helps you understand the establishing a FinOps decision and accountability structure capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
-ms.author: banders
-ms.date: 06/22/2023
-ms.topic: conceptual
-ms.service: finops
-ms.reviewer: micflan
+"ms.author": banders
+"ms.date": 06/22/2023
+"ms.topic": conceptual
+"ms.service": finops
+"ms.reviewer": micflan
 ---
 
 <span class="fs-9 d-block mb-4">Establishing a FinOps decision and accountability structure</span>
