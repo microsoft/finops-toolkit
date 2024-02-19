@@ -45,7 +45,7 @@ just_the_docs:
       name: Resources
       nav_fold: true # collapse by default
 
-# Enable relative links for collections
+# Enable relative links for collections -- https://github.com/benbalter/jekyll-relative-links
 relative_links:
   enabled: true
   collections: true
