@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD041 -->
+
 <div class="embeddedvideo">
   <iframe
     title="{% include.name %}"
