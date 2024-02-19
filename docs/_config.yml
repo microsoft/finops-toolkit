@@ -45,6 +45,11 @@ just_the_docs:
       name: Resources
       nav_fold: true # collapse by default
 
+# Enable relative links for collections
+relative_links:
+  enabled: true
+  collections: true
+
 # Links under the left nav
 nav_external_links:
   - title: ❤️ Give feedback
