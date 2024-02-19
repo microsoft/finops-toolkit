@@ -38,7 +38,7 @@ This article helps you understand the FinOps and intersecting frameworks capabil
 
 Identify what frameworks and methodologies are used within your organization. Learn about the processes and benefits each framework provides and how they overlap with FinOps. Develop a plan for how processes can be aligned to achieve collective goals.
 
-<!-->[!VIDEO https://www.youtube.com/embed/iJyz8N55l8WZbzCH?list=PLUSCToibAswnAZASwN31liSpOf0vb6rXM]-->
+<!--[!VIDEO https://www.youtube.com/embed/iJyz8N55l8WZbzCH?list=PLUSCToibAswnAZASwN31liSpOf0vb6rXM]-->
 {% include video.md title="FinOps and intersecting frameworks" id="iJyz8N55l8WZbzCH" list="PLUSCToibAswnAZASwN31liSpOf0vb6rXM" %}
 
 <br>
