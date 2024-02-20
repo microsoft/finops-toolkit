@@ -112,7 +112,7 @@ Legend:
 
 > ➕ Added:
 >
-> 1. Added ServiceModel and Environment columns to the [services](./open-data/README.md#-services) data.
+> 1. Added ServiceModel and Environment columns to the [services](./open-data/README.md#-services) data ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
 > 2. New and updated [resource types](./open-data/README.md#-resource-types) and icons.
 
 🖥️ PowerShell
@@ -120,7 +120,7 @@ Legend:
 
 > ➕ Added:
 >
-> 1. [Get-FinOpsCostService](./powershell/data/Get-FinOpsService.md) includes new `-Environment` and `-ServiceModel` filters and properties in the response.
+> 1. [Get-FinOpsCostService](./powershell/data/Get-FinOpsService.md) includes new `-Environment` and `-ServiceModel` filters and properties in the response ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
 
 [Download v0.2.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.2.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.2...v0.2.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
