@@ -28,7 +28,7 @@ Leverage open data to normalize and enhance your FinOps reporting.
 
 ---
 
-Reporting is the life-blood of any FinOps initiative. And your reports are only as good as your data. This is why [data ingestion and normalization](https://learn.microsoft.com/azure/cost-management-billing/finops/capabilities-ingestion-normalization) is such an important part of FinOps (and any big data effort). The following datasets can be used to clean and normalize your data as part of data ingestion, reporting, or other solutions.
+Reporting is the life-blood of any FinOps initiative. And your reports are only as good as your data. This is why [data ingestion and normalization](../../_docs/framework/capabilities/understand/ingestion.md) is such an important part of FinOps (and any big data effort). The following datasets can be used to clean and normalize your data as part of data ingestion, reporting, or other solutions.
 
 <br>
 
@@ -56,15 +56,11 @@ A few important notes about the data:
 4. Marketplace meters are not included due to inconsistencies that would impact data size.
 
 <blockquote class="note" markdown="1">
-   _`UnitOfMeasure` maps to `PricingUnit` in FOCUS 1.0._
-</blockquote>
-
-<blockquote class="tip" markdown="1">
-   _You can also integrate service data into your workflow with the [Get-FinOpsService](../../_automation/powershell/data/Get-FinOpsService) PowerShell command._
+   _In the Cost Management FOCUS dataset, `UnitOfMeasure` is renamed to `x_PricingUnitDescription`. Both `PricingUnit` and `UsageUnit` in FOCUS are set to the `DistictUnits` column._
 </blockquote>
 
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/PricingUnits.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
-[See PowerShell](../../_automation/powershell/data/Get-FinOpsPricingUnit){: .btn .mb-4 .mb-md-0 .mr-4 }
+[See PowerShell](../../_automation/powershell/data/Get-FinOpsPricingUnit.md){: .btn .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
@@ -86,12 +82,8 @@ Sample data:
 
 <!-- cSpell:enable -->
 
-<blockquote class="tip" markdown="1">
-   _You can also integrate service data into your workflow with the [Get-FinOpsRegion](../../_automation/powershell/data/Get-FinOpsRegion) PowerShell command._
-</blockquote>
-
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
-[See PowerShell](../../_automation/powershell/data/Get-FinOpsRegion){: .btn .mb-4 .mb-md-0 .mr-4 }
+[See PowerShell](../../_automation/powershell/data/Get-FinOpsRegion.md){: .btn .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
@@ -117,13 +109,9 @@ Sample data:
 
 <!-- cSpell:enable -->
 
-<blockquote class="tip" markdown="1">
-   _You can also integrate resource type data into your workflow with the [Get-FinOpsResourceType](../../_automation/powershell/data/Get-FinOpsResourceType) PowerShell command._
-</blockquote>
-
 [Download CSV](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 [Download JSON](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.json){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[See PowerShell](../../_automation/powershell/data/Get-FinOpsResourceType){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[See PowerShell](../../_automation/powershell/data/Get-FinOpsResourceType.md){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
@@ -152,12 +140,8 @@ A few important notes about the data:
 3. `ServiceName` values should match the product marketing name for the closest possible service. Some services reuse resource types and cannot be distinguished from the resource type alone (e.g., Azure functions will show as App Service).
 4. `ServiceCategory` values are aligned with the allowed values in FOCUS.
 
-<blockquote class="tip" markdown="1">
-   _You can also integrate service data into your workflow with the [Get-FinOpsService](../../_automation/powershell/data/Get-FinOpsService) PowerShell command._
-</blockquote>
-
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Services.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
-[See PowerShell](../../_automation/powershell/data/Get-FinOpsService){: .btn .mb-4 .mb-md-0 .mr-4 }
+[See PowerShell](../../_automation/powershell/data/Get-FinOpsService.md){: .btn .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 

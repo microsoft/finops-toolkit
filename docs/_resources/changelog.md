@@ -112,7 +112,7 @@ Legend:
 
 > ➕ Added:
 >
-> 1. New and updated [resource types](./open-data/README.md#-resource-types) and icons.
+> 1. New and updated [resource types](../_reporting/data/README.md#-resource-types) and icons.
 
 [Download v0.2.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.2.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.2...v0.2.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
@@ -240,9 +240,9 @@ Legend:
 
 > ➕ Added:
 >
-> 1. [Resource types](../_reporting/open-data/README.md#-resource-types) to map Azure resource types to friendly display names.
+> 1. [Resource types](../_reporting/data/README.md#-resource-types) to map Azure resource types to friendly display names.
 > 2. [Get-FinOpsResourceType](../_automation/powershell/data/Get-FinOpsResourceType.md) PowerShell command to support resource type to display name mapping.
-> 3. [Sample exports](../_reporting/open-data/README.md#-sample-data) for each of the datasets that can be exported from Cost Management.
+> 3. [Sample exports](../_reporting/data/README.md#-sample-data) for each of the datasets that can be exported from Cost Management.
 
 📗 FinOps guide
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -350,9 +350,9 @@ Legend:
 
 > ➕ Added:
 >
-> 1. [Pricing units](../_reporting/open-data/README.md#-pricing-units) to map all pricing units (UnitOfMeasure values) to distinct units with a scaling factor.
-> 2. [Regions](../_reporting/open-data/README.md#-regions) to map historical resource location values in Microsoft Cost Management to standard Azure regions.
-> 3. [Services](../_reporting/open-data/README.md#-services) to map all resource types to FOCUS service names and categories.
+> 1. [Pricing units](../_reporting/data/README.md#-pricing-units) to map all pricing units (UnitOfMeasure values) to distinct units with a scaling factor.
+> 2. [Regions](../_reporting/data/README.md#-regions) to map historical resource location values in Microsoft Cost Management to standard Azure regions.
+> 3. [Services](../_reporting/data/README.md#-services) to map all resource types to FOCUS service names and categories.
 
 [Download v0.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1){: .btn .btn-primary .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.0.1...v0.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
