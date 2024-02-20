@@ -1,5 +1,4 @@
 ConsumedService,ResourceType,ServiceName,ServiceCategory,PublisherName,PublisherType,Environment,ServiceModel
-
 Citrix.Services,citrix.services/xenappessentials,Citrix Virtual App Essentials,Compute,Citrix,Marketplace,Cloud,SaaS
 Citrix.Services,citrix.services/xendesktopessentials,Citrix Virtual Desktop Essentials,Compute,Citrix,Marketplace,Cloud,SaaS
 GitHub.Enterprise,github.enterprise/accounts,GitHub Enterprise Cloud,Developer Tools,Microsoft,Cloud Provider,Cloud,SaaS
@@ -27,7 +26,7 @@ Microsoft.AzureActiveDirectory,microsoft.azureactivedirectory/guestusages,Azure 
 Microsoft.AzureArcData,microsoft.azurearcdata/postgresinstances,Azure Arc,Multicloud,Microsoft,Cloud Provider,Hybrid,SaaS
 Microsoft.AzureArcData,microsoft.azurearcdata/sqlmanagedinstances,Azure Arc,Multicloud,Microsoft,Cloud Provider,Hybrid,SaaS
 Microsoft.AzureArcData,microsoft.azurearcdata/sqlserverinstances,Azure Arc,Multicloud,Microsoft,Cloud Provider,Hybrid,SaaS
-Microsoft.AzureStackHCI,microsoft.azurestackhci/clusters,Azure Stack HCI,Multicloud,Microsoft,Cloud Provider,On-premises,IaaS
+Microsoft.AzureStackHCI,microsoft.azurestackhci/clusters,Azure Stack HCI,Multicloud,Microsoft,Cloud Provider,On-Premises,IaaS
 Microsoft.BareMetalInfrastructure,microsoft.baremetalinfrastructure/baremetalstorageinstances,BareMetal Infrastructure,Compute,Microsoft,Cloud Provider,Hybrid,IaaS
 Microsoft.Batch,microsoft.batch/batchaccounts,Batch,Compute,Microsoft,Cloud Provider,Cloud,PaaS
 Microsoft.Bing,microsoft.bing/accounts,Microsoft Bing,Web,Microsoft,Cloud Provider,Cloud,SaaS
