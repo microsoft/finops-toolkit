@@ -19,6 +19,12 @@
 
     .PARAMETER ServiceCategory
     Optional. The service category to find services for. Default = null (all).
+    
+    .PARAMETER Servicemodel
+    Optional. The service model the service aligns to. Expected values: IaaS, PaaS, SaaS. Default = null (all).
+
+    .PARAMETER Environment
+    Optional. The environment the service runs in. Expected values: Cloud, Hybrid, On-Premises. Default = null (all).
 
     .PARAMETER PublisherName
     Optional. The publisher name to find services for. Default = null (all).
@@ -62,6 +68,12 @@ function Get-FinOpsService()
 
         [string]
         $ServiceCategory = "*",
+        
+        [string]
+        $ServiceModel = "*",
+        
+        [string]
+        $Environment = "*",
 
         [string]
         $PublisherName = "*",
@@ -88,17 +100,18 @@ function Get-FinOpsService()
             -and $_.ResourceType -like $type `
             -and $_.ServiceName -like $ServiceName `
             -and $_.ServiceCategory -like $ServiceCategory `
+            -and $_.ServiceModel -like $ServiceModel `
+            -and $_.Environment -like $Environment `
             -and $_.PublisherName -like $PublisherName `
             -and $_.PublisherType -like $PublisherCategory
     } `
     | ForEach-Object {
         [PSCustomObject]@{
-            # ServiceLevel values = Infrastructure, Platform, Software, Other
-            # ServiceLevel     = $null
+            Environment       = $_.Environment
+            ServiceModel      = $_.ServiceModel
             ServiceCategory   = $_.ServiceCategory
             ServiceName       = $_.ServiceName
             PublisherName     = $_.PublisherName
-            # PublisherCategory values = Cloud Provider, Vendor, Other???
             PublisherCategory = $_.PublisherType
             ProviderName      = 'Microsoft'
             ProviderCategory  = 'Cloud Provider'

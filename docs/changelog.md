@@ -112,7 +112,15 @@ Legend:
 
 > ➕ Added:
 >
-> 1. New and updated [resource types](./open-data/README.md#-resource-types) and icons.
+> 1. Added ServiceModel and Environment columns to the [services](./open-data/README.md#-services) data.
+> 2. New and updated [resource types](./open-data/README.md#-resource-types) and icons.
+
+🖥️ PowerShell
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. [Get-FinOpsCostService](./powershell/data/Get-FinOpsService.md) includes new `-Environment` and `-ServiceModel` filters and properties in the response.
 
 [Download v0.2.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.2.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.2...v0.2.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
@@ -288,7 +296,7 @@ Legend:
 > 🛠️ Fixed:
 >
 > 1. Storage redundancy dropdown default not set correctly in the create form.
-> 2. Tags specified in the create form were causing the deployment to fail. See #331.
+> 2. Tags specified in the create form were causing the deployment to fail ([#331](https://github.com/microsoft/finops-toolkit/issues/331)).
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
