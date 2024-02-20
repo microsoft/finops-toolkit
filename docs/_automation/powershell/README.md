@@ -57,22 +57,25 @@ Import-Module -Name FinOpsToolkit
 
 - [Deploy-FinOpsHub](hubs/Deploy-FinOpsHub.md) – Deploy your first hub or update to the latest version.
 - [Get-FinOpsHub](hubs/Get-FinOpsHub.md) – Get details about your FinOps hub instance.
+- [Initialize-FinOpsHubDeployment](hubs/Initialize-FinOpsHubDeployment.md) – Initializes the deployment for FinOps hubs.
+- [Register-FinOpsHubProviders](hubs/Register-FinOpsHubProviders.md) – Registers resource providers for FinOps hubs.
+- [Remove-FinOpsHub](hubs/Remove-FinOpsHub.md) – Deletes a FinOps hub instance.
 
 ### FinOps Open Cost and Usage Specification (FOCUS) commands (deprecated)
 
 <blockquote class="warning" markdown="1">
-  _FOCUS commands were implemented before Microsoft Cost Management supported a native FOCUS export. Going forward, we recommend using the native export. These commands will remain available but will not be updated to support FOCUS 1.0-preview. If you have a scenario where you need a PowerShell converter, please leave feedback at [aka.ms/ftk](https://aka.ms/ftk)._
+  _FOCUS commands were implemented before Microsoft Cost Management supported a native FOCUS export. Going forward, we recommend using the native export. These commands will remain available but will not be updated to support FOCUS 1.0-preview. If you have a scenario where you need a PowerShell converter, please [create an issue](https://github.com/microsoft/finops-toolkit/issues/new/choose) to request what you need._
 </blockquote>
 
-- [ConvertTo-FinOpsSchema](ConvertTo-FinOpsSchema.md) – Converts Cost Management cost data to the FOCUS schema.
-- [Invoke-FinOpsSchema](Invoke-FinOpsSchemaTransform.md) – Loads Cost Management data from a CSV file, converts it to FOCUS schema, and saves it to a new CSV file.
+- [ConvertTo-FinOpsSchema](focus/ConvertTo-FinOpsSchema.md) – Converts Cost Management cost data to the FOCUS schema.
+- [Invoke-FinOpsSchema](focus/Invoke-FinOpsSchemaTransform.md) – Loads Cost Management data from a CSV file, converts it to FOCUS schema, and saves it to a new CSV file.
 
 ### Open data commands
 
-- [Get-FinOpsPricingUnit](Get-FinOpsPricingUnit.md) – Gets an Azure region ID and name.
-- [Get-FinOpsRegion](Get-FinOpsRegion.md) – Gets an Azure region ID and name.
-- [Get-FinOpsResourceType](Get-FinOpsResourceType.md) – Gets details about an Azure resource type.
-- [Get-FinOpsService](Get-FinOpsService.md) – Gets the name and category for a service, publisher, and cloud provider.
+- [Get-FinOpsPricingUnit](data/Get-FinOpsPricingUnit.md) – Gets an Azure region ID and name.
+- [Get-FinOpsRegion](data/Get-FinOpsRegion.md) – Gets an Azure region ID and name.
+- [Get-FinOpsResourceType](data/Get-FinOpsResourceType.md) – Gets details about an Azure resource type.
+- [Get-FinOpsService](data/Get-FinOpsService.md) – Gets the name and category for a service, publisher, and cloud provider.
 
 <br>
 

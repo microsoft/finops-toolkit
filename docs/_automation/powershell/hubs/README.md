@@ -34,6 +34,9 @@ The FinOps hubs PowerShell commands help you deploy and manage FinOps hubs insta
 
 - [Deploy-FinOpsHub](Deploy-FinOpsHub.md) – Deploy your first hub or update to the latest version.
 - [Get-FinOpsHub](Get-FinOpsHub.md) – Get details about your FinOps hub instance.
+- [Initialize-FinOpsHubDeployment](Initialize-FinOpsHubDeployment.md) – Initializes the deployment for FinOps hubs.
+- [Register-FinOpsHubProviders](Register-FinOpsHubProviders.md) – Registers resource providers for FinOps hubs.
+- [Remove-FinOpsHub](Remove-FinOpsHub.md) – Deletes a FinOps hub instance.
 
 <br>
 
