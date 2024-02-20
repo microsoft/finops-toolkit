@@ -74,7 +74,7 @@ Deploy-FinOpsHub `
     -Location westus
 ```
 
-Deploys a new FinOps hub instance named MyHub to a new resource group named MyNewResourceGroup.
+Deploys a FinOps hub instance named MyHub to the MyNewResourceGroup resource group. If the resource group does not exist, it will be created. If the hub already exists, it will be updated to the latest version.
 
 ### Deploy specific version
 
@@ -83,10 +83,10 @@ Deploy-FinOpsHub `
     -Name MyHub `
     -ResourceGroup MyExistingResourceGroup `
     -Location westus `
-    -Version {% include ftkver.txt %}
+    -Version 0.1.1
 ```
 
-Deploys a new FinOps hub instance named MyHub to a new resource group named MyNewResourceGroup using version {% include ftkver.txt %} of the template.
+Deploys a FinOps hub instance named MyHub to the MyExistingResourceGroup resource group using version 0.1.1 of the template. This version is required in order to deploy to Azure Gov or Azure China as of February 2024 since FOCUS exports are not available from Cost Management in those environments. If the resource group does not exist, it will be created. If the hub already exists, it will be updated to version 0.1.1.
 
 <br>
 
