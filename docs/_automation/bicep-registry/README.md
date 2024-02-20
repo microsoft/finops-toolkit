@@ -11,7 +11,7 @@ permalink: /bicep
 Leverage reusable bicep modules in your templates to accelerate your FinOps efforts.
 {: .fs-6 .fw-300 }
 
-[Include bicep](#-referencing-bicep-modules){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Use bicep](#-referencing-bicep-modules){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>

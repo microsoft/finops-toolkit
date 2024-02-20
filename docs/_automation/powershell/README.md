@@ -61,7 +61,14 @@ Import-Module -Name FinOpsToolkit
 - [Register-FinOpsHubProviders](hubs/Register-FinOpsHubProviders.md) – Registers resource providers for FinOps hubs.
 - [Remove-FinOpsHub](hubs/Remove-FinOpsHub.md) – Deletes a FinOps hub instance.
 
-### FinOps Open Cost and Usage Specification (FOCUS) commands (deprecated)
+### Open data commands
+
+- [Get-FinOpsPricingUnit](data/Get-FinOpsPricingUnit.md) – Gets an Azure region ID and name.
+- [Get-FinOpsRegion](data/Get-FinOpsRegion.md) – Gets an Azure region ID and name.
+- [Get-FinOpsResourceType](data/Get-FinOpsResourceType.md) – Gets details about an Azure resource type.
+- [Get-FinOpsService](data/Get-FinOpsService.md) – Gets the name and category for a service, publisher, and cloud provider.
+
+### Deprecated: FinOps Open Cost and Usage Specification (FOCUS) commands
 
 <blockquote class="warning" markdown="1">
   _FOCUS commands were implemented before Microsoft Cost Management supported a native FOCUS export. Going forward, we recommend using the native export. These commands will remain available but will not be updated to support FOCUS 1.0-preview. If you have a scenario where you need a PowerShell converter, please [create an issue](https://github.com/microsoft/finops-toolkit/issues/new/choose) to request what you need._
@@ -69,13 +76,6 @@ Import-Module -Name FinOpsToolkit
 
 - [ConvertTo-FinOpsSchema](focus/ConvertTo-FinOpsSchema.md) – Converts Cost Management cost data to the FOCUS schema.
 - [Invoke-FinOpsSchema](focus/Invoke-FinOpsSchemaTransform.md) – Loads Cost Management data from a CSV file, converts it to FOCUS schema, and saves it to a new CSV file.
-
-### Open data commands
-
-- [Get-FinOpsPricingUnit](data/Get-FinOpsPricingUnit.md) – Gets an Azure region ID and name.
-- [Get-FinOpsRegion](data/Get-FinOpsRegion.md) – Gets an Azure region ID and name.
-- [Get-FinOpsResourceType](data/Get-FinOpsResourceType.md) – Gets details about an Azure resource type.
-- [Get-FinOpsService](data/Get-FinOpsService.md) – Gets the name and category for a service, publisher, and cloud provider.
 
 <br>
 
