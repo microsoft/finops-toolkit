@@ -32,6 +32,8 @@ param tags object = {}
 
 @description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
 param tagsByResource object = {}
+@description('Optional. To disable Public Network Access, set to "Disabled".')
+param publicNetworkAccess string = ''
 
 //------------------------------------------------------------------------------
 // Variables
@@ -67,6 +69,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-11-01' = {
     createMode: 'default'
     tenantId: subscription().tenantId
     accessPolicies: formattedAccessPolicies
+    publicNetworkAccess: !empty(publicNetworkAccess) ? publicNetworkAccess : 'Enabled'
     sku: {
       // chinaeast2 is the only region in China that supports deployment scripts
       name: startsWith(location, 'china') ? 'standard' : sku

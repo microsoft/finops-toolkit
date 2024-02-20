@@ -30,6 +30,12 @@ param tagsByResource object = {}
 @description('Optional. List of scope IDs to create exports for.')
 param exportScopes array
 
+@description('Optional. To use Private Endpoints, add target subnet resource Id.')
+param subnetResourceId string = ''
+
+@description('Optional. To disable Public Network Access, set to "Disabled".')
+param publicNetworkAccess string = ''
+
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
@@ -62,6 +68,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-08-01' = {
     isHnsEnabled: true
     minimumTlsVersion: 'TLS1_2'
     allowBlobPublicAccess: false
+    publicNetworkAccess: publicNetworkAccess == 'Disabled' ? 'Disabled' : 'Enabled'    
   }
 }
 
@@ -100,6 +107,62 @@ resource ingestionContainer 'Microsoft.Storage/storageAccounts/blobServices/cont
     metadata: {}
   }
 }
+
+//------------------------------------------------------------------------------
+// Private Endpoints
+//------------------------------------------------------------------------------
+
+resource privateEndpointBlob 'Microsoft.Network/privateEndpoints@2022-05-01' = if (subnetResourceId != '') {
+  name: 'pve-blob-${storageAccount.name}'
+  location: location
+  properties: {
+
+    customNetworkInterfaceName: 'nic-blob-${storageAccount.name}'
+    privateLinkServiceConnections: [
+      {
+        name: 'pve-blob-${storageAccount.name}'
+        properties: {
+          privateLinkServiceId: storageAccount.id
+          groupIds: ['blob']
+        }
+      }
+    ]
+    subnet: {
+      id: subnetResourceId
+      properties: {
+        privateEndpointNetworkPolicies: 'Enabled'
+      }
+
+    }
+  }
+}
+
+resource privateEndpointDfs 'Microsoft.Network/privateEndpoints@2022-05-01' = if (subnetResourceId != '') {
+  name: 'pve-dfs-${storageAccount.name}'
+  location: location
+  properties: {
+
+    customNetworkInterfaceName: 'nic-dfs-${storageAccount.name}'
+    privateLinkServiceConnections: [
+      {
+        name: 'pve-dfs-${storageAccount.name}'
+        properties: {
+          privateLinkServiceId: storageAccount.id
+          groupIds: ['dfs']
+        }
+      }
+    ]
+    subnet: {
+      id: subnetResourceId
+      properties: {
+        privateEndpointNetworkPolicies: 'Enabled'
+      }
+
+    }
+  }
+}
+
+
 
 //------------------------------------------------------------------------------
 // Settings.json
