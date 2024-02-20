@@ -107,6 +107,18 @@ Legend:
 >
 > 1. Fixed deploy to Azure buttons to point to the latest release.
 
+🖥️ PowerShell
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed:
+>
+> 1. [Start-FinOpsCostExport](./powershell/cost/Start-FinOpsCostExport.md) includes a new `-Backfill` option to backfill multiple months.
+> 2. [Start-FinOpsCostExport](./powershell/cost/Start-FinOpsCostExport.md) includes a new `-StartDate` and `-EndDate` options to run the export for a given date range. This can include multiple months.
+>
+> 🛠️ Fixed:
+>
+> 1. Fixed ParameterBindingException error in [New-FinOpsCostExport](./powershell/cost/New-FinOpsCostExport.md).
+
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
