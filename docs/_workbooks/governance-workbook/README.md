@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Governance workbook
-nav_order: 31
+nav_order: 2
 description: 'Azure Monitor workbook focused on governance.'
 permalink: /governance-workbook
 ---

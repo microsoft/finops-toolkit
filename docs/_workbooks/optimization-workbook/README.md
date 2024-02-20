@@ -2,7 +2,7 @@
 layout: default
 title: Cost optimization workbook
 has_children: true
-nav_order: 30
+nav_order: 1
 description: 'Azure Monitor workbook focused on cost optimization.'
 permalink: /optimization-workbook
 ---

@@ -1,7 +1,8 @@
 ---
 layout: default
+parent: Cost optimization workbook
 title: Customize
-nav_order: 30
+nav_order: 1
 description: How to install and edit the Cost optimization workbook.
 permalink: /optimization-workbook/customize
 author: bandersmsft
