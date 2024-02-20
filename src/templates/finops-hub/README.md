@@ -105,11 +105,6 @@ This is to ensure that the script steps in the deployment can be executed.
 4. Execute deployment
    > az deployment group create --resource-group `<RG Name>` --template-file .\main.bicep --parameters hubName='`<hubName>`' subnetResourceId='`<subnetResourceId>`' publicNetworkAccess='Disabled'  
 
-   Or to allow access from an Integration Runtime Subnet
-   > az deployment group create --resource-group `<RG Name>` --template-file .\main.bicep --parameters hubName='`<hubName>`' subnetResourceId='`<subnetResourceId>`' 
-   integrationRuntimeSubnetResourceId='`<IntegrationRuntimeSubnetResourceId>`' publicNetworkAccess='Disabled'  
-   
-   `Make sure that the subnet is allowed under Networking for the storage Account after the deployment.`
 5. Share and add the Self-Hosted Integration Runtime to the FinOps Azure Data Factory.
    > See [Create shared Self-Hosted integration runtime](https://learn.microsoft.com/en-us/azure/data-factory/create-shared-self-hosted-integration-runtime-powershell#create-a-shared-self-hosted-ir-using-azure-data-factory-ui) for details
 6. In FinOps Azure Data Factory, change Integration Runtime for the storage resource under `Linked Service` to the Self-Hosted one.

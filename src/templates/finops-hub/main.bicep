@@ -35,9 +35,6 @@ param subnetResourceId string = ''
 @description('Optional. To disable Public Network Access, set to "Disabled".')
 param publicNetworkAccess string = ''
 
-@description('Optional. To allow Self-Hosted Integration Runtime access to the stroage account.')
-param integrationRuntimeSubnetResourceId string = ''
-
 //==============================================================================
 // Resources
 //==============================================================================
@@ -53,7 +50,6 @@ module hub 'modules/hub.bicep' = {
     exportScopes: exportScopes
     subnetResourceId: !empty(subnetResourceId) ? subnetResourceId : ''
     publicNetworkAccess: !empty(publicNetworkAccess) ? publicNetworkAccess : 'Enabled'
-    integrationRuntimeSubnetResourceId: !empty(integrationRuntimeSubnetResourceId) ? integrationRuntimeSubnetResourceId : ''
   }
 }
 

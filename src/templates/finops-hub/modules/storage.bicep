@@ -36,27 +36,6 @@ param subnetResourceId string = ''
 @description('Optional. To disable Public Network Access, set to "Disabled".')
 param publicNetworkAccess string = ''
 
-@description('Optional. To allow Self-Hosted Integration Runtime access to the stroage account.')
-param integrationRuntimeSubnetResourceId string = ''
-
-// Network ACLs*
-var networkAcls = !empty(subnetResourceId) ? {
-  bypass: 'AzureServices'
-  defaultAction: 'Deny'
-  virtualNetworkRules: !empty(integrationRuntimeSubnetResourceId) ?  [
-      {
-        id: integrationRuntimeSubnetResourceId
-        action: 'Allow'
-      }      
-  ] : []
-
-  } : {
-  bypass: 'AzureServices'
-  ipRules: []
-  defaultAction: publicNetworkAccess == 'Disabled' ? 'Deny' : 'Allow'
-  virtualNetworkRules: []
-}
-
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
@@ -89,7 +68,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-08-01' = {
     isHnsEnabled: true
     minimumTlsVersion: 'TLS1_2'
     allowBlobPublicAccess: false
-    networkAcls: networkAcls
+    publicNetworkAccess: publicNetworkAccess == 'Disabled' ? 'Disabled' : 'Enabled'    
   }
 }
 
