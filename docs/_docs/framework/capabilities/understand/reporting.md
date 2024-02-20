@@ -21,12 +21,13 @@ This article helps you understand the data analysis and showback capability with
 <details open markdown="1">
   <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [When to prioritize](#when-to-prioritize)
-- [Before you begin](#before-you-begin)
-- [Getting started](#getting-started)
-- [Building on the basics](#building-on-the-basics)
-- [Learn more at the FinOps Foundation](#learn-more-at-the-finops-foundation)
-- [Next steps](#next-steps)
+- [🤔 When to prioritize](#-when-to-prioritize)
+- [✋ Before you begin](#-before-you-begin)
+- [▶️ Getting started](#️-getting-started)
+- [🏗️ Building on the basics](#️-building-on-the-basics)
+- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
+- [⏩ Next steps](#-next-steps)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -48,7 +49,7 @@ With the right tools, data analysis and showback enable stakeholders to understa
 
 <br>
 
-## When to prioritize
+## 🤔 When to prioritize
 
 Data analysis and showback are a common part of your iterative process. Some examples of when you want to prioritize data analysis and showback include:
 
@@ -60,11 +61,11 @@ If you're new to FinOps, we recommend starting with data analysis and showback u
 
 <br>
 
-## Before you begin
+## ✋ Before you begin
 
 Before you can effectively analyze usage and costs, you need to familiarize yourself with [how you're charged for the services you use](https://azure.microsoft.com/pricing#product-pricing). Understanding the factors that contribute to costs such as compute, storage, networking, data transfer, or executions helps you understand what you ultimately get billed. Understanding how your service usage aligns with the various pricing models also helps you understand what you get billed. These patterns vary between services, which can result in unexpected charges if you don't fully understand how you're charged and how you can stop billing.
 
-<!-->[!NOTE]-->
+<!--[!NOTE]-->
 <blockquote class="note" markdown="1">
   _For example, many people understand "VMs are not billed when they're not running." However, this is only partially true. There's a slight nuance for VMs where a "stopped" VM _will_ continue to charge you, because the cloud provider is still reserving that capacity for you. To stop billing, you must "deallocate" the VM. But you also need to remember that compute time isn't the only charge for a VM – you're also charged for network bandwidth, disk storage, and other connected resources. In the simplest example, a deallocated VM will always charge you for disk storage, even if the VM is not running. Depending on what other services you have connected, there could be other charges as well. This is why it's important to understand how the services and features you use will charge you._
 </blockquote>
@@ -83,12 +84,12 @@ Understanding your cost data is critical to enable accurate and meaningful showb
 
 <br>
 
-## Getting started
+## ▶️ Getting started
 
 When you first start managing cost in the cloud, you use the native tools:
 
 - [Cost analysis](https://learn.microsoft.com/azure/cost-management-billing/costs/quick-acm-cost-analysis.md) helps you explore and get quick answers about your costs.
-- [Power BI](/power-bi/connect-data/desktop-connect-azure-cost-management) helps you build advanced reports merged with other cloud or business data.
+- [Power BI](https://learn.microsoft.com/power-bi/connect-data/desktop-connect-azure-cost-management) helps you build advanced reports merged with other cloud or business data.
 - [Billing](https://learn.microsoft.com/azure/cost-management-billing/manage/index.yml) helps you review invoices and manage credits.
 - [Azure Monitor](https://learn.microsoft.com/azure/azure-monitor/overview.md) helps you analyze resource usage metrics, logs, and traces.
 - [Azure Resource Graph](https://learn.microsoft.com/azure/governance/resource-graph/overview.md) helps you explore resource configuration, changes, and relationships.
@@ -116,7 +117,7 @@ As a starting point, we focus on tools available in the Azure portal and Microso
 
 <br>
 
-## Building on the basics
+## 🏗️ Building on the basics
 
 At this point, you're likely productively utilizing the native reporting and analysis solutions in the portal and have possibly started building advanced reports in Power BI. As you move beyond the basics, consider the following to help you scale your reporting and analysis capabilities:
 
@@ -139,7 +140,7 @@ At this point, you're likely productively utilizing the native reporting and ana
 
 <br>
 
-## Learn more at the FinOps Foundation
+## 🍎 Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Data analysis and showback capability](https://www.finops.org/framework/capabilities/analysis-showback/) article in the FinOps Framework documentation.
 
@@ -150,10 +151,20 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 <br>
 
-## Next steps
+## ⏩ Next steps
+
+Related FinOps capabilities:
 
 - [Forecasting](../quantify/forecasting.md)
 - [Managing anomalies](./anomalies.md)
 - [Budget management](../quantify/budgets.md)
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md bicep="1" data="1" gov="0" hubs="1" opt="1" pbi="1" ps="0" %}
 
 <br>

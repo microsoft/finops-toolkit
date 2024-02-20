@@ -21,10 +21,11 @@ This article helps you understand the resource utilization and efficiency capabi
 <details open markdown="1">
   <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Getting started](#getting-started)
-- [Building on the basics](#building-on-the-basics)
-- [Learn more at the FinOps Foundation](#learn-more-at-the-finops-foundation)
-- [Next steps](#next-steps)
+- [▶️ Getting started](#️-getting-started)
+- [🏗️ Building on the basics](#️-building-on-the-basics)
+- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
+- [⏩ Next steps](#-next-steps)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -42,15 +43,15 @@ Resource utilization and efficiency maximize the business value of cloud costs b
 
 <br>
 
-## Getting started
+## ▶️ Getting started
 
 When you first start managing cost in the cloud, you use the native tools to drive efficiency and optimize costs in the portal.
 
 - Review and implement [Azure Advisor cost recommendations](https://learn.microsoft.com/azure/advisor/advisor-reference-cost-recommendations.md).
   - Azure Advisor gives you high-confidence recommendations based on your usage. Azure Advisor is always the best place to start when looking to optimize any workload.
   - Consider [subscribing to Azure Advisor alerts](https://learn.microsoft.com/azure/advisor/advisor-alerts-portal.md) to get notified when there are new cost recommendations.
-- Review your usage and purchase [commitment-based discounts](capabilities-commitment-discounts.md) when it makes sense.
-- Take advantage of Azure Hybrid Benefit for [Windows](/windows-server/get-started/azure-hybrid-benefit), [Linux](https://learn.microsoft.com/azure/virtual-machines/linux/azure-hybrid-benefit-linux.md), and [SQL Server](https://learn.microsoft.com/azure/azure-sql/azure-hybrid-benefit).
+- Review your usage and purchase [commitment-based discounts](./commitment-discounts.md) when it makes sense.
+- Take advantage of Azure Hybrid Benefit for [Windows](https://learn.microsoft.com/windows-server/get-started/azure-hybrid-benefit), [Linux](https://learn.microsoft.com/azure/virtual-machines/linux/azure-hybrid-benefit-linux.md), and [SQL Server](https://learn.microsoft.com/azure/azure-sql/azure-hybrid-benefit).
 - Review and implement [Cloud Adoption Framework costing best practices](https://learn.microsoft.com/azure/cloud-adoption-framework/govern/cost-management/best-practices).
 - Review and implement [Azure Well-Architected Framework cost optimization guidance](https://learn.microsoft.com/azure/well-architected/cost/overview).
 - Familiarize yourself with the services you use, how you're charged, and what service-specific cost optimization options you have.
@@ -63,7 +64,7 @@ When you first start managing cost in the cloud, you use the native tools to dri
 
 <br>
 
-## Building on the basics
+## 🏗️ Building on the basics
 
 At this point, you've implemented all the basic cost optimization recommendations and tuned applications to meet the most fundamental best practices. As you move beyond the basics, consider the following points:
 
@@ -73,7 +74,7 @@ At this point, you've implemented all the basic cost optimization recommendation
 
 <br>
 
-## Learn more at the FinOps Foundation
+## 🍎 Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Resource utilization and efficiency capability](https://www.finops.org/framework/capabilities/utilization-efficiency/) article in the FinOps Framework documentation.
 
@@ -84,10 +85,20 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 <br>
 
-## Next steps
+## ⏩ Next steps
+
+Related FinOps capabilities:
 
 - [Managing commitment-based discounts](./commitment-discounts.md)
 - [Workload management and automation](./workloads.md)
 - [Measuring unit cost](../quantify/unit-economics.md)
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md bicep="0" data="0" gov="1" hubs="0" opt="1" pbi="0" ps="0" %}
 
 <br>

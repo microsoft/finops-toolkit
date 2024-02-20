@@ -14,13 +14,14 @@ Learn about what the FinOps Framework is and how you can use it to accelerate yo
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Principles](#principles)
-- [Stakeholders](#stakeholders)
-- [Lifecycle](#lifecycle)
-- [Capabilities](#capabilities)
-- [Maturity model](#maturity-model)
-- [Learn more at the FinOps Foundation](#learn-more-at-the-finops-foundation)
-- [Next steps](#next-steps)
+- [⚖️ Principles](#️-principles)
+- [👥 Stakeholders](#-stakeholders)
+- [♻️ Lifecycle](#️-lifecycle)
+- [📝 Capabilities](#-capabilities)
+- [📏 Maturity model](#-maturity-model)
+- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
+- [⏩ Next steps](#-next-steps)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -44,7 +45,7 @@ In the next few sections, we cover the basic concepts of the FinOps Framework:
 
 <br>
 
-## Principles
+## ⚖️ Principles
 
 Before digging into FinOps, it's important to understand the core principles that should guide your FinOps efforts. The FinOps community developed the principles by applying their collective experience, and helps you create a culture of shared accountability and transparency.
 
@@ -59,7 +60,7 @@ For more information about FinOps principles, including tips from the experts, s
 
 <br>
 
-## Stakeholders
+## 👥 Stakeholders
 
 FinOps requires a holistic and cross-functional approach that involves various stakeholders (or personas). They have different roles, responsibilities, and perspectives that influence how they use and optimize cloud resources and costs. Familiarize yourself with each role and identify the stakeholders within your organization. An effective FinOps program requires collaboration across all stakeholders:
 
@@ -76,7 +77,7 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 <br>
 
-## Lifecycle
+## ♻️ Lifecycle
 
 FinOps is an iterative, hierarchical process. Every team iterates through the FinOps lifecycle at their own pace, partnering with teams mentioned throughout all areas of the organization.
 
@@ -88,7 +89,7 @@ The FinOps Framework defines a simple lifecycle with three phases:
 
 <br>
 
-## Capabilities
+## 📝 Capabilities
 
 The FinOps Framework includes capabilities that cover everything from cost analysis and monitoring to optimization and organizational alignment, grouped into a set of related domains. Each capability defines a functional area of activity and a set of tasks to support your FinOps practice.
 
@@ -130,7 +131,7 @@ The FinOps Framework includes capabilities that cover everything from cost analy
 
 <br>
 
-## Maturity model
+## 📏 Maturity model
 
 As teams progress through the FinOps lifecycle, they naturally learn and grow, developing more mature practices with each iteration. Like the FinOps lifecycle, each team is at different levels of maturity based on their experience and focus areas.
 
@@ -144,14 +145,24 @@ The FinOps Framework defines a simple Crawl-Walk-Run maturity model, but the tru
 
 <br>
 
-## Learn more at the FinOps Foundation
+## 🍎 Learn more at the FinOps Foundation
 
 FinOps Foundation offers many resources to help you learn and implement FinOps. Join the FinOps community, explore training and certification programs, participate in community working groups, and more. For more information about FinOps, including useful playbooks, see the [FinOps Framework documentation](https://finops.org/framework).
 
 <br>
 
-## Next steps
+## ⏩ Next steps
 
-[Conduct a FinOps iteration](../conduct-finops-iteration.md)
+Start your first or plan your next iteration:
+
+- [Conduct a FinOps iteration](../conduct-an-iteration.md)
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md bicep="0" data="0" gov="1" hubs="1" opt="1" pbi="1" ps="0" %}
 
 <br>

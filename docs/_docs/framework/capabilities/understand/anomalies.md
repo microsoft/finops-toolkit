@@ -24,10 +24,11 @@ This article helps you understand the managing anomalies capability within the F
 <details open markdown="1">
   <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Getting started](#getting-started)
-- [Building on the basics](#building-on-the-basics)
-- [Learn more at the FinOps Foundation](#learn-more-at-the-finops-foundation)
-- [Next steps](#next-steps)
+- [▶️ Getting started](#️-getting-started)
+- [🏗️ Building on the basics](#️-building-on-the-basics)
+- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
+- [⏩ Next steps](#-next-steps)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -45,7 +46,7 @@ With a systematic approach to anomaly detection, analysis, and resolution, organ
 
 <br>
 
-## Getting started
+## ▶️ Getting started
 
 When you first start managing cost in the cloud, you use the native tools available in the portal.
 
@@ -65,7 +66,7 @@ When you first start managing cost in the cloud, you use the native tools availa
 
 <br>
 
-## Building on the basics
+## 🏗️ Building on the basics
 
 At this point, you have automated alerts configured and ideally views and reports saved to streamline periodic checks.
 
@@ -82,7 +83,7 @@ At this point, you have automated alerts configured and ideally views and report
 
 <br>
 
-## Learn more at the FinOps Foundation
+## 🍎 Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Managing anomalies capability](https://www.finops.org/framework/capabilities/manage-anomalies/) article in the FinOps Framework documentation.
 
@@ -98,8 +99,18 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 <br>
 
-## Next steps
+## ⏩ Next steps
+
+Related FinOps capabilities:
 
 - [Budget management](../quantify/budgeting.md)
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md bicep="1" data="0" gov="0" hubs="1" opt="0" pbi="1" ps="0" %}
 
 <br>

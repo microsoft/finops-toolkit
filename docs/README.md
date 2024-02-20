@@ -50,7 +50,7 @@ New to FinOps? Start with a quick intro and get to know the principles:
 
 Start implementing FinOps capabilities or learn how to mature your FinOps practice:
 
-- [Conduct a FinOps iteration](./_docs/conduct-finops-iteration.md) – Plan your first or next iteration.
+- [Conduct a FinOps iteration](./_docs/conduct-an-iteration.md) – Plan your first or next iteration.
 - [FinOps review assessment](https://aka.ms/finops/review) – Review and refine your process.
 - [FinOps Framework](./_docs/framework/README.md) – Implement FinOps in the Microsoft Cloud.
 

@@ -21,10 +21,11 @@ This article helps you understand the cost allocation capability within the FinO
 <details open markdown="1">
   <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Getting started](#getting-started)
-- [Building on the basics](#building-on-the-basics)
-- [Learn more at the FinOps Foundation](#learn-more-at-the-finops-foundation)
-- [Next steps](#next-steps)
+- [▶️ Getting started](#️-getting-started)
+- [🏗️ Building on the basics](#️-building-on-the-basics)
+- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
+- [⏩ Next steps](#-next-steps)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -42,7 +43,7 @@ Cost allocation is the foundational element of cost accountability and enables o
 
 <br>
 
-## Getting started
+## ▶️ Getting started
 
 When you first start managing cost in the cloud, you use the native "allocation" tools to organize subscriptions and resources to align to your primary organizational reporting structure. For anything beyond it, [tags](https://learn.microsoft.com/azure/azure-resource-manager/management/tag-resources.md) can augment cloud resources and their usage to add business context, which is critical for any cost allocation strategy.
 
@@ -81,7 +82,7 @@ Keep in mind that tagging takes time to apply, review, and clean up. Expect to g
 
 <br>
 
-## Building on the basics
+## 🏗️ Building on the basics
 
 At this point, you have a cost allocation strategy with detailed cloud management and tagging requirements. Tagging should be automatically enforced or at least tracked with compliance KPIs. As you move beyond the basics, consider the points:
 
@@ -97,7 +98,7 @@ At this point, you have a cost allocation strategy with detailed cloud managemen
 
 <br>
 
-## Learn more at the FinOps Foundation
+## 🍎 Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Cost allocation (metadata & hierarchy) capability](https://www.finops.org/framework/capabilities/cost-allocation/) article in the FinOps Framework documentation.
 
@@ -108,9 +109,19 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 <br>
 
-## Next steps
+## ⏩ Next steps
+
+Related FinOps capabilities:
 
 - [Data analysis and showback](./reporting.md)
 - [Managing shared costs](./shared-cost.md)
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md bicep="0" data="0" gov="0" hubs="1" opt="0" pbi="1" ps="0" %}
 
 <br>

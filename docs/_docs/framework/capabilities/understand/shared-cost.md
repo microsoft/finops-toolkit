@@ -20,11 +20,12 @@ This article helps you understand the managing shared cost capability within the
 <details open markdown="1">
   <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Before you begin](#before-you-begin)
-- [Getting started](#getting-started)
-- [Building on the basics](#building-on-the-basics)
-- [Learn more at the FinOps Foundation](#learn-more-at-the-finops-foundation)
-- [Next steps](#next-steps)
+- [✋ Before you begin](#-before-you-begin)
+- [▶️ Getting started](#️-getting-started)
+- [🏗️ Building on the basics](#️-building-on-the-basics)
+- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
+- [⏩ Next steps](#-next-steps)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -40,7 +41,7 @@ Effectively managing shared costs reduces overhead, increases transparency and a
 
 <br>
 
-## Before you begin
+## ✋ Before you begin
 
 Before you start, it's important to have a clear understanding of your organization's goals and priorities when it comes to managing shared costs. Keep in mind that not all shared costs may need to be redistributed, and some are more effectively managed with other means. Carefully evaluate each shared cost to determine the most appropriate approach for your organization.
 
@@ -48,7 +49,7 @@ This guide doesn't cover commitment-based discounts, like reservations and savin
 
 <br>
 
-## Getting started
+## ▶️ Getting started
 
 When you first start managing cost in the cloud, you use the native allocation tools to manage shared costs. Start by identifying shared costs and how they should be handled.
 
@@ -68,7 +69,7 @@ When you first start managing cost in the cloud, you use the native allocation t
 
 <br>
 
-## Building on the basics
+## 🏗️ Building on the basics
 
 At this point, your simple cost allocation scenarios may be addressed. You're left with more complicated scenarios that require more effort to accurately quantify and redistribute. As you move beyond the basics, consider the following points:
 
@@ -83,7 +84,7 @@ At this point, your simple cost allocation scenarios may be addressed. You're le
 
 <br>
 
-## Learn more at the FinOps Foundation
+## 🍎 Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Managing shared cost](https://www.finops.org/framework/capabilities/manage-shared-cloud-cost/) article in the FinOps Framework documentation.
 
@@ -94,10 +95,20 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 <br>
 
-## Next steps
+## ⏩ Next steps
+
+Related FinOps capabilities:
 
 - [Data analysis and showback](./reporting.md)
 - [Chargeback and finance integration](../manage/invoicing-chargeback.md)
 - [Measuring unit costs](../quantify/unit-economics.md)
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md bicep="0" data="0" gov="0" hubs="1" opt="0" pbi="1" ps="0" %}
 
 <br>

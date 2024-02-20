@@ -21,11 +21,12 @@ This article helps you understand the data ingestion and normalization capabilit
 <details open markdown="1">
   <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Before you begin](#before-you-begin)
-- [Getting started](#getting-started)
-- [Building on the basics](#building-on-the-basics)
-- [Learn more at the FinOps Foundation](#learn-more-at-the-finops-foundation)
-- [Next steps](#next-steps)
+- [✋ Before you begin](#-before-you-begin)
+- [▶️ Getting started](#️-getting-started)
+- [🏗️ Building on the basics](#️-building-on-the-basics)
+- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
+- [⏩ Next steps](#-next-steps)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -46,13 +47,13 @@ When armed with a comprehensive collection of cost and usage information tied to
 
 <br>
 
-## Before you begin
+## ✋ Before you begin
 
-While data ingestion and normalization are critical to long-term efficiency and effectiveness of any FinOps practice, it isn't a blocking requirement for your initial set of FinOps investments. If it is your first iteration through the FinOps lifecycle, consider lighter-weight capabilities that can deliver quicker return on investment, like [Data analysis and showback](capabilities-analysis-showback.md). Data ingestion and normalization can require significant time and effort depending on account size and complexity. We recommend focusing on this process once you have the right level of understanding of the effort and commitment from key stakeholders to support that effort.
+While data ingestion and normalization are critical to long-term efficiency and effectiveness of any FinOps practice, it isn't a blocking requirement for your initial set of FinOps investments. If it is your first iteration through the FinOps lifecycle, consider lighter-weight capabilities that can deliver quicker return on investment, like [Data analysis and showback](./reporting.md). Data ingestion and normalization can require significant time and effort depending on account size and complexity. We recommend focusing on this process once you have the right level of understanding of the effort and commitment from key stakeholders to support that effort.
 
 <br>
 
-## Getting started
+## ▶️ Getting started
 
 When you first start managing cost in the cloud, you use the native tools available in the portal or through Power BI. If you need more, you may download the data for local analysis, or possibly build a small report or merge it with another dataset. Eventually, you need to automate this process, which is where "data ingestion" comes in. As a starting point, we focus on ingesting cost data into a common data store.
 
@@ -75,7 +76,7 @@ When you first start managing cost in the cloud, you use the native tools availa
 
 <br>
 
-## Building on the basics
+## 🏗️ Building on the basics
 
 At this point, you have a data pipeline and are ingesting data into a central data repository. As you move beyond the basics, consider the following points:
 
@@ -89,26 +90,26 @@ At this point, you have a data pipeline and are ingesting data into a central da
 - Consider what internal business and revenue metrics are needed to map cloud costs to business value.
 - Determine what other datasets are required based on your reporting needs:
   - Cost and pricing
-    - [Azure retail prices](/rest/api/cost-management/retail-prices/azure-retail-prices) for pay-as-you-go rates without organizational discounts.
-    - [Price sheets](/rest/api/cost-management/price-sheet) for organizational pricing for Microsoft Customer Agreement accounts.
-    - [Price sheets](/rest/api/consumption/price-sheet/get) for organizational pricing for Enterprise Agreement accounts.
-    - [Balance summary](/rest/api/consumption/balances/get-by-billing-account) for Enterprise Agreement monetary commitment balance.
+    - [Azure retail prices](https://learn.microsoft.com/rest/api/cost-management/retail-prices/azure-retail-prices) for pay-as-you-go rates without organizational discounts.
+    - [Price sheets](https://learn.microsoft.com/rest/api/cost-management/price-sheet) for organizational pricing for Microsoft Customer Agreement accounts.
+    - [Price sheets](https://learn.microsoft.com/rest/api/consumption/price-sheet/get) for organizational pricing for Enterprise Agreement accounts.
+    - [Balance summary](https://learn.microsoft.com/rest/api/consumption/balances/get-by-billing-account) for Enterprise Agreement monetary commitment balance.
   - Commitment-based discounts
-    - [Reservation details](/rest/api/cost-management/generate-reservation-details-report) for recommendation details.
-    - [Benefit utilization summaries](/rest/api/cost-management/generate-benefit-utilization-summaries-report) for savings plans.
+    - [Reservation details](https://learn.microsoft.com/rest/api/cost-management/generate-reservation-details-report) for recommendation details.
+    - [Benefit utilization summaries](https://learn.microsoft.com/rest/api/cost-management/generate-benefit-utilization-summaries-report) for savings plans.
   - Utilization and efficiency
-    - [Resource Graph](/rest/api/azureresourcegraph/resourcegraph(2020-04-01-preview)/resources/resources) for Azure Advisor recommendations.
-    - [Monitor metrics](/cli/azure/monitor/metrics) for resource usage.
+    - [Resource Graph](https://learn.microsoft.com/rest/api/azureresourcegraph/resourcegraph(2020-04-01-preview)/resources/resources) for Azure Advisor recommendations.
+    - [Monitor metrics](https://learn.microsoft.com/cli/azure/monitor/metrics) for resource usage.
   - Resource details
-    - [Resource Graph](/rest/api/azureresourcegraph/resourcegraph(2020-04-01-preview)/resources/resources) for resource details.
-    - [Resource changes](/rest/api/resources/changes/list) to list resource changes from the past 14 days.
-    - [Subscriptions](/rest/api/resources/subscriptions/list) to list subscriptions.
-    - [Tags](/rest/api/resources/tags/list) for tags that have been applied to resources and resource groups.
-  - [Azure service-specific APIs](/rest/api/azure/) for lower-level configuration and utilization details.
+    - [Resource Graph](https://learn.microsoft.com/rest/api/azureresourcegraph/resourcegraph(2020-04-01-preview)/resources/resources) for resource details.
+    - [Resource changes](https://learn.microsoft.com/rest/api/resources/changes/list) to list resource changes from the past 14 days.
+    - [Subscriptions](https://learn.microsoft.com/rest/api/resources/subscriptions/list) to list subscriptions.
+    - [Tags](https://learn.microsoft.com/rest/api/resources/tags/list) for tags that have been applied to resources and resource groups.
+  - [Azure service-specific APIs](https://learn.microsoft.com/rest/api/azure/) for lower-level configuration and utilization details.
 
 <br>
 
-## Learn more at the FinOps Foundation
+## 🍎 Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Data ingestion and normalization capability](https://www.finops.org/framework/capabilities/data-normalization/) article in the FinOps Framework documentation.
 
@@ -119,7 +120,17 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 <br>
 
-## Next steps
+## ⏩ Next steps
 
-- Read about [Cost allocation](capabilities-allocation.md) to learn how to allocate costs to business units and applications.
-- Read about [Data analysis and showback](capabilities-analysis-showback.md) to learn how to analyze and report on costs.
+Related FinOps capabilities:
+
+- [Cost allocation](./allocation.md)
+- [Data analysis and showback](./reporting.md)
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md bicep="0" data="1" gov="0" hubs="1" opt="0" pbi="1" ps="1" %}
+
+<br>

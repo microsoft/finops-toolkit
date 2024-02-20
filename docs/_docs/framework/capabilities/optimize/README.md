@@ -15,9 +15,10 @@ Identify and implement the right mix of pricing models, services, and resources 
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Rate optimization](#rate-optimization)
-- [Usage optimization](#usage-optimization)
-- [Next steps](#next-steps)
+- [📉 Rate optimization](#-rate-optimization)
+- [📊 Usage optimization](#-usage-optimization)
+- [⏩ Next steps](#-next-steps)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -25,13 +26,13 @@ Identify and implement the right mix of pricing models, services, and resources 
 
 <br>
 
-## Rate optimization
+## 📉 Rate optimization
 
 - [Managing commitment-based discounts](./optimize/commitment-discounts.md)
 
 <br>
 
-## Usage optimization
+## 📊 Usage optimization
 
 - [Onboarding workloads](./manage/onboarding.md)
 - [Resource utilization and efficiency](./optimize/utilization-efficiency.md)
@@ -39,11 +40,21 @@ Identify and implement the right mix of pricing models, services, and resources 
 
 <br>
 
-## Next steps
+## ⏩ Next steps
+
+Related FinOps capabilities:
 
 - [Understanding cloud usage and cost](../understand/README.md)
 - [Performance tracking + benchmarking](../quantify/README.md#performance-tracking-and-benchmarking)
 - [Real-time decision making](../quantify/README.md#real-time-decision-making)
 - [Organizational alignment](../manage/README.md)
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md bicep="0" data="0" gov="1" hubs="1" opt="1" pbi="1" ps="0" %}
 
 <br>

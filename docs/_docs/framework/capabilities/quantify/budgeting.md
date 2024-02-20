@@ -21,10 +21,11 @@ This article helps you understand the budget management capability within the Fi
 <details open markdown="1">
   <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Getting started](#getting-started)
-- [Building on the basics](#building-on-the-basics)
-- [Learn more at the FinOps Foundation](#learn-more-at-the-finops-foundation)
-- [Next steps](#next-steps)
+- [▶️ Getting started](#️-getting-started)
+- [🏗️ Building on the basics](#️-building-on-the-basics)
+- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
+- [⏩ Next steps](#-next-steps)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -42,7 +43,7 @@ Effective budget management helps ensure organizations operate within their mean
 
 <br>
 
-## Getting started
+## ▶️ Getting started
 
 When you first start managing cost in the cloud, you may not have your financial budgets mapped to every subscription and resource group. You may not even have the budget mapped to your billing account yet. It's okay. Start by configuring cost alerts. The exact amount you use isn't as important as having _something_ to let you know when costs are escalating.
 
@@ -59,7 +60,7 @@ When you first start managing cost in the cloud, you may not have your financial
 
 <br>
 
-## Building on the basics
+## 🏗️ Building on the basics
 
 So far, you've defined granular and targeted cost alerts for each scope and application and ideally review your cost as a KPI with all stakeholders at regular meetings. Consider the following points to further refine your budget management process:
 
@@ -72,7 +73,7 @@ So far, you've defined granular and targeted cost alerts for each scope and appl
 
 <br>
 
-## Learn more at the FinOps Foundation
+## 🍎 Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see to the [Budget management](https://www.finops.org/framework/capabilities/budget-management) article in the FinOps Framework documentation.
 
@@ -83,10 +84,20 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 <br>
 
-## Next steps
+## ⏩ Next steps
+
+Related FinOps capabilities:
 
 - [Forecasting](./forecasting.md)
 - [Onboarding workloads](../manage/workloads.md)
 - [Chargeback and finance integration](../manage/invoicing-chargeback.md)
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md bicep="0" data="0" gov="0" hubs="1" opt="0" pbi="1" ps="0" %}
 
 <br>

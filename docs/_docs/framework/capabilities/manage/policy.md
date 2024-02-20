@@ -21,10 +21,11 @@ This article helps you understand the cloud policy and governance capability wit
 <details open markdown="1">
   <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Getting started](#getting-started)
-- [Building on the basics](#building-on-the-basics)
-- [Learn more at the FinOps Foundation](#learn-more-at-the-finops-foundation)
-- [Next steps](#next-steps)
+- [▶️ Getting started](#️-getting-started)
+- [🏗️ Building on the basics](#️-building-on-the-basics)
+- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
+- [⏩ Next steps](#-next-steps)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -42,7 +43,7 @@ Implementing a policy and governance strategy enables organizations to sustainab
 
 <br>
 
-## Getting started
+## ▶️ Getting started
 
 When you first start managing cost in the cloud, you use the native compliance tracking and enforcement tools.
 
@@ -64,7 +65,7 @@ When you first start managing cost in the cloud, you use the native compliance t
 
 <br>
 
-## Building on the basics
+## 🏗️ Building on the basics
 
 At this point, you have a basic set of policies in place that are being managed across the organization. As you move beyond the basics, consider the following points:
 
@@ -77,7 +78,7 @@ At this point, you have a basic set of policies in place that are being managed 
 
 <br>
 
-## Learn more at the FinOps Foundation
+## 🍎 Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Cloud policy and governance capability](https://www.finops.org/framework/capabilities/policy-governance/) article in the FinOps Framework documentation.
 
@@ -88,9 +89,19 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 <br>
 
-## Next steps
+## ⏩ Next steps
+
+Related FinOps capabilities:
 
 - [Establishing a FinOps culture](./culture.md)
 - [Workload management and automation](../optimize/workloads.md)
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md bicep="0" data="0" gov="1" hubs="0" opt="0" pbi="0" ps="0" %}
 
 <br>

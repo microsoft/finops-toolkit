@@ -21,11 +21,12 @@ This article helps you understand the forecasting capability within the FinOps F
 <details open markdown="1">
   <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Before you begin](#before-you-begin)
-- [Getting started](#getting-started)
-- [Building on the basics](#building-on-the-basics)
-- [Learn more at the FinOps Foundation](#learn-more-at-the-finops-foundation)
-- [Next steps](#next-steps)
+- [✋ Before you begin](#-before-you-begin)
+- [▶️ Getting started](#️-getting-started)
+- [🏗️ Building on the basics](#️-building-on-the-basics)
+- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
+- [⏩ Next steps](#-next-steps)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -43,7 +44,7 @@ With an accurate, detailed forecast, organizations are better prepared to adapt 
 
 <br>
 
-## Before you begin
+## ✋ Before you begin
 
 Before you can effectively forecast future usage and costs, you need to familiarize yourself with [how you're charged for the services you use](https://azure.microsoft.com/pricing#product-pricing).
 
@@ -54,7 +55,7 @@ Understanding how changes to your usage patterns affect future costs is informed
 
 <br>
 
-## Getting started
+## ▶️ Getting started
 
 When you first start managing cost in the cloud, you use the native Cost analysis experience in the portal.
 
@@ -98,7 +99,7 @@ Consider reviewing forecasts monthly or quarterly to ensure you remain on track 
 
 <br>
 
-## Building on the basics
+## 🏗️ Building on the basics
 
 At this point, you have a manual process for generating a forecast. As you move beyond the basics, consider the following points:
 
@@ -122,7 +123,7 @@ At this point, you have a manual process for generating a forecast. As you move 
 
 <br>
 
-## Learn more at the FinOps Foundation
+## 🍎 Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Forecasting capability](https://www.finops.org/framework/capabilities/forecasting) article in the FinOps Framework documentation.
 
@@ -133,9 +134,17 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 <br>
 
-## Next steps
+## ⏩ Next steps
 
 - [Budget management](./budgeting.md)
 - [Managing commitment-based discounts](../optimize/commitment-discounts.md)
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md bicep="1" data="0" gov="0" hubs="1" opt="0" pbi="1" ps="0" %}
 
 <br>

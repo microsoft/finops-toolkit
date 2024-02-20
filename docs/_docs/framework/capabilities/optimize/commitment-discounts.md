@@ -21,11 +21,12 @@ This article helps you understand the managing commitment-based discounts capabi
 <details open markdown="1">
   <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Before you begin](#before-you-begin)
-- [Getting started](#getting-started)
-- [Building on the basics](#building-on-the-basics)
-- [Learn more at the FinOps Foundation](#learn-more-at-the-finops-foundation)
-- [Next steps](#next-steps)
+- [✋ Before you begin](#-before-you-begin)
+- [▶️ Getting started](#️-getting-started)
+- [🏗️ Building on the basics](#️-building-on-the-basics)
+- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
+- [⏩ Next steps](#-next-steps)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -43,7 +44,7 @@ Adopting a commitment-based strategy allows organizations to reduce their overal
 
 <br>
 
-## Before you begin
+## ✋ Before you begin
 
 While you can save by using reservations and savings plans, there's also a risk that you may not end up using that capacity. You could end up underutilizing the commitment and lose money. While losing money is rare, it's possible. We recommend starting small and making targeted, high-confidence decisions. We also recommend not waiting too long to decide on how to approach commitment-based discounts when you do have consistent usage because you're effectively losing money. Start small and learn as you go. But first, learn how [reservation](https://learn.microsoft.com/azure/cost-management-billing/reservations/reservation-discount-application.md) and [savings plan](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/discount-application.md) discounts are applied.
 
@@ -51,13 +52,13 @@ Before you purchase either a reservation or a savings plan, consider the usage y
 
 <br>
 
-## Getting started
+## ▶️ Getting started
 
 Microsoft offers several tools to help you identify when you should consider purchasing reservations or savings plans. You can choose whether you want to start by analyzing usage or by reviewing the system-generated recommendations based on your historical usage and cost. We recommend starting with the recommendations to focus your initial efforts:
 
 - One of the most common starting points is [Azure Advisor cost recommendations](https://learn.microsoft.com/azure///learn.microsoft.com/azure/advisor/advisor-reference-cost-recommendations.md).
 - For more flexibility, you can view and filter recommendations in the [reservation](https://learn.microsoft.com/azure/cost-management-billing/reservations/reserved-instance-purchase-recommendations.md) and [savings plan](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/purchase-recommendations.md#purchase-recommendations-in-the-azure-portal) purchase experiences.
-- Lastly, you can also view reservation recommendations in [Power BI](/power-bi/connect-data/desktop-connect-azure-cost-management).
+- Lastly, you can also view reservation recommendations in [Power BI](https://learn.microsoft.com/power-bi/connect-data/desktop-connect-azure-cost-management).
 - After you know what to look for, you can [analyze your usage data](https://learn.microsoft.com/azure/cost-management-billing/reservations/determine-reservation-purchase.md#analyze-usage-data) to look for the specific usage you want to purchase a reservation for.
 
 After purchasing commitments, you can:
@@ -69,7 +70,7 @@ After purchasing commitments, you can:
 
 <br>
 
-## Building on the basics
+## 🏗️ Building on the basics
 
 At this point, you have commitment-based discounts in place. As you move beyond the basics, consider the following points:
 
@@ -82,7 +83,7 @@ At this point, you have commitment-based discounts in place. As you move beyond 
 
 <br>
 
-## Learn more at the FinOps Foundation
+## 🍎 Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Managing commitment-based discounts capability](https://www.finops.org/framework/capabilities/manage-commitment-based-discounts/) article in the FinOps Framework documentation.
 
@@ -93,9 +94,19 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 <br>
 
-## Next steps
+## ⏩ Next steps
+
+Related FinOps capabilities:
 
 - [Data analysis and showback](../understand/reporting.md)
 - [Cloud policy and governance](../manage/policy.md)
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md bicep="0" data="0" gov="0" hubs="1" opt="1" pbi="1" ps="0" %}
 
 <br>

@@ -21,11 +21,11 @@ This article helps you understand the onboarding workloads capability within the
 <details open markdown="1">
   <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Getting started](#getting-started)
-- [Building on the basics](#building-on-the-basics)
+- [▶️ Getting started](#️-getting-started)
+- [🏗️ Building on the basics](#️-building-on-the-basics)
 - [Developing a process](#developing-a-process)
-- [Learn more at the FinOps Foundation](#learn-more-at-the-finops-foundation)
-- [Next steps](#next-steps)
+- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
+- [⏩ Next steps](#-next-steps)
 
 </details>
 
@@ -43,7 +43,7 @@ A streamlined onboarding process ensures teams have a smooth transition into the
 
 <br>
 
-## Getting started
+## ▶️ Getting started
 
 Onboarding projects is an internal process that depends solely on your technical, financial, and business governance policies.
 
@@ -65,7 +65,7 @@ Onboarding projects is an internal process that depends solely on your technical
 
 <br>
 
-## Building on the basics
+## 🏗️ Building on the basics
 
 At this point, you have a simple process where stakeholders are introduced to FinOps, and new projects are at least being vetted against budget capacity. As you move beyond the basics, consider the following points:
 
@@ -85,7 +85,7 @@ Document your onboarding process. Using existing tools and processes where avail
 
 <br>
 
-## Learn more at the FinOps Foundation
+## 🍎 Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Onboarding workloads capability](https://www.finops.org/framework/capabilities/onboarding-workloads/) article in the FinOps Framework documentation.
 
@@ -96,9 +96,21 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 <br>
 
-## Next steps
+## ⏩ Next steps
+
+Related FinOps capabilities:
 
 - [Forecasting](../quantify/forecasting.md)
 - [Cloud policy and governance](./policy.md)
 
 <br>
+
+<!--
+---
+
+## 🧰 Related tools
+
+{% include tools.md bicep="0" data="0" gov="0" hubs="1" opt="0" pbi="1" ps="0" %}
+
+<br>
+-->

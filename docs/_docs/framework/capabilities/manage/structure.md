@@ -21,10 +21,10 @@ This article helps you understand the establishing a FinOps decision and account
 <details open markdown="1">
   <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Getting started](#getting-started)
-- [Building on the basics](#building-on-the-basics)
-- [Learn more at the FinOps Foundation](#learn-more-at-the-finops-foundation)
-- [Next steps](#next-steps)
+- [▶️ Getting started](#️-getting-started)
+- [🏗️ Building on the basics](#️-building-on-the-basics)
+- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
+- [⏩ Next steps](#-next-steps)
 
 </details>
 
@@ -42,7 +42,7 @@ Establishing a FinOps steering committee can help stakeholders within an organiz
 
 <br>
 
-## Getting started
+## ▶️ Getting started
 
 When you first start managing cost in the cloud, you may not need to build a FinOps steering committee. The need for a more formal process increases as your organization grows and adopts the cloud more. Consider the following starting points:
 
@@ -50,14 +50,14 @@ When you first start managing cost in the cloud, you may not need to build a Fin
   - If you have a central team responsible for cost management, consider having them chair the committee.
 - Discuss and document the roles and responsibilities of each committee member.
   - FinOps Foundation proposes one potential [responsibility assignment matrix (RACI model)](https://www.finops.org/wg/adopting-finops/#accountability-and-expectations-by-team-raci--daci-modeling).
-- Collaborate on [planning your first FinOps iteration](../../../conduct-finops-iteration.md).
+- Collaborate on [planning your first FinOps iteration](../../../conduct-an-iteration.md).
   - Make notes where there are differing perspectives and opinions. Discuss those topics for alignment in the future.
   - Start small and find common ground to enable the committee to execute a successful iteration. It's OK if you don't solve every problem.
   - Document decisions and outline processes, key contacts, and required activities. Documentation can be a small checklist in early stages. Focus on winning as one rather than documenting everything and executing perfectly.
 
 <br>
 
-## Building on the basics
+## 🏗️ Building on the basics
 
 At this point, you have a regular cadence of meetings, but not much structure. As you move beyond the basics, consider the following points:
 
@@ -66,7 +66,7 @@ At this point, you have a regular cadence of meetings, but not much structure. A
 
 <br>
 
-## Learn more at the FinOps Foundation
+## 🍎 Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, see the [Establishing a FinOps decision and accountability structure capability](https://www.finops.org/framework/capabilities/decision-accountability-structure/) article in the FinOps Framework documentation.
 
@@ -77,8 +77,20 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 <br>
 
-## Next steps
+## ⏩ Next steps
+
+Related FinOps capabilities:
 
 - [Onboarding workloads](../optimize/workloads.md)
 
 <br>
+
+<!--
+---
+
+## 🧰 Related tools
+
+{% include tools.md bicep="0" data="0" gov="0" hubs="1" opt="0" pbi="1" ps="0" %}
+
+<br>
+-->

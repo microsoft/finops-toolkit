@@ -19,8 +19,8 @@ FinOps is an operational framework and cultural practice which maximizes the bus
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Partnership with the FinOps Foundation](#partnership-with-the-finops-foundation)
-- [Next steps](#next-steps)
+- [🤝 Partnership with the FinOps Foundation](#-partnership-with-the-finops-foundation)
+- [⏩ Next steps](#-next-steps)
 
 </details>
 
@@ -41,14 +41,14 @@ The word _FinOps_ is a blend of Finance and DevOps and is sometimes referred to 
 
 The FinOps Foundation, a non-profit organization focused on FinOps, offers a great video description:
 
-<!-->[!VIDEO https://www.youtube.com/embed/VDrcgEne6lU]-->
-<div class="embeddedvideo"><iframe src="https://www.youtube-nocookie.com/embed/VDrcgEne6lU" frameborder="0" allowfullscreen="true" data-linktype="external" title="FinOps: The operating model for the cloud"></iframe></div>
+<!--[!VIDEO https://www.youtube.com/embed/VDrcgEne6lU]-->
+{% include video.md title="FinOps: The operating model for the cloud" id="VDrcgEne6lU" %}
 
 [FinOps: The operating model for the cloud](https://www.youtube.com/watch?v=VDrcgEne6lU)
 
 <br>
 
-## Partnership with the FinOps Foundation
+## 🤝 Partnership with the FinOps Foundation
 
 [The FinOps Foundation](https://finops.org/) is a non-profit organization hosted at the Linux Foundation. It's dedicated to advancing people who practice the discipline of cloud cost management and optimization via best practices, education, and standards. The FinOps Foundation manages a community of practitioners around the world, including many of our valued Microsoft Cloud customers and partners. The FinOps Foundation hosts working groups and special interest groups to cover many topics. They include:
 
@@ -60,8 +60,14 @@ The FinOps Foundation, a non-profit organization focused on FinOps, offers a gre
 
 <br>
 
-## Next steps
+## ⏩ Next steps
 
-[What is the FinOps Framework?](./framework/README.md)
+To learn more about the FinOps Framework and capabilities:
+
+- [What is the FinOps Framework?](./framework/README.md)
+
+To jump in and start implementing FinOps now:
+
+- [Conduct a FinOps iteration](./conduct-an-iteration.md)
 
 <br>

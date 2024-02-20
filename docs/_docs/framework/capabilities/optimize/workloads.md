@@ -21,10 +21,11 @@ This article helps you understand the workload management and automation capabil
 <details open markdown="1">
   <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Getting started](#getting-started)
-- [Building on the basics](#building-on-the-basics)
-- [Learn more at the FinOps Foundation](#learn-more-at-the-finops-foundation)
-- [Next steps](#next-steps)
+- [▶️ Getting started](#️-getting-started)
+- [🏗️ Building on the basics](#️-building-on-the-basics)
+- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
+- [⏩ Next steps](#-next-steps)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -40,7 +41,7 @@ An effective workload management and automation plan can significantly reduce co
 
 <br>
 
-## Getting started
+## ▶️ Getting started
 
 When you first start working with a service, consider the following points:
 
@@ -51,7 +52,7 @@ When you first start working with a service, consider the following points:
   - Serverless compute tiers can reduce costs when not active. Some examples: [Azure SQL Database](https://learn.microsoft.com/azure/azure-sql/database/serverless-tier-overview), [Azure SignalR Service](https://learn.microsoft.com/azure/azure-signalr/concept-service-mode), [Cosmos DB](https://learn.microsoft.com/azure/cosmos-db/serverless.md), [Synapse Analytics](https://learn.microsoft.com/azure///learn.microsoft.com/azure///learn.microsoft.com/azure/synapse-analytics/sql/on-demand-workspace-overview.md), [Azure Databricks](https://learn.microsoft.com/azure/databricks/serverless-compute/).
 - Does the service support autostop or autoshutdown functionality?
   - Some services support autostop natively, like [Microsoft Dev Box](https://learn.microsoft.com/azure/dev-box/how-to-configure-stop-schedule.md), [Azure DevTest Labs](https://learn.microsoft.com/azure/devtest-labs/devtest-lab-auto-shutdown.md), [Azure Lab Services](https://learn.microsoft.com/azure/lab-services/how-to-configure-auto-shutdown-lab-plans.md), and [Azure Load Testing](https://learn.microsoft.com/azure/load-testing/how-to-define-test-criteria.md#auto-stop-configuration).
-  - If you use a service that supports being stopped, but not autostopping, consider using a lightweight flow in [Power Automate](/power-automate/getting-started) or [Logic Apps](https://learn.microsoft.com/azure/logic-apps/logic-apps-overview.md).
+  - If you use a service that supports being stopped, but not autostopping, consider using a lightweight flow in [Power Automate](https://learn.microsoft.com/power-automate/getting-started) or [Logic Apps](https://learn.microsoft.com/azure/logic-apps/logic-apps-overview.md).
 - Does the service support autoscaling?
   - If the service supports [autoscaling](https://learn.microsoft.com/azure/architecture/best-practices/auto-scaling), configure it to scale based on your application's needs.
   - Autoscaling can work with autostop behavior for maximum efficiency.
@@ -63,7 +64,7 @@ When you first start working with a service, consider the following points:
 
 <br>
 
-## Building on the basics
+## 🏗️ Building on the basics
 
 At this point, you have setup autoscaling and autostop behaviors. As you move beyond the basics, consider the following points:
 
@@ -80,7 +81,7 @@ At this point, you have setup autoscaling and autostop behaviors. As you move be
 
 <br>
 
-## Learn more at the FinOps Foundation
+## 🍎 Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Workload management and automation capability](https://www.finops.org/framework/capabilities/workload-management-automation) article in the FinOps Framework documentation.
 
@@ -91,9 +92,19 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 <br>
 
-## Next steps
+## ⏩ Next steps
+
+Related FinOps capabilities:
 
 - [Resource utilization and efficiency](./utilization-efficiency.md)
 - [Cloud policy and governance](../manage/policy.md)
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md bicep="0" data="0" gov="1" hubs="0" opt="1" pbi="0" ps="0" %}
 
 <br>

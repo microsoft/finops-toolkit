@@ -15,9 +15,10 @@ Measure product and cloud performance and map to organizational KPIs to facilita
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Performance tracking and benchmarking](#performance-tracking-and-benchmarking)
-- [Real-time decision making](#real-time-decision-making)
-- [Next steps](#next-steps)
+- [📏 Performance tracking and benchmarking](#-performance-tracking-and-benchmarking)
+- [🤔 Real-time decision making](#-real-time-decision-making)
+- [⏩ Next steps](#-next-steps)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -25,7 +26,7 @@ Measure product and cloud performance and map to organizational KPIs to facilita
 
 <br>
 
-## Performance tracking and benchmarking
+## 📏 Performance tracking and benchmarking
 
 - [Forecasting](./quantify/forecasting.md)
 - [Budget management](./quantify/budgeting.md)
@@ -33,18 +34,28 @@ Measure product and cloud performance and map to organizational KPIs to facilita
 
 <br>
 
-## Real-time decision making
+## 🤔 Real-time decision making
 
 - [Managing anomalies](./understand/anomalies.md)
 - [Establishing a FinOps decision and accountability structure](./manage/structure.md)
 
 <br>
 
-## Next steps
+## ⏩ Next steps
+
+Related FinOps capabilities:
 
 - [Understanding cloud usage and cost](../understand/README.md)
 - [Rate optimization](../optimize/README.md#rate-optimization)
 - [Usage optimization](../optimize/README.md#usage-optimization)
 - [Organizational alignment](../manage/README.md)
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md bicep="0" data="0" gov="0" hubs="1" opt="0" pbi="1" ps="0" %}
 
 <br>
