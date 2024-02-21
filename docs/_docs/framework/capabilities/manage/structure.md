@@ -73,7 +73,7 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 You can also find related videos on the FinOps Foundation YouTube channel:
 
 <!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.md title="Establishing a decision and accountability structure videos" id="9JWUYEgFJ_bLcr07" list="PLUSCToibAswkjpuSkfIDAeK4JaJ6Vm8xa" %}
+{% include video.html title="Establishing a decision and accountability structure videos" id="9JWUYEgFJ_bLcr07" list="PLUSCToibAswkjpuSkfIDAeK4JaJ6Vm8xa" %}
 
 <br>
 

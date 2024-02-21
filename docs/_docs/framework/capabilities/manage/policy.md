@@ -85,7 +85,7 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 You can also find related videos on the FinOps Foundation YouTube channel:
 
 <!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.md title="Cloud policy and governance videos" id="wxYMbhhA51dZNrky" list="PLUSCToibAswk2tx4PuWlztgSK9DZpL04b" %}
+{% include video.html title="Cloud policy and governance videos" id="wxYMbhhA51dZNrky" list="PLUSCToibAswk2tx4PuWlztgSK9DZpL04b" %}
 
 <br>
 

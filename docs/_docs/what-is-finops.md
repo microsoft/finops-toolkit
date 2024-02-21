@@ -42,7 +42,7 @@ The word _FinOps_ is a blend of Finance and DevOps and is sometimes referred to 
 The FinOps Foundation, a non-profit organization focused on FinOps, offers a great video description:
 
 <!--[!VIDEO https://www.youtube.com/embed/VDrcgEne6lU]-->
-{% include video.md title="FinOps: The operating model for the cloud" id="VDrcgEne6lU" %}
+{% include video.html title="FinOps: The operating model for the cloud" id="VDrcgEne6lU" %}
 
 [FinOps: The operating model for the cloud](https://www.youtube.com/watch?v=VDrcgEne6lU)
 

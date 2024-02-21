@@ -60,7 +60,7 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 You can also find related videos on the FinOps Foundation YouTube channel:
 
 <!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.md title="FinOps and intersecting frameworks videos" id="iJyz8N55l8WZbzCH" list="PLUSCToibAswnAZASwN31liSpOf0vb6rXM" %}
+{% include video.html title="FinOps and intersecting frameworks videos" id="iJyz8N55l8WZbzCH" list="PLUSCToibAswnAZASwN31liSpOf0vb6rXM" %}
 
 <!-- sustainability id="WlKJQ_cCR0OXH7qF" list="PLUSCToibAswlnq7LsdHR9ntm06KCtdAPg" -->
 

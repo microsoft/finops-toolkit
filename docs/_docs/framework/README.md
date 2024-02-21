@@ -72,7 +72,7 @@ FinOps requires a holistic and cross-functional approach that involves various s
 
 <!--
 You can also find related videos on the FinOps Foundation YouTube channel:
-{% include video.md title="FinOps personas" id="gXzGwWDQmI0CFrHM" list="PLUSCToibAswkRhkO_PfxqD8et5j0F6VcC" %}
+{% include video.html title="FinOps personas" id="gXzGwWDQmI0CFrHM" list="PLUSCToibAswkRhkO_PfxqD8et5j0F6VcC" %}
 -->
 
 <br>

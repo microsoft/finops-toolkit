@@ -81,7 +81,7 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 You can also find related videos on the FinOps Foundation YouTube channel:
 
 <!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.md title="Chargeback and finance integration videos" id="SVkS0EjsZS56I1qO" list="PLUSCToibAswkALdvffeZWF-3L4ubFuobD" %}
+{% include video.html title="Chargeback and finance integration videos" id="SVkS0EjsZS56I1qO" list="PLUSCToibAswkALdvffeZWF-3L4ubFuobD" %}
 
 <br>
 

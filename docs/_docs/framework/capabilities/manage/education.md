@@ -90,7 +90,7 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 You can also find related videos on the FinOps Foundation YouTube channel:
 
 <!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.md title="FinOps education and enablement videos" id="q5R582G-fTvpQihE" list="PLUSCToibAswlxVgiIoTvTYwIJTXCxO3k4" %}
+{% include video.html title="FinOps education and enablement videos" id="q5R582G-fTvpQihE" list="PLUSCToibAswlxVgiIoTvTYwIJTXCxO3k4" %}
 
 <br>
 

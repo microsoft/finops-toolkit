@@ -116,7 +116,7 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 You can also find related videos on the FinOps Foundation YouTube channel:
 
 <!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.md title="Data ingestion and normalization videos" id="qd4e8_6KFFh0vNaL" list="PLUSCToibAswkNY0BoImEsOxwuYA_nd_gu" %}
+{% include video.html title="Data ingestion and normalization videos" id="qd4e8_6KFFh0vNaL" list="PLUSCToibAswkNY0BoImEsOxwuYA_nd_gu" %}
 
 <br>
 

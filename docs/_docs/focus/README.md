@@ -357,7 +357,7 @@ The FinOps Open Cost and Usage Specification (FOCUS) was built in collaboration 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
 <!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.md title="FinOps Open Cost and Usage Specification videos" id="w-RiyFpUhTSXtixI" list="PLUSCToibAswmzF4s0HHYlyoN9J9wi4Aur" %}
+{% include video.html title="FinOps Open Cost and Usage Specification videos" id="w-RiyFpUhTSXtixI" list="PLUSCToibAswmzF4s0HHYlyoN9J9wi4Aur" %}
 
 ---
 

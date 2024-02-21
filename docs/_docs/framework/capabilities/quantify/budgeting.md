@@ -80,7 +80,7 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 You can also find related videos on the FinOps Foundation YouTube channel:
 
 <!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.md title="Budgeting videos" id="5Qe7eRXKMRzRrwBI" list="PLUSCToibAswnjB7fYRA02ePxySkpDex6q" %}
+{% include video.html title="Budgeting videos" id="5Qe7eRXKMRzRrwBI" list="PLUSCToibAswnjB7fYRA02ePxySkpDex6q" %}
 
 <br>
 

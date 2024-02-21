@@ -83,7 +83,7 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 You can also find related videos on the FinOps Foundation YouTube channel:
 
 <!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.md title="Establishing a FinOps culture videos" id="UCYaEsPRPl_ADMuf" list="PLUSCToibAswmpT97lQBmVo4-lH9u1qpOw" %}
+{% include video.html title="Establishing a FinOps culture videos" id="UCYaEsPRPl_ADMuf" list="PLUSCToibAswmpT97lQBmVo4-lH9u1qpOw" %}
 
 <br>
 

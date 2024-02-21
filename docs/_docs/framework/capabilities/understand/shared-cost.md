@@ -91,7 +91,7 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 You can also find related videos on the FinOps Foundation YouTube channel:
 
 <!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.md title="Managing shared cost videos" id="JcYoq8LdWpmv5NdH" list="PLUSCToibAswkwFlxjOE6BL-IBbs9nby5z" %}
+{% include video.html title="Managing shared cost videos" id="JcYoq8LdWpmv5NdH" list="PLUSCToibAswkwFlxjOE6BL-IBbs9nby5z" %}
 
 <br>
 
