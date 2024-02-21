@@ -67,7 +67,7 @@ Confirm the **ingestion** container is populated and refresh your reports or oth
 
 If the **ingestion** container is not empty, confirm whether you have **parquet** or **csv.gz** files by drilling into the folders.
 
-Once you know, verify the **FileType** parameter is set to `.parquet` or `.gz` in the Power BI report. See [Setup a FinOps hub report](../finops-hub/reports/README.md#setup-a-finops-hub-report) for details.
+Once you know, verify the **FileType** parameter is set to `.parquet` or `.gz` in the Power BI report. See [Connect to your data](../_reporting/power-bi/README.md#-connect-to-your-data) for details.
 
 If you're using another tool, ensure it supports the file type you're using.
 
@@ -81,13 +81,13 @@ Indicates that the account loading data in Power BI does not have the [Storage B
 
 ## Power BI: The remote name could not be resolved: '\<storage-account>.dfs.core.windows.net'
 
-Indicates that the storage account name is incorrect. If using FinOps hubs, verify the **StorageUrl** parameter from the deployment. See [Setup a FinOps hub report](../finops-hub/README.md#-create-a-new-hub) for details.
+Indicates that the storage account name is incorrect. If using FinOps hubs, verify the **StorageUrl** parameter from the deployment. See [Connect to your data](../_reporting/power-bi/README.md#-connect-to-your-data) for details.
 
 ---
 
 ## Power BI: We cannot convert the value null to type Logical
 
-Indicates that the **Billing Account ID** parameter is empty. If using FinOps hubs, set the value to the desired billing account ID. If you do not have access to the billing account or do not want to include commitment purchases and refunds, set the value to `0` and open the **CostDetails** query in the advanced editor and change the `2` to a `1`. This will inform the report to not load actual/billed cost data from the Cost Management connector. See [How to setup Power BI](../power-bi/setup.md#-setup-your-first-report) for details.
+Indicates that the **Billing Account ID** parameter is empty. If using FinOps hubs, set the value to the desired billing account ID. If you do not have access to the billing account or do not want to include commitment purchases and refunds, set the value to `0` and open the **CostDetails** query in the advanced editor and change the `2` to a `1`. This will inform the report to not load actual/billed cost data from the Cost Management connector. See [Connect to your data](../_reporting/power-bi/README.md#-connect-to-your-data) for details.
 
 Applicable versions: **0.1 - 0.1.1** (fixed in **0.1.2**)
 
@@ -102,7 +102,7 @@ Full error message:
 This error happens when you try to update an Azure role assignment with a new identity. This can happen in FinOps hubs if you delete a managed identity and re-deploy because the managed identity will be created with the same name but a new principal ID. ARM cannot use the principal ID to generate a unique role assignment ID, so the deployment tries to reuse the old role assignment ID, which can't be updated and results in the error. To prevent this in the future, do not delete the managed identities that are created as part of the deployment. But since you're here, there are two options:
 
 1. Delete the resource group and re-deploy.
-   - If you go this route, also make sure the Key Vault instance was also fully deleted by going to [Key vaults](https://ms.portal.azure.com/#browse/Microsoft.KeyVault%2Fvaults) > **Manage deleted vaults** and purge the deleted vault, if it was soft-deleted.
+   - If you go this route, also make sure the Key Vault instance was also fully deleted by going to [Key vaults](https://portal.azure.com/#browse/Microsoft.KeyVault%2Fvaults) > **Manage deleted vaults** and purge the deleted vault, if it was soft-deleted.
 2. Manually delete the role assignment in the Azure portal.
    - Go to check role assignments for the resource group, ADF instance, and storage account and remove any unidentified accounts that have a direct assignment on those scopes.
 
@@ -114,7 +114,7 @@ This error typically indicates that data was not ingested into the **ingestion**
 
 If you just upgraded to FinOps hubs 0.2, this may be due to the Power BI report being old (from 0.1.x) or because you are not using FOCUS exports. See the [Upgrade guide](../_reporting/hubs/upgrade.md) for details.
 
-See [Reports are empty (no data)](#reports-are-empty-no-data) for additional troubleshooting steps.
+See [Reports are empty (no data)](#power-bi-reports-are-empty-no-data) for additional troubleshooting steps.
 
 ---
 
@@ -126,11 +126,11 @@ If you've deleted FinOps Hubs and are attempting to redeploy it with the same va
 "code": "RoleAssignmentUpdateNotPermitted",
 "message": "Tenant ID, application ID, principal ID, and scope are not allowed to be updated."
 ```
+
 To fix that issue you will have to remove the stale identity:
-   - Navigate to "Storage Account >> Access Control IAM" >> "Role assignments."
-   - Identify a role assignment with an "unknown" identity and delete it.
 
-
+- Navigate to "Storage Account >> Access Control IAM" >> "Role assignments."
+- Identify a role assignment with an "unknown" identity and delete it.
 
 ---
 
