@@ -112,7 +112,7 @@ Next, you identify specific, measurable goals based on your current experience w
   - If you have a process that has only been tested on a small scale, share it with others. Experiment with the process and incorporate a feedback loop for continuous improvement.
   - As your process matures, you notice less input from the feedback loop. Less input is a sign that your process is ready to be scaled out more and potentially be established as an official governance policy for new teams. If you're in a large organization that doesn't have a dedicated FinOps team, you may want to consider establishing one to drive this effort.  
 
-    <!-->[!IMPORTANT]-->
+    <!--[!IMPORTANT]-->
     <blockquote class="important" markdown="1">
       _Before establishing a dedicated FinOps team, consider how much time each individual team is spending on FinOps efforts, what the potential business value is with more savings and efficiency (or lost opportunity), and how much a dedicated team can accelerate those goals. A dedicated team is not for everyone. Ensure you have the right return on investment._
     </blockquote>

@@ -10,7 +10,7 @@ permalink: /framework/capabilities
 ---
 
 <span class="fs-9 d-block mb-4">FinOps capabilities</span>
-Learn about what the fundamental building blocks of the FinOps Framework that enable you to maximize business value through the cloud.
+Learn about the fundamental building blocks of the FinOps Framework that enable you to maximize business value through the cloud.
 {: .fs-6 .fw-300 }
 
 <details open markdown="1">

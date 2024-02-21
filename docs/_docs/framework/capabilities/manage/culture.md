@@ -102,7 +102,7 @@ Related FinOps capabilities:
 
 ## 🧰 Related tools
 
-{% include tools.md hubs="1" %}
+{ % include tools.md hubs="1" %}
 
 <br>
 -->

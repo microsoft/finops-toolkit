@@ -78,7 +78,7 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 ## 🧰 Related tools
 
-{% include tools.md bicep="0" data="0" gov="0" hubs="1" opt="0" pbi="1" ps="0" %}
+{ % include tools.md bicep="0" data="0" gov="0" hubs="1" opt="0" pbi="1" ps="0" %}
 
 <br>
 -->
