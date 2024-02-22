@@ -93,7 +93,7 @@ The FinOps toolkit Power BI reports include pre-configured visuals, but are not 
 
 3. Select the **Close & Apply** to save your settings.
 
-If you run into any issues syncing your data, see [Troubleshooting Power BI reports](../resources/troubleshooting.md).
+If you run into any issues syncing your data, see [Troubleshooting Power BI reports](../../_resources/troubleshooting.md).
 
 <br>
 
@@ -125,7 +125,7 @@ At this point, you have the core data from the FinOps toolkit reports, extended 
 
 Note that some columns and measures depend on one another. You can ignore these errors as you copy each formula. Each will resolve itself when the dependent column or measure is added.
 
-For details about the columns available in Power BI, refer to the [data dictionary](../resources/data-dictionary.md).
+For details about the columns available in Power BI, refer to the [data dictionary](../../_resources/data-dictionary.md).
 
 <br>
 
@@ -154,7 +154,7 @@ If using FinOps hubs, you'll use the Azure Data Lake Storage Gen2 connector:
 6. Select the **Combine** button.
 7. Select the **OK** button.
 
-For more details about connecting to Azure Data Lake Storage Gen2, see [Connect to ADLS Gen2](https://learn.microsoft.com/power-query/connectors/data-lake-storage#connect-to-azure-data-lake-storage-gen2-from-power-query-desktop). For details about the columns available in storage, refer to the [data dictionary](../resources/data-dictionary.md).
+For more details about connecting to Azure Data Lake Storage Gen2, see [Connect to ADLS Gen2](https://learn.microsoft.com/power-query/connectors/data-lake-storage#connect-to-azure-data-lake-storage-gen2-from-power-query-desktop). For details about the columns available in storage, refer to the [data dictionary](../../_resources/data-dictionary.md).
 
 <br>
 

@@ -47,11 +47,11 @@ Resource utilization and efficiency maximize the business value of cloud costs b
 
 When you first start managing cost in the cloud, you use the native tools to drive efficiency and optimize costs in the portal.
 
-- Review and implement [Azure Advisor cost recommendations](https://learn.microsoft.com/azure/advisor/advisor-reference-cost-recommendations.md).
+- Review and implement [Azure Advisor cost recommendations](https://learn.microsoft.com/azure/advisor/advisor-reference-cost-recommendations).
   - Azure Advisor gives you high-confidence recommendations based on your usage. Azure Advisor is always the best place to start when looking to optimize any workload.
-  - Consider [subscribing to Azure Advisor alerts](https://learn.microsoft.com/azure/advisor/advisor-alerts-portal.md) to get notified when there are new cost recommendations.
+  - Consider [subscribing to Azure Advisor alerts](https://learn.microsoft.com/azure/advisor/advisor-alerts-portal) to get notified when there are new cost recommendations.
 - Review your usage and purchase [commitment-based discounts](./commitment-discounts.md) when it makes sense.
-- Take advantage of Azure Hybrid Benefit for [Windows](https://learn.microsoft.com/windows-server/get-started/azure-hybrid-benefit), [Linux](https://learn.microsoft.com/azure/virtual-machines/linux/azure-hybrid-benefit-linux.md), and [SQL Server](https://learn.microsoft.com/azure/azure-sql/azure-hybrid-benefit).
+- Take advantage of Azure Hybrid Benefit for [Windows](https://learn.microsoft.com/windows-server/get-started/azure-hybrid-benefit), [Linux](https://learn.microsoft.com/azure/virtual-machines/linux/azure-hybrid-benefit-linux), and [SQL Server](https://learn.microsoft.com/azure/azure-sql/azure-hybrid-benefit).
 - Review and implement [Cloud Adoption Framework costing best practices](https://learn.microsoft.com/azure/cloud-adoption-framework/govern/cost-management/best-practices).
 - Review and implement [Azure Well-Architected Framework cost optimization guidance](https://learn.microsoft.com/azure/well-architected/cost/overview).
 - Familiarize yourself with the services you use, how you're charged, and what service-specific cost optimization options you have.
@@ -68,7 +68,7 @@ When you first start managing cost in the cloud, you use the native tools to dri
 
 At this point, you've implemented all the basic cost optimization recommendations and tuned applications to meet the most fundamental best practices. As you move beyond the basics, consider the following points:
 
-- Automate cost recommendations using [Azure Resource Graph](https://learn.microsoft.com/azure/advisor/resource-graph-samples.md).
+- Automate cost recommendations using [Azure Resource Graph](https://learn.microsoft.com/azure/advisor/resource-graph-samples)
 - Implement the [Workload management and automation capability](./workloads.md) for more optimizations.
 - Stay abreast of emerging technologies, tools, and industry best practices to further optimize resource utilization.
 

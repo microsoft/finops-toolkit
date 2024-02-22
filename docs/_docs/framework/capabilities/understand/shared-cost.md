@@ -64,7 +64,7 @@ When you first start managing cost in the cloud, you use the native allocation t
   - Database services, like Cosmos DB and SQL databases.
   - Collaboration and productivity tools, like Microsoft 365.
 - Contact stakeholders who are responsible for the potentially shared services. Make sure they understand if the shared services are shared and how costs are allocated today. If not accounted for, how allocation could or should be done.
-- Use [cost allocation rules in Microsoft Cost Management](https://learn.microsoft.com/azure/cost-management-billing/costs/allocate-costs.md) to redistribute shared costs based on static percentages or compute, network, or storage costs.
+- Use [cost allocation rules in Microsoft Cost Management](https://learn.microsoft.com/azure/cost-management-billing/costs/allocate-costs) to redistribute shared costs based on static percentages or compute, network, or storage costs.
 - Regularly review and update allocation rules to ensure they remain accurate and fair.
 
 <br>
@@ -74,7 +74,7 @@ When you first start managing cost in the cloud, you use the native allocation t
 At this point, your simple cost allocation scenarios may be addressed. You're left with more complicated scenarios that require more effort to accurately quantify and redistribute. As you move beyond the basics, consider the following points:
 
 - Establish and track common KPIs, like the percentage of unallocated shared costs.
-- Use utilization data from [Azure Monitor metrics](https://learn.microsoft.com/azure/azure-monitor/essentials/data-platform-metrics.md) where possible to understand service usage.
+- Use utilization data from [Azure Monitor metrics](https://learn.microsoft.com/azure/azure-monitor/essentials/data-platform-metrics) where possible to understand service usage.
 - Consider using application telemetry to quantify the distribution of shared costs. It's discussed more in [Measuring unit costs](../quantify/unit-economics.md).
 - Automate the process of identifying the percentage breakdown of shared costs and consider using allocation rules in Cost Management to redistribute the costs.
 - Automate cost allocation rules to update their respective percentages based on changing usage patterns.

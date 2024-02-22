@@ -48,7 +48,7 @@ Implementation of this capability is highly dependent on how your organization h
 - [Sustainability](https://www.finops.org/framework/capabilities/finops-sustainability/) by FinOps Foundation
 - [Sustainability workloads](https://learn.microsoft.com/azure/well-architected/sustainability/sustainability-get-started)
 - IT Service Management
-  - [Azure Monitor integration](https://learn.microsoft.com/azure/azure-monitor/alerts/itsmc-overview.md)
+  - [Azure Monitor integration](https://learn.microsoft.com/azure/azure-monitor/alerts/itsmc-overview)
   - [Azure DevOps and ServiceNow](https://learn.microsoft.com/azure/devops/pipelines/release/approvals/servicenow)
 
 <br>

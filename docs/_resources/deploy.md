@@ -48,11 +48,13 @@ Note Bicep Registry modules can be referenced directly from your Bicep code and 
 ## 🚀 Deploy a FinOps toolkit template
 
 1. Select the **Deploy to Azure** button for the desired template:
+
    | Tempalte                                                               | Azure Commercial                                                      | Azure Gov                                                          | Azure China                                                          |
    | ---------------------------------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------ | -------------------------------------------------------------------- |
    | [FinOps hub](../_reporting/hubs/README.md)                             | {% include deploy.html template="finops-hub" public="1" %}            | {% include deploy.html template="finops-hub" gov="1" %}            | {% include deploy.html template="finops-hub" china="1" %}            |
    | [Optimization workbook](../_workbooks/optimization-workbook/README.md) | {% include deploy.html template="optimization-workbook" public="1" %} | {% include deploy.html template="optimization-workbook" gov="1" %} | {% include deploy.html template="optimization-workbook" china="1" %} |
    | [Governance workbook](../_workbooks/governance-workbook/README.md)     | {% include deploy.html template="governance-workbook" public="1" %}   | {% include deploy.html template="governance-workbook" gov="1" %}   | {% include deploy.html template="governance-workbook" china="1" %}   |
+
 2. Specify the desired values for each parameter. See the template details for more information.
    <blockquote class="tip" markdown="1">
      _Use the **Edit parameters** link to use a saved parameters file or to download a new parameters file for future use._

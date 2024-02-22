@@ -65,7 +65,7 @@ When you first start managing cost in the cloud, you use the native tools availa
   - Review the available [third-party solutions in the Azure Marketplace](https://portal.azure.com/#view/Microsoft_Azure_Marketplace/MarketplaceOffersBlade/searchQuery/cost).
   - If you decide to build your own solution, consider starting with [FinOps hubs](https://aka.ms/finops/hubs), part of the open source FinOps toolkit provided by Microsoft.
     - FinOps hubs will accelerate your development and help you focus on building the features you need rather than infrastructure.
-- Select the [cost details solution](https://learn.microsoft.com/azure/cost-management-billing/automate/usage-details-best-practices.md) that is right for you. We recommend scheduled exports, which push cost data to a storage account on a daily or monthly basis.
+- Select the [cost details solution](https://learn.microsoft.com/azure/cost-management-billing/automate/usage-details-best-practices) that is right for you. We recommend scheduled exports, which push cost data to a storage account on a daily or monthly basis.
   - If you use daily exports, notice that data is pushed into a new file each day. Ensure that you only select the latest day when reporting on costs.
 - Determine if you need a data integration or workflow technology to process data.
   - In an early phase, you may be able to keep data in the exported storage account without other processing. We recommend that you keep the data there for small accounts with lightweight requirements and minimal customization.

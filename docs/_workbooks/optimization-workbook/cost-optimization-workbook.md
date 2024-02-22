@@ -57,7 +57,7 @@ Here's an example of the Usage optimization section for AKS.
 
 ![Screenshot showing the Usage optimization section for AKS.][https://learn.microsoft.com/azure/cost-management-billing/finops/media/cost-optimization-workbook/usage-optimization-example.png]
 
-For more information about the Cost optimization workbook, see [Understand and optimize your Azure costs using the Cost optimization workbook](../../advisor/advisor-cost-optimization-workbook.md).
+For more information about the Cost optimization workbook, see [Understand and optimize your Azure costs using the Cost optimization workbook](https://learn.microsoft.com/azure/advisor/advisor-cost-optimization-workbook).
 
 <br>
 
@@ -192,6 +192,6 @@ To learn more about Azure Monitor workbooks, see the [Visualize data combined fr
 
 ## Next steps
 
-To learn more about the Cost optimization workbook, see [Visualize data combined from multiple data sources by using Azure Monitor Workbooks](https://learn.microsoft.com/azure/advisor/advisor-cost-optimization-workbook.md).
+To learn more about the Cost optimization workbook, see [Visualize data combined from multiple data sources by using Azure Monitor Workbooks](https://learn.microsoft.com/azure/advisor/advisor-cost-optimization-workbook).
 
 <br>

@@ -4,7 +4,7 @@ parent: Power BI
 title: Data ingestion
 nav_order: 40
 description: 'Get insights into your data ingestion layer.'
-permalink: /power-bi/cost-summary
+permalink: /power-bi/data-ingestion
 ---
 
 <span class="fs-9 d-block mb-4">Data ingestion report</span>

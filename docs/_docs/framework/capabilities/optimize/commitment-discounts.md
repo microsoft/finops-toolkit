@@ -38,7 +38,7 @@ This article helps you understand the managing commitment-based discounts capabi
 
 Review daily usage and cost trends to estimate how much you expect to use or spend over the next one to five years. Use [Forecasting](../quantify/forecasting.md) and account for future plans.
 
-Commit to specific hourly usage targets to receive discounted rates and save up to 72% with [Azure reservations](https://learn.microsoft.com/azure/cost-management-billing/reservations/save-compute-costs-reservations.md). Or for more flexibility, commit to a specific hourly spend to save up to 65% with [Azure savings plans for compute](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/savings-plan-compute-overview.md). Reservation discounts can be applied to resources of the specific type, SKU, and location only. Savings plan discounts are applied to a family of compute resources across types, SKUs, and locations. The extra specificity with reservations is what drives more favorable discounting.
+Commit to specific hourly usage targets to receive discounted rates and save up to 72% with [Azure reservations](https://learn.microsoft.com/azure/cost-management-billing/reservations/save-compute-costs-reservations). Or for more flexibility, commit to a specific hourly spend to save up to 65% with [Azure savings plans for compute](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/savings-plan-compute-overview). Reservation discounts can be applied to resources of the specific type, SKU, and location only. Savings plan discounts are applied to a family of compute resources across types, SKUs, and locations. The extra specificity with reservations is what drives more favorable discounting.
 
 Adopting a commitment-based strategy allows organizations to reduce their overall cloud costs while maintaining the same or higher usage by taking advantage of discounts on the resources they already use.
 
@@ -46,7 +46,7 @@ Adopting a commitment-based strategy allows organizations to reduce their overal
 
 ## ✋ Before you begin
 
-While you can save by using reservations and savings plans, there's also a risk that you may not end up using that capacity. You could end up underutilizing the commitment and lose money. While losing money is rare, it's possible. We recommend starting small and making targeted, high-confidence decisions. We also recommend not waiting too long to decide on how to approach commitment-based discounts when you do have consistent usage because you're effectively losing money. Start small and learn as you go. But first, learn how [reservation](https://learn.microsoft.com/azure/cost-management-billing/reservations/reservation-discount-application.md) and [savings plan](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/discount-application.md) discounts are applied.
+While you can save by using reservations and savings plans, there's also a risk that you may not end up using that capacity. You could end up underutilizing the commitment and lose money. While losing money is rare, it's possible. We recommend starting small and making targeted, high-confidence decisions. We also recommend not waiting too long to decide on how to approach commitment-based discounts when you do have consistent usage because you're effectively losing money. Start small and learn as you go. But first, learn how [reservation](https://learn.microsoft.com/azure/cost-management-billing/reservations/reservation-discount-application) and [savings plan](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/discount-application) discounts are applied.
 
 Before you purchase either a reservation or a savings plan, consider the usage you want to commit to. If you have high confidence, you maintain a specific level of usage for that type, SKU, and location, strongly consider starting with a reservation. For maximum flexibility, you can use savings plans to cover a wide range of compute costs by committing to a specific hourly spend instead of hourly usage.
 
@@ -57,16 +57,16 @@ Before you purchase either a reservation or a savings plan, consider the usage y
 Microsoft offers several tools to help you identify when you should consider purchasing reservations or savings plans. You can choose whether you want to start by analyzing usage or by reviewing the system-generated recommendations based on your historical usage and cost. We recommend starting with the recommendations to focus your initial efforts:
 
 - One of the most common starting points is [Azure Advisor cost recommendations](https://learn.microsoft.com/azure///learn.microsoft.com/azure/advisor/advisor-reference-cost-recommendations.md).
-- For more flexibility, you can view and filter recommendations in the [reservation](https://learn.microsoft.com/azure/cost-management-billing/reservations/reserved-instance-purchase-recommendations.md) and [savings plan](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/purchase-recommendations.md#purchase-recommendations-in-the-azure-portal) purchase experiences.
+- For more flexibility, you can view and filter recommendations in the [reservation](https://learn.microsoft.com/azure/cost-management-billing/reservations/reserved-instance-purchase-recommendations) and [savings plan](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/purchase-recommendations.md#purchase-recommendations-in-the-azure-portal) purchase experiences.
 - Lastly, you can also view reservation recommendations in [Power BI](https://learn.microsoft.com/power-bi/connect-data/desktop-connect-azure-cost-management).
 - After you know what to look for, you can [analyze your usage data](https://learn.microsoft.com/azure/cost-management-billing/reservations/determine-reservation-purchase.md#analyze-usage-data) to look for the specific usage you want to purchase a reservation for.
 
 After purchasing commitments, you can:
 
-- View utilization from the [reservation](https://learn.microsoft.com/azure/cost-management-billing/reservations/reservation-utilization.md) or [savings plan](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/view-utilization.md) page in the portal.
+- View utilization from the [reservation](https://learn.microsoft.com/azure/cost-management-billing/reservations/reservation-utilization) or [savings plan](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/view-utilization) page in the portal.
   - Consider expanding the scope or enabling instance size flexibility (when available) to increase utilization and maximize savings of an existing commitment.
-  - [Configure reservation utilization alerts](https://learn.microsoft.com/azure/cost-management-billing/costs/reservation-utilization-alerts.md) to notify stakeholders if utilization drops below a desired threshold.
-- View showback and chargeback reports for [reservations](https://learn.microsoft.com/azure/cost-management-billing/reservations/charge-back-usage.md) and [savings plans](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/charge-back-costs.md).
+  - [Configure reservation utilization alerts](https://learn.microsoft.com/azure/cost-management-billing/costs/reservation-utilization-alerts) to notify stakeholders if utilization drops below a desired threshold.
+- View showback and chargeback reports for [reservations](https://learn.microsoft.com/azure/cost-management-billing/reservations/charge-back-usage) and [savings plans](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/charge-back-costs).
 
 <br>
 
@@ -74,8 +74,8 @@ After purchasing commitments, you can:
 
 At this point, you have commitment-based discounts in place. As you move beyond the basics, consider the following points:
 
-- Configure commitments to automatically renew for [reservations](https://learn.microsoft.com/azure/cost-management-billing/reservations/reservation-renew.md) and [savings plans](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/renew-savings-plan.md).
-- Calculate cost savings for [reservations](https://learn.microsoft.com/azure/cost-management-billing/reservations/calculate-ea-reservations-savings.md) and [savings plans](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/calculate-ea-savings-plan-savings.md).
+- Configure commitments to automatically renew for [reservations](https://learn.microsoft.com/azure/cost-management-billing/reservations/reservation-renew) and [savings plans](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/renew-savings-plan).
+- Calculate cost savings for [reservations](https://learn.microsoft.com/azure/cost-management-billing/reservations/calculate-ea-reservations-savings) and [savings plans](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/calculate-ea-savings-plan-savings).
 - If you use multiple accounts, clouds, or providers, expand coverage of your commitment-based discounts efforts to include all accounts.
   - Consider implementing a consistent utilization and coverage monitoring system that covers all accounts.
 - Establish a process for centralized purchasing of commitment-based offers, assigning responsibility to a dedicated team or individual.

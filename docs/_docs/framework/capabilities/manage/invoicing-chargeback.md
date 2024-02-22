@@ -66,7 +66,7 @@ Chargeback and finance integration is all about integrating with your own intern
 
 At this point, you have a basic chargeback model that all stakeholders have agreed to. As you move beyond the basics, consider the following points:
 
-- Consider implementing a one-way sync from your budget system to [Cost Management budgets](https://learn.microsoft.com/azure/cost-management-billing/automate/automate-budget-creation.md) to use automated alerts based on machine learning forecasts.
+- Consider implementing a one-way sync from your budget system to [Cost Management budgets](https://learn.microsoft.com/azure/cost-management-billing/automate/automate-budget-creation) to use automated alerts based on machine learning forecasts.
 - If you track manual forecasts, consider creating Cost Management budgets for your forecast values as well. It gives you separate tracking and alerting for budgets separate from your forecast.
 - Automate your [cost allocation](../understand/allocation.md) strategy through tagging.
 - Expand coverage of [shared costs](../understand/shared-cost.md) and [commitment-based discounts](../optimize/commitment-discounts.md) if not already included.
