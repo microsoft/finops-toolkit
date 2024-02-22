@@ -286,10 +286,10 @@ Legend:
 > ➕ Added:
 >
 > 1. New PowerShell commands to manage FinOps hubs 0.1:
->    1. Get-FinOpsHub
->    2. Initialize-FinOpsHubDeployment
->    3. Register-FinOpsHubProviders
->    4. Remove-FinOpsHub
+>    1. [Get-FinOpsHub](../_automation/powershell/hubs/Get-FinOpsHub.md)
+>    2. [Initialize-FinOpsHubDeployment](../_automation/powershell/hubs/Initialize-FinOpsHubDeployment.md)
+>    3. [Register-FinOpsHubProviders](../_automation/powershell/hubs/Register-FinOpsHubProviders.md)
+>    4. [Remove-FinOpsHub](../_automation/powershell/hubs/Remove-FinOpsHub.md)
 
 [Download v0.1.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.1...v0.1.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
