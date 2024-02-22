@@ -78,8 +78,10 @@ The FinOps toolkit Power BI reports include pre-configured visuals, but are not 
      - An MCA billing account scope ID looks like `/providers/Microsoft.Billing/billingAccounts/{billingAccountId}`.
      - An MCA billing profile scope ID looks like `/providers/Microsoft.Billing/billingAccounts/{billingAccountId}/billingProfiles/{billingProfileId}`.
      - You can get the billing account and profile IDs from the Azure portal:
-       - Go to https://aka.ms/costmgmt/config
-       - 
+       - Go to https://aka.ms/costmgmt/config.
+       - Change the scope to the desired MCA billing profile or EA billing account.
+       - Select the **Properties** tile.
+       - Copy the **ID** or **Billing account ID** values.
    - **Type** is your MCA billing profile ID.
      <blockquote class="note" markdown="1">
        _The billing profile ID is optional for cost reports, but is required for reservation recommendations. When not specified, cost reports will include all billing profiles within the account._

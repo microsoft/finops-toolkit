@@ -17,7 +17,7 @@ Learn how to take an iterative approach to FinOps adoption within your organizat
 {: .fs-6 .fw-300 }
 
 [Learn more](#about){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Get started](#define-your-scope){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Get started](#-define-your-scope){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>

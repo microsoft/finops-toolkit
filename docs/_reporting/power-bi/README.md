@@ -106,7 +106,7 @@ In general, we recommend starting with the Cost Management connector when gettin
 | Supports >$65M in cost details                      |                ❌                 |                ❌                 |             🔜 (0.4)              |              ✅               |
 | Analytical engine                                   |                ❌                 |                ❌                 |             🔜 (0.4)              |              ✅               |
 | Accessible outside of Power BI                      |                ❌                 |                ✅                 |                ✅                 |              ✅               |
-| Learn more                                          |  [Learn more][about-connector]   |                                  |     [Learn more][about-hubs]     |
+| Learn more                                          |  [Learn more][about-connector]   |                                  |     [Learn more][about-hubs]     |                              |
 
 [about-connector]: https://aka.ms/costmgmt/powerbi
 [about-hubs]: ../hubs/README.md

@@ -70,7 +70,7 @@ Legend:
 
 > ➕ Added:
 >
-> 1. Started archiving template versions so they can be referenced easily via URL (microsoft.github.io/finops-toolkit/deploy/finops-hub-{version}.json).
+> 1. Started archiving template versions so they can be referenced easily via URL microsoft.github.io/finops-toolkit/deploy/finops-hub-{version}.json.
 >
 > 🛠️ Fixed:
 >
@@ -101,7 +101,7 @@ Legend:
 
 > ➕ Added:
 >
-> 1. Started archiving template versions so they can be referenced easily via URL (microsoft.github.io/finops-toolkit/deploy/{template}-{version}.json).
+> 1. Started archiving template versions so they can be referenced easily via URL microsoft.github.io/finops-toolkit/deploy/{template}-{version}.json.
 >
 > 🛠️ Fixed:
 >
