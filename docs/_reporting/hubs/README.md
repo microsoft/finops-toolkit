@@ -102,7 +102,7 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
   _FinOps hubs 0.2 is a breaking change. To upgrade an existing hub instance, please refer to the [Upgrade guide](./upgrade.md)._
 </blockquote>
 
-1. Register the Microsoft.EventGrid and Microsoft.CostManagementExports resource providers. See [Register a resource provider](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) for details.
+1. Register the Microsoft.EventGrid and Microsoft.CostManagementExports resource providers. [Learn more](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider).
 2. Deploy the **finops-hub** template. [Learn more](../../_resources/deploy.md).
 
    {% include deploy.html template="finops-hub" public="1" gov="0" china="0" %}
