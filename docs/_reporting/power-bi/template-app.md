@@ -23,7 +23,7 @@ Cost Management template app available for Enterprise Agreement billing accounts
 
 ---
 
-The **EA template app** is the PBIX version of the "Cost Management app" in Microsoft AppSource. The template app is not customizable or downloadable, so we are making the PBIX file available here. We do not recommend using this report as it only works for Enterprise Agreement billing accounts and is no longer being updated. You are welcome to download and customize it as needed, but you may want to check out the other [FinOps toolkit reports](./README.md), which have been updated to cover new scenarios. The Cost summary and Commitment discounts reports were both created based on the template app, so you should find most capabilities within those reports. If you feel something is missing, [let us know](https://github.com/microsoft/finops-toolkit/issues/new/choose)!
+The **EA template app** is the PBIX version of the "Cost Management app" in Microsoft AppSource. The template app is not customizable or downloadable, so we are making the PBIX file available here. We do not recommend using this report as it only works for Enterprise Agreement billing accounts and is no longer being updated. You are welcome to download and customize it as needed, but you may want to check out the other [FinOps toolkit reports](./README.md), which have been updated to cover new scenarios. The Cost summary and Commitment discounts reports were both created based on the template app, so you should find most capabilities within those reports. If you feel something is missing, [let us know](https://aka.ms/ftk/idea)!
 
 <br>
 
@@ -53,6 +53,6 @@ To learn more, see [Analyze cost with the Cost Management Power BI app for Enter
 
 We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
 
-[Share feedback](https://github.com/microsoft/finops-toolkit/issues/new/choose){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Share feedback](https://aka.ms/ftk/idea){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>

@@ -71,7 +71,7 @@ Import-Module -Name FinOpsToolkit
 ### Deprecated: FinOps Open Cost and Usage Specification (FOCUS) commands
 
 <blockquote class="warning" markdown="1">
-  _FOCUS commands were implemented before Microsoft Cost Management supported a native FOCUS export. Going forward, we recommend using the native export. These commands will remain available but will not be updated to support FOCUS 1.0-preview. If you have a scenario where you need a PowerShell converter, please [create an issue](https://github.com/microsoft/finops-toolkit/issues/new/choose) to request what you need._
+  _FOCUS commands were implemented before Microsoft Cost Management supported a native FOCUS export. Going forward, we recommend using the native export. These commands will remain available but will not be updated to support FOCUS 1.0-preview. If you have a scenario where you need a PowerShell converter, please [create an issue](https://aka.ms/ftk/idea) to request what you need._
 </blockquote>
 
 - [ConvertTo-FinOpsSchema](focus/ConvertTo-FinOpsSchema.md) – Converts Cost Management cost data to the FOCUS schema.
@@ -84,7 +84,7 @@ Import-Module -Name FinOpsToolkit
 We'd love to hear about any commands or scripts you're looking for. Vote up (👍) existing ideas or create a new issue to suggest a new idea. We'll focus on ideas with the most votes.
 
 [Vote on ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+label%3A%22Area%3A+PowerShell%22+sort%3Areactions-%2B1-desc){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-[Suggest an idea](https://github.com/microsoft/finops-toolkit/issues/new/choose){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Suggest an idea](https://aka.ms/ftk/idea){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 

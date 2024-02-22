@@ -55,7 +55,7 @@ ingestion/{scope-id}/{month}/focuscost
 - `focuscost` is the exported dataset.
   > Hubs 0.2 only supports FOCUS cost exports. Other export types will be added in a future release.
 
-If you need to use hubs to monitor non-Azure data, convert the data to [FOCUS](../../_docs/focus/README.md) and drop it into the **ingestion** container. Please note this has not been explicitly tested in the latest release. If you experience any issues, please [create an issue](https://aka.ms/finops/toolkit/ideas).
+If you need to use hubs to monitor non-Azure data, convert the data to [FOCUS](../../_docs/focus/README.md) and drop it into the **ingestion** container. Please note this has not been explicitly tested in the latest release. If you experience any issues, please [create an issue](https://aka.ms/ftk/idea).
 
 <br>
 

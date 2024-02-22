@@ -13,7 +13,7 @@ Sorry to hear you're having a problem. We're here to help!
 ---
 
 <blockquote class="important" markdown="1">
-  _Source code within the FinOps toolkit is provided as-is with no guarantees and is not officially covered by Microsoft Support. However, the underlying services **are** fully supported. If you encounter an issue, we generally recommend that you [create an issue](https://aka.ms/finops/toolkit/ideas) **and** file a support request. We will do our best to help you resolve any issues through GitHub issues and discussions but Microsoft Support will be better equipped to resolve issues in the underlying products and services. Microsoft Support may request code samples to help resolve the issue, which can be provided from the GitHub repository._
+  _Source code within the FinOps toolkit is provided as-is with no guarantees and is not officially covered by Microsoft Support. However, the underlying services **are** fully supported. If you encounter an issue, we generally recommend that you [create an issue](https://aka.ms/ftk/idea) **and** file a support request. We will do our best to help you resolve any issues through GitHub issues and discussions but Microsoft Support will be better equipped to resolve issues in the underlying products and services. Microsoft Support may request code samples to help resolve the issue, which can be provided from the GitHub repository._
 </blockquote>
 
 If you run into an issue with a deployment and need to re-deploy, you can usually re-run the deployment. If you change the name, we recommend deleting the resource group. If you delete the individual resources, make sure all resources are fully deleted. Some services, like Key Vault, have a "soft delete" feature where they keep the resources around so they are easily recovered. These services usually have an option to manage deleted resources.
@@ -32,7 +32,7 @@ Here are a few simple solutions to issues others have reported:
 Didn't find what you're looking for?
 
 [Start a discussion](https://aka.ms/finops/toolkit/discuss){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 }
-[Create an issue](https://aka.ms/finops/toolkit/ideas){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Create an issue](https://aka.ms/ftk/idea){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 ---
 
@@ -89,7 +89,7 @@ Indicates that the storage account name is incorrect. If using FinOps hubs, veri
 
 Indicates that the **Billing Account ID** parameter is empty. If using FinOps hubs, set the value to the desired billing account ID. If you do not have access to the billing account or do not want to include commitment purchases and refunds, set the value to `0` and open the **CostDetails** query in the advanced editor and change the `2` to a `1`. This will inform the report to not load actual/billed cost data from the Cost Management connector. See [Connect to your data](../_reporting/power-bi/README.md#-connect-to-your-data) for details.
 
-Applicable versions: **0.1 - 0.1.1** (fixed in **0.1.2**)
+Applicable versions: **0.1 - 0.1.1** (fixed in **0.2**)
 
 ---
 

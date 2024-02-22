@@ -40,7 +40,7 @@ Note Bicep Registry modules can be referenced directly from your Bicep code and 
 - Include in your bicep modules from the [Bicep Registry](https://azure.github.io/bicep-registry-modules/#cost).
 
 <blockquote class="highlight" markdown="1">
-  💡 _Are we missing anywhere? [Let us know!](https://github.com/microsoft/finops-toolkit/issues/new/choose)_
+  💡 _Are we missing anywhere? [Let us know!](https://aka.ms/ftk/idea)_
 </blockquote>
 
 <br>
