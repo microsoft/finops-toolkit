@@ -92,7 +92,9 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
   - Blob containers:
     - `msexports` – Temporarily stores Cost Management exports.
     - `ingestion` – Stores ingested data.
-      > ℹ️ _In the future, we will use this container to stage external data outside of Cost Management._
+      <blockquote class="note" markdown="1">
+        _In the future, we will use this container to stage external data outside of Cost Management._
+      </blockquote>
     - `config` – Stores hub metadata and configuration settings. Files:
       - `settings.json` – Hub settings.
 - `<hubName>-engine-<unique-suffix>` Data Factory instance
