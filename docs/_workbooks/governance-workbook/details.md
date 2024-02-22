@@ -3,7 +3,7 @@ layout: default
 parent: Governance workbook
 title: Details
 nav_order: 2
-description: "Details about what's included in the FinOps hub template."
+description: "Details about what's included in the governance workbook."
 permalink: /governance-workbook/details
 ---
 
@@ -11,7 +11,7 @@ permalink: /governance-workbook/details
 Learn about the resource details and metrics covered by the governance workbook.
 {: .fs-6 .fw-300 }
 
-[Deploy](./README.md#-create-a-new-hub){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Deploy](./README.md#-deploy-the-workbook){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
 [Learn more](#ℹ️-overview){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <details open markdown="1">

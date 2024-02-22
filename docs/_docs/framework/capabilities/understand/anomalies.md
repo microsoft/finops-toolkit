@@ -24,10 +24,11 @@ This article helps you understand the managing anomalies capability within the F
 <details open markdown="1">
   <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Getting started](#getting-started)
-- [Building on the basics](#building-on-the-basics)
-- [Learn more at the FinOps Foundation](#learn-more-at-the-finops-foundation)
-- [Next steps](#next-steps)
+- [▶️ Getting started](#️-getting-started)
+- [🏗️ Building on the basics](#️-building-on-the-basics)
+- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
+- [⏩ Next steps](#-next-steps)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -45,27 +46,27 @@ With a systematic approach to anomaly detection, analysis, and resolution, organ
 
 <br>
 
-## Getting started
+## ▶️ Getting started
 
 When you first start managing cost in the cloud, you use the native tools available in the portal.
 
 - Start with proactive alerts.
   - [Subscribe to anomaly alerts](https://learn.microsoft.com/azure/cost-management-billing/understand/analyze-unexpected-charges.md#create-an-anomaly-alert) for each subscription in your environment to receive email alerts when an unusual spike or drop has been detected in your normalized usage based on historical usage.
   - Consider [subscribing to scheduled alerts](https://learn.microsoft.com/azure/cost-management-billing/costs/save-share-views.md#subscribe-to-scheduled-alerts) to share a chart of the recent cost trends with stakeholders. It can help you drive awareness as costs change over time and potentially catch changes the anomaly model may have missed.
-  - Consider [creating a budget in Cost Management](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-acm-create-budgets.md) to track that specific scope or workload. Specify filters and set alerts for both actual and forecast costs for finer-grained targeting.
+  - Consider [creating a budget in Cost Management](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-acm-create-budgets) to track that specific scope or workload. Specify filters and set alerts for both actual and forecast costs for finer-grained targeting.
 - Review costs periodically, using detailed cost breakdowns, usage analytics, and visualizations to identify potential anomalies that may have been missed.
   - Use smart views in Cost analysis to [review anomaly insights](https://learn.microsoft.com/azure/cost-management-billing/understand/analyze-unexpected-charges.md#identify-cost-anomalies) that were automatically detected for each subscription.
   - Use customizable views in Cost analysis to [manually find unexpected changes](https://learn.microsoft.com/azure/cost-management-billing/understand/analyze-unexpected-charges.md#manually-find-unexpected-cost-changes).
-  - Consider [saving custom views](https://learn.microsoft.com/azure/cost-management-billing/costs/save-share-views.md) that show cost over time for specific workloads to save time.
+  - Consider [saving custom views](https://learn.microsoft.com/azure/cost-management-billing/costs/save-share-views) that show cost over time for specific workloads to save time.
   - Consider creating more detailed usage reports using [Power BI](../../../../_reporting/power-bi/README.md).
 - Once an anomaly is identified, take appropriate actions to address it.
   - Review the anomaly details with the engineers who manage the related cloud resources. Some auto-detected "anomalies" are planned or at least known resource configuration changes as part of building and managing cloud services.
-  - If you need lower-level usage details, review resource utilization in [Azure Monitor metrics](https://learn.microsoft.com/azure/azure-monitor/essentials/metrics-getting-started.md).
-  - If you need resource details, review [resource configuration changes in Azure Resource Graph](https://learn.microsoft.com/azure/governance/resource-graph/how-to/get-resource-changes.md).
+  - If you need lower-level usage details, review resource utilization in [Azure Monitor metrics](https://learn.microsoft.com/azure/azure-monitor/essentials/metrics-getting-started).
+  - If you need resource details, review [resource configuration changes in Azure Resource Graph](https://learn.microsoft.com/azure/governance/resource-graph/how-to/get-resource-changes).
 
 <br>
 
-## Building on the basics
+## 🏗️ Building on the basics
 
 At this point, you have automated alerts configured and ideally views and reports saved to streamline periodic checks.
 
@@ -82,24 +83,34 @@ At this point, you have automated alerts configured and ideally views and report
 
 <br>
 
-## Learn more at the FinOps Foundation
+## 🍎 Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Managing anomalies capability](https://www.finops.org/framework/capabilities/manage-anomalies/) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
 <!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.md title="Managing anomalies videos" id="" list="" %}
+{% include video.html title="Managing anomalies videos" id="" list="" %}
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
 <!--[!VIDEO https://www.youtube.com/embed/EYnitoLLesDteeSv?list=PLUSCToibAswl7gsq9Zt4sol0Dp3ibfl1L]-->
-{% include video.md title="Anomaly management videos" id="EYnitoLLesDteeSv" list="PLUSCToibAswl7gsq9Zt4sol0Dp3ibfl1L" %}
+{% include video.html title="Anomaly management videos" id="EYnitoLLesDteeSv" list="PLUSCToibAswl7gsq9Zt4sol0Dp3ibfl1L" %}
 
 <br>
 
-## Next steps
+## ⏩ Next steps
+
+Related FinOps capabilities:
 
 - [Budget management](../quantify/budgeting.md)
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md bicep="1" data="0" gov="0" hubs="1" opt="0" pbi="1" ps="0" %}
 
 <br>

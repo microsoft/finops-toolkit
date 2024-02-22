@@ -21,11 +21,12 @@ This article helps you understand the forecasting capability within the FinOps F
 <details open markdown="1">
   <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Before you begin](#before-you-begin)
-- [Getting started](#getting-started)
-- [Building on the basics](#building-on-the-basics)
-- [Learn more at the FinOps Foundation](#learn-more-at-the-finops-foundation)
-- [Next steps](#next-steps)
+- [✋ Before you begin](#-before-you-begin)
+- [▶️ Getting started](#️-getting-started)
+- [🏗️ Building on the basics](#️-building-on-the-basics)
+- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
+- [⏩ Next steps](#-next-steps)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -43,7 +44,7 @@ With an accurate, detailed forecast, organizations are better prepared to adapt 
 
 <br>
 
-## Before you begin
+## ✋ Before you begin
 
 Before you can effectively forecast future usage and costs, you need to familiarize yourself with [how you're charged for the services you use](https://azure.microsoft.com/pricing#product-pricing).
 
@@ -54,7 +55,7 @@ Understanding how changes to your usage patterns affect future costs is informed
 
 <br>
 
-## Getting started
+## ▶️ Getting started
 
 When you first start managing cost in the cloud, you use the native Cost analysis experience in the portal.
 
@@ -70,9 +71,9 @@ If you do see anomalies or large (possibly expected) variations in costs, you ma
     - If you see any deleted items, filter them out.
     - If you see any that are new, make note of them and then filter them out. You forecast them separately. Consider saving your view under a new name as one way to "remember" them for later.
     - If you have future dates included in your view, you may notice the forecast is starting to level out. It happens because the abnormalities are no longer being factored into the algorithm.
-  - If you see any large spikes or dips, group the data by one of the [grouping options](https://learn.microsoft.com/azure/cost-management-billing/costs/group-filter.md) to identify what the cause was.
+  - If you see any large spikes or dips, group the data by one of the [grouping options](https://learn.microsoft.com/azure/cost-management-billing/costs/group-filter) to identify what the cause was.
     - Try different options until you discover the cause using the same approach as you would in [finding unexpected changes in cost](https://learn.microsoft.com/azure/cost-management-billing/understand/analyze-unexpected-charges.md#manually-find-unexpected-cost-changes).
-    - If you want to find the exact change that caused the cost spike (or dip), use tools like [Azure Monitor](https://learn.microsoft.com/azure///learn.microsoft.com/azure/azure-monitor/overview.md) or [Resource Graph](https://learn.microsoft.com/azure/governance/resource-graph/how-to/get-resource-changes.md) in a separate window or browser tab.
+    - If you want to find the exact change that caused the cost spike (or dip), use tools like [Azure Monitor](https://learn.microsoft.com/azure///learn.microsoft.com/azure/azure-monitor/overview.md) or [Resource Graph](https://learn.microsoft.com/azure/governance/resource-graph/how-to/get-resource-changes) in a separate window or browser tab.
     - If the change was a segregated charge and shouldn't be factored into the forecast, filter it out. Be careful not to filter out other costs as it will skew the forecast. If necessary, start by forecasting a smaller scope to minimize risk of filtering more and repeat the process per scope.
     - If the change is in a scope that shouldn't get filtered out, make note of that scope and then filter it out. You forecast them separately.
   - Consider filtering out any subscriptions, resource groups, or resources that were reconfigured during the period and may not reflect an accurate picture of future costs. Make note of them so you can forecast them separately.
@@ -89,8 +90,8 @@ If you do see anomalies or large (possibly expected) variations in costs, you ma
 
 Whichever approach worked best for you, compare your forecast with your current budget to see where you're at today. If you filtered data down to a smaller scope or workload:
 
-- Consider [creating a budget in Cost Management](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-acm-create-budgets.md) to track that specific scope or workload. Specify filters and set alerts for both actual and forecast costs.
-- [Save a view in Cost analysis](https://learn.microsoft.com/azure/cost-management-billing/costs/save-share-views.md) to monitor that cost and budget over time.
+- Consider [creating a budget in Cost Management](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-acm-create-budgets) to track that specific scope or workload. Specify filters and set alerts for both actual and forecast costs.
+- [Save a view in Cost analysis](https://learn.microsoft.com/azure/cost-management-billing/costs/save-share-views) to monitor that cost and budget over time.
 - Consider [subscribing to scheduled alerts](https://learn.microsoft.com/azure/cost-management-billing/costs/save-share-views.md#subscribe-to-scheduled-alerts) for this view to share a chart of the cost trends with stakeholders. It can help you drive accountability and awareness as costs change over time before you go over budget.
 - Consider [subscribing to anomaly alerts](https://learn.microsoft.com/azure/cost-management-billing/understand/analyze-unexpected-charges.md#create-an-anomaly-alert) for each subscription to ensure everyone is aware of anomalies as they're identified.
 
@@ -98,12 +99,12 @@ Consider reviewing forecasts monthly or quarterly to ensure you remain on track 
 
 <br>
 
-## Building on the basics
+## 🏗️ Building on the basics
 
 At this point, you have a manual process for generating a forecast. As you move beyond the basics, consider the following points:
 
 - Expand coverage of your forecast calculations to include all costs.
-- If ingesting cost data into a separate system, use or introduce a forecast capability that spans all of your cost data. Consider using [Automated Machine Learning (AutoML)](https://learn.microsoft.com/azure/machine-learning/how-to-auto-train-forecast.md) to minimize your effort.
+- If ingesting cost data into a separate system, use or introduce a forecast capability that spans all of your cost data. Consider using [Automated Machine Learning (AutoML)](https://learn.microsoft.com/azure/machine-learning/how-to-auto-train-forecast) to minimize your effort.
 - Integrate forecast projections into internal budgeting tools.
 - Automate cost variance detection and mitigation.
   - Implement automated processes to identify and address cost variances in real-time.
@@ -122,20 +123,28 @@ At this point, you have a manual process for generating a forecast. As you move 
 
 <br>
 
-## Learn more at the FinOps Foundation
+## 🍎 Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Forecasting capability](https://www.finops.org/framework/capabilities/forecasting) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
 <!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.md title="Forecasting videos" id="MC5erhroC6W7gedh" list="PLUSCToibAswkduSzBonLR4Btu4ogHNDSv" %}
+{% include video.html title="Forecasting videos" id="MC5erhroC6W7gedh" list="PLUSCToibAswkduSzBonLR4Btu4ogHNDSv" %}
 
 <br>
 
-## Next steps
+## ⏩ Next steps
 
 - [Budget management](./budgeting.md)
 - [Managing commitment-based discounts](../optimize/commitment-discounts.md)
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md bicep="1" data="0" gov="0" hubs="1" opt="0" pbi="1" ps="0" %}
 
 <br>

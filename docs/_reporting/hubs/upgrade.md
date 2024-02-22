@@ -1,7 +1,7 @@
 ---
 layout: default
 parent: FinOps hubs
-title: Upgrade
+title: Upgrade guide
 nav_order: 30
 description: 'Upgrade an existing FinOps hub instance to the latest version.'
 permalink: /hubs/upgrade

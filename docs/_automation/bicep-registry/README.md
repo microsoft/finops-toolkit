@@ -11,7 +11,7 @@ permalink: /bicep
 Leverage reusable bicep modules in your templates to accelerate your FinOps efforts.
 {: .fs-6 .fw-300 }
 
-[Modules](#-install-the-module){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Use bicep](#-referencing-bicep-modules){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
@@ -70,7 +70,7 @@ Creates an [export](https://learn.microsoft.com/rest/api/cost-management/exports
 We'd love to hear about any modules or templates you're looking for. Vote up (👍) existing ideas or create a new issue to suggest a new idea. We'll focus on ideas with the most votes.
 
 [Vote on ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+label%3A%22Solution%3A+Bicep+Registry%22+sort%3Areactions-%2B1-desc){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-[Suggest an idea](https://github.com/microsoft/finops-toolkit/issues/new/choose){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Suggest an idea](https://aka.ms/ftk/idea){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 

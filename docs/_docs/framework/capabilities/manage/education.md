@@ -21,10 +21,10 @@ This article helps you understand the FinOps education and enablement capability
 <details open markdown="1">
   <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Getting started](#getting-started)
-- [Building on the basics](#building-on-the-basics)
-- [Learn more at the FinOps Foundation](#learn-more-at-the-finops-foundation)
-- [Next steps](#next-steps)
+- [▶️ Getting started](#️-getting-started)
+- [🏗️ Building on the basics](#️-building-on-the-basics)
+- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
+- [⏩ Next steps](#-next-steps)
 
 </details>
 
@@ -48,7 +48,7 @@ By formalizing FinOps education and enablement, stakeholders develop the knowled
 
 <br>
 
-## Getting started
+## ▶️ Getting started
 
 Implementing a plan for FinOps education and enablement is like most other training and development efforts. Consider the following points:
 
@@ -70,7 +70,7 @@ Implementing a plan for FinOps education and enablement is like most other train
 
 <br>
 
-## Building on the basics
+## 🏗️ Building on the basics
 
 At this point, you have a central repository for training content and targeted initiatives to drive awareness and encourage collaboration. As you move beyond the basics, consider the following points:
 
@@ -83,20 +83,32 @@ At this point, you have a central repository for training content and targeted i
 
 <br>
 
-## Learn more at the FinOps Foundation
+## 🍎 Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [FinOps education and enablement capability](https://www.finops.org/framework/capabilities/education-enablement/) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
 <!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.md title="FinOps education and enablement videos" id="q5R582G-fTvpQihE" list="PLUSCToibAswlxVgiIoTvTYwIJTXCxO3k4" %}
+{% include video.html title="FinOps education and enablement videos" id="q5R582G-fTvpQihE" list="PLUSCToibAswlxVgiIoTvTYwIJTXCxO3k4" %}
 
 <br>
 
-## Next steps
+## ⏩ Next steps
+
+Related FinOps capabilities:
 
 - [Establishing a FinOps decision and accountability structure](./structure.md)
 - [Establishing a FinOps culture](./culture.md)
 
 <br>
+
+<!--
+---
+
+## 🧰 Related tools
+
+{ % include tools.md bicep="0" data="0" gov="0" hubs="1" opt="0" pbi="1" ps="0" %}
+
+<br>
+-->

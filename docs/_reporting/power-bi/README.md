@@ -30,7 +30,7 @@ Accelerate your analytics efforts with simple, targeted reports. Summarize and b
 <!-- markdownlint-disable-line --> {% include_relative _intro.md %}
 
 <blockquote class="note" markdown="1">
-   _As of FinOps toolkit 0.2, all reports have been updated to use the FinOps Open Cost and Usage Specification (FOCUS). To learn more, see [About FOCUS](../focus/README.md)._
+   _As of FinOps toolkit 0.2, all reports have been updated to use the FinOps Open Cost and Usage Specification (FOCUS). To learn more, see [About FOCUS](../../_docs/focus/README.md)._
 </blockquote>
 
 <br>
@@ -106,7 +106,7 @@ In general, we recommend starting with the Cost Management connector when gettin
 | Supports >$65M in cost details                      |                ❌                 |                ❌                 |             🔜 (0.4)              |              ✅               |
 | Analytical engine                                   |                ❌                 |                ❌                 |             🔜 (0.4)              |              ✅               |
 | Accessible outside of Power BI                      |                ❌                 |                ✅                 |                ✅                 |              ✅               |
-| Learn more                                          |  [Learn more][about-connector]   |                                  |     [Learn more][about-hubs]     |
+| Learn more                                          |  [Learn more][about-connector]   |                                  |     [Learn more][about-hubs]     |                              |
 
 [about-connector]: https://aka.ms/costmgmt/powerbi
 [about-hubs]: ../hubs/README.md
@@ -154,7 +154,7 @@ For more details, see [How to setup Power BI](./setup.md).
 
 We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
 
-[Share feedback](https://github.com/microsoft/finops-toolkit/issues/new/choose){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Share feedback](https://aka.ms/ftk/idea){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 

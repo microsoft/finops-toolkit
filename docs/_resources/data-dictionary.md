@@ -39,12 +39,14 @@ See also:
 - [Feedback about FOCUS columns](#-feedback-about-focus-columns)
 - [Cost Management data dictionary](https://learn.microsoft.com/azure/cost-management-billing/automate/understand-usage-details-fields)
 - [Common terms](./terms.md)
+- [Cost Management data dictionary](https://learn.microsoft.com/azure/cost-management-billing/automate/understand-usage-details-fields)
+- [FinOps Open Cost and Usage Specification (FOCUS)](../_docs/focus/README.md)
 
 </details>
 
 ---
 
-Most of the columns in FinOps toolkit solutions originate in Cost Management or the FinOps Open Cost and Usage Specification (FOCUS). Below is a list of all columns you can expect to see in our solutions. For simplicity, the data dictionary does not include the `x_` prefix used to denote non-FOCUS columns, so `x_AccountName` is listed under `AccountName`.
+Most of the columns in FinOps toolkit solutions originate in Cost Management or the FinOps Open Cost and Usage Specification (FOCUS). Below is a list of all columns you can expect to see in our solutions. For simplicity, the data dictionary does not include the `x_` prefix used to denote "external" or non-FOCUS columns, so `x_AccountName` is listed under `AccountName`.
 
 <!--
 Columns to add:

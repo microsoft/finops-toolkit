@@ -15,8 +15,9 @@ Collect, normalize, and analyze cloud spending and usage across the organization
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Capabilities](#capabilities)
-- [Next steps](#next-steps)
+- [📝 Capabilities](#-capabilities)
+- [⏩ Next steps](#-next-steps)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -24,7 +25,7 @@ Collect, normalize, and analyze cloud spending and usage across the organization
 
 <br>
 
-## Capabilities
+## 📝 Capabilities
 
 - [Data ingestion and normalization](./understand/ingestion.md)
 - [Cost allocation](./understand/allocation.md)
@@ -35,12 +36,22 @@ Collect, normalize, and analyze cloud spending and usage across the organization
 
 <br>
 
-## Next steps
+## ⏩ Next steps
+
+Related FinOps capabilities:
 
 - [Performance tracking + benchmarking](../quantify/README.md#performance-tracking-and-benchmarking)
 - [Real-time decision making](../quantify/README.md#real-time-decision-making)
 - [Rate optimization](../optimize/README.md#rate-optimization)
 - [Usage optimization](../optimize/README.md#usage-optimization)
 - [Organizational alignment](../manage/README.md)
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md bicep="0" data="0" gov="0" hubs="1" opt="0" pbi="1" ps="0" %}
 
 <br>

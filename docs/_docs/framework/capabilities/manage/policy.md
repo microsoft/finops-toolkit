@@ -21,10 +21,11 @@ This article helps you understand the cloud policy and governance capability wit
 <details open markdown="1">
   <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Getting started](#getting-started)
-- [Building on the basics](#building-on-the-basics)
-- [Learn more at the FinOps Foundation](#learn-more-at-the-finops-foundation)
-- [Next steps](#next-steps)
+- [▶️ Getting started](#️-getting-started)
+- [🏗️ Building on the basics](#️-building-on-the-basics)
+- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
+- [⏩ Next steps](#-next-steps)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -42,12 +43,12 @@ Implementing a policy and governance strategy enables organizations to sustainab
 
 <br>
 
-## Getting started
+## ▶️ Getting started
 
 When you first start managing cost in the cloud, you use the native compliance tracking and enforcement tools.
 
 - Review your existing FinOps processes to identify opportunities for policy to automate enforcement. Some examples:
-  - [Enforce your tagging strategy](https://learn.microsoft.com/azure/governance/policy/tutorials/govern-tags.md) to support different capabilities, like:
+  - [Enforce your tagging strategy](https://learn.microsoft.com/azure/governance/policy/tutorials/govern-tags) to support different capabilities, like:
     - Organizational reporting hierarchy tags for [cost allocation](../understand/allocation.md).
     - Financial reporting tags for [chargeback](./invoicing-chargeback.md).
     - Environment and application tags for [workload management](../optimize/workloads.md).
@@ -57,14 +58,14 @@ When you first start managing cost in the cloud, you use the native compliance t
   - Implementation of cost recommendations and unused resources for [utilization and efficiency](../optimize/utilization-efficiency.md).
   - Application of Azure Hybrid Benefit for [utilization and efficiency](../optimize/utilization-efficiency.md).
   - Monitor [commitment-based discounts](../optimize/commitment-discounts.md) coverage.
-- Identify what policies can be automated through [Azure Policy](https://learn.microsoft.com/azure/governance/policy/overview.md) and which need other tooling.
-- Review and [implement built-in policies](https://learn.microsoft.com/azure/governance/policy/assign-policy-portal.md) that align with your needs and goals.
+- Identify what policies can be automated through [Azure Policy](https://learn.microsoft.com/azure/governance/policy/overview) and which need other tooling.
+- Review and [implement built-in policies](https://learn.microsoft.com/azure/governance/policy/assign-policy-portal) that align with your needs and goals.
 - Start small with audit policies and expand slowly (and safely) to ensure engineering efforts aren't negatively impacted.
   - Test rules before you roll them out and consider a staged rollout where each stage has enough time to get used and garner feedback. Start small.
 
 <br>
 
-## Building on the basics
+## 🏗️ Building on the basics
 
 At this point, you have a basic set of policies in place that are being managed across the organization. As you move beyond the basics, consider the following points:
 
@@ -73,24 +74,34 @@ At this point, you have a basic set of policies in place that are being managed 
 - Expand coverage of more scenarios.
   - Consider evaluating ways to quantify the impact of each rule in cost and/or business value.
 - Integrate policy and governance into every conversation to establish a plan for how you want to automate the tracking and application of new policies.
-- Consider advanced governance scenarios outside of Azure Policy. Build monitoring solutions using systems like [Power Automate](https://learn.microsoft.com/power-automate/getting-started) or [Logic Apps](https://learn.microsoft.com/azure/logic-apps/logic-apps-overview.md).
+- Consider advanced governance scenarios outside of Azure Policy. Build monitoring solutions using systems like [Power Automate](https://learn.microsoft.com/power-automate/getting-started) or [Logic Apps](https://learn.microsoft.com/azure/logic-apps/logic-apps-overview).
 
 <br>
 
-## Learn more at the FinOps Foundation
+## 🍎 Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Cloud policy and governance capability](https://www.finops.org/framework/capabilities/policy-governance/) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
 <!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.md title="Cloud policy and governance videos" id="wxYMbhhA51dZNrky" list="PLUSCToibAswk2tx4PuWlztgSK9DZpL04b" %}
+{% include video.html title="Cloud policy and governance videos" id="wxYMbhhA51dZNrky" list="PLUSCToibAswk2tx4PuWlztgSK9DZpL04b" %}
 
 <br>
 
-## Next steps
+## ⏩ Next steps
+
+Related FinOps capabilities:
 
 - [Establishing a FinOps culture](./culture.md)
 - [Workload management and automation](../optimize/workloads.md)
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md bicep="0" data="0" gov="1" hubs="0" opt="0" pbi="0" ps="0" %}
 
 <br>

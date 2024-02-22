@@ -21,10 +21,11 @@ This article helps you understand the cost allocation capability within the FinO
 <details open markdown="1">
   <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Getting started](#getting-started)
-- [Building on the basics](#building-on-the-basics)
-- [Learn more at the FinOps Foundation](#learn-more-at-the-finops-foundation)
-- [Next steps](#next-steps)
+- [▶️ Getting started](#️-getting-started)
+- [🏗️ Building on the basics](#️-building-on-the-basics)
+- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
+- [⏩ Next steps](#-next-steps)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -42,17 +43,17 @@ Cost allocation is the foundational element of cost accountability and enables o
 
 <br>
 
-## Getting started
+## ▶️ Getting started
 
-When you first start managing cost in the cloud, you use the native "allocation" tools to organize subscriptions and resources to align to your primary organizational reporting structure. For anything beyond it, [tags](https://learn.microsoft.com/azure/azure-resource-manager/management/tag-resources.md) can augment cloud resources and their usage to add business context, which is critical for any cost allocation strategy.
+When you first start managing cost in the cloud, you use the native "allocation" tools to organize subscriptions and resources to align to your primary organizational reporting structure. For anything beyond it, [tags](https://learn.microsoft.com/azure/azure-resource-manager/management/tag-resources) can augment cloud resources and their usage to add business context, which is critical for any cost allocation strategy.
 
 Cost allocation is usually an afterthought and requires some level of cleanup when introduced. You need a plan to implement your cost allocation strategy. We recommend outlining that plan first to get alignment and possibly prototyping on a small scale to demonstrate the value.
 
 - Decide how you want to manage access to the cloud.
   - At what level in the organization do you want to centrally provision access to the cloud: Departments, teams, projects, or applications? High levels require more governance and low levels require more management.
-  - What [cloud scope](https://learn.microsoft.com/azure/cost-management-billing/costs/understand-work-scopes.md) do you want to provision for this level?
+  - What [cloud scope](https://learn.microsoft.com/azure/cost-management-billing/costs/understand-work-scopes) do you want to provision for this level?
     - Billing scopes are used for to organize costs between and within invoices.
-    - [Management groups](https://learn.microsoft.com/azure/governance/management-groups/overview.md) are used to organize costs for resource management. You can optimize management groups for policy assignment or organizational reporting.
+    - [Management groups](https://learn.microsoft.com/azure/governance/management-groups/overview) are used to organize costs for resource management. You can optimize management groups for policy assignment or organizational reporting.
     - Subscriptions provide engineers with the most flexibility to build the solutions they need but can also come with more management and governance requirements due to this freedom.
     - Resource groups enable engineers to deploy some solutions but may require more support when solutions require multiple resource groups or options to be enabled at the subscription level.
 - How do you want to use management groups?
@@ -68,9 +69,9 @@ Cost allocation is usually an afterthought and requires some level of cleanup wh
   - Clearly communicate tagging guidelines to all stakeholders.
 - Once defined, it's time to implement your cost allocation strategy.
   - Consider a top-down approach that prioritizes getting departmental costs in place before optimizing at the lowest project and environment level. You may want to implement it in phases, depending on how broad and deep your organization is.
-  - Enable [tag inheritance in Cost Management](https://learn.microsoft.com/azure/cost-management-billing/costs/enable-tag-inheritance.md) to copy subscription and resource group tags in cost data only. It doesn't change tags on your resources.
-  - Use Azure Policy to [enforce your tagging strategy](https://learn.microsoft.com/azure/azure-resource-manager/management/tag-policies.md), automate the application of tags at scale, and track compliance status. Use compliance as a KPI for your tagging strategy.
-  - If you need to move costs between subscriptions, resource groups, or add or change tags, [configure allocation rules in Cost Management](https://learn.microsoft.com/azure/cost-management-billing/costs/allocate-costs.md). Cost allocation is covered in detail at [Managing shared costs](./shared-cost.md).
+  - Enable [tag inheritance in Cost Management](https://learn.microsoft.com/azure/cost-management-billing/costs/enable-tag-inheritance) to copy subscription and resource group tags in cost data only. It doesn't change tags on your resources.
+  - Use Azure Policy to [enforce your tagging strategy](https://learn.microsoft.com/azure/azure-resource-manager/management/tag-policies), automate the application of tags at scale, and track compliance status. Use compliance as a KPI for your tagging strategy.
+  - If you need to move costs between subscriptions, resource groups, or add or change tags, [configure allocation rules in Cost Management](https://learn.microsoft.com/azure/cost-management-billing/costs/allocate-costs). Cost allocation is covered in detail at [Managing shared costs](./shared-cost.md).
   - Consider [grouping related resources together with the “cm-resource-parent” tag](https://learn.microsoft.com/azure/cost-management-billing/costs/group-filter.md#group-related-resources-in-the-resources-view) to view costs together in Cost analysis.
   - Distribute responsibility for any remaining change to scale out and drive efficiencies.
 - Make note of any unallocated costs or costs that should be split but couldn't be. You cover it as part of [Managing shared costs](./shared-cost.md).
@@ -81,7 +82,7 @@ Keep in mind that tagging takes time to apply, review, and clean up. Expect to g
 
 <br>
 
-## Building on the basics
+## 🏗️ Building on the basics
 
 At this point, you have a cost allocation strategy with detailed cloud management and tagging requirements. Tagging should be automatically enforced or at least tracked with compliance KPIs. As you move beyond the basics, consider the points:
 
@@ -97,20 +98,30 @@ At this point, you have a cost allocation strategy with detailed cloud managemen
 
 <br>
 
-## Learn more at the FinOps Foundation
+## 🍎 Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Cost allocation (metadata & hierarchy) capability](https://www.finops.org/framework/capabilities/cost-allocation/) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
 <!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.md title="Cost allocation (metadata & hierarchy) videos" id="n1TZmZG562F4_VSy" list="PLUSCToibAswmQicVCOwicTWHGjB3ykikr" %}
+{% include video.html title="Cost allocation (metadata & hierarchy) videos" id="n1TZmZG562F4_VSy" list="PLUSCToibAswmQicVCOwicTWHGjB3ykikr" %}
 
 <br>
 
-## Next steps
+## ⏩ Next steps
+
+Related FinOps capabilities:
 
 - [Data analysis and showback](./reporting.md)
 - [Managing shared costs](./shared-cost.md)
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md bicep="0" data="0" gov="0" hubs="1" opt="0" pbi="1" ps="0" %}
 
 <br>

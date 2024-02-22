@@ -77,8 +77,8 @@ Please ensure the following prerequisites are met before deploying this template
 | **hubName**      | String | Optional. Name of the hub. Used to ensure unique resource names.                                                                                                                  | `"finops-hub"`            |
 | **location**     | String | Optional. Azure location where all resources should be created. See https://aka.ms/azureregions.                                                                                  | (resource group location) |
 | **storageSku**   | String | Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: `Premium_LRS`, `Premium_ZRS`. | `Premium_LRS`             |
-| **tags**         | Object | Optional. Tags to apply to all resources. We will also add the `cm-resource-parent` tag for improved cost roll-ups in Cost Management.                                            |
-| **exportScopes** | Array  | Optional. List of scope IDs to create exports for.                                                                                                                                |
+| **tags**         | Object | Optional. Tags to apply to all resources. We will also add the `cm-resource-parent` tag for improved cost roll-ups in Cost Management.                                            |                           |
+| **exportScopes** | Array  | Optional. List of scope IDs to create exports for.                                                                                                                                |                           |
 
 <br>
 
@@ -92,7 +92,9 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
   - Blob containers:
     - `msexports` – Temporarily stores Cost Management exports.
     - `ingestion` – Stores ingested data.
-      > ℹ️ _In the future, we will use this container to stage external data outside of Cost Management._
+      <blockquote class="note" markdown="1">
+        _In the future, we will use this container to stage external data outside of Cost Management._
+      </blockquote>
     - `config` – Stores hub metadata and configuration settings. Files:
       - `settings.json` – Hub settings.
 - `<hubName>-engine-<unique-suffix>` Data Factory instance

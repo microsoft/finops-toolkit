@@ -23,9 +23,9 @@ Explore the different options to deploy FinOps toolkit solutions. Deploy from th
 
 The FinOps toolkit includes multiple ARM templates. Prerequisites, parameters, and post-deployment setup steps differ per template. Please refer to the template details for more information:
 
-- [FinOps hub](../finops-hub/template.md)
-- [Optimization workbook](../optimization-workbook/README.md)
-- [Governance workbook](../governance-workbook/README.md)
+- [FinOps hub](../_reporting/hubs/template.md)
+- [Optimization workbook](../_workbooks/optimization-workbook/README.md)
+- [Governance workbook](../_workbooks/governance-workbook/README.md)
 
 Note Bicep Registry modules can be referenced directly from your Bicep code and are not deployed using the steps below.
 
@@ -33,30 +33,34 @@ Note Bicep Registry modules can be referenced directly from your Bicep code and 
 
 ## 🗺️ Where to find FinOps toolkit templates
 
+- Deploy from this site (links below).
 - Deploy from [Microsoft Learn code samples](https://learn.microsoft.com/samples/browse/?terms=finops).
 - Deploy from [Azure Quickstart Templates](https://github.com/Azure/azure-quickstart-templates/tree/master/quickstarts/microsoft.costmanagement).
 - Download from [FinOps toolkit releases](https://github.com/microsoft/finops-toolkit/releases).
 - Include in your bicep modules from the [Bicep Registry](https://azure.github.io/bicep-registry-modules/#cost).
 
 <blockquote class="highlight" markdown="1">
-  💡 _Have an idea? Are we missing anything? [Let us know!](https://github.com/microsoft/finops-toolkit/issues/new/choose)_
+  💡 _Are we missing anywhere? [Let us know!](https://aka.ms/ftk/idea)_
 </blockquote>
 
 <br>
 
 ## 🚀 Deploy a FinOps toolkit template
 
-1. Open the desired template:
-   - [FinOps hub](https://learn.microsoft.com/samples/azure/azure-quickstart-templates/finops-hub)
-   - [Optimization workbook](https://learn.microsoft.com/samples/azure/azure-quickstart-templates/optimization-workbook)
-   - [Governance workbook](https://learn.microsoft.com/samples/azure/azure-quickstart-templates/governance-workbook)
-2. Select the **Deploy to Azure** button towards the top of the page.
-3. Specify the desired values for each parameter. See the template details for more information.
+1. Select the **Deploy to Azure** button for the desired template:
+
+   | Template                                                               | Azure Commercial                                                      | Azure Gov                                                          | Azure China                                                          |
+   | ---------------------------------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------ | -------------------------------------------------------------------- |
+   | [FinOps hub](../_reporting/hubs/README.md)                             | {% include deploy.html template="finops-hub" public="1" %}            | {% include deploy.html template="finops-hub" gov="1" %}            | {% include deploy.html template="finops-hub" china="1" %}            |
+   | [Optimization workbook](../_workbooks/optimization-workbook/README.md) | {% include deploy.html template="optimization-workbook" public="1" %} | {% include deploy.html template="optimization-workbook" gov="1" %} | {% include deploy.html template="optimization-workbook" china="1" %} |
+   | [Governance workbook](../_workbooks/governance-workbook/README.md)     | {% include deploy.html template="governance-workbook" public="1" %}   | {% include deploy.html template="governance-workbook" gov="1" %}   | {% include deploy.html template="governance-workbook" china="1" %}   |
+
+2. Specify the desired values for each parameter. See the template details for more information.
    <blockquote class="tip" markdown="1">
      _Use the **Edit parameters** link to use a saved parameters file or to download a new parameters file for future use._
    </blockquote>
-4. Select the **Review + create** button.
-5. Select the **Create** button.
+3. Select the **Review + create** button.
+4. Select the **Create** button.
 
 ![Screenshot of the FinOps hub create form](https://github.com/microsoft/finops-toolkit/assets/399533/80257886-41d3-402d-8756-c3eaced7a19b)
 

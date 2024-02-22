@@ -20,11 +20,12 @@ This article helps you understand the managing shared cost capability within the
 <details open markdown="1">
   <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Before you begin](#before-you-begin)
-- [Getting started](#getting-started)
-- [Building on the basics](#building-on-the-basics)
-- [Learn more at the FinOps Foundation](#learn-more-at-the-finops-foundation)
-- [Next steps](#next-steps)
+- [✋ Before you begin](#-before-you-begin)
+- [▶️ Getting started](#️-getting-started)
+- [🏗️ Building on the basics](#️-building-on-the-basics)
+- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
+- [⏩ Next steps](#-next-steps)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -40,7 +41,7 @@ Effectively managing shared costs reduces overhead, increases transparency and a
 
 <br>
 
-## Before you begin
+## ✋ Before you begin
 
 Before you start, it's important to have a clear understanding of your organization's goals and priorities when it comes to managing shared costs. Keep in mind that not all shared costs may need to be redistributed, and some are more effectively managed with other means. Carefully evaluate each shared cost to determine the most appropriate approach for your organization.
 
@@ -48,7 +49,7 @@ This guide doesn't cover commitment-based discounts, like reservations and savin
 
 <br>
 
-## Getting started
+## ▶️ Getting started
 
 When you first start managing cost in the cloud, you use the native allocation tools to manage shared costs. Start by identifying shared costs and how they should be handled.
 
@@ -63,17 +64,17 @@ When you first start managing cost in the cloud, you use the native allocation t
   - Database services, like Cosmos DB and SQL databases.
   - Collaboration and productivity tools, like Microsoft 365.
 - Contact stakeholders who are responsible for the potentially shared services. Make sure they understand if the shared services are shared and how costs are allocated today. If not accounted for, how allocation could or should be done.
-- Use [cost allocation rules in Microsoft Cost Management](https://learn.microsoft.com/azure/cost-management-billing/costs/allocate-costs.md) to redistribute shared costs based on static percentages or compute, network, or storage costs.
+- Use [cost allocation rules in Microsoft Cost Management](https://learn.microsoft.com/azure/cost-management-billing/costs/allocate-costs) to redistribute shared costs based on static percentages or compute, network, or storage costs.
 - Regularly review and update allocation rules to ensure they remain accurate and fair.
 
 <br>
 
-## Building on the basics
+## 🏗️ Building on the basics
 
 At this point, your simple cost allocation scenarios may be addressed. You're left with more complicated scenarios that require more effort to accurately quantify and redistribute. As you move beyond the basics, consider the following points:
 
 - Establish and track common KPIs, like the percentage of unallocated shared costs.
-- Use utilization data from [Azure Monitor metrics](https://learn.microsoft.com/azure/azure-monitor/essentials/data-platform-metrics.md) where possible to understand service usage.
+- Use utilization data from [Azure Monitor metrics](https://learn.microsoft.com/azure/azure-monitor/essentials/data-platform-metrics) where possible to understand service usage.
 - Consider using application telemetry to quantify the distribution of shared costs. It's discussed more in [Measuring unit costs](../quantify/unit-economics.md).
 - Automate the process of identifying the percentage breakdown of shared costs and consider using allocation rules in Cost Management to redistribute the costs.
 - Automate cost allocation rules to update their respective percentages based on changing usage patterns.
@@ -83,21 +84,31 @@ At this point, your simple cost allocation scenarios may be addressed. You're le
 
 <br>
 
-## Learn more at the FinOps Foundation
+## 🍎 Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Managing shared cost](https://www.finops.org/framework/capabilities/manage-shared-cloud-cost/) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
 <!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.md title="Managing shared cost videos" id="JcYoq8LdWpmv5NdH" list="PLUSCToibAswkwFlxjOE6BL-IBbs9nby5z" %}
+{% include video.html title="Managing shared cost videos" id="JcYoq8LdWpmv5NdH" list="PLUSCToibAswkwFlxjOE6BL-IBbs9nby5z" %}
 
 <br>
 
-## Next steps
+## ⏩ Next steps
+
+Related FinOps capabilities:
 
 - [Data analysis and showback](./reporting.md)
 - [Chargeback and finance integration](../manage/invoicing-chargeback.md)
 - [Measuring unit costs](../quantify/unit-economics.md)
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md bicep="0" data="0" gov="0" hubs="1" opt="0" pbi="1" ps="0" %}
 
 <br>

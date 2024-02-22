@@ -21,10 +21,10 @@ This article helps you understand the Establishing a FinOps culture capability w
 <details open markdown="1">
   <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Getting started](#getting-started)
-- [Building on the basics](#building-on-the-basics)
-- [Learn more at the FinOps Foundation](#learn-more-at-the-finops-foundation)
-- [Next steps](#next-steps)
+- [▶️ Getting started](#️-getting-started)
+- [🏗️ Building on the basics](#️-building-on-the-basics)
+- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
+- [⏩ Next steps](#-next-steps)
 
 </details>
 
@@ -42,7 +42,7 @@ Establishing a FinOps culture gets the entire organization moving in the same di
 
 <br>
 
-## Getting started
+## ▶️ Getting started
 
 When you first start, not all stakeholders are familiar with what FinOps is and their role within it. Consider the following to get off the ground:
 
@@ -63,7 +63,7 @@ When you first start, not all stakeholders are familiar with what FinOps is and 
 
 <br>
 
-## Building on the basics
+## 🏗️ Building on the basics
 
 At this point, you have a steering committee that has early wins under its belt with basic support from the core stakeholder groups. As you move beyond the basics, consider the following points:
 
@@ -76,21 +76,33 @@ At this point, you have a steering committee that has early wins under its belt 
 
 <br>
 
-## Learn more at the FinOps Foundation
+## 🍎 Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Establishing a FinOps culture capability](https://www.finops.org/framework/capabilities/establish-finops-culture/) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
 <!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.md title="Establishing a FinOps culture videos" id="UCYaEsPRPl_ADMuf" list="PLUSCToibAswmpT97lQBmVo4-lH9u1qpOw" %}
+{% include video.html title="Establishing a FinOps culture videos" id="UCYaEsPRPl_ADMuf" list="PLUSCToibAswmpT97lQBmVo4-lH9u1qpOw" %}
 
 <br>
 
-## Next steps
+## ⏩ Next steps
+
+Related FinOps capabilities:
 
 - [Establishing a FinOps decision and accountability structure](./structure.md)
 - [Cloud policy and governance](./policy.md)
 - [FinOps education and enablement](./education.md)
 
 <br>
+
+<!--
+---
+
+## 🧰 Related tools
+
+{ % include tools.md hubs="1" %}
+
+<br>
+-->

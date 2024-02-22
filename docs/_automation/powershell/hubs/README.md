@@ -34,6 +34,9 @@ The FinOps hubs PowerShell commands help you deploy and manage FinOps hubs insta
 
 - [Deploy-FinOpsHub](Deploy-FinOpsHub.md) – Deploy your first hub or update to the latest version.
 - [Get-FinOpsHub](Get-FinOpsHub.md) – Get details about your FinOps hub instance.
+- [Initialize-FinOpsHubDeployment](Initialize-FinOpsHubDeployment.md) – Initializes the deployment for FinOps hubs.
+- [Register-FinOpsHubProviders](Register-FinOpsHubProviders.md) – Registers resource providers for FinOps hubs.
+- [Remove-FinOpsHub](Remove-FinOpsHub.md) – Deletes a FinOps hub instance.
 
 <br>
 
@@ -42,7 +45,7 @@ The FinOps hubs PowerShell commands help you deploy and manage FinOps hubs insta
 We'd love to hear about any commands or scripts you're looking for. Vote up (👍) existing ideas or create a new issue to suggest a new idea. We'll focus on ideas with the most votes.
 
 [Vote on ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+label%3A%22Area%3A+PowerShell%22+sort%3Areactions-%2B1-desc){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-[Suggest an idea](https://github.com/microsoft/finops-toolkit/issues/new/choose){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Suggest an idea](https://aka.ms/ftk/idea){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
