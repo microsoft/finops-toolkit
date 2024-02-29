@@ -757,7 +757,7 @@
                       {
                         "type": 1,
                         "content": {
-                          "json": "# Managed disks utilization"
+                          "json": "# Managed disk utilization"
                         },
                         "name": "text - 16"
                       },
