@@ -44,6 +44,8 @@ Get-FinOpsService `
     [[-ResourceType] <string>] `
     [-ServiceName <string>] `
     [-ServiceCategory <string>] `
+    [-ServiceModel <string>] `
+    [-Environment <string>] `
     [-PublisherName <string>] `
     [-PublisherCategory <string>]
 ```
@@ -52,15 +54,17 @@ Get-FinOpsService `
 
 ## 📥 Parameters
 
-| Name              | Description                                                                                                               |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| ConsumedService   | Optional. ConsumedService value from a Cost Management cost/usage details dataset. Accepts wildcards. Default = \* (all). |
-| ResourceId        | Optional. The Azure resource ID for resource you want to look up. Accepts wildcards. Default = \* (all).                  |
-| ResourceType      | Optional. The Azure resource type for the resource you want to find the service for. Default = null (all).                |
-| ServiceName       | Optional. The service name to find. Default = null (all).                                                                 |
-| ServiceCategory   | Optional. The service category to find services for. Default = null (all).                                                |
-| PublisherName     | Optional. The publisher name to find services for. Default = null (all).                                                  |
-| PublisherCategory | Optional. The publisher category to find services for. Default = null (all).                                              |
+| Name                 | Description                                                                                                               |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `‑ConsumedService`   | Optional. ConsumedService value from a Cost Management cost/usage details dataset. Accepts wildcards. Default = \* (all). |
+| `‑ResourceId`        | Optional. The Azure resource ID for resource you want to look up. Accepts wildcards. Default = \* (all).                  |
+| `‑ResourceType`      | Optional. The Azure resource type for the resource you want to find the service for. Default = null (all).                |
+| `‑ServiceName`       | Optional. The service name to find. Default = null (all).                                                                 |
+| `‑ServiceCategory`   | Optional. The service category to find services for. Default = null (all).                                                |
+| `‑Servicemodel`      | Optional. The service model the service aligns to. Expected values: IaaS, PaaS, SaaS. Default = null (all).               |
+| `‑Environment`       | Optional. The environment the service runs in. Expected values: Cloud, Hybrid. Default = null (all).                      |
+| `‑PublisherName`     | Optional. The publisher name to find services for. Default = null (all).                                                  |
+| `‑PublisherCategory` | Optional. The publisher category to find services for. Default = null (all).                                              |
 
 <br>
 

@@ -10,11 +10,12 @@ InModuleScope 'FinOpsToolkit' {
             {
                 Get-OpenDataService `
                 | Where-Object { $_.ConsumedService -like $ConsumedService -and $_.ResourceType -like $ResourceType } `
-                | Select-Object -Property ServiceCategory, ServiceName, PublisherName, PublisherType -Unique
+                | Select-Object -Property Environment, ServiceModel, ServiceCategory, ServiceName, PublisherName, PublisherType -Unique
             }
         }
         Context "No parameters" {
             BeforeAll {
+                [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "")]
                 $actual = Get-FinOpsService
             }
             It 'Should return all services by default' {
@@ -31,7 +32,7 @@ InModuleScope 'FinOpsToolkit' {
             It 'Should return Microsoft.A* wildcard ConsumedService matches' {
                 # Arrange
                 $filter = 'Microsoft.A*'
-                $expected = getAllServices $filter
+                $expected = getAllServices -ConsumedService $filter
 
                 # Act
                 $actual = Get-FinOpsService -ConsumedService $filter
@@ -47,6 +48,30 @@ InModuleScope 'FinOpsToolkit' {
 
                 # Act
                 $actual = Get-FinOpsService -ResourceType $filter
+
+                # Assert
+                $expected.Count | Should -BeGreaterThan 0
+                $actual.Count | Should -Be $expected.Count
+            }
+            It 'Should return H* wildcard Environment matches' {
+                # Arrange
+                $filter = 'H*'
+                $expected = getAllServices | Where-Object { $_.Environment -like $filter }
+
+                # Act
+                $actual = Get-FinOpsService -Environment $filter
+
+                # Assert
+                $expected.Count | Should -BeGreaterThan 0
+                $actual.Count | Should -Be $expected.Count
+            }
+            It 'Should return P* wildcard ServiceModel matches' {
+                # Arrange
+                $filter = 'P*'
+                $expected = getAllServices | Where-Object { $_.ServiceModel -like $filter }
+
+                # Act
+                $actual = Get-FinOpsService -ServiceModel $filter
 
                 # Assert
                 $expected.Count | Should -BeGreaterThan 0
