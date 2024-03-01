@@ -76,19 +76,30 @@ let
     Commitments = CommitmentUtilizationAmount,
 
     // Savings calculations
-    ListUnitPriceSavings     = Table.AddColumn(Commitments,              "x_ListUnitPriceSavings",     each [ListUnitPrice] - [x_EffectiveUnitPrice],       type number),
-    OnDemandUnitPriceSavings = Table.AddColumn(ListUnitPriceSavings,     "x_OnDemandUnitPriceSavings", each [x_OnDemandUnitPrice] - [x_EffectiveUnitPrice], type number),
-    CommitmentSavings        = Table.AddColumn(OnDemandUnitPriceSavings, "x_CommitmentSavings",        each if _isBlank([CommitmentDiscountCategory]) then 0 else [x_OnDemandCost] - [EffectiveCost], type number),
-    NegotiatedSavings        = Table.AddColumn(CommitmentSavings,        "x_NegotiatedSavings",        each [ListCost] - [x_OnDemandCost], type number),
-    DiscountSavings          = Table.AddColumn(NegotiatedSavings,        "x_DiscountSavings",          each [ListCost] - [EffectiveCost], type number),
-    Savings = DiscountSavings,
+    CommitmentUnitPriceSavings = Table.AddColumn(Commitments,                "x_CommitmentUnitPriceSavings", each if [x_OnDemandUnitPrice] > 0 and [x_OnDemandUnitPrice] >= [x_EffectiveUnitPrice] then [x_OnDemandUnitPrice] - [x_EffectiveUnitPrice] else null, type number),
+    NegotiatedUnitPriceSavings = Table.AddColumn(CommitmentUnitPriceSavings, "x_NegotiatedUnitPriceSavings", each if [ListUnitPrice]       > 0 and [ListUnitPrice]       >= [x_OnDemandUnitPrice]  then [ListUnitPrice]       - [x_OnDemandUnitPrice]  else null, type number),
+    DiscountUnitPriceSavings   = Table.AddColumn(NegotiatedUnitPriceSavings, "x_DiscountUnitPriceSavings",   each if [ListUnitPrice]       > 0 and [ListUnitPrice]       >= [x_EffectiveUnitPrice] then [ListUnitPrice]       - [x_EffectiveUnitPrice] else null, type number),
+    CommitmentCostSavings      = Table.AddColumn(DiscountUnitPriceSavings,   "x_CommitmentCostSavings",      each if _isBlank([CommitmentDiscountCategory]) then 0 else if [x_OnDemandCost] > 0 and [x_OnDemandCost] >= [EffectiveCost] then [x_OnDemandCost] - [EffectiveCost] else null, type number),
+    NegotiatedCostSavings      = Table.AddColumn(CommitmentCostSavings,      "x_NegotiatedCostSavings",      each if [ListCost]            > 0 and [ListCost]            >= [x_OnDemandCost]       then [ListCost]            - [x_OnDemandCost] else null, type number),
+    DiscountCostSavings        = Table.AddColumn(NegotiatedCostSavings,      "x_DiscountCostSavings",        each if [ListCost]            > 0 and [ListCost]            >= [EffectiveCost]        then [ListCost]            - [EffectiveCost]  else if [x_OnDemandCost] > 0 and [x_OnDemandCost] >= [EffectiveCost] then [x_OnDemandCost] - [EffectiveCost] else null, type number),
+    Savings = DiscountCostSavings,
 
     // Data cleansing
+    FreeReason = Table.AddColumn(Savings, "x_FreeReason", 
+        each if [BilledCost] <> 0.0 or [EffectiveCost] <> 0.0 then null
+        else if [PricingCategory] = "Commitment-Based" then "Unknown " & [ChargeSubcategory]
+        else if [x_BilledUnitPrice] = 0.0 and [x_EffectiveUnitPrice] = 0.0 and [x_OnDemandUnitPrice] = 0.0 and [ListUnitPrice] = 0.0 and _isBlank([CommitmentDiscountType]) then (
+            if Text.Contains([x_SkuDescription], "Trial") then "Trial" else if Text.Contains([x_SkuDescription], "Preview") then "Preview" else "Other"
+        )
+        else if [x_BilledUnitPrice] > 0.0 or [x_EffectiveUnitPrice] > 0.0 then (
+            if [PricingQuantity] > 0.0 then "Low Usage" else if [PricingQuantity] = 0.0 then "No Usage" else "Unknown Negative Quantity"
+        )
+        else "Unknown"),
     // TODO: BUG: SkuId == SkuPriceId for EA???
 
     // Unique names -- Must be after ResourceName cleanup and Commitment columns
 // TODO: Only add differentiators when the name is not unique
-    CommitmentDiscountNameUnique = Table.AddColumn(Savings,                      "CommitmentDiscountNameUnique", each if _isBlank([CommitmentDiscountId]) then null else [CommitmentDiscountName] & " (" & [CommitmentDiscountType] & ")"),
+    CommitmentDiscountNameUnique = Table.AddColumn(FreeReason,                   "CommitmentDiscountNameUnique", each if _isBlank([CommitmentDiscountId]) then null else [CommitmentDiscountName] & " (" & [CommitmentDiscountType] & ")"),
     ResourceNameUnique           = Table.AddColumn(CommitmentDiscountNameUnique, "ResourceNameUnique",           each if _isBlank([ResourceId])           then null else [ResourceName] & " (" & [ResourceType] & ")"),
     ResourceGroupNameUnique      = Table.AddColumn(ResourceNameUnique,           "x_ResourceGroupNameUnique",    each if _isBlank([x_ResourceGroupName])  then null else [x_ResourceGroupName] & " (" & [SubAccountName] & ")"),
     SubscriptionNameUnique       = Table.AddColumn(ResourceGroupNameUnique,      "SubAccountNameUnique",         each if _isBlank([SubAccountId])         then null else [SubAccountName] & " (" & _armResourceName([SubAccountId]) & ")"),

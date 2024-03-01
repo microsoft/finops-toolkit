@@ -26,6 +26,7 @@ Commitment discount chargeback, savings, and coverage.
 - [Purchases](#purchases)
 - [Hybrid Benefit](#hybrid-benefit)
 - [Prices](#prices)
+- [DQ](#dq)
 - [See also](#see-also)
 - [🙋‍♀️ Looking for more?](#️-looking-for-more)
 
@@ -191,6 +192,14 @@ The **Prices** page shows the prices for all products that were used with commit
 The chart shows a summary of the meters that were used the most.
 
 > ![Screenshot of the Prices page](https://github.com/microsoft/finops-toolkit/assets/399533/acb81d62-7860-4368-9374-25814f599f15)
+
+<br>
+
+## DQ
+
+The **Data quality** page shows some of the data used to calculate savings at a cost and unit price level. This can be helpful in understanding the data but also in identifying issues in Cost Management data that result in an incomplete picture of cost savings (e.g., missing price and cost values). If you are missing any data, please contact support to help raise the priority of these bugs in Cost Management.
+
+> ![Screenshot of the Data quality page](https://github.com/microsoft/finops-toolkit/assets/399533/5d43969e-6093-4f14-a535-6c4bc86659d2)
 
 <br>
 
