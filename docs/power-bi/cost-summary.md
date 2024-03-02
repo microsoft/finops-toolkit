@@ -233,8 +233,6 @@ The **Raw data** page shows a table with most columns to help you explore FOCUS 
 
 ## DQ
 
-<!-- NOTE: This page is duplicated in the commitment-discounts.md. Please keep both updated at the same time. -->
-
 The **Data quality** page is for data validation purposes only; however, it can be used to explore charge categories, pricing categories, services, and regions.
 
 > ![Screenshot of the Data quality page](https://github.com/microsoft/finops-toolkit/assets/399533/e4d52402-5b3c-48ea-816c-934b29b8fdc6)

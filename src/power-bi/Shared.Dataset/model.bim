@@ -8,7 +8,7 @@
       },
       {
         "name": "PBIDesktopVersion",
-        "value": "2.126.778.0 (24.02)"
+        "value": "2.126.929.0 (24.02)"
       },
       {
         "name": "PBI_QueryOrder",
@@ -1513,7 +1513,7 @@
                 "Definition": {
                   "Binding": {
                     "ConceptualEntity": "CostDetails",
-                    "ConceptualProperty": "x_CommitmentSavingsRunningTotal"
+                    "ConceptualProperty": "x_CommitmentCostSavingsRunningTotal"
                   }
                 },
                 "State": "Generated",
@@ -1817,7 +1817,7 @@
                 "Definition": {
                   "Binding": {
                     "ConceptualEntity": "CostDetails",
-                    "ConceptualProperty": "x_DiscountSavingsRunningTotal"
+                    "ConceptualProperty": "x_DiscountCostSavingsRunningTotal"
                   }
                 },
                 "State": "Generated",
@@ -2147,7 +2147,7 @@
                 "Definition": {
                   "Binding": {
                     "ConceptualEntity": "CostDetails",
-                    "ConceptualProperty": "x_NegotiatedSavingsRunningTotal"
+                    "ConceptualProperty": "x_NegotiatedCostSavingsRunningTotal"
                   }
                 },
                 "State": "Generated",
@@ -6907,10 +6907,6 @@
           {
             "name": "PBI_ResultType",
             "value": "Function"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "description": [
@@ -6997,19 +6993,30 @@
           "    Commitments = CommitmentUtilizationAmount,",
           "",
           "    // Savings calculations",
-          "    ListUnitPriceSavings     = Table.AddColumn(Commitments,              \"x_ListUnitPriceSavings\",     each [ListUnitPrice] - [x_EffectiveUnitPrice],       type number),",
-          "    OnDemandUnitPriceSavings = Table.AddColumn(ListUnitPriceSavings,     \"x_OnDemandUnitPriceSavings\", each [x_OnDemandUnitPrice] - [x_EffectiveUnitPrice], type number),",
-          "    CommitmentSavings        = Table.AddColumn(OnDemandUnitPriceSavings, \"x_CommitmentSavings\",        each if _isBlank([CommitmentDiscountCategory]) then 0 else [x_OnDemandCost] - [EffectiveCost], type number),",
-          "    NegotiatedSavings        = Table.AddColumn(CommitmentSavings,        \"x_NegotiatedSavings\",        each [ListCost] - [x_OnDemandCost], type number),",
-          "    DiscountSavings          = Table.AddColumn(NegotiatedSavings,        \"x_DiscountSavings\",          each [ListCost] - [EffectiveCost], type number),",
-          "    Savings = DiscountSavings,",
+          "    CommitmentUnitPriceSavings = Table.AddColumn(Commitments,                \"x_CommitmentUnitPriceSavings\", each if [x_OnDemandUnitPrice] > 0 and [x_OnDemandUnitPrice] >= [x_EffectiveUnitPrice] then [x_OnDemandUnitPrice] - [x_EffectiveUnitPrice] else null, type number),",
+          "    NegotiatedUnitPriceSavings = Table.AddColumn(CommitmentUnitPriceSavings, \"x_NegotiatedUnitPriceSavings\", each if [ListUnitPrice]       > 0 and [ListUnitPrice]       >= [x_OnDemandUnitPrice]  then [ListUnitPrice]       - [x_OnDemandUnitPrice]  else null, type number),",
+          "    DiscountUnitPriceSavings   = Table.AddColumn(NegotiatedUnitPriceSavings, \"x_DiscountUnitPriceSavings\",   each if [ListUnitPrice]       > 0 and [ListUnitPrice]       >= [x_EffectiveUnitPrice] then [ListUnitPrice]       - [x_EffectiveUnitPrice] else null, type number),",
+          "    CommitmentCostSavings      = Table.AddColumn(DiscountUnitPriceSavings,   \"x_CommitmentCostSavings\",      each if _isBlank([CommitmentDiscountCategory]) then 0 else if [x_OnDemandCost] > 0 and [x_OnDemandCost] >= [EffectiveCost] then [x_OnDemandCost] - [EffectiveCost] else null, type number),",
+          "    NegotiatedCostSavings      = Table.AddColumn(CommitmentCostSavings,      \"x_NegotiatedCostSavings\",      each if [ListCost]            > 0 and [ListCost]            >= [x_OnDemandCost]       then [ListCost]            - [x_OnDemandCost] else null, type number),",
+          "    DiscountCostSavings        = Table.AddColumn(NegotiatedCostSavings,      \"x_DiscountCostSavings\",        each if [ListCost]            > 0 and [ListCost]            >= [EffectiveCost]        then [ListCost]            - [EffectiveCost]  else if [x_OnDemandCost] > 0 and [x_OnDemandCost] >= [EffectiveCost] then [x_OnDemandCost] - [EffectiveCost] else null, type number),",
+          "    Savings = DiscountCostSavings,",
           "",
           "    // Data cleansing",
+          "    FreeReason = Table.AddColumn(Savings, \"x_FreeReason\", ",
+          "        each if [BilledCost] <> 0.0 or [EffectiveCost] <> 0.0 then null",
+          "        else if [PricingCategory] = \"Commitment-Based\" then \"Unknown \" & [ChargeSubcategory]",
+          "        else if [x_BilledUnitPrice] = 0.0 and [x_EffectiveUnitPrice] = 0.0 and [x_OnDemandUnitPrice] = 0.0 and [ListUnitPrice] = 0.0 and _isBlank([CommitmentDiscountType]) then (",
+          "            if Text.Contains([x_SkuDescription], \"Trial\") then \"Trial\" else if Text.Contains([x_SkuDescription], \"Preview\") then \"Preview\" else \"Other\"",
+          "        )",
+          "        else if [x_BilledUnitPrice] > 0.0 or [x_EffectiveUnitPrice] > 0.0 then (",
+          "            if [PricingQuantity] > 0.0 then \"Low Usage\" else if [PricingQuantity] = 0.0 then \"No Usage\" else \"Unknown Negative Quantity\"",
+          "        )",
+          "        else \"Unknown\"),",
           "    // TODO: BUG: SkuId == SkuPriceId for EA???",
           "",
           "    // Unique names -- Must be after ResourceName cleanup and Commitment columns",
           "// TODO: Only add differentiators when the name is not unique",
-          "    CommitmentDiscountNameUnique = Table.AddColumn(Savings,                      \"CommitmentDiscountNameUnique\", each if _isBlank([CommitmentDiscountId]) then null else [CommitmentDiscountName] & \" (\" & [CommitmentDiscountType] & \")\"),",
+          "    CommitmentDiscountNameUnique = Table.AddColumn(FreeReason,                   \"CommitmentDiscountNameUnique\", each if _isBlank([CommitmentDiscountId]) then null else [CommitmentDiscountName] & \" (\" & [CommitmentDiscountType] & \")\"),",
           "    ResourceNameUnique           = Table.AddColumn(CommitmentDiscountNameUnique, \"ResourceNameUnique\",           each if _isBlank([ResourceId])           then null else [ResourceName] & \" (\" & [ResourceType] & \")\"),",
           "    ResourceGroupNameUnique      = Table.AddColumn(ResourceNameUnique,           \"x_ResourceGroupNameUnique\",    each if _isBlank([x_ResourceGroupName])  then null else [x_ResourceGroupName] & \" (\" & [SubAccountName] & \")\"),",
           "    SubscriptionNameUnique       = Table.AddColumn(ResourceGroupNameUnique,      \"SubAccountNameUnique\",         each if _isBlank([SubAccountId])         then null else [SubAccountName] & \" (\" & _armResourceName([SubAccountId]) & \")\"),",
@@ -7624,10 +7631,6 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "columns": [
@@ -7676,13 +7679,10 @@
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
               }
             ],
             "dataType": "double",
+            "formatString": "#,0.00",
             "lineageTag": "a1fcba11-fcd9-45ff-bfc0-0dda3262d5af",
             "sourceColumn": "BilledCost",
             "summarizeBy": "sum"
@@ -7693,13 +7693,10 @@
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
               }
             ],
             "dataType": "double",
+            "formatString": "#,0.00",
             "lineageTag": "93c7a3c3-4c49-48ba-aa44-1f71b6059922",
             "sourceColumn": "ListCost",
             "summarizeBy": "sum"
@@ -7861,7 +7858,7 @@
               }
             ],
             "dataType": "double",
-            "formatString": "0.0",
+            "formatString": "#,0.00",
             "lineageTag": "13c25b5f-483d-4508-a5b6-24db10ae794f",
             "sourceColumn": "EffectiveCost",
             "summarizeBy": "sum"
@@ -7884,17 +7881,14 @@
             "annotations": [
               {
                 "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
+                "value": "User"
               }
             ],
             "dataType": "double",
+            "formatString": "0.000",
             "lineageTag": "db17aa29-c7bf-4038-b91d-716d3f8bc4de",
             "sourceColumn": "ListUnitPrice",
-            "summarizeBy": "sum"
+            "summarizeBy": "none"
           },
           {
             "name": "PricingCategory",
@@ -8032,13 +8026,10 @@
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
               }
             ],
             "dataType": "double",
+            "formatString": "#,0.000",
             "lineageTag": "b0fbed1b-c174-434f-84cb-37de9019f8dc",
             "sourceColumn": "UsageQuantity",
             "summarizeBy": "sum"
@@ -8101,13 +8092,10 @@
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
               }
             ],
             "dataType": "double",
+            "formatString": "#,0.00",
             "lineageTag": "da9d3926-ac4e-447a-a626-25196028cf67",
             "sourceColumn": "x_BilledCostInUsd",
             "summarizeBy": "sum"
@@ -8220,35 +8208,15 @@
             "summarizeBy": "none"
           },
           {
-            "name": "x_CommitmentSavings",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ],
-            "dataType": "double",
-            "lineageTag": "20fda1b2-05ca-4ae4-9f00-21b4a65c2090",
-            "sourceColumn": "x_CommitmentSavings",
-            "summarizeBy": "sum"
-          },
-          {
             "name": "x_CommitmentUtilizationAmount",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
               }
             ],
             "dataType": "double",
+            "formatString": "0.000",
             "lineageTag": "1fe73501-1602-48bb-b21c-243fd4209de1",
             "sourceColumn": "x_CommitmentUtilizationAmount",
             "summarizeBy": "sum"
@@ -8259,13 +8227,10 @@
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
               }
             ],
             "dataType": "double",
+            "formatString": "0.000",
             "lineageTag": "0860d85f-a24e-4866-be2a-91e21bd6eb73",
             "sourceColumn": "x_CommitmentUtilizationPotential",
             "summarizeBy": "sum"
@@ -8323,35 +8288,15 @@
             "summarizeBy": "none"
           },
           {
-            "name": "x_DiscountSavings",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ],
-            "dataType": "double",
-            "lineageTag": "0a886c85-3040-4df0-b1a2-6955c07f2e88",
-            "sourceColumn": "x_DiscountSavings",
-            "summarizeBy": "sum"
-          },
-          {
             "name": "x_EffectiveCostInUsd",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
               }
             ],
             "dataType": "double",
+            "formatString": "#,0.00",
             "lineageTag": "d456dce0-8883-46b1-b39d-660ae9afecaf",
             "sourceColumn": "x_EffectiveCostInUsd",
             "summarizeBy": "sum"
@@ -8396,52 +8341,15 @@
             "summarizeBy": "none"
           },
           {
-            "name": "x_ListUnitPriceSavings",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ],
-            "dataType": "double",
-            "lineageTag": "4de60dd2-b027-4f56-b1d9-a8ae1054b562",
-            "sourceColumn": "x_ListUnitPriceSavings",
-            "summarizeBy": "sum"
-          },
-          {
-            "name": "x_NegotiatedSavings",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ],
-            "dataType": "double",
-            "lineageTag": "7f63150a-96f8-4f52-971c-a08726cade44",
-            "sourceColumn": "x_NegotiatedSavings",
-            "summarizeBy": "sum"
-          },
-          {
             "name": "x_OnDemandCost",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
               }
             ],
             "dataType": "double",
+            "formatString": "#,0.00",
             "lineageTag": "49092568-6980-4826-9b69-1c741b612eb1",
             "sourceColumn": "x_OnDemandCost",
             "summarizeBy": "sum"
@@ -8451,34 +8359,14 @@
             "annotations": [
               {
                 "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
+                "value": "User"
               }
             ],
             "dataType": "double",
+            "formatString": "0.000",
             "lineageTag": "4437c884-2ed4-494d-ab18-1c8ecce46761",
             "sourceColumn": "x_OnDemandUnitPrice",
-            "summarizeBy": "sum"
-          },
-          {
-            "name": "x_OnDemandUnitPriceSavings",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ],
-            "dataType": "double",
-            "lineageTag": "b9b6f9c9-c6b5-4023-9d84-767e886938fc",
-            "sourceColumn": "x_OnDemandUnitPriceSavings",
-            "summarizeBy": "sum"
+            "summarizeBy": "none"
           },
           {
             "name": "x_PartnerCreditApplied",
@@ -8499,13 +8387,10 @@
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
               }
             ],
             "dataType": "double",
+            "formatString": "0.000",
             "lineageTag": "0a1d961a-8e4d-4f9c-90b4-2dae1dbeef46",
             "sourceColumn": "x_PartnerCreditRate",
             "summarizeBy": "sum"
@@ -8939,13 +8824,10 @@
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
               }
             ],
             "dataType": "double",
+            "formatString": "0.000",
             "lineageTag": "613fe3dc-91ca-480a-bc08-97c5ab553f0f",
             "sourceColumn": "x_UsageCPUHours",
             "summarizeBy": "sum"
@@ -9160,17 +9042,14 @@
             "annotations": [
               {
                 "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
+                "value": "User"
               }
             ],
             "dataType": "double",
+            "formatString": "0.000",
             "lineageTag": "c407cc4d-059b-42a8-8bd8-2ef740758530",
             "sourceColumn": "x_EffectiveUnitPrice",
-            "summarizeBy": "sum"
+            "summarizeBy": "none"
           },
           {
             "name": "x_Month",
@@ -9242,13 +9121,10 @@
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
               }
             ],
             "dataType": "double",
+            "formatString": "#,0.000",
             "lineageTag": "e7f752f8-95d2-4fc2-9e86-19a2bc17d62b",
             "sourceColumn": "PricingQuantity",
             "summarizeBy": "sum"
@@ -9271,17 +9147,14 @@
             "annotations": [
               {
                 "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
+                "value": "User"
               }
             ],
             "dataType": "double",
+            "formatString": "0.000",
             "lineageTag": "5c146585-99e9-439a-bf58-1b2a336514c3",
             "sourceColumn": "x_BilledUnitPrice",
-            "summarizeBy": "sum"
+            "summarizeBy": "none"
           },
           {
             "name": "x_ChargeId",
@@ -9341,13 +9214,10 @@
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
               }
             ],
             "dataType": "double",
+            "formatString": "#,0.00",
             "lineageTag": "46e718da-3139-4d18-9cb1-4bbe0637c341",
             "sourceColumn": "x_OnDemandCostInUsd",
             "summarizeBy": "sum"
@@ -9357,17 +9227,14 @@
             "annotations": [
               {
                 "name": "SummarizationSetBy",
-                "value": "Automatic"
-              },
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
+                "value": "User"
               }
             ],
             "dataType": "double",
+            "formatString": "0",
             "lineageTag": "9be6db8b-9965-4da0-9abe-99e263894536",
             "sourceColumn": "x_PricingBlockSize",
-            "summarizeBy": "sum"
+            "summarizeBy": "none"
           },
           {
             "name": "x_PublisherCategory",
@@ -9420,6 +9287,103 @@
             "lineageTag": "a58ffae4-b0d9-4711-a0e0-b117334cbc81",
             "sourceColumn": "x_SkuTier",
             "summarizeBy": "none"
+          },
+          {
+            "name": "x_CommitmentCostSavings",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataType": "double",
+            "formatString": "#,0.00",
+            "lineageTag": "54d5425b-ad55-4ca8-a5d4-a0cbfd911b5e",
+            "sourceColumn": "x_CommitmentCostSavings",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "x_CommitmentUnitPriceSavings",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataType": "double",
+            "formatString": "0.000",
+            "lineageTag": "58115278-c3b3-434b-9274-1358965fc752",
+            "sourceColumn": "x_CommitmentUnitPriceSavings",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_DiscountCostSavings",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "double",
+            "formatString": "#,0.00",
+            "lineageTag": "b0a199ad-c6b3-452a-a5d1-df37a48b1f3e",
+            "sourceColumn": "x_DiscountCostSavings",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "x_DiscountUnitPriceSavings",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataType": "double",
+            "formatString": "0.000",
+            "lineageTag": "3443d766-8b6f-4f63-b512-1b31e34d9b02",
+            "sourceColumn": "x_DiscountUnitPriceSavings",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "x_NegotiatedCostSavings",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "double",
+            "formatString": "#,0.00",
+            "lineageTag": "dc7c8a4c-5d29-4ad6-a7af-89ac0423604d",
+            "sourceColumn": "x_NegotiatedCostSavings",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "x_NegotiatedUnitPriceSavings",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "double",
+            "formatString": "0.000",
+            "lineageTag": "80879716-c801-4add-8044-6e51e1cb2ad3",
+            "sourceColumn": "x_NegotiatedUnitPriceSavings",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "x_FreeReason",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "94045c50-ecef-4ddd-9d42-48be66769d01",
+            "sourceColumn": "x_FreeReason",
+            "summarizeBy": "none"
           }
         ],
         "description": [
@@ -9461,58 +9425,48 @@
             "lineageTag": "9d94450e-97c1-49a4-a87b-7e6399d9dfc4"
           },
           {
-            "name": "x_DiscountSavingsRunningTotal",
-            "annotations": [
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ],
+            "name": "x_DiscountCostSavingsRunningTotal",
             "expression": [
               "",
               "CALCULATE(",
-              "\tSUM('CostDetails'[x_DiscountSavings]),",
+              "\tSUM('CostDetails'[x_DiscountCostSavings]),",
               "\tFILTER(",
               "\t\tALLSELECTED('CostDetails'[ChargePeriodStart]),",
               "\t\tISONORAFTER('CostDetails'[ChargePeriodStart], MAX('CostDetails'[ChargePeriodStart]), DESC)",
               "\t)",
               ")"
             ],
+            "formatString": "#,0.00",
             "lineageTag": "5b5450f4-95c7-4e04-aca7-f19a55b329a7"
           },
           {
-            "name": "x_CommitmentSavingsRunningTotal",
-            "annotations": [
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ],
+            "name": "x_CommitmentCostSavingsRunningTotal",
             "expression": [
               "",
               "CALCULATE(",
-              "\tSUM('CostDetails'[x_CommitmentSavings]),",
+              "\tSUM('CostDetails'[x_CommitmentCostSavings]),",
               "\tFILTER(",
               "\t\tALLSELECTED('CostDetails'[ChargePeriodStart]),",
               "\t\tISONORAFTER('CostDetails'[ChargePeriodStart], MAX('CostDetails'[ChargePeriodStart]), DESC)",
               "\t)",
               ")"
             ],
+            "formatString": "#,0.00",
             "lineageTag": "13e19756-e89f-4eb3-a938-dc01519ad9fc"
           },
           {
-            "name": "x_NegotiatedSavingsRunningTotal",
+            "name": "x_NegotiatedCostSavingsRunningTotal",
             "expression": [
               "",
               "CALCULATE(",
-              "\tSUM('CostDetails'[x_NegotiatedSavings]),",
+              "\tSUM('CostDetails'[x_NegotiatedCostSavings]),",
               "\tFILTER(",
               "\t\tALLSELECTED('CostDetails'[ChargePeriodStart]),",
               "\t\tISONORAFTER('CostDetails'[ChargePeriodStart], MAX('CostDetails'[ChargePeriodStart]), DESC)",
               "\t)",
               ")"
             ],
-            "formatString": "0",
+            "formatString": "#,0.00",
             "lineageTag": "694d154e-c226-4519-bbad-3a8aea6b1c17"
           },
           {
