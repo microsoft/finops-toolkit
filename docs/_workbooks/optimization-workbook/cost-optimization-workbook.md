@@ -81,28 +81,26 @@ If you want to make modifications to the original workbook, its template is offe
 
 Confirm that you have the following least-privileged roles to deploy and use the workbook.
 
-- [Workbook Contributor](../../role-based-access-control/built-in-roles.md#workbook-contributor) - allows you to import, save, and deploy the workbook.
-- [Reader](../../role-based-access-control/built-in-roles.md#reader) allows you to view all the workbook tabs without saving.
+- [Workbook Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#workbook-contributor) - allows you to import, save, and deploy the workbook.
+- [Reader](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#reader) allows you to view all the workbook tabs without saving.
 
 Deploy the Cost optimization workbook template with one of the following options.
 
-**Deploy to Azure**
-
-[![Deploy to Azure](../../media/template-deployments/deploy-to-azure.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fazure-quickstart-templates%2Fmaster%2Fquickstarts%2Fmicrosoft.costmanagement%2Foptimization-workbook%2Fazuredeploy.json/createUIDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fazure-quickstart-templates%2Fmaster%2Fquickstarts%2Fmicrosoft.costmanagement%2Foptimization-workbook%2FcreateUiDefinition.json)
-
-**Deploy to Azure Government**
-
-[![Deploy to Azure Gov](../../media/template-deployments/deploy-to-azure.svg)](https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fazure-quickstart-templates%2Fmaster%2Fquickstarts%2Fmicrosoft.costmanagement%2Foptimization-workbook%2Fazuredeploy.json/createUIDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fazure-quickstart-templates%2Fmaster%2Fquickstarts%2Fmicrosoft.costmanagement%2Foptimization-workbook%2FcreateUiDefinition.json)
+{% include deploy.html template="optimization-workbook" public="1" gov="1" china="0" %}
 
 Select a subscription, location, resource group and give the workbook a name. Then, select **Review + create** to deploy the workbook template.
 
-:::image type="content" source="./media/cost-optimization-workbook/workbook-template.png" alt-text="Screenshot showing the completed workbook template." lightbox="./media/cost-optimization-workbook/workbook-template.png" :::
+<!--:::image type="content" source="./media/cost-optimization-workbook/workbook-template.png" alt-text="Screenshot showing the completed workbook template." lightbox="./media/cost-optimization-workbook/workbook-template.png" :::-->
+
+![Screenshot showing the completed workbook template.][https://learn.microsoft.com/azure/cost-management-billing/finops/media/cost-optimization-workbook/workbook-template.png]
 
 On the Review + create page, select **Create**.
 
 After the deployment completes, you can view and copy the workbook URL on the **Outputs** page. The URL takes you directly to the workbook that you created. Here's an example.
 
-:::image type="content" source="./media/cost-optimization-workbook/outputs-example.png" alt-text="Screenshot showing the Outputs page where you can copy the workbook URL." lightbox="./media/cost-optimization-workbook/outputs-example.png" :::
+<!--:::image type="content" source="./media/cost-optimization-workbook/outputs-example.png" alt-text="Screenshot showing the Outputs page where you can copy the workbook URL." lightbox="./media/cost-optimization-workbook/outputs-example.png" :::-->
+
+![Screenshot showing the Outputs page where you can copy the workbook URL.][https://learn.microsoft.com/azure/cost-management-billing/finops/media/cost-optimization-workbook/outputs-example.png]
 
 <br>
 
@@ -171,12 +169,12 @@ Here's the full code example that you use to insert into the workbook.
 ```kusto
 ResourceContainers | where type =~ 'Microsoft.Resources/subscriptions' | where tostring (properties.subscriptionPolicies.quotaId) !has "MSDNDevTest_2014-09-01"  | extend SubscriptionName=name 
 | join (
-resources 
-| where resourceGroup in ({ResourceGroup})
-| where type == 'microsoft.azurestackhci/clusters'
-| extend AHBStatus = tostring(properties.softwareAssuranceProperties.softwareAssuranceIntent)
-| where AHBStatus == "Disable"
-| extend HCIClusterId=properties.clusterId, ClusterName=properties.clusterName, Status=properties.status, AHBStatus=tostring(properties.softwareAssuranceProperties.softwareAssuranceIntent)
+  resources 
+  | where resourceGroup in ({ResourceGroup})
+  | where type == 'microsoft.azurestackhci/clusters'
+  | extend AHBStatus = tostring(properties.softwareAssuranceProperties.softwareAssuranceIntent)
+  | where AHBStatus == "Disable"
+  | extend HCIClusterId=properties.clusterId, ClusterName=properties.clusterName, Status=properties.status, AHBStatus=tostring(properties.softwareAssuranceProperties.softwareAssuranceIntent)
 ) on subscriptionId 
 | order by type asc 
 | project HCIClusterId,ClusterName,Status,AHBStatus
