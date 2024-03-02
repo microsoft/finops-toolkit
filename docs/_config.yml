@@ -33,14 +33,14 @@ collections:
 
 just_the_docs:
   collections:
+    docs:
+      name: Implementing FinOps
     reporting:
       name: Reporting + analytics
     workbooks:
       name: Azure Monitor workbooks
     automation:
       name: Automation + extensibility
-    docs:
-      name: Implementing FinOps
     resources:
       name: Resources
       nav_fold: true # collapse by default
