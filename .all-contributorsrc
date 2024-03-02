@@ -14,9 +14,12 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/399533?v=4",
       "profile": "http://about.me/flanakin",
       "contributions": [
+        "leader",
         "code",
         "review",
-        "doc"
+        "doc",
+        "mentoring",
+        "promotion"
       ]
     },
     {
@@ -25,8 +28,32 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/53261392?v=4",
       "profile": "https://github.com/arthurclares",
       "contributions": [
+        "leader",
         "code",
-        "doc"
+        "review",
+        "doc",
+        "mentoring",
+        "promotion"
+      ]
+    },
+    {
+      "login": "scuffy",
+      "name": "Sonia Cuff",
+      "avatar_url": "https://avatars.githubusercontent.com/u/41356020?v=4",
+      "profile": "https://github.com/scuffy",
+      "contributions": [
+        "leader",
+        "promotion"
+      ]
+    },
+    {
+      "login": "maggar",
+      "name": "maggar",
+      "avatar_url": "https://avatars.githubusercontent.com/u/55561955?v=4",
+      "profile": "https://github.com/maggar",
+      "contributions": [
+        "leader",
+        "ideas"
       ]
     },
     {
@@ -35,7 +62,9 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/24294904?v=4",
       "profile": "https://github.com/MSBrett",
       "contributions": [
-        "code"
+        "code",
+        "review",
+        "doc"
       ]
     },
     {
@@ -64,7 +93,8 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/8894656?v=4",
       "profile": "https://github.com/nteyan",
       "contributions": [
-        "code"
+        "code",
+        "doc"
       ]
     },
     {
@@ -112,6 +142,15 @@
       "profile": "https://github.com/arjenhuitema",
       "contributions": [
         "code"
+      ]
+    },
+    {
+      "login": "bandersmsft",
+      "name": "Bill Anderson",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9596428?v=4",
+      "profile": "https://github.com/bandersmsft",
+      "contributions": [
+        "doc"
       ]
     },
     {
@@ -313,8 +352,8 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/7208487?v=4",
       "profile": "https://github.com/erincon01",
       "contributions": [
-        "question",
-        "review"
+        "review",
+        "question"
       ]
     },
     {
@@ -379,17 +418,14 @@
       "contributions": [
         "bug"
       ]
-    },
-    {
-      "login": "ymehdimsft",
-      "name": "ymehdimsft",
-      "avatar_url": "https://avatars.githubusercontent.com/u/134303029?v=4",
-      "profile": "https://github.com/ymehdimsft",
-      "contributions": [
-        "code"
-      ]
     }
   ],
   "commitType": "docs",
-  "contributorsPerLine": 6
+  "contributorsPerLine": 6,
+  "types": {
+    "leader": {
+      "symbol": "🌟",
+      "description": "Governing board"
+    }
+  }
 }
