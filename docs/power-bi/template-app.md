@@ -54,7 +54,7 @@ To learn more, see [Analyze cost with the Cost Management Power BI app for Enter
 
 In general, we don't plan to make changes to the template app. The following minor tweaks were made to resolve bugs:
 
-- Added `TagsAsJson` column to the **Usage details amortized** table to be consistent with the **Usage details** table.
+- Added `Tags` and `TagsAsJson` columns to both the **Usage details** and **Usage details amortized** tables.
 
 <br>
 

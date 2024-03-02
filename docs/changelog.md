@@ -90,7 +90,7 @@ Legend:
 > 1. Added a DQ page to the [Commitment discounts report](./power-bi/commitment-discounts.md#dq) for data quality validations. This page can be useful in identifying data gaps in Cost Management.
 > 2. Added `x_NegotiatedUnitPriceSavings` column to show the price reduction from negotiated discounts compared to the public, list price.
 > 3. Added `x_IsFree` column to indicate when a row represents a free charge (based on Cost Management data). This is used in data quality checks.
-> 4. Added `TagsAsJson` column to the **Usage details amortized** table in the [CostManagementTemplateApp report](./power-bi/template-app.md) to be consistent with the **Usage details** table.
+> 4. Added `Tags` and `TagsAsJson` columns to both the **Usage details** and **Usage details amortized** tables in the [CostManagementTemplateApp report](./power-bi/template-app.md).
 >
 > 🛠️ Fixed:
 >
