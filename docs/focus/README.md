@@ -308,32 +308,37 @@ Use the following columns in the Cost Management FOCUS dataset to generate a uni
 
 Please note the following when working with FOCUS data:
 
-1. `BillingAccountId` and `BillingAccountName` may be confusing for Microsoft Customer Agreement accounts, where the billing profile is used.
+1. `BillingAccountId` and `BillingAccountName` map to the billing profile ID and name for Microsoft Customer Agreement accounts.
    - We are looking for feedback about this to understand if it is a problem and determine the best way to address it.
-2. `BillingPeriodEnd` and `ChargePeriodEnd` are exclusive, which is ideal for filtering, but may be confusing.
+2. `BillingPeriodEnd` and `ChargePeriodEnd` are exclusive, which is helpful for filtering.
 3. `SubAccountId` and `SubAccountName` map to the subscription ID and name, respectively.
 4. All FOCUS `*Id` columns (not the `x_` extension columns) use fully-qualified resource IDs.
-5. `Region` can include values that are not regions, such as `Unassigned`.
-   - This is an underlying service issue and must be resolved by the service that is referencing invalid Azure locations in their usage data.
-6. `Region` uses `Global` to indicate a global service.
-   - FOCUS is considering whether to use `Global` or not.
-7. `ServiceName` and `ServiceCategory` are using a custom mapping that may not account for all services yet.
+5. `ServiceName` and `ServiceCategory` are using a custom mapping that may not account for all services yet.
    - We will update this list to account for all services soon. This will require ongoing work to keep up with the pace at which Microsoft is enabling new services.
    - Please let us know if you find any missed services or if you have any feedback about the mapping.
-8. `ServiceName` uses "Azure Savings Plan for Compute" for savings plan records due to missing service details.
+6. `ServiceName` uses "Azure Savings Plan for Compute" for savings plan records due to missing service details.
    - This is an underlying data issue and must be resolved by the service that generates the data.
-9. `ServiceName` attempts to map Azure Kubernetes Service (AKS) charges based on a simple resource group name check, which may catch false positives.
+7. `ServiceName` attempts to map Azure Kubernetes Service (AKS) charges based on a simple resource group name check, which may catch false positives.
    - We will update the resource group check to be more targeted soon.
    - Please let us know if you find any false positives.
    - If we find we are unable to accurately identify AKS charges, we will fall back to the service name for the actual resource (e.g., Load Balancer).
+8. `SkuPriceId` for Microsoft Customer Agreement accounts uses "{ProductId}\_{SkuId}_{MeterType}" from the price sheet.
+   - If you need to join FOCUS cost data with the price sheet, you will need to either split `SkuPriceId` or manually construct a similar key in the price sheet.
 
 The following known issues have been identified compared to the FOCUS 1.0-preview spec and will be addressed in a future release:
 
-1. `ChargeSubcategory` for uncommitted usage shows "On-Demand". This value should be null.
-2. `InvoiceIssuerName` does not account for indirect EA and MCA partners. The value will show as "Microsoft".
-3. `ListUnitPrice` and `ListCost` can be 0 when the data is not available.
-4. For the Cost Management connector, `PricingUnit` and `UsageUnit` both include the pricing block size. Exports (and FinOps hubs) separate the block size into `x_PricingBlockSize`.
-5. For the Cost Management connector, `SkuPriceId` is not set due to the connector not having the data to populate the value.
+1. `InvoiceIssuerName` does not account for indirect EA and MCA partners. The value will show as "Microsoft".
+2. `ListUnitPrice` and `ListCost` can be 0 when the data is not available.
+3. `Region` can include values that are not regions, such as `Unassigned`.
+   - This is an underlying service issue and must be resolved by the service that is referencing invalid Azure locations in their usage data.
+4. `Region` uses `Global` to indicate a global service.
+   - FOCUS is considering whether to use `Global` or not.
+5. `PricingCategory` shows "On-Demand" and `x_PricingSubcategory` shows "Standard" for unused commitment rows.
+   - This is due to a transformation bug that was identified on March 3, 2024. A fix is in progress.
+6. `x_PricingSubcategory` may show a value like "Committed /providers/Microsoft..." for historical data before February 28, 2024.
+   - This is due to a formatting bug that was resolved on February 28, 2024. If you see these values, please re-export the cost data for that month. If you need to export data for an older month that is not available, please contact support to request the data be exported for you to resolve the data quality issue from the previous export runs.
+7. For the Cost Management connector, `PricingUnit` and `UsageUnit` both include the pricing block size. Exports (and FinOps hubs) separate the block size into `x_PricingBlockSize`.
+8. For the Cost Management connector, `SkuPriceId` is not set due to the connector not having the data to populate the value.
 
 If you have feedback about our mappings or about our full FOCUS support plans, please leave a comment within the [FOCUS schema release discussion](https://github.com/microsoft/finops-toolkit/discussions/61). If you believe you've found a bug, please [create an issue](https://github.com/microsoft/finops-toolkit/issues/new/choose).
 

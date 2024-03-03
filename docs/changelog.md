@@ -98,6 +98,8 @@ Legend:
 > 2. Fixed incorrect filter in the Commitment discounts report ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
 > 3. Fixed data issue where Cost Management uses "1Year", "3Years", and "5Years" for the x_SkuTerm. Values should be 12, 36, and 60 ([#594](https://github.com/microsoft/finops-toolkit/issues/594)).
 > 4. Changed the data type for the `x_Month` column to be a date.
+> 5. Changed `x_SkuTerm` to be a whole number and to not summarize by default.
+> 6. Changed `x_BillingExchangeRate` to not summarize by default.
 >
 > ✏️ Changed:
 >
