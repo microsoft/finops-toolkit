@@ -1,4 +1,11 @@
-# Customizing the Azure Optimization Engine
+---
+layout: default
+parent: Optimization Engine
+title: Customizations
+nav_order: 10
+description: 'Customize the Azure Optimization Engine parameters according to your organization requirements.'
+permalink: /optimization-engine/customizing-aoe
+---
 
 There are many customization options available in AOE, in the form of Azure Automation variables. The list below is a highlight of the most relevant configuration variables. To access them, go to the Automation Account _Shared Resources - Variables_ menu option.
 

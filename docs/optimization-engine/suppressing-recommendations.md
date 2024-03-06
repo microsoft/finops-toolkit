@@ -1,4 +1,11 @@
-# Suppressing recommendations
+---
+layout: default
+parent: Optimization Engine
+title: Suppressing recommendations
+nav_order: 10
+description: 'Adjust the recommendations results to your environment characteristics.'
+permalink: /optimization-engine/suppressing-recommendations
+---
 
 When working on the recommendations provided by AOE, you may find some cases where the recommendation does not apply for some reason. For example, AOE is suggesting high availability recommendations that do not apply to Dev/Test Virtual Machines, or recommending enabling Azure Backup for non-critical VMs. You can suppress recommendations in two ways:
 

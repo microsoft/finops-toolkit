@@ -1,4 +1,11 @@
-# Configuring Log Analytics workspaces
+---
+layout: default
+parent: Optimization Engine
+title: Configuring workspaces
+nav_order: 10
+description: 'Include the VM performance logs available in your Log Analytics workspaces to get deeper insights and more accurate results.'
+permalink: /optimization-engine/configuring-workspaces
+---
 
 ## Validating/configuring performance counters collection
 

@@ -1,4 +1,15 @@
-# Azure Optimization Engine
+---
+layout: default
+title: Optimization Engine
+has_children: true
+nav_order: 40
+description: 'The Azure Optimization Engine (AOE) is an extensible solution designed to generate optimization recommendations for your Azure environment.'
+permalink: /optimization-engine
+---
+
+<span class="fs-9 d-block mb-4">Azure Optimization Engine</span>
+The Azure Optimization Engine (AOE) is an extensible solution designed to generate optimization recommendations for your Azure environment. See it like a fully customizable Azure Advisor.
+{: .fs-6 .fw-300 }
 
 The Azure Optimization Engine (AOE) is an extensible solution designed to generate optimization recommendations for your Azure environment. See it like a fully customizable Azure Advisor. Actually, the first custom recommendations use-case covered by this tool was augmenting Azure Advisor Cost recommendations, particularly Virtual Machine right-sizing, with a fit score based on VM metrics and properties. Other recommendations are being added to the tool, not only for cost optimization but also for security, high availability and other [Well-Architected Framework](https://docs.microsoft.com/en-us/azure/architecture/framework/) pillars. You are welcome to contribute with new types of recommendations!
 
