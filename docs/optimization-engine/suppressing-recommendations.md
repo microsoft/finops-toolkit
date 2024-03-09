@@ -2,7 +2,7 @@
 layout: default
 parent: Optimization Engine
 title: Suppressing recommendations
-nav_order: 10
+nav_order: 40
 description: 'Adjust the recommendations results to your environment characteristics.'
 permalink: /optimization-engine/suppressing-recommendations
 ---

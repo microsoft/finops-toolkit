@@ -2,7 +2,7 @@
 layout: default
 parent: Optimization Engine
 title: Configuring workspaces
-nav_order: 10
+nav_order: 30
 description: 'Include the VM performance logs available in your Log Analytics workspaces to get deeper insights and more accurate results.'
 permalink: /optimization-engine/configuring-workspaces
 ---

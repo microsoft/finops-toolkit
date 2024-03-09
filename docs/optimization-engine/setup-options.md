@@ -2,7 +2,7 @@
 layout: default
 parent: Optimization Engine
 title: Setup options
-nav_order: 10
+nav_order: 50
 description: 'Advanced scenarios for setting up or upgrading AOE.'
 permalink: /optimization-engine/setup-options
 ---

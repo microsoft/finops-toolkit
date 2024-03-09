@@ -23,7 +23,6 @@ An extensible solution designed to generate optimization recommendations for you
 - [🔐 Requirements](#-requirements)
 - [➕ Deployment instructions](#-deployment-instructions)
 - [🛫 Get started with AOE](#-get-started-with-aoe)
-- [🧰 Related tools](#-related-tools)
 
 </details>
 
@@ -97,7 +96,7 @@ help of Azure Workbooks or Power BI.
 
 ## 🔐 Requirements
 
-* A supported Azure subscription (see the [FAQs](#faq))
+* A supported Azure subscription (see the [FAQ](./faq.md))
 * A user account with Owner permissions over the chosen subscription, so that the Automation Managed Identity is granted the required privileges over the subscription (Reader) and deployment resource group (Contributor)
 * Azure Powershell 6.6.0+
 * (Optional, for Identity and RBAC governance) Microsoft.Graph.Authentication and Microsoft.Graph.Identity.DirectoryManagement PowerShell modules (version 2.4.0+)
@@ -106,7 +105,7 @@ help of Azure Workbooks or Power BI.
 
 During deployment, you'll be asked several questions. You must plan for the following:
 
-* Whether you're going to reuse an existing Log Analytics Workspace or a create a new one. **IMPORTANT**: you should ideally reuse a workspace where you have VMs already sending performance metrics (`Perf` table), otherwise you will not fully leverage the augmented right-size recommendations capability. If this is not possible/desired for some reason, you can still manage to use multiple workspaces (see [Configuring Log Analytics workspaces](./docs/configuring-workspaces.md)).
+* Whether you're going to reuse an existing Log Analytics Workspace or a create a new one. **IMPORTANT**: you should ideally reuse a workspace where you have VMs already sending performance metrics (`Perf` table), otherwise you will not fully leverage the augmented right-size recommendations capability. If this is not possible/desired for some reason, you can still manage to use multiple workspaces (see [Configuring workspaces](./configuring-workspaces.md)).
 * An Azure subscription to deploy the solution (if you're reusing a Log Analytics workspace, you must deploy into the same subscription the workspace is in).
 * A unique name prefix for the Azure resources being created (if you have specific naming requirements, you can also choose resource names during deployment)
 * Azure region
@@ -117,10 +116,10 @@ During deployment, you'll be asked several questions. You must plan for the foll
 The simplest, quickest and recommended method for installing AOE is by using the **Azure Cloud Shell** (PowerShell). You just have to follow these steps:
 
 1. Open Azure Cloud Shell (PowerShell)
-2. Run `git clone https://github.com/helderpinto/AzureOptimizationEngine.git azureoptimizationengine`
-3. Run `cd azureoptimizationengine`
-4. (optional) Run `Install-Module Microsoft.Graph.Authentication,Microsoft.Graph.Identity.DirectoryManagement` - this is required to grant the Global Reader role to the Automation Managed Identity in Microsoft Entra ID
-5. Run `.\Deploy-AzureOptimizationEngine.ps1`
+2. Run `git clone https://github.com/microsoft/finops-toolkit.git finops-toolkit`
+3. Run `cd finops-toolkit/src/optimization-engine`
+4. (optional) Run `Install-Module Microsoft.Graph.Authentication,Microsoft.Graph.Identity.DirectoryManagement` - this is required to grant the Global Reader role to the Automation Managed Identity in Microsoft Entra ID, used by Identity and RBAC governance features.
+5. Run `./Deploy-AzureOptimizationEngine.ps1`
 6. Input your deployment options and let the deployment finish (it will take less than 5 minutes)
 
 If the deployment fails for some reason, you can simply repeat it, as it is idempotent. The same if you want to upgrade a previous deployment with the latest version of the repo. You just have to keep the same deployment options. _Cool feature_: the deployment script persists your previous deployment options and lets you reuse it! 
@@ -147,9 +146,5 @@ After deploying AOE, there are several ways for you to get started (you have to 
 1. For richer virtual machine right-size recommendations, you can add your machines' performance logs to the scope of AOE. Check [Configuring workspaces](./configuring-workspaces.md).
 
 Every week at the same time, AOE recommendations will be updated according to the current state of your environment.
-
-## 🧰 Related tools
-
-{% include tools.md pbi="1" ps="1" opt="1" %}
 
 <br>
