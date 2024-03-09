@@ -7,7 +7,20 @@ description: 'Include the VM performance logs available in your Log Analytics wo
 permalink: /optimization-engine/configuring-workspaces
 ---
 
-## Validating/configuring performance counters collection
+<span class="fs-9 d-block mb-4">Configuring workspaces</span>
+Include the VM performance logs available in your Log Analytics workspaces to get deeper insights and more accurate results.
+{: .fs-6 .fw-300 }
+
+<details open markdown="1">
+   <summary class="fs-2 text-uppercase">On this page</summary>
+
+- [ℹ️ Configuring performance counters](#ℹ️-configuring-performance-counters)
+- [ℹ️ Estimating the cost of additional performance logs](#ℹ️-additional-performance-logs-cost-estimation)
+- [ℹ️ Using multiple workspaces for performance logs](#ℹ️-using-multiple-workspaces-for-performance-logs)
+
+</details>
+
+## ℹ️ Configuring performance counters
 
 If you want to fully leverage the VM right-size augmented recommendation, you need to have your VMs sending logs to a Log Analytics workspace (it should normally be the one you chose at AOE installation time, but it can be a different one) and you need them to send specific performance counters. The list of required counters is defined [here](../perfcounters.json). The AOE provides a couple of tools that help you validate and fix the configured Log Analytics performance counters, depending on the type of agent you are using to collect logs from your machines.
 
@@ -62,7 +75,7 @@ Install-Module -Name Az.OperationalInsights
 ./Setup-LogAnalyticsWorkspaces.ps1 -AutoFix -WorkspaceIds "d69e840a-2890-4451-b63c-bcfc5580b90f","961550b2-2c4a-481a-9559-ddf53de4b455" -IntervalSeconds 30
 ```
 
-## Estimating the cost of onboarding additional VMs or adding missing performance metrics
+## ℹ️ Additional performance logs cost estimation
 
 Each performance counter entry in the `Perf` table has different sizings, depending on the [7 required counters](../perfcounters.json) per OS type. The following table enumerates the size (in bytes) per performance counter entry.
 
@@ -85,7 +98,7 @@ Linux | Network | Total Bytes | 200 | network adapters count
 
 In summary, a Windows VM generates, in average, 245 bytes per performance counter entry, while a Linux consumes a bit less, 230 bytes per entry. However, depending on the number of CPU cores, data disks or network adapters, a VM will generate more or less Log Analytics entries. For example, a Windows VM with 4 vCPUs, 1 data disk and 5 network adapters will generate 5 * 200 + 220 + 4 * 250 + 4 * 250 + 4 * 250 + 4 * 250 + 5 * 290 = 6670 bytes (6.5 KB) per collection interval. If you set your Performance Counters interval to 60 seconds, then you'll have 60 * 24 * 30 * 6.5 = 280800 KB (274 MB) of ingestion data per month, which means less than 0.70 EUR/month at the Log Analytics ingestion retail price (Pay As You Go).
 
-## Using multiple Log Analytics workspaces for VM performance metrics
+## ℹ️ Using multiple workspaces for performance logs
 
 If you have VMs onboarded to multiple Log Analytics workspaces and you want them to be fully included in the VM right-size recommendations report, you can add those workspaces to the solution just by adding a new variable to the AOE Azure Automation account. In the Automation Account _Shared Resources - Variables_ menu option, click on the _Add a variable button_ and enter `AzureOptimization_RightSizeAdditionalPerfWorkspaces` as the variable name and fill in the comma-separated list of workspace IDs (see example below). Finally, click on _Create_.
 

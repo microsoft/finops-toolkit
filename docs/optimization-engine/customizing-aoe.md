@@ -3,11 +3,54 @@ layout: default
 parent: Optimization Engine
 title: Customizations
 nav_order: 10
-description: 'Customize the Azure Optimization Engine parameters according to your organization requirements.'
+description: 'Customize the Azure Optimization Engine settings according to your organization requirements.'
 permalink: /optimization-engine/customizing-aoe
 ---
 
-There are many customization options available in AOE, in the form of Azure Automation variables. The list below is a highlight of the most relevant configuration variables. To access them, go to the Automation Account _Shared Resources - Variables_ menu option.
+<span class="fs-9 d-block mb-4">Customizations</span>
+Customize the Azure Optimization Engine settings according to your organization requirements.
+{: .fs-6 .fw-300 }
+
+<details open markdown="1">
+   <summary class="fs-2 text-uppercase">On this page</summary>
+
+- [ℹ️ Widen the engine scope](#ℹ️-widen-the-engine-scope)
+- [ℹ️ Adjust schedules](#ℹ️-adjust-schedules)
+- [ℹ️ Scale AOE runbooks with Hybrid Worker](#ℹ️-scale-aoe-runbooks-with-hybrid-worker)
+- [ℹ️ Adjust thresholds](#ℹ️-adjust-thresholds)
+
+</details>
+
+## ℹ️ Widen the engine scope
+
+By default, the Azure Automation Managed Identity is assigned the Reader role only over the respective subscription. However, you can widen the scope of its recommendations just by granting the same Reader role to other subscriptions or, even simpler, to a top-level Management Group.
+
+In the context of augmented VM right-size recommendations, you may have your VMs reporting to multiple workspaces. If you need to include other workspaces - besides the main one AOE is using - in the recommendations scope, you just have to add their workspace IDs to the `AzureOptimization_RightSizeAdditionalPerfWorkspaces` variable (see more details in [Configuring workspaces](./configuring-workspaces.md)).
+
+## ℹ️ Adjust schedules
+
+By default, the base time for the AOE Automation schedules is set as the deployment time. Soon after the initial deployment completes, the exports, ingests and recommendations runbooks will run according to the engine's default schedules. For example, if you deploy AOE on a Monday at 11:00 a.m., you will get new recommendations every Monday at 2:30 p.m.. If this schedule, for some reason, does not fit your needs, you can reset it to the time that better suits you, by using the `Reset-AutomationSchedules.ps1` script. You just have to call the script following the syntax below and answer the input requests:
+
+```powershell
+./Reset-AutomationSchedules.ps1 -AutomationAccountName <AOE automation account> -ResourceGroupName <AOE resource group> [-AzureEnvironment <AzureUSGovernment|AzureGermanCloud|AzureCloud>]
+```
+
+The base time you choose must be in UTC and must be defined according to the week day and hour you want recommendations to be generated. You must deduce 3h30m from the time you choose, because the base time defines the schedules for all the dependent automation runbooks that must run before the recommendations are generated. For example, let's say you want recommendations to be generated every Monday at 8h30 a.m.; the base time will be the next calendar date falling on a Monday, at 5h00 a.m.. The format of the date you choose must be YYYY-MM-dd HH:mm:ss, e.g., 2022-01-03 05:00:00.
+
+The script will also ask you to enter, **if needed**, the Hybrid Worker Group you want the runbooks to run in (see the next sub-section).
+
+## ℹ️ Scale AOE runbooks with Hybrid Worker
+
+By default, AOE Automation runbooks are executed in the context of the Azure Automation sandbox. If you face performance issues due to the memory limits of the Automation sandbox or decide to implement private endpoints for the Storage Account or SQL Database, to harden AOE's security, you will need to execute runbooks from a Hybrid Worker (an Azure or on-premises Virtual Machine with the Automation Hybrid Worker extension). To change the execution context for the AOE runbooks, you must use the `Reset-AutomationSchedules.ps1` script. See how to use the script in the previous sub-section and, after setting the runbooks execution base time, enter the Hybrid Worker Group name you want the runbooks to run in.
+
+**IMPORTANT**: 
+* The Hybrid Worker machine must have the required PowerShell modules installed. See [here](upgrade-manifest.json) the list of required modules.
+* Once you change the runbook execution context to Hybrid Worker, you will have to always use the `DoPartialUpgrade` flag whenever you upgrade AOE, or else you will lose the runbook schedule settings and revert to the default sandbox configuration.
+* The Managed Identity used to authenticate against Azure, Microsoft Entra ID and Billing Account scopes is still the Azure Automation's one, even if the Hybrid Worker machine has a Managed Identity assigned ([see details](https://learn.microsoft.com/en-us/azure/automation/automation-hrw-run-runbooks?#runbook-auth-managed-identities)). User-assigned Managed Identities are supported in the context of Hybrid Workers only if 1) the Automation Account does not have any associated Managed Identity, i.e., only the Hybrid Worker machine can have a User-Assigned Managed Identity; 2) all runbooks run in the context of the Hybrid Worker. In this case, you must create an `AzureOptimization_UAMIClientID` Automation Variable with the User-Assigned Managed Identity Client ID as value; and 3) the `AzureOptimization_AuthenticationOption` Automation variable value is updated to `UserAssignedManagedIdentity`.
+
+## ℹ️ Adjust thresholds
+
+For Advisor Cost recommendations, the AOE's default configuration produces percentile 99th VM metrics aggregations, but you can adjust those to be less conservative. There are also adjustable metrics thresholds that are used to compute the fit score. The default thresholds values are 30% for CPU (5% for shutdown recommendations), 50% for memory (100% for shutdown) and 750 Mbps for network bandwidth (10 Mbps for shutdown). All the adjustable configurations are available as Azure Automation variables. The list below is a highlight of the most relevant configuration variables. To access them, go to the Automation Account _Shared Resources - Variables_ menu option.
 
 * `AzureOptimization_AdvisorFilter` - If you are not interested in getting recommendations for all the non-Cost Advisor pillars, you can specify a pillar-level filter (comma-separated list with at least one of the following: `HighAvailability,Security,Performance,OperationalExcellence`). Defaults to all pillars.
 * `AzureOptimization_AuthenticationOption` - The default authentication method for Automation Runbooks is `RunAsAccount`. But you can change to `ManagedIdentity` if you're using a Hybrid Worker in an Azure VM.
@@ -54,7 +97,7 @@ There are many customization options available in AOE, in the form of Azure Auto
 * `AzureOptimization_RemediateUnattachedDisksMinWeeksInARow` - The minimum number of weeks in a row an unattached disk recommendation must have been done for the remediation to occur.
 * `AzureOptimization_RemediateUnattachedDisksAction` - The action to apply for an unattached disk recommendation remediation (`Delete` or `Downsize`).
 * `AzureOptimization_RemediateUnattachedDisksTagsFilter` - The tag name/value pairs an unattached disk recommendation must have for the remediation to occur. Example: `[ { "tagName": "a", "tagValue": "b" }, { "tagName": "c", "tagValue": "d" } ]`
-* `AzureOptimization_RightSizeAdditionalPerfWorkspaces` - A comma-separated list of additional Log Analytics workspace IDs where to look for VM metrics (see [Configuring Log Analytics workspaces](./configuring-workspaces.md)).
+* `AzureOptimization_RightSizeAdditionalPerfWorkspaces` - A comma-separated list of additional Log Analytics workspace IDs where to look for VM metrics (see [Configuring workspaces](./configuring-workspaces.md)).
 * `AzureOptimization_PerfThresholdDiskIOPSPercentage` - The disk IOPS usage percentage threshold below which the underutilized Premium SSD disks recommendation will trigger.
 * `AzureOptimization_PerfThresholdDiskMBsPercentage` - The disk throughput usage percentage threshold below which the underutilized Premium SSD disks recommendation will trigger.
 * `AzureOptimization_RecommendationsMaxAgeInDays` - The maximum age (in days) for a recommendation to be kept in the SQL database. Default: 365.
