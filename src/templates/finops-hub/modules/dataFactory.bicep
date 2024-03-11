@@ -428,7 +428,7 @@ resource dataset_manifest 'Microsoft.DataFactory/factories/datasets@2018-06-01' 
       }
       folderPath: {
         type: 'String'
-        defaultValue: configContainerName
+        defaultValue: exportContainerName
       }
     }
     type: 'Json'
