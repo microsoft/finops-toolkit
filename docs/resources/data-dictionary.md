@@ -18,8 +18,7 @@ Familiarize yourself with the columns used in FinOps hubs, Power BI, and PowerSh
 &nbsp; [B](#b)
 &nbsp; [C](#c)
 &nbsp; [D](#d)
-&nbsp; [E](#e) <!-- &nbsp; [F](#f) &nbsp; [G](#g) -->
-&nbsp; [H](#h)
+&nbsp; [E](#e) <!-- &nbsp; [F](#f) &nbsp; [G](#g) &nbsp; [H](#h) -->
 &nbsp; [I](#i) <!-- &nbsp; [J](#j) &nbsp; [K](#k) -->
 &nbsp; [L](#l)
 &nbsp; [M](#m)
@@ -33,10 +32,14 @@ Familiarize yourself with the columns used in FinOps hubs, Power BI, and PowerSh
 
 See also:
 
+- [Generating a unique ID](#-generating-a-unique-id)
 - [Known issues](#-known-issues)
-- [Common terms](./terms.md)
+- [What is FOCUS?](../focus/README.md)
+- [How to convert Cost Management data to FOCUS](../focus/convert.md)
+- [How to update existing reports to FOCUS](../focus/mapping.md)
+- [Feedback about FOCUS columns](#-feedback-about-focus-columns)
 - [Cost Management data dictionary](https://learn.microsoft.com/azure/cost-management-billing/automate/understand-usage-details-fields)
-- [FinOps Open Cost and Usage Specification (FOCUS)](https://focus.finops.org)
+- [Common terms](./terms.md)
 
 </details>
 
@@ -104,8 +107,6 @@ Columns to add:
 | EffectiveCostInUsd                                | EffectiveCost in USD.                                                                                                                                                                                                                                                  |
 | EffectivePricingCost                              | EffectiveCost in the pricing currency.                                                                                                                                                                                                                                 |
 | EffectiveUnitPrice                                | Amortized price per unit after commitment-based discounts.                                                                                                                                                                                                             |
-| <a name="h"></a>SkuLicenseCPUs                    | Derived. Indicates the number of virtual CPUs required from on-prem licenses required to use Azure Hybrid Benefit for this resource. Extracted from `x_SkuDetails`.                                                                                                    |
-| SkuLicenseStatus                                  | Derived. Indicates whether the charge used or was eligible for Azure Hybrid Benefit. Extracted from `x_SkuDetails`.                                                                                                                                                    |
 | <a name="i"></a>InvoiceId                         | Unique identifier for the invoice the charge is included in. Only available for closed months after the invoice is published.                                                                                                                                          |
 | InvoiceIssuerId                                   | Unique identifier of the organization that generated the invoice.                                                                                                                                                                                                      |
 | InvoiceIssuerName<sup>⚠️</sup>                     | Name of the organization that generated the invoice. Only supported for CSP accounts. Not supported for EA or MCA accounts that are managed by a partner due to data not being provided by Cost Management.                                                            |
@@ -154,6 +155,8 @@ Columns to add:
 | SkuDetails                                        | Additional information about the SKU. This column is formatted as a JSON object. Maps to **AdditionalInfo** in Cost Management.                                                                                                                                        |
 | SkuId                                             | Unique identifier for the product that was used or purchased. Maps to **ProductId** in Cost Management for MCA.                                                                                                                                                        |
 | SkuImageType                                      | Derived. Extracted from `x_SkuDetails`. Used for Azure Hybrid Benefit reports.                                                                                                                                                                                         |
+| SkuLicenseCPUs                                    | Derived. Indicates the number of virtual CPUs required from on-prem licenses required to use Azure Hybrid Benefit for this resource. Extracted from `x_SkuDetails`.                                                                                                    |
+| SkuLicenseStatus                                  | Derived. Indicates whether the charge used or was eligible for Azure Hybrid Benefit. Extracted from `x_SkuDetails`.                                                                                                                                                    |
 | SkuMeterCategory                                  | Represents a cloud service, like "Virtual machines" or "Storage".                                                                                                                                                                                                      |
 | SkuMeterId                                        | Unique identifier (sometimes a GUID, but not always) for the usage meter. This usually maps to a specific SKU or range of SKUs that have a specific price.                                                                                                             |
 | SkuMeterName                                      | Name of the usage meter. This usually maps to a specific SKU or range of SKUs that have a specific price. Not applicable for purchases.                                                                                                                                |
@@ -185,6 +188,32 @@ Columns to add:
 
 <br>
 
+## #️⃣ Generating a unique ID
+
+<blockquote class="warning" markdown="1">
+  _Microsoft Cost Management introduced a change in how data is processed that updates cost and usage data in a lower-latency, more streaming fashion. This means cost and usage data is available in Cost Management ~2 hours after the resource provider submits it into the billing pipeline and budget alerts are able to be triggered significantly faster. Unfortunately, this change may have also introduced cases where data can be split across multiple rows where the only difference is the quantity and cost. Based on this, a unique ID cannot be determined as of February 2, 2024. As of the time of this writing, the issue was just identified. Investigation is underway. If you experience this in your data, please raise a support request._
+</blockquote>
+
+Use the following columns in the Cost Management FOCUS dataset to generate a unique ID:
+
+1. BillingAccountId
+2. ChargePeriodStart
+3. CommitmentDiscountId
+4. Region
+5. ResourceId
+6. SkuPriceId
+7. SubAccountId
+8. Tags
+9. x_AccountOwnerId
+10. x_CostCenter
+11. x_InvoiceSectionId
+12. x_SkuDetails
+13. x_SkuMeterId
+14. x_SkuOfferId
+15. x_SkuPartNumber
+
+<br>
+
 ## ⚠️ Known issues
 
 1. Price and cost columns can be 0 when the data is not available in Cost Management. This includes but may not be limited to:
@@ -203,6 +232,16 @@ Columns to add:
    - This is due to a formatting bug that was resolved on February 28, 2024. If you see these values, please re-export the cost data for that month. If you need to export data for an older month that is not available, please contact support to request the data be exported for you to resolve the data quality issue from the previous export runs.
 7. `Region` can include values that are not regions, such as `Unassigned` and `Global`.
    - This is an underlying service issue and must be resolved by the service that is referencing invalid Azure locations in their usage data.
+8. For the Cost Management connector, `PricingUnit` and `UsageUnit` both include the pricing block size. Exports (and FinOps hubs) separate the block size into `x_PricingBlockSize`.
+9. For the Cost Management connector, `SkuPriceId` is not set due to the connector not having the data to populate the value.
+
+<br>
+
+## 🙋‍♀️ Feedback about FOCUS columns
+
+<!-- markdownlint-disable-line --> {% include_relative ../focus/_feedback.md %}
+
+<br>
 
 ---
 
