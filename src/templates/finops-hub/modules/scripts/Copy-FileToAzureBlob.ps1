@@ -72,6 +72,7 @@ if (!$json) {
 }
 
 # Set values from inputs
+$json.scopes = $env:scopes.Split('|') | ForEach-Object { @{ 'scope' = $_ } }
 $json.retention.msexports.days = [Int32]::Parse($env:msexportRetentionInDays)
 $json.retention.ingestion.months = [Int32]::Parse($env:ingestionRetentionInMonths)
 
