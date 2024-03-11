@@ -162,7 +162,6 @@ module keyVault 'keyVault.bicep' = {
     location: location
     tags: resourceTags
     tagsByResource: tagsByResource
-    // storageAccountName: storage.outputs.name
     storageAccountKey: remoteHubStorageKey
     accessPolicies: [
       {
