@@ -61,7 +61,17 @@ Legend:
 > 4. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
 > 5. Analytics engine – Ingest cost data into an Azure Data Explorer cluster.
 
-<br>
+📒 Azure Monitor workbooks
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Respect global subscription filter selections
+
+> 🛠️ Fixed:
+>
+> 1. Fixed a bug with Azure Hybrid benefits.
+> 2. Fixed a bug with the SQL Managed Instance query.
 
 ## 🛠️ v0.2.1
 
