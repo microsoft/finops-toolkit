@@ -8,7 +8,7 @@
       },
       {
         "name": "PBIDesktopVersion",
-        "value": "2.126.929.0 (24.02)"
+        "value": "2.126.1280.0 (24.02)"
       },
       {
         "name": "PBI_QueryOrder",
@@ -8131,7 +8131,7 @@
             "annotations": [
               {
                 "name": "SummarizationSetBy",
-                "value": "Automatic"
+                "value": "User"
               },
               {
                 "name": "PBI_FormatHint",
@@ -8141,7 +8141,7 @@
             "dataType": "double",
             "lineageTag": "6b3e00e4-4ff7-47ac-8b2f-8bfc726ce2d1",
             "sourceColumn": "x_BillingExchangeRate",
-            "summarizeBy": "sum"
+            "summarizeBy": "none"
           },
           {
             "name": "x_BillingExchangeRateDate",

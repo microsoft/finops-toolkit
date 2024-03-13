@@ -1,6 +1,7 @@
 ---
 layout: default
 title: FOCUS
+has_children: true
 nav_order: zzz
 description: 'About FOCUS, the FinOps Open Cost + Usage Specification.'
 permalink: /focus
@@ -21,8 +22,9 @@ Learn about the new billing data specification that will make it easier to under
 - [🤔 Why FOCUS?](#-why-focus)
 - [🌟 Benefits](#-benefits)
 - [▶️ Getting started](#️-getting-started)
-- [🔀 Mapping to FOCUS](#-mapping-to-focus)
-- [⚠️ Important notes about FOCUS support](#️-important-notes-about-focus-support)
+- [ℹ️ Important notes about FOCUS columns](#ℹ️-important-notes-about-focus-columns)
+- [🙋‍♀️ Feedback about FOCUS columns](#️-feedback-about-focus-columns)
+- [🧐 See also](#-see-also)
 - [🧰 Related tools](#-related-tools)
 
 </details>
@@ -142,202 +144,45 @@ Beyond these, each provider can include additional columns prefixed with **x\_**
 
 <br>
 
-## 🔀 Mapping to FOCUS
-
-Use the following sections to either generate FOCUS-compliant data from existing datasets or to update existing reporting to leverage FOCUS columns.
-
-### How to convert Cost Management data to FOCUS
-
-The following mapping is assuming you have all amortized cost rows and only commitment purchases and refunds from the actual cost dataset.
-
-| FOCUS column               | Cost Management column                              | Transform                                                                                                                                                                                                                                                            |
-| -------------------------- | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BilledCost                 | CostInBillingCurrency                               | Use `0` for amortized commitment usage<sup>1</sup>                                                                                                                                                                                                                   |
-| BillingAccountId           | EA: BillingAccountId<br>MCA: BillingProfileId       | None                                                                                                                                                                                                                                                                 |
-| BillingAccountName         | EA: BillingAccountName<br>MCA: BillingProfileName   | None                                                                                                                                                                                                                                                                 |
-| BillingCurrency            | EA: BillingCurrencyCode<br>MCA: BillingCurrency     | None                                                                                                                                                                                                                                                                 |
-| BillingPeriodEnd           | BillingPeriodEndDate                                | Add 1 day for the exclusive end date                                                                                                                                                                                                                                 |
-| BillingPeriodStart         | BillingPeriodStartDate                              | None                                                                                                                                                                                                                                                                 |
-| ChargeCategory             | ChargeType                                          | If "Usage", "Purchase", or "Tax", same value; if "UnusedReservation" or "UnusedSavingsPlan", `Usage`; otherwise, `Adjustment`                                                                                                                                        |
-| ChargeDescription          | ProductName                                         | None                                                                                                                                                                                                                                                                 |
-| ChargeFrequency            | Frequency                                           | If "OneTime", `One-Time`; if "Recurring", `Recurring`; if "UsageBased", `Usage-Based`; otherwise, `Other`                                                                                                                                                            |
-| ChargePeriodEnd            | Date                                                | Add 1 day for the exclusive end date                                                                                                                                                                                                                                 |
-| ChargePeriodStart          | Date                                                | None                                                                                                                                                                                                                                                                 |
-| ChargeSubcategory          | ChargeType                                          | If "Usage" and PricingModel is "Reservation" or "SavingsPlan", `Used Commitment`; if "UnusedReservation" or "UnusedSavingsPlan", `Unused Commitment`; if "Usage", `On-Demand`; if "Refund", `Refund`; if "RoundingAdjustment", `Rounding Error`; otherwise, `Other`. |
-| CommitmentDiscountCategory | BenefitId                                           | If BenefitId contains "/microsoft.capacity/" (case-insensitive), `Usage`; if contains "/microsoft.billingbenefits/", use `Spend`; otherwise, null                                                                                                                    |
-| CommitmentDiscountId       | BenefitId                                           | None                                                                                                                                                                                                                                                                 |
-| CommitmentDiscountName     | BenefitName                                         | None                                                                                                                                                                                                                                                                 |
-| CommitmentDiscountType     | BenefitId                                           | If BenefitId contains "/microsoft.capacity/" (case-insensitive), `Reservation`; if contains "/microsoft.billingbenefits/", `Savings Plan`; otherwise, null                                                                                                           |
-| EffectiveCost              | CostInBillingCurrency                               | Use `0` for commitment purchases and refunds<sup>1</sup>.                                                                                                                                                                                                            |
-| InvoiceIssuerName          | PartnerName                                         | If PartnerName is empty, use `Microsoft`.                                                                                                                                                                                                                            |
-| ListCost                   | EA: Not available<br>MCA: PaygCostInBillingCurrency | None                                                                                                                                                                                                                                                                 |
-| ListUnitPrice              | EA: PayGPrice<br>MCA: PayGPrice \* ExchangeRate     | None                                                                                                                                                                                                                                                                 |
-| PricingCategory            | PricingModel                                        | If "OnDemand", `On-Demand`; if "Spot", `Dynamic`; if "Reservation" or "Savings Plan", `Commitment Discount`; otherwise, `Other`                                                                                                                                      |
-| PricingQuantity            | Quantity                                            | Map UnitOfMeasure using [Pricing units data file](../open-data/README.md#-pricing-units) and divide Quantity by the PricingBlockSize                                                                                                                                 |
-| PricingUnit                | UnitOfMeasure                                       | Map using [Pricing units data file](../open-data/README.md#-pricing-units)                                                                                                                                                                                           |
-| ProviderName               | `Microsoft`                                         | None                                                                                                                                                                                                                                                                 |
-| PublisherName              | PublisherName                                       | None                                                                                                                                                                                                                                                                 |
-| Region                     | ResourceLocation                                    | Map using [Regions data file](../open-data/README.md#-regions)<sup>3</sup>                                                                                                                                                                                           |
-| ResourceId                 | ResourceId                                          | None                                                                                                                                                                                                                                                                 |
-| ResourceName               | ResourceName                                        | None                                                                                                                                                                                                                                                                 |
-| ResourceType               | ResourceType                                        | Map using [Resource types data file](../open-data/README.md#-resource-types)                                                                                                                                                                                         |
-| ServiceCategory            | ResourceType                                        | Map using [Services data file](../open-data/README.md#-services)                                                                                                                                                                                                     |
-| ServiceName                | ResourceType                                        | Map using [Services data file](../open-data/README.md#-services)                                                                                                                                                                                                     |
-| SkuId                      | EA: Not available<br>MCA: ProductId                 | None                                                                                                                                                                                                                                                                 |
-| SkuPriceId                 | Not available                                       | None                                                                                                                                                                                                                                                                 |
-| SubAccountId               | SubscriptionId                                      | None                                                                                                                                                                                                                                                                 |
-| SubAccountName             | SubscriptionName                                    | None                                                                                                                                                                                                                                                                 |
-| Tags                       | Tags                                                | Wrap in `{` and `}` if needed                                                                                                                                                                                                                                        |
-| UsageQuantity              | Quantity                                            | None                                                                                                                                                                                                                                                                 |
-| UsageUnit                  | UnitOfMeasure                                       | Map using [Pricing units data file](../open-data/README.md#-pricing-units)                                                                                                                                                                                           |
-
-_<sup>1. BilledCost should copy cost from all rows **except** commitment usage that has a PricingModel of "Reservation" or "SavingsPlan" which should be `0`. EffectiveCost should copy cost from all amortized dataset rows; commitment purchases and refunds from the actual cost dataset should be `0`.</sup>_
-
-_<sup>2. Quantity in Cost Management is the usage quantity.</sup>_
-
-_<sup>3. While Region is a direct mapping of ResourceLocation, Cost Management and FinOps toolkit reports do additional data cleansing to ensure consistency in values based on the [Regions data file](../open-data/README.md#-regions).</sup>_
-
-### How to update existing reports to FOCUS
-
-Use the following table to update existing automation and reporting solutions to use FOCUS.
-
-| Column                       | Value(s)                   | How to update                                                                                                                                                   |
-| ---------------------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| AccountName                  | (All)                      | Use **x_AccountName**                                                                                                                                           |
-| AccountOwnerId               | (All)                      | Use **x_AccountOwnerId**                                                                                                                                        |
-| AdditionalInfo               | (All)                      | Use **x_SkuDetails**                                                                                                                                            |
-| CostInBillingCurrency        | (All)                      | For actual cost, use **BilledCost**; otherwise, use **EffectiveCost**                                                                                           |
-| BenefitId                    | (All)                      | Use **CommitmentDiscountId**                                                                                                                                    |
-| BenefitName                  | (All)                      | Use **CommitmentDiscountName**                                                                                                                                  |
-| BillingAccountId             | (All)                      | EA: Use **BillingAccountId**<br>MCA: Use **x_BillingAccountId**                                                                                                 |
-| BillingAccountName           | (All)                      | EA: Use **BillingAccountName**<br>MCA: Use **x_BillingAccountName**                                                                                             |
-| BillingCurrencyCode          | (All)                      | Use **BillingCurrency**                                                                                                                                         |
-| BillingProfileId             | (All)                      | EA: Use **x_BillingProfileId**<br>MCA: Use **BillingAccountId**                                                                                                 |
-| BillingProfileName           | (All)                      | EA: Use **x_BillingProfileName**<br>MCA: Use **BillingAccountName**                                                                                             |
-| BillingPeriodEndDate         | (All)                      | Use **BillingPeriodEnd** and change comparisons to use less than (`<`) rather than less than or equal to (`<=`)                                                 |
-| BillingPeriodStartDate       | (All)                      | Use **BillingPeriodStart**                                                                                                                                      |
-| ChargeType                   | "Usage", "Purchase", "Tax" | Use **ChargeCategory**                                                                                                                                          |
-| ChargeType                   | "UnusedReservation"        | Use **ChargeSubcategory** = "Unused Commitment" and **CommitmentDiscountType** = "Reservation"                                                                  |
-| ChargeType                   | "UnusedSavingsPlan"        | Use **ChargeSubcategory** = "Unused Commitment" and **CommitmentDiscountType** = "Savings Plan"                                                                 |
-| ChargeType                   | "Refund"                   | Use **ChargeSubcategory** = "Refund"                                                                                                                            |
-| ChargeType                   | "RoundingAdjustment"       | Use **ChargeSubcategory** = "Rounding Error"                                                                                                                    |
-| CostAllocationRuleName       | (All)                      | Use **x_CostAllocationRuleName**                                                                                                                                |
-| CostCenter                   | (All)                      | Use **x_CostCenter**                                                                                                                                            |
-| CostInUsd                    | (All)                      | For actual cost, use **x_BilledCostInUsd**; otherwise, use **x_EffectiveCostInUsd**                                                                             |
-| CustomerName                 | (All)                      | Use **x_CustomerName**                                                                                                                                          |
-| CustomerTenantId             | (All)                      | Use **x_CustomerId**                                                                                                                                            |
-| Date                         | (All)                      | Use **ChargePeriodStart**                                                                                                                                       |
-| DepartmentName               | (All)                      | Use **x_InvoiceSectionName**                                                                                                                                    |
-| EffectivePrice               | (All)                      | Use **x_EffectiveUnitPrice**                                                                                                                                    |
-| ExchangeRatePricingToBilling | (All)                      | Use **x_BillingExchangeRate**                                                                                                                                   |
-| ExchangeRateDate             | (All)                      | Use **x_BillingExchangeRateDate**                                                                                                                               |
-| Frequency                    | "OneTime"                  | Use **ChargeFrequency** = "One-Time"                                                                                                                            |
-| Frequency                    | "Recurring"                | Use **ChargeFrequency** = "Recurring"                                                                                                                           |
-| Frequency                    | "UsageBased"               | Use **ChargeFrequency** = "Usage-Based"                                                                                                                         |
-| InvoiceId                    | (All)                      | Use **x_InvoiceId**                                                                                                                                             |
-| InvoiceSectionId             | (All)                      | Use **x_InvoiceSectionId**                                                                                                                                      |
-| InvoiceSectionName           | (All)                      | Use **x_InvoiceSectionName**                                                                                                                                    |
-| IsAzureCreditEligible        | (All)                      | Use **x_SkuIsCreditEligible**                                                                                                                                   |
-| Location                     | (All)                      | Use **Region**                                                                                                                                                  |
-| MeterCategory                | (All)                      | To group resources, use **ServiceName**; to group meters, use **x_SkuMeterCategory**                                                                            |
-| MeterId                      | (All)                      | Use **x_SkuMeterId**                                                                                                                                            |
-| MeterName                    | (All)                      | Use **x_SkuMeterName**                                                                                                                                          |
-| MeterRegion                  | (All)                      | Use **x_SkuRegion**                                                                                                                                             |
-| MeterSubcategory             | (All)                      | Use **x_SkuMeterSubcategory**                                                                                                                                   |
-| OfferId                      | (All)                      | Use **x_SkuOfferId**                                                                                                                                            |
-| PartnerEarnedCreditApplied   | (All)                      | Use **x_PartnerCreditApplied**                                                                                                                                  |
-| PartnerEarnedCreditRate      | (All)                      | Use **x_PartnerCreditRate**                                                                                                                                     |
-| PartnerName                  | (All)                      | Use **InvoiceIssuerName** or **x_PartnerName**                                                                                                                  |
-| PartnerTenantId              | (All)                      | Use **x_InvoiceIssuerId**                                                                                                                                       |
-| PartNumber                   | (All)                      | Use **x_SkuPartNumber**                                                                                                                                         |
-| ProductName                  | (All)                      | Use **ChargeDescription**                                                                                                                                       |
-| ProductOrderId               | (All)                      | Use **x_SkuOrderId**                                                                                                                                            |
-| ProductOrderName             | (All)                      | Use **x_SkuOrderName**                                                                                                                                          |
-| PaygCostInBillingCurrency    | (All)                      | Use **ListCost**                                                                                                                                                |
-| PayGPrice                    | (All)                      | Use **ListUnitPrice** / **x_BillingExchangeRate**                                                                                                               |
-| PricingCurrency              | (All)                      | Use **x_PricingCurrency**                                                                                                                                       |
-| PricingModel                 | "OnDemand"                 | Use **PricingCategory** = "On-Demand"                                                                                                                           |
-| PricingModel                 | "Reservation"              | For all commitments, use **PricingCategory** = "Commitment Discount"; for savings plan only, use **CommitmentDiscountCategory** = "Usage"                       |
-| PricingModel                 | "SavingsPlan"              | For all commitments, use **PricingCategory** = "Commitment Discount"; for savings plan only, use **CommitmentDiscountCategory** = "Spend"                       |
-| PricingModel                 | "Spot"                     | Use **PricingCategory** = "Dynamic" or **x_PricingSubcategory** = "Spot"                                                                                        |
-| ProductId                    | (All)                      | Use **SkuId**                                                                                                                                                   |
-| Quantity                     | (All)                      | Use **UsageQuantity**                                                                                                                                           |
-| ResellerMpnId                | (All)                      | Use **x_ResellerId**                                                                                                                                            |
-| ResellerName                 | (All)                      | Use **x_ResellerName**                                                                                                                                          |
-| ReservationId                | (All)                      | Use **CommitmentDiscountId**; split by "/" and use last segment for the reservation GUID                                                                        |
-| ReservationName              | (All)                      | Use **CommitmentDiscountName**                                                                                                                                  |
-| ResourceGroupName            | (All)                      | Use **x_ResourceGroupName**                                                                                                                                     |
-| ResourceLocationNormalized   | (All)                      | Use **Region**                                                                                                                                                  |
-| ResourceType                 | (All)                      | For friendly names, use **ResourceType**; otherwise, use **x_ResourceType**                                                                                     |
-| ServiceFamily                | (All)                      | To group resources, use **ServiceCategory**; to group meters, use **x_SkuServiceFamily**                                                                        |
-| ServicePeriodEnd             | (All)                      | Use **x_ServicePeriodEnd**                                                                                                                                      |
-| ServicePeriodStart           | (All)                      | Use **x_ServicePeriodStart**                                                                                                                                    |
-| SubscriptionId               | (All)                      | For a unique value, use **SubAccountId**; for the subscripion GUID, use **x_SubscriptionId**                                                                    |
-| SubscriptionName             | (All)                      | Use **SubAccountName** or **x_SubscriptionName**                                                                                                                |
-| Tags                         | (All)                      | Use **Tags** but don't wrap in curly braces (`{}`)                                                                                                              |
-| Term                         | (All)                      | Use **x_SkuTerm**                                                                                                                                               |
-| UnitOfMeasure                | (All)                      | For the exact value, use **x_PricingUnitDescription**; for distinct units, use **PricingUnit** or **UsageUnit**; for the block size, use **x_PricingBlockSize** |
-
-### Generating a unique ID per row
-
-<blockquote class="warning" markdown="1">
-  _Microsoft Cost Management introduced a change in how data is processed that updates cost and usage data in a lower-latency, more streaming fashion. This means cost and usage data is available in Cost Management ~2 hours after the resource provider submits it into the billing pipeline and budget alerts are able to be triggered significantly faster. Unfortunately, this change may have also introduced cases where data can be split across multiple rows where the only difference is the quantity and cost. Based on this, a unique ID cannot be determined as of February 2, 2024. As of the time of this writing, the issue was just identified. Investigation is underway. If you experience this in your data, please raise a support request._
-</blockquote>
-
-Use the following columns in the Cost Management FOCUS dataset to generate a unique ID:
-
-1. BillingAccountId
-2. ChargePeriodStart
-3. CommitmentDiscountId
-4. Region
-5. ResourceId
-6. SkuPriceId
-7. SubAccountId
-8. Tags
-9. x_AccountOwnerId
-10. x_CostCenter
-11. x_InvoiceSectionId
-12. x_SkuDetails
-13. x_SkuMeterId
-14. x_SkuOfferId
-15. x_SkuPartNumber
-
-<br>
-
-## ⚠️ Important notes about FOCUS support
+## ℹ️ Important notes about FOCUS columns
 
 Please note the following when working with FOCUS data:
 
-1. `BillingAccountId` and `BillingAccountName` may be confusing for Microsoft Customer Agreement accounts, where the billing profile is used.
+1. `BillingAccountId` and `BillingAccountName` map to the billing profile ID and name for Microsoft Customer Agreement accounts.
    - We are looking for feedback about this to understand if it is a problem and determine the best way to address it.
-2. `BillingPeriodEnd` and `ChargePeriodEnd` are exclusive, which is ideal for filtering, but may be confusing.
+2. `BillingPeriodEnd` and `ChargePeriodEnd` are exclusive, which is helpful for filtering.
 3. `SubAccountId` and `SubAccountName` map to the subscription ID and name, respectively.
 4. All FOCUS `*Id` columns (not the `x_` extension columns) use fully-qualified resource IDs.
-5. `Region` can include values that are not regions, such as `Unassigned`.
-   - This is an underlying service issue and must be resolved by the service that is referencing invalid Azure locations in their usage data.
-6. `Region` uses `Global` to indicate a global service.
-   - FOCUS is considering whether to use `Global` or not.
-7. `ServiceName` and `ServiceCategory` are using a custom mapping that may not account for all services yet.
+5. `ServiceName` and `ServiceCategory` are using a custom mapping that may not account for all services yet.
    - We will update this list to account for all services soon. This will require ongoing work to keep up with the pace at which Microsoft is enabling new services.
    - Please let us know if you find any missed services or if you have any feedback about the mapping.
-8. `ServiceName` uses "Azure Savings Plan for Compute" for savings plan records due to missing service details.
+6. `ServiceName` uses "Azure Savings Plan for Compute" for savings plan records due to missing service details.
    - This is an underlying data issue and must be resolved by the service that generates the data.
-9. `ServiceName` attempts to map Azure Kubernetes Service (AKS) charges based on a simple resource group name check, which may catch false positives.
+7. `ServiceName` attempts to map Azure Kubernetes Service (AKS) charges based on a simple resource group name check, which may catch false positives.
    - We will update the resource group check to be more targeted soon.
    - Please let us know if you find any false positives.
    - If we find we are unable to accurately identify AKS charges, we will fall back to the service name for the actual resource (e.g., Load Balancer).
+8. `SkuPriceId` for Microsoft Customer Agreement accounts uses "{ProductId}\_{SkuId}_{MeterType}" from the price sheet.
+   - If you need to join FOCUS cost data with the price sheet, you will need to either split `SkuPriceId` or manually construct a similar key in the price sheet.
 
-The following known issues have been identified compared to the FOCUS 1.0-preview spec and will be addressed in a future release:
+<br>
 
-1. `ChargeSubcategory` for uncommitted usage shows "On-Demand". This value should be null.
-2. `InvoiceIssuerName` does not account for indirect EA and MCA partners. The value will show as "Microsoft".
-3. `ListUnitPrice` and `ListCost` can be 0 when the data is not available.
-4. For the Cost Management connector, `PricingUnit` and `UsageUnit` both include the pricing block size. Exports (and FinOps hubs) separate the block size into `x_PricingBlockSize`.
-5. For the Cost Management connector, `SkuPriceId` is not set due to the connector not having the data to populate the value.
+## 🙋‍♀️ Feedback about FOCUS columns
 
-If you have feedback about our mappings or about our full FOCUS support plans, please leave a comment within the [FOCUS schema release discussion](https://github.com/microsoft/finops-toolkit/discussions/61). If you believe you've found a bug, please [create an issue](https://github.com/microsoft/finops-toolkit/issues/new/choose).
+<!-- markdownlint-disable-line --> {% include_relative _feedback.md %}
 
-If you have feedback about FOCUS, please consider contributing to the FOCUS project. The project is looking for more practitioners to help bring their experience to help guide efforts and make this the most useful spec it can be. To learn more about FOCUS or to contribute to the project, visit [focus.finops.org](https://focus.finops.org).
+<br>
+
+## 🧐 See also
+
+- [How to convert Cost Management data to FOCUS](./convert.md)
+- [How to update existing reports to FOCUS](./mapping.md)
+- [Data dictionary](../resources/data-dictionary.md)
+- [Generating a unique ID](../resources/data-dictionary.md#-generating-a-unique-id)
+- [Known issues](../resources/data-dictionary.md#-known-issues)
+- [Common terms](../resources/terms.md)
+
+<br>
 
 ---
 

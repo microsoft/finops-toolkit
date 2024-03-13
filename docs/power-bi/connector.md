@@ -20,7 +20,8 @@ Power BI report covering cost summaries, breakdowns, and commitment discounts us
 - [Working with this report](#working-with-this-report)
 - [Pages](#pages)
 - [Known issues](#known-issues)
-- [See also](#see-also)
+- [🙋‍♀️ Feedback about FOCUS columns](#️-feedback-about-focus-columns)
+- [🧐 See also](#-see-also)
 - [🙋‍♀️ Looking for more?](#️-looking-for-more)
 
 </details>
@@ -117,9 +118,17 @@ This report includes the following pages:
 
 <br>
 
-## See also
+## 🙋‍♀️ Feedback about FOCUS columns
 
-- [About FOCUS](../focus/README.md)
+<!-- markdownlint-disable-line --> {% include_relative ../focus/_feedback.md %}
+
+<br>
+
+## 🧐 See also
+
+- [What is FOCUS?](../focus/README.md)
+- [How to convert Cost Management data to FOCUS](../focus/convert.md)
+- [How to update existing reports to FOCUS](../focus/mapping.md)
 - [Common terms](../resources/terms.md)
 - [Data dictionary](../resources/data-dictionary.md)
 
