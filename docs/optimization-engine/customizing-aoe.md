@@ -15,8 +15,8 @@ Customize the Azure Optimization Engine settings according to your organization 
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [ℹ️ Widen the engine scope](#ℹ️-widen-the-engine-scope)
-- [ℹ️ Adjust schedules](#ℹ️-adjust-schedules)
-- [ℹ️ Scale AOE runbooks with Hybrid Worker](#ℹ️-scale-aoe-runbooks-with-hybrid-worker)
+- [⏰ Adjust schedules](#ℹ️-adjust-schedules)
+- [🦹 Scale AOE runbooks with Hybrid Worker](#ℹ️-scale-aoe-runbooks-with-hybrid-worker)
 - [ℹ️ Adjust thresholds](#ℹ️-adjust-thresholds)
 
 </details>
@@ -27,7 +27,7 @@ By default, the Azure Automation Managed Identity is assigned the Reader role on
 
 In the context of augmented VM right-size recommendations, you may have your VMs reporting to multiple workspaces. If you need to include other workspaces - besides the main one AOE is using - in the recommendations scope, you just have to add their workspace IDs to the `AzureOptimization_RightSizeAdditionalPerfWorkspaces` variable (see more details in [Configuring workspaces](./configuring-workspaces.md)).
 
-## ℹ️ Adjust schedules
+## ⏰ Adjust schedules
 
 By default, the base time for the AOE Automation schedules is set as the deployment time. Soon after the initial deployment completes, the exports, ingests and recommendations runbooks will run according to the engine's default schedules. For example, if you deploy AOE on a Monday at 11:00 a.m., you will get new recommendations every Monday at 2:30 p.m.. If this schedule, for some reason, does not fit your needs, you can reset it to the time that better suits you, by using the `Reset-AutomationSchedules.ps1` script. You just have to call the script following the syntax below and answer the input requests:
 
@@ -39,7 +39,7 @@ The base time you choose must be in UTC and must be defined according to the wee
 
 The script will also ask you to enter, **if needed**, the Hybrid Worker Group you want the runbooks to run in (see the next sub-section).
 
-## ℹ️ Scale AOE runbooks with Hybrid Worker
+## 🦹 Scale AOE runbooks with Hybrid Worker
 
 By default, AOE Automation runbooks are executed in the context of the Azure Automation sandbox. If you face performance issues due to the memory limits of the Automation sandbox or decide to implement private endpoints for the Storage Account or SQL Database, to harden AOE's security, you will need to execute runbooks from a Hybrid Worker (an Azure or on-premises Virtual Machine with the Automation Hybrid Worker extension). To change the execution context for the AOE runbooks, you must use the `Reset-AutomationSchedules.ps1` script. See how to use the script in the previous sub-section and, after setting the runbooks execution base time, enter the Hybrid Worker Group name you want the runbooks to run in.
 
