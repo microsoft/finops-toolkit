@@ -55,7 +55,7 @@ When you first start managing cost in the cloud, you use the native allocation t
 
 - If your organization previously implemented the [Cost allocation capability](./allocation.md), refer back to any notes about unallocated or shared costs.
 - Notify stakeholders that you're evaluating shared costs and request details about any known scenarios. Self-identification can save you significant time and effort.
-- Review the services that have been purchased and are being used with the [Services view in Cost analysis](https://learn.microsoft.com/azure/cost-management-billing/costs/cost-analysis-built-in-views.md#break-down-product-and-service-costs).
+- Review the services that have been purchased and are being used with the [Services view in Cost analysis](https://learn.microsoft.com/azure/cost-management-billing/costs/cost-analysis-built-in-views#break-down-product-and-service-costs).
 - Familiarize yourself with each service to determine if they're designed for and/or could be used for shared resources. A few examples of commonly shared services are:
   - Application hosting services, like Azure Kubernetes Service, Azure App Service, and Azure Virtual Desktop.
   - Observability tools, like Azure Monitor and Log Analytics.

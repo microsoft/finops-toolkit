@@ -31,16 +31,14 @@ Familiarize yourself with the columns used in FinOps hubs, Power BI, and PowerSh
 
 See also:
 
-- [Generating a unique ID](#-generating-a-unique-id)
-- [Known issues](#-known-issues)
-- [What is FOCUS?](../focus/README.md)
-- [How to convert Cost Management data to FOCUS](../focus/convert.md)
-- [How to update existing reports to FOCUS](../focus/mapping.md)
-- [Feedback about FOCUS columns](#-feedback-about-focus-columns)
-- [Cost Management data dictionary](https://learn.microsoft.com/azure/cost-management-billing/automate/understand-usage-details-fields)
+- [Generating a unique ID](#%EF%B8%8F⃣-generating-a-unique-id)
+- [Known issues](#%EF%B8%8F-known-issues)
+- [What is FOCUS?](../_docs/focus/README.md)
+- [How to convert Cost Management data to FOCUS](../_docs/focus/convert.md)
+- [How to update existing reports to FOCUS](../_docs/focus/mapping.md)
+- [Feedback about FOCUS columns](#%EF%B8%8F-feedback-about-focus-columns)
 - [Common terms](./terms.md)
 - [Cost Management data dictionary](https://learn.microsoft.com/azure/cost-management-billing/automate/understand-usage-details-fields)
-- [FinOps Open Cost and Usage Specification (FOCUS)](../_docs/focus/README.md)
 
 </details>
 
@@ -91,7 +89,7 @@ Columns to add:
 | CommitmentDiscountType                            | Derived. Label assigned by the provider to describe the type of commitment-based discount applied to the row. Allowed values: Reservation, Savings Plan.                                                                                                               |
 | CommitmentCostSavings<sup>⚠️</sup>                 | Derived. Amount saved from commitment discounts only. Does not include savings from negotiated discounts. Formula: `x_OnDemandCost - EffectiveCost`.                                                                                                                   |
 | CommitmentCostSavingsRunningTotal<sup>⚠️</sup>     | Derived. Calculates the accumulated or running total of CommitmentCostSavings for the day, including all previous day's values.                                                                                                                                        |
-| CommitmentUnitPriceSavings<sup>⚠️</sup>            | Derived. Amount the unit price was reduced for commitment discounts. Does not include negotiated disocunts. Formula: `x_OnDemandUnitPrice - x_EffectiveUnitPrice`.                                                                                                     |
+| CommitmentUnitPriceSavings<sup>⚠️</sup>            | Derived. Amount the unit price was reduced for commitment discounts. Does not include negotiated discounts. Formula: `x_OnDemandUnitPrice - x_EffectiveUnitPrice`.                                                                                                     |
 | CommitmentUtilization                             | Derived. Calculates the commitment utilization percentage for the period. Calculated as the sum of CommitmentUtilizationAmount divided by the sum of CommitmentUtilizationPotential.                                                                                   |
 | CommitmentUtilizationAmount                       | Derived. Amount of utilized commitment for the record, if the charge was associated with a commitment. Uses cost for savings plans and quantity for reservations.                                                                                                      |
 | CommitmentUtilizationPotential                    | Derived. Amount that could have been applied to a commitment, but may not have been. This is generally the same as CommitmentUtilizationAmount, except for the unused charges. Uses cost for savings plans and quantity for reservations.                              |
@@ -121,7 +119,7 @@ Columns to add:
 | <a name="m"></a>Month                             | Derived. Month of the charge.                                                                                                                                                                                                                                          |
 | <a name="n"></a>NegotiatedCostSavings<sup>⚠️</sup> | Derived. Amount saved after negotiated discounts are applied but excluding commitment discounts. Formula: `ListCost - x_OnDemandCost`.                                                                                                                                 |
 | NegotiatedCostSavingsRunningTotal<sup>⚠️</sup>     | Derived. Calculates the accumulated or running total of NegotiatedCostSavings for the day, including all previous day's values.                                                                                                                                        |
-| NegotiatedUnitPriceSavings<sup>⚠️</sup>            | Derived. Amount the unit price was reduced after negotiated discounts were applied to public, list prices. Does not include commitment disocunts. Formula: `ListUnitPrice - x_OnDemandUnitPrice`.                                                                      |
+| NegotiatedUnitPriceSavings<sup>⚠️</sup>            | Derived. Amount the unit price was reduced after negotiated discounts were applied to public, list prices. Does not include commitment discounts. Formula: `ListUnitPrice - x_OnDemandUnitPrice`.                                                                      |
 | <a name="o"></a>OnDemandCost<sup>⚠️</sup>          | Derived. Cost based on UnitPrice (with negotiated discounts applied, but without commitment-based discounts). Calculated as Quantity multiplied by UnitPrice.                                                                                                          |
 | OnDemandUnitPrice<sup>⚠️</sup>                     | Derived. On-demand price per unit without any commitment-based discounts applied. If the same as EffectivePrice, this means EffectivePrice was not provided by Cost Management.                                                                                        |
 | <a name="p"></a>PartnerCreditApplied              | Indicates when the Cloud Solution Provider (CSP) Partner Earned Credit (PEC) was applied for a charge.                                                                                                                                                                 |
@@ -131,7 +129,7 @@ Columns to add:
 | PricingBlockSize                                  | Derived. Indicates what measurement type is used by the `PricingQuantity`. Extracted from **UnitOfMeasure** in Cost Management.                                                                                                                                        |
 | PricingCategory<sup>⚠️</sup>                       | Describes the pricing model used for a charge at the time of use or purchase.                                                                                                                                                                                          |
 | PricingCurrency                                   | Currency used for all price columns.                                                                                                                                                                                                                                   |
-| PricingQuantity                                   | Derived. Amount of a particular service that was used or purchased based on the PricingUnit. `PricingQuantity` is the same as `UsageQuantity` divided by `x_PricingBlocksize`.                                                                                         |
+| PricingQuantity                                   | Derived. Amount of a particular service that was used or purchased based on the PricingUnit. `PricingQuantity` is the same as `UsageQuantity` divided by `x_PricingBlockSize`.                                                                                         |
 | PricingSubcategory<sup>⚠️</sup>                    | Describes the kind of pricing model used for a charge within a specific `PricingCategory`.                                                                                                                                                                             |
 | PricingUnit                                       | Derived. Indicates what measurement type is used by the `PricingQuantity`. Extracted from **UnitOfMeasure** in Cost Management.                                                                                                                                        |
 | PricingUnitDescription                            | Describes the measurement type is used by the `PricingQuantity`. Maps to **UnitOfMeasure** in Cost Management.                                                                                                                                                         |

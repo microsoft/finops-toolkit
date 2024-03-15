@@ -124,10 +124,10 @@ Use the following table to update existing automation and reporting solutions to
 ## 🧐 See also
 
 - [How to convert Cost Management data to FOCUS](./convert.md)
-- [Data dictionary](../resources/data-dictionary.md)
-- [Generating a unique ID](../resources/data-dictionary.md#-generating-a-unique-id)
-- [Known issues](../resources/data-dictionary.md#-known-issues)
-- [Common terms](../resources/terms.md)
+- [Data dictionary](../../_resources/data-dictionary.md)
+- [Generating a unique ID](../../_resources/data-dictionary.md#-generating-a-unique-id)
+- [Known issues](../../_resources/data-dictionary.md#-known-issues)
+- [Common terms](../../_resources/terms.md)
 
 <br>
 

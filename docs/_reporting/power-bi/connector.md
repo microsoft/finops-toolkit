@@ -126,9 +126,9 @@ This report includes the following pages:
 
 ## 🧐 See also
 
-- [What is FOCUS?](../_docs/focus/README.md)
-- [How to convert Cost Management data to FOCUS](../_docs/focus/convert.md)
-- [How to update existing reports to FOCUS](../_docs/focus/mapping.md)
+- [What is FOCUS?](../../_docs/focus/README.md)
+- [How to convert Cost Management data to FOCUS](../../_docs/focus/convert.md)
+- [How to update existing reports to FOCUS](../../_docs/focus/mapping.md)
 - [Common terms](../../_resources/terms.md)
 - [Data dictionary](../../_resources/data-dictionary.md)
 

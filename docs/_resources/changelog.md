@@ -344,15 +344,15 @@ Legend:
 > ➕ Added:
 >
 > 1. [FinOpsToolkit module](https://aka.ms/finops/toolkit/powershell) released in the PowerShell Gallery.
-> 2. [Get-FinOpsToolkitVersion](../_automation/powershell/toolkit/Get-FinOpsToolkitVersion) to get toolkit versions.
+> 2. [Get-FinOpsToolkitVersion](../_automation/powershell/toolkit/Get-FinOpsToolkitVersion.md) to get toolkit versions.
 
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
-> 1. [Deploy-FinOpsHub](../_automation/powershell/hubs/Deploy-FinOpsHub) to deploy or update a hub instance.
-> 2. [Get-FinOpsHub](../_automation/powershell/hubs/Get-FinOpsHub) to get details about a hub instance.
+> 1. [Deploy-FinOpsHub](../_automation/powershell/hubs/Deploy-FinOpsHub.md) to deploy or update a hub instance.
+> 2. [Get-FinOpsHub](../_automation/powershell/hubs/Get-FinOpsHub.md) to get details about a hub instance.
 > 3. Support for Microsoft Customer Agreement (MCA) accounts and Cloud Solution Provider (CSP) subscriptions in Power BI reports.
 >
 > 🛠️ Fixed:

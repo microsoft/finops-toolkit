@@ -51,12 +51,12 @@ With a systematic approach to anomaly detection, analysis, and resolution, organ
 When you first start managing cost in the cloud, you use the native tools available in the portal.
 
 - Start with proactive alerts.
-  - [Subscribe to anomaly alerts](https://learn.microsoft.com/azure/cost-management-billing/understand/analyze-unexpected-charges.md#create-an-anomaly-alert) for each subscription in your environment to receive email alerts when an unusual spike or drop has been detected in your normalized usage based on historical usage.
-  - Consider [subscribing to scheduled alerts](https://learn.microsoft.com/azure/cost-management-billing/costs/save-share-views.md#subscribe-to-scheduled-alerts) to share a chart of the recent cost trends with stakeholders. It can help you drive awareness as costs change over time and potentially catch changes the anomaly model may have missed.
+  - [Subscribe to anomaly alerts](https://learn.microsoft.com/azure/cost-management-billing/understand/analyze-unexpected-charges#create-an-anomaly-alert) for each subscription in your environment to receive email alerts when an unusual spike or drop has been detected in your normalized usage based on historical usage.
+  - Consider [subscribing to scheduled alerts](https://learn.microsoft.com/azure/cost-management-billing/costs/save-share-views#subscribe-to-scheduled-alerts) to share a chart of the recent cost trends with stakeholders. It can help you drive awareness as costs change over time and potentially catch changes the anomaly model may have missed.
   - Consider [creating a budget in Cost Management](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-acm-create-budgets) to track that specific scope or workload. Specify filters and set alerts for both actual and forecast costs for finer-grained targeting.
 - Review costs periodically, using detailed cost breakdowns, usage analytics, and visualizations to identify potential anomalies that may have been missed.
-  - Use smart views in Cost analysis to [review anomaly insights](https://learn.microsoft.com/azure/cost-management-billing/understand/analyze-unexpected-charges.md#identify-cost-anomalies) that were automatically detected for each subscription.
-  - Use customizable views in Cost analysis to [manually find unexpected changes](https://learn.microsoft.com/azure/cost-management-billing/understand/analyze-unexpected-charges.md#manually-find-unexpected-cost-changes).
+  - Use smart views in Cost analysis to [review anomaly insights](https://learn.microsoft.com/azure/cost-management-billing/understand/analyze-unexpected-charges#identify-cost-anomalies) that were automatically detected for each subscription.
+  - Use customizable views in Cost analysis to [manually find unexpected changes](https://learn.microsoft.com/azure/cost-management-billing/understand/analyze-unexpected-charges#manually-find-unexpected-cost-changes).
   - Consider [saving custom views](https://learn.microsoft.com/azure/cost-management-billing/costs/save-share-views) that show cost over time for specific workloads to save time.
   - Consider creating more detailed usage reports using [Power BI](../../../../_reporting/power-bi/README.md).
 - Once an anomaly is identified, take appropriate actions to address it.

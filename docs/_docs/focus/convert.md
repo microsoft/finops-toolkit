@@ -94,10 +94,10 @@ _<sup>3. While Region is a direct mapping of ResourceLocation, Cost Management a
 ## 🧐 See also
 
 - [How to update existing reports to FOCUS](./mapping.md)
-- [Data dictionary](../resources/data-dictionary.md)
-- [Generating a unique ID](../resources/data-dictionary.md#-generating-a-unique-id)
-- [Known issues](../resources/data-dictionary.md#-known-issues)
-- [Common terms](../resources/terms.md)
+- [Data dictionary](../../_resources/data-dictionary.md)
+- [Generating a unique ID](../../_resources/data-dictionary.md#-generating-a-unique-id)
+- [Known issues](../../_resources/data-dictionary.md#-known-issues)
+- [Common terms](../../_resources/terms.md)
 
 <br>
 
