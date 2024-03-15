@@ -17,9 +17,7 @@ Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced
 
 ---
 
-The Microsoft FinOps toolkit is an open-source collection of customizable tools to help you adopt and implement FinOps capabilities that automate and extend the Microsoft Cloud. This includes:
-
-The FinOps toolkit is an open-source collection of customizable tools and resources to help you adopt and implement FinOps capabilities that automate and extend the Microsoft Cloud. The toolkit aims to include:
+The Microsoft FinOps toolkit is an open-source collection of learning resources and customizable tools to help you adopt and implement FinOps capabilities that automate and extend the Microsoft Cloud. This includes:
 
 - Starter kits that help you get up and running.
 - Automation scripts to streamline cost configuration and management at scale.
