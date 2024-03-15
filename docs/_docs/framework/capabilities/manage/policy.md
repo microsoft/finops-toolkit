@@ -53,7 +53,7 @@ When you first start managing cost in the cloud, you use the native compliance t
     - Financial reporting tags for [chargeback](./invoicing-chargeback.md).
     - Environment and application tags for [workload management](../optimize/workloads.md).
     - Business and application owners for [anomalies](../understand/anomalies.md).
-  - Monitor required and suggested alerting for [anomalies](../understand/anomalies.md) and [budgets](../quantify/budgets.md).
+  - Monitor required and suggested alerting for [anomalies](../understand/anomalies.md) and [budgets](../quantify/budgeting.md).
   - Block or audit the creation of more expensive resource SKUs (for example, E-series virtual machines).
   - Implementation of cost recommendations and unused resources for [utilization and efficiency](../optimize/utilization-efficiency.md).
   - Application of Azure Hybrid Benefit for [utilization and efficiency](../optimize/utilization-efficiency.md).

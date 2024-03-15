@@ -27,13 +27,13 @@ Establish your FinOps practice and drive organizational accountability.
 
 ## 📝 Capabilities
 
-- [FinOps education and enablement](./manage/education.md)
-- [Establishing a FinOps culture](./manage/culture.md)
-- [Establishing a FinOps decision and accountability structure](./manage/structure.md)
-- [Onboarding workloads](./manage/onboarding.md)
-- [Cloud policy and governance](./manage/policy.md)
-- [Chargeback and finance integration](./manage/invoicing-chargeback.md)
-- [FinOps and intersecting frameworks](./manage/intersecting-disciplines.md)
+- [FinOps education and enablement](./education.md)
+- [Establishing a FinOps culture](./culture.md)
+- [Establishing a FinOps decision and accountability structure](./structure.md)
+- [Onboarding workloads](./onboarding.md)
+- [Cloud policy and governance](./policy.md)
+- [Chargeback and finance integration](./invoicing-chargeback.md)
+- [FinOps and intersecting frameworks](./intersecting-disciplines.md)
 
 <br>
 

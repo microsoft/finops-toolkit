@@ -95,39 +95,39 @@ The FinOps Framework includes capabilities that cover everything from cost analy
 
 - Understanding cloud usage and cost
 
-  - [Cost allocation](./understand/allocation.md)
-  - [Data analysis and showback](./understand/reporting.md)
-  - [Managing shared cost](./understand/shared-cost.md)
-  - [Data ingestion and normalization](./understand/ingestion.md)
+  - [Cost allocation](./capabilities/understand/allocation.md)
+  - [Data analysis and showback](./capabilities/understand/reporting.md)
+  - [Managing shared cost](./capabilities/understand/shared-cost.md)
+  - [Data ingestion and normalization](./capabilities/understand/ingestion.md)
 
 - Performance tracking and benchmarking
 
-  - [Measuring unit costs](./quantify/unit-economics.md)
-  - [Forecasting](./quantify/forecasting.md)
-  - [Budget management](./quantify/budgeting.md)
+  - [Measuring unit costs](./capabilities/quantify/unit-economics.md)
+  - [Forecasting](./capabilities/quantify/forecasting.md)
+  - [Budget management](./capabilities/quantify/budgeting.md)
 
 - Real-time decision making
 
-  - [Managing anomalies](./understand/anomalies.md)
-  - [Establishing a FinOps decision and accountability structure](./manage/structure.md)
+  - [Managing anomalies](./capabilities/understand/anomalies.md)
+  - [Establishing a FinOps decision and accountability structure](./capabilities/manage/structure.md)
 
 - Cloud rate optimization
 
-  - [Managing commitment-based discounts](./optimize/commitment-discounts.md)
+  - [Managing commitment-based discounts](./capabilities/optimize/commitment-discounts.md)
 
 - Cloud usage optimization
 
-  - [Onboarding workloads](./manage/onboarding.md)
-  - [Resource utilization and efficiency](./optimize/utilization-efficiency.md)
-  - [Workload management and automation](./optimize/workloads.md)
+  - [Onboarding workloads](./capabilities/manage/onboarding.md)
+  - [Resource utilization and efficiency](./capabilities/optimize/utilization-efficiency.md)
+  - [Workload management and automation](./capabilities/optimize/workloads.md)
 
 - Organizational alignment
 
-  - [Establishing a FinOps culture](./manage/culture.md)
-  - [Chargeback and finance integration](./manage/invoicing-chargeback.md)
-  - [FinOps education and enablement](./manage/education.md)
-  - [Cloud policy and governance](./manage/policy.md)
-  - [FinOps and intersecting frameworks](./manage/intersecting-disciplines.md)
+  - [Establishing a FinOps culture](./capabilities/manage/culture.md)
+  - [Chargeback and finance integration](./capabilities/manage/invoicing-chargeback.md)
+  - [FinOps education and enablement](./capabilities/manage/education.md)
+  - [Cloud policy and governance](./capabilities/manage/policy.md)
+  - [FinOps and intersecting frameworks](./capabilities/manage/intersecting-disciplines.md)
 
 <br>
 

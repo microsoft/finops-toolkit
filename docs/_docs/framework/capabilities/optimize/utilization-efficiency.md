@@ -55,7 +55,7 @@ When you first start managing cost in the cloud, you use the native tools to dri
 - Review and implement [Cloud Adoption Framework costing best practices](https://learn.microsoft.com/azure/cloud-adoption-framework/govern/cost-management/best-practices).
 - Review and implement [Azure Well-Architected Framework cost optimization guidance](https://learn.microsoft.com/azure/well-architected/cost/overview).
 - Familiarize yourself with the services you use, how you're charged, and what service-specific cost optimization options you have.
-  - You can discover the services you use from the Azure portal All resources page or from the [Services view in Cost analysis](https://learn.microsoft.com/azure/cost-management-billing/costs/cost-analysis-built-in-views.md#break-down-product-and-service-costs).
+  - You can discover the services you use from the Azure portal All resources page or from the [Services view in Cost analysis](https://learn.microsoft.com/azure/cost-management-billing/costs/cost-analysis-built-in-views#break-down-product-and-service-costs).
   - Explore the [Azure pricing pages](https://azure.microsoft.com/pricing) and [Azure pricing calculator](https://azure.microsoft.com/pricing/calculator) to learn how each service charges you. Use them to identify options that might reduce costs. For example, shared infrastructure and commitment discounts.
   - Review service documentation to learn about any cost-related features that could help you optimize your environment or improve cost visibility. Some examples:
     - Choose [spot VMs](https://learn.microsoft.com/azure/well-architected/cost/optimize-vm#spot-vms) for low priority, interruptible workloads.

@@ -41,7 +41,7 @@ The **Cost Management connector** report provides a general overview of cost, co
 You can download the Cost Management connector report from the [latest release](https://github.com/microsoft/finops-toolkit/releases/latest).
 
 <blockquote class="warning" markdown="1">
-  _The Cost Management connector uses an older API that does not include all details about savings plans. You will see unused savings plan charges that will not have identifiable usage for due to this gap. This will skew numbers, if you have savings plans. Consider using [FinOps hubs](../finops-hub/README.md) to use savings plans._
+  _The Cost Management connector uses an older API that does not include all details about savings plans. You will see unused savings plan charges that will not have identifiable usage for due to this gap. This will skew numbers, if you have savings plans. Consider using [FinOps hubs](../hubs/README.md) to use savings plans._
 </blockquote>
 
 <blockquote class="important" markdown="1">

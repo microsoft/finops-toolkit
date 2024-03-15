@@ -89,7 +89,7 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 Related FinOps capabilities:
 
 - [Forecasting](./forecasting.md)
-- [Onboarding workloads](../manage/workloads.md)
+- [Onboarding workloads](../manage/onboarding.md)
 - [Chargeback and finance integration](../manage/invoicing-chargeback.md)
 
 <br>

@@ -83,7 +83,7 @@ Learn about the fundamental building blocks of the FinOps Framework that enable 
 
 Once you understand which capabilities are most critical, start your first or plan your next iteration:
 
-- [Conduct a FinOps iteration](../conduct-finops-iteration.md)
+- [Conduct a FinOps iteration](../../conduct-finops-iteration.md)
 
 <br>
 

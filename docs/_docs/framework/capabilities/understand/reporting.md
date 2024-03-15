@@ -90,7 +90,7 @@ When you first start managing cost in the cloud, you use the native tools:
 
 - [Cost analysis](https://learn.microsoft.com/azure/cost-management-billing/costs/quick-acm-cost-analysis) helps you explore and get quick answers about your costs.
 - [Power BI](https://learn.microsoft.com/power-bi/connect-data/desktop-connect-azure-cost-management) helps you build advanced reports merged with other cloud or business data.
-- [Billing](https://learn.microsoft.com/azure/cost-management-billing/manage/index.yml) helps you review invoices and manage credits.
+- [Billing](https://learn.microsoft.com/azure/cost-management-billing/manage) helps you review invoices and manage credits.
 - [Azure Monitor](https://learn.microsoft.com/azure/azure-monitor/overview) helps you analyze resource usage metrics, logs, and traces.
 - [Azure Resource Graph](https://learn.microsoft.com/azure/governance/resource-graph/overview) helps you explore resource configuration, changes, and relationships.
 
@@ -157,7 +157,7 @@ Related FinOps capabilities:
 
 - [Forecasting](../quantify/forecasting.md)
 - [Managing anomalies](./anomalies.md)
-- [Budget management](../quantify/budgets.md)
+- [Budget management](../quantify/budgeting.md)
 
 <br>
 

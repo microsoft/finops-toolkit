@@ -35,7 +35,7 @@ The **ConvertTo-FinOpsSchema** command returns an object that adheres to the [Fi
 
 ConvertTo-FinOpsSchema currently understands how to convert Cost Management cost data using the latest schemas as of September 2023. Older schemas may not be fully supported. Please review output and report any issues to [aka.ms/ftk](https://aka.ms/ftk).
 
-You can pipe objects to ConvertTo-FinOpsSchema from an exported or downloaded CSV file using Import-Csv or ConvertFrom-Csv and pipe to Export-Csv to save as a CSV file. Or use the [Invoke-FinOpsSchemaTransform](./Invoke-FinOpsSchema.md) command to simplify the process.
+You can pipe objects to ConvertTo-FinOpsSchema from an exported or downloaded CSV file using Import-Csv or ConvertFrom-Csv and pipe to Export-Csv to save as a CSV file. Or use the [Invoke-FinOpsSchemaTransform](./Invoke-FinOpsSchemaTransform.md) command to simplify the process.
 
 <br>
 

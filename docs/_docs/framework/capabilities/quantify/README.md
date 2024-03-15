@@ -28,16 +28,16 @@ Measure product and cloud performance and map to organizational KPIs to facilita
 
 ## 📏 Performance tracking and benchmarking
 
-- [Forecasting](./quantify/forecasting.md)
-- [Budget management](./quantify/budgeting.md)
-- [Measuring unit costs](./quantify/unit-economics.md)
+- [Forecasting](./forecasting.md)
+- [Budget management](./budgeting.md)
+- [Measuring unit costs](./unit-economics.md)
 
 <br>
 
 ## 🤔 Real-time decision making
 
-- [Managing anomalies](./understand/anomalies.md)
-- [Establishing a FinOps decision and accountability structure](./manage/structure.md)
+- [Managing anomalies](../understand/anomalies.md)
+- [Establishing a FinOps decision and accountability structure](../manage/structure.md)
 
 <br>
 

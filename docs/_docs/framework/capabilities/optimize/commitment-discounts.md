@@ -56,10 +56,10 @@ Before you purchase either a reservation or a savings plan, consider the usage y
 
 Microsoft offers several tools to help you identify when you should consider purchasing reservations or savings plans. You can choose whether you want to start by analyzing usage or by reviewing the system-generated recommendations based on your historical usage and cost. We recommend starting with the recommendations to focus your initial efforts:
 
-- One of the most common starting points is [Azure Advisor cost recommendations](https://learn.microsoft.com/azure///learn.microsoft.com/azure/advisor/advisor-reference-cost-recommendations.md).
-- For more flexibility, you can view and filter recommendations in the [reservation](https://learn.microsoft.com/azure/cost-management-billing/reservations/reserved-instance-purchase-recommendations) and [savings plan](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/purchase-recommendations.md#purchase-recommendations-in-the-azure-portal) purchase experiences.
+- One of the most common starting points is [Azure Advisor cost recommendations](https://learn.microsoft.com/azure/advisor/advisor-reference-cost-recommendations).
+- For more flexibility, you can view and filter recommendations in the [reservation](https://learn.microsoft.com/azure/cost-management-billing/reservations/reserved-instance-purchase-recommendations) and [savings plan](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/purchase-recommendations#purchase-recommendations-in-the-azure-portal) purchase experiences.
 - Lastly, you can also view reservation recommendations in [Power BI](https://learn.microsoft.com/power-bi/connect-data/desktop-connect-azure-cost-management).
-- After you know what to look for, you can [analyze your usage data](https://learn.microsoft.com/azure/cost-management-billing/reservations/determine-reservation-purchase.md#analyze-usage-data) to look for the specific usage you want to purchase a reservation for.
+- After you know what to look for, you can [analyze your usage data](https://learn.microsoft.com/azure/cost-management-billing/reservations/determine-reservation-purchase#analyze-usage-data) to look for the specific usage you want to purchase a reservation for.
 
 After purchasing commitments, you can:
 

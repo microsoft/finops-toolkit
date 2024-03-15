@@ -59,12 +59,12 @@ Understanding how changes to your usage patterns affect future costs is informed
 
 When you first start managing cost in the cloud, you use the native Cost analysis experience in the portal.
 
-The simplest option is to [use Cost analysis to project future costs](https://learn.microsoft.com/azure/cost-management-billing/costs/cost-analysis-common-uses.md#view-forecast-costs) using the Daily costs or Accumulated costs view. If you have consistent usage with little to no anomalies or large variations, it may be all you need.
+The simplest option is to [use Cost analysis to project future costs](https://learn.microsoft.com/azure/cost-management-billing/costs/cost-analysis-common-uses#view-forecast-costs) using the Daily costs or Accumulated costs view. If you have consistent usage with little to no anomalies or large variations, it may be all you need.
 
 If you do see anomalies or large (possibly expected) variations in costs, you may want to customize the view to build a more accurate forecast. To do so, you need to analyze the data and filter out anything that might skew the results.
 
 - Use Cost analysis to analyze historical trends and identify abnormalities.
-  - Before you start, determine if you're interested in your costs as they're billed or if you want to forecast the effective costs after accounting for commitment-based discounts. If you want the effective cost, [change the view to use amortized cost](https://learn.microsoft.com/azure/cost-management-billing/costs/customize-cost-analysis-views.md#switch-between-actual-and-amortized-cost).
+  - Before you start, determine if you're interested in your costs as they're billed or if you want to forecast the effective costs after accounting for commitment-based discounts. If you want the effective cost, [change the view to use amortized cost](https://learn.microsoft.com/azure/cost-management-billing/costs/customize-cost-analysis-views#switch-between-actual-and-amortized-cost).
   - Start with the Daily costs view, then change the date range to look back as far as you're interested in looking forward. For instance, if you want to predict the next 12 months, then set the date range to the last 12 months.
   - Filter out all purchases (`Charge type = Purchase`). Make a note of them as you need to forecast them separately.
   - Group costs to identify new and old (deleted) subscriptions, resource groups, and resources.
@@ -72,8 +72,8 @@ If you do see anomalies or large (possibly expected) variations in costs, you ma
     - If you see any that are new, make note of them and then filter them out. You forecast them separately. Consider saving your view under a new name as one way to "remember" them for later.
     - If you have future dates included in your view, you may notice the forecast is starting to level out. It happens because the abnormalities are no longer being factored into the algorithm.
   - If you see any large spikes or dips, group the data by one of the [grouping options](https://learn.microsoft.com/azure/cost-management-billing/costs/group-filter) to identify what the cause was.
-    - Try different options until you discover the cause using the same approach as you would in [finding unexpected changes in cost](https://learn.microsoft.com/azure/cost-management-billing/understand/analyze-unexpected-charges.md#manually-find-unexpected-cost-changes).
-    - If you want to find the exact change that caused the cost spike (or dip), use tools like [Azure Monitor](https://learn.microsoft.com/azure///learn.microsoft.com/azure/azure-monitor/overview.md) or [Resource Graph](https://learn.microsoft.com/azure/governance/resource-graph/how-to/get-resource-changes) in a separate window or browser tab.
+    - Try different options until you discover the cause using the same approach as you would in [finding unexpected changes in cost](https://learn.microsoft.com/azure/cost-management-billing/understand/analyze-unexpected-charges#manually-find-unexpected-cost-changes).
+    - If you want to find the exact change that caused the cost spike (or dip), use tools like [Azure Monitor](https://learn.microsoft.com/azure/azure-monitor/overview.md) or [Resource Graph](https://learn.microsoft.com/azure/governance/resource-graph/how-to/get-resource-changes) in a separate window or browser tab.
     - If the change was a segregated charge and shouldn't be factored into the forecast, filter it out. Be careful not to filter out other costs as it will skew the forecast. If necessary, start by forecasting a smaller scope to minimize risk of filtering more and repeat the process per scope.
     - If the change is in a scope that shouldn't get filtered out, make note of that scope and then filter it out. You forecast them separately.
   - Consider filtering out any subscriptions, resource groups, or resources that were reconfigured during the period and may not reflect an accurate picture of future costs. Make note of them so you can forecast them separately.
@@ -92,8 +92,8 @@ Whichever approach worked best for you, compare your forecast with your current 
 
 - Consider [creating a budget in Cost Management](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-acm-create-budgets) to track that specific scope or workload. Specify filters and set alerts for both actual and forecast costs.
 - [Save a view in Cost analysis](https://learn.microsoft.com/azure/cost-management-billing/costs/save-share-views) to monitor that cost and budget over time.
-- Consider [subscribing to scheduled alerts](https://learn.microsoft.com/azure/cost-management-billing/costs/save-share-views.md#subscribe-to-scheduled-alerts) for this view to share a chart of the cost trends with stakeholders. It can help you drive accountability and awareness as costs change over time before you go over budget.
-- Consider [subscribing to anomaly alerts](https://learn.microsoft.com/azure/cost-management-billing/understand/analyze-unexpected-charges.md#create-an-anomaly-alert) for each subscription to ensure everyone is aware of anomalies as they're identified.
+- Consider [subscribing to scheduled alerts](https://learn.microsoft.com/azure/cost-management-billing/costs/save-share-views#subscribe-to-scheduled-alerts) for this view to share a chart of the cost trends with stakeholders. It can help you drive accountability and awareness as costs change over time before you go over budget.
+- Consider [subscribing to anomaly alerts](https://learn.microsoft.com/azure/cost-management-billing/understand/analyze-unexpected-charges#create-an-anomaly-alert) for each subscription to ensure everyone is aware of anomalies as they're identified.
 
 Consider reviewing forecasts monthly or quarterly to ensure you remain on track with your expectations.
 

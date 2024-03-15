@@ -241,9 +241,9 @@ The **Data quality** page is for data validation purposes only; however, it can 
 
 ## See also
 
-- [About FOCUS](../_docs/focus/README.md)
-- [Common terms](../resources/terms.md)
-- [Data dictionary](../resources/data-dictionary.md)
+- [About FOCUS](../../_docs/focus/README.md)
+- [Common terms](../../_resources/terms.md)
+- [Data dictionary](../../_resources/data-dictionary.md)
 
 <br>
 

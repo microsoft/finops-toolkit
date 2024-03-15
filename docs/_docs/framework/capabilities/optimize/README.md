@@ -28,15 +28,15 @@ Identify and implement the right mix of pricing models, services, and resources 
 
 ## 📉 Rate optimization
 
-- [Managing commitment-based discounts](./optimize/commitment-discounts.md)
+- [Managing commitment-based discounts](./commitment-discounts.md)
 
 <br>
 
 ## 📊 Usage optimization
 
-- [Onboarding workloads](./manage/onboarding.md)
-- [Resource utilization and efficiency](./optimize/utilization-efficiency.md)
-- [Workload management and automation](./optimize/workloads.md)
+- [Onboarding workloads](../manage/onboarding.md)
+- [Resource utilization and efficiency](./utilization-efficiency.md)
+- [Workload management and automation](./workloads.md)
 
 <br>
 

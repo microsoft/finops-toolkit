@@ -72,7 +72,7 @@ Cost allocation is usually an afterthought and requires some level of cleanup wh
   - Enable [tag inheritance in Cost Management](https://learn.microsoft.com/azure/cost-management-billing/costs/enable-tag-inheritance) to copy subscription and resource group tags in cost data only. It doesn't change tags on your resources.
   - Use Azure Policy to [enforce your tagging strategy](https://learn.microsoft.com/azure/azure-resource-manager/management/tag-policies), automate the application of tags at scale, and track compliance status. Use compliance as a KPI for your tagging strategy.
   - If you need to move costs between subscriptions, resource groups, or add or change tags, [configure allocation rules in Cost Management](https://learn.microsoft.com/azure/cost-management-billing/costs/allocate-costs). Cost allocation is covered in detail at [Managing shared costs](./shared-cost.md).
-  - Consider [grouping related resources together with the “cm-resource-parent” tag](https://learn.microsoft.com/azure/cost-management-billing/costs/group-filter.md#group-related-resources-in-the-resources-view) to view costs together in Cost analysis.
+  - Consider [grouping related resources together with the "cm-resource-parent" tag](https://learn.microsoft.com/azure/cost-management-billing/costs/group-filter#group-related-resources-in-the-resources-view) to view costs together in Cost analysis.
   - Distribute responsibility for any remaining change to scale out and drive efficiencies.
 - Make note of any unallocated costs or costs that should be split but couldn't be. You cover it as part of [Managing shared costs](./shared-cost.md).
 

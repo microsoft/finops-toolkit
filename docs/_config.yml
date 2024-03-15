@@ -7,7 +7,7 @@ remote_theme: just-the-docs/just-the-docs
 # Kramdown options -- https://kramdown.gettalong.org/options.html
 # GFM options -- https://github.com/kramdown/parser-gfm
 
-url: https://microsoft.github.io/finops-toolkit
+url: https://microsoft.github.io # Base hostname and protocol
 
 # Links in header
 aux_links:

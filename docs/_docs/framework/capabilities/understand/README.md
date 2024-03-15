@@ -27,12 +27,12 @@ Collect, normalize, and analyze cloud spending and usage across the organization
 
 ## 📝 Capabilities
 
-- [Data ingestion and normalization](./understand/ingestion.md)
-- [Cost allocation](./understand/allocation.md)
-- [Managing shared cost](./understand/shared-cost.md)
-- [Data analysis and showback](./understand/reporting.md)
-- [Forecasting](./quantify/forecasting.md)
-- [Managing anomalies](./understand/anomalies.md)
+- [Data ingestion and normalization](./ingestion.md)
+- [Cost allocation](./allocation.md)
+- [Managing shared cost](./shared-cost.md)
+- [Data analysis and showback](./reporting.md)
+- [Forecasting](../quantify/forecasting.md)
+- [Managing anomalies](./anomalies.md)
 
 <br>
 

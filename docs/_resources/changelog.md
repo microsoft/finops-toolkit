@@ -87,10 +87,10 @@ Legend:
 
 > ➕ Added:
 >
-> 1. Added a DQ page to the [Commitment discounts report](./power-bi/commitment-discounts.md#dq) for data quality validations. This page can be useful in identifying data gaps in Cost Management.
+> 1. Added a DQ page to the [Commitment discounts report](../_reporting/power-bi/commitment-discounts.md#dq) for data quality validations. This page can be useful in identifying data gaps in Cost Management.
 > 2. Added `x_NegotiatedUnitPriceSavings` column to show the price reduction from negotiated discounts compared to the public, list price.
 > 3. Added `x_IsFree` column to indicate when a row represents a free charge (based on Cost Management data). This is used in data quality checks.
-> 4. Added `Tags` and `TagsAsJson` columns to both the **Usage details** and **Usage details amortized** tables in the [CostManagementTemplateApp report](./power-bi/template-app.md) ([#625](https://github.com/microsoft/finops-toolkit/issues/625)).
+> 4. Added `Tags` and `TagsAsJson` columns to both the **Usage details** and **Usage details amortized** tables in the [CostManagementTemplateApp report](../_reporting/power-bi/template-app.md) ([#625](https://github.com/microsoft/finops-toolkit/issues/625)).
 >
 > 🛠️ Fixed:
 >
@@ -106,15 +106,15 @@ Legend:
 > 1. Changed "Other" ChargeSubcategory for usage to "On-Demand" to be consistent with Cost Management exports
 > 2. Renamed savings columns for consistency:
 >    - `x_OnDemandUnitPriceSavings` is now `x_CommitmentUnitPriceSavings`. This shows the commitment discount price reduction compared to the negotiated prices for the account.
->    - `x_ListUnitPriceSavings` is now `x_DiscountUnitPriceSavings`. This shows the price reduction from all disocunts compared to the public, list price.
+>    - `x_ListUnitPriceSavings` is now `x_DiscountUnitPriceSavings`. This shows the price reduction from all discounts compared to the public, list price.
 >    - `x_NegotiatedSavings` is now `x_NegotiatedCostSavings`. This shows the cost savings from negotiated discounts only (excluding commitment discounts).
->    - `x_CommitmentSavings` is now `x_CommitmentCostSavings`. This shows the cost savings from commitment discounts comared to on-demand prices for the account (including negotiated discounts).
->    - `x_DiscountSavings` is now `x_DiscountCostSavings`. This shows the cost savins from all negotated and commitment discounts.
+>    - `x_CommitmentSavings` is now `x_CommitmentCostSavings`. This shows the cost savings from commitment discounts compared to on-demand prices for the account (including negotiated discounts).
+>    - `x_DiscountSavings` is now `x_DiscountCostSavings`. This shows the cost savings from all negotiated and commitment discounts.
 > 3. Changed the `PricingQuantity` and `UsageQuantity` columns to use 3 decimal places.
 > 4. Changed all cost columns to use 2 decimal places.
 > 5. Changed all unit price columns to not summarize by default and use 3 decimal places.
 > 6. Changed the `x_PricingBlockSize` column to a whole number and not summarize by default.
-> 7. Renamed the **Coverage** pages in the [Commitment discounts report](./power-bi/commitment-discounts.md) to **Recommendations**.
+> 7. Renamed the **Coverage** pages in the [Commitment discounts report](../_reporting/power-bi/commitment-discounts.md) to **Recommendations**.
 
 📒 Azure Monitor workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -132,27 +132,27 @@ Legend:
 
 > ✏️ Changed:
 >
-> 1. [Start-FinOpsCostExport](./powershell/cost/Start-FinOpsCostExport.md) includes a new `-Backfill` option to backfill multiple months.
-> 2. [Start-FinOpsCostExport](./powershell/cost/Start-FinOpsCostExport.md) includes a new `-StartDate` and `-EndDate` options to run the export for a given date range. This can include multiple months.
+> 1. [Start-FinOpsCostExport](../_automation/powershell/cost/Start-FinOpsCostExport.md) includes a new `-Backfill` option to backfill multiple months.
+> 2. [Start-FinOpsCostExport](../_automation/powershell/cost/Start-FinOpsCostExport.md) includes a new `-StartDate` and `-EndDate` options to run the export for a given date range. This can include multiple months.
 >
 > 🛠️ Fixed:
 >
-> 1. Fixed ParameterBindingException error in [New-FinOpsCostExport](./powershell/cost/New-FinOpsCostExport.md).
+> 1. Fixed ParameterBindingException error in [New-FinOpsCostExport](../_automation/powershell/cost/New-FinOpsCostExport.md).
 
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
-> 1. Added ServiceModel and Environment columns to the [services](./open-data/README.md#-services) data ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
-> 2. New and updated [resource types](./open-data/README.md#-resource-types) and icons.
+> 1. Added ServiceModel and Environment columns to the [services](../_reporting/data/README.md#-services) data ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
+> 2. New and updated [resource types](../_reporting/data/README.md#-resource-types) and icons.
 
 🖥️ PowerShell
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
-> 1. [Get-FinOpsCostService](./powershell/data/Get-FinOpsService.md) includes new `-Environment` and `-ServiceModel` filters and properties in the response ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
+> 1. [Get-FinOpsCostService](../_automation/powershell/data/Get-FinOpsService.md) includes new `-Environment` and `-ServiceModel` filters and properties in the response ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
 
 [Download v0.2.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.2.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.2...v0.2.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
