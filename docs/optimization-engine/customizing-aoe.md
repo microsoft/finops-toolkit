@@ -14,14 +14,14 @@ Customize the Azure Optimization Engine settings according to your organization 
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [ℹ️ Widen the engine scope](#ℹ️-widen-the-engine-scope)
-- [⏰ Adjust schedules](#ℹ️-adjust-schedules)
-- [🦹 Scale AOE runbooks with Hybrid Worker](#ℹ️-scale-aoe-runbooks-with-hybrid-worker)
-- [ℹ️ Adjust thresholds](#ℹ️-adjust-thresholds)
+- [🧿 Widen the engine scope](#-widen-the-engine-scope)
+- [⏰ Adjust schedules](#-adjust-schedules)
+- [🦹 Scale AOE runbooks with Hybrid Worker](#-scale-aoe-runbooks-with-hybrid-worker)
+- [🚥 Adjust thresholds](#-adjust-thresholds)
 
 </details>
 
-## ℹ️ Widen the engine scope
+## 🧿 Widen the engine scope
 
 By default, the Azure Automation Managed Identity is assigned the Reader role only over the respective subscription. However, you can widen the scope of its recommendations just by granting the same Reader role to other subscriptions or, even simpler, to a top-level Management Group.
 
@@ -29,7 +29,7 @@ In the context of augmented VM right-size recommendations, you may have your VMs
 
 ## ⏰ Adjust schedules
 
-By default, the base time for the AOE Automation schedules is set as the deployment time. Soon after the initial deployment completes, the exports, ingests and recommendations runbooks will run according to the engine's default schedules. For example, if you deploy AOE on a Monday at 11:00 a.m., you will get new recommendations every Monday at 2:30 p.m.. If this schedule, for some reason, does not fit your needs, you can reset it to the time that better suits you, by using the `Reset-AutomationSchedules.ps1` script. You just have to call the script following the syntax below and answer the input requests:
+By default, the base time for the AOE Automation schedules is set as the deployment time. Soon after the initial deployment completes, the exports, ingests and recommendations runbooks will run according to the engine's default schedules. For example, if you deploy AOE on a Monday at 11:00 a.m., you will get new recommendations every Monday at 2:30 p.m.. If this schedule, for some reason, does not fit your needs, you can reset it to the time that better suits you, by using the `Reset-AutomationSchedules.ps1` script (available in the [AOE root folder](https://aka.ms/AzureOptimizationEngine/code)). You just have to call the script following the syntax below and answer the input requests:
 
 ```powershell
 ./Reset-AutomationSchedules.ps1 -AutomationAccountName <AOE automation account> -ResourceGroupName <AOE resource group> [-AzureEnvironment <AzureUSGovernment|AzureGermanCloud|AzureCloud>]
@@ -44,11 +44,11 @@ The script will also ask you to enter, **if needed**, the Hybrid Worker Group yo
 By default, AOE Automation runbooks are executed in the context of the Azure Automation sandbox. If you face performance issues due to the memory limits of the Automation sandbox or decide to implement private endpoints for the Storage Account or SQL Database, to harden AOE's security, you will need to execute runbooks from a Hybrid Worker (an Azure or on-premises Virtual Machine with the Automation Hybrid Worker extension). To change the execution context for the AOE runbooks, you must use the `Reset-AutomationSchedules.ps1` script. See how to use the script in the previous sub-section and, after setting the runbooks execution base time, enter the Hybrid Worker Group name you want the runbooks to run in.
 
 **IMPORTANT**: 
-* The Hybrid Worker machine must have the required PowerShell modules installed. See [here](upgrade-manifest.json) the list of required modules.
+* The Hybrid Worker machine must have the required PowerShell modules installed. See `upgrade-manifest.json` file contains the list of required modules.
 * Once you change the runbook execution context to Hybrid Worker, you will have to always use the `DoPartialUpgrade` flag whenever you upgrade AOE, or else you will lose the runbook schedule settings and revert to the default sandbox configuration.
 * The Managed Identity used to authenticate against Azure, Microsoft Entra ID and Billing Account scopes is still the Azure Automation's one, even if the Hybrid Worker machine has a Managed Identity assigned ([see details](https://learn.microsoft.com/en-us/azure/automation/automation-hrw-run-runbooks?#runbook-auth-managed-identities)). User-assigned Managed Identities are supported in the context of Hybrid Workers only if 1) the Automation Account does not have any associated Managed Identity, i.e., only the Hybrid Worker machine can have a User-Assigned Managed Identity; 2) all runbooks run in the context of the Hybrid Worker. In this case, you must create an `AzureOptimization_UAMIClientID` Automation Variable with the User-Assigned Managed Identity Client ID as value; and 3) the `AzureOptimization_AuthenticationOption` Automation variable value is updated to `UserAssignedManagedIdentity`.
 
-## ℹ️ Adjust thresholds
+## 🚥 Adjust thresholds
 
 For Advisor Cost recommendations, the AOE's default configuration produces percentile 99th VM metrics aggregations, but you can adjust those to be less conservative. There are also adjustable metrics thresholds that are used to compute the fit score. The default thresholds values are 30% for CPU (5% for shutdown recommendations), 50% for memory (100% for shutdown) and 750 Mbps for network bandwidth (10 Mbps for shutdown). All the adjustable configurations are available as Azure Automation variables. The list below is a highlight of the most relevant configuration variables. To access them, go to the Automation Account _Shared Resources - Variables_ menu option.
 
@@ -105,4 +105,4 @@ Variable | Description
 `AzureOptimization_RecommendationsMaxAgeInDays` | The maximum age (in days) for a recommendation to be kept in the SQL database. Default: 365.
 `AzureOptimization_RetailPricesCurrencyCode` | The currency code (e.g., EUR, USD, etc.) used to collect the Reservations retail prices.
 `AzureOptimization_PriceSheetMeterCategories` | The comma-separated meter categories used for Pricesheet filtering, in order to avoid ingesting unnecessary data. Defaults to "Virtual Machines,Storage"
-`AzureOptimization_ConsumptionScope` | The scope of the consumption exports: `Subscription` (default) or `BillingAccount`. See [more details](./setup-options.md#ℹ️-enabling-azure-commitments-workbooks).
+`AzureOptimization_ConsumptionScope` | The scope of the consumption exports: `Subscription` (default) or `BillingAccount`. See [more details](./setup-options.md#-enabling-azure-commitments-workbooks).

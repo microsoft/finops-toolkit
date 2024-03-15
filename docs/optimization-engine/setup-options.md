@@ -16,7 +16,7 @@ Advanced scenarios for setting up or upgrading AOE.
 
 - [ℹ️ Using a local repository](#ℹ️-using-a-local-repository)
 - [ℹ️ Silent deployment](#ℹ️-silent-deployment)
-- [ℹ️ Enabling Azure commitments workbooks](#ℹ️-enabling-azure-commitments-workbooks)
+- [🤝 Enabling Azure commitments workbooks](#ℹ️-enabling-azure-commitments-workbooks)
 - [ℹ️ Upgrading AOE](#ℹ️-upgrading-aoe)
 
 </details>
@@ -67,7 +67,7 @@ An example of the content of such silent deployment file is:
   
 ```
 
-## ℹ️ Enabling Azure commitments workbooks
+## 🤝 Enabling Azure commitments workbooks
 
 In order to leverage the Workbooks that allow you to analyze your Azure commitments usage (`Benefits Usage`, `Reservations Usage` and `Savings Plans Usage`) or estimate the impact of doing additional consumption commitments (`Benefits Simulation` and `Reservations Potential`), you need to configure AOE and grant privileges to its Managed Identity at your consumption agreement level (EA or MCA). If you could not do it during setup/upgrade, you can still execute those extra configuration steps, provided you do it with a user that is **both Contributor in the AOE resource group and have administrative privileges over the consumption agreement** (Enterprise Enrollment Administrator for EA or Billing Profile Owner for MCA). You just have to use the `Setup-BenefitsUsageDependencies.ps1` script following the syntax below and answer the input requests:
 
