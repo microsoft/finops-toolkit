@@ -5,7 +5,7 @@ This folder contains all the assets needed to deploy and manage the Azure Optimi
 On this page:
 
 - [🏯 Architecture](#-architecture)
-- [🔐 Requirements](#-requirements)
+- [📋 Requirements](#-requirements)
 - [➕ Deployment instructions](#-deployment-instructions)
 - [🛫 Get started with AOE](#-get-started-with-aoe)
 
@@ -16,7 +16,7 @@ read [this blog post](https://techcommunity.microsoft.com/t5/core-infrastructure
 
 ![Azure Optimization Engine architecture](../../docs/assets/images/aoe/architecture.jpg "Azure Optimization Engine architecture")
 
-## 🔐 Requirements
+## 📋 Requirements
 
 To deploy and test AOE in your development environment, you need to fulfill some tooling and Azure permissions requirements. See more details [here](https://aka.ms/AzureOptimizationEngine/requirements).
 

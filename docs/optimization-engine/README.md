@@ -20,7 +20,7 @@ An extensible solution designed to generate optimization recommendations for you
 - [🙋‍♀️ Why an Optimization Engine?](#️-why-an-optimization-engine)
 - [🌟 Benefits](#-benefits)
 - [📦 What's included](#-whats-included)
-- [🔐 Requirements](#-requirements)
+- [📋 Requirements](#-requirements)
 - [➕ Deployment instructions](#-deployment-instructions)
 - [🛫 Get started with AOE](#-get-started-with-aoe)
 
@@ -94,7 +94,7 @@ AOE includes the following resources:
 Once deployed and after all the initial ingestion and recommendations generation automation has finished (typically after 3 hours), you can report on the data with the
 help of Azure Workbooks or Power BI.
 
-## 🔐 Requirements
+## 📋 Requirements
 
 * A supported Azure subscription (see the [FAQ](./faq.md))
 * A user account with Owner permissions over the chosen subscription, so that the Automation Managed Identity is granted the required privileges over the subscription (Reader) and deployment resource group (Contributor)
