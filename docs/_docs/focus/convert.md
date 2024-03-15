@@ -87,7 +87,7 @@ _<sup>3. While Region is a direct mapping of ResourceLocation, Cost Management a
 
 ## 🙋‍♀️ Feedback about FOCUS columns
 
-<!-- markdownlint-disable-line --> {% include_relative _feedback.md %}
+<!-- markdownlint-disable-line --> {% include focus_feedback.md %}
 
 <br>
 
