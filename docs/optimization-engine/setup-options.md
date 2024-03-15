@@ -14,14 +14,14 @@ Advanced scenarios for setting up or upgrading AOE.
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [ℹ️ Using a local repository](#ℹ️-using-a-local-repository)
-- [ℹ️ Silent deployment](#ℹ️-silent-deployment)
-- [🤝 Enabling Azure commitments workbooks](#ℹ️-enabling-azure-commitments-workbooks)
-- [ℹ️ Upgrading AOE](#ℹ️-upgrading-aoe)
+- [🎛️ Using a local repository](#-using-a-local-repository)
+- [👂 Silent deployment](#-silent-deployment)
+- [🤝 Enabling Azure commitments workbooks](#-enabling-azure-commitments-workbooks)
+- [🔼 Upgrading AOE](#-upgrading-aoe)
 
 </details>
 
-## ℹ️ Using a local repository
+## 🎛️ Using a local repository
 
 If you choose to deploy all the dependencies from your own local repository, you must publish the solution files into a publicly reachable URL. You must ensure the entire AOE project structure is available at the same base URL. Storage Account SAS Token-based URLs are not supported.
 
@@ -36,33 +36,33 @@ $tags = @{"CostCenter"="FinOps";"Environment"="Production"}
 .\Deploy-AzureOptimizationEngine.ps1 -TemplateUri "https://contoso.com/azuredeploy.bicep" -ResourceTags $tags
 ```
 
-## ℹ️ Silent deployment
+## 👂 Silent deployment
 
 Optionally, you can also use the `SilentDeploymentSettingsPath` input parameter to deploy AOE in a more automated way.  
-The file referencing should be a JSON file with the needed attributes defined.  
+The file referencing should be a JSON file with the needed attributes defined (**all mandatory** unless specified).  
 An example of the content of such silent deployment file is:
 
 ```json
 {
-    "SubscriptionId": "<<SubscriptionId>>",                         // mandatory, subscription where AOE needs to be deployed
-    "NamePrefix": "<<CustomNamePrefix>>",                           // mandatory, prefix for all resources. Fill in 'EmptyNamePrefix' to specify the resource names
-    "WorkspaceReuse": "n",                                          // mandatory, y/n, y = reuse existing workspace, n = create new workspace
-    "ResourceGroupName": "<<CustomName>>-rg",                       // mandatory if NamePrefix is set to 'EmptyNamePrefix', otherwise optional
-    "StorageAccountName": "<<CustomName>>sa",                       // mandatory if NamePrefix is set to 'EmptyNamePrefix', otherwise optional
-    "AutomationAccountName": "<<CustomName>>-auto",                 // mandatory if NamePrefix is set to 'EmptyNamePrefix', otherwise optional
-    "SqlServerName": "<<CustomName>>-sql",                          // mandatory if NamePrefix is set to 'EmptyNamePrefix', otherwise optional
-    "SqlDatabaseName": "<<CustomName>>-db",                         // mandatory if NamePrefix is set to 'EmptyNamePrefix', otherwise optional
-    "WorkspaceName": "<<ExistingName>>",                            // mandatory if workspaceReuse is set to 'n', otherwise optional
-    "WorkspaceResourceGroupName": "<<ExistingName>>",               // mandatory if workspaceReuse is set to 'n', otherwise optional
-    "DeployWorkbooks": "y",                                         // mandatory, y/n, y = deploy the workbooks, n = don't deploy the workbooks
-    "SqlAdmin": "<<sqlaAdmin>>",                                    // mandatory
-    "SqlPass": "<<sqlPass>>",                                       // mandatory
-    "TargetLocation": "westeurope",                                 // mandatory
-    "DeployBenefitsUsageDependencies": "y",                         // mandatory, y/n, deploy the dependencies for the Azure Benefits usage workbooks (EA/MCA customers only + agreement administrator role required
-    "CustomerType": "MCA",                                          // mandatory if DeployBenefitsUsageDependencies is set to 'y', MCA/EA
-    "BillingAccountId": "<guid>:<guid>_YYYY-MM-DD",                 // mandatory if DeployBenefitsUsageDependencies is set to 'y', MCA or EA Billing Account ID
-    "BillingProfileId": "ABCD-DEF-GHI-JKL",                         // mandatory if CustomerType is set to 'MCA", otherwise optional
-    "CurrencyCode": "EUR"                                           // mandatory if DeployBenefitsUsageDependencies is set to 'y', EUR/USD/...
+    "SubscriptionId": "<<SubscriptionId>>",
+    "NamePrefix": "<<CustomNamePrefix>>", // prefix for all resources. Fill in 'EmptyNamePrefix' to specify the resource names
+    "WorkspaceReuse": "n", // y = reuse existing workspace, n = create new workspace
+    "ResourceGroupName": "<<CustomName>>-rg", // mandatory if NamePrefix is set to 'EmptyNamePrefix'
+    "StorageAccountName": "<<CustomName>>sa", // mandatory if NamePrefix is set to 'EmptyNamePrefix'
+    "AutomationAccountName": "<<CustomName>>-auto", // mandatory if NamePrefix is set to 'EmptyNamePrefix'
+    "SqlServerName": "<<CustomName>>-sql", // mandatory if NamePrefix is set to 'EmptyNamePrefix'
+    "SqlDatabaseName": "<<CustomName>>-db", // mandatory if NamePrefix is set to 'EmptyNamePrefix'
+    "WorkspaceName": "<<ExistingName>>", // mandatory if WorkspaceReuse is set to 'n'
+    "WorkspaceResourceGroupName": "<<ExistingName>>", // mandatory if workspaceReuse is set to 'n'
+    "DeployWorkbooks": "y", // y = deploy the workbooks, n = don't deploy the workbooks
+    "SqlAdmin": "<<sqlaAdmin>>",
+    "SqlPass": "<<sqlPass>>",
+    "TargetLocation": "westeurope",
+    "DeployBenefitsUsageDependencies": "y", // deploy the dependencies for the Azure commitments workbooks (EA/MCA customers only + agreement administrator role required)
+    "CustomerType": "MCA", // mandatory if DeployBenefitsUsageDependencies is set to 'y', MCA/EA
+    "BillingAccountId": "<guid>:<guid>_YYYY-MM-DD", // mandatory if DeployBenefitsUsageDependencies is set to 'y', MCA or EA Billing Account ID
+    "BillingProfileId": "ABCD-DEF-GHI-JKL", // mandatory if CustomerType is set to 'MCA"
+    "CurrencyCode": "EUR" // mandatory if DeployBenefitsUsageDependencies is set to 'y'
   }
   
 ```
@@ -77,9 +77,9 @@ In order to leverage the Workbooks that allow you to analyze your Azure commitme
 
 If you run into issues with the Azure Pricesheet ingestion (due to the large size of the CVS export), you can create the following Azure Automation variable, to filter in the Price Sheet regions: `AzureOptimization_PriceSheetMeterRegions` set to the comma-separated billing regions of your virtual machines (e.g. *EU West,EU North*).
 
-The Reservations Usage Workbook has a couple of "Unused Reservations" tiles that require AOE to export Consumption data at the EA/MCA scope (instead of the default Subscription scope). You can switch to EA/MCA scope consumption by creating/updating the `AzureOptimization_ConsumptionScope` Automation variable with `BillingAccount` as value. Be aware that this option may generate a very large single consumption export which may lead to errors due to lack of memory (this would in turn require [deploying AOE with a Hybrid Worker](#changing-the-runbooks-execution-context-to-hybrid-worker)).
+The Reservations Usage Workbook has a couple of "Unused Reservations" tiles that require AOE to export Consumption data at the EA/MCA scope (instead of the default Subscription scope). You can switch to EA/MCA scope consumption by creating/updating the `AzureOptimization_ConsumptionScope` Automation variable with `BillingAccount` as value. Be aware that this option may generate a very large single consumption export which may lead to errors due to lack of memory (this would in turn require [deploying AOE with a Hybrid Worker](./customizing-aoe.md#-scale-aoe-runbooks-with-hybrid-worker)).
 
-## ℹ️ Upgrading AOE
+## 🔼 Upgrading AOE
 
 If you have a previous version of AOE and wish to upgrade, it's as simple as re-running the deployment script with the resource naming options you chose at the initial deployment. It will re-deploy the ARM template, adding new resources and updating existing ones.
 
