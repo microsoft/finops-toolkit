@@ -205,8 +205,8 @@ The **Data quality** page shows some of the data used to calculate savings at a 
 
 ## See also
 
-- [Common terms](../resources/terms.md)
-- [Data dictionary](../resources/data-dictionary.md)
+- [Common terms](../../_resources/terms.md)
+- [Data dictionary](../../_resources/data-dictionary.md)
 
 <br>
 
