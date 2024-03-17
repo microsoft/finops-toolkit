@@ -92,6 +92,8 @@ $templates = Get-ChildItem $relDir -Directory `
     Write-Verbose "Updating $($path.Name) deployment file in docs..."
     Copy-Item "$path/azuredeploy.json" "$deployDir/$($path.Name)-$version.json"
     Copy-Item "$path/azuredeploy.json" "$deployDir/$($path.Name)-latest.json"
+    Copy-Item "$path/createUiDefinition.json" "$deployDir/$($path.Name)-$version.ui.json"
+    Copy-Item "$path/createUiDefinition.json" "$deployDir/$($path.Name)-latest.ui.json"
 
     Write-Verbose ("Compressing $path to $zip" -replace (Get-Item $relDir).FullName, '.')
     Compress-Archive -Path "$path/*" -DestinationPath $zip
