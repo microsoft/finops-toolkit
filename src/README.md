@@ -28,7 +28,7 @@ On this page:
    ./Deploy-Toolkit "<template-or-module-name>" -Build
    ```
 
-4. 📝 Update [docs](../docs) and the [changelog](../docs/changelog.md).
+4. 📝 Update [docs](../docs) and the [changelog](../docs/_resources/changelog.md).
 5. ✅ Submit a PR and address feedback daily.
 6. 🎉 Celebrate! You're done!
 
