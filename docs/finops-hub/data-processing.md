@@ -17,16 +17,20 @@ FinOps hubs perform a number of data processing activities to clean up, normaliz
 
 ```mermaid
 sequenceDiagram
-    Cost Management->>msexports: ① Export amortized costs
-    msexports->>ingestion: ② msexports_Transform
+    Cost Management->>msexports: ① Export data
+    msexports->>msexports: ② msexports_ExecuteETL
+    msexports->>ingestion: ② msexports_ETL_ingestion
     Power BI-->>ingestion: ③ Read data
 ```
 
 <br>
 
 1. Cost Management exports raw cost details to the **msexports** container.
-2. The **msexports_transform** pipeline saves the raw data in parquet format to the **ingestion** container.
-3. Power BI reads cost data from the **ingestion** container.
+2. The **msexports_ExecuteETL** pipeline kicks off the extract-transform-load (ETL) process when files are added to storage.
+3. The **msexports_ETL_ingestion** pipeline transforms the data to a standard schema and saves the raw data in parquet format to the **ingestion** container.
+4. Power BI reads cost data from the **ingestion** container.
+
+<br>
 
 ---
 

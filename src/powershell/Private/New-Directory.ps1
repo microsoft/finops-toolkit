@@ -21,7 +21,7 @@ function New-Directory
 
     if (-not (Test-Path -Path $Path))
     {
-        Write-Verbose -Message ($LocalizedData.NewDirectory -f $Path)
+        Write-Verbose -Message ($LocalizedData.NewDirectory_Execute -f $Path)
         $null = New-Item -ItemType 'Directory' -Path $Path
     }
 }

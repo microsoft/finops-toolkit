@@ -28,7 +28,7 @@ Publish new Power BI reports based on FinOps toolkit starter kits, extend them t
 
 ---
 
-{% include_relative _intro.md %}
+<!-- markdownlint-disable-line --> {% include_relative _intro.md %}
 
 Use the guides below to connect and customize FinOps toolkit and other Power BI reports.
 
@@ -43,12 +43,14 @@ The FinOps toolkit Power BI reports include pre-configured visuals, but are not 
 
    ![Screenshot of the Transform data button in the Power BI Desktop toolbar.](https://user-images.githubusercontent.com/399533/216573265-fa76828f-c9a2-497d-ae1e-19b55fef412c.png)
 
-3. In the **Queries** pane on the left, set the **🛠️ Setup** > **FinOps hubs** property.
+<!--
+1. In the **Queries** pane on the left, set the **🛠️ Setup** > **Data source** property.
 
-   - `Cost Management connector` requires read access to an EA or MCA billing account or billing profile.
+   - `Cost Management exports` requires read access to an EA or MCA billing account or billing profile.
    - `FinOps hubs` requires [Storage Blob Data Reader](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-reader) access to the storage account deployed with your hub.
+-->
 
-4. If you selected `FinOps hubs`, set the following properties:
+1. If connecting to a FinOps hub instance, set the following properties:
 
    - **Storage URL** is the URL of your hub storage account. Copy this value from the portal:
      1. Open the [list of resource groups](https://portal.azure.com/#view/HubsExtension/BrowseResourceGroups) in the Azure portal.
@@ -58,29 +60,40 @@ The FinOps toolkit Power BI reports include pre-configured visuals, but are not 
      5. Select **Outputs**.
      6. Copy the value for `storageUrlForPowerBI`.
    - If you customized the deployment to use compressed CSV instead of Parquet, change **FileType** to `.gz`. Most people will not change this.
-   - Change **Start Date** and **End Date** to the desired start/end dates for your report. The default is the current calendar year. Consider using your fiscal year.
+   - Change **RangeStart** and **RangeEnd** to the desired start/end dates for your report. The default is the current calendar year. Consider using your fiscal year.
      <blockquote class="warning" markdown="1">
-       _Power BI reports can only support 35GB of data (~$16M in raw cost details). You may need to adjust the number of months in your report to fit within this limit._
+       _[Enable incremental refresh](https://learn.microsoft.com/power-bi/connect-data/incremental-refresh-configure#define-policy) to load more than $5M of raw cost details. Power BI reports can only support $2-5M of data when incremental refresh is not enabled. After incremental refresh is enabled, they can support $2-5M/month for a total of ~$65M in raw cost details._
      </blockquote>
-   - **CM connector** settings are required for any reports that rely on data not supported in FinOps hubs yet (e.g., reservation recommendations). Be sure to also supply those settings in the next section.
+   - **CM connector** settings are required for any reports that rely on data not supported in FinOps hubs yet (i.e., actual costs, reservation recommendations). Be sure to also supply those settings in the next section.
+   - Actual costs are included by default when the connector details are specified. If you do not want to include actual cost data from the Cost Management connector, open the **CostDetails** query in the advanced editor and change the `2` to a `1`. This will avoid calling the Cost Management connector.
 
-5. If you selected `Cost Management connector`, set the following properties in the **🛠️ Setup** > **CM connector** folder:
+   ![Screenshot of instructions to connect to a FinOps hub](https://github.com/microsoft/finops-toolkit/assets/399533/5582b428-e811-4d7e-83d0-4a8fbb905d30)
 
-   - **Billing Account ID** is your EA enrollment number or MCA billing account ID.
-   - **Billing Profile ID** is your MCA billing profile ID.
+2. If using the [Cost Management connector report](./connector.md) or [Commitment discounts report](./commitment-discounts.md), set the following properties in the **🛠️ Setup** > **CM connector** folder:
+
+   - **Scope** is your EA enrollment number or MCA scope ID.
+     - A "scope ID" is a fully-qualified Azure resource ID for the MCA billing account or billing profile you want to connect to.
+     - If using the Cost Management connector report, you can connect to an MCA billing account to view cost across all billing profiles but reservation recommendations will not be available in the Coverage pages.
+     - If using the Commitment discounts report, you must use a billing profile since the connector is used for reservation recommendations which are only available for billing profiles.
+     - An MCA billing account scope ID looks like `/providers/Microsoft.Billing/billingAccounts/{billingAccountId}`.
+     - An MCA billing profile scope ID looks like `/providers/Microsoft.Billing/billingAccounts/{billingAccountId}/billingProfiles/{billingProfileId}`.
+     - You can get the billing account and profile IDs from the Azure portal:
+       - Go to https://aka.ms/costmgmt/config
+       - 
+   - **Type** is your MCA billing profile ID.
      <blockquote class="note" markdown="1">
        _The billing profile ID is optional for cost reports, but is required for reservation recommendations. When not specified, cost reports will include all billing profiles within the account._
      </blockquote>
    - **Number of Months** is the number of months of data to include in the report.
      <blockquote class="warning" markdown="1">
-       _Power BI reports can only support 35GB of data (~$16M in raw cost details). You may need to adjust the number of months in your report to fit within this limit._
+       _The Cost Management connector does not support incremental refresh and Power BI reports can only support ~$2-5M of data when incremental refresh is not enabled. You may need to adjust the number of months in your report to fit within this limit._
      </blockquote>
 
-   ![Screenshot of instructions to connect to the Cost Management connector](https://github.com/microsoft/finops-toolkit/assets/399533/3bc5eb22-a7e7-4d13-a3a3-91d0bc48800e)
+   ![Screenshot of instructions to connect to the Cost Management connector](https://github.com/microsoft/finops-toolkit/assets/399533/efeb85d6-cdd3-40f8-a501-e1959fdb1d4f)
 
-6. Select the **Close & Apply** to save your settings.
+3. Select the **Close & Apply** to save your settings.
 
-If you run into any issues syncing your data, see [Troubleshooting Power BI reports](../troubleshooting.md).
+If you run into any issues syncing your data, see [Troubleshooting Power BI reports](../resources/troubleshooting.md).
 
 <br>
 
@@ -187,7 +200,9 @@ The Cost Management connector provides separate queries for actual (billed) and 
 
 If interested in custom columns and measures, see [Copy queries from a toolkit report](#-copy-queries-from-a-toolkit-report) for required steps.
 
+<!--
 See [Queries and datasets](#️-queries-and-datasets) below for additional details.
+-->
 
 <br>
 

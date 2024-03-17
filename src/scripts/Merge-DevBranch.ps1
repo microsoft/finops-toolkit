@@ -4,28 +4,28 @@
 <#
     .SYNOPSIS
     Merges the dev branch into the specified branch.
-    
+
     .EXAMPLE
     ./Merge-DevBranch
 	
 	Merges the dev branch into the current branch.
-    
+
     .EXAMPLE
     ./Merge-DevBranch features/foo -TortoiseGit
 	
 	Merges the dev branch into the features/foo branch and uses TortoiseGit to resolve conflicts.
-    
+
     .EXAMPLE
     ./Merge-DevBranch *
-    
+
 	Merges the dev branch into main and all feature branches. Does not resolve conflicts.
-    
+
     .PARAMETER Branch
     Optional. Name of the branch to merge into. Default = "." (current branch).
-    
+
     .PARAMETER TortoiseGit
     Optional. Indicates whether to use TortoiseGit to resolve conflicts. Default = false.
-    
+
     .PARAMETER Silent
     Optional. Indicates whether to hide informational output. Will abort merge if there are any conflicts. Use $LASTEXITCODE to determine status (0 = successful, 1 = error, 2 = conflicts). Default = false.
 #>
@@ -33,10 +33,10 @@ Param (
     [Parameter(Position = 0)]
     [string]
     $Branch = ".",
-    
+
     [switch]
     $TortoiseGit,
-    
+
     [switch]
     $Silent
 )
@@ -116,7 +116,7 @@ function Merge-BranchAtoB($source, $target) {
             git checkout $target --quiet *> $null
         }
     }
-    
+
     # Validate the branch is clean
     $gitStatus = git status
     if (($gitStatus | Select-String 'Changes not staged for commit:') -or ($gitStatus | Select-String 'Changes to be committed:')) {
@@ -129,7 +129,7 @@ function Merge-BranchAtoB($source, $target) {
         Write-Error 'Your branch has unpushed local commits. Please push or move to another branch and try again.'
         exit 1
     }
-        
+
     # Pull latest changes
     if ($gitStatus | Select-String "Your branch is behind 'origin/$target' by") {
         if (-not $Silent) {
@@ -143,7 +143,7 @@ function Merge-BranchAtoB($source, $target) {
             Write-Host '  Your branch is up to date'
         }
     }
-    
+
     if (-not $Silent) {
         Write-Host "  Merging $source into $target..."
         Write-Host '-----------------------------'
@@ -193,7 +193,7 @@ function Merge-BranchAtoB($source, $target) {
             exit 2
         }
     }
-    
+
     # Check status
     $gitStatus = git status
     if (($gitStatus | Select-String 'All conflicts fixed but you are still merging.') -or ($gitStatus | Select-String "Your branch is ahead of 'origin/$target' by")) {

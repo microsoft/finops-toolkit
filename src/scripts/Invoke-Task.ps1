@@ -16,7 +16,7 @@
 
     .PARAMETER Reset
     Optional. Indicates whether the BuildHelper module should be re-compiled. Use this when changing build tasks and scripts. Default = false.
-    
+
     .EXAMPLE
     ./Invoke-Task -Task Build.PsModule
 
@@ -40,7 +40,7 @@ param (
 
     [switch]
     $Patch,
-    
+
     [switch]
     $Prerelease,
 
