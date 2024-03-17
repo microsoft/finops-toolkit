@@ -61,18 +61,6 @@ Legend:
 > 4. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
 > 5. Analytics engine – Ingest cost data into an Azure Data Explorer cluster.
 
-📒 Azure Monitor workbooks
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. Respect global subscription filter selections
-
-> 🛠️ Fixed:
->
-> 1. Fixed a bug with Azure Hybrid benefits.
-> 2. Fixed a bug with the SQL Managed Instance query.
-
 ## 🛠️ v0.2.1
 
 🏦 FinOps hubs
@@ -131,9 +119,16 @@ Legend:
 >
 > 1. Started archiving template versions so they can be referenced easily via URL (microsoft.github.io/finops-toolkit/deploy/{template}-{version}.json).
 >
+> - [Optimization workbook](./optimization-workbook/README.md):
+>   1. Respect global subscription filter selections
+
 > 🛠️ Fixed:
 >
 > 1. Fixed deploy to Azure buttons to point to the latest release.
+>
+> - [Optimization workbook](./optimization-workbook/README.md):
+>   1. Fixed a bug with Azure Hybrid benefits.
+>   2. Fixed a bug with the SQL Managed Instance query.
 
 🖥️ PowerShell
 {: .fs-5 .fw-500 .mt-4 mb-0 }
