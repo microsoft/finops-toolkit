@@ -112,7 +112,7 @@ let
         each if [BilledCost] <> 0.0 or [EffectiveCost] <> 0.0 then null
         else if [PricingCategory] = "Commitment-Based" then "Unknown " & [ChargeSubcategory]
         else if [x_BilledUnitPrice] = 0.0 and [x_EffectiveUnitPrice] = 0.0 and [x_OnDemandUnitPrice] = 0.0 and [ListUnitPrice] = 0.0 and _isBlank([CommitmentDiscountType]) then (
-            if Text.Contains([x_SkuDescription], "Trial") then "Trial" else if Text.Contains([x_SkuDescription], "Preview") then "Preview" else "Other"
+            if _isNotBlank([x_SkuDescription]) and Text.Contains([x_SkuDescription], "Trial") then "Trial" else if _isNotBlank([x_SkuDescription]) and Text.Contains([x_SkuDescription], "Preview") then "Preview" else "Other"
         )
         else if [x_BilledUnitPrice] > 0.0 or [x_EffectiveUnitPrice] > 0.0 then (
             if [PricingQuantity] > 0.0 then "Low Usage" else if [PricingQuantity] = 0.0 then "No Usage" else "Unknown Negative Quantity"
