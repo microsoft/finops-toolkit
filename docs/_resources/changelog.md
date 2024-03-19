@@ -131,8 +131,8 @@ Legend:
 > 1. Fixed deploy to Azure buttons to point to the latest release.
 >
 > - [Optimization workbook](./optimization-workbook/README.md):
->   1. Fixed a bug with Azure Hybrid benefits.
->   2. Fixed a bug with the SQL Managed Instance query.
+>   1. Fixed a typo with Azure Hybrid benefits query.
+>   2. Fixed a bug with the SQL Managed Instance query where the query had a merge error.
 
 🖥️ PowerShell
 {: .fs-5 .fw-500 .mt-4 mb-0 }
