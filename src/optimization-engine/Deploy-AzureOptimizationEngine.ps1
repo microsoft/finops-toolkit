@@ -201,7 +201,7 @@ if ((Test-Path -Path $lastDeploymentStatePath) -and !$silentDeploy)
     }
 }
 
-$GitHubOriginalUri = "https://raw.githubusercontent.com/helderpinto/AzureOptimizationEngine/master/azuredeploy.bicep"
+$GitHubOriginalUri = "https://raw.githubusercontent.com/microsoft/finops-toolkit/main/src/optimization-engine/azuredeploy.bicep"
 
 if ([string]::IsNullOrEmpty($TemplateUri)) {
     $TemplateUri = $GitHubOriginalUri

@@ -22,7 +22,15 @@ To deploy and test AOE in your development environment, you need to fulfill some
 
 ## ➕ Deployment instructions
 
-The simplest, quickest and recommended method for installing AOE is by using the **Azure Cloud Shell** (PowerShell). Check [here](https://aka.ms/AzureOptimizationEngine/deployment) the detailed list of deployment instructions.
+The simplest, quickest and recommended method for installing AOE is by using the **Azure Cloud Shell** (PowerShell). Check [here](https://aka.ms/AzureOptimizationEngine/deployment) the detailed list of deployment instructions. If you are working on a branch other than `main` and need to test the AOE deployment, use the following PowerShell instruction:
+
+```powershell
+.\Deploy-AzureOptimizationEngine.ps1 -TemplateUri "https://raw.githubusercontent.com/<GitHub user>/<repository>/<branch name>/src/optimization-engine/azuredeploy.bicep"
+
+# Example:
+
+.\Deploy-AzureOptimizationEngine.ps1 -TemplateUri "https://raw.githubusercontent.com/helderpinto/finops-toolkit-hp-fork/features/aoe/src/optimization-engine/azuredeploy.bicep"
+```
 
 ## 🛫 Get started with AOE
 
