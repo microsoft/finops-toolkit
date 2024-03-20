@@ -8,7 +8,7 @@ This folder contains the several AOE workbooks reports that leverage the collect
     - [Block Blob Storage Usage](./blockblobstorage-usage.json): reports on the distribution of Block Blob Storage usage across different types of Storage Accounts, file structure, replication options, and tiering; allows for simulations of hot to cool tiering savings.
     - [Costs Growing](./costs-growing.json): reports on usage growth anomalies detected across multiple perspectives: subscription, meter category, meter sub-category, meter name, resource group, or individual resources.
     - [Reservations Potential](./reservations-potential.json): reports on On-Demand Virtual Machines usage and its potential for Reservations commitments, with historical analysis and details of resources potentially consuming those reservations.
-    - [Reservations Usage](./reservations-usage.json): reports on Virtual Machines Reservations usage and allows for usage aggregation by resource tags and deeper insights about real savings (including unused reservations).
+    - [Reservations Usage](./reservations-usage.json): reports on Reservations usage and allows for usage aggregation by resource tags and deeper insights about real savings (including unused reservations).
     - [Savings Plans Usage](./savingsplans-usage.json): reports on Savings Plans usage and allows for usage aggregation by resource tags and deeper insights about real savings (including unused savings plans).
 - Governance
     - [Identities and Roles](./identities-roles.json): reports on Microsoft Entra ID objects (users, groups and applications) and their respective roles across the Entra ID tenant and Azure resources.

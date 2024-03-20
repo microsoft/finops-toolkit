@@ -16,6 +16,13 @@ Visualize the Azure Optimization Engine rich recommendations and insights.
 
 - [📒 Power BI recommendations report](#-power-bi-recommendations-report)
 - [📒 Workbooks](#-workbooks)
+    - [💉 Recommendations](#-recommendations)
+    - [🤝 Azure Commitments Insights](#-azure-commitments-insights)
+    - [📈 Costs Growing](#-costs-growing)
+    - [📖 Resources Inventory](#-resources-inventory)
+    - [🕵 Identities and Roles](#-identities-and-roles)
+    - [📚 Block Blob Storage Usage](#-block-blob-storage-usage)
+    - [✅ Policy Compliance](#-policy-compliance)
 
 </details>
 
@@ -71,22 +78,58 @@ The **Recommendation Details** option takes you to a page where you can see all 
 
 ## 📒 Workbooks
 
-With AOE's Log Analytics Workbooks, you can explore many perspectives over the data that is collected every day. For example, costs growing anomalies, Microsoft Entra ID and Azure RM principals and roles assigned, how your resources are distributed, how your Block Blob Storage usage is distributed, how your Azure Benefits usage is distributed (supports only Enterprise Agreement customers) or exploring Azure Policy compliance results over time.
+With AOE's Log Analytics Workbooks, you can explore many perspectives over the data that is collected every day. For example, costs growing anomalies, Microsoft Entra ID and Azure RM principals and roles assigned, how your resources are distributed, or getting insights about your Azure commitments usage (supports only EA and MCA customers). See below a short description of each Workbook.
+
+### 💉 Recommendations
+
+The Recommendations workbook is the go-to report to start with your AOE-based Azure optimization journey. It reports on the optimization recommendations generated every week by both AOE and Azure Advisor, across the five pillars of the Well Architected Framework - Cost, Operational Excellence, Performance, Reliability, and Security.
 
 ![An overview of all your optimization recommendations](../assets/images/aoe/workbooks-recommendations-overview.jpg "An overview of all your optimization recommendations")
 
 ![An overview of your Cost optimization opportunities](../assets/images/aoe/workbooks-recommendations-costoverview.jpg "An overview of your Cost optimization opportunities")
 
+### 🤝 Azure Commitments Insights
+
+For a complete Azure Reservations and Savings Plans performance analysis and purchase simulations, you have several Workbooks available:
+
+- **Benefits Simulation** allows for simulations of Savings Plans and Reservations commitments savings and coverage based on on-demand Virtual Machines usage history.
+- **Benefits Usage** reports on the distribution of the different pricing models usage (Savings Plans, Reservations, Spot, and On-Demand) and on the savings each pricing model is achieving compared to others.
+- **Reservations Potential** reports on On-Demand Virtual Machines usage and its potential for Reservations commitments, with historical analysis and details of resources potentially consuming those reservations.
+- **Reservations Usage** reports on Reservations usage and allows for usage aggregation by resource tags and deeper insights about real savings (including unused reservations).
+- **Savings Plans Usage** reports on Savings Plans usage and allows for usage aggregation by resource tags and deeper insights about real savings (including unused savings plans).
+
+Check [this blog post](https://aka.ms/AzureOptimizationEngine/commitmentsblog) for a complete description of each Workbook.
+
+![Azure Benefits usage analysis with a comparison between Reservations and On-Demand/Savings Plan prices](../assets/images/aoe/workbooks-benefitsusage-reservations.jpg "Azure Benefits usage analysis with a comparison between Reservations and On-Demand/Savings Plan prices")
+
+### 📈 Costs Growing
+
+The **Costs Growing** Workbook reports on usage growth anomalies detected across multiple perspectives: subscription, meter category, meter sub-category, meter name, resource group, or individual resources.
+
 ![Costs growing anomalies](../assets/images/aoe/workbooks-costsgrowing-anomalies.jpg "Costs growing anomalies")
 
+### 📖 Resources Inventory
+
+The **Resources Inventory** Workbook reports on the distribution of the most relevant Azure resource types (mostly IaaS) across different perspectives, including its historical evolution.
+
 ![Virtual Machines perspectives over time](../assets/images/aoe/workbooks-resourcesinventory-vms.jpg "Virtual Machines perspectives over time")
+
+### 🕵 Identities and Roles
+
+The **Identities and Roles** Workbook reports on Microsoft Entra ID objects (users, groups and applications) and their respective roles across the Entra ID tenant and Azure resources. For a more detailed analysis of this Workbook, check [this blog post](https://aka.ms/AzureOptimizationEngine/identitygovblog).
 
 ![Microsoft Entra ID/Azure Resource Manager principals and roles summary, with service principal credentials expiration](../assets/images/aoe/workbooks-identitiesroles-summary.jpg "Microsoft Entra ID/Azure Resource Manager principals and roles summary, with service principal credentials expiration")
 
 ![Privileged Microsoft Entra ID roles and assignment history](../assets/images/aoe/workbooks-identitiesroles-rolehistory.jpg "Priviliged Microsoft Entra ID roles and assignment history")
 
+### 📚 Block Blob Storage Usage
+
+The **Block Blob Storage Usage** Workbook reports on the distribution of Block Blob Storage usage across different types of Storage Accounts, file structure, replication options, and tiering; allows for simulations of hot to cool tiering savings.
+
 ![Block Blob Storage usage analysis with Lifecycle Management recommendations](../assets/images/aoe/workbooks-blockblobusage-standardv2.jpg "Block Blob Storage usage analysis with Lifecycle Management recommendations")
 
-![Azure Benefits usage analysis with a comparison between Reservations and On-Demand/Savings Plan prices](../assets/images/aoe/workbooks-benefitsusage-reservations.jpg "Azure Benefits usage analysis with a comparison between Reservations and On-Demand/Savings Plan prices")
+### ✅ Policy Compliance
+
+The **Policy Compliance** Workbook reports on Azure Policy compliance across the whole tenant, with an historical perspective and also the ability to filter and group by resource tags.
 
 ![Policy Compliance state, with evolution over time](../assets/images/aoe/workbooks-policycompliance.jpg "Policy Compliance state, with evolution over time")
