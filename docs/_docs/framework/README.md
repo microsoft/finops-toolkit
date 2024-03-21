@@ -113,7 +113,7 @@ The FinOps Framework includes capabilities that cover everything from cost analy
 
 - Cloud rate optimization
 
-  - [Managing commitment-based discounts](./capabilities/optimize/commitment-discounts.md)
+  - [Managing commitment-based discounts](./capabilities/optimize/rate-optimization.md)
 
 - Cloud usage optimization
 

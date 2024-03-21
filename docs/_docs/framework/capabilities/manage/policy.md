@@ -57,7 +57,7 @@ When you first start managing cost in the cloud, you use the native compliance t
   - Block or audit the creation of more expensive resource SKUs (for example, E-series virtual machines).
   - Implementation of cost recommendations and unused resources for [utilization and efficiency](../optimize/utilization-efficiency.md).
   - Application of Azure Hybrid Benefit for [utilization and efficiency](../optimize/utilization-efficiency.md).
-  - Monitor [commitment-based discounts](../optimize/commitment-discounts.md) coverage.
+  - Monitor [commitment-based discounts](../optimize/rate-optimization.md) coverage.
 - Identify what policies can be automated through [Azure Policy](https://learn.microsoft.com/azure/governance/policy/overview) and which need other tooling.
 - Review and [implement built-in policies](https://learn.microsoft.com/azure/governance/policy/assign-policy-portal) that align with your needs and goals.
 - Start small with audit policies and expand slowly (and safely) to ensure engineering efforts aren't negatively impacted.
