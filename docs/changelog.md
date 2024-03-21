@@ -60,6 +60,7 @@ Legend:
 > 3. Remote hubs – Ingest cost data from other tenants.
 > 4. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
 > 5. Analytics engine – Ingest cost data into an Azure Data Explorer cluster.
+> 6. Optimization engine - An extensible solution designed to generate optimization recommendations for your Azure environment.
 
 <br>
 
