@@ -101,6 +101,11 @@ param recommendationsCleanUpJobId string = newGuid()
 
 param roleContributor string = '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
 
+@description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
+param enableDefaultTelemetry bool = true
+
+var telemetryId = '00f120b5-2007-6120-0000-0041004f0045'
+var finOpsToolkitVersion = loadTextContent('ftkver.txt')
 var advisorExportsRunbookName = 'Export-AdvisorRecommendationsToBlobStorage'
 var argVmExportsRunbookName = 'Export-ARGVirtualMachinesPropertiesToBlobStorage'
 var argVmssExportsRunbookName = 'Export-ARGVMSSPropertiesToBlobStorage'
@@ -1535,6 +1540,31 @@ var automationVariables = [
     value: 30
   }
 ]
+
+//------------------------------------------------------------------------------
+// Telemetry
+// Used to anonymously count the number of times the template has been deployed
+// and to track and fix deployment bugs to ensure the highest quality.
+// No information about you or your cost data is collected.
+//------------------------------------------------------------------------------
+
+resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefaultTelemetry) {
+  name: 'pid-${telemetryId}-${uniqueString(deployment().name, projectLocation)}'
+  properties: {
+    mode: 'Incremental'
+    template: {
+      '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+      contentVersion: '1.0.0.0'
+      metadata: {
+        _generator: {
+          name: 'FinOps toolkit'
+          version: finOpsToolkitVersion
+        }
+      }
+      resources: []
+    }
+  }
+}
 
 resource logAnalyticsWorkspace 'microsoft.operationalinsights/workspaces@2020-08-01' = if (!logAnalyticsReuse) {
   name: logAnalyticsWorkspaceName

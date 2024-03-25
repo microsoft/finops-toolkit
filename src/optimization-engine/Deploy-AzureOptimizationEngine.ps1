@@ -15,7 +15,10 @@ param (
     [string] $SilentDeploymentSettingsPath,
 
     [Parameter(Mandatory = $false)]
-    [hashtable] $ResourceTags = @{}
+    [hashtable] $ResourceTags = @{},
+
+    [Parameter(Mandatory = $false)]
+    [bool] $EnableDefaultTelemetry = $true
 )
 
 function ConvertTo-Hashtable {
@@ -693,7 +696,7 @@ if ("Y", "y" -contains $continueInput) {
                     -logAnalyticsWorkspaceName $laWorkspaceName -logAnalyticsWorkspaceRG $laWorkspaceResourceGroup `
                     -storageAccountName $storageAccountName -automationAccountName $automationAccountName `
                     -sqlServerName $sqlServerName -sqlDatabaseName $sqlDatabaseName -cloudEnvironment $AzureEnvironment `
-                    -sqlAdminLogin $sqlAdmin -sqlAdminPassword $sqlPass -resourceTags $ResourceTags -WarningAction SilentlyContinue
+                    -sqlAdminLogin $sqlAdmin -sqlAdminPassword $sqlPass -resourceTags $ResourceTags -enableDefaultTelemetry $EnableDefaultTelemetry -WarningAction SilentlyContinue
                 $deploymentSucceeded = $true
             }
             catch {
