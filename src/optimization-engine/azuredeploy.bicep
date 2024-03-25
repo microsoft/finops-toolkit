@@ -29,6 +29,37 @@ param resourceTags object
 
 param roleReader string = '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/acdd72a7-3385-48ef-bd42-f606fba81ae7'
 
+@description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
+param enableDefaultTelemetry bool = true
+
+var telemetryId = '00f120b5-2007-6120-0000-0041004f0045'
+var finOpsToolkitVersion = loadTextContent('ftkver.txt')
+
+//------------------------------------------------------------------------------
+// Telemetry
+// Used to anonymously count the number of times the template has been deployed
+// and to track and fix deployment bugs to ensure the highest quality.
+// No information about you or your cost data is collected.
+//------------------------------------------------------------------------------
+
+resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefaultTelemetry) {
+  name: 'pid-${telemetryId}-${uniqueString(deployment().name, projectLocation)}'
+  properties: {
+    mode: 'Incremental'
+    template: {
+      '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+      contentVersion: '1.0.0.0'
+      metadata: {
+        _generator: {
+          name: 'FinOps toolkit'
+          version: finOpsToolkitVersion
+        }
+      }
+      resources: []
+    }
+  }
+}
+
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: rgName
   location: projectLocation
