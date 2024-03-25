@@ -44,6 +44,7 @@ var finOpsToolkitVersion = loadTextContent('ftkver.txt')
 
 resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (enableDefaultTelemetry) {
   name: 'pid-${telemetryId}-${uniqueString(deployment().name, projectLocation)}'
+  location: projectLocation
   properties: {
     mode: 'Incremental'
     template: {
