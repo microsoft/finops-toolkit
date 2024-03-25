@@ -418,6 +418,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "ripadrao",
+      "name": "ripadrao",
+      "avatar_url": "https://avatars.githubusercontent.com/u/61794401?v=4",
+      "profile": "https://github.com/ripadrao",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "commitType": "docs",
