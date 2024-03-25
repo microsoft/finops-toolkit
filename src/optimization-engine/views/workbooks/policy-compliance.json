@@ -1,0 +1,1488 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "fc2daade-225d-4204-9ade-c10f20c23fb5",
+            "version": "KqlParameterItem/1.0",
+            "name": "LastSubsGeneratedDateTime",
+            "label": "Subscription Names Generated On",
+            "type": 1,
+            "isRequired": true,
+            "query": "AzureOptimizationResourceContainersV1_CL\r\n| where TimeGenerated > ago(90d)\r\n| summarize max(TimeGenerated)",
+            "isHiddenWhenLocked": true,
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces"
+          },
+          {
+            "version": "KqlParameterItem/1.0",
+            "name": "LastPolicyGeneratedDateTime",
+            "label": "Policy States Generated On",
+            "type": 1,
+            "isRequired": true,
+            "query": "AzureOptimizationPolicyStatesV1_CL\r\n| where TimeGenerated > ago(90d)\r\n| summarize max(TimeGenerated)",
+            "isHiddenWhenLocked": true,
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "id": "76f1ffbe-3079-4782-b38c-4385d1f30690"
+          },
+          {
+            "id": "398ed1df-fb30-4ed7-a872-c1f10a752b40",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "type": 2,
+            "description": "The subscription filter does not impact other filters",
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "AzureOptimizationResourceContainersV1_CL\r\n| where TimeGenerated > todatetime('{LastSubsGeneratedDateTime}')-12h\r\n| where ContainerType_s == 'microsoft.resources/subscriptions'\r\n| project SubscriptionGuid_g, ContainerName_s\r\n| order by ContainerName_s asc",
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "selectAllValue": "*",
+              "showDefault": false
+            },
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "value": [
+              "value::all"
+            ]
+          },
+          {
+            "id": "e8de19a9-bd49-43c6-a0d7-5e6a3eddf3c0",
+            "version": "KqlParameterItem/1.0",
+            "name": "Initiative",
+            "type": 2,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "AzureOptimizationPolicyStatesV1_CL\r\n| where TimeGenerated > todatetime('{LastPolicyGeneratedDateTime}')-12h\r\n| distinct InitiativeId_s, InitiativeName_s\r\n| where isnotempty(InitiativeId_s)\r\n| distinct InitiativeId_s, InitiativeName_s\r\n| order by InitiativeName_s asc",
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "selectAllValue": "",
+              "showDefault": false
+            },
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "value": [
+              "value::all"
+            ]
+          },
+          {
+            "id": "34bfe4a4-f7d0-4970-96ba-9fae4136706b",
+            "version": "KqlParameterItem/1.0",
+            "name": "FilterByInitiative",
+            "label": "Filter by Initiative",
+            "type": 10,
+            "description": "Whether to filter definitions and assignments by selected initiatives",
+            "isRequired": true,
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "jsonData": "[\"Yes\", \"No\"]",
+            "value": "No"
+          },
+          {
+            "id": "494d3d43-f908-490a-b1cf-8f501ec873f5",
+            "version": "KqlParameterItem/1.0",
+            "name": "Definition",
+            "type": 2,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "AzureOptimizationPolicyStatesV1_CL\r\n| where TimeGenerated > todatetime('{LastPolicyGeneratedDateTime}')-12h\r\n| where iif('{FilterByInitiative}' == 'Yes', InitiativeId_s in ({Initiative}), true)\r\n| distinct DefinitionId_s, DefinitionName_s\r\n| distinct DefinitionId_s, DefinitionName_s\r\n| order by DefinitionName_s asc",
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "value": [
+              "value::all"
+            ]
+          },
+          {
+            "id": "0b3fe5df-b854-42c6-8b1f-9879da99ecee",
+            "version": "KqlParameterItem/1.0",
+            "name": "Assignment",
+            "type": 2,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "AzureOptimizationPolicyStatesV1_CL\r\n| where iif('{FilterByInitiative}' == 'Yes', InitiativeId_s in ({Initiative}), InitiativeId_s in ({Initiative}) or DefinitionId_s in ({Definition}))\r\n| where TimeGenerated > todatetime('{LastPolicyGeneratedDateTime}')-12h\r\n| distinct AssignmentId_s, AssignmentName_s\r\n| order by AssignmentName_s asc",
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "value": [
+              "value::all"
+            ]
+          },
+          {
+            "id": "adad6608-5599-40ae-8ddf-75184552e017",
+            "version": "KqlParameterItem/1.0",
+            "name": "Effect",
+            "type": 2,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "AzureOptimizationPolicyStatesV1_CL\r\n| where TimeGenerated > todatetime('{LastPolicyGeneratedDateTime}')-12h\r\n| where isnotempty(Effect_s)\r\n| distinct Effect_s",
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "value": [
+              "value::all"
+            ]
+          },
+          {
+            "id": "894c0d85-0b62-4070-9046-8d47aceb8771",
+            "version": "KqlParameterItem/1.0",
+            "name": "ComplianceState",
+            "label": "Compliance State",
+            "type": 2,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "AzureOptimizationPolicyStatesV1_CL\r\n| where TimeGenerated > todatetime('{LastPolicyGeneratedDateTime}')-12h\r\n| distinct ComplianceState_s",
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "value": [
+              "value::all"
+            ]
+          },
+          {
+            "id": "700ba782-ca74-4d59-b3bb-9174c6dde4df",
+            "version": "KqlParameterItem/1.0",
+            "name": "TagName",
+            "label": "Tag Name",
+            "type": 2,
+            "query": "AzureOptimizationPolicyStatesV1_CL\r\n| where TimeGenerated > todatetime('{LastPolicyGeneratedDateTime}')-12h\r\n| where isnotempty(Tags_s)\r\n| extend jsonTags = parse_json(Tags_s)\r\n| extend tagKeys = bag_keys(jsonTags)\r\n| mv-expand tagKey = tagKeys\r\n| extend tagKey = trim(' ', tostring(tagKey))\r\n| where tagKey !startswith 'hidden' and tagKey !startswith \"aks-managed\" and tagKey !startswith \"kubernetes.io\"\r\n| distinct tagKey\r\n| order by tagKey asc",
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "value": null
+          },
+          {
+            "id": "21aafeaa-f60a-4480-9335-6388b98a3296",
+            "version": "KqlParameterItem/1.0",
+            "name": "TagValue",
+            "label": "Tag Value",
+            "type": 2,
+            "query": "AzureOptimizationPolicyStatesV1_CL\r\n| where TimeGenerated > todatetime('{LastPolicyGeneratedDateTime}')-12h\r\n| where isnotempty(Tags_s) and isnotempty(parse_json(Tags_s)['{TagName:label}'])\r\n| extend tagValue = tostring(parse_json(Tags_s)['{TagName:label}'])\r\n| distinct tagValue\r\n| order by tagValue asc",
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "value": null
+          }
+        ],
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "parameters-0"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "The **Overview** tab is based on Azure Resource Graph and thus represents the _current state_. **Policy Analysis** and **Full Report** tabs are based on Log Analytics entries collected daily by the Azure Optimization Engine and thus represent the _most recent Policy states snapshot_. Tag filtering applies to Non-Compliant and Exempt states only, with the exception of the Overview tab, where all states are filterable by tag. The Excluded state is not supported in the Overview tab.",
+        "style": "info"
+      },
+      "name": "introText"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "policyresources\r\n| where type == 'microsoft.policyinsights/policystates'\r\n| extend assignmentId = tolower(properties.policyAssignmentId)\r\n| extend initiativeId = tolower(properties.policySetDefinitionId)\r\n| extend policyId = tolower(properties.policyDefinitionId)\r\n| where initiativeId in ({Initiative}) and policyId in ({Definition}) and assignmentId in ({Assignment})\r\n| where (\"{Subscription}\" == \"'*'\" or subscriptionId in ({Subscription}))\r\n| extend resourceId = tolower(properties.resourceId)\r\n| project resourceId, resourceGroup, subscriptionId, assignmentId, initiativeId, policyId\r\n| join kind=leftouter (\r\n    resources\r\n    | project resourceId=tolower(id), tags\r\n) on resourceId\r\n| project-away resourceId1\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(tags['{TagName:label}']) and tostring(tags['{TagName:label}']) =~ '{TagValue}')\r\n| summarize StatesCount=count() by initiativeId",
+        "size": 0,
+        "queryType": 1,
+        "resourceType": "microsoft.resources/tenants",
+        "crossComponentResources": [
+          "value::tenant"
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "debug",
+        "comparison": "isEqualTo",
+        "value": "true"
+      },
+      "name": "totalStatesByInitiative"
+    },
+    {
+      "type": 11,
+      "content": {
+        "version": "LinkItem/1.0",
+        "style": "tabs",
+        "links": [
+          {
+            "id": "0b5190ae-fdca-4672-a756-bfd3706b48f1",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Overview",
+            "subTarget": "Overview",
+            "style": "link"
+          },
+          {
+            "id": "3924fee1-f28a-4ab6-b169-2af239fa0e16",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Policy Analysis",
+            "subTarget": "PolicyAnalysis",
+            "style": "link"
+          },
+          {
+            "id": "032c17fe-3eae-4093-ba6e-e0b1ab4ba51f",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Full Report",
+            "subTarget": "FullReport",
+            "style": "link"
+          }
+        ]
+      },
+      "name": "links - 5"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "Compliant and Excluded states are aggregated and do not allow for drilling down to resources compliance details.",
+        "style": "info"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isNotEqualTo",
+        "value": "Overview"
+      },
+      "name": "compliantExplanation"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "Select the Tag Name only (leaving the Tag Value unset) to see the Non-Compliant states distribution by tag.",
+              "style": "upsell"
+            },
+            "name": "tagAggregationHint"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "\r\npolicyresources\r\n| where type == 'microsoft.policyinsights/policystates'\r\n| extend assignmentId = tolower(properties.policyAssignmentId)\r\n| extend initiativeId = tolower(properties.policySetDefinitionId)\r\n| extend policyId = tolower(properties.policyDefinitionId)\r\n| where iif('{FilterByInitiative}' == 'Yes', initiativeId in ({Initiative}) and policyId in ({Definition}) and assignmentId in ({Assignment}), policyId in ({Definition}) and assignmentId in ({Assignment}))\r\n| extend complianceState = tostring(properties.complianceState)\r\n| where complianceState in ({ComplianceState}) and (\"{Subscription}\" == \"'*'\" or subscriptionId in ({Subscription}))\r\n| extend resourceType = tolower(properties.resourceType)\r\n| extend stateWeight = tostring(properties.stateWeight)\r\n| extend timeGenerated = tostring(properties.timestamp)\r\n| extend resourceId = tolower(properties.resourceId)\r\n| join kind=inner ( \r\n    policyresources\r\n    | where type == 'microsoft.authorization/policyassignments'\r\n    | project assignmentId = tolower(id), assignmentName = tostring(properties.displayName)\r\n) on assignmentId\r\n| join kind=leftouter ( \r\n    policyresources\r\n    | where type == 'microsoft.authorization/policysetdefinitions'\r\n    | project initiativeId = tolower(id), initiativeName = tostring(properties.displayName)\r\n) on initiativeId\r\n| join kind=inner ( \r\n    policyresources\r\n    | where type == 'microsoft.authorization/policydefinitions'\r\n    | project policyId = tolower(id), policyName = tostring(properties.displayName)\r\n) on policyId\r\n| project resourceId, resourceType, resourceGroup, subscriptionId, assignmentId, assignmentName, initiativeId, initiativeName, policyId, policyName, complianceState, stateWeight, timeGenerated\r\n| join kind=leftouter (\r\n    resources\r\n    | project resourceId=tolower(id), tags\r\n) on resourceId\r\n| project-away resourceId1\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(tags['{TagName:label}']) and tostring(tags['{TagName:label}']) =~ '{TagValue}')\r\n| summarize count() by complianceState",
+              "size": 1,
+              "title": "Overall Compliance (raw states)",
+              "queryType": 1,
+              "resourceType": "microsoft.resources/tenants",
+              "crossComponentResources": [
+                "value::tenant"
+              ],
+              "visualization": "piechart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Compliant",
+                    "color": "green"
+                  },
+                  {
+                    "seriesName": "Excluded",
+                    "color": "gray"
+                  },
+                  {
+                    "seriesName": "NonCompliant",
+                    "color": "redBright"
+                  },
+                  {
+                    "seriesName": "Exempt",
+                    "color": "turquoise"
+                  }
+                ]
+              }
+            },
+            "customWidth": "50",
+            "name": "argComplianceSummary"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "policyresources\r\n| where type == 'microsoft.policyinsights/policystates'\r\n| extend assignmentId = tolower(properties.policyAssignmentId)\r\n| extend initiativeId = tolower(properties.policySetDefinitionId)\r\n| extend policyId = tolower(properties.policyDefinitionId)\r\n| where iif('{FilterByInitiative}' == 'Yes', initiativeId in ({Initiative}) and policyId in ({Definition}) and assignmentId in ({Assignment}), policyId in ({Definition}) and assignmentId in ({Assignment}))\r\n| extend complianceState = tostring(properties.complianceState)\r\n| where complianceState in ({ComplianceState}) and (\"{Subscription}\" == \"'*'\" or subscriptionId in ({Subscription}))\r\n| extend resourceType = tolower(properties.resourceType)\r\n| extend stateWeight = tostring(properties.stateWeight)\r\n| extend timeGenerated = tostring(properties.timestamp)\r\n| extend resourceId = tolower(properties.resourceId)\r\n| join kind=inner ( \r\n    policyresources\r\n    | where type == 'microsoft.authorization/policyassignments'\r\n    | project assignmentId = tolower(id), assignmentName = tostring(properties.displayName)\r\n) on assignmentId\r\n| join kind=leftouter ( \r\n    policyresources\r\n    | where type == 'microsoft.authorization/policysetdefinitions'\r\n    | project initiativeId = tolower(id), initiativeName = tostring(properties.displayName)\r\n) on initiativeId\r\n| join kind=inner ( \r\n    policyresources\r\n    | where type == 'microsoft.authorization/policydefinitions'\r\n    | project policyId = tolower(id), policyName = tostring(properties.displayName)\r\n) on policyId\r\n| project resourceId, resourceType, resourceGroup, subscriptionId, assignmentId, assignmentName, initiativeId, initiativeName, policyId, policyName, complianceState, stateWeight, timeGenerated\r\n| join kind=leftouter (\r\n    resources\r\n    | project resourceId=tolower(id), tags\r\n) on resourceId\r\n| project-away resourceId1\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(tags['{TagName:label}']) and tostring(tags['{TagName:label}']) =~ '{TagValue}')\r\n| distinct resourceId, complianceState\r\n| summarize complianceStates=make_list(complianceState) by resourceId\r\n| extend fullComplianceState = iif(complianceStates !contains 'NonCompliant', iif(complianceStates contains 'Exempt' and array_length(complianceStates) == 1, 'Exempt', 'Compliant'), 'NonCompliant')\r\n| summarize dcount(resourceId) by fullComplianceState",
+              "size": 1,
+              "title": "Resource Compliance",
+              "queryType": 1,
+              "resourceType": "microsoft.resources/tenants",
+              "crossComponentResources": [
+                "value::tenant"
+              ],
+              "visualization": "piechart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Compliant",
+                    "color": "green"
+                  },
+                  {
+                    "seriesName": "Excluded",
+                    "color": "gray"
+                  },
+                  {
+                    "seriesName": "NonCompliant",
+                    "color": "redBright"
+                  },
+                  {
+                    "seriesName": "Exempt",
+                    "color": "turquoise"
+                  }
+                ]
+              }
+            },
+            "customWidth": "50",
+            "name": "argComplianceSummaryResources"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "policyresources\r\n| where type == 'microsoft.policyinsights/policystates'\r\n| extend assignmentId = tolower(properties.policyAssignmentId)\r\n| extend initiativeId = tolower(properties.policySetDefinitionId)\r\n| extend policyId = tolower(properties.policyDefinitionId)\r\n| where iif('{FilterByInitiative}' == 'Yes', initiativeId in ({Initiative}) and policyId in ({Definition}) and assignmentId in ({Assignment}), policyId in ({Definition}) and assignmentId in ({Assignment}))\r\n| extend complianceState = tostring(properties.complianceState)\r\n| where complianceState == 'NonCompliant' and (\"{Subscription}\" == \"'*'\" or subscriptionId in ({Subscription}))\r\n| extend resourceType = tolower(properties.resourceType)\r\n| extend stateWeight = tostring(properties.stateWeight)\r\n| extend timeGenerated = tostring(properties.timestamp)\r\n| extend resourceId = tolower(properties.resourceId)\r\n| project resourceId, resourceType, resourceGroup, subscriptionId, assignmentId, initiativeId, policyId, complianceState, stateWeight, timeGenerated\r\n| join kind=leftouter (\r\n    resources\r\n    | project resourceId=tolower(id), tags\r\n) on resourceId\r\n| project-away resourceId1\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(tags['{TagName:label}']) and tostring(tags['{TagName:label}']) =~ '{TagValue}')\r\n| distinct resourceId, subscriptionId\r\n| summarize dcount(resourceId) by subscriptionId\r\n| join kind=leftouter (\r\n    resourcecontainers\r\n    | where type == 'microsoft.resources/subscriptions'\r\n    | project Subscription=name, subscriptionId\r\n) on subscriptionId\r\n| project-away subscriptionId, subscriptionId1",
+              "size": 1,
+              "title": "Non-compliant resources by Subscription",
+              "queryType": 1,
+              "resourceType": "microsoft.resources/tenants",
+              "crossComponentResources": [
+                "value::tenant"
+              ],
+              "visualization": "piechart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Compliant",
+                    "color": "green"
+                  },
+                  {
+                    "seriesName": "Excluded",
+                    "color": "gray"
+                  },
+                  {
+                    "seriesName": "NonCompliant",
+                    "color": "redBright"
+                  },
+                  {
+                    "seriesName": "Exempt",
+                    "color": "turquoise"
+                  }
+                ]
+              }
+            },
+            "customWidth": "50",
+            "name": "argNonComplianceBySubscriptionSummaryResources"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "policyresources\r\n| where type == 'microsoft.policyinsights/policystates'\r\n| extend assignmentId = tolower(properties.policyAssignmentId)\r\n| extend initiativeId = tolower(properties.policySetDefinitionId)\r\n| extend policyId = tolower(properties.policyDefinitionId)\r\n| where iif('{FilterByInitiative}' == 'Yes', initiativeId in ({Initiative}) and policyId in ({Definition}) and assignmentId in ({Assignment}), policyId in ({Definition}) and assignmentId in ({Assignment}))\r\n| extend complianceState = tostring(properties.complianceState)\r\n| where complianceState == 'NonCompliant' and (\"{Subscription}\" == \"'*'\" or subscriptionId in ({Subscription}))\r\n| extend resourceType = tolower(properties.resourceType)\r\n| extend stateWeight = tostring(properties.stateWeight)\r\n| extend timeGenerated = tostring(properties.timestamp)\r\n| extend resourceId = tolower(properties.resourceId)\r\n| project resourceId, resourceType, resourceGroup, subscriptionId, assignmentId, initiativeId, policyId, complianceState, stateWeight, timeGenerated\r\n| join kind=leftouter (\r\n    resources\r\n    | project resourceId=tolower(id), tags\r\n) on resourceId\r\n| project-away resourceId1\r\n| where iif('{TagName:label}' == '<unset>', true, iif('{TagValue:label}' == '<unset>', true, isnotempty(tags['{TagName:label}']) and tostring(tags['{TagName:label}']) =~ '{TagValue}'))\r\n| extend TagValue = iif('{TagName:label}' == '<unset>', 'N/A', tostring(tags['{TagName:label}']))\r\n| distinct resourceId, TagValue\r\n| summarize dcount(resourceId) by TagValue",
+              "size": 1,
+              "title": "Non-compliant resources by Tag",
+              "queryType": 1,
+              "resourceType": "microsoft.resources/tenants",
+              "crossComponentResources": [
+                "value::tenant"
+              ],
+              "visualization": "piechart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Compliant",
+                    "color": "green"
+                  },
+                  {
+                    "seriesName": "Excluded",
+                    "color": "gray"
+                  },
+                  {
+                    "seriesName": "NonCompliant",
+                    "color": "redBright"
+                  },
+                  {
+                    "seriesName": "Exempt",
+                    "color": "turquoise"
+                  }
+                ]
+              }
+            },
+            "customWidth": "50",
+            "name": "argNonComplianceByTagSummaryResources"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "policyresources\r\n| where type == 'microsoft.policyinsights/policystates'\r\n| extend assignmentId = tolower(properties.policyAssignmentId)\r\n| extend initiativeId = tolower(properties.policySetDefinitionId)\r\n| extend policyId = tolower(properties.policyDefinitionId)\r\n| where iif('{FilterByInitiative}' == 'Yes', initiativeId in ({Initiative}) and policyId in ({Definition}) and assignmentId in ({Assignment}), policyId in ({Definition}) and assignmentId in ({Assignment}))\r\n| extend complianceState = tostring(properties.complianceState)\r\n| where complianceState in ({ComplianceState}) and (\"{Subscription}\" == \"'*'\" or subscriptionId in ({Subscription}))\r\n| extend resourceId = tolower(properties.resourceId)\r\n| join kind=leftouter ( \r\n    policyresources\r\n    | where type == 'microsoft.authorization/policysetdefinitions'\r\n    | project initiativeId = tolower(id), initiativeName = tostring(properties.displayName)\r\n) on initiativeId\r\n| where isnotempty(initiativeName)\r\n| project resourceId, resourceGroup, subscriptionId, assignmentId, initiativeId, initiativeName, policyId, complianceState\r\n| join kind=leftouter (\r\n    resources\r\n    | project resourceId=tolower(id), tags\r\n) on resourceId\r\n| project-away resourceId1\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(tags['{TagName:label}']) and tostring(tags['{TagName:label}']) =~ '{TagValue}')\r\n| distinct resourceId, complianceState, initiativeName\r\n| summarize complianceStates=make_list(complianceState) by resourceId, initiativeName\r\n| extend fullComplianceState = iif(complianceStates !contains 'NonCompliant', iif(complianceStates contains 'Exempt' and array_length(complianceStates) == 1, 'Exempt', 'Compliant'), 'NonCompliant')\r\n| summarize StatesCount=dcount(resourceId), CompliantCount=dcountif(resourceId, fullComplianceState == 'Compliant'), NonCompliantCount=dcountif(resourceId, fullComplianceState == 'NonCompliant'), ExemptCount=dcountif(resourceId, fullComplianceState == 'Exempt') by initiativeName\r\n| project initiativeName, CompliantPercent = round(todouble(CompliantCount)/StatesCount*100), NonCompliantPercent = round(todouble(NonCompliantCount)/StatesCount*100), ExemptPercent = round(todouble(ExemptCount)/StatesCount*100)\r\n| order by NonCompliantPercent, initiativeName asc",
+              "size": 0,
+              "title": "Resource Compliance (by Initiative)",
+              "queryType": 1,
+              "resourceType": "microsoft.resources/tenants",
+              "crossComponentResources": [
+                "value::tenant"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "CompliantPercent",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": ">",
+                          "thresholdValue": "75",
+                          "representation": "Sev4",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": ">",
+                          "thresholdValue": "50",
+                          "representation": "Sev2",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "Sev1",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    },
+                    "numberFormat": {
+                      "unit": 1,
+                      "options": {
+                        "style": "decimal"
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "NonCompliantPercent",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": ">",
+                          "thresholdValue": "50",
+                          "representation": "Sev1",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": ">",
+                          "thresholdValue": "25",
+                          "representation": "Sev2",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "Sev4",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    },
+                    "numberFormat": {
+                      "unit": 1,
+                      "options": {
+                        "style": "decimal"
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "ExemptPercent",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 1,
+                      "options": {
+                        "style": "decimal"
+                      }
+                    }
+                  }
+                ],
+                "labelSettings": [
+                  {
+                    "columnId": "initiativeName",
+                    "label": "Initiative"
+                  },
+                  {
+                    "columnId": "CompliantPercent",
+                    "label": "Compliant"
+                  },
+                  {
+                    "columnId": "NonCompliantPercent",
+                    "label": "Non Compliant"
+                  },
+                  {
+                    "columnId": "ExemptPercent",
+                    "label": "Exempt"
+                  }
+                ]
+              },
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Compliant",
+                    "color": "green"
+                  },
+                  {
+                    "seriesName": "Excluded",
+                    "color": "gray"
+                  },
+                  {
+                    "seriesName": "NonCompliant",
+                    "color": "redBright"
+                  },
+                  {
+                    "seriesName": "Exempt",
+                    "color": "turquoise"
+                  }
+                ]
+              }
+            },
+            "customWidth": "50",
+            "name": "argComplianceByInitiativePercentageResources"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "policyresources\r\n| where type == 'microsoft.policyinsights/policystates'\r\n| extend assignmentId = tolower(properties.policyAssignmentId)\r\n| extend initiativeId = tolower(properties.policySetDefinitionId)\r\n| extend policyId = tolower(properties.policyDefinitionId)\r\n| where iif('{FilterByInitiative}' == 'Yes', initiativeId in ({Initiative}) and policyId in ({Definition}) and assignmentId in ({Assignment}), policyId in ({Definition}) and assignmentId in ({Assignment}))\r\n| extend complianceState = tostring(properties.complianceState)\r\n| where complianceState in ({ComplianceState}) and (\"{Subscription}\" == \"'*'\" or subscriptionId in ({Subscription}))\r\n| extend resourceId = tolower(properties.resourceId)\r\n| join kind=leftouter ( \r\n    policyresources\r\n    | where type == 'microsoft.authorization/policydefinitions'\r\n    | project policyId = tolower(id), definitionName = tostring(properties.displayName)\r\n) on policyId\r\n| project resourceId, resourceGroup, subscriptionId, assignmentId, initiativeId, policyId, definitionName, complianceState\r\n| join kind=leftouter (\r\n    resources\r\n    | project resourceId=tolower(id), tags\r\n) on resourceId\r\n| project-away resourceId1\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(tags['{TagName:label}']) and tostring(tags['{TagName:label}']) =~ '{TagValue}')\r\n| summarize StatesCount=count(), CompliantCount=countif(complianceState == 'Compliant'), NonCompliantCount=countif(complianceState == 'NonCompliant'), ExemptCount=countif(complianceState == 'Exempt') by definitionName\r\n| project definitionName, CompliantPercent = round(todouble(CompliantCount)/StatesCount*100), NonCompliantPercent = round(todouble(NonCompliantCount)/StatesCount*100), ExemptPercent = round(todouble(ExemptCount)/StatesCount*100)\r\n| order by NonCompliantPercent, definitionName asc",
+              "size": 0,
+              "title": "Resource Compliance (by Definition)",
+              "queryType": 1,
+              "resourceType": "microsoft.resources/tenants",
+              "crossComponentResources": [
+                "value::tenant"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "CompliantPercent",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": ">",
+                          "thresholdValue": "75",
+                          "representation": "Sev4",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": ">",
+                          "thresholdValue": "50",
+                          "representation": "Sev2",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "Sev1",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    },
+                    "numberFormat": {
+                      "unit": 1,
+                      "options": {
+                        "style": "decimal"
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "NonCompliantPercent",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": ">",
+                          "thresholdValue": "50",
+                          "representation": "Sev1",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": ">",
+                          "thresholdValue": "25",
+                          "representation": "Sev2",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "Sev4",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    },
+                    "numberFormat": {
+                      "unit": 1,
+                      "options": {
+                        "style": "decimal"
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "ExemptPercent",
+                    "formatter": 0,
+                    "numberFormat": {
+                      "unit": 1,
+                      "options": {
+                        "style": "decimal"
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 10000,
+                "sortBy": [
+                  {
+                    "itemKey": "$gen_thresholds_NonCompliantPercent_2",
+                    "sortOrder": 2
+                  }
+                ],
+                "labelSettings": [
+                  {
+                    "columnId": "definitionName",
+                    "label": "Definition"
+                  },
+                  {
+                    "columnId": "CompliantPercent",
+                    "label": "Compliant"
+                  },
+                  {
+                    "columnId": "NonCompliantPercent",
+                    "label": "Non Compliant"
+                  },
+                  {
+                    "columnId": "ExemptPercent",
+                    "label": "Exempt"
+                  }
+                ]
+              },
+              "sortBy": [
+                {
+                  "itemKey": "$gen_thresholds_NonCompliantPercent_2",
+                  "sortOrder": 2
+                }
+              ],
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Compliant",
+                    "color": "green"
+                  },
+                  {
+                    "seriesName": "Excluded",
+                    "color": "gray"
+                  },
+                  {
+                    "seriesName": "NonCompliant",
+                    "color": "redBright"
+                  },
+                  {
+                    "seriesName": "Exempt",
+                    "color": "turquoise"
+                  }
+                ]
+              }
+            },
+            "customWidth": "50",
+            "name": "argComplianceByDefinitionPercentage"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "policyresources\r\n| where type == 'microsoft.policyinsights/policystates'\r\n| extend assignmentId = tolower(properties.policyAssignmentId)\r\n| extend initiativeId = tolower(properties.policySetDefinitionId)\r\n| extend policyId = tolower(properties.policyDefinitionId)\r\n| where iif('{FilterByInitiative}' == 'Yes', initiativeId in ({Initiative}) and policyId in ({Definition}) and assignmentId in ({Assignment}), policyId in ({Definition}) and assignmentId in ({Assignment}))\r\n| extend complianceState = tostring(properties.complianceState)\r\n| where complianceState == 'NonCompliant' and (\"{Subscription}\" == \"'*'\" or subscriptionId in ({Subscription}))\r\n| extend resourceType = tolower(properties.resourceType)\r\n| extend stateWeight = tostring(properties.stateWeight)\r\n| extend timeGenerated = tostring(properties.timestamp)\r\n| extend resourceId = tolower(properties.resourceId)\r\n| join kind=inner ( \r\n    policyresources\r\n    | where type == 'microsoft.authorization/policyassignments'\r\n    | project assignmentId = tolower(id), assignmentName = tostring(properties.displayName)\r\n) on assignmentId\r\n| join kind=leftouter ( \r\n    policyresources\r\n    | where type == 'microsoft.authorization/policysetdefinitions'\r\n    | project initiativeId = tolower(id), initiativeName = tostring(properties.displayName)\r\n) on initiativeId\r\n| where isnotempty(initiativeName)\r\n| join kind=inner ( \r\n    policyresources\r\n    | where type == 'microsoft.authorization/policydefinitions'\r\n    | project policyId = tolower(id), policyName = tostring(properties.displayName)\r\n) on policyId\r\n| project resourceId, resourceType, resourceGroup, subscriptionId, assignmentId, assignmentName, initiativeId, initiativeName, policyId, policyName, complianceState, stateWeight, timeGenerated\r\n| join kind=leftouter (\r\n    resources\r\n    | project resourceId=tolower(id), tags\r\n) on resourceId\r\n| project-away resourceId1\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(tags['{TagName:label}']) and tostring(tags['{TagName:label}']) =~ '{TagValue}')\r\n| distinct resourceId, initiativeName\r\n| summarize dcount(resourceId) by initiativeName\r\n| order by dcount_resourceId",
+              "size": 0,
+              "title": "Non-compliant resources by Initiative",
+              "queryType": 1,
+              "resourceType": "microsoft.resources/tenants",
+              "crossComponentResources": [
+                "value::tenant"
+              ],
+              "gridSettings": {
+                "labelSettings": [
+                  {
+                    "columnId": "initiativeName",
+                    "label": "Initiative"
+                  },
+                  {
+                    "columnId": "dcount_resourceId",
+                    "label": "Resource #"
+                  }
+                ]
+              },
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Compliant",
+                    "color": "green"
+                  },
+                  {
+                    "seriesName": "Excluded",
+                    "color": "gray"
+                  },
+                  {
+                    "seriesName": "NonCompliant",
+                    "color": "redBright"
+                  },
+                  {
+                    "seriesName": "Exempt",
+                    "color": "turquoise"
+                  }
+                ]
+              }
+            },
+            "customWidth": "50",
+            "name": "argComplianceByInitiativeResources"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "policyresources\r\n| where type == 'microsoft.policyinsights/policystates'\r\n| extend assignmentId = tolower(properties.policyAssignmentId)\r\n| extend initiativeId = tolower(properties.policySetDefinitionId)\r\n| extend policyId = tolower(properties.policyDefinitionId)\r\n| where iif('{FilterByInitiative}' == 'Yes', initiativeId in ({Initiative}) and policyId in ({Definition}) and assignmentId in ({Assignment}), policyId in ({Definition}) and assignmentId in ({Assignment}))\r\n| extend complianceState = tostring(properties.complianceState)\r\n| where complianceState == 'NonCompliant' and (\"{Subscription}\" == \"'*'\" or subscriptionId in ({Subscription}))\r\n| extend resourceType = tolower(properties.resourceType)\r\n| extend stateWeight = tostring(properties.stateWeight)\r\n| extend timeGenerated = tostring(properties.timestamp)\r\n| extend resourceId = tolower(properties.resourceId)\r\n| join kind=inner ( \r\n    policyresources\r\n    | where type == 'microsoft.authorization/policyassignments'\r\n    | project assignmentId = tolower(id), assignmentName = tostring(properties.displayName)\r\n) on assignmentId\r\n| join kind=leftouter ( \r\n    policyresources\r\n    | where type == 'microsoft.authorization/policysetdefinitions'\r\n    | project initiativeId = tolower(id), initiativeName = tostring(properties.displayName)\r\n) on initiativeId\r\n| join kind=inner ( \r\n    policyresources\r\n    | where type == 'microsoft.authorization/policydefinitions'\r\n    | project policyId = tolower(id), policyName = tostring(properties.displayName)\r\n) on policyId\r\n| project resourceId, resourceType, resourceGroup, subscriptionId, assignmentId, assignmentName, initiativeId, initiativeName, policyId, policyName, complianceState, stateWeight, timeGenerated\r\n| join kind=leftouter (\r\n    resources\r\n    | project resourceId=tolower(id), tags\r\n) on resourceId\r\n| project-away resourceId1\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(tags['{TagName:label}']) and tostring(tags['{TagName:label}']) =~ '{TagValue}')\r\n| summarize ['Resource #']=dcount(resourceId) by policyName\r\n| order by ['Resource #']",
+              "size": 0,
+              "title": "Non-compliant resources by Definition",
+              "queryType": 1,
+              "resourceType": "microsoft.resources/tenants",
+              "crossComponentResources": [
+                "value::tenant"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "labelSettings": [
+                  {
+                    "columnId": "policyName",
+                    "label": "Definition"
+                  },
+                  {
+                    "columnId": "count_",
+                    "label": "Resource #"
+                  }
+                ]
+              },
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Compliant",
+                    "color": "green"
+                  },
+                  {
+                    "seriesName": "Excluded",
+                    "color": "gray"
+                  },
+                  {
+                    "seriesName": "NonCompliant",
+                    "color": "redBright"
+                  },
+                  {
+                    "seriesName": "Exempt",
+                    "color": "turquoise"
+                  }
+                ]
+              }
+            },
+            "customWidth": "50",
+            "name": "argComplianceByDefinition"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Overview"
+      },
+      "name": "overviewGroup"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let ExcludedStates = AzureOptimizationPolicyStatesV1_CL\r\n| where TimeGenerated > todatetime('{LastPolicyGeneratedDateTime}')-12h\r\n| where iif('{FilterByInitiative}' == 'Yes', InitiativeId_s in ({Initiative}) and DefinitionId_s in ({Definition}) and AssignmentId_s in ({Assignment}), DefinitionId_s in ({Definition}) and AssignmentId_s in ({Assignment}))\r\n| where ComplianceState_s == 'Excluded' and 'Excluded' in ({ComplianceState})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| extend SubscriptionGuid_g = iif(ResourceId startswith '/subscriptions/', tostring(split(ResourceId,'/')[2]), '')\r\n| join kind=leftouter (\r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > todatetime('{LastSubsGeneratedDateTime}')-12h\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | project SubscriptionGuid_g, SubscriptionResourceCount=ResourceCount_s\r\n    )\r\n    on SubscriptionGuid_g\r\n| extend ManagementGroupId = iif(isempty(SubscriptionGuid_g),ResourceId, '')\r\n| join kind=leftouter (\r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > todatetime('{LastSubsGeneratedDateTime}')-12h\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | mv-expand MGAncestor = parse_json(ContainerProperties_s).managementGroupAncestorsChain\r\n    | extend ManagementGroupId = tolower(strcat('/providers/microsoft.management/managementgroups/',MGAncestor.name))\r\n    | project SubscriptionIdForMG=SubscriptionGuid_g, ManagementGroupId, MGSubscriptionResourceCount=ResourceCount_s\r\n) on ManagementGroupId\r\n| extend SubscriptionGuid_g = iif(isempty(SubscriptionGuid_g), SubscriptionIdForMG, SubscriptionGuid_g)\r\n| where (\"{Subscription}\" == \"'*'\" or SubscriptionGuid_g in ({Subscription}))\r\n| extend ResourceGroupId = ResourceId\r\n| join kind=leftouter (\r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > todatetime('{LastSubsGeneratedDateTime}')-12h\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions/resourcegroups'\r\n    | extend ResourceGroupId = InstanceId_s\r\n    | project ResourceGroupId, ResourceGroupResourceCount=ResourceCount_s\r\n) on ResourceGroupId\r\n| extend ResourceCount = iif(ResourceId !has 'resourcegroups', iif(ResourceId has 'subscriptions', toint(SubscriptionResourceCount), toint(MGSubscriptionResourceCount)), iif(isnotempty(ResourceGroupResourceCount), toint(ResourceGroupResourceCount), 1))\r\n| summarize StatesCount=sum(ResourceCount) by SubscriptionGuid_g, InitiativeName_s, AssignmentName_s, DefinitionName_s, Effect_s, ComplianceState_s;\r\nlet AllButCompliantOrExcludedStates = AzureOptimizationPolicyStatesV1_CL\r\n| where TimeGenerated > todatetime('{LastPolicyGeneratedDateTime}')-12h\r\n| where iif('{FilterByInitiative}' == 'Yes', InitiativeId_s in ({Initiative}) and DefinitionId_s in ({Definition}) and AssignmentId_s in ({Assignment}), DefinitionId_s in ({Definition}) and AssignmentId_s in ({Assignment}))\r\n| where Effect_s in ({Effect}) and ComplianceState_s in ({ComplianceState}) and (\"{Subscription}\" == \"'*'\" or SubscriptionGuid_g in ({Subscription}))\r\n| where ComplianceState_s !in ('Compliant','Excluded')\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| summarize StatesCount=count() by SubscriptionGuid_g, InitiativeName_s, AssignmentName_s, DefinitionName_s, Effect_s, ComplianceState_s;\r\nAzureOptimizationPolicyStatesV1_CL\r\n| where TimeGenerated > todatetime('{LastPolicyGeneratedDateTime}')-12h\r\n| where iif('{FilterByInitiative}' == 'Yes', InitiativeId_s in ({Initiative}) and DefinitionId_s in ({Definition}) and AssignmentId_s in ({Assignment}), DefinitionId_s in ({Definition}) and AssignmentId_s in ({Assignment}))\r\n| where Effect_s in ({Effect}) and ComplianceState_s in ({ComplianceState}) and (\"{Subscription}\" == \"'*'\" or SubscriptionGuid_g in ({Subscription}))\r\n| where ComplianceState_s == 'Compliant'\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| project SubscriptionGuid_g, InitiativeName_s, AssignmentName_s, DefinitionName_s, Effect_s, ComplianceState_s, StatesCount=tolong(StatesCount_s)\r\n| union (AllButCompliantOrExcludedStates)\r\n| union (ExcludedStates)\r\n| join kind=leftouter ( \r\n    AzureOptimizationResourceContainersV1_CL \r\n    | where TimeGenerated > todatetime('{LastSubsGeneratedDateTime}')-12h \r\n    | where ContainerType_s =~ 'microsoft.resources/subscriptions' \r\n    | project SubscriptionGuid_g, SubscriptionName = ContainerName_s\r\n) on SubscriptionGuid_g\r\n| project-away SubscriptionGuid_g*\r\n| order by InitiativeName_s asc, DefinitionName_s asc, SubscriptionName asc\r\n| project-reorder DefinitionName_s, InitiativeName_s, AssignmentName_s, SubscriptionName, Effect_s, ComplianceState_s, StatesCount",
+              "size": 0,
+              "showAnalytics": true,
+              "title": "Policy Compliance (select line to analyze further)",
+              "exportedParameters": [
+                {
+                  "fieldName": "DefinitionName_s",
+                  "parameterName": "selectedDefinition",
+                  "parameterType": 1
+                },
+                {
+                  "fieldName": "InitiativeName_s",
+                  "parameterName": "selectedInitiative",
+                  "parameterType": 1
+                },
+                {
+                  "fieldName": "AssignmentName_s",
+                  "parameterName": "selectedAssignment",
+                  "parameterType": 1
+                },
+                {
+                  "fieldName": "SubscriptionName",
+                  "parameterName": "selectedSubscription",
+                  "parameterType": 1
+                },
+                {
+                  "fieldName": "ComplianceState_s",
+                  "parameterName": "selectedState",
+                  "parameterType": 1
+                }
+              ],
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "DefinitionName_s",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "40ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "InitiativeName_s",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "40ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "AssignmentName_s",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "40ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "ComplianceState_s",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Compliant",
+                          "representation": "success",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "NonCompliant",
+                          "representation": "error",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Exempt",
+                          "representation": "info",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "more",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "SubscriptionGuid_g",
+                    "formatter": 15,
+                    "formatOptions": {
+                      "linkTarget": null,
+                      "showIcon": true
+                    }
+                  }
+                ],
+                "rowLimit": 5000,
+                "labelSettings": [
+                  {
+                    "columnId": "DefinitionName_s",
+                    "label": "Definition"
+                  },
+                  {
+                    "columnId": "InitiativeName_s",
+                    "label": "Initiative"
+                  },
+                  {
+                    "columnId": "AssignmentName_s",
+                    "label": "Assignment"
+                  },
+                  {
+                    "columnId": "SubscriptionName",
+                    "label": "Subscription"
+                  },
+                  {
+                    "columnId": "Effect_s",
+                    "label": "Effect"
+                  },
+                  {
+                    "columnId": "ComplianceState_s",
+                    "label": "Compliance"
+                  },
+                  {
+                    "columnId": "StatesCount",
+                    "label": "Resources #"
+                  }
+                ]
+              }
+            },
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "PolicyAnalysis"
+            },
+            "name": "mainQuery"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let ExcludedStates = AzureOptimizationPolicyStatesV1_CL\r\n| where TimeGenerated > todatetime('{LastPolicyGeneratedDateTime}')-12h\r\n| where InitiativeName_s == '{selectedInitiative}' and DefinitionName_s == '{selectedDefinition}' and AssignmentName_s == '{selectedAssignment}' and ComplianceState_s == 'Excluded'\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| extend SubscriptionGuid_g = iif(ResourceId startswith '/subscriptions/', tostring(split(ResourceId,'/')[2]), '')\r\n| join kind=leftouter (\r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > todatetime('{LastSubsGeneratedDateTime}')-12h\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | project SubscriptionGuid_g, SubscriptionResourceCount=ResourceCount_s\r\n    )\r\n    on SubscriptionGuid_g\r\n| extend ManagementGroupId = iif(isempty(SubscriptionGuid_g),ResourceId, '')\r\n| join kind=leftouter (\r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > todatetime('{LastSubsGeneratedDateTime}')-12h\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | mv-expand MGAncestor = parse_json(ContainerProperties_s).managementGroupAncestorsChain\r\n    | extend ManagementGroupId = tolower(strcat('/providers/microsoft.management/managementgroups/',MGAncestor.name))\r\n    | project SubscriptionIdForMG=SubscriptionGuid_g, ManagementGroupId, MGSubscriptionResourceCount=ResourceCount_s\r\n) on ManagementGroupId\r\n| extend SubscriptionGuid_g = iif(isempty(SubscriptionGuid_g), SubscriptionIdForMG, SubscriptionGuid_g)\r\n| extend ResourceGroupId = ResourceId\r\n| join kind=leftouter (\r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > todatetime('{LastSubsGeneratedDateTime}')-12h\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions/resourcegroups'\r\n    | extend ResourceGroupId = InstanceId_s\r\n    | project ResourceGroupId, ResourceGroupResourceCount=ResourceCount_s\r\n) on ResourceGroupId\r\n| extend ResourceCount = iif(ResourceId !has 'resourcegroups', iif(ResourceId has 'subscriptions', toint(SubscriptionResourceCount), toint(MGSubscriptionResourceCount)), iif(isnotempty(ResourceGroupResourceCount), toint(ResourceGroupResourceCount), 1));\r\nlet AllButCompliantOrExcludedStates = AzureOptimizationPolicyStatesV1_CL\r\n| where TimeGenerated > todatetime('{LastPolicyGeneratedDateTime}')-12h\r\n| where InitiativeName_s == '{selectedInitiative}' and DefinitionName_s == '{selectedDefinition}' and AssignmentName_s == '{selectedAssignment}' and ComplianceState_s !in ('Compliant','Excluded')\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}');\r\nAzureOptimizationPolicyStatesV1_CL\r\n| where TimeGenerated > todatetime('{LastPolicyGeneratedDateTime}')-12h\r\n| where InitiativeName_s == '{selectedInitiative}' and DefinitionName_s == '{selectedDefinition}' and AssignmentName_s == '{selectedAssignment}' and ComplianceState_s == 'Compliant'\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| union (AllButCompliantOrExcludedStates)\r\n| union (ExcludedStates)\r\n| join kind=leftouter ( \r\n    AzureOptimizationResourceContainersV1_CL \r\n    | where TimeGenerated > todatetime('{LastSubsGeneratedDateTime}')-12h \r\n    | where ContainerType_s =~ 'microsoft.resources/subscriptions' \r\n    | project SubscriptionGuid_g, SubscriptionName = ContainerName_s\r\n) on SubscriptionGuid_g\r\n| project-away SubscriptionGuid_g*\r\n| where SubscriptionName == '{selectedSubscription}' and ComplianceState_s == '{selectedState}'\r\n| extend ResourceId = iif(ResourceId has 'policyinsights',substring(ResourceId,0,indexof(ResourceId,'/providers/microsoft.policyinsights/')),ResourceId)\r\n| extend ResourceCount = iif(isnotempty(ResourceCount), ResourceCount, iif(isnotempty(StatesCount_s), toint(StatesCount_s), 1))\r\n| project ResourceId, SubscriptionName, DefinitionName_s, AssignmentName_s, Effect_s, ComplianceState_s, ComplianceReason_s, ResourceCount",
+              "size": 1,
+              "showAnalytics": true,
+              "title": "Resources compliance (select a line from above)",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "DefinitionName_s",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "40ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "AssignmentName_s",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "40ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "ComplianceState_s",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Compliant",
+                          "representation": "success",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "NonCompliant",
+                          "representation": "error",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Exempt",
+                          "representation": "info",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "more",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "InitiativeName_s",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "40ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "SubscriptionGuid_g",
+                    "formatter": 15,
+                    "formatOptions": {
+                      "linkTarget": null,
+                      "showIcon": true
+                    }
+                  }
+                ],
+                "rowLimit": 5000,
+                "labelSettings": [
+                  {
+                    "columnId": "ResourceId",
+                    "label": "Resource"
+                  },
+                  {
+                    "columnId": "SubscriptionName",
+                    "label": "Subscription"
+                  },
+                  {
+                    "columnId": "DefinitionName_s",
+                    "label": "Definition"
+                  },
+                  {
+                    "columnId": "AssignmentName_s",
+                    "label": "Assignment"
+                  },
+                  {
+                    "columnId": "Effect_s",
+                    "label": "Effect"
+                  },
+                  {
+                    "columnId": "ComplianceState_s",
+                    "label": "Compliance"
+                  },
+                  {
+                    "columnId": "ComplianceReason_s",
+                    "label": "Reason"
+                  }
+                ]
+              }
+            },
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "PolicyAnalysis"
+            },
+            "name": "complianceDetails"
+          },
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "5cc0b316-c55e-4afa-9b02-6fdeeec10ed0",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "policyHistoryRange",
+                  "label": "Policy History Time Range",
+                  "type": 4,
+                  "value": {
+                    "durationMs": 604800000
+                  },
+                  "typeSettings": {
+                    "selectableValues": [
+                      {
+                        "durationMs": 604800000
+                      },
+                      {
+                        "durationMs": 1209600000
+                      },
+                      {
+                        "durationMs": 2419200000
+                      },
+                      {
+                        "durationMs": 2592000000
+                      },
+                      {
+                        "durationMs": 5184000000
+                      },
+                      {
+                        "durationMs": 7776000000
+                      }
+                    ],
+                    "allowCustom": true
+                  },
+                  "timeContext": {
+                    "durationMs": 86400000
+                  }
+                }
+              ],
+              "style": "pills",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces"
+            },
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "PolicyAnalysis"
+            },
+            "name": "parameters-1"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let ExcludedStates = AzureOptimizationPolicyStatesV1_CL\r\n| where TimeGenerated > todatetime('{policyHistoryRange:startISO}') and TimeGenerated < todatetime('{policyHistoryRange:endISO}')\r\n| where InitiativeName_s == '{selectedInitiative}' and DefinitionName_s == '{selectedDefinition}' and AssignmentName_s == '{selectedAssignment}' and ComplianceState_s == 'Excluded'\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| extend SubscriptionGuid_g = iif(ResourceId startswith '/subscriptions/', tostring(split(ResourceId,'/')[2]), '')\r\n| join kind=leftouter (\r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > todatetime('{LastSubsGeneratedDateTime}')-12h\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | project SubscriptionGuid_g, SubscriptionResourceCount=ResourceCount_s\r\n    )\r\n    on SubscriptionGuid_g\r\n| extend ManagementGroupId = iif(isempty(SubscriptionGuid_g),ResourceId, '')\r\n| join kind=leftouter (\r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > todatetime('{LastSubsGeneratedDateTime}')-12h\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | mv-expand MGAncestor = parse_json(ContainerProperties_s).managementGroupAncestorsChain\r\n    | extend ManagementGroupId = tolower(strcat('/providers/microsoft.management/managementgroups/',MGAncestor.name))\r\n    | project SubscriptionIdForMG=SubscriptionGuid_g, ManagementGroupId, MGSubscriptionResourceCount=ResourceCount_s\r\n) on ManagementGroupId\r\n| extend SubscriptionGuid_g = iif(isempty(SubscriptionGuid_g), SubscriptionIdForMG, SubscriptionGuid_g)\r\n| extend ResourceGroupId = ResourceId\r\n| join kind=leftouter (\r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > todatetime('{LastSubsGeneratedDateTime}')-12h\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions/resourcegroups'\r\n    | extend ResourceGroupId = InstanceId_s\r\n    | project ResourceGroupId, ResourceGroupResourceCount=ResourceCount_s\r\n) on ResourceGroupId\r\n| extend ResourceCount = iif(ResourceId !has 'resourcegroups', iif(ResourceId has 'subscriptions', toint(SubscriptionResourceCount), toint(MGSubscriptionResourceCount)), iif(isnotempty(ResourceGroupResourceCount), toint(ResourceGroupResourceCount), 1))\r\n| distinct TimeGenerated, ResourceId, SubscriptionGuid_g, DefinitionName_s, Effect_s, ComplianceState_s, ResourceCount;\r\nlet AllButCompliantOrExcludedStates = AzureOptimizationPolicyStatesV1_CL\r\n| where TimeGenerated > todatetime('{policyHistoryRange:startISO}') and TimeGenerated < todatetime('{policyHistoryRange:endISO}')\r\n| where InitiativeName_s == '{selectedInitiative}' and DefinitionName_s == '{selectedDefinition}' and AssignmentName_s == '{selectedAssignment}' and ComplianceState_s !in ('Compliant','Excluded') and ComplianceState_s == '{selectedState}'\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}');\r\nAzureOptimizationPolicyStatesV1_CL\r\n| where TimeGenerated > todatetime('{policyHistoryRange:startISO}') and TimeGenerated < todatetime('{policyHistoryRange:endISO}')\r\n| where InitiativeName_s == '{selectedInitiative}' and DefinitionName_s == '{selectedDefinition}' and AssignmentName_s == '{selectedAssignment}' and ComplianceState_s == 'Compliant' and ComplianceState_s == '{selectedState}'\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| union (ExcludedStates)\r\n| union (AllButCompliantOrExcludedStates)\r\n| join kind=leftouter ( \r\n    AzureOptimizationResourceContainersV1_CL \r\n    | where TimeGenerated > todatetime('{LastSubsGeneratedDateTime}')-12h \r\n    | where ContainerType_s =~ 'microsoft.resources/subscriptions' \r\n    | project SubscriptionGuid_g, SubscriptionName = ContainerName_s\r\n) on SubscriptionGuid_g\r\n| project-away SubscriptionGuid_g*\r\n| where SubscriptionName == '{selectedSubscription}' and ComplianceState_s == '{selectedState}'\r\n| extend ResourceId = iif(ResourceId has 'policyinsights',substring(ResourceId,0,indexof(ResourceId,'/providers/microsoft.policyinsights/')),ResourceId)\r\n| extend ResourceCount = iif(isnotempty(ResourceCount), ResourceCount, iif(isnotempty(StatesCount_s), toint(StatesCount_s), 1))\r\n| distinct TimeGenerated, ResourceId, SubscriptionName, DefinitionName_s, Effect_s, ComplianceState_s, ResourceCount\r\n| summarize sum(ResourceCount) by bin(TimeGenerated, 1d)",
+              "size": 1,
+              "aggregation": 5,
+              "showAnalytics": true,
+              "title": "Compliance over time (select a line from top grid)",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "timechart",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "DefinitionName_s",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "40ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "ComplianceState_s",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Compliant",
+                          "representation": "success",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "NonCompliant",
+                          "representation": "error",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Exempt",
+                          "representation": "info",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "more",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "InitiativeName_s",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "40ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "AssignmentName_s",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "40ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "SubscriptionGuid_g",
+                    "formatter": 15,
+                    "formatOptions": {
+                      "linkTarget": null,
+                      "showIcon": true
+                    }
+                  }
+                ],
+                "rowLimit": 5000
+              }
+            },
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "PolicyAnalysis"
+            },
+            "name": "complianceOverTime"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "PolicyAnalysis"
+      },
+      "name": "policyAnalysisGroup"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "35390c0a-62fa-4561-8537-0171b41c5a47",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "FRTagName",
+                  "label": "Group by Tag Name",
+                  "type": 2,
+                  "query": "AzureOptimizationPolicyStatesV1_CL\r\n| where TimeGenerated > todatetime('{LastPolicyGeneratedDateTime}')-12h\r\n| where isnotempty(Tags_s)\r\n| extend jsonTags = parse_json(Tags_s)\r\n| extend tagKeys = bag_keys(jsonTags)\r\n| mv-expand tagKey = tagKeys\r\n| extend tagKey = trim(' ', tostring(tagKey))\r\n| where tagKey !startswith 'hidden' and tagKey !startswith \"aks-managed\" and tagKey !startswith \"kubernetes.io\"\r\n| distinct tagKey\r\n| order by tagKey asc",
+                  "typeSettings": {
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces",
+                  "value": null
+                }
+              ],
+              "style": "pills",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces"
+            },
+            "name": "fullReportParameters"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let ExcludedStates = AzureOptimizationPolicyStatesV1_CL\r\n| where TimeGenerated > todatetime('{LastPolicyGeneratedDateTime}')-12h\r\n| where iif('{FilterByInitiative}' == 'Yes', InitiativeId_s in ({Initiative}) and DefinitionId_s in ({Definition}) and AssignmentId_s in ({Assignment}), DefinitionId_s in ({Definition}) and AssignmentId_s in ({Assignment}))\r\n| where ComplianceState_s == 'Excluded' and 'Excluded' in ({ComplianceState})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| extend SubscriptionGuid_g = iif(ResourceId startswith '/subscriptions/', tostring(split(ResourceId,'/')[2]), '')\r\n| join kind=leftouter (\r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > todatetime('{LastSubsGeneratedDateTime}')-12h\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | project SubscriptionGuid_g, SubscriptionResourceCount=ResourceCount_s\r\n    )\r\n    on SubscriptionGuid_g\r\n| extend ManagementGroupId = iif(isempty(SubscriptionGuid_g),ResourceId, '')\r\n| join kind=leftouter (\r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > todatetime('{LastSubsGeneratedDateTime}')-12h\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | mv-expand MGAncestor = parse_json(ContainerProperties_s).managementGroupAncestorsChain\r\n    | extend ManagementGroupId = tolower(strcat('/providers/microsoft.management/managementgroups/',MGAncestor.name))\r\n    | project SubscriptionIdForMG=SubscriptionGuid_g, ManagementGroupId, MGSubscriptionResourceCount=ResourceCount_s\r\n) on ManagementGroupId\r\n| extend SubscriptionGuid_g = iif(isempty(SubscriptionGuid_g), SubscriptionIdForMG, SubscriptionGuid_g)\r\n| where (\"{Subscription}\" == \"'*'\" or SubscriptionGuid_g in ({Subscription}))\r\n| extend ResourceGroupId = ResourceId\r\n| join kind=leftouter (\r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > todatetime('{LastSubsGeneratedDateTime}')-12h\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions/resourcegroups'\r\n    | extend ResourceGroupId = InstanceId_s\r\n    | project ResourceGroupId, ResourceGroupResourceCount=ResourceCount_s\r\n) on ResourceGroupId\r\n| extend ResourceCount = iif(ResourceId !has 'resourcegroups', iif(ResourceId has 'subscriptions', toint(SubscriptionResourceCount), toint(MGSubscriptionResourceCount)), iif(isnotempty(ResourceGroupResourceCount), toint(ResourceGroupResourceCount), 1))\r\n| project ResourceId, SubscriptionGuid_g, DefinitionName_s, InitiativeName_s, AssignmentName_s, Effect_s, ComplianceState_s, ComplianceReason_s, ResourceCount, GroupByTag='';\r\nlet AllButCompliantOrExcludedStates = AzureOptimizationPolicyStatesV1_CL\r\n| where TimeGenerated > todatetime('{LastPolicyGeneratedDateTime}')-12h\r\n| where iif('{FilterByInitiative}' == 'Yes', InitiativeId_s in ({Initiative}) and DefinitionId_s in ({Definition}) and AssignmentId_s in ({Assignment}), DefinitionId_s in ({Definition}) and AssignmentId_s in ({Assignment}))\r\n| where Effect_s in ({Effect}) and ComplianceState_s in ({ComplianceState}) and (\"{Subscription}\" == \"'*'\" or SubscriptionGuid_g in ({Subscription}))\r\n| where ComplianceState_s !in ('Compliant','Excluded')\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| extend GroupByTag = iif('{FRTagName:label}' == '<unset>' or isempty(parse_json(Tags_s)['{FRTagName:label}']), '', tostring(parse_json(Tags_s)['{FRTagName:label}']))\r\n| distinct ResourceId, SubscriptionGuid_g, DefinitionName_s, InitiativeName_s, AssignmentName_s, Effect_s, ComplianceState_s, ComplianceReason_s, GroupByTag;\r\nAzureOptimizationPolicyStatesV1_CL\r\n| where TimeGenerated > todatetime('{LastPolicyGeneratedDateTime}')-12h\r\n| where (\"{Initiative}\" == \"'*'\" or InitiativeId_s in ({Initiative})) and DefinitionId_s in ({Definition}) and AssignmentId_s in ({Assignment}) and Effect_s in ({Effect}) and ComplianceState_s in ({ComplianceState}) and (\"{Subscription}\" == \"'*'\" or SubscriptionGuid_g in ({Subscription}))\r\n| where ComplianceState_s == 'Compliant'\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| project SubscriptionGuid_g, InitiativeName_s, AssignmentName_s, DefinitionName_s, Effect_s, ComplianceState_s, StatesCount=tolong(StatesCount_s), GroupByTag=''\r\n| union (AllButCompliantOrExcludedStates)\r\n| union (ExcludedStates)\r\n| join kind=leftouter ( AzureOptimizationResourceContainersV1_CL \r\n    | where TimeGenerated > todatetime('{LastSubsGeneratedDateTime}')-12h\r\n    | where ContainerType_s =~ 'microsoft.resources/subscriptions' \r\n    | project SubscriptionGuid_g, SubscriptionName = ContainerName_s\r\n) on SubscriptionGuid_g\r\n| project-away SubscriptionGuid_g*\r\n| order by InitiativeName_s asc, DefinitionName_s asc, SubscriptionName asc\r\n| extend ResourceId = iif(ResourceId has 'policyinsights', substring(ResourceId, 0, indexof(ResourceId, '/providers/microsoft.policyinsights/')), ResourceId)\r\n| extend ResourceCount = iif(isnotempty(ResourceCount), ResourceCount, iif(isnotempty(StatesCount), StatesCount, 1))\r\n| distinct ResourceId, GroupByTag, SubscriptionName, DefinitionName_s, InitiativeName_s, AssignmentName_s, Effect_s, ComplianceState_s, ComplianceReason_s, ResourceCount\r\n| order by InitiativeName_s asc",
+              "size": 2,
+              "showAnalytics": true,
+              "title": "Policy Compliance Full Report",
+              "exportedParameters": [
+                {
+                  "fieldName": "DefinitionName_s",
+                  "parameterName": "selectedDefinition",
+                  "parameterType": 1
+                },
+                {
+                  "fieldName": "InitiativeName_s",
+                  "parameterName": "selectedInitiative",
+                  "parameterType": 1
+                },
+                {
+                  "fieldName": "AssignmentName_s",
+                  "parameterName": "selectedAssignment",
+                  "parameterType": 1
+                },
+                {
+                  "fieldName": "SubscriptionName",
+                  "parameterName": "selectedSubscription",
+                  "parameterType": 1
+                },
+                {
+                  "fieldName": "ComplianceState_s",
+                  "parameterName": "selectedState",
+                  "parameterType": 1
+                }
+              ],
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "ResourceId",
+                    "formatter": 13,
+                    "formatOptions": {
+                      "linkTarget": null,
+                      "showIcon": true,
+                      "customColumnWidthSetting": "28ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "SubscriptionName",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "18ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "DefinitionName_s",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "30ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "InitiativeName_s",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "30ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "AssignmentName_s",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "30ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Effect_s",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "14ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "ComplianceState_s",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Compliant",
+                          "representation": "success",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "NonCompliant",
+                          "representation": "error",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Exempt",
+                          "representation": "info",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "more",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "ComplianceReason_s",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "19ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "SubscriptionGuid_g",
+                    "formatter": 5
+                  }
+                ],
+                "rowLimit": 10000,
+                "labelSettings": [
+                  {
+                    "columnId": "ResourceId",
+                    "label": "Resource"
+                  },
+                  {
+                    "columnId": "GroupByTag",
+                    "label": "Group By Tag"
+                  },
+                  {
+                    "columnId": "SubscriptionName",
+                    "label": "Subscription"
+                  },
+                  {
+                    "columnId": "DefinitionName_s",
+                    "label": "Definition"
+                  },
+                  {
+                    "columnId": "InitiativeName_s",
+                    "label": "Initiative"
+                  },
+                  {
+                    "columnId": "AssignmentName_s",
+                    "label": "Assignment"
+                  },
+                  {
+                    "columnId": "Effect_s",
+                    "label": "Effect"
+                  },
+                  {
+                    "columnId": "ComplianceState_s",
+                    "label": "Compliance"
+                  },
+                  {
+                    "columnId": "ComplianceReason_s",
+                    "label": "Reason"
+                  },
+                  {
+                    "columnId": "ResourceCount",
+                    "label": "Resources #"
+                  }
+                ]
+              }
+            },
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "FullReport"
+            },
+            "name": "fullReport"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "FullReport"
+      },
+      "name": "fullReportGroup"
+    }
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

@@ -1,0 +1,3 @@
+# 📦 Remediation Automation Runbooks
+
+This folder contains the several Azure Automation Runbooks responsible for remediating the weekly optimization recommendations. These runbooks are turned off (not scheduled) by default. All the `Remediate-*` runbooks follow the same pattern, querying the `Recommendations` table from the SQL Database and identifying recommendations that have been generated on a consistent manner for a period of time and executing domain-specific logic that implements (or simulates) a remediation. The results of the remediation are exported as CSV to Azure Storage, for later ingestion by the [Ingest-OptimizationCSVExportsToLogAnalytics](./Ingest-OptimizationCSVExportsToLogAnalytics.ps1) runbook (see [data collection](../data-collection/)).
