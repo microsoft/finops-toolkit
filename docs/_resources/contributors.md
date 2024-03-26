@@ -67,13 +67,12 @@ To do that, follow these steps:
 3. Check the box "Willing to fix" at the bottom of the page.
 4. Submit your issue.
 
-Your issue will be reviewed by the FinOps Toolkit governance team, who will reach out to you to discuss further and give you the green light to start developing. 
 
 <br>
 
 ## 💡 Proposing a new tool
 
-If you have developed a FinOps-related tool and want it to be part of the FinOps toolkit, send the details to [ftk-leads@microsoft.com](mailto:ftk-leads@microsoft.com?subject=[FTK]+New+tool+for+the+FinOps+toolkit). Please include as much information as possible about your tool and how it can benefit the FinOps community.
+If you have developed a FinOps-related tool and want it to be part of the FinOps toolkit, go to the issues list, click on "New issue" and select the "Propose a new tool" option. Please include as much information as possible about your tool and how it can benefit the FinOps community.
 
 The FinOps toolkit governing board will review your proposal and reach out to you for further discussion.
 
