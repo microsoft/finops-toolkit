@@ -87,15 +87,15 @@ The FinOps toolkit governance committee will review your proposal and reach out 
 
 Check the list of [open pull requests](https://github.com/microsoft/finops-toolkit/pulls) and provide constructive feedback on code changes proposed by community members. Ensure that the code adheres to our [coding guidelines](https://github.com/microsoft/finops-toolkit/wiki/Coding-guidelines), is well-documented, and follows best practices.
 
+Offer suggestions for improving the quality of the code, such as optimizing performance, enhancing readability, and addressing potential edge cases or bugs.
+
+Test the functionality of the code changes proposed in the PR to ensure they work as intended. This involves running tests, verifying edge cases, and checking for any unintended side effects.
+
 When possible, try to suggest code changes using **Add a suggestion** to streamline the review process.
 
 ![Screenshot of the 'Add a suggestion' command in pull request reviews](https://user-images.githubusercontent.com/399533/179936119-88c10c44-f181-4fa3-83b8-91376c8e4c58.png)
 
 <br>
-
-- **Improve Quality:** Offer suggestions for improving the quality of the code, such as optimizing performance, enhancing readability, and addressing potential edge cases or bugs.
-
-- **Validate Functionality:** Test the functionality of the code changes proposed in the PR to ensure they work as intended. This involves running tests, verifying edge cases, and checking for any unintended side effects.
 
 ## 💬 Answering questions
 
