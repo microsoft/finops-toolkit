@@ -163,6 +163,7 @@ All the main changes are tracked in the changelog. For additional details, refer
     </tr>
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/patkje75"><img src="https://avatars.githubusercontent.com/u/5085382?v=4?s=100" width="100px;" alt="Patric K."/><br /><sub><b>Patric K.</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Apatkje75" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/ripadrao"><img src="https://avatars.githubusercontent.com/u/61794401?v=4?s=100" width="100px;" alt="ripadrao"/><br /><sub><b>ripadrao</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=ripadrao" title="Documentation">📖</a></td>
     </tr>
   </tbody>
 </table>
