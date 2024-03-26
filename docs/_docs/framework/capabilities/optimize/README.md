@@ -28,7 +28,7 @@ Identify and implement the right mix of pricing models, services, and resources 
 
 ## 📉 Rate optimization
 
-- [Managing commitment-based discounts](./commitment-discounts.md)
+- [Managing commitment-based discounts](./rate-optimization.md)
 
 <br>
 

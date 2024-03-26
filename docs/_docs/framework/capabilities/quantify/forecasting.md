@@ -137,7 +137,7 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 ## ⏩ Next steps
 
 - [Budget management](./budgeting.md)
-- [Managing commitment-based discounts](../optimize/commitment-discounts.md)
+- [Managing commitment-based discounts](../optimize/rate-optimization.md)
 
 <br>
 

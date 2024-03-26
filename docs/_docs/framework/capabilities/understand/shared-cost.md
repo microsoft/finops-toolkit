@@ -45,7 +45,7 @@ Effectively managing shared costs reduces overhead, increases transparency and a
 
 Before you start, it's important to have a clear understanding of your organization's goals and priorities when it comes to managing shared costs. Keep in mind that not all shared costs may need to be redistributed, and some are more effectively managed with other means. Carefully evaluate each shared cost to determine the most appropriate approach for your organization.
 
-This guide doesn't cover commitment-based discounts, like reservations and savings plans. For details about how to handle showback and chargeback, refer to [Managing commitment-based discounts](../optimize/commitment-discounts.md).
+This guide doesn't cover commitment-based discounts, like reservations and savings plans. For details about how to handle showback and chargeback, refer to [Managing commitment-based discounts](../optimize/rate-optimization.md).
 
 <br>
 

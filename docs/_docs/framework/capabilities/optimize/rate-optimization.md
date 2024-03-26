@@ -2,10 +2,10 @@
 layout: default
 grand_parent: FinOps Framework
 parent: Optimize
-title: Commitment discounts
-permalink: /framework/capabilities/optimize/commitment-discounts
+title: Rate Optimization
+permalink: /framework/capabilities/optimize/rate-optimization
 nav_order: 3
-description: This article helps you understand the managing commitment-based discounts capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+description: This article helps you understand the rate optimization capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
 ms.date: 06/22/2023
@@ -14,8 +14,8 @@ ms.service: finops
 ms.reviewer: micflan
 ---
 
-<span class="fs-9 d-block mb-4">Managing commitment-based discounts</span>
-This article helps you understand the managing commitment-based discounts capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+<span class="fs-9 d-block mb-4">Rate Optimization</span>
+This article helps you understand the rate optimization capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 {: .fs-6 .fw-300 }
 
 <details open markdown="1">
@@ -33,7 +33,7 @@ This article helps you understand the managing commitment-based discounts capabi
 ---
 
 <a name="definition"></a>
-**Managing commitment-based discounts is the practice of obtaining reduced rates on cloud services by committing to a certain level of usage or spend over a specific period.**
+**Rate otpimization is the practice of obtaining reduced rates on cloud services by committing to a certain level of usage or spend over a specific period.**
 {: .fs-6 .fw-300 }
 
 Review daily usage and cost trends to estimate how much you expect to use or spend over the next one to five years. Use [Forecasting](../quantify/forecasting.md) and account for future plans.
@@ -80,12 +80,13 @@ At this point, you have commitment-based discounts in place. As you move beyond 
   - Consider implementing a consistent utilization and coverage monitoring system that covers all accounts.
 - Establish a process for centralized purchasing of commitment-based offers, assigning responsibility to a dedicated team or individual.
 - Consider programmatically aligning governance policies with commitments to prioritize SKUs and locations that are covered by reservations and aren't fully utilized when deploying new applications.
+- If you need to monitor the usage of commitment discounts outside of the Azure portal, consider deploying FinOps hubs which includes a [Commitment discount dashboard](https://microsoft.github.io/finops-toolkit/power-bi) which summarizes existing and potential savings from commitment discounts, like reservations and savings plans. 
 
 <br>
 
 ## 🍎 Learn more at the FinOps Foundation
 
-This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Managing commitment-based discounts capability](https://www.finops.org/framework/capabilities/manage-commitment-based-discounts/) article in the FinOps Framework documentation.
+This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Rate Optimization](https://www.finops.org/framework/capabilities/rate-optimization/) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
