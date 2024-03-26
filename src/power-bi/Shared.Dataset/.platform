@@ -2,10 +2,10 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
   "metadata": {
     "type": "SemanticModel",
-    "displayName": "CommitmentDiscounts"
+    "displayName": "FinOpsToolkit"
   },
   "config": {
     "version": "2.0",
-    "logicalId": "2cd364ce-263c-49e7-8b51-4e85e909200f"
+    "logicalId": "e1884593-b568-4b44-b7d9-cd9f2ce727bd"
   }
 }

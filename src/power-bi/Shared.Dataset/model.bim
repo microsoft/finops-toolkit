@@ -6807,10 +6807,6 @@
           {
             "name": "PBI_ResultType",
             "value": "Text"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "description": "Name of the Azure DataLake Gen2 storage account to pull data from.",
@@ -12667,10 +12663,6 @@
         "name": "HubSettings",
         "annotations": [
           {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
             "name": "PBI_ResultType",
             "value": "Table"
           }
@@ -12787,10 +12779,6 @@
         "name": "HubScopes",
         "annotations": [
           {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
             "name": "PBI_ResultType",
             "value": "Table"
           }
@@ -12839,10 +12827,6 @@
       {
         "name": "HubExports",
         "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
           {
             "name": "PBI_ResultType",
             "value": "Table"
@@ -14012,12 +13996,12 @@
         "name": "HubIngestion",
         "annotations": [
           {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
             "name": "PBI_ResultType",
             "value": "Table"
+          },
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
           }
         ],
         "columns": [
@@ -14120,19 +14104,6 @@
             "summarizeBy": "none"
           },
           {
-            "name": "FolderPath",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "c973d769-e5e2-4207-bdf6-53ce27016c70",
-            "sourceColumn": "FolderPath",
-            "summarizeBy": "none"
-          },
-          {
             "name": "Files",
             "annotations": [
               {
@@ -14191,10 +14162,14 @@
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isCustom\":true}"
               }
             ],
             "dataType": "dateTime",
-            "formatString": "General Date",
+            "formatString": "Mmm d hh:nn",
             "lineageTag": "2f9bb0e3-6a1b-495d-84b4-eb53debbfd09",
             "sourceColumn": "Updated",
             "summarizeBy": "none",
@@ -14234,6 +14209,19 @@
                 "relationship": "a3808251-3896-4682-8e9d-524755e4ca18"
               }
             ]
+          },
+          {
+            "name": "FolderPath",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "493d4b4d-0112-4627-ad51-4b3b422e0922",
+            "sourceColumn": "FolderPath",
+            "summarizeBy": "none"
           }
         ],
         "lineageTag": "78fe6c31-4536-4a91-952c-0d612defc0e2",
@@ -14273,11 +14261,11 @@
                 "        {\"Updated\", each List.Max([DateModified]), type nullable datetime}, ",
                 "        {\"Accessed\", each List.Max([DateAccessed]), type nullable datetime}",
                 "    }),",
-                "    _columns = {\"Scope\", \"StorageAccount\", \"Container\", \"Dataset\", \"Month\", \"FileType\", \"Files\", \"SizeInGB\", \"FolderPath\", \"Created\", \"Modified\", \"Accessed\"},",
-                "    RemoveColumns  = Table.SelectColumns(RenameColumns, _columns),",
+                "    _columns = {\"Scope\", \"StorageAccount\", \"Container\", \"Dataset\", \"Month\", \"FileType\", \"Files\", \"SizeInGB\", \"FolderPath\", \"Created\", \"Updated\", \"Accessed\"},",
+                "    RemoveColumns  = Table.SelectColumns(GroupBy, _columns),",
                 "    ReorderColumns = Table.ReorderColumns(RemoveColumns, _columns)",
                 "in",
-                "    GroupBy"
+                "    ReorderColumns"
               ],
               "type": "m"
             }
