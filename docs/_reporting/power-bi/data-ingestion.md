@@ -37,7 +37,7 @@ You can download the Data ingestion report from the [latest release](https://git
 
 The **Get started** page includes a basic introduction to the report with additional links to learn more.
 
-![Screenshot of the Get started page](https://github.com/microsoft/finops-toolkit/assets/399533/83a191a2-c988-4341-a58c-e154407128c5)
+![Screenshot of the Get started page](https://github.com/microsoft/finops-toolkit/assets/399533/42e8ff56-7bfd-4359-b7ce-cdf4a6b9fe20)
 
 <br>
 
@@ -50,7 +50,7 @@ This page includes the same KPIs as most pages within the [Cost summary report](
 - **Effective cost** shows the effective cost for the period with reservation purchases amortized across the commitment term.
 - **Total savings** shows how much you're saving compared to list prices.
 
-![Screenshot of the Hubs page](https://github.com/microsoft/finops-toolkit/assets/399533/55520255-d0ec-4c84-98d1-1a7fa515a49e)
+![Screenshot of the Hubs page](https://github.com/microsoft/finops-toolkit/assets/399533/55354126-46dd-4cde-bc60-c1110b6535f0)
 
 <br>
 
@@ -62,7 +62,7 @@ The **Exports** page shows which months have been exported for which scopes, whe
   _If you only see one export run per month, you may have configured file overwriting. While this seting is important when using Power BI against raw data exports, it is not recommended for FinOps hubs because it removes the ability to monitor export runs over time (since files are deleted)._
 </blockquote>
 
-![Screenshot of the Exports page](https://github.com/microsoft/finops-toolkit/assets/399533/94f3f1bb-744d-424a-9163-c9dff37af0f2)
+![Screenshot of the Exports page](https://github.com/microsoft/finops-toolkit/assets/399533/5a2c6e27-2fc9-48fc-bb7d-f13e35eedbea)
 
 <br>
 
@@ -74,7 +74,7 @@ Similar to exports that are run until the 5th of the following month, you will t
 
 If you notice exports from before ingested months, this typically means older data was removed from the `ingestion` container but the export metadata was not removed from `msexports`. Files in `msexports` can be safely be removed at any time. They are only useful for monitoring export runs.
 
-![Screenshot of the Ingestion page](https://github.com/microsoft/finops-toolkit/assets/399533/8e86b45a-38ab-4baa-9389-7279b0e7419a)
+![Screenshot of the Ingestion page](https://github.com/microsoft/finops-toolkit/assets/399533/34076615-21d9-4519-a9a7-c650c487b6cc)
 
 <br>
 
