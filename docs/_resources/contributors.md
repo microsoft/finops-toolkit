@@ -52,9 +52,6 @@ If you're eager to contribute but unsure where to begin, a great starting point 
 
 If this is the first time you are working on the FinOps toolkit repository, make sure to review our [Get started wiki](https://github.com/microsoft/finops-toolkit/wiki#-get-started).
 
-
-Once you are assigned to the bug, GitHub will automatically assign the tag "Community Contributor" to inform the team responsible for that tool of your contribution. 
-
 <br>
 
 ## 🛠️ Suggesting and owning a new feature, fixing an existing bug, or suggesting a change for an existing tool
