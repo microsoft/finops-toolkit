@@ -32,7 +32,7 @@ Welcome to the FinOps toolkit! As an open-source initiative, our success hinges 
 There are several ways you can contribute to the FinOps toolkit:
 
 1. 🐛 **Working on existing bugs:** You can assist by identifying and addressing existing bugs listed in our repository. 
-2. 🛠️ **Suggesting and owning a new feature, fixing an existing bug, or suggesting a change for an existing tool:** This involves proposing new features, fixing bugs, or suggesting changes for existing tools. 
+2. 🛠️  **Providing suggestions for new features or improvements:** If you're not comfortable with coding, you can still contribute by suggesting new features or improvements for our tools.
 3. 💡 **Proposing a new tool:** If you've developed a FinOps-related tool and want it to be part of the FinOps toolkit, you can submit a proposal for consideration.
 4. 👀 **Reviewing pull requests:** Code reviews are a critical aspect of maintaining code quality and ensuring the reliability and functionality of the project. By reviewing existing pull requests (PRs) suggested by community members, you can contribute significantly to the project's success without necessarily creating new code.
 5. 💬 **Answering questions:** Being actively involved in answering questions and providing assistance to community members is an invaluable contribution to the project.
