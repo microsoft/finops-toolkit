@@ -94,12 +94,13 @@ Legend:
 >
 > 🛠️ Fixed:
 >
-> 1. Fixed numerous errors causing the CostManagementConnector report to not load for MCA accounts.
-> 2. Fixed incorrect filter in the Commitment discounts report ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
+> 1. Fixed numerous errors causing the [Cost Management connector report](../_reporting/power-bi/connector.md) to not load for MCA accounts.
+> 2. Fixed incorrect filter in the [Commitment discounts report](../_reporting/power-bi/commitment-discounts.md) ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
 > 3. Fixed data issue where Cost Management uses "1Year", "3Years", and "5Years" for the x_SkuTerm. Values should be 12, 36, and 60 ([#594](https://github.com/microsoft/finops-toolkit/issues/594)).
 > 4. Changed the data type for the `x_Month` column to be a date.
 > 5. Changed `x_SkuTerm` to be a whole number and to not summarize by default.
 > 6. Changed `x_BillingExchangeRate` to not summarize by default.
+> 7. Corrected references to x_InvoiceIssuerId and InvoiceIssuerName columns in the [Cost Management connector report](../_reporting/power-bi/connector.md) ([#639](https://github.com/microsoft/finops-toolkit/issues/649)).
 >
 > ✏️ Changed:
 >
@@ -125,7 +126,7 @@ Legend:
 >
 > - [Optimization workbook](./optimization-workbook/README.md):
 >   1. Respect global subscription filter selections
-
+>
 > 🛠️ Fixed:
 >
 > 1. Fixed deploy to Azure buttons to point to the latest release.
