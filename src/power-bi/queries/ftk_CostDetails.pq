@@ -1,11 +1,7 @@
-// TODO: Make sure you delete this comment and comment out the "VS Code:" line below before using in Power BI. You will get an "Account URL is not valid" error if you don't.
-() =>
+(optional start as datetime, optional end as datetime) =>
 let
-    // VS Code: Uncomment for intellisense in VS Code, but do not include in Power BI reports --
-    ftk_Hub = () => "",
-
     // Get the data
-    rawData = ftk_Hub("focuscost"),
+    rawData = ftk_Hub("focuscost", start, end),
 
     // Fix types
     FixTypes = Table.TransformColumnTypes(rawData, {
@@ -35,7 +31,7 @@ let
         {"x_BillingExchangeRate",     type number},
         {"x_PartnerCreditRate",       type number},
         {"x_PricingBlockSize",        type number},
-        {"x_SkuTerm",                 type number}
+        {"x_SkuTerm",                 type text}  // Text due to a bug in CM data; converted to a number below
         // TODO: {"x_SkuIsCreditEligible", type logical}
         // TODO: {"x_PartnerCreditApplied",  type logical}
     }),
@@ -46,17 +42,44 @@ let
     _isBlank    = (val) => val = null or val = "",
     _isNotBlank = (val) => _isBlank(val) = false,
     _swapCol    = (tbl, oldCol, newCol, newVal, optional newType) => let add = Table.AddColumn(tbl, newCol, newVal, newType), del = if Table.HasColumns(add, oldCol) then Table.RemoveColumns(add, {oldCol}) else add in del,
+    _resetCol   = (tbl, col, newVal, optional newType) => let tmpCol = Text.Combine({"tmp_", col}), tmp = _swapCol(tbl, col, tmpCol, newVal, newType), ren = Table.RenameColumns(tmp, {{tmpCol, col}}) in ren,
     _armResourceName = (id) => List.Last(Text.Split(id, "/")),
 
+    // FOCUS "1.0-preview (v1)" bugs
+    SkuTerm = _resetCol(FixTypes, "x_SkuTerm", each if [x_SkuTerm] = "1Year" then 12 else if [x_SkuTerm] = "3Years" then 36 else if [x_SkuTerm] = "5Years" then 60 else Number.FromText([x_SkuTerm]), type number),
+
     // Parse arrays
-    SkuDetailsDict        = Table.AddColumn(FixTypes, "x_SkuDetailsDictionary", each if _isNotBlank([x_SkuDetails]) then Json.Document([x_SkuDetails]) else null),
-    SkuDetailsDict_errors = Table.ReplaceErrorValues(SkuDetailsDict, {{"x_SkuDetailsDictionary", null}}),
+    SkuDetailsDict        = Table.AddColumn(SkuTerm, "x_SkuDetailsDictionary", each if _isNotBlank([x_SkuDetails]) then Json.Document([x_SkuDetails]) else null),
+    SkuDetailsDict_copy   = Table.AddColumn(SkuDetailsDict, "tmp_SkuDetails",         each [x_SkuDetailsDictionary]),
+    SkuDetailsDict_errors = Table.ReplaceErrorValues(SkuDetailsDict_copy, {{"tmp_SkuDetails", null}}),
     TagsDictionary        = Table.AddColumn(SkuDetailsDict_errors, "x_TagsDictionary", each if _isNotBlank([Tags]) then Json.Document([Tags]) else null),
-    TagsDictionary_errors = Table.ReplaceErrorValues(TagsDictionary, {{"x_TagsDictionary", null}}),
+    TagsDictionary_copy   = Table.AddColumn(TagsDictionary, "tmp_Tags",         each [x_TagsDictionary]),
+    TagsDictionary_errors = Table.ReplaceErrorValues(TagsDictionary_copy, {{"tmp_Tags", null}}),
     ParsedArrays = TagsDictionary_errors,
 
+    // FTK columns
+    Tags_expand  = Table.ExpandRecordColumn(ParsedArrays, "tmp_Tags",
+        {"cm-resource-parent", "ms-resource-parent", "hidden-managedby", "costanalysis-parent", "ftk-version",      "ftk-tool"},
+        {"tmp_cmParent",       "tmp_msParent",       "tmp_ManagedBy",    "tmp_caParent",        "x_ToolkitVersion", "tmp_ToolkitTool"}
+    ),
+    ResourceParentId   = Table.AddColumn(Tags_expand,        "x_ResourceParentId",   
+        each if _isNotBlank([tmp_cmParent])  then [tmp_cmParent] 
+        else if _isNotBlank([tmp_msParent])  then [tmp_msParent] 
+        else if _isNotBlank([tmp_ManagedBy]) then [tmp_ManagedBy] 
+        else if _isNotBlank([tmp_caParent])  then [tmp_caParent] 
+        else null),
+// TODO: Add support for hierarchical resource parent types
+    ResourceParentType = Table.AddColumn(ResourceParentId,   "x_ResourceParentType", each if _isBlank([x_ResourceParentId]) then null else Text.Combine(List.Range(Text.Split(List.Last(Text.Split([x_ResourceParentId], "/providers/")), "/"), 0, 2), "/")),
+    ResourceParentName = Table.AddColumn(ResourceParentType, "x_ResourceParentName", each if _isBlank([x_ResourceParentId]) then null else Text.Split(List.Last(Text.Split([x_ResourceParentId], [x_ResourceParentType])), "/"){1}),
+    Tool = _swapCol(ResourceParentName, "tmp_ToolkitTool", "x_ToolkitTool", 
+        each if _isNotBlank([tmp_ToolkitTool]) then [tmp_ToolkitTool] 
+        else if _isBlank([x_ResourceParentId]) then null 
+        else if Text.Contains(Text.Lower([x_ResourceParentId]), "/providers/microsoft.cloud/hubs/") then "FinOps hubs"
+        else null),
+    ExpandedTags = Table.RemoveColumns(Tool, { "tmp_cmParent", "tmp_msParent", "tmp_caParent", "tmp_ManagedBy" }),
+
     // AHB columns
-    SkuDetails_expand   = Table.ExpandRecordColumn(ParsedArrays, "x_SkuDetailsDictionary",
+    SkuDetails_expand   = Table.ExpandRecordColumn(ExpandedTags, "tmp_SkuDetails",
         {"UsageType",      "ImageType",      "ServiceType", "VMName",     "VMProperties",      "VCPUs",       "ReservationOrderId",         "ReservationId",         "VMCapacityReservationId", "AHB",        "vCores"},
         {"x_SkuUsageType", "x_SkuImageType", "x_SkuType",   "tmp_VMName", "x_SkuVMProperties", "tmp_VMvCPUs", "tmp_AddlReservationOrderId", "tmp_AddlReservationId", "x_CapacityCommitmentId",  "tmp_SQLAHB", "tmp_SQLvCores"}
     ),
@@ -76,26 +99,37 @@ let
     Commitments = CommitmentUtilizationAmount,
 
     // Savings calculations
-    ListUnitPriceSavings     = Table.AddColumn(Commitments,              "x_ListUnitPriceSavings",     each [ListUnitPrice] - [x_EffectiveUnitPrice],       type number),
-    OnDemandUnitPriceSavings = Table.AddColumn(ListUnitPriceSavings,     "x_OnDemandUnitPriceSavings", each [x_OnDemandUnitPrice] - [x_EffectiveUnitPrice], type number),
-    CommitmentSavings        = Table.AddColumn(OnDemandUnitPriceSavings, "x_CommitmentSavings",        each if _isBlank([CommitmentDiscountCategory]) then 0 else [x_OnDemandCost] - [EffectiveCost], type number),
-    NegotiatedSavings        = Table.AddColumn(CommitmentSavings,        "x_NegotiatedSavings",        each [ListCost] - [x_OnDemandCost], type number),
-    DiscountSavings          = Table.AddColumn(NegotiatedSavings,        "x_DiscountSavings",          each [ListCost] - [EffectiveCost], type number),
-    Savings = DiscountSavings,
+    CommitmentUnitPriceSavings = Table.AddColumn(Commitments,                "x_CommitmentUnitPriceSavings", each if [x_OnDemandUnitPrice] > 0 and [x_OnDemandUnitPrice] >= [x_EffectiveUnitPrice] then [x_OnDemandUnitPrice] - [x_EffectiveUnitPrice] else null, type number),
+    NegotiatedUnitPriceSavings = Table.AddColumn(CommitmentUnitPriceSavings, "x_NegotiatedUnitPriceSavings", each if [ListUnitPrice]       > 0 and [ListUnitPrice]       >= [x_OnDemandUnitPrice]  then [ListUnitPrice]       - [x_OnDemandUnitPrice]  else null, type number),
+    DiscountUnitPriceSavings   = Table.AddColumn(NegotiatedUnitPriceSavings, "x_DiscountUnitPriceSavings",   each if [ListUnitPrice]       > 0 and [ListUnitPrice]       >= [x_EffectiveUnitPrice] then [ListUnitPrice]       - [x_EffectiveUnitPrice] else null, type number),
+    CommitmentCostSavings      = Table.AddColumn(DiscountUnitPriceSavings,   "x_CommitmentCostSavings",      each if _isBlank([CommitmentDiscountCategory]) then 0 else if [x_OnDemandCost] > 0 and [x_OnDemandCost] >= [EffectiveCost] then [x_OnDemandCost] - [EffectiveCost] else null, type number),
+    NegotiatedCostSavings      = Table.AddColumn(CommitmentCostSavings,      "x_NegotiatedCostSavings",      each if [ListCost]            > 0 and [ListCost]            >= [x_OnDemandCost]       then [ListCost]            - [x_OnDemandCost] else null, type number),
+    DiscountCostSavings        = Table.AddColumn(NegotiatedCostSavings,      "x_DiscountCostSavings",        each if [ListCost]            > 0 and [ListCost]            >= [EffectiveCost]        then [ListCost]            - [EffectiveCost]  else if [x_OnDemandCost] > 0 and [x_OnDemandCost] >= [EffectiveCost] then [x_OnDemandCost] - [EffectiveCost] else null, type number),
+    Savings = DiscountCostSavings,
 
     // Data cleansing
+    FreeReason = Table.AddColumn(Savings, "x_FreeReason", 
+        each if [BilledCost] <> 0.0 or [EffectiveCost] <> 0.0 then null
+        else if [PricingCategory] = "Commitment-Based" then "Unknown " & [ChargeSubcategory]
+        else if [x_BilledUnitPrice] = 0.0 and [x_EffectiveUnitPrice] = 0.0 and [x_OnDemandUnitPrice] = 0.0 and [ListUnitPrice] = 0.0 and _isBlank([CommitmentDiscountType]) then (
+            if _isNotBlank([x_SkuDescription]) and Text.Contains([x_SkuDescription], "Trial") then "Trial" else if _isNotBlank([x_SkuDescription]) and Text.Contains([x_SkuDescription], "Preview") then "Preview" else "Other"
+        )
+        else if [x_BilledUnitPrice] > 0.0 or [x_EffectiveUnitPrice] > 0.0 then (
+            if [PricingQuantity] > 0.0 then "Low Usage" else if [PricingQuantity] = 0.0 then "No Usage" else "Unknown Negative Quantity"
+        )
+        else "Unknown"),
     // TODO: BUG: SkuId == SkuPriceId for EA???
 
     // Unique names -- Must be after ResourceName cleanup and Commitment columns
 // TODO: Only add differentiators when the name is not unique
-    CommitmentDiscountNameUnique = Table.AddColumn(Savings,                      "CommitmentDiscountNameUnique", each if _isBlank([CommitmentDiscountId]) then null else [CommitmentDiscountName] & " (" & [CommitmentDiscountType] & ")"),
+    CommitmentDiscountNameUnique = Table.AddColumn(FreeReason,                   "CommitmentDiscountNameUnique", each if _isBlank([CommitmentDiscountId]) then null else [CommitmentDiscountName] & " (" & [CommitmentDiscountType] & ")"),
     ResourceNameUnique           = Table.AddColumn(CommitmentDiscountNameUnique, "ResourceNameUnique",           each if _isBlank([ResourceId])           then null else [ResourceName] & " (" & [ResourceType] & ")"),
     ResourceGroupNameUnique      = Table.AddColumn(ResourceNameUnique,           "x_ResourceGroupNameUnique",    each if _isBlank([x_ResourceGroupName])  then null else [x_ResourceGroupName] & " (" & [SubAccountName] & ")"),
     SubscriptionNameUnique       = Table.AddColumn(ResourceGroupNameUnique,      "SubAccountNameUnique",         each if _isBlank([SubAccountId])         then null else [SubAccountName] & " (" & _armResourceName([SubAccountId]) & ")"),
     Names = SubscriptionNameUnique,
 
     // Month column
-    Month = Table.AddColumn(Names, "x_Month", each Date.StartOfMonth([ChargePeriodStart])),
+    Month = Table.AddColumn(Names, "x_Month", each DateTime.Date(Date.StartOfMonth([ChargePeriodStart])), type date),
 
     // Unique key for the record -- WARNING: This increases the data size significantly.
     /*
