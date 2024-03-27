@@ -34,7 +34,7 @@ Once the above requirements have been met, the feature branch can be merged into
 
 ## 🚀 Publishing an official release
 
-1. Review the changelog to ensure it encapsulates all changes.
+1. Review the [changelog](../docs/_resources/changelog.md) to ensure it encapsulates all changes.
    - Move all released changes to an official numbered version section.
    - If there are committed changes in a feature branch that you want to mention, add them to an "Unreleased" section.
 2. Update the version.
@@ -97,18 +97,31 @@ Once the above requirements have been met, the feature branch can be merged into
       <root>/src/scripts/Test-PowerShell
       ```
 
-   3. Merge to main:
+   3. Check the docs for broken links:
+      1. Create a personal fork of the main repo.
+      2. If you already have one, update it to the latest.
+      3. Enable GitHub pages in your fork to use the `dev` branch `docs` folder.
+      4. Verify the `pages build and deployment` action completes successfully.
+      5. Open a dead link checker (e.g., [deadlinkchecker.com](https://www.deadlinkchecker.com/website-dead-link-checker.asp)) and check `https://{your-username}.github.io/finops-toolkit`.
+         - Ignore **link/href** errors for new pages that have not been released in the official `main` branch.
+         - Ignore any **Download** errors for the new release or any new files that haven't been released in the official `main` branch.
+         - Ignore the **Full changelog** error for the new release, which hasn't been released in the official `main` branch.
+         - Ignore the 403 error for learn.finops.org.
+         - Ignore any 429 errors from GitHub. These are caused due to all the contributor links that are checked.
+      6. Fix any broken links, push changes, and rerun the tool.
+
+   4. Merge to main:
 
       ```powershell
       cd <root>/src/scripts
       ./Merge-DevBranch main
       ```
 
-   4. Verify [documentation](https://aka.ms/finops/toolkit) updated correctly.
+   5. Verify [documentation](https://aka.ms/finops/toolkit) updated correctly.
 
       > _The documentation site may take 5 minutes to update after the merge is committed. If not updated, look at [GitHub actions](https://github.com/microsoft/finops-toolkit/actions/workflows/pages/pages-build-deployment) to see if there are any failures._
 
-   5. Run `Package-Toolkit -Build` script.
+   6. Run `Package-Toolkit -Build` script.
       - For each Power BI report:
         1. Change the sensitivity to **Public**.
            > ⚠️ _Power BI does not remember the sensitivity setting for Power BI projects so this needs to be done for each release. If not done, the report will not open for anyone outside of Microsoft._
@@ -120,7 +133,7 @@ Once the above requirements have been met, the feature branch can be merged into
         4. Save as a PBIX in the release folder.
            > ⚠️ _**DO NOT** save the above changes back to the Power BI project files!_
         5. Copy the first paragraph from the **Get started** page and save as PBIT in the release folder. Use the copied text for the description and add "Learn more at https://aka.ms/ftk/{report-name}" as a separate paragraph in the description.
-   6. Tag and publish a [new release](https://github.com/microsoft/finops-toolkit/releases/new):
+   7. Tag and publish a [new release](https://github.com/microsoft/finops-toolkit/releases/new):
       1. Create a tag on publish using the "vX.X" format.
       2. Set the **Target** to `main`.
       3. Set the **Previous tag** to the previous release tag.
@@ -146,9 +159,9 @@ Once the above requirements have been met, the feature branch can be merged into
           - Open data CSV and JSON files.
           - ZIP file for sample data files.
           - **DO NOT** copy Bicep, PowerShell, PBIP, or image files.
-   7. Update the related discussion.
-   8. Update all issues to `Status: Released`.
-   9. Update the download test to include any new files/versions.
+   8. Update the related discussion.
+   9.  Update all issues to `Status: Released`.
+   10. Update the download test to include any new files/versions.
 
       > _See `FinOpsToolkit.Tests.ps1` > `Verify against prod GitHub`_
 
