@@ -38,36 +38,6 @@ InModuleScope 'FinOpsToolkit' {
             }
         }
 
-        Context 'Resource groups' {
-            It 'Should create RG if it does not exist' {
-                # Arrange
-                Mock -CommandName 'Get-AzResourceGroup' -MockWith { return $null }
-                Mock -CommandName 'New-AzResourceGroup' -MockWith { }
-                Mock -CommandName 'Test-ShouldProcess' -MockWith { return $Action -eq 'CreateResourceGroup' }
-
-                # Act
-                Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location
-
-                # Assert
-                Assert-MockCalled -CommandName 'Get-AzResourceGroup' -Times 1
-                Assert-MockCalled -CommandName 'New-AzResourceGroup' -Times 1
-            }
-
-            It 'Should use RG if it exists' {
-                # Arrange
-                Mock -CommandName 'Get-AzResourceGroup' -MockWith { return $rgName }
-                Mock -CommandName 'New-AzResourceGroup' -MockWith { }
-                Mock -CommandName 'Test-ShouldProcess' -MockWith { return $Action -eq 'CreateResourceGroup' }
-
-                # Act
-                Deploy-FinOpsHub -Name $hubName -ResourceGroup $rgName -Location $location
-
-                # Assert
-                Assert-MockCalled -CommandName 'Get-AzResourceGroup' -Times 1
-                Assert-MockCalled -CommandName 'New-AzResourceGroup' -Times 0
-            }
-        }
-
         Context 'Initialize' {
             It 'Should call Initialize-FinOpsHubDeployment' {
                 # Arrange
