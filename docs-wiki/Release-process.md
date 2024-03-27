@@ -160,10 +160,13 @@ Once the above requirements have been met, the feature branch can be merged into
           - ZIP file for sample data files.
           - **DO NOT** copy Bicep, PowerShell, PBIP, or image files.
    8. Update the related discussion.
-   9.  Update all issues to `Status: Released`.
-   10. Update the download test to include any new files/versions.
+   9. Update all issues to `Status: Released`.
+   10. Update the `Toolkit / Should return all known releases` PowerShell integration test based on the latest version.
 
-      > _See `FinOpsToolkit.Tests.ps1` > `Verify against prod GitHub`_
+       > _See `src/powershell/Tests/Integration/Toolkit.Tests.ps1` > `Get-FinOpsToolkitVersion` > `Should return all known releases`_
+
+       1. Add the latest public version to the `$expected` variable.
+       2. Update the file checks to include/exclude any new/removed files.
 
 <br>
 
