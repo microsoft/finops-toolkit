@@ -30,7 +30,7 @@ param tagsByResource object = {}
 param exportScopes array = []
 
 @description('Optional. Deploy Azure Data Explorer cluster for analytics. Default: false.')
-param deployDataExplorer bool = true //TODO: DEFAULT to False once ready.
+param deployDataExplorer bool = true
 
 //==============================================================================
 // Resources
@@ -78,4 +78,4 @@ output clusterId string = hub.outputs.clusterId
 output clusterUri string = hub.outputs.clusterUri
 
 @description('The name of the Data Explorer database.')
-output databaseName string = hub.outputs.databaseName
+output databaseName string = hub.outputs.clusterDatabaseName

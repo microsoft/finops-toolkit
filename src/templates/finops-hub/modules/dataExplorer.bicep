@@ -46,14 +46,6 @@ param eventHubName string = 'storageHub'
 @description('Name of Event Grid subscription')
 param eventGridSubscriptionName string = 'toEventHub'
 
-//------------------------------------------------------------------------------
-// Variables
-//------------------------------------------------------------------------------
-
-// Generate globally unique cluster name: 4-22 chars; lowercase letters and numbers
-//var safeHubName = replace(replace(toLower(hubName), '-', ''), '_', '')
-//var clusterName = replace('${take(safeHubName, 22)}', '--', '-')
-
 //==============================================================================
 // Resources
 //==============================================================================
@@ -69,100 +61,6 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
     }
   }
 }
-
-// resource adxCluster 'Microsoft.Kusto/clusters@2023-05-02' = {
-//   name: clusterName
-//   location: location
-//   tags: tags
-//   sku: {
-//     capacity: 2
-//     name: 'Standard_E2ads_v5'
-//     tier: 'Standard'
-//   }
-//   // identity: {
-//   //   type: 'string'
-//   //   userAssignedIdentities: {}
-//   // }
-//   // properties: {
-//   //   acceptedAudiences: [
-//   //     {
-//   //       value: 'string'
-//   //     }
-//   //   ]
-//   //   allowedFqdnList: [
-//   //     'string'
-//   //   ]
-//   //   allowedIpRangeList: [
-//   //     'string'
-//   //   ]
-//   //   enableAutoStop: bool
-//   //   enableDiskEncryption: bool
-//   //   enableDoubleEncryption: bool
-//   //   enablePurge: bool
-//   //   enableStreamingIngest: bool
-//   //   engineType: 'string'
-//   //   keyVaultProperties: {
-//   //     keyName: 'string'
-//   //     keyVaultUri: 'string'
-//   //     keyVersion: 'string'
-//   //     userIdentity: 'string'
-//   //   }
-//   //   languageExtensions: {
-//   //     value: [
-//   //       {
-//   //         languageExtensionImageName: 'string'
-//   //         languageExtensionName: 'string'
-//   //       }
-//   //     ]
-//   //     value: [
-//   //       {
-//   //         languageExtensionImageName: 'string'
-//   //         languageExtensionName: 'string'
-//   //       }
-//   //     ]
-//   //   }
-//   //   optimizedAutoscale: {
-//   //     isEnabled: bool
-//   //     maximum: int
-//   //     minimum: int
-//   //     version: int
-//   //   }
-//   //   publicIPType: 'string'
-//   //   publicNetworkAccess: 'string'
-//   //   restrictOutboundNetworkAccess: 'string'
-//   //   trustedExternalTenants: [
-//   //     {
-//   //       value: 'string'
-//   //     }
-//   //   ]
-//   //   virtualClusterGraduationProperties: 'string'
-//   //   virtualNetworkConfiguration: {
-//   //     dataManagementPublicIpId: 'string'
-//   //     enginePublicIpId: 'string'
-//   //     subnetId: 'string'
-//   //   }
-//   // }
-//   // zones: [
-//   //   'string'
-//   // ]
-// }
-
-// resource adxDatabase 'Microsoft.Kusto/clusters/databases@2023-05-02' = {
-//   name: 'hub'
-//   location: location
-//   kind: 'ReadWrite'
-//   parent: adxCluster
-// }
-
-// resource adxDbTable 'Microsoft.Kusto/clusters/databases/scripts@2023-05-02' = {
-//   name: 'ingestion'
-//   parent: adxDatabase
-//   properties: {
-//       scriptContent: loadTextContent('adxTableSchema.kql')
-//       continueOnErrors: continueOnErrors
-//       forceUpdateTag: forceUpdateTag
-//   }
-// }
 
 //  Event hub receiving event grid notifications
 resource eventHubNamespace 'Microsoft.EventHub/namespaces@2021-11-01' = {
@@ -297,13 +195,13 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
       properties: {
         blobStorageEventType: 'Microsoft.Storage.BlobCreated'
         consumerGroup: eventHubNamespace::eventHub::kustoConsumerGroup.name
-        dataFormat: 'csv'
+        dataFormat: 'parquet'
         eventGridResourceId: blobTopic::newBlobSubscription.id
         eventHubResourceId: eventHubNamespace::eventHub.id
         ignoreFirstRecord: true
         managedIdentityResourceId: cluster.id
         storageAccountResourceId: storage.id
-        tableName: 'People'
+        tableName: 'Focus'
       }
     }
   }
