@@ -175,10 +175,9 @@ module keyVault 'keyVault.bicep' = {
 module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer){
   name: 'dataExplorer'
   params: {
-    hubName: hubName
     location: location
     tags: resourceTags
-    keyVaultName: keyVault.outputs.name
+    storageAccountName: storage.outputs.name
   }
 }
 
@@ -211,4 +210,4 @@ output clusterId string = dataExplorer.outputs.clusterId
 output clusterUri string = dataExplorer.outputs.clusterUri
 
 @description('The name of the Data Explorer database.')
-output databaseName string = dataExplorer.outputs.databaseName
+output clusterDatabaseName string = dataExplorer.outputs.clusterDbName
