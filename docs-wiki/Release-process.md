@@ -34,7 +34,7 @@ Once the above requirements have been met, the feature branch can be merged into
 
 ## 🚀 Publishing an official release
 
-1. Review the changelog to ensure it encapsulates all changes.
+1. Review the [changelog](../docs/_resources/changelog.md) to ensure it encapsulates all changes.
    - Move all released changes to an official numbered version section.
    - If there are committed changes in a feature branch that you want to mention, add them to an "Unreleased" section.
 2. Update the version.
