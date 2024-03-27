@@ -125,7 +125,15 @@ Legend:
 > 1. Started archiving template versions so they can be referenced easily via URL microsoft.github.io/finops-toolkit/deploy/{template}-{version}.json.
 >
 > - [Optimization workbook](./optimization-workbook/README.md):
->   1. Respect global subscription filter selections
+>   1. Respect global subscription filter selections.
+>
+> ✏️ Changed:
+>
+> - [Governance workbook](./governance-workbook/README.md):
+>   1. Managed disk visual improvement.
+>   2. Removed blueprints (replaced by deployment stacks and template specs).
+>   3. Combined the Governance and Security tabs.
+>   4. Enabled the export button.
 >
 > 🛠️ Fixed:
 >
