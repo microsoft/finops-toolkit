@@ -72,7 +72,7 @@ var autoStartRbacRoles = [
   'e40ec5ca-96e0-45a2-b4ff-59039f2c2b59' // Managed Identity Contributor - https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#managed-identity-contributor
 ]
 
-// FocusCost 1.0-preview (v1) columns
+// FocusCost 1.0-preview(v1) columns
 var focusCostColumns = [
   { name: 'AvailabilityZone', type: 'String' }
   { name: 'BilledCost', type: 'Decimal' }
