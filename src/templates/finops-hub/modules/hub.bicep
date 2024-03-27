@@ -28,7 +28,7 @@ param tagsByResource object = {}
 param exportScopes array
 
 @description('Optional. Deploy Azure Data Explorer cluster for analytics. Default: false.')
-param deployDataExplorer bool = false
+param deployDataExplorer bool = false //TODO: Review if this should be true or false by default
 
 // @description('Optional. Number of days of cost data to retain in the ms-cm-exports container. Default: 0.')
 // param exportRetentionInDays int = 0
