@@ -35,7 +35,7 @@
   SkuId:string,
   SkuPriceId:string,
   SubAccountId:string,
-  SubAccountName:string
+  SubAccountName:string,
   SubAccountType:string,
   Tags:string,
   UsageQuantity:decimal,

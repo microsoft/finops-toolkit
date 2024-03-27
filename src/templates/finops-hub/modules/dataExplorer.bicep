@@ -176,6 +176,7 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
       properties: {
         scriptContent: loadTextContent('adxTableSchema.kql')
         continueOnErrors: continueOnErrors
+        forceUpdateTag: forceUpdateTag
       }
     }
 
