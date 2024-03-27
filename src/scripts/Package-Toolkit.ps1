@@ -44,6 +44,7 @@ if ($Build)
 }
 
 $relDir = "$PSScriptRoot/../../release"
+$deployDir = "$PSScriptRoot/../../docs/deploy"
 
 # Validate template
 if ($Template -ne "*" -and -not (Test-Path $relDir))
@@ -87,11 +88,19 @@ $templates = Get-ChildItem $relDir -Directory `
         }
     }
 
+    # Copy azuredeploy.json to docs/deploy folder
+    Write-Verbose "Updating $($path.Name) deployment file in docs..."
+    Copy-Item "$path/azuredeploy.json" "$deployDir/$($path.Name)-$version.json"
+    Copy-Item "$path/azuredeploy.json" "$deployDir/$($path.Name)-latest.json"
+    Copy-Item "$path/createUiDefinition.json" "$deployDir/$($path.Name)-$version.ui.json"
+    Copy-Item "$path/createUiDefinition.json" "$deployDir/$($path.Name)-latest.ui.json"
+
     Write-Verbose ("Compressing $path to $zip" -replace (Get-Item $relDir).FullName, '.')
     Compress-Archive -Path "$path/*" -DestinationPath $zip
     return $zip
 }
 Write-Host "✅ $($templates.Count) templates"
+Write-Host "ℹ️ Deployment files updated... Please commit the changes manually..."
 
 # Copy open data files
 Write-Verbose "Copying open data files..."
@@ -113,28 +122,24 @@ Write-Host "✅ $((Get-ChildItem "$PSScriptRoot/../power-bi/*.pbix").Count) PBIX
 $pbi = Get-ChildItem "$PSScriptRoot/../power-bi/*.pbip"
 if ($PowerBI)
 {
-    Write-Host "ℹ️ $($pbi.Count) Power BI reports must be converted manually... Opening..."
+    Write-Host "ℹ️ $($pbi.Count) Power BI projects must be converted manually... Opening..."
     $pbi | Invoke-Item
 }
 elseif ($isPrerelease)
 {
-    Write-Host "✖️ Skipping $($pbi.Count) Power BI reports for prerelease version"
+    Write-Host "✖️ Skipping $($pbi.Count) Power BI projects for prerelease version"
 }
 else
 {
-    Write-Host "⚠️ $($pbi.Count) Power BI reports must be converted manually!"
+    Write-Host "⚠️ $($pbi.Count) Power BI projects must be converted manually!"
     Write-Host '     To open them, run: ' -NoNewline
     Write-Host './Package-Toolkit -PowerBI' -ForegroundColor Cyan
 }
 
 # Update version in docs
-$docVersionPath = "$PSScriptRoot/../../docs/_includes/version.txt"
+$docVersionPath = "$PSScriptRoot/../../docs/_includes/ftkver.txt"
 $versionInDocs = Get-Content $docVersionPath -Raw
-if ($isPrerelease)
-{
-    Write-Host "✖️ Skipping version in docs ($versionInDocs) for prerelease version"
-}
-elseif ($versionInDocs -eq $version)
+if ($versionInDocs -eq $version)
 {
     Write-Host "✅ Version in docs ($versionInDocs) already up-to-date"
 }

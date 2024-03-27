@@ -8,12 +8,19 @@ There are many ways in which you can contribute, beyond writing code. The goal o
 
 On this page:
 
+- [❤️ Give feedback](#️-give-feedback)
 - [🙋‍♀️ Asking questions](#️-asking-questions)
 - [ℹ️ Suggesting features and reporting bugs](#ℹ️-suggesting-features-and-reporting-bugs)
 - [👀 Reviewing code changes](#-reviewing-code-changes)
 - [👩‍💻 Making code changes](#-making-code-changes)
 
 ---
+
+## ❤️ Give feedback
+
+Perhaps the simplest way to help make the FinOps toolkit better is simply to share your voice and let us know what's working well, what isn't, and how we can improve the toolkit to help you streamline your FinOps efforts. We use a [quick, 7-question survey](https://aka.ms/ftk/feedback) to prioritize our releases. Let us know what you think and we'll incorporate that into the next release.
+
+<br>
 
 ## 🙋‍♀️ Asking questions
 
