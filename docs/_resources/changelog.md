@@ -146,6 +146,10 @@ Legend:
 🖥️ PowerShell
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
+> ➕ Added:
+>
+> 1. [Get-FinOpsCostService](../_automation/powershell/data/Get-FinOpsService.md) includes new `-Environment` and `-ServiceModel` filters and properties in the response ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
+>
 > ✏️ Changed:
 >
 > 1. [Start-FinOpsCostExport](../_automation/powershell/cost/Start-FinOpsCostExport.md) includes a new `-Backfill` option to backfill multiple months.
@@ -156,6 +160,7 @@ Legend:
 > 1. Fixed ParameterBindingException error in [New-FinOpsCostExport](../_automation/powershell/cost/New-FinOpsCostExport.md).
 > 2. Updated the FOCUS dataset version that was changed in Cost Management exports in [New-FinOpsCostExport](../_automation/powershell/cost/New-FinOpsCostExport.md).
 > 3. Changed the default `-EndDate` in [New-FinOpsCostExport](../_automation/powershell/cost/New-FinOpsCostExport.md) to be the end of the month due to a breaking change in Cost Management exports.
+> 4. Fixed internal command used in [Deploy-FinOpsHub](../_automation/powershell/hubs/Deploy-FinOpsHub.md) that may have caused it to fail for some versions of the Az PowerShell module.
 
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -164,13 +169,6 @@ Legend:
 >
 > 1. Added ServiceModel and Environment columns to the [services](../_reporting/data/README.md#-services) data ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
 > 2. New and updated [resource types](../_reporting/data/README.md#-resource-types) and icons.
-
-🖥️ PowerShell
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. [Get-FinOpsCostService](../_automation/powershell/data/Get-FinOpsService.md) includes new `-Environment` and `-ServiceModel` filters and properties in the response ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
 
 [Download v0.2.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.2.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.2...v0.2.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }

@@ -6,93 +6,152 @@
 InModuleScope FinOpsToolkit {
     Describe 'Save-FinOpsHubTemplate' {
         BeforeAll {
+            function mockVersionUrl($ver)
+            {
+                return "https://aka.ms/ftk/$ver.zip"
+            }
             function mockVersion($ver)
             {
                 @{
                     Version = $ver
-                    Files   = @(@{ Name = "$ver.txt"; Url = "about:blank" })
+                    Files   = @(@{ Name = "$ver.zip"; Url = (mockVersionUrl $ver) })
                 }
+            }
+            function mockVersionList($versions)
+            {
+                @($versions | ForEach-Object { mockVersion $_ })
+            }
+            
+            Mock -CommandName 'Expand-Archive'
+            Mock -CommandName 'Get-FinOpsToolkitVersion' -MockWith { mockVersion '1.0.0' }
+            Mock -CommandName 'Invoke-WebRequest' -MockWith { Write-Host "Invoke-WebRequest $Uri" }
+            Mock -CommandName 'New-Directory'
+            Mock -CommandName 'Remove-Item'
+            Mock -CommandName 'Test-Path' { $false }
+        }
+        
+        Context 'No releases found' {
+            It 'Should stop processing if no assets found' {
+                # Arrange
+                Mock -CommandName 'Get-FinOpsToolkitVersion' -MockWith { return @() }
+                
+                # Act
+                Save-FinOpsHubTemplate
+                
+                # Assert
+                Assert-MockCalled -CommandName 'Get-FinOpsToolkitVersion' -Times 1
+                Assert-MockCalled -CommandName 'Invoke-WebRequest' -Times 0
             }
         }
 
-        # TODO: Add more Save-FinOpsHubTemplate tests
-        It 'Should get the latest version' -Skip {}
-        It 'Should get a specific version' -Skip {}
-        It 'Should save files' -Skip {}
+        Context 'Releases found' {
+            It 'Should download each asset found' {
+                # Arrange
+                Mock -CommandName 'Get-FinOpsToolkitVersion' -MockWith { 
+                    $val = mockVersionList '1.0.0'
+                    Write-Host "Releases found / Should download each asset found / Get-FTKVersion / Mock value..."
+                    Write-Host ($val | ConvertTo-Json -Depth 5)
+                    return $val
+                }
+                Mock -CommandName 'Test-Path' -MockWith { return $true }
 
-        It 'Should redirect 0.2 to 0.2.1' {
-            # Arrange
-            Mock -CommandName 'Get-AzContext' { @{ Environment = 'AzureCloud' } }
-            Mock -CommandName 'New-Directory'
-            Mock -CommandName 'Get-FinOpsToolkitVersion' { @((mockVersion '0.2.1'), (mockVersion '0.2'), (mockVersion '0.1.1')) }
-            Mock -CommandName 'Test-Path' { $false }
-            Mock -CommandName 'Invoke-WebRequest'
+                # Act
+                Save-FinOpsHubTemplate
 
-            # Act
-            Save-FinOpsHubTemplate -Version '0.2'
-
-            # Assert
-            Assert-MockCalled -CommandName 'Test-Path' -Times 1 -ParameterFilter { $Path.EndsWith('0.2.1.txt') }
+                # Assert
+                Assert-MockCalled -CommandName 'Get-FinOpsToolkitVersion' -Times 1
+                Assert-MockCalled -CommandName 'Invoke-WebRequest' -Times 1
+            }
         }
 
-        It 'Should redirect 0.2 to 0.1.1 for Azure Gov' {
-            # Arrange
-            Mock -CommandName 'Get-AzContext' { @{ Environment = 'AzureGov' } }
-            Mock -CommandName 'New-Directory'
-            Mock -CommandName 'Get-FinOpsToolkitVersion' { @((mockVersion '0.2.1'), (mockVersion '0.2'), (mockVersion '0.1.1')) }
-            Mock -CommandName 'Test-Path' { $false }
-            Mock -CommandName 'Invoke-WebRequest'
-
-            # Act
-            Save-FinOpsHubTemplate -Version '0.2.1'
-
-            # Assert
-            Assert-MockCalled -CommandName 'Test-Path' -Times 1 -ParameterFilter { $Path.EndsWith('0.1.1.txt') }
+        Context 'Release filtering' {
+            It 'Should only download version specified' {
+                # Arrange
+                $downloadVersion = '2.0.0'
+                $downloadUrl = mockVersionUrl $downloadVersion
+                Mock -CommandName 'Get-FinOpsToolkitVersion' -MockWith { mockVersionList '1.0.0', $downloadVersion }
+                
+                # Act
+                Save-FinOpsHubTemplate -Version $downloadVersion
+                
+                # Assert
+                Assert-MockCalled -CommandName 'Invoke-WebRequest' -Times 1 -ParameterFilter { $Uri -eq $downloadUrl }
+                Assert-MockCalled -CommandName 'Expand-Archive' -Times 1
+                Assert-MockCalled -CommandName 'Remove-Item' -Times 1
+            }
         }
 
-        It 'Should redirect 0.2 to 0.1.1 for Azure China' {
-            # Arrange
-            Mock -CommandName 'Get-AzContext' { @{ Environment = 'AzureChina' } }
-            Mock -CommandName 'New-Directory'
-            Mock -CommandName 'Get-FinOpsToolkitVersion' { @((mockVersion '0.2.1'), (mockVersion '0.2'), (mockVersion '0.1.1')) }
-            Mock -CommandName 'Test-Path' { $false }
-            Mock -CommandName 'Invoke-WebRequest'
+        Context 'Failures' {
+            BeforeAll {
+                Mock -CommandName 'Get-FinOpsToolKitVersion' -MockWith { throw 'failue' }
+            }
 
-            # Act
-            Save-FinOpsHubTemplate -Version '0.2.1'
-
-            # Assert
-            Assert-MockCalled -CommandName 'Test-Path' -Times 1 -ParameterFilter { $Path.EndsWith('0.1.1.txt') }
+            It 'Should throw' {
+                { Save-FinOpsHubTemplate } | Should -Throw
+                Assert-MockCalled -CommandName 'Invoke-WebRequest' -Times 0
+            }
         }
 
-        It 'Should support 0.1.1 for Azure Gov' {
-            # Arrange
-            Mock -CommandName 'Get-AzContext' { @{ Environment = 'AzureGov' } }
-            Mock -CommandName 'New-Directory'
-            Mock -CommandName 'Get-FinOpsToolkitVersion' { @((mockVersion '0.2.1'), (mockVersion '0.2'), (mockVersion '0.1.1')) }
-            Mock -CommandName 'Test-Path' { $false }
-            Mock -CommandName 'Invoke-WebRequest'
-
-            # Act
-            Save-FinOpsHubTemplate -Version '0.1.1'
-
-            # Assert
-            Assert-MockCalled -CommandName 'Test-Path' -Times 1 -ParameterFilter { $Path.EndsWith('0.1.1.txt') }
-        }
-
-        It 'Should support 0.1.1 for Azure China' {
-            # Arrange
-            Mock -CommandName 'Get-AzContext' { @{ Environment = 'AzureChina' } }
-            Mock -CommandName 'New-Directory'
-            Mock -CommandName 'Get-FinOpsToolkitVersion' { @((mockVersion '0.2.1'), (mockVersion '0.2'), (mockVersion '0.1.1')) }
-            Mock -CommandName 'Test-Path' { $false }
-            Mock -CommandName 'Invoke-WebRequest'
-
-            # Act
-            Save-FinOpsHubTemplate -Version '0.1.1'
-
-            # Assert
-            Assert-MockCalled -CommandName 'Test-Path' -Times 1 -ParameterFilter { $Path.EndsWith('0.1.1.txt') }
+        Context 'Version redirection' {
+            It 'Should redirect 0.2 to 0.2.1' {
+                # Arrange
+                Mock -CommandName 'Get-AzContext' { @{ Environment = @{ Name = 'AzureCloud' } } }
+                Mock -CommandName 'Get-FinOpsToolkitVersion' { mockVersionList '0.2.1', '0.2', '0.1.1' }
+    
+                # Act
+                Save-FinOpsHubTemplate -Version '0.2'
+    
+                # Assert
+                Assert-MockCalled -CommandName 'Test-Path' -Times 1 -ParameterFilter { $Path.EndsWith('0.2.1.zip') }
+            }
+    
+            It 'Should redirect 0.2 to 0.1.1 for Azure Gov' {
+                # Arrange
+                Mock -CommandName 'Get-AzContext' { @{ Environment = @{ Name = 'AzureGov' } } }
+                Mock -CommandName 'Get-FinOpsToolkitVersion' { mockVersionList '0.2.1', '0.2', '0.1.1' }
+    
+                # Act
+                Save-FinOpsHubTemplate -Version '0.2.1'
+    
+                # Assert
+                Assert-MockCalled -CommandName 'Test-Path' -Times 1 -ParameterFilter { $Path.EndsWith('0.1.1.zip') }
+            }
+    
+            It 'Should redirect 0.2 to 0.1.1 for Azure China' {
+                # Arrange
+                Mock -CommandName 'Get-AzContext' { @{ Environment = @{ Name = 'AzureChina' } } }
+                Mock -CommandName 'Get-FinOpsToolkitVersion' { mockVersionList '0.2.1', '0.2', '0.1.1' }
+    
+                # Act
+                Save-FinOpsHubTemplate -Version '0.2.1'
+    
+                # Assert
+                Assert-MockCalled -CommandName 'Test-Path' -Times 1 -ParameterFilter { $Path.EndsWith('0.1.1.zip') }
+            }
+    
+            It 'Should support 0.1.1 for Azure Gov' {
+                # Arrange
+                Mock -CommandName 'Get-AzContext' { @{ Environment = @{ Name = 'AzureGov' } } }
+                Mock -CommandName 'Get-FinOpsToolkitVersion' { mockVersionList '0.2.1', '0.2', '0.1.1' }
+                
+                # Act
+                Save-FinOpsHubTemplate -Version '0.1.1'
+    
+                # Assert
+                Assert-MockCalled -CommandName 'Test-Path' -Times 1 -ParameterFilter { $Path.EndsWith('0.1.1.zip') }
+            }
+    
+            It 'Should support 0.1.1 for Azure China' {
+                # Arrange
+                Mock -CommandName 'Get-AzContext' { @{ Environment = @{ Name = 'AzureChina' } } }
+                Mock -CommandName 'Get-FinOpsToolkitVersion' { mockVersionList '0.2.1', '0.2', '0.1.1' }
+                
+                # Act
+                Save-FinOpsHubTemplate -Version '0.1.1'
+    
+                # Assert
+                Assert-MockCalled -CommandName 'Test-Path' -Times 1 -ParameterFilter { $Path.EndsWith('0.1.1.zip') }
+            }
         }
     }
 }

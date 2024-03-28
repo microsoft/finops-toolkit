@@ -45,7 +45,13 @@ function Save-FinOpsHubTemplate
     try
     {
         # Get environment to verify hubs version
-        $azEnv = (Get-AzContext).Environment
+        $azEnv = (Get-AzContext).Environment.Name
+
+        # If no environment is found, check without the Name property
+        if (-not $azEnv)
+        {
+            $azEnv = (Get-AzContext).Environment
+        }
     }
     catch
     {
@@ -59,7 +65,7 @@ function Save-FinOpsHubTemplate
         # TODO: Remove 0.2+ filter for Azure Gov/China when FOCUS exports are supported
         $releases = Get-FinOpsToolkitVersion -Latest:$($Version -eq 'Latest') -Preview:$Preview `
         | Where-Object { $_.Version -ne '0.2' -and ($azEnv -eq 'AzureCloud' -or $_.Version.StartsWith('0.0') -or $_.Version.StartsWith('0.1')) }  # 0.2 not supported in Azure Gov/China (as of Feb 2024)
-        
+
         # Redirect 0.2 to 0.2.1 due to bug
         if ($Version -eq '0.2')
         {
@@ -74,6 +80,7 @@ function Save-FinOpsHubTemplate
             Write-Information $LocalizedData.Hub_Deploy_02to011
             $Version = '0.1.1'
         }
+
 
         # Get the version
         if ($Version.ToLower() -eq 'latest')
@@ -91,7 +98,6 @@ function Save-FinOpsHubTemplate
             Write-Verbose -Message ($script:LocalizedData.HubTemplate_Save_FoundAsset -f $asset.Name)
             $saveFilePath = Join-Path -Path $Destination -ChildPath $asset.Name
             
-            Write-Host "Test-Path -Path $saveFilePath"
             if (Test-Path -Path $saveFilePath)
             {
                 Remove-Item -Path $saveFilePath -Recurse -Force
