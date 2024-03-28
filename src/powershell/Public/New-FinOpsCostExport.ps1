@@ -92,7 +92,7 @@
         -Scope "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" `
         -StorageAccountId "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
         -DataSet AmortizedCost `
-        -StartDate $(Get-Date -AsUTC).AddDays(5) `
+        -StartDate $(Get-Date).AddDays(5) `
         -EndDate "2024-08-15" `
         -Monthly `
         -Execute
@@ -204,18 +204,18 @@ function New-FinOpsCostExport
         {
             if ($OneTime)
             {
-                $start = $(Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0 -AsUTC).AddMonths(-1) 
+                $start = $(Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0).AddMonths(-1) 
             }
             else
             {
-                $start = $(Get-Date -AsUTC).AddDays(1) 
+                $start = $(Get-Date).AddDays(1) 
             }
         }
         if (-not $end)
         {
             if ($OneTime)
             {
-                $end = $start.AddMonths(1).AddMilliseconds(-1)
+                $end = $start.AddDays($start.Day - 1).AddMonths(1).AddMilliseconds(-1)
             }
             else
             {
@@ -392,7 +392,6 @@ function New-FinOpsCostExport
     }
     elseif ($Execute -eq $true -or $OneTime -eq $true)
     {
-        Write-Host "exec or onetime"
         Start-FinOpsCostExport -Name $Name -Scope $Scope
     }
 
