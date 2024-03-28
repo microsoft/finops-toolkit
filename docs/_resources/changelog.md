@@ -17,7 +17,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
-- [🛠️ v0.2.1](#️-v021)
+- [� v0.3](#-v03)
 - [🚚 v0.2](#-v02)
 - [🛠️ v0.1.1](#️-v011)
 - [🚚 v0.1](#-v01)
@@ -63,7 +63,14 @@ Legend:
 
 <br>
 
-## 🛠️ v0.2.1
+## 🚚 v0.3
+
+📗 FinOps documentation
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Added the FinOps documentation to provide guidance around how to implement and adopt FinOps in the Microsoft Cloud.
 
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -170,8 +177,8 @@ Legend:
 > 1. Added ServiceModel and Environment columns to the [services](../_reporting/data/README.md#-services) data ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
 > 2. New and updated [resource types](../_reporting/data/README.md#-resource-types) and icons.
 
-[Download v0.2.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.2.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-[Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.2...v0.2.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Download v0.3](https://github.com/microsoft/finops-toolkit/releases/tag/v0.3){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.2...v0.3){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
