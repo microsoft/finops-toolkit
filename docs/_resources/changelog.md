@@ -17,7 +17,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
-- [� v0.3](#-v03)
+- [🚚 v0.3](#-v03)
 - [🚚 v0.2](#-v02)
 - [🛠️ v0.1.1](#️-v011)
 - [🚚 v0.1](#-v01)
