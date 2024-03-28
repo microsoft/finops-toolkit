@@ -77,7 +77,7 @@ Describe 'CostExports' {
     It 'Should create one-time export' {
         # Arrange
         $historicalExportName = $exportName
-        $startDate = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0 -AsUTC).AddMonths(-12)
+        $startDate = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0).AddMonths(-12)
 
         Monitor "Export tests..." -Indent '  ' {
             Monitor "Creating $historicalExportName export..." {
