@@ -26,6 +26,11 @@
     ./Package-Toolkit -Build
 
     Builds the latest code and generates ZIP files for each template.
+
+    .EXAMPLE
+    ./Package-Toolkit -Build -PowerBI
+
+    Builds the latest code, generates ZIP files for each template, and opens Power BI projects to be saved as PBIX files.
 #>
 Param(
     [Parameter(Position = 0)][string]$Template = "*",
