@@ -155,6 +155,7 @@ Legend:
 >
 > 1. Fixed ParameterBindingException error in [New-FinOpsCostExport](../_automation/powershell/cost/New-FinOpsCostExport.md).
 > 2. Updated the FOCUS dataset version that was changed in Cost Management exports in [New-FinOpsCostExport](../_automation/powershell/cost/New-FinOpsCostExport.md).
+> 3. Changed the default `-EndDate` in [New-FinOpsCostExport](../_automation/powershell/cost/New-FinOpsCostExport.md) to be the end of the month due to a breaking change in Cost Management exports.
 
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }

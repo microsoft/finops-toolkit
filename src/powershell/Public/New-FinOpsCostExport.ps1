@@ -37,7 +37,7 @@
     Optional. Day to start running exports. Default = First day of the previous month if -OneTime is set; otherwise, tomorrow (DateTime.Now.AddDays(1)).
 
     .PARAMETER EndDate
-    Optional. Last day to run the export. Default = Last day of the previous month if -OneTime is set; otherwise, 5 years from -StartDate.
+    Optional. Last day to run the export. Default = Last day of the month identified in -StartDate if -OneTime is set; otherwise, 5 years from -StartDate.
 
     .PARAMETER StorageAccountId
     Required. Resource ID of the storage account to export data to.
