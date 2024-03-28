@@ -152,7 +152,7 @@ The following files are examples of what you will find when you export data from
 - Cost and usage
   - Actual (billed) (`2021-10-01`)
   - Amortized (`2021-10-01`)
-  - FOCUS (`1.0-preview (v1)`)
+  - FOCUS (`1.0-preview(v1)`)
 - Prices(`2023-05-01`)
 - Reservation details (`2023-03-01`)
 - Reservation transactions (`2023-05-01`)

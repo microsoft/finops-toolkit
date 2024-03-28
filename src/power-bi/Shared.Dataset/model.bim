@@ -6945,7 +6945,7 @@
           "    // TODO: Extract from the manifest",
           "    _armResourceName = (id) => List.Last(Text.Split(id, \"/\")),",
           "    DataSet = Table.AddColumn(FilterRowsByDate, \"x_DatasetType\", each \"FocusCost\"),",
-          "    Schema =  Table.AddColumn(DataSet, \"x_DatasetVersion\", each \"1.0-preview (v1)\"),",
+          "    Schema =  Table.AddColumn(DataSet, \"x_DatasetVersion\", each \"1.0-preview(v1)\"),",
           "    AccountType = Table.AddColumn(Schema, \"x_AccountType\", ",
           "        each if [BillingAccountId] = [SubAccountId] then \"MOSA\"",
           "        else if _armResourceName([BillingAccountId]) = [x_BillingAccountId] then \"EA\"",
@@ -7026,7 +7026,7 @@
           "    _resetCol   = (tbl, col, newVal, optional newType) => let tmpCol = Text.Combine({\"tmp_\", col}), tmp = _swapCol(tbl, col, tmpCol, newVal, newType), ren = Table.RenameColumns(tmp, {{tmpCol, col}}) in ren,",
           "    _armResourceName = (id) => List.Last(Text.Split(id, \"/\")),",
           "",
-          "    // FOCUS \"1.0-preview (v1)\" bugs",
+          "    // FOCUS \"1.0-preview(v1)\" bugs",
           "    SkuTerm = _resetCol(FixTypes, \"x_SkuTerm\", each if [x_SkuTerm] = \"1Year\" then 12 else if [x_SkuTerm] = \"3Years\" then 36 else if [x_SkuTerm] = \"5Years\" then 60 else Number.FromText([x_SkuTerm]), type number),",
           "",
           "    // Parse arrays",
@@ -9766,7 +9766,7 @@
         "description": [
           "Cost and usage (FOCUS) data from Cost Management exports.",
           "",
-          "Data version = 1.0-preview (v1)",
+          "Data version = 1.0-preview(v1)",
           "Learn more @ https://aka.ms/finops/hubs"
         ],
         "lineageTag": "4b9830c4-e7c7-43ee-823c-d6b15359c25f",

@@ -45,7 +45,7 @@ let
     _resetCol   = (tbl, col, newVal, optional newType) => let tmpCol = Text.Combine({"tmp_", col}), tmp = _swapCol(tbl, col, tmpCol, newVal, newType), ren = Table.RenameColumns(tmp, {{tmpCol, col}}) in ren,
     _armResourceName = (id) => List.Last(Text.Split(id, "/")),
 
-    // FOCUS "1.0-preview (v1)" bugs
+    // FOCUS "1.0-preview(v1)" bugs
     SkuTerm = _resetCol(FixTypes, "x_SkuTerm", each if [x_SkuTerm] = "1Year" then 12 else if [x_SkuTerm] = "3Years" then 36 else if [x_SkuTerm] = "5Years" then 60 else Number.FromText([x_SkuTerm]), type number),
 
     // Parse arrays

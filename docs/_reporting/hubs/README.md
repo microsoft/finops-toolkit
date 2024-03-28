@@ -117,7 +117,7 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
      <blockquote class="important" markdown="1">
        _FinOps hubs 0.2 requires FOCUS cost data. While FOCUS is fully supported, the option to export FOCUS cost data from Cost Management is currently in preview and has not rolled out to everyone yet. In order to create and manage FOCUS exports, please use the [Exports preview link](https://aka.ms/exportsv2)._
      </blockquote>
-   - **Dataset version** = `1.0-preview (v1)`
+   - **Dataset version** = `1.0-preview(v1)`
    - **Frequency** = `Daily export of month-to-date costs`
      <blockquote class="tip" markdown="1">
        _Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range._
