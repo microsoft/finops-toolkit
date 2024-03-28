@@ -22,7 +22,7 @@
     Optional. Dataset to export. Allowed values = "ActualCost", "AmortizedCost", "FocusCost", "PriceSheet", "ReservationDetails", "ReservationTransactions", "ReservationRecommendations". Default = "FocusCost".
     
     .PARAMETER DatasetVersion
-    Optional. Schema version of the dataset to export. Default = "1.0-preview (v1)" (applies to FocusCost only).
+    Optional. Schema version of the dataset to export. Default = "1.0-preview(v1)" (applies to FocusCost only).
 
     .PARAMETER DatasetFilters
     Optional. Dictionary of key/value pairs to filter the dataset with. Only applies to ReservationRecommendations dataset in 2023-07-01-preview. Valid filters are reservationScope (Shared or Single), resourceType (e.g., VirtualMachines), lookBackPeriod (Last7Days, Last30Days, Last60Days).
@@ -289,7 +289,7 @@ function New-FinOpsCostExport
             {
                 if ($Dataset -eq "FocusCost")
                 {
-                    $DatasetVersion = "1.0-preview (v1)"
+                    $DatasetVersion = "1.0-preview(v1)"
                 }
                 elseif ($Dataset -eq "ActualCost" -or $Dataset -eq "AmortizedCost")
                 {
