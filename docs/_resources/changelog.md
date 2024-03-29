@@ -70,7 +70,7 @@ Legend:
 
 > ➕ Added:
 >
-> 1. Added the FinOps documentation to provide guidance around how to implement and adopt FinOps in the Microsoft Cloud.
+> 1. Added the [FinOps documentation](../_docs/what-is-finops.md) to provide guidance around how to implement and adopt FinOps in the Microsoft Cloud.
 
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
