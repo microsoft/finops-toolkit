@@ -45,7 +45,7 @@ The FinOps toolkit includes two sets of reports that connect to different data s
 
 The following reports use the Cost Management connector for Power BI to connect to your data. While the connector is not recommended due to the reasons below, these reports will be available as long as the connector is supported by the Cost Management team.
 
-- [Cost Management connector](./connector.md) – Summarizes costs, savings, and commitment discounts using the Cost Management connector.
+- [Cost Management connector](./connector.md) – Summarizes costs, savings, and commitment discounts using the Cost Management connector for EA and MCA accounts.
 - [Cost Management template app](./template-app.md) (EA only) – The original Cost Management template app as a customizable PBIX file.
 
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .mb-4 .mb-md-0 .mr-4 }
