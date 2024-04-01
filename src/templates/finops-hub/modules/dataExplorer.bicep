@@ -23,7 +23,7 @@ param clusterName string = 'kusto${uniqueString(resourceGroup().id)}'
 @description('Optional. Name of the SKU. Default = "Standard_E2ads_v5".')
 param skuName string = 'Standard_E2ads_v5'
 
-@description('# of nodes')
+@description('Optional. Number of nodes to use in the cluster. Default = 2.')
 @minValue(2)
 @maxValue(1000)
 param skuCapacity int = 2
