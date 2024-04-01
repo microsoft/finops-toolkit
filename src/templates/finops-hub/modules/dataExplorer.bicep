@@ -20,7 +20,7 @@ param storageAccountName string
 @description('Name of the cluster')
 param clusterName string = 'kusto${uniqueString(resourceGroup().id)}'
 
-@description('Name of the sku')
+@description('Optional. Name of the SKU. Default = "Standard_E2ads_v5".')
 param skuName string = 'Standard_E2ads_v5'
 
 @description('# of nodes')
