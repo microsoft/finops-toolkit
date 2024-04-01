@@ -28,7 +28,7 @@ param skuName string = 'Standard_E2ads_v5'
 @maxValue(1000)
 param skuCapacity int = 2
 
-@description('Name of the database')
+@description('Optional. Name of the database. Default = "finopsdb".')
 param databaseName string = 'finopsdb'
 
 @description('Name of storage account')
