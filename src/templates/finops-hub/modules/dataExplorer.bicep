@@ -254,5 +254,5 @@ output clusterName string = cluster.name
 @description('The URI of the cluster.')
 output clusterUri string = cluster.properties.uri
 
-@description('The name of the Kusto cluster database.')
+@description('The name of the cluster database.')
 output clusterDbName string = databaseName
