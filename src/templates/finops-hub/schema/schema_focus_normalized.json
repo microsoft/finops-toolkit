@@ -10,18 +10,16 @@
                 "type": "String"
             },
             "sink": {
-                "name": "AvailabilityZone",
-                "type": "String"
+                "name": "AvailabilityZone"
             }
         },
         {
             "source": {
                 "name": "BilledCost",
-                "type": "String"
+                "type": "Decimal"
             },
             "sink": {
-                "name": "BilledCost",
-                "type": "Decimal"
+                "name": "BilledCost"
             }
         },
         {
@@ -30,8 +28,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "BillingAccountId",
-                "type": "String"
+                "name": "BillingAccountId"
             }
         },
         {
@@ -40,8 +37,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "BillingAccountName",
-                "type": "String"
+                "name": "BillingAccountName"
             }
         },
         {
@@ -50,8 +46,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "BillingAccountType",
-                "type": "String"
+                "name": "BillingAccountType"
             }
         },
         {
@@ -60,28 +55,25 @@
                 "type": "String"
             },
             "sink": {
-                "name": "BillingCurrency",
-                "type": "String"
+                "name": "BillingCurrency"
             }
         },
         {
             "source": {
                 "name": "BillingPeriodEnd",
-                "type": "String"
+                "type": "DateTimeOffset"
             },
             "sink": {
-                "name": "BillingPeriodEnd",
-                "type": "DateTimeOffset"
+                "name": "BillingPeriodEnd"
             }
         },
         {
             "source": {
                 "name": "BillingPeriodStart",
-                "type": "String"
+                "type": "DateTimeOffset"
             },
             "sink": {
-                "name": "BillingPeriodStart",
-                "type": "DateTimeOffset"
+                "name": "BillingPeriodStart"
             }
         },
         {
@@ -90,8 +82,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "ChargeCategory",
-                "type": "String"
+                "name": "ChargeCategory"
             }
         },
         {
@@ -100,8 +91,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "ChargeDescription",
-                "type": "String"
+                "name": "ChargeDescription"
             }
         },
         {
@@ -110,28 +100,25 @@
                 "type": "String"
             },
             "sink": {
-                "name": "ChargeFrequency",
-                "type": "String"
+                "name": "ChargeFrequency"
             }
         },
         {
             "source": {
                 "name": "ChargePeriodEnd",
-                "type": "String"
+                "type": "DateTimeOffset"
             },
             "sink": {
-                "name": "ChargePeriodEnd",
-                "type": "DateTimeOffset"
+                "name": "ChargePeriodEnd"
             }
         },
         {
             "source": {
                 "name": "ChargePeriodStart",
-                "type": "String"
+                "type": "DateTimeOffset"
             },
             "sink": {
-                "name": "ChargePeriodStart",
-                "type": "DateTimeOffset"
+                "name": "ChargePeriodStart"
             }
         },
         {
@@ -140,8 +127,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "ChargeSubcategory",
-                "type": "String"
+                "name": "ChargeSubcategory"
             }
         },
         {
@@ -150,8 +136,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "CommitmentDiscountCategory",
-                "type": "String"
+                "name": "CommitmentDiscountCategory"
             }
         },
         {
@@ -160,8 +145,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "CommitmentDiscountId",
-                "type": "String"
+                "name": "CommitmentDiscountId"
             }
         },
         {
@@ -170,8 +154,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "CommitmentDiscountName",
-                "type": "String"
+                "name": "CommitmentDiscountName"
             }
         },
         {
@@ -180,18 +163,16 @@
                 "type": "String"
             },
             "sink": {
-                "name": "CommitmentDiscountType",
-                "type": "String"
+                "name": "CommitmentDiscountType"
             }
         },
         {
             "source": {
                 "name": "EffectiveCost",
-                "type": "String"
+                "type": "Decimal"
             },
             "sink": {
-                "name": "EffectiveCost",
-                "type": "Decimal"
+                "name": "EffectiveCost"
             }
         },
         {
@@ -200,28 +181,25 @@
                 "type": "String"
             },
             "sink": {
-                "name": "InvoiceIssuerName",
-                "type": "String"
+                "name": "InvoiceIssuerName"
             }
         },
         {
             "source": {
                 "name": "ListCost",
-                "type": "String"
+                "type": "Decimal"
             },
             "sink": {
-                "name": "ListCost",
-                "type": "Decimal"
+                "name": "ListCost"
             }
         },
         {
             "source": {
                 "name": "ListUnitPrice",
-                "type": "String"
+                "type": "Decimal"
             },
             "sink": {
-                "name": "ListUnitPrice",
-                "type": "Decimal"
+                "name": "ListUnitPrice"
             }
         },
         {
@@ -230,18 +208,16 @@
                 "type": "String"
             },
             "sink": {
-                "name": "PricingCategory",
-                "type": "String"
+                "name": "PricingCategory"
             }
         },
         {
             "source": {
                 "name": "PricingQuantity",
-                "type": "String"
+                "type": "Decimal"
             },
             "sink": {
-                "name": "PricingQuantity",
-                "type": "Decimal"
+                "name": "PricingQuantity"
             }
         },
         {
@@ -250,8 +226,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "PricingUnit",
-                "type": "String"
+                "name": "PricingUnit"
             }
         },
         {
@@ -260,8 +235,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "ProviderName",
-                "type": "String"
+                "name": "ProviderName"
             }
         },
         {
@@ -270,8 +244,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "PublisherName",
-                "type": "String"
+                "name": "PublisherName"
             }
         },
         {
@@ -280,8 +253,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "Region",
-                "type": "String"
+                "name": "Region"
             }
         },
         {
@@ -290,8 +262,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "ResourceId",
-                "type": "String"
+                "name": "ResourceId"
             }
         },
         {
@@ -300,8 +271,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "ResourceName",
-                "type": "String"
+                "name": "ResourceName"
             }
         },
         {
@@ -310,8 +280,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "ResourceType",
-                "type": "String"
+                "name": "ResourceType"
             }
         },
         {
@@ -320,8 +289,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "ServiceCategory",
-                "type": "String"
+                "name": "ServiceCategory"
             }
         },
         {
@@ -330,8 +298,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "ServiceName",
-                "type": "String"
+                "name": "ServiceName"
             }
         },
         {
@@ -340,8 +307,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "SkuId",
-                "type": "String"
+                "name": "SkuId"
             }
         },
         {
@@ -350,8 +316,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "SkuPriceId",
-                "type": "String"
+                "name": "SkuPriceId"
             }
         },
         {
@@ -360,8 +325,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "SubAccountId",
-                "type": "String"
+                "name": "SubAccountId"
             }
         },
         {
@@ -370,8 +334,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "SubAccountName",
-                "type": "String"
+                "name": "SubAccountName"
             }
         },
         {
@@ -380,8 +343,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "SubAccountType",
-                "type": "String"
+                "name": "SubAccountType"
             }
         },
         {
@@ -390,18 +352,16 @@
                 "type": "String"
             },
             "sink": {
-                "name": "Tags",
-                "type": "String"
+                "name": "Tags"
             }
         },
         {
             "source": {
                 "name": "UsageQuantity",
-                "type": "String"
+                "type": "Decimal"
             },
             "sink": {
-                "name": "UsageQuantity",
-                "type": "Decimal"
+                "name": "UsageQuantity"
             }
         },
         {
@@ -410,8 +370,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "UsageUnit",
-                "type": "String"
+                "name": "UsageUnit"
             }
         },
         {
@@ -420,8 +379,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_AccountName",
-                "type": "String"
+                "name": "x_AccountName"
             }
         },
         {
@@ -430,28 +388,25 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_AccountOwnerId",
-                "type": "String"
+                "name": "x_AccountOwnerId"
             }
         },
         {
             "source": {
                 "name": "x_BilledCostInUsd",
-                "type": "String"
+                "type": "Decimal"
             },
             "sink": {
-                "name": "x_BilledCostInUsd",
-                "type": "Decimal"
+                "name": "x_BilledCostInUsd"
             }
         },
         {
             "source": {
                 "name": "x_BilledUnitPrice",
-                "type": "String"
+                "type": "Decimal"
             },
             "sink": {
-                "name": "x_BilledUnitPrice",
-                "type": "Decimal"
+                "name": "x_BilledUnitPrice"
             }
         },
         {
@@ -460,8 +415,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_BillingAccountId",
-                "type": "String"
+                "name": "x_BillingAccountId"
             }
         },
         {
@@ -470,28 +424,25 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_BillingAccountName",
-                "type": "String"
+                "name": "x_BillingAccountName"
             }
         },
         {
             "source": {
-                "name": "x_BillingExchangeRate",
-                "type": "String"
-            },
-            "sink": {
                 "name": "x_BillingExchangeRate",
                 "type": "Decimal"
+            },
+            "sink": {
+                "name": "x_BillingExchangeRate"
             }
         },
         {
             "source": {
                 "name": "x_BillingExchangeRateDate",
-                "type": "String"
+                "type": "DateTimeOffset"
             },
             "sink": {
-                "name": "x_BillingExchangeRateDate",
-                "type": "DateTimeOffset"
+                "name": "x_BillingExchangeRateDate"
             }
         },
         {
@@ -500,8 +451,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_BillingProfileId",
-                "type": "String"
+                "name": "x_BillingProfileId"
             }
         },
         {
@@ -510,8 +460,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_BillingProfileName",
-                "type": "String"
+                "name": "x_BillingProfileName"
             }
         },
         {
@@ -520,8 +469,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_ChargeId",
-                "type": "String"
+                "name": "x_ChargeId"
             }
         },
         {
@@ -530,8 +478,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_CostAllocationRuleName",
-                "type": "String"
+                "name": "x_CostAllocationRuleName"
             }
         },
         {
@@ -540,8 +487,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_CostCenter",
-                "type": "String"
+                "name": "x_CostCenter"
             }
         },
         {
@@ -550,8 +496,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_CustomerId",
-                "type": "String"
+                "name": "x_CustomerId"
             }
         },
         {
@@ -560,28 +505,25 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_CustomerName",
-                "type": "String"
+                "name": "x_CustomerName"
             }
         },
         {
             "source": {
                 "name": "x_EffectiveCostInUsd",
-                "type": "String"
+                "type": "Decimal"
             },
             "sink": {
-                "name": "x_EffectiveCostInUsd",
-                "type": "Decimal"
+                "name": "x_EffectiveCostInUsd"
             }
         },
         {
             "source": {
                 "name": "x_EffectiveUnitPrice",
-                "type": "String"
+                "type": "Decimal"
             },
             "sink": {
-                "name": "x_EffectiveUnitPrice",
-                "type": "Decimal"
+                "name": "x_EffectiveUnitPrice"
             }
         },
         {
@@ -590,8 +532,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_InvoiceId",
-                "type": "String"
+                "name": "x_InvoiceId"
             }
         },
         {
@@ -600,8 +541,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_InvoiceIssuerId",
-                "type": "String"
+                "name": "x_InvoiceIssuerId"
             }
         },
         {
@@ -610,8 +550,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_InvoiceSectionId",
-                "type": "String"
+                "name": "x_InvoiceSectionId"
             }
         },
         {
@@ -620,68 +559,61 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_InvoiceSectionName",
-                "type": "String"
+                "name": "x_InvoiceSectionName"
             }
         },
         {
             "source": {
                 "name": "x_OnDemandCost",
-                "type": "String"
+                "type": "Decimal"
             },
             "sink": {
-                "name": "x_OnDemandCost",
-                "type": "Decimal"
+                "name": "x_OnDemandCost"
             }
         },
         {
             "source": {
                 "name": "x_OnDemandCostInUsd",
-                "type": "String"
+                "type": "Decimal"
             },
             "sink": {
-                "name": "x_OnDemandCostInUsd",
-                "type": "Decimal"
+                "name": "x_OnDemandCostInUsd"
             }
         },
         {
             "source": {
                 "name": "x_OnDemandUnitPrice",
-                "type": "String"
+                "type": "Decimal"
             },
             "sink": {
-                "name": "x_OnDemandUnitPrice",
-                "type": "Decimal"
+                "name": "x_OnDemandUnitPrice"
             }
         },
         {
             "source": {
-                "name": "x_PartnerCreditApplied",
-                "type": "String"
-            },
-            "sink": {
                 "name": "x_PartnerCreditApplied",
                 "type": "Boolean"
+            },
+            "sink": {
+                "name": "x_PartnerCreditApplied"
             }
         },
         {
             "source": {
                 "name": "x_PartnerCreditRate",
-                "type": "String"
+                "type": "Decimal"
             },
             "sink": {
-                "name": "x_PartnerCreditRate",
-                "type": "Decimal"
+                "name": "x_PartnerCreditRate"
             }
         },
         {
             "source": {
                 "name": "x_PricingBlockSize",
-                "type": "String"
+                "type": "Decimal"
             },
             "sink": {
-                "name": "x_PricingBlockSize",
-                "type": "Decimal"
+                "name": "x_PricingBlockSize"
             }
         },
         {
@@ -690,8 +622,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_PricingCurrency",
-                "type": "String"
+                "name": "x_PricingCurrency"
             }
         },
         {
@@ -700,8 +631,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_PricingSubcategory",
-                "type": "String"
+                "name": "x_PricingSubcategory"
             }
         },
         {
@@ -710,8 +640,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_PricingUnitDescription",
-                "type": "String"
+                "name": "x_PricingUnitDescription"
             }
         },
         {
@@ -720,8 +649,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_PublisherCategory",
-                "type": "String"
+                "name": "x_PublisherCategory"
             }
         },
         {
@@ -730,8 +658,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_PublisherId",
-                "type": "String"
+                "name": "x_PublisherId"
             }
         },
         {
@@ -740,8 +667,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_ResellerId",
-                "type": "String"
+                "name": "x_ResellerId"
             }
         },
         {
@@ -750,8 +676,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_ResellerName",
-                "type": "String"
+                "name": "x_ResellerName"
             }
         },
         {
@@ -760,8 +685,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_ResourceGroupName",
-                "type": "String"
+                "name": "x_ResourceGroupName"
             }
         },
         {
@@ -770,28 +694,25 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_ResourceType",
-                "type": "String"
+                "name": "x_ResourceType"
             }
         },
         {
             "source": {
                 "name": "x_ServicePeriodEnd",
-                "type": "String"
+                "type": "DateTimeOffset"
             },
             "sink": {
-                "name": "x_ServicePeriodEnd",
-                "type": "DateTimeOffset"
+                "name": "x_ServicePeriodEnd"
             }
         },
         {
             "source": {
                 "name": "x_ServicePeriodStart",
-                "type": "String"
+                "type": "DateTimeOffset"
             },
             "sink": {
-                "name": "x_ServicePeriodStart",
-                "type": "DateTimeOffset"
+                "name": "x_ServicePeriodStart"
             }
         },
         {
@@ -800,8 +721,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_SkuDescription",
-                "type": "String"
+                "name": "x_SkuDescription"
             }
         },
         {
@@ -810,18 +730,16 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_SkuDetails",
-                "type": "String"
+                "name": "x_SkuDetails"
             }
         },
         {
             "source": {
-                "name": "x_SkuIsCreditEligible",
-                "type": "String"
-            },
-            "sink": {
                 "name": "x_SkuIsCreditEligible",
                 "type": "Boolean"
+            },
+            "sink": {
+                "name": "x_SkuIsCreditEligible"
             }
         },
         {
@@ -830,8 +748,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_SkuMeterCategory",
-                "type": "String"
+                "name": "x_SkuMeterCategory"
             }
         },
         {
@@ -840,8 +757,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_SkuMeterId",
-                "type": "String"
+                "name": "x_SkuMeterId"
             }
         },
         {
@@ -850,8 +766,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_SkuMeterName",
-                "type": "String"
+                "name": "x_SkuMeterName"
             }
         },
         {
@@ -860,8 +775,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_SkuMeterSubcategory",
-                "type": "String"
+                "name": "x_SkuMeterSubcategory"
             }
         },
         {
@@ -870,8 +784,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_SkuOfferId",
-                "type": "String"
+                "name": "x_SkuOfferId"
             }
         },
         {
@@ -880,8 +793,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_SkuOrderId",
-                "type": "String"
+                "name": "x_SkuOrderId"
             }
         },
         {
@@ -890,8 +802,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_SkuOrderName",
-                "type": "String"
+                "name": "x_SkuOrderName"
             }
         },
         {
@@ -900,8 +811,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_SkuPartNumber",
-                "type": "String"
+                "name": "x_SkuPartNumber"
             }
         },
         {
@@ -910,8 +820,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_SkuRegion",
-                "type": "String"
+                "name": "x_SkuRegion"
             }
         },
         {
@@ -920,8 +829,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_SkuServiceFamily",
-                "type": "String"
+                "name": "x_SkuServiceFamily"
             }
         },
         {
@@ -930,8 +838,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_SkuTerm",
-                "type": "String"
+                "name": "x_SkuTerm"
             }
         },
         {
@@ -940,8 +847,7 @@
                 "type": "String"
             },
             "sink": {
-                "name": "x_SkuTier",
-                "type": "String"
+                "name": "x_SkuTier"
             }
         }
     ]
