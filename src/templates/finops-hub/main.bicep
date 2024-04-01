@@ -30,7 +30,7 @@ param tagsByResource object = {}
 param exportScopes array = []
 
 @description('Optional. Deploy Azure Data Explorer cluster for analytics. Default: false.')
-param deployDataExplorer bool = true
+param deployDataExplorer bool = true //TODO: DEFAULT to False once ready.
 
 //==============================================================================
 // Resources
