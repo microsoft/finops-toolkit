@@ -194,7 +194,7 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
         dataFormat: 'parquet'
         eventGridResourceId: blobTopic::newBlobSubscription.id
         eventHubResourceId: eventHubNamespace::eventHub.id
-        ignoreFirstRecord: true
+        ignoreFirstRecord: false
         managedIdentityResourceId: cluster.id
         storageAccountResourceId: storage.id
         tableName: 'Focus'
