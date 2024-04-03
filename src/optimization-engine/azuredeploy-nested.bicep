@@ -104,7 +104,7 @@ param roleContributor string = '/subscriptions/${subscription().subscriptionId}/
 @description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
 
-var telemetryId = '00f120b5-2007-6120-0000-0041004f0045'
+var telemetryId = '00f120b5-2007-6120-0000-000000000a0e'
 var finOpsToolkitVersion = loadTextContent('ftkver.txt')
 var advisorExportsRunbookName = 'Export-AdvisorRecommendationsToBlobStorage'
 var argVmExportsRunbookName = 'Export-ARGVirtualMachinesPropertiesToBlobStorage'
