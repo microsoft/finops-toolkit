@@ -1078,7 +1078,7 @@ if ("Y", "y" -contains $continueInput) {
 
         Write-Host "Opening SQL Server firewall temporarily to your public IP ($myPublicIp)..." -ForegroundColor Green
         $tempFirewallRuleName = "InitialDeployment"            
-        New-AzSqlServerFirewallRule -ResourceGroupName $resourceGroupName -ServerName $sqlServerName -FirewallRuleName $tempFirewallRuleName -StartIpAddress $myPublicIp -EndIpAddress $myPublicIp -ErrorAction Continue    
+        New-AzSqlServerFirewallRule -ResourceGroupName $resourceGroupName -ServerName $sqlServerName -FirewallRuleName $tempFirewallRuleName -StartIpAddress $myPublicIp -EndIpAddress $myPublicIp -ErrorAction Continue | Out-Null
     }
     #endregion
     
@@ -1204,7 +1204,7 @@ if ("Y", "y" -contains $continueInput) {
         if (-not($sqlServerName -like "*.database.*"))
         {
             Write-Host "Deleting temporary SQL Server firewall rule..." -ForegroundColor Green
-            Remove-AzSqlServerFirewallRule -FirewallRuleName $tempFirewallRuleName -ResourceGroupName $resourceGroupName -ServerName $sqlServerName -ErrorAction Continue
+            Remove-AzSqlServerFirewallRule -FirewallRuleName $tempFirewallRuleName -ResourceGroupName $resourceGroupName -ServerName $sqlServerName -ErrorAction Continue | Out-Null
         }    
         throw "Could not establish connection to SQL."
     }
@@ -1214,7 +1214,7 @@ if ("Y", "y" -contains $continueInput) {
     if (-not($sqlServerName -like "*.database.*"))
     {
         Write-Host "Deleting temporary SQL Server firewall rule..." -ForegroundColor Green
-        Remove-AzSqlServerFirewallRule -FirewallRuleName $tempFirewallRuleName -ResourceGroupName $resourceGroupName -ServerName $sqlServerName -ErrorAction Continue  
+        Remove-AzSqlServerFirewallRule -FirewallRuleName $tempFirewallRuleName -ResourceGroupName $resourceGroupName -ServerName $sqlServerName -ErrorAction Continue | Out-Null
     }    
     #endregion
 
@@ -1248,88 +1248,94 @@ if ("Y", "y" -contains $continueInput) {
     }
     #endregion
 
-    #region Grant Microsoft Entra ID role to AOE principal
-    if ($null -eq $spnId)
+    if (!$silentDeploy)
     {
-        $auto = Get-AzAutomationAccount -Name $automationAccountName -ResourceGroupName $resourceGroupName
-        $spnId = $auto.Identity.PrincipalId
+        #region Grant Microsoft Entra ID role to AOE principal
         if ($null -eq $spnId)
         {
-            $runAsConnection = Get-AzAutomationConnection -ResourceGroupName $resourceGroupName -AutomationAccountName $automationAccountName -Name AzureRunAsConnection -ErrorAction SilentlyContinue
-            $runAsAppId = $runAsConnection.FieldDefinitionValues.ApplicationId
-            if ($runAsAppId)
+            $auto = Get-AzAutomationAccount -Name $automationAccountName -ResourceGroupName $resourceGroupName
+            $spnId = $auto.Identity.PrincipalId
+            if ($null -eq $spnId)
             {
-                $runAsServicePrincipal = Get-AzADServicePrincipal -ApplicationId $runAsAppId
-                $spnId = $runAsServicePrincipal.Id
+                $runAsConnection = Get-AzAutomationConnection -ResourceGroupName $resourceGroupName -AutomationAccountName $automationAccountName -Name AzureRunAsConnection -ErrorAction SilentlyContinue
+                $runAsAppId = $runAsConnection.FieldDefinitionValues.ApplicationId
+                if ($runAsAppId)
+                {
+                    $runAsServicePrincipal = Get-AzADServicePrincipal -ApplicationId $runAsAppId
+                    $spnId = $runAsServicePrincipal.Id
+                }
             }
         }
-    }
 
-    try
-    {
-        Import-Module Microsoft.Graph.Authentication
-        Import-Module Microsoft.Graph.Identity.DirectoryManagement
-
-        Write-Host "Granting Microsoft Entra ID Global Reader role to the Automation Account (requires administrative permissions in Microsoft Entra and MS Graph PowerShell SDK >= 2.4.0)..." -ForegroundColor Green
-
-        #workaround for https://github.com/microsoftgraph/msgraph-sdk-powershell/issues/888
-        $localPath = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile)
-        if (-not(get-item "$localPath\.graph\" -ErrorAction SilentlyContinue))
+        try
         {
-            New-Item -Type Directory "$localPath\.graph"
-        }
-        
-        switch ($cloudEnvironment) {
-            "AzureUSGovernment" {  
-                $graphEnvironment = "USGov"
-                break
+            Import-Module Microsoft.Graph.Authentication
+            Import-Module Microsoft.Graph.Identity.DirectoryManagement
+
+            Write-Host "Granting Microsoft Entra ID Global Reader role to the Automation Account (requires administrative permissions in Microsoft Entra and MS Graph PowerShell SDK >= 2.4.0)..." -ForegroundColor Green
+
+            #workaround for https://github.com/microsoftgraph/msgraph-sdk-powershell/issues/888
+            $localPath = [System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile)
+            if (-not(get-item "$localPath\.graph\" -ErrorAction SilentlyContinue))
+            {
+                New-Item -Type Directory "$localPath\.graph"
             }
-            "AzureChinaCloud" {  
-                $graphEnvironment = "China"
-                break
+            
+            switch ($cloudEnvironment) {
+                "AzureUSGovernment" {  
+                    $graphEnvironment = "USGov"
+                    break
+                }
+                "AzureChinaCloud" {  
+                    $graphEnvironment = "China"
+                    break
+                }
+                "AzureGermanCloud" {  
+                    $graphEnvironment = "Germany"
+                    break
+                }
+                Default {
+                    $graphEnvironment = "Global"
+                }
             }
-            "AzureGermanCloud" {  
-                $graphEnvironment = "Germany"
-                break
-            }
-            Default {
-                $graphEnvironment = "Global"
-            }
-        }
-        
-        Connect-MgGraph -Scopes "RoleManagement.ReadWrite.Directory","Directory.Read.All" -UseDeviceAuthentication -Environment $graphEnvironment -NoWelcome
-        
-        $globalReaderRole = Get-MgDirectoryRole -ExpandProperty Members -Property Id,Members,DisplayName,RoleTemplateId `
-            | Where-Object { $_.RoleTemplateId -eq "f2ef992c-3afb-46b9-b7cf-a126ee74c451" }
-        $globalReaders = $globalReaderRole.Members.Id
-        if (-not($globalReaders -contains $spnId))
-        {
-            New-MgDirectoryRoleMemberByRef -DirectoryRoleId $globalReaderRole.Id -BodyParameter @{"@odata.id" = "https://graph.microsoft.com/v1.0/directoryObjects/$spnId"}
-            Start-Sleep -Seconds 5
+            
+            Connect-MgGraph -Scopes "RoleManagement.ReadWrite.Directory","Directory.Read.All" -UseDeviceAuthentication -Environment $graphEnvironment -NoWelcome
+            
             $globalReaderRole = Get-MgDirectoryRole -ExpandProperty Members -Property Id,Members,DisplayName,RoleTemplateId `
                 | Where-Object { $_.RoleTemplateId -eq "f2ef992c-3afb-46b9-b7cf-a126ee74c451" }
             $globalReaders = $globalReaderRole.Members.Id
-            if ($globalReaders -contains $spnId)
+            if (-not($globalReaders -contains $spnId))
             {
-                Write-Host "Role granted." -ForegroundColor Green
+                New-MgDirectoryRoleMemberByRef -DirectoryRoleId $globalReaderRole.Id -BodyParameter @{"@odata.id" = "https://graph.microsoft.com/v1.0/directoryObjects/$spnId"}
+                Start-Sleep -Seconds 5
+                $globalReaderRole = Get-MgDirectoryRole -ExpandProperty Members -Property Id,Members,DisplayName,RoleTemplateId `
+                    | Where-Object { $_.RoleTemplateId -eq "f2ef992c-3afb-46b9-b7cf-a126ee74c451" }
+                $globalReaders = $globalReaderRole.Members.Id
+                if ($globalReaders -contains $spnId)
+                {
+                    Write-Host "Role granted." -ForegroundColor Green
+                }
+                else
+                {
+                    throw "Error when trying to grant Global Reader role"
+                }
             }
             else
             {
-                throw "Error when trying to grant Global Reader role"
-            }
+                Write-Host "Role was already granted before." -ForegroundColor Green            
+            }        
         }
-        else
+        catch
         {
-            Write-Host "Role was already granted before." -ForegroundColor Green            
-        }        
+            Write-Host $Error[0] -ForegroundColor Yellow
+            Write-Host "Could not grant role. If you want Microsoft Entra-based recommendations, please grant the Global Reader role manually to the $automationAccountName managed identity or, for previous versions of AOE, to the Run As Account principal." -ForegroundColor Red
+        }
+        #endregion
     }
-    catch
+    else
     {
-        Write-Host $Error[0] -ForegroundColor Yellow
         Write-Host "Could not grant role. If you want Microsoft Entra-based recommendations, please grant the Global Reader role manually to the $automationAccountName managed identity or, for previous versions of AOE, to the Run As Account principal." -ForegroundColor Red
     }
-    #endregion
-
     Write-Host "Azure Optimization Engine deployment completed! We're almost there..." -ForegroundColor Green
 
     #region Benefits Usage dependencies
