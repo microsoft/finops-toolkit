@@ -47,7 +47,7 @@ Reporting and analytics require a deep understanding of organizational needs to 
 - Different types of reporting and analytics you can provide
 - Assistance they need to answer their questions
 
-With the right tools, Reporting + analytics enable stakeholders to understand how resources are used, track cost trends, and make informed decisions regarding resource allocation, optimization, and budget planning.
+With the right tools, Reporting and analytics enable stakeholders to understand how resources are used, track cost trends, and make informed decisions regarding resource allocation, optimization, and budget planning.
 
 <br>
 
