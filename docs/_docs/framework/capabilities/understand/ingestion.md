@@ -43,7 +43,7 @@ Gather cost, utilization, performance, and other business data from cloud provid
 
 Understand how data gets reported and plan for data standardization requirements to support reporting on similar data from multiple sources. 
  
- Consider how to handle  cost data from multiple clouds or account types. Prefer open standards, like the FinOps Open Cost & Usage Specification ([FOCUS project](https://finops.org/focus)), which delivers consistency and standardization to cloud cost data,and interoperability with and across providers, vendors, and internal tools.
+Consider how to handle cost data from multiple clouds or account types. Prefer open standards, like the FinOps Open Cost & Usage Specification ([FOCUS project](../../../focus/README.md)), which delivers consistency and standardization to cloud cost data, and interoperability with and across providers, vendors, and internal tools.
  
   It may also require restructuring data in a logical and meaningful way by categorizing or tagging data so it can be easily accessed, analyzed, and understood.
 
