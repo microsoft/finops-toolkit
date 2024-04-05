@@ -41,7 +41,7 @@ This article helps you understand the reporting and analytics capability within 
 
 Provides transparency and visibility into cloud usage and costs across different departments, teams, and projects. Organizational alignment requires cost allocation metadata and hierarchies, and enabling visibility requires structured access control against these hierarchies.
 
-Reporting + analytics require a deep understanding of organizational needs to provide an appropriate level of detail to each stakeholder. Consider the following points:
+Reporting and analytics require a deep understanding of organizational needs to provide an appropriate level of detail to each stakeholder. Consider the following points:
 
 - Level of knowledge and experience each stakeholder has
 - Different types of reporting and analytics you can provide
