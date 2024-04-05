@@ -53,7 +53,7 @@ With the right tools, Reporting and analytics enable stakeholders to understand 
 
 ## 🤔 When to prioritize
 
-Reporting + analytics are a common part of your iterative process. Some examples of when you want to prioritize Reporting + analytics include:
+Reporting and analytics are a common part of your iterative process. Some examples of when you want to prioritize Reporting and analytics include:
 
 - New datasets become available, which need to be prepared for stakeholders.
 - New requirements are raised to add or update reports.
