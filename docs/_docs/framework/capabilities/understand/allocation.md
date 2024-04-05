@@ -59,8 +59,6 @@ When you first start managing cost in the cloud, you use the native "allocation"
 
 Cost allocation is usually an afterthought and requires some level of cleanup when introduced. You need a plan to implement your  allocation strategy. We recommend outlining that plan first to get alignment and possibly prototyping on a small scale to demonstrate the value.
 
-Consider that some services might be shared by multiple products / teams. Keep in mind that not all shared costs may need to be redistributed, and some are more effectively managed with other means. Carefully evaluate each shared cost to determine the most appropriate approach for your organization.
-
 - Decide how you want to manage access to the cloud.
   - At what level in the organization do you want to centrally provision access to the cloud: Departments, teams, projects, or applications? High levels require more governance and low levels require more management.
   - What [cloud scope](https://learn.microsoft.com/azure/cost-management-billing/costs/understand-work-scopes) do you want to provision for this level?
