@@ -39,7 +39,7 @@ Identify the most critical attributes to report against based on stakeholder nee
 
 Establish and maintain a mapping of cloud and on-premises costs to each attribute and apply governance policies to ensure data is appropriately tagged in advance. Define a process for how to handle tagging gaps and misses.
 
-Identify shared costs and develop an allocation plan that defines the rules and methods for dividing the shared costs fairly and equitably. Track and report shared costs and their allocation to the relevant stakeholders. Regularly review and update allocation plan to ensure it remains accurate and fair.
+Review shared costs and develop an allocation plan with rules and methods for dividing the shared costs fairly and equitably. Track and report shared costs and their allocation to the relevant stakeholders. Regularly review and update allocation plan to ensure it remains accurate and fair.
 
 Cost allocation is the foundational element of cost accountability and enables organizations to gain visibility into the financial impact of their cloud solutions and related activities and initiatives.
 
