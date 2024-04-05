@@ -60,7 +60,7 @@ Reporting + analytics are a common part of your iterative process. Some examples
 - Adoption of a multi-cloud environment and the need of having a single report to access cross-cloud information.
 - Implementing more cost visibility measures to drive awareness.
 
-If you're new to FinOps, we recommend starting with Reporting + analytics using native cloud tools as you learn more about the data and the specific needs of your stakeholders. You revisit this capability again as you adopt new tools and datasets, which could be ingested into a custom data store or used by a third-party solution from the Marketplace.
+If you're new to FinOps, we recommend starting with reporting and analytics using native cloud tools as you learn more about the data and the specific needs of your stakeholders. You revisit this capability again as you adopt new tools and datasets, which could be ingested into a custom data store or used by a third-party solution from the Marketplace.
 
 
 <br>
