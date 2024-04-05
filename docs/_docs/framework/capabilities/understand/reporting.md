@@ -14,8 +14,8 @@ ms.service: finops
 ms.reviewer: micflan
 ---
 
-<span class="fs-9 d-block mb-4">Reporting + analytics</span>
-This article helps you understand the reporting + analytics capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+<span class="fs-9 d-block mb-4">Reporting and analytics</span>
+This article helps you understand the reporting and analytics capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 {: .fs-6 .fw-300 }
 
 <details open markdown="1">
