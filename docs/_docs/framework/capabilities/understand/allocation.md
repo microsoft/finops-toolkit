@@ -84,7 +84,11 @@ Consider that some services might be shared by multiple products / teams. Keep i
   - Consider a top-down approach that prioritizes getting departmental costs in place before optimizing at the lowest project and environment level. You may want to implement it in phases, depending on how broad and deep your organization is.
   - Enable [tag inheritance in Cost Management](https://learn.microsoft.com/azure/cost-management-billing/costs/enable-tag-inheritance) to copy subscription and resource group tags in cost data only. It doesn't change tags on your resources.
   - Use Azure Policy to [enforce your tagging strategy](https://learn.microsoft.com/azure/azure-resource-manager/management/tag-policies), automate the application of tags at scale, and track compliance status. Use compliance as a KPI for your tagging strategy.
-  - If you need to move costs between subscriptions, resource groups, or add or change tags, [configure allocation rules in Cost Management](https://learn.microsoft.com/azure/cost-management-billing/costs/allocate-costs).
+  - If you need to move costs between subscriptions, resource groups, or add or change tags, you might want to consider [configuring allocation rules in Cost Management](https://learn.microsoft.com/azure/cost-management-billing/costs/allocate-costs).
+    <blockquote class="warning" markdown="1">
+      _Before you enable Cost Management cost allocation, please note that you will no longer be able to quantify cost savings because Cost Management does not share on-demand prices and cost when cost allocation is enabled. Support for on-demand prices/cost with cost allocation is in the backlog but there is no ETA from the Cost Management team._
+    </blockquote>
+
   - Use [cost allocation rules in Microsoft Cost Management](https://learn.microsoft.com/azure/cost-management-billing/costs/allocate-costs) to redistribute shared costs based on static percentages or compute, network, or storage costs.
   - Consider [grouping related resources together with the "cm-resource-parent" tag](https://learn.microsoft.com/azure/cost-management-billing/costs/group-filter#group-related-resources-in-the-resources-view) to view costs together in Cost analysis.
   - Distribute responsibility for any remaining change to scale out and drive efficiencies.
