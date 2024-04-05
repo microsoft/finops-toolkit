@@ -41,7 +41,7 @@ Establish and maintain a mapping of cloud and on-premises costs to each attribut
 
 Review shared costs and develop an allocation plan with rules and methods for dividing the shared costs fairly and equitably. Track and report shared costs and their allocation to the relevant stakeholders. Regularly review and update allocation plan to ensure it remains accurate and fair.
 
-Cost allocation is the foundational element of cost accountability and enables organizations to gain visibility into the financial impact of their cloud solutions and related activities and initiatives.
+Cost allocation is the foundational element of cost accountability and enables organizations to gain visibility into the financial impact of their cloud solutions and related activities and initiatives. Effectively managing shared costs as part of your allocation strategy reduces overhead, increases transparency and accountability, and better aligns cloud costs to business value while maximizing the efficiencies and cost savings from shared services.
 
 <br>
 
