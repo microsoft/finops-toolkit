@@ -55,7 +55,7 @@ This guide doesn't cover commitment-based discounts, like reservations and savin
 
 ## ▶️ Getting started
 
-When you first start managing cost in the cloud, you use the native "allocation" tools to organize subscriptions and resources to align to your primary organizational reporting structure. For anything beyond it, [tags](https://learn.microsoft.com/azure/azure-resource-manager/management/tag-resources), [cost managament](ttps://learn.microsoft.com/azure/cost-management-billing/costs/group-filter#group-related-resources-in-the-resources-view) tags and [cloud scope](https://learn.microsoft.com/azure/cost-management-billing/costs/understand-work-scopes) can augment cloud resources and their usage to add business context, which is critical for any allocation strategy.
+When you first start managing cost in the cloud, you use the native "allocation" tools to organize subscriptions and resources to align to your primary organizational reporting structure. For anything beyond it, [tags](https://learn.microsoft.com/azure/azure-resource-manager/management/tag-resources) can augment cloud resources and their usage to add business context, which is critical for any allocation strategy.
 
 Cost allocation is usually an afterthought and requires some level of cleanup when introduced. You need a plan to implement your  allocation strategy. We recommend outlining that plan first to get alignment and possibly prototyping on a small scale to demonstrate the value.
 
