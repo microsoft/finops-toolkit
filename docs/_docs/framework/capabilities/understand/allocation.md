@@ -127,7 +127,7 @@ At this point, you have a cost allocation strategy with detailed cloud managemen
 - Contact stakeholders who are responsible for the potentially shared services. Make sure they understand if the shared services are shared and how costs are allocated today. If not accounted for, how allocation could or should be done.
 - Use [cost allocation rules in Microsoft Cost Management](https://learn.microsoft.com/azure/cost-management-billing/costs/allocate-costs) to redistribute shared costs based on static percentages or compute, network, or storage costs.
 - Regularly review and refine your allocation rules to ensure they remain accurate and fair.
-  - Consider this process as part of your reporting feedback loop. If your cost allocation strategy is falling short, the feedback you get may not be directly associated with cost allocation or metadata. It may instead be related to reporting. Watch out for this feedback and ensure the feedback is addressed at the most appropriate layer.
+  - Consider this process as part of your reporting feedback loop. If your allocation strategy is falling short, the feedback you get may not be directly associated with allocation or metadata. It may instead be related to reporting. Watch out for this feedback and ensure the feedback is addressed at the most appropriate layer.
   - Ensure naming, metadata, and hierarchy requirements are being used consistently and effectively throughout your environment.
   - Consider other KPIs to track and monitor success of your cost allocation strategy.
 - Establish and track common KPIs, like the percentage of unallocated shared costs.
