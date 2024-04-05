@@ -53,7 +53,7 @@ When armed with a comprehensive collection of cost and usage information tied to
 
 ## ✋ Before you begin
 
-While data ingestion is critical to long-term efficiency and effectiveness of any FinOps practice, it isn't a blocking requirement for your initial set of FinOps investments. If it is your first iteration through the FinOps lifecycle, consider lighter-weight capabilities that can deliver quicker return on investment, like [Data analysis and showback](./reporting.md). Data ingestion can require significant time and effort depending on account size and complexity. We recommend focusing on this process once you have the right level of understanding of the effort and commitment from key stakeholders to support that effort.
+While data ingestion is critical to long-term efficiency and effectiveness of any FinOps practice, it isn't a blocking requirement for your initial set of FinOps investments. If it is your first iteration through the FinOps lifecycle, consider lighter-weight capabilities that can deliver quicker return on investment, like [Reporting and analytics](./reporting.md). Data ingestion can require significant time and effort depending on account size and complexity. We recommend focusing on this process once you have the right level of understanding of the effort and commitment from key stakeholders to support that effort.
 
 During the first iteration to start adopting this capability, consider using FOCUS as the standard billing data format for all of your data sources. To learn why organizations needs it and why Microsoft belives in FOCUS, you can review the [FOCUS documentation](../../../focus/README.md) available on FinOps toolkit provided by Microsoft.
 
