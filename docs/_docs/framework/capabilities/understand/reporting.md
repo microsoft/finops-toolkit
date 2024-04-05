@@ -87,7 +87,7 @@ We also recommend learning about [how cost data is tracked, stored, and refreshe
 
 Understanding your cost data is critical to enable accurate and meaningful showback to all stakeholders.
 
-If there is the need to report from multiple sources, for example multiple cloud providers, configuration management database (CMDB), or  IT asset management (ITAM) systems, consider using the FinOps Open Cost & Usage Specification ([FOCUS project](https://finops.org/focus)) as the standard billing schema for this report. To learn why organizations needs it and why Microsoft belives in FOCUS, you can review the [FOCUS documentation](https://microsoft.github.io/finops-toolkit/focus) available on FinOps toolkit provided by Microsoft.
+If there is the need to report from multiple sources, for example multiple cloud providers, configuration management database (CMDB), or  IT asset management (ITAM) systems, consider using the FinOps Open Cost & Usage Specification ([FOCUS project](../../../focus/README.md)) as the standard billing schema for this report.
 
 <br>
 
