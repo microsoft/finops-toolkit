@@ -5,7 +5,7 @@ parent: Understand
 title: Reporting and analytics
 permalink: /framework/capabilities/understand/reporting
 nav_order: 3
-description: This article helps you understand the reporting + analytics capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+description: This article helps you understand the reporting and analytics capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
 ms.date: 06/22/2023
