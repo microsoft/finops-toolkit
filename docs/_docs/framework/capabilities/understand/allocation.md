@@ -151,7 +151,7 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 Related FinOps capabilities:
 
-- [Data analysis and showback](./reporting.md)
+- [Reporting and analytics](./reporting.md)
 
 <br>
 
