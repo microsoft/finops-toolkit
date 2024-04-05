@@ -92,7 +92,7 @@ At this point, you have a data pipeline and are ingesting data into a central da
 
 - Normalize data to a standard schema to support aligning and blending data from multiple sources.
   - For cost data, we recommend using the [FinOps Open Cost & Usage Specification (FOCUS) schema](https://finops.org/focus).
-  - Consider using the [FOCUS converter tool](https://github.com/finopsfoundation/focus_converters) to  convert billing data files from other public clouds.  
+  - Consider using the [FOCUS converter tool](https://github.com/finopsfoundation/focus_converters) to convert billing data files from other public clouds.  
   - Consider labeling or tagging requirements to map cloud costs to organizational hierarchies.
 - Enrich cloud resource and solution data with internal CMDB or ITAM data.
 - Consider what internal business and revenue metrics are needed to map cloud costs to business value.
