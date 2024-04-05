@@ -134,6 +134,10 @@ At this point, you have a cost allocation strategy with detailed cloud managemen
 - Use utilization data from [Azure Monitor metrics](https://learn.microsoft.com/azure/azure-monitor/essentials/data-platform-metrics) where possible to understand service usage.
 - Consider using application telemetry to quantify the distribution of shared costs. It's discussed more in [Unit economics](../quantify/unit-economics.md).
 - Automate the process of identifying the percentage breakdown of shared costs and consider using allocation rules in Cost Management to redistribute the costs.
+- Automate cost allocation rules to update their respective percentages based on changing usage patterns.
+- Consider sharing targeted reporting about the distribution of shared costs with relevant stakeholders.
+- Build a reporting process to raise awareness of and drive accountability for unallocated shared costs.
+- Share guidance with stakeholders on how they can optimize shared costs.
 
 <br>
 
