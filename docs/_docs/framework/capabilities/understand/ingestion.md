@@ -73,7 +73,7 @@ When you first start managing cost in the cloud, you use the native tools availa
   - Review the available [third-party solutions in the Azure Marketplace](https://portal.azure.com/#view/Microsoft_Azure_Marketplace/MarketplaceOffersBlade/searchQuery/cost).
   - If you decide to build your own solution, consider starting with [FinOps hubs](https://aka.ms/finops/hubs), part of the open source FinOps toolkit provided by Microsoft.
     - FinOps hubs will accelerate your development and help you focus on building the features you need rather than infrastructure.
-    - FinOps hubs includes a [Power BI report](https://microsoft.github.io/finops-toolkit/power-bi) that normalizes data to the FOCUS schema, which can be a good starting point.
+    - FinOps hubs includes a [Power BI report](../../../../_reporting/power-bi/README.md) that normalizes data to the FOCUS schema, which can be a good starting point.
 - Complement cloud cost data with organizational hierarchies and budgets.    
 - Select the [cost details solution](https://learn.microsoft.com/azure/cost-management-billing/automate/usage-details-best-practices) that is right for you. We recommend scheduled exports, which push cost data to a storage account on a daily or monthly basis.
   - If you use daily exports, notice that data is pushed into a new file each day. Ensure that you only select the latest day when reporting on costs.
