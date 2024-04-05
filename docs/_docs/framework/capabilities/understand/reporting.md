@@ -34,7 +34,7 @@ This article helps you understand the reporting + analytics capability within th
 ---
 
 <a name="definition"></a>
-**Reporting + analytics refers to the analyzis of cloud data and creation of reports to gain insights into usage and spend patterns, identify opportunities for improvement, and support informed decision-making about cloud resources. 
+**Reporting and analytics refers to the analysis of cloud data and creation of reports to gain insights into usage and spend patterns, identify opportunities for improvement, and support informed decision-making about cloud resources. 
 
  **
 {: .fs-6 .fw-300 }
