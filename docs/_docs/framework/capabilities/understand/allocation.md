@@ -32,7 +32,7 @@ This article helps you understand the allocation capability within the FinOps Fr
 ---
 
 <a name="definition"></a>
-**Allocation refers to the process to attribute, assign and share cloud costs using accounts, tags, labels, and other metadata, creating accountability among teams and projects within an organization.**
+**Allocation refers to the process of attributing, assigning, and sharing cloud costs using accounts, tags, and other metadata to establish accountability among teams and projects within an organization.**
 {: .fs-6 .fw-300 }
 
 Identify the most critical attributes to report against based on stakeholder needs. Consider the different reporting structures within the organization and how you'll handle change over time. Consider engineering practices that may introduce different types of cost that need to be analyzed independently.
