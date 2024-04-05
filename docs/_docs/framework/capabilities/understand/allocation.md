@@ -88,6 +88,7 @@ Consider that some services might be shared by multiple products / teams. Keep i
   - Use [cost allocation rules in Microsoft Cost Management](https://learn.microsoft.com/azure/cost-management-billing/costs/allocate-costs) to redistribute shared costs based on static percentages or compute, network, or storage costs.
   - Consider [grouping related resources together with the "cm-resource-parent" tag](https://learn.microsoft.com/azure/cost-management-billing/costs/group-filter#group-related-resources-in-the-resources-view) to view costs together in Cost analysis.
   - Distribute responsibility for any remaining change to scale out and drive efficiencies.
+  - Make note of any unallocated costs or costs that should be split but couldn't be. Consider the importance of full allocation compared to other efforts and prioritize accordingly. As a simple option, you may be able to split costs in your reporting layer.
 
 Once all resources are tagged and/or organized into the appropriate resource groups and subscriptions, you can report against that data as part of [Data analysis and showback](./reporting.md).
 
