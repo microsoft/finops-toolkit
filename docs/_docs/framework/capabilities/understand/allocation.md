@@ -45,6 +45,14 @@ Cost allocation is the foundational element of cost accountability and enables o
 
 <br>
 
+## ✋ Before you begin
+
+Before you start, it's important to have a clear understanding of your organization's goals and priorities when it comes to allocation. Keep in mind that not all shared costs may need to be redistributed, and some are more effectively managed with other means. Carefully evaluate each shared cost to determine the most appropriate approach for your organization.
+
+This guide doesn't cover commitment-based discounts, like reservations and savings plans. For details about how to handle showback and chargeback, refer to [Rate optimization](../optimize/rate-optimization.md).
+
+<br>
+
 ## ▶️ Getting started
 
 When you first start managing cost in the cloud, you use the native "allocation" tools to organize subscriptions and resources to align to your primary organizational reporting structure. For anything beyond it, [tags](https://learn.microsoft.com/azure/azure-resource-manager/management/tag-resources), [cost managament](ttps://learn.microsoft.com/azure/cost-management-billing/costs/group-filter#group-related-resources-in-the-resources-view) tags and [cloud scope](https://learn.microsoft.com/azure/cost-management-billing/costs/understand-work-scopes) can augment cloud resources and their usage to add business context, which is critical for any allocation strategy.
