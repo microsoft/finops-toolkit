@@ -131,7 +131,8 @@ At this point, you have a cost allocation strategy with detailed cloud managemen
   - Ensure naming, metadata, and hierarchy requirements are being used consistently and effectively throughout your environment.
   - Consider other KPIs to track and monitor success of your cost allocation strategy.
 - Establish and track common KPIs, like the percentage of unallocated shared costs.
-- Consider using application telemetry to quantify the distribution of shared costs. It's discussed more in [Measuring unit costs](../quantify/unit-economics.md).
+- Use utilization data from [Azure Monitor metrics](https://learn.microsoft.com/azure/azure-monitor/essentials/data-platform-metrics) where possible to understand service usage.
+- Consider using application telemetry to quantify the distribution of shared costs. It's discussed more in [Unit economics](../quantify/unit-economics.md).
 - Automate the process of identifying the percentage breakdown of shared costs and consider using allocation rules in Cost Management to redistribute the costs.
 
 <br>
