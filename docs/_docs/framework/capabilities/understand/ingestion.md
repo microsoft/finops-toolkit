@@ -45,7 +45,7 @@ Understand how data gets reported and plan for data standardization requirements
  
 Consider how to handle cost data from multiple clouds or account types. Prefer open standards, like the FinOps Open Cost & Usage Specification ([FOCUS project](../../../focus/README.md)), which delivers consistency and standardization to cloud cost data, and interoperability with and across providers, vendors, and internal tools.
  
-  It may also require restructuring data in a logical and meaningful way by categorizing or tagging data so it can be easily accessed, analyzed, and understood.
+It may also require restructuring data in a logical and meaningful way by categorizing or tagging data so it can be easily accessed, analyzed, and understood.
 
 When armed with a comprehensive collection of cost and usage information tied to business value, organizations can empower stakeholders and accelerate the goals of other FinOps capabilities. Stakeholders are able to make more informed decisions, leading to more efficient use of resources and potentially significant cost savings.
 
