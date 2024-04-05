@@ -66,7 +66,7 @@ When you first start managing cost in the cloud, you use the native tools availa
 - Before you ingest cost data, think about your reporting needs.
   - Talk to your stakeholders to ensure you have a firm understanding of what they need. Try to understand their motivations and goals to ensure the data or reporting helps them.
   - Determine whether to adopt FOCUS as the standard billing schema for any new solution. Converting existing dashboards to utilize a different dataset could pose challenges.
-    - Microsoft Cost Management supports cost and usage data exports aligned to the FOCUS schema. 
+    - Microsoft Cost Management supports cost and usage data exports aligned to the FOCUS schema which can save you significant time and effort.
   - Identify the data you need, where you can get the data from, and who can give you access. Make note of any common datasets that may require normalization.
   - Determine the level of granularity required and how often the data needs to be refreshed. Daily cost data can be a challenge to manage for a large account. Consider monthly aggregates to reduce costs and increase query performance and reliability if that meets your reporting needs.
 - Consider using a third-party FinOps platform.
