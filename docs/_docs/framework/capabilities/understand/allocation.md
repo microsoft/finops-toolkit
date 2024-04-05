@@ -114,7 +114,7 @@ At this point, you have a cost allocation strategy with detailed cloud managemen
   - At a minimum, this gap requires reporting outside the portal, where tagging gaps can be merged with other data.
   - If tagging gaps need to be resolved directly in the data, you need to implement [Data ingestion](./ingestion.md).
 - Consider other costs that aren't yet covered or might be tracked separately.
-  - Strive to drive consistency across data sources to align tagging implementations. When not feasible, implement cleanup as part of [Data ingestion](./ingestion.md) or reallocate costs as part of your overarching cost allocation strategy.
+  - Strive to drive consistency across data sources to align tagging implementations. When not feasible, implement cleanup as part of [Data ingestion](./ingestion.md) or reallocate costs as part of your overarching allocation strategy.
 - Regularly review and refine your cost allocation strategy.
   - Consider this process as part of your reporting feedback loop. If your cost allocation strategy is falling short, the feedback you get may not be directly associated with cost allocation or metadata. It may instead be related to reporting. Watch out for this feedback and ensure the feedback is addressed at the most appropriate layer.
   - Ensure naming, metadata, and hierarchy requirements are being used consistently and effectively throughout your environment.
