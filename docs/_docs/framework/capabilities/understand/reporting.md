@@ -120,7 +120,7 @@ As a starting point, we focus on tools available in the Azure portal and Microso
 - Use the different tools optimized to provide the details you need to understand the holistic picture of your resource cost and usage.
   - [Analyze resource usage metrics in Azure Monitor](https://learn.microsoft.com/azure/azure-monitor/essentials/tutorial-metrics).
   - [Review resource configuration changes in Azure Resource Graph](https://learn.microsoft.com/azure/governance/resource-graph/how-to/get-resource-changes).
-- If you need to build more advanced reports or merge cost data with other cloud or business data, [leverage the FinOps toolkit Power BI reports](../../../../_reporting/power-bi/README.md) part of the open source FinOps toolkit provided by Microsoft..
+- If you need to build more advanced reports or merge cost data with other cloud or business data, [leverage the FinOps toolkit Power BI reports](../../../../_reporting/power-bi/README.md) part of the open source FinOps toolkit provided by Microsoft.
     - FinOps hubs will accelerate your development and help you focus on building the features you need rather than infrastructure.
     - FinOps hubs includes a [Power BI report](https://microsoft.github.io/finops-toolkit/power-bi) that normalizes data to the FOCUS schema, which can be a good starting point.
 
