@@ -1944,7 +1944,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
               typeProperties: {
                 variableName: 'detectedSchema'
                 value: {
-                  value: 'focuscost'
+                  value: 'focus'
                 type: 'Expression'
               }
             }
