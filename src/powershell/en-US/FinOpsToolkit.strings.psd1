@@ -11,6 +11,8 @@ ConvertFrom-StringData -StringData @'
 
     Hub_Deploy_Deploy = Deploying FinOps hub '{0}' to resource group '{1}'.
     Hub_Deploy_TemplateNotFound = Could not find template 'main.bicep' at path '{0}'.
+    Hub_Deploy_02to011 = Version 0.2 is not supported for Azure Gov and Azure China due to FOCUS exports not being available in Cost Management yet. Using version 0.1.1 instead.
+    Hub_Deploy_02to021 = Version 0.2 is not supported due to a bug in the deployment template. Using version 0.2.1 instead.
     Hub_Remove_Failed = FinOps hub could not be deleted. {0}.
     Hub_Remove_NotFound = FinOps hub '{0}' not found.
 

@@ -12,3 +12,7 @@
 - [[Coding guidelines]]
 - [[Dev process]]
 - [[Branching strategy]]
+
+**Product**
+
+- [[Release process]]
