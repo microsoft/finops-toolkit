@@ -97,7 +97,7 @@ var storageRbacRoles = [
   'acdd72a7-3385-48ef-bd42-f606fba81ae7' // Reader https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#reader
 ]
 
-// FocusCost 1.0-preview (v1) columns
+// FocusCost 1.0-preview(v1) columns
 var focusCostColumns = [
   { name: 'AvailabilityZone', type: 'String' }
   { name: 'BilledCost', type: 'Decimal' }
@@ -1813,9 +1813,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         dependsOn: [
           {
             activity: 'Wait'
-            dependencyConditions: [
-              'Completed'
-            ]
+            dependencyConditions: [ 'Completed' ]
           }
         ]
         userProperties: []
@@ -1827,23 +1825,101 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           }
         }
       }
+      // Set FolderCount
+      {
+        name: 'Set FolderCount'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Set FolderArray'
+            dependencyConditions: [ 'Completed' ]
+          }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'folderCount'
+          value: '@length(split(pipeline().parameters.folderName, \'/\'))'
+        }
+      }
+      // Set SecondToLastFolder
+      {
+        name: 'Set SecondToLastFolder'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Set FolderCount'
+            dependencyConditions: [ 'Completed' ]
+          }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'secondToLastFolder'
+          value: '@variables(\'folderArray\')[sub(variables(\'folderCount\'), 2)]'
+        }
+      }
+      // Set ThirdToLastFolder
+      {
+        name: 'Set ThirdToLastFolder'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Set SecondToLastFolder'
+            dependencyConditions: [ 'Succeeded' ]
+          }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'thirdToLastFolder'
+          value: '@variables(\'folderArray\')[sub(variables(\'folderCount\'), 3)]'
+        }
+      }
+      // Set FourthToLastFolder
+      {
+        name: 'Set FourthToLastFolder'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Set ThirdToLastFolder'
+            dependencyConditions: [ 'Succeeded' ]
+          }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'fourthToLastFolder'
+          value: '@variables(\'folderArray\')[sub(variables(\'folderCount\'), 4)]'
+        }
+      }
       // Set Scope
       {
         name: 'Set Scope'
         type: 'SetVariable'
         dependsOn: [
           {
-            activity: 'Set FolderArray'
-            dependencyConditions: [
-              'Completed'
-            ]
+            activity: 'Set FourthToLastFolder'
+            dependencyConditions: [ 'Completed' ]
           }
         ]
         userProperties: []
         typeProperties: {
           variableName: 'scope'
           value: {
-            value: '@replace(split(pipeline().parameters.folderName,variables(\'folderArray\')[sub(length(variables(\'folderArray\')), if(greater(length(variables(\'folderArray\')[sub(length(variables(\'folderArray\')), 2)]), 12), 3, 4))])[0],\'${exportContainerName}\',\'${ingestionContainerName}\')'
+            value: '@replace(split(pipeline().parameters.folderName, if(greater(length(variables(\'secondToLastFolder\')), 12), variables(\'thirdToLastFolder\'), variables(\'fourthToLastFolder\')))[0], \'${exportContainerName}\', \'${ingestionContainerName}\')'
             type: 'Expression'
           }
         }
@@ -1854,9 +1930,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         dependsOn: [
           {
             activity: 'Set Scope'
-            dependencyConditions: [
-              'Completed'
-            ]
+            dependencyConditions: [ 'Completed' ]
           }
         ]
         userProperties: []
@@ -1875,16 +1949,14 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         dependsOn: [
           {
             activity: 'Set Metric'
-            dependencyConditions: [
-              'Completed'
-            ]
+            dependencyConditions: [ 'Completed' ]
           }
         ]
         userProperties: []
         typeProperties: {
           variableName: 'date'
           value: {
-            value: '@substring(variables(\'folderArray\')[sub(length(variables(\'folderArray\')), if(greater(length(variables(\'folderArray\')[sub(length(variables(\'folderArray\')), 2)]), 12), 2, 3))], 0, 6)'
+            value: '@substring(if(greater(length(variables(\'secondToLastFolder\')), 12), variables(\'secondToLastFolder\'), variables(\'thirdToLastFolder\')), 0, 6)'
             type: 'Expression'
           }
         }
@@ -1896,9 +1968,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         dependsOn: [
           {
             activity: 'Set Date'
-            dependencyConditions: [
-              'Completed'
-            ]
+            dependencyConditions: [ 'Completed' ]
           }
         ]
         userProperties: []
@@ -1916,9 +1986,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         dependsOn: [
           {
             activity: 'Set Destination File Name'
-            dependencyConditions: [
-              'Completed'
-            ]
+            dependencyConditions: [ 'Completed' ]
           }
         ]
         userProperties: []
@@ -1978,9 +2046,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         dependsOn: [
           {
             activity: 'Delete Target'
-            dependencyConditions: [
-              'Completed'
-            ]
+            dependencyConditions: [ 'Completed' ]
           }
         ]
         policy: {
@@ -2277,6 +2343,18 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
       }
       folderArray: {
         type: 'Array'
+      }
+      folderCount: {
+        type: 'Integer'
+      }
+      secondToLastFolder: {
+        type: 'String'
+      }
+      thirdToLastFolder: {
+        type: 'String'
+      }
+      fourthToLastFolder: {
+        type: 'String'
       }
       scope: {
         type: 'String'

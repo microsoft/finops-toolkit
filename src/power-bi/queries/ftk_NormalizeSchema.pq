@@ -10,7 +10,7 @@ let
     // _eaSchema      = {"AccountName",   "AccountOwnerId",   "AdditionalInfo", "AvailabilityZone", "benefitId",                "benefitName",                "BillingAccountId",    "BillingAccountName",    "BillingCurrencyCode", "BillingPeriodEndDate", "BillingPeriodStartDate", "BillingProfileId",   "BillingProfileName",   "ChargeType",     "ConsumedService",   "CostAllocationRuleName",   "CostCenter",   "CostInBillingCurrency",     "PricingCost",           "costInUsd",     "CustomerName",   "CustomerTenantId", "Date",              "x_EffectiveUnitPrice", "tmp_ExchangeRate",             "tmp_ExchangeRateDate", "Frequency",          "InvoiceId",   "InvoiceSectionId",   "InvoiceSectionName",   "IsAzureCreditEligible", "MeterCategory",      "MeterId",      "MeterName",      "MeterRegion", "MeterSubcategory",      "OfferId",      "PartNumber",      "PartnerEarnedCreditApplied", "PartnerEarnedCreditRate", "PartnerName",           "PartnerTenantId",     "tmp_ListCost",              "paygCostInUsd",     "PayGPrice",     "PlanName",      "PreviousInvoiceId",   "tmp_PricingCurrency", "PricingModel",     "ProductId",      "ProductName",             "ProductOrderId", "ProductOrderName", "Provider",      "PublisherId",    "PublisherName", "PublisherType",   "Quantity",        "ResellerMpnId", "ResellerName",   "ReservationId",     "ReservationName",     "ResourceGroup",       "ResourceId", "ResourceLocation",     "ResourceName",     "ResourceType",     "ServiceFamily",      "ServicePeriodEndDate", "ServicePeriodStartDate", "SubscriptionId",   "SubscriptionName",   "Tags",     "Term",      "UnitOfMeasure",            "UnitPrice"},
     // _mcaSchema     = {"AccountName",   "AccountOwnerId",   "additionalInfo", "AvailabilityZone", "benefitId",                "benefitName",                "billingAccountId",    "billingAccountName",    "billingCurrency",     "billingPeriodEndDate", "billingPeriodStartDate", "billingProfileId",   "billingProfileName",   "chargeType",     "consumedService",   "costAllocationRuleName",   "costCenter",   "costInBillingCurrency",     "costInPricingCurrency", "costInUsd",     "customerName",   "customerTenantId", "date",              "x_EffectiveUnitPrice", "exchangeRatePricingToBilling", "exchangeRateDate",     "frequency",          "invoiceId",   "invoiceSectionId",   "invoiceSectionName",   "isAzureCreditEligible", "meterCategory",      "meterId",      "meterName",      "meterRegion", "meterSubcategory",      "OfferId",      "PartNumber",      "partnerEarnedCreditApplied", "partnerEarnedCreditRate", "partnerName",           "partnerTenantId",     "paygCostInBillingCurrency", "paygCostInUsd",     "PayGPrice",     "PlanName",      "previousInvoiceId",   "pricingCurrency",     "pricingModel",     "ProductId",      "ProductName",             "productOrderId", "productOrderName", "provider",      "publisherId",    "publisherName", "publisherType",   "quantity",        "resellerMpnId", "resellerName",   "reservationId",     "reservationName",     "resourceGroupName",   "ResourceId", "resourceLocation",     "ResourceName",     "ResourceType",     "serviceFamily",      "servicePeriodEndDate", "servicePeriodStartDate", "SubscriptionId",   "subscriptionName",   "tags",     "term",      "unitOfMeasure",            "unitPrice"},
     // _otherSchema   = {"AccountName",   "AccountOwnerId",   "AdditionalInfo", "AvailabilityZone", "BenefitId",                "BenefitName",                "BillingAccountId",    "BillingAccountName",    "Currency",            "BillingPeriodEndDate", "BillingPeriodStartDate", "BillingProfileId",   "BillingProfileName",   "ChargeType",     "ConsumedService",   "CostAllocationRuleName",   "CostCenter",   "PreTaxCost",                "PricingCost",           "CostInUsd",     "CustomerName",   "CustomerTenantId", "UsageDateTime",     "EffectiveUnitPrice",     "ExchangeRatePricingToBilling", "ExchangeRateDate",     "Frequency",          "InvoiceId",   "InvoiceSectionId",   "DepartmentName",       "IsAzureCreditEligible", "MeterCategory",      "MeterId",      "MeterName",      "MeterRegion", "MeterSubcategory",      "OfferId",      "PartNumber",      "PartnerEarnedCreditApplied", "PartnerEarnedCreditRate", "PartnerName",           "PartnerTenantId",     "tmp_ListCost",              "paygCostInUsd",     "PayGPrice",     "PlanName",      "PreviousInvoiceId",   "PricingCurrency",     "PricingModel",     "ProductId",      "ProductName",             "ProductOrderId", "ProductOrderName", "Provider",      "PublisherId",    "PublisherName", "PublisherType",   "UsageQuantity",   "ResellerMpnId", "ResellerName",   "ReservationId",     "ReservationName",     "ResourceGroup",       "ResourceId", "ResourceLocation",     "ResourceName",     "ResourceType",     "ProductCategory",    "ServicePeriodEndDate", "ServicePeriodStartDate", "SubscriptionGuid", "SubscriptionName",   "Tags",     "Term",      "UnitOfMeasure",            "ResourceRate"},
-    // _focus10       = {"x_AccountName", "x_AccountOwnerId", "x_SkuDetails",   "AvailabilityZone", "tmp_CommitmentDiscountId", "tmp_CommitmentDiscountName", "x_BillingAccountId",  "x_BillingAccountName",  "BillingCurrency",     "tmp_BillingPeriodEnd", "BillingPeriodStart",     "x_BillingProfileId", "x_BillingProfileName", "tmp_ChargeType", "x_ConsumedService", "x_CostAllocationRuleName", "x_CostCenter", "tmp_CostInBillingCurrency", "tmp_PricingCost",       "tmp_CostInUsd", "x_CustomerName", "x_CustomerId",     "ChargePeriodStart", "x_EffectiveUnitPrice", "tmp_ExchangeRate",             "tmp_ExchangeRateDate", "tmp_ChargeFrequency","x_InvoiceId", "x_InvoiceSectionId", "x_InvoiceSectionName", "x_IsCreditEligible",    "x_SkuMeterCategory", "x_SkuMeterId", "x_SkuMeterName", "x_SkuRegion", "x_SkuMeterSubcategory", "x_SkuOfferId", "x_SkuPartNumber", "x_PartnerCreditApplied",     "x_PartnerCreditRate",     "tmp_InvoiceIssuerName", "tmp_InvoiceIssuerId", "tmp_ListCost",              "tmp_ListCostInUsd", "tmp_ListUnitPrice", "x_SkuPlanName", "x_PreviousInvoiceId", "tmp_PricingCurrency", "tmp_PricingModel", "x_SkuProductId", "x_SkuProductDescription", "x_SkuOrderId",   "x_SkuOrderName",   "x_SkuProvider", "x_PublisherId",  "PublisherName", "x_PublisherType", "x_UsageQuantity", "x_ResellerId",  "x_ResellerName", "tmp_ReservationId", "tmp_ReservationName", "x_ResourceGroupName", "ResourceId", "tmp_ResourceLocation", "tmp_ResourceName", "tmp_ResourceType", "x_SkuServiceFamily", "tmp_ServicePeriodEnd", "x_ServicePeriodStart",   "x_SubscriptionId", "x_SubscriptionName", "tmp_Tags", "x_SkuTerm", "x_PricingUnitDescription", "tmp_OnDemandUnitPrice"},
+    // _focus10       = {"x_AccountName", "x_AccountOwnerId", "x_SkuDetails",   "AvailabilityZone", "tmp_CommitmentDiscountId", "tmp_CommitmentDiscountName", "x_BillingAccountId",  "x_BillingAccountName",  "BillingCurrency",     "tmp_BillingPeriodEnd", "BillingPeriodStart",     "x_BillingProfileId", "x_BillingProfileName", "tmp_ChargeType", "x_ConsumedService", "x_CostAllocationRuleName", "x_CostCenter", "tmp_CostInBillingCurrency", "tmp_PricingCost",       "tmp_CostInUsd", "x_CustomerName", "x_CustomerId",     "ChargePeriodStart", "x_EffectiveUnitPrice", "tmp_ExchangeRate",             "tmp_ExchangeRateDate", "tmp_ChargeFrequency","x_InvoiceId", "x_InvoiceSectionId", "x_InvoiceSectionName", "x_IsCreditEligible",    "x_SkuMeterCategory", "x_SkuMeterId", "x_SkuMeterName", "x_SkuRegion", "x_SkuMeterSubcategory", "x_SkuOfferId", "x_SkuPartNumber", "x_PartnerCreditApplied",     "x_PartnerCreditRate",     "tmp_InvoiceIssuerName", "x_InvoiceIssuerId", "tmp_ListCost",              "tmp_ListCostInUsd", "tmp_ListUnitPrice", "x_SkuPlanName", "x_PreviousInvoiceId", "tmp_PricingCurrency", "tmp_PricingModel", "x_SkuProductId", "x_SkuProductDescription", "x_SkuOrderId",   "x_SkuOrderName",   "x_SkuProvider", "x_PublisherId",  "PublisherName", "x_PublisherType", "x_UsageQuantity", "x_ResellerId",  "x_ResellerName", "tmp_ReservationId", "tmp_ReservationName", "x_ResourceGroupName", "ResourceId", "tmp_ResourceLocation", "tmp_ResourceName", "tmp_ResourceType", "x_SkuServiceFamily", "tmp_ServicePeriodEnd", "x_ServicePeriodStart",   "x_SubscriptionId", "x_SubscriptionName", "tmp_Tags", "x_SkuTerm", "x_PricingUnitDescription", "tmp_OnDemandUnitPrice"},
 
     // Mapping of old names to new names
     // TODO: Needed? -- _pickSchema = (ea, interim, focus05, focus10) => if _targetSchema = 0 then interim else if _targetSchema = 0.5 then focus05 else if _targetSchema = 1.0 then focus10 else ea,
@@ -56,7 +56,7 @@ let
         PartnerEarnedCreditApplied   = "x_PartnerCreditApplied",
         PartnerEarnedCreditRate      = "x_PartnerCreditRate",
         PartnerName                  = "tmp_InvoiceIssuerName",
-        PartnerTenantId              = "InvoiceIssuerId",
+        PartnerTenantId              = "x_InvoiceIssuerId",
         PartNumber                   = "x_SkuPartNumber",
         PlanName                     = "x_SkuPlanName",
         PreviousInvoiceId            = "x_PreviousInvoiceId",
@@ -73,6 +73,7 @@ let
         ResellerMpnId                = "x_ResellerId",
         ResellerName                 = "x_ResellerName",
         ResourceGroup                = "x_ResourceGroupName",
+        ResourceGroupName            = "x_ResourceGroupName",
         ResourceId                   = "ResourceId",
         ResourceType                 = "ResourceType",
         ServiceFamily                = "x_SkuServiceFamily",
@@ -81,7 +82,8 @@ let
         SubscriptionGuid             = "x_SubscriptionId",
         SubscriptionId               = "x_SubscriptionId",
         SubscriptionName             = "x_SubscriptionName",
-        Term                         = "x_SkuTerm",
+        Tags2                        = "Tags2", // TODO: Confirm whether this ever has a value for MCA; seems to be a bug in the connector or UsageDetails API
+        Term                         = "tmp_SkuTerm",
         UnitOfMeasure                = "x_PricingUnitDescription",
         UsageDateTime                = "ChargePeriodStart",
         UsageQuantity                = "UsageQuantity",
@@ -152,23 +154,11 @@ let
         // Other columns
         {"x_PartnerCreditRate",    type number},
         {"UsageQuantity",          type number},
-        {"x_SkuTerm",              type number},
         {"tmp_ExchangeRate",       type number}
+        // TODO: {"x_SkuTerm",              type number},
         // TODO: {"IsAzureCreditEligible", type logical}
         // TODO: {"PartnerCreditApplied",   type logical}
     }),
-
-    // Transform metadata
-// TODO: Add more thorough schema/account validation + use real API versions
-    Schema =  Table.AddColumn(FixTypes, "x_SchemaVersion",
-        each if Table.HasColumns(input, "DepartmentName")   then "MG_2023-09"
-        else if Table.HasColumns(input, "SubscriptionGuid") then "MOSA_2023-09"
-        else if Table.HasColumns(input, "BillingAccountId") then "EA_2023-09"
-        else if Table.HasColumns(input, "partnerTenantId") and [partnerName] <> "" then "MPA_2023-09"
-        else if Table.HasColumns(input, "billingAccountId") then "MCA_2023-09"
-        else "Unknown_2023-09"
-    ),
-    AccountType = Table.AddColumn(Schema, "x_AccountType", each Text.Split([x_SchemaVersion], "_"){0}),
 
     // Helper functions
     _exists        = (col) => Table.HasColumns(RenameColumns, col),
@@ -178,6 +168,20 @@ let
     _isPositive    = (val) => val <> null and val > 0,
     _isNotPositive = (val) => val = null or val <= 0,
     _swapCol       = (tbl, oldCol, newCol, newVal, optional newType) => let add = Table.AddColumn(tbl, newCol, newVal, newType), del = if Table.HasColumns(add, oldCol) then Table.RemoveColumns(add, {oldCol}) else add in del,
+
+    // Transform metadata
+// TODO: Add more thorough schema/account validation + use real API versions
+    Schema =  Table.AddColumn(FixTypes, "x_SchemaVersion",
+        each if Table.HasColumns(input, "DepartmentName")   then "MG_2023-09"
+        else if Table.HasColumns(input, "SubscriptionGuid") then "MOSA_2023-09"
+        else if _isNotBlank([x_InvoiceIssuerId]) or [tmp_InvoiceIssuerName] <> "Microsoft" then "MPA_2023-09"
+        else if [x_BillingAccountId] <> [x_BillingProfileId] then "MCA_2023-09"
+        else if [x_BillingAccountId] = [x_BillingProfileId] then "EA_2023-09"
+        else "Unknown_2023-09"
+    ),
+    AccountType = Table.AddColumn(Schema, "x_AccountType", each Text.Split([x_SchemaVersion], "_"){0}),
+
+    // Region cleanup
     _regionCleanup = (loc) => Text.Trim(
         Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(
         Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(Text.Replace(
@@ -293,7 +297,8 @@ let
         if [ChargeCategory] = "Usage" then (
             if Text.StartsWith([tmp_ChargeType], "Unused") then "Unused Commitment" 
             else if [tmp_ChargeType] = "Usage" and _isCommitmentDiscount([tmp_ChargeType], [tmp_PricingModel], [CommitmentDiscountId], [tmp_ReservationId]) then "Used Commitment" 
-            else "Other"
+            // TODO: This is supposed to be null for non-committed usage. Using "On-Demand" to be consistent with exports.
+            else "On-Demand"
         ) 
         else if [ChargeCategory] = "Adjustment" then (
             if [tmp_ChargeType] = "Refund" then [tmp_ChargeType]
@@ -339,7 +344,8 @@ let
 // TODO: VMName???
     ResourceName               = _swapCol(Region,                           "tmp_ResourceName",       "ResourceName",              each if _isNotBlank([tmp_ResourceName])  then [tmp_ResourceName]       else if _isNotBlank([tmp_DefenderFor])      then "Microsoft Defender for " & [tmp_DefenderFor] else if [tmp_ChargeType] = "Purchase" and [tmp_ReservationName] <> "" then [tmp_ReservationName] else null),
 // TODO: Parse ResourceType
-    SubAccountId               = Table.AddColumn(ResourceName,              "SubAccountId",           each [x_SubscriptionId]),
+    SkuTerm                    = Table.AddColumn(ResourceName,              "x_SkuTerm",              each if _isBlank([tmp_SkuTerm]) then null else if [tmp_SkuTerm] = "1Year" or [tmp_SkuTerm] = "12" then 12 else if [tmp_SkuTerm] = "3Years" or [tmp_SkuTerm] = "36" then 36 else if [tmp_SkuTerm] = "5Years" or [tmp_SkuTerm] = "60" then 60 else [tmp_SkuTerm], type number),
+    SubAccountId               = Table.AddColumn(SkuTerm,                   "SubAccountId",           each [x_SubscriptionId]),
     SubAccountName             = Table.AddColumn(SubAccountId,              "SubAccountName",         each [x_SubscriptionName]),
     SubAccountType             = Table.AddColumn(SubAccountName,            "SubAccountType",         each "Subscription"),
     Tags                       = _swapCol(SubAccountType,                   "tmp_Tags",               "Tags",                      each if _isNotBlank([tmp_Tags])          then if Text.StartsWith([tmp_Tags], "{") then [tmp_Tags] else "{" & [tmp_Tags] & "}" else null),
@@ -378,7 +384,7 @@ let
     SubscriptionNameUnique       = Table.AddColumn(ResourceGroupNameUnique,      "SubAccountNameUnique",         each if _isBlank([x_SubscriptionName])     then null else [x_SubscriptionName] & " (" & [x_SubscriptionId] & ")"),
 
     // Month column
-    Month = Table.AddColumn(SubscriptionNameUnique, "x_Month", each Date.StartOfMonth([ChargePeriodStart])),
+    Month = Table.AddColumn(SubscriptionNameUnique, "x_Month", each Date.StartOfMonth([ChargePeriodStart]), type date),
 
     // Unique key for the record -- WARNING: This increases the data size significantly.
     /*
@@ -489,6 +495,7 @@ let
         "tmp_ReservationName",
         "tmp_ResourceLocation",
         "tmp_ServiceName",
+        "tmp_SkuTerm",
         // AdditionalInfo
         "tmp_AddlReservationOrderId", 
         "tmp_AddlReservationId",

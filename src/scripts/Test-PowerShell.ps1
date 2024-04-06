@@ -119,7 +119,7 @@ else
     if ($FOCUS) { $testsToRun += '*-FinOpsSchema*', 'FOCUS.Tests.ps1' }
     if ($Hubs) { $testsToRun += '*-FinOpsHub*', '*-Hub*', 'Hubs.Tests.ps1' }
     if ($Toolkit) { $testsToRun += 'Toolkit.Tests.ps1', '*-FinOpsToolkit*' }
-    if ($Private) { $testsToRun += 'New-Directory*', 'Split-AzureResourceId*', 'Test-ShouldProcess*' }
+    if ($Private) { $testsToRun += (Get-ChildItem -Path "$PSScriptRoot/../powershell/Tests/$testType/Unit" -Exclude *-FinOps*, *-Hub*, *-OpenData* -Name *.Tests.ps1) }
     if (-not $testsToRun) { $testsToRun = "*" }
 
     Write-Host ''
