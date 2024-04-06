@@ -14,30 +14,65 @@ From data cleanup to normalization, FinOps hubs do the work so you can focus on 
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
+- [🛠️ Scope setup](#️-scope-setup)
+- [📥 Data ingestion](#-data-ingestion)
 - [ℹ️ About ingestion](#ℹ️-about-ingestion)
 - [ℹ️ About exports](#ℹ️-about-exports)
+- [🗃️ FinOps hubs v0.2-0.3](#️-finops-hubs-v02-03)
+- [🗃️ FinOps hubs v0.1](#️-finops-hubs-v01)
 - [⏭️ Next steps](#️-next-steps)
 
 </details>
 
 ---
 
-FinOps hubs perform a number of data processing activities to clean up, normalize, and optimize data. The following diagram shows how data flows from Cost Management into a hub instance:
+FinOps hubs perform a number of data processing activities to clean up, normalize, and optimize data. The following diagrams show how data flows from Cost Management into a hub instance.
+
+<br>
+
+## 🛠️ Scope setup
+
+This diagram shows what happens when a new, managed scope is added to a hub instance. Unmanaged scopes (where Cost Management exports are manually configured) do not require any setup.
 
 ```mermaid
 sequenceDiagram
-    Cost Management->>msexports: ① Export data
-    msexports->>msexports: ② msexports_ExecuteETL
-    msexports->>ingestion: ② msexports_ETL_ingestion
-    Power BI-->>ingestion: ③ Read data
+    config->>config: ① config_SettingsUpdated
+    config->>config: ② config_ConfigureExports
+    config->>Cost Management: ② PUT .../exports/foo
 ```
 
 <br>
 
-1. Cost Management exports raw cost details to the **msexports** container. [Learn more](#ℹ️-about-exports).
-2. The **msexports_ExecuteETL** pipeline kicks off the extract-transform-load (ETL) process when files are added to storage.
-3. The **msexports_ETL_ingestion** pipeline saves exported data in parquet format in the **ingestion** container. [Learn more](#ℹ️-about-ingestion).
-4. Power BI reads cost data from the **ingestion** container.
+1. The **config_SettingsUpdated** trigger runs when the **settings.json** file is updated.
+2. The **config_ConfigureExports** pipeline creates new exports for any new scopes that were added.
+
+<br>
+
+## 📥 Data ingestion
+
+This diagram shows what happens when the daily and monthly schedules are run.
+
+```mermaid
+sequenceDiagram
+    config->>config: ① config_Daily/MonthlySchedule
+    config->>config: ② config_ExportData
+    config->>config: ③ config_RunExports
+    config->>Cost Management: ③ POST /exports/foo/run
+    Cost Management->>msexports: ④ Export data
+    msexports->>msexports: ⑤ msexports_ExecuteETL
+    msexports->>ingestion: ⑥ msexports_ETL_ingestion
+    Power BI-->>ingestion: ⑦ Read data
+```
+
+<br>
+
+1. The **config_DailySchedule** and **config_MonthlySchedule** triggers run on their respective schedules to kick off data ingestion.
+2. The **config_ExportData** pipeline gets the applicable exports for the schedule that is running.
+3. The **config_RunExports** pipeline executes each of the selected exports.
+4. Cost Management exports raw cost details to the **msexports** container. [Learn more](#ℹ️-about-exports).
+5. The **msexports_ExecuteETL** pipeline kicks off the extract-transform-load (ETL) process when files are added to storage.
+6. The **msexports_ETL_ingestion** pipeline transforms the data to a standard schema and saves the raw data in parquet format to the **ingestion** container. [Learn more](#ℹ️-about-ingestion).
+7. Power BI reads cost data from the **ingestion** container.
 
 <br>
 
@@ -94,6 +129,42 @@ msexports/{scope-id}/{date-range}/{export-name}/{export-time}/{guid}/{file}
   > Hubs ignore this. Cost Management does not always include this folder. Whether or not it is included depends on the API version used to create the export.
 - `{file}` is either a manifest or exported data.
   > Hubs 0.2 ignores manifest files and only monitors `*.csv` files. In a future release, hubs will monitor the manifest.
+
+<br>
+
+## 🗃️ FinOps hubs v0.2-0.3
+
+```mermaid
+sequenceDiagram
+    Cost Management->>msexports: ① Export data
+    msexports->>msexports: ② msexports_ExecuteETL
+    msexports->>ingestion: ② msexports_ETL_ingestion
+    Power BI-->>ingestion: ③ Read data
+```
+
+<br>
+
+1. Cost Management exports raw cost details to the **msexports** container. [Learn more](#ℹ️-about-exports).
+2. The **msexports_ExecuteETL** pipeline kicks off the extract-transform-load (ETL) process when files are added to storage.
+3. The **msexports_ETL_ingestion** pipeline saves exported data in parquet format in the **ingestion** container. [Learn more](#ℹ️-about-ingestion).
+4. Power BI reads cost data from the **ingestion** container.
+
+<br>
+
+## 🗃️ FinOps hubs v0.1
+
+```mermaid
+sequenceDiagram
+    Cost Management->>msexports: ① Export amortized costs
+    msexports->>ingestion: ② msexports_Transform
+    Power BI-->>ingestion: ③ Read data
+```
+
+<br>
+
+1. Cost Management exports raw cost details to the **msexports** container.
+2. The **msexports_transform** pipeline saves the raw data in parquet format to the **ingestion** container.
+3. Power BI reads cost data from the **ingestion** container.
 
 <br>
 

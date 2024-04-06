@@ -18,6 +18,7 @@ Connect FinOps hubs to your billing accounts and subscriptions by configuring Co
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔐 Configure managed exports](#-configure-managed-exports)
+- [🖥️ Configure exports via PowerShell](#️-configure-exports-via-powershell)
 - [🛠️ Configure exports manually](#️-configure-exports-manually)
 - [⏭️ Next steps](#️-next-steps)
 
@@ -165,6 +166,26 @@ Managed exports allow FinOps hubs to setup and maintain Cost Management exports 
 
 <br>
 
+## 🖥️ Configure exports via PowerShell
+
+1. Install the FinOps toolkit PowerShell module.
+
+   ```powershell
+   Import-Module -Name FinOpsToolkit
+   ```
+
+2. Create the export and run it now to backfill up to 12 months of data.
+
+   ```powershell
+   New-FinopsCostExport -Name 'ftk-FinOpsHub-costs' `
+     -Scope "{scope-id}" `
+     -StorageAccountId "{storage-resource-id}" `
+     -Backfill 12 `
+     -Execute
+   ```
+
+<br>
+
 ## 🛠️ Configure exports manually
 
 If you cannot grant permissions for your scope, you can create Cost Management exports manually to accomplish the same goal.
@@ -177,12 +198,16 @@ If you cannot grant permissions for your scope, you can create Cost Management e
      <blockquote class="important" markdown="1">
        _FinOps hubs 0.2 requires FOCUS cost data. While FOCUS is fully supported, the option to export FOCUS cost data from Cost Management is currently in preview and has not rolled out to everyone yet. In order to create and manage FOCUS exports, please use the [Exports preview link](https://aka.ms/exportsv2)._
      </blockquote>
-   - **Dataset version** = `1.0-preview (v1)`
+   - **Dataset version** = `1.0-preview(v1)`
    - **Frequency** = `Daily export of month-to-date costs`
      <blockquote class="tip" markdown="1">
        _Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range._
      </blockquote>
    - **File partitioning** = On
+   - **Overwrite data** = Off
+     <blockquote class="note" markdown="1">
+       _While most settings are required, overwriting is optional. We recommend **not** overwriting files so you can monitor your ingestion pipeline using the [Data ingestion](../power-bi/data-ingestion.md) report. If you do not plan to use that report, please enable overwriting._
+     </blockquote>
    - **Storage account** = (Use subscription/resource deployed with your hub)
    - **Container** = `msexports`
    - **Directory** = (Use the resource ID of the scope<sup>1</sup> you're exporting without the first "/")
