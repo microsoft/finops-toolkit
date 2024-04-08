@@ -382,7 +382,12 @@ if (-not($deploymentOptions["ResourceGroupName"]))
         $storageAccountName = $storageAccountNameTemplate -f $namePrefix
         $automationAccountName = $automationAccountNameTemplate -f $namePrefix
         $sqlServerName = $sqlServerNameTemplate -f $namePrefix            
-        $laWorkspaceName = $laWorkspaceNameTemplate -f $namePrefix
+        if ("Y", "y" -contains $workspaceReuse -and $silentDeploy) {
+            $laWorkspaceName = $deploymentOptions["WorkspaceName"]
+        }
+        else {
+            $laWorkspaceName = $laWorkspaceNameTemplate -f $namePrefix
+        }
         $sqlDatabaseName = "azureoptimization"
     }
 
@@ -396,7 +401,7 @@ if (-not($deploymentOptions["ResourceGroupName"]))
 else
 {
     # With a silent deploy, overrule any custom resource naming if a NamePrefix is provided
-    if($silentDeploy -and (![string]::IsNullOrEmpty($namePrefix)))
+    if($silentDeploy -and ![string]::IsNullOrEmpty($namePrefix) -and $namePrefix -ne "EmptyNamePrefix")
     {
         $deploymentName = $deploymentNameTemplate -f $namePrefix
         $resourceGroupName = $resourceGroupNameTemplate -f $namePrefix
