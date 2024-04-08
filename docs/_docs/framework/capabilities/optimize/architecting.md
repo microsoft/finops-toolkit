@@ -14,7 +14,7 @@ ms.service: finops
 ms.reviewer: micflan
 ---
 
-<span class="fs-9 d-block mb-4">Managing commitment-based discounts</span>
+<span class="fs-9 d-block mb-4">Architecting for cloud</span>
 This article helps you understand the architecting for cloud capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 {: .fs-6 .fw-300 }
 
