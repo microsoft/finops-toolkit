@@ -427,6 +427,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "pesousa",
+      "name": "pesousa",
+      "avatar_url": "https://avatars.githubusercontent.com/u/16722547?v=4",
+      "profile": "https://github.com/pesousa",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "commitType": "docs",
