@@ -3,7 +3,8 @@ layout: default
 grand_parent: FinOps Framework
 parent: Optimize
 title: Licensing and SaaS
-permalink: /framework/capabilities/optimize/licensing-and-saas
+permalink: /framework/capabilities/optimize/licensing
+
 nav_order: 3
 description: This article helps you understand the licensing and SaaS capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
@@ -33,7 +34,7 @@ This article helps you understand the licensing and SaaS capability within the F
 ---
 
 <a name="definition"></a>
-**The Licensing & SaaS capability refers to the specialized competency in managing and optimizing the financial aspects of software licensing agreements and Software as a Service (SaaS) investments within an organization.**
+**Licensing & SaaS refers to the specialized competency in managing and optimizing the financial aspects of software licensing agreements and Software as a Service (SaaS) investments within an organization.**
 {: .fs-6 .fw-300 }
 
 This capability involves optimizing the procurement, deployment, and utilization of licensed software and SaaS solutions to achieve cost-efficiency while meeting business needs.
@@ -51,7 +52,7 @@ Having an understanding of Microsoft's various licensing models, such as per-use
 
 Microsoft offers several tools to help you identify when you should consider purchasing reservations or savings plans. You can choose whether you want to start by analyzing usage or by reviewing the system-generated recommendations based on your historical usage and cost. We recommend starting with the recommendations to focus your initial efforts:
 
-- **Understand Azure Licensing Models:** Gain an understanding of Azure's licensing models, including pay-as-you-go, reservations, hybrid benefits, and enterprise agreements. Determine which licensing options align best with the organization's needs and budget. Review the rules for [Azure Hybrid Benefit for Windows Server](https://learn.microsoft.com/windows-server/get-started/azure-hybrid-benefit?tabs=azure) and [Azure Hybrid Benefit for SQL database.](https://learn.microsoft.com/azure/azure-sql/azure-hybrid-benefit?view=azuresql&tabs=azure-portal)
+- **Understand Azure licensing models:** Gain an understanding of Azure's licensing models, including pay-as-you-go, reservations, hybrid benefits, and enterprise agreements. Determine which licensing options align best with the organization's needs and budget. Review the rules for [Azure Hybrid Benefit for Windows Server](https://learn.microsoft.com/windows-server/get-started/azure-hybrid-benefit?tabs=azure) and [Azure Hybrid Benefit for SQL database.](https://learn.microsoft.com/azure/azure-sql/azure-hybrid-benefit?view=azuresql&tabs=azure-portal)
 - **Review Advisor's cost optimization workbook** to [identify existing licensing benefits](https://learn.microsoft.com/azure/advisor/advisor-cost-optimization-workbook#azure-hybrid-benefit) and ensure they are applied to the resources that will have the biggest return in savings. 
 
 <br>
@@ -60,8 +61,8 @@ Microsoft offers several tools to help you identify when you should consider pur
 
 At this point, you have definied a strategy for Licensing and SaaS optimization. As you move beyond the basics, consider the following points:
 
-- **Enhance Compliance Governance:** Establish processes and controls to ensure compliance with licensing agreements, regulatory requirements, and internal policies within Microsoft Cloud. Implement software asset management practices, conduct regular audits, and enforce license usage policies.
-- **Monitor and Review:** Continuously monitor usage, costs, and compliance metrics for software licenses and SaaS subscriptions within Microsoft Cloud. Review reports, analyze trends, and identify areas for further optimization or cost savings.
+- **Enhance compliance governance:** Establish processes and controls to ensure compliance with licensing agreements, regulatory requirements, and internal policies within Microsoft Cloud. Implement software asset management practices, conduct regular audits, and enforce license usage policies.
+- **Monitor and review:** Continuously monitor usage, costs, and compliance metrics for software licenses and SaaS subscriptions within Microsoft Cloud. Review reports, analyze trends, and identify areas for further optimization or cost savings.
 
 <br>
 
@@ -77,7 +78,7 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 Related FinOps capabilities:
 
-- [Data analysis and showback](../understand/reporting.md)
+- [Reporting and analytics](../understand/reporting.md)
 - [Cloud policy and governance](../manage/policy.md)
 
 <br>
