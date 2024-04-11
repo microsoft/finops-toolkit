@@ -33,7 +33,7 @@ This article helps you understand the architecting for cloud capability within t
 ---
 
 <a name="definition"></a>
-**The Architecting for Cloud capability involves designing and implementing cloud infrastructure and applications in a manner that optimizes cost, performance, scalability, and reliability while aligning with business objectives.**
+**Architecting for the cloud involves designing and implementing cloud infrastructure and applications in a manner that optimizes cost, performance, scalability, and reliability while aligning with business objectives.**
 {: .fs-6 .fw-300 }
 
 This capability encompasses the architectural decisions and best practices aimed at maximizing the value derived from cloud investments while minimizing unnecessary expenditure.
@@ -42,14 +42,11 @@ This capability encompasses the architectural decisions and best practices aimed
 
 ## ✋ Before you begin
 
+Integrating the [Cloud Adoption Framework (CAF)](https://learn.microsoft.com/azure/cloud-adoption-framework) and the [Well-Architected Framework (WAF)](https://learn.microsoft.com/azure/well-architected/pillars) with the FinOps approach is crucial for a comprehensive and effective cloud governance strategy, especially when leveraging Microsoft Azure. Here's a refined list of prerequisites considering these frameworks:
 
-Integrating the [Cloud Adoption Framework (CAF)](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/)and the [Well-Architected Framework (WAF)](https://learn.microsoft.com/azure/well-architected/pillars) with the FinOps approach is crucial for a comprehensive and effective cloud governance strategy, especially when leveraging Microsoft Azure. Here's a refined list of prerequisites considering these frameworks:
-
-
-- **Microsoft Azure Fundamentals:** Gain familiarity with Azure services and features, including compute, storage, networking, databases, and security, aligning with the CAF's guidelines for Azure adoption.
-- **Architectural Principles and WAF Pillars:** Familiarize yourself with architectural best practices outlined in the Well-Architected Framework's pillars: operational excellence, security, reliability, performance efficiency, and cost optimization.
+- **Microsoft Azure fundamentals:** Gain familiarity with Azure services and features, including compute, storage, networking, databases, and security, aligning with the CAF's guidelines for Azure adoption.
+- **Architectural principles and WAF pillars:** Familiarize yourself with architectural best practices outlined in the Well-Architected Framework's pillars: operational excellence, security, reliability, performance efficiency, and cost optimization.
 - **Azure Resource Management and CAF Landing Zones:** Learn how to manage Azure resources using Azure Resource Manager (ARM) templates or Infrastructure as Code (IaC) tools like Azure Bicep or Terraform. Understand the concept of CAF landing zones for implementing Azure environments aligned with best practices.
-
 
 <br>
 
@@ -96,7 +93,8 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 Related FinOps capabilities:
 
-- [Commitment Discounts](docs/_docs/framework/capabilities/optimize/commitment-discounts.md)
+- [Workload optimization](docs/_docs/framework/capabilities/optimize/workloads.md)
+- [Rate optimization](docs/_docs/framework/capabilities/optimize/rates.md)
 
 <br>
 
