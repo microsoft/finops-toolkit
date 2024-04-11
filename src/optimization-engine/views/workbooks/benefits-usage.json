@@ -58,7 +58,7 @@
     {
       "type": 1,
       "content": {
-        "json": "If below tabs are reporting query errors, you must set up Pricesheet exports. See more details [here](https://github.com/helderpinto/AzureOptimizationEngine#enabling-the-reservations-and-benefits-usage-workbooks).",
+        "json": "If below tabs are reporting query errors, you must set up Pricesheet exports. See more details [here](https://aka.ms/AzureOptimizationEngine/commitmentssetup).",
         "style": "warning"
       },
       "name": "text - 8"
@@ -444,7 +444,7 @@
           {
             "type": 1,
             "content": {
-                "json": "Identify the potential hourly commitments for either Savings Plans or Reservations.\r\n\r\nThe first chart shows you the actual hourly cost at On-Demand prices. You can use it as a reference to compare with different Savings Plans commitment terms.\r\n\r\nFor the Savings Plan analysis, the chart shows the average hourly On-Demand (PAYG) usage in your currency (at Savings Plans prices) for each Azure subscription. It shows you the hourly amount you need to commit for (at Savings Plans prices) to cover the On-Demand usage.\r\n\r\nFor the vCPUs (Reservations) analysis, the chart shows the average hourly On-Demand (PAYG) usage in vCPUs for each VM size family. For example, if VM size family Dv5 in West Europe has 48 vCPUs of average hourly On-Demand usage, you need a Reservation commitment of 24 instances of the D2_v5 size (24x2=48 vCPUs) to fully cover its On-Demand usage with Reservation discounts.\r\n",
+              "json": "Identify the potential hourly commitments for either Savings Plans or Reservations.\r\n\r\nThe first chart shows you the actual hourly cost at On-Demand prices. You can use it as a reference to compare with different Savings Plans commitment terms.\r\n\r\nFor the Savings Plan analysis, the chart shows the average hourly On-Demand (PAYG) usage in your currency (at Savings Plans prices) for each Azure subscription. It shows you the hourly amount you need to commit for (at Savings Plans prices) to cover the On-Demand usage.\r\n\r\nFor the vCPUs (Reservations) analysis, the chart shows the average hourly On-Demand (PAYG) usage in vCPUs for each VM size family. For example, if VM size family Dv5 in West Europe has 48 vCPUs of average hourly On-Demand usage, you need a Reservation commitment of 24 instances of the D2_v5 size (24x2=48 vCPUs) to fully cover its On-Demand usage with Reservation discounts.\r\n",
               "style": "upsell"
             },
             "name": "text - 2"

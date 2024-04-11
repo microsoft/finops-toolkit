@@ -137,7 +137,7 @@
     {
       "type": 1,
       "content": {
-        "json": "If below tiles are reporting query errors, you must set up Pricesheet exports. See more details [here](https://github.com/helderpinto/AzureOptimizationEngine#enabling-the-reservations-and-benefits-usage-workbooks).",
+        "json": "If below tiles are reporting query errors, you must set up Pricesheet exports. See more details [here](https://aka.ms/AzureOptimizationEngine/commitmentssetup).",
         "style": "warning"
       },
       "name": "text - 10"

@@ -41,7 +41,7 @@
     {
       "type": 1,
       "content": {
-        "json": "For full functionality, this workbook requires Microsoft Entra ID exports. If you had not assigned the Global Reader role to the AOE managed identity yet, please do so ([see requirements](https://github.com/helderpinto/AzureOptimizationEngine#requirements)).",
+        "json": "For full functionality, this workbook requires Microsoft Entra ID exports. If you had not assigned the Global Reader role to the AOE managed identity yet, please do so ([see requirements](https://aka.ms/AzureOptimizationEngine/requirements)).",
         "style": "info"
       },
       "name": "text - 22"
