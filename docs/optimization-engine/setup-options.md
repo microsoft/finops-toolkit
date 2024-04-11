@@ -21,6 +21,8 @@ Advanced scenarios for setting up or upgrading AOE.
 
 </details>
 
+---
+
 ## 🎛️ Using a local repository
 
 If you choose to deploy all the dependencies from your own local repository, you must publish the solution files into a publicly reachable URL. You must ensure the entire AOE project structure is available at the same base URL. Storage Account SAS Token-based URLs are not supported.

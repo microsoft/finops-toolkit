@@ -19,6 +19,8 @@ Adjust the recommendations results to your environment characteristics.
 
 </details>
 
+---
+
 When working on the recommendations provided by AOE, you may find some cases where the recommendation does not apply for some reason. For example, AOE is suggesting high availability recommendations that do not apply to Dev/Test Virtual Machines, or recommending enabling Azure Backup for non-critical VMs. You can suppress recommendations in two ways:
 
 * If recommendations are originated from Azure Advisor, you can simply go to the Azure Portal and [dismiss/postpone the recommendation](https://docs.microsoft.com/en-us/azure/advisor/view-recommendations#dismissing-and-postponing-recommendations).

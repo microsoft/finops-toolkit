@@ -1,3 +1,4 @@
+# TODO: Add doc comments
 param (
     [Parameter(Mandatory = $false)]
     [string] $TemplateUri,
@@ -472,6 +473,7 @@ if ($null -eq $sql -and -not($sqlServerName -like "*.database.*") -and -not($Ign
 
     $SqlServerNameAvailabilityUriPath = "/subscriptions/$subscriptionId/providers/Microsoft.Sql/checkNameAvailability?api-version=2014-04-01"
     $body = "{`"name`": `"$sqlServerName`", `"type`": `"Microsoft.Sql/servers`"}"
+    # TODO: Switch to custom Invoke-Rest command to leverage telemetry tracking
     $sqlNameResult = (Invoke-AzRestMethod -Path $SqlServerNameAvailabilityUriPath -Method POST -Payload $body).Content | ConvertFrom-Json
     
     if (-not($sqlNameResult.available)) {
