@@ -14,7 +14,8 @@ ms.service: finops
 ms.reviewer: micflan
 ---
 
-<span class="fs-9 d-block mb-4">Planning and Estimating</span>
+<span class="fs-9 d-block mb-4">Planning and estimating</span>
+
 This article helps you understand the planning and estimating capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 {: .fs-6 .fw-300 }
 
@@ -32,20 +33,26 @@ This article helps you understand the planning and estimating capability within 
 ---
 
 <a name="definition"></a>
-**Planning and estimating refers to the estimation and exploration of potential cost and value of workloads if implemented in the Microsoft cloud.**
+**Planning and estimating refers to the process of estimating the cost and usage of new and existing workloads based on exploratory or planned architectural changes and evolving business priorities.**
 {: .fs-6 .fw-300 }
 
-This involves collaboration between leadership, finance, engineering, FinOps, and product teams to define the scope, detail requirements, and the model parameters of the workload. With accurate and detailed architectural plans and cost estimates, organizations are better prepared to deploy new workloads in Azure or efficiently scale existing ones.
+Leverage historical usage and cost trends from similar workloads to estimate initial costs for new workloads. Adjust or augment that based on the unique of new or changing workloads.
 
-Before effectively planning and estimating costs for an Azure workload, several key components must be defined to determine the correct cloud resources and architecture:
+Collaborate with other teams to map business goals to product requirements to technical needs that can be utilized during planning and estimation efforts to ensure leadership, finance, product, engineering, and FinOps teams are aligned and that the solution will meet the business and customer needs. 
 
-- Define and document motivations for migrating workloads to the Microsoft cloud or developing and improving current workloads in Azure. Motivations may include cost savings, scaling abilities, or building new technical capabilities within your organization.
-- Document business outcomes, such as investment in people and resources, executive sponsorship, support from IT/cloud team, and business team. Set up objectives and key results to clearly state intent and measure cloud adoption success.
-- Understand financial considerations:
-  - Cloud economics
-  - OPEX
-  - Staff productivity
+With accurate and detailed architectural plans and cost estimates, organizations are better prepared to deploy new workloads and efficiently scale existing ones to achieve business goals.
 
+<br>
+
+## ✋ Before you begin
+
+Before you can effectively plan for and estimate usage and costs for a cloud workload, you need to drive alignment across stakeholders on the goals and priority of the effort and map that to the product requirements and technical needs.
+
+- Document requirements, motivations, and expected outcomes for building new or improving existing workloads, including cloud migrations.
+  - Motivations may include cost savings, scaling abilities, or building new technical capabilities within your organization. Leverage existing KPIs and project potential impact.
+  - Describe any requirements necessary for successful delivery, such as executive sponsorship or support from individual teams.
+  - Define the scope of the effort, including detailed requirements, and unique needs of the workload necessary to meet business goals.
+- Understand financial constraints and considerations, like staff productivity, cloud economics, and the nuances with an OpEx model.
 - Define technical considerations:
   - Scalability
   - Availability
@@ -53,35 +60,33 @@ Before effectively planning and estimating costs for an Azure workload, several 
   - Security and Compliance
   - Elasticity (managed, maintain, pay for cloud)
   - Capacity optimization
+- Familiarize yourself with [how you’re charged for the services you use](https://azure.microsoft.com/pricing#product-pricing) to understand:
+  - Factors that contribute to costs (for example, compute, storage, networking, and data transfer).
+  - How usage aligns with the various pricing models (for example, pay-as-you-go, reservations, and Azure Hybrid Benefit).
 
-Defining the above-mentioned aspects for the workload enables cross collaboration and provides clear expectations between leadership, finance, engineering, FinOps, and product teams.
+Starting with well-defined requirements that are aligned across teams helps set clear expectations and establishes a solid foundation for effective cross-group collaboration over the lifecycle of each workload.
 
 <br>
 
 ## ▶️ Getting started
-
-
-- The [Total Cost of Ownership (TCO) Calculator](https://azure.microsoft.com/pricing/tco/calculator/) can be used to input details about your on-premises infrastructure, including servers, databases, storage, and networking, to determine your current TCO and obtain recommended services in Azure. After entering details of your on-premises infrastructure, the TCO Calculator presents cost reports showcasing the cost differences between running workloads on-premises versus in Azure that can be saved and shared across team members.
-
-- The [Azure Pricing Calculator](https://azure.microsoft.com/pricing/calculator/) is a valuable tool for estimating and analyzing costs associated with various Microsoft Azure resources and services. Within the Azure Pricing Calculator, custom scenarios can be analyzed by generating estimates and configuring resources to match specific parameters. Cost savings such as Reserved Instances, Savings Plans, and Azure Hybrid Benefit can also be evaluated. By logging in with your Azure credentials, custom estimates can be saved and shared with other team members to make informed decisions about your Azure deployments.
-
+- If you're migrating on-premises infrastructure to the cloud:
+  - Leverage the [Total Cost of Ownership (TCO) Calculator](https://azure.microsoft.com/pricing/tco/calculator) to get a high-level comparison of on-premises vs. cloud servers, databases, storage, and networking infrastructure.
+    > After entering details of your on-premises infrastructure, the TCO Calculator presents cost reports showcasing the cost differences between running workloads on-premises compared to Azure that can be saved and shared across team members.
+  - Use [Azure Migrate](https://azure.microsoft.com/products/azure-migrate) to automate the discovering and migration of your on-premises workloads.
+- If you're estimating changes to an existing workload, review the [Forecasting](./forecasting.md) capability.
+- If you're building a new solution, start with the [Azure Pricing Calculator](https://azure.microsoft.com/pricing/calculator) to estimate costs based on projected usage patterns.
+  > Within the pricing calculator, custom scenarios can be analyzed by generating estimates and configuring resources to match specific parameters. Cost savings such as reservations, savings plans, and Azure Hybrid Benefit can also be evaluated. Sign in to save estimates based on your enterprise pricing.
 
 <br>
 
 ## 🏗️ Building on the basics
 
-- The [Azure Advisor Cost Optimization Workbook](https://learn.microsoft.com/azure/advisor/advisor-cost-optimization-workbook) can be used to evaluate usage optimization and rate optimization recommendations for current workloads in Azure. These insights provide recommendations such as rightsizing or shutting down underutilized resources and recommendations for acquiring reservations and savings plans. The recommendations provide resource details that can be used for planning adjustments or estimating the cost of any changes to the workload.
-
-- Within Microsoft Cost Management and Billing, [Cost Analysis](https://learn.microsoft.com/azure/cost-management-billing/costs/quick-acm-cost-analysis) can be used to analyze Actual, Amortized, and Forecasted costs of the selected scope. Built-in views can provide cost insights on resources, resource groups, subscriptions, or reservations.
-
-- Budgets in [Microsoft Cost Management and Billing](https://learn.microsoft.com/azure/cost-management-billing/costs/cost-analysis-common-uses) help with planning for and driving organizational accountability by proactively informing stakeholders of Azure spending. With budgets, spending limits and alerts can be configured based on either actual or forecasted cost thresholds allowing for timely action to take place.
-
-- The [Dev/Test Offer](https://learn.microsoft.com/azure/devtest/offer/overview-what-is-devtest-offer-visual-studio) can be used for trial runs to estimate cost/test architecture.
-
-- Define [Azure Policies](https://learn.microsoft.com/azure/governance/policy/overview) needed to enforce organizational standards and to assess compliance at scale. Built-in policy definitions can be leveraged to compare the properties of resources against defined standards and built-in initiatives to simplify management by enforcing multiple policies as a single unit.
+- Use the [Cost optimization workbook](../../../../_workbooks/optimization-workbook/README.md) to optimize current workloads and reduce potential future estimates.
+- Review the [Architecting for cloud](../optimize/architecting.md) capability to ensure workloads are designed for efficiency.
+- Evaluate options to reduce costs through the [Rate optimization](../optimize/rates.md) capability.
+- Automate best practices through [Azure Policy](https://learn.microsoft.com/azure/governance/policy/overview) to enforce organizational standards at scale.
 
 With these insights, you can make more accurate cost predictions and manage your cloud budget effectively.
-
 
 <br>
 
@@ -96,8 +101,9 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 Related FinOps capabilities:
 
 - [Forecasting](./forecasting.md)
-- [Onboarding workloads](../manage/onboarding.md)
-- [Chargeback and finance integration](../manage/invoicing-chargeback.md)
+- [Architecting for cloud](../optimize/architecting.md)
+- [Workload optimization](../optimize/workloads.md)
+- [Rate optimization](../optimize/rates.md)
 
 <br>
 
