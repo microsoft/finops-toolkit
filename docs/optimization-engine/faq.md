@@ -11,6 +11,8 @@ permalink: /optimization-engine/faq
 All the frequently asked questions about AOE in one place.
 {: .fs-6 .fw-300 }
 
+---
+
 * **Is AOE supported by Microsoft?** No, the Azure Optimization Engine is not supported under any Microsoft standard support program or service. The scripts are provided AS IS without warranty of any kind. The entire risk arising out of the use or performance of the scripts and documentation remains with you.
 
 * **What type of Azure subscriptions/clouds are supported?** AOE has been deployed and tested against EA, MCA and MSDN subscriptions in the Azure commercial cloud (AzureCloud). Although not tested yet, it should also work in MOSA subscriptions. It was designed to also operate in the US Government cloud, though it was never tested there. Sponsorship (MS-AZR-0036P and MS-AZR-0143P), CSP (MS-AZR-0145P, MS-AZR-0146P, and MS-AZR-159P) DreamSpark (MS-AZR-0144P) and Internal subscriptions should also work, but due to lack of availability or disparities in their consumption (billing) exports models, some of the Workbooks may not fully work.
