@@ -20,6 +20,8 @@ Include the VM performance logs available in your Log Analytics workspaces to ge
 
 </details>
 
+---
+
 ## 🔢 Configuring performance counters
 
 If you want to fully leverage the VM right-size augmented recommendation, you need to have your VMs sending logs to a Log Analytics workspace (it should normally be the one you chose at AOE installation time, but it can be a different one) and you need them to send specific performance counters. The list of required counters is defined in the `perfcounters.json` file (available in the [AOE root folder](https://aka.ms/AzureOptimizationEngine/code)). AOE provides a couple of tools that help you validate and fix the configured Log Analytics performance counters, depending on the type of agent you are using to collect logs from your machines.
@@ -75,6 +77,8 @@ Install-Module -Name Az.OperationalInsights
 ./Setup-LogAnalyticsWorkspaces.ps1 -AutoFix -WorkspaceIds "d69e840a-2890-4451-b63c-bcfc5580b90f","961550b2-2c4a-481a-9559-ddf53de4b455" -IntervalSeconds 30
 ```
 
+<br>
+
 ## 💰 Additional performance logs cost estimation
 
 Each performance counter entry in the `Perf` table has different sizings, depending on the 7 required counters per OS type. The following table enumerates the size (in bytes) per performance counter entry.
@@ -97,6 +101,8 @@ Linux | Logical Disk | Disk Writes/sec | 250 | 3 + data disks count
 Linux | Network | Total Bytes | 200 | network adapters count
 
 In summary, a Windows VM generates, in average, 245 bytes per performance counter entry, while a Linux consumes a bit less, 230 bytes per entry. However, depending on the number of CPU cores, data disks or network adapters, a VM will generate more or less Log Analytics entries. For example, a Windows VM with 4 vCPUs, 1 data disk and 5 network adapters will generate 5 * 200 + 220 + 4 * 250 + 4 * 250 + 4 * 250 + 4 * 250 + 5 * 290 = 6670 bytes (6.5 KB) per collection interval. If you set your Performance Counters interval to 60 seconds, then you'll have 60 * 24 * 30 * 6.5 = 280800 KB (274 MB) of ingestion data per month, which means less than 0.70 EUR/month at the Log Analytics ingestion retail price (Pay As You Go).
+
+<br>
 
 ## 🎯 Using multiple workspaces for performance logs
 

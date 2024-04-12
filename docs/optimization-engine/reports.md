@@ -26,6 +26,8 @@ Visualize the Azure Optimization Engine rich recommendations and insights.
 
 </details>
 
+---
+
 ## 📒 Power BI recommendations report
 
 AOE includes a [Power BI report](http://aka.ms/AzureOptimizationEngine/powerbi) for visualizing recommendations. To use it, you have first to change the data source connection to the SQL Database you deployed with the AOE. In the Power BI top menu, choose Transform Data > Data source settings.
