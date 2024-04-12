@@ -1,3 +1,27 @@
+<#
+.SYNOPSIS
+This script sets up the necessary dependencies for the Azure Optimization Engine to collect the data required for the several Azure benefits workbooks.
+
+.DESCRIPTION
+This script sets up the necessary dependencies for the Azure Optimization Engine to collect the data required for the several Azure benefits workbooks. 
+It will ask for the customer type (EA or MCA), the billing account ID, the billing profile ID (if MCA), and the consumption currency code. It will then grant 
+the necessary roles to the Azure Optimization Engine managed identity and set up the required variables in the Automation Account.
+
+.PARAMETER AzureEnvironment
+The Azure environment to use. Possible values are AzureCloud, AzureChinaCloud, AzureUSGovernment.
+
+.PARAMETER AutomationAccountName
+The name of the Automation Account where the Azure Optimization Engine is deployed.
+
+.PARAMETER ResourceGroupName
+The name of the Resource Group where the Automation Account is located.
+
+.EXAMPLE
+.\Setup-BenefitsUsageDependencies.ps1 -AutomationAccountName "MyAutomationAccount" -ResourceGroupName "MyResourceGroup"
+
+.LINK
+https://aka.ms/AzureOptimizationEngine/commitmentssetup
+#>
 param(
     [Parameter(Mandatory = $false)] 
     [String] $AzureEnvironment = "AzureCloud",

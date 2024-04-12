@@ -1,3 +1,20 @@
+<#
+.SYNOPSIS
+This script suppresses a recommendation in the Azure Optimization Engine.
+
+.DESCRIPTION
+This script suppresses a recommendation in the Azure Optimization Engine. The script will prompt the user for the required information
+to suppress the recommendation.
+
+.PARAMETER RecommendationId
+The recommendation Id to suppress.
+
+.EXAMPLE
+.\Suppress-Recommendation.ps1 -RecommendationId "00000000-0000-0000-0000-000000000001"
+
+.LINK
+https://aka.ms/AzureOptimizationEngine/suppressrecs
+#>
 param(
     [Parameter(Mandatory = $true)] 
     [String] $RecommendationId

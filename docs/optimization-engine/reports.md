@@ -78,6 +78,8 @@ The **Recommendation Details** option takes you to a page where you can see all 
 
 ![Fit score history for a specific recommendation](../assets/images/aoe/powerbi-dashboard-fitscorehistory.jpg "Fit score history for a specific recommendation")
 
+<br>
+
 ## 📒 Workbooks
 
 With AOE's Log Analytics Workbooks, you can explore many perspectives over the data that is collected every day. For example, costs growing anomalies, Microsoft Entra ID and Azure RM principals and roles assigned, how your resources are distributed, or getting insights about your Azure commitments usage (supports only EA and MCA customers). See below a short description of each Workbook.

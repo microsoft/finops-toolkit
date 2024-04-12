@@ -152,7 +152,7 @@ After deploying AOE, there are several ways for you to get started (you have to 
 
 1. Open the built-in Power BI report to get deeper insights about recommendations and customize it to your needs. See [Reports](./reports.md) for more details.
 
-1. Customize AOE by widening the scope of the engine or adjusting thresholds to your needs (this can be done right after deployment). For all the available customization details, check [Customizations](./customizing-aoe.md).
+1. Customize AOE by widening the scope of the engine or adjusting thresholds to your needs (this can be done right after deployment). For all the available customization details, check [Customizations](./customize.md).
 
 1. For richer virtual machine right-size recommendations, you can add your machines' performance logs to the scope of AOE. Check [Configuring workspaces](./configuring-workspaces.md).
 

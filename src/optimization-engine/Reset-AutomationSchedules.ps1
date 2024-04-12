@@ -1,3 +1,25 @@
+<#
+.SYNOPSIS
+This script resets the Azure Optimization Engine schedules to a new base time and optionally changes the Hybrid Worker Group for all schedules.
+
+.DESCRIPTION
+This script resets the Azure Optimization Engine schedules to a new base time and optionally changes the Hybrid Worker Group for all schedules.
+
+.PARAMETER AzureEnvironment
+The Azure environment to use. Possible values are AzureCloud, AzureChinaCloud, AzureUSGovernment.
+
+.PARAMETER AutomationAccountName
+The name of the Automation Account where the Azure Optimization Engine is deployed.
+
+.PARAMETER ResourceGroupName
+The name of the Resource Group where the Automation Account is located.
+
+.EXAMPLE
+.\Reset-AutomationSchedules.ps1 -AutomationAccountName "MyAutomationAccount" -ResourceGroupName "MyResourceGroup"
+
+.LINK
+https://aka.ms/AzureOptimizationEngine/customize
+#>
 param(
     [Parameter(Mandatory = $false)] 
     [String] $AzureEnvironment = "AzureCloud",

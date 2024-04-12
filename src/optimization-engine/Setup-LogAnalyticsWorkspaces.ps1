@@ -1,3 +1,31 @@
+<#
+.SYNOPSIS
+This script sets up Log Analytics workspaces for Azure Optimization Engine to collect the required performance counters with 
+the legacy Log Analytics agent (to be deprecated on Aug 31, 2024).
+
+.DESCRIPTION
+This script sets up Log Analytics workspaces for Azure Optimization Engine to collect the required performance counters with
+the legacy Log Analytics agent (to be deprecated on Aug 31, 2024). The script will check if the required performance counters
+are already being collected and will (optionally) automatically fix any missing performance counters.
+
+.PARAMETER AzureEnvironment
+The Azure environment to use. Default is AzureCloud.
+
+.PARAMETER WorkspaceIds
+The workspace IDs to use (use the workspace GUID, not the ARM resource ID). If not specified, all workspaces will be used.
+
+.PARAMETER AutoFix
+Automatically fix missing performance counters.
+
+.PARAMETER IntervalSeconds
+The interval in seconds to collect performance counters.
+
+.EXAMPLE
+.\Setup-LogAnalyticsWorkspaces.ps1 -WorkspaceIds "00000000-0000-0000-0000-000000000001","00000000-0000-0000-0000-000000000002" -AutoFix
+
+.LINK
+https://aka.ms/AzureOptimizationEngine/customize
+#>
 param(
     [Parameter(Mandatory = $false)] 
     [String] $AzureEnvironment = "AzureCloud",

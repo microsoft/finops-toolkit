@@ -1,4 +1,51 @@
-# TODO: Add doc comments
+<#
+.SYNOPSIS
+This script deploys the Azure Optimization Engine.
+
+.DESCRIPTION
+This script deploys the Azure Optimization Engine to an Azure subscription. The script will guide you through the deployment process, allowing you to choose the subscription, 
+resource group, and other deployment settings. The script will also check the availability of the chosen resource names and provide you with the option to reuse an existing 
+Log Analytics Workspace or create a new one.
+
+.PARAMETER TemplateUri
+The URI of the Bicep template to deploy. If not provided, the script will use the default template from the GitHub repository.
+
+.PARAMETER AzureEnvironment
+The Azure environment to deploy the resources to. Default is AzureCloud.
+
+.PARAMETER DoPartialUpgrade
+A switch to indicate if the script should perform a partial upgrade of the existing resources. Default is false.
+
+.PARAMETER IgnoreNamingAvailabilityErrors
+A switch to indicate if the script should ignore SQL Server naming availability errors (when a custom SQL engine is being used). Default is false.
+
+.PARAMETER SilentDeploymentSettingsPath
+The path to the silent deployment settings file. If provided, the script will use the settings from the file to deploy the resources without any user interaction.
+
+.PARAMETER ResourceTags
+A hashtable of resource tags to apply to the deployed resources. Default is an empty hashtable.
+
+.PARAMETER EnableDefaultTelemetry
+A boolean to indicate if the default telemetry should be enabled. Default is true.
+
+.EXAMPLE
+.\Deploy-AzureOptimizationEngine.ps1
+
+Deploys or upgrades the Azure Optimization Engine using the default template from the GitHub repository.
+
+.EXAMPLE
+.\Deploy-AzureOptimizationEngine.ps1 -DoPartialUpgrade
+
+Performs a partial upgrade of the existing resources.
+
+.EXAMPLE
+.\Deploy-AzureOptimizationEngine.ps1 -TemplateUri "https://raw.githubusercontent.com/microsoft/finops-toolkit/dev/src/optimization-engine/azuredeploy.bicep" -AzureEnvironment "AzureChinaCloud" -ResourceTags @{"Environment"="Production"; "Owner"="John Doe"}
+
+Deploys or upgrades the Azure Optimization Engine using a custom template from the GitHub repository, in the AzureChinaCloud environment, with custom resource tags.
+
+.LINK
+https://aka.ms/AzureOptimizationEngine/deployment
+#>
 param (
     [Parameter(Mandatory = $false)]
     [string] $TemplateUri,

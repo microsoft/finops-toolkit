@@ -1,3 +1,29 @@
+<#
+.SYNOPSIS
+Deploys Data Collection Rules (DCRs) to collect performance counters from Windows and Linux virtual machines.
+
+.DESCRIPTION
+This script deploys Data Collection Rules (DCRs) to collect performance counters from Windows and Linux virtual machines required by the Azure Optimization Engine
+to augment the Azure Advisor virtual machine right-size recommendations with guest OS metrics and accurate fit score.
+
+.PARAMETER AzureEnvironment
+The Azure environment to use. Default is AzureCloud.
+
+.PARAMETER DestinationWorkspaceResourceId
+The Resource ID of the destination Log Analytics workspace.
+
+.PARAMETER IntervalSeconds
+The interval in seconds to collect performance counters. Default is 60 seconds.
+
+.PARAMETER ResourceTags
+The tags to apply to the resources created.
+
+.EXAMPLE
+.\Deploy-AzureOptimizationEngine.ps1 -DestinationWorkspaceResourceId "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/MyResourceGroup/providers/Microsoft.OperationalInsights/workspaces/MyWorkspace"
+
+.LINK
+https://aka.ms/AzureOptimizationEngine/customize
+#>
 param(
     [Parameter(Mandatory = $false)] 
     [String] $AzureEnvironment = "AzureCloud",
