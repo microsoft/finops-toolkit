@@ -693,10 +693,10 @@ $baseQuery = @"
     | extend SubnetState = 'empty';
     let RemovedSubnetsAsSource = RemovedSubnets
     | join kind=inner ( NSGRules ) on `$left.SubnetPrefix_s == `$right.SourceAddress
-    | extend SubnetState = 'inexisting';
+    | extend SubnetState = 'unexisting';
     let RemovedSubnetsAsDestination = RemovedSubnets
     | join kind=inner ( NSGRules ) on `$left.SubnetPrefix_s == `$right.DestinationAddress
-    | extend SubnetState = 'inexisting';
+    | extend SubnetState = 'unexisting';
     EmptySubnetsAsSource
     | union EmptySubnetsAsDestination
     | union RemovedSubnetsAsSource
@@ -781,9 +781,9 @@ foreach ($result in $results)
         ImpactedArea = "Microsoft.Network/networkSecurityGroups"
         Impact = "Medium"
         RecommendationType = "BestPractices"
-        RecommendationSubType = "NSGRuleForEmptyOrInexistingSubnet"
+        RecommendationSubType = "NSGRuleForEmptyOrUnexistingSubnet"
         RecommendationSubTypeId = "b5491cde-f76c-4423-8c4c-89e3558ff2f2"
-        RecommendationDescription = "NSG rules referring to empty or inexisting subnets"
+        RecommendationDescription = "NSG rules referring to empty or unexisting subnets"
         RecommendationAction = "Update or remove the NSG rule to improve your network security posture"
         InstanceId = $result.NSGId
         InstanceName = "$($result.NSGName)/$($result.RuleName_s)"
@@ -803,7 +803,7 @@ foreach ($result in $results)
 # Export the recommendations as JSON to blob storage
 
 $fileDate = $datetime.ToString("yyyy-MM-dd")
-$jsonExportPath = "nsgrules-emptyinexistingsubnets-$fileDate.json"
+$jsonExportPath = "nsgrules-emptyunexistingsubnets-$fileDate.json"
 $recommendations | ConvertTo-Json | Out-File $jsonExportPath
 
 $jsonBlobName = $jsonExportPath
@@ -870,16 +870,16 @@ $baseQuery = @"
     | extend NICState = 'orphan', IPAddress = PublicIPAddress;
     let RemovedNICsAsPrivateSource = RemovedNICs
     | join kind=inner ( NSGRules ) on `$left.PrivateIPAddress_s == `$right.SourceAddress
-    | extend NICState = 'inexisting', IPAddress = PrivateIPAddress_s;
+    | extend NICState = 'unexisting', IPAddress = PrivateIPAddress_s;
     let RemovedNICsAsPublicSource = RemovedNICs
     | join kind=inner ( NSGRules ) on `$left.PublicIPAddress == `$right.SourceAddress
-    | extend NICState = 'inexisting', IPAddress = PublicIPAddress;
+    | extend NICState = 'unexisting', IPAddress = PublicIPAddress;
     let RemovedNICsAsPrivateDestination = RemovedNICs
     | join kind=inner ( NSGRules ) on `$left.PrivateIPAddress_s == `$right.DestinationAddress
-    | extend NICState = 'inexisting', IPAddress = PrivateIPAddress_s;
+    | extend NICState = 'unexisting', IPAddress = PrivateIPAddress_s;
     let RemovedNICsAsPublicDestination = RemovedNICs
     | join kind=inner ( NSGRules ) on `$left.PublicIPAddress == `$right.DestinationAddress
-    | extend NICState = 'inexisting', IPAddress = PublicIPAddress;
+    | extend NICState = 'unexisting', IPAddress = PublicIPAddress;
     OrphanNICsAsPrivateSource
     | union OrphanNICsAsPublicSource
     | union OrphanNICsAsPrivateDestination
@@ -968,9 +968,9 @@ foreach ($result in $results)
         ImpactedArea = "Microsoft.Network/networkSecurityGroups"
         Impact = "Medium"
         RecommendationType = "BestPractices"
-        RecommendationSubType = "NSGRuleForOrphanOrInexistingNIC"
+        RecommendationSubType = "NSGRuleForOrphanOrUnexistingNIC"
         RecommendationSubTypeId = "3dc1d1f8-19ef-4572-9c9d-78d62831f55a"
-        RecommendationDescription = "NSG rules referring to orphan or inexisting NICs"
+        RecommendationDescription = "NSG rules referring to orphan or unexisting NICs"
         RecommendationAction = "Update or remove the NSG rule to improve your network security posture"
         InstanceId = $result.NSGId
         InstanceName = "$($result.NSGName)/$($result.RuleName_s)"
@@ -990,7 +990,7 @@ foreach ($result in $results)
 # Export the recommendations as JSON to blob storage
 
 $fileDate = $datetime.ToString("yyyy-MM-dd")
-$jsonExportPath = "nsgrules-orphaninexistingnics-$fileDate.json"
+$jsonExportPath = "nsgrules-orphanunexistingnics-$fileDate.json"
 $recommendations | ConvertTo-Json | Out-File $jsonExportPath
 
 $jsonBlobName = $jsonExportPath
@@ -1050,10 +1050,10 @@ $baseQuery = @"
     | extend PIPState = 'orphan';
     let RemovedPIPsAsSource = RemovedPIPs
     | join kind=inner ( NSGRules ) on `$left.IPAddress == `$right.SourceAddress
-    | extend PIPState = 'inexisting';
+    | extend PIPState = 'unexisting';
     let RemovedPIPsAsDestination = RemovedPIPs
     | join kind=inner ( NSGRules ) on `$left.IPAddress == `$right.DestinationAddress
-    | extend PIPState = 'inexisting';
+    | extend PIPState = 'unexisting';
     OrphanStaticPIPsAsSource
     | union OrphanDynamicPIPsAsSource
     | union OrphanStaticPIPsAsDestination
@@ -1140,9 +1140,9 @@ foreach ($result in $results)
         ImpactedArea = "Microsoft.Network/networkSecurityGroups"
         Impact = "High"
         RecommendationType = "BestPractices"
-        RecommendationSubType = "NSGRuleForOrphanOrInexistingPublicIP"
+        RecommendationSubType = "NSGRuleForOrphanOrUnexistingPublicIP"
         RecommendationSubTypeId = "fe40cbe7-bdee-4cce-b072-cf25e1247b7a"
-        RecommendationDescription = "NSG rules referring to orphan or inexisting Public IPs"
+        RecommendationDescription = "NSG rules referring to orphan or unexisting Public IPs"
         RecommendationAction = "Update or remove the NSG rule to improve your network security posture"
         InstanceId = $result.NSGId
         InstanceName = "$($result.NSGName)/$($result.RuleName_s)"
@@ -1162,7 +1162,7 @@ foreach ($result in $results)
 # Export the recommendations as JSON to blob storage
 
 $fileDate = $datetime.ToString("yyyy-MM-dd")
-$jsonExportPath = "nsgrules-orphaninexistingpublicips-$fileDate.json"
+$jsonExportPath = "nsgrules-orphanunexistingpublicips-$fileDate.json"
 $recommendations | ConvertTo-Json | Out-File $jsonExportPath
 
 $jsonBlobName = $jsonExportPath
