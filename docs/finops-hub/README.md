@@ -195,6 +195,6 @@ For additional details, refer to [Cost Management documentation](https://learn.m
 
 ## 🧰 Related tools
 
-{% include tools.md pbi="1" ps="1" opt="1" %}
+{% include tools.md pbi="1" ps="1" opt="1" aoe="1" %}
 
 <br>

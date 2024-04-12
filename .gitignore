@@ -351,3 +351,8 @@ MigrationBackup/
 
 # Code coverage results
 coverage.xml
+
+# Optimization Engine local deployment files
+last-deployment-state.json
+database-connection-settings.json
+deployment-settings-*.json

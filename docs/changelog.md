@@ -63,6 +63,15 @@ Legend:
 
 <br>
 
+🔍 Optimization engine
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Added Azure Optimization Engine (AOE), an extensible solution for custom optimization recommendations.
+
+<br>
+
 ## 🛠️ v0.2.1
 
 🏦 FinOps hubs
