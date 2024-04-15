@@ -43,7 +43,8 @@ param eventHubNamespaceName string = 'eventHub${uniqueString(resourceGroup().id)
 @description('Name of Event Hub')
 param eventHubName string = 'storageHub'
 
-@description('Name of Event Grid subscription')
+// TODO: Revisit name
+@description('Optional. Name of the Event Grid subscription. Default = "toEventHub".')
 param eventGridSubscriptionName string = 'toEventHub'
 
 //==============================================================================
