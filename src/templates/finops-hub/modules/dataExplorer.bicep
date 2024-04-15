@@ -83,6 +83,7 @@ resource eventHubNamespace 'Microsoft.EventHub/namespaces@2021-11-01' = {
     }
 
     resource kustoConsumerGroup 'consumergroups' = {
+      // TODO: Revisit name
       name: 'kustoConsumerGroup'
       properties: {}
     }
