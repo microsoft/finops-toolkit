@@ -34,7 +34,8 @@ param databaseName string = 'finopsdb'
 @description('Optional. Name of storage account. Default = "ingestion".')
 param storageContainerName string = 'ingestion'
 
-@description('Name of Event Grid topic')
+// TODO: Revisit name
+@description('Optional. Name of the Event Grid topic used to monitor for ingestion changes. Default = "adxingest-topic".')
 param eventGridTopicName string = 'adxingest-topic'
 
 @description('Name of Event Hub\'s namespace')
