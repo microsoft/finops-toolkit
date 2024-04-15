@@ -78,4 +78,4 @@ output clusterId string = hub.outputs.clusterId
 output clusterUri string = hub.outputs.clusterUri
 
 @description('The name of the Data Explorer database.')
-output databaseName string = hub.outputs.databaseName
+output databaseName string = hub.outputs.clusterDatabaseName

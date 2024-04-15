@@ -28,7 +28,7 @@ param tagsByResource object = {}
 param exportScopes array
 
 @description('Optional. Deploy Azure Data Explorer cluster for analytics. Default: false.')
-param deployDataExplorer bool = false
+param deployDataExplorer bool = false //TODO: Review if this should be true or false by default
 
 // @description('Optional. Number of days of cost data to retain in the ms-cm-exports container. Default: 0.')
 // param exportRetentionInDays int = 0
@@ -177,10 +177,9 @@ module keyVault 'keyVault.bicep' = {
 module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer){
   name: 'dataExplorer'
   params: {
-    hubName: hubName
     location: location
     tags: resourceTags
-    keyVaultName: keyVault.outputs.name
+    storageAccountName: storage.outputs.name
   }
 }
 
@@ -213,4 +212,4 @@ output clusterId string = dataExplorer.outputs.clusterId
 output clusterUri string = dataExplorer.outputs.clusterUri
 
 @description('The name of the Data Explorer database.')
-output databaseName string = dataExplorer.outputs.databaseName
+output clusterDatabaseName string = dataExplorer.outputs.clusterDbName
