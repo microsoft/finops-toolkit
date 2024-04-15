@@ -69,6 +69,7 @@ resource eventHubNamespace 'Microsoft.EventHub/namespaces@2021-11-01' = {
   tags: tags
   sku: {
     capacity: 1
+    // TODO: Move to a parameter
     name: 'Standard'
     tier: 'Standard'
   }
