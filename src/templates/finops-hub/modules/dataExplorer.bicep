@@ -40,7 +40,8 @@ param eventGridTopicName string = 'adxingest-topic'
 @description('Name of Event Hub\'s namespace')
 param eventHubNamespaceName string = 'eventHub${uniqueString(resourceGroup().id)}'
 
-@description('Name of Event Hub')
+// TODO: Align name to the hub
+@description('Optional. Name of the Event Hub instance. Default = "storageHub".')
 param eventHubName string = 'storageHub'
 
 // TODO: Revisit name
