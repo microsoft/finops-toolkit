@@ -31,7 +31,7 @@ param skuCapacity int = 2
 @description('Optional. Name of the database. Default = "finopsdb".')
 param databaseName string = 'finopsdb'
 
-@description('Name of storage account')
+@description('Optional. Name of storage account. Default = "ingestion".')
 param storageContainerName string = 'ingestion'
 
 @description('Name of Event Grid topic')
