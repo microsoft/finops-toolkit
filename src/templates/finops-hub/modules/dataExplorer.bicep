@@ -38,7 +38,8 @@ param storageContainerName string = 'ingestion'
 @description('Optional. Name of the Event Grid topic used to monitor for ingestion changes. Default = "adxingest-topic".')
 param eventGridTopicName string = 'adxingest-topic'
 
-@description('Name of Event Hub\'s namespace')
+// TODO: Align name to the hub
+@description('Optional. Name of the Event Hub namespace. Default = "eventHub{rg-name}".')
 param eventHubNamespaceName string = 'eventHub${uniqueString(resourceGroup().id)}'
 
 // TODO: Align name to the hub
