@@ -154,6 +154,7 @@ resource topicEventHubRbacAuthorization 'Microsoft.Authorization/roleAssignments
 resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
   name: clusterName
   location: location
+  // TODO: Do we need to merge tagsByResource or is that handled before this bicep file?
   tags: tags
   sku: {
     name: skuName
