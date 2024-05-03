@@ -163,4 +163,4 @@ After successfully configuring the logic app, it's time to test if everything wo
   </figcaption>
 </figure>
 
-<div style="text-align: right"> <h3>Next Up: <a href="../logicapp/acoi-reporting.md">Reporting</a></h2></div>
+
