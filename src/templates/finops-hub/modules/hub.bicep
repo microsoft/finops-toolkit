@@ -117,7 +117,6 @@ module storage 'storage.bicep' = {
     tagsByResource: tagsByResource
     exportScopes: exportScopes
     subnetResourceId:!empty(subnetResourceId) ? subnetResourceId : ''  
-    publicNetworkAccess: !empty(publicNetworkAccess) ? publicNetworkAccess : 'Enabled'
   }
 }
 
@@ -138,7 +137,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
       globalConfigurations: {
         PipelineBillingEnabled: 'true'
       }
-      publicNetworkAccess: !empty(publicNetworkAccess) ? publicNetworkAccess : 'Enabled'
+      publicNetworkAccess: !empty(subnetResourceId) ? 'Disabled' : 'Enabled'
     })
 }
 
@@ -170,7 +169,7 @@ module keyVault 'keyVault.bicep' = {
     tags: resourceTags
     tagsByResource: tagsByResource
     storageAccountName: storage.outputs.name
-    publicNetworkAccess: !empty(publicNetworkAccess) ? publicNetworkAccess : 'Enabled'
+    subnetResourceId:!empty(subnetResourceId) ? subnetResourceId : ''  
     accessPolicies: [
       {
         objectId: dataFactory.identity.principalId
@@ -185,7 +184,7 @@ module keyVault 'keyVault.bicep' = {
   }
 }
 //------------------------------------------------------------------------------
-// Private Endpoints
+// Private Endpoints for ADF
 //------------------------------------------------------------------------------
 
 resource privateEndpointADF 'Microsoft.Network/privateEndpoints@2022-05-01' = [for (privateEndpoint,index) in adfPrivateEndpoints: if (subnetResourceId != '')   {
@@ -213,30 +212,7 @@ resource privateEndpointADF 'Microsoft.Network/privateEndpoints@2022-05-01' = [f
   }
 }]
 
-resource privateEndpointKeyVault 'Microsoft.Network/privateEndpoints@2022-05-01' = if (subnetResourceId != '')   {
-  name: 'pve-kv-${keyVault.name}'
-  location: location
-  properties: {
 
-    customNetworkInterfaceName: 'nic-kv-${keyVault.name}'
-    privateLinkServiceConnections: [
-      {
-        name: 'pve-kv-${keyVault.name}'
-        properties: {
-          privateLinkServiceId: keyVault.outputs.resourceId
-          groupIds: ['vault']
-        }
-      }
-    ]
-    subnet: {
-      id: subnetResourceId
-      properties: {
-        privateEndpointNetworkPolicies: 'Enabled'
-      }
-
-    }
-  }
-}
 
 
 //==============================================================================

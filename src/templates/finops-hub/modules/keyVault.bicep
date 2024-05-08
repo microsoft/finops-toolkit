@@ -32,8 +32,9 @@ param tags object = {}
 
 @description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
 param tagsByResource object = {}
-@description('Optional. To disable Public Network Access, set to "Disabled".')
-param publicNetworkAccess string = ''
+
+@description('Optional. To use Private Endpoints, add target subnet resource Id.')
+param subnetResourceId string = ''
 
 //------------------------------------------------------------------------------
 // Variables
@@ -69,7 +70,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-11-01' = {
     createMode: 'default'
     tenantId: subscription().tenantId
     accessPolicies: formattedAccessPolicies
-    publicNetworkAccess: !empty(publicNetworkAccess) ? publicNetworkAccess : 'Enabled'
+    publicNetworkAccess: !empty(subnetResourceId) ? 'Disabled' : 'Enabled'
     sku: {
       // chinaeast2 is the only region in China that supports deployment scripts
       name: startsWith(location, 'china') ? 'standard' : sku
@@ -102,6 +103,32 @@ resource keyVault_secrets 'Microsoft.KeyVault/vaults/secrets@2022-11-01' = {
     value: storageRef.listKeys().keys[0].value
   }
 }
+
+resource privateEndpointKeyVault 'Microsoft.Network/privateEndpoints@2022-05-01' = if (subnetResourceId != '')   {
+  name: 'pve-kv-${keyVault.name}'
+  location: location
+  properties: {
+
+    customNetworkInterfaceName: 'nic-kv-${keyVault.name}'
+    privateLinkServiceConnections: [
+      {
+        name: 'pve-kv-${keyVault.name}'
+        properties: {
+          privateLinkServiceId: keyVault.id
+          groupIds: ['vault']
+        }
+      }
+    ]
+    subnet: {
+      id: subnetResourceId
+      properties: {
+        privateEndpointNetworkPolicies: 'Enabled'
+      }
+
+    }
+  }
+}
+
 
 //==============================================================================
 // Outputs
