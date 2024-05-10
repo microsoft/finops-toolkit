@@ -1,0 +1,27 @@
+{
+    "docsSubDir": "optimization-engine",
+    "docsFiles": [
+        {
+            "source": "azuredeploy.bicep",
+            "destination": "azuredeploy.bicep"
+        },
+        {
+            "source": "azuredeploy.bicep",
+            "destination": "azuredeploy-{version}.bicep"
+        },
+        {
+            "source": "azuredeploy-nested.bicep",
+            "destination": "azuredeploy-nested.bicep"
+        },
+        {
+            "source": "azuredeploy-nested.bicep",
+            "destination": "azuredeploy-nested-{version}.bicep"
+        }
+    ],
+    "docsDirectories": [
+        {
+            "source": "runbooks",
+            "destination": "runbooks"
+        }
+    ]
+}

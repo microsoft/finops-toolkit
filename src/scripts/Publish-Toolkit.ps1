@@ -95,7 +95,7 @@ function Find-Repo($config, [string]$templateName)
 $ver = & "$PSScriptRoot/Get-Version.ps1"
 
 # Loop thru templates
-Get-ChildItem "$relDir/$Template*" -Directory `
+Get-ChildItem "$relDir/$Template*" -Directory -Exclude "optimization-engine" `
 | ForEach-Object {
     $templateDir = $_
     $templateName = $templateDir.Name
