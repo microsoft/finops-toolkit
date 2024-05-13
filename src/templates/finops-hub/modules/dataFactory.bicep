@@ -1591,7 +1591,7 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
             }
           }
           dataset: {
-            referenceName: 'manifest'
+            referenceName: dataset_manifest.name
             type: 'DatasetReference'
             parameters: {
               fileName: {
@@ -1691,7 +1691,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         typeProperties: {
           variableName: 'scope'
           value: {
-            value: '@replace(split(pipeline().parameters.blobPath,split(pipeline().parameters.blobPath, \'/\')[sub(length(split(pipeline().parameters.blobPath, \'/\')), 4)])[0],\'msexports\',\'ingestion\')'
+            value: '@replace(split(pipeline().parameters.blobPath,split(pipeline().parameters.blobPath, \'/\')[sub(length(split(pipeline().parameters.blobPath, \'/\')), 4)])[0],\'${safeExportContainerName}\',\'${safeIngestionContainerName}\')'
             type: 'Expression'
           }
         }
@@ -1825,7 +1825,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
             }
           }
           dataset: {
-            referenceName: 'msexports'
+            referenceName: dataset_msexports.name
             type: 'DatasetReference'
             parameters: {
               blobPath: {
@@ -1982,7 +1982,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
             }
           }
           dataset: {
-            referenceName: 'config'
+            referenceName: dataset_config.name
             type: 'DatasetReference'
             parameters: {
               fileName: {
@@ -2014,7 +2014,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         userProperties: []
         typeProperties: {
           dataset: {
-            referenceName: 'ingestion'
+            referenceName: dataset_ingestion.name
             type: 'DatasetReference'
             parameters: {
               blobPath: {
@@ -2086,7 +2086,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         }
         inputs: [
           {
-            referenceName: 'msexports'
+            referenceName: dataset_msexports.name
             type: 'DatasetReference'
             parameters: {
               blobPath: {
@@ -2098,7 +2098,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         ]
         outputs: [
           {
-            referenceName: 'ingestion'
+            referenceName: dataset_ingestion.name
             type: 'DatasetReference'
             parameters: {
               blobPath: {
@@ -2130,7 +2130,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         userProperties: []
         typeProperties: {
           dataset: {
-            referenceName: 'ingestion'
+            referenceName: dataset_ingestion.name
             type: 'DatasetReference'
             parameters: {
               blobPath: {
