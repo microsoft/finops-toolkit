@@ -46,6 +46,11 @@ param tagsByResource object = {}
 //------------------------------------------------------------------------------
 
 var focusSchemaVersion = '1.0-preview(v1)'
+var focusSchemaFile = 'focuscost_1.0-preview(v1).json'
+var mcaSchemaFile = 'schema_mca_normalized.json'
+var eaSchemaFile = 'schema_ea_normalized.json'
+var ftkVersion = loadTextContent('ftkver.txt')
+var exportApiVersion = '2023-07-01-preview'
 
 var datasetPropsDefault = {
     location: {
@@ -189,6 +194,7 @@ var focusCostColumns = [
   { name: 'x_SkuTerm', type: 'String' }
   { name: 'x_SkuTier', type: 'String' }
 ]
+
 var focusCostMappings = [for i in range(0, length(focusCostColumns)): {
   source: { name: focusCostColumns[i].name, type: focusCostColumns[i].type }
   sink: { name: focusCostColumns[i].name }
@@ -746,7 +752,7 @@ resource pipeline_BackfillData 'Microsoft.DataFactory/factories/pipelines@2018-0
         typeProperties: {
           variableName: 'thisMonth'
           value: {
-            value: '@variables(\'startDate\')'
+            value: '@startOfMonth(variables(\'endDate\'))'
             type: 'Expression'
           }
         }
@@ -766,7 +772,7 @@ resource pipeline_BackfillData 'Microsoft.DataFactory/factories/pipelines@2018-0
         typeProperties: {
           variableName: 'nextMonth'
           value: {
-            value: '@startOfMonth(addToTime(variables(\'thisMonth\'), 1, \'Month\'))'
+            value: '@startOfMonth(subtractFromTime(variables(\'thisMonth\'), 1, \'Month\'))'
             type: 'Expression'
           }
         }
@@ -791,7 +797,7 @@ resource pipeline_BackfillData 'Microsoft.DataFactory/factories/pipelines@2018-0
         userProperties: []
         typeProperties: {
           expression: {
-            value: '@greater(variables(\'thisMonth\'), variables(\'endDate\'))'
+            value: '@less(variables(\'thisMonth\'), variables(\'startDate\'))'
             type: 'Expression'
           }
           activities: [
@@ -830,7 +836,7 @@ resource pipeline_BackfillData 'Microsoft.DataFactory/factories/pipelines@2018-0
               typeProperties: {
                 variableName: 'nextMonth'
                 value: {
-                  value: '@addToTime(variables(\'thisMonth\'), 1, \'month\')'
+                  value: '@subtractFromTime(variables(\'thisMonth\'), 1, \'Month\')'
                   type: 'Expression'
                 }
               }
@@ -852,7 +858,7 @@ resource pipeline_BackfillData 'Microsoft.DataFactory/factories/pipelines@2018-0
                     type: 'Expression'
                   }
                   EndDate: {
-                    value: '@addDays(variables(\'nextMonth\'), -1)'
+                    value: '@addDays(addToTime(variables(\'thisMonth\'), 1, \'Month\'), -1)'
                     type: 'Expression'
                   }
                 }
@@ -1007,14 +1013,14 @@ resource pipeline_RunBackfill 'Microsoft.DataFactory/factories/pipelines@2018-06
               userProperties: []
               typeProperties: {
                 url: {
-                  value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}/run?api-version=2023-07-01-preview'
+                  value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}/run?api-version=${exportApiVersion}'
                   type: 'Expression'
                 }
                 method: 'POST'
                 headers: {
-                  'X-Ms-Command-Name': 'Microsoft_Azure_CostManagement.ACM.Exports.HttpRequest.ExecuteReportWithDates'
-                  'Content-Type': 'application/json'
-                  'Clienttype': 'Exports'
+                  'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunBackfill@${ftkVersion}'  
+                  'Content-Type': 'application/json'  
+                  'ClientType': 'FinOpsToolkit.Hubs@${ftkVersion}'
                 }
                 body: '{"timePeriod" : { "from" : "@{pipeline().parameters.StartDate}", "to" : "@{pipeline().parameters.EndDate}" }}'
                 authentication: {
@@ -1150,7 +1156,7 @@ resource pipeline_ExportData 'Microsoft.DataFactory/factories/pipelines@2018-06-
               userProperties: []
               typeProperties: {
                 url: {
-                  value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports?api-version=2023-07-01-preview'
+                  value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports?api-version=${exportApiVersion}'
                   type: 'Expression'
                 }
                 method: 'GET'
@@ -1275,7 +1281,7 @@ resource pipeline_RunExports 'Microsoft.DataFactory/factories/pipelines@2018-06-
                     userProperties: []
                     typeProperties: {
                       url: {
-                        value: '@{replace(toLower(concat(variables(\'resourceManagementUri\'),item().id)), \'com//\', \'com/\')}/run?api-version=2023-07-01-preview'
+                        value: '@{replace(toLower(concat(variables(\'resourceManagementUri\'),item().id)), \'com//\', \'com/\')}/run?api-version=${exportApiVersion}'
                         type: 'Expression'
                       }
                       method: 'POST'
@@ -1411,7 +1417,7 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
               userProperties: []
               typeProperties: {
                 url: {
-                  value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}?api-version=2023-07-01-preview'
+                  value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}?api-version=${exportApiVersion}'
                   type: 'Expression'
                 }
                 method: 'PUT'
@@ -1466,7 +1472,7 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
               userProperties: []
               typeProperties: {
                 url: {
-                  value: '@{variables(\'ResourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}?api-version=2023-07-01-preview'
+                  value: '@{variables(\'ResourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}?api-version=${exportApiVersion}'
                   type: 'Expression'
                 }
                 method: 'PUT'
@@ -1673,131 +1679,19 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
   parent: dataFactory
   properties: {
     activities: [
-      // (start) -> Wait -> FolderArray -> Scope -> Metric -> Date -> File -> Folder -> Delete Target -> Convert CSV -> Delete CSV -> (end)
-      // Wait
-      {
-        name: 'Wait'
-        type: 'Wait'
-        dependsOn: []
-        userProperties: []
-        typeProperties: {
-          waitTimeInSeconds: 60
-        }
-      }
-      // Set FolderArray
-      {
-        name: 'Set FolderArray'
-        type: 'SetVariable'
-        dependsOn: [
-          {
-            activity: 'Wait'
-            dependencyConditions: [ 'Completed' ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          variableName: 'folderArray'
-          value: {
-            value: '@split(pipeline().parameters.folderName, \'/\')'
-            type: 'Expression'
-          }
-        }
-      }
-      // Set FolderCount
-      {
-        name: 'Set FolderCount'
-        type: 'SetVariable'
-        dependsOn: [
-          {
-            activity: 'Set FolderArray'
-            dependencyConditions: [ 'Completed' ]
-          }
-        ]
-        policy: {
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          variableName: 'folderCount'
-          value: '@length(split(pipeline().parameters.folderName, \'/\'))'
-        }
-      }
-      // Set SecondToLastFolder
-      {
-        name: 'Set SecondToLastFolder'
-        type: 'SetVariable'
-        dependsOn: [
-          {
-            activity: 'Set FolderCount'
-            dependencyConditions: [ 'Completed' ]
-          }
-        ]
-        policy: {
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          variableName: 'secondToLastFolder'
-          value: '@variables(\'folderArray\')[sub(variables(\'folderCount\'), 2)]'
-        }
-      }
-      // Set ThirdToLastFolder
-      {
-        name: 'Set ThirdToLastFolder'
-        type: 'SetVariable'
-        dependsOn: [
-          {
-            activity: 'Set SecondToLastFolder'
-            dependencyConditions: [ 'Succeeded' ]
-          }
-        ]
-        policy: {
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          variableName: 'thirdToLastFolder'
-          value: '@variables(\'folderArray\')[sub(variables(\'folderCount\'), 3)]'
-        }
-      }
-      // Set FourthToLastFolder
-      {
-        name: 'Set FourthToLastFolder'
-        type: 'SetVariable'
-        dependsOn: [
-          {
-            activity: 'Set ThirdToLastFolder'
-            dependencyConditions: [ 'Succeeded' ]
-          }
-        ]
-        policy: {
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          variableName: 'fourthToLastFolder'
-          value: '@variables(\'folderArray\')[sub(variables(\'folderCount\'), 4)]'
-        }
-      }
-      // Set Scope
       {
         name: 'Set Scope'
         type: 'SetVariable'
-        dependsOn: [
-          {
-            activity: 'Set FourthToLastFolder'
-            dependencyConditions: [ 'Completed' ]
-          }
-        ]
+        dependsOn: []
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
         userProperties: []
         typeProperties: {
           variableName: 'scope'
           value: {
-            value: '@replace(split(pipeline().parameters.folderName, if(greater(length(variables(\'secondToLastFolder\')), 12), variables(\'thirdToLastFolder\'), variables(\'fourthToLastFolder\')))[0], \'${exportContainerName}\', \'${ingestionContainerName}\')'
+            value: '@replace(split(pipeline().parameters.blobPath,split(pipeline().parameters.blobPath, \'/\')[sub(length(split(pipeline().parameters.blobPath, \'/\')), 4)])[0],\'msexports\',\'ingestion\')'
             type: 'Expression'
           }
         }
@@ -1808,9 +1702,15 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         dependsOn: [
           {
             activity: 'Set Scope'
-            dependencyConditions: [ 'Completed' ]
+            dependencyConditions: [
+              'Completed'
+            ]
           }
         ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
         userProperties: []
         typeProperties: {
           variableName: 'metric'
@@ -1826,14 +1726,20 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         dependsOn: [
           {
             activity: 'Set Metric'
-            dependencyConditions: [ 'Completed' ]
+            dependencyConditions: [
+              'Completed'
+            ]
           }
         ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
         userProperties: []
         typeProperties: {
           variableName: 'date'
           value: {
-            value: '@{substring(if(greater(length(variables(\'secondToLastFolder\')), 12), variables(\'secondToLastFolder\'), variables(\'thirdToLastFolder\')), 0, 4)}@{substring(if(greater(length(variables(\'secondToLastFolder\')), 12), variables(\'secondToLastFolder\'), variables(\'thirdToLastFolder\')), 4, 2)}'
+            value: '@{substring(split(split(pipeline().parameters.blobPath, \'/\')[sub(length(split(pipeline().parameters.blobPath, \'/\')), 3)], \'-\')[0], 0, 4)}@{substring(split(split(pipeline().parameters.blobPath, \'/\')[sub(length(split(pipeline().parameters.blobPath, \'/\')), 3)], \'-\')[0], 4, 2)}'
             type: 'Expression'
           }
         }
@@ -1845,9 +1751,15 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         dependsOn: [
           {
             activity: 'Set Date'
-            dependencyConditions: [ 'Completed' ]
+            dependencyConditions: [
+              'Completed'
+            ]
           }
         ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
         userProperties: []
         typeProperties: {
           variableName: 'destinationFile'
@@ -1863,9 +1775,15 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         dependsOn: [
           {
             activity: 'Set Destination File Name'
-            dependencyConditions: [ 'Completed' ]
+            dependencyConditions: [
+              'Completed'
+            ]
           }
         ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
         userProperties: []
         typeProperties: {
           variableName: 'destinationFolder'
@@ -1907,18 +1825,18 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
             }
           }
           dataset: {
-            referenceName: dataset_msexports.name
+            referenceName: 'msexports'
             type: 'DatasetReference'
             parameters: {
-              blobpath: {
+              blobPath: {
                 value: '@pipeline().parameters.blobPath'
                 type: 'Expression'
               }
-              }
-              }
             }
           }
-        {
+        }
+      }
+      {
         name: 'Detect FOCUS Schema'
         type: 'IfCondition'
         dependsOn: [
@@ -1929,27 +1847,31 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
             ]
           }
         ]
-                userProperties: []
+        userProperties: []
         typeProperties: {
           expression: {
             value: '@and(not(empty(activity(\'Read first row\').output.firstRow.SubAccountName)), not(empty(activity(\'Read first row\').output.firstRow.SubAccountId)))'
-                type: 'Expression'
-              }
-              ifTrueActivities: [
+            type: 'Expression'
+          }
+          ifTrueActivities: [
             {
               name: 'Set FOCUS schema'
               type: 'SetVariable'
               dependsOn: []
+              policy: {
+                secureOutput: false
+                secureInput: false
+              }
               userProperties: []
               typeProperties: {
                 variableName: 'detectedSchema'
                 value: {
-                  value: 'focus'
-                type: 'Expression'
+                  value: focusSchemaFile
+                  type: 'Expression'
+                }
               }
             }
-          }
-]
+          ]
         }
       }
       {
@@ -1974,11 +1896,15 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
               name: 'Set EA schema'
               type: 'SetVariable'
               dependsOn: []
+              policy: {
+                secureOutput: false
+                secureInput: false
+              }
               userProperties: []
               typeProperties: {
                 variableName: 'detectedSchema'
                 value: {
-                  value: 'ea'
+                  value: eaSchemaFile
                   type: 'Expression'
                 }
               }
@@ -2008,11 +1934,15 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
               name: 'Set MCA schema'
               type: 'SetVariable'
               dependsOn: []
+              policy: {
+                secureOutput: false
+                secureInput: false
+              }
               userProperties: []
               typeProperties: {
                 variableName: 'detectedSchema'
                 value: {
-                  value: 'mca'
+                  value: mcaSchemaFile
                   type: 'Expression'
                 }
               }
@@ -2052,14 +1982,13 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
             }
           }
           dataset: {
-            referenceName: dataset_config.name
+            referenceName: 'config'
             type: 'DatasetReference'
             parameters: {
               fileName: {
-                value: 'schema_@{toLower(variables(\'detectedSchema\'))}_normalized.json'
+                value: '@{toLower(variables(\'detectedSchema\'))}'
                 type: 'Expression'
               }
-              folderName: configContainerName
             }
           }
         }
@@ -2085,7 +2014,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         userProperties: []
         typeProperties: {
           dataset: {
-            referenceName: dataset_ingestion.name
+            referenceName: 'ingestion'
             type: 'DatasetReference'
             parameters: {
               blobPath: {
@@ -2157,10 +2086,10 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         }
         inputs: [
           {
-            referenceName: dataset_msexports.name
+            referenceName: 'msexports'
             type: 'DatasetReference'
             parameters: {
-              blobpath: {
+              blobPath: {
                 value: '@pipeline().parameters.blobPath'
                 type: 'Expression'
               }
@@ -2169,7 +2098,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         ]
         outputs: [
           {
-            referenceName: dataset_ingestion.name
+            referenceName: 'ingestion'
             type: 'DatasetReference'
             parameters: {
               blobPath: {
@@ -2230,21 +2159,6 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         type: 'String'
       }
       destinationFolder: {
-        type: 'String'
-      }
-      folderArray: {
-        type: 'Array'
-      }
-      folderCount: {
-        type: 'Integer'
-      }
-      secondToLastFolder: {
-        type: 'String'
-      }
-      thirdToLastFolder: {
-        type: 'String'
-      }
-      fourthToLastFolder: {
         type: 'String'
       }
       scope: {
