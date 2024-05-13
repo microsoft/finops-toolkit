@@ -2112,7 +2112,6 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
       {
         name: 'Delete Source'
         type: 'Delete'
-        state: 'Inactive'
         dependsOn: [
           {
             activity: 'Convert File'
