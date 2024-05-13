@@ -101,9 +101,9 @@ $text | Out-File $filePath
 Write-Output "Uploading settings.json file..."
 Set-AzStorageBlobContent @storageContext -File $filePath -Force
 
-# Save schema_focus_normalized file to storage
-Write-Output "Uploading schema_focus_normalized.json file..."
-$focusSchema = 'schema_focus_normalized.json'
+# Save focusSchemaFile file to storage
+Write-Output "Uploading focus schema file..."
+$focusSchema = 'focuscost_1.0-preview(v1).json'
 $schemaToUpload = Join-Path -Path .\ -ChildPath $focusSchema
-$env:schema_focus_normalized | Out-File $schemaToUpload
+$env:focusSchemaFile | Out-File $schemaToUpload
 Set-AzStorageBlobContent @storageContext -File $schemaToUpload -Force
