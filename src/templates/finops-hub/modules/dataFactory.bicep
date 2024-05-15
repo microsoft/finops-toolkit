@@ -32,6 +32,21 @@ param tags object = {}
 @description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
 param tagsByResource object = {}
 
+@description('Optional. To use Private Endpoints, add target subnet resource Id.')
+param subnetResourceId string = ''
+
+@description('Optional. The resource ID of the storage account to use for deployment scripts.')
+param dsStorageAccountResourceId string
+
+@description('Optional. The user assigned managed identity to use for the storage account.')
+param userAssignedManagedIdentityResourceId string
+
+@description('Optional. The principal ID of the user assigned managed identity to use for the storage account.')
+param userAssignedManagedIdentityPrincipalId string
+
+@description('Optional. To use Private Endpoints, add target subnet for deployment scripts.')
+param scriptsSubnetResourceId string
+
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
@@ -187,41 +202,46 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
 // Delete old triggers and pipelines
 //------------------------------------------------------------------------------
 
-resource deleteOldResources 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: '${dataFactory.name}_deleteOldResources'
-  location: location
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${identity.id}': {}
-    }
-  }
-  kind: 'AzurePowerShell'
+module deleteOldResources 'br/public:avm/res/resources/deployment-script:0.2.0' = {
+  name: '${dataFactoryName}_deleteOldResources'
   dependsOn: [
     identityRoleAssignments
   ]
-  tags: tags
-  properties: {
-    azPowerShellVersion: '8.0'
+  params: {
+    name: 'deleteOldResources'
+    location: location
+    kind: 'AzurePowerShell'
+    tags: tags
+    azPowerShellVersion: '9.7'
     retentionInterval: 'PT1H'
     cleanupPreference: 'OnSuccess'
     scriptContent: loadTextContent('./scripts/Remove-OldResources.ps1')
-    environmentVariables: [
-      {
-        name: 'DataFactorySubscriptionId'
-        value: subscription().id
-      }
-      {
-        name: 'DataFactoryResourceGroup'
-        value: resourceGroup().name
-      }
-      {
-        name: 'DataFactoryName'
-        value: dataFactory.name
-      }
-    ]
+    managedIdentities: {
+      userAssignedResourcesIds: [
+        userAssignedManagedIdentityResourceId
+      ]
+    }
+    environmentVariables: {
+      secureList: [
+        {
+          name: 'DataFactorySubscriptionId'
+          value: subscription().id
+        }
+        {
+          name: 'DataFactoryResourceGroup'
+          value: resourceGroup().name
+        }
+        {
+          name: 'DataFactoryName'
+          value: dataFactory.name
+        }
+      ]
+    }
+    subnetResourceIds: empty(scriptsSubnetResourceId) ? [] : [scriptsSubnetResourceId]
+    storageAccountResourceId: empty(subnetResourceId) ? null : dsStorageAccountResourceId
   }
 }
+
 
 //------------------------------------------------------------------------------
 // Stop all triggers before deploying
@@ -240,51 +260,59 @@ resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-0
   scope: dataFactory
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
-    principalId: identity.properties.principalId
+    principalId: userAssignedManagedIdentityPrincipalId
     principalType: 'ServicePrincipal'
   }
 }]
 
 // Stop hub triggers if they're already running
-resource stopHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+module stopHubTriggers 'br/public:avm/res/resources/deployment-script:0.2.0' = {
   name: '${dataFactoryName}_stopHubTriggers'
-  // chinaeast2 is the only region in China that supports deployment scripts
-  location: startsWith(location, 'china') ? 'chinaeast2' : location
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${identity.id}': {}
-    }
-  }
-  kind: 'AzurePowerShell'
   dependsOn: [
     identityRoleAssignments
   ]
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
-  properties: {
-    azPowerShellVersion: '8.0'
+  params: {
+    name: 'stopHubTriggers'
+    location: location
+    kind: 'AzurePowerShell'
+    tags: union(
+      tags,
+      contains(tagsByResource, 'Microsoft.Resources/deploymentScripts')
+        ? tagsByResource['Microsoft.Resources/deploymentScripts']
+        : {}
+    )
+    azPowerShellVersion: '9.7'
     retentionInterval: 'PT1H'
     cleanupPreference: 'OnSuccess'
     scriptContent: loadTextContent('./scripts/Start-Triggers.ps1')
     arguments: '-Stop'
-    environmentVariables: [
-      {
-        name: 'DataFactorySubscriptionId'
-        value: subscription().id
-      }
-      {
-        name: 'DataFactoryResourceGroup'
-        value: resourceGroup().name
-      }
-      {
-        name: 'DataFactoryName'
-        value: dataFactoryName
-      }
-      {
-        name: 'Triggers'
-        value: join(allHubTriggers, '|')
-      }
-    ]
+    environmentVariables: {
+      secureList: [
+        {
+          name: 'DataFactorySubscriptionId'
+          value: subscription().id
+        }
+        {
+          name: 'DataFactoryResourceGroup'
+          value: resourceGroup().name
+        }
+        {
+          name: 'DataFactoryName'
+          value: dataFactory.name
+        }
+        {
+          name: 'Triggers'
+          value: join(allHubTriggers, '|')
+        }
+      ]
+    }
+    managedIdentities: {
+      userAssignedResourcesIds: [
+        userAssignedManagedIdentityResourceId
+      ]
+    }
+    subnetResourceIds: empty(scriptsSubnetResourceId) ? [] : [scriptsSubnetResourceId]
+    storageAccountResourceId: empty(subnetResourceId) ? null : dsStorageAccountResourceId
   }
 }
 
@@ -926,45 +954,53 @@ resource pipeline_msexports_ETL_ingestion 'Microsoft.DataFactory/factories/pipel
 //------------------------------------------------------------------------------
 
 // Start hub triggers
-resource startHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+module startHubTriggers 'br/public:avm/res/resources/deployment-script:0.2.0' = {
   name: '${dataFactoryName}_startHubTriggers'
-  // chinaeast2 is the only region in China that supports deployment scripts
-  location: startsWith(location, 'china') ? 'chinaeast2' : location
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${identity.id}': {}
-    }
-  }
-  kind: 'AzurePowerShell'
   dependsOn: [
     identityRoleAssignments
     trigger_msexports_FileAdded
   ]
-  properties: {
-    azPowerShellVersion: '8.0'
+  params: {
+    name: 'startHubTriggers'
+    location: location
+    tags: union(
+      tags,
+      contains(tagsByResource, 'Microsoft.Resources/deploymentScripts')
+        ? tagsByResource['Microsoft.Resources/deploymentScripts']
+        : {}
+    )
+    kind: 'AzurePowerShell'
+    azPowerShellVersion: '9.7'
     retentionInterval: 'PT1H'
     cleanupPreference: 'OnSuccess'
+    managedIdentities: {
+      userAssignedResourcesIds: [
+        userAssignedManagedIdentityResourceId
+      ]
+    }
     scriptContent: loadTextContent('./scripts/Start-Triggers.ps1')
-    environmentVariables: [
-      {
-        name: 'DataFactorySubscriptionId'
-        value: subscription().id
-      }
-      {
-        name: 'DataFactoryResourceGroup'
-        value: resourceGroup().name
-      }
-      {
-        name: 'DataFactoryName'
-        value: dataFactoryName
-      }
-      {
-        name: 'Triggers'
-        value: join(allHubTriggers, '|')
-      }
-    ]
+    environmentVariables: {
+      secureList: [
+        {
+          name: 'DataFactorySubscriptionId'
+          value: subscription().id
+        }
+        {
+          name: 'DataFactoryResourceGroup'
+          value: resourceGroup().name
+        }
+        {
+          name: 'DataFactoryName'
+          value: dataFactory.name
+        }
+        {
+          name: 'Triggers'
+          value: join(allHubTriggers, '|')
+        }
+      ]
+    }
+    subnetResourceIds: empty(scriptsSubnetResourceId) ? [] : [scriptsSubnetResourceId]
+    storageAccountResourceId: empty(subnetResourceId) ? null : dsStorageAccountResourceId
   }
 }
 

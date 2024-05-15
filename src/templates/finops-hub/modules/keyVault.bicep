@@ -104,7 +104,7 @@ resource keyVault_secrets 'Microsoft.KeyVault/vaults/secrets@2022-11-01' = {
   }
 }
 
-resource privateEndpointKeyVault 'Microsoft.Network/privateEndpoints@2022-05-01' = if (subnetResourceId != '')   {
+resource privateEndpointKeyVault 'Microsoft.Network/privateEndpoints@2022-05-01' = if (!empty(subnetResourceId))   {
   name: 'pve-kv-${keyVault.name}'
   location: location
   properties: {

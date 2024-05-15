@@ -32,11 +32,15 @@ param convertToParquet bool = true
 
 @description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
+
 @description('Optional. To use Private Endpoints, add target subnet resource Id.')
 param subnetResourceId string = ''
 
-@description('Optional. To disable Public Network Access, set to "Disabled".')
-param publicNetworkAccess string = ''
+@description('Optional. Name of the Storage account for deployment scripts.')
+param dsStorageAccountName string = '${toLower(hubName)}stgdsscripts'
+
+@description('Optional. To use Private Endpoints, add target subnet resource Id for the deployment scripts')
+param scriptsSubnetResourceId string = ''
 
 //------------------------------------------------------------------------------
 // Variables
@@ -48,10 +52,12 @@ var resourceTags = union(tags, {
   })
 
 // Generate globally unique Data Factory name: 3-63 chars; letters, numbers, non-repeating dashes
+var safeHubName = replace(replace(toLower(hubName), '-', ''), '_', '')
 var uniqueSuffix = uniqueString(hubName, resourceGroup().id)
 var dataFactoryPrefix = '${replace(hubName, '_', '-')}-engine'
 var dataFactorySuffix = '-${uniqueSuffix}'
 var dataFactoryName = replace('${take(dataFactoryPrefix, 63 - length(dataFactorySuffix))}${dataFactorySuffix}', '--', '-')
+var storageAccountName = '${take(safeHubName, 24 - length(uniqueSuffix))}${uniqueSuffix}'
 
 // The last segment of the telemetryId is used to identify this module
 var telemetryId = '00f120b5-2007-6120-0000-40b000000000'
@@ -103,6 +109,61 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (ena
 }
 
 //------------------------------------------------------------------------------
+// Storage account for deployment scripts
+//------------------------------------------------------------------------------
+
+// Create managed identity to upload files
+resource uploadFilesIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: '${storageAccountName}_blobManager'
+  tags: union(tags, contains(tagsByResource, 'Microsoft.ManagedIdentity/userAssignedIdentities') ? tagsByResource['Microsoft.ManagedIdentity/userAssignedIdentities'] : {})
+  location: location
+}
+
+module dsStorageAccount 'br/public:avm/res/storage/storage-account:0.8.3' = if(!empty(subnetResourceId)){
+  name: dsStorageAccountName
+  params: {
+    name: dsStorageAccountName
+    skuName: 'Standard_LRS'
+    tags: union(tags, contains(tagsByResource, 'Microsoft.Storage/storageAccounts') ? tagsByResource['Microsoft.Storage/storageAccounts'] : {})
+    supportsHttpsTrafficOnly: true
+    allowSharedKeyAccess: true
+    roleAssignments: [
+      {
+        roleDefinitionIdOrName: 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
+        principalId: uploadFilesIdentity.properties.principalId
+        principalType: 'ServicePrincipal'
+      }
+      {
+        roleDefinitionIdOrName: 'e40ec5ca-96e0-45a2-b4ff-59039f2c2b59'
+        principalId: uploadFilesIdentity.properties.principalId
+        principalType: 'ServicePrincipal'
+      }
+      {
+        roleDefinitionIdOrName: '69566ab7-960f-475b-8e7c-b3118f30c6bd'
+        principalId: uploadFilesIdentity.properties.principalId
+        principalType: 'ServicePrincipal'
+      }
+      {
+        roleDefinitionIdOrName: '69566ab7-960f-475b-8e7c-b3118f30c6bd'
+        principalId: dataFactoryScriptsIdentity.properties.principalId
+        principalType: 'ServicePrincipal'
+      }
+    ]
+    networkAcls: empty(scriptsSubnetResourceId) ? null : {
+      bypass: 'AzureServices'
+      defaultAction: 'Deny'
+      virtualNetworkRules: [
+        {
+          id: scriptsSubnetResourceId
+          action: 'Allow'
+          state: 'Succeeded'
+        }
+      ]
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 // ADLSv2 storage account for staging and archive
 //------------------------------------------------------------------------------
 
@@ -116,7 +177,11 @@ module storage 'storage.bicep' = {
     tags: resourceTags
     tagsByResource: tagsByResource
     exportScopes: exportScopes
-    subnetResourceId:!empty(subnetResourceId) ? subnetResourceId : ''  
+    subnetResourceId: subnetResourceId
+    scriptsSubnetResourceId: scriptsSubnetResourceId
+    userAssignedManagedIdentityResourceId: uploadFilesIdentity.id
+    userAssignedManagedIdentityPrincipalId: uploadFilesIdentity.properties.principalId
+    dsStorageAccountResourceId : empty(subnetResourceId) ? '' : dsStorageAccount.outputs.resourceId
   }
 }
 
@@ -131,7 +196,7 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
   identity: { type: 'SystemAssigned' }
   properties: union(
     // Using union() to hide the error that gets surfaced because globalConfigurations is not in the ADF schema yet.
-    {    
+    {
     },
     {
       globalConfigurations: {
@@ -139,6 +204,13 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
       }
       publicNetworkAccess: !empty(subnetResourceId) ? 'Disabled' : 'Enabled'
     })
+}
+
+// Create managed identity for data factory operations
+resource dataFactoryScriptsIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: '${storageAccountName}_triggerManager'
+  tags: union(tags, contains(tagsByResource, 'Microsoft.ManagedIdentity/userAssignedIdentities') ? tagsByResource['Microsoft.ManagedIdentity/userAssignedIdentities'] : {})
+  location: location
 }
 
 module dataFactoryResources 'dataFactory.bicep' = {
@@ -152,7 +224,12 @@ module dataFactoryResources 'dataFactory.bicep' = {
     ingestionContainerName: storage.outputs.ingestionContainer
     location: location
     tags: resourceTags
-    tagsByResource: tagsByResource    
+    tagsByResource: tagsByResource
+    subnetResourceId: subnetResourceId
+    scriptsSubnetResourceId: scriptsSubnetResourceId
+    dsStorageAccountResourceId : empty(subnetResourceId) ? '' : dsStorageAccount.outputs.resourceId
+    userAssignedManagedIdentityResourceId: dataFactoryScriptsIdentity.id
+    userAssignedManagedIdentityPrincipalId: dataFactoryScriptsIdentity.properties.principalId
   }
 }
 
@@ -169,7 +246,7 @@ module keyVault 'keyVault.bicep' = {
     tags: resourceTags
     tagsByResource: tagsByResource
     storageAccountName: storage.outputs.name
-    subnetResourceId:!empty(subnetResourceId) ? subnetResourceId : ''  
+    subnetResourceId:!empty(subnetResourceId) ? subnetResourceId : ''
     accessPolicies: [
       {
         objectId: dataFactory.identity.principalId
@@ -187,7 +264,7 @@ module keyVault 'keyVault.bicep' = {
 // Private Endpoints for ADF
 //------------------------------------------------------------------------------
 
-resource privateEndpointADF 'Microsoft.Network/privateEndpoints@2022-05-01' = [for (privateEndpoint,index) in adfPrivateEndpoints: if (subnetResourceId != '')   {
+resource privateEndpointADF 'Microsoft.Network/privateEndpoints@2022-05-01' = [for (privateEndpoint,index) in adfPrivateEndpoints: if(!empty(subnetResourceId))   {
   name: 'pve-${privateEndpoint.name}-${dataFactory.name}'
   location: location
   properties: {
@@ -229,7 +306,7 @@ output location string = location
 output dataFactorytName string = dataFactory.name
 
 @description('Resource ID of the storage account created for the hub instance. This must be used when creating the Cost Management export.')
-output storageAccountId string = storage.outputs.resourceId
+output storageAccountId string = storage.outputs.storageAccountId
 
 @description('Name of the storage account created for the hub instance. This must be used when connecting FinOps toolkit Power BI reports to your data.')
 output storageAccountName string = storage.outputs.name

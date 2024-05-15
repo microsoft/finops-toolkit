@@ -30,8 +30,10 @@ param tagsByResource object = {}
 param exportScopes array = []
 
 @description('Optional. To use Private Endpoints, add target subnet resource Id.')
-param subnetResourceId string = '' 
+param subnetResourceId string = ''
 
+@description('Optional. To use Private Endpoints, add target subnet resource Id for the deployment scripts')
+param scriptsSubnetResourceId string = ''
 
 //==============================================================================
 // Resources
@@ -46,7 +48,8 @@ module hub 'modules/hub.bicep' = {
     tags: tags
     tagsByResource: tagsByResource
     exportScopes: exportScopes
-    subnetResourceId: !empty(subnetResourceId) ? subnetResourceId : ''
+    subnetResourceId: empty(subnetResourceId) ? '' : subnetResourceId
+    scriptsSubnetResourceId: empty(scriptsSubnetResourceId) ? '' : scriptsSubnetResourceId
   }
 }
 
