@@ -93,7 +93,7 @@ The purpose of this deployment is to deploy the FinOps Hub in an environment tha
 The Private Endpoint deployment assumes that the target environment is prepared to handle DNS registration, and that a Self-Hosted Integration Runtime is available.
 > See [Private Endpoint DNS](https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-dns) and [Private Link and DNS integration at scale](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/private-link-and-dns-integration-at-scale) for details.
 
-> If the target environment has policies preventing Public IP addresses for PaaS services, the subscription needs to be temporarily moved to a staging Management Group or location where the policy does not apply.   
+> If the target environment has policies preventing Public IP addresses for PaaS services, the subscription needs to be temporarily moved to a staging Management Group or location where the policy does not apply. Policy Initative at [AzInitiativeAdvertizer](https://www.azadvertizer.net/azpolicyinitiativesadvertizer/Deny-PublicPaaSEndpoints.html)   
 This is to ensure that the script steps in the deployment can be executed.
 
 1. Register the Microsoft.EventGrid and Microsoft.CostManagementExports resource providers

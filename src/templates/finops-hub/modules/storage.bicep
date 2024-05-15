@@ -33,9 +33,6 @@ param exportScopes array
 @description('Optional. To use Private Endpoints, add target subnet resource Id.')
 param subnetResourceId string = ''
 
-@description('Optional. To disable Public Network Access, set to "Disabled".')
-param publicNetworkAccess string = ''
-
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
@@ -68,7 +65,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-08-01' = {
     isHnsEnabled: true
     minimumTlsVersion: 'TLS1_2'
     allowBlobPublicAccess: false
-    publicNetworkAccess: publicNetworkAccess == 'Disabled' ? 'Disabled' : 'Enabled'    
+    publicNetworkAccess: !empty(subnetResourceId) ? 'Disabled' : 'Enabled'
   }
 }
 

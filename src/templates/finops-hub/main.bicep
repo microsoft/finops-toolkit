@@ -32,8 +32,6 @@ param exportScopes array = []
 @description('Optional. To use Private Endpoints, add target subnet resource Id.')
 param subnetResourceId string = '' 
 
-@description('Optional. To disable Public Network Access, set to "Disabled".')
-param publicNetworkAccess string = ''
 
 //==============================================================================
 // Resources
@@ -49,7 +47,6 @@ module hub 'modules/hub.bicep' = {
     tagsByResource: tagsByResource
     exportScopes: exportScopes
     subnetResourceId: !empty(subnetResourceId) ? subnetResourceId : ''
-    publicNetworkAccess: !empty(publicNetworkAccess) ? publicNetworkAccess : 'Enabled'
   }
 }
 
