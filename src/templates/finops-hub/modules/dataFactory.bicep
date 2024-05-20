@@ -26,9 +26,6 @@ param ingestionContainerName string
 @description('Required. The name of the container where normalized data is ingested.')
 param configContainerName string
 
-@description('Optional. Indicates whether ingested data should be converted to parquet. Default: true.')
-param convertToParquet bool = true
-
 @description('Optional. The location to use for the managed identity and deployment script to auto-start triggers. Default = (resource group location).')
 param location string = resourceGroup().location
 
@@ -96,109 +93,6 @@ var storageRbacRoles = [
   'acdd72a7-3385-48ef-bd42-f606fba81ae7' // Reader https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#reader
   '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9' // User Access Administrator https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#user-access-administrator
 ]
-
-// FocusCost 1.0-preview(v1) columns
-var focusCostColumns = [
-  { name: 'AvailabilityZone', type: 'String' }
-  { name: 'BilledCost', type: 'Decimal' }
-  { name: 'BillingAccountId', type: 'String' }
-  { name: 'BillingAccountName', type: 'String' }
-  { name: 'BillingAccountType', type: 'String' }
-  { name: 'BillingCurrency', type: 'String' }
-  { name: 'BillingPeriodEnd', type: 'DateTime' }
-  { name: 'BillingPeriodStart', type: 'DateTime' }
-  { name: 'ChargeCategory', type: 'String' }
-  { name: 'ChargeDescription', type: 'String' }
-  { name: 'ChargeFrequency', type: 'String' }
-  { name: 'ChargePeriodEnd', type: 'DateTime' }
-  { name: 'ChargePeriodStart', type: 'DateTime' }
-  { name: 'ChargeSubcategory', type: 'String' }
-  { name: 'CommitmentDiscountCategory', type: 'String' }
-  { name: 'CommitmentDiscountId', type: 'String' }
-  { name: 'CommitmentDiscountName', type: 'String' }
-  { name: 'CommitmentDiscountType', type: 'String' }
-  { name: 'EffectiveCost', type: 'Decimal' }
-  { name: 'InvoiceIssuerName', type: 'String' }
-  { name: 'ListCost', type: 'Decimal' }
-  { name: 'ListUnitPrice', type: 'Decimal' }
-  { name: 'PricingCategory', type: 'String' }
-  { name: 'PricingQuantity', type: 'Decimal' }
-  { name: 'PricingUnit', type: 'String' }
-  { name: 'ProviderName', type: 'String' }
-  { name: 'PublisherName', type: 'String' }
-  { name: 'Region', type: 'String' }
-  { name: 'ResourceId', type: 'String' }
-  { name: 'ResourceName', type: 'String' }
-  { name: 'ResourceType', type: 'String' }
-  { name: 'ServiceCategory', type: 'String' }
-  { name: 'ServiceName', type: 'String' }
-  { name: 'SkuId', type: 'String' }
-  { name: 'SkuPriceId', type: 'String' }
-  { name: 'SubAccountId', type: 'String' }
-  { name: 'SubAccountName', type: 'String' }
-  { name: 'SubAccountType', type: 'String' }
-  { name: 'Tags', type: 'String' }
-  { name: 'UsageQuantity', type: 'Decimal' }
-  { name: 'UsageUnit', type: 'String' }
-  { name: 'x_AccountName', type: 'String' }
-  { name: 'x_AccountOwnerId', type: 'String' }
-  { name: 'x_BilledCostInUsd', type: 'Decimal' }
-  { name: 'x_BilledUnitPrice', type: 'Decimal' }
-  { name: 'x_BillingAccountId', type: 'String' }
-  { name: 'x_BillingAccountName', type: 'String' }
-  { name: 'x_BillingExchangeRate', type: 'Decimal' }
-  { name: 'x_BillingExchangeRateDate', type: 'DateTime' }
-  { name: 'x_BillingProfileId', type: 'String' }
-  { name: 'x_BillingProfileName', type: 'String' }
-  { name: 'x_ChargeId', type: 'String' }
-  { name: 'x_CostAllocationRuleName', type: 'String' }
-  { name: 'x_CostCenter', type: 'String' }
-  { name: 'x_CustomerId', type: 'String' }
-  { name: 'x_CustomerName', type: 'String' }
-  { name: 'x_EffectiveCostInUsd', type: 'Decimal' }
-  { name: 'x_EffectiveUnitPrice', type: 'Decimal' }
-  { name: 'x_InvoiceId', type: 'String' }
-  { name: 'x_InvoiceIssuerId', type: 'String' }
-  { name: 'x_InvoiceSectionId', type: 'String' }
-  { name: 'x_InvoiceSectionName', type: 'String' }
-  { name: 'x_OnDemandCost', type: 'Decimal' }
-  { name: 'x_OnDemandCostInUsd', type: 'Decimal' }
-  { name: 'x_OnDemandUnitPrice', type: 'Decimal' }
-  { name: 'x_PartnerCreditApplied', type: 'Boolean' }
-  { name: 'x_PartnerCreditRate', type: 'Decimal' }
-  { name: 'x_PricingBlockSize', type: 'Decimal' }
-  { name: 'x_PricingCurrency', type: 'String' }
-  { name: 'x_PricingSubcategory', type: 'String' }
-  { name: 'x_PricingUnitDescription', type: 'String' }
-  { name: 'x_PublisherCategory', type: 'String' }
-  { name: 'x_PublisherId', type: 'String' }
-  { name: 'x_ResellerId', type: 'String' }
-  { name: 'x_ResellerName', type: 'String' }
-  { name: 'x_ResourceGroupName', type: 'String' }
-  { name: 'x_ResourceType', type: 'String' }
-  { name: 'x_ServicePeriodEnd', type: 'DateTime' }
-  { name: 'x_ServicePeriodStart', type: 'DateTime' }
-  { name: 'x_SkuDescription', type: 'String' }
-  { name: 'x_SkuDetails', type: 'String' }
-  { name: 'x_SkuIsCreditEligible', type: 'Boolean' }
-  { name: 'x_SkuMeterCategory', type: 'String' }
-  { name: 'x_SkuMeterId', type: 'String' }
-  { name: 'x_SkuMeterName', type: 'String' }
-  { name: 'x_SkuMeterSubcategory', type: 'String' }
-  { name: 'x_SkuOfferId', type: 'String' }
-  { name: 'x_SkuOrderId', type: 'String' }
-  { name: 'x_SkuOrderName', type: 'String' }
-  { name: 'x_SkuPartNumber', type: 'String' }
-  { name: 'x_SkuRegion', type: 'String' }
-  { name: 'x_SkuServiceFamily', type: 'String' }
-  { name: 'x_SkuTerm', type: 'String' }
-  { name: 'x_SkuTier', type: 'String' }
-]
-
-var focusCostMappings = [for i in range(0, length(focusCostColumns)): {
-  source: { name: focusCostColumns[i].name, type: focusCostColumns[i].type }
-  sink: { name: focusCostColumns[i].name }
-}]
 
 //==============================================================================
 // Resources
@@ -1020,7 +914,7 @@ resource pipeline_RunBackfill 'Microsoft.DataFactory/factories/pipelines@2018-06
                 headers: {
                   'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunBackfill@${ftkVersion}'  
                   'Content-Type': 'application/json'  
-                  'ClientType': 'FinOpsToolkit.Hubs@${ftkVersion}'
+                  ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
                 }
                 body: '{"timePeriod" : { "from" : "@{pipeline().parameters.StartDate}", "to" : "@{pipeline().parameters.EndDate}" }}'
                 authentication: {
@@ -1286,7 +1180,8 @@ resource pipeline_RunExports 'Microsoft.DataFactory/factories/pipelines@2018-06-
                       }
                       method: 'POST'
                       headers: {
-                        commandName: 'Microsoft_Azure_CostManagement.ACM.Exports.run'
+                        'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExports@${ftkVersion}'
+                        ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
                       }
                       authentication: {
                         type: 'MSI'
