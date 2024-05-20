@@ -128,27 +128,11 @@ Legend:
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
->
-> 1. Started archiving template versions so they can be referenced easily via URL microsoft.github.io/finops-toolkit/deploy/{template}-{version}.json.
->
-> - [Optimization workbook](./optimization-workbook/README.md):
->   1. Respect global subscription filter selections.
->
-> ✏️ Changed:
->
-> - [Governance workbook](./governance-workbook/README.md):
->   1. Managed disk visual improvement.
->   2. Removed blueprints (replaced by deployment stacks and template specs).
->   3. Combined the Governance and Security tabs.
->   4. Enabled the export button.
->
-> 🛠️ Fixed:
->
-> 1. Fixed deploy to Azure buttons to point to the latest release.
->
-> - [Optimization workbook](./optimization-workbook/README.md):
->   1. Fixed a typo with Azure Hybrid benefits query.
->   2. Fixed a bug with the SQL Managed Instance query where the query had a merge error.
+> 1️⃣🕵️‍♂️ Identify Idle ExpressRoute Circuits: Now, easily pinpoint and optimize inactive ExpressRoute circuits to streamline costs.
+> 2️⃣ 📊Routing Preference for Public IP Addresses: Gain insights into the routing preferences for your public IP addresses to optimize network performance.
+> 3️⃣ 🥧Commitment Discount Savings Summary: Explore a new pie chart summarizing commitment discount savings, providing a clear overview of cost-saving opportunities.
+> 4️⃣ 💰DDoS-enabled Public IP Addresses Query: Quickly view public IP addresses with DDoS protection enabled and compare if it would be cheaper to enable DDoS to the vNet instead.
+> 5️⃣ 💡Azure Hybrid Benefit for SQL Database Elastic Pools: Leverage new queries to identify Azure Hybrid Benefit usage for SQL Database elastic pools, maximizing cost efficiencies.
 
 🖥️ PowerShell
 {: .fs-5 .fw-500 .mt-4 mb-0 }
