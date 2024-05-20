@@ -95,16 +95,16 @@ $templates = Get-ChildItem $relDir -Directory `
     {
         $packageManifest = Get-Content $packageManifestPath -Raw | ConvertFrom-Json
         $docsDeployDir = $deployDir
-        if ($packageManifest.docsSubDir)
+        if ($packageManifest.deploySubDir)
         {
-            $docsDeployDir = "$deployDir/$($packageManifest.docsSubDir)"
+            $docsDeployDir = "$deployDir/$($packageManifest.deploySubDir)"
             & "$PSScriptRoot/New-Directory" $docsDeployDir
         }
-        foreach ($file in $packageManifest.docsFiles)
+        foreach ($file in $packageManifest.deployFiles)
         {
             Copy-Item "$path/$($file.source)" "$docsDeployDir/$($file.destination.Replace('{version}', $version))"
         }
-        foreach ($directory in $packageManifest.docsDirectories)
+        foreach ($directory in $packageManifest.deployDirectories)
         {
             & "$PSScriptRoot/New-Directory" "$($docsDeployDir)/$($directory.destination)"
             Get-ChildItem "$path/$($directory.source)" | Copy-Item -Destination "$($docsDeployDir)/$($directory.destination)" -Recurse -Force
