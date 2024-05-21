@@ -116,7 +116,7 @@ The purpose of this deployment is to deploy the FinOps Hub in an environment tha
 2. Set target subscription
    > az account set -s `<SubscriptionId>`
 3. Execute deployment
-   > az deployment group create --resource-group `<RG Name>` --template-file .\main.bicep --parameters hubName='`<hubName>`' subnetResourceId='`<subnetResourceId>`' scriptsSubnetResourceId='`<scriptsSubnetResourceId>`'
+   > az deployment group create --resource-group `<RG Name>` --location `<location>` --template-file .\main.bicep --parameters hubName='`<hubName>`' subnetResourceId='`<subnetResourceId>`' scriptsSubnetResourceId='`<scriptsSubnetResourceId>`'
 
 4. Share and add the Self-Hosted Integration Runtime to the FinOps Azure Data Factory.
    > See [Create shared Self-Hosted integration runtime](https://learn.microsoft.com/azure/data-factory/create-shared-self-hosted-integration-runtime-powershell#create-a-shared-self-hosted-ir-using-azure-data-factory-ui) for details
