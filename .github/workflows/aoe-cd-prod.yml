@@ -44,9 +44,10 @@ jobs:
             "SqlPass": "'"$AOE_SQL_PASSWD"'",
             "TargetLocation": "'"$AOE_LOCATION"'",
             "DeployBenefitsUsageDependencies": "n"
-          }' > ./deploymentSettings.json          
+          }' > ./src/optimization-engine/deploymentSettings.json          
       - name: Testing PowerShell script call
         shell: pwsh
         run: |
-          ./src/optimization-engine/Deploy-AzureOptimizationEngine.ps1 -SilentDeploymentSettingsPath ./deploymentSettings.json
+          Set-Location ./src/optimization-engine
+          ./Deploy-AzureOptimizationEngine.ps1 -SilentDeploymentSettingsPath ./deploymentSettings.json
       - run: echo "🍏 This job's status is ${{ job.status }}."

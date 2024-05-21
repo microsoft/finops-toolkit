@@ -44,9 +44,10 @@ jobs:
             "SqlPass": "'"$AOE_SQL_PASSWD"'",
             "TargetLocation": "'"$AOE_LOCATION"'",
             "DeployBenefitsUsageDependencies": "n"
-          }' > ./deploymentSettings.json          
+          }' > ./src/optimization-engine/deploymentSettings.json          
       - name: Testing PowerShell script call
         shell: pwsh
         run: |
-          ./src/optimization-engine/Deploy-AzureOptimizationEngine.ps1 -SilentDeploymentSettingsPath ./deploymentSettings.json -TemplateUri "https://raw.githubusercontent.com/microsoft/finops-toolkit/features/aoe/src/optimization-engine/azuredeploy.bicep"
+          Set-Location ./src/optimization-engine
+          ./Deploy-AzureOptimizationEngine.ps1 -SilentDeploymentSettingsPath ./deploymentSettings.json -TemplateUri "https://raw.githubusercontent.com/microsoft/finops-toolkit/features/aoe/src/optimization-engine/azuredeploy.bicep"
       - run: echo "🍏 This job's status is ${{ job.status }}."
