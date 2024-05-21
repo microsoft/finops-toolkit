@@ -87,38 +87,52 @@ _<sup>1) A "scope" is an Azure construct that contains resources or enables purc
 ### Bicep Deploy with Private Endpoints
 
 #### Overview
+
 The purpose of this deployment is to deploy the FinOps Hub in an environment that does not allow public access.
 
-**Prerequisites**  
-The Private Endpoint deployment assumes that the target environment is prepared to handle DNS registration, and that a Self-Hosted Integration Runtime is available.
-> See [Private Endpoint DNS](https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-dns) and [Private Link and DNS integration at scale](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/private-link-and-dns-integration-at-scale) for details.
+#### Prerequisites
 
-> If the target environment has policies preventing Public IP addresses for PaaS services, the subscription needs to be temporarily moved to a staging Management Group or location where the policy does not apply. Policy Initative at [AzInitiativeAdvertizer](https://www.azadvertizer.net/azpolicyinitiativesadvertizer/Deny-PublicPaaSEndpoints.html)   
-This is to ensure that the script steps in the deployment can be executed.
+- The private deployment assumes that the target environment already has the virtual network where the private endpoints will be deployed.
+  - The virtual network needs to have two subnets; one for the private endpoints and one for the deployment scripts needed for the FinOps Hub.
+  - The virtual network for the deployment scripts needs to have the [needed configuration](https://learn.microsoft.com/azure/azure-resource-manager/bicep/deployment-script-vnet).
+    - A service endpoint configured for `Microsoft.Storage`
+    - A subnet delegation for `Microsoft.ContainerInstance/containerGroups`
+
+- The private deployment assumes that the target environment is prepared to handle DNS registration, and that a [Self-Hosted Integration Runtime](https://learn.microsoft.com/purview/manage-integration-runtimes) is available.
+  - DNS zones need to be configured on the virtual network for:
+    - Data Factory
+    - Data Factory Portal
+    - Storage account
+
+> See [Private Endpoint DNS](https://learn.microsoft.com/azure/private-link/private-endpoint-dns) and [Private Link and DNS integration at scale](https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/private-link-and-dns-integration-at-scale) for details.
 
 1. Register the Microsoft.EventGrid and Microsoft.CostManagementExports resource providers
    > See [Register a resource provider](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) for details.
-2. Login 
+
+#### Deployment
+
+1. Login
    > az login
-3. Set target subscription 
+2. Set target subscription
    > az account set -s `<SubscriptionId>`
-4. Execute deployment
-   > az deployment group create --resource-group `<RG Name>` --template-file .\main.bicep --parameters hubName='`<hubName>`' subnetResourceId='`<subnetResourceId>`' publicNetworkAccess='Disabled'  
+3. Execute deployment
+   > az deployment group create --resource-group `<RG Name>` --template-file .\main.bicep --parameters hubName='`<hubName>`' subnetResourceId='`<subnetResourceId>`' scriptsSubnetResourceId='`<scriptsSubnetResourceId>`'
 
-5. Share and add the Self-Hosted Integration Runtime to the FinOps Azure Data Factory.
-   > See [Create shared Self-Hosted integration runtime](https://learn.microsoft.com/en-us/azure/data-factory/create-shared-self-hosted-integration-runtime-powershell#create-a-shared-self-hosted-ir-using-azure-data-factory-ui) for details
-6. In FinOps Azure Data Factory, change Integration Runtime for the storage resource under `Linked Service` to the Self-Hosted one.
+4. Share and add the Self-Hosted Integration Runtime to the FinOps Azure Data Factory.
+   > See [Create shared Self-Hosted integration runtime](https://learn.microsoft.com/azure/data-factory/create-shared-self-hosted-integration-runtime-powershell#create-a-shared-self-hosted-ir-using-azure-data-factory-ui) for details
 
-7. [Create a new cost export](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data?tabs=azure-portal) using the following settings:
+5. In the FinOps hub Azure Data Factory, change Integration Runtime for the storage resource under `Linked Service` to the Self-Hosted one.
+
+6. [Create a new cost export](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data?tabs=azure-portal) using the following settings:
    - **Metric** = `Amortized cost`
    - **Export type** = `Daily export of month-to-date costs`
    - **File Partitioning** = On
    - **Storage account** = (Use subscription/resource from step 1)
    - **Container** = `msexports`
    - **Directory** = (Use the resource ID of the scope<sup>1</sup> you're exporting without the first "/")
-8. Run your export using the **Run now** command
+7. Run your export using the **Run now** command
    > Your data should be available within 15 minutes or so, depending on how big your account is.
-9. Connect to the data in Azure Data Lake Storage
+8. Connect to the data in Azure Data Lake Storage
    > Consider using [available Power BI reports](https://aka.ms/finops/hubs/reports)
 
 If you run into any issues, see [Troubleshooting FinOps hubs](https://aka.ms/finops/hubs/troubleshoot).
@@ -126,7 +140,6 @@ If you run into any issues, see [Troubleshooting FinOps hubs](https://aka.ms/fin
 _<sup>1) A "scope" is an Azure construct that contains resources or enables purchasing services, like a resource group, subscription, management group, or billing account. The resource ID for a scope will be the Azure Resource Manager URI that identifies the scope (e.g., "/subscriptions/###" for a subscription or "/providers/Microsoft.Billing/billingAccounts/###" for a billing account). To learn more, see [Understand and work with scopes](https://aka.ms/costmgmt/scopes).</sup>_
 
 <br>
-
 
 ## 🧰 About the FinOps toolkit
 
