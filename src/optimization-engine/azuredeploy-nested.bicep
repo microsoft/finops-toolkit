@@ -536,6 +536,7 @@ var csvExports = [
     ingestTimeOffset: 'PT2H'
     ingestFrequency: 'Hour'
     ingestJobId: monitorIngestJobId
+    exportSchedule: null
     exportJobId: 'dummy'
   }
   {
