@@ -9,7 +9,7 @@ permissions:
       contents: read      
 jobs:
   AOE-CD:
-    environment: test
+    environment: aoe-test
     runs-on: ubuntu-latest
     env:
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
