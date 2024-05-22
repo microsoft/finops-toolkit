@@ -40,7 +40,7 @@ We are very early in our journey. Today, FinOps hubs extend Cost Management by e
 <blockquote class="highlight-green-title" markdown="1">
   💵 Estimated cost: $25 per $1M in cost
   
-  Exact cost of the solution may vary. Cost is primarily for data storage and number of times data is ingested. Pipelines will run once a day per export.
+  Estimated cost is based on list prices and does not include negotiated discounts. Exact cost of the solution may vary. Cost is primarily for data storage and number of times data is ingested. Pipelines will run once a day per export. Use the [Data ingestion report](../power-bi/data-ingestion.md) to monitor hub cost.
 </blockquote>
 
 <blockquote class="note" markdown="1">
@@ -70,10 +70,12 @@ FinOps hubs will streamline implementing the FinOps Framework, are being designe
 - Report on multiple subscriptions, resource groups, or billing accounts.
 - Streamlined deployment and management with PowerShell.
 - Full alignment with the [FinOps Open Cost and Usage Specification (FOCUS)](../../_docs/focus/README.md).
-- _Coming soon: Ingest data from subscriptions in multiple tenants into a single storage account._
+- _Coming soon: Ingest data from subscriptions in multiple tenants into a single storage account<sup>2</sup>._
 - _Coming soon: Ingest data into Azure Data Explorer._
 
 _<sup>1) MOSA (or PAYG) subscriptions are only supported in FinOps hubs 0.1.x. FinOps hubs 0.2 requires FOCUS cost data from Cost Management exports, which are not supported for MOSA subscriptions. Please contact support about transitioning to a Microsoft Customer Agreement account.</sup>_
+
+_<sup>2) EA billing scopes can be exported to any tenant today. Simply sign in to that tenant with an account that has access to the billing scope and target storage account to configure exports. Non-billing scopes (subscriptions, management groups, and resource groups) and all MCA scopes are only supported in the tenant they exist in today but will be supported via a "remote hubs" feature in a future FinOps hubs release.</sup>_
 
 <br>
 
