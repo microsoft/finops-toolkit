@@ -101,12 +101,6 @@ module storageAccount 'br/public:avm/res/storage/storage-account:0.8.3' = {
         principalType: 'ServicePrincipal'
       }
     ]
-    privateEndpoints: empty(subnetResourceId) ? [] : [
-      {
-        service: 'blob'
-        subnetResourceId: subnetResourceId
-      }
-    ]
     networkAcls: empty(scriptsSubnetResourceId) ? {
       defaultAction: 'Allow'
       bypass: 'AzureServices'
