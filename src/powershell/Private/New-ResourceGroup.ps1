@@ -12,9 +12,6 @@
 
     .DESCRIPTION
     The New-ResourceGroup command performs any initialization tasks required for a resource group contributor to be able to deploy a FinOps hub instance in Azure, like registering resource providers. To view the full list of tasks performed, run the command with the -WhatIf option.
-
-    .LINK
-    https://aka.ms/ftk/New-ResourceGroup
 #>
 function New-ResourceGroup
 {
