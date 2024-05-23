@@ -20,7 +20,8 @@ Leverage open data to normalize and enhance your FinOps reporting.
 - [🗺️ Regions](#️-regions)
 - [📚 Resource types](#-resource-types)
 - [🎛️ Services](#️-services)
-- [⬇️ Sample exports](#️-sample-exports)
+- [⬇️ Dataset examples](#️-dataset-examples)
+- [📃 Dataset metadata](#-dataset-metadata)
 - [🙋‍♀️ Looking for more?](#️-looking-for-more)
 - [🧰 Related tools](#-related-tools)
 
@@ -145,7 +146,7 @@ A few important notes about the data:
 
 <br>
 
-## ⬇️ Sample exports
+## ⬇️ Dataset examples
 
 The following files are examples of what you will find when you export data from Microsoft Cost Management. These files are provided to help you understand the data structure and format. They are from an Enterprise Agreement (EA) demo account and are not intended to be used for ingestion or reporting.
 
@@ -153,12 +154,36 @@ The following files are examples of what you will find when you export data from
   - Actual (billed) (`2021-10-01`)
   - Amortized (`2021-10-01`)
   - FOCUS (`1.0-preview(v1)`)
-- Prices(`2023-05-01`)
+- Prices (`2023-05-01`)
 - Reservation details (`2023-03-01`)
 - Reservation transactions (`2023-05-01`)
 - Reservation recommendations (`2023-05-01`)
 
-[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/sample-exports.zip){: .btn .mb-4 .mb-md-0 .mr-4 }
+[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-examples.zip){: .btn .mb-4 .mb-md-0 .mr-4 }
+
+<br>
+
+## 📃 Dataset metadata
+
+Given each dataset uses different columns and data types, FOCUS has defined metadata schema to describe the dataset. Dataset metadata includes general information about the data like the data generator, schema version, and columns included in the dataset.
+
+Sample data:
+
+| ColumnName           | DataType | Description                                                                                                                                                            |
+| -------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `BilledCost`         | Decimal  | A charge serving as the basis for invoicing, inclusive of all reduced rates and discounts while excluding the amortization of upfront charges (one-time or recurring). |
+| `BillingAccountId`   | String   | Unique identifier assigned to a billing account by the provider.                                                                                                       |
+| `BillingAccountName` | String   | Display name assigned to a billing account.                                                                                                                            |
+| `BillingCurrency`    | String   | Currency that a charge was billed in.                                                                                                                                  |
+| `BillingPeriodEnd`   | DateTime | End date and time of the billing period.                                                                                                                               |
+| `BillingPeriodStart` | DateTime | Beginning date and time of the billing period.                                                                                                                         |
+
+Metadata is available for the following datasets:
+
+- Cost and usage
+  - FOCUS (`1.0-preview(v1)`) – [Learn more](../../_docs/focus/metadata.md)
+
+[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-metadata.zip){: .btn .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
