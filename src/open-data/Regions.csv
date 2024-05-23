@@ -1,408 +1,410 @@
-OriginalValue,RegionId,RegionName
-AE Central,uaecentral,UAE Central
-AE North,uaenorth,UAE North
-am,westeurope,West Europe
-AP East,eastasia,East Asia
-AP Southeast,southeastasia,Southeast Asia
-apacsoutheast2,apacsoutheast2,APAC Southeast 2
-arlem,arlem,Arlem
-asiaeast,eastasia,East Asia
-asiasoutheast,southeastasia,Southeast Asia
-asiasoutheast2,apacsoutheast2,APAC Southeast 2
-AT East,austriaeast,Austria East
-ate,austriaeast,Austria East
-AU Central,australiacentral,Australia Central
-AU Central 2,australiacentral2,Australia Central 2
-AU East,australiaeast,Australia East
-AU Southeast,australiasoutheast,Australia Southeast
-auh,uaecentral,UAE Central
-australiac,australiacentral,Australia Central
-australiac2,australiacentral2,Australia Central 2
-australiacentral,australiacentral,Australia Central
-australiacentral2,australiacentral2,Australia Central 2
-australiaeast,australiaeast,Australia East
-australiasoutheast,australiasoutheast,Australia Southeast
-austriae,austriaeast,Austria East
-austriaeast,austriaeast,Austria East
-bd,usdodeast,USDoD East
-BE Central,belgiumcentral,Belgium Central
-bec,belgiumcentral,Belgium Central
-belgiumc,belgiumcentral,Belgium Central
-belgiumcentral,belgiumcentral,Belgium Central
-bj,chinanorth,China North
-bjs,chinanorth2,China North 2
-bl,eastus,East US
-Bleu France Central,bleufrancecentral,Bleu France Central
-Bleu France South,bleufrancesouth,Bleu France South
-bleuc,bleufrancecentral,Bleu France Central
-bleufrancecentral,bleufrancecentral,Bleu France Central
-bleufrancesouth,bleufrancesouth,Bleu France South
-bleus,bleufrancesouth,Bleu France South
-bm,westindia,West India
-bn,eastus2,East US 2
-bn,usgovvirginia,USGov Virginia
-BR South,brazilsouth,Brazil South
-BR Southeast,brazilsoutheast,Brazil Southeast
-brazilne,brazilnortheast,Brazil Northeast
-brazilnortheast,brazilnortheast,Brazil Northeast
-brazilse,brazilsoutheast,Brazil Southeast
-brazilsouth,brazilsouth,Brazil South
-brazilsoutheast,brazilsoutheast,Brazil Southeast
-brne,brazilnortheast,Brazil Northeast
-brse,brazilsoutheast,Brazil Southeast
-by,westus,West US
-CA Central,canadacentral,Canada Central
-CA East,canadaeast,Canada East
-canadacentral,canadacentral,Canada Central
-canadaeast,canadaeast,Canada East
-cbn,eastus2euap,East US 2 EUAP
-cbr,australiacentral,Australia Central
-cbr2,australiacentral2,Australia Central 2
-cdm,centraluseuap,Central US EUAP
-centralindia,centralindia,Central India
-centralus,centralus,Central US
-centraluseuap,centraluseuap,Central US EUAP
-ch,northcentralus,North Central US
-CH North,switzerlandnorth,Switzerland North
-CH West,switzerlandwest,Switzerland West
-chilec,chilecentral,Chile Central
-chilecentral,chilecentral,Chile Central
-chilenc,chilenorthcentral,Chile North Central
-chilenorthcentral,chilenorthcentral,Chile North Central
-chinae2,chinaeast2,China East 2
-chinae3,chinaeast3,China East 3
-chinaeast,chinaeast,China East
-chinaeast2,chinaeast2,China East 2
-chinaeast3,chinaeast3,China East 3
-chinan10,chinanorth10,China North 10
-chinan2,chinanorth2,China North 2
-chinan3,chinanorth3,China North 3
-chinanorth,chinanorth,China North
-chinanorth10,chinanorth10,China North 10
-chinanorth2,chinanorth2,China North 2
-chinanorth3,chinanorth3,China North 3
-chn,switzerlandnorth,Switzerland North
-chw,switzerlandwest,Switzerland West
-CL Central,chilecentral,Chile Central
-CL North Central,chilenorthcentral,Chile North Central
-clc,chilecentral,Chile Central
-clnc,chilenorthcentral,Chile North Central
-CN East,chinaeast,China East
-CN East 2,chinaeast2,China East 2
-CN East 3,chinaeast3,China East 3
-CN North,chinanorth,China North
-CN North 2,chinanorth2,China North 2
-CN North 3,chinanorth3,China North 3
-cne3,chinaeast3,China East 3
-cnn10,chinanorth10,China North 10
-cnn3,chinanorth3,China North 3
-cpt,southafricawest,South Africa West
-cq,brazilsouth,Brazil South
-cw,ukwest,UK West
-cy,usgovwyoming,USGov Wyoming
-cy,westcentralus,West Central US
-db,northeurope,North Europe
-dd,usdodcentral,USDoD Central
-DE Central,germanycentral,Germany Central
-DE North,germanynorth,Germany North
-DE Northeast,germanynortheast,Germany NorthEast
-DE West Central,germanywestcentral,Germany West Central
-delc,deloscloudgermanycentral,Delos Cloud Germany Central
-deln,deloscloudgermanynorth,Delos Cloud Germany North
-Delos Cloud Germany Central,deloscloudgermanycentral,Delos Cloud Germany Central
-Delos Cloud Germany North,deloscloudgermanynorth,Delos Cloud Germany North
-delosc,deloscloudgermanycentral,Delos Cloud Germany Central
-deloscloudgermanycentral,deloscloudgermanycentral,Delos Cloud Germany Central
-deloscloudgermanynorth,deloscloudgermanynorth,Delos Cloud Germany North
-delosn,deloscloudgermanynorth,Delos Cloud Germany North
-den,germanynorth,Germany North
-Denmark East,denmarkeast,Denmark East
-denmarke,denmarkeast,Denmark East
-denmarkeast,denmarkeast,Denmark East
-dewc,germanywestcentral,Germany West Central
-dke,denmarkeast,Denmark East
-dm,centralus,Central US
-dm,usgoviowa,USGov Iowa
-dxb,uaenorth,UAE North
-eastasia,eastasia,East Asia
-easteurope,easteurope,East Europe
-eastus,eastus,East US
-eastus2,eastus2,East US 2
-eastus2euap,eastus2euap,East US 2 EUAP
-eastusslv,eastusslv,East US SLV
-eastusstg,eastusstg,East US STG
-ES Central,spaincentral,Spain Central
-esc,spaincentral,Spain Central
-EU North,northeurope,North Europe
-EU West,westeurope,West Europe
-europeeast,easteurope,East Europe
-europenorth,northeurope,North Europe
-europenorth2,northeurope2,North Europe 2
-europewest,westeurope,West Europe
-eusslv,eastusslv,East US SLV
-FI Central,finlandcentral,Finland Central
-finlandc,finlandcentral,Finland Central
-finlandcentral,finlandcentral,Finland Central
-flc,finlandcentral,Finland Central
-fr,germanycentral,Germany Central
-FR Central,francecentral,France Central
-FR South,francesouth,France South
-francec,francecentral,France Central
-francecentral,francecentral,France Central
-frances,francesouth,France South
-francesouth,francesouth,France South
-germanycentral,germanycentral,Germany Central
-germanyn,germanynorth,Germany North
-germanynorth,germanynorth,Germany North
-germanynortheast,germanynortheast,Germany NorthEast
-germanywc,germanywestcentral,Germany West Central
-germanywestcentral,germanywestcentral,Germany West Central
-grn,usnatwest,USNat West
-hel,northeurope2,North Europe 2
-hk,eastasia,East Asia
-ID Central,indonesiacentral,Indonesia Central
-idc,indonesiacentral,Indonesia Central
-IL Central,israelcentral,Israel Central
-IL Northwest,israelnorthwest,Israel Northwest
-ilc,israelcentral,Israel Central
-ilnw,israelnorthwest,Israel Northwest
-IN Central,centralindia,Central India
-IN Central Jio,jioindiacentral,Jio India Central
-IN South,southindia,South India
-IN South Central,indiasouthcentral,India South Central
-IN West,westindia,West India
-IN West Jio,jioindiawest,Jio India West
-indiacentral,centralindia,Central India
-indiasc,indiasouthcentral,India South Central
-indiasouth,southindia,South India
-indiasouthcentral,indiasouthcentral,India South Central
-indiawest,westindia,West India
-indonesiac,indonesiacentral,Indonesia Central
-indonesiacentral,indonesiacentral,Indonesia Central
-insc,indiasouthcentral,India South Central
-israelc,israelcentral,Israel Central
-israelcentral,israelcentral,Israel Central
-israelnorthwest,israelnorthwest,Israel Northwest
-israelnw,israelnorthwest,Israel Northwest
-IT North,italynorth,Italy North
-italyn,italynorth,Italy North
-italynorth,italynorth,Italy North
-itn,italynorth,Italy North
-JA East,japaneast,Japan East
-JA West,japanwest,Japan West
-japaneast,japaneast,Japan East
-japanwest,japanwest,Japan West
-jinc,jioindiacentral,Jio India Central
-jinw,jioindiawest,Jio India West
-jioinc,jioindiacentral,Jio India Central
-jioindiacentral,jioindiacentral,Jio India Central
-jioindiawest,jioindiawest,Jio India West
-jioinw,jioindiawest,Jio India West
-jnb,southafricanorth,South Africa North
-koreacentral,koreacentral,Korea Central
-koreas2,koreasouth2,Korea South 2
-koreasouth,koreasouth,Korea South
-koreasouth2,koreasouth2,Korea South 2
-KR Central,koreacentral,Korea Central
-KR South,koreasouth,Korea South
-krs2,koreasouth2,Korea South 2
-kul,apacsoutheast2,APAC Southeast 2
-lg,germanynortheast,Germany NorthEast
-ln,uksouth,UK South
-lo,uksouth2,UK South 2
-ma,southindia,South India
-malaysias,malaysiasouth,Malaysia South
-malaysiasouth,malaysiasouth,Malaysia South
-malaysiaw,malaysiawest,Malaysia West
-malaysiawest,malaysiawest,Malaysia West
-mexicoc,mexicocentral,Mexico Central
-mexicocentral,mexicocentral,Mexico Central
-ml,australiasoutheast,Australia Southeast
-mm,uknorth,UK North
-mrs,francesouth,France South
-mwh,westus2,West US 2
-MX Central,mexicocentral,Mexico Central
-mxc,mexicocentral,Mexico Central
-MY South,malaysiasouth,Malaysia South
-MY West,malaysiawest,Malaysia West
-mys,malaysiasouth,Malaysia South
-myw,malaysiawest,Malaysia West
-newzealandn,newzealandnorth,New Zealand North
-newzealandnorth,newzealandnorth,New Zealand North
-NO East,norwayeast,Norway East
-NO West,norwaywest,Norway West
-noe,norwayeast,Norway East
-northcentralus,northcentralus,North Central US
-northeurope,northeurope,North Europe
-northeurope2,northeurope2,North Europe 2
-norwaye,norwayeast,Norway East
-norwayeast,norwayeast,Norway East
-norwayw,norwaywest,Norway West
-norwaywest,norwaywest,Norway West
-now,norwaywest,Norway West
-NZ North,newzealandnorth,New Zealand North
-nzn,newzealandnorth,New Zealand North
-ocave,ocave,Ocave
-os,japanwest,Japan West
-par,francecentral,France Central
-phx,usgovarizona,USGov Arizona
-phxd,usdodsouthwest,USDoD Southwest
-PL Central,polandcentral,Poland Central
-plc,polandcentral,Poland Central
-pn,centralindia,Central India
-polandc,polandcentral,Poland Central
-polandcentral,polandcentral,Poland Central
-ps,koreasouth,Korea South
-QA Central,qatarcentral,Qatar Central
-qac,qatarcentral,Qatar Central
-qatarc,qatarcentral,Qatar Central
-qatarcentral,qatarcentral,Qatar Central
-red,usnateast,USNat East
-se,koreacentral,Korea Central
-SE Central,swedencentral,Sweden Central
-SE South,swedensouth,Sweden South
-sec,swedencentral,Sweden Central
-ses,swedensouth,Sweden South
-sg,southeastasia,Southeast Asia
-SG Gov,singaporegov,Singapore Gov
-sgg,singaporegov,Singapore Gov
-sh,chinaeast,China East
-sha,chinaeast2,China East 2
-Singapore Central,singaporecentral,Singapore Central
-Singapore North,singaporenorth,Singapore North
-singaporec,singaporecentral,Singapore Central
-singaporecentral,singaporecentral,Singapore Central
-singaporegov,singaporegov,Singapore Gov
-singaporen,singaporenorth,Singapore North
-singaporenorth,singaporenorth,Singapore North
-singc,singaporecentral,Singapore Central
-singn,singaporenorth,Singapore North
-sn,southcentralus,South Central US
-sn,usgovtexas,USGov Texas
-southafrican,southafricanorth,South Africa North
-southafricanorth,southafricanorth,South Africa North
-southafricaw,southafricawest,South Africa West
-southafricawest,southafricawest,South Africa West
-southcentralus,southcentralus,South Central US
-southcentralusstg,southcentralusstg,South Central US STG
-southeastasia,southeastasia,Southeast Asia
-southindia,southindia,South India
-spainc,spaincentral,Spain Central
-spaincentral,spaincentral,Spain Central
-swedenc,swedencentral,Sweden Central
-swedencentral,swedencentral,Sweden Central
-swedens,swedensouth,Sweden South
-swedensouth,swedensouth,Sweden South
-switzerlandn,switzerlandnorth,Switzerland North
-switzerlandnorth,switzerlandnorth,Switzerland North
-switzerlandw,switzerlandwest,Switzerland West
-switzerlandwest,switzerlandwest,Switzerland West
-sy,australiaeast,Australia East
-taiwann,taiwannorth,Taiwan North
-taiwannorth,taiwannorth,Taiwan North
-taiwannorthwest,taiwannorthwest,Taiwan Northwest
-taiwannw,taiwannorthwest,Taiwan Northwest
-TW North,taiwannorth,Taiwan North
-TW Northwest,taiwannorthwest,Taiwan Northwest
-twn,taiwannorth,Taiwan North
-twnw,taiwannorthwest,Taiwan Northwest
-ty,japaneast,Japan East
-uaec,uaecentral,UAE Central
-uaecentral,uaecentral,UAE Central
-uaen,uaenorth,UAE North
-uaenorth,uaenorth,UAE North
-UK North,uknorth,UK North
-UK South,uksouth,UK South
-UK South 2,uksouth2,UK South 2
-UK West,ukwest,UK West
-uknorth,uknorth,UK North
-uksouth,uksouth,UK South
-uksouth2,uksouth2,UK South 2
-ukwest,ukwest,UK West
-US Central,centralus,Central US
-US Central,centraluseuap,Central US EUAP
-US DoD,usdodcentral,USDoD Central
-US DoD,usdodeast,USDoD East
-US East,eastus,East US
-US East 2,eastus2,East US 2
-US East 2,eastus2euap,East US 2 EUAP
-US Gov,usgoviowa,USGov Iowa
-US Gov,usgovvirginia,USGov Virginia
-US Gov AZ,usgovarizona,USGov Arizona
-US Gov TX,usgovtexas,USGov Texas
-US Nat East,usnateast,USNat East
-US Nat West,usnatwest,USNat West
-US North Central,northcentralus,North Central US
-US Sec Central,usseccentral,USSec Central
-US Sec East,usseceast,USSec East
-US Sec West,ussecwest,USSec West
-US Sec West Central,ussecwestcentral,USSec West Central
-US South Central,southcentralus,South Central US
-US West,westus,West US
-US West 2,westus2,West US 2
-US West 3,westus3,West US 3
-US West Central,westcentralus,West Central US
-uscentral,centralus,Central US
-uscentraleuap,centraluseuap,Central US EUAP
-usdodcentral,usdodcentral,USDoD Central
-usdodeast,usdodeast,USDoD East
-usdodsc,usdodsouthcentral,USDoD South Central
-usdodsouthcentral,usdodsouthcentral,USDoD South Central
-usdodsouthwest,usdodsouthwest,USDoD Southwest
-usdodsw,usdodsouthwest,USDoD Southwest
-usdodwc,usdodwestcentral,USDoD West Central
-usdodwestcentral,usdodwestcentral,USDoD West Central
-usdsc,usdodsouthcentral,USDoD South Central
-usdwc,usdodwestcentral,USDoD West Central
-use,eastusslv,East US SLV
-useast,eastus,East US
-useast2,eastus2,East US 2
-useast2euap,eastus2euap,East US 2 EUAP
-usgovarizona,usgovarizona,USGov Arizona
-usgovcentral,usgoviowa,USGov Iowa
-usgoveast,usgovvirginia,USGov Virginia
-usgoviowa,usgoviowa,USGov Iowa
-usgovsc,usgovtexas,USGov Texas
-usgovsw,usgovarizona,USGov Arizona
-usgovtexas,usgovtexas,USGov Texas
-usgovvirginia,usgovvirginia,USGov Virginia
-usgovwc,usgovwyoming,USGov Wyoming
-usgovwyoming,usgovwyoming,USGov Wyoming
-usnate,usnateast,USNat East
-usnateast,usnateast,USNat East
-usnatw,usnatwest,USNat West
-usnatwest,usnatwest,USNat West
-usnorth,northcentralus,North Central US
-ussc,usseccentral,USSec Central
-usse,usseceast,USSec East
-ussecc,usseccentral,USSec Central
-usseccentral,usseccentral,USSec Central
-ussece,usseceast,USSec East
-usseceast,usseceast,USSec East
-ussecw,ussecwest,USSec West
-ussecwc,ussecwestcentral,USSec West Central
-ussecwest,ussecwest,USSec West
-ussecwestcentral,ussecwestcentral,USSec West Central
-ussouth,southcentralus,South Central US
-usstagee,eastusstg,East US STG
-usstagesc,southcentralusstg,South Central US STG
-ussw,ussecwest,USSec West
-usswc,ussecwestcentral,USSec West Central
-uste,eastusstg,East US STG
-ustsc,southcentralusstg,South Central US STG
-usw3,westus3,West US 3
-uswest,westus,West US
-uswest2,westus2,West US 2
-uswest3,westus3,West US 3
-uswestcentral,westcentralus,West Central US
-westcentralus,westcentralus,West Central US
-westeurope,westeurope,West Europe
-westindia,westindia,West India
-westus,westus,West US
-westus2,westus2,West US 2
-westus3,westus3,West US 3
-yq,canadaeast,Canada East
-yt,canadacentral,Canada Central
-yyy,easteurope,East Europe
-ZA North,southafricanorth,South Africa North
-ZA West,southafricawest,South Africa West
+OriginalValue,RegionId,RegionName,Cloud,Status,Continent,Country,Location,Longitude,Latitude,YearOpened,AvailabilityZones,NearestAvailabilityZoneRegion,AvailableTo,PairedRegion,Updated
+AE Central,uaecentral,UAE Central,,,,,,,,,,,All customers and partners,,2024-04-23T00:00:00Z
+AE North,uaenorth,UAE North,,,,,,,,,,,,,
+am,westeurope,West Europe,Azure Commercial,Active,Europe,Netherlands,Amsterdam,,,2010,3,westeurope,All customers and partners,,2024-04-23T00:00:00Z
+AP East,eastasia,East Asia,,Public,Asia,China,Hong Kong,,,2010,3,,All customers and partners,,2024-04-23T00:00:00Z
+AP Southeast,southeastasia,Southeast Asia,,Public,Asia,Singapore,Undisclosed,,,2010,3,,All customers and partners,,2024-04-23T00:00:00Z
+apacsoutheast2,apacsoutheast2,APAC Southeast 2,,,,,,,,,,,,,
+arlem,arlem,Arlem,,,,,,,,,,,,,
+asiaeast,eastasia,East Asia,,Public,Asia,China,Hong Kong,,,2010,3,,All customers and partners,,2024-04-23T00:00:00Z
+asiasoutheast,southeastasia,Southeast Asia,,Public,Asia,Singapore,Undisclosed,,,2010,3,,All customers and partners,,2024-04-23T00:00:00Z
+asiasoutheast2,apacsoutheast2,APAC Southeast 2,,,,,,,,,,,,,
+AT East,austriaeast,Austria East,,Announced,Europe,Austria,Vienna,,,,,,,,2024-04-23T00:00:00Z
+ate,austriaeast,Austria East,,Announced,Europe,Austria,Vienna,,,,,,,,2024-04-23T00:00:00Z
+AU Central,australiacentral,Australia Central,,Public,Oceania,Australia,Canberra,,,2018,0,,All customers and partners,,2024-04-23T00:00:00Z
+AU Central 2,australiacentral2,Australia Central 2,,,Oceania,Australia,,,,,,,,,
+AU East,australiaeast,Australia East,,Public,Oceania,Australia,New South Wales,,,2014,3,,All customers and partners,,2024-04-23T00:00:00Z
+AU Southeast,australiasoutheast,Australia Southeast,,Public,Oceania,Australia,Victoria,,,2014,0,,All customers and partners,,2024-04-23T00:00:00Z
+auh,uaecentral,UAE Central,,,,,,,,,,,,,
+australiac,australiacentral,Australia Central,,Public,Oceania,Australia,Canberra,,,2018,0,,All customers and partners,,2024-04-23T00:00:00Z
+australiac2,australiacentral2,Australia Central 2,,,Oceania,Australia,,,,,,,,,
+australiacentral,australiacentral,Australia Central,,Public,Oceania,Australia,Canberra,,,2018,0,,All customers and partners,,2024-04-23T00:00:00Z
+australiacentral2,australiacentral2,Australia Central 2,,,Oceania,Australia,,,,,,,,,
+australiaeast,australiaeast,Australia East,,Public,Oceania,Australia,New South Wales,,,2014,3,,All customers and partners,,2024-04-23T00:00:00Z
+australiasoutheast,australiasoutheast,Australia Southeast,,Public,Oceania,Australia,Victoria,,,2014,0,,All customers and partners,,2024-04-23T00:00:00Z
+austriae,austriaeast,Austria East,,Announced,Europe,Austria,Vienna,,,,,,,,2024-04-23T00:00:00Z
+austriaeast,austriaeast,Austria East,,Announced,Europe,Austria,Vienna,,,,,,,,2024-04-23T00:00:00Z
+bd,usdodeast,USDoD East,,Active,North America,United States,Virginia,,,2017,0,,Reserved for exclusive use by the Department of Defense,,2024-04-23T00:00:00Z
+BE Central,belgiumcentral,Belgium Central,,Announced,Europe,Belgium,Brussels,,,,,,,,2024-04-23T00:00:00Z
+bec,belgiumcentral,Belgium Central,,Announced,Europe,Belgium,Brussels,,,,,,,,2024-04-23T00:00:00Z
+belgiumc,belgiumcentral,Belgium Central,,Announced,Europe,Belgium,Brussels,,,,,,,,2024-04-23T00:00:00Z
+belgiumcentral,belgiumcentral,Belgium Central,,Announced,Europe,Belgium,Brussels,,,,,,,,2024-04-23T00:00:00Z
+bj,chinanorth,China North,Azure China,Active,Asia,China,Beijing,,,2014,0,chinanorth3,Organizations with a business presence in China,,2024-04-23T00:00:00Z
+bjs,chinanorth2,China North 2,Azure China,Active,Asia,China,Beijing,,,2018,0,chinanorth3,Organizations with a business presence in China,,2024-04-23T00:00:00Z
+bl,eastus,East US,,,North America,United States,,,,,,,,,
+Bleu France Central,bleufrancecentral,Bleu France Central,,,Europe,France,,,,,,,,,
+Bleu France South,bleufrancesouth,Bleu France South,,,Europe,France,,,,,,,,,
+bleuc,bleufrancecentral,Bleu France Central,,,Europe,France,,,,,,,,,
+bleufrancecentral,bleufrancecentral,Bleu France Central,,,Europe,France,,,,,,,,,
+bleufrancesouth,bleufrancesouth,Bleu France South,,,Europe,France,,,,,,,,,
+bleus,bleufrancesouth,Bleu France South,,,Europe,France,,,,,,,,,
+bm,westindia,West India,,,Asia,India,,,,,,,,,
+bn,eastus2,East US 2,,,North America,United States,,,,,,,,,
+bn,usgovvirginia,USGov Virginia,,Active,North America,United States,Virginia,,,2014,3,,US government entities and their partners only,,2024-04-23T00:00:00Z
+BR South,brazilsouth,Brazil South,,Active,South America,Brazil,São Paulo State,-46.633,-23.55,2014,3,,All customers and partners,,2024-04-23T00:00:00Z
+BR Southeast,brazilsoutheast,Brazil Southeast,,,South America,Brazil,Rio,-43.2075,-22.90278,,,,,,2024-04-23T00:00:00Z
+brazilne,brazilnortheast,Brazil Northeast,,,South America,Brazil,,,,,,,,,
+brazilnortheast,brazilnortheast,Brazil Northeast,,,South America,Brazil,,,,,,,,,
+brazilse,brazilsoutheast,Brazil Southeast,,,South America,Brazil,Rio,-43.2075,-22.90278,,,,,,2024-04-23T00:00:00Z
+brazilsouth,brazilsouth,Brazil South,,Active,South America,Brazil,São Paulo State,-46.633,-23.55,2014,3,,All customers and partners,,2024-04-23T00:00:00Z
+brazilsoutheast,brazilsoutheast,Brazil Southeast,,,South America,Brazil,Rio,-43.2075,-22.90278,,,,,,2024-04-23T00:00:00Z
+brne,brazilnortheast,Brazil Northeast,,,South America,Brazil,,,,,,,,,
+brse,brazilsoutheast,Brazil Southeast,,,South America,Brazil,Rio,-43.2075,-22.90278,,,,,,2024-04-23T00:00:00Z
+by,westus,West US,,,North America,United States,,,,,,,,,
+CA Central,canadacentral,Canada Central,,Active,North America,Canada,Toronto,-79.383,43.653,2016,3,canadacentral,All customers and partners,canadaeast,2024-04-23T00:00:00Z
+CA East,canadaeast,Canada East,,Active,North America,Canada,Quebec City,-71.217,46.817,2016,0,canadacentral,All customers and partners,canadacentral,2024-04-23T00:00:00Z
+canadacentral,canadacentral,Canada Central,,Active,North America,Canada,Toronto,-79.383,43.653,2016,3,canadacentral,All customers and partners,canadaeast,2024-04-23T00:00:00Z
+canadaeast,canadaeast,Canada East,,Active,North America,Canada,Quebec City,-71.217,46.817,2016,0,canadacentral,All customers and partners,canadacentral,2024-04-23T00:00:00Z
+cbn,eastus2euap,East US 2 EUAP,,,North America,United States,,,,,,,,,
+cbr,australiacentral,Australia Central,,Public,Oceania,Australia,Canberra,,,2018,0,,All customers and partners,,2024-04-23T00:00:00Z
+cbr2,australiacentral2,Australia Central 2,,,Oceania,Australia,,,,,,,,,
+cdm,centraluseuap,Central US EUAP,,,North America,United States,,,,,,,,,
+centralindia,centralindia,Central India,Azure Commercial,Active,Asia,India,Pune,73.9197,18.5822,2015,3,centralindia,All customers and partners,southindia,2024-04-23T00:00:00Z
+centralus,centralus,Central US,,,North America,United States,,,,,,,,,
+centraluseuap,centraluseuap,Central US EUAP,,,North America,United States,,,,,,,,,
+ch,northcentralus,North Central US,,,North America,United States,,,,,,,,,
+CH North,switzerlandnorth,Switzerland North,,,Europe,Switzerland,,,,,,,,,
+CH West,switzerlandwest,Switzerland West,,,Europe,Switzerland,,,,,,,,,
+chilec,chilecentral,Chile Central,,Announced,South America,Chile,Santiago,,,,,,,,2024-04-23T00:00:00Z
+chilecentral,chilecentral,Chile Central,,Announced,South America,Chile,Santiago,,,,,,,,2024-04-23T00:00:00Z
+chilenc,chilenorthcentral,Chile North Central,,,South America,Chile,,,,,,,,,
+chilenorthcentral,chilenorthcentral,Chile North Central,,,South America,Chile,,,,,,,,,
+chinae2,chinaeast2,China East 2,Azure China,Active,Asia,China,Shanghai,,,2018,0,chinanorth3,Organizations with a business presence in China,,2024-04-23T00:00:00Z
+chinae3,chinaeast3,China East 3,,,Asia,China,,,,,,,,,
+chinaeast,chinaeast,China East,Azure China,Active,Asia,China,Shanghai,,,2014,0,chinanorth3,Organizations with a business presence in China,,2024-04-23T00:00:00Z
+chinaeast2,chinaeast2,China East 2,Azure China,Active,Asia,China,Shanghai,,,2018,0,chinanorth3,Organizations with a business presence in China,,2024-04-23T00:00:00Z
+chinaeast3,chinaeast3,China East 3,,,Asia,China,,,,,,,,,
+chinan10,chinanorth10,China North 10,,,Asia,China,,,,,,,,,
+chinan2,chinanorth2,China North 2,Azure China,Active,Asia,China,Beijing,,,2018,0,chinanorth3,Organizations with a business presence in China,,2024-04-23T00:00:00Z
+chinan3,chinanorth3,China North 3,Azure China,Active,Asia,China,Hebei,,,2022,3,chinanorth3,Organizations with a business presence in China,,2024-04-23T00:00:00Z
+chinanorth,chinanorth,China North,Azure China,Active,Asia,China,Beijing,,,2014,0,chinanorth3,Organizations with a business presence in China,,2024-04-23T00:00:00Z
+chinanorth10,chinanorth10,China North 10,,,Asia,China,,,,,,,,,
+chinanorth2,chinanorth2,China North 2,Azure China,Active,Asia,China,Beijing,,,2018,0,chinanorth3,Organizations with a business presence in China,,2024-04-23T00:00:00Z
+chinanorth3,chinanorth3,China North 3,Azure China,Active,Asia,China,Hebei,,,2022,3,chinanorth3,Organizations with a business presence in China,,2024-04-23T00:00:00Z
+chn,switzerlandnorth,Switzerland North,,,Europe,Switzerland,,,,,,,,,
+chw,switzerlandwest,Switzerland West,,,Europe,Switzerland,,,,,,,,,
+CL Central,chilecentral,Chile Central,,Announced,South America,Chile,Santiago,,,,,,,,2024-04-23T00:00:00Z
+CL North Central,chilenorthcentral,Chile North Central,,,South America,Chile,,,,,,,,,
+clc,chilecentral,Chile Central,,Announced,South America,Chile,Santiago,,,,,,,,2024-04-23T00:00:00Z
+clnc,chilenorthcentral,Chile North Central,,,South America,Chile,,,,,,,,,
+CN East,chinaeast,China East,Azure China,Active,Asia,China,Shanghai,,,2014,0,chinanorth3,Organizations with a business presence in China,,2024-04-23T00:00:00Z
+CN East 2,chinaeast2,China East 2,Azure China,Active,Asia,China,Shanghai,,,2018,0,chinanorth3,Organizations with a business presence in China,,2024-04-23T00:00:00Z
+CN East 3,chinaeast3,China East 3,,,Asia,China,,,,,,,,,
+CN North,chinanorth,China North,Azure China,Active,Asia,China,Beijing,,,2014,0,chinanorth3,Organizations with a business presence in China,,2024-04-23T00:00:00Z
+CN North 2,chinanorth2,China North 2,Azure China,Active,Asia,China,Beijing,,,2018,0,chinanorth3,Organizations with a business presence in China,,2024-04-23T00:00:00Z
+CN North 3,chinanorth3,China North 3,Azure China,Active,Asia,China,Hebei,,,2022,3,chinanorth3,Organizations with a business presence in China,,2024-04-23T00:00:00Z
+cne3,chinaeast3,China East 3,,,Asia,China,,,,,,,,,
+cnn10,chinanorth10,China North 10,,,Asia,China,,,,,,,,,
+cnn3,chinanorth3,China North 3,Azure China,Active,Asia,China,Hebei,,,2022,3,chinanorth3,Organizations with a business presence in China,,2024-04-23T00:00:00Z
+cpt,southafricawest,South Africa West,,,Africa,South Africa,,,,,,,,,
+cq,brazilsouth,Brazil South,,Active,South America,Brazil,São Paulo State,-46.633,-23.55,2014,3,,All customers and partners,,2024-04-23T00:00:00Z
+cw,ukwest,UK West,,,Europe,United Kingdom,,,,,,,,,
+cy,usgovwyoming,USGov Wyoming,,,North America,United States,Wyoming,,,,,,,,
+cy,westcentralus,West Central US,,,North America,United States,,,,,,,,,
+db,northeurope,North Europe,Azure Commercial,Active,Europe,Ireland,Dublin,,,2009,3,northeurope,All customers and partners,,2024-04-23T00:00:00Z
+dd,usdodcentral,USDoD Central,,Active,North America,United States,Iowa,,,2017,0,,Reserved for exclusive use by the Department of Defense,,2024-04-23T00:00:00Z
+DE Central,germanycentral,Germany Central,,,Europe,Germany,,,,,,,,,
+DE North,germanynorth,Germany North,,,Europe,Germany,Berlin,8.806422,53.073635,,,,,germanywestcentral,2024-04-23T00:00:00Z
+DE Northeast,germanynortheast,Germany NorthEast,,,Europe,Germany,,,,,,,,,
+DE West Central,germanywestcentral,Germany West Central,Azure Commercial,Active,Europe,Germany,Frankfurt,8.682127,50.110924,2019,3,germanywestcentral,All customers and partners,germanynorth,2024-04-23T00:00:00Z
+delc,deloscloudgermanycentral,Delos Cloud Germany Central,,,Europe,Germany,,,,,,,,,
+deln,deloscloudgermanynorth,Delos Cloud Germany North,,,Europe,Germany,,,,,,,,,
+Delos Cloud Germany Central,deloscloudgermanycentral,Delos Cloud Germany Central,,,Europe,Germany,,,,,,,,,
+Delos Cloud Germany North,deloscloudgermanynorth,Delos Cloud Germany North,,,Europe,Germany,,,,,,,,,
+delosc,deloscloudgermanycentral,Delos Cloud Germany Central,,,Europe,Germany,,,,,,,,,
+deloscloudgermanycentral,deloscloudgermanycentral,Delos Cloud Germany Central,,,Europe,Germany,,,,,,,,,
+deloscloudgermanynorth,deloscloudgermanynorth,Delos Cloud Germany North,,,Europe,Germany,,,,,,,,,
+delosn,deloscloudgermanynorth,Delos Cloud Germany North,,,Europe,Germany,,,,,,,,,
+den,germanynorth,Germany North,,,Europe,Germany,Berlin,8.806422,53.073635,,,,,germanywestcentral,2024-04-23T00:00:00Z
+Denmark East,denmarkeast,Denmark East,,Announced,Europe,Denmark,Copenhagen,,,,,,,,2024-04-23T00:00:00Z
+denmarke,denmarkeast,Denmark East,,Announced,Europe,Denmark,Copenhagen,,,,,,,,2024-04-23T00:00:00Z
+denmarkeast,denmarkeast,Denmark East,,Announced,Europe,Denmark,Copenhagen,,,,,,,,2024-04-23T00:00:00Z
+dewc,germanywestcentral,Germany West Central,Azure Commercial,Active,Europe,Germany,Frankfurt,8.682127,50.110924,2019,3,germanywestcentral,All customers and partners,germanynorth,2024-04-23T00:00:00Z
+dke,denmarkeast,Denmark East,,Announced,Europe,Denmark,Copenhagen,,,,,,,,2024-04-23T00:00:00Z
+dm,centralus,Central US,,,North America,United States,,,,,,,,,
+dm,usgoviowa,USGov Iowa,,,North America,United States,Iowa,,,,,,,,
+dxb,uaenorth,UAE North,,,,,,,,,,,,,
+eastasia,eastasia,East Asia,,Public,Asia,China,Hong Kong,,,2010,3,,All customers and partners,,2024-04-23T00:00:00Z
+easteurope,easteurope,East Europe,Azure Commercial,,Europe,,,,,,,,,,
+eastus,eastus,East US,,,North America,United States,,,,,,,,,
+eastus2,eastus2,East US 2,,,North America,United States,,,,,,,,,
+eastus2euap,eastus2euap,East US 2 EUAP,,,North America,United States,,,,,,,,,
+eastusslv,eastusslv,East US SLV,,,North America,United States,,,,,,,,,
+eastusstg,eastusstg,East US STG,,,North America,United States,,,,,,,,,
+ES Central,spaincentral,Spain Central,,,Europe,Spain,,,,,,,,,
+esc,spaincentral,Spain Central,,,Europe,Spain,,,,,,,,,
+EU North,northeurope,North Europe,Azure Commercial,Active,Europe,Ireland,Dublin,,,2009,3,northeurope,All customers and partners,,2024-04-23T00:00:00Z
+EU West,westeurope,West Europe,Azure Commercial,Active,Europe,Netherlands,Amsterdam,,,2010,3,westeurope,All customers and partners,,2024-04-23T00:00:00Z
+europeeast,easteurope,East Europe,Azure Commercial,,Europe,,,,,,,,,,
+europenorth,northeurope,North Europe,Azure Commercial,Active,Europe,Ireland,Dublin,,,2009,3,northeurope,All customers and partners,,2024-04-23T00:00:00Z
+europenorth2,northeurope2,North Europe 2,Azure Commercial,,Europe,,,,,,,,,,
+europewest,westeurope,West Europe,Azure Commercial,Active,Europe,Netherlands,Amsterdam,,,2010,3,westeurope,All customers and partners,,2024-04-23T00:00:00Z
+eusslv,eastusslv,East US SLV,,,North America,United States,,,,,,,,,
+FI Central,finlandcentral,Finland Central,,Announced,Europe,Finland,Helsinki,,,,,,,,2024-04-23T00:00:00Z
+finlandc,finlandcentral,Finland Central,,Announced,Europe,Finland,Helsinki,,,,,,,,2024-04-23T00:00:00Z
+finlandcentral,finlandcentral,Finland Central,,Announced,Europe,Finland,Helsinki,,,,,,,,2024-04-23T00:00:00Z
+flc,finlandcentral,Finland Central,,Announced,Europe,Finland,Helsinki,,,,,,,,2024-04-23T00:00:00Z
+fr,germanycentral,Germany Central,,,Europe,Germany,,,,,,,,,
+FR Central,francecentral,France Central,Azure Commercial,Active,Europe,France,Paris,2.373,46.3772,2018,3,francecentral,All customers and partners,francesouth,2024-04-23T00:00:00Z
+FR South,francesouth,France South,,,Europe,France,Marseille,2.1972,43.8345,,,,,francecentral,2024-04-23T00:00:00Z
+francec,francecentral,France Central,Azure Commercial,Active,Europe,France,Paris,2.373,46.3772,2018,3,francecentral,All customers and partners,francesouth,2024-04-23T00:00:00Z
+francecentral,francecentral,France Central,Azure Commercial,Active,Europe,France,Paris,2.373,46.3772,2018,3,francecentral,All customers and partners,francesouth,2024-04-23T00:00:00Z
+frances,francesouth,France South,,,Europe,France,Marseille,2.1972,43.8345,,,,,francecentral,2024-04-23T00:00:00Z
+francesouth,francesouth,France South,,,Europe,France,Marseille,2.1972,43.8345,,,,,francecentral,2024-04-23T00:00:00Z
+germanycentral,germanycentral,Germany Central,,,Europe,Germany,,,,,,,,,
+germanyn,germanynorth,Germany North,,,Europe,Germany,Berlin,8.806422,53.073635,,,,,germanywestcentral,2024-04-23T00:00:00Z
+germanynorth,germanynorth,Germany North,,,Europe,Germany,Berlin,8.806422,53.073635,,,,,germanywestcentral,2024-04-23T00:00:00Z
+germanynortheast,germanynortheast,Germany NorthEast,,,Europe,Germany,,,,,,,,,
+germanywc,germanywestcentral,Germany West Central,Azure Commercial,Active,Europe,Germany,Frankfurt,8.682127,50.110924,2019,3,germanywestcentral,All customers and partners,germanynorth,2024-04-23T00:00:00Z
+germanywestcentral,germanywestcentral,Germany West Central,Azure Commercial,Active,Europe,Germany,Frankfurt,8.682127,50.110924,2019,3,germanywestcentral,All customers and partners,germanynorth,2024-04-23T00:00:00Z
+grn,usnatwest,USNat West,,,North America,United States,Undisclosed,,,,,,,,
+hel,northeurope2,North Europe 2,Azure Commercial,,Europe,,,,,,,,,,
+hk,eastasia,East Asia,,Public,Asia,China,Hong Kong,,,2010,3,,All customers and partners,,2024-04-23T00:00:00Z
+ID Central,indonesiacentral,Indonesia Central,,Announced,Asia,Indonesia,Jakarta,,,,,,,,2024-04-23T00:00:00Z
+idc,indonesiacentral,Indonesia Central,,Announced,Asia,Indonesia,Jakarta,,,,,,,,2024-04-23T00:00:00Z
+IL Central,israelcentral,Israel Central,Azure Commercial,Active,Asia,Israel,,33.4506633,31.2655698,,,,All customers and partners,,2024-04-23T00:00:00Z
+IL Northwest,israelnorthwest,Israel Northwest,,,Asia,Israel,,,,,,,,,
+ilc,israelcentral,Israel Central,Azure Commercial,Active,Asia,Israel,,33.4506633,31.2655698,,,,All customers and partners,,2024-04-23T00:00:00Z
+ilnw,israelnorthwest,Israel Northwest,,,Asia,Israel,,,,,,,,,
+IN Central,centralindia,Central India,Azure Commercial,Active,Asia,India,Pune,73.9197,18.5822,2015,3,centralindia,All customers and partners,southindia,2024-04-23T00:00:00Z
+IN Central Jio,jioindiacentral,Jio India Central,,,Asia,India,,,,,,,,,
+IN South,southindia,South India,Azure Commercial,Active,Asia,India,Chennai,80.1636,12.9822,2015,0,centralindia,All customers and partners,centralindia,2024-04-23T00:00:00Z
+IN South Central,indiasouthcentral,India South Central,Azure Commercial,Announced,Asia,India,Hyberabad,,,,,,All customers and partners,,2024-04-23T00:00:00Z
+IN West,westindia,West India,,,Asia,India,,,,,,,,,
+IN West Jio,jioindiawest,Jio India West,,,Asia,India,,,,,,,,,
+indiacentral,centralindia,Central India,Azure Commercial,Active,Asia,India,Pune,73.9197,18.5822,2015,3,centralindia,All customers and partners,southindia,2024-04-23T00:00:00Z
+indiasc,indiasouthcentral,India South Central,Azure Commercial,Announced,Asia,India,Hyberabad,,,,,,All customers and partners,,2024-04-23T00:00:00Z
+indiasouth,southindia,South India,Azure Commercial,Active,Asia,India,Chennai,80.1636,12.9822,2015,0,centralindia,All customers and partners,centralindia,2024-04-23T00:00:00Z
+indiasouthcentral,indiasouthcentral,India South Central,Azure Commercial,Announced,Asia,India,Hyberabad,,,,,,All customers and partners,,2024-04-23T00:00:00Z
+indiawest,westindia,West India,,,Asia,India,,,,,,,,,
+indonesiac,indonesiacentral,Indonesia Central,,Announced,Asia,Indonesia,Jakarta,,,,,,,,2024-04-23T00:00:00Z
+indonesiacentral,indonesiacentral,Indonesia Central,,Announced,Asia,Indonesia,Jakarta,,,,,,,,2024-04-23T00:00:00Z
+insc,indiasouthcentral,India South Central,Azure Commercial,Announced,Asia,India,Hyberabad,,,,,,All customers and partners,,2024-04-23T00:00:00Z
+israelc,israelcentral,Israel Central,Azure Commercial,Active,Asia,Israel,,33.4506633,31.2655698,,,,All customers and partners,,2024-04-23T00:00:00Z
+israelcentral,israelcentral,Israel Central,Azure Commercial,Active,Asia,Israel,,33.4506633,31.2655698,,,,All customers and partners,,2024-04-23T00:00:00Z
+israelnorthwest,israelnorthwest,Israel Northwest,,,Asia,Israel,,,,,,,,,
+israelnw,israelnorthwest,Israel Northwest,,,Asia,Israel,,,,,,,,,
+IT North,italynorth,Italy North,Azure Commercial,Active,Europe,Italy,Milan,9.18109,45.46888,2023,3,italynorth,All customers and partners,,2024-04-23T00:00:00Z
+italyn,italynorth,Italy North,Azure Commercial,Active,Europe,Italy,Milan,9.18109,45.46888,2023,3,italynorth,All customers and partners,,2024-04-23T00:00:00Z
+italynorth,italynorth,Italy North,Azure Commercial,Active,Europe,Italy,Milan,9.18109,45.46888,2023,3,italynorth,All customers and partners,,2024-04-23T00:00:00Z
+itn,italynorth,Italy North,Azure Commercial,Active,Europe,Italy,Milan,9.18109,45.46888,2023,3,italynorth,All customers and partners,,2024-04-23T00:00:00Z
+JA East,japaneast,Japan East,Azure Commercial,Active,Asia,Japan,"Tokyo, Saitama",139.77,35.68,2014,3,japaneast,All customers and partners,japanwest,2024-04-23T00:00:00Z
+JA West,japanwest,Japan West,Azure Commercial,Active,Asia,Japan,Osaka,135.5022,34.6939,2014,0,japaneast,All customers and partners,japaneast,2024-04-23T00:00:00Z
+japaneast,japaneast,Japan East,Azure Commercial,Active,Asia,Japan,"Tokyo, Saitama",139.77,35.68,2014,3,japaneast,All customers and partners,japanwest,2024-04-23T00:00:00Z
+japanwest,japanwest,Japan West,Azure Commercial,Active,Asia,Japan,Osaka,135.5022,34.6939,2014,0,japaneast,All customers and partners,japaneast,2024-04-23T00:00:00Z
+jinc,jioindiacentral,Jio India Central,,,Asia,India,,,,,,,,,
+jinw,jioindiawest,Jio India West,,,Asia,India,,,,,,,,,
+jioinc,jioindiacentral,Jio India Central,,,Asia,India,,,,,,,,,
+jioindiacentral,jioindiacentral,Jio India Central,,,Asia,India,,,,,,,,,
+jioindiawest,jioindiawest,Jio India West,,,Asia,India,,,,,,,,,
+jioinw,jioindiawest,Jio India West,,,Asia,India,,,,,,,,,
+jnb,southafricanorth,South Africa North,,Public,Africa,South Africa,Johannesburg,,,2019,3,,All customers and partners,,2024-04-23T00:00:00Z
+koreacentral,koreacentral,Korea Central,Azure Commercial,Active,Asia,Korea,Seoul,126.978,37.5665,2017,3,koreacentral,All customers and partners,koreasouth,2024-04-23T00:00:00Z
+koreas2,koreasouth2,Korea South 2,,,Asia,Korea,,,,,,,,,
+koreasouth,koreasouth,Korea South,Azure Commercial,Active,Asia,Korea,Busan,129.0756,35.1796,,,,,koreacentral,2024-04-23T00:00:00Z
+koreasouth2,koreasouth2,Korea South 2,,,Asia,Korea,,,,,,,,,
+KR Central,koreacentral,Korea Central,Azure Commercial,Active,Asia,Korea,Seoul,126.978,37.5665,2017,3,koreacentral,All customers and partners,koreasouth,2024-04-23T00:00:00Z
+KR South,koreasouth,Korea South,Azure Commercial,Active,Asia,Korea,Busan,129.0756,35.1796,,,,,koreacentral,2024-04-23T00:00:00Z
+krs2,koreasouth2,Korea South 2,,,Asia,Korea,,,,,,,,,
+kul,apacsoutheast2,APAC Southeast 2,,,,,,,,,,,,,
+lg,germanynortheast,Germany NorthEast,,,Europe,Germany,,,,,,,,,
+ln,uksouth,UK South,,,Europe,United Kingdom,,,,,,,,,
+lo,uksouth2,UK South 2,,,Europe,United Kingdom,,,,,,,,,
+ma,southindia,South India,Azure Commercial,Active,Asia,India,Chennai,80.1636,12.9822,2015,0,centralindia,All customers and partners,centralindia,2024-04-23T00:00:00Z
+malaysias,malaysiasouth,Malaysia South,,,Asia,Malaysia,,,,,,,,,
+malaysiasouth,malaysiasouth,Malaysia South,,,Asia,Malaysia,,,,,,,,,
+malaysiaw,malaysiawest,Malaysia West,,Announced,Asia,Malaysia,Kuala Lumpur,,,,,,,,2024-04-23T00:00:00Z
+malaysiawest,malaysiawest,Malaysia West,,Announced,Asia,Malaysia,Kuala Lumpur,,,,,,,,2024-04-23T00:00:00Z
+mexicoc,mexicocentral,Mexico Central,Azure Commercial,Active,North America,Mexico,Querétaro,-100.389888,20.588818,2024,3,mexicocentral,All customers and partners,,2024-04-23T00:00:00Z
+mexicocentral,mexicocentral,Mexico Central,Azure Commercial,Active,North America,Mexico,Querétaro,-100.389888,20.588818,2024,3,mexicocentral,All customers and partners,,2024-04-23T00:00:00Z
+ml,australiasoutheast,Australia Southeast,,Public,Oceania,Australia,Victoria,,,2014,0,,All customers and partners,,2024-04-23T00:00:00Z
+mm,uknorth,UK North,,,Europe,United Kingdom,,,,,,,,,
+mrs,francesouth,France South,,,Europe,France,Marseille,2.1972,43.8345,,,,,francecentral,2024-04-23T00:00:00Z
+mwh,westus2,West US 2,,,North America,United States,,,,,,,,,
+MX Central,mexicocentral,Mexico Central,Azure Commercial,Active,North America,Mexico,Querétaro,-100.389888,20.588818,2024,3,mexicocentral,All customers and partners,,2024-04-23T00:00:00Z
+mxc,mexicocentral,Mexico Central,Azure Commercial,Active,North America,Mexico,Querétaro,-100.389888,20.588818,2024,3,mexicocentral,All customers and partners,,2024-04-23T00:00:00Z
+MY South,malaysiasouth,Malaysia South,,,Asia,Malaysia,,,,,,,,,
+MY West,malaysiawest,Malaysia West,,Announced,Asia,Malaysia,Kuala Lumpur,,,,,,,,2024-04-23T00:00:00Z
+mys,malaysiasouth,Malaysia South,,,Asia,Malaysia,,,,,,,,,
+myw,malaysiawest,Malaysia West,,Announced,Asia,Malaysia,Kuala Lumpur,,,,,,,,2024-04-23T00:00:00Z
+newzealandn,newzealandnorth,New Zealand North,,Announced,Oceania,New Zealand,Auckland,,,,,,,,2024-04-23T00:00:00Z
+newzealandnorth,newzealandnorth,New Zealand North,,Announced,Oceania,New Zealand,Auckland,,,,,,,,2024-04-23T00:00:00Z
+NO East,norwayeast,Norway East,Azure Commercial,Active,Europe,Norway,Oslo,10.752245,59.913868,2019,3,norwayeast,All customers and partners,norwaywest,2024-04-23T00:00:00Z
+NO West,norwaywest,Norway West,,,Europe,Norway,,5.733107,58.969975,,,,,norwayeast,2024-04-23T00:00:00Z
+noe,norwayeast,Norway East,Azure Commercial,Active,Europe,Norway,Oslo,10.752245,59.913868,2019,3,norwayeast,All customers and partners,norwaywest,2024-04-23T00:00:00Z
+northcentralus,northcentralus,North Central US,,,North America,United States,,,,,,,,,
+northeurope,northeurope,North Europe,Azure Commercial,Active,Europe,Ireland,Dublin,,,2009,3,northeurope,All customers and partners,,2024-04-23T00:00:00Z
+northeurope2,northeurope2,North Europe 2,Azure Commercial,,Europe,,,,,,,,,,
+norwaye,norwayeast,Norway East,Azure Commercial,Active,Europe,Norway,Oslo,10.752245,59.913868,2019,3,norwayeast,All customers and partners,norwaywest,2024-04-23T00:00:00Z
+norwayeast,norwayeast,Norway East,Azure Commercial,Active,Europe,Norway,Oslo,10.752245,59.913868,2019,3,norwayeast,All customers and partners,norwaywest,2024-04-23T00:00:00Z
+norwayw,norwaywest,Norway West,,,Europe,Norway,,5.733107,58.969975,,,,,norwayeast,2024-04-23T00:00:00Z
+norwaywest,norwaywest,Norway West,,,Europe,Norway,,5.733107,58.969975,,,,,norwayeast,2024-04-23T00:00:00Z
+now,norwaywest,Norway West,,,Europe,Norway,,5.733107,58.969975,,,,,norwayeast,2024-04-23T00:00:00Z
+NZ North,newzealandnorth,New Zealand North,,Announced,Oceania,New Zealand,Auckland,,,,,,,,2024-04-23T00:00:00Z
+nzn,newzealandnorth,New Zealand North,,Announced,Oceania,New Zealand,Auckland,,,,,,,,2024-04-23T00:00:00Z
+ocave,ocave,Ocave,,,,,,,,,,,,,
+os,japanwest,Japan West,Azure Commercial,Active,Asia,Japan,Osaka,135.5022,34.6939,2014,0,japaneast,All customers and partners,japaneast,2024-04-23T00:00:00Z
+par,francecentral,France Central,Azure Commercial,Active,Europe,France,Paris,2.373,46.3772,2018,3,francecentral,All customers and partners,francesouth,2024-04-23T00:00:00Z
+phx,usgovarizona,USGov Arizona,,Announced,North America,United States,Arizona,,,2017,0,,US government entities and their partners only,,2024-04-23T00:00:00Z
+phxd,usdodsouthwest,USDoD Southwest,,,North America,United States,,,,,,,,,
+PL Central,polandcentral,Poland Central,Azure Commercial,Active,Europe,Poland,Warsaw,21.01666,52.23334,2023,3,polandcentral,All customers and partners,,2024-04-23T00:00:00Z
+plc,polandcentral,Poland Central,Azure Commercial,Active,Europe,Poland,Warsaw,21.01666,52.23334,2023,3,polandcentral,All customers and partners,,2024-04-23T00:00:00Z
+pn,centralindia,Central India,Azure Commercial,Active,Asia,India,Pune,73.9197,18.5822,2015,3,centralindia,All customers and partners,southindia,2024-04-23T00:00:00Z
+polandc,polandcentral,Poland Central,Azure Commercial,Active,Europe,Poland,Warsaw,21.01666,52.23334,2023,3,polandcentral,All customers and partners,,2024-04-23T00:00:00Z
+polandcentral,polandcentral,Poland Central,Azure Commercial,Active,Europe,Poland,Warsaw,21.01666,52.23334,2023,3,polandcentral,All customers and partners,,2024-04-23T00:00:00Z
+ps,koreasouth,Korea South,Azure Commercial,Active,Asia,Korea,Busan,129.0756,35.1796,,,,,koreacentral,2024-04-23T00:00:00Z
+QA Central,qatarcentral,Qatar Central,,,Asia,Qatar,,,,,,,,,
+qac,qatarcentral,Qatar Central,,,Asia,Qatar,,,,,,,,,
+qatarc,qatarcentral,Qatar Central,,,Asia,Qatar,,,,,,,,,
+qatarcentral,qatarcentral,Qatar Central,,,Asia,Qatar,,,,,,,,,
+red,usnateast,USNat East,,,North America,United States,Undisclosed,,,,,,,,
+se,koreacentral,Korea Central,Azure Commercial,Active,Asia,Korea,Seoul,126.978,37.5665,2017,3,koreacentral,All customers and partners,koreasouth,2024-04-23T00:00:00Z
+SE Central,swedencentral,Sweden Central,,,Europe,Sweden,,,,,,,,,
+SE South,swedensouth,Sweden South,,,Europe,Sweden,,,,,,,,,
+sec,swedencentral,Sweden Central,,,Europe,Sweden,,,,,,,,,
+ses,swedensouth,Sweden South,,,Europe,Sweden,,,,,,,,,
+sg,southeastasia,Southeast Asia,,Public,Asia,Singapore,Undisclosed,,,2010,3,,All customers and partners,,2024-04-23T00:00:00Z
+SG Gov,singaporegov,Singapore Gov,,,Asia,Singapore,,,,,,,,,
+sgg,singaporegov,Singapore Gov,,,Asia,Singapore,,,,,,,,,
+sh,chinaeast,China East,Azure China,Active,Asia,China,Shanghai,,,2014,0,chinanorth3,Organizations with a business presence in China,,2024-04-23T00:00:00Z
+sha,chinaeast2,China East 2,Azure China,Active,Asia,China,Shanghai,,,2018,0,chinanorth3,Organizations with a business presence in China,,2024-04-23T00:00:00Z
+Singapore Central,singaporecentral,Singapore Central,,,Asia,Singapore,,,,,,,,,
+Singapore North,singaporenorth,Singapore North,,,Asia,Singapore,,,,,,,,,
+singaporec,singaporecentral,Singapore Central,,,Asia,Singapore,,,,,,,,,
+singaporecentral,singaporecentral,Singapore Central,,,Asia,Singapore,,,,,,,,,
+singaporegov,singaporegov,Singapore Gov,,,Asia,Singapore,,,,,,,,,
+singaporen,singaporenorth,Singapore North,,,Asia,Singapore,,,,,,,,,
+singaporenorth,singaporenorth,Singapore North,,,Asia,Singapore,,,,,,,,,
+singc,singaporecentral,Singapore Central,,,Asia,Singapore,,,,,,,,,
+singn,singaporenorth,Singapore North,,,Asia,Singapore,,,,,,,,,
+sn,southcentralus,South Central US,,,North America,United States,Texas,,,,,,,,
+sn,usgovtexas,USGov Texas,,Active,North America,United States,Texas,,,2017,0,,US government entities and their partners only,,2024-04-23T00:00:00Z
+southafrican,southafricanorth,South Africa North,,Public,Africa,South Africa,Johannesburg,,,2019,3,,All customers and partners,,2024-04-23T00:00:00Z
+southafricanorth,southafricanorth,South Africa North,,Public,Africa,South Africa,Johannesburg,,,2019,3,,All customers and partners,,2024-04-23T00:00:00Z
+southafricaw,southafricawest,South Africa West,,,Africa,South Africa,,,,,,,,,
+southafricawest,southafricawest,South Africa West,,,Africa,South Africa,,,,,,,,,
+southcentralus,southcentralus,South Central US,,,North America,United States,Texas,,,,,,,,
+southcentralusstg,southcentralusstg,South Central US STG,,,North America,United States,Texas,,,,,,,,
+southeastasia,southeastasia,Southeast Asia,,Public,Asia,Singapore,Undisclosed,,,2010,3,,All customers and partners,,2024-04-23T00:00:00Z
+southindia,southindia,South India,Azure Commercial,Active,Asia,India,Chennai,80.1636,12.9822,2015,0,centralindia,All customers and partners,centralindia,2024-04-23T00:00:00Z
+spainc,spaincentral,Spain Central,,,Europe,Spain,,,,,,,,,
+spaincentral,spaincentral,Spain Central,,,Europe,Spain,,,,,,,,,
+swedenc,swedencentral,Sweden Central,,,Europe,Sweden,,,,,,,,,
+swedencentral,swedencentral,Sweden Central,,,Europe,Sweden,,,,,,,,,
+swedens,swedensouth,Sweden South,,,Europe,Sweden,,,,,,,,,
+swedensouth,swedensouth,Sweden South,,,Europe,Sweden,,,,,,,,,
+switzerlandn,switzerlandnorth,Switzerland North,,,Europe,Switzerland,,,,,,,,,
+switzerlandnorth,switzerlandnorth,Switzerland North,,,Europe,Switzerland,,,,,,,,,
+switzerlandw,switzerlandwest,Switzerland West,,,Europe,Switzerland,,,,,,,,,
+switzerlandwest,switzerlandwest,Switzerland West,,,Europe,Switzerland,,,,,,,,,
+sy,australiaeast,Australia East,,Public,Oceania,Australia,New South Wales,,,2014,3,,All customers and partners,,2024-04-23T00:00:00Z
+taiwann,taiwannorth,Taiwan North,,,Asia,Taiwan,,,,,,,,,
+taiwannorth,taiwannorth,Taiwan North,,,Asia,Taiwan,,,,,,,,,
+taiwannorthwest,taiwannorthwest,Taiwan Northwest,,,Asia,Taiwan,,,,,,,,,
+taiwannw,taiwannorthwest,Taiwan Northwest,,,Asia,Taiwan,,,,,,,,,
+TW North,taiwannorth,Taiwan North,,,Asia,Taiwan,,,,,,,,,
+TW Northwest,taiwannorthwest,Taiwan Northwest,,,Asia,Taiwan,,,,,,,,,
+twn,taiwannorth,Taiwan North,,,Asia,Taiwan,,,,,,,,,
+twnw,taiwannorthwest,Taiwan Northwest,,,Asia,Taiwan,,,,,,,,,
+ty,japaneast,Japan East,Azure Commercial,Active,Asia,Japan,"Tokyo, Saitama",139.77,35.68,2014,3,japaneast,All customers and partners,japanwest,2024-04-23T00:00:00Z
+uaec,uaecentral,UAE Central,,,,,,,,,,,,,
+uaecentral,uaecentral,UAE Central,,,,,,,,,,,,,
+uaen,uaenorth,UAE North,,,,,,,,,,,,,
+uaenorth,uaenorth,UAE North,,,,,,,,,,,,,
+UK North,uknorth,UK North,,,Europe,United Kingdom,,,,,,,,,
+UK South,uksouth,UK South,,,Europe,United Kingdom,,,,,,,,,
+UK South 2,uksouth2,UK South 2,,,Europe,United Kingdom,,,,,,,,,
+UK West,ukwest,UK West,,,Europe,United Kingdom,,,,,,,,,
+uknorth,uknorth,UK North,,,Europe,United Kingdom,,,,,,,,,
+uksouth,uksouth,UK South,,,Europe,United Kingdom,,,,,,,,,
+uksouth2,uksouth2,UK South 2,,,Europe,United Kingdom,,,,,,,,,
+ukwest,ukwest,UK West,,,Europe,United Kingdom,,,,,,,,,
+US Central,centralus,Central US,,,North America,United States,,,,,,,,,
+US Central,centraluseuap,Central US EUAP,,,North America,United States,,,,,,,,,
+US DoD,usdodcentral,USDoD Central,,Active,North America,United States,Iowa,,,2017,0,,Reserved for exclusive use by the Department of Defense,,2024-04-23T00:00:00Z
+US DoD,usdodeast,USDoD East,,Active,North America,United States,Virginia,,,2017,0,,Reserved for exclusive use by the Department of Defense,,2024-04-23T00:00:00Z
+US East,eastus,East US,,,North America,United States,,,,,,,,,
+US East 2,eastus2,East US 2,,,North America,United States,,,,,,,,,
+US East 2,eastus2euap,East US 2 EUAP,,,North America,United States,,,,,,,,,
+US Gov,usgoviowa,USGov Iowa,,,North America,United States,Iowa,,,,,,,,
+US Gov,usgovvirginia,USGov Virginia,,Active,North America,United States,Virginia,,,2014,3,,US government entities and their partners only,,2024-04-23T00:00:00Z
+US Gov AZ,usgovarizona,USGov Arizona,,Active,North America,United States,Arizona,,,2017,0,,US government entities and their partners only,,2024-04-23T00:00:00Z
+US Gov TX,usgovtexas,USGov Texas,,Active,North America,United States,Texas,,,2017,0,,US government entities and their partners only,,2024-04-23T00:00:00Z
+US Nat East,usnateast,USNat East,,,North America,United States,,,,,,,,,
+US Nat West,usnatwest,USNat West,,,North America,United States,,,,,,,,,
+US North Central,northcentralus,North Central US,,,North America,United States,,,,,,,,,
+US Sec Central,usseccentral,USSec Central,,,North America,United States,Undisclosed,,,,,,,,
+US Sec East,usseceast,USSec East,,Active,North America,United States,Undisclosed,,,2020,0,,US government entities and their partners only,,2024-04-23T00:00:00Z
+US Sec West,ussecwest,USSec West,,Active,North America,United States,Undisclosed,,,2020,0,,US government entities and their partners only,,2024-04-23T00:00:00Z
+US Sec West Central,ussecwestcentral,USSec West Central,,Announced,North America,United States,Undisclosed,,,,0,,US government entities and their partners only,,2024-04-23T00:00:00Z
+US South Central,southcentralus,South Central US,,,North America,United States,,,,,,,,,
+US West,westus,West US,,,North America,United States,,,,,,,,,
+US West 2,westus2,West US 2,,,North America,United States,,,,,,,,,
+US West 3,westus3,West US 3,,,North America,United States,,,,,,,,,
+US West Central,westcentralus,West Central US,,,North America,United States,,,,,,,,,
+uscentral,centralus,Central US,,,North America,United States,,,,,,,,,
+uscentraleuap,centraluseuap,Central US EUAP,,,North America,United States,,,,,,,,,
+usdodcentral,usdodcentral,USDoD Central,,Active,North America,United States,Iowa,,,2017,0,,Reserved for exclusive use by the Department of Defense,,2024-04-23T00:00:00Z
+usdodeast,usdodeast,USDoD East,,Active,North America,United States,Virginia,,,2017,0,,Reserved for exclusive use by the Department of Defense,,2024-04-23T00:00:00Z
+usdodsc,usdodsouthcentral,USDoD South Central,,,North America,United States,,,,,,,,,
+usdodsouthcentral,usdodsouthcentral,USDoD South Central,,,North America,United States,,,,,,,,,
+usdodsouthwest,usdodsouthwest,USDoD Southwest,,,North America,United States,,,,,,,,,
+usdodsw,usdodsouthwest,USDoD Southwest,,,North America,United States,,,,,,,,,
+usdodwc,usdodwestcentral,USDoD West Central,,,North America,United States,,,,,,,,,
+usdodwestcentral,usdodwestcentral,USDoD West Central,,,North America,United States,,,,,,,,,
+usdsc,usdodsouthcentral,USDoD South Central,,,North America,United States,,,,,,,,,
+usdwc,usdodwestcentral,USDoD West Central,,,North America,United States,,,,,,,,,
+use,eastusslv,East US SLV,,,North America,United States,,,,,,,,,
+useast,eastus,East US,,,North America,United States,,,,,,,,,
+useast2,eastus2,East US 2,,,North America,United States,,,,,,,,,
+useast2euap,eastus2euap,East US 2 EUAP,,,North America,United States,,,,,,,,,
+usgovarizona,usgovarizona,USGov Arizona,,Active,North America,United States,Arizona,,,2017,0,,US government entities and their partners only,,2024-04-23T00:00:00Z
+usgovcentral,usgoviowa,USGov Iowa,,,North America,United States,Iowa,,,,,,,,
+usgoveast,usgovvirginia,USGov Virginia,,Active,North America,United States,Virginia,,,2014,3,,US government entities and their partners only,,2024-04-23T00:00:00Z
+usgoviowa,usgoviowa,USGov Iowa,,,North America,United States,Iowa,,,,,,,,
+usgovsc,usgovtexas,USGov Texas,,Active,North America,United States,Texas,,,2017,0,,US government entities and their partners only,,2024-04-23T00:00:00Z
+usgovsw,usgovarizona,USGov Arizona,,Active,North America,United States,Arizona,,,2017,0,,US government entities and their partners only,,2024-04-23T00:00:00Z
+usgovtexas,usgovtexas,USGov Texas,,Active,North America,United States,Texas,,,2017,0,,US government entities and their partners only,,2024-04-23T00:00:00Z
+usgovvirginia,usgovvirginia,USGov Virginia,,Active,North America,United States,Virginia,,,2014,3,,US government entities and their partners only,,2024-04-23T00:00:00Z
+usgovwc,usgovwyoming,USGov Wyoming,,,North America,United States,Wyoming,,,,,,,,
+usgovwyoming,usgovwyoming,USGov Wyoming,,,North America,United States,Wyoming,,,,,,,,
+usnate,usnateast,USNat East,,,North America,United States,,,,,,,,,
+usnateast,usnateast,USNat East,,,North America,United States,,,,,,,,,
+usnatw,usnatwest,USNat West,,,North America,United States,,,,,,,,,
+usnatwest,usnatwest,USNat West,,,North America,United States,,,,,,,,,
+usnorth,northcentralus,North Central US,,,North America,United States,,,,,,,,,
+ussc,usseccentral,USSec Central,,,North America,United States,Undisclosed,,,,,,,,
+usse,usseceast,USSec East,,Active,North America,United States,Undisclosed,,,2020,0,,US government entities and their partners only,,2024-04-23T00:00:00Z
+ussecc,usseccentral,USSec Central,,,North America,United States,Undisclosed,,,,,,,,
+usseccentral,usseccentral,USSec Central,,,North America,United States,Undisclosed,,,,,,,,
+ussece,usseceast,USSec East,,Active,North America,United States,Undisclosed,,,2020,0,,US government entities and their partners only,,2024-04-23T00:00:00Z
+usseceast,usseceast,USSec East,,Active,North America,United States,Undisclosed,,,2020,0,,US government entities and their partners only,,2024-04-23T00:00:00Z
+ussecw,ussecwest,USSec West,,Active,North America,United States,Undisclosed,,,2020,0,,US government entities and their partners only,,2024-04-23T00:00:00Z
+ussecwc,ussecwestcentral,USSec West Central,,Announced,North America,United States,Undisclosed,,,,0,,US government entities and their partners only,,2024-04-23T00:00:00Z
+ussecwest,ussecwest,USSec West,,Active,North America,United States,Undisclosed,,,2020,0,,US government entities and their partners only,,2024-04-23T00:00:00Z
+ussecwestcentral,ussecwestcentral,USSec West Central,,Announced,North America,United States,Undisclosed,,,,0,,US government entities and their partners only,,2024-04-23T00:00:00Z
+ussouth,southcentralus,South Central US,,,North America,United States,,,,,,,,,
+usstagee,eastusstg,East US STG,,,North America,United States,,,,,,,,,
+usstagesc,southcentralusstg,South Central US STG,,,North America,United States,,,,,,,,,
+ussw,ussecwest,USSec West,,Active,North America,United States,Undisclosed,,,2020,0,,US government entities and their partners only,,2024-04-23T00:00:00Z
+usswc,ussecwestcentral,USSec West Central,,Announced,North America,United States,Undisclosed,,,,0,,US government entities and their partners only,,2024-04-23T00:00:00Z
+uste,eastusstg,East US STG,,,North America,United States,,,,,,,,,
+ustsc,southcentralusstg,South Central US STG,,,North America,United States,,,,,,,,,
+usw3,westus3,West US 3,,,North America,United States,,,,,,,,,
+uswest,westus,West US,,,North America,United States,,,,,,,,,
+uswest2,westus2,West US 2,,,North America,United States,,,,,,,,,
+uswest3,westus3,West US 3,,,North America,United States,,,,,,,,,
+uswestcentral,westcentralus,West Central US,,,North America,United States,,,,,,,,,
+westcentralus,westcentralus,West Central US,,,North America,United States,,,,,,,,,
+westeurope,westeurope,West Europe,Azure Commercial,Active,Europe,Netherlands,Amsterdam,,,2010,3,westeurope,All customers and partners,,2024-04-23T00:00:00Z
+westindia,westindia,West India,,,Asia,India,,,,,,,,,
+westus,westus,West US,,,North America,United States,,,,,,,,,
+westus2,westus2,West US 2,,,North America,United States,,,,,,,,,
+westus3,westus3,West US 3,,,North America,United States,,,,,,,,,
+yq,canadaeast,Canada East,,Active,North America,Canada,Quebec City,-71.217,46.817,2016,0,canadacentral,All customers and partners,canadacentral,2024-04-23T00:00:00Z
+yt,canadacentral,Canada Central,,Active,North America,Canada,Toronto,-79.383,43.653,2016,3,canadacentral,All customers and partners,canadaeast,2024-04-23T00:00:00Z
+yyy,easteurope,East Europe,Azure Commercial,,Europe,,,,,,,,,,
+ZA North,southafricanorth,South Africa North,,Public,Africa,South Africa,Johannesburg,,,2019,3,,All customers and partners,,2024-04-23T00:00:00Z
+ZA West,southafricawest,South Africa West,,,Africa,South Africa,,,,,,,,,
+greececentral,greececentral,Greece Central,,Announced,Europe,Greece,Athens,,,,,,,,2024-04-23T00:00:00Z
+Greece Central,greececentral,Greece Central,,Announced,Europe,Greece,Athens,,,,,,,,2024-04-23T00:00:00Z
