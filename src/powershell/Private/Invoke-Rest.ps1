@@ -30,12 +30,19 @@ function Invoke-Rest
     [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory = $true, Position = 0)]
+        [Parameter(Mandatory = $false, Position = 0)]
         [ValidateSet("GET", "POST", "PUT", "PATCH", "DELETE")]
+        [System.ComponentModel.DefaultValueAttribute("GET")]
         [string]
-        $Method,
+        $Method = "GET",
         
-        [Parameter(Mandatory = $true, Position = 1)]
+        [Parameter(Mandatory = $false, Position = 1)]
+        [ValidateSet("Azure", "Fabric")]
+        [System.ComponentModel.DefaultValueAttribute("Azure")]
+        [string]
+        $Service = "Azure",
+        
+        [Parameter(Mandatory = $true, Position = 2)]
         [string]
         $Uri,
         
@@ -58,40 +65,77 @@ function Invoke-Rest
     $ver = 'unknown'
     try { $ver = Get-VersionNumber } catch {}
 
-    $arm = (Get-AzContext).Environment.ResourceManagerUrl
+    # Build API parameters
+    $env = (Get-AzContext).Environment
+    if ($Service -eq 'Fabric')
+    {
+        $fabricUrls = @{
+            default = @{
+                resource = 'https://api.fabric.microsoft.com'
+                endpoint = 'https://api.fabric.microsoft.com/v1'
+            }
+        }
+        # TODO: Map Azure to Fabric environment
+        # $token = (Get-PowerBIAccessToken).Token.Value.Trim('Bearer ')
+        $resourceUri = $fabricUrls.default.resource
+        $token = (Get-AzAccessToken -ResourceUrl $resourceUri).Token
+        $domain = $fabricUrls.default.endpoint
+    }
+    else
+    {
+        $token = (Get-AzAccessToken).Token
+        $domain = $env.ResourceManagerUrl
+    }
     $params = @{
         Method      = $Method
-        Uri         = $arm.Trim('/') + '/' + $Uri.Trim('/')
+        Uri         = $domain.Trim('/') + '/' + $Uri.Trim('/')
         Headers     = @{
-            Authorization             = "Bearer $((Get-AzAccessToken).Token)"
+            Authorization             = "Bearer $token"
             ClientType                = "FinOpsToolkit.PowerShell.$CommandName@$ver"
-            "Content-Type"            = 'application/json'
-            "x-ms-command-name"       = "FinOpsToolkit.PowerShell.$CommandName@$ver"
-            "x-ms-parameter-set-name" = $ParameterSetName
+            'Content-Type'            = 'application/json'
+            'x-ms-command-name'       = "FinOpsToolkit.PowerShell.$CommandName@$ver"
+            'x-ms-parameter-set-name' = $ParameterSetName
         }
-        ErrorAction = "Stop"
+        ErrorAction = 'Stop'
     }
     if ($Body)
     {
         $params.Body = $Body | ConvertTo-Json -Depth 100
     }
     
-    Write-Verbose "Invoking $Method $fullUri with request body $Body`n"
-
     try
     {
+        Write-Verbose "Invoking $Method $($params.Uri) with request body $($params.Body)`n"
         $response = Invoke-WebRequest @params
         $content = $response.Content | ConvertFrom-Json -Depth 100
     }
     catch
     {
+        Write-Verbose "Error invoking $Method $($params.Uri) with request body $($params.Body)"
         $response = $_.Exception.Response
         $content = $_.ErrorDetails.Message | ConvertFrom-Json -Depth 10
+        # DEBUG: Write-Verbose "Exception.Response = $($response | ConvertTo-Json -Depth 10)"
+        # DEBUG: Write-Verbose "ErrorDetails.Message = $($content | ConvertTo-Json -Depth 10)"
         if ($content.error)
         {
             $errorCode = $content.error.code
             $errorMessage = $content.error.message
-            Write-Error -Message $($script:localizedData.Common_ErrorResponse -f $errorMessage, $errorCode)
+            Write-Error -Message ($script:localizedData.Common_ErrorResponse -f $errorMessage, $errorCode)
+        }
+        elseif ($content.moreDetails.Count -gt 0)
+        {
+            $content.moreDetails | ForEach-Object {
+                $errorCode = $_.errorCode
+                $errorMessage = $_.message
+                Write-Host -Message ($script:localizedData.Common_ErrorResponse -f $errorMessage, $errorCode)
+                Write-Error -Message ($script:localizedData.Common_ErrorResponse -f $errorMessage, $errorCode)
+            }
+        }
+        elseif ($content.errorCode)
+        {
+            $errorCode = $content.errorCode
+            $errorMessage = $content.message
+            Write-Error -Message ($script:localizedData.Common_ErrorResponse -f $errorMessage, $errorCode)
         }
         else
         {
