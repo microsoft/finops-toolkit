@@ -173,8 +173,6 @@ Once the above requirements have been met, the feature branch can be merged into
 
 <br>
 
-I hope this helps you understand the different pricing models. 😊
-
 ## 📜 Changelog guidance
 
 Our changelog is written for our customers, not developers. It should be easy to read and understand and should not include any technical details. It should be written in a way that a customer can read it and understand what's new in the release without requiring any additional context or internal details about how solutions were designed or built.
