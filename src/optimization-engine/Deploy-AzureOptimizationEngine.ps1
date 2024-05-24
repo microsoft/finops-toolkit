@@ -761,6 +761,11 @@ if ("Y", "y" -contains $continueInput) {
                 Write-Host "Failed deployment. Trying once more..." -ForegroundColor Yellow
             }            
         } while (-not($deploymentSucceeded) -and $deploymentTries -lt $maxDeploymentTries)
+        
+        if ($deployment.ProvisioningState -eq "Failed" -or $null -eq $deployment.Outputs)
+        {
+            throw "Deployment failed. Check the Azure subscription Activity Logs for more details."
+        }
 
         $spnId = $deployment.Outputs['automationPrincipalId'].Value 
         #endregion
