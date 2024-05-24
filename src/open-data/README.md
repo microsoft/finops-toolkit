@@ -100,13 +100,38 @@ Meters
 ## 🗺️ Regions
 
 <sup>
-    📅 Updated: Sep 16, 2023<br>
+    📅 Updated: Mar 23, 2024<br>
     ➡️ Source: Commerce Platform Data Model team<br>
+    ➡️ Source: Az PowerShell, Get-AzLocation command<br>
+    ➡️ Source: [Azure website][azr]<br>
 </sup>
 
 <br>
 
-The [Regions.csv](./Regions.csv) file contains data from several internal sources. We shouldn't need to update this file as Cost Management data is standardizing on Azure regions.
+The [Regions.csv](./Regions.csv) file contains data from several internal and public sources:
+
+| Column                          | Source           | Notes                                                                                                          |
+| ------------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------- |
+| `OriginalValue`                 | CPDM             | These are historical values that should no longer be needed. Need to confirm with latest Cost Management data. |
+| `RegionId`                      | Get-AzLocation   | Official Azure Resource Manager region ID.                                                                     |
+| `RegionName`                    | Get-AzLocation   | Official Azure Resource Manager region display name.                                                           |
+| `Status`                        | Derived          | Values: Active, Announced.                                                                                     |
+| `Continent`                     | Derived          |                                                                                                                |
+| `Country`                       | Derived          |                                                                                                                |
+| `Location`                      | [Azure.com][azr] |                                                                                                                |
+| `Longitude`                     | Get-AzLocation   |                                                                                                                |
+| `Latitude`                      | Get-AzLocation   |                                                                                                                |
+| `YearOpened`                    | [Azure.com][azr] |                                                                                                                |
+| `AvailabilityZones`             | [Azure.com][azr] | Number of availability zones supported in this region.                                                         |
+| `NearestAvailabilityZoneRegion` | [Azure.com][azr] | Nearest region that has availability zones. Use the row's region ID if it supports availability zones.         |
+| `AvailableTo`                   | [Azure.com][azr] |                                                                                                                |
+| `PairedRegion`                  | Get-AzLocation   |                                                                                                                |
+| `Updated`                       | Manual           | Date this row was last updated. Does not indicate freshness of the data.                                       |
+
+[azr]: https://azure.microsoft.com/explore/global-infrastructure/geographies/#choose-your-region
+
+_<sup>1) 
+We shouldn't need to update this file as Cost Management data is standardizing on Azure regions.
 
 > ℹ️ _Internal only: Contact the CPDM PM team for any updates._
 
