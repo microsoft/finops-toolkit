@@ -20,7 +20,7 @@ jobs:
       AOE_WORKSPACENAME: ${{ secrets.AOE_WORKSPACENAME }}
       AOE_WORKSPACERG: ${{ secrets.AOE_WORKSPACERG }}
     steps:
-      - run: echo "This job is now running on a ${{ runner.os }} server hosted by GitHub for the ${{ github.ref }} branch of the ${{ github.repository }} repository!"
+      - run: echo "This job is now running on a ${{ runner.os }} server hosted by GitHub for the ${{ github.ref.name }} branch of the ${{ github.repository }} repository!"
       - name: Installing modules
         shell: pwsh
         run: |
@@ -57,5 +57,5 @@ jobs:
         shell: pwsh
         run: |
           Set-Location ./src/optimization-engine
-          ./Deploy-AzureOptimizationEngine.ps1 -SilentDeploymentSettingsPath ./deploymentSettings.json -TemplateUri "https://raw.githubusercontent.com/microsoft/finops-toolkit/dev/src/optimization-engine/azuredeploy.bicep"
+          ./Deploy-AzureOptimizationEngine.ps1 -SilentDeploymentSettingsPath ./deploymentSettings.json -TemplateUri "https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref.name }}/src/optimization-engine/azuredeploy.bicep"
       - run: echo "🍏 This job's status is ${{ job.status }}."

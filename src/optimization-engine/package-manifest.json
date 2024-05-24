@@ -1,21 +1,14 @@
 {
-    "deploySubDir": "optimization-engine",
+    "deploySubDir": "optimization-engine/latest",
+    "deploySubDirVersioned": "optimization-engine/{version}",
     "deployFiles": [
         {
             "source": "azuredeploy.bicep",
             "destination": "azuredeploy.bicep"
         },
         {
-            "source": "azuredeploy.bicep",
-            "destination": "azuredeploy-{version}.bicep"
-        },
-        {
             "source": "azuredeploy-nested.bicep",
             "destination": "azuredeploy-nested.bicep"
-        },
-        {
-            "source": "azuredeploy-nested.bicep",
-            "destination": "azuredeploy-nested-{version}.bicep"
         }
     ],
     "deployDirectories": [

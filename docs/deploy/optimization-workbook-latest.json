@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.25.53.49325",
-      "templateHash": "14764513392249211162"
+      "version": "0.24.24.22086",
+      "templateHash": "6696310657409574480"
     }
   },
   "parameters": {
@@ -11002,7 +11002,7 @@
     "workbookJson": "[string(variables('$fxv#0'))]",
     "workbookId": "0b2",
     "telemetryId": "[format('00f120b5-2007-6120-0000-{0}30126b006', variables('workbookId'))]",
-    "finOpsToolkitVersion": "0.2.1-rc.2"
+    "finOpsToolkitVersion": "placeholder"
   },
   "resources": [
     {

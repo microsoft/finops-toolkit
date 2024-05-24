@@ -95,6 +95,7 @@ function Find-Repo($config, [string]$templateName)
 $ver = & "$PSScriptRoot/Get-Version.ps1"
 
 # Loop thru templates
+# TODO remove the optimization-engine exclusion once we determine how we are going to publish it to other repos
 Get-ChildItem "$relDir/$Template*" -Directory -Exclude "optimization-engine" `
 | ForEach-Object {
     $templateDir = $_

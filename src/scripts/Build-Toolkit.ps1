@@ -119,6 +119,7 @@ Get-ChildItem "$PSScriptRoot/../templates/$Template*" -Directory -ErrorAction Si
     Write-Host ''
 }
 
+# TODO: review build logic to make it more generic across all toolkit components
 # Package optimization engine
 $srcDir = "$PSScriptRoot/../optimization-engine"
 Write-Host "Building optimization engine..."
