@@ -73,7 +73,6 @@ Legend:
 >
 > 1. Documented the [FOCUS export dataset](../_docs/focus/metadata.md) to align to the FOCUS metadata specification.
 
-
 <br>
 
 ## 🚚 v0.3
