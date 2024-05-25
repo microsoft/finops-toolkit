@@ -18,11 +18,9 @@
 - [[Dev process]]
 - [[Branching strategy]]
 
-**Product**
-
-- [[Release process]]
-
 **Standard operating procedures**
 
 - [[Governing board]]
 - [[Advisory council]]
+- [[Release process]]
+- [[Support escalations]]
