@@ -23,7 +23,7 @@ If you run into an issue, we recommend taking the following actions:
 3. **Review the [troubleshooting guide](https://aka.ms/ftk/trouble).**<br>The most common issues and their solutions are documented and should be able to be resolved indepdentantly.<br>&nbsp;
 4. **Identify the source of the issue.**<br>For error messages, what product is showing the error? Does the error refer to another product? For missing or incorrect data, is the data generated in Power BI report or does it come directly from a product, like Cost Management?<br>&nbsp;
 5. **Create support requests for product issues.**<br>If the source of the issue is a managed product (including data from Cost Management), create a Microsoft support request for that specific product. If you're not sure, ask in the [Q&A dicsussion forum](https://github.com/microsoft/finops-toolkit/discussions/categories/q-a).<br>&nbsp;
-6. **Create an issue in GitHub.**<br>Whether you submit a support request or not, we recommend creating an issue to let us know about the problems you're facing. Even if the issue is a product bug, we would like to document it to help others.
+6. **Create an issue in GitHub.**<br>Whether you submit a support request or not, we recommend [creating an issue](https://aka.ms/ftk/idea) to let us know about the problems you're facing. Even if the issue is a product bug, we would like to document it to help others.
 
 We try to respond to issues and discussions within 2 business days but there can sometimes be unanticipated delays. If you've completed all steps above and the issue has not been within a week, we should setup a Teams call for you to share your screen so we can troubleshoot the issue together.
 
@@ -34,7 +34,7 @@ We try to respond to issues and discussions within 2 business days but there can
 
 ## 🔎 Escalation process
 
-**Issues and discussions** are reviewed periodically through the week. [[Advisory council]] members and key contributors will be looped into issues and discussions as needed. Council members are expected to respond within 2 business days and be avaialble for a Teams call should the issue not be resolved asynchronously within a week.
+**Issues and discussions** are reviewed periodically through the week. [[Advisory council]] members and key contributors will be looped into issues and discussions as needed. Council members are expected to respond within 2 business days and be available for a Teams call should the issue not be resolved asynchronously within a week.
 
 Microsoft Support will attempt to resolve **support requests** using internal troubleshooting guides. Some products, like Power BI, have connectors owned by different teams and may route issues one or more times before finding the right contact. For this reason, offering detailed troubleshooting guides is critical. When the issue is not resolved, Microsoft Support will typically contact the primary contributors in the repo, which are typically [[Governing board]] and [[Advisory council]] members. Board and council members are expected to respond within 1 business day for support escalations, loop in relevant contributors, and ideally facilitate a Teams call getting scheduled within the next 2 business days.
 

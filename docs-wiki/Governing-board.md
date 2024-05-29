@@ -33,6 +33,13 @@ The board is responsible for identifying short-, medium-, and long-term goals an
   - Telemetry to measure satisfaction, engagement, adoption, retention, etc.
 - **Compliance**: Ensuring we're in compliance with Microsoft policies and procedures.
 
+Board members are also expected to facilitate [[Support escalations]] by:
+- Reviewing new and unresolved issues and discussions at least once per week.
+- Responding to Microsoft Support escalations within 2 business days.
+- Responding to security investigations within 1 business day.
+
+Board members are expected to loop in appropriate [[Advisory council]] members and key contributors as needed to facilitate resolving the issue in accordance with the [[support process|Support escalations]]. Board members are not expected to resolve issues directly unless they have deep technical knowledge about the solution.
+
 <br>
 
 ## 🤔 Making decisions
@@ -59,14 +66,16 @@ If consensus cannot be reached within 14 days and the board believes the issue i
 
 The governing board consists of the following representative seats:
 
+- Business sponsor
 - Community
 - Consulting
 - Engineering
 - Marketing
 - Product
 - FinOps Certified Professional
-- Internal customer (up to 2)
-- External customer (up to 3)
+- Internal customer (one per FinOps persona)
+- External customer (one per FinOps persona)
+- Advisory Council
 
 Individuals must meet the following criteria in order to attain a board seat:
 

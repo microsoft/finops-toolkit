@@ -1,6 +1,6 @@
 <!-- markdownlint-disable MD041 -->
 
-The Microsoft FinOps toolkit is an open-source collection of tools and resources that help you learn, adopt, and implement FinOps capabilities in the Microsoft Cloud. This document outlines the key themes and directional initiatives identified by the [[Governing Board]] based on direct feedback and inputs from the [[Advisory Council]] on behalf of toolkit contributors and consumers.
+The Microsoft FinOps toolkit is an open-source collection of tools and resources that help you learn, adopt, and implement FinOps capabilities in the Microsoft Cloud. This document outlines the key themes and directional initiatives identified by the [[Governing board]] based on direct feedback and inputs from the [[Advisory council]] on behalf of toolkit contributors and consumers. As of May 2024, the FinOps toolkit will target publishing new releases at the end of every month, which includes updates to this roadmap and the [changelog](https://aka.ms/ftk/changes).
 
 📅 Roadmap term: **January - December 2024**
 

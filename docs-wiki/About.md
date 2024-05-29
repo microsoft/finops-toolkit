@@ -43,10 +43,14 @@ Current board members:
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="150"><a href="http://about.me/flanakin"><img src="https://avatars.githubusercontent.com/u/399533?v=4?s=100" width="100px;" alt="Michael Flanakin"/><br /><b>Michael Flanakin</b></a><br /><sup>Product</sup></td>
-      <td align="center" valign="top" width="150"><a href="https://github.com/arthurclares"><img src="https://avatars.githubusercontent.com/u/53261392?v=4?s=100" width="100px;" alt="Arthur Clares"/><br /><b>Arthur Clares</b></a><br /><sup>Engineering</sup></td>
-      <td align="center" valign="top" width="150"><a href="https://github.com/scuffy"><img src="https://avatars.githubusercontent.com/u/41356020?v=4?s=100" width="100px;" alt="Sonia Cuff"/><br /><b>Sonia Cuff</b></a><br /><sup>Community</sup></td>
-      <td align="center" valign="top" width="150"><a href="https://github.com/maggar"><img src="https://avatars.githubusercontent.com/u/55561955?v=4?s=100" width="100px;" alt="Mark Aggar"/><br /><b>Mark Aggar</b></a><br /><sup>Internal customer</sup></td>
+      <td align="center" valign="top" width="209"><a href="https://github.com/nilson79"><img src="https://avatars.githubusercontent.com/u/3111022?v=4?s=100" width="100px;" alt="Nelson Pereira"/><br /><b>Nelson Pereira</b></a><br /><sup>Business sponsor</sup></td>
+      <td align="center" valign="top" width="209"><a href="http://about.me/flanakin"><img src="https://avatars.githubusercontent.com/u/399533?v=4?s=100" width="100px;" alt="Michael Flanakin"/><br /><b>Michael Flanakin</b></a><br /><sup>Product</sup></td>
+      <td align="center" valign="top" width="209"><a href="https://github.com/arthurclares"><img src="https://avatars.githubusercontent.com/u/53261392?v=4?s=100" width="100px;" alt="Arthur Clares"/><br /><b>Arthur Clares</b></a><br /><sup>Engineering</sup></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="209"><a href="https://github.com/scuffy"><img src="https://avatars.githubusercontent.com/u/41356020?v=4?s=100" width="100px;" alt="Sonia Cuff"/><br /><b>Sonia Cuff</b></a><br /><sup>Community</sup></td>
+      <td align="center" valign="top" width="209"><img src="https://github.com/microsoft/finops-toolkit/assets/399533/164afda4-1960-499d-a621-afdf6f868903" width="100px;" alt="Manfred Simonis"/><br /><b>Manfred Simonis</b></a><br /><sup>Consulting</sup></td>
+      <td align="center" valign="top" width="209"><a href="https://github.com/maggar"><img src="https://avatars.githubusercontent.com/u/55561955?v=4?s=100" width="100px;" alt="Mark Aggar"/><br /><b>Mark Aggar</b></a><br /><sup>Internal customer</sup></td>
     </tr>
   </tbody>
 </table>

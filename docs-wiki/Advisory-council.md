@@ -23,6 +23,14 @@ The council is responsible for the following high-level areas:
 - **Execution**: Executing the vision and strategy outlined by the board as it pertains to each tool and resource.
 - **Recognition**: Acknowledging and celebrating the contributions of community members to encourage continued engagement and contribution.
 
+Council members are also expected to facilitate [[Support escalations]] by:
+- Reviewing new and unresolved issues and discussions related to their tool or resource at least once per week.
+- Responding to issues and discussions about their tool or resource within 2 business days.
+- Responding to Microsoft Support escalations within 2 business days.
+- Responding to security investigations within 1 business day.
+
+Council members are expected to facilitate resolving or looping in key contributors as needed to resolve the issue in accordance with the [[support process|Support escalations]].
+
 <br>
 
 ## 🤔 Making decisions
@@ -33,7 +41,36 @@ While the council does not make explicit project decisions amongst themselves, t
 
 ## 🧑‍🤝‍🧑 Composition
 
-The advisory council includes 1 and only 1 representative for each of the tools and resources included in the toolkit. The limit of 1 per tool or resource is to ensure the council remains fair, balanced, and does not grow too large to be effective. Learning resources split into collections of related content (e.g., marketing content vs. FinOps Framework docs).
+The advisory council consists of the following representative seats:
+
+- Each tool and resource included in the toolkit:
+  - Azure Optimization Engine
+  - Bicep Registry
+  - Cost optimization workbook
+  - Governance workbook
+  - FinOps guide (docs)
+  - FinOps hubs
+  - Open data
+  - Power BI reports
+  - PowerShell module
+  - Learning resources
+- Each Microsoft product family in the FinOps space:
+  - Azure Advisor
+  - Azure Monitor
+  - Azure Resource Manager (including Management groups, Tags, Policy, Resource Graph, etc.)
+  - Commerce (including Benefits, Cost Management, Pricing, etc.)
+  - Microsoft Fabric (including Power BI, Data Factory, etc.)
+- Any FinOps Certified Professional (no limit on number)
+- Each Microsoft team that provides direct, FinOps-focused support for customers:
+  - Industry Solutions Division (consulting)
+  - Customer Success Unit - CCX
+  - Customer Success Unit - Infrastructure
+  - Customer Success Unit - Data & AI
+  - Azure Customer Experience - FastTrack
+  - Developer Relations
+  - Customer Support Services  
+
+Each seat can be filled by one and only one representative to ensure the council remains fair, balanced, and does not grow too large to be effective. The one exception is FinOps Certified Professionals who we believe have earned the right to contribute independently given their investment in certification and dedication to the FinOps space.
 
 Individuals must meet the following criteria in order to attain a council seat:
 
