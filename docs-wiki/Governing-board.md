@@ -66,16 +66,17 @@ If consensus cannot be reached within 14 days and the board believes the issue i
 
 The governing board consists of the following representative seats:
 
-- Business sponsor
-- Community
-- Consulting
-- Engineering
-- Marketing
-- Product
-- FinOps Certified Professional
-- Internal customer (one per FinOps persona)
-- External customer (one per FinOps persona)
-- Advisory Council
+| Seat | Member |
+| Business sponsor | Nelson Pereira |
+| Community | Sonia Cuff |
+| Consulting | Manfred Simonis |
+| Engineering | Arthur Clares |
+| Marketing | Vacant |
+| Product | Michael Flanakin |
+| FinOps Certified Professional | Vacant |
+| Internal customer (one per FinOps persona) | Mark Aggar |
+| External customer (one per FinOps persona) | Vacant |
+| Advisory Council | Vacant |
 
 Individuals must meet the following criteria in order to attain a board seat:
 

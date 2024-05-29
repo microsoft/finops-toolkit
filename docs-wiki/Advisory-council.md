@@ -43,24 +43,13 @@ While the council does not make explicit project decisions amongst themselves, t
 
 The advisory council consists of the following representative seats:
 
-- Each tool and resource included in the toolkit:
-  - Azure Optimization Engine
-  - Bicep Registry
-  - Cost optimization workbook
-  - Governance workbook
-  - FinOps guide (docs)
-  - FinOps hubs
-  - Open data
-  - Power BI reports
-  - PowerShell module
-  - Learning resources
+- Each tool and resource included in the toolkit
 - Each Microsoft product family in the FinOps space:
   - Azure Advisor
   - Azure Monitor
   - Azure Resource Manager (including Management groups, Tags, Policy, Resource Graph, etc.)
   - Commerce (including Benefits, Cost Management, Pricing, etc.)
   - Microsoft Fabric (including Power BI, Data Factory, etc.)
-- Any FinOps Certified Professional (no limit on number)
 - Each Microsoft team that provides direct, FinOps-focused support for customers:
   - Industry Solutions Division (consulting)
   - Customer Success Unit - CCX
@@ -69,12 +58,24 @@ The advisory council consists of the following representative seats:
   - Azure Customer Experience - FastTrack
   - Developer Relations
   - Customer Support Services  
+- Any FinOps Certified Professional (no limit on number)
+
+This currently includes the following people:
+
+| Tool / Resource | Representative |
+|------------------|------------------|
+| Azure Optimization Engine | Helder Pinto |
+| Cost optimization workbook | Seif Bassem |
+| FinOps hubs | Brett Wilson |
+| Governance workbook | Nicolas Teyan |
+| PowerShell module | Anthony Romano |
+| Learning resources | Fernando Vasconcellos |
 
 Each seat can be filled by one and only one representative to ensure the council remains fair, balanced, and does not grow too large to be effective. The one exception is FinOps Certified Professionals who we believe have earned the right to contribute independently given their investment in certification and dedication to the FinOps space.
 
 Individuals must meet the following criteria in order to attain a council seat:
 
-1. Must be an owner or appointed by an owner of a tool or resource that has shipped in the toolkit.
+1. Must align to a vacant seat on the council (listed above).
 2. Must have detailed knowledge about the tool or resource to support consulting, technical support, or customer conversations, if needed.
 3. Must engage with the community at least once per week, including customer calls.
 4. Must dedicate and average of 2-4 hours per week to evolve, support, and evangelize their tool or resource.
