@@ -28,14 +28,14 @@ While our community is growing, we don't have dedicated staff and cannot commit 
 
 ## 🎯 Key themes for 2024
 
-2023 was focused on establishing a baseline for a few of the core tools included in the toolkit. As we look forward to 2024, the [[Governing Board]] has identified the following high-level themes:
+2023 was focused on establishing a baseline for a few of the core tools included in the toolkit. As we look forward to 2024, the [[Governing board]] has identified the following high-level themes:
 
 - **End-to-end FinOps**<br>
-  Expand the FinOps toolkit to encapsulate everything organizations need to learn and implement FinOps through Microsoft products, solutions, and services.
+  Expand the FinOps toolkit to encapsulate everything organizations need to learn and implement FinOps through Microsoft products, solutions, and services.<br>&nbsp;
 - **Solidify the foundation**<br>
-  Flesh out the infrastructure needed to unblock key design principles of FinOps hubs. Specifically, scalability and extensibility to enable larger datasets and optional or custom capabilities.
+  Flesh out the infrastructure needed to unblock key design principles of FinOps hubs. Specifically, scalability and extensibility to enable larger datasets and optional or custom capabilities.<br>&nbsp;
 - **Enable the community**<br>
-  Expand and evolve the help and support resources and options available for the broader community of contributors and consumers.
+  Expand and evolve the help and support resources and options available for the broader community of contributors and consumers.<br>&nbsp;
 - **Community-driven evolution**<br>
   Continuously integrate community insights and feedback to refine and enhance tools and resources to evolve in alignment with user needs and industry trends.
 
