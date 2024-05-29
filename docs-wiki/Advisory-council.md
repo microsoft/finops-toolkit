@@ -62,8 +62,8 @@ The advisory council consists of the following representative seats:
 
 This currently includes the following people:
 
-| Tool / Resource | Representative |
-|------------------|------------------|
+| Seat | Member |
+|------|--------|
 | Azure Optimization Engine | Helder Pinto |
 | Cost optimization workbook | Seif Bassem |
 | FinOps hubs | Brett Wilson |
