@@ -115,7 +115,7 @@ The [Regions.csv](./Regions.csv) file contains data from several internal source
 ## 🗺️ Resource types
 
 <sup>
-    📅 Updated: Nov 11, 2023<br>
+    📅 Updated: Jun 1, 2024<br>
     ➡️ Source: Azure portal / Azure mobile app<br>
 </sup>
 
@@ -132,7 +132,7 @@ If you run into any issues with the script that gets the data, you can look at e
 ## 🎛️ Services
 
 <sup>
-    📅 Updated: Sep 30, 2023<br>
+    📅 Updated: Jun 1, 2024<br>
     ➡️ Source: Cost Management team<br>
 </sup>
 
