@@ -14,7 +14,7 @@ On this page:
 ## 📏 Pricing units
 
 <sup>
-    📅 Updated: Sep 24, 2023<br>
+    📅 Updated: Jun 1, 2024<br>
     ➡️ Source: Cost Management team<br>
 </sup>
 
@@ -100,7 +100,7 @@ Meters
 ## 🗺️ Regions
 
 <sup>
-    📅 Updated: Sep 16, 2023<br>
+    📅 Updated: Jun 1, 2024<br>
     ➡️ Source: Commerce Platform Data Model team<br>
 </sup>
 
