@@ -913,7 +913,7 @@ resource pipeline_RunBackfill 'Microsoft.DataFactory/factories/pipelines@2018-06
                 method: 'POST'
                 headers: {
                   'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunBackfill@${ftkVersion}'  
-                  'Content-Type': 'application/json'  
+                  'Content-Type': 'application/json'
                   ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
                 }
                 body: '{"timePeriod" : { "from" : "@{pipeline().parameters.StartDate}", "to" : "@{pipeline().parameters.EndDate}" }}'
