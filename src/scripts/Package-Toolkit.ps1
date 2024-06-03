@@ -53,10 +53,10 @@ if ($Template -ne "*" -and -not (Test-Path $relDir))
     return
 }
 
-Write-Host "Packaging v$version templates..."
-
 # Package templates
 $version = & "$PSScriptRoot/Get-Version"
+Write-Host "Packaging v$version templates..."
+
 $isPrerelease = $version -like '*-*'
 
 Write-Verbose "Removing existing ZIP files..."
@@ -88,10 +88,49 @@ $templates = Get-ChildItem $relDir -Directory `
         }
     }
 
-    # Copy azuredeploy.json to docs/deploy folder
     Write-Verbose "Updating $($path.Name) deployment file in docs..."
-    Copy-Item "$path/azuredeploy.json" "$deployDir/$($path.Name)-$version.json"
-    Copy-Item "$path/azuredeploy.json" "$deployDir/$($path.Name)-latest.json"
+
+    $packageManifestPath = "$path/package-manifest.json"
+    if (Test-Path $packageManifestPath)
+    {
+        $packageManifest = Get-Content $packageManifestPath -Raw | ConvertFrom-Json
+        $docsDeployDir = $deployDir
+        if ($packageManifest.deploySubDir)
+        {
+            $docsDeployDir = "$deployDir/$($packageManifest.deploySubDir)"
+            & "$PSScriptRoot/New-Directory" $docsDeployDir
+        }
+        if ($packageManifest.deploySubDirVersioned)
+        {
+            $docsDeployDirVersioned = "$deployDir/$($packageManifest.deploySubDirVersioned.Replace('{version}', $version))"
+            & "$PSScriptRoot/New-Directory" $docsDeployDirVersioned
+        }
+        foreach ($file in $packageManifest.deployFiles)
+        {
+            Copy-Item "$path/$($file.source)" "$docsDeployDir/$($file.destination.Replace('{version}', $version))"
+            if ($packageManifest.deploySubDirVersioned)
+            {
+                Copy-Item "$path/$($file.source)" "$docsDeployDirVersioned/$($file.destination.Replace('{version}', $version))"
+            }
+        }
+        foreach ($directory in $packageManifest.deployDirectories)
+        {
+            & "$PSScriptRoot/New-Directory" "$($docsDeployDir)/$($directory.destination)"
+            Get-ChildItem "$path/$($directory.source)" | Copy-Item -Destination "$($docsDeployDir)/$($directory.destination)" -Recurse -Force
+            if ($packageManifest.deploySubDirVersioned)
+            {
+                & "$PSScriptRoot/New-Directory" "$($docsDeployDirVersioned)/$($directory.destination)"
+                Get-ChildItem "$path/$($directory.source)" | Copy-Item -Destination "$($docsDeployDirVersioned)/$($directory.destination)" -Recurse -Force
+            }
+        }
+    }
+    else
+    {
+        # TODO include this fallback logic in a fallback package-manifest.json file
+        # Copy azuredeploy.json to docs/deploy folder
+        Copy-Item "$path/azuredeploy.json" "$deployDir/$($path.Name)-$version.json"
+        Copy-Item "$path/azuredeploy.json" "$deployDir/$($path.Name)-latest.json"
+    }
 
     Write-Verbose ("Compressing $path to $zip" -replace (Get-Item $relDir).FullName, '.')
     Compress-Archive -Path "$path/*" -DestinationPath $zip
