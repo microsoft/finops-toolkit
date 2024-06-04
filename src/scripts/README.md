@@ -66,20 +66,38 @@ Examples:
 
 ## 🌐 Build-OpenData
 
-[Build-OpenData.ps1](./Build-OpenData.ps1) generates PowerShell commands for all open data sets. The PowerShell commands are private and not shared externally today. They must be manually checked in and the script only needs to be run when datasets are added or updated. These are meant to be used by other specifically-designed commands, which is outside the scope of Build-OpenData.
+[Build-OpenData.ps1](./Build-OpenData.ps1) generates data files and PowerShell commands for all open data. PowerShell commands are private and not shared externally today. They must be manually checked in and the script only needs to be run when datasets are added or updated. These are meant to be used by other specifically-designed commands, which is outside the scope of Build-OpenData.
 
 Examples:
 
-- Build all data sets:
+- Build all PowerShell functions:
 
   ```powershell
   ./Build-OpenData
   ```
 
-- Build one data set:
+- Build one PowerShell function:
 
   ```powershell
   ./Build-OpenData -Name Regions
+  ```
+
+- Build data files only:
+
+  ```powershell
+  ./Build-OpenData -Data
+  ```
+
+- Build data files and PowerShell functions:
+
+  ```powershell
+  ./Build-OpenData -All
+  ```
+
+- Run tests after the build completes:
+
+  ```powershell
+  ./Build-OpenData -Test
   ```
 
 <br>
