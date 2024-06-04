@@ -137,6 +137,55 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
     #         -Headers @{ Authorization = "Bearer $($token.Token)" }
     # }
 
+    # Internal icon paths
+    $internalIconPath = "$PSScriptRoot/../../../portalfx/src/sdk/website/TypeScript/MsPortalImpl/Svg/Library"
+    $internalIcons = @{
+        BacklogPoly              = 'Polychromatic/Backlog.svg'
+        CloudService             = 'Polychromatic/CloudService.svg'
+        CommitPoly               = 'Polychromatic/Commit.svg'
+        Controls                 = 'Polychromatic/Controls.svg'
+        Cubes                    = 'Polychromatic/Cubes.svg'
+        CloudUpload              = 'CloudUpload.svg'
+        Database                 = 'Polychromatic/Database.svg'
+        Globe                    = 'Polychromatic/Globe.svg'
+        Grid                     = 'Polychromatic/Grid.svg'
+        Key                      = 'Polychromatic/Key.svg'
+        LogoMicrosoftSquares     = 'Logos/MicrosoftSquares.svg'
+        Notification             = 'Polychromatic/Notification.svg'
+        PolyApiManagement        = 'Polychromatic/ApiManagement.svg'
+        PolyAppInsights          = 'Polychromatic/AppInsights.svg'
+        PolyAutomation           = 'Polychromatic/Automation.svg'
+        PolyAvailabilitySet      = 'Polychromatic/AvailabilitySet.svg'
+        PolyBackup               = 'Polychromatic/Backup.svg'
+        PolyCdn                  = 'Polychromatic/Cdn.svg'
+        PolyCertificate          = 'Polychromatic/Certificate.svg'
+        PolyCustomDomain         = 'Polychromatic/CustomDomain.svg'
+        PolyDashboard            = 'Polychromatic/Dashboard.svg'
+        PolyDiscs                = 'Polychromatic/Discs.svg'
+        PolyExtensions           = 'Polychromatic/Extensions.svg'
+        PolyGlobe                = 'Polychromatic/Globe.svg'
+        PolyIpAddress            = 'Polychromatic/IpAddress.svg'
+        PolyLoadBalancer         = 'Polychromatic/LoadBalancer.svg'
+        PolyNetworkInterfaceCard = 'Polychromatic/NetworkInterfaceCard.svg'
+        PolyLogAnalytics         = 'Polychromatic/LogAnalytics.svg'
+        PolyLogDiagnostics       = 'Polychromatic/LogDiagnostics.svg'
+        PolyProductionReadyDb    = 'Polychromatic/ProductionReadyDb.svg'
+        PolyResourceGroup        = 'Polychromatic/ResourceGroup.svg'
+        PolySqlDataBaseServer    = 'Polychromatic/SqlDataBaseServer.svg'
+        PolySqlDatabase          = 'Polychromatic/SqlDatabase.svg'
+        PolySupport              = 'Polychromatic/Support.svg'
+        PolyTrafficManager       = 'Polychromatic/TrafficManager.svg'
+        PolyVersions             = 'Polychromatic/Versions.svg'
+        PolyVirtualNetwork       = 'Polychromatic/VirtualNetwork.svg'
+        PolyWebHosting           = 'Polychromatic/WebHosting.svg'
+        PolyWebSlots             = 'Polychromatic/WebSlots.svg'
+        PolyWebTest              = 'Polychromatic/WebTest.svg'
+        Storage                  = 'Polychromatic/Storage.svg'
+        TeamProject              = 'Polychromatic/TeamProject.svg'
+        VirtualMachine           = 'Polychromatic/VirtualMachine.svg'
+        Website                  = 'Polychromatic/Website.svg'
+    }
+
     # SVG CSS classes are defined in <portalfx>\src\SDK\Website\Less\MsPortalImpl\Base\Base.Images.less
     $svgCssClasses = @(
         @{ cssClass = "msportalfx-svg-placeholder"; fill = ""; },
@@ -199,7 +248,32 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
                     Write-Warning "Using fallback cube icon for $resourceType"
                 }
             }
-            $icon = $override.icon ?? $asset.icon.data ?? $oldIcon ?? $defaultIcon
+            elseif ((-not $override.icon) -and $asset.icon.type -ne 'Custom' -and $asset.icon.type -ne 'PolyResourceDefault')
+            {
+                # Check for local internal icon
+                $localInternalIconPath = "$internalIconPath/$($internalIcons[$asset.icon.type])"
+                if ($localInternalIconPath.EndsWith('.svg'))
+                {
+                    if (Get-Item $localInternalIconPath)
+                    { 
+                        $internalIcon = Get-Content $localInternalIconPath -Raw 
+                    }
+                    else
+                    {
+                        Write-Warning "Internal $($asset.icon.type) icon not found"
+                    }
+                }
+
+                if ($oldIcon -and ($oldIcon -ne $defaultIcon))
+                {
+                    Write-Warning "Resource uses internal $($asset.icon.type) icon; using old icon for $resourceType"
+                }
+                elseif (-not $internalIcon)
+                {
+                    Write-Warning "Resource uses internal $($asset.icon.type) icon; using default icon for $resourceType"
+                }
+            }
+            $icon = $override.icon ?? $asset.icon.data ?? $internalIcon ?? $oldIcon ?? $defaultIcon
             if ($icon)
             {
                 # replace SVG classes with their fill equivalents
@@ -298,6 +372,12 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
                 }
                 return processResourceType $_.type @{} $_
             }
+        }
+        elseif ($asset.resourceType.resourceTypeName.StartsWith('private.') -or $asset.resourceType.resourceTypeName -eq 'providers.test')
+        {
+            # Skip private and test resource types
+            Write-Warning "Skipping $($asset.resourceType.resourceTypeName)..."
+            return
         }
         else
         {

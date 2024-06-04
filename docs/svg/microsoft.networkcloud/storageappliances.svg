@@ -1,2 +1,15 @@
-<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'><path fill='#32bedd' d='M16.18 4.79v8.46L8.87 17.5V9.03l7.31-4.24z'/><path fill='#9cebff' d='M16.18 4.79L8.87 9.04 1.55 4.78 8.87.53l7.31 4.26z'/><path fill='#50e6ff' d='M8.87 9.04v8.46l-7.32-4.25V4.78l7.32 4.26z'/><path fill='#9cebff' d='M1.55 13.25l7.32-4.22v8.47l-7.32-4.25z'/><path fill='#50e6ff' d='M16.18 13.25L8.87 9.03v8.47l7.31-4.25z'/></svg>
+<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'>
+    <defs>
+        <linearGradient id='a06af2a2-274d-4a73-a200-95a0a116ffce' x1='9' x2='9' y1='15.83' y2='5.79' gradientUnits='userSpaceOnUse'>
+            <stop offset='0' stop-color='#b3b3b3'/>
+            <stop offset='.26' stop-color='#c1c1c1'/>
+            <stop offset='1' stop-color='#e6e6e6'/>
+        </linearGradient>
+    </defs>
+    <path fill='url(#a06af2a2-274d-4a73-a200-95a0a116ffce)' d='M.5 5.79h17v9.48a.57.57 0 01-.57.57H1.07a.57.57 0 01-.57-.57V5.79z'/>
+    <path fill='#37c2b1' d='M1.07 2.17h15.86a.57.57 0 01.57.57v3.05H.5V2.73a.57.57 0 01.57-.56z'/>
+    <path fill='#fff' d='M2.81 6.89h12.37a.27.27 0 01.26.27v1.4a.27.27 0 01-.26.27H2.81a.27.27 0 01-.26-.27v-1.4a.27.27 0 01.26-.27z'/>
+    <path fill='#37c2b1' d='M2.82 9.68h12.37a.27.27 0 01.26.27v1.41a.27.27 0 01-.26.27H2.82a.27.27 0 01-.26-.27V10a.27.27 0 01.26-.32z'/>
+    <path fill='#258277' d='M2.82 12.5h12.37a.27.27 0 01.26.27v1.41a.27.27 0 01-.26.27H2.82a.27.27 0 01-.26-.27v-1.41a.27.27 0 01.26-.27z'/>
+</svg>
 
