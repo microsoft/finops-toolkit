@@ -63,6 +63,15 @@ Legend:
 
 <br>
 
+🌐 Open data
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed
+>
+> 1. Updated all open data files to include the latest data.
+
+<br>
+
 ## 🚚 v0.3
 
 📗 FinOps documentation
