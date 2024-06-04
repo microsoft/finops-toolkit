@@ -71,7 +71,7 @@ If you run into any issues, see [Troubleshooting FinOps hubs](https://aka.ms/fin
    - **Export type** = `Daily export of month-to-date costs`
    - **File Partitioning** = On
    - **Storage account** = (Use subscription/resource from step 1)
-   - **Container** = `exports`
+   - **Container** = `msexports`
    - **Directory** = (Use the resource ID of the scope<sup>1</sup> you're exporting without the first "/")
 4. Run your export using the **Run now** command
    > Your data should be available within 15 minutes or so, depending on how big your account is.
