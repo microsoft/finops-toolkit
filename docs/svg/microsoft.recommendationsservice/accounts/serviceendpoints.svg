@@ -1,2 +1,7 @@
-<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'><path fill='#32bedd' d='M16.18 4.79v8.46L8.87 17.5V9.03l7.31-4.24z'/><path fill='#9cebff' d='M16.18 4.79L8.87 9.04 1.55 4.78 8.87.53l7.31 4.26z'/><path fill='#50e6ff' d='M8.87 9.04v8.46l-7.32-4.25V4.78l7.32 4.26z'/><path fill='#9cebff' d='M1.55 13.25l7.32-4.22v8.47l-7.32-4.25z'/><path fill='#50e6ff' d='M16.18 13.25L8.87 9.03v8.47l7.31-4.25z'/></svg>
+<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 50 50'>
+    <path fill='#F25022' d='M0 0h23.8v23.8H0z'/>
+    <path fill='#7FBA00' d='M26.2 0H50v23.8H26.2z'/>
+    <path fill='#00A4EF' d='M0 26.2h23.8V50H0z'/>
+    <path fill='#FFB900' d='M26.2 26.2H50V50H26.2z'/>
+</svg>
 
