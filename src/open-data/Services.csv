@@ -132,7 +132,7 @@ MICROSOFT.EVENTGRID,microsoft.eventgrid/systemtopics,Event Grid,Integration,Micr
 Microsoft.EventGrid,microsoft.eventgrid/topics,Event Grid,Integration,Microsoft,Cloud Provider,Cloud,PaaS
 Microsoft.EventGrid,microsoft.eventhub/namespaces,Event Hubs,Integration,Microsoft,Cloud Provider,Cloud,PaaS
 Microsoft.EventGrid,microsoft.healthcareapis/workspaces,Azure Health Data Services,Integration,Microsoft,Cloud Provider,Cloud,SaaS
-Microsoft.EventGrid,microsoft.keyvault/vaults,Azure KeyVault,Security,Microsoft,Cloud Provider,Cloud,PaaS
+Microsoft.EventGrid,microsoft.keyvault/vaults,KeyVault,Security,Microsoft,Cloud Provider,Cloud,PaaS
 Microsoft.EventGrid,microsoft.machinelearningservices/workspaces,Azure Machine Learning,AI and Machine Learning,Microsoft,Cloud Provider,Cloud,PaaS
 Microsoft.EventGrid,microsoft.maintenance/maintenanceconfigurations,Virtual Machines,Compute,Microsoft,Cloud Provider,Cloud,IaaS
 Microsoft.EventGrid,microsoft.maps/accounts,Azure Maps,Web,Microsoft,Cloud Provider,Cloud,PaaS
