@@ -101,11 +101,11 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "1 Virtual Machine",EA,1,Virtual Machines
 "1 Website",EA,1,Websites
 "1 Zones",EA,1,Zones
-"1 day",EA,1,Day
+"1 day",EA,1,Days
 "1 hora",MCA,1,Hours
-"1 hour",EA,1,Hour
+"1 hour",EA,1,Hours
 "1 por mes",MCA,1,Months
-"1 user",EA,1,User
+"1 user",EA,1,Users
 "1 小时",MCA,1,Hours
 "1/10 Days",MCA,1,Units/10 Days
 "1/3 Months",MCA,1,Units/3 Months
@@ -159,7 +159,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "10 Unit",EA,10,Units
 "10 Unit Hours",EA,10,Unit Hours
 "10 Units",EA,10,Units
-"10 day",EA,10,Day
+"10 day",EA,10,Days
 "100","MCA, EA",100,Units
 "100 ",EA,100,Units
 "100 /Day",EA,100,Units/Day
@@ -296,7 +296,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "10000000000 ",EA,10000000000,Units
 "100000000000",EA,100000000000,Units
 "100000000000 ",EA,100000000000,Units
-"10000s",MCA,1,S
+"10000s",MCA,1,Units
 "100K",MCA,100000,Units
 "1024 GB",EA,1024,GB
 "102400 TiB/Hour",EA,102400,TiB/Hour
