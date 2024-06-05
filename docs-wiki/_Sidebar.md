@@ -10,6 +10,7 @@
 
 - [[Architecture]]
 - [[Coding guidelines]]
+- [[Build and test]]
 - [[Dev process]]
 - [[Branching strategy]]
 
