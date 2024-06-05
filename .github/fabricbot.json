@@ -31,7 +31,7 @@
           {
             "name": "addReply",
             "parameters": {
-              "comment": "Hi @${issueAuthor}. We noticed you created this PR against `main`. We don't accept PRs against `main`. Please use `dev` or a `features/*` branch instead. To learn more, see [Select a branch](https://github.com/microsoft/cloud-hubs/tree/dev/src#-select-a-branch)."
+              "comment": "Hi @${issueAuthor}. We noticed you created this PR against `main`. We don't accept PRs against `main`. Please use `dev` or a `features/*` branch instead. To learn more, see [Select a branch](https://github.com/microsoft/finops-toolkit/tree/dev/src#-select-a-branch)."
             }
           },
           {
