@@ -31,7 +31,6 @@ bjs,chinanorth2,China North 2
 bl,eastus,East US
 bm,westindia,West India
 bn,eastus2,East US 2
-bn,usgovvirginia,USGov Virginia
 BR South,brazilsouth,Brazil South
 BR Southeast,brazilsoutheast,Brazil Southeast
 brazilse,brazilsoutheast,Brazil Southeast
@@ -77,7 +76,6 @@ cnn3,chinanorth3,China North 3
 cpt,southafricawest,South Africa West
 cq,brazilsouth,Brazil South
 cw,ukwest,UK West
-cy,usgovwyoming,USGov Wyoming
 cy,westcentralus,West Central US
 db,northeurope,North Europe
 dd,usdodcentral,USDoD Central
@@ -92,7 +90,6 @@ denmarkeast,denmarkeast,Denmark East
 dewc,germanywestcentral,Germany West Central
 dke,denmarkeast,Denmark East
 dm,centralus,Central US
-dm,usgoviowa,USGov Iowa
 dxb,uaenorth,UAE North
 eastasia,eastasia,East Asia
 eastus,eastus,East US
@@ -221,7 +218,6 @@ singaporec,singaporecentral,Singapore Central
 singaporecentral,singaporecentral,Singapore Central
 singc,singaporecentral,Singapore Central
 sn,southcentralus,South Central US
-sn,usgovtexas,USGov Texas
 southafrican,southafricanorth,South Africa North
 southafricanorth,southafricanorth,South Africa North
 southafricaw,southafricawest,South Africa West
@@ -259,13 +255,9 @@ uksouth,uksouth,UK South
 uksouth2,uksouth2,UK South 2
 ukwest,ukwest,UK West
 US Central,centralus,Central US
-US DoD,usdodcentral,USDoD Central
-US DoD,usdodeast,USDoD East
 US East,eastus,East US
 US East 2,eastus2,East US 2
 US East 3,eastus3,East US 3
-US Gov,usgoviowa,USGov Iowa
-US Gov,usgovvirginia,USGov Virginia
 US Gov AZ,usgovarizona,USGov Arizona
 US Gov TX,usgovtexas,USGov Texas
 US North Central,northcentralus,North Central US
