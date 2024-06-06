@@ -63,6 +63,19 @@ Legend:
 
 <br>
 
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> 🛠️ Fixed:
+>
+> 1. Improved parsing for the `x_ResourceParentName` and `x_ResourceParentType` columns ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
+>
+> ✏️ Changed
+>
+> 1. Changed the **Tags** column to default to `{}` when empty to facilitate tag expansion ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
+
+<br>
+
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
