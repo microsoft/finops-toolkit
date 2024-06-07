@@ -1,38 +1,24 @@
 ---
-layout: default
-grand_parent: FinOps Framework
-parent: Manage
-title: Education
-permalink: /framework/capabilities/manage/education
-nav_order: 1
+title: FinOps education and enablement
 description: This article helps you understand the FinOps education and enablement capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 06/22/2023
+ms.date: 06/06/2024
 ms.topic: conceptual
 ms.service: finops
 ms.reviewer: micflan
 ---
 
-<span class="fs-9 d-block mb-4">FinOps education and enablement</span>
+<!-- markdownlint-disable-next-line MD025 -->
+# FinOps education and enablement
+
 This article helps you understand the FinOps education and enablement capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
-{: .fs-6 .fw-300 }
 
-<details open markdown="1">
-  <summary class="fs-2 text-uppercase">On this page</summary>
+<br>
 
-- [▶️ Getting started](#️-getting-started)
-- [🏗️ Building on the basics](#️-building-on-the-basics)
-- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
-- [⏩ Next steps](#-next-steps)
+## Definition
 
-</details>
-
----
-
-<a name="definition"></a>
 **FinOps education and enablement involves refers to the process of providing training, resources, and support to help individuals and teams within an organization adopt FinOps practices.**
-{: .fs-6 .fw-300 }
 
 Identify and share available training content with stakeholders. Create a central repository for training resources and provide introductory material that aligns with your FinOps processes.
 
@@ -48,7 +34,7 @@ By formalizing FinOps education and enablement, stakeholders develop the knowled
 
 <br>
 
-## ▶️ Getting started
+## Getting started
 
 Implementing a plan for FinOps education and enablement is like most other training and development efforts. Consider the following points:
 
@@ -70,7 +56,7 @@ Implementing a plan for FinOps education and enablement is like most other train
 
 <br>
 
-## 🏗️ Building on the basics
+## Building on the basics
 
 At this point, you have a central repository for training content and targeted initiatives to drive awareness and encourage collaboration. As you move beyond the basics, consider the following points:
 
@@ -83,32 +69,29 @@ At this point, you have a central repository for training content and targeted i
 
 <br>
 
-## 🍎 Learn more at the FinOps Foundation
+## Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [FinOps education and enablement capability](https://www.finops.org/framework/capabilities/education-enablement/) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
-<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.html title="FinOps education and enablement videos" id="q5R582G-fTvpQihE" list="PLUSCToibAswlxVgiIoTvTYwIJTXCxO3k4" %}
+> [!VIDEO https://www.youtube.com/embed/q5R582G-fTvpQihE?list=PLUSCToibAswlxVgiIoTvTYwIJTXCxO3k4]
 
 <br>
 
-## ⏩ Next steps
+## Related content
 
 Related FinOps capabilities:
 
 - [Establishing a FinOps decision and accountability structure](./structure.md)
 - [Establishing a FinOps culture](./culture.md)
 
+Additional resources:
+
+- [Interactive product guides](https://aka.ms/finops/guides)
+- [FinOps review assessment](https://aka.ms/finops/review)
+- [FinOps blog](https://aka.ms/tcblog)
+- [FinOps Foundation YouTube channel](https://www.youtube.com/channel/UCyl26lvnoySlGWlF5oNHvYA)
+- [FinOps certification and training](https://learn.finops.org/)
+
 <br>
-
-<!--
----
-
-## 🧰 Related tools
-
-{ % include tools.md bicep="0" data="0" gov="0" hubs="1" opt="0" pbi="1" ps="0" %}
-
-<br>
--->

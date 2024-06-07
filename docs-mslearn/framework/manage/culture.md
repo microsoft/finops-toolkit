@@ -1,38 +1,24 @@
 ---
-layout: default
-grand_parent: FinOps Framework
-parent: Manage
-title: Culture
-permalink: /framework/capabilities/manage/culture
-nav_order: 2
+title: Establishing a FinOps culture
 description: This article helps you understand the Establishing a FinOps culture capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 06/22/2023
+ms.date: 06/06/2024
 ms.topic: conceptual
 ms.service: finops
 ms.reviewer: micflan
 ---
 
-<span class="fs-9 d-block mb-4">Establishing a FinOps culture</span>
+<!-- markdownlint-disable-next-line MD025 -->
+# Establishing a FinOps culture
+
 This article helps you understand the Establishing a FinOps culture capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
-{: .fs-6 .fw-300 }
 
-<details open markdown="1">
-  <summary class="fs-2 text-uppercase">On this page</summary>
+<br>
 
-- [▶️ Getting started](#️-getting-started)
-- [🏗️ Building on the basics](#️-building-on-the-basics)
-- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
-- [⏩ Next steps](#-next-steps)
+## Definition
 
-</details>
-
----
-
-<a name="definition"></a>
 **Establishing a FinOps culture is about fostering a mindset of accountability and collaboration to accelerate and drive business value with cloud technology.**
-{: .fs-6 .fw-300 }
 
 Evangelize the importance of a cost-aware culture that prioritizes driving business value over minimizing costs. Set clear expectations and goals for all stakeholders that are aligned with the mission and encourage accountability and responsibility for all actions taken.
 
@@ -42,7 +28,7 @@ Establishing a FinOps culture gets the entire organization moving in the same di
 
 <br>
 
-## ▶️ Getting started
+## Getting started
 
 When you first start, not all stakeholders are familiar with what FinOps is and their role within it. Consider the following to get off the ground:
 
@@ -63,7 +49,7 @@ When you first start, not all stakeholders are familiar with what FinOps is and 
 
 <br>
 
-## 🏗️ Building on the basics
+## Building on the basics
 
 At this point, you have a steering committee that has early wins under its belt with basic support from the core stakeholder groups. As you move beyond the basics, consider the following points:
 
@@ -76,18 +62,17 @@ At this point, you have a steering committee that has early wins under its belt 
 
 <br>
 
-## 🍎 Learn more at the FinOps Foundation
+## Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Establishing a FinOps culture capability](https://www.finops.org/framework/capabilities/establish-finops-culture/) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
-<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.html title="Establishing a FinOps culture videos" id="UCYaEsPRPl_ADMuf" list="PLUSCToibAswmpT97lQBmVo4-lH9u1qpOw" %}
+> [!VIDEO https://www.youtube.com/embed/UCYaEsPRPl_ADMuf?list=PLUSCToibAswmpT97lQBmVo4-lH9u1qpOw]
 
 <br>
 
-## ⏩ Next steps
+## Related content
 
 Related FinOps capabilities:
 
@@ -95,14 +80,14 @@ Related FinOps capabilities:
 - [Cloud policy and governance](./policy.md)
 - [FinOps education and enablement](./education.md)
 
+Related products:
+
+- [Azure Policy](/azure/governance/policy/)
+
+Related solutions:
+
+- [Cost Management connector for Power BI](/power-bi/connect-data/desktop-connect-azure-cost-management)
+- [FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi)
+- [FinOps hubs](https://aka.ms/finops/hubs)
+
 <br>
-
-<!--
----
-
-## 🧰 Related tools
-
-{ % include tools.md hubs="1" %}
-
-<br>
--->

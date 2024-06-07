@@ -3,12 +3,14 @@ title: Tutorial - Conduct an iteration
 description: This tutorial helps you learn how to take an iterative approach to FinOps adoption.
 author: bandersmsft
 ms.author: banders
-ms.date: 06/21/2023
+ms.date: 06/06/2024
 ms.topic: tutorial
 ms.service: finops
 ms.reviewer: micflan
 ---
 
+<!-- markdownlint-disable MD032 -->
+<!-- markdownlint-disable-next-line MD025 -->
 # Tutorial - How to conduct a FinOps iteration
 
 <a name="about"></a>
@@ -90,10 +92,8 @@ Next, you identify specific, measurable goals based on your current experience w
   - If you have a process that has only been tested on a small scale, share it with others. Experiment with the process and incorporate a feedback loop for continuous improvement.
   - As your process matures, you notice less input from the feedback loop. Less input is a sign that your process is ready to be scaled out more and potentially be established as an official governance policy for new teams. If you're in a large organization that doesn't have a dedicated FinOps team, you may want to consider establishing one to drive this effort.  
 
-    <!--[!IMPORTANT]-->
-    <blockquote class="important" markdown="1">
-      _Before establishing a dedicated FinOps team, consider how much time each individual team is spending on FinOps efforts, what the potential business value is with more savings and efficiency (or lost opportunity), and how much a dedicated team can accelerate those goals. A dedicated team is not for everyone. Ensure you have the right return on investment._
-    </blockquote>
+    > [!IMPORTANT]
+    > _Before establishing a dedicated FinOps team, consider how much time each individual team is spending on FinOps efforts, what the potential business value is with more savings and efficiency (or lost opportunity), and how much a dedicated team can accelerate those goals. A dedicated team is not for everyone. Ensure you have the right return on investment._
 
 - **Automation** – Has the capability been automated to minimize manual effort?
   - If you're developing a process, we recommend identifying automation opportunities as you go. You may identify low-hanging fruit that could lead to large efficiency gains at scale or even find partner teams willing to contribute time in those areas and share resources.
@@ -131,11 +131,11 @@ In this tutorial, you learned how to:
 
 Review and refine the FinOps capabilities that are most critical to you:
 
-- [FinOps capabilities](framework/capabilities/README.md)
+- [FinOps capabilities](./framework/capabilities.md)
 
 For additional resources:
 
 [!div class="nextstepaction"]
-- [Overview of the Well-Architected Framework cost optimization pillar](https://learn.microsoft.com/azure/well-architected/cost/overview)
+- [Overview of the Well-Architected Framework cost optimization pillar](/azure/well-architected/cost/overview.md)
 
 <br>

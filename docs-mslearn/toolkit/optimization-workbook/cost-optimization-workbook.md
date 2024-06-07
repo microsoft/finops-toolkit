@@ -1,26 +1,16 @@
 ---
-layout: default
-parent: Cost optimization workbook
-title: Customize
-nav_order: 1
+title: Use and customize the Cost optimization workbook
 description: How to install and edit the Cost optimization workbook.
-permalink: /optimization-workbook/customize
 author: bandersmsft
 ms.author: banders
-ms.date: 11/02/2023
+ms.date: 06/06/2024
 ms.topic: how-to
 ms.service: finops
 ms.reviewer: arclares
 ---
 
-<span class="fs-9 d-block mb-4">Use and customize the Cost optimization workbook</span>
-How to install and edit the Cost optimization workbook.
-{: .fs-6 .fw-300 }
-
-[Deploy](./README.md#-create-a-new-hub){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Try now](<https://portal.azure.com/#blade/AppInsightsExtension/UsageNotebookBlade/ComponentId/Azure%20Advisor/ConfigurationId/community-Workbooks%2FAzure%20Advisor%2FCost%20Optimization/Type/workbook/WorkbookTemplateName/Cost%20Optimization%20(Preview)>){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-
----
+<!-- markdownlint-disable-next-line MD025 -->
+# Use and customize the Cost optimization workbook
 
 This article explains how to install and edit the Cost optimization workbook. The Cost optimization workbook is a central point for some of the most often used tools that can help achieve utilization and efficiency goals. It offers a range of insights, including:
 
@@ -41,9 +31,7 @@ This section focuses on strategies to optimize your Azure costs by addressing ra
 
 Here's an example of the Rate optimization section for Windows virtual machines with Azure Hybrid Benefit.
 
-<!-- :::image type="content" source="./media/cost-optimization-workbook/rate-optimization-example.png" alt-text="Screenshot showing the Rate optimization section for Windows virtual machines with Azure Hybrid Benefit." lightbox="./media/cost-optimization-workbook/rate-optimization-example.png" ::: -->
-
-![Screenshot showing the Rate optimization section for Windows virtual machines with Azure Hybrid Benefit.][https://learn.microsoft.com/azure/cost-management-billing/finops/media/cost-optimization-workbook/rate-optimization-example.png]
+:::image type="content" source="../../media/cost-optimization-workbook/rate-optimization-example.png" alt-text="Screenshot showing the Rate optimization section for Windows virtual machines with Azure Hybrid Benefit." lightbox="../../media/cost-optimization-workbook/rate-optimization-example.png" :::
 
 <br>
 
@@ -53,11 +41,9 @@ The purpose of Usage optimization is to ensure that your Azure resources are use
 
 Here's an example of the Usage optimization section for AKS.
 
-<!-- :::image type="content" source="./media/cost-optimization-workbook/usage-optimization-example.png" alt-text="Screenshot showing the Usage optimization section for AKS." lightbox="./media/cost-optimization-workbook/usage-optimization-example.png" ::: -->
+:::image type="content" source="../../media/cost-optimization-workbook/usage-optimization-example.png" alt-text="Screenshot showing the Usage optimization section for AKS." lightbox="../../media/cost-optimization-workbook/usage-optimization-example.png" :::
 
-![Screenshot showing the Usage optimization section for AKS.][https://learn.microsoft.com/azure/cost-management-billing/finops/media/cost-optimization-workbook/usage-optimization-example.png]
-
-For more information about the Cost optimization workbook, see [Understand and optimize your Azure costs using the Cost optimization workbook](https://learn.microsoft.com/azure/advisor/advisor-cost-optimization-workbook).
+For more information about the Cost optimization workbook, see [Understand and optimize your Azure costs using the Cost optimization workbook](/azure/advisor/advisor-cost-optimization-workbook).
 
 <br>
 
@@ -81,8 +67,8 @@ If you want to make modifications to the original workbook, its template is offe
 
 Confirm that you have the following least-privileged roles to deploy and use the workbook.
 
-- [Workbook Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#workbook-contributor) - allows you to import, save, and deploy the workbook.
-- [Reader](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#reader) allows you to view all the workbook tabs without saving.
+- [Workbook Contributor](/azure/role-based-access-control/built-in-roles#workbook-contributor) - allows you to import, save, and deploy the workbook.
+- [Reader](/azure/role-based-access-control/built-in-roles#reader) allows you to view all the workbook tabs without saving.
 
 Deploy the Cost optimization workbook template with one of the following options.
 
@@ -90,17 +76,13 @@ Deploy the Cost optimization workbook template with one of the following options
 
 Select a subscription, location, resource group and give the workbook a name. Then, select **Review + create** to deploy the workbook template.
 
-<!--:::image type="content" source="./media/cost-optimization-workbook/workbook-template.png" alt-text="Screenshot showing the completed workbook template." lightbox="./media/cost-optimization-workbook/workbook-template.png" :::-->
-
-![Screenshot showing the completed workbook template.][https://learn.microsoft.com/azure/cost-management-billing/finops/media/cost-optimization-workbook/workbook-template.png]
+:::image type="content" source="../../media/cost-optimization-workbook/workbook-template.png" alt-text="Screenshot showing the completed workbook template." lightbox="../../media/cost-optimization-workbook/workbook-template.png" :::
 
 On the Review + create page, select **Create**.
 
 After the deployment completes, you can view and copy the workbook URL on the **Outputs** page. The URL takes you directly to the workbook that you created. Here's an example.
 
-<!--:::image type="content" source="./media/cost-optimization-workbook/outputs-example.png" alt-text="Screenshot showing the Outputs page where you can copy the workbook URL." lightbox="./media/cost-optimization-workbook/outputs-example.png" :::-->
-
-![Screenshot showing the Outputs page where you can copy the workbook URL.][https://learn.microsoft.com/azure/cost-management-billing/finops/media/cost-optimization-workbook/outputs-example.png]
+:::image type="content" source="../../media/cost-optimization-workbook/outputs-example.png" alt-text="Screenshot showing the Outputs page where you can copy the workbook URL." lightbox="../../media/cost-optimization-workbook/outputs-example.png" :::
 
 <br>
 
@@ -184,12 +166,12 @@ ResourceContainers | where type =~ 'Microsoft.Resources/subscriptions' | where t
 
 ## Learn more about workbooks
 
-To learn more about Azure Monitor workbooks, see the [Visualize data combined from multiple data sources by using Azure Monitor Workbooks](https://learn.microsoft.com/training/modules/visualize-data-workbooks/) training module.
+To learn more about Azure Monitor workbooks, see the [Visualize data combined from multiple data sources by using Azure Monitor Workbooks](/training/modules/visualize-data-workbooks/) training module.
 
 <br>
 
 ## Next steps
 
-To learn more about the Cost optimization workbook, see [Visualize data combined from multiple data sources by using Azure Monitor Workbooks](https://learn.microsoft.com/azure/advisor/advisor-cost-optimization-workbook).
+To learn more about the Cost optimization workbook, see [Visualize data combined from multiple data sources by using Azure Monitor Workbooks](/azure/advisor/advisor-cost-optimization-workbook).
 
 <br>

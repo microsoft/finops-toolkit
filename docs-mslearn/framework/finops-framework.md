@@ -1,31 +1,12 @@
 ---
-layout: default
-title: FinOps Framework
-has_children: true
-nav_order: 20
+title: FinOps Framework overview
 description: 'Learn about what the FinOps Framework is and how you can use it to accelerate your cost management and optimization goals.'
-permalink: /framework
 ---
 
-<span class="fs-9 d-block mb-4">FinOps Framework</span>
+<!-- markdownlint-disable-next-line MD025 -->
+# FinOps Framework
+
 Learn about what the FinOps Framework is and how you can use it to accelerate your cost management and optimization goals.
-{: .fs-6 .fw-300 }
-
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [⚖️ Principles](#️-principles)
-- [👥 Stakeholders](#-stakeholders)
-- [♻️ Lifecycle](#️-lifecycle)
-- [📝 Capabilities](#-capabilities)
-- [📏 Maturity model](#-maturity-model)
-- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
-- [⏩ Next steps](#-next-steps)
-- [🧰 Related tools](#-related-tools)
-
-</details>
-
----
 
 The [FinOps Framework](https://finops.org/framework) by the FinOps Foundation is a comprehensive set of best practices and principles. It provides a structured approach to implement a FinOps culture to:
 
@@ -145,24 +126,16 @@ The FinOps Framework defines a simple Crawl-Walk-Run maturity model, but the tru
 
 <br>
 
-## 🍎 Learn more at the FinOps Foundation
+## Learn more at the FinOps Foundation
 
 FinOps Foundation offers many resources to help you learn and implement FinOps. Join the FinOps community, explore training and certification programs, participate in community working groups, and more. For more information about FinOps, including useful playbooks, see the [FinOps Framework documentation](https://finops.org/framework).
 
 <br>
 
-## ⏩ Next steps
+## Related content
 
 Start your first or plan your next iteration:
 
 - [Conduct a FinOps iteration](../conduct-an-iteration.md)
-
-<br>
-
----
-
-## 🧰 Related tools
-
-{% include tools.md bicep="0" data="0" gov="1" hubs="1" opt="1" pbi="1" ps="0" %}
 
 <br>

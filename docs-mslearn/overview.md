@@ -1,32 +1,19 @@
 ---
-layout: default
 title: What is FinOps?
-nav_order: 10
 description: FinOps combines financial management principles with cloud engineering and operations to provide organizations with a better understanding of their cloud spending. It also helps them make informed decisions on how to allocate and manage their cloud costs.
-permalink: /what-is-finops
 author: bandersmsft
 ms.author: banders
-ms.date: 06/21/2023
+ms.date: 06/06/2024
 ms.topic: overview
 ms.service: finops
 ms.reviewer: micflan
 ---
 
-<span class="fs-9 d-block mb-4">What is FinOps?</span>
+<!-- markdownlint-disable-next-line MD025 -->
+# What is FinOps?
+
 FinOps is an operational framework and cultural practice which maximizes the business value of cloud, enables timely data-driven decision making, and creates financial accountability through collaboration between engineering, finance, and business teams.
-{: .fs-6 .fw-300 }
 
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [🤝 Partnership with the FinOps Foundation](#-partnership-with-the-finops-foundation)
-- [⏩ Next steps](#-next-steps)
-
-</details>
-
----
-
-<a name="about"></a>
 FinOps is a discipline that combines financial management principles with cloud engineering and operations to provide organizations with a better understanding of their cloud spending. It also helps them make informed decisions on how to allocate and manage their cloud costs. The goal of FinOps isn't to save money, but to maximize revenue or business value through the cloud. It helps to enable organizations to control cloud spending while maintaining the level of performance, reliability, and security needed to support their business operations.
 
 FinOps typically involves using cloud cost management tools, like [Microsoft Cost Management](https://aka.ms/costmgmt/docs), and best practices to:
@@ -41,14 +28,13 @@ The word _FinOps_ is a blend of Finance and DevOps and is sometimes referred to 
 
 The FinOps Foundation, a non-profit organization focused on FinOps, offers a great video description:
 
-<!--[!VIDEO https://www.youtube.com/embed/VDrcgEne6lU]-->
-{% include video.html title="FinOps: The operating model for the cloud" id="VDrcgEne6lU" %}
+> [!VIDEO https://www.youtube.com/embed/VDrcgEne6lU]
 
 [FinOps: The operating model for the cloud](https://www.youtube.com/watch?v=VDrcgEne6lU)
 
 <br>
 
-## 🤝 Partnership with the FinOps Foundation
+## Partnership with the FinOps Foundation
 
 [The FinOps Foundation](https://finops.org/) is a non-profit organization hosted at the Linux Foundation. It's dedicated to advancing people who practice the discipline of cloud cost management and optimization via best practices, education, and standards. The FinOps Foundation manages a community of practitioners around the world, including many of our valued Microsoft Cloud customers and partners. The FinOps Foundation hosts working groups and special interest groups to cover many topics. They include:
 
@@ -60,7 +46,7 @@ The FinOps Foundation, a non-profit organization focused on FinOps, offers a gre
 
 <br>
 
-## ⏩ Next steps
+## Related content
 
 To learn more about the FinOps Framework and capabilities:
 
