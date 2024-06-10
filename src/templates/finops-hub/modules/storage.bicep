@@ -44,6 +44,7 @@ param ingestionRetentionInMonths int = 13
 var safeHubName = replace(replace(toLower(hubName), '-', ''), '_', '')
 var storageAccountSuffix = uniqueSuffix
 var storageAccountName = '${take(safeHubName, 24 - length(storageAccountSuffix))}${storageAccountSuffix}'
+var focusSchemaFile = loadTextContent('../schema/focuscost_1.0-preview(v1).json')
 
 // Roles needed to auto-start triggers
 var blobUploadRbacRoles = [
@@ -172,6 +173,10 @@ resource uploadSettings 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
       {
         name: 'containerName'
         value: 'config'
+      }
+      {
+        name: 'focusSchemaFile'
+        value: focusSchemaFile
       }
     ]
     scriptContent: loadTextContent('./scripts/Copy-FileToAzureBlob.ps1')

@@ -33,9 +33,6 @@ param exportRetentionInDays int = 0
 @description('Optional. Number of months of cost data to retain in the ingestion container. Default: 13.')
 param ingestionRetentionInMonths int = 13
 
-@description('Optional. Indicates whether ingested data should be converted to Parquet. Default: true.')
-param convertToParquet bool = true
-
 @description('Optional. Remote storage account for ingestion dataset.')
 param remoteHubStorageUri string = ''
 
@@ -138,7 +135,6 @@ module dataFactoryResources 'dataFactory.bicep' = {
   name: 'dataFactoryResources'
   params: {
     dataFactoryName: dataFactory.name
-    convertToParquet: convertToParquet
     storageAccountName: storage.outputs.name
     exportContainerName: storage.outputs.exportContainer
     configContainerName: storage.outputs.configContainer
