@@ -50,10 +50,14 @@ microsoft.azureplaywrightservice,microsoft.azureplaywrightservice/accounts,Playw
 Microsoft.AzureStackHCI,microsoft.azurestackhci/clusters,Azure Stack HCI,Multicloud,Microsoft,Cloud Provider,On-Premises,IaaS
 Microsoft.BareMetalInfrastructure,microsoft.baremetalinfrastructure/baremetalstorageinstances,BareMetal Infrastructure,Compute,Microsoft,Cloud Provider,Hybrid,IaaS
 Microsoft.Batch,microsoft.batch/batchaccounts,Batch,Compute,Microsoft,Cloud Provider,Cloud,PaaS
+Microsoft.BillingBenefits,Microsoft.BillingBenefits/savingsPlanOrders,Azure Savings Plan for Compute,Compute,Microsoft,Cloud Provider,Cloud,IaaS
+Microsoft.BillingBenefits,Microsoft.BillingBenefits/savingsPlanOrders/savingsPlans,Azure Savings Plan for Compute,Compute,Microsoft,Cloud Provider,Cloud,IaaS
 Microsoft.Bing,microsoft.bing/accounts,Microsoft Bing,Web,Microsoft,Cloud Provider,Cloud,SaaS
 Microsoft.BotService,microsoft.botservice/botservices,Azure AI Bot Service,AI and Machine Learning,Microsoft,Cloud Provider,Cloud,PaaS
 Microsoft.Cache,microsoft.cache/redis,Azure Cache for Redis,Storage,Microsoft,Cloud Provider,Cloud,PaaS
 Microsoft.Cache,microsoft.cache/redisenterprise,Azure Cache for Redis,Storage,Microsoft,Cloud Provider,Cloud,PaaS
+Microsoft.Capacity,microsoft.capacity/reservationOrders,Azure Reservations,Management and Governance,Microsoft,Cloud Provider,Cloud,IaaS
+Microsoft.Capacity,microsoft.capacity/reservationOrders/reservations,Azure Reservations,Management and Governance,Microsoft,Cloud Provider,Cloud,IaaS
 microsoft.cdn,microsoft.cdn/cdnwebapplicationfirewallpolicies,Content Delivery Network,Networking,Microsoft,Cloud Provider,Cloud,SaaS
 Microsoft.Cdn,microsoft.cdn/profiles,Content Delivery Network,Networking,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.certificateregistration,microsoft.certificateregistration/certificateorders,Azure App Service,Web,Microsoft,Cloud Provider,Hybrid,PaaS
@@ -224,6 +228,7 @@ Microsoft.Network,microsoft.network/publicipprefixes,Virtual Network,Networking,
 Microsoft.Network,microsoft.network/trafficmanagerprofiles,Traffic Manager,Networking,Microsoft,Cloud Provider,Cloud,IaaS
 Microsoft.Network,microsoft.network/virtualhubs,Virtual WAN,Networking,Microsoft,Cloud Provider,Cloud,IaaS
 Microsoft.Network,microsoft.network/virtualnetworkgateways,Virtual Network,Networking,Microsoft,Cloud Provider,Cloud,IaaS
+Microsoft.Network,microsoft.network/virtualnetworkgateways/connections,Virtual Network,Networking,Microsoft,Cloud Provider,Cloud,IaaS
 Microsoft.Network,microsoft.network/virtualnetworks,Virtual Network,Networking,Microsoft,Cloud Provider,Cloud,IaaS
 Microsoft.Network,microsoft.network/vpngateways,VPN Gateway,Networking,Microsoft,Cloud Provider,Cloud,IaaS
 Microsoft.NetworkAnalytics,microsoft.networkanalytics/dataconnectors,Azure Monitor,Management and Governance,Microsoft,Cloud Provider,Cloud,PaaS
@@ -263,6 +268,7 @@ Microsoft.Sql,microsoft.sql/instancepools,Azure SQL Database,Databases,Microsoft
 Microsoft.Sql,microsoft.sql/locations,Azure SQL Database,Databases,Microsoft,Cloud Provider,Cloud,PaaS
 Microsoft.Sql,microsoft.sql/managedinstances,Azure SQL Database,Databases,Microsoft,Cloud Provider,Cloud,PaaS
 Microsoft.Sql,microsoft.sql/servers,Azure SQL Database,Databases,Microsoft,Cloud Provider,Cloud,PaaS
+Microsoft.Sql,microsoft.sql/servers/databases,Azure SQL Database,Databases,Microsoft,Cloud Provider,Cloud,PaaS
 MICROSOFT.STORAGE,microsoft.storage/storageaccounts,Storage Accounts,Storage,Microsoft,Cloud Provider,Cloud,IaaS
 Microsoft.StorageCache,microsoft.storagecache/amlfilesystems,Azure HPC Cache,Storage,Microsoft,Cloud Provider,Hybrid,IaaS
 Microsoft.StorageCache,microsoft.storagecache/caches,Azure HPC Cache,Storage,Microsoft,Cloud Provider,Hybrid,IaaS
