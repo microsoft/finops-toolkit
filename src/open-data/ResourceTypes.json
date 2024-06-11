@@ -468,6 +468,28 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.apimanagement/gateways",
+    "singularDisplayName": "Microsoft.ApiManagement gateway",
+    "pluralDisplayName": "Microsoft.ApiManagement gateways",
+    "lowerSingularDisplayName": "microsoft.apimanagement gateway",
+    "lowerPluralDisplayName": "microsoft.apimanagement gateways",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.apimanagement/gateways.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.apimanagement/gateways/configconnections",
+    "singularDisplayName": "Microsoft.ApiManagement gateways config connection",
+    "pluralDisplayName": "Microsoft.ApiManagement gateways config connections",
+    "lowerSingularDisplayName": "microsoft.apimanagement gateways config connection",
+    "lowerPluralDisplayName": "microsoft.apimanagement gateways config connections",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.apimanagement/gateways/configconnections.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.apimanagement/service",
     "singularDisplayName": "API Management service",
     "pluralDisplayName": "API Management services",
@@ -672,7 +694,7 @@
     "lowerSingularDisplayName": "microsoft.appcomplianceautomation report",
     "lowerPluralDisplayName": "microsoft.appcomplianceautomation reports",
     "isPreview": false,
-    "description": "A class represent an AppComplianceAutomation report resource.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.appcomplianceautomation/reports.svg",
     "links": null
   },
@@ -683,7 +705,7 @@
     "lowerSingularDisplayName": "microsoft.appcomplianceautomation reports evidence",
     "lowerPluralDisplayName": "microsoft.appcomplianceautomation reports evidences",
     "isPreview": false,
-    "description": "A class represent an AppComplianceAutomation evidence resource.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.appcomplianceautomation/reports/evidences.svg",
     "links": null
   },
@@ -705,7 +727,7 @@
     "lowerSingularDisplayName": "microsoft.appcomplianceautomation reports snapshot",
     "lowerPluralDisplayName": "microsoft.appcomplianceautomation reports snapshots",
     "isPreview": false,
-    "description": "A class represent a AppComplianceAutomation snapshot resource.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.appcomplianceautomation/reports/snapshots.svg",
     "links": null
   },
@@ -716,7 +738,7 @@
     "lowerSingularDisplayName": "microsoft.appcomplianceautomation reports webhook",
     "lowerPluralDisplayName": "microsoft.appcomplianceautomation reports webhooks",
     "isPreview": false,
-    "description": "A class represent an AppComplianceAutomation webhook resource.",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.appcomplianceautomation/reports/webhooks.svg",
     "links": null
   },
@@ -4056,12 +4078,12 @@
   },
   {
     "resourceType": "microsoft.cdn/profiles",
-    "singularDisplayName": "Front Door and CDN profiles",
+    "singularDisplayName": "Front Door and CDN profile",
     "pluralDisplayName": "Front Door and CDN profiles",
-    "lowerSingularDisplayName": "front door and CDN profiles",
+    "lowerSingularDisplayName": "front door and CDN profile",
     "lowerPluralDisplayName": "front door and CDN profiles",
     "isPreview": false,
-    "description": "",
+    "description": "Azure Front Door and CDN profiles is security led, modern cloud CDN that provides static and dynamic content acceleration, global load balancing and enhanced security for your apps, APIs and websites with intelligent threat protection.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.cdn/profiles.svg",
     "links": null
   },
@@ -5191,7 +5213,7 @@
     "lowerSingularDisplayName": "guest assignment",
     "lowerPluralDisplayName": "guest assignments",
     "isPreview": false,
-    "description": "A guest assignment links a virtual machine to a specific configuration defined by Azure Policy. Use guest assignments to enforce compliance and security policies on your virtual machines, such as ensuring that only certain users have administrative privileges, or that certain software is installed and updated. A guest assignment can also perform actions on your virtual machines, such as installing or removing software, or changing settings.",
+    "description": "Guest Assignment",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.compute/virtualmachines/providers/guestconfigurationassignments.svg",
     "links": null
   },
@@ -6841,6 +6863,17 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.developmentwindows365/developmentcloudpcdelegatedmsis.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.devhub/iacprofiles",
+    "singularDisplayName": "Microsoft.DevHub iac profile",
+    "pluralDisplayName": "Microsoft.DevHub iac profiles",
+    "lowerSingularDisplayName": "microsoft.devhub iac profile",
+    "lowerPluralDisplayName": "microsoft.devhub iac profiles",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.devhub/iacprofiles.svg",
     "links": null
   },
   {
@@ -8651,6 +8684,17 @@
     ]
   },
   {
+    "resourceType": "microsoft.hybridcompute/gateways",
+    "singularDisplayName": "Microsoft.HybridCompute gateway",
+    "pluralDisplayName": "Microsoft.HybridCompute gateways",
+    "lowerSingularDisplayName": "microsoft.hybridcompute gateway",
+    "lowerPluralDisplayName": "microsoft.hybridcompute gateways",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.hybridcompute/gateways.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.hybridcompute/licenses",
     "singularDisplayName": "Extended Security Updates - Windows Server 2012/R2",
     "pluralDisplayName": "Extended Security Updates - Windows Server 2012/R2",
@@ -8704,7 +8748,7 @@
     "lowerSingularDisplayName": "guest assignment",
     "lowerPluralDisplayName": "guest assignments",
     "isPreview": false,
-    "description": "A guest assignment links a virtual machine to a specific configuration defined by Azure Policy. Use guest assignments to enforce compliance and security policies on your virtual machines, such as ensuring that only certain users have administrative privileges, or that certain software is installed and updated. A guest assignment can also perform actions on your virtual machines, such as installing or removing software, or changing settings.",
+    "description": "Guest Assignment",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.hybridcompute/machines/providers/guestconfigurationassignments.svg",
     "links": null
   },
@@ -8779,6 +8823,17 @@
         "uri": "https://aka.ms/moreaboutazurearcprivatelink"
       }
     ]
+  },
+  {
+    "resourceType": "microsoft.hybridcompute/settings",
+    "singularDisplayName": "Microsoft.HybridCompute setting",
+    "pluralDisplayName": "Microsoft.HybridCompute settings",
+    "lowerSingularDisplayName": "microsoft.hybridcompute setting",
+    "lowerPluralDisplayName": "microsoft.hybridcompute settings",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.hybridcompute/settings.svg",
+    "links": null
   },
   {
     "resourceType": "microsoft.hybridconnectivity/endpoints",
@@ -10329,6 +10384,17 @@
         "uri": "https://docs.microsoft.com/en-us/azure/load-testing/"
       }
     ]
+  },
+  {
+    "resourceType": "microsoft.logic/businessprocesses",
+    "singularDisplayName": "Business Process",
+    "pluralDisplayName": "Business Process Tracking",
+    "lowerSingularDisplayName": "business process",
+    "lowerPluralDisplayName": "business processes",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.logic/businessprocesses.svg",
+    "links": null
   },
   {
     "resourceType": "microsoft.logic/integrationaccounts",
@@ -13518,7 +13584,12 @@
     "isPreview": false,
     "description": "Azure Virtual Network Manager's verifier workspace enables you to check if your network policies allow or disallow traffic between your Azure network resources. You can create a verifier workspace from your network manager instance.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.network/networkmanagers/verifierworkspaces.svg",
-    "links": null
+    "links": [
+      {
+        "title": "Learn more",
+        "uri": "https://learn.microsoft.com/azure/virtual-network-manager/concept-virtual-network-verifier"
+      }
+    ]
   },
   {
     "resourceType": "microsoft.network/networkprofiles",
@@ -18418,50 +18489,6 @@
     "links": null
   },
   {
-    "resourceType": "microsoft.testbase/testbaseaccounts",
-    "singularDisplayName": "Test Base Account",
-    "pluralDisplayName": "Test Base Accounts",
-    "lowerSingularDisplayName": "Test Base account",
-    "lowerPluralDisplayName": "Test Base accounts",
-    "isPreview": false,
-    "description": "IMPORTANT: Test Base for Microsoft 365 will transition to end-of-life (EOL) on May 31, 2024. We're committed to working closely with each customer to provide support and guidance to make the transition as smooth as possible. If you have any questions, concerns, or need assistance, submit a support request via https://aka.ms/TestBaseSupport.",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.testbase/testbaseaccounts.svg",
-    "links": null
-  },
-  {
-    "resourceType": "microsoft.testbase/testbaseaccounts/customimages",
-    "singularDisplayName": "Custom Images",
-    "pluralDisplayName": "Custom Images",
-    "lowerSingularDisplayName": "Custom Images",
-    "lowerPluralDisplayName": "Custom Images",
-    "isPreview": false,
-    "description": "",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.testbase/testbaseaccounts/customimages.svg",
-    "links": null
-  },
-  {
-    "resourceType": "microsoft.testbase/testbaseaccounts/packages",
-    "singularDisplayName": "Test Base Package",
-    "pluralDisplayName": "Test Base Packages",
-    "lowerSingularDisplayName": "Test Base package",
-    "lowerPluralDisplayName": "Test Base packages",
-    "isPreview": false,
-    "description": "",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.testbase/testbaseaccounts/packages.svg",
-    "links": null
-  },
-  {
-    "resourceType": "microsoft.testbase/testbaseaccounts/testconfigurations",
-    "singularDisplayName": "Test Configuration",
-    "pluralDisplayName": "Test Configurations",
-    "lowerSingularDisplayName": "Test Configuration",
-    "lowerPluralDisplayName": "Test Configurations",
-    "isPreview": false,
-    "description": "",
-    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.testbase/testbaseaccounts/testconfigurations.svg",
-    "links": null
-  },
-  {
     "resourceType": "microsoft.timeseriesinsights/environments",
     "singularDisplayName": "Time Series Insights environment",
     "pluralDisplayName": "Time Series Insights environments",
@@ -18688,7 +18715,7 @@
     "lowerSingularDisplayName": "microsoft.verifiedid authority",
     "lowerPluralDisplayName": "microsoft.verifiedid authorities",
     "isPreview": false,
-    "description": "A VerifiedId authority resource",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.verifiedid/authorities.svg",
     "links": null
   },
