@@ -74,16 +74,20 @@ Sample data:
 
 | OriginalValue | RegionId      | RegionName     |
 | ------------- | ------------- | -------------- |
-| AP East       | eastasia      | East Asia      |
-| CA Central    | canadacentral | Canada Central |
-| DE North      | germanynorth  | Germany North  |
-| NO West       | norwaywest    | Norway West    |
-| TW North      | taiwannorth   | Taiwan North   |
+| ap east       | eastasia      | East Asia      |
+| ca central    | canadacentral | Canada Central |
+| de north      | germanynorth  | Germany North  |
+| no west       | norwaywest    | Norway West    |
+| tw north      | taiwannorth   | Taiwan North   |
 
 <!-- cSpell:enable -->
 
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
 [See PowerShell](../../_automation/powershell/data/Get-FinOpsRegion.md){: .btn .mb-4 .mb-md-0 .mr-4 }
+
+<blockquote class="important" markdown="1">
+  _Convert region values to lowercase before mapping. This helps reduce duplication and speed up the mapping process._
+</blockquote>
 
 <br>
 
@@ -108,6 +112,10 @@ Sample data:
 | microsoft.web/sites               | App Service web app     | App Service web apps     | app service                 | app services              |
 
 <!-- cSpell:enable -->
+
+<blockquote class="important" markdown="1">
+  _Convert resource type values to lowercase before mapping. This helps reduce duplication and speed up the mapping process._
+</blockquote>
 
 [Download CSV](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 [Download JSON](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.json){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
