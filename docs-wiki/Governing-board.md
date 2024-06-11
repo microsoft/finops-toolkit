@@ -67,6 +67,7 @@ If consensus cannot be reached within 14 days and the board believes the issue i
 The governing board consists of the following representative seats:
 
 | Seat | Member |
+|------|--------|
 | Business sponsor | Nelson Pereira |
 | Community | Sonia Cuff |
 | Consulting | Manfred Simonis |
