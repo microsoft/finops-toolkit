@@ -1,2 +1,15 @@
-<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'><path fill='#32bedd' d='M16.18 4.79v8.46L8.87 17.5V9.03l7.31-4.24z'/><path fill='#9cebff' d='M16.18 4.79L8.87 9.04 1.55 4.78 8.87.53l7.31 4.26z'/><path fill='#50e6ff' d='M8.87 9.04v8.46l-7.32-4.25V4.78l7.32 4.26z'/><path fill='#9cebff' d='M1.55 13.25l7.32-4.22v8.47l-7.32-4.25z'/><path fill='#50e6ff' d='M16.18 13.25L8.87 9.03v8.47l7.31-4.25z'/></svg>
+<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'>
+    <defs>
+        <linearGradient id='a51c5162-ca9f-41ce-8a38-7edecf47093d' x1='9' x2='9' y1='17.2' y2='-3.28' gradientUnits='userSpaceOnUse'>
+            <stop offset='0' stop-color='#5e9624'/>
+            <stop offset='.18' stop-color='#629c25'/>
+            <stop offset='.44' stop-color='#6dae2a'/>
+            <stop offset='.73' stop-color='#7fcb30'/>
+            <stop offset='.82' stop-color='#86d633'/>
+        </linearGradient>
+    </defs>
+    <path fill='url(#a51c5162-ca9f-41ce-8a38-7edecf47093d)' d='M17.5 2.5v10.83a.58.58 0 01-.58.58H12.4a.15.15 0 00-.15.14v1.75a.28.28 0 01-.45.23l-2.72-2.09h-8a.58.58 0 01-.58-.58V2.5a.58.58 0 01.58-.59h15.84a.58.58 0 01.58.59z'/>
+    <path fill='#fff' d='M9.54 9.63H8.38A.36.36 0 018 9.29l-.2-5.86a.35.35 0 01.35-.36h1.7a.35.35 0 01.35.37L9.89 9.3a.35.35 0 01-.35.33z'/>
+    <rect width='1.69' height='1.69' x='8.13' y='10.62' fill='#fff' rx='.61'/>
+</svg>
 
