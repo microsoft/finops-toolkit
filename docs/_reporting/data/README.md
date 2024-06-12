@@ -135,18 +135,21 @@ Sample data:
 | -------------------- | ------------------------------------- | ------------------- | --------------- | ------------- | -------------- |
 | microsoft.compute    | microsoft.compute/virtualmachines     | Virtual Machines    | Compute         | Microsoft     | Cloud Provider |
 | microsoft.documentdb | microsoft.documentdb/databaseaccounts | Cosmos DB           | Databases       | Microsoft     | Cloud Provider |
-| Microsoft.Kusto      | microsoft.kusto/clusters              | Azure Data Explorer | Analytics       | Microsoft     | Cloud Provider |
-| Microsoft.Network    | microsoft.network/virtualnetworks     | Virtual Network     | Networking      | Microsoft     | Cloud Provider |
-| MICROSOFT.STORAGE    | microsoft.storage/storageaccounts     | Storage Accounts    | Storage         | Microsoft     | Cloud Provider |
+| microsoft.kusto      | microsoft.kusto/clusters              | Azure Data Explorer | Analytics       | Microsoft     | Cloud Provider |
+| microsoft.network    | microsoft.network/virtualnetworks     | Virtual Network     | Networking      | Microsoft     | Cloud Provider |
+| microsoft.storage    | microsoft.storage/storageaccounts     | Storage Accounts    | Storage         | Microsoft     | Cloud Provider |
 
 <!-- cSpell:enable -->
 
 A few important notes about the data:
 
-1. `ConsumedService` values should match the case of your cost data. When they are provided in mixed case, you'll see multiple rows in the Services file.
-2. `ResourceType` values are all lowercased to avoid case sensitivity issues.
-3. `ServiceName` values should match the product marketing name for the closest possible service. Some services reuse resource types and cannot be distinguished from the resource type alone (e.g., Azure functions will show as App Service).
-4. `ServiceCategory` values are aligned with the allowed values in FOCUS.
+1. `ConsumedService` and `ResourceType` values are all lowercased to avoid case sensitivity issues.
+2. `ServiceName` values should match the product marketing name for the closest possible service. Some services reuse resource types and cannot be distinguished from the resource type alone (e.g., Azure functions will show as App Service).
+3. `ServiceCategory` values are aligned with the allowed values in FOCUS.
+
+<blockquote class="note" markdown="1">
+  _Most mappings can rely on resource type alone. In a future update, we will merge this list with [Resource types](#-resource-types) to provide only a single dataset. Currently, the only known case where resource type is shared that ConsumedService can help identify is for Microsoft Defender for Cloud. To simplify your mapping, you can only map those 5 rows and rely on a resource type mapping for everything else._
+</blockquote>
 
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Services.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
 [See PowerShell](../../_automation/powershell/data/Get-FinOpsService.md){: .btn .mb-4 .mb-md-0 .mr-4 }
