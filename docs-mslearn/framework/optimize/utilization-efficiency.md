@@ -3,10 +3,12 @@ title: Resource utilization and efficiency
 description: This article helps you understand the resource utilization and efficiency capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 06/06/2024
-ms.topic: conceptual
+ms.date: 06/12/2024
+ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
+# customer intent: As a FinOps practitioner, I want to understand the resource utilization and efficiency capability so that I can implement it in the Microsoft Cloud.
+
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -20,7 +22,7 @@ This article helps you understand the resource utilization and efficiency capabi
 
 **Resource utilization and efficiency refers to the process of ensuring cloud services are utilized and tuned to maximize business value and minimize wasteful spending.**
 
-Review how services are being used and ensure each is maximizing return on investment. Evaluate and implement best practices and recommendations.
+Review how services get used and ensure each is maximizing return on investment. Evaluate and implement best practices and recommendations.
 
 Every cost should have direct or indirect traceability back to business value. Eliminate fully "optimized" resources that aren't contributing to business value.
 
@@ -41,7 +43,7 @@ When you first start managing cost in the cloud, you use the native tools to dri
 - Review and implement [Azure Well-Architected Framework cost optimization guidance](/azure/well-architected/cost/overview.md).
 - Familiarize yourself with the services you use, how you're charged, and what service-specific cost optimization options you have.
   - You can discover the services you use from the Azure portal All resources page or from the [Services view in Cost analysis](/azure/cost-management-billing/costs/cost-analysis-built-in-views#break-down-product-and-service-costs.md).
-  - Explore the [Azure pricing pages](https://azure.microsoft.com/pricing) and [Azure pricing calculator](https://azure.microsoft.com/pricing/calculator) to learn how each service charges you. Use them to identify options that might reduce costs. For example, shared infrastructure and commitment discounts.
+  - To learn how each service charges you, explore the [Azure pricing pages](https://azure.microsoft.com/pricing) and [Azure pricing calculator](https://azure.microsoft.com/pricing/calculator). Use them to identify options that might reduce costs. For example, shared infrastructure and commitment discounts.
   - Review service documentation to learn about any cost-related features that could help you optimize your environment or improve cost visibility. Some examples:
     - Choose [spot VMs](/azure/well-architected/cost/optimize-vm#spot-vms.md) for low priority, interruptible workloads.
     - Avoid [cross-region data transfer](/azure/well-architected/cost/design-regions#traffic-across-billing-zones-and-regions.md).
@@ -51,7 +53,7 @@ When you first start managing cost in the cloud, you use the native tools to dri
 
 ## Building on the basics
 
-At this point, you've implemented all the basic cost optimization recommendations and tuned applications to meet the most fundamental best practices. As you move beyond the basics, consider the following points:
+At this point, you implemented all the basic cost optimization recommendations and tuned applications to meet the most fundamental best practices. As you move beyond the basics, consider the following points:
 
 - Automate cost recommendations using [Azure Resource Graph](/azure/advisor/resource-graph-samples.md)
 - Implement the [Workload management and automation capability](./workloads.md) for more optimizations.
@@ -89,7 +91,7 @@ Related solutions:
 - [Cost optimization workbook](../../toolkit/optimization-workbook/cost-optimization-workbook.md)
 - [Governance workbook](https://microsoft.github.io/finops-toolkit/governance-workbook)
 
-Additional resources:
+Other resources:
 
 - [Azure pricing](https://azure.microsoft.com/pricing#product-pricing)
 - [Well-Architected Framework](/azure/well-architected/)

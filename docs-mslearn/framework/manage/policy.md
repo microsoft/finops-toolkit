@@ -3,10 +3,12 @@ title: Cloud policy and governance
 description: This article helps you understand the cloud policy and governance capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 06/06/2024
-ms.topic: conceptual
+ms.date: 06/12/2024
+ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
+# customer intent: As a FinOps practitioner, I want to understand the cloud policy and governance capability so that I can implement it in the Microsoft Cloud.
+
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -90,7 +92,7 @@ Related solutions:
 
 - [Governance workbook](https://microsoft.github.io/finops-toolkit/governance-workbook)
 
-Additional resources:
+Other resources:
 
 - [Cloud Adoption Framework](/azure/cloud-adoption-framework/)
 - [Well-Architected Framework](/azure/well-architected/)

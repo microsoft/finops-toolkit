@@ -3,10 +3,11 @@ title: Establishing a FinOps culture
 description: This article helps you understand the Establishing a FinOps culture capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 06/06/2024
-ms.topic: conceptual
+ms.date: 06/11/2024
+ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
+# customer intent: As a FinOps practitioner, I want to understand what FinOps culture is so I can implement it in my organization.
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -38,7 +39,7 @@ When you first start, not all stakeholders are familiar with what FinOps is and 
   - Understand what motivates them through their mission and success criteria.
   - Learn about the challenges they face and look for opportunities for FinOps to help address them.
   - Identify potential promoters and detractors and empathize with why they would or wouldn't support your efforts. Factor both sides into your strategy.
-- Identify an initial sponsor and prepare a pitch that explains how your strategy leads to a positive impact on their mission and success criteria. Present your plan with clear asks and next steps.
+- Identify an initial sponsor and prepare a pitch that explains how your strategy leads to a positive change on their mission and success criteria. Present your plan with clear asks and next steps.
   - You're creating a mini startup. Do your research around how to prepare for these early meetings.
   - Utilize [FinOps Foundation resources](https://www.finops.org/resources) to build your pitch, strategy, and more.
   - Use the [FinOps community](https://www.finops.org/community/getting-started/) to share their knowledge and experience. They've been where you are.

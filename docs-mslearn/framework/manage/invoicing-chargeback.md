@@ -1,12 +1,13 @@
 ---
 title: Chargeback and finance integration
-description: This article helps you understand the chargeback and finance integration capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+description: This article helps you understand the chargeback and finance integration capability in the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 06/06/2024
-ms.topic: conceptual
+ms.date: 06/11/2024
 ms.service: finops
 ms.reviewer: micflan
+ms.topic: concept-article
+# customer intent: As a FinOps practitioner, I want to understand the chargeback and finance integration capability so that I can implement it in the Microsoft Cloud.
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -30,7 +31,7 @@ Chargeback and finance integration enables increased transparency, more direct a
 
 ## Before you begin
 
-Chargeback, cost allocation, and showback are all important components of your FinOps practice. While you can implement them in any order, we generally recommend most organizations start with [showback](../understand/reporting.md) to ensure each team has visibility of the charges they're responsible for – at least at a cloud scope level. Then implement [cost allocation](../understand/allocation.md) to align cloud costs to the organizational reporting hierarchies, and lastly implement chargeback based on that cost allocation strategy. Consider reviewing the [Data analysis and showback](../understand/reporting.md) and [Cost allocation](../understand/allocation.md) capabilities if you haven't implemented them yet. You may also find [Managing shared costs](../understand/shared-cost.md) and [Managing commitment-based discounts](../optimize/commitment-discounts.md) capabilities to be helpful in implementing a complete chargeback solution.
+Chargeback, cost allocation, and showback are all important components of your FinOps practice. While you can implement them in any order, we generally recommend most organizations start with [showback](../understand/reporting.md) to ensure each team has visibility of the charges they're responsible for – at least at a cloud scope level. Then implement [cost allocation](../understand/allocation.md) to align cloud costs to the organizational reporting hierarchies, and lastly implement chargeback based on that cost allocation strategy. Consider reviewing the [Data analysis and showback](../understand/reporting.md) and [Cost allocation](../understand/allocation.md) capabilities if you didn't implement them yet. You might also find [Managing shared costs](../understand/shared-cost.md) and [Managing commitment-based discounts](../optimize/commitment-discounts.md) capabilities to be helpful in implementing a complete chargeback solution.
 
 <br>
 
@@ -38,19 +39,19 @@ Chargeback, cost allocation, and showback are all important components of your F
 
 Chargeback and finance integration is all about integrating with your own internal tools. Consider the following points:
 
-- Collaborate with stakeholders across finance, business, and technology to plan and prepare for chargeback.
+- To plan and prepare for chargeback, collaborate with stakeholders across finance, business, and technology.
 - Document how chargeback works and be prepared for questions.
 - Use the organizational [cost allocation](../understand/allocation.md) strategy that factors in how stakeholders agreed to account for [shared costs](../understand/shared-cost.md) and [commitment-based discounts](../optimize/commitment-discounts.md).
-  - If you haven't established one, consider simpler chargeback models that are fair and agreed upon by all stakeholders.
+  - If you didn't establish one, consider simpler chargeback models that are fair and agreed upon by all stakeholders.
 - Use existing tools and processes to manage cloud costs as part of organizational finances.
 
 <br>
 
 ## Building on the basics
 
-At this point, you have a basic chargeback model that all stakeholders have agreed to. As you move beyond the basics, consider the following points:
+At this point, you have a basic chargeback model that all stakeholders agreed to. As you move beyond the basics, consider the following points:
 
-- Consider implementing a one-way sync from your budget system to [Cost Management budgets](/azure/cost-management-billing/automate/automate-budget-creation.md) to use automated alerts based on machine learning forecasts.
+- Think about setting up a one-way synchronization from your budget system to [Cost Management budgets](/azure/cost-management-billing/automate/automate-budget-creation.md). It  allows you to use automated alerts that are based on machine learning predictions.
 - If you track manual forecasts, consider creating Cost Management budgets for your forecast values as well. It gives you separate tracking and alerting for budgets separate from your forecast.
 - Automate your [cost allocation](../understand/allocation.md) strategy through tagging.
 - Expand coverage of [shared costs](../understand/shared-cost.md) and [commitment-based discounts](../optimize/commitment-discounts.md) if not already included.
