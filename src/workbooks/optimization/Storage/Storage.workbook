@@ -603,10 +603,55 @@
                           "groupType": "editable",
                           "items": [
                             {
+                              "type": 9,
+                              "content": {
+                                "version": "KqlParameterItem/1.0",
+                                "parameters": [
+                                  {
+                                    "id": "47b2c951-49ef-4352-a52e-fc42fbd77f3c",
+                                    "version": "KqlParameterItem/1.0",
+                                    "name": "UpdateTime",
+                                    "label": "Last update",
+                                    "type": 2,
+                                    "isRequired": true,
+                                    "query": "{\"version\":\"1.0.0\",\"content\":\"[\\r\\n    { \\\"value\\\":\\\"0d\\\", \\\"label\\\":\\\"All\\\", \\\"selected\\\":true },\\r\\n    { \\\"value\\\":\\\"7d\\\", \\\"label\\\":\\\"> 7 days\\\" },\\r\\n    { \\\"value\\\":\\\"14d\\\", \\\"label\\\":\\\"> 14 days\\\" },\\r\\n\\t{ \\\"value\\\":\\\"30d\\\", \\\"label\\\":\\\"> 1 month\\\" },\\r\\n\\t{ \\\"value\\\":\\\"60d\\\", \\\"label\\\":\\\"> 2 months\\\" },\\r\\n\\t{ \\\"value\\\":\\\"90d\\\", \\\"label\\\":\\\"> 3 months\\\" },\\r\\n\\t{ \\\"value\\\":\\\"180d\\\", \\\"label\\\":\\\"> 6 months\\\" },\\r\\n\\t{ \\\"value\\\":\\\"365d\\\", \\\"label\\\":\\\"> 1 year\\\" },\\r\\n\\t{ \\\"value\\\":\\\"730d\\\", \\\"label\\\":\\\"> 2 years\\\" }\\r\\n]\",\"transformers\":null}",
+                                    "typeSettings": {
+                                      "additionalResourceOptions": [],
+                                      "showDefault": false
+                                    },
+                                    "timeContext": {
+                                      "durationMs": 86400000
+                                    },
+                                    "queryType": 8
+                                  },
+                                  {
+                                    "version": "KqlParameterItem/1.0",
+                                    "name": "DiskSize",
+                                    "label": "Disk size",
+                                    "type": 2,
+                                    "isRequired": true,
+                                    "query": "{\"version\":\"1.0.0\",\"content\":\"[\\r\\n    { \\\"value\\\":\\\"0\\\", \\\"label\\\":\\\"All\\\", \\\"selected\\\":true },\\r\\n    { \\\"value\\\":\\\"64\\\", \\\"label\\\":\\\"> 64 GB\\\" },\\r\\n    { \\\"value\\\":\\\"128\\\", \\\"label\\\":\\\"> 128 GB\\\" },\\r\\n\\t{ \\\"value\\\":\\\"256\\\", \\\"label\\\":\\\"> 256 GB\\\" },\\r\\n\\t{ \\\"value\\\":\\\"512\\\", \\\"label\\\":\\\"> 512 GB\\\" },\\r\\n\\t{ \\\"value\\\":\\\"1024\\\", \\\"label\\\":\\\"> 1024 GB\\\" }\\r\\n]\",\"transformers\":null}",
+                                    "typeSettings": {
+                                      "additionalResourceOptions": [],
+                                      "showDefault": false
+                                    },
+                                    "timeContext": {
+                                      "durationMs": 86400000
+                                    },
+                                    "queryType": 8,
+                                    "id": "ec556d4a-4306-4da2-8e58-9326a7a5e3ea"
+                                  }
+                                ],
+                                "style": "above",
+                                "queryType": 8
+                              },
+                              "name": "idle disks parameters"
+                            },
+                            {
                               "type": 3,
                               "content": {
                                 "version": "KqlItem/1.0",
-                                "query": "resources \r\n| where type =~ 'microsoft.compute/disks' and managedBy == \"\"\r\n| where resourceGroup in ({ResourceGroup})\r\n| extend diskState = tostring(properties.diskState)\r\n| where managedBy == \"\" and diskState != 'ActiveSAS'\r\nor diskState == 'Unattached' and diskState != 'ActiveSAS'  \r\nand tags !contains 'ASR-ReplicaDisk' and tags !contains 'asrseeddisk'\r\n| extend DiskId=id, DiskIDfull=id, DiskName=name, SKUName=sku.name, SKUTier=sku.tier, DiskSizeGB=tostring(properties.diskSizeGB), Location=location, TimeCreated=tostring(properties.timeCreated), QuickFix=id, SubId=subscriptionId\r\n| order by DiskId asc \r\n| project DiskId, DiskIDfull, DiskName, DiskSizeGB, SKUName, SKUTier, resourceGroup, QuickFix, Location, TimeCreated, subscriptionId,SubId\r\n| join kind = innerunique(\r\n    resources\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}'])\r\n    | extend DiskId = id\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    | distinct DiskId\r\n    )\r\n    on DiskId",
+                                "query": "resources \r\n| where type =~ 'microsoft.compute/disks' and managedBy == \"\"\r\n| where resourceGroup in ({ResourceGroup})\r\n| extend diskState = tostring(properties.diskState)\r\n| where managedBy == \"\" and diskState != 'ActiveSAS'\r\nor diskState == 'Unattached' and diskState != 'ActiveSAS'  \r\nand tags !contains 'ASR-ReplicaDisk' and tags !contains 'asrseeddisk'\r\n| extend DiskId=id, DiskIDfull=id, DiskName=name, SKUName=sku.name, SKUTier=sku.tier, DiskSizeGB=toint(properties.diskSizeGB), Location=location, TimeCreated= properties.timeCreated, QuickFix=id, SubId=subscriptionId, LastUpdate = properties.LastOwnershipUpdateTime\r\n| where ago({UpdateTime}) > LastUpdate or LastUpdate == ''\r\n| where DiskSizeGB > {DiskSize}\r\n| order by DiskId asc \r\n| project DiskId, DiskIDfull, DiskName, DiskSizeGB, SKUName, SKUTier, resourceGroup, QuickFix, Location, TimeCreated, LastUpdate, subscriptionId,SubId\r\n| join kind = innerunique(\r\n    resources\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}'])\r\n    | extend DiskId = id\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    | distinct DiskId\r\n    )\r\n    on DiskId",
                                 "size": 0,
                                 "title": "Unattached disks",
                                 "noDataMessage": "There aren't any unattached disks!",
@@ -699,12 +744,6 @@
                                     }
                                   ],
                                   "rowLimit": 1000,
-                                  "sortBy": [
-                                    {
-                                      "itemKey": "$gen_link_subscriptionId_10",
-                                      "sortOrder": 1
-                                    }
-                                  ],
                                   "labelSettings": [
                                     {
                                       "columnId": "DiskId",
@@ -748,12 +787,7 @@
                                     }
                                   ]
                                 },
-                                "sortBy": [
-                                  {
-                                    "itemKey": "$gen_link_subscriptionId_10",
-                                    "sortOrder": 1
-                                  }
-                                ]
+                                "sortBy": []
                               },
                               "customWidth": "80",
                               "name": "Get-Idle-Disk"
@@ -898,7 +932,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "resources\r\n| where type == 'microsoft.compute/snapshots'\r\n| where resourceGroup in ({ResourceGroup})\r\n| extend StorageSku = tostring(sku.tier), resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup),diskSize=tostring(properties.diskSizeGB)\r\n| where StorageSku == \"Premium\"\r\n| project id,name,StorageSku,diskSize,location,resourceGroup,subscriptionId\r\n| join kind = innerunique(\r\n    resources\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}'])\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    | distinct id\r\n    )\r\n    on id\r\n",
+                          "query": "resources\r\n| where type == 'microsoft.compute/snapshots'\r\n| where resourceGroup in ({ResourceGroup})\r\n| extend StorageSku = tostring(sku.tier), resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup),diskSize=tostring(properties.diskSizeGB)\r\n| where StorageSku == \"Premium\"\r\n| project id,name,StorageSku,diskSize,location,resourceGroup,subscriptionId\r\n| join kind = innerunique(\r\n    resources\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}'])\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    | distinct id\r\n    )\r\n    on id\r\n",
                           "size": 0,
                           "title": "Snapshots using premium storage",
                           "noDataMessage": "No snapshots are using Premium storage",
@@ -977,7 +1011,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "resources\r\n| where type == 'microsoft.compute/snapshots'\r\n| where resourceGroup in ({ResourceGroup})\r\n| extend parentDisk = properties.creationData.sourceResourceId, diskSize=tostring(properties.diskSizeGB),resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)\r\n| project id,parentDisk,diskSize,location,resourceGroup,subscriptionId\r\n| join kind = innerunique(\r\n    resources\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}'])\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    | distinct id\r\n    )\r\n    on id\r\n",
+                          "query": "resources\r\n| where type == 'microsoft.compute/snapshots'\r\n| where resourceGroup in ({ResourceGroup})\r\n| extend parentDisk = properties.creationData.sourceResourceId, diskSize=tostring(properties.diskSizeGB),resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)\r\n| project id,parentDisk,diskSize,location,resourceGroup,subscriptionId\r\n| join kind = innerunique(\r\n    resources\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}'])\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    | distinct id\r\n    )\r\n    on id\r\n",
                           "size": 0,
                           "title": "All Managed Disks snapshots",
                           "noDataMessage": "No snapshots found",
@@ -1026,7 +1060,7 @@
                         "type": 3,
                         "content": {
                           "version": "KqlItem/1.0",
-                          "query": "resources\r\n| where type == 'microsoft.compute/disks'\r\n| project id\r\n",
+                          "query": "resources\r\n| where type == 'microsoft.compute/disks'\r\n| project id\r\n",
                           "size": 0,
                           "title": "All managed disks",
                           "queryType": 1,
