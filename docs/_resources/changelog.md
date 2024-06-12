@@ -82,7 +82,7 @@ Legend:
 > ✏️ Changed
 >
 > 1. Updated all [open data files](../_reporting/data/README.md) to include the latest data.
-> 2. Changed the primary column in the [Regions data](../_reporting/data/README.md#️-regions) to be lowercase.
+> 2. Changed the primary columns in the [Regions](../_reporting/data/README.md#️-regions) and [Services](../_reporting/data/README.md#️-services) open data files to be lowercase.
 
 <br>
 
