@@ -17,6 +17,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
+- [🚚 v0.4](#-v04)
 - [🚚 v0.3](#-v03)
 - [🚚 v0.2](#-v02)
 - [🛠️ v0.1.1](#️-v011)
@@ -63,6 +64,15 @@ Legend:
 
 <br>
 
+## 🚚 v0.4
+
+📗 FinOps guide
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Documented the [FOCUS export dataset](../_docs/focus/metadata.md) to align to the FOCUS metadata specification.
+
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
@@ -73,8 +83,6 @@ Legend:
 > ✏️ Changed
 >
 > 1. Changed the **Tags** column to default to `{}` when empty to facilitate tag expansion ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
-
-<br>
 
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -88,12 +96,16 @@ Legend:
 
 ## 🚚 v0.3
 
-📗 FinOps documentation
+📗 FinOps guide
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
-> 1. Added the [FinOps documentation](../_docs/what-is-finops.md) to provide guidance around how to implement and adopt FinOps in the Microsoft Cloud.
+> 1. Moved [Azure FinOps documentation](https://aka.ms/finops/docs) about how to implement and adopt FinOps into the toolkit.
+>
+> ✏️ Changed:
+>
+> 1. Rearranged documentation site to better organize content.
 
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -117,6 +129,8 @@ Legend:
 
 > ➕ Added:
 >
+> 1. Added `ResourceParentId`, `ResourceParentName`, and `ResourceParentType` columns to support the usage of the user-defined `cm-resource-parent` tag.
+> 2. Added `ToolkitVersion` and `ToolkitTool` columns to help quantify the cost of FinOps toolkit solutions.
 > 1. Added a DQ page to the [Commitment discounts report](../_reporting/power-bi/commitment-discounts.md#dq) for data quality validations. This page can be useful in identifying data gaps in Cost Management.
 > 2. Added `x_NegotiatedUnitPriceSavings` column to show the price reduction from negotiated discounts compared to the public, list price.
 > 3. Added `x_IsFree` column to indicate when a row represents a free charge (based on Cost Management data). This is used in data quality checks.
@@ -131,6 +145,7 @@ Legend:
 > 5. Changed `x_SkuTerm` to be a whole number and to not summarize by default.
 > 6. Changed `x_BillingExchangeRate` to not summarize by default.
 > 7. Corrected references to x_InvoiceIssuerId and InvoiceIssuerName columns in the [Cost Management connector report](../_reporting/power-bi/connector.md) ([#639](https://github.com/microsoft/finops-toolkit/issues/649)).
+> 8. Corrected the datatype for the `x_Month` column.
 >
 > ✏️ Changed:
 >
@@ -162,7 +177,7 @@ Legend:
 
 > ➕ Added:
 >
-> 1. [Get-FinOpsCostService](../_automation/powershell/data/Get-FinOpsService.md) includes new `-Environment` and `-ServiceModel` filters and properties in the response ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
+> 1. [Get-FinOpsService](../_automation/powershell/data/Get-FinOpsService.md) includes new `-Environment` and `-ServiceModel` filters and properties in the response ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
 >
 > ✏️ Changed:
 >
@@ -186,29 +201,6 @@ Legend:
 
 [Download v0.3](https://github.com/microsoft/finops-toolkit/releases/tag/v0.3){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.2...v0.3){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-
-📊 Power BI reports
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. `ResourceParentId`, `ResourceParentName`, and `ResourceParentType` columns to support the usage of the user-defined `cm-resource-parent` tag.
-> 2. `ToolkitVersion` and `ToolkitTool` columns to help quantify the cost of FinOps toolkit solutions.
->
-> 🛠️ Fixed:
->
-> 1. Corrected the datatype for the `x_Month` column.
-
-📗 FinOps guide
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. Move [Azure FinOps documentation](https://aka.ms/finops/docs) into the toolkit.
->
-> ✏️ Changed:
->
-> 1. Rearranged documentation site to better organize content.
 
 <br>
 
