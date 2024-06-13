@@ -33,7 +33,7 @@ While our community is growing, we don't have dedicated staff and cannot commit 
 - **End-to-end FinOps**<br>
   Expand the FinOps toolkit to encapsulate everything organizations need to learn and implement FinOps through Microsoft products, solutions, and services.<br>&nbsp;
 - **Solidify the foundation**<br>
-  Flesh out the infrastructure needed to unblock key design principles of FinOps hubs. Specifically, scalability and extensibility to enable larger datasets and optional or custom capabilities.<br>&nbsp;
+  Flesh out the infrastructure needed to scale open-source contributions and unblock key design principles of tools and resources within the toolkit, like DevOps automation and extensibility to streamline the contributor and release workflows and native support for optional or custom functionality.<br>&nbsp;
 - **Enable the community**<br>
   Expand and evolve the help and support resources and options available for the broader community of contributors and consumers.<br>&nbsp;
 - **Community-driven evolution**<br>
@@ -68,6 +68,7 @@ While our community is growing, we don't have dedicated staff and cannot commit 
 🔄️ Analytics engine – Ingest cost data into an Azure Data Explorer cluster.<br>
 🔄️ Private endpoints – Add support for private endpoints.<br>
 🔄️ Bring your own KeyVault – Add support for referencing an existing KeyVault instance.<br>
+🔜 FOCUS 1.0 – Add support for FOCUS 1.0 GA to FinOps hubs.<br>
 🔜 Troubleshooting guide – Detailed walkthrough of how to resolve and get support for common issues.<br>
 🔜 Auto-backfill – Backfill historical data from Microsoft Cost Management.<br>
 🔜 Retention – Configure how long you want to keep data in storage.<br>
@@ -80,6 +81,7 @@ While our community is growing, we don't have dedicated staff and cannot commit 
 ## 📊 Power BI reports
 
 ✅ Data ingestion report – New report to monitor FinOps hubs data ingestion.<br>
+🔜 FOCUS 1.0 – Add support for FOCUS 1.0 GA to Power BI reports.<br>
 🔜 Warnings – Show warnings to raise awareness about known issues.<br>
 🔜 Tags demo – Include example of how to use tags.<br>
 🔜 Raw exports – Add support for raw exports without FinOps hubs.<br>
