@@ -32,29 +32,28 @@ This article helps you understand the cloud sustainability capability within the
 ---
 
 <a name="definition"></a>
-**Cloud sustainability defines how organization's decision-making process regarding cloud usage taking into account its environmental impact and aligning with broader sustainability objectives."**
+**Cloud sustainability balances environmental and financial efficiency in cloud optimization, ensuring alignment with strategic objectives.**
 {: .fs-6 .fw-300 }
 
-It delineates policies, guidelines, and strategies to optimize cloud sustainability, identifying improvement opportunities and fostering stakeholder engagement for effective evaluation. 
+Establish policies, guidelines, and strategies to optimize cloud sustainability while balancing cost. Identify opportunities to improve and foster stakeholder engagement for effective evaluation.
 
 <br>
 
 ## ▶️ Getting started
 
-When you first start with cloud sustainability, there are a few built-in tools that can help you 
+When you first start with cloud sustainability, you use the native tools to drive efficiency and optimize carbon in the portal.
 
-- To learn more about what environmental, social, and governance (ESG) capabilities Microsoft offers across the cloud portfolio and solutions, refer to the [Microsoft Cloud for Sustainability.](https://learn.microsoft.com/industry/sustainability/overview)
--Review the [Microsoft Cloud for Sustainability design principles](https://learn.microsoft.com/industry/well-architected/sustainability/cloud-sustainability-design-principles) outlined as part of the Well-Architected for Sustainability guidance.
-- Use the [Azure carbon optimization](https://learn.microsoft.com/azure/carbon-optimization/overview) to find opportunities to optimize your Azure environment to lower your carbon emissions and costs.
-- Calculate your cloud-based carbon emissions with the [Emissions Impact Dashboard for Azure](https://learn.microsoft.com/power-bi/connect-data/service-connect-to-emissions-impact-dashboard) or the [Emissions Impact Dashboard for Microsoft 365](https://learn.microsoft.com/power-bi/connect-data/service-connect-to-emissions-impact-dashboard).
-- Review the Microsoft Cloud for Sustainability [reference architectures](https://learn.microsoft.com/industry/well-architected/sustainability/sustainability-architecture-overview) to identify which tools are more relevant for your environmental, social, and governance (ESG) capabilities.
+- Leverage [Azure Carbon Optimization](https://learn.microsoft.com/azure/carbon-optimization/overview) to find opportunities to lower carbon emissions.
+- Consider using the [Cost optimization workbook](../../../../_workbooks/optimization-workbook/README.md) to view carbon optimization recommendations alongside other usage and cost efficiency recommendations. 
 <br>
 
 ## 🏗️ Building on the basics
 
--Deploy the [Sustainability data solutions in Microsoft Fabric ](https://learn.microsoft.com/industry/sustainability/sustainability-data-solutions-overview) to help you ingest, harmonize, and process data for specific sustainability scenarios, such as ESG data estate, Microsoft Azure emissions insights, and Social and governance metrics and reports.
+At this point, you've implemented all the basic carbon optimization recommendations and tuned applications to meet the most fundamental best practices. As you move beyond the basics, consider the following points:
 
-NOTE:Some or all of this functionality is available as part of a preview release. The content and the functionality are subject to change.
+- Expand visibility to business and finance stakeholders by using the [Emissions Impact Dashboard for Azure](https://learn.microsoft.com/power-bi/connect-data/service-connect-to-emissions-impact-dashboard) or the [Emissions Impact Dashboard for Microsoft 365](https://learn.microsoft.com/power-bi/connect-data/service-connect-to-emissions-impact-dashboard).
+- Explore additional tools available in Microsoft's environmental, social, and governance (ESG) capabilities available from the [Microsoft Cloud for Sustainability](https://learn.microsoft.com/industry/sustainability/overview).
+  - For a more prescriptive approach, refer to the [Well-Architected guide for sustainability](https://learn.microsoft.com/industry/well-architected/sustainability).
 
 <br>
 
@@ -62,10 +61,6 @@ NOTE:Some or all of this functionality is available as part of a preview release
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Cloud sustainability](https://www.finops.org/framework/capabilities/cloud-sustainability/) article in the FinOps Framework documentation.
 
-You can also find related videos on the FinOps Foundation YouTube channel:
-
-<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.html title="Resource utilization and efficiency videos" id="DIcO8EulN8PuXuWL" list="PLUSCToibAswlL6Ms76cl9GDmcpM85nlWA" %}
 
 <br>
 
