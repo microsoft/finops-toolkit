@@ -44,8 +44,6 @@ param tagsByResource object = {}
 
 var focusSchemaVersion = '1.0-preview(v1)'
 var focusSchemaFile = 'focuscost_1.0-preview(v1).json'
-var mcaSchemaFile = 'schema_mca_normalized.json'
-var eaSchemaFile = 'schema_ea_normalized.json'
 var ftkVersion = loadTextContent('ftkver.txt')
 var exportApiVersion = '2023-07-01-preview'
 
@@ -1574,71 +1572,161 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
   parent: dataFactory
   properties: {
     activities: [
+      // (start) -> FolderArray -> Scope -> Metric -> Date -> File -> Folder -> Delete Target -> Convert CSV -> Delete CSV -> (end)
+      // Set FolderArray
       {
-        name: 'Set Scope'
+        name: 'Set FolderArray'
         type: 'SetVariable'
-        dependsOn: []
+        dependsOn: [
+        ]
+        userProperties: []
+        typeProperties: {
+          variableName: 'folderArray'
+          value: {
+            value: '@split(pipeline().parameters.blobPath, \'/\')'
+            type: 'Expression'
+          }
+        }
+      }
+      // Set FolderCount
+      {
+        name: 'Set FolderCount'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Set FolderArray'
+            dependencyConditions: [ 'Completed' ]
+          }
+        ]
         policy: {
           secureOutput: false
           secureInput: false
         }
         userProperties: []
         typeProperties: {
+          variableName: 'folderCount'
+          value: '@sub(length(split(pipeline().parameters.blobPath, \'/\')), 1)'
+        }
+      }
+      // Set SecondToLastFolder
+      {
+        name: 'Set SecondToLastFolder'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Set FolderCount'
+            dependencyConditions: [ 'Completed' ]
+          }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'secondToLastFolder'
+          value: '@variables(\'folderArray\')[sub(variables(\'folderCount\'), 2)]'
+        }
+      }
+      // Set ThirdToLastFolder
+      {
+        name: 'Set ThirdToLastFolder'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Set SecondToLastFolder'
+            dependencyConditions: [ 'Succeeded' ]
+          }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'thirdToLastFolder'
+          value: '@variables(\'folderArray\')[sub(variables(\'folderCount\'), 3)]'
+        }
+      }
+      // Set FourthToLastFolder
+      {
+        name: 'Set FourthToLastFolder'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Set ThirdToLastFolder'
+            dependencyConditions: [ 'Succeeded' ]
+          }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'fourthToLastFolder'
+          value: '@variables(\'folderArray\')[sub(variables(\'folderCount\'), 4)]'
+        }
+      }
+      // Set Scope
+      {
+        name: 'Set Scope'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Set FourthToLastFolder'
+            dependencyConditions: [ 'Completed' ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
           variableName: 'scope'
           value: {
-            value: '@replace(split(pipeline().parameters.blobPath,split(pipeline().parameters.blobPath, \'/\')[sub(length(split(pipeline().parameters.blobPath, \'/\')), 4)])[0],\'${safeExportContainerName}\',\'${safeIngestionContainerName}\')'
+            value: '@replace(split(pipeline().parameters.blobPath, if(greater(length(variables(\'secondToLastFolder\')), 12), variables(\'thirdToLastFolder\'), variables(\'fourthToLastFolder\')))[0], \'${exportContainerName}\', \'${ingestionContainerName}\')'
             type: 'Expression'
           }
         }
       }
+      // Set Metric
       {
         name: 'Set Metric'
         type: 'SetVariable'
         dependsOn: [
           {
             activity: 'Set Scope'
-            dependencyConditions: [
-              'Completed'
-            ]
+            dependencyConditions: [ 'Completed' ]
           }
         ]
-        policy: {
-          secureOutput: false
-          secureInput: false
-        }
         userProperties: []
         typeProperties: {
           variableName: 'metric'
           value: {
-            value: '@if(contains(toLower(pipeline().parameters.blobPath), \'amortizedcost\'), \'amortizedcost\', if(contains(toLower(pipeline().parameters.blobPath), \'actualcost\'), \'actualcost\', \'focuscost\'))'
+            // TODO: Parse metric out of the manifest file @ msexports/<scope>/<export-name>/<date-range>/[<timestamp?>/]<guid>/manifest.json
+            value: 'focuscost'
             type: 'Expression'
           }
         }
       }
+      // Set Date
       {
         name: 'Set Date'
         type: 'SetVariable'
         dependsOn: [
           {
             activity: 'Set Metric'
-            dependencyConditions: [
-              'Completed'
-            ]
+            dependencyConditions: [ 'Completed' ]
           }
         ]
-        policy: {
-          secureOutput: false
-          secureInput: false
-        }
         userProperties: []
         typeProperties: {
           variableName: 'date'
           value: {
-            value: '@{substring(split(split(pipeline().parameters.blobPath, \'/\')[sub(length(split(pipeline().parameters.blobPath, \'/\')), 3)], \'-\')[0], 0, 4)}@{substring(split(split(pipeline().parameters.blobPath, \'/\')[sub(length(split(pipeline().parameters.blobPath, \'/\')), 3)], \'-\')[0], 4, 2)}'
+            value: '@substring(if(greater(length(variables(\'secondToLastFolder\')), 12), variables(\'secondToLastFolder\'), variables(\'thirdToLastFolder\')), 0, 6)'
             type: 'Expression'
           }
         }
       }
+      // Set Destination File Name
       {
         name: 'Set Destination File Name'
         description: ''
@@ -1646,203 +1734,35 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         dependsOn: [
           {
             activity: 'Set Date'
-            dependencyConditions: [
-              'Completed'
-            ]
+            dependencyConditions: [ 'Completed' ]
           }
         ]
-        policy: {
-          secureOutput: false
-          secureInput: false
-        }
         userProperties: []
         typeProperties: {
           variableName: 'destinationFile'
           value: {
-            value: '@replace(split(pipeline().parameters.blobPath, \'/\')[sub(length(split(pipeline().parameters.blobPath, \'/\')), 1)], \'.csv\', \'.parquet\')'
+            value: '@replace(variables(\'folderArray\')[variables(\'folderCount\')], \'.csv\', \'.parquet\')'
             type: 'Expression'
           }
         }
       }
+      // Set Destination Folder Name
       {
         name: 'Set Destination Folder Name'
         type: 'SetVariable'
         dependsOn: [
           {
             activity: 'Set Destination File Name'
-            dependencyConditions: [
-              'Completed'
-            ]
+            dependencyConditions: [ 'Completed' ]
           }
         ]
-        policy: {
-          secureOutput: false
-          secureInput: false
-        }
         userProperties: []
         typeProperties: {
           variableName: 'destinationFolder'
           value: {
-            value: '@replace(concat(variables(\'scope\'), \'/\',variables(\'date\'),\'/\',variables(\'metric\')),\'//\',\'/\')'
+            value: '@replace(concat(variables(\'scope\'),variables(\'date\'),\'/\',variables(\'metric\')),\'//\',\'/\')'
             type: 'Expression'
           }
-        }
-      }
-      {
-        name: 'Read first row'
-        type: 'Lookup'
-        dependsOn: [
-          {
-            activity: 'Set Destination Folder Name'
-            dependencyConditions: [
-              'Completed'
-            ]
-          }
-        ]
-        policy: {
-          timeout: '0.12:00:00'
-          retry: 0
-          retryIntervalInSeconds: 30
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          source: {
-            type: 'DelimitedTextSource'
-            storeSettings: {
-              type: 'AzureBlobFSReadSettings'
-              recursive: true
-              enablePartitionDiscovery: false
-            }
-            formatSettings: {
-              type: 'DelimitedTextReadSettings'
-            }
-          }
-          dataset: {
-            referenceName: dataset_msexports.name
-            type: 'DatasetReference'
-            parameters: {
-              blobPath: {
-                value: '@pipeline().parameters.blobPath'
-                type: 'Expression'
-              }
-            }
-          }
-        }
-      }
-      {
-        name: 'Detect FOCUS Schema'
-        type: 'IfCondition'
-        dependsOn: [
-          {
-            activity: 'Read first row'
-            dependencyConditions: [
-              'Succeeded'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          expression: {
-            value: '@and(not(empty(activity(\'Read first row\').output.firstRow.SubAccountName)), not(empty(activity(\'Read first row\').output.firstRow.SubAccountId)))'
-            type: 'Expression'
-          }
-          ifTrueActivities: [
-            {
-              name: 'Set FOCUS schema'
-              type: 'SetVariable'
-              dependsOn: []
-              policy: {
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                variableName: 'detectedSchema'
-                value: {
-                  value: focusSchemaFile
-                  type: 'Expression'
-                }
-              }
-            }
-          ]
-        }
-      }
-      {
-        name: 'Detect EA Schema'
-        type: 'IfCondition'
-        dependsOn: [
-          {
-            activity: 'Detect FOCUS Schema'
-            dependencyConditions: [
-              'Completed'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          expression: {
-            value: '@and(not(empty(activity(\'Read first row\').output.firstRow.AccountName)), not(empty(activity(\'Read first row\').output.firstRow.CostInBillingCurrency)))'
-            type: 'Expression'
-          }
-          ifTrueActivities: [
-            {
-              name: 'Set EA schema'
-              type: 'SetVariable'
-              dependsOn: []
-              policy: {
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                variableName: 'detectedSchema'
-                value: {
-                  value: eaSchemaFile
-                  type: 'Expression'
-                }
-              }
-            }
-          ]
-        }
-      }
-      {
-        name: 'Detect MCA Schema'
-        type: 'IfCondition'
-        dependsOn: [
-          {
-            activity: 'Detect EA Schema'
-            dependencyConditions: [
-              'Completed'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          expression: {
-            value: '@and(not(empty(activity(\'Read first row\').output.firstRow.costInBillingCurrency)), not(empty(activity(\'Read first row\').output.firstRow.costInPricingCurrency)))'
-            type: 'Expression'
-          }
-          ifTrueActivities: [
-            {
-              name: 'Set MCA schema'
-              type: 'SetVariable'
-              dependsOn: []
-              policy: {
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                variableName: 'detectedSchema'
-                value: {
-                  value: mcaSchemaFile
-                  type: 'Expression'
-                }
-              }
-            }
-          ]
         }
       }
       {
@@ -1850,7 +1770,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         type: 'Lookup'
         dependsOn: [
           {
-            activity: 'Detect MCA Schema'
+            activity: 'Set Destination Folder Name'
             dependencyConditions: [
               'Completed'
             ]
@@ -1881,27 +1801,27 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
             type: 'DatasetReference'
             parameters: {
               fileName: {
-                value: '@{toLower(variables(\'detectedSchema\'))}'
+                value: focusSchemaFile
                 type: 'Expression'
               }
+              folderPath: 'config'
             }
           }
         }
       }
+      // Delete Target
       {
         name: 'Delete Target'
         type: 'Delete'
         dependsOn: [
           {
             activity: 'Load Schema Mappings'
-            dependencyConditions: [
-              'Succeeded'
-            ]
+            dependencyConditions: [ 'Completed' ]
           }
         ]
         policy: {
-          timeout: '0.00:05:00'
-          retry: 2
+          timeout: '0.12:00:00'
+          retry: 0
           retryIntervalInSeconds: 30
           secureOutput: false
           secureInput: false
@@ -1926,8 +1846,9 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           }
         }
       }
+      // Convert CSV
       {
-        name: 'Convert File'
+        name: 'Convert CSV'
         type: 'Copy'
         dependsOn: [
           {
@@ -2004,20 +1925,21 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           }
         ]
       }
+      // Delete CSV
       {
-        name: 'Delete Source'
+        name: 'Delete CSV'
         type: 'Delete'
         dependsOn: [
           {
-            activity: 'Convert File'
+            activity: 'Convert CSV'
             dependencyConditions: [
               'Succeeded'
             ]
           }
         ]
         policy: {
-          timeout: '0.00:05:00'
-          retry: 2
+          timeout: '0.12:00:00'
+          retry: 0
           retryIntervalInSeconds: 30
           secureOutput: false
           secureInput: false
@@ -2025,7 +1947,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         userProperties: []
         typeProperties: {
           dataset: {
-            referenceName: dataset_ingestion.name
+            referenceName: dataset_msexports.name
             type: 'DatasetReference'
             parameters: {
               blobPath: {
@@ -2045,7 +1967,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
     ]
     parameters: {
       blobPath: {
-        type: 'string'
+        type: 'String'
       }
     }
     variables: {
@@ -2053,6 +1975,21 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         type: 'String'
       }
       destinationFolder: {
+        type: 'String'
+      }
+      folderArray: {
+        type: 'Array'
+      }
+      folderCount: {
+        type: 'Integer'
+      }
+      secondToLastFolder: {
+        type: 'String'
+      }
+      thirdToLastFolder: {
+        type: 'String'
+      }
+      fourthToLastFolder: {
         type: 'String'
       }
       scope: {
@@ -2064,15 +2001,11 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
       metric: {
         type: 'String'
       }
-      detectedSchema: {
-        type: 'String'
-      }
-      schemaMappings: {
-        type: 'String'
-      }
     }
+    annotations: []
   }
 }
+
 
 //------------------------------------------------------------------------------
 // Start all triggers
