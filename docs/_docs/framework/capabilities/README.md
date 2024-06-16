@@ -57,7 +57,7 @@ Learn about the fundamental building blocks of the FinOps Framework that enable 
 
 ## 📉 Cloud rate optimization
 
-- [Managing commitment-based discounts](./optimize/commitment-discounts.md)
+- [Managing commitment-based discounts](./optimize/rate-optimization.md)
 
 <br>
 
