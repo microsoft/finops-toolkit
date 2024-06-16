@@ -32,7 +32,7 @@ This article helps you understand the workload optimization capability within th
 ---
 
 <a name="definition"></a>
-**Workload optimization capability involves the analysis and fine-tuning of cloud resources to align with unique usage patterns, prioritizing efficiency and ensuring that workloads deliver optimal business value relative to their cost.**
+**Workload optimization capability involves the analysis and fine-tuning of cloud resources to align with unique usage patterns, prioritizing efficiency, and ensuring that workloads deliver optimal business value relative to their cost.**
 {: .fs-6 .fw-300 }
 
 Review how services are being used and ensure each is maximizing return on investment. Evaluate and implement best practices and recommendations.
@@ -47,13 +47,15 @@ An effective workload optimization plan can significantly reduce costs by adjust
 
 ## ▶️ Getting started
 
-When you first start working with a service and managing costs in the cloud, prioritize leveraging native tools within the portal to drive efficiency and optimize costs.
+When you first start working with a service or managing costs in the cloud, prioritize leveraging native tools within the portal to drive efficiency and optimize costs.
 
 - Review and implement [Cloud Adoption Framework costing best practices](https://learn.microsoft.com/azure/cloud-adoption-framework/govern/cost-management/best-practices).
 - Review and implement [Azure Well-Architected Framework cost optimization guidance](https://learn.microsoft.com/azure/well-architected/cost/overview).
 - Review and implement [Azure Advisor cost recommendations](https://learn.microsoft.com/azure/advisor/advisor-reference-cost-recommendations).
   - Azure Advisor gives you high-confidence recommendations based on your usage. Azure Advisor is always the best place to start when looking to optimize any workload.
   - Consider [subscribing to Azure Advisor alerts](https://learn.microsoft.com/azure/advisor/advisor-alerts-portal) to get notified when there are new cost recommendations.
+Use and customize the [Cost optimization workbook](https://learn.microsoft.com/en-us/cloud-computing/finops/cost-optimization-workbook). The Cost Optimization workbook is a central point for some of the most often used tools that can help achieve utilization and efficiency goals.
+  - Leverage the Cost optimization workbook to evaluate resource utilization, like idle and unused resources.
 - Review your usage and purchase [commitment-based discounts](./rate-optimization.md) when it makes sense.
 - Take advantage of Azure Hybrid Benefit for [Windows](https://learn.microsoft.com/windows-server/get-started/azure-hybrid-benefit), [Linux](https://learn.microsoft.com/azure/virtual-machines/linux/azure-hybrid-benefit-linux), and [SQL Server](https://learn.microsoft.com/azure/azure-sql/azure-hybrid-benefit).
 - Can the service be stopped (and if so, stop billing)?
@@ -97,7 +99,7 @@ At this stage, having implemented all the basic cost optimization recommendation
 
 ## 🍎 Learn more at the FinOps Foundation
 
-This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Workload optimization capability](https://www.finops.org/framework/capabilities/workload-management-automation) article in the FinOps Framework documentation.
+This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Workload optimization capability](https://www.finops.org/framework/capabilities/workload-optimization) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
