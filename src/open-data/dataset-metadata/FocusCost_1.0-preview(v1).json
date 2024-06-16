@@ -259,7 +259,7 @@
     {
       "ColumnName": "x_BilledUnitPrice",
       "DataType": "Decimal",
-      "Description": "Unit price for the SKU ... that a consumer would be charged per unit."
+      "Description": "Unit price for the SKU that a consumer would be charged per unit."
     },
     {
       "ColumnName": "x_BillingAccountId",
@@ -400,6 +400,7 @@
     {
       "ColumnName": "x_PricingSubcategory",
       "DataType": "String",
+      "StringEncoding": "UTF-8",
       "Description": "Describes the kind of pricing model used for a charge within a specific Pricing Category."
     },
     {
@@ -467,7 +468,7 @@
     },
     {
       "ColumnName": "x_SkuIsCreditEligible",
-      "DataType": "Boolean (?)",
+      "DataType": "Boolean",
       "Description": "Indicates if the charge is eligible for Azure credits"
     },
     {
