@@ -46,6 +46,8 @@ Adopting a commitment-based strategy allows organizations to reduce their overal
 
 ## ✋ Before you begin
 
+<!-- TODO: Add context on all rate optimization opportunities -->
+
 While you can save by using reservations and savings plans, there's also a risk that you may not end up using that capacity. You could end up underutilizing the commitment and lose money. While losing money is rare, it's possible. We recommend starting small and making targeted, high-confidence decisions. We also recommend not waiting too long to decide on how to approach commitment-based discounts when you do have consistent usage because you're effectively losing money. Start small and learn as you go. But first, learn how [reservation](https://learn.microsoft.com/azure/cost-management-billing/reservations/reservation-discount-application) and [savings plan](https://learn.microsoft.com/azure/cost-management-billing/savings-plan/discount-application) discounts are applied.
 
 Before you purchase either a reservation or a savings plan, consider the usage you want to commit to. If you have high confidence, you maintain a specific level of usage for that type, SKU, and location, strongly consider starting with a reservation. For maximum flexibility, you can use savings plans to cover a wide range of compute costs by committing to a specific hourly spend instead of hourly usage.
@@ -53,6 +55,10 @@ Before you purchase either a reservation or a savings plan, consider the usage y
 <br>
 
 ## ▶️ Getting started
+
+<!-- TODO: Consider adding dev/test, but make sure it's for more than just EA 
+Leverage the [Azure Dev/Test](https://azure.microsoft.com/en-us/pricing/offers/ms-azr-0148p/) offer that comes with a Visual Studio subscription to take advantage of Azure monthly credits to explore and try various Azure services, benefit from discounted Azure dev/test rates, and enable cost-efficient developing and testing. Although rate optimization strategies can be applied to resources in a development environment, the Azure Dev/Test environment is primarily used for learning and training, development and testing, evaluating proof of concepts, and experimenting and innovating to ensure efficient use of resources.
+-->
 
 Microsoft offers several tools to help you identify when you should consider purchasing reservations or savings plans. You can choose whether you want to start by analyzing usage or by reviewing the system-generated recommendations based on your historical usage and cost. We recommend starting with the recommendations to focus your initial efforts:
 
