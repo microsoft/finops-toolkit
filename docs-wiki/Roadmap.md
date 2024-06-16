@@ -33,7 +33,7 @@ While our community is growing, we don't have dedicated staff and cannot commit 
 - **End-to-end FinOps**<br>
   Expand the FinOps toolkit to encapsulate everything organizations need to learn and implement FinOps through Microsoft products, solutions, and services.<br>&nbsp;
 - **Solidify the foundation**<br>
-  Flesh out the infrastructure needed to unblock key design principles of FinOps hubs. Specifically, scalability and extensibility to enable larger datasets and optional or custom capabilities.<br>&nbsp;
+  Flesh out the infrastructure needed to scale open-source contributions and unblock key design principles of tools and resources within the toolkit, like DevOps automation and extensibility to streamline the contributor and release workflows and native support for optional or custom functionality.<br>&nbsp;
 - **Enable the community**<br>
   Expand and evolve the help and support resources and options available for the broader community of contributors and consumers.<br>&nbsp;
 - **Community-driven evolution**<br>
@@ -43,10 +43,12 @@ While our community is growing, we don't have dedicated staff and cannot commit 
 
 ## 🛠️ General
 
+🔜 FOCUS 1.0 (June) – Add support for FOCUS 1.0 GA across tools and services.<br>
 🔜 Office hours – Monthly call to get real-time help and support for FinOps toolkit solutions.<br>
 🔜 Official toolkit support – Get help from Microsoft Support.<br>
 🔜 Demo environment – Publicly available demo environment.<br>
 🔜 Release automation – Automate the end-to-end CI/CD release process.<br>
+🔜 FOCUS 1.1 (November) – Add support for FOCUS 1.1 across tools and services.<br>
 
 <br>
 
