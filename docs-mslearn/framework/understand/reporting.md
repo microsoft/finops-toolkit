@@ -3,10 +3,12 @@ title: Data analysis and showback
 description: This article helps you understand the data analysis and showback capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 06/06/2024
-ms.topic: conceptual
+ms.date: 06/17/2024
+ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
+# customer intent: As a FinOps practitioner, I want to understand the data analysis and showback capability so that I can implement it in the Microsoft Cloud.
+
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -40,7 +42,7 @@ Data analysis and showback are a common part of your iterative process. Some exa
 - New requirements are raised to add or update reports.
 - Implementing more cost visibility measures to drive awareness.
 
-If you're new to FinOps, we recommend starting with data analysis and showback using native cloud tools as you learn more about the data and the specific needs of your stakeholders. You revisit this capability again as you adopt new tools and datasets, which could be ingested into a custom data store or used by a third-party solution from the Marketplace.
+If you're new to FinOps, we recommend starting with data analysis and showback using native cloud tools as you learn more about the data and the specific needs of your stakeholders. You revisit this capability again as you adopt new tools and datasets. Data could be ingested into a custom data store or used by a third-party solution from the Marketplace.
 
 <br>
 
@@ -55,10 +57,10 @@ We also recommend learning about [how cost data is tracked, stored, and refreshe
 
 - Which subscription types (or offers) are supported. For instance, data for classic CSP and sponsorship subscriptions isn't available in Cost Management and must be obtained from other data sources.
 - Which charges are included. For instance, taxes aren't included.
-- How tags are used and tracked. For instance, some resources don't support tags and [tag inheritance](/azure/cost-management-billing/costs/enable-tag-inheritance.md) must be enabled manually to inherit tags from subscriptions and resource groups.
+- How tags get used and tracked. For instance, some resources don't support tags and [tag inheritance](/azure/cost-management-billing/costs/enable-tag-inheritance.md) must be enabled manually to inherit tags from subscriptions and resource groups.
 - When to use "actual" and "amortized" cost.
-  - "Actual" cost shows charges as they were or as they'll get shown on the invoice. Use actual costs for invoice reconciliation.
-  - "Amortized" cost shows the effective cost of resources that used a commitment-based discount (reservation or savings plan). Use amortized costs for cost allocation, to "smooth out" large purchases that may look like usage spikes, and numerous commitment-based discount scenarios.
+  - "Actual" cost shows charges as they were or as they're shown on the invoice. Use actual costs for invoice reconciliation.
+  - "Amortized" cost shows the effective cost of resources that used a commitment-based discount (reservation or savings plan). Use amortized costs for cost allocation, to "smooth out" large purchases that might look like usage spikes, and numerous commitment-based discount scenarios.
 - How credits are applied. For instance, credits are applied when the invoice is generated and not when usage is tracked.
 
 Understanding your cost data is critical to enable accurate and meaningful showback to all stakeholders.
@@ -78,8 +80,8 @@ When you first start managing cost in the cloud, you use the native tools:
 As a starting point, we focus on tools available in the Azure portal and Microsoft 365 admin center.
 
 - Familiarize yourself with the [built-in views in Cost analysis](/azure/cost-management-billing/costs/cost-analysis-built-in-views.md), concentrate on your top cost contributors, and drill in to understand what factors are contributing to that cost.
-  - Use the Services view to understand the larger services (not individual cloud resources) that have been purchased or are being used within your environment. This view is helpful for some stakeholders to get a high-level understanding of what's being used when they may not know the technical details of how each resource is contributing to business goals.
-  - Use the Subscriptions and Resource groups views to identify which departments, teams, or projects are incurring the highest cost, based on how you've organized your resources.
+  - Use the Services view to understand the larger services (not individual cloud resources) that were purchased or are being used within your environment. This view provides stakeholders with a broad overview of resource usage, even if they aren't familiar with the technical specifics of how each resource supports business objectives.
+  - Use the Subscriptions and Resource groups views to identify which departments, teams, or projects are incurring the highest cost, based on how you organized your resources.
   - Use the Resources view to identify which deployed resources are incurring the highest cost.
   - Use the Reservations view to review utilization for a billing account or billing profile or to break down usage to the individual resources that received the reservation discount.
   - Always use the view designed to answer your question. Avoid using the most detailed view to answer all questions, as it's slower and requires more work to find the answer you need.
@@ -87,20 +89,20 @@ As a starting point, we focus on tools available in the Azure portal and Microso
 - [Save and share customized views](/azure/cost-management-billing/costs/save-share-views.md) to revisit them later, collaborate with stakeholders, and drive awareness of current costs.
   - Use private views for yourself and shared views for others to see and manage.
   - Pin views to the Azure portal dashboard to create a heads-up display when you sign into the portal.
-  - Download an image of the chart and copy a link to the view to provide quick access from external emails, documents, etc. Note recipients are required to sign in and have access to the cost data.
+  - To provide quick access from external emails, documents, and other information, download an image of the chart and copy a link to the view. Note recipients are required to sign in and have access to the cost data.
   - Download summarized data to share with others who don't have direct access.
   - Subscribe to scheduled alerts to send emails with a chart and/or data to stakeholders on a daily, weekly, or monthly basis.
-- As you review costs, make note of questions that you can't answer with the raw cloud usage and cost data. Feed this back into your cost allocation strategy to ensure more metadata is added via tags and labels.
+- As you review costs, make note of questions that you can't answer with the raw cloud usage and cost data. To ensure more metadata is added via tags and labels, feed this back into your cost allocation strategy.
 - Use the different tools optimized to provide the details you need to understand the holistic picture of your resource cost and usage.
   - [Analyze resource usage metrics in Azure Monitor](/azure/azure-monitor/essentials/tutorial-metrics.md).
   - [Review resource configuration changes in Azure Resource Graph](/azure/governance/resource-graph/how-to/get-resource-changes.md).
-- If you need to build more advanced reports or merge cost data with other cloud or business data, [leverage the FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi).
+- If you need to build more advanced reports or merge cost data with other cloud or business data, [use the FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi).
 
 <br>
 
 ## Building on the basics
 
-At this point, you're likely productively utilizing the native reporting and analysis solutions in the portal and have possibly started building advanced reports in Power BI. As you move beyond the basics, consider the following to help you scale your reporting and analysis capabilities:
+At this point, you're likely utilizing the native reporting and analysis solutions in the portal and possibly started building advanced reports in Power BI. As you move beyond the basics, consider the following to help you scale your reporting and analysis capabilities:
 
 - Talk to your stakeholders to ensure you have a firm understanding of their end goals.
   - Differentiate between "tasks" and "goals." Tasks are performed to accomplish goals and will change as technology and our use of it evolves, while goals are more consistent over time.
@@ -155,7 +157,7 @@ Related solutions:
 - [Governance workbook](https://microsoft.github.io/finops-toolkit/governance-workbook)
 - [FinOps toolkit Bicep Registry modules](https://aka.ms/ftk/bicep)
 
-Additional resources:
+Other resources:
 
 - [Azure pricing](https://azure.microsoft.com/pricing#product-pricing)
 

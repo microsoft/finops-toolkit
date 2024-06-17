@@ -3,10 +3,11 @@ title: Managing shared cost
 description: This article helps you understand the managing shared cost capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 06/06/2024
-ms.topic: conceptual
+ms.date: 06/17/2024
+ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
+# customer intent: As a FinOps practitioner, I want to managing shared cost capability so that I can implement it in the Microsoft Cloud.
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -28,7 +29,7 @@ Effectively managing shared costs reduces overhead, increases transparency and a
 
 ## Before you begin
 
-Before you start, it's important to have a clear understanding of your organization's goals and priorities when it comes to managing shared costs. Keep in mind that not all shared costs may need to be redistributed, and some are more effectively managed with other means. Carefully evaluate each shared cost to determine the most appropriate approach for your organization.
+Before you start, it's important to have a clear understanding of your organization's goals and priorities when it comes to managing shared costs. Keep in mind that not all shared costs might need to be redistributed, and some are more effectively managed with other means. Carefully evaluate each shared cost to determine the most appropriate approach for your organization.
 
 This guide doesn't cover commitment-based discounts, like reservations and savings plans. For details about how to handle showback and chargeback, refer to [Managing commitment-based discounts](../optimize/commitment-discounts.md).
 
@@ -40,7 +41,7 @@ When you first start managing cost in the cloud, you use the native allocation t
 
 - If your organization previously implemented the [Cost allocation capability](./allocation.md), refer back to any notes about unallocated or shared costs.
 - Notify stakeholders that you're evaluating shared costs and request details about any known scenarios. Self-identification can save you significant time and effort.
-- Review the services that have been purchased and are being used with the [Services view in Cost analysis](/azure/cost-management-billing/costs/cost-analysis-built-in-views#break-down-product-and-service-costs.md).
+- Review the services that were purchased and are getting used with the [Services view in Cost analysis](/azure/cost-management-billing/costs/cost-analysis-built-in-views#break-down-product-and-service-costs.md).
 - Familiarize yourself with each service to determine if they're designed for and/or could be used for shared resources. A few examples of commonly shared services are:
   - Application hosting services, like Azure Kubernetes Service, Azure App Service, and Azure Virtual Desktop.
   - Observability tools, like Azure Monitor and Log Analytics.
@@ -56,11 +57,11 @@ When you first start managing cost in the cloud, you use the native allocation t
 
 ## Building on the basics
 
-At this point, your simple cost allocation scenarios may be addressed. You're left with more complicated scenarios that require more effort to accurately quantify and redistribute. As you move beyond the basics, consider the following points:
+At this point, your simple cost allocation scenarios might be addressed. You're left with more complicated scenarios that require more effort to accurately quantify and redistribute. As you move beyond the basics, consider the following points:
 
 - Establish and track common KPIs, like the percentage of unallocated shared costs.
 - Use utilization data from [Azure Monitor metrics](/azure/azure-monitor/essentials/data-platform-metrics.md) where possible to understand service usage.
-- Consider using application telemetry to quantify the distribution of shared costs. It's discussed more in [Measuring unit costs](../quantify/unit-economics.md).
+- Consider using application telemetry to quantify the distribution of shared costs. There's more information about it at [Measuring unit costs](../quantify/unit-economics.md).
 - Automate the process of identifying the percentage breakdown of shared costs and consider using allocation rules in Cost Management to redistribute the costs.
 - Automate cost allocation rules to update their respective percentages based on changing usage patterns.
 - Consider sharing targeted reporting about the distribution of shared costs with relevant stakeholders.

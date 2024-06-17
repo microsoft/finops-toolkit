@@ -4,9 +4,11 @@ description: This article helps you understand the data ingestion and normalizat
 author: bandersmsft
 ms.author: banders
 ms.date: 06/06/2024
-ms.topic: conceptual
+ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
+# customer intent: As a FinOps practitioner, I want to understand the data ingestion and normalization capability so that I can implement it in the Microsoft Cloud.
+
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -25,7 +27,7 @@ Gather cost, utilization, performance, and other business data from cloud provid
 - Internal IT data. For example, from a configuration management database (CMDB) or IT asset management (ITAM) systems.
 - Business-specific data, like organizational hierarchies and metrics that map cloud costs to or quantify business value. For example, revenue, as defined by your organizational and divisional mission statements.
 
-Consider how data gets reported and plan for data standardization requirements to support reporting on similar data from multiple sources, like cost data from multiple clouds or account types. Prefer open standards and interoperability with and across providers, vendors, and internal tools. It may also require restructuring data in a logical and meaningful way by categorizing or tagging data so it can be easily accessed, analyzed, and understood.
+Consider how data gets reported and plan for data standardization requirements to support reporting on similar data from multiple sources, like cost data from multiple clouds or account types. Prefer open standards and interoperability with and across providers, vendors, and internal tools. You might also need to organize the data logically and meaningfully. You can categorize or tag it, to make it easy to access, analyze, and understand.
 
 When armed with a comprehensive collection of cost and usage information tied to business value, organizations can empower stakeholders and accelerate the goals of other FinOps capabilities. Stakeholders are able to make more informed decisions, leading to more efficient use of resources and potentially significant cost savings.
 
@@ -39,21 +41,21 @@ While data ingestion and normalization are critical to long-term efficiency and 
 
 ## Getting started
 
-When you first start managing cost in the cloud, you use the native tools available in the portal or through Power BI. If you need more, you may download the data for local analysis, or possibly build a small report or merge it with another dataset. Eventually, you need to automate this process, which is where "data ingestion" comes in. As a starting point, we focus on ingesting cost data into a common data store.
+When you first start managing cost in the cloud, you use the native tools available in the portal or through Power BI. If you need more, you can download the data for local analysis, or possibly build a small report or merge it with another dataset. Eventually, you need to automate this process, which is where "data ingestion" comes in. As a starting point, we focus on ingesting cost data into a common data store.
 
 - Before you ingest cost data, think about your reporting needs.
   - Talk to your stakeholders to ensure you have a firm understanding of what they need. Try to understand their motivations and goals to ensure the data or reporting helps them.
-  - Identify the data you need, where you can get the data from, and who can give you access. Make note of any common datasets that may require normalization.
+  - Identify the data you need, where you can get the data from, and who can give you access. Make note of any common datasets that might require normalization.
   - Determine the level of granularity required and how often the data needs to be refreshed. Daily cost data can be a challenge to manage for a large account. Consider monthly aggregates to reduce costs and increase query performance and reliability if that meets your reporting needs.
 - Consider using a third-party FinOps platform.
   - Review the available [third-party solutions in the Azure Marketplace](https://portal.azure.com/#view/Microsoft_Azure_Marketplace/MarketplaceOffersBlade/searchQuery/cost).
   - If you decide to build your own solution, consider starting with [FinOps hubs](https://aka.ms/finops/hubs), part of the open source FinOps toolkit provided by Microsoft.
-    - FinOps hubs will accelerate your development and help you focus on building the features you need rather than infrastructure.
+    - FinOps hubs accelerate your development and help you focus on building the features you need rather than infrastructure.
 - Select the [cost details solution](/azure/cost-management-billing/automate/usage-details-best-practices.md) that is right for you. We recommend scheduled exports, which push cost data to a storage account on a daily or monthly basis.
   - If you use daily exports, notice that data is pushed into a new file each day. Ensure that you only select the latest day when reporting on costs.
 - Determine if you need a data integration or workflow technology to process data.
-  - In an early phase, you may be able to keep data in the exported storage account without other processing. We recommend that you keep the data there for small accounts with lightweight requirements and minimal customization.
-  - If you need to ingest data into a more advanced data store or perform data cleanup or normalization, you may need to implement a data pipeline. [Choose a data pipeline orchestration technology](/azure/architecture/data-guide/technology-choices/pipeline-orchestration-data-movement.md).
+  - In an early phase, you might be able to keep data in the exported storage account without other processing. We recommend that you keep the data there for small accounts with lightweight requirements and minimal customization.
+  - If you need to ingest data into a more advanced data store or perform data cleanup or normalization, you might need to implement a data pipeline. [Choose a data pipeline orchestration technology](/azure/architecture/data-guide/technology-choices/pipeline-orchestration-data-movement.md).
 - Determine what your data storage requirements are.
   - In an early phase, we recommend using the exported storage account for simplicity and lower cost.
   - If you need an advanced query engine or expect to hit data size limitations within your reporting tools, you should consider ingesting data into an analytical data store. [Choose an analytical data store](/azure/architecture/data-guide/technology-choices/analytical-data-stores.md).
@@ -87,7 +89,7 @@ At this point, you have a data pipeline and are ingesting data into a central da
     - [Resource Graph](/rest/api/azureresourcegraph/resourcegraph(2020-04-01-preview)/resources/resources) for resource details.
     - [Resource changes](/rest/api/resources/changes/list) to list resource changes from the past 14 days.
     - [Subscriptions](/rest/api/resources/subscriptions/list) to list subscriptions.
-    - [Tags](/rest/api/resources/tags/list) for tags that have been applied to resources and resource groups.
+    - [Tags](/rest/api/resources/tags/list) for tags that were applied to resources and resource groups.
   - [Azure service-specific APIs](/rest/api/azure/) for lower-level configuration and utilization details.
 
 <br>
