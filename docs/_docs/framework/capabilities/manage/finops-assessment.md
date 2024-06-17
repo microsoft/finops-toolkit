@@ -1,3 +1,22 @@
+---
+
+<span class="fs-9 d-block mb-4">FinOps Assessment</span>
+This article helps you understand the FinOps Assessment capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+{: .fs-6 .fw-300 }
+
+<details open markdown="1">
+  <summary class="fs-2 text-uppercase">On this page</summary>
+
+- [✋ Before you begin](#-before-you-begin)
+- [▶️ Getting started](#️-getting-started)
+- [🏗️ Building on the basics](#️-building-on-the-basics)
+- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
+- [⏩ Next steps](#-next-steps)
+
+</details>
+
+---
+
 <a name="definition"></a>
 **FinOps Assessment refers to assessing FinOps practice and measure its effectiveness, align activities with organizational goals, and identify areas for improvement, with the aim of becoming more mature.**
 {: .fs-6 .fw-300 }
