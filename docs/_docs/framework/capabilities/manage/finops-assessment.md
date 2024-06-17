@@ -30,15 +30,15 @@ When conducting an assessment, organizations can evaluate their current capabili
 
 ## ✋ Before you begin
 
-For organizations that are just starting out, they can conduct the Microsoft FinOps Review. 
-Leverage from FinOps guidance to assess your organization’s capability gaps. Start small, choose one or two capabilities to focus and that are a priority to maximize the cloud value. Finishing the assessment, you will get recommendations for maximizing cloud business value using FinOps best practices.
-Additionally, document all assessments to be available for the FinOps team and define annual goals with clear KPI’s based on the recommendations 
+For organizations that are just starting out, they can conduct the [Microsoft FinOps Review](https://aka.ms/finops/review).
+Leverage the FinOps guidance to assess your organization’s capability gaps. Start small, choose one or two capabilities to focus on that are a priority to maximize the cloud value. Finishing the assessment, you will get recommendations for maximizing cloud business value using FinOps best practices.
+Additionally, document all assessments to be available for the FinOps team and define annual goals with clear KPI’s based on the recommendations.
 
 
 <br>
 
 
-Getting started
+## ▶️ Getting started
 Find out what capabilities are relevant for the FinOps assessment, and confirm if KPIs are being met. The output of the FinOps assessment is used to monitor and evaluate annual objectives. If needed, adjust goals after each assessment.
 Additionally, build a consistent format that enables simpler comparisons between Target Groups and over time
 
@@ -49,6 +49,8 @@ Additionally, build a consistent format that enables simpler comparisons between
 
 As the organization gains more maturity in its capabilities, more capabilities will be assessed, based on FinOps KPIs. Each Business Unit leads its own FinOps Assessment at a regular cadence.
 
+## 🍎 Learn more at the FinOps Foundation
+This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [FinOps Assessment capability](https://www.finops.org/framework/capabilities/finops-assessment/) article in the FinOps Framework documentation.
 ## ⏩ Next steps
 
 <br>
