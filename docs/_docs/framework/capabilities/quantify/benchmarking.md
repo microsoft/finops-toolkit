@@ -33,25 +33,24 @@ This article helps you understand the benchmarking capability within the FinOps 
 
 <a name="definition"></a>
 **Benchmarking is a systematic process of evaluating the performance and value of cloud services using efficiency metrics, either within an organization or against industry peers.**
-
 {: .fs-6 .fw-300 }
 
-Benchmarking enables organizations to understand how key performance indicators (KPIs) compare with others and identify areas to improve and possibly learn from. Benchmarking encompasses internal evaluations across various teams within the organization, as well as external comparisons with peer entities utilizing Microsoft Cloud services in similar capacities. It's important to recognize that cloud usage is unique to each organization, and there isn't a single "correct" approach when comparing KPIs across teams and organizations.
+Identify and automate key performance indicators (KPIs) based on organizational priorities. Compare across internal teams and divisions or other companies, when possible, to identify areas to improve and possibly learn from others. Remember that cloud usage is unique to each organization, and there isn't a single "correct" approach when comparing KPIs across teams and organizations.
 
-Benchmarking serves as a tool to gauge performance, encouraging companies to make informed decisions based on current knowledge rather than deferring action in anticipation of better data. Establish well-defined metrics, maintain transparent communication regarding goals and objectives, ensure precise data collection and effective dashboarding, and garner management support to maximize your return on investment from benchmarking efforts.
+Leverage benchmarking as a tool to measure performance and progress against organizational goals. Encourage teams to mature and make informed decisions based on available data rather than deferring in anticipation of "better" data. Establish well-defined metrics, maintain transparent communication regarding goals and objectives, ensure precise data collection and effective dashboarding, and garner management support to maximize your return on investment from benchmarking efforts.
 
 <br>
 
 ## ▶️ Getting started
 
-When you first start managing cost in the cloud, leverage the existing guidance and recommendations which are based on benchmarks established across all Microsoft Cloud customers, such as the [Azure Advisor score](https://learn.microsoft.com/azure/advisor/azure-advisor-score) and the [well-architected assessment](https://learn.microsoft.com/assessments/azure-architecture-review/).
+When you first start managing cost in the cloud, leverage the existing guidance and recommendations which are based on benchmarks established across all Microsoft Cloud customers:
 
-- Start by reviewing the [Azure Advisor score](https://learn.microsoft.com/azure/advisor/azure-advisor-score) at the primary scope you manage, whether that's a subscription, resource group, or based on tags.
+- Review the [Azure Advisor score](https://learn.microsoft.com/azure/advisor/azure-advisor-score) at the primary scope you manage, whether that's a subscription, resource group, or based on tags.
   - The Advisor score consists of an overall score, which can be further broken down into five category scores. One score for each category of Advisor represents the five pillars of the Well-Architected Framework.
   - Leverage the [Workload optimization](../optimize/workloads.md] capability to prioritize and implement recommendations with the highest priority.
   - Leverage the [Rate optimization](../optimize/commitment-discounts.md) capability to maximize savings with commitment discounts, like reservations and savings plans.
 - Complete the [Azure Well-Architected Review self-assessment](https://learn.microsoft.com/azure/well-architected/cross-cutting-guides/implementing-recommendations) to identify areas your existing workloads can be improved based on the Azure Well-Architected Framework.
-    - Link your subscription to include Azure Advisor recommendations in the assessment.
+  - Link your subscription to include Azure Advisor recommendations in the assessment.
 
 <br>
 
@@ -77,8 +76,10 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
-<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
+<!--
+[!VIDEO https://www.youtube.com/embed/{id}?list={list}]
 {% include video.html title="Budgeting videos" id="5Qe7eRXKMRzRrwBI" list="PLUSCToibAswnjB7fYRA02ePxySkpDex6q" %}
+-->
 
 <br>
 
@@ -89,6 +90,8 @@ Related FinOps capabilities:
 - [Forecasting](./forecasting.md)
 - [Budgeting](./budgeting.md)
 - [Unit economics](./unit-economics.md)
+- [Workload optimization](../optimize/workloads.md)
+- [Rate optimization](../optimize/rate-optimization.md)
 
 <br>
 
