@@ -34,7 +34,7 @@ Learn how to take an iterative approach to FinOps adoption within your organizat
 ---
 
 <a name="about"></a>
-FinOps is an iterative, hierarchical process that requires cross-functional collaboration across business, technology, and finance teams. When you consider the 18 different capabilities, each with their own unique nuances, adopting FinOps can seem like a daunting task. However, in this tutorial, you learn how to take an iterative approach to FinOps adoption where you:
+FinOps is an iterative, hierarchical process that requires cross-functional collaboration across FinOps practitioners, leadership, product, engineering, finance, and procurement teams. When you consider the 22 different capabilities, each with their own unique nuances, adopting FinOps can seem like a daunting task. However, in this tutorial, you learn how to take an iterative approach to FinOps adoption where you:
 
 <!--[!div class="checklist"]-->
 - Define the right scope for your next FinOps investments.
@@ -48,7 +48,7 @@ Use this tutorial as a guide when you start each iteration of the FinOps lifecyc
 
 ## ✋ Before you begin
 
-Consider the stakeholders involved in your iteration. Since FinOps requires collaboration across business, technology, and finance teams, we recommend approaching this tutorial holistically and evaluating each step with everyone in mind. However, there are also times when you may only have a subset of stakeholders. For example, a single engineering team, or just one FinOps practitioner dedicated to setting up the right culture and driving positive change within the organization. Whichever case applies to you in this iteration, keep all stakeholders' experience in mind as you complete this tutorial. Every balanced team has people with a diverse mix of experience levels. Make your best judgment about the team's current state.
+Consider the stakeholders involved in your iteration. Since FinOps requires collaboration across FinOps practitioners, leadership, product, engineering, finance, and procurement teams, we recommend approaching this tutorial holistically and evaluating each step with everyone in mind. However, there are also times when you may only have a subset of stakeholders. For example, a single engineering team, or just one FinOps practitioner dedicated to setting up the right culture and driving positive change within the organization. Whichever case applies to you in this iteration, keep all stakeholders' experience in mind as you complete this tutorial. Every balanced team has people with a diverse mix of experience levels. Make your best judgment about the team's current state.
 
 <br>
 
@@ -59,38 +59,42 @@ Before you start your next iteration, it's important to define the bounds for wh
 Use the information following as a guide to select the right FinOps capabilities based on your role, experience, and current priorities. It isn't an all-inclusive list of considerations. We encourage you to select all from one group or pick and choose across groups based on your current needs. It's merely an aid to help you get started.
 
 1. If your team is new to FinOps with little to moderate experience with cost management and optimization, we recommend starting with the basics:
-    1. Data analysis
+    1. Reporting & Analytics
     2. Forecasting
-    3. Budget management
-    4. Resource utilization and efficiency
-    5. Managing anomalies
+    3. Budgeting
+    4. Workload Optimization
+    5. Anomaly Management
 2. If you're building a new FinOps team or interested in driving awareness and adoption of FinOps, start with:
-    1. Establishing a FinOps decision and accountability structure (steering committee)
-    2. Onboarding workloads
-    3. Establishing FinOps culture
-    4. FinOps education and enablement
+    1. FinOps Practice Operations
+    2. FinOps Assessment
+    3. FinOps Education and Enablement
+    4. Intersecting Disciplines
+    5. Onboarding Workloads
 3. If your team has a solid understanding of the basics provided by FinOps tools in Microsoft Cloud and is responsible for managing costs across a broad organization with distributed and sometimes shared ownership, consider:
-    1. Cost allocation
-    2. Managing shared costs
-    3. Showback
-    4. Chargeback
-    5. Commitment-based discounts
+    1. Allocation
+    2. Invoicing & Chargeback
+    3. Reporting & Analytics
+    4. Benchmarking
+    5. Rate Optimization
 4. If your team needs to build more advanced reporting, like managing costs across clouds or merging with business data, consider:
-    1. Data ingestion and normalization
-    2. Cost allocation (especially metadata)
-    3. Data analysis and showback
+    1. Data Ingestion
+    2. Allocation (especially metadata)
+    3. Reporting & Analytics
+    4. Anomaly Management
+    5. Architecting for Cloud
+
 5. If your team has a solid understanding of the basics and wants to focus on deeper optimization through advanced automation, consider:
-    1. Resource utilization and efficiency
-    2. Commitment-based discounts
-    3. Workload management and automation
-    4. Cloud policy and governance
-    5. Managing anomalies
-    6. Budget management
+    1. Workload Optimization
+    2. Rate Optimization
+    3. Cloud Policy & Governance
+    4. Anomaly Management
+    5. Budgeting
 6. If your team has a solid understanding of the basics and needs to map cloud investments back to business value, consider:
-    1. Measuring unit costs
-    2. Managing shared costs
-    3. Showback
-    4. Budget management
+    1. Unit Economics
+    2. Allocation
+    3. Invoicing & Chargeback
+    4. Budgeting
+    5. Cloud Sustainability
 
 Note the capabilities you select for future use.
 

@@ -35,7 +35,7 @@ FinOps typically involves using cloud cost management tools, like [Microsoft Cos
 - Identify cost-saving opportunities.
 - Allocate costs to specific teams, projects, or products.
 
-FinOps involves collaboration across finance, technology, and business teams to establish and enforce policies and processes that enable teams to track, analyze, and optimize cloud costs. FinOps seeks to align cloud spending with business objectives and strike a balance between cost optimization and performance so organizations can achieve their business goals without overspending on cloud resources.
+FinOps involves collaboration across FinOps practitioners, leadership, product, engineering, finance, and procurement teams to establish and enforce policies and processes that enable teams to track, analyze, and optimize cloud costs. FinOps seeks to align cloud spending with business objectives and strike a balance between cost optimization and performance so organizations can achieve their business goals without overspending on cloud resources.
 
 The word _FinOps_ is a blend of Finance and DevOps and is sometimes referred to as cloud cost management or cloud financial management. The main difference between FinOps and these terms is the cultural impact that expands throughout the organization. While one individual or team can "manage cost" or "optimize resources," the FinOps culture refers to a set of values, principles, and practices that permeate organizations. It helps enable them to achieve maximum business value with their cloud investment.
 
