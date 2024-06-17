@@ -21,6 +21,7 @@ This article helps you understand the allocation capability within the FinOps Fr
 <details open markdown="1">
   <summary class="fs-2 text-uppercase">On this page</summary>
 
+- [✋ Before you begin](#-before-you-begin)
 - [▶️ Getting started](#️-getting-started)
 - [🏗️ Building on the basics](#️-building-on-the-basics)
 - [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
@@ -49,7 +50,7 @@ Cost allocation is the foundational element of cost accountability and enables o
 
 Before you start, it's important to have a clear understanding of your organization's goals and priorities when it comes to allocation. Keep in mind that not all shared costs may need to be redistributed, and some are more effectively managed with other means. Carefully evaluate each shared cost to determine the most appropriate approach for your organization.
 
-This guide doesn't cover commitment-based discounts, like reservations and savings plans. For details about how to handle showback and chargeback, refer to [Rate optimization](../optimize/rate-optimization.md).
+This guide doesn't cover commitment discounts, like reservations and savings plans. For details about how to handle showback and chargeback, refer to [Rate optimization](../optimize/rates.md).
 
 <br>
 
@@ -157,6 +158,7 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 Related FinOps capabilities:
 
 - [Reporting and analytics](./reporting.md)
+- [Unit economics](../quantify/unit-economics.md)
 
 <br>
 

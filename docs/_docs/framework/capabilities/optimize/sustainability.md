@@ -68,7 +68,7 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 Related FinOps capabilities:
 
-- [Managing commitment-based discounts](./commitment-discounts.md)
+- [Managing commitment discounts](./commitment-discounts.md)
 - [Workload management and automation](./workloads.md)
 - [Measuring unit cost](../quantify/unit-economics.md)
 

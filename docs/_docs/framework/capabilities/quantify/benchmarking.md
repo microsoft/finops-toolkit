@@ -91,7 +91,7 @@ Related FinOps capabilities:
 - [Budgeting](./budgeting.md)
 - [Unit economics](./unit-economics.md)
 - [Workload optimization](../optimize/workloads.md)
-- [Rate optimization](../optimize/rate-optimization.md)
+- [Rate optimization](../optimize/rates.md)
 
 <br>
 

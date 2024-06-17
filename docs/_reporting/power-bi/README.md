@@ -40,7 +40,7 @@ Accelerate your analytics efforts with simple, targeted reports. Summarize and b
 The FinOps toolkit includes two sets of reports that connect to different data sources. We recommend using the following reports which connect to [FinOps hubs](../hubs/README.md):
 
 - [Cost summary](./cost-summary.md) – Overview of amortized costs with common breakdowns.
-- [Commitment discounts](./commitment-discounts.md) – Summarizes existing and potential savings from commitment-based discounts.
+- [Commitment discounts](./commitment-discounts.md) – Summarizes existing and potential savings from commitment discounts.
 - [Data ingestion](./data-ingestion.md) – Provides insights into your data ingestion layer.
 
 The following reports use the Cost Management connector for Power BI to connect to your data. While the connector is not recommended due to the reasons below, these reports will be available as long as the connector is supported by the Cost Management team.

@@ -165,8 +165,8 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 Related FinOps capabilities:
 
 - [Forecasting](../quantify/forecasting.md)
-- [Managing anomalies](./anomalies.md)
-- [Budget management](../quantify/budgeting.md)
+- [Anomaly management](./anomalies.md)
+- [Budgeting](../quantify/budgeting.md)
 
 <br>
 
