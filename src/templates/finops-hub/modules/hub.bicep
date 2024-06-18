@@ -99,7 +99,7 @@ resource RegisterEventGridProvider 'Microsoft.EventGrid/namespaces@2023-12-15-pr
     name: 'Standard'
   }
   properties: {
-    publicNetworkAccess: 'Enabled'
+    publicNetworkAccess: 'Disabled'
   }
 }
 
@@ -135,7 +135,7 @@ resource eventProviderRegisterResourceCleanup 'Microsoft.Resources/deploymentScr
   ]
   name: '${uniqueSuffix}-EventGridCleanup'
   location: location
-  kind: 'AzureCLI'
+  kind: 'AzurePowerShell'
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -143,11 +143,17 @@ resource eventProviderRegisterResourceCleanup 'Microsoft.Resources/deploymentScr
     }
   }
   properties: {
-    azCliVersion: '2.0.80'
-    scriptContent: 'az resource delete --id ${RegisterEventGridProvider.id} --verbose'
+    azPowerShellVersion: '8.0'
+    scriptContent: 'Remove-AzResource -Id $env:resourceId -Force'
     timeout: 'PT30M'
     cleanupPreference: 'OnSuccess'
     retentionInterval: 'PT1H'
+    environmentVariables: [
+      {
+        name: 'resourceId'
+        value: RegisterEventGridProvider.id
+      }
+    ]
   }
 }
 
