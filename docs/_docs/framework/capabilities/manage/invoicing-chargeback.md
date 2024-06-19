@@ -5,7 +5,7 @@ parent: Manage
 title: Chargeback
 permalink: /framework/capabilities/manage/invoicing-chargeback
 nav_order: 6
-description: This article helps you understand the chargeback and finance integration capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+description: This article helps you understand the invoicing and chargeback capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
 ms.date: 06/23/2023
@@ -14,8 +14,8 @@ ms.service: finops
 ms.reviewer: micflan
 ---
 
-<span class="fs-9 d-block mb-4">Chargeback and finance integration</span>
-This article helps you understand the chargeback and finance integration capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+<span class="fs-9 d-block mb-4">Invoicing and chargeback</span>
+This article helps you understand the invoicing and chargeback capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 {: .fs-6 .fw-300 }
 
 <details open markdown="1">
@@ -33,14 +33,14 @@ This article helps you understand the chargeback and finance integration capabil
 ---
 
 <a name="definition"></a>
-**Chargeback refers to the process of billing internal teams for their respective cloud costs. Finance integration involves leveraging existing internal finance tools and processes.**
+**Invoicing and chargeback refers to the process of receiving, reconciling, and paying provider invoices, and then billing internal teams for their respective cloud costs using existing internal finance tools and processes.**
 {: .fs-6 .fw-300 }
 
 Plan the chargeback model with IT and Finance departments. Use the organizational cost allocation strategy that factors in how stakeholders agreed to account for shared costs and commitment discounts.
 
 Use existing tools and processes to manage cloud costs as part of organizational finances. Chargeback is represented in the accounting system, [budgets](../quantify/budgeting.md) are managed through the budget system, etc.
 
-Chargeback and finance integration enables increased transparency, more direct accountability for the costs each department incurs, and reduced overhead costs.
+invoicing and Chargeback enables increased transparency, more direct accountability for the costs each department incurs, and reduced overhead costs.
 
 <br>
 
@@ -52,7 +52,7 @@ Chargeback, cost allocation, and showback are all important components of your F
 
 ## ▶️ Getting started
 
-Chargeback and finance integration is all about integrating with your own internal tools. Consider the following points:
+Invoicing and chargeback is all about integrating with your own internal tools. Consider the following points:
 
 - Collaborate with stakeholders across finance, business, and technology to plan and prepare for chargeback.
 - Document how chargeback works and be prepared for questions.
@@ -76,12 +76,12 @@ At this point, you have a basic chargeback model that all stakeholders have agre
 
 ## 🍎 Learn more at the FinOps Foundation
 
-This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Chargeback and finance integration capability](https://www.finops.org/framework/capabilities/chargeback/) article in the FinOps Framework documentation.
+This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [invoicing and Chargeback capability](https://www.finops.org/framework/capabilities/invoicing-chargeback/) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
 <!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.html title="Chargeback and finance integration videos" id="SVkS0EjsZS56I1qO" list="PLUSCToibAswkALdvffeZWF-3L4ubFuobD" %}
+{% include video.html title="Invoicing and chargeback videos" id="SVkS0EjsZS56I1qO" list="PLUSCToibAswkALdvffeZWF-3L4ubFuobD" %}
 
 <br>
 
@@ -90,8 +90,8 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 Related FinOps capabilities:
 
 - [Data analysis and showback](../understand/reporting.md)
-- [Managing shared costs](../understand/shared-cost.md)
-- [Managing commitment discounts](../optimize/rates.md)
+- [Allocation](../understand/allocation.md)
+- [Rate optimization](../optimize/rates.md)
 
 <br>
 

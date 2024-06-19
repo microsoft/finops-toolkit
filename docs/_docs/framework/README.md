@@ -74,7 +74,6 @@ FinOps requires a holistic and cross-functional approach that involves various s
   - **FinOps practitioners** – Educate, standardize, and promote FinOps best practices.
 - Allied stakeholders:
   - **Sustainability practitioners** – Manage and reduce the environmental impact of the cloud resources.
-
   - **ITFM/TBM teams** (Information Technology Financial Management / Technology Business Management) – Cost management beyond cloud infrastructure and services.
   - **ITSM/ITIL teams** (Information Technology Service Management / Information Technology Infrastructure Library) – Align IT services with business needs and deliver/support IT services that meet business goals.
   - **ITAM teams** (Information Technology Asset Management) – Manage and optimize the purchase, deployment, maintenance, utilization, and disposal of software and hardware assets.
@@ -101,7 +100,7 @@ The FinOps Framework defines a simple lifecycle with three phases:
 
 ## 📝 Capabilities
 
-The FinOps Framework includes capabilities that cover everything from cost analysis and monitoring to optimization and organizational alignment, grouped into a set of related domains. Each capability defines a functional area of activity and a set of tasks to support your FinOps practice.
+The FinOps Framework includes capabilities that cover everything pfrom cost analysis and monitoring to optimization and organizational alignment, grouped into a set of related domains. Each capability defines a functional area of activity and a set of tasks to support your FinOps practice.
 
 - Understand cloud usage and cost
 
