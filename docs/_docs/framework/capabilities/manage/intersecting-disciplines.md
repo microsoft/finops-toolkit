@@ -45,8 +45,6 @@ Identify what frameworks and methodologies are used within your organization. Le
 Implementation of this capability is highly dependent on how your organization has adopted each of the following frameworks and methodologies and what tools you've selected for each. See the following articles for details:
 
 - [IT Asset Management (ITAM)](https://www.finops.org/framework/capabilities/finops-itam/) by FinOps Foundation
-- [Sustainability](https://www.finops.org/framework/capabilities/finops-sustainability/) by FinOps Foundation
-- [Sustainability workloads](https://learn.microsoft.com/azure/well-architected/sustainability/sustainability-get-started)
 - IT Service Management
   - [Azure Monitor integration](https://learn.microsoft.com/azure/azure-monitor/alerts/itsmc-overview)
   - [Azure DevOps and ServiceNow](https://learn.microsoft.com/azure/devops/pipelines/release/approvals/servicenow)

@@ -27,7 +27,7 @@ FinOps is an operational framework and cultural practice which maximizes the bus
 ---
 
 <a name="about"></a>
-FinOps is a discipline that combines financial management principles with cloud engineering and operations to provide organizations with a better understanding of their cloud spending. It also helps them make informed decisions on how to allocate and manage their cloud costs. The goal of FinOps isn't to save money, but to maximize revenue or business value through the cloud. It helps to enable organizations to control cloud spending while maintaining the level of performance, reliability, and security needed to support their business operations.
+FinOps is a discipline that combines financial management principles with cloud engineering and operations to provide organizations with a better understanding of their cloud spending. It also helps them make informed decisions on how to allocate and manage their cloud costs. The goal of FinOps isn't to save money, but to maximize revenue or business value through the cloud. FinOps helps to enable organizations to control cloud spending while maintaining the level of performance, reliability, and security needed to support their business operations.
 
 FinOps typically involves using cloud cost management tools, like [Microsoft Cost Management](https://aka.ms/costmgmt/docs), and best practices to:
 

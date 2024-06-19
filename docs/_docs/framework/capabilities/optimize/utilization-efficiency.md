@@ -50,7 +50,7 @@ When you first start managing cost in the cloud, you use the native tools to dri
 - Review and implement [Azure Advisor cost recommendations](https://learn.microsoft.com/azure/advisor/advisor-reference-cost-recommendations).
   - Azure Advisor gives you high-confidence recommendations based on your usage. Azure Advisor is always the best place to start when looking to optimize any workload.
   - Consider [subscribing to Azure Advisor alerts](https://learn.microsoft.com/azure/advisor/advisor-alerts-portal) to get notified when there are new cost recommendations.
-- Review your usage and purchase [commitment-based discounts](./commitment-discounts.md) when it makes sense.
+- Review your usage and purchase [commitment discounts](./rate-optimization.md) when it makes sense.
 - Take advantage of Azure Hybrid Benefit for [Windows](https://learn.microsoft.com/windows-server/get-started/azure-hybrid-benefit), [Linux](https://learn.microsoft.com/azure/virtual-machines/linux/azure-hybrid-benefit-linux), and [SQL Server](https://learn.microsoft.com/azure/azure-sql/azure-hybrid-benefit).
 - Review and implement [Cloud Adoption Framework costing best practices](https://learn.microsoft.com/azure/cloud-adoption-framework/govern/cost-management/best-practices).
 - Review and implement [Azure Well-Architected Framework cost optimization guidance](https://learn.microsoft.com/azure/well-architected/cost/overview).
@@ -69,7 +69,6 @@ When you first start managing cost in the cloud, you use the native tools to dri
 At this point, you've implemented all the basic cost optimization recommendations and tuned applications to meet the most fundamental best practices. As you move beyond the basics, consider the following points:
 
 - Automate cost recommendations using [Azure Resource Graph](https://learn.microsoft.com/azure/advisor/resource-graph-samples)
-- Implement the [Workload management and automation capability](./workloads.md) for more optimizations.
 - Stay abreast of emerging technologies, tools, and industry best practices to further optimize resource utilization.
 
 <br>
@@ -89,7 +88,7 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 Related FinOps capabilities:
 
-- [Managing commitment-based discounts](./commitment-discounts.md)
+- [Rate optimization](./rate-optimization.md)
 - [Workload management and automation](./workloads.md)
 - [Measuring unit cost](../quantify/unit-economics.md)
 
