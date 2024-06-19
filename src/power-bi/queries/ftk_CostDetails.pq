@@ -32,7 +32,7 @@ let
         {"x_PartnerCreditRate",       type number},
         {"x_PricingBlockSize",        type number},
         {"x_SkuTerm",                 type text}  // Text due to a bug in CM data; converted to a number below
-        // TODO: {"x_SkuIsCreditEligible", type logical}
+        // TODO: {"x_SkuIsCreditEligible",   type logical}
         // TODO: {"x_PartnerCreditApplied",  type logical}
     }),
 
@@ -43,16 +43,39 @@ let
     _isNotBlank = (val) => _isBlank(val) = false,
     _swapCol    = (tbl, oldCol, newCol, newVal, optional newType) => let add = Table.AddColumn(tbl, newCol, newVal, newType), del = if Table.HasColumns(add, oldCol) then Table.RemoveColumns(add, {oldCol}) else add in del,
     _resetCol   = (tbl, col, newVal, optional newType) => let tmpCol = Text.Combine({"tmp_", col}), tmp = _swapCol(tbl, col, tmpCol, newVal, newType), ren = Table.RenameColumns(tmp, {{tmpCol, col}}) in ren,
-    _armResourceName = (id) => List.Last(Text.Split(id, "/")),
+    _parseResourceId = (id, getName) => if _isBlank(id) then null else 
+        let
+            // Handle implicit Microsoft.Resources RP names
+            updatedId = if Text.StartsWith(id, "/subscriptions/") or Text.StartsWith(id, "/tenants/") then "/providers/Microsoft.Resources" & id else id,
 
-    // FOCUS "1.0-preview (v1)" bugs
+            // Parse resource ID segments separately
+            allSegments = Text.Split(List.Last(Text.Split(updatedId, "/providers/")), "/"),
+            provider = allSegments{0},
+            _parseId = (evenOrOdd) => List.RemoveNulls(List.Transform({1..List.Count(allSegments)-1}, each if Number.Mod(_, 2) = evenOrOdd then allSegments{_} else null)),
+            nameSegments = _parseId(0),
+            typeSegments = _parseId(1),
+            
+            // Remove the sub ID if it's a child resource of the subscription
+            isChildOfSubscription = provider = "Microsoft.Resources" and Text.Lower(typeSegments{0}) = "subscriptions" and List.Count(typeSegments) > 1,
+            fullName = Text.Combine((if isChildOfSubscription then List.RemoveFirstN(nameSegments, 1) else nameSegments), "/"),
+
+            fullType = provider & "/" & Text.Combine(typeSegments, "/"),
+            result = if getName then fullName else fullType
+        in
+            result
+    ,
+    _parseResourceName = (id) => _parseResourceId(id, true),
+    _parseResourceType = (id) => _parseResourceId(id, false),
+    
+    // FOCUS "1.0-preview(v1)" bugs
     SkuTerm = _resetCol(FixTypes, "x_SkuTerm", each if [x_SkuTerm] = "1Year" then 12 else if [x_SkuTerm] = "3Years" then 36 else if [x_SkuTerm] = "5Years" then 60 else Number.FromText([x_SkuTerm]), type number),
 
     // Parse arrays
-    SkuDetailsDict        = Table.AddColumn(SkuTerm, "x_SkuDetailsDictionary", each if _isNotBlank([x_SkuDetails]) then Json.Document([x_SkuDetails]) else null),
+    SkuDetailsDict        = Table.AddColumn(SkuTerm,        "x_SkuDetailsDictionary", each if _isNotBlank([x_SkuDetails]) then Json.Document([x_SkuDetails]) else null),
     SkuDetailsDict_copy   = Table.AddColumn(SkuDetailsDict, "tmp_SkuDetails",         each [x_SkuDetailsDictionary]),
     SkuDetailsDict_errors = Table.ReplaceErrorValues(SkuDetailsDict_copy, {{"tmp_SkuDetails", null}}),
-    TagsDictionary        = Table.AddColumn(SkuDetailsDict_errors, "x_TagsDictionary", each if _isNotBlank([Tags]) then Json.Document([Tags]) else null),
+    Tags_backfill         = _resetCol(SkuDetailsDict_errors, "Tags", each if _isBlank([Tags]) then "{}" else [Tags]),
+    TagsDictionary        = Table.AddColumn(Tags_backfill,  "x_TagsDictionary", each if _isNotBlank([Tags]) then Json.Document([Tags]) else null),
     TagsDictionary_copy   = Table.AddColumn(TagsDictionary, "tmp_Tags",         each [x_TagsDictionary]),
     TagsDictionary_errors = Table.ReplaceErrorValues(TagsDictionary_copy, {{"tmp_Tags", null}}),
     ParsedArrays = TagsDictionary_errors,
@@ -63,14 +86,14 @@ let
         {"tmp_cmParent",       "tmp_msParent",       "tmp_ManagedBy",    "tmp_caParent",        "x_ToolkitVersion", "tmp_ToolkitTool"}
     ),
     ResourceParentId   = Table.AddColumn(Tags_expand,        "x_ResourceParentId",   
-        each if _isNotBlank([tmp_cmParent])  then [tmp_cmParent] 
+        each Text.Replace("/" & (if _isNotBlank([tmp_cmParent])  then [tmp_cmParent] 
         else if _isNotBlank([tmp_msParent])  then [tmp_msParent] 
         else if _isNotBlank([tmp_ManagedBy]) then [tmp_ManagedBy] 
         else if _isNotBlank([tmp_caParent])  then [tmp_caParent] 
-        else null),
-// TODO: Add support for hierarchical resource parent types
-    ResourceParentType = Table.AddColumn(ResourceParentId,   "x_ResourceParentType", each if _isBlank([x_ResourceParentId]) then null else Text.Combine(List.Range(Text.Split(List.Last(Text.Split([x_ResourceParentId], "/providers/")), "/"), 0, 2), "/")),
-    ResourceParentName = Table.AddColumn(ResourceParentType, "x_ResourceParentName", each if _isBlank([x_ResourceParentId]) then null else Text.Split(List.Last(Text.Split([x_ResourceParentId], [x_ResourceParentType])), "/"){1}),
+        else null), "//", "/")),
+    ResourceParentId_backfill = _resetCol(ResourceParentId,         "x_ResourceParentId",   each if _isBlank([x_ResourceParentId]) then null else [x_ResourceParentId]),
+    ResourceParentType = Table.AddColumn(ResourceParentId_backfill, "x_ResourceParentType", each _parseResourceType([x_ResourceParentId])),
+    ResourceParentName = Table.AddColumn(ResourceParentType,        "x_ResourceParentName", each _parseResourceName([x_ResourceParentId])),
     Tool = _swapCol(ResourceParentName, "tmp_ToolkitTool", "x_ToolkitTool", 
         each if _isNotBlank([tmp_ToolkitTool]) then [tmp_ToolkitTool] 
         else if _isBlank([x_ResourceParentId]) then null 
@@ -125,7 +148,7 @@ let
     CommitmentDiscountNameUnique = Table.AddColumn(FreeReason,                   "CommitmentDiscountNameUnique", each if _isBlank([CommitmentDiscountId]) then null else [CommitmentDiscountName] & " (" & [CommitmentDiscountType] & ")"),
     ResourceNameUnique           = Table.AddColumn(CommitmentDiscountNameUnique, "ResourceNameUnique",           each if _isBlank([ResourceId])           then null else [ResourceName] & " (" & [ResourceType] & ")"),
     ResourceGroupNameUnique      = Table.AddColumn(ResourceNameUnique,           "x_ResourceGroupNameUnique",    each if _isBlank([x_ResourceGroupName])  then null else [x_ResourceGroupName] & " (" & [SubAccountName] & ")"),
-    SubscriptionNameUnique       = Table.AddColumn(ResourceGroupNameUnique,      "SubAccountNameUnique",         each if _isBlank([SubAccountId])         then null else [SubAccountName] & " (" & _armResourceName([SubAccountId]) & ")"),
+    SubscriptionNameUnique       = Table.AddColumn(ResourceGroupNameUnique,      "SubAccountNameUnique",         each if _isBlank([SubAccountId])         then null else [SubAccountName] & " (" & _parseResourceName([SubAccountId]) & ")"),
     Names = SubscriptionNameUnique,
 
     // Month column

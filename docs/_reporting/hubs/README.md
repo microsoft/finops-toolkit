@@ -40,11 +40,11 @@ We are very early in our journey. Today, FinOps hubs extend Cost Management by e
 <blockquote class="highlight-green-title" markdown="1">
   💵 Estimated cost: $25 per $1M in cost
   
-  Exact cost of the solution may vary. Cost is primarily for data storage and number of times data is ingested. Pipelines will run once a day per export.
+  Estimated cost is based on list prices and does not include negotiated discounts. Exact cost of the solution may vary. Cost is primarily for data storage and number of times data is ingested. Pipelines will run once a day per export. Use the [Data ingestion report](../power-bi/data-ingestion.md) to monitor hub cost.
 </blockquote>
 
 <blockquote class="note" markdown="1">
-  _FinOps hubs requires an Enterprise Agreement (EA) or Microsoft Customer Agreement (MCA) account (including Cloud Solution Provider subscriptions). If you have a Microsoft Online Services Agreement (MOSA, aka PAYG) or a Microsoft internal subscription, you will need to use FinOps hubs 0.1.1. Please note Power BI reports have not been tested extensively with MOSA and MS Internal subscriptions. Speak to a Microsoft representative or file a billing support request to ask about migrating your subscription to Microsoft Customer Agreement._
+  _FinOps hubs requires an Enterprise Agreement (EA), Microsoft Customer Agreement (MCA), or Microsoft Partner Agreement (MPA) account (including Cloud Solution Provider subscriptions). If you have a Microsoft Online Services Agreement (MOSA, aka PAYG) or a Microsoft internal subscription, you will need to use FinOps hubs 0.1.1. Please note Power BI reports have not been tested extensively with MOSA and MS Internal subscriptions. Speak to a Microsoft representative or file a billing support request to ask about migrating your subscription to Microsoft Customer Agreement._
 </blockquote>
 
 <br>
@@ -70,10 +70,12 @@ FinOps hubs will streamline implementing the FinOps Framework, are being designe
 - Report on multiple subscriptions, resource groups, or billing accounts.
 - Streamlined deployment and management with PowerShell.
 - Full alignment with the [FinOps Open Cost and Usage Specification (FOCUS)](../../_docs/focus/README.md).
-- _Coming soon: Ingest data from subscriptions in multiple tenants into a single storage account._
+- _Coming soon: Ingest data from subscriptions in multiple tenants into a single storage account<sup>2</sup>._
 - _Coming soon: Ingest data into Azure Data Explorer._
 
 _<sup>1) MOSA (or PAYG) subscriptions are only supported in FinOps hubs 0.1.x. FinOps hubs 0.2 requires FOCUS cost data from Cost Management exports, which are not supported for MOSA subscriptions. Please contact support about transitioning to a Microsoft Customer Agreement account.</sup>_
+
+_<sup>2) EA billing scopes can be exported to any tenant today. Simply sign in to that tenant with an account that has access to the billing scope and target storage account to configure exports. Non-billing scopes (subscriptions, management groups, and resource groups) and all MCA scopes are only supported in the tenant they exist in today but will be supported via a "remote hubs" feature in a future FinOps hubs release.</sup>_
 
 <br>
 
@@ -117,7 +119,7 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
      <blockquote class="important" markdown="1">
        _FinOps hubs 0.2 requires FOCUS cost data. While FOCUS is fully supported, the option to export FOCUS cost data from Cost Management is currently in preview and has not rolled out to everyone yet. In order to create and manage FOCUS exports, please use the [Exports preview link](https://aka.ms/exportsv2)._
      </blockquote>
-   - **Dataset version** = `1.0-preview (v1)`
+   - **Dataset version** = `1.0-preview(v1)`
    - **Frequency** = `Daily export of month-to-date costs`
      <blockquote class="tip" markdown="1">
        _Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range._
@@ -199,11 +201,14 @@ Required permissions for deploying or updating hub instances are covered in the 
 
 You will need one or more of the following to export your cost data:
 
-| Scope                             | Permission                                                                                                                            |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| Subscriptions and resource groups | [Cost Management Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cost-management-contributor) |
-| EA billing scope                  | Enterprise Reader, Department Reader, or Account Owner (aka enrollment account)                                                       |
-| MCA billing scope                 | Contributor on the billing account, billing profile, customer (CSP partners only), or invoice section                                 |
+| Scope                                                 | Permission                                                                                                                             |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Subscriptions and resource groups (all account types) | [Cost Management Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cost-management-contributor). |
+| EA billing scopes                                     | Enterprise Reader, Department Reader, or Account Owner (aka enrollment account).                                                       |
+| MCA billing scopes                                    | Contributor on the billing account, billing profile, or invoice section.                                                               |
+| MPA billing scopes                                    | Contributor on the billing account, billing profile, or customer.                                                                      |
+
+Note that CSP customers will need to configure exports for each subscription in order to ingest their total cost into FinOps hubs. Cost Management does not support management group exports for MCA or CSP subscriptions (as of May 2024).
 
 For additional details, refer to [Cost Management documentation](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data).
 

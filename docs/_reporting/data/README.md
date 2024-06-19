@@ -20,7 +20,8 @@ Leverage open data to normalize and enhance your FinOps reporting.
 - [🗺️ Regions](#️-regions)
 - [📚 Resource types](#-resource-types)
 - [🎛️ Services](#️-services)
-- [⬇️ Sample exports](#️-sample-exports)
+- [⬇️ Dataset examples](#️-dataset-examples)
+- [📃 Dataset metadata](#-dataset-metadata)
 - [🙋‍♀️ Looking for more?](#️-looking-for-more)
 - [🧰 Related tools](#-related-tools)
 
@@ -74,16 +75,20 @@ Sample data:
 
 | OriginalValue | RegionId      | RegionName     |
 | ------------- | ------------- | -------------- |
-| AP East       | eastasia      | East Asia      |
-| CA Central    | canadacentral | Canada Central |
-| DE North      | germanynorth  | Germany North  |
-| NO West       | norwaywest    | Norway West    |
-| TW North      | taiwannorth   | Taiwan North   |
+| ap east       | eastasia      | East Asia      |
+| ca central    | canadacentral | Canada Central |
+| de north      | germanynorth  | Germany North  |
+| no west       | norwaywest    | Norway West    |
+| tw north      | taiwannorth   | Taiwan North   |
 
 <!-- cSpell:enable -->
 
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
 [See PowerShell](../../_automation/powershell/data/Get-FinOpsRegion.md){: .btn .mb-4 .mb-md-0 .mr-4 }
+
+<blockquote class="important" markdown="1">
+  _Convert region values to lowercase before mapping. This helps reduce duplication and speed up the mapping process._
+</blockquote>
 
 <br>
 
@@ -109,6 +114,10 @@ Sample data:
 
 <!-- cSpell:enable -->
 
+<blockquote class="important" markdown="1">
+  _Convert resource type values to lowercase before mapping. This helps reduce duplication and speed up the mapping process._
+</blockquote>
+
 [Download CSV](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 [Download JSON](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.json){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 [See PowerShell](../../_automation/powershell/data/Get-FinOpsResourceType.md){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
@@ -127,38 +136,65 @@ Sample data:
 | -------------------- | ------------------------------------- | ------------------- | --------------- | ------------- | -------------- |
 | microsoft.compute    | microsoft.compute/virtualmachines     | Virtual Machines    | Compute         | Microsoft     | Cloud Provider |
 | microsoft.documentdb | microsoft.documentdb/databaseaccounts | Cosmos DB           | Databases       | Microsoft     | Cloud Provider |
-| Microsoft.Kusto      | microsoft.kusto/clusters              | Azure Data Explorer | Analytics       | Microsoft     | Cloud Provider |
-| Microsoft.Network    | microsoft.network/virtualnetworks     | Virtual Network     | Networking      | Microsoft     | Cloud Provider |
-| MICROSOFT.STORAGE    | microsoft.storage/storageaccounts     | Storage Accounts    | Storage         | Microsoft     | Cloud Provider |
+| microsoft.kusto      | microsoft.kusto/clusters              | Azure Data Explorer | Analytics       | Microsoft     | Cloud Provider |
+| microsoft.network    | microsoft.network/virtualnetworks     | Virtual Network     | Networking      | Microsoft     | Cloud Provider |
+| microsoft.storage    | microsoft.storage/storageaccounts     | Storage Accounts    | Storage         | Microsoft     | Cloud Provider |
 
 <!-- cSpell:enable -->
 
 A few important notes about the data:
 
-1. `ConsumedService` values should match the case of your cost data. When they are provided in mixed case, you'll see multiple rows in the Services file.
-2. `ResourceType` values are all lowercased to avoid case sensitivity issues.
-3. `ServiceName` values should match the product marketing name for the closest possible service. Some services reuse resource types and cannot be distinguished from the resource type alone (e.g., Azure functions will show as App Service).
-4. `ServiceCategory` values are aligned with the allowed values in FOCUS.
+1. `ConsumedService` and `ResourceType` values are all lowercased to avoid case sensitivity issues.
+2. `ServiceName` values should match the product marketing name for the closest possible service. Some services reuse resource types and cannot be distinguished from the resource type alone (e.g., Azure functions will show as App Service).
+3. `ServiceCategory` values are aligned with the allowed values in FOCUS.
+
+<blockquote class="note" markdown="1">
+  _Most mappings can rely on resource type alone. In a future update, we will merge this list with [Resource types](#-resource-types) to provide only a single dataset. Currently, the only known case where resource type is shared that ConsumedService can help identify is for Microsoft Defender for Cloud. To simplify your mapping, you can only map those 5 rows and rely on a resource type mapping for everything else._
+</blockquote>
 
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Services.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
 [See PowerShell](../../_automation/powershell/data/Get-FinOpsService.md){: .btn .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
-## ⬇️ Sample exports
+## ⬇️ Dataset examples
 
 The following files are examples of what you will find when you export data from Microsoft Cost Management. These files are provided to help you understand the data structure and format. They are from an Enterprise Agreement (EA) demo account and are not intended to be used for ingestion or reporting.
 
 - Cost and usage
   - Actual (billed) (`2021-10-01`)
   - Amortized (`2021-10-01`)
-  - FOCUS (`1.0-preview (v1)`)
-- Prices(`2023-05-01`)
+  - FOCUS (`1.0-preview(v1)`)
+- Prices (`2023-05-01`)
 - Reservation details (`2023-03-01`)
 - Reservation transactions (`2023-05-01`)
 - Reservation recommendations (`2023-05-01`)
 
-[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/sample-exports.zip){: .btn .mb-4 .mb-md-0 .mr-4 }
+[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-examples.zip){: .btn .mb-4 .mb-md-0 .mr-4 }
+
+<br>
+
+## 📃 Dataset metadata
+
+Given each dataset uses different columns and data types, FOCUS has defined metadata schema to describe the dataset. Dataset metadata includes general information about the data like the data generator, schema version, and columns included in the dataset.
+
+Sample data:
+
+| ColumnName           | DataType | Description                                                                                                                                                            |
+| -------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `BilledCost`         | Decimal  | A charge serving as the basis for invoicing, inclusive of all reduced rates and discounts while excluding the amortization of upfront charges (one-time or recurring). |
+| `BillingAccountId`   | String   | Unique identifier assigned to a billing account by the provider.                                                                                                       |
+| `BillingAccountName` | String   | Display name assigned to a billing account.                                                                                                                            |
+| `BillingCurrency`    | String   | Currency that a charge was billed in.                                                                                                                                  |
+| `BillingPeriodEnd`   | DateTime | End date and time of the billing period.                                                                                                                               |
+| `BillingPeriodStart` | DateTime | Beginning date and time of the billing period.                                                                                                                         |
+
+Metadata is available for the following datasets:
+
+- Cost and usage
+  - FOCUS (`1.0-preview(v1)`) – [Learn more](../../_docs/focus/metadata.md)
+
+[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-metadata.zip){: .btn .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 

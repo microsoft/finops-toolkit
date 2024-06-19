@@ -17,7 +17,8 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
-- [🛠️ v0.2.1](#️-v021)
+- [🚚 v0.4](#-v04)
+- [🚚 v0.3](#-v03)
 - [🚚 v0.2](#-v02)
 - [🛠️ v0.1.1](#️-v011)
 - [🚚 v0.1](#-v01)
@@ -63,7 +64,52 @@ Legend:
 
 <br>
 
-## 🛠️ v0.2.1
+## 🚚 v0.4
+
+📗 FinOps guide
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Documented the [FOCUS export dataset](../_docs/focus/metadata.md) to align to the FOCUS metadata specification.
+>
+> ✏️ Changed:
+>
+> 1. Updated [FinOps Framework guidance](../_docs/framework/README.md) to account for the 2024 updates.
+
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> 🛠️ Fixed:
+>
+> 1. Improved parsing for the `x_ResourceParentName` and `x_ResourceParentType` columns ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
+>
+> ✏️ Changed
+>
+> 1. Changed the **Tags** column to default to `{}` when empty to facilitate tag expansion ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
+
+🌐 Open data
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed
+>
+> 1. Updated all [open data files](../_reporting/data/README.md) to include the latest data.
+> 2. Changed the primary columns in the [Regions](../_reporting/data/README.md#️-regions) and [Services](../_reporting/data/README.md#️-services) open data files to be lowercase.
+
+<br>
+
+## 🚚 v0.3
+
+📗 FinOps guide
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Moved [Azure FinOps documentation](https://aka.ms/finops/docs) about how to implement and adopt FinOps into the toolkit.
+>
+> ✏️ Changed:
+>
+> 1. Rearranged documentation site to better organize content.
 
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -87,6 +133,8 @@ Legend:
 
 > ➕ Added:
 >
+> 1. Added `ResourceParentId`, `ResourceParentName`, and `ResourceParentType` columns to support the usage of the user-defined `cm-resource-parent` tag.
+> 2. Added `ToolkitVersion` and `ToolkitTool` columns to help quantify the cost of FinOps toolkit solutions.
 > 1. Added a DQ page to the [Commitment discounts report](../_reporting/power-bi/commitment-discounts.md#dq) for data quality validations. This page can be useful in identifying data gaps in Cost Management.
 > 2. Added `x_NegotiatedUnitPriceSavings` column to show the price reduction from negotiated discounts compared to the public, list price.
 > 3. Added `x_IsFree` column to indicate when a row represents a free charge (based on Cost Management data). This is used in data quality checks.
@@ -101,6 +149,7 @@ Legend:
 > 5. Changed `x_SkuTerm` to be a whole number and to not summarize by default.
 > 6. Changed `x_BillingExchangeRate` to not summarize by default.
 > 7. Corrected references to x_InvoiceIssuerId and InvoiceIssuerName columns in the [Cost Management connector report](../_reporting/power-bi/connector.md) ([#639](https://github.com/microsoft/finops-toolkit/issues/649)).
+> 8. Corrected the datatype for the `x_Month` column.
 >
 > ✏️ Changed:
 >
@@ -120,32 +169,32 @@ Legend:
 📒 Azure Monitor workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
+**May**:
+> 1. 🔹 Reservations Recommendations:<br>
+> New Tab: We've added a new tab specifically for Reservations recommendations. <br>This tab includes a handy **Break-Even Point** feature, allowing you to prioritize recommendations that will reach their break-even point sooner.
+> > :warning: **Permissions**: Please note, this tab now requires Enterprise Admin or Billing Profile Reader permissions. We have kept the old tab for the time being to ensure a smooth transition.
+> 2. 🔹 Sustainability: <br>
+> Redesigned Tab: The sustainability tab has been completely redesigned with an improved layout, making it easier to understand the provided recommendations.
+> 3. 🔹 Networking Tab: <br>
+> Query Improvement: The Public IP Addresses query has been enhanced to ignore dynamic IPs, ensuring more accurate results.
+> 4. 🔹 Top 10 Services:<br>
+> Web App Query Update: The Web App query now ignores the free tier, providing a clearer picture of your top services.
+
+> **April**:
 > ➕ Added:
->
-> 1. Started archiving template versions so they can be referenced easily via URL microsoft.github.io/finops-toolkit/deploy/{template}-{version}.json.
->
-> - [Optimization workbook](./optimization-workbook/README.md):
->   1. Respect global subscription filter selections.
->
-> ✏️ Changed:
->
-> - [Governance workbook](./governance-workbook/README.md):
->   1. Managed disk visual improvement.
->   2. Removed blueprints (replaced by deployment stacks and template specs).
->   3. Combined the Governance and Security tabs.
->   4. Enabled the export button.
->
-> 🛠️ Fixed:
->
-> 1. Fixed deploy to Azure buttons to point to the latest release.
->
-> - [Optimization workbook](./optimization-workbook/README.md):
->   1. Fixed a typo with Azure Hybrid benefits query.
->   2. Fixed a bug with the SQL Managed Instance query where the query had a merge error.
+> 1. 1️⃣🕵️‍♂️ Identify Idle ExpressRoute Circuits: Now, easily pinpoint and optimize inactive ExpressRoute circuits to streamline costs.
+> 2. 2️⃣ 📊Routing Preference for Public IP Addresses: Gain insights into the routing preferences for your public IP addresses to optimize network performance.
+> 3. 3️⃣ 🥧Commitment Discount Savings Summary: Explore a new pie chart summarizing commitment discount savings, providing a clear overview of cost-saving opportunities.
+>4.  4️⃣ 💰DDoS-enabled Public IP Addresses Query: Quickly view public IP addresses with DDoS protection enabled and compare if it would be cheaper to enable DDoS to the vNet instead.
+> 5. 5️⃣ 💡Azure Hybrid Benefit for SQL Database Elastic Pools: Leverage new queries to identify Azure Hybrid Benefit usage for SQL Database elastic pools, maximizing cost efficiencies.
 
 🖥️ PowerShell
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
+> ➕ Added:
+>
+> 1. [Get-FinOpsService](../_automation/powershell/data/Get-FinOpsService.md) includes new `-Environment` and `-ServiceModel` filters and properties in the response ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
+>
 > ✏️ Changed:
 >
 > 1. [Start-FinOpsCostExport](../_automation/powershell/cost/Start-FinOpsCostExport.md) includes a new `-Backfill` option to backfill multiple months.
@@ -154,6 +203,9 @@ Legend:
 > 🛠️ Fixed:
 >
 > 1. Fixed ParameterBindingException error in [New-FinOpsCostExport](../_automation/powershell/cost/New-FinOpsCostExport.md).
+> 2. Updated the FOCUS dataset version that was changed in Cost Management exports in [New-FinOpsCostExport](../_automation/powershell/cost/New-FinOpsCostExport.md).
+> 3. Changed the default `-EndDate` in [New-FinOpsCostExport](../_automation/powershell/cost/New-FinOpsCostExport.md) to be the end of the month due to a breaking change in Cost Management exports.
+> 4. Fixed internal command used in [Deploy-FinOpsHub](../_automation/powershell/hubs/Deploy-FinOpsHub.md) that may have caused it to fail for some versions of the Az PowerShell module.
 
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -163,38 +215,8 @@ Legend:
 > 1. Added ServiceModel and Environment columns to the [services](../_reporting/data/README.md#-services) data ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
 > 2. New and updated [resource types](../_reporting/data/README.md#-resource-types) and icons.
 
-🖥️ PowerShell
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. [Get-FinOpsCostService](../_automation/powershell/data/Get-FinOpsService.md) includes new `-Environment` and `-ServiceModel` filters and properties in the response ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
-
-[Download v0.2.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.2.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-[Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.2...v0.2.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-
-📊 Power BI reports
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. `ResourceParentId`, `ResourceParentName`, and `ResourceParentType` columns to support the usage of the user-defined `cm-resource-parent` tag.
-> 2. `ToolkitVersion` and `ToolkitTool` columns to help quantify the cost of FinOps toolkit solutions.
->
-> 🛠️ Fixed:
->
-> 1. Corrected the datatype for the `x_Month` column.
-
-📗 FinOps guide
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. Move [Azure FinOps documentation](https://aka.ms/finops/docs) into the toolkit.
->
-> ✏️ Changed:
->
-> 1. Rearranged documentation site to better organize content.
+[Download v0.3](https://github.com/microsoft/finops-toolkit/releases/tag/v0.3){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.2...v0.3){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 

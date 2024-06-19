@@ -98,8 +98,7 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 Related FinOps capabilities:
 
-- [Establishing a FinOps decision and accountability structure](./structure.md)
-- [Establishing a FinOps culture](./culture.md)
+- [FinOps practice operations](./operations.md)
 
 <br>
 

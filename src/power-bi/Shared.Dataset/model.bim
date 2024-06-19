@@ -8,11 +8,11 @@
       },
       {
         "name": "PBIDesktopVersion",
-        "value": "2.127.808.0 (24.03)"
+        "value": "2.130.577.0 (24.06)"
       },
       {
         "name": "PBI_QueryOrder",
-        "value": "[\"Storage URL\",\"File Type\",\"RangeStart\",\"RangeEnd\",\"CostDetails\",\"RecommendationsSingle\",\"RecommendationsShared\",\"ftk_Hub\",\"ftk_CostDetails\",\"▶️  START HERE\",\"Data Source\",\"Scope\",\"Type\",\"Number of Months\",\"InstanceSizeFlexibility\",\"ftk_CMConnector\",\"HubSettings\",\"HubScopes\",\"HubData\",\"HubExports\",\"HubIngestion\"]"
+        "value": "[\"Storage URL\",\"File Type\",\"RangeStart\",\"RangeEnd\",\"CostDetails\",\"RecommendationsSingle\",\"RecommendationsShared\",\"ftk_Hub\",\"ftk_CostDetails\",\"▶️  START HERE\",\"Data Source\",\"Scope\",\"Type\",\"Number of Months\",\"InstanceSizeFlexibility\",\"ftk_CMConnector\",\"HubSettings\",\"HubScopes\",\"HubData\",\"HubExports\",\"HubIngestion\",\"Errors in HubExports\",\"Errors in HubIngestion\"]"
       },
       {
         "name": "PBI_ProTooling",
@@ -6807,6 +6807,10 @@
           {
             "name": "PBI_ResultType",
             "value": "Text"
+          },
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
           }
         ],
         "description": "Name of the Azure DataLake Gen2 storage account to pull data from.",
@@ -6891,70 +6895,70 @@
           }
         ],
         "description": [
-          "Loads data from the configured FinOps hub.",
-          "",
+          "Loads data from the configured FinOps hub.\r",
+          "\r",
           "Learn more @ https://aka.ms/finops/hubs"
         ],
         "expression": [
-          "(optional datasetType as text, optional startDate as datetime, optional endDate as datetime) =>",
-          "let",
-          "    // Config",
-          "    url     = #\"Storage URL\",",
-          "    ext     = if Text.Length(#\"File Type\") > 0 then #\"File Type\" else \".parquet\",",
-          "    start   = if startDate = null then RangeStart else startDate,",
-          "    end     = if endDate = null then RangeEnd else endDate,",
-          "// TODO: Allow pulling other datasets -- if datasetType = null or datasetType = \"\" then \"focuscost\" else datasetType",
-          "    dataset = \"focuscost\",",
-          "",
-          "    ADLS = AzureStorage.DataLake(url),",
-          "    FilterHiddenFiles = Table.SelectRows(ADLS, each [Attributes]?[Hidden]? <> true),",
-          "",
-          "    // Parse folder path",
-          "    Dataset   = Table.AddColumn(FilterHiddenFiles, \"Dataset\",   each List.Last(List.RemoveLastN(Text.Split([Folder Path],\"/\"), 1))),",
-          "    Month     = Table.AddColumn(Dataset,           \"Month\",     each List.Last(List.RemoveLastN(List.RemoveLastN(Text.Split([Folder Path],\"/\"), 1), 1) )),",
-          "// TODO: Update date handling for raw exports",
-          "    StartDate = Table.AddColumn(Month,             \"StartDate\", each [Month] & \"01\"),",
-          "    StartDate_type = Table.TransformColumnTypes(StartDate, {{\"StartDate\", type date}}),",
-          "    EndDate   = Table.AddColumn(StartDate_type,    \"EndDate\",   each Date.EndOfMonth([StartDate])),",
-          "",
-          "    // Only FOCUS costs",
-          "// TODO: Get metric from the manifest",
-          "    FilterFilesByMetricAndFileType = Table.SelectRows(EndDate, each [Dataset] = dataset and [Extension] = ext),",
-          "",
-          "    // Only process files for months within the date range",
-          "    FilterFilesByDate =",
-          "        if start = null and end = null then FilterFilesByMetricAndFileType",
-          "        else Table.SelectRows(FilterFilesByMetricAndFileType, each (start = null or [StartDate] >= Date.StartOfMonth(Date.From(start))) and (end = null or [EndDate] <= Date.EndOfMonth(Date.From(end)))),",
-          "",
-          "    // Extract",
-          "    unpack = (zipData) => Table.PromoteHeaders(Csv.Document(Binary.Decompress(zipData, Compression.GZip), [Delimiter=\",\", Columns=60, Encoding=1252, QuoteStyle=QuoteStyle.Csv, CsvStyle=CsvStyle.QuoteAlways]), [PromoteAllScalars=true]),",
-          "    SelectContent = Table.SelectColumns(FilterFilesByDate, {\"Content\"}),",
-          "    UnpackContent = Table.AddColumn(SelectContent, \"Custom\", each if ext = \".gz\" then unpack([Content]) else Parquet.Document([Content])),",
-          "    ExpandedColumns = Table.ExpandTableColumn(UnpackContent, \"Custom\", List.Sort(Table.ColumnNames(List.First(UnpackContent[Custom], null)))),",
-          "    RemovedContent = Table.RemoveColumns(ExpandedColumns, {\"Content\"}),",
-          "",
-          "    // Only pull from the predefined date range (if specified)",
-          "    tbl = RemovedContent,",
-          "    FilterRowsByDate =",
-          "        if start = null and end = null then tbl",
-          "        else Table.SelectRows(tbl, each",
-          "            (start = null or [ChargePeriodEnd] >= DateTime.From(start))",
-          "            and (end = null or [ChargePeriodStart] < DateTime.From(end))",
-          "        ),",
-          "",
-          "    // TODO: Extract from the manifest",
-          "    _armResourceName = (id) => List.Last(Text.Split(id, \"/\")),",
-          "    DataSet = Table.AddColumn(FilterRowsByDate, \"x_DatasetType\", each \"FocusCost\"),",
-          "    Schema =  Table.AddColumn(DataSet, \"x_DatasetVersion\", each \"1.0-preview (v1)\"),",
-          "    AccountType = Table.AddColumn(Schema, \"x_AccountType\", ",
-          "        each if [BillingAccountId] = [SubAccountId] then \"MOSA\"",
-          "        else if _armResourceName([BillingAccountId]) = [x_BillingAccountId] then \"EA\"",
-          "        else if _armResourceName([BillingAccountId]) = [x_BillingProfileId] then (if [InvoiceIssuerName] = \"Microsoft\" then \"MCA\" else \"MPA\")",
-          "        else \"Unknown\"",
-          "    ),",
-          "",
-          "    Output = AccountType",
-          "in",
+          "(optional datasetType as text, optional startDate as datetime, optional endDate as datetime) =>\r",
+          "let\r",
+          "    // Config\r",
+          "    url     = #\"Storage URL\",\r",
+          "    ext     = if Text.Length(#\"File Type\") > 0 then #\"File Type\" else \".parquet\",\r",
+          "    start   = if startDate = null then RangeStart else startDate,\r",
+          "    end     = if endDate = null then RangeEnd else endDate,\r",
+          "// TODO: Allow pulling other datasets -- if datasetType = null or datasetType = \"\" then \"focuscost\" else datasetType\r",
+          "    dataset = \"focuscost\",\r",
+          "\r",
+          "    ADLS = AzureStorage.DataLake(url),\r",
+          "    FilterHiddenFiles = Table.SelectRows(ADLS, each [Attributes]?[Hidden]? <> true),\r",
+          "\r",
+          "    // Parse folder path\r",
+          "    Dataset   = Table.AddColumn(FilterHiddenFiles, \"Dataset\",   each List.Last(List.RemoveLastN(Text.Split([Folder Path],\"/\"), 1))),\r",
+          "    Month     = Table.AddColumn(Dataset,           \"Month\",     each List.Last(List.RemoveLastN(List.RemoveLastN(Text.Split([Folder Path],\"/\"), 1), 1) )),\r",
+          "// TODO: Update date handling for raw exports\r",
+          "    StartDate = Table.AddColumn(Month,             \"StartDate\", each [Month] & \"01\"),\r",
+          "    StartDate_type = Table.TransformColumnTypes(StartDate, {{\"StartDate\", type date}}),\r",
+          "    EndDate   = Table.AddColumn(StartDate_type,    \"EndDate\",   each Date.EndOfMonth([StartDate])),\r",
+          "\r",
+          "    // Only FOCUS costs\r",
+          "// TODO: Get metric from the manifest\r",
+          "    FilterFilesByMetricAndFileType = Table.SelectRows(EndDate, each [Dataset] = dataset and [Extension] = ext),\r",
+          "\r",
+          "    // Only process files for months within the date range\r",
+          "    FilterFilesByDate =\r",
+          "        if start = null and end = null then FilterFilesByMetricAndFileType\r",
+          "        else Table.SelectRows(FilterFilesByMetricAndFileType, each (start = null or [StartDate] >= Date.StartOfMonth(Date.From(start))) and (end = null or [EndDate] <= Date.EndOfMonth(Date.From(end)))),\r",
+          "\r",
+          "    // Extract\r",
+          "    unpack = (zipData) => Table.PromoteHeaders(Csv.Document(Binary.Decompress(zipData, Compression.GZip), [Delimiter=\",\", Columns=60, Encoding=1252, QuoteStyle=QuoteStyle.Csv, CsvStyle=CsvStyle.QuoteAlways]), [PromoteAllScalars=true]),\r",
+          "    SelectContent = Table.SelectColumns(FilterFilesByDate, {\"Content\"}),\r",
+          "    UnpackContent = Table.AddColumn(SelectContent, \"Custom\", each if ext = \".gz\" then unpack([Content]) else Parquet.Document([Content])),\r",
+          "    ExpandedColumns = Table.ExpandTableColumn(UnpackContent, \"Custom\", List.Sort(Table.ColumnNames(List.First(UnpackContent[Custom], null)))),\r",
+          "    RemovedContent = Table.RemoveColumns(ExpandedColumns, {\"Content\"}),\r",
+          "\r",
+          "    // Only pull from the predefined date range (if specified)\r",
+          "    tbl = RemovedContent,\r",
+          "    FilterRowsByDate =\r",
+          "        if start = null and end = null then tbl\r",
+          "        else Table.SelectRows(tbl, each\r",
+          "            (start = null or [ChargePeriodEnd] >= DateTime.From(start))\r",
+          "            and (end = null or [ChargePeriodStart] < DateTime.From(end))\r",
+          "        ),\r",
+          "\r",
+          "    // TODO: Extract from the manifest\r",
+          "    _armResourceName = (id) => List.Last(Text.Split(id, \"/\")),\r",
+          "    DataSet = Table.AddColumn(FilterRowsByDate, \"x_DatasetType\", each \"FocusCost\"),\r",
+          "    Schema =  Table.AddColumn(DataSet, \"x_DatasetVersion\", each \"1.0-preview(v1)\"),\r",
+          "    AccountType = Table.AddColumn(Schema, \"x_AccountType\", \r",
+          "        each if [BillingAccountId] = [SubAccountId] then \"MOSA\"\r",
+          "        else if _armResourceName([BillingAccountId]) = [x_BillingAccountId] then \"EA\"\r",
+          "        else if _armResourceName([BillingAccountId]) = [x_BillingProfileId] then (if [InvoiceIssuerName] = \"Microsoft\" then \"MCA\" else \"MPA\")\r",
+          "        else \"Unknown\"\r",
+          "    ),\r",
+          "\r",
+          "    Output = AccountType\r",
+          "in\r",
           "    Output"
         ],
         "kind": "m",
@@ -7013,7 +7017,7 @@
           "        {\"x_PartnerCreditRate\",       type number},",
           "        {\"x_PricingBlockSize\",        type number},",
           "        {\"x_SkuTerm\",                 type text}  // Text due to a bug in CM data; converted to a number below",
-          "        // TODO: {\"x_SkuIsCreditEligible\", type logical}",
+          "        // TODO: {\"x_SkuIsCreditEligible\",   type logical}",
           "        // TODO: {\"x_PartnerCreditApplied\",  type logical}",
           "    }),",
           "",
@@ -7024,16 +7028,39 @@
           "    _isNotBlank = (val) => _isBlank(val) = false,",
           "    _swapCol    = (tbl, oldCol, newCol, newVal, optional newType) => let add = Table.AddColumn(tbl, newCol, newVal, newType), del = if Table.HasColumns(add, oldCol) then Table.RemoveColumns(add, {oldCol}) else add in del,",
           "    _resetCol   = (tbl, col, newVal, optional newType) => let tmpCol = Text.Combine({\"tmp_\", col}), tmp = _swapCol(tbl, col, tmpCol, newVal, newType), ren = Table.RenameColumns(tmp, {{tmpCol, col}}) in ren,",
-          "    _armResourceName = (id) => List.Last(Text.Split(id, \"/\")),",
+          "    _parseResourceId = (id, getName) => if _isBlank(id) then null else ",
+          "        let",
+          "            // Handle implicit Microsoft.Resources RP names",
+          "            updatedId = if Text.StartsWith(id, \"/subscriptions/\") or Text.StartsWith(id, \"/tenants/\") then \"/providers/Microsoft.Resources\" & id else id,",
           "",
-          "    // FOCUS \"1.0-preview (v1)\" bugs",
+          "            // Parse resource ID segments separately",
+          "            allSegments = Text.Split(List.Last(Text.Split(updatedId, \"/providers/\")), \"/\"),",
+          "            provider = allSegments{0},",
+          "            _parseId = (evenOrOdd) => List.RemoveNulls(List.Transform({1..List.Count(allSegments)-1}, each if Number.Mod(_, 2) = evenOrOdd then allSegments{_} else null)),",
+          "            nameSegments = _parseId(0),",
+          "            typeSegments = _parseId(1),",
+          "            ",
+          "            // Remove the sub ID if it's a child resource of the subscription",
+          "            isChildOfSubscription = provider = \"Microsoft.Resources\" and Text.Lower(typeSegments{0}) = \"subscriptions\" and List.Count(typeSegments) > 1,",
+          "            fullName = Text.Combine((if isChildOfSubscription then List.RemoveFirstN(nameSegments, 1) else nameSegments), \"/\"),",
+          "",
+          "            fullType = provider & \"/\" & Text.Combine(typeSegments, \"/\"),",
+          "            result = if getName then fullName else fullType",
+          "        in",
+          "            result",
+          "    ,",
+          "    _parseResourceName = (id) => _parseResourceId(id, true),",
+          "    _parseResourceType = (id) => _parseResourceId(id, false),",
+          "    ",
+          "    // FOCUS \"1.0-preview(v1)\" bugs",
           "    SkuTerm = _resetCol(FixTypes, \"x_SkuTerm\", each if [x_SkuTerm] = \"1Year\" then 12 else if [x_SkuTerm] = \"3Years\" then 36 else if [x_SkuTerm] = \"5Years\" then 60 else Number.FromText([x_SkuTerm]), type number),",
           "",
           "    // Parse arrays",
-          "    SkuDetailsDict        = Table.AddColumn(SkuTerm, \"x_SkuDetailsDictionary\", each if _isNotBlank([x_SkuDetails]) then Json.Document([x_SkuDetails]) else null),",
+          "    SkuDetailsDict        = Table.AddColumn(SkuTerm,        \"x_SkuDetailsDictionary\", each if _isNotBlank([x_SkuDetails]) then Json.Document([x_SkuDetails]) else null),",
           "    SkuDetailsDict_copy   = Table.AddColumn(SkuDetailsDict, \"tmp_SkuDetails\",         each [x_SkuDetailsDictionary]),",
           "    SkuDetailsDict_errors = Table.ReplaceErrorValues(SkuDetailsDict_copy, {{\"tmp_SkuDetails\", null}}),",
-          "    TagsDictionary        = Table.AddColumn(SkuDetailsDict_errors, \"x_TagsDictionary\", each if _isNotBlank([Tags]) then Json.Document([Tags]) else null),",
+          "    Tags_backfill         = _resetCol(SkuDetailsDict_errors, \"Tags\", each if _isBlank([Tags]) then \"{}\" else [Tags]),",
+          "    TagsDictionary        = Table.AddColumn(Tags_backfill,  \"x_TagsDictionary\", each if _isNotBlank([Tags]) then Json.Document([Tags]) else null),",
           "    TagsDictionary_copy   = Table.AddColumn(TagsDictionary, \"tmp_Tags\",         each [x_TagsDictionary]),",
           "    TagsDictionary_errors = Table.ReplaceErrorValues(TagsDictionary_copy, {{\"tmp_Tags\", null}}),",
           "    ParsedArrays = TagsDictionary_errors,",
@@ -7044,14 +7071,14 @@
           "        {\"tmp_cmParent\",       \"tmp_msParent\",       \"tmp_ManagedBy\",    \"tmp_caParent\",        \"x_ToolkitVersion\", \"tmp_ToolkitTool\"}",
           "    ),",
           "    ResourceParentId   = Table.AddColumn(Tags_expand,        \"x_ResourceParentId\",   ",
-          "        each if _isNotBlank([tmp_cmParent])  then [tmp_cmParent] ",
+          "        each Text.Replace(\"/\" & (if _isNotBlank([tmp_cmParent])  then [tmp_cmParent] ",
           "        else if _isNotBlank([tmp_msParent])  then [tmp_msParent] ",
           "        else if _isNotBlank([tmp_ManagedBy]) then [tmp_ManagedBy] ",
           "        else if _isNotBlank([tmp_caParent])  then [tmp_caParent] ",
-          "        else null),",
-          "// TODO: Add support for hierarchical resource parent types",
-          "    ResourceParentType = Table.AddColumn(ResourceParentId,   \"x_ResourceParentType\", each if _isBlank([x_ResourceParentId]) then null else Text.Combine(List.Range(Text.Split(List.Last(Text.Split([x_ResourceParentId], \"/providers/\")), \"/\"), 0, 2), \"/\")),",
-          "    ResourceParentName = Table.AddColumn(ResourceParentType, \"x_ResourceParentName\", each if _isBlank([x_ResourceParentId]) then null else Text.Split(List.Last(Text.Split([x_ResourceParentId], [x_ResourceParentType])), \"/\"){1}),",
+          "        else null), \"//\", \"/\")),",
+          "    ResourceParentId_backfill = _resetCol(ResourceParentId,         \"x_ResourceParentId\",   each if _isBlank([x_ResourceParentId]) then null else [x_ResourceParentId]),",
+          "    ResourceParentType = Table.AddColumn(ResourceParentId_backfill, \"x_ResourceParentType\", each _parseResourceType([x_ResourceParentId])),",
+          "    ResourceParentName = Table.AddColumn(ResourceParentType,        \"x_ResourceParentName\", each _parseResourceName([x_ResourceParentId])),",
           "    Tool = _swapCol(ResourceParentName, \"tmp_ToolkitTool\", \"x_ToolkitTool\", ",
           "        each if _isNotBlank([tmp_ToolkitTool]) then [tmp_ToolkitTool] ",
           "        else if _isBlank([x_ResourceParentId]) then null ",
@@ -7106,7 +7133,7 @@
           "    CommitmentDiscountNameUnique = Table.AddColumn(FreeReason,                   \"CommitmentDiscountNameUnique\", each if _isBlank([CommitmentDiscountId]) then null else [CommitmentDiscountName] & \" (\" & [CommitmentDiscountType] & \")\"),",
           "    ResourceNameUnique           = Table.AddColumn(CommitmentDiscountNameUnique, \"ResourceNameUnique\",           each if _isBlank([ResourceId])           then null else [ResourceName] & \" (\" & [ResourceType] & \")\"),",
           "    ResourceGroupNameUnique      = Table.AddColumn(ResourceNameUnique,           \"x_ResourceGroupNameUnique\",    each if _isBlank([x_ResourceGroupName])  then null else [x_ResourceGroupName] & \" (\" & [SubAccountName] & \")\"),",
-          "    SubscriptionNameUnique       = Table.AddColumn(ResourceGroupNameUnique,      \"SubAccountNameUnique\",         each if _isBlank([SubAccountId])         then null else [SubAccountName] & \" (\" & _armResourceName([SubAccountId]) & \")\"),",
+          "    SubscriptionNameUnique       = Table.AddColumn(ResourceGroupNameUnique,      \"SubAccountNameUnique\",         each if _isBlank([SubAccountId])         then null else [SubAccountName] & \" (\" & _parseResourceName([SubAccountId]) & \")\"),",
           "    Names = SubscriptionNameUnique,",
           "",
           "    // Month column",
@@ -7419,6 +7446,62 @@
         "kind": "m",
         "lineageTag": "35620d01-0ec7-41a6-9fc3-037b8f96dcd9",
         "queryGroup": "FinOps toolkit"
+      },
+      {
+        "name": "Errors in HubExports",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "expression": [
+          "let",
+          "Source = HubExports,",
+          "  #\"Detected Type Mismatches\" = let",
+          "    tableWithOnlyPrimitiveTypes = Table.SelectColumns(Source, Table.ColumnsOfType(Source, {type nullable number, type nullable text, type nullable logical, type nullable date, type nullable datetime, type nullable datetimezone, type nullable time, type nullable duration})),",
+          "    recordTypeFields = Type.RecordFields(Type.TableRow(Value.Type(tableWithOnlyPrimitiveTypes))),",
+          "    fieldNames = Record.FieldNames(recordTypeFields),",
+          "    fieldTypes = List.Transform(Record.ToList(recordTypeFields), each [Type]),",
+          "    pairs = List.Transform(List.Positions(fieldNames), (i) => {fieldNames{i}, (v) => if v = null or Value.Is(v, fieldTypes{i}) then v else error [Message = \"The type of the value does not match the type of the column.\", Detail = v], fieldTypes{i}})",
+          "in",
+          "    Table.TransformColumns(Source, pairs),",
+          "  #\"Added Index\" = Table.AddIndexColumn(#\"Detected Type Mismatches\", \"Row Number\" ,1),",
+          "  #\"Kept Errors\" = Table.SelectRowsWithErrors(#\"Added Index\", {\"Scope\", \"ExportName\", \"Dataset\", \"ApiVersion\", \"StorageAccount\", \"Container\", \"Month\", \"FileType\", \"FileName\", \"FileSizeInGB\", \"FolderPath\", \"DateCreated\", \"DateModified\", \"DateAccessed\"}),",
+          "  #\"Reordered Columns\" = Table.ReorderColumns(#\"Kept Errors\", {\"Row Number\", \"Scope\", \"ExportName\", \"Dataset\", \"ApiVersion\", \"StorageAccount\", \"Container\", \"Month\", \"FileType\", \"FileName\", \"FileSizeInGB\", \"FolderPath\", \"DateCreated\", \"DateModified\", \"DateAccessed\"})",
+          "in",
+          "  #\"Reordered Columns\""
+        ],
+        "kind": "m",
+        "lineageTag": "245a6468-222d-4c5c-afec-5f3d0c3e35a0",
+        "queryGroup": "Query Errors - 6/6/2024 1:48:22 PM"
+      },
+      {
+        "name": "Errors in HubIngestion",
+        "expression": [
+          "let",
+          "Source = HubIngestion,",
+          "  #\"Detected Type Mismatches\" = let",
+          "    tableWithOnlyPrimitiveTypes = Table.SelectColumns(Source, Table.ColumnsOfType(Source, {type nullable number, type nullable text, type nullable logical, type nullable date, type nullable datetime, type nullable datetimezone, type nullable time, type nullable duration})),",
+          "    recordTypeFields = Type.RecordFields(Type.TableRow(Value.Type(tableWithOnlyPrimitiveTypes))),",
+          "    fieldNames = Record.FieldNames(recordTypeFields),",
+          "    fieldTypes = List.Transform(Record.ToList(recordTypeFields), each [Type]),",
+          "    pairs = List.Transform(List.Positions(fieldNames), (i) => {fieldNames{i}, (v) => if v = null or Value.Is(v, fieldTypes{i}) then v else error [Message = \"The type of the value does not match the type of the column.\", Detail = v], fieldTypes{i}})",
+          "in",
+          "    Table.TransformColumns(Source, pairs),",
+          "  #\"Added Index\" = Table.AddIndexColumn(#\"Detected Type Mismatches\", \"Row Number\" ,1),",
+          "  #\"Kept Errors\" = Table.SelectRowsWithErrors(#\"Added Index\", {\"Scope\", \"StorageAccount\", \"Container\", \"Dataset\", \"Month\", \"FileType\", \"Files\", \"SizeInGB\", \"FolderPath\", \"Created\", \"Updated\", \"Accessed\"}),",
+          "  #\"Reordered Columns\" = Table.ReorderColumns(#\"Kept Errors\", {\"Row Number\", \"Scope\", \"StorageAccount\", \"Container\", \"Dataset\", \"Month\", \"FileType\", \"Files\", \"SizeInGB\", \"FolderPath\", \"Created\", \"Updated\", \"Accessed\"})",
+          "in",
+          "  #\"Reordered Columns\""
+        ],
+        "kind": "m",
+        "lineageTag": "8b1addc6-c810-4da3-8651-8e09346185c4",
+        "queryGroup": "Query Errors - 6/6/2024 1:48:22 PM"
       }
     ],
     "queryGroups": [
@@ -7475,6 +7558,16 @@
           }
         ],
         "folder": "🛠️ Setup\\Instructions"
+      },
+      {
+        "annotations": [
+          {
+            "name": "PBI_QueryGroupOrder",
+            "value": "6"
+          }
+        ],
+        "description": "Errors in queries that were loaded on 6/6/2024 1:48:22 PM.",
+        "folder": "Query Errors - 6/6/2024 1:48:22 PM"
       }
     ],
     "relationships": [
@@ -7920,6 +8013,10 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
+          },
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
           }
         ],
         "columns": [
@@ -9766,7 +9863,7 @@
         "description": [
           "Cost and usage (FOCUS) data from Cost Management exports.",
           "",
-          "Data version = 1.0-preview (v1)",
+          "Data version = 1.0-preview(v1)",
           "Learn more @ https://aka.ms/finops/hubs"
         ],
         "lineageTag": "4b9830c4-e7c7-43ee-823c-d6b15359c25f",
@@ -9903,9 +10000,11 @@
             "source": {
               "expression": [
                 "let",
-                "  Source = ftk_CostDetails(RangeStart, RangeEnd)",
+                "  Source = ftk_CostDetails(RangeStart, RangeEnd),",
+                "    #\"Filtered Rows\" = Table.SelectRows(Source, each ([x_ResourceParentName] <> null)),",
+                "    #\"Sorted Rows\" = Table.Sort(#\"Filtered Rows\",{{\"x_ResourceParentType\", Order.Ascending}})",
                 "in",
-                "  Source"
+                "  #\"Sorted Rows\""
               ],
               "type": "m"
             }
@@ -13998,10 +14097,6 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "columns": [

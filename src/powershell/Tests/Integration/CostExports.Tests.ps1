@@ -66,10 +66,6 @@ Describe 'CostExports' {
                 Report "$($getResult.Count) export(s) remaining"
                 $confirmDeleteResult | Should -BeNullOrEmpty
             }
-
-            # Cleanup
-            Remove-AzStorageAccount -ResourceGroupName $rg -Name $storageName -Force
-            Report "Storage account deleted"
         }
     }
 
@@ -77,7 +73,56 @@ Describe 'CostExports' {
     It 'Should create one-time export' {
         # Arrange
         $historicalExportName = $exportName
-        $startDate = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0 -AsUTC).AddMonths(-12)
+        $startDate = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0).AddMonths(-12)
+
+        Monitor "Export tests..." -Indent '  ' {
+            Monitor "Creating $historicalExportName export..." {
+                # Act -- create
+                New-FinOpsCostExport -Name $exportName -Scope $scope -StorageAccountId $storage.Id
+                $newResult = New-FinOpsCostExport `
+                    -Name $historicalExportName `
+                    -Scope $scope `
+                    -StorageAccountId $storage.Id `
+                    -Dataset AmortizedCost `
+                    -OneTime `
+                    -StartDate $startDate
+                
+                # Assert
+                Report -Object $newResult
+                $newResult.Name | Should -Be $historicalExportName
+                $newResult.DatasetStartDate | Should -Be $startDate
+            }
+
+            Monitor "Getting $historicalExportName..." {
+                # Act -- read
+                $getResult = Get-FinOpsCostExport -Name $historicalExportName -Scope $scope -RunHistory
+
+                # Assert
+                Report "Found $($getResult.Count) export(s)"
+                Report -Object $getResult
+                $getResult.Count | Should -Be 1
+                $getResult.Name | Should -Be $historicalExportName
+                $getResult.RunHistory.Count | Should -BeGreaterThan 0 -Because "-Execute -Backfill 1 was specified during creation"
+            }
+
+            Monitor "Deleting $historicalExportName..." {
+                # Act -- delete
+                $deleteResult = Remove-FinOpsCostExport -Name $historicalExportName -Scope $scope
+                $confirmDeleteResult = Get-FinOpsCostExport -Name $historicalExportName -Scope $scope
+                
+                # Assert
+                Report $deleteResult
+                $deleteResult | Should -BeTrue
+                Report "$($getResult.Count) export(s) remaining"
+                $confirmDeleteResult | Should -BeNullOrEmpty
+            }
+        }
+    }
+
+    It 'Should create an export for 13 months ago' {
+        # Arrange
+        $historicalExportName = $exportName
+        $startDate = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0).AddMonths(-13)
 
         Monitor "Export tests..." -Indent '  ' {
             Monitor "Creating $historicalExportName export..." {
@@ -119,10 +164,82 @@ Describe 'CostExports' {
                 Report "$($getResult.Count) export(s) remaining"
                 $confirmDeleteResult | Should -BeNullOrEmpty
             }
-
-            # Cleanup
-            Remove-AzStorageAccount -ResourceGroupName $rg -Name $storageName -Force
-            Report "Storage account deleted"
         }
+    }
+
+    It 'Should create an export starting under 7 years ago' {
+        # Arrange
+        $historicalExportName = $exportName
+        # Exports tracks 7 years in days, not months, so we can only use 7y-1mo to get a full month
+        $startDate = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0).AddYears(-7).AddMonths(1)
+
+        Monitor "Export tests..." -Indent '  ' {
+            Monitor "Creating $historicalExportName export..." {
+                # Act -- create
+                $newResult = New-FinOpsCostExport `
+                    -Name $historicalExportName `
+                    -Scope $scope `
+                    -StorageAccountId $storage.Id `
+                    -Dataset AmortizedCost `
+                    -OneTime `
+                    -StartDate $startDate
+                
+                # Assert
+                Report -Object $newResult
+                $newResult.Name | Should -Be $historicalExportName
+                $newResult.DatasetStartDate | Should -Be $startDate
+            }
+
+            Monitor "Getting $historicalExportName..." {
+                # Act -- read
+                $getResult = Get-FinOpsCostExport -Name $historicalExportName -Scope $scope -RunHistory
+
+                # Assert
+                Report "Found $($getResult.Count) export(s)"
+                Report -Object $getResult
+                $getResult.Count | Should -Be 1
+                $getResult.Name | Should -Be $historicalExportName
+                $getResult.RunHistory.Count | Should -BeGreaterThan 0 -Because "-Execute -Backfill 1 was specified during creation"
+            }
+
+            Monitor "Deleting $historicalExportName..." {
+                # Act -- delete
+                $deleteResult = Remove-FinOpsCostExport -Name $historicalExportName -Scope $scope
+                $confirmDeleteResult = Get-FinOpsCostExport -Name $historicalExportName -Scope $scope
+                
+                # Assert
+                Report $deleteResult
+                $deleteResult | Should -BeTrue
+                Report "$($getResult.Count) export(s) remaining"
+                $confirmDeleteResult | Should -BeNullOrEmpty
+            }
+        }
+    }
+
+    It 'Should fail to create an export for 7 years ago (not accounting for start date)' {
+        # Arrange
+        $historicalExportName = $exportName
+        $startDate = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0).AddYears(-7)
+
+        Monitor "Export tests..." -Indent '  ' {
+            Monitor "Creating $historicalExportName export..." {
+                # Act -- create
+                # Assert
+                {
+                    New-FinOpsCostExport `
+                        -Name $historicalExportName `
+                        -Scope $scope `
+                        -StorageAccountId $storage.Id `
+                        -Dataset AmortizedCost `
+                        -OneTime `
+                        -StartDate $startDate `
+                } | Should -Throw
+            }
+        }
+    }
+
+    AfterAll {
+        # Cleanup
+        Remove-AzStorageAccount -ResourceGroupName $rg -Name $storageName -Force
     }
 }

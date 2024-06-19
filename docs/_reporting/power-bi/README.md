@@ -40,12 +40,12 @@ Accelerate your analytics efforts with simple, targeted reports. Summarize and b
 The FinOps toolkit includes two sets of reports that connect to different data sources. We recommend using the following reports which connect to [FinOps hubs](../hubs/README.md):
 
 - [Cost summary](./cost-summary.md) – Overview of amortized costs with common breakdowns.
-- [Commitment discounts](./commitment-discounts.md) – Summarizes existing and potential savings from commitment-based discounts.
+- [Commitment discounts](./commitment-discounts.md) – Summarizes existing and potential savings from commitment discounts.
 - [Data ingestion](./data-ingestion.md) – Provides insights into your data ingestion layer.
 
 The following reports use the Cost Management connector for Power BI to connect to your data. While the connector is not recommended due to the reasons below, these reports will be available as long as the connector is supported by the Cost Management team.
 
-- [Cost Management connector](./connector.md) – Summarizes costs, savings, and commitment discounts using the Cost Management connector.
+- [Cost Management connector](./connector.md) – Summarizes costs, savings, and commitment discounts using the Cost Management connector for EA and MCA accounts.
 - [Cost Management template app](./template-app.md) (EA only) – The original Cost Management template app as a customizable PBIX file.
 
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .mb-4 .mb-md-0 .mr-4 }
@@ -79,14 +79,14 @@ In general, we recommend starting with the Cost Management connector when gettin
 
 | Capabilities                                        |            Connector             |       Exports<sup>1</sup>        |           FinOps hubs            | Microsoft Fabric<sup>2</sup> |
 | --------------------------------------------------- | :------------------------------: | :------------------------------: | :------------------------------: | :--------------------------: |
-| Cost                                                |                $0                |           ~$10 per $1M           |           ~$25 per $1M           |             TBD              |
+| Cost (based on list prices)                         |                $0                |           ~$10 per $1M           |           ~$25 per $1M           |             TBD              |
 | Data storage                                        |             Power BI             |        Data Lake Storage         |        Data Lake Storage         |      Data Lake Storage       |
 | Est. max raw cost details per month<sup>3</sup>     | $2M/mo (Pro)<br>$5M/mo (Premium) | $2M/mo (Pro)<br>$5M/mo (Premium) | $2M/mo (Pro)<br>$5M/mo (Premium) |             TBD              |
 | Est. max total with incremental refresh<sup>4</sup> |    $2M (Pro)<br>$5M (Premium)    |   $2M (Pro)<br>$65M (Premium)    |   $2M (Pro)<br>$65M (Premium)    |             TBD              |
 | Does not require a deployment                       |                ✅                 |         ❌ (storage only)         |   ❌ ([details][hubs-template])   |              ❌               |
 | Latest API version<sup>5</sup>                      |                ❌                 |                ✅                 |                ✅                 |              ✅               |
-| Azure Government                                    |                ❌                 |                🔜                 |                ✅                 |           ✅ (Hubs)           |
-| Azure China                                         |                ❌                 |                🔜                 |                ✅                 |           ✅ (Hubs)           |
+| Azure Government                                    |                ❌                 |                🔜                 |                ✅                 |         ✅ (via Hubs)         |
+| Azure China                                         |                ❌                 |                🔜                 |                ✅                 |         ✅ (via Hubs)         |
 | Enterprise Agreement                                |                ✅                 |                ✅                 |                ✅                 |              ✅               |
 | Microsoft Customer Agreement                        |                ✅                 |                ✅                 |                ✅                 |              ✅               |
 | Microsoft Partner Agreement                         |                ✅                 |                ✅                 |                ✅                 |              ✅               |
@@ -99,12 +99,12 @@ In general, we recommend starting with the Cost Management connector when gettin
 | Subscriptions                                       |                ❌                 |                ✅                 |                ✅                 |              ✅               |
 | Resource groups                                     |                ❌                 |                ✅                 |                ✅                 |              ✅               |
 | Supports savings plans<sup>5</sup>                  |                ❌                 |                ✅                 |                ✅                 |              ✅               |
-| Supports savings plan recommendations               |                ❌                 |                ❌                 |             🔜 (0.4)              |              🔜               |
+| Supports savings plan recommendations               |                ❌                 |                ❌                 |                🔜                 |              🔜               |
 | Supports multiple scopes                            |                ❌                 |                ✅                 |                ✅                 |              ✅               |
-| Supports scopes in different tenants                |                ❌                 |                ❌                 |             🔜 (0.3)              |           🔜 (Hubs)           |
-| Faster data load times                              |                ❌                 |                🔜                 |                ✅                 |           ✅ (Hubs)           |
-| Supports >$65M in cost details                      |                ❌                 |                ❌                 |             🔜 (0.4)              |              ✅               |
-| Analytical engine                                   |                ❌                 |                ❌                 |             🔜 (0.4)              |              ✅               |
+| Supports scopes in different tenants<sup>6</sup>    |                ❌                 |          ❌<sup>6</sup>           |       🔜 (0.4)<sup>6</sup>        |         🔜 (via Hubs)         |
+| Faster data load times                              |                ❌                 |                🔜                 |                ✅                 |         ✅ (via Hubs)         |
+| Supports >$65M in cost details                      |                ❌                 |                ❌                 |             🔜 (0.5)              |              ✅               |
+| Analytical engine                                   |                ❌                 |                ❌                 |             🔜 (0.5)              |              ✅               |
 | Accessible outside of Power BI                      |                ❌                 |                ✅                 |                ✅                 |              ✅               |
 | Learn more                                          |  [Learn more][about-connector]   |                                  |     [Learn more][about-hubs]     |                              |
 
@@ -121,6 +121,8 @@ _<sup>3) Power BI constraints are based on data size and processing time. Monito
 _<sup>4) The Cost Management connector for Power BI does not support incremental refresh, so the limits are the same as the per-month estimation. The FinOps hub estimate is based on incremental refresh being enabled, which requires additional configuration after your report is published.</sup>_
 
 _<sup>5) The Cost Management connector uses an old API version and does not include details for some features, like savings plans. Please use FinOps hubs for the latest version with all details.</sup>_
+
+_<sup>6) EA billing scopes can be exported to any tenant today. Simply sign in to that tenant with an account that has access to the billing scope and target storage account to configure exports. Non-billing scopes (subscriptions, management groups, and resource groups) and all MCA scopes are only supported in the tenant they exist in today but will be supported via a "remote hubs" feature in a future FinOps hubs release.</sup>_
 
 If you're not sure, start with the Cost Management connector. You will usually be able to tell if that works for you within the first 5-10 minutes. If you experience delays in pulling your data, try requesting fewer months. If you still experience issues, it's time to consider switching to FinOps hubs.
 

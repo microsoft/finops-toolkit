@@ -121,18 +121,21 @@ Once the above requirements have been met, the feature branch can be merged into
 
       > _The documentation site may take 5 minutes to update after the merge is committed. If not updated, look at [GitHub actions](https://github.com/microsoft/finops-toolkit/actions/workflows/pages/pages-build-deployment) to see if there are any failures._
 
-   6. Run `Package-Toolkit -Build` script.
+   6. Run `Package-Toolkit -Build -PowerBI` script.
       - For each Power BI report:
-        1. Change the sensitivity to **Public**.
+        1. Save the file as a PBIX file to the release folder.
+        2. Change the sensitivity to **Public**. If the option is disabled, close the file and reopen it.
            > ⚠️ _Power BI does not remember the sensitivity setting for Power BI projects so this needs to be done for each release. If not done, the report will not open for anyone outside of Microsoft._
-        2. Update the version on the **Get started** tab.
-        3. For the Cost summary report, remove the following from the Transform data (query editor):
+        3. Update the version on the **Get started** tab.
+        4. For the Cost summary and Data ingestion reports, remove the following from the Transform data (query editor):
            1. Delete both **Recommendations\*** queries.
            2. Delete the **InstanceSizeFlexibility** query.
            3. Open the **▶️ START HERE** query in the advanced editor and remove connector settings and generated rows in the table from the separator line to the end.
-        4. Save as a PBIX in the release folder.
+        5. For the Cost summary and Commitment discounts reports, remove the following from the Transform data (query editor):
+           1. Delete all **Hub\*** queries.
+        6. Save PBIX again in the release folder.
            > ⚠️ _**DO NOT** save the above changes back to the Power BI project files!_
-        5. Copy the first paragraph from the **Get started** page and save as PBIT in the release folder. Use the copied text for the description and add "Learn more at https://aka.ms/ftk/{report-name}" as a separate paragraph in the description.
+        7. Copy the first paragraph from the **Get started** page and export a template (PBIT file) in the release folder. Use the copied text for the description and add "Learn more at https://aka.ms/ftk/{report-name}" as a separate paragraph in the description.
    7. Tag and publish a [new release](https://github.com/microsoft/finops-toolkit/releases/new):
       1. Create a tag on publish using the "vX.X" format.
       2. Set the **Target** to `main`.
@@ -160,10 +163,13 @@ Once the above requirements have been met, the feature branch can be merged into
           - ZIP file for sample data files.
           - **DO NOT** copy Bicep, PowerShell, PBIP, or image files.
    8. Update the related discussion.
-   9.  Update all issues to `Status: Released`.
-   10. Update the download test to include any new files/versions.
+   9. Update all issues to `Status: Released`.
+   10. Update the `Toolkit / Should return all known releases` PowerShell integration test based on the latest version.
 
-      > _See `FinOpsToolkit.Tests.ps1` > `Verify against prod GitHub`_
+       > _See `src/powershell/Tests/Integration/Toolkit.Tests.ps1` > `Get-FinOpsToolkitVersion` > `Should return all known releases`_
+
+       1. Add the latest public version to the `$expected` variable.
+       2. Update the file checks to include/exclude any new/removed files.
 
 <br>
 

@@ -15,8 +15,7 @@ Identify and implement the right mix of pricing models, services, and resources 
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [📉 Rate optimization](#-rate-optimization)
-- [📊 Usage optimization](#-usage-optimization)
+- [📝 Capabilities](#-capabilities)
 - [⏩ Next steps](#-next-steps)
 - [🧰 Related tools](#-related-tools)
 
@@ -26,17 +25,13 @@ Identify and implement the right mix of pricing models, services, and resources 
 
 <br>
 
-## 📉 Rate optimization
+## 📝 Capabilities
 
-- [Managing commitment-based discounts](./commitment-discounts.md)
-
-<br>
-
-## 📊 Usage optimization
-
-- [Onboarding workloads](../manage/onboarding.md)
-- [Resource utilization and efficiency](./utilization-efficiency.md)
-- [Workload management and automation](./workloads.md)
+- [Architecting for the cloud](./architecting.md)
+- [Workload optimization](./workloads.md)
+- [Rate optimization](./rates.md)
+- [Licensing and SaaS](./licensing.md)
+- [Cloud sustainability](./sustainability.md)
 
 <br>
 
@@ -44,10 +39,9 @@ Identify and implement the right mix of pricing models, services, and resources 
 
 Related FinOps capabilities:
 
-- [Understanding cloud usage and cost](../understand/README.md)
-- [Performance tracking + benchmarking](../quantify/README.md#performance-tracking-and-benchmarking)
-- [Real-time decision making](../quantify/README.md#real-time-decision-making)
-- [Organizational alignment](../manage/README.md)
+- [Understand cloud usage and cost](../understand/README.md)
+- [Quantify business value](../quantify/README.md)
+- [Manage the FinOps practice](../manage/README.md)
 
 <br>
 

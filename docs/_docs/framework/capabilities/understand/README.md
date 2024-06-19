@@ -27,12 +27,10 @@ Collect, normalize, and analyze cloud spending and usage across the organization
 
 ## 📝 Capabilities
 
-- [Data ingestion and normalization](./ingestion.md)
-- [Cost allocation](./allocation.md)
-- [Managing shared cost](./shared-cost.md)
-- [Data analysis and showback](./reporting.md)
-- [Forecasting](../quantify/forecasting.md)
-- [Managing anomalies](./anomalies.md)
+- [Data ingestion](./ingestion.md)
+- [Allocation](./allocation.md)
+- [Reporting and analytics](./reporting.md)
+- [Anomaly management](./anomalies.md)
 
 <br>
 
@@ -40,11 +38,9 @@ Collect, normalize, and analyze cloud spending and usage across the organization
 
 Related FinOps capabilities:
 
-- [Performance tracking + benchmarking](../quantify/README.md#performance-tracking-and-benchmarking)
-- [Real-time decision making](../quantify/README.md#real-time-decision-making)
-- [Rate optimization](../optimize/README.md#rate-optimization)
-- [Usage optimization](../optimize/README.md#usage-optimization)
-- [Organizational alignment](../manage/README.md)
+- [Quantify business value](../quantify/README.md)
+- [Optimize cloud usage and cost](../optimize/README.md)
+- [Manage the FinOps practice](../manage/README.md)
 
 <br>
 

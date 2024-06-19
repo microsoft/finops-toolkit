@@ -51,7 +51,7 @@ let
     // TODO: Extract from the manifest
     _armResourceName = (id) => List.Last(Text.Split(id, "/")),
     DataSet = Table.AddColumn(FilterRowsByDate, "x_DatasetType", each "FocusCost"),
-    Schema =  Table.AddColumn(DataSet, "x_DatasetVersion", each "1.0-preview (v1)"),
+    Schema =  Table.AddColumn(DataSet, "x_DatasetVersion", each "1.0-preview(v1)"),
     AccountType = Table.AddColumn(Schema, "x_AccountType", 
         each if [BillingAccountId] = [SubAccountId] then "MOSA"
         else if _armResourceName([BillingAccountId]) = [x_BillingAccountId] then "EA"

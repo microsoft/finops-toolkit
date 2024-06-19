@@ -17,7 +17,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "1 Connection",EA,1,Connections
 "1 Connections",EA,1,Connections
 "1 Content Hours",EA,1,Hours
-"1 Count",MCA,1,Count
+"1 Count","MCA, EA",1,Count
 "1 Cubic Meter/Month","MCA, EA",1,Cubic Meters/Month
 "1 Daily App",EA,1,Apps/Day
 "1 Daily Connection",EA,1,Connections/Day
@@ -44,7 +44,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "1 GB/hora",MCA,1,GB/Hour
 "1 GB/月",MCA,1,GB/Month
 "1 Gb",MCA,1,GB
-"1 GiB",MCA,1,GiB
+"1 GiB","MCA, EA",1,GiB
 "1 GiB Hour","MCA, EA",1,GiB Hours
 "1 GiB Minute",MCA,1,GiB Minutes
 "1 GiB Second",MCA,1,GiB Seconds
@@ -70,6 +70,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "1 Named Users",EA,1,Users
 "1 Node",EA,1,Nodes
 "1 Nodes",EA,1,Nodes
+"1 PB Second",EA,1,PB Seconds
 "1 PB/Hour",EA,1,PB/Hour
 "1 PiB/Hour",EA,1,PiB/Hour
 "1 Pipeline",EA,1,Pipelines
@@ -85,6 +86,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "1 TB","MCA, EA",1,TB
 "1 TB Hour",EA,1,TB Hours
 "1 TB Second",EA,1,TB Seconds
+"1 TB/Day",EA,1,TB/Day
 "1 TB/Hour",EA,1,TB/Hour
 "1 TB/Month","MCA, EA",1,TB/Month
 "1 TiB",EA,1,TiB
@@ -99,17 +101,18 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "1 Virtual Machine",EA,1,Virtual Machines
 "1 Website",EA,1,Websites
 "1 Zones",EA,1,Zones
-"1 day",EA,1,Day
+"1 day",EA,1,Days
 "1 hora",MCA,1,Hours
-"1 hour",EA,1,Hour
+"1 hour",EA,1,Hours
 "1 por mes",MCA,1,Months
-"1 user",EA,1,User
+"1 user",EA,1,Users
 "1 小时",MCA,1,Hours
 "1/10 Days",MCA,1,Units/10 Days
 "1/3 Months",MCA,1,Units/3 Months
 "1/6 Months",MCA,1,Units/6 Months
 "1/Day","MCA, EA",1,Units/Day
 "1/Hour","MCA, EA",1,Units/Hour
+"1/Minute",MCA,1,Units/Minute
 "1/Month","MCA, EA",1,Units/Month
 "1/Second",MCA,1,Units/Second
 "1/Year",MCA,1,Units/Year
@@ -156,11 +159,12 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "10 Unit",EA,10,Units
 "10 Unit Hours",EA,10,Unit Hours
 "10 Units",EA,10,Units
-"10 day",EA,10,Day
+"10 day",EA,10,Days
 "100","MCA, EA",100,Units
 "100 ",EA,100,Units
 "100 /Day",EA,100,Units/Day
 "100 /Hour",EA,100,Units/Hour
+"100 /Minute",EA,100,Units/Minute
 "100 /Month",EA,100,Units/Month
 "100 API Calls",EA,100,Requests
 "100 Authentications",EA,100,Authentications
@@ -192,12 +196,15 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "100 Unit",EA,100,Units
 "100 Units",EA,100,Units
 "100 Users",EA,100,Users
+"100/Hour",MCA,100,Units/Hour
 "100/Month",MCA,100,Units/Month
 "1000",EA,1000,Units
 "1000 ",EA,1000,Units
 "1000 /Day",EA,1000,Units/Day
 "1000 /Hour",EA,1000,Units/Hour
+"1000 /Minute",EA,1000,Units/Minute
 "1000 /Month",EA,1000,Units/Month
+"1000 /Year",EA,1000,Units/Year
 "1000 APIs",EA,1000,APIs
 "1000 Activity Runs",EA,1000,Runs
 "1000 Checks",EA,1000,Checks
@@ -289,7 +296,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "10000000000 ",EA,10000000000,Units
 "100000000000",EA,100000000000,Units
 "100000000000 ",EA,100000000000,Units
-"10000s",MCA,1,S
+"10000s",MCA,1,Units
 "100K",MCA,100000,Units
 "1024 GB",EA,1024,GB
 "102400 TiB/Hour",EA,102400,TiB/Hour
@@ -301,7 +308,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "128 MB","MCA, EA",128,MB
 "150 Hours",EA,150,Hours
 "1B",MCA,1000000000,Units
-"1K",MCA,1000,Units
+"1K","MCA, EA",1000,Units
 "1K/Hour",MCA,1000,Units/Hour
 "1K/Month",MCA,1000,Units/Month
 "1M","MCA, EA",1000000,Units
@@ -361,7 +368,9 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "MB/month",MCA,1,MB/month
 "Minute(s)","MCA, EA",1,Minutes
 "Per Call","MCA, EA",1,Calls
+"Per Request",MCA,1,Requests
 "Unassigned",EA,1,Units
+"Unit",MCA,1,Units
 "Units",MCA,1,Units
 "per Privacy Subject Rights Request",MCA,1,Requests
 "print job",MCA,1,Requests
