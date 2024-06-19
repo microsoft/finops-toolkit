@@ -91,7 +91,7 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 ## ⏩ Next steps
 
 - [Data analysis and showback](../understand/reporting.md)
-- [Managing shared costs](../understand/shared-cost.md)
+- [Cost Allocation](../understand/allocation.md)
 
 <br>
 

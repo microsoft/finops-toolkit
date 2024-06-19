@@ -60,7 +60,7 @@ Starting with the "Architecting for Cloud" capability within the FinOps Framewor
 
 - **Utilize Azure Well-Architected Review:** Conduct Azure [Well-Architected Reviews](https://learn.microsoft.com/assessments/azure-architecture-review/) for workloads deployed in Azure. Evaluate workloads against the five pillars of WAF to identify areas for improvement.
 
-- **Implement cost management practices:** Review and incorporate CAF's [cost management practices](https://learn.microsoft.com/azure/cloud-adoption-framework/get-started/manage-costs) into architectural designs, such as right-sizing resources, [leveraging reserved instances](docs/_docs/framework/capabilities/optimize/commitment-discounts.md), and implementing cost allocation mechanisms. Use Azure Cost Management + Billing to monitor and optimize costs.
+- **Implement cost management practices:** Review and incorporate CAF's [cost management practices](https://learn.microsoft.com/azure/cloud-adoption-framework/get-started/manage-costs) into architectural designs, such as right-sizing resources, [leveraging reserved instances](docs/_docs/framework/capabilities/optimize/rate-optimization.md), and implementing cost allocation mechanisms. Use Azure Cost Management + Billing to monitor and optimize costs.
 
 - **Establish governance and compliance:** Establish [governance mechanisms](https://learn.microsoft.com/azure/cloud-adoption-framework/govern/monitor-cloud-governance) and compliance controls to ensure adherence to organizational policies, regulatory requirements, and industry standards. Use Azure Governance and Azure Blueprints for policy enforcement and compliance automation.
 
@@ -93,8 +93,8 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 Related FinOps capabilities:
 
-- [Workload optimization](docs/_docs/framework/capabilities/optimize/workloads.md)
-- [Rate optimization](docs/_docs/framework/capabilities/optimize/rates.md)
+- [Workload optimization](../understand/workloads.md)
+- [Rate optimization](../understand/rates.md)
 
 <br>
 
