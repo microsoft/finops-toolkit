@@ -165,12 +165,24 @@ Legend:
 📒 Azure Monitor workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
+**May**:
+> 1. 🔹 Reservations Recommendations:<br>
+> New Tab: We've added a new tab specifically for Reservations recommendations. <br>This tab includes a handy **Break-Even Point** feature, allowing you to prioritize recommendations that will reach their break-even point sooner.
+> > :warning: **Permissions**: Please note, this tab now requires Enterprise Admin or Billing Profile Reader permissions. We have kept the old tab for the time being to ensure a smooth transition.
+> 2. 🔹 Sustainability: <br>
+> Redesigned Tab: The sustainability tab has been completely redesigned with an improved layout, making it easier to understand the provided recommendations.
+> 3. 🔹 Networking Tab: <br>
+> Query Improvement: The Public IP Addresses query has been enhanced to ignore dynamic IPs, ensuring more accurate results.
+> 4. 🔹 Top 10 Services:<br>
+> Web App Query Update: The Web App query now ignores the free tier, providing a clearer picture of your top services.
+
+> **April**:
 > ➕ Added:
-> 1️⃣🕵️‍♂️ Identify Idle ExpressRoute Circuits: Now, easily pinpoint and optimize inactive ExpressRoute circuits to streamline costs.
-> 2️⃣ 📊Routing Preference for Public IP Addresses: Gain insights into the routing preferences for your public IP addresses to optimize network performance.
-> 3️⃣ 🥧Commitment Discount Savings Summary: Explore a new pie chart summarizing commitment discount savings, providing a clear overview of cost-saving opportunities.
-> 4️⃣ 💰DDoS-enabled Public IP Addresses Query: Quickly view public IP addresses with DDoS protection enabled and compare if it would be cheaper to enable DDoS to the vNet instead.
-> 5️⃣ 💡Azure Hybrid Benefit for SQL Database Elastic Pools: Leverage new queries to identify Azure Hybrid Benefit usage for SQL Database elastic pools, maximizing cost efficiencies.
+> 1. 1️⃣🕵️‍♂️ Identify Idle ExpressRoute Circuits: Now, easily pinpoint and optimize inactive ExpressRoute circuits to streamline costs.
+> 2. 2️⃣ 📊Routing Preference for Public IP Addresses: Gain insights into the routing preferences for your public IP addresses to optimize network performance.
+> 3. 3️⃣ 🥧Commitment Discount Savings Summary: Explore a new pie chart summarizing commitment discount savings, providing a clear overview of cost-saving opportunities.
+>4.  4️⃣ 💰DDoS-enabled Public IP Addresses Query: Quickly view public IP addresses with DDoS protection enabled and compare if it would be cheaper to enable DDoS to the vNet instead.
+> 5. 5️⃣ 💡Azure Hybrid Benefit for SQL Database Elastic Pools: Leverage new queries to identify Azure Hybrid Benefit usage for SQL Database elastic pools, maximizing cost efficiencies.
 
 🖥️ PowerShell
 {: .fs-5 .fw-500 .mt-4 mb-0 }
