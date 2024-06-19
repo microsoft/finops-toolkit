@@ -3,10 +3,11 @@ title: FinOps education and enablement
 description: This article helps you understand the FinOps education and enablement capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 06/06/2024
-ms.topic: conceptual
+ms.date: 06/11/2024
+ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
+# customer intent: As a FinOps practitioner, I want to understand the FinOps education and enablement capability so that I can implement that in the Microsoft cloud.
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -22,9 +23,9 @@ This article helps you understand the FinOps education and enablement capability
 
 Identify and share available training content with stakeholders. Create a central repository for training resources and provide introductory material that aligns with your FinOps processes.
 
-Consider marketing initiatives to drive awareness, encourage discussion and sharing lessons learned, or get people actively participating and learning (for example, hackathon or innovation sprint). Focus on the value FinOps brings and share data from your early successes.
+Consider marketing initiatives to drive awareness, encourage discussion, and sharing lessons learned, or get people actively participating and learning (for example, hackathon or innovation sprint). Focus on the value FinOps brings and share data from your early successes.
 
-Provide a direct channel to get help and support as people are learning. Be responsive and establish a feedback loop to learn from help and support initiatives.
+To learn from help and support initiatives, provide a direct channel to get help and support as people are learning. Be responsive and establish a feedback loop.
 
 By formalizing FinOps education and enablement, stakeholders develop the knowledge and skills needed to effectively manage and optimize cloud usage and costs. Organizations see:
 
@@ -41,12 +42,12 @@ Implementing a plan for FinOps education and enablement is like most other train
 - If you're new to training and development, research common approaches and best practices.
 - Use existing online resources from [Microsoft](https://azure.microsoft.com/solutions/finops), [FinOps Foundation](https://finops.org/), and others.
 - Research and build targeted content and marketing strategies around common pain points experienced by your organization.
-  - Consider focusing on a few key areas of interest to make more progress.
+  - To make more progress, consider focusing on a few key areas of interest.
   - Experiment with different lightweight approaches to see what works best within your organization.
 - Target the core areas that are critical for FinOps, like:
   - Cross-functional collaboration between finance, engineering, and business teams.
   - Cloud-specific knowledge and terminology.
-  - Continuous improvement best practices around monitoring, analyzing, and optimizing cloud usage and costs.
+  - Best practices for continuous improvement around monitoring, analyzing, and optimizing cloud usage and costs.
 - Consider activities like formal training programs (for example, [FinOps Foundation training](https://learn.finops.org/)), on-the-job training, mentoring, coaching, and self-directed learning.
 - Explore targeted learning tools that could help accelerate efforts.
 - Use available collaboration tools like Teams, Viva Engage, and SharePoint.
@@ -63,7 +64,7 @@ At this point, you have a central repository for training content and targeted i
 - Expand coverage to more or all capabilities and document processes and key contacts.
 - Track telemetry and establish a feedback loop to learn from learning resources and help and support workflows.
   - Review findings regularly and factor into future plans.
-- Consider establishing an official internal support channel to provide help and support.
+- To provide help and support, consider establishing an official internal support channel.
 - Seek out and engage with stakeholders within your organization, including senior level sponsorship and cultivated supporters to build momentum.
 - Identify people with passion for cost optimization and data-driven decision making to be part of the [FinOps steering committee](./structure.md).
 
@@ -86,7 +87,7 @@ Related FinOps capabilities:
 - [Establishing a FinOps decision and accountability structure](./structure.md)
 - [Establishing a FinOps culture](./culture.md)
 
-Additional resources:
+Other resources:
 
 - [Interactive product guides](https://aka.ms/finops/guides)
 - [FinOps review assessment](https://aka.ms/finops/review)

@@ -3,10 +3,11 @@ title: Onboarding workloads
 description: This article helps you understand the onboarding workloads capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 06/06/2024
-ms.topic: conceptual
+ms.date: 06/12/2024
+ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
+# customer intent: As a FinOps practitioner, I want to understand the onboarding workloads capability so that I can implement it in the Microsoft Cloud.
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -42,9 +43,9 @@ Onboarding projects is an internal process that depends solely on your technical
   - Introduce new stakeholders to the FinOps Framework by having them review [What is FinOps](../../what-is-finops.md).
   - Help them learn your culture and processes.
   - Determine if you have the budget.
-    - Ensure the team runs through the [Forecasting capability](../quantify/forecasting.md) to estimate costs.
+    - To estimate costs, ensure the team runs through the [Forecasting capability](../quantify/forecasting.md).
     - Evaluate whether the budget has capacity for the estimated cost.
-    - Request department heads re-prioritize existing projects to find capacity either by using capacity from under-utilized projects or by de-prioritizing existing projects.
+    - Request department heads reprioritize existing projects to find capacity either by using capacity from under-utilized projects or by deprioritizing existing projects.
     - Escalate through leadership as needed until budget capacity is established.
     - Consider updating forecasts within the scope of the budget changes to ensure feasibility.
 
@@ -56,7 +57,7 @@ At this point, you have a simple process where stakeholders are introduced to Fi
 
 - Automate the onboarding process.
   - Consider requiring simple FinOps training.
-  - Consider budget change request and approval process that automates re-prioritization and change notification to stakeholders.
+  - Consider budget change request and approval process that automates reprioritization and change notification to stakeholders.
 - Introduce technical feasibility into the approval process. Some considerations to include:
   - Cost efficiency – Implementation/migration, infrastructure, support
   - Resiliency – Performance, reliability, security

@@ -3,10 +3,11 @@ title: Measuring unit costs
 description: This article helps you understand the measuring unit costs capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 06/06/2024
-ms.topic: conceptual
+ms.date: 06/12/2024
+ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
+# customer intent: As a FinOps practitioner, I want to understand the measuring unit costs capability so that I can implement it in the Microsoft Cloud.
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -20,7 +21,7 @@ This article helps you understand the measuring unit costs capability within the
 
 **Measuring unit costs refers to the process of calculating the cost of a single unit of a business that can show the business value of the cloud.**
 
-Identify what a single unit is for your business – like a sale transaction for an ecommerce site or a user for a social app. Map each unit to the supporting cloud services that support it. Split the cost of shared infrastructure with utilization data to quantify the total cost of each unit.
+Identify what a single unit is for your business – like a sale transaction for an ecommerce site or a user for a social app. Map each unit to the supporting cloud services that support it. To quantify the total cost of each unit, split the cost of shared infrastructure with utilization data.
 
 Measuring unit costs provides insights into profitability and allows organizations to make data-driven business decisions regarding cloud investments. Unit economics is what ties the cloud to measurable business value.
 
@@ -47,17 +48,17 @@ Measuring unit costs isn't a simple task. Unit economics requires a deep underst
   - If you don't see the data you need in metrics, also check [logs and traces in Azure Monitor](/azure/azure-monitor/overview#data-platform.md). It might not be a direct correlation to usage but might be able to give you some indication of usage.
 - Use service-specific APIs to get detailed usage telemetry.
   - Every service uses Azure Monitor for a core set of logs and metrics. Some services also provide more detailed monitoring and utilization APIs to get more details than are available in Azure Monitor. Explore [Azure service documentation](/azure) to find the right API for the services you use.
-- Using the data you've collected, quantify the percentage of usage coming from each unit.
-  - Use pricing and usage data to facilitate this effort. It's typically best done after [Data ingestion and normalization](../understand/ingestion.md) due to the high amount of data required to calculate accurate unit costs.
+- Using the data you collected, quantify the percentage of usage coming from each unit.
+  - Use pricing and usage data to facilitate this effort. It's typically best to do after [Data ingestion and normalization](../understand/ingestion.md) due to the high amount of data required to calculate accurate unit costs.
   - Some amount of usage isn't mapped back to a unit. There are several ways to account for this cost, like distributing based on those known usage percentages or treating it as overhead cost that should be minimized separately.
 
 <br>
 
 ## Building on the basics
 
-- Automate any aspects of the unit cost calculation that haven't been fully automated.
+- Automate any aspects of the unit cost calculation that aren't fully automated.
 - Consider expanding unit cost calculations to include other costs, like external licensing, on-premises operational costs, and labor.
-- Build unit costs into business KPIs to maximize the value of the data you've collected.
+- Build unit costs into business KPIs to maximize the value of the data you collected.
 
 <br>
 
@@ -92,7 +93,7 @@ Related solutions:
 - [FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi)
 - [FinOps hubs](https://aka.ms/finops/hubs)
 
-Additional resources:
+Other resources:
 
 - [Azure pricing](https://azure.microsoft.com/pricing#product-pricing)
 

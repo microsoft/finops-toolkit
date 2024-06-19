@@ -3,10 +3,11 @@ title: Managing commitment-based discounts
 description: This article helps you understand the managing commitment-based discounts capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 06/06/2024
-ms.topic: conceptual
+ms.date: 06/12/2024
+ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
+# customer intent: As a FinOps practitioner, I want to understand the managing commitment-based discounts capability so that I can implement it in the Microsoft Cloud.
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -30,9 +31,9 @@ Adopting a commitment-based strategy allows organizations to reduce their overal
 
 ## Before you begin
 
-While you can save by using reservations and savings plans, there's also a risk that you may not end up using that capacity. You could end up under-utilizing the commitment and lose money. While losing money is rare, it's possible. We recommend starting small and making targeted, high-confidence decisions. We also recommend not waiting too long to decide on how to approach commitment-based discounts when you do have consistent usage because you're effectively losing money. Start small and learn as you go. But first, learn how [reservation](/azure/cost-management-billing/reservations/reservation-discount-application.md) and [savings plan](/azure/cost-management-billing/savings-plan/discount-application.md) discounts are applied.
+While you can save by using reservations and savings plans, there's also a risk that you might not end up using that capacity. You could end up under-utilizing the commitment and lose money. While losing money is rare, it's possible. We recommend starting small and making targeted, high-confidence decisions. We also recommend not waiting too long to decide on how to approach commitment-based discounts when you do have consistent usage because you're effectively losing money. Start small and learn as you go. But first, learn how [reservation](/azure/cost-management-billing/reservations/reservation-discount-application.md) and [savings plan](/azure/cost-management-billing/savings-plan/discount-application.md) discounts are applied.
 
-Before you purchase either a reservation or a savings plan, consider the usage you want to commit to. If you have high confidence, you maintain a specific level of usage for that type, SKU, and location, strongly consider starting with a reservation. For maximum flexibility, you can use savings plans to cover a wide range of compute costs by committing to a specific hourly spend instead of hourly usage.
+Consider the usage you want to commit to before you purchase either a reservation or a savings plan. If you have high confidence, you maintain a specific level of usage for that type, SKU, and location, strongly consider starting with a reservation. For maximum flexibility, you can use savings plans to cover a wide range of compute costs by committing to a specific hourly spend instead of hourly usage.
 
 <br>
 
@@ -56,7 +57,7 @@ After purchasing commitments, you can:
 
 ## Building on the basics
 
-At this point, you have commitment-based discounts in place. As you move beyond the basics, consider the following points:
+You have commitment-based discounts in place at this point. As you move beyond the basics, consider the following points:
 
 - Configure commitments to automatically renew for [reservations](/azure/cost-management-billing/reservations/reservation-renew.md) and [savings plans](/azure/cost-management-billing/savings-plan/renew-savings-plan.md).
 - Calculate cost savings for [reservations](/azure/cost-management-billing/reservations/calculate-ea-reservations-savings.md) and [savings plans](/azure/cost-management-billing/savings-plan/calculate-ea-savings-plan-savings.md).
@@ -98,7 +99,7 @@ Related solutions:
 - [Cost optimization workbook](../../toolkit/optimization-workbook/cost-optimization-workbook.md)
 - [FinOps hubs](https://aka.ms/finops/hubs)
 
-Additional resources:
+Other resources:
 
 - [Cloud Adoption Framework](/azure/cloud-adoption-framework/)
 - [Well-Architected Framework](/azure/well-architected/)

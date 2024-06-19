@@ -3,10 +3,11 @@ title: FinOps and intersecting frameworks
 description: This article helps you understand the FinOps and intersecting frameworks capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 06/06/2024
-ms.topic: conceptual
+ms.date: 06/11/2024
+ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
+#customer intent: As a FinOps practitioner, I want to understand the FinOps and intersecting frameworks capability so that I can implement it in the Microsoft Cloud.
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -26,7 +27,7 @@ Identify what frameworks and methodologies are used within your organization. Le
 
 ## Getting started
 
-Implementation of this capability is highly dependent on how your organization has adopted each of the following frameworks and methodologies and what tools you've selected for each. See the following articles for details:
+Implementation of this capability is highly dependent on how your organization adopted each of the following frameworks and methodologies and what tools you use for each. See the following articles for details:
 
 - [IT Asset Management (ITAM)](https://www.finops.org/framework/capabilities/finops-itam/) by FinOps Foundation
 - [Sustainability](https://www.finops.org/framework/capabilities/finops-sustainability/) by FinOps Foundation

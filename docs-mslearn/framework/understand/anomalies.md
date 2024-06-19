@@ -1,16 +1,15 @@
 ---
 title: Managing anomalies
 description: This article helps you understand the managing anomalies capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
----
-
-<!--
 author: bandersmsft
 ms.author: banders
 ms.date: 06/06/2024
-ms.topic: conceptual
+ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
--->
+# customer intent: As a FinOps practitioner, I want to understand the managing anomalies capability so that I can implement it in the Microsoft Cloud.
+---
+
 
 <!-- markdownlint-disable-next-line MD025 -->
 # Managing anomalies
@@ -23,9 +22,9 @@ This article helps you understand the managing anomalies capability within the F
 
 **Managing anomalies refers to the practice of detecting and addressing abnormal or unexpected cost and usage patterns in a timely manner.**
 
-Use automated tools to detect anomalies and notify stakeholders. Review usage trends periodically to reveal anomalies automated tools may have missed.
+Use automated tools to detect anomalies and notify stakeholders. Review usage trends periodically to reveal anomalies that automated tools might miss.
 
-Investigate changes in application behaviors, resource utilization, and resource configuration to uncover the root cause of the anomaly.
+To uncover the root cause of the anomaly, investigate changes in application behaviors, resource utilization, and resource configuration.
 
 With a systematic approach to anomaly detection, analysis, and resolution, organizations can minimize unexpected costs that impact budgets and business operations. And, they can even identify and prevent security and reliability incidents that can surface in cost data.
 
@@ -36,16 +35,16 @@ With a systematic approach to anomaly detection, analysis, and resolution, organ
 When you first start managing cost in the cloud, you use the native tools available in the portal.
 
 - Start with proactive alerts.
-  - [Subscribe to anomaly alerts](/azure/cost-management-billing/understand/analyze-unexpected-charges#create-an-anomaly-alert.md) for each subscription in your environment to receive email alerts when an unusual spike or drop has been detected in your normalized usage based on historical usage.
-  - Consider [subscribing to scheduled alerts](/azure/cost-management-billing/costs/save-share-views#subscribe-to-scheduled-alerts.md) to share a chart of the recent cost trends with stakeholders. It can help you drive awareness as costs change over time and potentially catch changes the anomaly model may have missed.
-  - Consider [creating a budget in Cost Management](/azure/cost-management-billing/costs/tutorial-acm-create-budgets.md) to track that specific scope or workload. Specify filters and set alerts for both actual and forecast costs for finer-grained targeting.
-- Review costs periodically, using detailed cost breakdowns, usage analytics, and visualizations to identify potential anomalies that may have been missed.
+  - [Subscribe to anomaly alerts](/azure/cost-management-billing/understand/analyze-unexpected-charges#create-an-anomaly-alert.md) for each subscription in your environment to receive email alerts when an unusual spike or drop is detected in your normalized usage based on historical usage.
+  - Consider [subscribing to scheduled alerts](/azure/cost-management-billing/costs/save-share-views#subscribe-to-scheduled-alerts.md) to share a chart of the recent cost trends with stakeholders. It can help you drive awareness as costs change over time and potentially catch changes the anomaly model might miss.
+  - To track that specific scope or workload, consider [creating a budget in Cost Management](/azure/cost-management-billing/costs/tutorial-acm-create-budgets.md). Specify filters and set alerts for both actual and forecast costs for finer-grained targeting.
+- Review costs periodically, using detailed cost breakdowns, usage analytics, and visualizations to identify potential anomalies that might get missed.
   - Use smart views in Cost analysis to [review anomaly insights](/azure/cost-management-billing/understand/analyze-unexpected-charges#identify-cost-anomalies.md) that were automatically detected for each subscription.
   - Use customizable views in Cost analysis to [manually find unexpected changes](/azure/cost-management-billing/understand/analyze-unexpected-charges#manually-find-unexpected-cost-changes.md).
   - Consider [saving custom views](/azure/cost-management-billing/costs/save-share-views.md) that show cost over time for specific workloads to save time.
   - Consider creating more detailed usage reports using [Power BI](https://aka.ms/ftk/pbi).
 - Once an anomaly is identified, take appropriate actions to address it.
-  - Review the anomaly details with the engineers who manage the related cloud resources. Some auto-detected "anomalies" are planned or at least known resource configuration changes as part of building and managing cloud services.
+  - Review the anomaly details with the engineers who manage the related cloud resources. Some autodetected "anomalies" are planned or at least known resource configuration changes as part of building and managing cloud services.
   - If you need lower-level usage details, review resource utilization in [Azure Monitor metrics](/azure/azure-monitor/essentials/metrics-getting-started.md).
   - If you need resource details, review [resource configuration changes in Azure Resource Graph](/azure/governance/resource-graph/how-to/get-resource-changes.md).
 

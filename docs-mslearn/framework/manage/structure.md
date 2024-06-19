@@ -4,9 +4,11 @@ description: This article helps you understand the establishing a FinOps decisio
 author: bandersmsft
 ms.author: banders
 ms.date: 06/06/2024
-ms.topic: conceptual
+ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
+# customer intent: As a FinOps practitioner, I want to understand the FinOps decision and accountability structure so that I can implement it in the Microsoft Cloud.
+
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -30,14 +32,14 @@ Establishing a FinOps steering committee can help stakeholders within an organiz
 
 ## Getting started
 
-When you first start managing cost in the cloud, you may not need to build a FinOps steering committee. The need for a more formal process increases as your organization grows and adopts the cloud more. Consider the following starting points:
+When you first start managing cost in the cloud, you might not need to build a FinOps steering committee. The need for a more formal process increases as your organization grows and adopts the cloud more. Consider the following starting points:
 
 - Start a recurring meeting with representatives from finance, business, and engineering teams.
   - If you have a central team responsible for cost management, consider having them chair the committee.
 - Discuss and document the roles and responsibilities of each committee member.
-  - FinOps Foundation proposes one potential [responsibility assignment matrix (RACI model)](https://www.finops.org/wg/adopting-finops/#accountability-and-expectations-by-team-raci--daci-modeling).
+  - FinOps Foundation proposes one potential responsibility assignment matrix model [(RACI model)](https://www.finops.org/wg/adopting-finops/#accountability-and-expectations-by-team-raci--daci-modeling).
 - Collaborate on [planning your first FinOps iteration](../../conduct-an-iteration.md).
-  - Make notes where there are differing perspectives and opinions. Discuss those topics for alignment in the future.
+  - Make notes where there are differing perspectives and opinions. Discuss those subjects for alignment in the future.
   - Start small and find common ground to enable the committee to execute a successful iteration. It's OK if you don't solve every problem.
   - Document decisions and outline processes, key contacts, and required activities. Documentation can be a small checklist in early stages. Focus on winning as one rather than documenting everything and executing perfectly.
 
@@ -48,7 +50,7 @@ When you first start managing cost in the cloud, you may not need to build a Fin
 At this point, you have a regular cadence of meetings, but not much structure. As you move beyond the basics, consider the following points:
 
 - Review the [FinOps Framework guidance](https://www.finops.org/framework/capabilities/decision-accountability-structure/) for how to best scale out your FinOps steering committee efforts.
-- Review the Cloud Adoption Framework guidance for tips on how to [drive organizational alignment](/azure/cloud-adoption-framework/organize.md) on a larger scale. You may find opportunities to align with other governance initiatives.
+- Review the Cloud Adoption Framework guidance for tips on how to [drive organizational alignment](/azure/cloud-adoption-framework/organize.md) on a larger scale. You might find opportunities to align with other governance initiatives.
 
 <br>
 
