@@ -14,7 +14,7 @@ ms.service: finops
 ms.reviewer: micflan
 ---
 
-<span class="fs-9 d-block mb-4">FinOps Assessment</span>
+<span class="fs-9 d-block mb-4">FinOps assessment</span>
 This article helps you understand the FinOps assessment capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 {: .fs-6 .fw-300 }
 

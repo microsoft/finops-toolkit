@@ -15,8 +15,7 @@ Measure product and cloud performance and map to organizational KPIs to facilita
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [📏 Performance tracking and benchmarking](#-performance-tracking-and-benchmarking)
-- [🤔 Real-time decision making](#-real-time-decision-making)
+- [� Capabilities](#-capabilities)
 - [⏩ Next steps](#-next-steps)
 - [🧰 Related tools](#-related-tools)
 
@@ -26,18 +25,13 @@ Measure product and cloud performance and map to organizational KPIs to facilita
 
 <br>
 
-## 📏 Performance tracking and benchmarking
+## 📝 Capabilities
 
+- [Planning and estimating](./planning.md)
 - [Forecasting](./forecasting.md)
-- [Budget management](./budgeting.md)
-- [Measuring unit costs](./unit-economics.md)
-
-<br>
-
-## 🤔 Real-time decision making
-
-- [Managing anomalies](../understand/anomalies.md)
-- [Establishing a FinOps decision and accountability structure](../manage/structure.md)
+- [Budgeting](./budgeting.md)
+- [Benchmarking](./benchmarking.md)
+- [Unit economics](./unit-economics.md)
 
 <br>
 
@@ -45,10 +39,9 @@ Measure product and cloud performance and map to organizational KPIs to facilita
 
 Related FinOps capabilities:
 
-- [Understanding cloud usage and cost](../understand/README.md)
-- [Rate optimization](../optimize/README.md#rate-optimization)
-- [Usage optimization](../optimize/README.md#usage-optimization)
-- [Organizational alignment](../manage/README.md)
+- [Understand cloud usage and cost](../understand/README.md)
+- [Optimize cloud usage and cost](../optimize/README.md)
+- [Manage the FinOps practice](../manage/README.md)
 
 <br>
 

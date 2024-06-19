@@ -102,7 +102,7 @@ At this point, you have a data pipeline and are ingesting data into a central da
     - [Price sheets](https://learn.microsoft.com/rest/api/cost-management/price-sheet) for organizational pricing for Microsoft Customer Agreement accounts.
     - [Price sheets](https://learn.microsoft.com/rest/api/consumption/price-sheet/get) for organizational pricing for Enterprise Agreement accounts.
     - [Balance summary](https://learn.microsoft.com/rest/api/consumption/balances/get-by-billing-account) for Enterprise Agreement monetary commitment balance.
-  - Commitment-based discounts
+  - commitment discounts
     - [Reservation details](https://learn.microsoft.com/rest/api/cost-management/generate-reservation-details-report) for recommendation details.
     - [Benefit utilization summaries](https://learn.microsoft.com/rest/api/cost-management/generate-benefit-utilization-summaries-report) for savings plans.
   - Utilization and efficiency

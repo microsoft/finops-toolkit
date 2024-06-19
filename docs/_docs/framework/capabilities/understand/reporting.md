@@ -34,9 +34,7 @@ This article helps you understand the reporting and analytics capability within 
 ---
 
 <a name="definition"></a>
-**Reporting and analytics refers to the analysis of cloud data and creation of reports to gain insights into usage and spend patterns, identify opportunities for improvement, and support informed decision-making about cloud resources. 
-
- **
+**Reporting and analytics refers to the analysis of cloud data and creation of reports to gain insights into usage and spend patterns, identify opportunities for improvement, and support informed decision-making about cloud resources.**
 {: .fs-6 .fw-300 }
 
 Provides transparency and visibility into cloud usage and costs across different departments, teams, and projects. Organizational alignment requires cost allocation metadata and hierarchies, and enabling visibility requires structured access control against these hierarchies.
@@ -165,8 +163,8 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 Related FinOps capabilities:
 
 - [Forecasting](../quantify/forecasting.md)
-- [Managing anomalies](./anomalies.md)
-- [Budget management](../quantify/budgeting.md)
+- [Anomaly management](./anomalies.md)
+- [Budgeting](../quantify/budgeting.md)
 
 <br>
 

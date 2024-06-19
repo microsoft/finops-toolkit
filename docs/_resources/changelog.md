@@ -72,6 +72,10 @@ Legend:
 > ➕ Added:
 >
 > 1. Documented the [FOCUS export dataset](../_docs/focus/metadata.md) to align to the FOCUS metadata specification.
+>
+> ✏️ Changed:
+>
+> 1. Updated [FinOps Framework guidance](../_docs/framework/README.md) to account for the 2024 updates.
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }

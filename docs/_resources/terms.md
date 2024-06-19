@@ -51,17 +51,17 @@ See also: [Microsoft Partner Agreement](#mpa-or-microsoft-partner-agreement)
 
 <br>
 
-#### Commitment-based discounts
+#### Commitment discounts
 
-"Commitment-based discounts" refers to any discounts you can obtain by pre-committing to a specific amount of usage for a predetermined amount of time, like reservations, savings plans, or committed use discounts (CUDs).
+"Commitment discounts" refers to any discounts you can obtain by pre-committing to a specific amount of usage for a predetermined amount of time, like reservations, savings plans, or committed use discounts (CUDs).
 
 #### Commitment discounts
 
-See [Commitment-based discounts](#commitment-based-discounts).
+See [Commitment discounts](#commitment-discounts).
 
 #### Commitment savings
 
-"Commitment savings" refers to the total amount saved compared to negotiated, on-demand rates. This only includes [commitment-based discounts](#commitment-based-discounts). To include negotiated discounts, use [Discount savings](#discount-savings).
+"Commitment savings" refers to the total amount saved compared to negotiated, on-demand rates. This only includes [commitment discounts](#commitment-discounts). To include negotiated discounts, use [Discount savings](#discount-savings).
 
 <br>
 
@@ -69,7 +69,7 @@ See [Commitment-based discounts](#commitment-based-discounts).
 
 #### Discount savings
 
-"Discount savings" refers to the total amount saved compared to retail (PAYG) rates. This includes [negotiated](#negotiated-discounts) and [commitment-based discounts](#commitment-based-discounts).
+"Discount savings" refers to the total amount saved compared to retail (PAYG) rates. This includes [negotiated](#negotiated-discounts) and [commitment discounts](#commitment-discounts).
 
 <br>
 

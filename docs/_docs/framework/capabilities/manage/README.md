@@ -28,12 +28,13 @@ Establish your FinOps practice and drive organizational accountability.
 ## 📝 Capabilities
 
 - [FinOps education and enablement](./education.md)
-- [Establishing a FinOps culture](./culture.md)
-- [Establishing a FinOps decision and accountability structure](./structure.md)
+- [FinOps practice operations](./operations.md)
 - [Onboarding workloads](./onboarding.md)
 - [Cloud policy and governance](./policy.md)
-- [Chargeback and finance integration](./invoicing-chargeback.md)
-- [FinOps and intersecting frameworks](./intersecting-disciplines.md)
+- [Invoicing and chargeback](./invoicing-chargeback.md)
+- [FinOps assessment](./assessment.md)
+- [FinOps tools and services](./tools-and-services.md)
+- [Intersecting frameworks](./intersecting-disciplines.md)
 
 <br>
 
@@ -41,11 +42,9 @@ Establish your FinOps practice and drive organizational accountability.
 
 Related FinOps capabilities:
 
-- [Understanding cloud usage and cost](../understand/README.md)
-- [Performance tracking + benchmarking](../quantify/README.md#performance-tracking-and-benchmarking)
-- [Real-time decision making](../quantify/README.md#real-time-decision-making)
-- [Rate optimization](../optimize/README.md#rate-optimization)
-- [Usage optimization](../optimize/README.md#usage-optimization)
+- [Understand cloud usage and cost](../understand/README.md)
+- [Quantify business value](../quantify/README.md)
+- [Optimize cloud usage and cost](../optimize/README.md)
 
 <br>
 

@@ -2,8 +2,8 @@
 layout: default
 grand_parent: FinOps Framework
 parent: Manage
-title: FinOps Practice Operations
-permalink: /framework/capabilities/manage/practice-ops
+title: FinOps practice operations
+permalink: /framework/capabilities/manage/operations
 nav_order: 1
 description: This article helps you understand the FinOps practice operations capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 ---
@@ -28,7 +28,6 @@ This article helps you understand the FinOps Practice Operations capability with
 - [🏗️ Building on the basics](#️-building-on-the-basics)
 - [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
 - [⏩ Next steps](#-next-steps)
-- [ms.reviewer: micflan](#msreviewer-micflan)
 
 </details>
 
@@ -90,7 +89,7 @@ At this point, you have a regular cadence of meetings with a steering committee 
 - Brainstorm metrics and tactics that can demonstrate value and inspire different stakeholders through effective communication.
 - Consider tools that can help self-promote your successes, like reports and dashboards.
 - Share regular updates that celebrate small wins to demonstrate value.
-- Look for opportunities to scale through other organizational priorities and initiatives, including [intersecting disciplines](docs\_docs\framework\capabilities\manage\intersecting-disciplines.md).
+- Look for opportunities to scale through other organizational priorities and initiatives, including [intersecting disciplines](docs/_docs/framework/capabilities/manage/intersecting-disciplines.md).
 - Explore ways to "go big" and launch a fully supported FinOps practice with a central team. Learn from other successful initiatives within the organization.
 - Provide continuous [training and skill development](./education.md) for team members.
 - Regularly review and refine the FinOps strategy to ensure alignment with organizational objectives.
