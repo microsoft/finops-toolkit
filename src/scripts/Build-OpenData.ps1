@@ -3,15 +3,37 @@
 
 <#
     .SYNOPSIS
-    Compiles CSV contents into a PowerShell function.
+    Creates open data files and compiles contents into corresponding PowerShell functions.
+
+    .PARAMETER Name
+    Name of the data to build. Allowed = PricingUnits, Regions, ResourceTypes, Services. Default = * (all).
+
+    .PARAMETER Data
+    Indicates that data files should be generated. Only applies to resource types. Default = false, if -PowerShell is not specified.
+
+    .PARAMETER PowerShell
+    Indicates that PowerShell functions should be generated from data files. Default = true, unless -Data is specified.
+
+    .PARAMETER All
+    Indicates that all data files and PowerShell functions should be generated. Shortcut for -Data -PowerShell. Default = false.
+
+    .PARAMETER Test
+    Indicates that data tests should be run after the build completes. Default = false.
 
     .EXAMPLE
     ./Build-OpenData Services
 
     Generates a private Get-FinOpsServicesData PowerShell function from the contents of open-data/Services.csv.
 
-    .PARAMETER Name
-    Name of the CSV file to convert into a function. Default = *.
+    .EXAMPLE
+    ./Build-OpenData -Data
+
+    Generates data files for all applicable datasets.
+
+    .EXAMPLE
+    ./Build-OpenData -All
+
+    Generates data files and PowerShell functions for all datasets.
 
     .LINK
     https://github.com/microsoft/finops-toolkit/blob/dev/src/scripts/README.md#-build-opendata
@@ -19,8 +41,29 @@
 Param(
     [Parameter(Position = 0)]
     [string]
-    $Name = "*"
+    $Name = "*",
+
+    [switch]
+    $Data,
+
+    [switch]
+    $PowerShell,
+
+    [switch]
+    $All,
+
+    [switch]
+    $Test
 )
+
+if ($All)
+{
+    $Data = $PowerShell = $true
+}
+elseif (-not $Data -and -not $PowerShell)
+{
+    $PowerShell = $true
+}
 
 # Some columns may have numbers and strings. Use the following list to force them to be handled as string.
 $stringColumnNames = @('UnitOfMeasure')
@@ -80,7 +123,7 @@ $outDir = "$PSScriptRoot/../powershell"
 $srcDir = "$PSScriptRoot/../open-data"
 $svgDir = "$PSScriptRoot/../../docs/svg"
 
-if ($Name -eq "ResourceTypes" -or $Name -eq "*")
+if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
 {
     # Pull resource types from the Azure app
     # $azureAppMetadataDir = '<devops>/_git/AzureUX-Mobile?path=/AzureMobile/AzureMobile.Core/Resources'
@@ -93,6 +136,55 @@ if ($Name -eq "ResourceTypes" -or $Name -eq "*")
     #         -OutFile "$srcDir/$file" `
     #         -Headers @{ Authorization = "Bearer $($token.Token)" }
     # }
+
+    # Internal icon paths
+    $internalIconPath = "$PSScriptRoot/../../../portalfx/src/sdk/website/TypeScript/MsPortalImpl/Svg/Library"
+    $internalIcons = @{
+        BacklogPoly              = 'Polychromatic/Backlog.svg'
+        CloudService             = 'Polychromatic/CloudService.svg'
+        CommitPoly               = 'Polychromatic/Commit.svg'
+        Controls                 = 'Polychromatic/Controls.svg'
+        Cubes                    = 'Polychromatic/Cubes.svg'
+        CloudUpload              = 'CloudUpload.svg'
+        Database                 = 'Polychromatic/Database.svg'
+        Globe                    = 'Polychromatic/Globe.svg'
+        Grid                     = 'Polychromatic/Grid.svg'
+        Key                      = 'Polychromatic/Key.svg'
+        LogoMicrosoftSquares     = 'Logos/MicrosoftSquares.svg'
+        Notification             = 'Polychromatic/Notification.svg'
+        PolyApiManagement        = 'Polychromatic/ApiManagement.svg'
+        PolyAppInsights          = 'Polychromatic/AppInsights.svg'
+        PolyAutomation           = 'Polychromatic/Automation.svg'
+        PolyAvailabilitySet      = 'Polychromatic/AvailabilitySet.svg'
+        PolyBackup               = 'Polychromatic/Backup.svg'
+        PolyCdn                  = 'Polychromatic/Cdn.svg'
+        PolyCertificate          = 'Polychromatic/Certificate.svg'
+        PolyCustomDomain         = 'Polychromatic/CustomDomain.svg'
+        PolyDashboard            = 'Polychromatic/Dashboard.svg'
+        PolyDiscs                = 'Polychromatic/Discs.svg'
+        PolyExtensions           = 'Polychromatic/Extensions.svg'
+        PolyGlobe                = 'Polychromatic/Globe.svg'
+        PolyIpAddress            = 'Polychromatic/IpAddress.svg'
+        PolyLoadBalancer         = 'Polychromatic/LoadBalancer.svg'
+        PolyNetworkInterfaceCard = 'Polychromatic/NetworkInterfaceCard.svg'
+        PolyLogAnalytics         = 'Polychromatic/LogAnalytics.svg'
+        PolyLogDiagnostics       = 'Polychromatic/LogDiagnostics.svg'
+        PolyProductionReadyDb    = 'Polychromatic/ProductionReadyDb.svg'
+        PolyResourceGroup        = 'Polychromatic/ResourceGroup.svg'
+        PolySqlDataBaseServer    = 'Polychromatic/SqlDataBaseServer.svg'
+        PolySqlDatabase          = 'Polychromatic/SqlDatabase.svg'
+        PolySupport              = 'Polychromatic/Support.svg'
+        PolyTrafficManager       = 'Polychromatic/TrafficManager.svg'
+        PolyVersions             = 'Polychromatic/Versions.svg'
+        PolyVirtualNetwork       = 'Polychromatic/VirtualNetwork.svg'
+        PolyWebHosting           = 'Polychromatic/WebHosting.svg'
+        PolyWebSlots             = 'Polychromatic/WebSlots.svg'
+        PolyWebTest              = 'Polychromatic/WebTest.svg'
+        Storage                  = 'Polychromatic/Storage.svg'
+        TeamProject              = 'Polychromatic/TeamProject.svg'
+        VirtualMachine           = 'Polychromatic/VirtualMachine.svg'
+        Website                  = 'Polychromatic/Website.svg'
+    }
 
     # SVG CSS classes are defined in <portalfx>\src\SDK\Website\Less\MsPortalImpl\Base\Base.Images.less
     $svgCssClasses = @(
@@ -156,7 +248,32 @@ if ($Name -eq "ResourceTypes" -or $Name -eq "*")
                     Write-Warning "Using fallback cube icon for $resourceType"
                 }
             }
-            $icon = $override.icon ?? $asset.icon.data ?? $oldIcon ?? $defaultIcon
+            elseif ((-not $override.icon) -and $asset.icon.type -ne 'Custom' -and $asset.icon.type -ne 'PolyResourceDefault')
+            {
+                # Check for local internal icon
+                $localInternalIconPath = "$internalIconPath/$($internalIcons[$asset.icon.type])"
+                if ($localInternalIconPath.EndsWith('.svg'))
+                {
+                    if (Get-Item $localInternalIconPath)
+                    { 
+                        $internalIcon = Get-Content $localInternalIconPath -Raw 
+                    }
+                    else
+                    {
+                        Write-Warning "Internal $($asset.icon.type) icon not found"
+                    }
+                }
+
+                if ($oldIcon -and ($oldIcon -ne $defaultIcon))
+                {
+                    Write-Warning "Resource uses internal $($asset.icon.type) icon; using old icon for $resourceType"
+                }
+                elseif (-not $internalIcon)
+                {
+                    Write-Warning "Resource uses internal $($asset.icon.type) icon; using default icon for $resourceType"
+                }
+            }
+            $icon = $override.icon ?? $asset.icon.data ?? $internalIcon ?? $oldIcon ?? $defaultIcon
             if ($icon)
             {
                 # replace SVG classes with their fill equivalents
@@ -256,6 +373,12 @@ if ($Name -eq "ResourceTypes" -or $Name -eq "*")
                 return processResourceType $_.type @{} $_
             }
         }
+        elseif ($asset.resourceType.resourceTypeName.StartsWith('private.') -or $asset.resourceType.resourceTypeName -eq 'providers.test')
+        {
+            # Skip private and test resource types
+            Write-Warning "Skipping $($asset.resourceType.resourceTypeName)..."
+            return
+        }
         else
         {
             $resourceType = $asset.resourceType.resourceTypeName
@@ -288,15 +411,25 @@ if ($Name -eq "ResourceTypes" -or $Name -eq "*")
     # Write-Host ''
 }
 
-# Loop thru all datasets
-Get-ChildItem "$srcDir/*.csv" `
-| Where-Object { $_.Name -like "$Name.csv" }
-| ForEach-Object {
-    $file = $_
-    $dataType = $file.BaseName
-    $command = "Get-OpenData$($dataType.TrimEnd('s'))"
+# Generate PowerShell functions from data files
+if ($PowerShell)
+{
+    # Loop thru all datasets
+    Get-ChildItem "$srcDir/*.csv" `
+    | Where-Object { $_.Name -like "$Name.csv" }
+    | ForEach-Object {
+        $file = $_
+        $dataType = $file.BaseName
+        $command = "Get-OpenData$($dataType.TrimEnd('s'))"
+    
+        Write-Verbose "Generating $command from $dataType.csv..."
+        Write-Command -Command $command -File $file      | Out-File "$outDir/Private/$command.ps1"          -Encoding ascii -Append:$false
+        Write-Test -DataType $dataType -Command $command | Out-File "$outDir/Tests/Unit/$command.Tests.ps1" -Encoding ascii -Append:$false
+    }
+}
 
-    Write-Verbose "Generating $command from $dataType.csv..."
-    Write-Command -Command $command -File $file      | Out-File "$outDir/Private/$command.ps1"          -Encoding ascii -Append:$false
-    Write-Test -DataType $dataType -Command $command | Out-File "$outDir/Tests/Unit/$command.Tests.ps1" -Encoding ascii -Append:$false
+# Test the generated PowerShell functions
+if ($Test)
+{
+    & "$PSScriptRoot/Test-PowerShell.ps1" -Unit -Integration -Data
 }

@@ -427,6 +427,24 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "pedrocsousa",
+      "name": "Pedro Sousa",
+      "avatar_url": "https://avatars.githubusercontent.com/u/99349050?v=4",
+      "profile": "https://github.com/pedrocsousa",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "KevDLR",
+      "name": "Kevin De La Rosa",
+      "avatar_url": "https://avatars.githubusercontent.com/u/86437159?v=4",
+      "profile": "https://github.com/KevDLR",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "commitType": "docs",

@@ -52,14 +52,14 @@ Bicep Registry modules in the FinOps toolkit reuse common scaffolding in the `.s
 
 There are 2 ways to build bicep registry modules. To build all toolkit modules and templates, run:
 
-```console
+```powershell
 cd $repo/src/scripts
 ./Build-Toolkit
 ```
 
 To build only a single module, run:
 
-```console
+```powershell
 cd $repo/src/scripts
 ./Build-Bicep ..\bicep-registry\<module>
 ```
