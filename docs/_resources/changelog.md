@@ -86,7 +86,8 @@ Legend:
 >
 > ✏️ Changed
 >
-> 1. Changed the **Tags** column to default to `{}` when empty to facilitate tag expansion ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
+> 1. Renamed the "Commitment discounts" report to "Rate optimization" to align to the FinOps Framework 2024 updates.
+> 2. Changed the **Tags** column to default to `{}` when empty to facilitate tag expansion ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
 
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -135,15 +136,15 @@ Legend:
 >
 > 1. Added `ResourceParentId`, `ResourceParentName`, and `ResourceParentType` columns to support the usage of the user-defined `cm-resource-parent` tag.
 > 2. Added `ToolkitVersion` and `ToolkitTool` columns to help quantify the cost of FinOps toolkit solutions.
-> 1. Added a DQ page to the [Commitment discounts report](../_reporting/power-bi/commitment-discounts.md#dq) for data quality validations. This page can be useful in identifying data gaps in Cost Management.
-> 2. Added `x_NegotiatedUnitPriceSavings` column to show the price reduction from negotiated discounts compared to the public, list price.
-> 3. Added `x_IsFree` column to indicate when a row represents a free charge (based on Cost Management data). This is used in data quality checks.
-> 4. Added `Tags` and `TagsAsJson` columns to both the **Usage details** and **Usage details amortized** tables in the [CostManagementTemplateApp report](../_reporting/power-bi/template-app.md) ([#625](https://github.com/microsoft/finops-toolkit/issues/625)).
+> 3. Added a DQ page to the [Commitment discounts report](../_reporting/power-bi/rate-optimization.md#dq) for data quality validations. This page can be useful in identifying data gaps in Cost Management.
+> 4. Added `x_NegotiatedUnitPriceSavings` column to show the price reduction from negotiated discounts compared to the public, list price.
+> 5. Added `x_IsFree` column to indicate when a row represents a free charge (based on Cost Management data). This is used in data quality checks.
+> 6. Added `Tags` and `TagsAsJson` columns to both the **Usage details** and **Usage details amortized** tables in the [CostManagementTemplateApp report](../_reporting/power-bi/template-app.md) ([#625](https://github.com/microsoft/finops-toolkit/issues/625)).
 >
 > 🛠️ Fixed:
 >
 > 1. Fixed numerous errors causing the [Cost Management connector report](../_reporting/power-bi/connector.md) to not load for MCA accounts.
-> 2. Fixed incorrect filter in the [Commitment discounts report](../_reporting/power-bi/commitment-discounts.md) ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
+> 2. Fixed incorrect filter in the [Commitment discounts report](../_reporting/power-bi/rate-optimization.md) ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
 > 3. Fixed data issue where Cost Management uses "1Year", "3Years", and "5Years" for the x_SkuTerm. Values should be 12, 36, and 60 ([#594](https://github.com/microsoft/finops-toolkit/issues/594)).
 > 4. Changed the data type for the `x_Month` column to be a date.
 > 5. Changed `x_SkuTerm` to be a whole number and to not summarize by default.
@@ -164,7 +165,7 @@ Legend:
 > 4. Changed all cost columns to use 2 decimal places.
 > 5. Changed all unit price columns to not summarize by default and use 3 decimal places.
 > 6. Changed the `x_PricingBlockSize` column to a whole number and not summarize by default.
-> 7. Renamed the **Coverage** pages in the [Commitment discounts report](../_reporting/power-bi/commitment-discounts.md) to **Recommendations**.
+> 7. Renamed the **Coverage** pages in the [Commitment discounts report](../_reporting/power-bi/rate-optimization.md) to **Recommendations**.
 
 📒 Azure Monitor workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -251,8 +252,8 @@ Legend:
 >
 > ✏️ Changed:
 >
-> 1. Updated [Cost summary](../_reporting/power-bi/cost-summary.md) and [Commitment discounts](../_reporting/power-bi/commitment-discounts.md) reports to [FOCUS 1.0 preview](../_docs/focus/README.md).
-> 2. Updated [Cost summary](../_reporting/power-bi/cost-summary.md) and [Commitment discounts](../_reporting/power-bi/commitment-discounts.md) reports to only use [FinOps hubs](../_reporting/hubs/README.md).
+> 1. Updated [Cost summary](../_reporting/power-bi/cost-summary.md) and [Commitment discounts](../_reporting/power-bi/rate-optimization.md) reports to [FOCUS 1.0 preview](../_docs/focus/README.md).
+> 2. Updated [Cost summary](../_reporting/power-bi/cost-summary.md) and [Commitment discounts](../_reporting/power-bi/rate-optimization.md) reports to only use [FinOps hubs](../_reporting/hubs/README.md).
 > 3. Removed unused custom visualizations.
 > 4. Organized setup instructions in Cost summary to match other reports.
 > 5. Updated troubleshooting documentation.
@@ -403,7 +404,7 @@ Legend:
 
 > ➕ Added:
 >
-> 1. Commitments, Savings, Chargeback, Purchases, and Prices pages in the [Commitment discounts report](../_reporting/power-bi/commitment-discounts.md).
+> 1. Commitments, Savings, Chargeback, Purchases, and Prices pages in the [Commitment discounts report](../_reporting/power-bi/rate-optimization.md).
 > 2. Prices page in the [Cost summary report](../_reporting/power-bi/cost-summary.md).
 > 3. [FOCUS sample report](../_reporting/power-bi/focus.md) – See your data in the FinOps Open Cost and Usage Specification (FOCUS) schema.
 > 4. [Cost Management template app](../_reporting/power-bi/template-app.md) (EA only) – The original Cost Management template app as a customizable PBIX file.
@@ -446,7 +447,7 @@ Legend:
 >
 > 1. [FinOps hub template](../_reporting/hubs/README.md) to deploy a storage account and Data Factory instance.
 > 2. [Cost summary report](../_reporting/power-bi/cost-summary.md) for various out-of-the-box cost breakdowns.
-> 3. [Commitment discounts report](../_reporting/power-bi/commitment-discounts.md) for commitment-based discount reports.
+> 3. [Commitment discounts report](../_reporting/power-bi/rate-optimization.md) for commitment-based discount reports.
 
 🦾 Bicep modules
 {: .fs-5 .fw-500 .mt-4 mb-0 }

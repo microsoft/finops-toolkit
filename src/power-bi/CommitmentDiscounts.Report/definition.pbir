@@ -1,9 +1,0 @@
-{
-  "version": "4.0",
-  "datasetReference": {
-    "byPath": {
-      "path": "../Shared.Dataset"
-    },
-    "byConnection": null
-  }
-}
