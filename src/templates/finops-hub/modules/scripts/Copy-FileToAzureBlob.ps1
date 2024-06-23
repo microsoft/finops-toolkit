@@ -10,7 +10,7 @@ $validateScopes = { $_.Length -gt 45 }
 # Initialize variables
 $fileName = 'settings.json'
 $filePath = Join-Path -Path . -ChildPath $fileName
-$newScopes = $env:exportScopes.Split('|') | Where-Object $validateScopes | ForEach-Object { @{ scope = $_ } }
+$newScopes = $env:scopes.Split('|') | Where-Object $validateScopes | ForEach-Object { @{ scope = $_ } }
 
 # Get storage context
 $storageContext = @{
@@ -21,13 +21,13 @@ $storageContext = @{
 # Download existing settings, if they exist
 $blob = Get-AzStorageBlobContent @storageContext -Blob $fileName -Destination $filePath -Force
 if ($blob) {
-    Write-Output "Existing settings.json file found. Updating..."
+    
     $text = Get-Content $filePath -Raw
     Write-Output "---------"
     Write-Output $text
     Write-Output "---------"
     $json = $text | ConvertFrom-Json
-
+    Write-Output "Existing settings.json file found. Updating..."
     # Rename exportScopes to scopes + convert to object array
     if ($json.exportScopes) {
         Write-Output "  Updating exportScopes..."
@@ -55,8 +55,26 @@ if (!$json) {
         version   = ''
         learnMore = 'https://aka.ms/finops/hubs'
         scopes    = @()
+        retention = @{
+            'msexports' = @{
+                days = 0
+            }
+            'ingestion' = @{
+                months = 13
+            }
+        }
     }
+
+    $text = $json | ConvertTo-Json
+    Write-Output "---------"
+    Write-Output $text
+    Write-Output "---------"
 }
+
+# Set values from inputs
+$json.scopes = $env:scopes.Split('|') | ForEach-Object { @{ 'scope' = $_ } }
+$json.retention.msexports.days = [Int32]::Parse($env:msexportRetentionInDays)
+$json.retention.ingestion.months = [Int32]::Parse($env:ingestionRetentionInMonths)
 
 # Updating settings
 Write-Output "Updating version to $env:ftkVersion..."
@@ -82,3 +100,10 @@ $text | Out-File $filePath
 # Upload new/updated settings
 Write-Output "Uploading settings.json file..."
 Set-AzStorageBlobContent @storageContext -File $filePath -Force
+
+# Save focusSchemaFile file to storage
+Write-Output "Uploading focus schema file..."
+$focusSchema = 'focuscost_1.0-preview(v1).json'
+$schemaToUpload = Join-Path -Path .\ -ChildPath $focusSchema
+$env:focusSchemaFile | Out-File $schemaToUpload
+Set-AzStorageBlobContent @storageContext -File $schemaToUpload -Force

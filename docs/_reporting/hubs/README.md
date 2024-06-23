@@ -104,44 +104,31 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
   _FinOps hubs 0.2 is a breaking change. To upgrade an existing hub instance, please refer to the [Upgrade guide](./upgrade.md)._
 </blockquote>
 
-1. Register the Microsoft.EventGrid and Microsoft.CostManagementExports resource providers. [Learn more](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider).
-2. Deploy the **finops-hub** template. [Learn more](../../_resources/deploy.md).
+1. **Register resource providers.**
+
+   FinOps hubs use Event Grid and Cost Management behind the scenes. Before you deploy your template, register the `Microsoft.EventGrid` and `Microsoft.CostManagementExports` resource providers.
+
+   [Learn more](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider)
+
+2. **Deploy your FinOps hub.**
 
    {% include deploy.html template="finops-hub" public="1" gov="0" china="0" %}
 
-3. [Create a new FOCUS cost export](https://aka.ms/exportsv2) using the following settings:
+   [Learn more](../../_resources/deploy.md)
 
-   <!-- TODO: Replace the portal link with the docs link when exports v2 docs are available.
-   1. [Create a new FOCUS cost export](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data?tabs=azure-portal) using the following settings:
-   -->
+3. **Configure scopes to monitor.**
 
-   - **Type of data** = `Cost and usage details (FOCUS)`
-     <blockquote class="important" markdown="1">
-       _FinOps hubs 0.2 requires FOCUS cost data. While FOCUS is fully supported, the option to export FOCUS cost data from Cost Management is currently in preview and has not rolled out to everyone yet. In order to create and manage FOCUS exports, please use the [Exports preview link](https://aka.ms/exportsv2)._
-     </blockquote>
-   - **Dataset version** = `1.0-preview(v1)`
-   - **Frequency** = `Daily export of month-to-date costs`
-     <blockquote class="tip" markdown="1">
-       _Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range._
-     </blockquote>
-   - **File partitioning** = On
-   - **Overwrite data** = Off
-     <blockquote class="note" markdown="1">
-       _While most settings are required, overwriting is optional. We recommend **not** overwriting files so you can monitor your ingestion pipeline using the [Data ingestion](../power-bi/data-ingestion.md) report. If you do not plan to use that report, please enable overwriting._
-     </blockquote>
-   - **Storage account** = (Use subscription/resource from step 1)
-   - **Container** = `msexports`
-   - **Directory** = (Use the resource ID of the scope<sup>1</sup> you're exporting without the first "/")
+   FinOps hubs use Cost Management exports to load the data you want to monitor. You can configure exports manually or grant access to your hub to manage exports for you.
 
-4. Run your export.
-   - Exports can take up to a day to show up after first created.
-   - Use the **Run now** command at the top of the Cost Management Exports page.
-   - Your data should be available within 15 minutes or so, depending on how big your account is.
-5. Download one or more of the available Power BI starter templates from the [latest release](https://aka.ms/ftk/latest):
-   - [Cost summary](../power-bi/cost-summary.md) for standard cost roll-ups.
-   - [Commitment discounts](../power-bi/commitment-discounts.md) for commitment-based savings utilization and coverage.
-   - [Data ingestion](../power-bi/data-ingestion.md) for insight into your hub storage.
-6. [Connect Power BI to your hub](../power-bi/README.md#-connect-to-your-data)
+   [Learn more](./configure-scopes.md)
+
+4. **Connect to your data.**
+
+   You can connect to your data from any system that supports Azure storage. For ideas, see [get started with hubs](#-get-started-with-hubs) below. We recommend using pre-built Power BI starter templates to get started quickly.
+
+   [Learn more](../power-bi/README.md#-connect-to-your-data)
+
+If you run into any issues, see [Troubleshooting Power BI reports](../resources/troubleshooting.md).
 
 <blockquote class="note" markdown="1">
   _If you need to deploy to Azure Gov or Azure China, please use [FinOps hubs 0.1.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1). Instructions are the same except you will create an amortized cost export instead of a FOCUS export._
@@ -159,7 +146,7 @@ _<sup>1) A "scope" is an Azure construct that contains resources or enables purc
 
 After deploying a hub instance, there are several ways for you to get started:
 
-1. Customize the built-in Power BI reports.
+1. Customize the pre-built Power BI reports.
 
    Our Power BI reports are starter templates and intended to be customized. We encourage you to customize as needed. [Learn more](../power-bi/README.md).
 
