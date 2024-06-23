@@ -75,7 +75,7 @@ At this point, you've implemented all the basic cost optimization recommendation
 
 ## 🍎 Learn more at the FinOps Foundation
 
-This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Workload optimization capability](https://www.finops.org/framework/capabilities/utilization-efficiency/) article in the FinOps Framework documentation.
+This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Workload optimization capability](https://www.finops.org/framework/capabilities/workload-optimization/) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
