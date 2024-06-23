@@ -6978,8 +6978,8 @@
           }
         ],
         "description": [
-          "Loads FOCUS cost and usage data from the configured FinOps hub.",
-          "",
+          "Loads FOCUS cost and usage data from the configured FinOps hub.\r",
+          "\r",
           "Learn more @ https://aka.ms/finops/hubs"
         ],
         "expression": [
@@ -12764,6 +12764,10 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
+          },
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
           }
         ],
         "columns": [
@@ -12858,9 +12862,9 @@
                 "    ADLS = AzureStorage.DataLake(_config),",
                 "    Settings = Json.Document(ADLS{[Name=\"settings.json\"]}[Content], 1252),",
                 "    ToTable = Table.FromRecords({Settings}),",
-                "    Retention = Table.ExpandRecordColumn(ToTable, \"retention\", {\"msexports\", \"ingestion\"}, {\"retention.msexports\", \"retention.ingestion\"}),",
-                "    ExportRetention = Table.ExpandRecordColumn(Retention, \"retention.msexports\", {\"days\"}, {\"ExportRetentionInDays\"}),",
-                "    IngestRetention = Table.ExpandRecordColumn(ExportRetention, \"retention.ingestion\", {\"months\"}, {\"IngestionRetentionInMonths\"}),",
+                "    Retention = if Table.HasColumns(ToTable, \"retention\") then Table.ExpandRecordColumn(ToTable, \"retention\", {\"msexports\", \"ingestion\"}, {\"retention.msexports\", \"retention.ingestion\"}) else ToTable,",
+                "    ExportRetention = if Table.HasColumns(ToTable, \"retention\") then Table.ExpandRecordColumn(Retention, \"retention.msexports\", {\"days\"}, {\"ExportRetentionInDays\"}) else Table.AddColumn(Retention, \"ExportRetentionInDays\", each null),",
+                "    IngestRetention = if Table.HasColumns(ToTable, \"retention\") then Table.ExpandRecordColumn(ExportRetention, \"retention.ingestion\", {\"months\"}, {\"IngestionRetentionInMonths\"}) else Table.AddColumn(ExportRetention, \"IngestionRetentionInMonths\", each null),",
                 "    ScopeCount = Table.AddColumn(IngestRetention, \"Scopes\", each List.Count(List.RemoveMatchingItems([scopes], {\"/foo\", \"\"}))),",
                 "    Storage = Table.AddColumn(ScopeCount, \"StorageAccount\", each Text.SplitAny(#\"Storage URL\", \"/.\"){2}),",
                 "    SelectColumns = Table.SelectColumns(Storage, {\"StorageAccount\", \"version\", \"ExportRetentionInDays\", \"IngestionRetentionInMonths\", \"Scopes\"}),",

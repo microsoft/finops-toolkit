@@ -72,13 +72,15 @@ Please ensure the following prerequisites are met before deploying this template
 
 ## 📥 Parameters
 
-| Parameter        | Type   | Description                                                                                                                                                                       | Default value             |
-| ---------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- |
-| **hubName**      | String | Optional. Name of the hub. Used to ensure unique resource names.                                                                                                                  | `"finops-hub"`            |
-| **location**     | String | Optional. Azure location where all resources should be created. See https://aka.ms/azureregions.                                                                                  | (resource group location) |
-| **storageSku**   | String | Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: `Premium_LRS`, `Premium_ZRS`. | `Premium_LRS`             |
-| **tags**         | Object | Optional. Tags to apply to all resources. We will also add the `cm-resource-parent` tag for improved cost roll-ups in Cost Management.                                            |                           |
-| **exportScopes** | Array  | Optional. List of scope IDs to create exports for.                                                                                                                                |                           |
+| Parameter                      | Type   | Description                                                                                                                                                                       | Default value             |
+| ------------------------------ | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- |
+| **hubName**                    | String | Optional. Name of the hub. Used to ensure unique resource names.                                                                                                                  | `"finops-hub"`            |
+| **location**                   | String | Optional. Azure location where all resources should be created. See https://aka.ms/azureregions.                                                                                  | (resource group location) |
+| **storageSku**                 | String | Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: `Premium_LRS`, `Premium_ZRS`. | `Premium_LRS`             |
+| **tags**                       | Object | Optional. Tags to apply to all resources. We will also add the `cm-resource-parent` tag for improved cost roll-ups in Cost Management.                                            |
+| **scopesToMonitor**            | Array  | Optional. List of scope IDs to monitor and ingest cost for.                                                                                                                                |
+| **exportRetentionInDays**      | Int    | Optional. Number of days of cost data to retain in the ms-cm-exports container.                                                                                                   | 0                         |
+| **ingestionRetentionInMonths** | Int    | Optional. Number of months of cost data to retain in the ingestion container.                                                                                                     | 13                        |
 
 <br>
 
@@ -99,9 +101,19 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
       - `settings.json` – Hub settings.
 - `<hubName>-engine-<unique-suffix>` Data Factory instance
   - Pipelines:
+    - `msexport_ExecuteETL` – Queues the `msexports_ETL_ingestion` pipeline to account for Data Factory pipeline trigger limits.
+    - `msexports_ETL_transform` – Converts Cost Management exports into parquet and removes historical data duplicated in each day's export.
+    - `config_ConfigureExports` – Creates Cost Management exports for all scopes.
+    - `config_BackfillData` – Runs the backfill job for each month based on retention settings.
+    - `config_RunBackfill` – Creates and triggers exports for all defined scopes for the specified date range.
+    - `config_ExportData` – Gets a list of all Cost Management exports configured for this hub based on the scopes defined in settings.json, then runs each export using the config_RunExports pipeline.
+    - `config_RunExports` – Runs the specified Cost Management exports.
     - `msexports_ExecuteETL` – Triggers the ingestion process for Cost Management exports to account for Data Factory pipeline trigger limits.
     - `msexports_ETL_transform` – Converts Cost Management exports into parquet or gzipped CSV and removes historical data duplicated in each day's export.
   - Triggers:
+    - `config_SettingsUpdated` – Triggers the `config_ConfigureExports` pipeline when settings.json is updated.
+    - `config_DailySchedule` – Triggers the `config_RunExports` pipeline daily for the current month's cost data.
+    - `config_MonthlySchedule` – Triggers the `config_RunExports` pipeline monthly for the previous month's cost data.
     - `msexports_FileAdded` – Triggers the `msexports_ExecuteETL` pipeline when Cost Management exports complete.
 - `<hubName>-vault-<unique-suffix>` Key Vault instance
   - Secrets:
@@ -121,14 +133,16 @@ In addition to the above, the following resources are created to automate the de
 
 ## 📤 Outputs
 
-| Output                   | Type   | Description                                                                                                                               |
-| ------------------------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| **name**                 | String | Name of the deployed hub instance.                                                                                                        |
-| **location**             | String | Azure resource location resources were deployed to.                                                                                       |
-| **dataFactoryName**      | String | Name of the Data Factory.                                                                                                                 |
-| **storageAccountId**     | String | The resource ID of the deployed storage account.                                                                                          |
-| **storageAccountName**   | String | Name of the storage account created for the hub instance. This must be used when connecting FinOps toolkit Power BI reports to your data. |
-| **storageUrlForPowerBI** | String | URL to use when connecting custom Power BI reports to your data.                                                                          |
+| Output                      | Type   | Description                                                                                                                               |
+| --------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **name**                    | String | Name of the deployed hub instance.                                                                                                        |
+| **location**                | String | Azure resource location resources were deployed to.                                                                                       | `location`                                                                                                      |
+| **dataFactorytName**        | String | Name of the Data Factory.                                                                                                                 | `dataFactory.name`                                                                                              |
+| **storageAccountId**        | String | Resource ID of the storage account created for the hub instance. This must be used when creating the Cost Management export.              | `storage.outputs.resourceId`                                                                                    |
+| **storageAccountName**      | String | Name of the storage account created for the hub instance. This must be used when connecting FinOps toolkit Power BI reports to your data. | `storage.outputs.name`                                                                                          |
+| **storageUrlForPowerBI**    | String | URL to use when connecting custom Power BI reports to your data.                                                                          | `'https://${storage.outputs.name}.dfs.${environment().suffixes.storage}/${storage.outputs.ingestionContainer}'` |
+| **managedIdentityId**       | String | Object ID of the Data Factory managed identity. This will be needed when configuring managed exports.                                     | `dataFactory.identity.principalId`                                                                              |
+| **managedIdentityTenantId** | String | Azure AD tenant ID. This will be needed when configuring managed exports.                                                                 | `tenant().tenantId`                                                                                             |
 
 ---
 
