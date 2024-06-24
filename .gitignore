@@ -351,3 +351,6 @@ MigrationBackup/
 
 # Code coverage results
 coverage.xml
+
+# Microsoft Power BI
+.pbi/
