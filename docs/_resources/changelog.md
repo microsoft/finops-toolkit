@@ -88,6 +88,10 @@ Legend:
 >
 > 1. Renamed the "Commitment discounts" report to "Rate optimization" to align to the FinOps Framework 2024 updates.
 > 2. Changed the **Tags** column to default to `{}` when empty to facilitate tag expansion ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
+> 3. Changed internal storage for reports to use [Tabular Model Definition Language (TMDL)](https://learn.microsoft.com/power-bi/developer/projects/projects-dataset#tmdl-format).
+>    - This change makes it easier to review changes to the data model in Power BI.
+>    - Reports will still be released as PBIX files so this change should not impact end users.
+>    - Visualizations are not being switched to [Power BI Enhanced Report (PBIR)](https://learn.microsoft.com/power-bi/developer/projects/projects-report#pbir-format) format yet due to functional limitations that would impact end users (as of June 2024).
 
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }

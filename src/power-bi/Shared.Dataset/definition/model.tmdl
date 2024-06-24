@@ -1,0 +1,76 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+queryGroup 'FinOps toolkit'
+
+	annotation PBI_QueryGroupOrder = 1
+
+queryGroup '🛠️ Setup'
+
+	annotation PBI_QueryGroupOrder = 0
+
+queryGroup '🛠️ Setup\CM connector'
+
+	annotation PBI_QueryGroupOrder = 1
+
+queryGroup '🛠️ Setup\FinOps hubs'
+
+	annotation PBI_QueryGroupOrder = 2
+
+queryGroup '🛠️ Setup\Functions'
+
+	annotation PBI_QueryGroupOrder = 3
+
+queryGroup '🛠️ Setup\Instructions'
+
+	annotation PBI_QueryGroupOrder = 0
+
+/// Errors in queries that were loaded on 6/6/2024 1:48:22 PM.
+queryGroup 'Query Errors - 6/6/2024 1:48:22 PM'
+
+	annotation PBI_QueryGroupOrder = 6
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBIDesktopVersion = 2.131.427.0 (24.07)
+
+annotation PBI_QueryOrder = ["Storage URL","File Type","RangeStart","RangeEnd","CostDetails","RecommendationsSingle","RecommendationsShared","ftk_Hub","ftk_CostDetails","▶️  START HERE","Data Source","Scope","Type","Number of Months","InstanceSizeFlexibility","ftk_CMConnector","HubSettings","HubScopes","HubData","HubExports","HubIngestion","Errors in HubExports","Errors in HubIngestion"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table DateTableTemplate_8150e96b-3319-4654-9395-1629b2428e72
+ref table CostDetails
+ref table RecommendationsShared
+ref table LocalDateTable_7db3b421-e9d8-4995-932d-7b77ee85eed9
+ref table InstanceSizeFlexibility
+ref table RecommendationsSingle
+ref table LocalDateTable_b00da7a2-2588-4e52-8b54-e94792ea3ba8
+ref table LocalDateTable_f404d4da-597d-4db3-8c17-e985f68c9dc4
+ref table LocalDateTable_5b617bbf-90ab-4847-9cab-7068fda94084
+ref table LocalDateTable_0195151c-8910-45c4-8c88-2946b3f9ffe8
+ref table LocalDateTable_dcfea72a-52cc-4e5b-bb91-472ff21b7b25
+ref table LocalDateTable_506735ba-eb3a-4e77-a52f-70c407778c05
+ref table LocalDateTable_41a1933b-26d3-4c56-aecf-605bc04c1fe7
+ref table LocalDateTable_f581f9e4-7dfc-448d-a6d1-fb4cc5c95f27
+ref table LocalDateTable_fef26e24-a208-4f98-9587-9e837520485d
+ref table HubSettings
+ref table HubScopes
+ref table HubExports
+ref table LocalDateTable_b4481e6d-7b57-4236-b430-b5260c37ff6f
+ref table LocalDateTable_d24e3edf-a759-4c92-a59f-1fc8cf54a6c8
+ref table LocalDateTable_9c2ef32e-1f64-425a-80cf-53a4020c55fd
+ref table LocalDateTable_cc194c8b-c38e-44b7-81e4-19de95f9eb7b
+ref table HubIngestion
+ref table LocalDateTable_41efb852-a77d-41a4-8d93-fa1942f528a3
+ref table LocalDateTable_c7280346-3e7b-4b97-8f9a-9eece9b5d3ed
+ref table LocalDateTable_1cba35dd-c086-4d23-8329-b3c1c5cbdc70
+ref table LocalDateTable_7e252193-4a78-4d83-a440-30c8768441b6
+ref table LocalDateTable_767a87d5-01db-48e9-b034-577f5dc943a1
+
+ref cultureInfo en-US
+
