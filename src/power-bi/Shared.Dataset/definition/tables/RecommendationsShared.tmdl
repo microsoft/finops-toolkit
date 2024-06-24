@@ -88,7 +88,7 @@ table RecommendationsShared
 		annotation SummarizationSetBy = Automatic
 
 	column instanceFlexibilityRatio
-		dataType: int64
+		dataType: double
 		formatString: 0
 		lineageTag: efa0473c-97a7-4217-a14d-5029f1781c7b
 		summarizeBy: sum
@@ -113,7 +113,7 @@ table RecommendationsShared
 		annotation SummarizationSetBy = Automatic
 
 	column recommendedQuantityNormalized
-		dataType: int64
+		dataType: double
 		formatString: 0
 		lineageTag: d0d521d6-0440-48a5-8fb1-ef66d7a53a0a
 		summarizeBy: sum
@@ -158,11 +158,18 @@ table RecommendationsShared
 		queryGroup: 'FinOps toolkit'
 		source =
 				let
-				    Source = ftk_CMConnector("rirecommendationsshared"),
-				    SelectColumns = Table.SelectColumns(Source, {"meterId", "term", "costWithNoReservedInstances", "recommendedQuantity", "totalCostWithReservedInstances", "netSavings", "firstUsageDate", "scope", "lookBackPeriod", "instanceFlexibilityRatio", "instanceFlexibilityGroup", "normalizedSize", "recommendedQuantityNormalized", "skuProperties"}),
-				    ChangeType = Table.TransformColumnTypes(SelectColumns, {{"instanceFlexibilityRatio", Int64.Type}, {"recommendedQuantityNormalized", Int64.Type}})
+				    Source = try ftk_CMConnector("rirecommendationsshared") otherwise #table(
+				        {"meterId", "term", "costWithNoReservedInstances", "recommendedQuantity", "totalCostWithReservedInstances", "netSavings", "firstUsageDate", "scope", "lookBackPeriod", "instanceFlexibilityRatio", "instanceFlexibilityGroup", "normalizedSize", "recommendedQuantityNormalized", "skuProperties"},
+				        {}
+				    ),
+				    BackfillNormQty  = if Table.HasColumns(Source, {"recommendedQuantityNormalized"}) then Source          else Table.AddColumn(Source,          "recommendedQuantityNormalized", each null, type number),
+				    BackfillNormSize = if Table.HasColumns(Source, {"normalizedSize"})                then BackfillNormQty else Table.AddColumn(BackfillNormQty, "normalizedSize",                each null, type number),
+				    SelectColumns    = Table.SelectColumns(BackfillNormSize, {"meterId", "term", "costWithNoReservedInstances", "recommendedQuantity", "totalCostWithReservedInstances", "netSavings", "firstUsageDate", "scope", "lookBackPeriod", "instanceFlexibilityRatio", "instanceFlexibilityGroup", "normalizedSize", "recommendedQuantityNormalized", "skuProperties"}),
+				    ChangeType       = Table.TransformColumnTypes(SelectColumns, {{"instanceFlexibilityRatio", type number}, {"recommendedQuantityNormalized", type number}})
 				in
 				    ChangeType
 
 	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
 

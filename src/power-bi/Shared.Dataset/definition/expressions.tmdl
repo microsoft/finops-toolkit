@@ -422,26 +422,22 @@ expression ftk_CMConnector =
 	annotation PBI_ResultType = Function
 
 /// Enter your EA enrollment number or fully-qualified MCA billing profile resource ID. You must have at least read access to use Power BI. For more options, please use https://aka.ms/finops/hubs.
-expression Scope =
-		let
-		    Source = "8611537" meta [IsParameterQuery = true, IsParameterQueryRequired = true, Type = type text]
-		in
-		    Source
+expression Scope = "8611537" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 	lineageTag: 244a1951-f3fa-4d07-913e-c5770a195267
 	queryGroup: '🛠️ Setup\CM connector'
 
 	annotation PBI_ResultType = Text
 
+	annotation PBI_NavigationStepName = Navigation
+
 /// Select "Enrollment Number" if using EA; otherwise, select "Manually Input Scope". These values are required in order to refresh data from the connector in the Power BI service.
-expression Type =
-		let
-		    Source = "Enrollment Number" meta [IsParameterQuery = true, IsParameterQueryRequired = true, Type = type text, List = {"Enrollment Number", "Manually Input Scope"}, DefaultValue = "Enrollment Number"]
-		in
-		    Source
+expression Type = "Enrollment Number" meta [IsParameterQuery=true, List={"Enrollment Number", "Manually Input Scope"}, DefaultValue="Enrollment Number", Type="Text", IsParameterQueryRequired=true]
 	lineageTag: e700b3d3-f2af-45a3-af15-199df0040f7b
 	queryGroup: '🛠️ Setup\CM connector'
 
 	annotation PBI_ResultType = Text
+
+	annotation PBI_NavigationStepName = Navigation
 
 expression HubData = ```
 		let
