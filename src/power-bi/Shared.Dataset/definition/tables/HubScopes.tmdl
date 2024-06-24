@@ -1,0 +1,30 @@
+table HubScopes
+	lineageTag: 6dfeb4ff-e902-435e-abed-2109389c66e3
+
+	column Scope
+		dataType: string
+		lineageTag: c7ee3a4b-0df9-47c3-9acb-ac9fdb5d536d
+		summarizeBy: none
+		sourceColumn: Scope
+
+		annotation SummarizationSetBy = Automatic
+
+	partition HubScopes = m
+		mode: import
+		queryGroup: 'FinOps toolkit'
+		source =
+				let
+				    _config = #"Storage URL" & "/../config/",
+				    ADLS = AzureStorage.DataLake(_config),
+				    Settings = Json.Document(ADLS{[Name="settings.json"]}[Content], 1252),
+				    Scopes = Settings[scopes],
+				    ToTable = Table.FromList(Scopes, Splitter.SplitByNothing(), {"Scope"}, null, ExtraValues.Ignore),
+				    RemoveTestData = Table.SelectRows(ToTable, each [Scope] <> "" and [Scope] <> "/foo"),
+				    AppendQueries = Table.Combine({RemoveTestData, HubExports, HubIngestion}),
+				    Scope = Table.SelectColumns(AppendQueries, {"Scope"}),
+				    Distinct = Table.Distinct(Scope)
+				in
+				    Distinct
+
+	annotation PBI_ResultType = Table
+

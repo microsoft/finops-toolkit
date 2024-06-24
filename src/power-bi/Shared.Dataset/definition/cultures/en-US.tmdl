@@ -1,0 +1,6771 @@
+cultureInfo en-US
+
+	linguisticMetadata =
+			{
+			  "DynamicImprovement": "HighConfidence",
+			  "Entities": {
+			    "cost_detail": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "cost detail": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "CostDetails": {
+			            "State": "Generated",
+			            "Type": "Noun",
+			            "Weight": 0.99
+			          }
+			        },
+			        {
+			          "detail": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "cost aspect": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.5
+			          }
+			        },
+			        {
+			          "cost element": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.5
+			          }
+			        },
+			        {
+			          "cost fact": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.5
+			          }
+			        },
+			        {
+			          "aspect": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.491
+			          }
+			        },
+			        {
+			          "element": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.491
+			          }
+			        },
+			        {
+			          "fact": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.491
+			          }
+			        },
+			        {
+			          "cost part": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.485
+			          }
+			        },
+			        {
+			          "cost feature": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.485
+			          }
+			        },
+			        {
+			          "cost point": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.485
+			          }
+			        },
+			        {
+			          "cost factor": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.485
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.billing_period_end_date.variation.date_hierarchy": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "Hierarchy": "Date Hierarchy",
+			          "VariationSet": "Variation",
+			          "VariationSource": "BillingPeriodEndDate"
+			        }
+			      },
+			      "SemanticType": "Time",
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "billing period end date hierarchy": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "date hierarchy": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "end date hierarchy": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "period end date hierarchy": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.billing_period_end_date.variation.date_hierarchy.day": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "Hierarchy": "Date Hierarchy",
+			          "HierarchyLevel": "Day",
+			          "VariationSet": "Variation",
+			          "VariationSource": "BillingPeriodEndDate"
+			        }
+			      },
+			      "SemanticType": "Time",
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "billing period end day": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "day": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "billing period end date day": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "end day": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "period end day": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "date day": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "end date day": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "period end date day": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "billing period culmination date day": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.64
+			          }
+			        },
+			        {
+			          "period culmination date day": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.629
+			          }
+			        },
+			        {
+			          "billing period completion date day": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.624
+			          }
+			        },
+			        {
+			          "billing period conclusion date day": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.624
+			          }
+			        },
+			        {
+			          "billing period expiration date day": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.624
+			          }
+			        },
+			        {
+			          "billing period end moment day": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.624
+			          }
+			        },
+			        {
+			          "billing period cease date day": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.621
+			          }
+			        },
+			        {
+			          "billing period end time day": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.621
+			          }
+			        },
+			        {
+			          "billing period completion day": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.617
+			          }
+			        },
+			        {
+			          "billing period conclusion day": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.617
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.billing_period_end_date.variation.date_hierarchy.month": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "Hierarchy": "Date Hierarchy",
+			          "HierarchyLevel": "Month",
+			          "VariationSet": "Variation",
+			          "VariationSource": "BillingPeriodEndDate"
+			        }
+			      },
+			      "SemanticType": "Time",
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "billing period end month": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "month": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "billing period end date month": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "end month": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "period end month": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "date month": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "end date month": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "period end date month": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "billing period end date mth": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "billing period end mth": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.771
+			          }
+			        },
+			        {
+			          "period end date mth": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.771
+			          }
+			        },
+			        {
+			          "period end mth": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.762
+			          }
+			        },
+			        {
+			          "end date mth": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.762
+			          }
+			        },
+			        {
+			          "end mth": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "date mth": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "mth": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.736
+			          }
+			        },
+			        {
+			          "billing period culmination date month": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.64
+			          }
+			        },
+			        {
+			          "period culmination date month": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.629
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.billing_period_end_date.variation.date_hierarchy.quarter": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "Hierarchy": "Date Hierarchy",
+			          "HierarchyLevel": "Quarter",
+			          "VariationSet": "Variation",
+			          "VariationSource": "BillingPeriodEndDate"
+			        }
+			      },
+			      "SemanticType": "Time",
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "billing period end quarter": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "quarter": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "billing period end date quarter": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "end quarter": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "period end quarter": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "date quarter": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "end date quarter": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "period end date quarter": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "billing period end date qtr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.867
+			          }
+			        },
+			        {
+			          "billing period end qtr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.857
+			          }
+			        },
+			        {
+			          "period end date qtr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.857
+			          }
+			        },
+			        {
+			          "period end qtr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.846
+			          }
+			        },
+			        {
+			          "end date qtr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.846
+			          }
+			        },
+			        {
+			          "end qtr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.833
+			          }
+			        },
+			        {
+			          "date qtr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.833
+			          }
+			        },
+			        {
+			          "qtr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.818
+			          }
+			        },
+			        {
+			          "billing period culmination date quarter": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.64
+			          }
+			        },
+			        {
+			          "period culmination date quarter": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.629
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.billing_period_end_date.variation.date_hierarchy.year": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "Hierarchy": "Date Hierarchy",
+			          "HierarchyLevel": "Year",
+			          "VariationSet": "Variation",
+			          "VariationSource": "BillingPeriodEndDate"
+			        }
+			      },
+			      "SemanticType": "Time",
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "billing period end year": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "year": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "billing period end date year": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "end year": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "period end year": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "date year": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "end date year": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "period end date year": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "billing period end date yr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "billing period end yr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.771
+			          }
+			        },
+			        {
+			          "period end date yr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.771
+			          }
+			        },
+			        {
+			          "period end yr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.762
+			          }
+			        },
+			        {
+			          "end date yr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.762
+			          }
+			        },
+			        {
+			          "end yr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "date yr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "yr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.736
+			          }
+			        },
+			        {
+			          "billing period culmination date year": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.64
+			          }
+			        },
+			        {
+			          "period culmination date year": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.629
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.billing_period_start_date.variation.date_hierarchy": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "Hierarchy": "Date Hierarchy",
+			          "VariationSet": "Variation",
+			          "VariationSource": "BillingPeriodStartDate"
+			        }
+			      },
+			      "SemanticType": "Time",
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "billing period start date hierarchy": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "date hierarchy": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "start date hierarchy": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "period start date hierarchy": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.billing_period_start_date.variation.date_hierarchy.day": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "Hierarchy": "Date Hierarchy",
+			          "HierarchyLevel": "Day",
+			          "VariationSet": "Variation",
+			          "VariationSource": "BillingPeriodStartDate"
+			        }
+			      },
+			      "SemanticType": "Time",
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "billing period start day": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "day": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "billing period start date day": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "start day": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "period start day": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "date day": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "start date day": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "period start date day": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "billing period commencement date day": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.64
+			          }
+			        },
+			        {
+			          "billing period inception date day": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.64
+			          }
+			        },
+			        {
+			          "billing period kickoff date day": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.64
+			          }
+			        },
+			        {
+			          "period commencement date day": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.629
+			          }
+			        },
+			        {
+			          "period inception date day": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.629
+			          }
+			        },
+			        {
+			          "period kickoff date day": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.629
+			          }
+			        },
+			        {
+			          "billing period start moment day": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.624
+			          }
+			        },
+			        {
+			          "billing period beginning date day": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.621
+			          }
+			        },
+			        {
+			          "billing period first date day": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.621
+			          }
+			        },
+			        {
+			          "billing period initiation date day": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.621
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.billing_period_start_date.variation.date_hierarchy.month": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "Hierarchy": "Date Hierarchy",
+			          "HierarchyLevel": "Month",
+			          "VariationSet": "Variation",
+			          "VariationSource": "BillingPeriodStartDate"
+			        }
+			      },
+			      "SemanticType": "Time",
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "billing period start month": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "month": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "billing period start date month": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "start month": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "period start month": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "date month": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "start date month": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "period start date month": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "billing period start date mth": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "billing period start mth": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.771
+			          }
+			        },
+			        {
+			          "period start date mth": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.771
+			          }
+			        },
+			        {
+			          "period start mth": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.762
+			          }
+			        },
+			        {
+			          "start date mth": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.762
+			          }
+			        },
+			        {
+			          "start mth": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "date mth": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "mth": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.736
+			          }
+			        },
+			        {
+			          "billing period commencement date month": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.64
+			          }
+			        },
+			        {
+			          "billing period inception date month": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.64
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.billing_period_start_date.variation.date_hierarchy.quarter": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "Hierarchy": "Date Hierarchy",
+			          "HierarchyLevel": "Quarter",
+			          "VariationSet": "Variation",
+			          "VariationSource": "BillingPeriodStartDate"
+			        }
+			      },
+			      "SemanticType": "Time",
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "billing period start quarter": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "quarter": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "billing period start date quarter": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "start quarter": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "period start quarter": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "date quarter": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "start date quarter": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "period start date quarter": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "billing period start date qtr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.867
+			          }
+			        },
+			        {
+			          "billing period start qtr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.857
+			          }
+			        },
+			        {
+			          "period start date qtr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.857
+			          }
+			        },
+			        {
+			          "period start qtr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.846
+			          }
+			        },
+			        {
+			          "start date qtr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.846
+			          }
+			        },
+			        {
+			          "start qtr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.833
+			          }
+			        },
+			        {
+			          "date qtr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.833
+			          }
+			        },
+			        {
+			          "qtr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.818
+			          }
+			        },
+			        {
+			          "billing period commencement date quarter": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.64
+			          }
+			        },
+			        {
+			          "billing period inception date quarter": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.64
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.billing_period_start_date.variation.date_hierarchy.year": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "Hierarchy": "Date Hierarchy",
+			          "HierarchyLevel": "Year",
+			          "VariationSet": "Variation",
+			          "VariationSource": "BillingPeriodStartDate"
+			        }
+			      },
+			      "SemanticType": "Time",
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "billing period start year": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "year": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "billing period start date year": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "start year": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "period start year": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "date year": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "start date year": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "period start date year": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "billing period start date yr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.78
+			          }
+			        },
+			        {
+			          "billing period start yr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.771
+			          }
+			        },
+			        {
+			          "period start date yr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.771
+			          }
+			        },
+			        {
+			          "period start yr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.762
+			          }
+			        },
+			        {
+			          "start date yr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.762
+			          }
+			        },
+			        {
+			          "start yr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "date yr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "yr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.736
+			          }
+			        },
+			        {
+			          "billing period commencement date year": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.64
+			          }
+			        },
+			        {
+			          "billing period inception date year": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.64
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.commitment_savings_running_total": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "x_CommitmentCostSavingsRunningTotal"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "commitment savings running total": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "CommitmentSavingsRunningTotal": {
+			            "State": "Generated",
+			            "Type": "Noun",
+			            "Weight": 0.99
+			          }
+			        },
+			        {
+			          "running total": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "savings running total": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "commitment savings running aggregate": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.748
+			          }
+			        },
+			        {
+			          "commitment savings running overall": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.748
+			          }
+			        },
+			        {
+			          "savings running aggregate": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.739
+			          }
+			        },
+			        {
+			          "savings running overall": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.739
+			          }
+			        },
+			        {
+			          "running aggregate": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "running overall": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.727
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.cost_running_total": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "EffectiveCostRunningTotal"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "cost running total": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "CostRunningTotal": {
+			            "State": "Generated",
+			            "Type": "Noun",
+			            "Weight": 0.99
+			          }
+			        },
+			        {
+			          "running total": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "cost running aggregate": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.739
+			          }
+			        },
+			        {
+			          "cost running overall": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.739
+			          }
+			        },
+			        {
+			          "running aggregate": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "running overall": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.727
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.date.variation.date_hierarchy": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "Hierarchy": "Date Hierarchy",
+			          "VariationSet": "Variation",
+			          "VariationSource": "Date"
+			        }
+			      },
+			      "SemanticType": "Time",
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "date hierarchy": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.date.variation.date_hierarchy.day": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "Hierarchy": "Date Hierarchy",
+			          "HierarchyLevel": "Day",
+			          "VariationSet": "Variation",
+			          "VariationSource": "Date"
+			        }
+			      },
+			      "SemanticType": "Time",
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "day": {
+			            "State": "Generated"
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.date.variation.date_hierarchy.month": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "Hierarchy": "Date Hierarchy",
+			          "HierarchyLevel": "Month",
+			          "VariationSet": "Variation",
+			          "VariationSource": "Date"
+			        }
+			      },
+			      "SemanticType": "Time",
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "month": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "mth": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.736
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.date.variation.date_hierarchy.quarter": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "Hierarchy": "Date Hierarchy",
+			          "HierarchyLevel": "Quarter",
+			          "VariationSet": "Variation",
+			          "VariationSource": "Date"
+			        }
+			      },
+			      "SemanticType": "Time",
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "quarter": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "qtr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.818
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.date.variation.date_hierarchy.year": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "Hierarchy": "Date Hierarchy",
+			          "HierarchyLevel": "Year",
+			          "VariationSet": "Variation",
+			          "VariationSource": "Date"
+			        }
+			      },
+			      "SemanticType": "Time",
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "year": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "yr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.736
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.discount_savings_running_total": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "x_DiscountCostSavingsRunningTotal"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "discount savings running total": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "DiscountSavingsRunningTotal": {
+			            "State": "Generated",
+			            "Type": "Noun",
+			            "Weight": 0.99
+			          }
+			        },
+			        {
+			          "running total": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "savings running total": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "discount savings running aggregate": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.748
+			          }
+			        },
+			        {
+			          "discount savings running overall": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.748
+			          }
+			        },
+			        {
+			          "savings running aggregate": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.739
+			          }
+			        },
+			        {
+			          "savings running overall": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.739
+			          }
+			        },
+			        {
+			          "running aggregate": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "running overall": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.727
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.month.variation.date_hierarchy": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "Hierarchy": "Date Hierarchy",
+			          "VariationSet": "Variation",
+			          "VariationSource": "Month"
+			        }
+			      },
+			      "SemanticType": "Time",
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "month date hierarchy": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "date hierarchy": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.month.variation.date_hierarchy.day": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "Hierarchy": "Date Hierarchy",
+			          "HierarchyLevel": "Day",
+			          "VariationSet": "Variation",
+			          "VariationSource": "Month"
+			        }
+			      },
+			      "SemanticType": "Time",
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "month day": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "day": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "mth day": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.6
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.month.variation.date_hierarchy.month": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "Hierarchy": "Date Hierarchy",
+			          "HierarchyLevel": "Month",
+			          "VariationSet": "Variation",
+			          "VariationSource": "Month"
+			        }
+			      },
+			      "SemanticType": "Time",
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "month month": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "month": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "month mth": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "mth": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.736
+			          }
+			        },
+			        {
+			          "mth month": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.6
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.month.variation.date_hierarchy.quarter": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "Hierarchy": "Date Hierarchy",
+			          "HierarchyLevel": "Quarter",
+			          "VariationSet": "Variation",
+			          "VariationSource": "Month"
+			        }
+			      },
+			      "SemanticType": "Time",
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "month quarter": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "quarter": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "month qtr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.833
+			          }
+			        },
+			        {
+			          "qtr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.818
+			          }
+			        },
+			        {
+			          "mth quarter": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.6
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.month.variation.date_hierarchy.year": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "Hierarchy": "Date Hierarchy",
+			          "HierarchyLevel": "Year",
+			          "VariationSet": "Variation",
+			          "VariationSource": "Month"
+			        }
+			      },
+			      "SemanticType": "Time",
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "month year": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "year": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "month yr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "yr": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.736
+			          }
+			        },
+			        {
+			          "mth year": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.6
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.negotiated_savings_running_total": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "x_NegotiatedCostSavingsRunningTotal"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "negotiated savings running total": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "NegotiatedSavingsRunningTotal": {
+			            "State": "Generated",
+			            "Type": "Noun",
+			            "Weight": 0.99
+			          }
+			        },
+			        {
+			          "running total": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "savings running total": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "negotiated savings running aggregate": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.748
+			          }
+			        },
+			        {
+			          "negotiated savings running overall": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.748
+			          }
+			        },
+			        {
+			          "savings running aggregate": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.739
+			          }
+			        },
+			        {
+			          "savings running overall": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.739
+			          }
+			        },
+			        {
+			          "running aggregate": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "running overall": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.727
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.resource_id": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "ResourceId"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "resource id": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "ResourceId": {
+			            "State": "Generated",
+			            "Type": "Noun",
+			            "Weight": 0.99
+			          }
+			        },
+			        {
+			          "resource identification": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "resource identity": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "resource identifier": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "resource credential": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.727
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.tag": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "Tags"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "tag": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "device": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.491
+			          }
+			        },
+			        {
+			          "label": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.476
+			          }
+			        },
+			        {
+			          "ticket": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.476
+			          }
+			        },
+			        {
+			          "tab": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.476
+			          }
+			        },
+			        {
+			          "docket": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.476
+			          }
+			        },
+			        {
+			          "chip": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.476
+			          }
+			        },
+			        {
+			          "mark": {
+			            "Source": {
+			              "Agent": "OfficeThesaurus"
+			            },
+			            "State": "Suggested",
+			            "Type": "Noun",
+			            "Weight": 0.476
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.billingaccountname": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "BillingAccountName"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "costdetails.billingcurrency": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "BillingCurrency"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Currency": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.billingperiodstart": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "BillingPeriodStart"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "costdetails.chargedescription": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "ChargeDescription"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "costdetails.chargeperiodstart": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "ChargePeriodStart"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Charge Period": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.chargesubcategory": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "ChargeSubcategory"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Usage": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.chargetype": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "ChargeType"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "costdetails.commitmentdiscountname": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "CommitmentDiscountName"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Commitment": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.commitmentdiscounttype": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "CommitmentDiscountType"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Type": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Commitment": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.commitmentutilization": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "x_CommitmentUtilization"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Utilization": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.invoiceissuername": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "InvoiceIssuerName"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "costdetails.listunitprice": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "ListUnitPrice"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "List": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.providername": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "ProviderName"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "costdetails.publishername": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "PublisherName"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Publisher": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.region": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "Region"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Location": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.resourcename": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "ResourceName"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Resource": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Resource Name": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Name": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.resourcenameunique": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "ResourceNameUnique"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Resource": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.servicecategory": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "ServiceCategory"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Service category": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.servicename": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "ServiceName"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Service name": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Service": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.subaccountname": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "SubAccountName"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Subscription": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.subaccountnameunique": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "SubAccountNameUnique"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Subscription": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.termlabel": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "x_SkuTermLabel"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Term": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.x_effectiveunitprice": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "x_EffectiveUnitPrice"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Effective": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.x_month": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "x_Month"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Month": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.x_ondemandunitprice": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "x_OnDemandUnitPrice"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "On-demand": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.x_publishercategory": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "x_PublisherCategory"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Publisher category": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.x_resourcegroupname": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "x_ResourceGroupName"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Resource Group": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.x_resourcegroupnameunique": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "x_ResourceGroupNameUnique"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Resource Group": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.x_resourcemachinename": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "x_ResourceMachineName"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "VM": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.x_resourceparentname": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "x_ResourceParentName"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Hub": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.x_skucpus": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "x_SkuCPUs"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "vCPUs": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.x_skudescription": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "x_SkuDescription"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "SKU": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.x_skulicensestatus": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "x_SkuLicenseStatus"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "AHB Status": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.x_skumetercategory": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "x_SkuMeterCategory"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Service": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.x_skumetername": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "x_SkuMeterName"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "costdetails.x_skumetersubcategory": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "x_SkuMeterSubcategory"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "costdetails.x_skuordername": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "x_SkuOrderName"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Product order": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.x_skutype": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "x_SkuType"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "SKU": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "hubexports.datemodified": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "HubExports",
+			          "ConceptualProperty": "DateModified"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Exported": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "hubexports.exportdayrange": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "HubExports",
+			          "ConceptualProperty": "ExportDayRange"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Export runs": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "hubexports.exportmonths": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "HubExports",
+			          "ConceptualProperty": "ExportMonths"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Exported months": {
+			            "Source": {
+			              "Agent": "PowerBI.VisualColumnRename",
+			              "Type": "External"
+			            },
+			            "State": "Suggested",
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "instancesizeflexibility.armskuname": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "InstanceSizeFlexibility",
+			          "ConceptualProperty": "ArmSkuName"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "instancesizeflexibility.resourcelocation": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "InstanceSizeFlexibility",
+			          "ConceptualProperty": "ResourceLocation"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "recommendations.instanceflexibilitygroup": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "RecommendationsShared",
+			          "ConceptualProperty": "instanceFlexibilityGroup"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "recommendations.lookbackperiod": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "RecommendationsShared",
+			          "ConceptualProperty": "lookBackPeriod"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "recommendations.normalizedsize": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "RecommendationsShared",
+			          "ConceptualProperty": "normalizedSize"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "recommendationsscoped.instanceflexibilitygroup": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "RecommendationsSingle",
+			          "ConceptualProperty": "instanceFlexibilityGroup"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "recommendationsscoped.lookbackperiod": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "RecommendationsSingle",
+			          "ConceptualProperty": "lookBackPeriod"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "recommendationsscoped.normalizedsize": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "RecommendationsSingle",
+			          "ConceptualProperty": "normalizedSize"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "recommendationsscoped.termlabel": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "RecommendationsSingle",
+			          "ConceptualProperty": "TermLabel"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "recommendationsshared.termlabel": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "RecommendationsShared",
+			          "ConceptualProperty": "TermLabel"
+			        }
+			      },
+			      "State": "Generated"
+			    }
+			  },
+			  "Language": "en-US",
+			  "Relationships": {
+			    "cost_detail_billing_period_end_date_has_variation_date_hierarchy": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.billing_period_end_date.variation.date_hierarchy"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail.billing_period_end_date"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail.billing_period_end_date": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_period_end_date"
+			          }
+			        },
+			        "cost_detail.billing_period_end_date.variation.date_hierarchy": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_period_end_date.variation.date_hierarchy"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_billing_period_end_date_variation_date_hierarchy_has_day": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.billing_period_end_date.variation.date_hierarchy.day"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail.billing_period_end_date.variation.date_hierarchy"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail.billing_period_end_date.variation.date_hierarchy": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_period_end_date.variation.date_hierarchy"
+			          }
+			        },
+			        "cost_detail.billing_period_end_date.variation.date_hierarchy.day": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_period_end_date.variation.date_hierarchy.day"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_billing_period_end_date_variation_date_hierarchy_has_month": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.billing_period_end_date.variation.date_hierarchy.month"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail.billing_period_end_date.variation.date_hierarchy"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail.billing_period_end_date.variation.date_hierarchy": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_period_end_date.variation.date_hierarchy"
+			          }
+			        },
+			        "cost_detail.billing_period_end_date.variation.date_hierarchy.month": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_period_end_date.variation.date_hierarchy.month"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_billing_period_end_date_variation_date_hierarchy_has_quarter": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.billing_period_end_date.variation.date_hierarchy.quarter"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail.billing_period_end_date.variation.date_hierarchy"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail.billing_period_end_date.variation.date_hierarchy": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_period_end_date.variation.date_hierarchy"
+			          }
+			        },
+			        "cost_detail.billing_period_end_date.variation.date_hierarchy.quarter": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_period_end_date.variation.date_hierarchy.quarter"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_billing_period_end_date_variation_date_hierarchy_has_year": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.billing_period_end_date.variation.date_hierarchy.year"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail.billing_period_end_date.variation.date_hierarchy"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail.billing_period_end_date.variation.date_hierarchy": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_period_end_date.variation.date_hierarchy"
+			          }
+			        },
+			        "cost_detail.billing_period_end_date.variation.date_hierarchy.year": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_period_end_date.variation.date_hierarchy.year"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_billing_period_start_date_has_variation_date_hierarchy": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.billing_period_start_date.variation.date_hierarchy"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail.billing_period_start_date"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail.billing_period_start_date": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_period_start_date"
+			          }
+			        },
+			        "cost_detail.billing_period_start_date.variation.date_hierarchy": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_period_start_date.variation.date_hierarchy"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_billing_period_start_date_variation_date_hierarchy_has_day": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.billing_period_start_date.variation.date_hierarchy.day"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail.billing_period_start_date.variation.date_hierarchy"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail.billing_period_start_date.variation.date_hierarchy": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_period_start_date.variation.date_hierarchy"
+			          }
+			        },
+			        "cost_detail.billing_period_start_date.variation.date_hierarchy.day": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_period_start_date.variation.date_hierarchy.day"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_billing_period_start_date_variation_date_hierarchy_has_month": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.billing_period_start_date.variation.date_hierarchy.month"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail.billing_period_start_date.variation.date_hierarchy"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail.billing_period_start_date.variation.date_hierarchy": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_period_start_date.variation.date_hierarchy"
+			          }
+			        },
+			        "cost_detail.billing_period_start_date.variation.date_hierarchy.month": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_period_start_date.variation.date_hierarchy.month"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_billing_period_start_date_variation_date_hierarchy_has_quarter": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.billing_period_start_date.variation.date_hierarchy.quarter"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail.billing_period_start_date.variation.date_hierarchy"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail.billing_period_start_date.variation.date_hierarchy": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_period_start_date.variation.date_hierarchy"
+			          }
+			        },
+			        "cost_detail.billing_period_start_date.variation.date_hierarchy.quarter": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_period_start_date.variation.date_hierarchy.quarter"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_billing_period_start_date_variation_date_hierarchy_has_year": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.billing_period_start_date.variation.date_hierarchy.year"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail.billing_period_start_date.variation.date_hierarchy"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail.billing_period_start_date.variation.date_hierarchy": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_period_start_date.variation.date_hierarchy"
+			          }
+			        },
+			        "cost_detail.billing_period_start_date.variation.date_hierarchy.year": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_period_start_date.variation.date_hierarchy.year"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_date_has_variation_date_hierarchy": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.date.variation.date_hierarchy"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail.date"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail.date": {
+			          "Target": {
+			            "Entity": "cost_detail.date"
+			          }
+			        },
+			        "cost_detail.date.variation.date_hierarchy": {
+			          "Target": {
+			            "Entity": "cost_detail.date.variation.date_hierarchy"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_date_variation_date_hierarchy_has_day": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.date.variation.date_hierarchy.day"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail.date.variation.date_hierarchy"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail.date.variation.date_hierarchy": {
+			          "Target": {
+			            "Entity": "cost_detail.date.variation.date_hierarchy"
+			          }
+			        },
+			        "cost_detail.date.variation.date_hierarchy.day": {
+			          "Target": {
+			            "Entity": "cost_detail.date.variation.date_hierarchy.day"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_date_variation_date_hierarchy_has_month": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.date.variation.date_hierarchy.month"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail.date.variation.date_hierarchy"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail.date.variation.date_hierarchy": {
+			          "Target": {
+			            "Entity": "cost_detail.date.variation.date_hierarchy"
+			          }
+			        },
+			        "cost_detail.date.variation.date_hierarchy.month": {
+			          "Target": {
+			            "Entity": "cost_detail.date.variation.date_hierarchy.month"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_date_variation_date_hierarchy_has_quarter": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.date.variation.date_hierarchy.quarter"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail.date.variation.date_hierarchy"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail.date.variation.date_hierarchy": {
+			          "Target": {
+			            "Entity": "cost_detail.date.variation.date_hierarchy"
+			          }
+			        },
+			        "cost_detail.date.variation.date_hierarchy.quarter": {
+			          "Target": {
+			            "Entity": "cost_detail.date.variation.date_hierarchy.quarter"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_date_variation_date_hierarchy_has_year": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.date.variation.date_hierarchy.year"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail.date.variation.date_hierarchy"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail.date.variation.date_hierarchy": {
+			          "Target": {
+			            "Entity": "cost_detail.date.variation.date_hierarchy"
+			          }
+			        },
+			        "cost_detail.date.variation.date_hierarchy.year": {
+			          "Target": {
+			            "Entity": "cost_detail.date.variation.date_hierarchy.year"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_AHB_status": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.AHB_status"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        },
+			        {
+			          "DynamicAdjective": {
+			            "Adjective": {
+			              "Role": "cost_detail.AHB_status"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.AHB_status": {
+			          "Target": {
+			            "Entity": "cost_detail.AHB_status"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_AHB_vCPUs": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.AHB_vCPUs"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.AHB_vCPUs": {
+			          "Target": {
+			            "Entity": "cost_detail.AHB_vCPUs"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_CP_us": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.CP_us"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.CP_us": {
+			          "Target": {
+			            "Entity": "cost_detail.CP_us"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_VCP_us": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.VCP_us"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.VCP_us": {
+			          "Target": {
+			            "Entity": "cost_detail.VCP_us"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_VM_name": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.VM_name"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.VM_name": {
+			          "Target": {
+			            "Entity": "cost_detail.VM_name"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_VM_property": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.VM_property"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.VM_property": {
+			          "Target": {
+			            "Entity": "cost_detail.VM_property"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_account_name": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.account_name"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.account_name": {
+			          "Target": {
+			            "Entity": "cost_detail.account_name"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_account_owner_id": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.account_owner_id"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        },
+			        {
+			          "State": "Generated",
+			          "Verb": {
+			            "Object": {
+			              "Role": "cost_detail"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail.account_owner_id"
+			            },
+			            "Verbs": [
+			              {
+			                "own": {
+			                  "State": "Generated"
+			                }
+			              }
+			            ]
+			          },
+			          "Weight": 0.75
+			        },
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail.account_owner_id"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.account_owner_id": {
+			          "Target": {
+			            "Entity": "cost_detail.account_owner_id"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_additional_info": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.additional_info"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.additional_info": {
+			          "Target": {
+			            "Entity": "cost_detail.additional_info"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_availability_zone": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.availability_zone"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.availability_zone": {
+			          "Target": {
+			            "Entity": "cost_detail.availability_zone"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_billing_account_id": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.billing_account_id"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.billing_account_id": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_account_id"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_billing_account_name": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.billing_account_name"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.billing_account_name": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_account_name"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_billing_currency": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.billing_currency"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.billing_currency": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_currency"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_billing_period_end_date": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.billing_period_end_date"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.billing_period_end_date": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_period_end_date"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_billing_period_start_date": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.billing_period_start_date"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.billing_period_start_date": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_period_start_date"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_billing_profile_id": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.billing_profile_id"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.billing_profile_id": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_profile_id"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_billing_profile_name": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.billing_profile_name"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.billing_profile_name": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_profile_name"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_commitment_savings": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.commitment_savings"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.commitment_savings": {
+			          "Target": {
+			            "Entity": "cost_detail.commitment_savings"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_commitment_savings_running_total": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.commitment_savings_running_total"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.commitment_savings_running_total": {
+			          "Target": {
+			            "Entity": "cost_detail.commitment_savings_running_total"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_consumed_service": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.consumed_service"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.consumed_service": {
+			          "Target": {
+			            "Entity": "cost_detail.consumed_service"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_cost": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.cost"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        },
+			        {
+			          "Adjective": {
+			            "Adjectives": [
+			              {
+			                "expensive": {
+			                  "State": "Generated"
+			                }
+			              }
+			            ],
+			            "Antonyms": [
+			              {
+			                "cheap": {
+			                  "State": "Generated"
+			                }
+			              }
+			            ],
+			            "Measurement": {
+			              "Role": "cost_detail.cost"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.cost": {
+			          "Target": {
+			            "Entity": "cost_detail.cost"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_cost_center": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.cost_center"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.cost_center": {
+			          "Target": {
+			            "Entity": "cost_detail.cost_center"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_cost_running_total": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.cost_running_total"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.cost_running_total": {
+			          "Target": {
+			            "Entity": "cost_detail.cost_running_total"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_date": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.date"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.date": {
+			          "Target": {
+			            "Entity": "cost_detail.date"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_discount_savings": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.discount_savings"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.discount_savings": {
+			          "Target": {
+			            "Entity": "cost_detail.discount_savings"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_discount_savings_running_total": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.discount_savings_running_total"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.discount_savings_running_total": {
+			          "Target": {
+			            "Entity": "cost_detail.discount_savings_running_total"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_effective_price": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.effective_price"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        },
+			        {
+			          "Adjective": {
+			            "Adjectives": [
+			              {
+			                "expensive": {
+			                  "State": "Generated"
+			                }
+			              }
+			            ],
+			            "Antonyms": [
+			              {
+			                "cheap": {
+			                  "State": "Generated"
+			                }
+			              }
+			            ],
+			            "Measurement": {
+			              "Role": "cost_detail.effective_price"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.effective_price": {
+			          "Target": {
+			            "Entity": "cost_detail.effective_price"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_frequency": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.frequency"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.frequency": {
+			          "Target": {
+			            "Entity": "cost_detail.frequency"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_image_type": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.image_type"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.image_type": {
+			          "Target": {
+			            "Entity": "cost_detail.image_type"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_instance_name": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.instance_name"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.instance_name": {
+			          "Target": {
+			            "Entity": "cost_detail.instance_name"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_invoice_section": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.invoice_section"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.invoice_section": {
+			          "Target": {
+			            "Entity": "cost_detail.invoice_section"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_invoice_section_id": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.invoice_section_id"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.invoice_section_id": {
+			          "Target": {
+			            "Entity": "cost_detail.invoice_section_id"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_is_azure_credit_eligible": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.is_azure_credit_eligible"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        },
+			        {
+			          "DynamicAdjective": {
+			            "Adjective": {
+			              "Role": "cost_detail.is_azure_credit_eligible"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.is_azure_credit_eligible": {
+			          "Target": {
+			            "Entity": "cost_detail.is_azure_credit_eligible"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_meter_category": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.meter_category"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.meter_category": {
+			          "Target": {
+			            "Entity": "cost_detail.meter_category"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_meter_id": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.meter_id"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.meter_id": {
+			          "Target": {
+			            "Entity": "cost_detail.meter_id"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_meter_name": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.meter_name"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.meter_name": {
+			          "Target": {
+			            "Entity": "cost_detail.meter_name"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_meter_region": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.meter_region"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.meter_region": {
+			          "Target": {
+			            "Entity": "cost_detail.meter_region"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_meter_sub_category": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.meter_sub_category"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.meter_sub_category": {
+			          "Target": {
+			            "Entity": "cost_detail.meter_sub_category"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_month": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.month"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.month": {
+			          "Target": {
+			            "Entity": "cost_detail.month"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_negotiated_savings": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.negotiated_savings"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.negotiated_savings": {
+			          "Target": {
+			            "Entity": "cost_detail.negotiated_savings"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_negotiated_savings_running_total": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.negotiated_savings_running_total"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.negotiated_savings_running_total": {
+			          "Target": {
+			            "Entity": "cost_detail.negotiated_savings_running_total"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_offer_id": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.offer_id"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.offer_id": {
+			          "Target": {
+			            "Entity": "cost_detail.offer_id"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_on_demand_cost": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.on_demand_cost"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.on_demand_cost": {
+			          "Target": {
+			            "Entity": "cost_detail.on_demand_cost"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_part_number": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.part_number"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.part_number": {
+			          "Target": {
+			            "Entity": "cost_detail.part_number"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_pay_G_price": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.pay_G_price"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        },
+			        {
+			          "Adjective": {
+			            "Adjectives": [
+			              {
+			                "expensive": {
+			                  "State": "Generated"
+			                }
+			              }
+			            ],
+			            "Antonyms": [
+			              {
+			                "cheap": {
+			                  "State": "Generated"
+			                }
+			              }
+			            ],
+			            "Measurement": {
+			              "Role": "cost_detail.pay_G_price"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.pay_G_price": {
+			          "Target": {
+			            "Entity": "cost_detail.pay_G_price"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_plan_name": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.plan_name"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.plan_name": {
+			          "Target": {
+			            "Entity": "cost_detail.plan_name"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_pricing_model": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.pricing_model"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.pricing_model": {
+			          "Target": {
+			            "Entity": "cost_detail.pricing_model"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_product": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.product"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.product": {
+			          "Target": {
+			            "Entity": "cost_detail.product"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_product_order_id": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.product_order_id"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.product_order_id": {
+			          "Target": {
+			            "Entity": "cost_detail.product_order_id"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_product_order_name": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.product_order_name"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.product_order_name": {
+			          "Target": {
+			            "Entity": "cost_detail.product_order_name"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_publisher_name": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.publisher_name"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        },
+			        {
+			          "State": "Generated",
+			          "Verb": {
+			            "Object": {
+			              "Role": "cost_detail"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail.publisher_name"
+			            },
+			            "Verbs": [
+			              {
+			                "publish": {
+			                  "State": "Generated"
+			                }
+			              }
+			            ]
+			          },
+			          "Weight": 0.75
+			        },
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail.publisher_name"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.publisher_name": {
+			          "Target": {
+			            "Entity": "cost_detail.publisher_name"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_publisher_type": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.publisher_type"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.publisher_type": {
+			          "Target": {
+			            "Entity": "cost_detail.publisher_type"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_quantity": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.quantity"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.quantity": {
+			          "Target": {
+			            "Entity": "cost_detail.quantity"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_reservation_id": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.reservation_id"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.reservation_id": {
+			          "Target": {
+			            "Entity": "cost_detail.reservation_id"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_reservation_name_unique": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.reservation_name_unique"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.reservation_name_unique": {
+			          "Target": {
+			            "Entity": "cost_detail.reservation_name_unique"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_resource_group_name_unique": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.resource_group_name_unique"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.resource_group_name_unique": {
+			          "Target": {
+			            "Entity": "cost_detail.resource_group_name_unique"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_resource_id": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.resource_id"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.resource_id": {
+			          "Target": {
+			            "Entity": "cost_detail.resource_id"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_resource_location": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.resource_location"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.resource_location": {
+			          "Target": {
+			            "Entity": "cost_detail.resource_location"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_resource_name_unique": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.resource_name_unique"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.resource_name_unique": {
+			          "Target": {
+			            "Entity": "cost_detail.resource_name_unique"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_retail_cost": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.retail_cost"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.retail_cost": {
+			          "Target": {
+			            "Entity": "cost_detail.retail_cost"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_retail_price": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.retail_price"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        },
+			        {
+			          "Adjective": {
+			            "Adjectives": [
+			              {
+			                "expensive": {
+			                  "State": "Generated"
+			                }
+			              }
+			            ],
+			            "Antonyms": [
+			              {
+			                "cheap": {
+			                  "State": "Generated"
+			                }
+			              }
+			            ],
+			            "Measurement": {
+			              "Role": "cost_detail.retail_price"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.retail_price": {
+			          "Target": {
+			            "Entity": "cost_detail.retail_price"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_service_family": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.service_family"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.service_family": {
+			          "Target": {
+			            "Entity": "cost_detail.service_family"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_service_info_1": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.service_info_1"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.service_info_1": {
+			          "Target": {
+			            "Entity": "cost_detail.service_info_1"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_service_info_2": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.service_info_2"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.service_info_2": {
+			          "Target": {
+			            "Entity": "cost_detail.service_info_2"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_sku": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.sku"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.sku": {
+			          "Target": {
+			            "Entity": "cost_detail.sku"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_subscription_id": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.subscription_id"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.subscription_id": {
+			          "Target": {
+			            "Entity": "cost_detail.subscription_id"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_subscription_name_unique": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.subscription_name_unique"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.subscription_name_unique": {
+			          "Target": {
+			            "Entity": "cost_detail.subscription_name_unique"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_tag": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.tag"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.tag": {
+			          "Target": {
+			            "Entity": "cost_detail.tag"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_tags_dictionary": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.tags_dictionary"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.tags_dictionary": {
+			          "Target": {
+			            "Entity": "cost_detail.tags_dictionary"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_term": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.term"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.term": {
+			          "Target": {
+			            "Entity": "cost_detail.term"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_unit_of_measure": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.unit_of_measure"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.unit_of_measure": {
+			          "Target": {
+			            "Entity": "cost_detail.unit_of_measure"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_unit_price": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.unit_price"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        },
+			        {
+			          "Adjective": {
+			            "Adjectives": [
+			              {
+			                "expensive": {
+			                  "State": "Generated"
+			                }
+			              }
+			            ],
+			            "Antonyms": [
+			              {
+			                "cheap": {
+			                  "State": "Generated"
+			                }
+			              }
+			            ],
+			            "Measurement": {
+			              "Role": "cost_detail.unit_price"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.unit_price": {
+			          "Target": {
+			            "Entity": "cost_detail.unit_price"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_usage_details_amortized_chargetype": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "usage_details_amortized.chargetype"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "usage_details_amortized.chargetype": {
+			          "Target": {
+			            "Entity": "usage_details_amortized.chargetype"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_usage_details_amortized_reservationname": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "usage_details_amortized.reservationname"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "usage_details_amortized.reservationname": {
+			          "Target": {
+			            "Entity": "usage_details_amortized.reservationname"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_usage_details_amortized_resourcegroup": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "usage_details_amortized.resourcegroup"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "usage_details_amortized.resourcegroup": {
+			          "Target": {
+			            "Entity": "usage_details_amortized.resourcegroup"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_usage_details_amortized_resourcename": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "usage_details_amortized.resourcename"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "usage_details_amortized.resourcename": {
+			          "Target": {
+			            "Entity": "usage_details_amortized.resourcename"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_usage_details_amortized_subscriptionname": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "usage_details_amortized.subscriptionname"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "usage_details_amortized.subscriptionname": {
+			          "Target": {
+			            "Entity": "usage_details_amortized.subscriptionname"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_has_usage_type": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.usage_type"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.usage_type": {
+			          "Target": {
+			            "Entity": "cost_detail.usage_type"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_in_meter_region": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Preposition": {
+			            "Object": {
+			              "Role": "cost_detail.meter_region"
+			            },
+			            "Prepositions": [
+			              {
+			                "in": {
+			                  "State": "Generated"
+			                }
+			              }
+			            ],
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.meter_region": {
+			          "Target": {
+			            "Entity": "cost_detail.meter_region"
+			          }
+			        }
+			      },
+			      "SemanticSlots": {
+			        "Where": {
+			          "Role": "cost_detail.meter_region"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_in_resource_location": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Preposition": {
+			            "Object": {
+			              "Role": "cost_detail.resource_location"
+			            },
+			            "Prepositions": [
+			              {
+			                "in": {
+			                  "State": "Generated"
+			                }
+			              }
+			            ],
+			            "Subject": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.resource_location": {
+			          "Target": {
+			            "Entity": "cost_detail.resource_location"
+			          }
+			        }
+			      },
+			      "SemanticSlots": {
+			        "Where": {
+			          "Role": "cost_detail.resource_location"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_is_ended_on_billing_period_end_date": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "State": "Generated",
+			          "Verb": {
+			            "Object": {
+			              "Role": "cost_detail"
+			            },
+			            "Verbs": [
+			              {
+			                "end": {
+			                  "State": "Generated"
+			                }
+			              }
+			            ]
+			          },
+			          "Weight": 0.9
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.billing_period_end_date": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_period_end_date"
+			          }
+			        }
+			      },
+			      "SemanticSlots": {
+			        "When": {
+			          "Role": "cost_detail.billing_period_end_date"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_is_started_on_billing_period_start_date": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "State": "Generated",
+			          "Verb": {
+			            "Object": {
+			              "Role": "cost_detail"
+			            },
+			            "Verbs": [
+			              {
+			                "start": {
+			                  "State": "Generated"
+			                }
+			              }
+			            ]
+			          },
+			          "Weight": 0.9
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.billing_period_start_date": {
+			          "Target": {
+			            "Entity": "cost_detail.billing_period_start_date"
+			          }
+			        }
+			      },
+			      "SemanticSlots": {
+			        "When": {
+			          "Role": "cost_detail.billing_period_start_date"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_month_has_variation_date_hierarchy": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.month.variation.date_hierarchy"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail.month"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail.month": {
+			          "Target": {
+			            "Entity": "cost_detail.month"
+			          }
+			        },
+			        "cost_detail.month.variation.date_hierarchy": {
+			          "Target": {
+			            "Entity": "cost_detail.month.variation.date_hierarchy"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_month_variation_date_hierarchy_has_day": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.month.variation.date_hierarchy.day"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail.month.variation.date_hierarchy"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail.month.variation.date_hierarchy": {
+			          "Target": {
+			            "Entity": "cost_detail.month.variation.date_hierarchy"
+			          }
+			        },
+			        "cost_detail.month.variation.date_hierarchy.day": {
+			          "Target": {
+			            "Entity": "cost_detail.month.variation.date_hierarchy.day"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_month_variation_date_hierarchy_has_month": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.month.variation.date_hierarchy.month"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail.month.variation.date_hierarchy"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail.month.variation.date_hierarchy": {
+			          "Target": {
+			            "Entity": "cost_detail.month.variation.date_hierarchy"
+			          }
+			        },
+			        "cost_detail.month.variation.date_hierarchy.month": {
+			          "Target": {
+			            "Entity": "cost_detail.month.variation.date_hierarchy.month"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_month_variation_date_hierarchy_has_quarter": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.month.variation.date_hierarchy.quarter"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail.month.variation.date_hierarchy"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail.month.variation.date_hierarchy": {
+			          "Target": {
+			            "Entity": "cost_detail.month.variation.date_hierarchy"
+			          }
+			        },
+			        "cost_detail.month.variation.date_hierarchy.quarter": {
+			          "Target": {
+			            "Entity": "cost_detail.month.variation.date_hierarchy.quarter"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "cost_detail_month_variation_date_hierarchy_has_year": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Object": {
+			              "Role": "cost_detail.month.variation.date_hierarchy.year"
+			            },
+			            "Subject": {
+			              "Role": "cost_detail.month.variation.date_hierarchy"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99
+			        }
+			      ],
+			      "Roles": {
+			        "cost_detail.month.variation.date_hierarchy": {
+			          "Target": {
+			            "Entity": "cost_detail.month.variation.date_hierarchy"
+			          }
+			        },
+			        "cost_detail.month.variation.date_hierarchy.year": {
+			          "Target": {
+			            "Entity": "cost_detail.month.variation.date_hierarchy.year"
+			          }
+			        }
+			      },
+			      "State": "Generated"
+			    }
+			  },
+			  "Version": "2.0.0"
+			}
+		contentType: json
+
