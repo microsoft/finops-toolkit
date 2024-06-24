@@ -69,12 +69,12 @@ The FinOps toolkit Power BI reports include pre-configured visuals, but are not 
 
    ![Screenshot of instructions to connect to a FinOps hub](https://github.com/microsoft/finops-toolkit/assets/399533/5582b428-e811-4d7e-83d0-4a8fbb905d30)
 
-2. If using the [Cost Management connector report](./connector.md) or [Commitment discounts report](./commitment-discounts.md), set the following properties in the **🛠️ Setup** > **CM connector** folder:
+2. If using the [Cost Management connector report](./connector.md) or [Rate optimization report](./rate-optimization.md), set the following properties in the **🛠️ Setup** > **CM connector** folder:
 
    - **Scope** is your EA enrollment number or MCA scope ID.
      - A "scope ID" is a fully-qualified Azure resource ID for the MCA billing account or billing profile you want to connect to.
      - If using the Cost Management connector report, you can connect to an MCA billing account to view cost across all billing profiles but reservation recommendations will not be available in the Coverage pages.
-     - If using the Commitment discounts report, you must use a billing profile since the connector is used for reservation recommendations which are only available for billing profiles.
+     - If using the Rate optimization report, you must use a billing profile since the connector is used for reservation recommendations which are only available for billing profiles.
      - An MCA billing account scope ID looks like `/providers/Microsoft.Billing/billingAccounts/{billingAccountId}`.
      - An MCA billing profile scope ID looks like `/providers/Microsoft.Billing/billingAccounts/{billingAccountId}/billingProfiles/{billingProfileId}`.
      - You can get the billing account and profile IDs from the Azure portal:

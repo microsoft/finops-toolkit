@@ -31,7 +31,7 @@ Explore the FinOps Open Cost and Usage Specification (FOCUS) with an interactive
 ---
 
 <blockquote class="note" markdown="1">
-   _As of FinOps toolkit 0.2, the FOCUS report was merged into the Cost summary report. Both Cost summary and Commitment discounts now use FOCUS 1.0 preview. If you would like to use the FOCUS report, you can download it from the FinOps toolkit 0.1.1 release._
+   _As of FinOps toolkit 0.2, the FOCUS report was merged into the Cost summary report. Both [Cost summary](./cost-summary.md) and [Rate optimization](./rate-optimization.md) (was Commitment discounts) reports now use FOCUS 1.0 preview. If you would like to use the FOCUS report, you can download it from the FinOps toolkit 0.1.1 release._
 </blockquote>
 
 The **FOCUS report** is an example Azure dataset that aligns to the FinOps Open Cost and Usage Specification (FOCUS), an open specification that provides a common schema for cost and usage data. To learn more, see [focus.finops.org](https://focus.finops.org).

@@ -54,13 +54,15 @@ An Azure virtual machine gives you the flexibility of virtualization without hav
 
 ## Optimize cloud usage and cost
 
-### Unit economics
+### Planning + estimating
 
-### Estimation + forecasting
+### Forecasting
 
 ### Budgeting
 
 ### Benchmarking
+
+### Unit economics
 
 <br>
 
@@ -68,13 +70,11 @@ An Azure virtual machine gives you the flexibility of virtualization without hav
 
 ### Architecting for cloud
 
-### Utilization efficiency
+### Workload optimization
 
-### Workload management
+### Rate optimization
 
 ### Licensing + SaaS
-
-### Commitment discounts
 
 ### Cloud sustainability
 
@@ -93,6 +93,8 @@ An Azure virtual machine gives you the flexibility of virtualization without hav
 ### FinOps tools + services
 
 ### Chargeback + invoicing
+
+### Onboarding workloads
 
 ### Intersecting disciplines
 
