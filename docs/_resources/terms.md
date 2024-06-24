@@ -51,13 +51,13 @@ See also: [Microsoft Partner Agreement](#mpa-or-microsoft-partner-agreement)
 
 <br>
 
+#### Commitment-based discounts
+
+See [Commitment discounts](#commitment-discounts).
+
 #### Commitment discounts
 
 "Commitment discounts" refers to any discounts you can obtain by pre-committing to a specific amount of usage for a predetermined amount of time, like reservations, savings plans, or committed use discounts (CUDs).
-
-#### Commitment discounts
-
-See [Commitment discounts](#commitment-discounts).
 
 #### Commitment savings
 
