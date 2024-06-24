@@ -64,6 +64,17 @@ var dataFactoryName = replace(
   '--',
   '-'
 )
+var eventGridPrefix = '${replace(hubName, '_', '-')}-ns'
+var eventGridSuffix = '-${uniqueSuffix}'
+var eventGridName = replace(
+  '${take(eventGridPrefix, 50 - length(eventGridSuffix))}${eventGridSuffix}',
+  '--',
+  '-'
+)
+
+// Find a fallback region for EventGrid
+var eventGridAllowedLocations = ['eastus2','westus3','northeurope','westeurope','southeastasia','eastasia', 'southcentralus','uaenorth','eastus','centralus','westus2','uksouth', 'italynorth','australiasoutheast','brazilsouth','ukwest','northcentralus', 'centralindia','japaneast','francecentral','canadacentral','australiaeast', 'japanwest','canadaeast','southindia','koreacentral','koreasouth', 'switzerlandnorth','germanywestcentral','norwayeast','swedencentral', 'polandcentral','israelcentral']
+var eventGridLocation = contains(eventGridAllowedLocations, location) ? location : eventGridAllowedLocations[0]
 
 // The last segment of the telemetryId is used to identify this module
 var telemetryId = '00f120b5-2007-6120-0000-40b000000000'
@@ -98,12 +109,16 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (ena
 }
 
 //------------------------------------------------------------------------------
-// Register EventGrid provider so that the data factory trigger can run.
+// RP registration
+// Create and delete a temporary EventGrid namespace so ARM will auto-register 
+// the Microsoft.EventGrid RP. This is needed because we cannot register RPs in 
+// a resource group template.
 //------------------------------------------------------------------------------
 
-resource RegisterEventGridProvider 'Microsoft.EventGrid/namespaces@2023-12-15-preview' = {
-  name: '${uniqueSuffix}-registerRP'
-  location: location
+// Temporary resource
+resource tempEventGridNamespace 'Microsoft.EventGrid/namespaces@2023-12-15-preview' = {
+  name: eventGridName
+  location: eventGridLocation
   sku: {
     capacity: 1
     name: 'Standard'
@@ -113,43 +128,36 @@ resource RegisterEventGridProvider 'Microsoft.EventGrid/namespaces@2023-12-15-pr
   }
 }
 
-resource cleanupidentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: '${uniqueSuffix}-cleanupidentity'
-  location: location
+// Managed identity to run script
+resource cleanupIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: '${tempEventGridNamespace.name}_eventGridManager'
+  location: eventGridLocation
 }
-
-// Assign access to the identity
-resource cleanupRegisterEventGridProvider 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  dependsOn: [
-    RegisterEventGridProvider
-    cleanupidentity
-  ]
-  name: guid('1e241071-0855-49ea-94dc-649edcd759de', cleanupidentity.id)
-  scope: RegisterEventGridProvider
+resource cleanupIdentityRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid('1e241071-0855-49ea-94dc-649edcd759de', cleanupIdentity.id)
+  scope: tempEventGridNamespace
   properties: {
     roleDefinitionId: subscriptionResourceId(
       'Microsoft.Authorization/roleDefinitions',
       '1e241071-0855-49ea-94dc-649edcd759de'
-    ) //event grid contributor role
-    principalId: cleanupidentity.properties.principalId
+    ) // Event grid contributor role
+    principalId: cleanupIdentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
 }
 
-// run cleanup script to remove the eventgrid namespace created to register the eventgrid provider
-
-resource eventProviderRegisterResourceCleanup 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+// Cleanup script
+resource cleanupTempEventGridNamespace 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: 'deleteTempEventGridNamespace'
   dependsOn: [
-    dataFactory
-    cleanupRegisterEventGridProvider
+    cleanupIdentityRole
   ]
-  name: '${uniqueSuffix}-EventGridCleanup'
-  location: location
+  location: eventGridLocation
   kind: 'AzurePowerShell'
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
-      '${cleanupidentity.id}': {}
+      '${cleanupIdentity.id}': {}
     }
   }
   properties: {
@@ -161,7 +169,7 @@ resource eventProviderRegisterResourceCleanup 'Microsoft.Resources/deploymentScr
     environmentVariables: [
       {
         name: 'resourceId'
-        value: RegisterEventGridProvider.id
+        value: tempEventGridNamespace.id
       }
     ]
   }
@@ -193,7 +201,7 @@ module storage 'storage.bicep' = {
 resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
   name: dataFactoryName
   dependsOn: [
-    RegisterEventGridProvider
+    tempEventGridNamespace
   ]
   location: location
   tags: union(
@@ -201,22 +209,15 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
     contains(tagsByResource, 'Microsoft.DataFactory/factories') ? tagsByResource['Microsoft.DataFactory/factories'] : {}
   )
   identity: { type: 'SystemAssigned' }
-  properties: union(
-    // Using union() to hide the error that gets surfaced because globalConfigurations is not in the ADF schema yet.
-    {},
-    {
-      globalConfigurations: {
-        PipelineBillingEnabled: 'true'
-      }
+  properties: any({ // Using any() to hide the error that gets surfaced because globalConfigurations is not in the ADF schema yet
+    globalConfigurations: {
+      PipelineBillingEnabled: 'true'
     }
-  )
+  })
 }
 
 module dataFactoryResources 'dataFactory.bicep' = {
   name: 'dataFactoryResources'
-  dependsOn: [
-    dataFactory
-  ]
   params: {
     dataFactoryName: dataFactory.name
     storageAccountName: storage.outputs.name
