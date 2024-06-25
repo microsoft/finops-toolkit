@@ -78,7 +78,7 @@ Once you have a consolidated list of the Microsoft, third-party, and homegrown t
 
 - Map tools and services to organizational objectives.
 - Identify which tools are used by different teams and stakeholders.
-- Investigate options to extend current tools and services, like the (FinOps toolkit](docs\_reporting\hubs\README.md).
+- Investigate options to extend current tools and services, like the [FinOps toolkit](../../../../README.md).
 <br>
 
 ## 🏗️ Building on the basics
