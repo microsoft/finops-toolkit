@@ -1,6 +1,6 @@
 ---
 layout: default
-parent: Cost optimization workbook
+parent: Cost optimization workbook resource library
 title: Sustainability
 has_children: true
 nav_order: 1

@@ -1,6 +1,6 @@
 ---
 layout: default
-parent: Cost optimization workbook
+parent: Cost optimization workbook resource library
 title: Compute
 has_children: true
 nav_order: 2
