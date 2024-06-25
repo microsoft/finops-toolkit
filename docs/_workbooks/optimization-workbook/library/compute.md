@@ -5,7 +5,7 @@ title: Cost optimization workbook resource library - Compute
 has_children: true
 nav_order: 1
 description: 'Learn more about the Azure Resource Graph (ARG) queries used in the cost optimization workbook.'
-permalink: /optimization-workbook/library/compute.md
+permalink: /optimization-workbook/library
 ---
 
 # Virtual Machines
