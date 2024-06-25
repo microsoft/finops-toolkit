@@ -93,8 +93,8 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 Related FinOps capabilities:
 
-- [Workload optimization](../understand/workloads.md)
-- [Rate optimization](../understand/rates.md)
+- [Workload optimization](./workloads.md)
+- [Rate optimization](./rates.md)
 
 <br>
 
