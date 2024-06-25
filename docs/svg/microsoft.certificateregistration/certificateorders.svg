@@ -1,2 +1,18 @@
-<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'><path fill='#32bedd' d='M16.18 4.79v8.46L8.87 17.5V9.03l7.31-4.24z'/><path fill='#9cebff' d='M16.18 4.79L8.87 9.04 1.55 4.78 8.87.53l7.31 4.26z'/><path fill='#50e6ff' d='M8.87 9.04v8.46l-7.32-4.25V4.78l7.32 4.26z'/><path fill='#9cebff' d='M1.55 13.25l7.32-4.22v8.47l-7.32-4.25z'/><path fill='#50e6ff' d='M16.18 13.25L8.87 9.03v8.47l7.31-4.25z'/></svg>
+<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'>
+    <defs>
+        <linearGradient id='1f307a79-19c5-43a0-b40b-b05ebe176694' x1='9' x2='9' y1='13.507' y2='.757' gradientUnits='userSpaceOnUse'>
+            <stop offset='0' stop-color='#e27908'/>
+            <stop offset='.323' stop-color='#e47d0a'/>
+            <stop offset='.622' stop-color='#eb8810'/>
+            <stop offset='.91' stop-color='#f69a19'/>
+            <stop offset='1' stop-color='#faa21d'/>
+        </linearGradient>
+    </defs>
+    <rect width='18' height='12.75' y='.757' fill='url(#1f307a79-19c5-43a0-b40b-b05ebe176694)' rx='.6'/>
+    <rect width='15.9' height='10.5' x='1.05' y='1.882' fill='#fff' rx='.3'/>
+    <path fill='#d15900' d='M14.945 9.336a.29.29 0 01-.29.29H8.164a.29.29 0 110-.579h6.491a.289.289 0 01.29.289m0-1.793a.289.289 0 01-.29.289H8.164a.29.29 0 110-.579h6.491a.29.29 0 01.29.29m0-2.617a.29.29 0 01-.29.29H3.769a.29.29 0 110-.579h10.886a.289.289 0 01.29.289'/>
+    <path fill='#b31b1b' d='M5.133 12.691a2.525 2.525 0 01-3.376 0l-.21 4.191a.333.333 0 00.57.25l1.3-1.318 1.309 1.329A.333.333 0 005.3 16.9z'/>
+    <ellipse cx='3.479' cy='10.544' fill='#e62323' rx='3.013' ry='3.023'/>
+    <ellipse cx='3.479' cy='10.544' fill='#ffb34d' rx='2.286' ry='2.293'/>
+</svg>
 

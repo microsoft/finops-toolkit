@@ -1,6 +1,7 @@
 {
   "cSpell.words": [
     "ADLS",
+    "architecting",
     "autoshutdown",
     "autostop",
     "autostopping",
@@ -30,7 +31,7 @@
     "triaging",
     "Unhide",
     "westus"
-],
+  ],
   "markdown.preview.typographer": false,
   "markdown.extension.italic.indicator": "_",
   "markdown.extension.toc.levels": "2..2",
@@ -53,6 +54,6 @@
   "[powerquery]": {
     "editor.formatOnSave": false
   },
-"powerquery.general.experimental": false,
-"editor.detectIndentation": false
+  "powerquery.general.experimental": false,
+  "editor.detectIndentation": false
 }

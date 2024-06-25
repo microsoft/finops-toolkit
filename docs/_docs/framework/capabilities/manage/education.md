@@ -79,7 +79,7 @@ At this point, you have a central repository for training content and targeted i
   - Review findings regularly and factor into future plans.
 - Consider establishing an official internal support channel to provide help and support.
 - Seek out and engage with stakeholders within your organization, including senior level sponsorship and cultivated supporters to build momentum.
-- Identify people with passion for cost optimization and data-driven decision making to be part of the [FinOps steering committee](./structure.md).
+- Identify people with passion for cost optimization and data-driven decision making to be part of the FinOps steering committee.
 
 <br>
 
@@ -98,8 +98,7 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 Related FinOps capabilities:
 
-- [Establishing a FinOps decision and accountability structure](./structure.md)
-- [Establishing a FinOps culture](./culture.md)
+- [FinOps practice operations](./operations.md)
 
 <br>
 

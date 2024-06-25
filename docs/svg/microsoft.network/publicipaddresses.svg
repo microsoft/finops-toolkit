@@ -1,2 +1,17 @@
-<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'><path fill='#32bedd' d='M16.18 4.79v8.46L8.87 17.5V9.03l7.31-4.24z'/><path fill='#9cebff' d='M16.18 4.79L8.87 9.04 1.55 4.78 8.87.53l7.31 4.26z'/><path fill='#50e6ff' d='M8.87 9.04v8.46l-7.32-4.25V4.78l7.32 4.26z'/><path fill='#9cebff' d='M1.55 13.25l7.32-4.22v8.47l-7.32-4.25z'/><path fill='#50e6ff' d='M16.18 13.25L8.87 9.03v8.47l7.31-4.25z'/></svg>
+<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'>
+    <defs>
+        <linearGradient id='998f861c-43bd-42ed-89b4-1c0a28eb0ecf' x1='9' x2='9' y1='15.83' y2='5.79' gradientUnits='userSpaceOnUse'>
+            <stop offset='0' stop-color='#32bedd'/>
+            <stop offset='.18' stop-color='#32caea'/>
+            <stop offset='.41' stop-color='#32d2f2'/>
+            <stop offset='.78' stop-color='#32d4f5'/>
+        </linearGradient>
+    </defs>
+    <path fill='url(#998f861c-43bd-42ed-89b4-1c0a28eb0ecf)' d='M.5 5.79h17v9.48a.57.57 0 01-.57.57H1.07a.57.57 0 01-.57-.57V5.79z'/>
+    <path fill='#767676' d='M1.07 2.17h15.86a.57.57 0 01.57.57v3.05H.5V2.73a.57.57 0 01.57-.56z'/>
+    <circle cx='12.82' cy='10.19' r='1.38' fill='#f2f2f2'/>
+    <circle cx='9.06' cy='10.19' r='1.38' fill='#f2f2f2'/>
+    <circle cx='5.18' cy='10.19' r='1.38' fill='#f2f2f2'/>
+    <rect width='12.43' height='1.46' x='2.79' y='3.25' fill='#f2f2f2' rx='.28'/>
+</svg>
 

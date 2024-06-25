@@ -142,7 +142,7 @@ The **Regions** page includes a breakdown of cost by region with a map showing t
 
 ## Commitments
 
-<!-- NOTE: This page is duplicated in the commitment-discounts.md. Please keep both updated at the same time. -->
+<!-- NOTE: This page is duplicated in the rate-optimization.md. Please keep both updated at the same time. -->
 
 The **Commitments** page serves 3 primary purposes:
 

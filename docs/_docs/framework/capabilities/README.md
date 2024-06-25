@@ -16,12 +16,10 @@ Learn about the fundamental building blocks of the FinOps Framework that enable 
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [🔍 Understanding cloud usage and cost](#-understanding-cloud-usage-and-cost)
-- [📏 Performance tracking and benchmarking](#-performance-tracking-and-benchmarking)
-- [🤔 Real-time decision making](#-real-time-decision-making)
-- [📉 Cloud rate optimization](#-cloud-rate-optimization)
-- [📊 Cloud usage optimization](#-cloud-usage-optimization)
-- [🏢 Organizational alignment](#-organizational-alignment)
+- [🔍 Understand cloud usage and cost](#-understand-cloud-usage-and-cost)
+- [📏 Quantify business value](#-quantify-business-value)
+- [📊 Optimize cloud usage and cost](#-optimize-cloud-usage-and-cost)
+- [🏢 Manage the FinOps practice](#-manage-the-finops-practice)
 - [⏩ Next steps](#-next-steps)
 - [🧰 Related tools](#-related-tools)
 
@@ -31,51 +29,45 @@ Learn about the fundamental building blocks of the FinOps Framework that enable 
 
 <br>
 
-## 🔍 Understanding cloud usage and cost
+## 🔍 Understand cloud usage and cost
 
-- [Data ingestion and normalization](./understand/ingestion.md)
-- [Cost allocation](./understand/allocation.md)
-- [Managing shared cost](./understand/shared-cost.md)
-- [Data analysis and showback](./understand/reporting.md)
+- [Data ingestion](./understand/ingestion.md)
+- [Allocation](./understand/allocation.md)
+- [Reporting and analytics](./understand/reporting.md)
+- [Anomaly management](./understand/anomalies.md)
 
 <br>
 
-## 📏 Performance tracking and benchmarking
+## 📏 Quantify business value
 
+- [Planning and estimating](./quantify/planning.md)
 - [Forecasting](./quantify/forecasting.md)
-- [Budget management](./quantify/budgeting.md)
-- [Measuring unit costs](./quantify/unit-economics.md)
+- [Budgeting](./quantify/budgeting.md)
+- [Benchmarking](./quantify/benchmarking.md)
+- [Unit economics](./quantify/unit-economics.md)
 
 <br>
 
-## 🤔 Real-time decision making
+## 📊 Optimize cloud usage and cost
 
-- [Managing anomalies](./understand/anomalies.md)
-- [Establishing a FinOps decision and accountability structure](./manage/structure.md)
-
-<br>
-
-## 📉 Cloud rate optimization
-
-- [Managing commitment-based discounts](./optimize/commitment-discounts.md)
+- [Architecting for the cloud](./optimize/architecting.md)
+- [Workload optimization](./optimize/workloads.md)
+- [Rate optimization](./optimize/rates.md)
+- [Licensing and SaaS](./optimize/licensing.md)
+- [Cloud sustainability](./optimize/sustainability.md)
 
 <br>
 
-## 📊 Cloud usage optimization
-
-- [Onboarding workloads](./manage/onboarding.md)
-- [Resource utilization and efficiency](./optimize/utilization-efficiency.md)
-- [Workload management and automation](./optimize/workloads.md)
-
-<br>
-
-## 🏢 Organizational alignment
+## 🏢 Manage the FinOps practice
 
 - [FinOps education and enablement](./manage/education.md)
-- [Establishing a FinOps culture](./manage/culture.md)
+- [FinOps practice operations](./manage/operations.md)
+- [Onboarding workloads](./manage/onboarding.md)
 - [Cloud policy and governance](./manage/policy.md)
-- [Chargeback and finance integration](./manage/invoicing-chargeback.md)
-- [FinOps and intersecting frameworks](./manage/intersecting-disciplines.md)
+- [Invoicing and chargeback](./manage/invoicing-chargeback.md)
+- [FinOps assessment](./manage/assessment.md)
+- [FinOps tools and services](./manage/tools-and-services.md)
+- [Intersecting frameworks](./manage/intersecting-disciplines.md)
 
 <br>
 

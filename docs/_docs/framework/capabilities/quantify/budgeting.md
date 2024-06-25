@@ -5,7 +5,7 @@ parent: Quantify
 title: Budgeting
 permalink: /framework/capabilities/quantify/budgeting
 nav_order: 3
-description: This article helps you understand the budget management capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+description: This article helps you understand the budgeting capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
 ms.date: 06/23/2023
@@ -14,8 +14,8 @@ ms.service: finops
 ms.reviewer: micflan
 ---
 
-<span class="fs-9 d-block mb-4">Budget management</span>
-This article helps you understand the budget management capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+<span class="fs-9 d-block mb-4">Budgeting</span>
+This article helps you understand the budgeting capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 {: .fs-6 .fw-300 }
 
 <details open markdown="1">
@@ -32,14 +32,14 @@ This article helps you understand the budget management capability within the Fi
 ---
 
 <a name="definition"></a>
-**Budget management refers to the process of overseeing and tracking financial plans and limits over a given period to effectively manage and control spending.**
+**Budgeting refers to the process of overseeing and tracking financial plans and limits over a given period to effectively manage and control spending.**
 {: .fs-6 .fw-300 }
 
 Analyze historical usage and cost trends and adjust for future plans to estimate monthly, quarterly, and yearly costs that are realistic and achievable. Repeat for each level in the organization for a complete picture of organizational budgets.
 
 Configure alerting and automated actions to notify stakeholders and protect against budget overages. Investigate unexpected variance to budget and take appropriate actions. Review and adjust budgets regularly to ensure they remain accurate and reflect any changes in the organization's financial situation.
 
-Effective budget management helps ensure organizations operate within their means and are able to achieve financial goals. Unexpected costs can impact external business decisions and initiatives that could have widespread impact.
+Effective budgeting helps ensure organizations operate within their means and are able to achieve financial goals. Unexpected costs can impact external business decisions and initiatives that could have widespread impact.
 
 <br>
 
@@ -62,7 +62,7 @@ When you first start managing cost in the cloud, you may not have your financial
 
 ## 🏗️ Building on the basics
 
-So far, you've defined granular and targeted cost alerts for each scope and application and ideally review your cost as a KPI with all stakeholders at regular meetings. Consider the following points to further refine your budget management process:
+So far, you've defined granular and targeted cost alerts for each scope and application and ideally review your cost as a KPI with all stakeholders at regular meetings. Consider the following points to further refine your budgeting process:
 
 - Refine the budget granularity to enable more targeted oversight.
 - Encourage all teams to take ownership of their budget allocations and expenses.
@@ -75,7 +75,7 @@ So far, you've defined granular and targeted cost alerts for each scope and appl
 
 ## 🍎 Learn more at the FinOps Foundation
 
-This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see to the [Budget management](https://www.finops.org/framework/capabilities/budget-management) article in the FinOps Framework documentation.
+This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see to the [Budgeting](https://www.finops.org/framework/capabilities/budgeting) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 

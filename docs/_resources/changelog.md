@@ -17,6 +17,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
+- [🚚 v0.4](#-v04)
 - [🚚 v0.3](#-v03)
 - [🚚 v0.2](#-v02)
 - [🛠️ v0.1.1](#️-v011)
@@ -63,14 +64,63 @@ Legend:
 
 <br>
 
-## 🚚 v0.3
+## 🚚 v0.4
 
-📗 FinOps documentation
+📗 FinOps guide
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
-> 1. Added the [FinOps documentation](../_docs/what-is-finops.md) to provide guidance around how to implement and adopt FinOps in the Microsoft Cloud.
+> 1. Documented the [FOCUS export dataset](../_docs/focus/metadata.md) to align to the FOCUS metadata specification.
+>
+> ✏️ Changed:
+>
+> 1. Updated [FinOps Framework guidance](../_docs/framework/README.md) to account for the 2024 updates.
+
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> 🛠️ Fixed:
+>
+> 1. Improved parsing for the `x_ResourceParentName` and `x_ResourceParentType` columns ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
+>
+> ✏️ Changed
+>
+> 1. Renamed the "Commitment discounts" report to "Rate optimization" to align to the FinOps Framework 2024 updates.
+> 2. Changed the **Tags** column to default to `{}` when empty to facilitate tag expansion ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
+> 3. Changed internal storage for reports to use [Tabular Model Definition Language (TMDL)](https://learn.microsoft.com/power-bi/developer/projects/projects-dataset#tmdl-format).
+>    - This change makes it easier to review changes to the data model in Power BI.
+>    - Reports will still be released as PBIX files so this change should not impact end users.
+>    - Visualizations are not being switched to [Power BI Enhanced Report (PBIR)](https://learn.microsoft.com/power-bi/developer/projects/projects-report#pbir-format) format yet due to functional limitations that would impact end users (as of June 2024).
+
+🌐 Open data
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Added a new FOCUS 1.0 [dataset example](../_reporting/data/README.md#️-dataset-examples).
+> 2. Added [dataset metadata](../_reporting/data/README.md#️-dataset-metadata) for FOCUS 1.0 and FOCUS 1.0-preview.
+>
+> ✏️ Changed
+>
+> 1. Updated all [open data files](../_reporting/data/README.md) to include the latest data.
+> 2. Changed the primary columns in the [Regions](../_reporting/data/README.md#️-regions) and [Services](../_reporting/data/README.md#️-services) open data files to be lowercase.
+> 3. Updated all [sample exports](../_reporting/data/README.md#️-dataset-examples) to use the same date range as the FOCUS 1.0 dataset.
+
+<br>
+
+## 🚚 v0.3
+
+📗 FinOps guide
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Moved [Azure FinOps documentation](https://aka.ms/finops/docs) about how to implement and adopt FinOps into the toolkit.
+>
+> ✏️ Changed:
+>
+> 1. Rearranged documentation site to better organize content.
 
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -94,20 +144,23 @@ Legend:
 
 > ➕ Added:
 >
-> 1. Added a DQ page to the [Commitment discounts report](../_reporting/power-bi/commitment-discounts.md#dq) for data quality validations. This page can be useful in identifying data gaps in Cost Management.
-> 2. Added `x_NegotiatedUnitPriceSavings` column to show the price reduction from negotiated discounts compared to the public, list price.
-> 3. Added `x_IsFree` column to indicate when a row represents a free charge (based on Cost Management data). This is used in data quality checks.
-> 4. Added `Tags` and `TagsAsJson` columns to both the **Usage details** and **Usage details amortized** tables in the [CostManagementTemplateApp report](../_reporting/power-bi/template-app.md) ([#625](https://github.com/microsoft/finops-toolkit/issues/625)).
+> 1. Added `ResourceParentId`, `ResourceParentName`, and `ResourceParentType` columns to support the usage of the user-defined `cm-resource-parent` tag.
+> 2. Added `ToolkitVersion` and `ToolkitTool` columns to help quantify the cost of FinOps toolkit solutions.
+> 3. Added a DQ page to the [Commitment discounts report](../_reporting/power-bi/rate-optimization.md#dq) for data quality validations. This page can be useful in identifying data gaps in Cost Management.
+> 4. Added `x_NegotiatedUnitPriceSavings` column to show the price reduction from negotiated discounts compared to the public, list price.
+> 5. Added `x_IsFree` column to indicate when a row represents a free charge (based on Cost Management data). This is used in data quality checks.
+> 6. Added `Tags` and `TagsAsJson` columns to both the **Usage details** and **Usage details amortized** tables in the [CostManagementTemplateApp report](../_reporting/power-bi/template-app.md) ([#625](https://github.com/microsoft/finops-toolkit/issues/625)).
 >
 > 🛠️ Fixed:
 >
 > 1. Fixed numerous errors causing the [Cost Management connector report](../_reporting/power-bi/connector.md) to not load for MCA accounts.
-> 2. Fixed incorrect filter in the [Commitment discounts report](../_reporting/power-bi/commitment-discounts.md) ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
+> 2. Fixed incorrect filter in the [Commitment discounts report](../_reporting/power-bi/rate-optimization.md) ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
 > 3. Fixed data issue where Cost Management uses "1Year", "3Years", and "5Years" for the x_SkuTerm. Values should be 12, 36, and 60 ([#594](https://github.com/microsoft/finops-toolkit/issues/594)).
 > 4. Changed the data type for the `x_Month` column to be a date.
 > 5. Changed `x_SkuTerm` to be a whole number and to not summarize by default.
 > 6. Changed `x_BillingExchangeRate` to not summarize by default.
 > 7. Corrected references to x_InvoiceIssuerId and InvoiceIssuerName columns in the [Cost Management connector report](../_reporting/power-bi/connector.md) ([#639](https://github.com/microsoft/finops-toolkit/issues/649)).
+> 8. Corrected the datatype for the `x_Month` column.
 >
 > ✏️ Changed:
 >
@@ -122,40 +175,36 @@ Legend:
 > 4. Changed all cost columns to use 2 decimal places.
 > 5. Changed all unit price columns to not summarize by default and use 3 decimal places.
 > 6. Changed the `x_PricingBlockSize` column to a whole number and not summarize by default.
-> 7. Renamed the **Coverage** pages in the [Commitment discounts report](../_reporting/power-bi/commitment-discounts.md) to **Recommendations**.
+> 7. Renamed the **Coverage** pages in the [Commitment discounts report](../_reporting/power-bi/rate-optimization.md) to **Recommendations**.
 
 📒 Azure Monitor workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
+**May**:
+> 1. 🔹 Reservations Recommendations:<br>
+> New Tab: We've added a new tab specifically for Reservations recommendations. <br>This tab includes a handy **Break-Even Point** feature, allowing you to prioritize recommendations that will reach their break-even point sooner.
+> > :warning: **Permissions**: Please note, this tab now requires Enterprise Admin or Billing Profile Reader permissions. We have kept the old tab for the time being to ensure a smooth transition.
+> 2. 🔹 Sustainability: <br>
+> Redesigned Tab: The sustainability tab has been completely redesigned with an improved layout, making it easier to understand the provided recommendations.
+> 3. 🔹 Networking Tab: <br>
+> Query Improvement: The Public IP Addresses query has been enhanced to ignore dynamic IPs, ensuring more accurate results.
+> 4. 🔹 Top 10 Services:<br>
+> Web App Query Update: The Web App query now ignores the free tier, providing a clearer picture of your top services.
+
+> **April**:
 > ➕ Added:
->
-> 1. Started archiving template versions so they can be referenced easily via URL microsoft.github.io/finops-toolkit/deploy/{template}-{version}.json.
->
-> - [Optimization workbook](./optimization-workbook/README.md):
->   1. Respect global subscription filter selections.
->
-> ✏️ Changed:
->
-> - [Governance workbook](./governance-workbook/README.md):
->   1. Managed disk visual improvement.
->   2. Removed blueprints (replaced by deployment stacks and template specs).
->   3. Combined the Governance and Security tabs.
->   4. Enabled the export button.
->
-> 🛠️ Fixed:
->
-> 1. Fixed deploy to Azure buttons to point to the latest release.
->
-> - [Optimization workbook](./optimization-workbook/README.md):
->   1. Fixed a typo with Azure Hybrid benefits query.
->   2. Fixed a bug with the SQL Managed Instance query where the query had a merge error.
+> 1. 1️⃣🕵️‍♂️ Identify Idle ExpressRoute Circuits: Now, easily pinpoint and optimize inactive ExpressRoute circuits to streamline costs.
+> 2. 2️⃣ 📊Routing Preference for Public IP Addresses: Gain insights into the routing preferences for your public IP addresses to optimize network performance.
+> 3. 3️⃣ 🥧Commitment Discount Savings Summary: Explore a new pie chart summarizing commitment discount savings, providing a clear overview of cost-saving opportunities.
+>4.  4️⃣ 💰DDoS-enabled Public IP Addresses Query: Quickly view public IP addresses with DDoS protection enabled and compare if it would be cheaper to enable DDoS to the vNet instead.
+> 5. 5️⃣ 💡Azure Hybrid Benefit for SQL Database Elastic Pools: Leverage new queries to identify Azure Hybrid Benefit usage for SQL Database elastic pools, maximizing cost efficiencies.
 
 🖥️ PowerShell
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
-> 1. [Get-FinOpsCostService](../_automation/powershell/data/Get-FinOpsService.md) includes new `-Environment` and `-ServiceModel` filters and properties in the response ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
+> 1. [Get-FinOpsService](../_automation/powershell/data/Get-FinOpsService.md) includes new `-Environment` and `-ServiceModel` filters and properties in the response ([#585](https://github.com/microsoft/finops-toolkit/issues/585)).
 >
 > ✏️ Changed:
 >
@@ -179,29 +228,6 @@ Legend:
 
 [Download v0.3](https://github.com/microsoft/finops-toolkit/releases/tag/v0.3){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.2...v0.3){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-
-📊 Power BI reports
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. `ResourceParentId`, `ResourceParentName`, and `ResourceParentType` columns to support the usage of the user-defined `cm-resource-parent` tag.
-> 2. `ToolkitVersion` and `ToolkitTool` columns to help quantify the cost of FinOps toolkit solutions.
->
-> 🛠️ Fixed:
->
-> 1. Corrected the datatype for the `x_Month` column.
-
-📗 FinOps guide
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. Move [Azure FinOps documentation](https://aka.ms/finops/docs) into the toolkit.
->
-> ✏️ Changed:
->
-> 1. Rearranged documentation site to better organize content.
 
 <br>
 
@@ -236,8 +262,8 @@ Legend:
 >
 > ✏️ Changed:
 >
-> 1. Updated [Cost summary](../_reporting/power-bi/cost-summary.md) and [Commitment discounts](../_reporting/power-bi/commitment-discounts.md) reports to [FOCUS 1.0 preview](../_docs/focus/README.md).
-> 2. Updated [Cost summary](../_reporting/power-bi/cost-summary.md) and [Commitment discounts](../_reporting/power-bi/commitment-discounts.md) reports to only use [FinOps hubs](../_reporting/hubs/README.md).
+> 1. Updated [Cost summary](../_reporting/power-bi/cost-summary.md) and [Commitment discounts](../_reporting/power-bi/rate-optimization.md) reports to [FOCUS 1.0 preview](../_docs/focus/README.md).
+> 2. Updated [Cost summary](../_reporting/power-bi/cost-summary.md) and [Commitment discounts](../_reporting/power-bi/rate-optimization.md) reports to only use [FinOps hubs](../_reporting/hubs/README.md).
 > 3. Removed unused custom visualizations.
 > 4. Organized setup instructions in Cost summary to match other reports.
 > 5. Updated troubleshooting documentation.
@@ -388,7 +414,7 @@ Legend:
 
 > ➕ Added:
 >
-> 1. Commitments, Savings, Chargeback, Purchases, and Prices pages in the [Commitment discounts report](../_reporting/power-bi/commitment-discounts.md).
+> 1. Commitments, Savings, Chargeback, Purchases, and Prices pages in the [Commitment discounts report](../_reporting/power-bi/rate-optimization.md).
 > 2. Prices page in the [Cost summary report](../_reporting/power-bi/cost-summary.md).
 > 3. [FOCUS sample report](../_reporting/power-bi/focus.md) – See your data in the FinOps Open Cost and Usage Specification (FOCUS) schema.
 > 4. [Cost Management template app](../_reporting/power-bi/template-app.md) (EA only) – The original Cost Management template app as a customizable PBIX file.
@@ -431,7 +457,7 @@ Legend:
 >
 > 1. [FinOps hub template](../_reporting/hubs/README.md) to deploy a storage account and Data Factory instance.
 > 2. [Cost summary report](../_reporting/power-bi/cost-summary.md) for various out-of-the-box cost breakdowns.
-> 3. [Commitment discounts report](../_reporting/power-bi/commitment-discounts.md) for commitment-based discount reports.
+> 3. [Commitment discounts report](../_reporting/power-bi/rate-optimization.md) for commitment-based discount reports.
 
 🦾 Bicep modules
 {: .fs-5 .fw-500 .mt-4 mb-0 }
