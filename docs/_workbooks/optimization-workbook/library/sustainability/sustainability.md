@@ -1,11 +1,11 @@
 ---
 layout: default
 parent: Cost optimization workbook
-title: Cost optimization workbook resource library - Sustainability
+title: Sustainability
 has_children: true
 nav_order: 1
 description: 'Learn more about the Azure Resource Graph (ARG) queries used in the cost optimization workbook.'
-permalink: /optimization-workbook/library
+permalink: /optimization-workbook/library/sustainability
 ---
 
 # Carbon Optimization

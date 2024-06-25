@@ -38,14 +38,10 @@ Learn more about the Azure Resource Graph (ARG) queries used in the cost optimiz
 ### Business applications
 -->
 
-### Compute
-
-- [Compute](compute.md) – Create Linux and Windows virtual machines (VMs) in seconds and reduce costs.
-- [Databases](databases.md) – Create Linux and Windows virtual machines (VMs) in seconds and reduce costs.
-- [Networking](networking.md) – Create Linux and Windows virtual machines (VMs) in seconds and reduce costs.
-- [Sustainability](sustainability.md) – Create Linux and Windows virtual machines (VMs) in seconds and reduce costs.
-
-
+- [Compute](compute/compute.md) – List of compute queries
+- [Databases](databases/databases.md) – List of databases queries
+- [Networking](networking/networking.md) – List of networking queries
+- [Sustainability](sustainability/sustainability.md) – List of sustainability queries
 
 <br>
 
