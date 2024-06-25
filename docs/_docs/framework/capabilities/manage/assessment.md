@@ -76,7 +76,7 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 Related FinOps capabilities:
 
-- [Benchmarking](../optimize/benchmarking.md)
+- [Benchmarking](../quantify/benchmarking.md)
 - [Reporting and analytics](../understand/reporting.md)
 
 <br>
