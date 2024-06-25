@@ -1,3 +1,13 @@
+---
+layout: default
+parent: Cost optimization workbook
+title: Cost optimization workbook resource library - Networking
+has_children: true
+nav_order: 1
+description: 'Learn more about the Azure Resource Graph (ARG) queries used in the cost optimization workbook.'
+permalink: /optimization-workbook/library/networking.md
+---
+
 # Azure Firewall 
 
 ## Query: Azure Firewall and Firewall Policies Analysis
