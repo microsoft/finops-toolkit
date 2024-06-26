@@ -67,9 +67,9 @@ While our community is growing, we don't have dedicated staff and cannot commit 
 
 🔄️ Remote hubs – Ingest cost data from other tenants.<br>
 🔄️ Managed exports – Let FinOps hubs manage exports for you.<br>
-🔄️ Analytics engine – Ingest cost data into an Azure Data Explorer cluster.<br>
+🔄️ Analytics engine ([#57](https://github.com/microsoft/finops-toolkit/issues/57)) – Ingest cost data into an Azure Data Explorer cluster.<br>
 🔄️ Private endpoints – Add support for private endpoints.<br>
-🔄️ Bring your own KeyVault – Add support for referencing an existing KeyVault instance.<br>
+🔄️ Bring your own KeyVault ([PR #573](https://github.com/microsoft/finops-toolkit/pull/573)) – Add support for referencing an existing KeyVault instance.<br>
 🔜 Troubleshooting guide – Detailed walkthrough of how to resolve and get support for common issues.<br>
 🔜 Auto-backfill – Backfill historical data from Microsoft Cost Management.<br>
 🔜 Retention – Configure how long you want to keep data in storage.<br>
