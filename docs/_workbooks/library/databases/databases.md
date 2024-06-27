@@ -1,9 +1,9 @@
 ---
 layout: default
 ##grand_parent: Cost optimization workbook resource library
-parent: Cost optimization workbook resource library
+parent: ARG Resource Library
 ##parent: Databases
-permalink: /optimization-workbook/library/databases
+permalink: /library/databases
 nav_order: 2
 title: Databases
 author: arclares

@@ -1,8 +1,8 @@
 ---
 layout: default
-grand_parent: Cost optimization workbook resource library
-parent: Networking
-permalink: /optimization-workbook/library/networking
+##grand_parent: Cost optimization workbook resource library
+parent: ARG Resource Library
+permalink: /library/networking
 nav_order: 2
 title: Networking
 author: arclares

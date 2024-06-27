@@ -1,8 +1,8 @@
 ---
 layout: default
-grand_parent: Cost optimization workbook resource library
-parent: Sustanability
-permalink: /optimization-workbook/library/Sustainability
+## grand_parent: Cost optimization workbook resource library
+parent: ARG Resource Library
+permalink: /library/Sustainability
 nav_order: 2
 title: Sustainability
 author: arclares
