@@ -1,6 +1,5 @@
 ---
 layout: default
-parent: Cost optimization workbook
 title: ARG Resource Library
 has_children: true
 nav_order: 1
