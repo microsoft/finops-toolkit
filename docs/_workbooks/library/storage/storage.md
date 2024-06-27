@@ -11,26 +11,13 @@ description: 'Learn more about the Azure Resource Graph (ARG) queries used in th
 ---
 
 # 📇 Table of Contents
-- [📇 Table of Contents](#-table-of-contents)
-- [📇 Table of Contents](#-table-of-contents)
+1. [📇 Table of Contents](#-table-of-contents)
 - [Storage Account](#storage-account)
   - [Query: Storage account v1](#query-storage-account-v1)
-  - [Description](#description)
-    - [Category](#category)
-    - [Potential Benefits](#potential-benefits)
-- [Disks](#disks)
+2. [Disks](#disks)
   - [Query: Idle Disks](#query-idle-disks)
-  - [Description](#description-1)
-    - [Category](#category-1)
-    - [Potential Benefits](#potential-benefits-1)
   - [Query: Disk Snapshot Older Than 30 Days](#query-disk-snapshot-older-than-30-days)
-  - [Description](#description-2)
-    - [Category](#category-2)
-    - [Potential Benefits](#potential-benefits-2)
   - [Query: Snapshot Using Premium Storage](#query-snapshot-using-premium-storage)
-  - [Description](#description-3)
-    - [Category](#category-3)
-    - [Potential Benefits](#potential-benefits-3)
   
 
 # Storage Account
