@@ -50,7 +50,7 @@ The FinOps Foundation, a non-profit organization focused on FinOps, offers a gre
 
 To learn more about the FinOps Framework and capabilities:
 
-- [What is the FinOps Framework?](./framework/README.md)
+- [What is the FinOps Framework?](./framework/finops-framework.md)
 
 To jump in and start implementing FinOps now:
 
