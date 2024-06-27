@@ -4,25 +4,28 @@ title: ARG Resource Library
 has_children: true
 description: 'Learn more about the Azure Resource Graph (ARG) queries used in the cost optimization workbook.'
 permalink: /library
----
 
-[See all](#-list-of-services){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-<!--
-[Secondary CTA](#){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
--->
+---
+<span class="fs-9 d-block mb-4">Azure Resource Graph Library</span>
+Learn more about the Azure Resoruce Graph (ARG) queries used by the Cost Optimization workbook.
+{: .fs-6 .fw-300 }
 
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
+<details open markdown="1">
+   <summary class="fs-2 text-uppercase">On this page</summary>
+
+- [](#)
 - [📇 List of services](#-list-of-services)
 - [🙋‍♀️ Looking for more?](#️-looking-for-more)
 - [🧰 Related tools](#-related-tools)
 
 </details>
-
 ---
 
-<span class="fs-9 d-block mb-4">Network</span>
+
+<span class="fs-9 d-block mb-4">Cost optimization ARG queries</span>
 Learn more about the Azure Resource Graph (ARG) queries used in the cost optimization workbook.
 
 

@@ -11,6 +11,10 @@ description: 'Learn more about the Azure Resource Graph (ARG) queries used in th
 
 ---
 
+# 📇 Table of Contents
+1. [Carbon Optimization](#carbon-optimization)
+   - [Query: Carbon Emissions](#query-carbon-emissions)
+
 # Carbon Optimization
 
 ## Query: Carbon Emissions

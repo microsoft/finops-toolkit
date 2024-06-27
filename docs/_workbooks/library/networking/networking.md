@@ -10,6 +10,23 @@ ms.service: finops
 description: 'Learn more about the Azure Resource Graph (ARG) queries used in the cost optimization workbook.'
 ---
 
+# 📇 Table of Contents
+1. [Azure Firewall](#azure-firewall)
+   - [Query: Azure Firewall and Firewall Policies Analysis](#query-azure-firewall-and-firewall-policies-analysis)
+   - [Query: Azure Firewall and Associated Subnets Analysis](#query-azure-firewall-and-associated-subnets-analysis)
+2. [Idle Resources](#idle-resources)
+   - [Query: Idle Application Gateways](#query-idle-application-gateways)
+   - [Query: Idle Load Balancers](#query-idle-load-balancers)
+   - [Query: Idle Public IP Addresses](#query-idle-public-ip-addresses)
+   - [Query: Check for Idle Virtual Network Gateway](#query-check-for-idle-virtual-network-gateway)
+   - [Query: Check for Idle NAT Gateway](#query-check-for-idle-nat-gateway)
+   - [Query: Idle Express Route](#query-idle-express-route)
+   - [Query: Private DNS](#query-private-dns)
+3. [Public IP Addresses](#public-ip-addresses)
+   - [Query: Identify the Routing Method of Your Public IP Addresses](#query-identify-the-routing-method-of-your-public-ip-addresses)
+   - [Query: Check Public IP Addresses' DDoS Protection Policy](#query-check-public-ip-addresses-ddos-protection-policy)
+
+
 # Azure Firewall 
 
 ## Query: Azure Firewall and Firewall Policies Analysis

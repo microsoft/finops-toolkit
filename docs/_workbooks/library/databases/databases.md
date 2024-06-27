@@ -10,6 +10,14 @@ ms.service: finops
 description: 'Learn more about the Azure Resource Graph (ARG) queries used in the cost optimization workbook.'
 
 ---
+# 📇 Table of Contents
+1. [Cosmos DB](#cosmos-db)
+   - [Query: Cosmos DB Check Correct RU](#query-cosmos-db-check-correct-ru)
+   - [Query: Cosmos DB Collections that Would Benefit from Switching to Other Throughput Mode](#query-cosmos-db-collections-that-would-benefit-from-switching-to-other-throughput-mode)
+   - [Query: Cosmos DB Backup Mode](#query-cosmos-db-backup-mode)
+2. [SQL DB](#sql-db)
+   - [Query: SQL DB Idle](#query-sql-db-idle)
+
 
 # Cosmos DB
 
@@ -45,21 +53,6 @@ Optimization
   </div>
 </details>
 
-
-## Query: Cosmos DB Collections that would benefit from switching to other throughput mode
-
-xxx
-
-## Description
-
-xxxx
-
-### Category
-
-xxx
-### Potential Benefits
-
-xxx
 
 <details>
   <summary>Click to view the code</summary>
