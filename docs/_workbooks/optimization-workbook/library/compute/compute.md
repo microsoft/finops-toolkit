@@ -1,7 +1,8 @@
 ---
 layout: default
-grand_parent: Cost optimization workbook resource library
-parent: Compute
+##grand_parent: Cost optimization workbook resource library
+parent: Cost optimization workbook resource library
+##parent: Compute
 permalink: /optimization-workbook/library/compute
 nav_order: 2
 title: Compute

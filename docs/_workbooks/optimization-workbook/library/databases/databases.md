@@ -1,7 +1,8 @@
 ---
 layout: default
-grand_parent: Cost optimization workbook resource library
-parent: Databases
+##grand_parent: Cost optimization workbook resource library
+parent: Cost optimization workbook resource library
+##parent: Databases
 permalink: /optimization-workbook/library/databases
 nav_order: 2
 title: Databases
