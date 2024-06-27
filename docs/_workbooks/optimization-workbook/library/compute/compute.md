@@ -3,7 +3,7 @@ layout: default
 grand_parent: Cost optimization workbook resource library
 parent: Compute
 permalink: /optimization-workbook/library/compute
-nav_order: 3
+nav_order: 2
 title: Compute
 author: arclares
 ms.date: 06/27/2024

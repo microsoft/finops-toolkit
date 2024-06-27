@@ -3,7 +3,7 @@ layout: default
 grand_parent: Cost optimization workbook resource library
 parent: Sustanability
 permalink: /optimization-workbook/library/Sustainability
-nav_order: 3
+nav_order: 2
 title: Sustainability
 author: arclares
 ms.date: 06/27/2024

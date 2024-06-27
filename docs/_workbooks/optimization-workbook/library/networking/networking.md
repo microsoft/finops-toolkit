@@ -3,7 +3,7 @@ layout: default
 grand_parent: Cost optimization workbook resource library
 parent: Networking
 permalink: /optimization-workbook/library/networking
-nav_order: 3
+nav_order: 2
 title: Networking
 author: arclares
 ms.date: 06/27/2024
