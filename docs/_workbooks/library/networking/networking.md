@@ -1,6 +1,5 @@
 ---
 layout: default
-##grand_parent: Cost optimization workbook resource library
 parent: ARG Resource Library
 permalink: /library/networking
 nav_order: 2

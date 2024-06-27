@@ -4,7 +4,7 @@ layout: default
 parent: ARG Resource Library
 ##parent: Compute
 permalink: /library/compute
-nav_order: 2
+nav_order: 1
 title: Compute
 author: arclares
 ms.date: 06/27/2024

@@ -1,8 +1,6 @@
 ---
 layout: default
-##grand_parent: Cost optimization workbook resource library
 parent: ARG Resource Library
-##parent: Databases
 permalink: /library/databases
 nav_order: 2
 title: Databases
