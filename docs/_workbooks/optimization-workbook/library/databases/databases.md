@@ -1,11 +1,15 @@
 ---
 layout: default
-parent: Cost optimization workbook resource library
-title: Databases
-has_children: true
-nav_order: 1
-description: 'Learn more about the Azure Resource Graph (ARG) queries used in the cost optimization workbook.'
+grand_parent: Cost optimization workbook resource library
+parent: Databases
 permalink: /optimization-workbook/library/databases
+nav_order: 3
+title: Databases
+author: arclares
+ms.date: 06/27/2024
+ms.service: finops
+description: 'Learn more about the Azure Resource Graph (ARG) queries used in the cost optimization workbook.'
+
 ---
 
 # Cosmos DB
