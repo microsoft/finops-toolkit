@@ -11,29 +11,115 @@ Sorry to hear you're having a problem. We're here to help!
 {: .fs-6 .fw-300 }
 
 ---
+# FinOps Hubs Troubleshooting Guide
 
-<blockquote class="important" markdown="1">
-  _Source code within the FinOps toolkit is provided as-is with no guarantees and is not officially covered by Microsoft Support. However, the underlying services **are** fully supported. If you encounter an issue, we generally recommend that you [create an issue](https://aka.ms/ftk/idea) **and** file a support request. We will do our best to help you resolve any issues through GitHub issues and discussions but Microsoft Support will be better equipped to resolve issues in the underlying products and services. Microsoft Support may request code samples to help resolve the issue, which can be provided from the GitHub repository._
-</blockquote>
+## Overview
+This guide helps you troubleshoot issues with the FinOps Hubs, focusing on two main sections: Data Ingestion and Connecting to Your Data. Always start troubleshooting with the Data Ingestion section before moving on to Connecting to Your Data.
 
-If you run into an issue with a deployment and need to re-deploy, you can usually re-run the deployment. If you change the name, we recommend deleting the resource group. If you delete the individual resources, make sure all resources are fully deleted. Some services, like Key Vault, have a "soft delete" feature where they keep the resources around so they are easily recovered. These services usually have an option to manage deleted resources.
+## Key Services
 
-Here are a few simple solutions to issues others have reported:
+1. Cost Export
+2. Azure Data Factory
+3. Storage Account (MSExport and Ingestion Containers)
 
-- [The \<name\> resource provider is not registered in subscription \<guid\>](#the-name-resource-provider-is-not-registered-in-subscription-guid)
-- [x\_PricingSubcategory shows the commitment discount ID](#x_pricingsubcategory-shows-the-commitment-discount-id)
-- [Power BI: Reports are empty (no data)](#power-bi-reports-are-empty-no-data)
-- [Power BI: Exception of type 'Microsoft.Mashup.Engine.Interface.ResourceAccessForbiddenException' was thrown](#power-bi-exception-of-type-microsoftmashupengineinterfaceresourceaccessforbiddenexception-was-thrown)
-- [Power BI: The remote name could not be resolved: '\<storage-account\>.dfs.core.windows.net'](#power-bi-the-remote-name-could-not-be-resolved-storage-accountdfscorewindowsnet)
-- [Power BI: We cannot convert the value null to type Logical](#power-bi-we-cannot-convert-the-value-null-to-type-logical)
-- [FinOps hubs: RoleAssignmentUpdateNotPermitted](#finops-hubs-roleassignmentupdatenotpermitted)
-- [FinOps hubs: We cannot convert the value null to type Table](#finops-hubs-we-cannot-convert-the-value-null-to-type-table)
-- [FinOps hubs: Deployment failed with RoleAssignmentUpdateNotPermitted error](#finops-hubs-deployment-failed-with-roleassignmentupdatenotpermitted-error)
+---
 
-Didn't find what you're looking for?
+### Section 1: Data Ingestion
 
-[Start a discussion](https://aka.ms/finops/toolkit/discuss){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 }
-[Create an issue](https://aka.ms/ftk/idea){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+#### Step 1: Verify Cost Export
+1. **Check Cost Export Status**
+    - Go to Cost Export and make sure the export status is "Successful".
+    - If it is not successful, ensure you have the Cost Management register provider registered for the subscription where Hubs is deployed to.
+
+#### Step 2: Verify Data Factory Pipelines
+2. **Check Data Factory Pipelines**
+    - Go to Data Factory studio, then go to Monitor and make sure both pipelines are running.
+    - Compare the last run time with the time of the last cost export. They should be close.
+    - Open the Data Factory instance in Data Factory Studio and select Manage > Author > Triggers. Verify the `msexports_FileAdded` trigger is started. If not, start it.
+    - If the trigger fails to start with a “resource provider is not registered” error, open the subscription in the Azure portal, then select Settings > Resource providers, select the Microsoft.EventGrid row, then select Register. Registration may take a few minutes.
+    - After registration completes, start the `msexports_FileAdded` trigger again.
+    - After the trigger is started, re-run all connected Cost Management exports. Data should be fully ingested within 10-20 minutes.
+    - If the ingestion pipeline is not running and it is showing this error message:
+      ```
+      Operation on target Convert CSV failed: ErrorCode=MappingColumnNameNotFoundInSourceFile,'Type=Microsoft.DataTransfer.Common.Shared.HybridDeliveryException,Message=Column 'AvailabilityZone' specified in column mapping cannot be found in 'part_0_0001.csv' source file.,Source=Microsoft.DataTransfer.ClientLibrary,'
+      ```
+      **Solution:** This error means that the Cost Export is not set to FOCUS 1.0 (Preview). Review the export settings and ensure it is configured to FOCUS 1.0 (Preview), then run the pipeline again.
+
+#### Step 3: Verify Storage Account - MSExport Container
+3. **Check Storage Account - MSExport Container**
+    - **MSExport Container**: This is where the Cost Export sends the "raw" export to. This container should be empty as Hubs transforms this raw (.csv) file into .parquet.
+    - If the MSExport container is not empty, refer back to Section 1, Step 2: Verify Data Factory Pipelines.
+
+#### Step 4: Verify Storage Account - Ingestion Container
+4. **Check Storage Account - Ingestion Container**
+    - **Ingestion Container**: This is where Power BI connects to. This container should always have at least one (or multiple) .parquet files.
+    - If you don't see any .parquet files in the Ingestion container, check for .csv files inside the MSExport container.
+    - If you find .csv files inside the MSExport container, it means that Data Factory pipeline is not working and not transforming the data to parquet. Refer back to Section 1, Step 2: Verify Data Factory Pipelines.
+    - If there are no .csv files inside the MSExport container and no .parquet files inside the Ingestion container, it means that Cost Export is not running properly. Refer back to Section 1, Step 1: Verify Cost Export.
+
+#### Step 5: Confirm Data Ingestion is Working
+5. **Confirm Data Ingestion Working**
+    - If you have a .parquet file in the Ingestion container, it means the "Data Ingestion" component is working fine.
+
+---
+
+### Section 2: Connecting to Your Data
+
+#### Step 1: Connect Power BI to Storage Account
+1. **Connect Power BI to Storage Account**
+    - Decide how you will connect to this container: Using a username or using a SAS key.
+
+#### Step 2: Using Username
+2. **Using Username**
+    - Ensure you have the Blob Storage Reader permissions assigned explicitly to your user. This permission is not inherited even if you have "Owner" or "Contributor" permissions.
+
+#### Step 3: Using SAS Token
+3. **Using SAS Token**
+    - Ensure you have set the following permissions for the token:
+        - Allowed Services: Blob
+        - Allowed Resource Types: Container and Object
+        - Allowed Permissions: Read and List
+    - Ensure you have also set a valid start and expiry date/time.
+
+#### Step 4: Troubleshoot Connection Errors
+4. **Troubleshoot Connection Errors**
+    - If you try to connect to your Storage account and receive an error: "Access to the resource is forbidden", it is very likely you are missing a few permissions. Refer back to Section 2, Step 2: Using Username or Section 2, Step 3: Using SAS Token to ensure you have the correct permissions.
+    - **Only applicable if you are using the Commitment Discounts report**: If you have the correct permissions but are still seeing the error about access being forbidden, review if the Billing Account that you are connecting to is correct. The Commitment Discounts PBI template is provided with a sample billing ID, and if you don't change that to your own ID, you won't be able to connect.
+
+---
+
+### Common Errors
+- **Cost Export Issues**: 
+  - Error: "Failed to export cost data" - Ensure the Cost Management register provider is registered.
+  - Error: "Export status failed" - Verify subscription settings and permissions.
+
+- **Data Factory Issues**:
+  - Error: "Pipeline failed to run" - Check triggers and resource provider registration.
+  - Error: "Pipeline not running" - Ensure pipelines are active and compare last run times.
+
+- **Storage Account Issues**:
+  - Error: "No parquet files in Ingestion container" - Verify Data Factory pipeline and Cost Export status.
+  - Error: "CSV files in MSExport container" - Data Factory pipeline not transforming data.
+
+- **Power BI Connection Issues**:
+  - Error: "Access to the resource is forbidden" - Check user permissions or SAS token settings.
+  - Error: "Invalid Billing Account ID" - Ensure the correct billing account ID is used in the Commitment Discounts report.
+
+---
+
+
+If you encounter any other errors, please refer to the [common error messages](https://flanakin.github.io/finops-toolkit/resources/troubleshoot) for additional troubleshooting steps.
+
+## Error Messages
+
+If you have validated all the previous steps and are still encountering issues, refer to the following error messages for further guidance:
+
+- **Access to the resource is forbidden**: Ensure you have the appropriate permissions or correct SAS token settings.
+- **Blob Storage Reader permissions not assigned**: Explicitly add Blob Storage Reader permissions to your user.
+- **Cost Export not successful**: Register the Cost Management provider for the subscription.
+- **Data Factory trigger not started**: Register the Microsoft.EventGrid provider and start the trigger.
+- **No parquet files in Ingestion container**: Check the MSExport container for .csv files and ensure the Data Factory pipeline is transforming data correctly.
+- **Connection to Billing Account**: Verify the Billing Account ID if using the Commitment Discounts report.
 
 ---
 
@@ -147,4 +233,5 @@ To fix that issue you will have to remove the stale identity:
 
 ---
 
-<br>
+By following this guide and checking these common errors, you can systematically troubleshoot and resolve issues within the FinOps Hubs' data ingestion and connection processes.
+
