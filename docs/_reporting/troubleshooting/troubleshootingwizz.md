@@ -13,7 +13,8 @@ Sorry to hear you're having a problem. We're here to help!
 # FinOps Hubs Troubleshooting Guide
 
 ## ⏩ Do you have a specific error code?
-⚡ [Find common errors](\finops-toolkit\docs\_reporting\troubleshooting\troubleshooting-errocode.md) ▶
+⚡ [Find common errors](./troubleshooting-errocode.md) ▶
+
 
 ## ▶️ Where is the problem surfaced?
 
