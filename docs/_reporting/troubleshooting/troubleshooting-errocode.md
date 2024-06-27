@@ -6,6 +6,31 @@ description: 'Details and solutions for common issues you may experience.'
 permalink: /resources/troubleshooting/troubleshooting-errocode
 ---
 
+<span class="fs-9 d-block mb-4">Error codes</span>
+List of most common error messages.
+{: .fs-6 .fw-300 }
+
+
+# 📇 Table of Contents
+- [📇 Table of Contents](#-table-of-contents)
+  - [The \<name\> resource provider is not registered in subscription \<guid\>](#the-name-resource-provider-is-not-registered-in-subscription-guid)
+  - [x\_PricingSubcategory shows the commitment discount ID](#x_pricingsubcategory-shows-the-commitment-discount-id)
+  - [Power BI: Reports are empty (no data)](#power-bi-reports-are-empty-no-data)
+    - [FinOps hubs: Ingestion container is empty](#finops-hubs-ingestion-container-is-empty)
+    - [FinOps hubs: Files available in the ingestion container](#finops-hubs-files-available-in-the-ingestion-container)
+  - [Power BI: Exception of type 'Microsoft.Mashup.Engine.Interface.ResourceAccessForbiddenException' was thrown](#power-bi-exception-of-type-microsoftmashupengineinterfaceresourceaccessforbiddenexception-was-thrown)
+  - [Power BI: The remote name could not be resolved: '\<storage-account\>.dfs.core.windows.net'](#power-bi-the-remote-name-could-not-be-resolved-storage-accountdfscorewindowsnet)
+  - [Power BI: We cannot convert the value null to type Logical](#power-bi-we-cannot-convert-the-value-null-to-type-logical)
+  - [FinOps hubs: RoleAssignmentUpdateNotPermitted](#finops-hubs-roleassignmentupdatenotpermitted)
+  - [FinOps hubs: We cannot convert the value null to type Table](#finops-hubs-we-cannot-convert-the-value-null-to-type-table)
+  - [FinOps hubs: Deployment failed with RoleAssignmentUpdateNotPermitted error](#finops-hubs-deployment-failed-with-roleassignmentupdatenotpermitted-error)
+  - [Data Factory:  Operation on target Convert CSV failed: ErrorCode=MappingColumnNameNotFoundInSourceFile,'Type=Microsoft.DataTransfer.Common.Shared.HybridDeliveryException,Message=Column 'AvailabilityZone' specified in column mapping cannot be found](#data-factory--operation-on-target-convert-csv-failed-errorcodemappingcolumnnamenotfoundinsourcefiletypemicrosoftdatatransfercommonsharedhybriddeliveryexceptionmessagecolumn-availabilityzone-specified-in-column-mapping-cannot-be-found)
+  - [**Solution:** This error means that the Cost Export is not set to FOCUS 1.0 (Preview). Review the export settings and ensure it is configured to FOCUS 1.0 (Preview), then run the pipeline again.](#solution-this-error-means-that-the-cost-export-is-not-set-to-focus-10-preview-review-the-export-settings-and-ensure-it-is-configured-to-focus-10-preview-then-run-the-pipeline-again)
+
+---
+
+
+
 ## The \<name> resource provider is not registered in subscription \<guid>
 
 Open the subscription in the Azure portal, then select **Settings** > **Resource providers**, select the resource provider row (e.g., Microsoft.EventGrid), then select the **Register** command at the top of the page. Registration may take a few minutes.
@@ -114,4 +139,16 @@ To fix that issue you will have to remove the stale identity:
 - Select the **Role assignments** tab.
 - Find any role assignments with an "unknown" identity and delete them.
 
+---
+
+---
+
+## Data Factory:  Operation on target Convert CSV failed: ErrorCode=MappingColumnNameNotFoundInSourceFile,'Type=Microsoft.DataTransfer.Common.Shared.HybridDeliveryException,Message=Column 'AvailabilityZone' specified in column mapping cannot be found
+
+If the ingestion pipeline is not running and it is showing this error message:
+
+```json
+    Operation on target Convert CSV failed: ErrorCode=MappingColumnNameNotFoundInSourceFile,'Type=Microsoft.DataTransfer.Common.Shared.HybridDeliveryException,Message=Column 'AvailabilityZone' specified in column mapping cannot be found in 'part_0_0001.csv' source file.,Source=Microsoft.DataTransfer.ClientLibrary,'
+```
+**Solution:** This error means that the Cost Export is not set to FOCUS 1.0 (Preview). Review the export settings and ensure it is configured to FOCUS 1.0 (Preview), then run the pipeline again.
 ---
