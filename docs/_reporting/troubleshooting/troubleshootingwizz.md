@@ -5,12 +5,10 @@ has_children: true
 description: 'Details and solutions for common issues you may experience.'
 permalink: /resources/troubleshooting
 ---
-
+---
 <span class="fs-9 d-block mb-4">Troubleshooting common errors</span>
 Sorry to hear you're having a problem. We're here to help!
 {: .fs-6 .fw-300 }
-
-# FinOps Hubs Troubleshooting Guide
 
 ## ⏩ Do you have a specific error code?
 ⚡ [Find common errors](./troubleshooting-errocode.md) ▶
@@ -19,10 +17,10 @@ Sorry to hear you're having a problem. We're here to help!
 ## ▶️ Where is the problem surfaced?
 
 1. [Cost Export](#cost-export)
-2. [Azure Data Factory](#azure-data-factory)
-3. [Storage Account (MSExport and Ingestion Containers)](#storage-account-msexport-and-ingestion-containers)
+2. [Azure Data Factory](#data-factory)
+3. [Storage Account (MSExport and Ingestion Containers)](#storage-account)
 4. [Power BI](#power-bi)
-
+---
 ### Cost Export
 
 - **Cost Export Issues**: 
@@ -123,3 +121,6 @@ This guide helps you troubleshoot issues with the FinOps Hubs, focusing on two m
 - **Troubleshoot Connection Errors**
   - If you try to connect to your Storage account and receive an error: "Access to the resource is forbidden", it is very likely you are missing a few permissions. Refer back to Section 2, Step 2: Using Username or Section 2, Step 3: Using SAS Token to ensure you have the correct permissions.
   - **Only applicable if you are using the Commitment Discounts report**: If you have the correct permissions but are still seeing the error about access being forbidden, review if the Billing Account that you are connecting to is correct. The Commitment Discounts PBI template is provided with a sample billing ID, and if you don't change that to your own ID, you won't be able to connect.
+
+
+---
