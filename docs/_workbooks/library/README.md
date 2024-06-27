@@ -42,6 +42,7 @@ Learn more about the Azure Resource Graph (ARG) queries used in the cost optimiz
 - [Compute](compute/compute.md) – List of compute queries
 - [Databases](databases/databases.md) – List of databases queries
 - [Networking](networking/networking.md) – List of networking queries
+- [Storage](sustainability/storage.md) – List of storage queries
 - [Sustainability](sustainability/sustainability.md) – List of sustainability queries
 
 <br>
