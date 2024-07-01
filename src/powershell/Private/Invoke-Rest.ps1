@@ -104,6 +104,7 @@ function Invoke-Rest
         Success    = $response.StatusCode -ge 200 -and $response.StatusCode -lt 300
         Failure    = $response.StatusCode -ge 300
         NotFound   = $response.StatusCode -eq 404 -or $response.StatusCode -eq 'NotFound'
+        Throttled  = $response.StatusCode -eq 429 -or $response.StatusCode -eq 'ResourceRequestsThrottled'
         Content    = $content
     }
 }
