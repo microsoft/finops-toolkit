@@ -37,10 +37,15 @@
     Runs an export called 'CostExport' for the configured period.
 
     .EXAMPLE
+    Start-FinopsCostExport -Name 'CostExport' -StartDate '2023-01-01' -EndDate '2023-12-31'
+
+    Runs an export called 'CostExport' for a specific date range.
+
+    .EXAMPLE
     Start-FinopsCostExport -Name 'CostExport' -Backfill 12
 
     Runs an export called 'CostExport' for the previous 12 months.
-    
+
     .LINK
     https://aka.ms/ftk/Start-FinOpsCostExport
 #>

@@ -86,7 +86,12 @@ function Invoke-Rest
     catch
     {
         $response = $_.Exception.Response
-        $content = $_.ErrorDetails.Message | ConvertFrom-Json -Depth 10
+        try
+        {
+            $content = $_.ErrorDetails.Message | ConvertFrom-Json -Depth 10
+        }
+        catch {}
+
         if ($content.error)
         {
             $errorCode = $content.error.code
