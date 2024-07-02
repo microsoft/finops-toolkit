@@ -94,6 +94,19 @@ Legend:
 >    - Reports will still be released as PBIX files so this change should not impact end users.
 >    - Visualizations are not being switched to [Power BI Enhanced Report (PBIR)](https://learn.microsoft.com/power-bi/developer/projects/projects-report#pbir-format) format yet due to functional limitations that would impact end users (as of June 2024).
 
+🖥️ PowerShell
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Added progress tracking to [Start-FinOpsCostExport](../_automation/powershell/cost/Start-FinOpsCostExport.md) for multi-month exports.
+> 2. Added a 60-second delay when Cost Management returns throttling (429) errors in [Start-FinOpsCostExport](../_automation/powershell/cost/Start-FinOpsCostExport.md).
+>
+> 🗑️ Removed:
+>
+> 1. Removed support for Windows PowerShell.
+>    > _We discovered errors with Windows PowerShell due to incompatibilities in Windows PowerShell and PowerShell 7. Due to our limited capacity, we decided to only support [PowerShell 7](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) going forward._
+
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 

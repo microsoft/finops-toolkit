@@ -42,6 +42,9 @@ This command has been tested with the following API versions:
 Start-FinOpsCostExport `
     [-Name] <string> `
     [-Scope <string>] `
+    [-StartDate <datetime>] `
+    [-EndDate <datetime>] `
+    [-Backfill <number>] `
     [-ApiVersion <string>]
 ```
 
@@ -49,23 +52,42 @@ Start-FinOpsCostExport `
 
 ## 📥 Parameters
 
-| Name          | Description                                                                                                        |
-| ------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `‑Name`       | Optional. Name of the export. Supports wildcards.                                                                  |
-| `‑Scope`      | Optional. Resource ID of the scope the export was created for. If empty, defaults to current subscription context. |
-| `‑ApiVersion` | Optional. API version to use when calling the Cost Management exports API. Default = 2023-03-01.                   |
+| Name          | Description                                                                                                                                                                                                                  |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `‑Name`       | Required. Name of the export.                                                                                                                                                                                                |
+| `‑Scope`      | Optional. Resource ID of the scope to export data for. If empty, defaults to current subscription context.                                                                                                                   |
+| `‑StartDate`  | Optional. Day to start pulling the data for. If not set, the export will use the dates defined in the export configuration.                                                                                                  |
+| `‑EndDate`    | Optional. Last day to pull data for. If not set and -StartDate is set, -EndDate will use the last day of the month. If not set and -StartDate is not set, the export will use the dates defined in the export configuration. |
+| `‑Backfill`   | Optional. Number of months to export the data for. Make note of throttling (429) errors. This is only run once. Failed exports are not re-attempted. Default = 0.                                                            |
+| `‑ApiVersion` | Optional. API version to use when calling the Cost Management Exports API. Default = 2023-07-01-preview.                                                                                                                     |
 
 <br>
 
 ## 🌟 Examples
 
-### Run export
+### Export configured period
 
 ```powershell
-Start-FinopsCostExport -Name 'July2023OneTime'
+Start-FinopsCostExport -Name 'CostExport'
 ```
 
-Runs an export called 'July2023OneTime'.
+Runs an export called 'CostExport' for the configured period.
+
+### Export specific dates
+
+```powershell
+Start-FinopsCostExport -Name 'CostExport' -StartDate '2023-01-01' -EndDate '2023-12-31'
+```
+
+Runs an export called 'CostExport' for a specific date range.
+
+### Backfill export
+
+```powershell
+Start-FinopsCostExport -Name 'CostExport' -Backfill 12
+```
+
+Runs an export called 'CostExport' for the previous 12 months.
 
 <br>
 

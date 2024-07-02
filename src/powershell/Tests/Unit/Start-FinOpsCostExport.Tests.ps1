@@ -116,4 +116,37 @@ Describe 'Start-FinOpsCostExport' {
         }
         $success | Should -Be $true
     }
+
+    It 'Should report status when exporting multiple months' {
+        # Arrange
+        Mock -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' { $mockExport }
+        Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' { @{ Success = $true } }
+        Mock -ModuleName FinOpsToolkit -CommandName 'Write-Progress' {}
+
+        # Act
+        $success = Start-FinOpsCostExport `
+            -Name $exportName `
+            -Scope $scope `
+            -Backfill 3
+
+        # Assert
+        Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Write-Progress' -Times 4
+        $success | Should -Be $true
+    }
+    
+    It 'Should not report status when exporting 1 month' {
+        # Arrange
+        Mock -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' { $mockExport }
+        Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest' { @{ Success = $true } }
+        Mock -CommandName 'Write-Progress' {}
+
+        # Act
+        $success = Start-FinOpsCostExport `
+            -Name $exportName `
+            -Scope $scope
+
+        # Assert
+        Assert-MockCalled -CommandName 'Write-Progress' -Times 0
+        $success | Should -Be $true
+    }
 }

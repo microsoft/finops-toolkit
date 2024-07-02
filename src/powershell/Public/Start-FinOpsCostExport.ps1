@@ -26,16 +26,26 @@
     Optional. Last day to pull data for. If not set and -StartDate is set, -EndDate will use the last day of the month. If not set and -StartDate is not set, the export will use the dates defined in the export configuration.
     
     .PARAMETER Backfill
-    Optional. IndicLast day to pull data for. If not set and -StartDate is set, -EndDate will use the last day of the month. If not set and -StartDate is not set, the export will use the dates defined in the export configuration.
+    Optional. Number of months to export the data for. Make note of throttling (429) errors. This is only run once. Failed exports are not re-attempted. Default = 0.
 
     .PARAMETER ApiVersion
     Optional. API version to use when calling the Cost Management Exports API. Default = 2023-07-01-preview.
 
     .EXAMPLE
-    Start-FinopsCostExport -Name 'July2023OneTime'
+    Start-FinopsCostExport -Name 'CostExport'
 
-    Runs an export called 'July2023OneTime'.
-    
+    Runs an export called 'CostExport' for the configured period.
+
+    .EXAMPLE
+    Start-FinopsCostExport -Name 'CostExport' -StartDate '2023-01-01' -EndDate '2023-12-31'
+
+    Runs an export called 'CostExport' for a specific date range.
+
+    .EXAMPLE
+    Start-FinopsCostExport -Name 'CostExport' -Backfill 12
+
+    Runs an export called 'CostExport' for the previous 12 months.
+
     .LINK
     https://aka.ms/ftk/Start-FinOpsCostExport
 #>
@@ -82,8 +92,22 @@ function Start-FinOpsCostExport
     # Set start date if using -Backfill
     if ($Backfill -gt 0)
     {
-        $StartDate = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0 -AsUTC).AddMonths($Backfill * -1)
-        $EndDate = $StartDate.AddMonths($Backfill).AddMilliseconds(-1)
+        # TODO: Consider updating this to account for one-time exports where we should copy the start date from
+
+        # If -StartDate is not set, assume the current month
+        if (-not $StartDate)
+        {
+            $StartDate = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0 -AsUTC)
+        }
+
+        # If -EndDate is not set, assume 1 month
+        if (-not $EndDate)
+        {
+            $EndDate = $StartDate.AddMonths(1).AddMilliseconds(-1)
+        }
+
+        # Move start date to account for the backfill period
+        $StartDate = $StartDate.AddMonths($Backfill * -1)
         Write-Verbose "Backfill $Backfill months = $($StartDate.ToUniversalTime().ToString('yyyy-MM-dd"T"HH:mm:ss"Z"')) to $($EndDate.ToUniversalTime().ToString('yyyy-MM-dd"T"HH:mm:ss"Z"'))"
     }
     
@@ -102,18 +126,43 @@ function Start-FinOpsCostExport
         Write-Verbose "Updated dates = $($StartDate.ToUniversalTime().ToString('yyyy-MM-dd"T"HH:mm:ss"Z"')) to $($EndDate.ToUniversalTime().ToString('yyyy-MM-dd"T"HH:mm:ss"Z"'))"
     }
 
+    # Start measuring progress
+    $progressActivity = "Running exports"
+    $startTime = [DateTime]::Now
+    $months = (($EndDate.Year - $StartDate.Year) * 12) + $EndDate.Month - $StartDate.Month + 1
+    if ($months -lt 1) { $months = 1 } # Assume at least 1 month to avoid errors
+    $estimatedSecPerMonth = 6 # Estimated time to trigger a single month export accounting for throttling (10 per minute)
+
     # Loop thru each month
     $monthToExport = 0
     $success = $true
     $body = $null
-    $multipleMonths = $StartDate -and $StartDate.Year -ne $EndDate.Year -or $StartDate.Month -ne $EndDate.Month
-    Write-Verbose "Exporting $($StartDate) - $($EndDate)"
+    if ($StartDate)
+    {
+        Write-Verbose "Exporting dates configured on the export definition"
+    }
+    else
+    {
+        Write-Verbose "Exporting $($StartDate) - $($EndDate)"
+    }
     do
     {
+        # Report progress
+        if ($months -gt 1)
+        {
+            $percent = [Math]::Round((1.0 * $monthToExport / $months) * 100, 0)
+            $remaining = $estimatedSecPerMonth * ($months - $monthToExport)
+            Write-Progress `
+                -Activity $progressActivity `
+                -Status "$percent% complete - $monthToExport of $months months" `
+                -PercentComplete $percent `
+                -SecondsRemaining $remaining
+        }
+
         if ($StartDate)
         {
             # If more than one month
-            if ($multipleMonths)
+            if ($months -gt 1)
             {
                 $firstDay = $EndDate.AddDays(-$EndDate.Day + 1).AddMonths($monthToExport * -1)
                 $lastDay = $firstDay.AddMonths(1).AddMilliseconds(-1)
@@ -124,7 +173,7 @@ function Start-FinOpsCostExport
                 $lastDay = $EndDate
             }
             $body = @{ timePeriod = @{ from = $firstDay.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'"); to = $lastDay.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'") } }
-            Write-Verbose "Executing $($firstDay.ToString("MMM d yyyy HH:mm:ss")) export $runpath"
+            Write-Verbose "Executing $($firstDay.ToString("MMM d yyyy")) export $runpath"
         }
         else
         {
@@ -140,10 +189,37 @@ function Start-FinOpsCostExport
         {
             Write-Verbose "Export failed to execute"
         }
-        $success = $success -and $response.Success
+
+        # If export throttled, wait 60 seconds and try again
+        if ($response.Throttled)
+        {
+            Write-Verbose "Export request throttled. Waiting 60 seconds and retrying."
+
+            # Report progress
+            if ($months -gt 1)
+            {
+                Write-Progress `
+                    -Activity $progressActivity `
+                    -Status "$percent% complete - Throttled by Cost Management. Waiting 60 seconds." `
+            }
+            else
+            {
+                Write-Information "Requests are being throttled by Cost Management. Waiting 60 seconds and retrying..."
+            }
+            Start-Sleep -Seconds 60
+        }
+        else
+        {
+            # If not retrying, then track the success
+            $success = $success -and $response.Success
+        }
 
         $monthToExport += 1
-    } while ($multipleMonths -and $EndDate.AddMonths($monthToExport * -1) -ge $StartDate)
+    } while ($months -gt 1 -and $EndDate.AddMonths($monthToExport * -1) -ge $StartDate)
 
+    if ($months -gt 1)
+    {
+        Write-Progress -Activity $progressActivity -Completed
+    }
     return $success
 }

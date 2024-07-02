@@ -54,7 +54,7 @@ function Build-PsModule
         VariablesToExport = @()
         AliasesToExport   = @()
         Copyright         = "(c) $((Get-Date).Year) Microsoft Corporation. All rights reserved."
-        PowerShellVersion = '5.1'
+        PowerShellVersion = '7.0'
         RequiredModules   = @(
             @{
                 ModuleName    = 'Az.Accounts'
