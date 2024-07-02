@@ -11,7 +11,7 @@
         {
           "location": {
             "x": 3175.51140422367,
-            "y": 112.4663697100375
+            "y": 138.70145168904224
           },
           "nodeIndex": "CostDetails",
           "size": {
@@ -23,7 +23,7 @@
         {
           "location": {
             "x": 4139.7,
-            "y": 132.9663697100375
+            "y": 159.20145168904224
           },
           "nodeIndex": "InstanceSizeFlexibility",
           "nodeLineageTag": "04a435c4-9138-4c1f-ad59-dd939cd8e139",
@@ -36,7 +36,7 @@
         {
           "location": {
             "x": 3855.7,
-            "y": 130.9663697100375
+            "y": 157.20145168904224
           },
           "nodeIndex": "RecommendationsShared",
           "size": {
@@ -48,7 +48,7 @@
         {
           "location": {
             "x": 4423.7,
-            "y": 130.9663697100375
+            "y": 157.20145168904224
           },
           "nodeIndex": "RecommendationsSingle",
           "size": {
@@ -59,34 +59,8 @@
         },
         {
           "location": {
-            "x": 1860.7705943990168,
-            "y": -10
-          },
-          "nodeIndex": "HubExports",
-          "nodeLineageTag": "39263eb3-cff4-47dc-9c72-5e05986a2ab7",
-          "size": {
-            "height": 300,
-            "width": 234
-          },
-          "zIndex": 0
-        },
-        {
-          "location": {
-            "x": 1542.1885957763297,
-            "y": 251.93273942007511
-          },
-          "nodeIndex": "HubIngestion",
-          "nodeLineageTag": "78fe6c31-4536-4a91-952c-0d612defc0e2",
-          "size": {
-            "height": 300,
-            "width": 234
-          },
-          "zIndex": 0
-        },
-        {
-          "location": {
             "x": 1576.5814434565182,
-            "y": 52.470163958009493
+            "y": 78.70524593701424
           },
           "nodeIndex": "HubScopes",
           "nodeLineageTag": "6dfeb4ff-e902-435e-abed-2109389c66e3",
@@ -99,12 +73,38 @@
         {
           "location": {
             "x": 1826.3909942579139,
-            "y": 340.19753883282681
+            "y": 366.43262081183155
           },
           "nodeIndex": "HubSettings",
           "nodeLineageTag": "b391a865-7a16-491c-a9f4-8bc826285b97",
           "size": {
             "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3165.51140422367,
+            "y": 157.2014516890423
+          },
+          "nodeIndex": "HubData",
+          "nodeLineageTag": "4dbd4a61-a185-428e-83f1-b5b3dcb80134",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3131.1185565434816,
+            "y": 120.0987694164134
+          },
+          "nodeIndex": "HubErrors",
+          "nodeLineageTag": "02d75203-d20c-4de5-92b5-9c4c062b96db",
+          "size": {
+            "height": 300,
             "width": 234
           },
           "zIndex": 0

@@ -18,13 +18,13 @@ table HubScopes
 				    ADLS = AzureStorage.DataLake(_config),
 				    Settings = Json.Document(ADLS{[Name="settings.json"]}[Content], 1252),
 				    Scopes = Settings[scopes],
-				    ToTable = Table.FromList(Scopes, Splitter.SplitByNothing(), {"Scope"}, null, ExtraValues.Ignore),
-				    RemoveTestData = Table.SelectRows(ToTable, each [Scope] <> "" and [Scope] <> "/foo"),
-				    AppendQueries = Table.Combine({RemoveTestData, HubExports, HubIngestion}),
-				    Scope = Table.SelectColumns(AppendQueries, {"Scope"}),
+				    ToTable = try Table.FromList(Scopes, Splitter.SplitByNothing(), {"Scope"}, null, ExtraValues.Ignore) otherwise #table({"Scope"}, {}),
+				    AppendQueries = Table.Combine({ToTable, HubData}),
+				    RemoveTestData = Table.SelectRows(AppendQueries, each [Scope] <> null and [Scope] <> "" and [Scope] <> "/foo"),
+				    Scope = Table.SelectColumns(RemoveTestData, {"Scope"}),
 				    Distinct = Table.Distinct(Scope)
 				in
 				    Distinct
 
-	annotation PBI_ResultType = Table
+	annotation PBI_ResultType = Exception
 

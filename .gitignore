@@ -353,4 +353,8 @@ MigrationBackup/
 coverage.xml
 
 # Microsoft Power BI
-.pbi/
+.pbi/cache.abf
+.pbi/localSettings.json
+/src/power-bi/Shared.Dataset/.pbi/cache.abf
+/src/power-bi/DataIngestion.Report/.pbi/localSettings.json
+/src/power-bi/Shared.Dataset/.pbi/localSettings.json
