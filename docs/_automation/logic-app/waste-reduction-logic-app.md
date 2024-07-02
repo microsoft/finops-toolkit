@@ -163,4 +163,3 @@ After successfully configuring the logic app, it's time to test if everything wo
   </figcaption>
 </figure>
 
-
