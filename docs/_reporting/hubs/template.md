@@ -62,9 +62,9 @@ Please ensure the following prerequisites are met before deploying this template
    | Create an MCA billing cost export<sup>2</sup>                   | [Contributor](https://learn.microsoft.com/azure/cost-management-billing/manage/understand-mca-roles)                                                                   |
    | Read blob data in storage<sup>3</sup>                           | [Storage Blob Data Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)                              |
 
-   <sup>_1. It is sufficient to assign hubs resources deployment permissions on the resource group scope. ._</sup>
-   <sup>_2. Cost Management permissions must be assigned on the scope where you want to export your costs from. ._</sup>
-   <sup>_3. Blob data permissions are required to access exported cost data from Power BI or other client tools._</sup>
+   _<sup>1. It is sufficient to assign hubs resources deployment permissions on the resource group scope. </sup>_<br/>
+   _<sup>2. Cost Management permissions must be assigned on the scope where you want to export your costs from. </sup>_<br/>
+   _<sup>3. Blob data permissions are required to access exported cost data from Power BI or other client tools. </sup>_<br/>
 
 2. The Microsoft.EventGrid resource provider must be registered in your subscription. See [Register a resource provider](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) for details.
 
