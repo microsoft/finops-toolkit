@@ -1,44 +1,33 @@
 ---
 layout: default
-title: Troubleshooting
-nav_order: 999
+title: Troubleshooting error code
+parent: Troubleshooting
 description: 'Details and solutions for common issues you may experience.'
-permalink: /resources/troubleshoot
+permalink: /resources/troubleshooting/troubleshooting-errocode
 ---
 
-<span class="fs-9 d-block mb-4">Troubleshooting common errors</span>
-Sorry to hear you're having a problem. We're here to help!
+<span class="fs-9 d-block mb-4">Error codes</span>
+List of most common error messages.
 {: .fs-6 .fw-300 }
-
 ---
 
-This page has moved. [Click here](/finops-toolkit/docs/_reporting/troubleshooting/troubleshootingwizz.md) to see the new location.
+# 📇 Table of Contents
+- [📇 Table of Contents](#-table-of-contents)
+  - [The \<name\> resource provider is not registered in subscription \<guid\>](#the-name-resource-provider-is-not-registered-in-subscription-guid)
+  - [x\_PricingSubcategory shows the commitment discount ID](#x_pricingsubcategory-shows-the-commitment-discount-id)
+  - [Power BI: Reports are empty (no data)](#power-bi-reports-are-empty-no-data)
+    - [FinOps hubs: Ingestion container is empty](#finops-hubs-ingestion-container-is-empty)
+    - [FinOps hubs: Files available in the ingestion container](#finops-hubs-files-available-in-the-ingestion-container)
+  - [Power BI: Exception of type 'Microsoft.Mashup.Engine.Interface.ResourceAccessForbiddenException' was thrown](#power-bi-exception-of-type-microsoftmashupengineinterfaceresourceaccessforbiddenexception-was-thrown)
+  - [Power BI: The remote name could not be resolved: '\<storage-account\>.dfs.core.windows.net'](#power-bi-the-remote-name-could-not-be-resolved-storage-accountdfscorewindowsnet)
+  - [Power BI: We cannot convert the value null to type Logical](#power-bi-we-cannot-convert-the-value-null-to-type-logical)
+  - [FinOps hubs: RoleAssignmentUpdateNotPermitted](#finops-hubs-roleassignmentupdatenotpermitted)
+  - [FinOps hubs: We cannot convert the value null to type Table](#finops-hubs-we-cannot-convert-the-value-null-to-type-table)
+  - [FinOps hubs: Deployment failed with RoleAssignmentUpdateNotPermitted error](#finops-hubs-deployment-failed-with-roleassignmentupdatenotpermitted-error)
+  - [Data Factory:  Operation on target Convert CSV failed: ErrorCode=MappingColumnNameNotFoundInSourceFile,'Type=Microsoft.DataTransfer.Common.Shared.HybridDeliveryException,Message=Column 'AvailabilityZone' specified in column mapping cannot be found](#data-factory--operation-on-target-convert-csv-failed-errorcodemappingcolumnnamenotfoundinsourcefiletypemicrosoftdatatransfercommonsharedhybriddeliveryexceptionmessagecolumn-availabilityzone-specified-in-column-mapping-cannot-be-found)
+  - [**Solution:** This error means that the Cost Export is not set to FOCUS 1.0 (Preview). Review the export settings and ensure it is configured to FOCUS 1.0 (Preview), then run the pipeline again.](#solution-this-error-means-that-the-cost-export-is-not-set-to-focus-10-preview-review-the-export-settings-and-ensure-it-is-configured-to-focus-10-preview-then-run-the-pipeline-again)
 
-<!---- 
-<blockquote class="important" markdown="1">
-  _Source code within the FinOps toolkit is provided as-is with no guarantees and is not officially covered by Microsoft Support. However, the underlying services **are** fully supported. If you encounter an issue, we generally recommend that you [create an issue](https://aka.ms/ftk/idea) **and** file a support request. We will do our best to help you resolve any issues through GitHub issues and discussions but Microsoft Support will be better equipped to resolve issues in the underlying products and services. Microsoft Support may request code samples to help resolve the issue, which can be provided from the GitHub repository._
-</blockquote>
 
-If you run into an issue with a deployment and need to re-deploy, you can usually re-run the deployment. If you change the name, we recommend deleting the resource group. If you delete the individual resources, make sure all resources are fully deleted. Some services, like Key Vault, have a "soft delete" feature where they keep the resources around so they are easily recovered. These services usually have an option to manage deleted resources.
-
-Here are a few simple solutions to issues others have reported:
-
-- [The \<name\> resource provider is not registered in subscription \<guid\>](#the-name-resource-provider-is-not-registered-in-subscription-guid)
-- [x\_PricingSubcategory shows the commitment discount ID](#x_pricingsubcategory-shows-the-commitment-discount-id)
-- [Power BI: Reports are empty (no data)](#power-bi-reports-are-empty-no-data)
-- [Power BI: Exception of type 'Microsoft.Mashup.Engine.Interface.ResourceAccessForbiddenException' was thrown](#power-bi-exception-of-type-microsoftmashupengineinterfaceresourceaccessforbiddenexception-was-thrown)
-- [Power BI: The remote name could not be resolved: '\<storage-account\>.dfs.core.windows.net'](#power-bi-the-remote-name-could-not-be-resolved-storage-accountdfscorewindowsnet)
-- [Power BI: We cannot convert the value null to type Logical](#power-bi-we-cannot-convert-the-value-null-to-type-logical)
-- [FinOps hubs: RoleAssignmentUpdateNotPermitted](#finops-hubs-roleassignmentupdatenotpermitted)
-- [FinOps hubs: We cannot convert the value null to type Table](#finops-hubs-we-cannot-convert-the-value-null-to-type-table)
-- [FinOps hubs: Deployment failed with RoleAssignmentUpdateNotPermitted error](#finops-hubs-deployment-failed-with-roleassignmentupdatenotpermitted-error)
-
-Didn't find what you're looking for?
-
-[Start a discussion](https://aka.ms/finops/toolkit/discuss){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 }
-[Create an issue](https://aka.ms/ftk/idea){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-
----
 
 ## The \<name> resource provider is not registered in subscription \<guid>
 
@@ -150,5 +139,14 @@ To fix that issue you will have to remove the stale identity:
 
 ---
 
-<br>
---->
+---
+
+## Data Factory:  Operation on target Convert CSV failed: ErrorCode=MappingColumnNameNotFoundInSourceFile,'Type=Microsoft.DataTransfer.Common.Shared.HybridDeliveryException,Message=Column 'AvailabilityZone' specified in column mapping cannot be found
+
+If the ingestion pipeline is not running and it is showing this error message:
+
+```json
+    Operation on target Convert CSV failed: ErrorCode=MappingColumnNameNotFoundInSourceFile,'Type=Microsoft.DataTransfer.Common.Shared.HybridDeliveryException,Message=Column 'AvailabilityZone' specified in column mapping cannot be found in 'part_0_0001.csv' source file.,Source=Microsoft.DataTransfer.ClientLibrary,'
+```
+**Solution:** This error means that the Cost Export is not set to FOCUS 1.0 (Preview). Review the export settings and ensure it is configured to FOCUS 1.0 (Preview), then run the pipeline again.
+---
