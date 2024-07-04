@@ -65,6 +65,9 @@ var dataFactoryName = replace(
   '-'
 )
 
+// EventGrid Contributor role
+var eventGridContributorRoleId = '1e241071-0855-49ea-94dc-649edcd759de'
+
 // The last segment of the telemetryId is used to identify this module
 var telemetryId = '00f120b5-2007-6120-0000-40b000000000'
 
@@ -113,25 +116,18 @@ resource RegisterEventGridProvider 'Microsoft.EventGrid/namespaces@2023-12-15-pr
   }
 }
 
-resource cleanupidentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: '${uniqueSuffix}-cleanupidentity'
+resource cleanupIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: '${uniqueSuffix}_cleanup'
   location: location
 }
 
 // Assign access to the identity
 resource cleanupRegisterEventGridProvider 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  dependsOn: [
-    RegisterEventGridProvider
-    cleanupidentity
-  ]
-  name: guid('1e241071-0855-49ea-94dc-649edcd759de', cleanupidentity.id)
+  name: guid(eventGridContributorRoleId, cleanupIdentity.id)
   scope: RegisterEventGridProvider
   properties: {
-    roleDefinitionId: subscriptionResourceId(
-      'Microsoft.Authorization/roleDefinitions',
-      '1e241071-0855-49ea-94dc-649edcd759de'
-    ) //event grid contributor role
-    principalId: cleanupidentity.properties.principalId
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', eventGridContributorRoleId)
+    principalId: cleanupIdentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
 }
@@ -143,13 +139,13 @@ resource eventProviderRegisterResourceCleanup 'Microsoft.Resources/deploymentScr
     dataFactory
     cleanupRegisterEventGridProvider
   ]
-  name: '${uniqueSuffix}-EventGridCleanup'
+  name: '${uniqueSuffix}_deleteEventGrid'
   location: location
   kind: 'AzurePowerShell'
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
-      '${cleanupidentity.id}': {}
+      '${cleanupIdentity.id}': {}
     }
   }
   properties: {

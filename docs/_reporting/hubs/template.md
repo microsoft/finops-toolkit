@@ -49,22 +49,18 @@ Please ensure the following prerequisites are met before deploying this template
 
    | Resource                                                        | Minimum RBAC                                                                                                                                                           |
    | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-   | Deploy and configure Data Factory<sup>1</sup>                               | [Data Factory Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#data-factory-contributor)                                                                 |
-   | Deploy Key Vault<sup>1</sup>                                                | [Key Vault Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#key-vault-contributor)                                              |
-   | Configure Key Vault secrets<sup>1</sup>                                     | [Key Vault Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#key-vault-administrator)                                          |
-   | Create managed identity<sup>1</sup>                                         | [Managed Identity Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#managed-identity-contributor)                          |
-   | Deploy and configure storage<sup>1</sup>                                    | [Storage Account Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-account-contributor)                                  |
-   | Assign managed identity to resources<sup>1</sup>                            | [Managed Identity Operator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#managed-identity-operator)                                  |
-   | Create deployment scripts<sup>1</sup>                                       | Custom role containing only the `Microsoft.Resources/deploymentScripts/write` and `Microsoft.ContainerInstance/containerGroups/write` permissions as allowed actions or, alternatively, [Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#contributor), which includes these permissions and all the above roles                                  |
-   | Assign permissions to managed identities<sup>1</sup>                        | [Role Based Access Control Administrator](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator) or, alternatively, [Owner](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner), which includes this and all the above roles                                  |
-   | Create a subscription or resource group cost export<sup>2</sup> | [Cost Management Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cost-management-contributor)                                  |
-   | Create an EA billing cost export<sup>2</sup>                    | Enterprise Reader, Department Reader, or Enrollment Account Owner ([Learn more](https://learn.microsoft.com/azure/cost-management-billing/manage/understand-ea-roles)) |
-   | Create an MCA billing cost export<sup>2</sup>                   | [Contributor](https://learn.microsoft.com/azure/cost-management-billing/manage/understand-mca-roles)                                                                   |
-   | Read blob data in storage<sup>3</sup>                           | [Storage Blob Data Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)                              |
+   | Deploy and configure Data Factory                               | [Data Factory Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles)                                                                 |
+   | Deploy Key Vault                                                | [Key Vault Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#key-vault-contributor)                                              |
+   | Configure Key Vault secrets                                     | [Key Vault Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#key-vault-administrator)                                          |
+   | Create managed identity                                         | [Managed Identity Contributor](https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#managed-identity-contributor)                          |
+   | Deploy and configure storage                                    | [Storage Account Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-account-contributor)                                  |
+   | Create a subscription or resource group cost export<sup>1</sup> | [Cost Management Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cost-management-contributor)                                  |
+   | Create an EA billing cost export<sup>1</sup>                    | Enterprise Reader, Department Reader, or Enrollment Account Owner ([Learn more](https://learn.microsoft.com/azure/cost-management-billing/manage/understand-ea-roles)) |
+   | Create an MCA billing cost export<sup>1</sup>                   | [Contributor](https://learn.microsoft.com/azure/cost-management-billing/manage/understand-mca-roles)                                                                   |
+   | Read blob data in storage<sup>2</sup>                           | [Storage Blob Data Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)                              |
 
-   _<sup>1. It is sufficient to assign hubs resources deployment permissions on the resource group scope. </sup>_<br/>
-   _<sup>2. Cost Management permissions must be assigned on the scope where you want to export your costs from. </sup>_<br/>
-   _<sup>3. Blob data permissions are required to access exported cost data from Power BI or other client tools. </sup>_<br/>
+   <sup>_1. Cost Management permissions must be assigned on the scope where you want to export your costs from. ._</sup>
+   <sup>_2. Blob data permissions are required to access exported cost data from Power BI or other client tools._</sup>
 
 2. The Microsoft.EventGrid resource provider must be registered in your subscription. See [Register a resource provider](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) for details.
 
@@ -82,7 +78,7 @@ Please ensure the following prerequisites are met before deploying this template
 | **location**                   | String | Optional. Azure location where all resources should be created. See https://aka.ms/azureregions.                                                                                  | (resource group location) |
 | **storageSku**                 | String | Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: `Premium_LRS`, `Premium_ZRS`. | `Premium_LRS`             |
 | **tags**                       | Object | Optional. Tags to apply to all resources. We will also add the `cm-resource-parent` tag for improved cost roll-ups in Cost Management.                                            |
-| **scopesToMonitor**            | Array  | Optional. List of scope IDs to monitor and ingest cost for.                                                                                                                                |
+| **scopesToMonitor**            | Array  | Optional. List of scope IDs to monitor and ingest cost for.                                                                                                                       |
 | **exportRetentionInDays**      | Int    | Optional. Number of days of cost data to retain in the ms-cm-exports container.                                                                                                   | 0                         |
 | **ingestionRetentionInMonths** | Int    | Optional. Number of months of cost data to retain in the ingestion container.                                                                                                     | 13                        |
 
@@ -128,10 +124,13 @@ In addition to the above, the following resources are created to automate the de
 - Managed identities:
   - `<storage>_blobManager` ([Storage Blob Data Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)) – Uploads the settings.json file.
   - `<datafactory>_triggerManager` ([Data Factory Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#data-factory-contributor)) – Stops triggers before deployment and starts them after deployment.
+  - `<unique-suffix>_cleanup` ([EventGrid Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#eventgrid-contributor)) – Deletes temporary EventGrid namespace used to register the EventGrid RP.
 - Deployment scripts (automatically deleted after a successful deployment):
-  - `<datafactory>_stopHubTriggers` – Stops all triggers in the hub using the triggerManager identity.
-  - `<datafactory>_startHubTriggers` – Starts all triggers in the hub using the triggerManager identity.
-  - `uploadSettings` – Uploads the settings.json file using the blobManager identity.
+  - `<unique-suffix>_deleteEventGrid` – Deletes temporary EventGrid namespace used to register the EventGrid RP.
+  - `<datafactory>_deleteOldResources` – Deletes unused resources from previous FinOps hubs deployments.
+  - `<datafactory>_stopTriggers` – Stops all triggers in the hub using the triggerManager identity.
+  - `<datafactory>_startTriggers` – Starts all triggers in the hub using the triggerManager identity.
+  - `<storage>_uploadSettings` – Uploads the settings.json file using the blobManager identity.
 
 <br>
 
