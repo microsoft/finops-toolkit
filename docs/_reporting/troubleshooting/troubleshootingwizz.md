@@ -15,6 +15,7 @@ Sorry to hear you're having a problem. We're here to help!
 ## ⏩ Do you have a specific error code?
 ⚡ [Find common errors](./troubleshooting-errocode.md) ▶
 
+<br>
 
 ## 📋 Validate your FinOps hub deployment
 
@@ -47,15 +48,12 @@ Sorry to hear you're having a problem. We're here to help!
 
 This guide helps you troubleshoot issues with the FinOps Hubs, focusing on two main sections: Data Ingestion and Connecting to Your Data. Always start troubleshooting with the Data Ingestion section before moving on to Connecting to Your Data.
 
-### Section 1: Data ingestion
+### Step 1: Verify Cost Management export
 
-#### Step 1: Verify Cost Management export
+1. Go to Cost Management exports and make sure the export status is "Successful".
+2. If it is not successful, ensure you have the Cost Management resource provider registered for the subscription where your hub is deployed.
 
-- **Check export status**
-  - Go to Cost Management exports and make sure the export status is "Successful".
-  - If it is not successful, ensure you have the Cost Management resource provider registered for the subscription where your hub is deployed.
-
-#### Step 2: Verify Data Factory pipelines
+### Step 2: Verify Data Factory pipelines
 
 1. Go to Data Factory studio, then go to Monitor and make sure both pipelines are running.
 2. Compare the last run time with the time of the last cost export. They should be close.
@@ -65,12 +63,12 @@ This guide helps you troubleshoot issues with the FinOps Hubs, focusing on two m
 6.  After the trigger is started, re-run all connected Cost Management exports. Data should be fully ingested within 10-20 minutes.
 7. If the ingestion pipeline is not running and it is showing a `MappingColumnNameNotFoundInSourceFile` error message, verify the export is configured for FOCUS `1.0-preview(v1)` and not `1.0`.
 
-#### Step 3: Verify storage account – msexports container
+### Step 3: Verify storage account – msexports container
 
 1. The **msexports** container is where the Cost Management pushes "raw" export to. This container should not have CSV files as hubs transforms them into parquet files.
 2. If the you see CSV files in the msexports container, refer back to [Verify Data Factory pipelines](#step-2-verify-data-factory-pipelines).
 
-#### Step 4: Verify storage account – ingestion container
+### Step 4: Verify storage account – ingestion container
 
 1. The **ingestion** container is where clients, like Power BI, connect to pull data. This container should always have one or more parquet files for each month.
 2. If you don't see any parquet files in the ingestion container, check for CSV files in the mseports container.
@@ -78,14 +76,16 @@ This guide helps you troubleshoot issues with the FinOps Hubs, focusing on two m
 4. If there are no CSV files in the msexports container and no parquet files inside the ingestion container, it means the Cost Management export is not running properly. Refer back to [Verify Cost Management export](#step-1-verify-cost-management-export).
 
 <!--
-#### Step 5: Confirm data ingestion is working
+### Step 5: Confirm data ingestion is working
 
 1. If you have a parquet file in the ingestion container, it means the "Data Ingestion" component is working fine.
 -->
 
-### Section 2: Connecting to your data
+<br>
 
-#### Step 1: Connect Power BI to storage
+## 📋 Validate your Power BI configuration
+
+### Step 1: Connect Power BI to storage
 
 Decide whether you will connect to storage using a user or service principal account or using a storage account key (aka SAS token).
 
@@ -98,7 +98,9 @@ Decide whether you will connect to storage using a user or service principal acc
      - Allowed permissions: Read and List
   2. Ensure you have also set a valid start and expiry date/time.
 
-#### Step 4: Troubleshoot connection errors
+### Step 2: Troubleshoot connection errors
 
 1. If you try to connect to your storage account and receive an error: "Access to the resource is forbidden", it is very likely you are missing a few permissions. Refer back to [Connect Power BI to storage](#step-1-connect-power-bi-to-storage) to ensure you have the correct permissions.
 2. If you ssee an error about access being forbidden, review if the billing account that you are connecting to is correct. Power BI reports are provided with a sample billing account, and if you don't change that to your own ID, you won't be able to connect.
+
+<br>
