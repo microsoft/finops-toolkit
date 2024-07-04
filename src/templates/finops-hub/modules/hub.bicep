@@ -11,7 +11,7 @@ param hubName string
 @description('Optional. Azure location where all resources should be created. See https://aka.ms/azureregions. Default: (resource group location).')
 param location string = resourceGroup().location
 
-@description('Optional. Azure location to use for a temporary Event Grid namespace to register the Microsoft.EventGrid resource provider if the primary location is not supported. The namespace will be deleted and is not used for hub operation. Default: "" ().')
+@description('Optional. Azure location to use for a temporary Event Grid namespace to register the Microsoft.EventGrid resource provider if the primary location is not supported. The namespace will be deleted and is not used for hub operation. Default: "" (same as location).')
 param fallbackEventGridLocation string = ''
 
 @allowed([
@@ -79,7 +79,7 @@ var eventGridName = replace(
 var eventGridContributorRoleId = '1e241071-0855-49ea-94dc-649edcd759de'
 
 // Find a fallback region for EventGrid
-var eventGridAllowedLocations = ['eastus2','westus3','northeurope','westeurope','southeastasia','eastasia', 'southcentralus','uaenorth','eastus','centralus','westus2','uksouth', 'italynorth','australiasoutheast','brazilsouth','ukwest','northcentralus', 'centralindia','japaneast','francecentral','canadacentral','australiaeast', 'japanwest','canadaeast','southindia','koreacentral','koreasouth', 'switzerlandnorth','germanywestcentral','norwayeast','swedencentral', 'polandcentral','israelcentral']
+var eventGridAllowedLocations = ['eastus2','westus3','northeurope','westeurope','southeastasia','eastasia','southcentralus','uaenorth','eastus','centralus','westus2','uksouth','italynorth','australiasoutheast','brazilsouth','ukwest','northcentralus','centralindia','japaneast','francecentral','canadacentral','australiaeast','japanwest','canadaeast','southindia','koreacentral','koreasouth','switzerlandnorth','germanywestcentral','norwayeast','swedencentral','polandcentral','israelcentral']
 var eventGridLocation = contains(eventGridAllowedLocations, location) ? location : (contains(eventGridAllowedLocations, fallbackEventGridLocation) == eventGridAllowedLocations[0])
 
 // The last segment of the telemetryId is used to identify this module

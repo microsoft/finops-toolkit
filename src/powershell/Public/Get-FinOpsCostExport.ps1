@@ -120,7 +120,7 @@ function Get-FinOpsCostExport
     $path = "$scope/providers/Microsoft.CostManagement/exports?api-version=$ApiVersion$(if ($RunHistory) { '&$expand=runHistory' })"
 
     # Get operation does not allow wildcards. Fetching all exports using list operation and then filtering in script
-    # https://learn.microsoft.com/en-us/rest/api/cost-management/exports/list?tabs=HTTP
+    # https://learn.microsoft.com/rest/api/cost-management/exports/list?tabs=HTTP
 
     Write-Verbose -Message "fetching all exports for scope:$scope"
     $response = Invoke-Rest -Method GET -Uri $path -CommandName "Get-FinOpsCostExport"
