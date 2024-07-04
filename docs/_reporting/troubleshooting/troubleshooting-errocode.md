@@ -25,7 +25,7 @@ List of most common error messages.
   - [FinOps hubs: We cannot convert the value null to type Table](#finops-hubs-we-cannot-convert-the-value-null-to-type-table)
   - [FinOps hubs: Deployment failed with RoleAssignmentUpdateNotPermitted error](#finops-hubs-deployment-failed-with-roleassignmentupdatenotpermitted-error)
   - [Data Factory:  Operation on target Convert CSV failed: ErrorCode=MappingColumnNameNotFoundInSourceFile,'Type=Microsoft.DataTransfer.Common.Shared.HybridDeliveryException,Message=Column 'AvailabilityZone' specified in column mapping cannot be found](#data-factory--operation-on-target-convert-csv-failed-errorcodemappingcolumnnamenotfoundinsourcefiletypemicrosoftdatatransfercommonsharedhybriddeliveryexceptionmessagecolumn-availabilityzone-specified-in-column-mapping-cannot-be-found)
-  - [**Solution:** This error means that the Cost Export is not set to FOCUS 1.0 (Preview). Review the export settings and ensure it is configured to FOCUS 1.0 (Preview), then run the pipeline again.](#solution-this-error-means-that-the-cost-export-is-not-set-to-focus-10-preview-review-the-export-settings-and-ensure-it-is-configured-to-focus-10-preview-then-run-the-pipeline-again)
+
 
 
 
