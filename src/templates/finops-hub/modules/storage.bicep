@@ -131,7 +131,7 @@ resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-0
 }]
 
 resource uploadSettings 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: 'uploadSettings'
+  name: '${storageAccountName}_uploadSettings'
   kind: 'AzurePowerShell'
   // chinaeast2 is the only region in China that supports deployment scripts
   location: startsWith(location, 'china') ? 'chinaeast2' : location

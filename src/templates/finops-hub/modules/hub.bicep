@@ -72,6 +72,9 @@ var eventGridName = replace(
   '-'
 )
 
+// EventGrid Contributor role
+var eventGridContributorRoleId = '1e241071-0855-49ea-94dc-649edcd759de'
+
 // Find a fallback region for EventGrid
 var eventGridAllowedLocations = ['eastus2','westus3','northeurope','westeurope','southeastasia','eastasia', 'southcentralus','uaenorth','eastus','centralus','westus2','uksouth', 'italynorth','australiasoutheast','brazilsouth','ukwest','northcentralus', 'centralindia','japaneast','francecentral','canadacentral','australiaeast', 'japanwest','canadaeast','southindia','koreacentral','koreasouth', 'switzerlandnorth','germanywestcentral','norwayeast','swedencentral', 'polandcentral','israelcentral']
 var eventGridLocation = contains(eventGridAllowedLocations, location) ? location : eventGridAllowedLocations[0]
@@ -130,17 +133,16 @@ resource tempEventGridNamespace 'Microsoft.EventGrid/namespaces@2023-12-15-previ
 
 // Managed identity to run script
 resource cleanupIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: '${tempEventGridNamespace.name}_eventGridManager'
+  name: '${uniqueSuffix}_cleanup'
   location: eventGridLocation
 }
+
+// Assign access to the identity
 resource cleanupIdentityRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid('1e241071-0855-49ea-94dc-649edcd759de', cleanupIdentity.id)
+  name: guid(eventGridContributorRoleId, cleanupIdentity.id)
   scope: tempEventGridNamespace
   properties: {
-    roleDefinitionId: subscriptionResourceId(
-      'Microsoft.Authorization/roleDefinitions',
-      '1e241071-0855-49ea-94dc-649edcd759de'
-    ) // Event grid contributor role
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', eventGridContributorRoleId)
     principalId: cleanupIdentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
@@ -148,11 +150,11 @@ resource cleanupIdentityRole 'Microsoft.Authorization/roleAssignments@2022-04-01
 
 // Cleanup script
 resource cleanupTempEventGridNamespace 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: 'deleteTempEventGridNamespace'
+  name: '${uniqueSuffix}_deleteEventGrid'
   dependsOn: [
     cleanupIdentityRole
   ]
-  location: eventGridLocation
+  location: location
   kind: 'AzurePowerShell'
   identity: {
     type: 'UserAssigned'

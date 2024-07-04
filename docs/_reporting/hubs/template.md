@@ -82,7 +82,7 @@ Please ensure the following prerequisites are met before deploying this template
 | **location**                   | String | Optional. Azure location where all resources should be created. See https://aka.ms/azureregions.                                                                                  | (resource group location) |
 | **storageSku**                 | String | Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: `Premium_LRS`, `Premium_ZRS`. | `Premium_LRS`             |
 | **tags**                       | Object | Optional. Tags to apply to all resources. We will also add the `cm-resource-parent` tag for improved cost roll-ups in Cost Management.                                            |
-| **scopesToMonitor**            | Array  | Optional. List of scope IDs to monitor and ingest cost for.                                                                                                                                |
+| **scopesToMonitor**            | Array  | Optional. List of scope IDs to monitor and ingest cost for.                                                                                                                       |
 | **exportRetentionInDays**      | Int    | Optional. Number of days of cost data to retain in the ms-cm-exports container.                                                                                                   | 0                         |
 | **ingestionRetentionInMonths** | Int    | Optional. Number of months of cost data to retain in the ingestion container.                                                                                                     | 13                        |
 
@@ -128,10 +128,13 @@ In addition to the above, the following resources are created to automate the de
 - Managed identities:
   - `<storage>_blobManager` ([Storage Blob Data Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)) – Uploads the settings.json file.
   - `<datafactory>_triggerManager` ([Data Factory Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#data-factory-contributor)) – Stops triggers before deployment and starts them after deployment.
+  - `<unique-suffix>_cleanup` ([EventGrid Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#eventgrid-contributor)) – Deletes temporary EventGrid namespace used to register the EventGrid RP.
 - Deployment scripts (automatically deleted after a successful deployment):
-  - `<datafactory>_stopHubTriggers` – Stops all triggers in the hub using the triggerManager identity.
-  - `<datafactory>_startHubTriggers` – Starts all triggers in the hub using the triggerManager identity.
-  - `uploadSettings` – Uploads the settings.json file using the blobManager identity.
+  - `<unique-suffix>_deleteEventGrid` – Deletes temporary EventGrid namespace used to register the EventGrid RP.
+  - `<datafactory>_deleteOldResources` – Deletes unused resources from previous FinOps hubs deployments.
+  - `<datafactory>_stopTriggers` – Stops all triggers in the hub using the triggerManager identity.
+  - `<datafactory>_startTriggers` – Starts all triggers in the hub using the triggerManager identity.
+  - `<storage>_uploadSettings` – Uploads the settings.json file using the blobManager identity.
 
 <br>
 
