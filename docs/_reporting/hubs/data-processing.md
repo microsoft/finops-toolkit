@@ -32,7 +32,7 @@ FinOps hubs perform a number of data processing activities to clean up, normaliz
 
 ## 🛠️ Scope setup
 
-This diagram shows what happens when a new, managed scope is added to a hub instance. Unmanaged scopes (where Cost Management exports are manually configured) do not require any setup.
+This diagram shows what happens when a new, managed scope is added to a hub instance. Unmanaged scopes (where Cost Management exports are manually configured) do not require any setup in hubs.
 
 ```mermaid
 sequenceDiagram
@@ -102,33 +102,64 @@ FinOps hubs leverage Cost Management exports to obtain cost data. Cost Managemen
 {container}/{path}/{date-range}/{export-name}/{export-time}/{guid}/{file}
 ```
 
-For FinOps hubs, we expect the following:
+As of 0.4, FinOps hubs do not rely on file paths. Hubs utilize the manifest file to identify the scope, dataset, month, etc. The only important part of the path for hubs is the container, which must be **msexports**.
 
-```text
-msexports/{scope-id}/{date-range}/{export-name}/{export-time}/{guid}/{file}
+<blockquote class="warning" markdown="1">
+  _Do not export data to the **ingestion** container. Exported CSVs **must** be published to the **msexports** container to be processed by the hubs engine._
+  
+  _To ingest custom data, save FOCUS-aligned parquet files in the **ingestion** container for the FinOps toolkit Power BI reports to work as expected._
+</blockquote>
+
+Export manifests can change with API versions. Here's an example with API version `2023-07-01-preview`:
+
+```json
+{
+  "exportConfig": {
+    "exportName": "<export-name>",
+    "resourceId": "/<scope>/providers/Microsoft.CostManagement/exports/<export-name>",
+    "dataVersion": "<dataset-version>",
+    "apiVersion": "<api-version>",
+    "type": "<dataset-type>",
+    "timeFrame": "OneTime|TheLastMonth|MonthToDate",
+    "granularity": "Daily"
+  },
+  "deliveryConfig": {
+    "partitionData": true,
+    "dataOverwriteBehavior": "CreateNewReport|OverwritePreviousReport",
+    "fileFormat": "Csv",
+    "containerUri": "<storage-resource-id>",
+    "rootFolderPath": "<path>"
+  },
+  "runInfo": {
+    "executionType": "Scheduled",
+    "submittedTime": "2024-02-03T18:33:03.1032074Z",
+    "runId": "af754a8e-30fc-4ef3-bfc6-71bd1efb8598",
+    "startDate": "2024-01-01T00:00:00",
+    "endDate": "2024-01-31T00:00:00"
+  },
+  "blobs": [
+    {
+      "blobName": "<path>/<export-name>/<date-range>/<export-time>/<guid>/<file-name>.csv",
+      "byteCount": ###
+    }
+  ]
+}
 ```
 
-- `msexports` is the container specified on the export.
-  > Hubs only monitor the **msexports** container, so this is required.
-- `{scope-id}` is the folder path specified on the export.
-  > Hubs use this to identify which scope the data is coming from. We recommend using the scope ID but any value can be used. Example scope IDs include:
-  >
-  > | Scope type      | Example value                                                          |
-  > | --------------- | ---------------------------------------------------------------------- |
-  > | Subscription    | `/subscriptions/###`                                                   |
-  > | Resource group  | `/subscriptions/###/resourceGroups/###`                                |
-  > | Billing account | `/providers/Microsoft.Billing/billingAccounts/###`                     |
-  > | Billing profile | `/providers/Microsoft.Billing/billingAccounts/###/billingProfiles/###` |
-- `{export-name}` is the name of the export.
-  > Hubs ignore this folder.
-- `{date-range}` is the date range data being exported.
-  > Hubs use this to identify the month. Format for this folder is `yyyyMMdd-yyyyMMdd`.
-- `{export-time}` is a timestamp of when the export ran.
-  > Hubs ignore this. Format for this folder is `yyyyMMddHHmm`.
-- `{guid}` is a unique GUID and is not always present.
-  > Hubs ignore this. Cost Management does not always include this folder. Whether or not it is included depends on the API version used to create the export.
-- `{file}` is either a manifest or exported data.
-  > Hubs 0.2 ignores manifest files and only monitors `*.csv` files. In a future release, hubs will monitor the manifest.
+FinOps hubs leverage the following properties:
+
+- `eportConfig.resourceId` to identify the scope.
+- `eportConfig.type` to identify the dataset type.
+- `eportConfig.dataVersion` to identify the dataset version.
+- `runInfo.startDate` to identify the exported month.
+
+<a name="datasets"></a>FinOps hubs support the following dataset types, versions, and API versions:
+
+- FocusCost
+  - 1.0
+  - 1.0-preview(v1)
+- API versions:
+  - 2023-07-01-preview
 
 <br>
 
@@ -148,6 +179,32 @@ sequenceDiagram
 2. The **msexports_ExecuteETL** pipeline kicks off the extract-transform-load (ETL) process when files are added to storage.
 3. The **msexports_ETL_ingestion** pipeline saves exported data in parquet format in the **ingestion** container. [Learn more](#ℹ️-about-ingestion).
 4. Power BI reads cost data from the **ingestion** container.
+
+FinOps hubs 0.2-0.3 use the export path to determine the exported scope and month. This is important as updates to the path can break the data pipelines. To avoid this, we recommend updating to FinOps hubs 0.4. The expected path should mimic:
+
+```text
+msexports/{scope-id}/{export-name}/{date-range}/{export-time}/{guid}/{file}
+```
+- `msexports` is the container specified on the export.
+- `{scope-id}` is the folder path specified on the export.
+  > Hubs 0.3 and earlier use this to identify which scope the data is coming from. We recommend using the scope ID but any value can be used. Example scope IDs include:
+  >
+  > | Scope type      | Example value                                                          |
+  > | --------------- | ---------------------------------------------------------------------- |
+  > | Subscription    | `/subscriptions/###`                                                   |
+  > | Resource group  | `/subscriptions/###/resourceGroups/###`                                |
+  > | Billing account | `/providers/Microsoft.Billing/billingAccounts/###`                     |
+  > | Billing profile | `/providers/Microsoft.Billing/billingAccounts/###/billingProfiles/###` |
+- `{export-name}` is the name of the export.
+  > Hubs ignore this folder.
+- `{date-range}` is the date range data being exported.
+  > Hubs 0.3 and earlier use this to identify the month. Format for this folder is `yyyyMMdd-yyyyMMdd`. Hubs 0.4 uses the manifest instead.
+- `{export-time}` is a timestamp of when the export ran.
+  > Hubs ignore this. Format for this folder is `yyyyMMddHHmm`.
+- `{guid}` is a unique GUID and is not always present.
+  > Hubs ignore this. Cost Management does not always include this folder. Whether or not it is included depends on the API version used to create the export.
+- `{file}` is either a manifest or exported data.
+  > Version 0.3 and earlier ignore manifest files and only monitor **\*.csv** files. In a future release, hubs will monitor the manifest.
 
 <br>
 

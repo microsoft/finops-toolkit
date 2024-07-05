@@ -22,7 +22,8 @@ table HubScopes
 				    AppendQueries = Table.Combine({ToTable, HubData}),
 				    RemoveTestData = Table.SelectRows(AppendQueries, each [Scope] <> null and [Scope] <> "" and [Scope] <> "/foo"),
 				    Scope = Table.SelectColumns(RemoveTestData, {"Scope"}),
-				    Distinct = Table.Distinct(Scope)
+				    Lowercase = Table.TransformColumns(Scope,{{"Scope", Text.Lower, type text}}),
+				    Distinct = Table.Distinct(Lowercase)
 				in
 				    Distinct
 

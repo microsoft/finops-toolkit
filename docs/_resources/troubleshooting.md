@@ -27,6 +27,9 @@ Here are a few simple solutions to issues others have reported:
 - [InvalidScopeId](#invalidscopeid)
 - [ExportNotFound](#exportnotfound)
 - [NoDataIngested](#nodataingested)
+- [ManifestReadFailed](#manifestreadfailed)
+- [SchemaLoadFailed](#schemaloadfailed)
+- [SchemaNotFound](#schemanotfound)
 - [UnknownExportFile](#unknownexportfile)
 - [UnknownHubVersion](#unknownhubversion)
 - [UnsupportedExportType](#unsupportedexporttype)
@@ -117,13 +120,113 @@ The export path is not a valid scope ID. FinOps hubs expects the export path to 
 
 ---
 
+## ManifestReadFailed
+
+<sup>Severity: Critical</sup>
+
+FinOps hub **msexports_ExecuteETL** pipeline failed to read the Cost Management manifest file.
+
+**Mitigation**:
+
+1. If the error occurred on a working hub instance when no changes were made to the hub or export, then Cost Management may have changed the manifest schema for an existing API version.
+2. If the error occurred after creating a new or changing an existing export, then the export API version may use a new manifest schema that is not supported yet.
+3. If the error occurred after a hub deployment (initial install or upgrade), then the deployment may have failed or there could be a bug in the pipeline.
+
+To confirm the manifest schema (\#1) or API version (\#2):
+
+1. Open the hub storage account in the Azure portal or storage explorer.
+2. If in the Azure portal, go to **Storage browser** in the menu.
+3. Select the **msexports** container.
+4. Navigate down the file hierarchy for the export with the issue (see the manifest location in the error message).
+5. Find the **manifest.json** file and select the menu (**⋯**) on the right, then select **View/edit**.
+6. Identify the following properties:
+   ```json
+   {
+     "exportConfig": {
+       "resourceId": "<scope-id>/providers/Microsoft.CostManagement/exports/<export-name>",
+       "dataVersion": "<dataset-version>",
+       "apiVersion": "2023-07-01-preview",
+       "type": "<dataset-type>",
+       ...
+     },
+     ...
+   }
+   ```
+7. Confirm the are set to the following supported values:
+   - **resourceId** can be any scope ID and any export name, but it must exist with the "Microsoft.CostManagement/exports" resource type. This is case-insensitive.
+   - **type** must exist, but should not fail with this error for any non-null value.
+   - **dataVersion** must exist, but should not fail with this error for any non-null value.
+   - **apiVersion** is not used explicitly but can signify changes to the manifest schema. See [supported API versions](../_reporting/hubs/data-processing.md#datasets) for details.
+8. If you are using a newer API version:
+   1. [Create a change request issue in GitHub](https://aka.ms/ftk/idea) to track adding support for the new API version.
+   2. Delete the export in Cost Management.
+   3. Create an export using the [New-FinOpsCostExport PowerShell command](../_automation/powershell/cost/New-FinOpsCostExport.md) using a supported API version.
+   <blockquote class="tip" markdown="1">
+     _If you consider yourself a power user, you may want to try updating the pipeline yourself for the quickest resolution. To do that, open Data Factory, navigate to Author > Pipelines > msexports_ExecuteETL, and select the applicable "Set" activities and update the **Settings** > **Value** property as needed. If you do this, you do not need to re-create the export with an older version. Please still report the issue and consider sharing the new JSON from the `{}` icon at the top-right of the pipeline designer._
+   </blockquote>
+9. If you notice the properties have changed for a supported API version:
+   1. [Create a change request issue in GitHub](https://aka.ms/ftk/idea) to track the breaking change. Please include the **type**, **dataVersion**, and **apiVersion** from your manifest.json file.
+   2. File a support request with Cost Management to request their change be reverted as it will break everyone using FinOps hubs or other custom solutions. Include the following details to help the Cost Management support team identify the issue within their system. Note Cost Management does not have context on FinOps hubs, so we should keep the details focused on Cost Management functionality.
+      > I am using Cost Management exports to pull my cost data into ADLS. I have an ADF pipeline that is processing the data when manifest files are written. My pipeline was built on API version **<your-supported-api-version>** which expects `exportConfig.resourceId`, `exportConfig.type`, and `exportConfig.dataVersion` properties to be delivered consistently. I noticed these files are not being included in the manifest file for this API version for my export that ran on **<your-export-date>**. My expectation is that the manifest file should never change for an existing API version. Can you please revert these changes?
+      >
+      > To help you troubleshoot, here is my manifest file: <your-manifest-json>
+
+If the manifest properties look good an this was a new or upgraded FinOps hub instance, confirm the deployment:
+
+1. Open the hub resource group in the Azure portal.
+2. Select **Settings** > **Deployments** in the menu on the left.
+3. Confirm all deployments are successful. Specifically, look for the following deployment names:
+   - main
+   - hub
+   - dataFactoryResources
+   - storage
+   - keyVault
+4. If any deployments failed, review the error message to determine if it's something you can resolve yourself (e.g., name conflict, fixable policy violation).
+5. If the error seems transient, try deploying again.
+6. If the error persists, create a [discussion](https://aka.ms/ftk/discuss) to see if anyone else if facing an issue or knows of a possible workaround (especially for policy issues).
+7. If the error is very clearly a bug or feature gap, [create a bug or feature request issue in GitHub](https://aka.ms/ftk/idea).
+
+We try to respond to issues and discussions within 2 business days.
+
+<!--
+TODO: Consider the following ways to streamline this in the future:
+1. Opt-in telemetry/email to the FTK team when errors happen in the pipeline
+2. Detect these errors from the Data ingestion report.
+3. Create a hub configuration workbook to detect configuration issues.
+4. Consider renaming the main deployment file so it doesn't risk conflicting with other deployments.
+-->
+
+---
+
+## SchemaLoadFailed
+
+<sup>Severity: Critical</sup>
+
+FinOps hub **msexports_ETL_ingestion** pipeline failed to load the schema file.
+
+**Mitigation**: Review the error message to note the dataset type and version, which are formatted with an underscore (e.g., `<type>_<version>` or `FocusCost_1.0`). Confirm that the dataset and type are both supported by the deployed version of FinOps hubs. See [supported datasets](../_reporting/hubs/data-processing.md#datasets) for details.
+
+---
+
+## SchemaNotFound
+
+<sup>Severity: Critical</sup>
+
+FinOps hub **msexports_ExecuteETL** pipeline was not able to find the schema mapping file for the exported dataset.
+
+**Mitigation**: Confirm the dataset type and version are supported. See [supported datasets](../_reporting/hubs/data-processing.md#datasets) for details. If the dataset is supported, confirm the hub version with the [Data ingestion report](../_reporting/power-bi/data-ingestion.md).
+
+To add support for another dataset, create a custom mapping file and save it to `config/schemas/<dataset-type>_<dataset-version>.json`. The `<dataset-type>` `<dataset-version>` values much match what Cost Management uses. Use an existing schema file as a template to identify the datatype for each column. Keep in mind some datasets have different schemas for EA and MCA, which cannot be identified via these attributes and may cause an issue if you have both account types. We will add all datasets in a future release and account for the EA and MCA differences by aligning to FOCUS.
+
+---
+
 ## UnknownExportFile
 
 <sup>Severity: Informational</sup>
 
 The file in hub storage does not look like it was exported from Cost Management. File will be ignored.
 
-**Mitigation**: The 'msexports' container is intended for Cost Management exports only. Please move other files in another storage container.
+**Mitigation**: The **msexports** container is intended for Cost Management exports only. Please move other files in another storage container.
 
 ---
 

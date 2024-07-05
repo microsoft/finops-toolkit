@@ -4,10 +4,6 @@
     "type": "TabularTranslator",
     "mappings": [
       {
-        "source": { "name": "AvailabilityZone", "type": "String" },
-        "sink": { "name": "AvailabilityZone" }
-      },
-      {
         "source": { "name": "BilledCost", "type": "Decimal" },
         "sink": { "name": "BilledCost" }
       },
@@ -40,6 +36,10 @@
         "sink": { "name": "ChargeCategory" }
       },
       {
+        "source": { "name": "ChargeClass", "type": "String" },
+        "sink": { "name": "ChargeClass" }
+      },
+      {
         "source": { "name": "ChargeDescription", "type": "String" },
         "sink": { "name": "ChargeDescription" }
       },
@@ -56,10 +56,6 @@
         "sink": { "name": "ChargePeriodStart" }
       },
       {
-        "source": { "name": "ChargeSubcategory", "type": "String" },
-        "sink": { "name": "ChargeSubcategory" }
-      },
-      {
         "source": { "name": "CommitmentDiscountCategory", "type": "String" },
         "sink": { "name": "CommitmentDiscountCategory" }
       },
@@ -72,8 +68,28 @@
         "sink": { "name": "CommitmentDiscountName" }
       },
       {
+        "source": { "name": "CommitmentDiscountStatus", "type": "String" },
+        "sink": { "name": "CommitmentDiscountStatus" }
+      },
+      {
         "source": { "name": "CommitmentDiscountType", "type": "String" },
         "sink": { "name": "CommitmentDiscountType" }
+      },
+      {
+        "source": { "name": "ConsumedQuantity", "type": "Decimal" },
+        "sink": { "name": "ConsumedQuantity" }
+      },
+      {
+        "source": { "name": "ConsumedUnit", "type": "String" },
+        "sink": { "name": "ConsumedUnit" }
+      },
+      {
+        "source": { "name": "ContractedCost", "type": "Decimal" },
+        "sink": { "name": "ContractedCost" }
+      },
+      {
+        "source": { "name": "ContractedUnitPrice", "type": "Decimal" },
+        "sink": { "name": "ContractedUnitPrice" }
       },
       {
         "source": { "name": "EffectiveCost", "type": "Decimal" },
@@ -112,8 +128,12 @@
         "sink": { "name": "PublisherName" }
       },
       {
-        "source": { "name": "Region", "type": "String" },
-        "sink": { "name": "Region" }
+        "source": { "name": "RegionId", "type": "String" },
+        "sink": { "name": "RegionId" }
+      },
+      {
+        "source": { "name": "RegionName", "type": "String" },
+        "sink": { "name": "RegionName" }
       },
       {
         "source": { "name": "ResourceId", "type": "String" },
@@ -160,12 +180,8 @@
         "sink": { "name": "Tags" }
       },
       {
-        "source": { "name": "UsageQuantity", "type": "Decimal" },
-        "sink": { "name": "UsageQuantity" }
-      },
-      {
-        "source": { "name": "UsageUnit", "type": "String" },
-        "sink": { "name": "UsageUnit" }
+        "source": { "name": "x_AccountId", "type": "String" },
+        "sink": { "name": "x_AccountId" }
       },
       {
         "source": { "name": "x_AccountName", "type": "String" },
@@ -208,8 +224,8 @@
         "sink": { "name": "x_BillingProfileName" }
       },
       {
-        "source": { "name": "x_ChargeId", "type": "String" },
-        "sink": { "name": "x_ChargeId" }
+        "source": { "name": "x_ContractedCostInUsd", "type": "Decimal" },
+        "sink": { "name": "x_ContractedCostInUsd" }
       },
       {
         "source": { "name": "x_CostAllocationRuleName", "type": "String" },
@@ -252,23 +268,15 @@
         "sink": { "name": "x_InvoiceSectionName" }
       },
       {
-        "source": { "name": "x_OnDemandCost", "type": "Decimal" },
-        "sink": { "name": "x_OnDemandCost" }
+        "source": { "name": "x_ListCostInUsd", "type": "Decimal" },
+        "sink": { "name": "x_ListCostInUsd" }
       },
       {
-        "source": { "name": "x_OnDemandCostInUsd", "type": "Decimal" },
-        "sink": { "name": "x_OnDemandCostInUsd" }
-      },
-      {
-        "source": { "name": "x_OnDemandUnitPrice", "type": "Decimal" },
-        "sink": { "name": "x_OnDemandUnitPrice" }
-      },
-      {
-        "source": { "name": "x_PartnerCreditApplied", "type": "Boolean" },
+        "source": { "name": "x_PartnerCreditApplied", "type": "String" },
         "sink": { "name": "x_PartnerCreditApplied" }
       },
       {
-        "source": { "name": "x_PartnerCreditRate", "type": "Decimal" },
+        "source": { "name": "x_PartnerCreditRate", "type": "String" },
         "sink": { "name": "x_PartnerCreditRate" }
       },
       {
