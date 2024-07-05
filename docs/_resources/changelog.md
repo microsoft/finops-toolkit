@@ -94,6 +94,13 @@ Legend:
 >    - Reports will still be released as PBIX files so this change should not impact end users.
 >    - Visualizations are not being switched to [Power BI Enhanced Report (PBIR)](https://learn.microsoft.com/power-bi/developer/projects/projects-report#pbir-format) format yet due to functional limitations that would impact end users (as of June 2024).
 
+🖥️ PowerShell
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed:
+>
+> 1. Updated [New-FinOpsCostExport](../_automation/powershell/cost/New-FinOpsCostExport.md) to default to FOCUS 1.0.
+
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
