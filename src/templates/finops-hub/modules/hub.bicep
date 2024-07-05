@@ -80,7 +80,7 @@ var eventGridContributorRoleId = '1e241071-0855-49ea-94dc-649edcd759de'
 
 // Find a fallback region for EventGrid
 var eventGridAllowedLocations = ['eastus2','westus3','northeurope','westeurope','southeastasia','eastasia','southcentralus','uaenorth','eastus','centralus','westus2','uksouth','italynorth','australiasoutheast','brazilsouth','ukwest','northcentralus','centralindia','japaneast','francecentral','canadacentral','australiaeast','japanwest','canadaeast','southindia','koreacentral','koreasouth','switzerlandnorth','germanywestcentral','norwayeast','swedencentral','polandcentral','israelcentral']
-var eventGridLocation = contains(eventGridAllowedLocations, location) ? location : (contains(eventGridAllowedLocations, fallbackEventGridLocation) == eventGridAllowedLocations[0])
+var eventGridLocation = contains(eventGridAllowedLocations, location) ? location : (contains(eventGridAllowedLocations, fallbackEventGridLocation) ? fallbackEventGridLocation : eventGridAllowedLocations[0])
 
 // The last segment of the telemetryId is used to identify this module
 var telemetryId = '00f120b5-2007-6120-0000-40b000000000'
