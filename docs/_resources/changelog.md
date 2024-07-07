@@ -76,6 +76,7 @@ Legend:
 > ✏️ Changed:
 >
 > 1. Updated [FinOps Framework guidance](../_docs/framework/README.md) to account for the 2024 updates.
+> 2. Updated [FOCUS guidance](../_docs/focus/README.md) to FOCUS 1.0.
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
