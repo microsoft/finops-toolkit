@@ -73,64 +73,49 @@ relationship 84724950-127c-4859-9cbe-611fa2abf14f
 	fromColumn: CostDetails.x_Month
 	toColumn: LocalDateTable_fef26e24-a208-4f98-9587-9e837520485d.Date
 
-relationship bfdf0d9e-7a2a-4449-b28b-e8d7193fc4d3
+relationship 0bdee9e9-a59b-4464-9b13-1b4bc9238893
 	joinOnDateBehavior: datePartOnly
-	fromColumn: HubExports.Month
-	toColumn: LocalDateTable_b4481e6d-7b57-4236-b430-b5260c37ff6f.Date
+	fromColumn: HubData.Month
+	toColumn: LocalDateTable_f8c522a9-514b-435e-9c83-a31fe0c99a22.Date
 
-relationship 404e7529-fc66-442f-8947-dfb2b82b57a7
+relationship cbec0f51-5f49-4a53-9dfa-6547e601a31a
 	joinOnDateBehavior: datePartOnly
-	fromColumn: HubExports.DateCreated
-	toColumn: LocalDateTable_d24e3edf-a759-4c92-a59f-1fc8cf54a6c8.Date
+	fromColumn: HubData.Updated
+	toColumn: LocalDateTable_0ac3758b-3ab8-42b7-bc85-9cfda5289f14.Date
 
-relationship 2a8264f5-af1f-4347-89e8-a1d30e4a00af
-	joinOnDateBehavior: datePartOnly
-	fromColumn: HubExports.DateModified
-	toColumn: LocalDateTable_9c2ef32e-1f64-425a-80cf-53a4020c55fd.Date
-
-relationship a567475c-1f01-415b-8682-7794f5662c66
-	joinOnDateBehavior: datePartOnly
-	fromColumn: HubExports.DateAccessed
-	toColumn: LocalDateTable_cc194c8b-c38e-44b7-81e4-19de95f9eb7b.Date
-
-relationship 8fec1225-20ef-4ce3-9c0e-58c5857898b7
-	joinOnDateBehavior: datePartOnly
-	fromColumn: HubIngestion.Month
-	toColumn: LocalDateTable_41efb852-a77d-41a4-8d93-fa1942f528a3.Date
-
-relationship 0b911ae4-f354-4a70-a9a2-63bc92f7b26c
-	joinOnDateBehavior: datePartOnly
-	fromColumn: HubIngestion.Created
-	toColumn: LocalDateTable_c7280346-3e7b-4b97-8f9a-9eece9b5d3ed.Date
-
-relationship 440308a8-6879-464d-a8b1-79f3a3a71c69
-	joinOnDateBehavior: datePartOnly
-	fromColumn: HubIngestion.Updated
-	toColumn: LocalDateTable_1cba35dd-c086-4d23-8329-b3c1c5cbdc70.Date
-
-relationship a3808251-3896-4682-8e9d-524755e4ca18
-	joinOnDateBehavior: datePartOnly
-	fromColumn: HubIngestion.Accessed
-	toColumn: LocalDateTable_7e252193-4a78-4d83-a440-30c8768441b6.Date
-
-relationship b8c49c02-0384-4c91-832b-1aca0161ce83
-	fromColumn: HubExports.Scope
+relationship AutoDetected_72a70a3e-749a-435a-a8f3-71251d2cd609
+	fromColumn: HubData.Scope
 	toColumn: HubScopes.Scope
 
-relationship 54242b06-fc2a-4cd1-8f12-1419f28a74d9
-	fromColumn: HubIngestion.Scope
+relationship AutoDetected_e6fde430-2494-43c7-a688-3a0809e33966
+	fromColumn: HubData.StorageAccount
+	toColumn: HubSettings.StorageAccount
+
+relationship 3e5b5a82-1615-455a-b7fd-22bdfa92857a
+	joinOnDateBehavior: datePartOnly
+	fromColumn: HubData.Created
+	toColumn: LocalDateTable_1be86c8b-1d56-4c92-b0c1-2de21a6b4e4d.Date
+
+relationship d6cc07ff-8e76-48f9-be13-b2fd6cd79dcb
+	joinOnDateBehavior: datePartOnly
+	fromColumn: HubErrors.Month
+	toColumn: LocalDateTable_c3c47274-cc2f-4ba2-a257-6f5d529787d5.Date
+
+relationship df266e34-1a2c-4dad-8bc0-7d50597b1af4
+	joinOnDateBehavior: datePartOnly
+	fromColumn: HubErrors.Created
+	toColumn: LocalDateTable_c4ce9464-15a6-4444-a0af-08644805dec6.Date
+
+relationship ca9ea6c6-eeee-430a-a936-bb09914ffa49
+	joinOnDateBehavior: datePartOnly
+	fromColumn: HubErrors.Updated
+	toColumn: LocalDateTable_c351bfa8-dbcf-4886-9895-35cf730d7efe.Date
+
+relationship AutoDetected_60477dee-0609-4d6d-84a1-ba0cb2c9aec2
+	fromColumn: HubErrors.Scope
 	toColumn: HubScopes.Scope
 
-relationship dac80012-67c3-4953-bed6-9253ceb39052
-	fromColumn: HubExports.StorageAccount
+relationship AutoDetected_78c92904-4b92-4f52-bdd3-375e2b0fee33
+	fromColumn: HubErrors.StorageAccount
 	toColumn: HubSettings.StorageAccount
-
-relationship 41d8c5d2-3693-406a-8075-d1cae680f7a6
-	fromColumn: HubIngestion.StorageAccount
-	toColumn: HubSettings.StorageAccount
-
-relationship bf8bf86f-8993-4d16-8af3-b9d69d0cc2e9
-	joinOnDateBehavior: datePartOnly
-	fromColumn: HubExports.ExportDay
-	toColumn: LocalDateTable_767a87d5-01db-48e9-b034-577f5dc943a1.Date
 

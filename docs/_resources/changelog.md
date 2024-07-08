@@ -83,10 +83,9 @@ Legend:
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
-> 🛠️ Fixed:
+> ➕ Added:
 >
-> 1. Improved parsing for the `x_ResourceParentName` and `x_ResourceParentType` columns ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
-> 2. Added error handling for missing `normalizedSize` and `recommendedQuantityNormalized` columns in the [Rate optimization (Commitment discounts) report](../_reporting/power-bi/rate-optimization.md) ([#702](https://github.com/microsoft/finops-toolkit/issues/702)).
+> 1. Added a new [Ingestion errors page](../_reporting/power-bi/data-ingestion.md#ingestion-errors) to help identify FinOps hub data ingestion issues.
 >
 > ✏️ Changed
 >
@@ -96,6 +95,13 @@ Legend:
 >    - This change makes it easier to review changes to the data model in Power BI.
 >    - Reports will still be released as PBIX files so this change should not impact end users.
 >    - Visualizations are not being switched to [Power BI Enhanced Report (PBIR)](https://learn.microsoft.com/power-bi/developer/projects/projects-report#pbir-format) format yet due to functional limitations that would impact end users (as of June 2024).
+> 4. Optimized [Data ingestion report](../_reporting/power-bi/data-ingestion.md) queries to reduce memory footprint and load faster.
+>
+> 🛠️ Fixed:
+>
+> 1. Improved parsing for the `x_ResourceParentName` and `x_ResourceParentType` columns ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
+> 2. Added error handling for missing `normalizedSize` and `recommendedQuantityNormalized` columns in the [Rate optimization (Commitment discounts) report](../_reporting/power-bi/rate-optimization.md) ([#702](https://github.com/microsoft/finops-toolkit/issues/702)).
+> 3. Fixed error in [Data ingestion report](../_reporting/power-bi/data-ingestion.md) queries.
 
 🔍 Optimization engine
 {: .fs-5 .fw-500 .mt-4 mb-0 }

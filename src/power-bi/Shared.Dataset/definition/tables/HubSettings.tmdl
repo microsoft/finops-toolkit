@@ -59,7 +59,7 @@ table HubSettings
 				    Retention = if Table.HasColumns(ToTable, "retention") then Table.ExpandRecordColumn(ToTable, "retention", {"msexports", "ingestion"}, {"retention.msexports", "retention.ingestion"}) else ToTable,
 				    ExportRetention = if Table.HasColumns(ToTable, "retention") then Table.ExpandRecordColumn(Retention, "retention.msexports", {"days"}, {"ExportRetentionInDays"}) else Table.AddColumn(Retention, "ExportRetentionInDays", each null),
 				    IngestRetention = if Table.HasColumns(ToTable, "retention") then Table.ExpandRecordColumn(ExportRetention, "retention.ingestion", {"months"}, {"IngestionRetentionInMonths"}) else Table.AddColumn(ExportRetention, "IngestionRetentionInMonths", each null),
-				    ScopeCount = Table.AddColumn(IngestRetention, "Scopes", each List.Count(List.RemoveMatchingItems([scopes], {"/foo", ""}))),
+				    ScopeCount = Table.AddColumn(IngestRetention, "Scopes", each try List.Count(List.RemoveMatchingItems([scopes], {"/foo", ""})) otherwise 0),
 				    Storage = Table.AddColumn(ScopeCount, "StorageAccount", each Text.SplitAny(#"Storage URL", "/."){2}),
 				    SelectColumns = Table.SelectColumns(Storage, {"StorageAccount", "version", "ExportRetentionInDays", "IngestionRetentionInMonths", "Scopes"}),
 				    FixTypes = Table.TransformColumnTypes(SelectColumns, {{"version", type text}, {"ExportRetentionInDays", type number}, {"IngestionRetentionInMonths", type number}, {"Scopes", type number}}),
@@ -68,4 +68,6 @@ table HubSettings
 				    Version
 
 	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
 
