@@ -48,10 +48,10 @@ table CostDetails
 
 		changedProperty = FormatString
 
-	measure ChargePeriod = FORMAT(MIN([ChargePeriodStart]), "Mmm dd") & "-" & FORMAT(MAX([ChargePeriodEnd]), "Mmm dd")
+	measure ChargePeriod = FORMAT(MIN([ChargePeriodStart]), IF(AND(FORMAT(MIN([ChargePeriodStart]), "yyyy") = FORMAT(UTCTODAY(), "yyyy"), FORMAT(MIN([ChargePeriodStart]), "yyyy") = FORMAT(MAX([ChargePeriodEnd])-1, "yyyy")), "Mmm dd", "Mmm dd, yyyy")) & IF(FORMAT(MIN([ChargePeriodStart]), "Mmm dd, yyyy") = FORMAT(MAX([ChargePeriodEnd])-1, "Mmm dd, yyyy"), "", "-" & FORMAT(MAX([ChargePeriodEnd]), IF(AND(FORMAT(MIN([ChargePeriodStart]), "yyyy") = FORMAT(UTCTODAY(), "yyyy"), FORMAT(MIN([ChargePeriodStart]), "yyyy") = FORMAT(MAX([ChargePeriodEnd])-1, "yyyy")), "Mmm dd", "Mmm dd, yyyy")))
 		lineageTag: e2fc22d0-4f7f-479f-b751-3de08d8ec892
 
-	measure BillingPeriod = FORMAT(MIN([BillingPeriodStart]), "Mmm dd") & "-" & FORMAT(MAX([BillingPeriodEnd]), "Mmm dd")
+	measure BillingPeriod = FORMAT(MIN([BillingPeriodStart]), "Mmm") & IF(FORMAT(MIN([BillingPeriodStart]), "Mmm yyyy") = FORMAT(MAX([BillingPeriodEnd])-1, "Mmm yyyy"), FORMAT(MIN([BillingPeriodStart]), " yyyy"), "-" & FORMAT(MAX([BillingPeriodEnd])-1, "Mmm yyyy"))
 		lineageTag: aba7700d-40b5-4f19-8830-c8151c234a8c
 
 	measure x_DiscountCostSavingsRunningTotal =
@@ -199,7 +199,7 @@ table CostDetails
 
 	column ChargePeriodStart
 		dataType: dateTime
-		formatString: Long Date
+		formatString: Mmm d, yyyy
 		lineageTag: d0c0bd47-7aa7-44e4-82cc-91109ebb2eb0
 		summarizeBy: none
 		sourceColumn: ChargePeriodStart
@@ -210,6 +210,8 @@ table CostDetails
 			defaultHierarchy: LocalDateTable_f404d4da-597d-4db3-8c17-e985f68c9dc4.'Date Hierarchy'
 
 		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
 
 	column CommitmentDiscountType
 		dataType: string
@@ -831,7 +833,7 @@ table CostDetails
 
 	column BillingPeriodStart
 		dataType: dateTime
-		formatString: Long Date
+		formatString: Mmm yyyy
 		lineageTag: 5bd5447d-f0e4-4db7-9154-768c589aacc3
 		summarizeBy: none
 		sourceColumn: BillingPeriodStart
@@ -842,6 +844,8 @@ table CostDetails
 			defaultHierarchy: LocalDateTable_41a1933b-26d3-4c56-aecf-605bc04c1fe7.'Date Hierarchy'
 
 		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isCustom":true}
 
 	column ChargeCategory
 		dataType: string
@@ -1219,6 +1223,16 @@ table CostDetails
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
+	column x_IncrementalRefreshDate
+		dataType: double
+		lineageTag: 73487d4f-b0dd-4d41-8d9e-739636dabab8
+		summarizeBy: sum
+		sourceColumn: x_IncrementalRefreshDate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
 	partition CostDetails-9a19f60d-0b5b-47c3-9fdf-8f57811d24d2 = m
 		mode: import
 		queryGroup: 'FinOps toolkit'
@@ -1363,9 +1377,10 @@ table CostDetails
 				        else if Text.Contains(Text.Lower([x_ResourceParentId]), "/providers/microsoft.cloud/hubs/") then "FinOps hubs"
 				        else null),
 				    ExpandedTags = Table.RemoveColumns(Tool, { "tmp_cmParent", "tmp_msParent", "tmp_caParent", "tmp_ManagedBy" }),
+				    IRDate = Table.AddColumn(ExpandedTags, "x_IncrementalRefreshDate", each Number.From([ChargePeriodStart]), type number),
 				
 				    // AHB columns
-				    SkuDetails_expand   = Table.ExpandRecordColumn(ExpandedTags, "tmp_SkuDetails",
+				    SkuDetails_expand   = Table.ExpandRecordColumn(IRDate, "tmp_SkuDetails",
 				        {"UsageType",      "ImageType",      "ServiceType", "VMName",     "VMProperties",      "VCPUs",       "ReservationOrderId",         "ReservationId",         "VMCapacityReservationId", "AHB",        "vCores"},
 				        {"x_SkuUsageType", "x_SkuImageType", "x_SkuType",   "tmp_VMName", "x_SkuVMProperties", "tmp_VMvCPUs", "tmp_AddlReservationOrderId", "tmp_AddlReservationId", "x_CapacityCommitmentId",  "tmp_SQLAHB", "tmp_SQLvCores"}
 				    ),

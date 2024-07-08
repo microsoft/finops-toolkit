@@ -86,6 +86,7 @@ Legend:
 > ➕ Added:
 >
 > 1. Added a new [Ingestion errors page](../_reporting/power-bi/data-ingestion.md#ingestion-errors) to help identify FinOps hub data ingestion issues.
+> 2. Added a new **x_IncrementalRefreshDate** column to facilitate configuring incremental refresh in Power BI.
 >
 > ✏️ Changed
 >
@@ -96,6 +97,12 @@ Legend:
 >    - Reports will still be released as PBIX files so this change should not impact end users.
 >    - Visualizations are not being switched to [Power BI Enhanced Report (PBIR)](https://learn.microsoft.com/power-bi/developer/projects/projects-report#pbir-format) format yet due to functional limitations that would impact end users (as of June 2024).
 > 4. Optimized [Data ingestion report](../_reporting/power-bi/data-ingestion.md) queries to reduce memory footprint and load faster.
+> 5. Updated the [DQ page in the Cost summary report](../_reporting/power-bi/cost-summary.md#dq) to identify empty ChargeDescription rows.
+> 6. Updated the [DQ page in the Cost summary report](../_reporting/power-bi/cost-summary.md#dq) to identify potentially missing rounding adjustments.
+>    <blockquote class="warning" markdown="1">
+>       _We are investigating an issue where we are missing rounding adjustments since May 2024. We do not yet know the cause of this issue._
+>    </blockquote>
+> 7. Simplified formatting for the `BillingPeriod` and `ChargePeriod` measures in Power BI.
 >
 > 🛠️ Fixed:
 >
