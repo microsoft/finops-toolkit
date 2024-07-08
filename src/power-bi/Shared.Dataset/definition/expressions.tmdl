@@ -198,8 +198,8 @@ expression ftk_CostDetails = ```
 		                    then Table.ReplaceValue(FixTypes,         each [ChargeClass],              each if [ChargeClass] <> null then [ChargeClass] else if [ChargeSubcategory] = "Refund" then "Correction" else null)
 		                    else Table.AddColumn(   FixTypes,              "ChargeClass",                                                               each if [ChargeSubcategory] = "Refund" then "Correction" else null),
 		                CDStatus            = if Has10 
-		                    then Table.ReplaceValue(ChargeClass,      each [CommitmentDiscountStatus], each if [CommitmentDiscountStatus] <> null then [CommitmentDiscountStatus] else if [ChargeSubcategory] = "Used" or [ChargeSubcategory] = "Unused" then [ChargeSubcategory] else null)
-		                    else Table.AddColumn(   ChargeClass,           "CommitmentDiscountStatus",                                                                            each if [ChargeSubcategory] = "Used" or [ChargeSubcategory] = "Unused" then [ChargeSubcategory] else null),
+		                    then Table.ReplaceValue(ChargeClass,      each [CommitmentDiscountStatus], each if [CommitmentDiscountStatus] <> null then [CommitmentDiscountStatus] else if [ChargeSubcategory] = "Used Commitment" or [ChargeSubcategory] = "Unused Commitment" then Text.Replace([ChargeSubcategory], " Commitment", "") else null)
+		                    else Table.AddColumn(   ChargeClass,           "CommitmentDiscountStatus",                                                                            each if [ChargeSubcategory] = "Used Commitment" or [ChargeSubcategory] = "Unused Commitment" then Text.Replace([ChargeSubcategory], " Commitment", "") else null),
 		                ConsumedQuantity    = if Has10 
 		                    then Table.ReplaceValue(CDStatus,         each [ConsumedQuantity],         each if [ConsumedQuantity] <> null then [ConsumedQuantity] else if [ChargeCategory] = "Usage" then [UsageQuantity] else null)
 		                    else Table.AddColumn(   CDStatus,              "ConsumedQuantity",                                                                    each if [ChargeCategory] = "Usage" then [UsageQuantity] else null),
@@ -272,7 +272,7 @@ expression ftk_CostDetails = ```
 		    // Commitment metadata
 		    CommitmentDiscountKey          = Table.AddColumn(AHB,                            "x_CommitmentDiscountKey",          each [x_SkuType] & [x_SkuMeterId]),
 		    CommitmentUtilizationPotential = Table.AddColumn(CommitmentDiscountKey,          "x_CommitmentUtilizationPotential", each if [CommitmentDiscountCategory] = "Usage" then [UsageQuantity] else if [CommitmentDiscountCategory] = "Spend" then [EffectiveCost] else 0, type number),
-		    CommitmentUtilizationAmount    = Table.AddColumn(CommitmentUtilizationPotential, "x_CommitmentUtilizationAmount",    each if [ChargeSubcategory] = "Used Commitment" then [x_CommitmentUtilizationPotential] else 0, type number),
+		    CommitmentUtilizationAmount    = Table.AddColumn(CommitmentUtilizationPotential, "x_CommitmentUtilizationAmount",    each if [CommitmentDiscountStatus] = "Used" then [x_CommitmentUtilizationPotential] else 0, type number),
 		    Commitments = CommitmentUtilizationAmount,
 		
 		    // Savings calculations
