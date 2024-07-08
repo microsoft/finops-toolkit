@@ -1,22 +1,36 @@
 {
   "cSpell.words": [
     "ADLS",
+    "architecting",
+    "autoshutdown",
+    "autostop",
+    "autostopping",
+    "bandersmsft",
     "CARML",
     "chargeback",
     "compat",
     "CostManagement",
+    "deallocate",
+    "deallocated",
     "FinOps",
+    "hackathon",
+    "interruptible",
+    "ITAM",
     "Lookback",
+    "micflan",
     "MOSA",
     "msexports",
+    "PAYG",
     "PBIX",
     "Quickstart",
     "quickstarts",
     "Roadmap",
+    "showback",
     "startswith",
     "templating",
     "triaging",
-    "Unhide"
+    "Unhide",
+    "westus"
   ],
   "markdown.preview.typographer": false,
   "markdown.extension.italic.indicator": "_",
@@ -40,6 +54,6 @@
   "[powerquery]": {
     "editor.formatOnSave": false
   },
-"powerquery.general.experimental": false,
-"editor.detectIndentation": false
+  "powerquery.general.experimental": false,
+  "editor.detectIndentation": false
 }

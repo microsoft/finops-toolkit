@@ -1,2 +1,30 @@
-<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'><path fill='#32bedd' d='M16.18 4.79v8.46L8.87 17.5V9.03l7.31-4.24z'/><path fill='#9cebff' d='M16.18 4.79L8.87 9.04 1.55 4.78 8.87.53l7.31 4.26z'/><path fill='#50e6ff' d='M8.87 9.04v8.46l-7.32-4.25V4.78l7.32 4.26z'/><path fill='#9cebff' d='M1.55 13.25l7.32-4.22v8.47l-7.32-4.25z'/><path fill='#50e6ff' d='M16.18 13.25L8.87 9.03v8.47l7.31-4.25z'/></svg>
+<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'>
+    <defs>
+        <linearGradient id='e02af67e-3cdd-43d3-88a9-c6ddc82b95a9' x1='3.524' x2='3.524' y1='6.162' y2='18' gradientUnits='userSpaceOnUse'>
+            <stop offset='.17' stop-color='#50e6ff'/>
+            <stop offset='.635' stop-color='#3dcdea'/>
+            <stop offset='1' stop-color='#32bedd'/>
+        </linearGradient>
+        <linearGradient id='a19a37d8-8580-4faa-8874-aa25009348ee' x1='8.941' x2='8.941' y1='14.256' gradientUnits='userSpaceOnUse'>
+            <stop offset='.17' stop-color='#50e6ff'/>
+            <stop offset='.635' stop-color='#3dcdea'/>
+            <stop offset='1' stop-color='#32bedd'/>
+        </linearGradient>
+        <linearGradient id='b34ba000-ac29-406f-900e-9de8ab1a03a8' x1='14.444' x2='14.444' y1='6.162' gradientUnits='userSpaceOnUse'>
+            <stop offset='.17' stop-color='#50e6ff'/>
+            <stop offset='.635' stop-color='#3dcdea'/>
+            <stop offset='1' stop-color='#32bedd'/>
+        </linearGradient>
+    </defs>
+    
+    <rect width='2.494' height='18' x='2.276' fill='#0078d4' rx='.596'/>
+    <rect width='2.494' height='18' x='7.693' fill='#0078d4' rx='.596'/>
+    <rect width='2.494' height='18' x='13.197' fill='#0078d4' rx='.596'/>
+    <rect width='2.494' height='11.838' x='2.276' y='6.162' fill='url(#e02af67e-3cdd-43d3-88a9-c6ddc82b95a9)' rx='.596'/>
+    <rect width='2.494' height='3.744' x='7.693' y='14.256' fill='url(#a19a37d8-8580-4faa-8874-aa25009348ee)' rx='.596'/>
+    <rect width='2.494' height='11.838' x='13.197' y='6.162' fill='url(#b34ba000-ac29-406f-900e-9de8ab1a03a8)' rx='.596'/>
+    <rect width='3.766' height='1.178' x='1.673' y='6.034' fill='#e6e6e6' rx='.589'/>
+    <rect width='3.766' height='1.178' x='7.109' y='13.965' fill='#e6e6e6' rx='.589'/>
+    <rect width='3.766' height='1.178' x='12.561' y='6.034' fill='#e6e6e6' rx='.589'/>
+</svg>
 

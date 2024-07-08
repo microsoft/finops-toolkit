@@ -23,12 +23,12 @@ On this page:
 2. ▶️ Start in the `dev` branch (or applicable [feature branch](../docs-wiki/Branching-strategy.md#-important-branches)).
 3. 👩‍💻 Make your change and build/deploy using local dev scripts:
 
-   ```powershell
+  ```powershell
    Set-Location "<root>/src/scripts"  # run from the scripts folder
    ./Deploy-Toolkit "<template-or-module-name>" -Build
-   ```
+  ```
 
-4. 📝 Update [docs](../docs) and the [changelog](../docs/changelog.md).
+4. 📝 Update [docs](../docs) and the [changelog](../docs/_resources/changelog.md).
 5. ✅ Submit a PR and address feedback daily.
 6. 🎉 Celebrate! You're done!
 

@@ -52,14 +52,14 @@ Bicep Registry modules in the FinOps toolkit reuse common scaffolding in the `.s
 
 There are 2 ways to build bicep registry modules. To build all toolkit modules and templates, run:
 
-```console
+```powershell
 cd $repo/src/scripts
 ./Build-Toolkit
 ```
 
 To build only a single module, run:
 
-```console
+```powershell
 cd $repo/src/scripts
 ./Build-Bicep ..\bicep-registry\<module>
 ```
@@ -132,7 +132,7 @@ All modules in this folder are published to the official [Bicep Registry](https:
 
 The Bicep Registry contribution guide will have you run `brm generate` before submitting your PR. Do not commit the changes from this command back to the FinOps toolkit repo. All other manual changes to the module itself should be made within the FinOps toolkit repo.
 
-If you find a new requirement arises for Bicep Registry onboarding, please update this document and associated scripts. Please [file an issue](https://github.com/microsoft/cloud-hubs/issues) if you identify any bugs or have ideas to improve the process.
+If you find a new requirement arises for Bicep Registry onboarding, please update this document and associated scripts. Please [file an issue](https://github.com/microsoft/finops-toolkit/issues) if you identify any bugs or have ideas to improve the process.
 
 <br>
 

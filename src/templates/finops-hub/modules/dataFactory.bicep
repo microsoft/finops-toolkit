@@ -5,7 +5,10 @@
 // Parameters
 //==============================================================================
 
-@description('Optional. Name of the hub. Used to ensure unique resource names. Default: "finops-hub".')
+@description('Required. Name of the FinOps hub instance.')
+param hubName string
+
+@description('Required. Name of the Data Factory instance.')
 param dataFactoryName string
 
 @description('Required. The name of the Azure Key Vault instance.')
@@ -20,11 +23,14 @@ param exportContainerName string
 @description('Required. The name of the container where normalized data is ingested.')
 param ingestionContainerName string
 
-@description('Optional. Indicates whether ingested data should be converted to Parquet. Default: true.')
-param convertToParquet bool = true
+@description('Required. The name of the container where normalized data is ingested.')
+param configContainerName string
 
 @description('Optional. The location to use for the managed identity and deployment script to auto-start triggers. Default = (resource group location).')
 param location string = resourceGroup().location
+
+@description('Optional. Remote storage account for ingestion dataset.')
+param remoteHubStorageUri string
 
 @description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
 param tags object = {}
@@ -36,22 +42,20 @@ param tagsByResource object = {}
 // Variables
 //------------------------------------------------------------------------------
 
-var datasetPropsDelimitedText = {
-  columnDelimiter: ','
-  compressionLevel: 'Optimal'
-  escapeChar: '"'
-  firstRowAsHeader: true
-  quoteChar: '"'
-}
-var datasetPropsCommon = {
-  location: {
+var focusSchemaVersion = '1.0-preview(v1)'
+var focusSchemaFile = 'focuscost_1.0-preview(v1).json'
+var ftkVersion = loadTextContent('ftkver.txt')
+var exportApiVersion = '2023-07-01-preview'
+
+var datasetPropsDefault = {
+    location: {
     type: 'AzureBlobFSLocation'
     fileName: {
       value: '@{dataset().fileName}'
       type: 'Expression'
     }
     folderPath: {
-      value: '@{dataset().folderName}'
+      value: '@{dataset().folderPath}'
       type: 'Expression'
     }
   }
@@ -59,11 +63,18 @@ var datasetPropsCommon = {
 
 var safeExportContainerName = replace('${exportContainerName}', '-', '_')
 var safeIngestionContainerName = replace('${ingestionContainerName}', '-', '_')
+var safeConfigContainerName = replace('${configContainerName}', '-', '_')
 
 // All hub triggers (used to auto-start)
-var exportFileAddedTriggerName = '${safeExportContainerName}_FileAdded'
+var fileAddedExportTriggerName = '${safeExportContainerName}_FileAdded'
+var updateConfigTriggerName = '${safeConfigContainerName}_SettingsUpdated'
+var dailyTriggerName = '${safeConfigContainerName}_DailySchedule'
+var monthlyTriggerName = '${safeConfigContainerName}_MonthlySchedule'
 var allHubTriggers = [
-  exportFileAddedTriggerName
+  fileAddedExportTriggerName
+  updateConfigTriggerName
+  dailyTriggerName
+  monthlyTriggerName
 ]
 
 // Roles needed to auto-start triggers
@@ -72,107 +83,14 @@ var autoStartRbacRoles = [
   'e40ec5ca-96e0-45a2-b4ff-59039f2c2b59' // Managed Identity Contributor - https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#managed-identity-contributor
 ]
 
-// FocusCost 1.0-preview (v1) columns
-var focusCostColumns = [
-  { name: 'AvailabilityZone', type: 'String' }
-  { name: 'BilledCost', type: 'Decimal' }
-  { name: 'BillingAccountId', type: 'String' }
-  { name: 'BillingAccountName', type: 'String' }
-  { name: 'BillingAccountType', type: 'String' }
-  { name: 'BillingCurrency', type: 'String' }
-  { name: 'BillingPeriodEnd', type: 'DateTime' }
-  { name: 'BillingPeriodStart', type: 'DateTime' }
-  { name: 'ChargeCategory', type: 'String' }
-  { name: 'ChargeDescription', type: 'String' }
-  { name: 'ChargeFrequency', type: 'String' }
-  { name: 'ChargePeriodEnd', type: 'DateTime' }
-  { name: 'ChargePeriodStart', type: 'DateTime' }
-  { name: 'ChargeSubcategory', type: 'String' }
-  { name: 'CommitmentDiscountCategory', type: 'String' }
-  { name: 'CommitmentDiscountId', type: 'String' }
-  { name: 'CommitmentDiscountName', type: 'String' }
-  { name: 'CommitmentDiscountType', type: 'String' }
-  { name: 'EffectiveCost', type: 'Decimal' }
-  { name: 'InvoiceIssuerName', type: 'String' }
-  { name: 'ListCost', type: 'Decimal' }
-  { name: 'ListUnitPrice', type: 'Decimal' }
-  { name: 'PricingCategory', type: 'String' }
-  { name: 'PricingQuantity', type: 'Decimal' }
-  { name: 'PricingUnit', type: 'String' }
-  { name: 'ProviderName', type: 'String' }
-  { name: 'PublisherName', type: 'String' }
-  { name: 'Region', type: 'String' }
-  { name: 'ResourceId', type: 'String' }
-  { name: 'ResourceName', type: 'String' }
-  { name: 'ResourceType', type: 'String' }
-  { name: 'ServiceCategory', type: 'String' }
-  { name: 'ServiceName', type: 'String' }
-  { name: 'SkuId', type: 'String' }
-  { name: 'SkuPriceId', type: 'String' }
-  { name: 'SubAccountId', type: 'String' }
-  { name: 'SubAccountName', type: 'String' }
-  { name: 'SubAccountType', type: 'String' }
-  { name: 'Tags', type: 'String' }
-  { name: 'UsageQuantity', type: 'Decimal' }
-  { name: 'UsageUnit', type: 'String' }
-  { name: 'x_AccountName', type: 'String' }
-  { name: 'x_AccountOwnerId', type: 'String' }
-  { name: 'x_BilledCostInUsd', type: 'Decimal' }
-  { name: 'x_BilledUnitPrice', type: 'Decimal' }
-  { name: 'x_BillingAccountId', type: 'String' }
-  { name: 'x_BillingAccountName', type: 'String' }
-  { name: 'x_BillingExchangeRate', type: 'Decimal' }
-  { name: 'x_BillingExchangeRateDate', type: 'DateTime' }
-  { name: 'x_BillingProfileId', type: 'String' }
-  { name: 'x_BillingProfileName', type: 'String' }
-  { name: 'x_ChargeId', type: 'String' }
-  { name: 'x_CostAllocationRuleName', type: 'String' }
-  { name: 'x_CostCenter', type: 'String' }
-  { name: 'x_CustomerId', type: 'String' }
-  { name: 'x_CustomerName', type: 'String' }
-  { name: 'x_EffectiveCostInUsd', type: 'Decimal' }
-  { name: 'x_EffectiveUnitPrice', type: 'Decimal' }
-  { name: 'x_InvoiceId', type: 'String' }
-  { name: 'x_InvoiceIssuerId', type: 'String' }
-  { name: 'x_InvoiceSectionId', type: 'String' }
-  { name: 'x_InvoiceSectionName', type: 'String' }
-  { name: 'x_OnDemandCost', type: 'Decimal' }
-  { name: 'x_OnDemandCostInUsd', type: 'Decimal' }
-  { name: 'x_OnDemandUnitPrice', type: 'Decimal' }
-  { name: 'x_PartnerCreditApplied', type: 'Boolean' }
-  { name: 'x_PartnerCreditRate', type: 'Decimal' }
-  { name: 'x_PricingBlockSize', type: 'Decimal' }
-  { name: 'x_PricingCurrency', type: 'String' }
-  { name: 'x_PricingSubcategory', type: 'String' }
-  { name: 'x_PricingUnitDescription', type: 'String' }
-  { name: 'x_PublisherCategory', type: 'String' }
-  { name: 'x_PublisherId', type: 'String' }
-  { name: 'x_ResellerId', type: 'String' }
-  { name: 'x_ResellerName', type: 'String' }
-  { name: 'x_ResourceGroupName', type: 'String' }
-  { name: 'x_ResourceType', type: 'String' }
-  { name: 'x_ServicePeriodEnd', type: 'DateTime' }
-  { name: 'x_ServicePeriodStart', type: 'DateTime' }
-  { name: 'x_SkuDescription', type: 'String' }
-  { name: 'x_SkuDetails', type: 'String' }
-  { name: 'x_SkuIsCreditEligible', type: 'Boolean' }
-  { name: 'x_SkuMeterCategory', type: 'String' }
-  { name: 'x_SkuMeterId', type: 'String' }
-  { name: 'x_SkuMeterName', type: 'String' }
-  { name: 'x_SkuMeterSubcategory', type: 'String' }
-  { name: 'x_SkuOfferId', type: 'String' }
-  { name: 'x_SkuOrderId', type: 'String' }
-  { name: 'x_SkuOrderName', type: 'String' }
-  { name: 'x_SkuPartNumber', type: 'String' }
-  { name: 'x_SkuRegion', type: 'String' }
-  { name: 'x_SkuServiceFamily', type: 'String' }
-  { name: 'x_SkuTerm', type: 'String' }
-  { name: 'x_SkuTier', type: 'String' }
+// Storage roles needed for ADF to create CM exports and process the output
+// Does not include roles assignments needed against the export scope
+var storageRbacRoles = [
+  '17d1049b-9a84-46fb-8f53-869881c3d3ab' // Storage Account Contributor https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage-account-contributor
+  'ba92f5b4-2d11-453d-a403-e96b0029c9fe' // Storage Blob Data Contributor https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor
+  'acdd72a7-3385-48ef-bd42-f606fba81ae7' // Reader https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#reader
+  '18d7d88d-d35e-4fb5-a5c3-7773c20a72d9' // User Access Administrator https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#user-access-administrator
 ]
-var focusCostMappings = [for i in range(0, length(focusCostColumns)): {
-  source: { name: focusCostColumns[i].name, type: focusCostColumns[i].type }
-  sink: { name: focusCostColumns[i].name }
-}]
 
 //==============================================================================
 // Resources
@@ -183,13 +101,63 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   name: dataFactoryName
 }
 
+// Get storage account instance
+resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+  name: storageAccountName
+}
+
+// Get keyvault instance
+resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
+  name: keyVaultName
+}
+
+module azuretimezones 'azuretimezones.bicep' = {
+  name: 'azuretimezones'
+  params: {
+    location: location
+  }
+}
+
+//------------------------------------------------------------------------------
+// Identities and RBAC
+//------------------------------------------------------------------------------
+
+// Create managed identity to start/stop triggers
+resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: '${dataFactory.name}_triggerManager'
+  location: location
+  tags: union(tags, contains(tagsByResource, 'Microsoft.ManagedIdentity/userAssignedIdentities') ? tagsByResource['Microsoft.ManagedIdentity/userAssignedIdentities'] : {})
+}
+
+resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in autoStartRbacRoles: {
+  name: guid(dataFactory.id, role, identity.id)
+  scope: dataFactory
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
+    principalId: identity.properties.principalId
+    principalType: 'ServicePrincipal'
+  }
+}]
+
+// Create managed identity to manage exports in cost management
+resource pipelineIdentityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in storageRbacRoles: {
+  name: guid(storageAccount.id, role, dataFactory.id)
+  scope: storageAccount
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
+    principalId: dataFactory.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}]
+
 //------------------------------------------------------------------------------
 // Delete old triggers and pipelines
 //------------------------------------------------------------------------------
 
 resource deleteOldResources 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: '${dataFactory.name}_deleteOldResources'
-  location: location
+  // chinaeast2 is the only region in China that supports deployment scripts
+  location: startsWith(location, 'china') ? 'chinaeast2' : location
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -200,7 +168,7 @@ resource deleteOldResources 'Microsoft.Resources/deploymentScripts@2020-10-01' =
   dependsOn: [
     identityRoleAssignments
   ]
-  tags: tags
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
   properties: {
     azPowerShellVersion: '8.0'
     retentionInterval: 'PT1H'
@@ -227,29 +195,9 @@ resource deleteOldResources 'Microsoft.Resources/deploymentScripts@2020-10-01' =
 // Stop all triggers before deploying
 //------------------------------------------------------------------------------
 
-// Create managed identity to start/stop triggers
-resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: '${dataFactoryName}_triggerManager'
+resource stopTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: '${dataFactory.name}_stopTriggers'
   location: location
-  tags: union(tags, contains(tagsByResource, 'Microsoft.ManagedIdentity/userAssignedIdentities') ? tagsByResource['Microsoft.ManagedIdentity/userAssignedIdentities'] : {})
-}
-
-// Assign access to the identity
-resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in autoStartRbacRoles: {
-  name: guid(dataFactory.id, role, identity.id)
-  scope: dataFactory
-  properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
-    principalId: identity.properties.principalId
-    principalType: 'ServicePrincipal'
-  }
-}]
-
-// Stop hub triggers if they're already running
-resource stopHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: '${dataFactoryName}_stopHubTriggers'
-  // chinaeast2 is the only region in China that supports deployment scripts
-  location: startsWith(location, 'china') ? 'chinaeast2' : location
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -260,7 +208,7 @@ resource stopHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   dependsOn: [
     identityRoleAssignments
   ]
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
+  tags: tags
   properties: {
     azPowerShellVersion: '8.0'
     retentionInterval: 'PT1H'
@@ -278,7 +226,7 @@ resource stopHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
       }
       {
         name: 'DataFactoryName'
-        value: dataFactoryName
+        value: dataFactory.name
       }
       {
         name: 'Triggers'
@@ -292,39 +240,48 @@ resource stopHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 // Linked services
 //------------------------------------------------------------------------------
 
-resource keyVault 'Microsoft.KeyVault/vaults@2022-11-01' existing = {
-  name: keyVaultName
-}
-
 resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
-  name: 'keyVault'
+  name: keyVault.name
   parent: dataFactory
   properties: {
     annotations: []
     parameters: {}
     type: 'AzureKeyVault'
     typeProperties: {
-      baseUrl: keyVault.properties.vaultUri
+      baseUrl: reference('Microsoft.KeyVault/vaults/${keyVault.name}', '2023-02-01').vaultUri
     }
   }
 }
 
 resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
-  name: 'storage'
+  name: storageAccount.name
   parent: dataFactory
   properties: {
     annotations: []
     parameters: {}
     type: 'AzureBlobFS'
     typeProperties: {
-      url: storageAccount.properties.primaryEndpoints.dfs
+      url: reference('Microsoft.Storage/storageAccounts/${storageAccount.name}', '2021-08-01').primaryEndpoints.dfs
+    }
+  }
+}
+
+resource linkedService_remoteHubStorage 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = if (!empty(remoteHubStorageUri)) {
+  name: 'remoteHubStorage'
+  parent: dataFactory
+  properties: {
+    annotations: []
+    parameters: {}
+    type: 'AzureBlobFS'
+    typeProperties: {
+      url: remoteHubStorageUri
       accountKey: {
         type: 'AzureKeyVaultSecret'
         store: {
           referenceName: linkedService_keyVault.name
           type: 'LinkedServiceReference'
         }
-        secretName: storageAccountName
+        secretName: '${toLower(hubName)}-storage-key'
       }
     }
   }
@@ -334,24 +291,81 @@ resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedser
 // Datasets
 //------------------------------------------------------------------------------
 
-resource dataset_msexports 'Microsoft.DataFactory/factories/datasets@2018-06-01' = {
-  name: safeExportContainerName
+resource dataset_config 'Microsoft.DataFactory/factories/datasets@2018-06-01' = {
+  name: safeConfigContainerName
   parent: dataFactory
-  dependsOn: [
-    linkedService_keyVault
-  ]
   properties: {
     annotations: []
     parameters: {
       fileName: {
         type: 'String'
+        defaultValue: 'settings.json'
       }
-      folderName: {
+      folderPath: {
+        type: 'String'
+        defaultValue: configContainerName
+      }
+    }
+    type: 'Json'
+    typeProperties: datasetPropsDefault
+    linkedServiceName: {
+      parameters: {}
+      referenceName: linkedService_storageAccount.name
+      type: 'LinkedServiceReference'
+    }
+  }
+}
+
+resource dataset_manifest 'Microsoft.DataFactory/factories/datasets@2018-06-01' = {
+  name: 'manifest'
+  parent: dataFactory
+  properties: {
+    annotations: []
+    parameters: {
+      fileName: {
+        type: 'String'
+      defaultValue: 'manifest.json'
+      }
+      folderPath: {
+        type: 'String'
+        defaultValue: exportContainerName
+      }
+    }
+    type: 'Json'
+    typeProperties: datasetPropsDefault
+    linkedServiceName: {
+      parameters: {}
+      referenceName: linkedService_storageAccount.name
+      type: 'LinkedServiceReference'
+    }
+  }
+}
+
+resource dataset_msexports 'Microsoft.DataFactory/factories/datasets@2018-06-01' = {
+  name: safeExportContainerName
+  parent: dataFactory
+  properties: {
+    annotations: []
+    parameters: {
+      blobPath: {
         type: 'String'
       }
     }
     type: 'DelimitedText'
-    typeProperties: union(datasetPropsCommon, datasetPropsDelimitedText, { compressionCodec: 'none' })
+    typeProperties: {
+      location: {
+        type: 'AzureBlobFSLocation'
+        fileName: {
+          value: '@{dataset().blobPath}'
+          type: 'Expression'
+        }
+        fileSystem: safeExportContainerName
+      }
+      columnDelimiter: ','
+      escapeChar: '"'
+      quoteChar: '"'
+      firstRowAsHeader: true
+    }
     linkedServiceName: {
       parameters: {}
       referenceName: linkedService_storageAccount.name
@@ -363,66 +377,53 @@ resource dataset_msexports 'Microsoft.DataFactory/factories/datasets@2018-06-01'
 resource dataset_ingestion 'Microsoft.DataFactory/factories/datasets@2018-06-01' = {
   name: safeIngestionContainerName
   parent: dataFactory
-  dependsOn: [
-    linkedService_keyVault
-  ]
   properties: {
     annotations: []
     parameters: {
-      fileName: {
+      blobPath: {
         type: 'String'
       }
-      folderName: {
-        type: 'String'
+      }
+    type: 'Parquet'
+    typeProperties: {
+      location: {
+        type: 'AzureBlobFSLocation'
+        fileName: {
+          value: '@{dataset().blobPath}'
+          type: 'Expression'
+        }
+        fileSystem: safeIngestionContainerName
       }
     }
-    type: any(convertToParquet ? 'Parquet' : 'DelimitedText')
-    typeProperties: union(
-      datasetPropsCommon,
-      convertToParquet ? {} : datasetPropsDelimitedText,
-      { compressionCodec: 'gzip' }
-    )
     linkedServiceName: {
       parameters: {}
-      referenceName: linkedService_storageAccount.name
+      referenceName: empty(remoteHubStorageUri) ? linkedService_storageAccount.name : linkedService_remoteHubStorage.name
       type: 'LinkedServiceReference'
     }
   }
 }
 
 //------------------------------------------------------------------------------
-// Export container extract pipeline + trigger
-// Trigger: New CSV files in exportContainer
-//
-// Queues the transform pipeline.
-// This pipeline must complete ASAP due to ADF's hard limit of 100 concurrent executions per pipeline.
-// If multiple large, partitioned exports run concurrently and this pipeline doesn't finish quickly, the transform pipeline won't get triggered.
-// Queuing up the transform pipeline and exiting immediately greatly reduces the likelihood of this happening.
+// Triggers
 //------------------------------------------------------------------------------
 
-// Get storage account instance
-resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
-  name: storageAccountName
-}
-
 // Create trigger
-resource trigger_msexports_FileAdded 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
-  name: exportFileAddedTriggerName
+resource trigger_FileAdded 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
+  name: fileAddedExportTriggerName
   parent: dataFactory
   dependsOn: [
-    stopHubTriggers
-    pipeline_ExecuteETL
+    stopTriggers
   ]
   properties: {
     annotations: []
     pipelines: [
       {
         pipelineReference: {
-          referenceName: '${exportContainerName}_ExecuteETL'
+          referenceName: pipeline_ExecuteETL.name
           type: 'PipelineReference'
         }
         parameters: {
-          folderName: '@triggerBody().folderPath'
+          folderPath: '@triggerBody().folderPath'
           fileName: '@triggerBody().fileName'
         }
       }
@@ -430,7 +431,7 @@ resource trigger_msexports_FileAdded 'Microsoft.DataFactory/factories/triggers@2
     type: 'BlobEventsTrigger'
     typeProperties: {
       blobPathBeginsWith: '/${exportContainerName}/blobs/'
-      blobPathEndsWith: '.csv'
+      blobPathEndsWith: 'manifest.json'
       ignoreEmptyBlobs: true
       scope: storageAccount.id
       events: [
@@ -440,13 +441,1082 @@ resource trigger_msexports_FileAdded 'Microsoft.DataFactory/factories/triggers@2
   }
 }
 
+resource trigger_SettingsUpdated 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
+  name: updateConfigTriggerName
+  parent: dataFactory
+  dependsOn: [
+    stopTriggers
+  ]
+  properties: {
+    annotations: []
+    pipelines: [
+      {
+        pipelineReference: {
+          referenceName: pipeline_ConfigureExports.name
+          type: 'PipelineReference'
+        }
+      }
+    ]
+    type: 'BlobEventsTrigger'
+    typeProperties: {
+      blobPathBeginsWith: '/${configContainerName}/blobs/'
+      blobPathEndsWith: 'settings.json'
+      ignoreEmptyBlobs: true
+      scope: storageAccount.id
+      events: [
+        'Microsoft.Storage.BlobCreated'
+      ]
+    }
+  }
+}
+
+resource trigger_DailySchedule 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
+  name: dailyTriggerName
+  parent: dataFactory
+  dependsOn: [
+    stopTriggers
+  ]
+  properties: {
+    pipelines: [
+      {
+        pipelineReference: {
+          referenceName: pipeline_ExportData.name
+          type: 'PipelineReference'
+        }
+        parameters: {
+          Recurrence: 'Daily'
+        }
+      }
+    ]
+    type: 'ScheduleTrigger'
+    typeProperties: {
+      recurrence: {
+        frequency: 'Hour'
+        interval: 24
+        startTime: '2023-01-01T01:01:00'
+        timeZone: azuretimezones.outputs.Timezone
+      }
+    }
+  }
+}
+
+resource trigger_MonthlySchedule 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
+  name: monthlyTriggerName
+  parent: dataFactory
+  dependsOn: [
+    stopTriggers
+  ]
+  properties: {
+    pipelines: [
+      {
+        pipelineReference: {
+          referenceName: pipeline_ExportData.name
+          type: 'PipelineReference'
+        }
+        parameters: {
+          Recurrence: 'Monthly'
+        }
+      }
+    ]
+    type: 'ScheduleTrigger'
+    typeProperties: {
+      recurrence: {
+        frequency: 'Month'
+        interval: 1
+        startTime: '2023-01-05T01:11:00'
+        timeZone: azuretimezones.outputs.Timezone
+        schedule: {
+          monthDays: [
+            5
+            19
+          ]
+        }
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+// Pipelines
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+// config_BackfillData pipeline
+//------------------------------------------------------------------------------
+@description('Runs the backfill job for each month based on retention settings.')
+resource pipeline_BackfillData 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: '${safeConfigContainerName}_BackfillData'
+  parent: dataFactory
+  properties: {
+    activities: [
+      {
+        name: 'Get Config'
+        type: 'Lookup'
+        dependsOn: []
+        policy: {
+          timeout: '0.00:05:00'
+          retry: 2
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          source: {
+            type: 'JsonSource'
+            storeSettings: {
+              type: 'AzureBlobFSReadSettings'
+              recursive: true
+              enablePartitionDiscovery: false
+            }
+            formatSettings: {
+              type: 'JsonReadSettings'
+            }
+          }
+          dataset: {
+            referenceName: dataset_config.name
+            type: 'DatasetReference'
+            parameters: {
+              fileName: {
+                value: '@variables(\'fileName\')'
+                type: 'Expression'
+              }
+              folderPath: {
+                value: '@variables(\'folderPath\')'
+                type: 'Expression'
+              }
+            }
+          }
+        }
+      }
+      {
+        name: 'Set backfill end date'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Get Config'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          variableName: 'endDate'
+          value: {
+            value: '@addDays(startOfMonth(utcNow()), -1)'
+            type: 'Expression'
+          }
+        }
+      }
+      {
+        name: 'Set backfill start date'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Get Config'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          variableName: 'startDate'
+          value: {
+            value: '@subtractFromTime(startOfMonth(utcNow()), activity(\'Get Config\').output.firstRow.retention.ingestion.months, \'Month\')'
+            type: 'Expression'
+          }
+        }
+      }
+      {
+        name: 'Set export start date'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Set backfill start date'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          variableName: 'thisMonth'
+          value: {
+            value: '@startOfMonth(variables(\'endDate\'))'
+            type: 'Expression'
+          }
+        }
+      }
+      {
+        name: 'Set export end date'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Set export start date'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          variableName: 'nextMonth'
+          value: {
+            value: '@startOfMonth(subtractFromTime(variables(\'thisMonth\'), 1, \'Month\'))'
+            type: 'Expression'
+          }
+        }
+      }
+      {
+        name: 'Every Month'
+        type: 'Until'
+        dependsOn: [
+          {
+            activity: 'Set export end date'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+          {
+            activity: 'Set backfill end date'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@less(variables(\'thisMonth\'), variables(\'startDate\'))'
+            type: 'Expression'
+          }
+          activities: [
+            {
+              name: 'Update export start date'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Backfill data'
+                  dependencyConditions: [
+                    'Completed'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'thisMonth'
+                value: {
+                  value: '@variables(\'nextMonth\')'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Update export end date'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Update export start date'
+                  dependencyConditions: [
+                    'Completed'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'nextMonth'
+                value: {
+                  value: '@subtractFromTime(variables(\'thisMonth\'), 1, \'Month\')'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Backfill data'
+              type: 'ExecutePipeline'
+              dependsOn: []
+              userProperties: []
+              typeProperties: {
+                pipeline: {
+                  referenceName: pipeline_RunBackfill.name
+                  type: 'PipelineReference'
+                }
+                waitOnCompletion: true
+                parameters: {
+                  StartDate: {
+                    value: '@variables(\'thisMonth\')'
+                    type: 'Expression'
+                  }
+                  EndDate: {
+                    value: '@addDays(addToTime(variables(\'thisMonth\'), 1, \'Month\'), -1)'
+                    type: 'Expression'
+                  }
+                }
+              }
+            }
+          ]
+          timeout: '0.12:00:00'
+        }
+      }
+    ]
+    concurrency: 1
+    variables: {
+      exportName: {
+        type: 'String'
+      }
+      storageAccountId: {
+        type: 'String'
+        defaultValue: storageAccount.id
+      }
+      finOpsHub: {
+        type: 'String'
+        defaultValue: hubName
+      }
+      resourceManagementUri: {
+        type: 'String'
+        defaultValue: environment().resourceManager
+      }
+      fileName: {
+        type: 'String'
+        defaultValue: 'settings.json'
+      }
+      folderPath: {
+        type: 'String'
+        defaultValue: configContainerName
+      }
+      endDate: {
+        type: 'String'
+      }
+      startDate: {
+        type: 'String'
+      }
+      thisMonth: {
+        type: 'String'
+      }
+      nextMonth: {
+        type: 'String'
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+// config_RunBackfill pipeline
+// Triggered by config_BackfillData pipeline
+//------------------------------------------------------------------------------
+@description('Creates and triggers exports for all defined scopes for the specified date range.')
+resource pipeline_RunBackfill 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: '${safeConfigContainerName}_RunBackfill'
+  parent: dataFactory
+  properties: {
+    activities: [
+      {
+        name: 'Get Config'
+        type: 'Lookup'
+        dependsOn: []
+        policy: {
+          timeout: '0.00:05:00'
+          retry: 2
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          source: {
+            type: 'JsonSource'
+            storeSettings: {
+              type: 'AzureBlobFSReadSettings'
+              recursive: true
+              enablePartitionDiscovery: false
+            }
+            formatSettings: {
+              type: 'JsonReadSettings'
+            }
+          }
+          dataset: {
+            referenceName: dataset_config.name
+            type: 'DatasetReference'
+            parameters: {
+              fileName: {
+                value: '@variables(\'fileName\')'
+                type: 'Expression'
+              }
+              folderPath: {
+                value: '@variables(\'folderPath\')'
+                type: 'Expression'
+              }
+            }
+          }
+        }
+      }
+      {
+        name: 'ForEach Export Scope'
+        type: 'ForEach'
+        dependsOn: [
+          {
+            activity: 'Get Config'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@activity(\'Get Config\').output.firstRow.scopes'
+            type: 'Expression'
+          }
+          isSequential: true
+          activities: [
+            {
+              name: 'Set backfill export name'
+              type: 'SetVariable'
+              dependsOn: []
+              userProperties: []
+              typeProperties: {
+                variableName: 'exportName'
+                value: {
+                  value: '@toLower(concat(variables(\'finOpsHub\'), \'-monthly-costdetails\'))'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Trigger backfill export'
+              type: 'WebActivity'
+              dependsOn: [
+                {
+                  activity: 'Set backfill export name'
+                  dependencyConditions: [
+                    'Completed'
+                  ]
+                }
+              ]
+              policy: {
+                timeout: '0.00:05:00'
+                retry: 1
+                retryIntervalInSeconds: 30
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                url: {
+                  value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}/run?api-version=${exportApiVersion}'
+                  type: 'Expression'
+                }
+                method: 'POST'
+                headers: {
+                  'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunBackfill@${ftkVersion}'  
+                  'Content-Type': 'application/json'
+                  ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
+                }
+                body: '{"timePeriod" : { "from" : "@{pipeline().parameters.StartDate}", "to" : "@{pipeline().parameters.EndDate}" }}'
+                authentication: {
+                  type: 'MSI'
+                  resource: {
+                    value: '@variables(\'resourceManagementUri\')'
+                    type: 'Expression'
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+    concurrency: 1
+    parameters: {
+      StartDate: {
+        type: 'string'
+      }
+      EndDate: {
+        type: 'string'
+      }
+    }
+    variables: {
+      exportName: {
+        type: 'String'
+      }
+      storageAccountId: {
+        type: 'String'
+        defaultValue: storageAccount.id
+      }
+      finOpsHub: {
+        type: 'String'
+        defaultValue: hubName
+      }
+      resourceManagementUri: {
+        type: 'String'
+        defaultValue: environment().resourceManager
+      }
+      fileName: {
+        type: 'String'
+        defaultValue: 'settings.json'
+      }
+      folderPath: {
+        type: 'String'
+        defaultValue: configContainerName
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+// Microsoft Cost Management scheduled exports
+// Triggered by config_DailySchedule/MonthlySchedule triggers
+//------------------------------------------------------------------------------
+@description('Gets a list of all Cost Management exports configured for this hub based on the scopes defined in settings.json, then runs each export using the config_RunExports pipeline.')
+resource pipeline_ExportData 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: '${safeConfigContainerName}_ExportData'
+  parent: dataFactory
+  properties: {
+    activities: [
+      {
+        name: 'Get Config'
+        type: 'Lookup'
+        dependsOn: []
+        policy: {
+          timeout: '0.00:05:00'
+          retry: 2
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          source: {
+            type: 'JsonSource'
+            storeSettings: {
+              type: 'AzureBlobFSReadSettings'
+              recursive: true
+              enablePartitionDiscovery: false
+            }
+            formatSettings: {
+              type: 'JsonReadSettings'
+            }
+          }
+          dataset: {
+            referenceName: dataset_config.name
+            type: 'DatasetReference'
+            parameters: {
+              fileName: {
+                value: '@variables(\'fileName\')'
+                type: 'Expression'
+              }
+              folderPath: {
+                value: '@variables(\'folderPath\')'
+                type: 'Expression'
+              }
+            }
+          }
+        }
+      }
+      {
+        name: 'ForEach Export Scope'
+        type: 'ForEach'
+        dependsOn: [
+          {
+            activity: 'Get Config'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@activity(\'Get Config\').output.firstRow.scopes'
+            type: 'Expression'
+          }
+          isSequential: true
+          activities: [
+            {
+              name: 'Get exports for scope'
+              type: 'WebActivity'
+              dependsOn: []
+              policy: {
+                timeout: '0.00:05:00'
+                retry: 2
+                retryIntervalInSeconds: 30
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                url: {
+                  value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports?api-version=${exportApiVersion}'
+                  type: 'Expression'
+                }
+                method: 'GET'
+                authentication: {
+                  type: 'MSI'
+                  resource: {
+                    value: '@variables(\'resourceManagementUri\')'
+                    type: 'Expression'
+                  }
+                }
+              }
+            }
+            {
+              name: 'Run exports for scope'
+              type: 'ExecutePipeline'
+              dependsOn: [
+                {
+                  activity: 'Get exports for scope'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                pipeline: {
+                  referenceName: pipeline_RunExports.name
+                  type: 'PipelineReference'
+                }
+                waitOnCompletion: true
+                parameters: {
+                  ExportScopes: {
+                    value: '@activity(\'Get exports for scope\').output.value'
+                    type: 'Expression'
+                  }
+                  Recurrence: {
+                    value: '@pipeline().parameters.Recurrence'
+                    type: 'Expression'
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+    concurrency: 1
+    parameters: {
+      Recurrence: {
+        type: 'string'
+        defaultValue: 'Daily'
+      }
+    }
+    variables: {
+      fileName: {
+        type: 'String'
+        defaultValue: 'settings.json'
+      }
+      folderPath: {
+        type: 'String'
+        defaultValue: configContainerName
+      }
+      finOpsHub: {
+        type: 'String'
+        defaultValue: hubName
+      }
+      resourceManagementUri: {
+        type: 'String'
+        defaultValue: environment().resourceManager
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+// Microsoft Cost Management scheduled exports
+// Triggered by pipeline_ExportData pipeline
+//------------------------------------------------------------------------------
+@description('Runs the specified Cost Management exports.')
+resource pipeline_RunExports 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: '${safeConfigContainerName}_RunExports'
+  parent: dataFactory
+  dependsOn: [
+    dataset_config
+  ]
+  properties: {
+    activities: [
+      {
+        name: 'ForEach export scope'
+        type: 'ForEach'
+        dependsOn: []
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@pipeline().parameters.exportScopes'
+            type: 'Expression'
+          }
+          isSequential: true
+          activities: [
+            {
+              name: 'If scheduled'
+              type: 'IfCondition'
+              dependsOn: []
+              userProperties: []
+              typeProperties: {
+                expression: {
+                  value: '@and(equals(toLower(item().properties.schedule.recurrence), toLower(pipeline().parameters.Recurrence)),startswith(toLower(item().name), toLower(variables(\'hubName\'))))'
+                  type: 'Expression'
+                }
+                ifTrueActivities: [
+                  {
+                    name: 'Trigger export'
+                    type: 'WebActivity'
+                    dependsOn: []
+                    policy: {
+                      timeout: '0.00:05:00'
+                      retry: 0
+                      retryIntervalInSeconds: 30
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      url: {
+                        value: '@{replace(toLower(concat(variables(\'resourceManagementUri\'),item().id)), \'com//\', \'com/\')}/run?api-version=${exportApiVersion}'
+                        type: 'Expression'
+                      }
+                      method: 'POST'
+                      headers: {
+                        'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunExports@${ftkVersion}'
+                        ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
+                      }
+                      authentication: {
+                        type: 'MSI'
+                        resource: {
+                          value: '@variables(\'resourceManagementUri\')'
+                          type: 'Expression'
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+    concurrency: 1
+    parameters: {
+      ExportScopes: {
+        type: 'array'
+      }
+      Recurrence: {
+        type: 'string'
+        defaultValue: 'Daily'
+      }
+    }
+    variables: {
+      resourceManagementUri: {
+        type: 'String'
+        defaultValue: environment().resourceManager
+      }
+    hubName: {
+        type: 'String'
+        defaultValue: hubName
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+// msexports_ConfigureExports pipeline
+// Triggered by config_SettingsUpdated trigger
+//------------------------------------------------------------------------------
+@description('Creates Cost Management exports for all scopes.')
+resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: '${safeConfigContainerName}_ConfigureExports'
+  parent: dataFactory
+  properties: {
+    activities: [
+      {
+        name: 'Get Config'
+        type: 'Lookup'
+        dependsOn: []
+        policy: {
+          timeout: '0.00:05:00'
+          retry: 2
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          source: {
+            type: 'JsonSource'
+            storeSettings: {
+              type: 'AzureBlobFSReadSettings'
+              recursive: true
+              enablePartitionDiscovery: false
+            }
+            formatSettings: {
+              type: 'JsonReadSettings'
+            }
+          }
+          dataset: {
+            referenceName: dataset_config.name
+            type: 'DatasetReference'
+            parameters: {
+              fileName: {
+                value: '@variables(\'fileName\')'
+                type: 'Expression'
+              }
+              folderPath: {
+                value: '@variables(\'folderPath\')'
+                type: 'Expression'
+              }
+            }
+          }
+        }
+      }
+      {
+        name: 'ForEach Export Scope'
+        type: 'ForEach'
+        dependsOn: [
+          {
+            activity: 'Get Config'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@activity(\'Get Config\').output.firstRow.scopes'
+            type: 'Expression'
+          }
+          isSequential: true
+          activities: [
+            {
+              name: 'Create or update open month focus export'
+              type: 'WebActivity'
+              dependsOn: [
+                {
+                  activity: 'Set open month focus export name'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              policy: {
+                timeout: '0.00:05:00'
+                retry: 2
+                retryIntervalInSeconds: 30
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                url: {
+                  value: '@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}?api-version=${exportApiVersion}'
+                  type: 'Expression'
+                }
+                method: 'PUT'
+                body: {
+                  value: '{\n    "properties": {\n        "definition": {\n            "dataSet": {\n                "configuration": {\n                    "dataVersion": "${focusSchemaVersion}",\n                    "filters": []\n                },\n                "granularity": "Daily"\n            },\n            "timeframe": "MonthToDate",\n            "type": "FocusCost"\n        },\n        "deliveryInfo": {\n            "destination": {\n                "container": "${exportContainerName}",\n                "rootFolderPath": "@{item().scope}",\n                "type": "AzureBlob",\n                "resourceId": "@{variables(\'storageAccountId\')}"\n            }\n        },\n        "schedule": {\n            "recurrence": "Daily",\n            "recurrencePeriod": {\n                "from": "2024-01-01T00:00:00.000Z",\n                "to": "2050-02-01T00:00:00.000Z"\n            },\n            "status": "Inactive"\n        },\n        "format": "Csv",\n        "partitionData": true,\n        "dataOverwriteBehavior": "OverwritePreviousReport",\n        "compressionMode": "None"\n    },\n    "id": "@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}",\n    "name": "@{variables(\'exportName\')}",\n    "type": "Microsoft.CostManagement/reports",\n    "identity": {\n        "type": "systemAssigned"\n    },\n    "location": "global"\n}'
+                  type: 'Expression'
+                }
+                authentication: {
+                  type: 'MSI'
+                  resource: {
+                    value: '@variables(\'ResourceManagementUri\')'
+                    type: 'Expression'
+                  }
+                }
+              }
+            }
+            {
+              name: 'Set open month focus export name'
+              type: 'SetVariable'
+              dependsOn: []
+                            policy: {
+                                secureOutput: false
+                secureInput: false
+              }
+                            userProperties: []
+              typeProperties: {
+                variableName: 'exportName'
+                value: {
+                  value: '@toLower(concat(variables(\'finOpsHub\'), \'-daily-costdetails\'))'
+                  type: 'Expression'
+                }
+              }
+            }
+            {
+              name: 'Create or update closed month focus export'
+              type: 'WebActivity'
+              dependsOn: [
+                {
+                  activity: 'Set closed month focus export name'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              policy: {
+                timeout: '0.00:05:00'
+                retry: 2
+                retryIntervalInSeconds: 30
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                url: {
+                  value: '@{variables(\'ResourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}?api-version=${exportApiVersion}'
+                  type: 'Expression'
+                }
+                method: 'PUT'
+                body: {
+                  value: '{\n    "properties": {\n        "definition": {\n            "dataSet": {\n                "configuration": {\n                    "dataVersion": "${focusSchemaVersion}",\n                    "filters": []\n                },\n                "granularity": "Daily"\n            },\n            "timeframe": "TheLastMonth",\n            "type": "FocusCost"\n        },\n        "deliveryInfo": {\n            "destination": {\n                "container": "${exportContainerName}",\n                "rootFolderPath": "@{item().scope}",\n                "type": "AzureBlob",\n                "resourceId": "@{variables(\'storageAccountId\')}"\n            }\n        },\n        "schedule": {\n            "recurrence": "Monthly",\n            "recurrencePeriod": {\n                "from": "2024-01-01T00:00:00.000Z",\n                "to": "2050-02-01T00:00:00.000Z"\n            },\n            "status": "Inactive"\n        },\n        "format": "Csv",\n        "partitionData": true,\n        "dataOverwriteBehavior": "OverwritePreviousReport",\n        "compressionMode": "None"\n    },\n    "id": "@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}",\n    "name": "@{variables(\'exportName\')}",\n    "type": "Microsoft.CostManagement/reports",\n    "identity": {\n        "type": "systemAssigned"\n    },\n    "location": "global"\n}'
+                  type: 'Expression'
+                }
+                authentication: {
+                  type: 'MSI'
+                  resource: {
+                    value: '@variables(\'ResourceManagementUri\')'
+                    type: 'Expression'
+                  }
+                }
+              }
+            }
+            {
+              name: 'Set closed month focus export name'
+              type: 'SetVariable'
+              dependsOn: [
+                {
+                  activity: 'Create or update open month focus export'
+                                dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              policy: {
+                                secureOutput: false
+                secureInput: false
+              }
+                            userProperties: []
+              typeProperties: {
+                variableName: 'exportName'
+                value: {
+                  value: '@toLower(concat(variables(\'finOpsHub\'), \'-monthly-costdetails\'))'
+                  type: 'Expression'
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+    concurrency: 1
+    variables: {
+      exportName: {
+        type: 'String'
+      }
+      exportScope: {
+        type: 'String'
+      }
+      storageAccountId: {
+        type: 'String'
+        defaultValue: storageAccount.id
+      }
+      finOpsHub: {
+        type: 'String'
+        defaultValue: hubName
+      }
+      resourceManagementUri: {
+        type: 'String'
+        defaultValue: environment().resourceManager
+      }
+      fileName: {
+        type: 'String'
+        defaultValue: 'settings.json'
+      }
+      folderPath: {
+        type: 'String'
+        defaultValue: configContainerName
+      }
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+// msexports_ExecuteETL pipeline
+// Triggered by msexports_FileAdded trigger
+//------------------------------------------------------------------------------
+@description('Queues the msexports_ETL_ingestion pipeline.')
 resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
   name: '${safeExportContainerName}_ExecuteETL'
   parent: dataFactory
-  dependsOn: [
-    pipeline_msexports_ETL_ingestion
-  ]
   properties: {
+  activities: [
+      {
+        name: 'Read manifest'
+        type: 'Lookup'
+        dependsOn: [
+          {
+            activity: 'Wait'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+        ]
+        policy: {
+          timeout: '0.12:00:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          source: {
+            type: 'JsonSource'
+            storeSettings: {
+              type: 'AzureBlobFSReadSettings'
+              recursive: true
+              enablePartitionDiscovery: false
+            }
+            formatSettings: {
+              type: 'JsonReadSettings'
+            }
+          }
+          dataset: {
+            referenceName: dataset_manifest.name
+            type: 'DatasetReference'
+            parameters: {
+              fileName: {
+                value: '@pipeline().parameters.fileName'
+                type: 'Expression'
+              }
+              folderPath: {
+                value: '@pipeline().parameters.folderPath'
+                type: 'Expression'
+              }
+            }
+          }
+        }
+      }
+      {
+        name: 'ForEach1'
+        type: 'ForEach'
+        dependsOn: [
+          {
+            activity: 'Read manifest'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@activity(\'Read manifest\').output.firstRow.blobs'
+            type: 'Expression'
+          }
+          isSequential: false
     activities: [
       {
         name: 'Execute'
@@ -455,25 +1525,33 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
         userProperties: []
         typeProperties: {
           pipeline: {
-            referenceName: '${safeExportContainerName}_ETL_${safeIngestionContainerName}'
+            referenceName: pipeline_ToIngestion.name
             type: 'PipelineReference'
           }
-          waitOnCompletion: false
+          waitOnCompletion: true
           parameters: {
-            folderName: {
-              value: '@pipeline().parameters.folderName'
+            blobPath: {
+              value: '@item().blobName'
               type: 'Expression'
             }
-            fileName: {
-              value: '@pipeline().parameters.fileName'
-              type: 'Expression'
             }
-          }
+              }
+            }
+          ]
+        }
+      }
+      {
+        name: 'Wait'
+              type: 'Wait'
+        dependsOn: []
+        userProperties: []
+        typeProperties: {
+          waitTimeInSeconds: 60
         }
       }
     ]
     parameters: {
-      folderName: {
+      folderPath: {
         type: 'string'
       }
       fileName: {
@@ -485,47 +1563,27 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
 }
 
 //------------------------------------------------------------------------------
-// Export container transform pipeline
-// Trigger: pipeline_ExecuteETL
-//
-// Converts CSV files to Parquet or .CSV.GZ files.
+// msexports_ETL_ingestion pipeline
+// Triggered by msexports_ExecuteETL
 //------------------------------------------------------------------------------
-
-resource pipeline_msexports_ETL_ingestion 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+@description('Transforms CSV data to a standard schema and converts to Parquet.')
+resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
   name: '${safeExportContainerName}_ETL_${safeIngestionContainerName}'
   parent: dataFactory
-  dependsOn: [
-    dataset_msexports
-    dataset_ingestion
-  ]
   properties: {
     activities: [
-      // (start) -> Wait -> FolderArray -> Scope -> Metric -> Date -> File -> Folder -> Delete Target -> Convert CSV -> Delete CSV -> (end)
-      // Wait
-      {
-        name: 'Wait'
-        type: 'Wait'
-        dependsOn: []
-        userProperties: []
-        typeProperties: {
-          waitTimeInSeconds: 60
-        }
-      }
+      // (start) -> FolderArray -> Scope -> Metric -> Date -> File -> Folder -> Delete Target -> Convert CSV -> Delete CSV -> (end)
       // Set FolderArray
       {
         name: 'Set FolderArray'
         type: 'SetVariable'
         dependsOn: [
-          {
-            activity: 'Wait'
-            dependencyConditions: [ 'Completed' ]
-          }
         ]
         userProperties: []
         typeProperties: {
           variableName: 'folderArray'
           value: {
-            value: '@split(pipeline().parameters.folderName, \'/\')'
+            value: '@split(pipeline().parameters.blobPath, \'/\')'
             type: 'Expression'
           }
         }
@@ -547,7 +1605,7 @@ resource pipeline_msexports_ETL_ingestion 'Microsoft.DataFactory/factories/pipel
         userProperties: []
         typeProperties: {
           variableName: 'folderCount'
-          value: '@length(split(pipeline().parameters.folderName, \'/\'))'
+          value: '@sub(length(split(pipeline().parameters.blobPath, \'/\')), 1)'
         }
       }
       // Set SecondToLastFolder
@@ -624,7 +1682,7 @@ resource pipeline_msexports_ETL_ingestion 'Microsoft.DataFactory/factories/pipel
         typeProperties: {
           variableName: 'scope'
           value: {
-            value: '@replace(split(pipeline().parameters.folderName, if(greater(length(variables(\'secondToLastFolder\')), 12), variables(\'thirdToLastFolder\'), variables(\'fourthToLastFolder\')))[0], \'${exportContainerName}\', \'${ingestionContainerName}\')'
+            value: '@replace(split(pipeline().parameters.blobPath, if(greater(length(variables(\'secondToLastFolder\')), 12), variables(\'thirdToLastFolder\'), variables(\'fourthToLastFolder\')))[0], \'${exportContainerName}\', \'${ingestionContainerName}\')'
             type: 'Expression'
           }
         }
@@ -683,7 +1741,7 @@ resource pipeline_msexports_ETL_ingestion 'Microsoft.DataFactory/factories/pipel
         typeProperties: {
           variableName: 'destinationFile'
           value: {
-            value: '@replace(pipeline().parameters.fileName, \'.csv\', \'${convertToParquet ? '.parquet' : '.csv.gz'}\')'
+            value: '@replace(variables(\'folderArray\')[variables(\'folderCount\')], \'.csv\', \'.parquet\')'
             type: 'Expression'
           }
         }
@@ -707,13 +1765,57 @@ resource pipeline_msexports_ETL_ingestion 'Microsoft.DataFactory/factories/pipel
           }
         }
       }
+      {
+        name: 'Load Schema Mappings'
+        type: 'Lookup'
+        dependsOn: [
+          {
+            activity: 'Set Destination Folder Name'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+        ]
+        policy: {
+          timeout: '0.12:00:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          source: {
+            type: 'JsonSource'
+            storeSettings: {
+              type: 'AzureBlobFSReadSettings'
+              recursive: true
+              enablePartitionDiscovery: false
+            }
+            formatSettings: {
+              type: 'JsonReadSettings'
+            }
+          }
+          dataset: {
+            referenceName: dataset_config.name
+            type: 'DatasetReference'
+            parameters: {
+              fileName: {
+                value: focusSchemaFile
+                type: 'Expression'
+              }
+              folderPath: 'config'
+            }
+          }
+        }
+      }
       // Delete Target
       {
         name: 'Delete Target'
         type: 'Delete'
         dependsOn: [
           {
-            activity: 'Set Destination Folder Name'
+            activity: 'Load Schema Mappings'
             dependencyConditions: [ 'Completed' ]
           }
         ]
@@ -727,15 +1829,11 @@ resource pipeline_msexports_ETL_ingestion 'Microsoft.DataFactory/factories/pipel
         userProperties: []
         typeProperties: {
           dataset: {
-            referenceName: safeIngestionContainerName
+            referenceName: dataset_ingestion.name
             type: 'DatasetReference'
             parameters: {
-              folderName: {
-                value: '@variables(\'destinationFolder\')'
-                type: 'Expression'
-              }
-              fileName: {
-                value: '@variables(\'destinationFile\')'
+              blobPath: {
+                value: '@concat(variables(\'destinationFolder\'), \'/\', variables(\'destinationFile\'))'
                 type: 'Expression'
               }
             }
@@ -755,11 +1853,13 @@ resource pipeline_msexports_ETL_ingestion 'Microsoft.DataFactory/factories/pipel
         dependsOn: [
           {
             activity: 'Delete Target'
-            dependencyConditions: [ 'Completed' ]
+            dependencyConditions: [
+              'Completed'
+            ]
           }
         ]
         policy: {
-          timeout: '0.12:00:00'
+          timeout: '0.00:05:00'
           retry: 0
           retryIntervalInSeconds: 30
           secureOutput: false
@@ -769,6 +1869,10 @@ resource pipeline_msexports_ETL_ingestion 'Microsoft.DataFactory/factories/pipel
         typeProperties: {
           source: {
             type: 'DelimitedTextSource'
+            additionalColumns: {
+              type: 'Expression'
+              value: '@activity(\'Load Schema Mappings\').output.firstRow.additionalColumns'
+            }
             storeSettings: {
               type: 'AzureBlobFSReadSettings'
               recursive: true
@@ -779,38 +1883,30 @@ resource pipeline_msexports_ETL_ingestion 'Microsoft.DataFactory/factories/pipel
             }
           }
           sink: {
-            type: 'DelimitedTextSink'
+            type: 'ParquetSink'
             storeSettings: {
               type: 'AzureBlobFSWriteSettings'
             }
-            formatSettings: convertToParquet ? {
+            formatSettings: {
               type: 'ParquetWriteSettings'
               fileExtension: '.parquet'
-            } : {
-              type: 'DelimitedTextWriteSettings'
-              quoteAllText: true
-              fileExtension: '.csv.gz'
             }
           }
           enableStaging: false
           parallelCopies: 1
           validateDataConsistency: false
           translator: {
-            type: 'TabularTranslator'
-            mappings: focusCostMappings
+            value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
+            type: 'Expression'
           }
         }
         inputs: [
           {
-            referenceName: safeExportContainerName
+            referenceName: dataset_msexports.name
             type: 'DatasetReference'
             parameters: {
-              folderName: {
-                value: '@pipeline().parameters.folderName'
-                type: 'Expression'
-              }
-              fileName: {
-                value: '@pipeline().parameters.fileName'
+              blobPath: {
+                value: '@pipeline().parameters.blobPath'
                 type: 'Expression'
               }
             }
@@ -818,15 +1914,11 @@ resource pipeline_msexports_ETL_ingestion 'Microsoft.DataFactory/factories/pipel
         ]
         outputs: [
           {
-            referenceName: safeIngestionContainerName
+            referenceName: dataset_ingestion.name
             type: 'DatasetReference'
             parameters: {
-              folderName: {
-                value: '@variables(\'destinationFolder\')'
-                type: 'Expression'
-              }
-              fileName: {
-                value: '@variables(\'destinationFile\')'
+              blobPath: {
+                value: '@concat(variables(\'destinationFolder\'), \'/\', variables(\'destinationFile\'))'
                 type: 'Expression'
               }
             }
@@ -855,15 +1947,11 @@ resource pipeline_msexports_ETL_ingestion 'Microsoft.DataFactory/factories/pipel
         userProperties: []
         typeProperties: {
           dataset: {
-            referenceName: safeExportContainerName
+            referenceName: dataset_msexports.name
             type: 'DatasetReference'
             parameters: {
-              folderName: {
-                value: '@pipeline().parameters.folderName'
-                type: 'Expression'
-              }
-              fileName: {
-                value: '@pipeline().parameters.fileName'
+              blobPath: {
+                value: '@pipeline().parameters.blobPath'
                 type: 'Expression'
               }
             }
@@ -878,11 +1966,8 @@ resource pipeline_msexports_ETL_ingestion 'Microsoft.DataFactory/factories/pipel
       }
     ]
     parameters: {
-      fileName: {
-        type: 'string'
-      }
-      folderName: {
-        type: 'string'
+      blobPath: {
+        type: 'String'
       }
     }
     variables: {
@@ -921,13 +2006,13 @@ resource pipeline_msexports_ETL_ingestion 'Microsoft.DataFactory/factories/pipel
   }
 }
 
+
 //------------------------------------------------------------------------------
 // Start all triggers
 //------------------------------------------------------------------------------
 
-// Start hub triggers
-resource startHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: '${dataFactoryName}_startHubTriggers'
+resource startTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: '${dataFactory.name}_startTriggers'
   // chinaeast2 is the only region in China that supports deployment scripts
   location: startsWith(location, 'china') ? 'chinaeast2' : location
   tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
@@ -940,7 +2025,10 @@ resource startHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzurePowerShell'
   dependsOn: [
     identityRoleAssignments
-    trigger_msexports_FileAdded
+    trigger_FileAdded
+    trigger_SettingsUpdated
+    trigger_DailySchedule
+    trigger_MonthlySchedule
   ]
   properties: {
     azPowerShellVersion: '8.0'
@@ -958,7 +2046,7 @@ resource startHubTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
       }
       {
         name: 'DataFactoryName'
-        value: dataFactoryName
+        value: dataFactory.name
       }
       {
         name: 'Triggers'

@@ -26,6 +26,11 @@
     ./Package-Toolkit -Build
 
     Builds the latest code and generates ZIP files for each template.
+
+    .EXAMPLE
+    ./Package-Toolkit -Build -PowerBI
+
+    Builds the latest code, generates ZIP files for each template, and opens Power BI projects to be saved as PBIX files.
 #>
 Param(
     [Parameter(Position = 0)][string]$Template = "*",
@@ -130,6 +135,8 @@ $templates = Get-ChildItem $relDir -Directory `
         # Copy azuredeploy.json to docs/deploy folder
         Copy-Item "$path/azuredeploy.json" "$deployDir/$($path.Name)-$version.json"
         Copy-Item "$path/azuredeploy.json" "$deployDir/$($path.Name)-latest.json"
+        Copy-Item "$path/createUiDefinition.json" "$deployDir/$($path.Name)-$version.ui.json"
+        Copy-Item "$path/createUiDefinition.json" "$deployDir/$($path.Name)-latest.ui.json"
     }
 
     Write-Verbose ("Compressing $path to $zip" -replace (Get-Item $relDir).FullName, '.')
@@ -146,9 +153,13 @@ Copy-Item "$PSScriptRoot/../open-data/*.json" $relDir
 Write-Host "✅ $((@(Get-ChildItem "$relDir/*.csv") + @(Get-ChildItem "$relDir/*.json")).Count) open data files"
 
 # Package sample data files together
-Write-Verbose "Packaging sample data files..."
-Compress-Archive -Path "$PSScriptRoot/../sample-data/*.csv" -DestinationPath "$relDir/sample-data.zip"
-Write-Host "✅ $((Get-ChildItem "$PSScriptRoot/../sample-data/*.csv").Count) sample data files"
+Write-Verbose "Packaging open data files..."
+Get-ChildItem -Path "$PSScriptRoot/../open-data" -Directory `
+| ForEach-Object {
+    $dir = $_
+    Compress-Archive -Path "$dir/*.*" -DestinationPath "$relDir/$($dir.BaseName).zip"
+    Write-Host "✅ $((Get-ChildItem "$dir/*.*").Count) $($dir.BaseName) files"
+}
 
 # Copy PBIX files
 Write-Verbose "Copying PBIX files..."

@@ -352,6 +352,9 @@ MigrationBackup/
 # Code coverage results
 coverage.xml
 
+# Microsoft Power BI
+.pbi/
+
 # Optimization Engine local deployment files
 last-deployment-state.json
 database-connection-settings.json

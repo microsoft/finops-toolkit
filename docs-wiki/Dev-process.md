@@ -4,13 +4,13 @@ The following outlines the dev process from creating to releasing features.
 
 On this page:
 
-- [♻️ Issue lifecycle](#️-issue-lifecycle)
+- [🔄️ Issue lifecycle](#️-issue-lifecycle)
 - [📋 Triaging issues](#-triaging-issues)
-- [♻️ Pull request lifecycle](#️-pull-request-lifecycle)
+- [🔄️ Pull request lifecycle](#️-pull-request-lifecycle)
 
 ---
 
-## ♻️ Issue lifecycle
+## 🔄️ Issue lifecycle
 
 1. Author creates new issue
    > Assign to reviewer<br>
@@ -84,7 +84,7 @@ The goal of triaging is to ensure issues in the backlog are valid and have the n
 
 <br>
 
-## ♻️ Pull request lifecycle
+## 🔄️ Pull request lifecycle
 
 1. Author creates new PR against `main` branch
    > Assign to author<br>

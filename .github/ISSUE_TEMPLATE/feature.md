@@ -20,6 +20,17 @@ As a **<TODO: What persona is this for?>**, I need to **<TODO: What action does 
 ## 💎 Solution
 TODO: Add a clear and concise description of what you want to happen. Focus on the outcome, not the implementation details.
 
+## 📋 Tasks
+```[tasklist]
+### Required tasks
+- [ ] TODO: Add tasks
+```
+
+```[tasklist]
+### Stretch goals
+- [ ] TODO: Add tasks
+```
+
 ## ℹ️ Additional context
 TODO: Add any other context or screenshots about the change request, including alternative solutions you considered and why you ruled them out.
 

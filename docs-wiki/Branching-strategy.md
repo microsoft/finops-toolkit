@@ -1,7 +1,7 @@
 <!-- markdownlint-disable MD041 -->
 
-- [main](https://github.com/microsoft/cloud-hubs/tree/main) includes the latest stable release.
-- [dev](https://github.com/microsoft/cloud-hubs/tree/dev) includes the latest changes that will go into the next release.
+- [main](https://github.com/microsoft/finops-toolkit/tree/main) includes the latest stable release.
+- [dev](https://github.com/microsoft/finops-toolkit/tree/dev) includes the latest changes that will go into the next release.
 - Feature branches (`features/<feature-name>`) are used for any in-progress features that are not yet ready for release.
 - Personal branches (`<your-github-account>/<feature-name>`) are intended for a single developer and typically not shared. Use these for small changes that can easily be integrated into the next release.
 
@@ -53,7 +53,7 @@ If contributing to an in-progress feature, switch to the feature branch and subm
 
 If contributing a new feature, switch to the `dev` branch and submit a PR back to the main repo's `dev` branch. You are free to invite others to contribute within your fork as needed.
 
-If you run into any issues, please reach out to us on [Discussions](https://github.com/microsoft/cloud-hubs/discussions). We're happy to help!
+If you run into any issues, please reach out to us on [Discussions](https://github.com/microsoft/finops-toolkit/discussions). We're happy to help!
 
 <br>
 

@@ -22,7 +22,7 @@
     Optional. Dataset to export. Allowed values = "ActualCost", "AmortizedCost", "FocusCost", "PriceSheet", "ReservationDetails", "ReservationTransactions", "ReservationRecommendations". Default = "FocusCost".
     
     .PARAMETER DatasetVersion
-    Optional. Schema version of the dataset to export. Default = "1.0-preview (v1)" (applies to FocusCost only).
+    Optional. Schema version of the dataset to export. Default = "1.0-preview(v1)" (applies to FocusCost only).
 
     .PARAMETER DatasetFilters
     Optional. Dictionary of key/value pairs to filter the dataset with. Only applies to ReservationRecommendations dataset in 2023-07-01-preview. Valid filters are reservationScope (Shared or Single), resourceType (e.g., VirtualMachines), lookBackPeriod (Last7Days, Last30Days, Last60Days).
@@ -37,7 +37,7 @@
     Optional. Day to start running exports. Default = First day of the previous month if -OneTime is set; otherwise, tomorrow (DateTime.Now.AddDays(1)).
 
     .PARAMETER EndDate
-    Optional. Last day to run the export. Default = Last day of the previous month if -OneTime is set; otherwise, 5 years from -StartDate.
+    Optional. Last day to run the export. Default = Last day of the month identified in -StartDate if -OneTime is set; otherwise, 5 years from -StartDate.
 
     .PARAMETER StorageAccountId
     Required. Resource ID of the storage account to export data to.
@@ -52,7 +52,7 @@
     Optional. Indicates whether to partition the exported data into multiple files. Partitioning is recommended for reliability so this option is to disable partitioning. Default = false.
 
     .PARAMETER DoNotOverwrite
-    Optional. Indicates whether to overwrite previously exported data for the current month. Overwriting is recommended to keep storage size and costs down so this option is to disable overwriting. Default = false.
+    Optional. Indicates whether to overwrite previously exported data for the current month. Overwriting is recommended to keep storage size and costs down so this option is to disable overwriting. If creating an export for FinOps hubs, we recommend you specify the -DoNotOverwrite option to improve troubleshooting. Default = false.
 
     .PARAMETER Location
     Optional. Indicates the Azure location to use for the managed identity used to push data to the storage account. Managed identity is required in order to work with storage accounts behind a firewall but require access to grant permissions (e.g., Owner). If specified, managed identity will be used; otherwise, managed identity will not be used and your export will not be able to push data to a storage account behind a firewall. Default = (empty).
@@ -92,7 +92,7 @@
         -Scope "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" `
         -StorageAccountId "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
         -DataSet AmortizedCost `
-        -StartDate $(Get-Date -AsUTC).AddDays(5) `
+        -StartDate $(Get-Date).AddDays(5) `
         -EndDate "2024-08-15" `
         -Monthly `
         -Execute
@@ -116,7 +116,7 @@
 
 function New-FinOpsCostExport
 {
-    [cmdletBinding()]
+    [CmdletBinding(DefaultParameterSetName = "Scheduled")]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -204,18 +204,18 @@ function New-FinOpsCostExport
         {
             if ($OneTime)
             {
-                $start = $(Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0 -AsUTC).AddMonths(-1) 
+                $start = $(Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0).AddMonths(-1) 
             }
             else
             {
-                $start = $(Get-Date -AsUTC).AddDays(1) 
+                $start = $(Get-Date).AddDays(1) 
             }
         }
         if (-not $end)
         {
             if ($OneTime)
             {
-                $end = $start.AddMonths(1).AddMilliseconds(-1)
+                $end = $start.AddDays($start.Day - 1).AddMonths(1).AddMilliseconds(-1)
             }
             else
             {
@@ -289,7 +289,7 @@ function New-FinOpsCostExport
             {
                 if ($Dataset -eq "FocusCost")
                 {
-                    $DatasetVersion = "1.0-preview (v1)"
+                    $DatasetVersion = "1.0-preview(v1)"
                 }
                 elseif ($Dataset -eq "ActualCost" -or $Dataset -eq "AmortizedCost")
                 {
@@ -346,7 +346,6 @@ function New-FinOpsCostExport
     {
         throw $script:localizedData.ContextNotFound
     }
-
     
     # Register the Microsoft.CostManagementExports RP
     if ((Get-AzResourceProvider -ProviderNamespace Microsoft.CostManagementExports).RegistrationState -ne 'Registered')
@@ -387,68 +386,13 @@ function New-FinOpsCostExport
     }
 
     # Run now if requested
-    if ($Execute -eq $true -or $OneTime -eq $true)
+    if ($Backfill -gt 0 -and $OneTime -eq $false)
+    {
+        Start-FinOpsCostExport -Name $Name -Scope $Scope -Backfill $Backfill
+    }
+    elseif ($Execute -eq $true -or $OneTime -eq $true)
     {
         Start-FinOpsCostExport -Name $Name -Scope $Scope
-    }
-
-    # once set, change the export to be a one-time export for the previous month. Keep all other settings as-is. This should auto-trigger a run and repeat for each month
-    if ($Backfill -gt 0)
-    {
-        $properties = getProperties
-        Write-Host "Running backfill for $backfill month$(if ($backfill -gt 1) { 's' })"
-        $counter = 1
-        $properties.properties.schedule = @{ status = "Inactive" }
-        $properties.properties.definition.timeframe = "Custom"
-        do
-        {
-            # run get to fetch etag since this is an update operation
-            $etag = (Get-FinOpsCostExport -Name $Name -Scope $Scope -ApiVersion $ApiVersion).etag
-
-            # insert etag in the properies object and convert it to json
-            $properties = $properties | Add-Member -Name eTag -Value $etag -MemberType NoteProperty -Force -PassThru
-
-            Write-Verbose "Month $counter of $backfill"
-            $startofcurrentmonth = [datetime]$(Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0 -AsUTC).ToString("yyyy-MM-dd")
-
-            $startofpreviousmonth = $startofcurrentmonth.AddMonths($counter * -1)
-            $endofpreviousmonth = $startofpreviousmonth.AddMonths(1).AddMilliseconds($counter * -1).ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'")
-            $startofpreviousmonth = $startofpreviousmonth.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'")
-            $properties.properties.definition = $properties.properties.definition | Add-Member -Name timePeriod -Value @{ to = $endofpreviousmonth; from = $startofpreviousmonth } -MemberType NoteProperty -Force -PassThru
-
-            $backfillsettings = $null
-            $backfillsettings = $properties
-
-            Write-Verbose "Running backfill export from $startofpreviousmonth to $endofpreviousmonth"
-            Write-Verbose $backfillsettings 
-            $backfillResponse = Invoke-Rest -Method PUT -Uri $uri -Body $backfillsettings @commandDetails
-            if ($backfillResponse.Success)
-            {
-                Write-Verbose "Updated export for onetime export of previous month. Executing export"
-                $runResponse = Start-FinOpsCostExport -Name $Name -Scope $Scope
-                if ($runResponse.Failure)
-                {
-                    Write-Error "Unable to run export for $startofpreviousmonth. Error: $($runResponse.Content.error.message) ($($runResponse.Content.error.code))." -ErrorAction Continue
-                }
-            }
-            else
-            {
-                Write-Error "Unable to run export for $startofpreviousmonth. Error: $($backfillResponse.Content.error.message) ($($backfillResponse.Content.error.code))." -ErrorAction Continue
-            }
-
-            $counter += 1
-            Start-Sleep 2
-        } while ($counter -le $Backfill)
-
-        Write-Verbose "Backfill complete. Updating export settings back to original scheduled settings"
-        $etag = (Get-FinOpsCostExport -Name $Name -Scope $Scope -ApiVersion $ApiVersion).etag
-        $properties = getProperties
-        $properties = $properties | Add-Member -Name eTag -Value $etag -MemberType NoteProperty -Force -PassThru
-        $updateResponse = Invoke-Rest -Method PUT -Uri $uri -Body $properties @commandDetails
-        if ($updateResponse.Failure)
-        {
-            Write-Error "Unable to update export $Name back to the original state after backfill. Please run New-FinOpsCostExport again without the -Backfill option. Error: $($updateResponse.Content.error.message) ($($updateResponse.Content.error.code))" -ErrorAction Stop
-        }
     }
 
     return (Get-FinOpsCostExport -Name $Name -Scope $Scope -ApiVersion $ApiVersion)

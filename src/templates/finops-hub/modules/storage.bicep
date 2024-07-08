@@ -27,8 +27,14 @@ param tags object = {}
 @description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
 param tagsByResource object = {}
 
-@description('Optional. List of scope IDs to create exports for.')
-param exportScopes array
+@description('Optional. List of scope IDs to monitor and ingest cost for.')
+param scopesToMonitor array
+
+@description('Optional. Number of days of cost data to retain in the ms-cm-exports container. Default: 0.')
+param msexportRetentionInDays int = 0
+
+@description('Optional. Number of months of cost data to retain in the ingestion container. Default: 13.')
+param ingestionRetentionInMonths int = 13
 
 //------------------------------------------------------------------------------
 // Variables
@@ -38,6 +44,7 @@ param exportScopes array
 var safeHubName = replace(replace(toLower(hubName), '-', ''), '_', '')
 var storageAccountSuffix = uniqueSuffix
 var storageAccountName = '${take(safeHubName, 24 - length(storageAccountSuffix))}${storageAccountSuffix}'
+var focusSchemaFile = loadTextContent('../schema/focuscost_1.0-preview(v1).json')
 
 // Roles needed to auto-start triggers
 var blobUploadRbacRoles = [
@@ -49,7 +56,7 @@ var blobUploadRbacRoles = [
 // Resources
 //==============================================================================
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2021-08-01' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: storageAccountName
   location: location
   sku: {
@@ -69,12 +76,12 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-08-01' = {
 // Containers
 //------------------------------------------------------------------------------
 
-resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2021-06-01' = {
+resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01' = {
   parent: storageAccount
   name: 'default'
 }
 
-resource configContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' = {
+resource configContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
   parent: blobService
   name: 'config'
   properties: {
@@ -83,7 +90,7 @@ resource configContainer 'Microsoft.Storage/storageAccounts/blobServices/contain
   }
 }
 
-resource exportContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' = {
+resource exportContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
   parent: blobService
   name: 'msexports'
   properties: {
@@ -92,7 +99,7 @@ resource exportContainer 'Microsoft.Storage/storageAccounts/blobServices/contain
   }
 }
 
-resource ingestionContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' = {
+resource ingestionContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
   parent: blobService
   name: 'ingestion'
   properties: {
@@ -148,8 +155,16 @@ resource uploadSettings 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
         value: loadTextContent('./ftkver.txt')
       }
       {
-        name: 'exportScopes'
-        value: join(exportScopes, '|')
+        name: 'scopes'
+        value: join(scopesToMonitor, '|')
+      }
+      {
+        name: 'msexportRetentionInDays'
+        value: string(msexportRetentionInDays)
+      }
+      {
+        name: 'ingestionRetentionInMonths'
+        value: string(ingestionRetentionInMonths)
       }
       {
         name: 'storageAccountName'
@@ -158,6 +173,10 @@ resource uploadSettings 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
       {
         name: 'containerName'
         value: 'config'
+      }
+      {
+        name: 'focusSchemaFile'
+        value: focusSchemaFile
       }
     ]
     scriptContent: loadTextContent('./scripts/Copy-FileToAzureBlob.ps1')

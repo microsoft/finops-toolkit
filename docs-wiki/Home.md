@@ -60,7 +60,7 @@ If an issue is assigned, please contact the assignee before starting to work on 
 - Install dependencies, like Azure PowerShell and Bicep
 
   ```powershell
-  Set-Location "<cloud-hubs-root>/src/scripts"
+  Set-Location "<finops-toolkit-root>/src/scripts"
   # Pro-tip: Add -WhatIf to see what the script does without changing anything
   ./Init-Repo
   ```
@@ -83,8 +83,8 @@ git config --global user.email "youremail@yourdomain.com"
 Fork the repository from the web and then clone your fork locally:
 
 ```console
-git clone https://github.com/<your-github-account>/cloud-hubs.git
-cd cloud-hubs
+git clone https://github.com/<your-github-account>/finops-toolkit.git
+cd finops-toolkit
 ```
 
 <br>
@@ -109,7 +109,7 @@ git branch --set-upstream-to=origin/dev
 If creating a new feature, create a new feature branch:
 
 ```powershell
-Set-Location "<cloud-hubs-root>/src/scripts"
+Set-Location "<finops-toolkit-root>/src/scripts"
 ./New-FeatureBranch "<feature-name>"
 ```
 
@@ -127,7 +127,7 @@ Connect-AzAccount [-Tenant <tenant-id>]
 Set-AzContext -Subscription "<subscription-id>"
 
 # Switch to the src/scripts directory
-Set-Location "<cloud-hubs-root>/src/scripts"
+Set-Location "<finops-toolkit-root>/src/scripts"
 
 # Deploy the desired template. Optional parameters:
 #   -ResourceGroup <name>       # Default: ftk-<alias>-<machine>
@@ -159,7 +159,7 @@ Please do the following before submitting a pull request:
 
    ```console
    git checkout <branch-name>
-   git pull https://github.com/microsoft/cloud-hubs.git <branch-name>
+   git pull https://github.com/microsoft/finops-toolkit.git <branch-name>
    ```
 
    Resolve any merge conflicts, commit them, and then push them to your fork.
