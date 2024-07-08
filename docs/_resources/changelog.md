@@ -42,6 +42,7 @@ Legend:
 ➕ Added
 ✏️ Changed
 🛠️ Fixed
+🚫 Deprecated
 🗑️ Removed
 
 📒 Workbook
@@ -65,6 +66,8 @@ Legend:
 <br>
 
 ## 🚚 v0.4
+
+<sup>Released July 2024</sup>
 
 📗 FinOps guide
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -101,7 +104,12 @@ Legend:
 >
 > 1. Added Azure Optimization Engine (AOE), an extensible solution for custom optimization recommendations.
 
-<br>
+🖥️ PowerShell
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> 🗑️ Removed:
+>
+> 1. Removed `ConvertTo-FinOpsSchema` and `Invoke-FinOpsSchemaTransform` commands which were deprecated in [0.2 (January 2024)](#-v02).
 
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -120,6 +128,8 @@ Legend:
 <br>
 
 ## 🚚 v0.3
+
+<sup>Released March 28, 2024</sup>
 
 📗 FinOps guide
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -243,6 +253,8 @@ Legend:
 
 ## 🚚 v0.2
 
+<sup>Released January 22, 2024</sup>
+
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
@@ -328,7 +340,7 @@ Legend:
 >
 > 1. Fixed typo in [Deploy-FinOpsHub](../_automation/powershell/hubs/Deploy-FinOpsHub.md) causing it to fail.
 >
-> 🗑️ Removed:
+> 🚫 Deprecated:
 >
 > 1. `ConvertTo-FinOpsSchema` and `Invoke-FinOpsSchemaTransform` are no longer being maintained and will be removed in a future update.
 >    - With native support for FOCUS 1.0 preview in Cost Management, we are deprecating both commands, which only support FOCUS 0.5.
@@ -356,6 +368,8 @@ Legend:
 <br>
 
 ## 🛠️ v0.1.1
+
+<sup>Released October 26, 2023</sup>
 
 🖥️ PowerShell
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -396,6 +410,8 @@ Legend:
 <br>
 
 ## 🚚 v0.1
+
+<sup>Released October 22, 2023</sup>
 
 🖥️ PowerShell
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -459,6 +475,8 @@ Legend:
 <br>
 
 ## 🌱 v0.0.1
+
+<sup>Released May 27, 2023</sup>
 
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
