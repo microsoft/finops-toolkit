@@ -358,3 +358,8 @@ coverage.xml
 /src/power-bi/Shared.Dataset/.pbi/cache.abf
 /src/power-bi/DataIngestion.Report/.pbi/localSettings.json
 /src/power-bi/Shared.Dataset/.pbi/localSettings.json
+
+# Optimization Engine local deployment files
+last-deployment-state.json
+database-connection-settings.json
+deployment-settings-*.json
