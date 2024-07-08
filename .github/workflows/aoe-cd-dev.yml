@@ -17,8 +17,6 @@ jobs:
       AOE_SQL_PASSWD: ${{ secrets.AOE_SQL_PASSWD }}
       AOE_LOCATION: ${{ secrets.AOE_LOCATION }}
       AOE_NAMEPREFIX: ${{ secrets.AOE_NAMEPREFIX }}
-      AOE_WORKSPACENAME: ${{ secrets.AOE_WORKSPACENAME }}
-      AOE_WORKSPACERG: ${{ secrets.AOE_WORKSPACERG }}
     steps:
       - run: echo "This job is now running on a ${{ runner.os }} server hosted by GitHub for the ${{ github.ref_name }} branch of the ${{ github.repository }} repository!"
       - name: Installing modules

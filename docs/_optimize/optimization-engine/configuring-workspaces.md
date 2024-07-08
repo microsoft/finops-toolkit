@@ -108,4 +108,4 @@ In summary, a Windows VM generates, in average, 245 bytes per performance counte
 
 If you have VMs onboarded to multiple Log Analytics workspaces and you want them to be fully included in the VM right-size recommendations report, you can add those workspaces to the solution just by adding a new variable to the AOE Azure Automation account. In the Automation Account _Shared Resources - Variables_ menu option, click on the _Add a variable button_ and enter `AzureOptimization_RightSizeAdditionalPerfWorkspaces` as the variable name and fill in the comma-separated list of workspace IDs (see example below). Finally, click on _Create_.
 
-![Adding an Automation Account variable with a list of additional workspace IDs for the VM right-size recommendations](../assets/images/aoe/loganalytics-additionalperfworkspaces.jpg "Additional workspace IDs variable creation")
+![Adding an Automation Account variable with a list of additional workspace IDs for the VM right-size recommendations](../../assets/images/aoe/loganalytics-additionalperfworkspaces.jpg "Additional workspace IDs variable creation")
