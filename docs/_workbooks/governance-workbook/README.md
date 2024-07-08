@@ -46,6 +46,6 @@ The governance workbook is an Azure Monitor workbook that provides a comprehensi
 
 ## 🧰 Related tools
 
-{% include tools.md opt="1" %}
+{% include tools.md opt="1" aoe="1" %}
 
 <br>
