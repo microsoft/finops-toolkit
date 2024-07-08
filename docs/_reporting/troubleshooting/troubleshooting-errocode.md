@@ -1,7 +1,7 @@
 ---
 layout: default
-title: Troubleshooting error code
 parent: Troubleshooting
+title: Common errors
 description: 'Details and solutions for common issues you may experience.'
 permalink: /resources/troubleshooting/troubleshooting-errocode
 ---
