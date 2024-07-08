@@ -188,7 +188,7 @@ Required permissions for deploying or updating hub instances are covered in the 
 
 You will need one or more of the following to export your cost data:
 
-| Scope                                                 | Permission                                                                                                                             |
+| Scope                             | Permission                                                                                                                            |
 | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | Subscriptions and resource groups (all account types) | [Cost Management Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cost-management-contributor). |
 | EA billing scopes                                     | Enterprise Reader, Department Reader, or Account Owner (aka enrollment account).                                                       |
@@ -205,6 +205,6 @@ For additional details, refer to [Cost Management documentation](https://learn.m
 
 ## 🧰 Related tools
 
-{% include tools.md bicep="0" data="1" gov="0" pbi="1" ps="1" opt="1" %}
+{% include tools.md aoe="1" bicep="0" data="1" gov="0" pbi="1" ps="1" opt="1" %}
 
 <br>
