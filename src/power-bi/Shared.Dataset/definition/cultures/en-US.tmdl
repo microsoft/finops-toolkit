@@ -556,238 +556,6 @@ cultureInfo en-US
 			        }
 			      ]
 			    },
-			    "cost_detail.usage_unit": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "UsageUnit"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "usage unit": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "UsageUnit": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "unit": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "usage module": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "usage element": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "usage entity": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "module": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.736
-			          }
-			        },
-			        {
-			          "element": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.736
-			          }
-			        },
-			        {
-			          "entity": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.736
-			          }
-			        },
-			        {
-			          "usage group": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        },
-			        {
-			          "usage component": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        },
-			        {
-			          "usage constituent": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        },
-			        {
-			          "usage item": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        }
-			      ]
-			    },
-			    "cost_detail.usage_quantity": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "UsageQuantity"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "usage quantity": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "UsageQuantity": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "usage extent": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.5
-			          }
-			        },
-			        {
-			          "usage magnitude": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.5
-			          }
-			        },
-			        {
-			          "usage amount": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.485
-			          }
-			        },
-			        {
-			          "usage number": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.485
-			          }
-			        },
-			        {
-			          "usage measure": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.485
-			          }
-			        },
-			        {
-			          "usage size": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.485
-			          }
-			        },
-			        {
-			          "usage capacity": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.485
-			          }
-			        },
-			        {
-			          "usage mass": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.485
-			          }
-			        }
-			      ]
-			    },
 			    "cost_detail.sub_account_type": {
 			      "Definition": {
 			        "Binding": {
@@ -1080,12 +848,6 @@ cultureInfo en-US
 			          }
 			        },
 			        {
-			          "sku": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
 			          "sku identification": {
 			            "Type": "Noun",
 			            "State": "Suggested",
@@ -1354,16 +1116,6 @@ cultureInfo en-US
 			          }
 			        },
 			        {
-			          "class": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.714
-			          }
-			        },
-			        {
 			          "grouping": {
 			            "Type": "Noun",
 			            "State": "Suggested",
@@ -1604,6 +1356,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.727
 			          }
+			        },
+			        {
+			          "Cost": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -1626,12 +1388,6 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "cost": {
-			            "State": "Generated",
-			            "Weight": 0.97
 			          }
 			        },
 			        {
@@ -1685,16 +1441,6 @@ cultureInfo en-US
 			          }
 			        },
 			        {
-			          "fee": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.476
-			          }
-			        },
-			        {
 			          "effective expenditure": {
 			            "Type": "Noun",
 			            "State": "Suggested",
@@ -1702,16 +1448,6 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.475
-			          }
-			        },
-			        {
-			          "expenditure": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.466
 			          }
 			        },
 			        {
@@ -1726,6 +1462,26 @@ cultureInfo en-US
 			        },
 			        {
 			          "effective amount": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.461
+			          }
+			        },
+			        {
+			          "effective outlay": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.461
+			          }
+			        },
+			        {
+			          "effective expense": {
 			            "Type": "Noun",
 			            "State": "Suggested",
 			            "Source": {
@@ -2514,12 +2270,6 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "cost": {
-			            "State": "Generated",
-			            "Weight": 0.97
 			          }
 			        },
 			        {
@@ -3469,38 +3219,19 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.485
 			          }
+			        },
+			        {
+			          "Charge Period": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ],
 			      "SemanticType": "Time"
-			    },
-			    "costdetails.chargesubcategory": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "ChargeSubcategory"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "charge subcategory": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "ChargeSubcategory": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "subcategory": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        }
-			      ]
 			    },
 			    "cost_detail.billed_cost": {
 			      "Definition": {
@@ -3521,12 +3252,6 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "cost": {
-			            "State": "Generated",
-			            "Weight": 0.97
 			          }
 			        },
 			        {
@@ -3580,16 +3305,6 @@ cultureInfo en-US
 			          }
 			        },
 			        {
-			          "fee": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.476
-			          }
-			        },
-			        {
 			          "billed expenditure": {
 			            "Type": "Noun",
 			            "State": "Suggested",
@@ -3597,16 +3312,6 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.475
-			          }
-			        },
-			        {
-			          "expenditure": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.466
 			          }
 			        },
 			        {
@@ -3621,6 +3326,26 @@ cultureInfo en-US
 			        },
 			        {
 			          "billed amount": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.461
+			          }
+			        },
+			        {
+			          "billed outlay": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.461
+			          }
+			        },
+			        {
+			          "billed expense": {
 			            "Type": "Noun",
 			            "State": "Suggested",
 			            "Source": {
@@ -3911,6 +3636,16 @@ cultureInfo en-US
 			        },
 			        {
 			          "Type": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Commitment": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
@@ -4309,6 +4044,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.591
 			          }
+			        },
+			        {
+			          "List": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -4550,62 +4295,6 @@ cultureInfo en-US
 			        }
 			      ]
 			    },
-			    "costdetails.region": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "Region"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "region": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "province": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.736
-			          }
-			        },
-			        {
-			          "area": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.714
-			          }
-			        },
-			        {
-			          "district": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.714
-			          }
-			        },
-			        {
-			          "continent": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.714
-			          }
-			        }
-			      ]
-			    },
 			    "costdetails.resourcename": {
 			      "Definition": {
 			        "Binding": {
@@ -4676,6 +4365,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.9
 			          }
+			        },
+			        {
+			          "Name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -4738,6 +4437,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.739
+			          }
+			        },
+			        {
+			          "Resource": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -4840,16 +4549,6 @@ cultureInfo en-US
 			          }
 			        },
 			        {
-			          "class": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.714
-			          }
-			        },
-			        {
 			          "grouping": {
 			            "Type": "Noun",
 			            "State": "Suggested",
@@ -4867,6 +4566,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.714
+			          }
+			        },
+			        {
+			          "maintenance category": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.6
 			          }
 			        }
 			      ]
@@ -5225,6 +4934,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.629
 			          }
+			        },
+			        {
+			          "Subscription": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -5359,6 +5078,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.604
+			          }
+			        },
+			        {
+			          "Term": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -5501,6 +5230,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.599
 			          }
+			        },
+			        {
+			          "Effective": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -5540,132 +5279,9 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.75
 			          }
-			        },
-			        {
-			          "Month": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ],
 			      "SemanticType": "Time"
-			    },
-			    "costdetails.x_ondemandunitprice": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "x_OnDemandUnitPrice"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "x on demand unit price": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "x_OnDemandUnitPrice": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "x on demand module price": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.624
-			          }
-			        },
-			        {
-			          "x on demand element price": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.624
-			          }
-			        },
-			        {
-			          "x on demand entity price": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.624
-			          }
-			        },
-			        {
-			          "x on demand group price": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.605
-			          }
-			        },
-			        {
-			          "x on demand component price": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.605
-			          }
-			        },
-			        {
-			          "x on demand constituent price": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.605
-			          }
-			        },
-			        {
-			          "x on demand item price": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.605
-			          }
-			        },
-			        {
-			          "x on demand part price": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.605
-			          }
-			        },
-			        {
-			          "x on demand section price": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.605
-			          }
-			        }
-			      ]
 			    },
 			    "costdetails.x_publishercategory": {
 			      "Definition": {
@@ -5824,12 +5440,6 @@ cultureInfo en-US
 			          }
 			        },
 			        {
-			          "resource group": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
 			          "x resource group": {
 			            "State": "Generated",
 			            "Weight": 0.97
@@ -5865,26 +5475,6 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.762
-			          }
-			        },
-			        {
-			          "resource category": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "resource organization": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
 			          }
 			        },
 			        {
@@ -5945,6 +5535,36 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.739
+			          }
+			        },
+			        {
+			          "x resource crew": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.739
+			          }
+			        },
+			        {
+			          "x resource team": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.739
+			          }
+			        },
+			        {
+			          "Resource Group": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -6068,6 +5688,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.621
+			          }
+			        },
+			        {
+			          "Resource Group": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -6222,6 +5852,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.727
 			          }
+			        },
+			        {
+			          "VM": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -6375,16 +6015,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.727
 			          }
-			        },
-			        {
-			          "Hub": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -6419,6 +6049,16 @@ cultureInfo en-US
 			          "sku CP us": {
 			            "State": "Generated",
 			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "vCPUs": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -6554,6 +6194,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.739
+			          }
+			        },
+			        {
+			          "SKU": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -6695,6 +6345,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "AHB Status": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -7194,6 +6854,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.727
 			          }
+			        },
+			        {
+			          "Product order": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -7323,6 +6993,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.739
 			          }
+			        },
+			        {
+			          "SKU": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -7345,12 +7025,6 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "sku": {
-			            "State": "Generated",
-			            "Weight": 0.97
 			          }
 			        },
 			        {
@@ -11314,12 +10988,6 @@ cultureInfo en-US
 			          }
 			        },
 			        {
-			          "cost": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
 			          "x effective cost": {
 			            "State": "Generated",
 			            "Weight": 0.97
@@ -11870,29 +11538,6 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.727
-			          }
-			        }
-			      ]
-			    },
-			    "cost_detail.x_on_demand_cost": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "x_OnDemandCost"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "x on demand cost": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "x_OnDemandCost": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
 			          }
 			        }
 			      ]
@@ -15261,6 +14906,12 @@ cultureInfo en-US
 			          }
 			        },
 			        {
+			          "region": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
 			          "sku region": {
 			            "State": "Generated",
 			            "Weight": 0.97
@@ -15357,13 +15008,13 @@ cultureInfo en-US
 			          }
 			        },
 			        {
-			          "sku area": {
+			          "province": {
 			            "Type": "Noun",
 			            "State": "Suggested",
 			            "Source": {
 			              "Agent": "Thesaurus"
 			            },
-			            "Weight": 0.727
+			            "Weight": 0.736
 			          }
 			        }
 			      ]
@@ -17575,16 +17226,6 @@ cultureInfo en-US
 			          }
 			        },
 			        {
-			          "charge class": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        },
-			        {
 			          "charge group": {
 			            "Type": "Noun",
 			            "State": "Suggested",
@@ -17622,16 +17263,6 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.727
-			          }
-			        },
-			        {
-			          "class": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.714
 			          }
 			        },
 			        {
@@ -19338,147 +18969,6 @@ cultureInfo en-US
 			        }
 			      ]
 			    },
-			    "cost_detail.x_charge_id": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "x_ChargeId"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "x charge id": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "x_ChargeId": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "charge": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "x charge": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "charge id": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "x charge identification": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.762
-			          }
-			        },
-			        {
-			          "x charge identity": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.762
-			          }
-			        },
-			        {
-			          "x charge identifier": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.762
-			          }
-			        },
-			        {
-			          "charge identification": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "charge identity": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "charge identifier": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "x charge credential": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.739
-			          }
-			        },
-			        {
-			          "charge credential": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.727
-			          }
-			        },
-			        {
-			          "x custody": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.5
-			          }
-			        },
-			        {
-			          "x responsibility": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.5
-			          }
-			        }
-			      ]
-			    },
 			    "cost_detail.x_dataset_type": {
 			      "Definition": {
 			        "Binding": {
@@ -19880,29 +19370,6 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.748
-			          }
-			        }
-			      ]
-			    },
-			    "cost_detail.x_on_demand_cost_in_usd": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "x_OnDemandCostInUsd"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "x on demand cost in usd": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "x_OnDemandCostInUsd": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
 			          }
 			        }
 			      ]
@@ -25723,12 +25190,6 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.99
 			          }
-			        },
-			        {
-			          "SKU": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
 			        }
 			      ]
 			    },
@@ -31464,16 +30925,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.485
 			          }
-			        },
-			        {
-			          "Months": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -31596,16 +31047,6 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.485
-			          }
-			        },
-			        {
-			          "Export runs": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -32103,16 +31544,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.461
 			          }
-			        },
-			        {
-			          "Version": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -32413,16 +31844,6 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.727
-			          }
-			        },
-			        {
-			          "Error": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -33830,26 +33251,6 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.7
 			          }
-			        },
-			        {
-			          "Last": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
-			        {
-			          "Last error": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ],
 			      "SemanticType": "Time"
@@ -34431,9 +33832,1081 @@ cultureInfo en-US
 			          }
 			        }
 			      ]
+			    },
+			    "cost_detail.charge_class": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "ChargeClass"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "charge class": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "ChargeClass": {
+			            "Type": "Noun",
+			            "State": "Generated",
+			            "Weight": 0.99
+			          }
+			        },
+			        {
+			          "class": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "charge classification": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "charge genre": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "classification": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.736
+			          }
+			        },
+			        {
+			          "genre": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.736
+			          }
+			        },
+			        {
+			          "charge course": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "charge grade": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "charge lecture": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "charge lesson": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "charge rank": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "course": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.714
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.commitment_discount_status": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "CommitmentDiscountStatus"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "commitment discount status": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "CommitmentDiscountStatus": {
+			            "Type": "Noun",
+			            "State": "Generated",
+			            "Weight": 0.99
+			          }
+			        },
+			        {
+			          "status": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "discount status": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "commitment discount importance": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.762
+			          }
+			        },
+			        {
+			          "commitment discount prestige": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.762
+			          }
+			        },
+			        {
+			          "commitment discount prominence": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.762
+			          }
+			        },
+			        {
+			          "discount importance": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "discount prestige": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "discount prominence": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "commitment discount condition": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.739
+			          }
+			        },
+			        {
+			          "commitment discount class": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.739
+			          }
+			        },
+			        {
+			          "commitment discount grade": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.739
+			          }
+			        },
+			        {
+			          "commitment discount level": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.739
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.consumed_quantity": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "ConsumedQuantity"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "consumed quantity": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "ConsumedQuantity": {
+			            "Type": "Noun",
+			            "State": "Generated",
+			            "Weight": 0.99
+			          }
+			        },
+			        {
+			          "consumed extent": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.5
+			          }
+			        },
+			        {
+			          "consumed magnitude": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.5
+			          }
+			        },
+			        {
+			          "consumed amount": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.485
+			          }
+			        },
+			        {
+			          "consumed number": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.485
+			          }
+			        },
+			        {
+			          "consumed measure": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.485
+			          }
+			        },
+			        {
+			          "consumed size": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.485
+			          }
+			        },
+			        {
+			          "consumed capacity": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.485
+			          }
+			        },
+			        {
+			          "consumed mass": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.485
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.consumed_unit": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "ConsumedUnit"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "consumed unit": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "ConsumedUnit": {
+			            "Type": "Noun",
+			            "State": "Generated",
+			            "Weight": 0.99
+			          }
+			        },
+			        {
+			          "unit": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "consumed module": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "consumed element": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "consumed entity": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "module": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.736
+			          }
+			        },
+			        {
+			          "element": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.736
+			          }
+			        },
+			        {
+			          "entity": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.736
+			          }
+			        },
+			        {
+			          "consumed group": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "consumed component": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "consumed constituent": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "consumed item": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.727
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.contracted_cost": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "ContractedCost"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "contracted cost": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "ContractedCost": {
+			            "Type": "Noun",
+			            "State": "Generated",
+			            "Weight": 0.99
+			          }
+			        },
+			        {
+			          "contracted price": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.485
+			          }
+			        },
+			        {
+			          "contracted charge": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.485
+			          }
+			        },
+			        {
+			          "contracted rate": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.485
+			          }
+			        },
+			        {
+			          "contracted fee": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.485
+			          }
+			        },
+			        {
+			          "contracted total": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.485
+			          }
+			        },
+			        {
+			          "contracted expenditure": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.475
+			          }
+			        },
+			        {
+			          "contracted budget": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.461
+			          }
+			        },
+			        {
+			          "contracted amount": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.461
+			          }
+			        },
+			        {
+			          "contracted outlay": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.461
+			          }
+			        },
+			        {
+			          "contracted expense": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.461
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.contracted_unit_price": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "ContractedUnitPrice"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "contracted unit price": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "ContractedUnitPrice": {
+			            "Type": "Noun",
+			            "State": "Generated",
+			            "Weight": 0.99
+			          }
+			        },
+			        {
+			          "price": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "unit price": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "contracted module price": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.609
+			          }
+			        },
+			        {
+			          "contracted element price": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.609
+			          }
+			        },
+			        {
+			          "contracted entity price": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.609
+			          }
+			        },
+			        {
+			          "module price": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.6
+			          }
+			        },
+			        {
+			          "element price": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.6
+			          }
+			        },
+			        {
+			          "entity price": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.6
+			          }
+			        },
+			        {
+			          "contracted group price": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.591
+			          }
+			        },
+			        {
+			          "contracted component price": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.591
+			          }
+			        },
+			        {
+			          "contracted constituent price": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.591
+			          }
+			        },
+			        {
+			          "contracted item price": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.591
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.region_name": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "RegionName"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "region name": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "RegionName": {
+			            "Type": "Noun",
+			            "State": "Generated",
+			            "Weight": 0.99
+			          }
+			        },
+			        {
+			          "region": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "province": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.736
+			          }
+			        },
+			        {
+			          "region nickname": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "region title": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "region label": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "region tag": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "area": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.714
+			          }
+			        },
+			        {
+			          "district": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.714
+			          }
+			        },
+			        {
+			          "continent": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.714
+			          }
+			        },
+			        {
+			          "location name": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.667
+			          }
+			        },
+			        {
+			          "province name": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.6
+			          }
+			        }
+			      ]
+			    },
+			    "cost_detail.x_contracted_cost_in_usd": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "x_ContractedCostInUsd"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "x contracted cost in usd": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "x_ContractedCostInUsd": {
+			            "Type": "Noun",
+			            "State": "Generated",
+			            "Weight": 0.99
+			          }
+			        },
+			        {
+			          "x contracted price in usd": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.504
+			          }
+			        },
+			        {
+			          "x contracted charge in usd": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.504
+			          }
+			        },
+			        {
+			          "x contracted rate in usd": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.504
+			          }
+			        },
+			        {
+			          "x contracted fee in usd": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.504
+			          }
+			        },
+			        {
+			          "x contracted total in usd": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.504
+			          }
+			        },
+			        {
+			          "x contracted expenditure in usd": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.494
+			          }
+			        },
+			        {
+			          "x contracted budget in usd": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.479
+			          }
+			        },
+			        {
+			          "x contracted amount in usd": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.479
+			          }
+			        },
+			        {
+			          "x contracted outlay in usd": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.479
+			          }
+			        },
+			        {
+			          "x contracted expense in usd": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.479
+			          }
+			        }
+			      ]
 			    }
 			  },
 			  "Relationships": {
+			    "hub_data_created_variation_date_hierarchy_has_quarter": {
+			      "Binding": {
+			        "ConceptualEntity": "HubData"
+			      },
+			      "State": "Generated",
+			      "Roles": {
+			        "hub_data.created.variation.date_hierarchy": {
+			          "Target": {
+			            "Entity": "hub_data.created.variation.date_hierarchy"
+			          }
+			        },
+			        "hub_data.created.variation.date_hierarchy.quarter": {
+			          "Target": {
+			            "Entity": "hub_data.created.variation.date_hierarchy.quarter"
+			          }
+			        }
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Subject": {
+			              "Role": "hub_data.created.variation.date_hierarchy"
+			            },
+			            "Object": {
+			              "Role": "hub_data.created.variation.date_hierarchy.quarter"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "created_date_hierarchies_have_created_quarters"
+			        }
+			      ]
+			    },
+			    "hub_data_created_variation_date_hierarchy_has_year": {
+			      "Binding": {
+			        "ConceptualEntity": "HubData"
+			      },
+			      "State": "Generated",
+			      "Roles": {
+			        "hub_data.created.variation.date_hierarchy": {
+			          "Target": {
+			            "Entity": "hub_data.created.variation.date_hierarchy"
+			          }
+			        },
+			        "hub_data.created.variation.date_hierarchy.year": {
+			          "Target": {
+			            "Entity": "hub_data.created.variation.date_hierarchy.year"
+			          }
+			        }
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Subject": {
+			              "Role": "hub_data.created.variation.date_hierarchy"
+			            },
+			            "Object": {
+			              "Role": "hub_data.created.variation.date_hierarchy.year"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "created_date_hierarchies_have_created_years"
+			        }
+			      ]
+			    },
 			    "hub_data_created_has_variation_date_hierarchy": {
 			      "Binding": {
 			        "ConceptualEntity": "HubData"
@@ -36730,6 +37203,310 @@ cultureInfo en-US
 			        }
 			      ]
 			    },
+			    "cost_detail_has_x_contracted_cost_in_usd": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "State": "Generated",
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.x_contracted_cost_in_usd": {
+			          "Target": {
+			            "Entity": "cost_detail.x_contracted_cost_in_usd"
+			          }
+			        }
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Subject": {
+			              "Role": "cost_detail"
+			            },
+			            "Object": {
+			              "Role": "cost_detail.x_contracted_cost_in_usd"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "cost_details_have_x_contracted_cost_in_usd"
+			        }
+			      ]
+			    },
+			    "cost_detail_has_region_name": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "State": "Generated",
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.region_name": {
+			          "Target": {
+			            "Entity": "cost_detail.region_name"
+			          }
+			        }
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Subject": {
+			              "Role": "cost_detail"
+			            },
+			            "Object": {
+			              "Role": "cost_detail.region_name"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "cost_details_have_region_names"
+			        }
+			      ]
+			    },
+			    "cost_detail_has_contracted_unit_price": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "State": "Generated",
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.contracted_unit_price": {
+			          "Target": {
+			            "Entity": "cost_detail.contracted_unit_price"
+			          }
+			        }
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Subject": {
+			              "Role": "cost_detail"
+			            },
+			            "Object": {
+			              "Role": "cost_detail.contracted_unit_price"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "cost_details_have_contracted_unit_prices"
+			        },
+			        {
+			          "Adjective": {
+			            "Subject": {
+			              "Role": "cost_detail"
+			            },
+			            "Adjectives": [
+			              {
+			                "expensive": {
+			                  "State": "Generated"
+			                }
+			              }
+			            ],
+			            "Antonyms": [
+			              {
+			                "cheap": {
+			                  "State": "Generated"
+			                }
+			              }
+			            ],
+			            "Measurement": {
+			              "Role": "cost_detail.contracted_unit_price"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "contracted_unit_price_indicates_how_expensive_cost_details_are"
+			        }
+			      ]
+			    },
+			    "cost_detail_has_contracted_cost": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "State": "Generated",
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.contracted_cost": {
+			          "Target": {
+			            "Entity": "cost_detail.contracted_cost"
+			          }
+			        }
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Subject": {
+			              "Role": "cost_detail"
+			            },
+			            "Object": {
+			              "Role": "cost_detail.contracted_cost"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "cost_details_have_contracted_costs"
+			        }
+			      ]
+			    },
+			    "cost_detail_has_consumed_unit": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "State": "Generated",
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.consumed_unit": {
+			          "Target": {
+			            "Entity": "cost_detail.consumed_unit"
+			          }
+			        }
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Subject": {
+			              "Role": "cost_detail"
+			            },
+			            "Object": {
+			              "Role": "cost_detail.consumed_unit"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "cost_details_have_consumed_units"
+			        }
+			      ]
+			    },
+			    "cost_detail_has_consumed_quantity": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "State": "Generated",
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.consumed_quantity": {
+			          "Target": {
+			            "Entity": "cost_detail.consumed_quantity"
+			          }
+			        }
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Subject": {
+			              "Role": "cost_detail"
+			            },
+			            "Object": {
+			              "Role": "cost_detail.consumed_quantity"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "cost_details_have_consumed_quantities"
+			        }
+			      ]
+			    },
+			    "cost_detail_has_commitment_discount_status": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "State": "Generated",
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.commitment_discount_status": {
+			          "Target": {
+			            "Entity": "cost_detail.commitment_discount_status"
+			          }
+			        }
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Subject": {
+			              "Role": "cost_detail"
+			            },
+			            "Object": {
+			              "Role": "cost_detail.commitment_discount_status"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "cost_details_have_commitment_discount_statuses"
+			        },
+			        {
+			          "DynamicAdjective": {
+			            "Subject": {
+			              "Role": "cost_detail"
+			            },
+			            "Adjective": {
+			              "Role": "cost_detail.commitment_discount_status"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "commitment_discount_statuses_describe_cost_details"
+			        }
+			      ]
+			    },
+			    "cost_detail_has_charge_class": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "State": "Generated",
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.charge_class": {
+			          "Target": {
+			            "Entity": "cost_detail.charge_class"
+			          }
+			        }
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Subject": {
+			              "Role": "cost_detail"
+			            },
+			            "Object": {
+			              "Role": "cost_detail.charge_class"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "cost_details_have_charge_classes"
+			        }
+			      ]
+			    },
 			    "hub_error_has_error_mitigation": {
 			      "Binding": {
 			        "ConceptualEntity": "HubErrors"
@@ -37222,39 +37999,6 @@ cultureInfo en-US
 			          "State": "Generated",
 			          "Weight": 0.99,
 			          "ID": "hub_errors_have_error_codes"
-			        },
-			        {
-			          "Verb": {
-			            "Subject": {
-			              "Role": "hub_error.error_code"
-			            },
-			            "Verbs": [
-			              {
-			                "Err": {
-			                  "State": "Generated"
-			                }
-			              }
-			            ],
-			            "Object": {
-			              "Role": "hub_error"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.75,
-			          "ID": "error_codes_Err_hub_errors"
-			        },
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "hub_error.error_code"
-			            },
-			            "Object": {
-			              "Role": "hub_error"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "error_codes_have_hub_errors"
 			        }
 			      ]
 			    },
@@ -39763,6 +40507,19 @@ cultureInfo en-US
 			          "State": "Generated",
 			          "Weight": 0.99,
 			          "ID": "cost_details_have_x_sku_is_credit_eligible"
+			        },
+			        {
+			          "DynamicAdjective": {
+			            "Subject": {
+			              "Role": "cost_detail"
+			            },
+			            "Adjective": {
+			              "Role": "cost_detail.x_sku_is_credit_eligible"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "x_sku_is_credit_eligible_describe_cost_details"
 			        }
 			      ]
 			    },
@@ -39829,39 +40586,6 @@ cultureInfo en-US
 			          "State": "Generated",
 			          "Weight": 0.99,
 			          "ID": "cost_details_have_x_pricing_block_sizes"
-			        }
-			      ]
-			    },
-			    "cost_detail_has_x_on_demand_cost_in_usd": {
-			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "cost_detail": {
-			          "Target": {
-			            "Entity": "cost_detail"
-			          }
-			        },
-			        "cost_detail.x_on_demand_cost_in_usd": {
-			          "Target": {
-			            "Entity": "cost_detail.x_on_demand_cost_in_usd"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "cost_detail"
-			            },
-			            "Object": {
-			              "Role": "cost_detail.x_on_demand_cost_in_usd"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "cost_details_have_x_on_demand_cost_in_usd"
 			        }
 			      ]
 			    },
@@ -39961,39 +40685,6 @@ cultureInfo en-US
 			          "State": "Generated",
 			          "Weight": 0.99,
 			          "ID": "cost_details_have_x_dataset_types"
-			        }
-			      ]
-			    },
-			    "cost_detail_has_x_charge_id": {
-			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "cost_detail": {
-			          "Target": {
-			            "Entity": "cost_detail"
-			          }
-			        },
-			        "cost_detail.x_charge_id": {
-			          "Target": {
-			            "Entity": "cost_detail.x_charge_id"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "cost_detail"
-			            },
-			            "Object": {
-			              "Role": "cost_detail.x_charge_id"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "cost_details_have_x_charge_ids"
 			        }
 			      ]
 			    },
@@ -40819,19 +41510,6 @@ cultureInfo en-US
 			          "State": "Generated",
 			          "Weight": 0.99,
 			          "ID": "cost_details_have_x_sku_image_types"
-			        },
-			        {
-			          "DynamicAdjective": {
-			            "Subject": {
-			              "Role": "cost_detail"
-			            },
-			            "Adjective": {
-			              "Role": "cost_detail.x_sku_image_type"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "x_sku_image_types_describe_cost_details"
 			        }
 			      ]
 			    },
@@ -41277,39 +41955,6 @@ cultureInfo en-US
 			        }
 			      ]
 			    },
-			    "cost_detail_has_x_on_demand_cost": {
-			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "cost_detail": {
-			          "Target": {
-			            "Entity": "cost_detail"
-			          }
-			        },
-			        "cost_detail.x_on_demand_cost": {
-			          "Target": {
-			            "Entity": "cost_detail.x_on_demand_cost"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "cost_detail"
-			            },
-			            "Object": {
-			              "Role": "cost_detail.x_on_demand_cost"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "cost_details_have_x_on_demand_cost"
-			        }
-			      ]
-			    },
 			    "cost_detail_has_x_invoice_section_name": {
 			      "Binding": {
 			        "ConceptualEntity": "CostDetails"
@@ -41439,33 +42084,6 @@ cultureInfo en-US
 			          "State": "Generated",
 			          "Weight": 0.99,
 			          "ID": "cost_details_have_x_effective_cost_in_usd"
-			        },
-			        {
-			          "Adjective": {
-			            "Subject": {
-			              "Role": "cost_detail"
-			            },
-			            "Adjectives": [
-			              {
-			                "expensive": {
-			                  "State": "Generated"
-			                }
-			              }
-			            ],
-			            "Antonyms": [
-			              {
-			                "cheap": {
-			                  "State": "Generated"
-			                }
-			              }
-			            ],
-			            "Measurement": {
-			              "Role": "cost_detail.x_effective_cost_in_usd"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "x_effective_cost_in_usd_indicates_how_expensive_cost_details_are"
 			        }
 			      ]
 			    },
@@ -42456,6 +43074,19 @@ cultureInfo en-US
 			          "State": "Generated",
 			          "Weight": 0.99,
 			          "ID": "cost_details_have_x_sku_license_statuses"
+			        },
+			        {
+			          "DynamicAdjective": {
+			            "Subject": {
+			              "Role": "cost_detail"
+			            },
+			            "Adjective": {
+			              "Role": "costdetails.x_skulicensestatus"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "x_sku_license_statuses_describe_cost_details"
 			        }
 			      ]
 			    },
@@ -42687,39 +43318,6 @@ cultureInfo en-US
 			          "State": "Generated",
 			          "Weight": 0.99,
 			          "ID": "cost_details_have_x_publisher_categories"
-			        }
-			      ]
-			    },
-			    "cost_detail_has_costdetails_x_ondemandunitprice": {
-			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "cost_detail": {
-			          "Target": {
-			            "Entity": "cost_detail"
-			          }
-			        },
-			        "costdetails.x_ondemandunitprice": {
-			          "Target": {
-			            "Entity": "costdetails.x_ondemandunitprice"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "cost_detail"
-			            },
-			            "Object": {
-			              "Role": "costdetails.x_ondemandunitprice"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "cost_details_have_x_on_demand_unit_price"
 			        }
 			      ]
 			    },
@@ -43044,39 +43642,6 @@ cultureInfo en-US
 			          "State": "Generated",
 			          "Weight": 0.99,
 			          "ID": "cost_details_have_resource_names"
-			        }
-			      ]
-			    },
-			    "cost_detail_has_costdetails_region": {
-			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "cost_detail": {
-			          "Target": {
-			            "Entity": "cost_detail"
-			          }
-			        },
-			        "costdetails.region": {
-			          "Target": {
-			            "Entity": "costdetails.region"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "cost_detail"
-			            },
-			            "Object": {
-			              "Role": "costdetails.region"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "cost_details_have_regions"
 			        }
 			      ]
 			    },
@@ -43434,79 +43999,6 @@ cultureInfo en-US
 			          "State": "Generated",
 			          "Weight": 0.99,
 			          "ID": "cost_details_have_billed_costs"
-			        },
-			        {
-			          "Adjective": {
-			            "Subject": {
-			              "Role": "cost_detail"
-			            },
-			            "Adjectives": [
-			              {
-			                "expensive": {
-			                  "State": "Generated"
-			                }
-			              }
-			            ],
-			            "Antonyms": [
-			              {
-			                "cheap": {
-			                  "State": "Generated"
-			                }
-			              }
-			            ],
-			            "Measurement": {
-			              "Role": "cost_detail.billed_cost"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "billed_cost_indicates_how_expensive_cost_details_are"
-			        }
-			      ]
-			    },
-			    "cost_detail_has_costdetails_chargesubcategory": {
-			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "cost_detail": {
-			          "Target": {
-			            "Entity": "cost_detail"
-			          }
-			        },
-			        "costdetails.chargesubcategory": {
-			          "Target": {
-			            "Entity": "costdetails.chargesubcategory"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "cost_detail"
-			            },
-			            "Object": {
-			              "Role": "costdetails.chargesubcategory"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "cost_details_have_charge_subcategories"
-			        },
-			        {
-			          "DynamicAdjective": {
-			            "Subject": {
-			              "Role": "cost_detail"
-			            },
-			            "Adjective": {
-			              "Role": "costdetails.chargesubcategory"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "charge_subcategories_describe_cost_details"
 			        }
 			      ]
 			    },
@@ -43804,33 +44296,6 @@ cultureInfo en-US
 			          "State": "Generated",
 			          "Weight": 0.99,
 			          "ID": "cost_details_have_list_costs"
-			        },
-			        {
-			          "Adjective": {
-			            "Subject": {
-			              "Role": "cost_detail"
-			            },
-			            "Adjectives": [
-			              {
-			                "expensive": {
-			                  "State": "Generated"
-			                }
-			              }
-			            ],
-			            "Antonyms": [
-			              {
-			                "cheap": {
-			                  "State": "Generated"
-			                }
-			              }
-			            ],
-			            "Measurement": {
-			              "Role": "cost_detail.list_cost"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "list_cost_indicates_how_expensive_cost_details_are"
 			        }
 			      ]
 			    },
@@ -43996,33 +44461,6 @@ cultureInfo en-US
 			          "State": "Generated",
 			          "Weight": 0.99,
 			          "ID": "cost_details_have_effective_costs"
-			        },
-			        {
-			          "Adjective": {
-			            "Subject": {
-			              "Role": "cost_detail"
-			            },
-			            "Adjectives": [
-			              {
-			                "expensive": {
-			                  "State": "Generated"
-			                }
-			              }
-			            ],
-			            "Antonyms": [
-			              {
-			                "cheap": {
-			                  "State": "Generated"
-			                }
-			              }
-			            ],
-			            "Measurement": {
-			              "Role": "cost_detail.effective_cost"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "effective_cost_indicates_how_expensive_cost_details_are"
 			        }
 			      ]
 			    },
@@ -44056,6 +44494,33 @@ cultureInfo en-US
 			          "State": "Generated",
 			          "Weight": 0.99,
 			          "ID": "cost_details_have_effective_cost_running_total"
+			        },
+			        {
+			          "Adjective": {
+			            "Subject": {
+			              "Role": "cost_detail"
+			            },
+			            "Adjectives": [
+			              {
+			                "expensive": {
+			                  "State": "Generated"
+			                }
+			              }
+			            ],
+			            "Antonyms": [
+			              {
+			                "cheap": {
+			                  "State": "Generated"
+			                }
+			              }
+			            ],
+			            "Measurement": {
+			              "Role": "cost_detail.cost_running_total"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "effective_cost_running_total_indicates_how_expensive_cost_details_are"
 			        }
 			      ]
 			    },
@@ -44257,72 +44722,6 @@ cultureInfo en-US
 			        }
 			      ]
 			    },
-			    "cost_detail_has_usage_quantity": {
-			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "cost_detail": {
-			          "Target": {
-			            "Entity": "cost_detail"
-			          }
-			        },
-			        "cost_detail.usage_quantity": {
-			          "Target": {
-			            "Entity": "cost_detail.usage_quantity"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "cost_detail"
-			            },
-			            "Object": {
-			              "Role": "cost_detail.usage_quantity"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "cost_details_have_usage_quantities"
-			        }
-			      ]
-			    },
-			    "cost_detail_has_usage_unit": {
-			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "cost_detail": {
-			          "Target": {
-			            "Entity": "cost_detail"
-			          }
-			        },
-			        "cost_detail.usage_unit": {
-			          "Target": {
-			            "Entity": "cost_detail.usage_unit"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "cost_detail"
-			            },
-			            "Object": {
-			              "Role": "cost_detail.usage_unit"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "cost_details_have_usage_units"
-			        }
-			      ]
-			    },
 			    "cost_detail_has_x_account_name": {
 			      "Binding": {
 			        "ConceptualEntity": "CostDetails"
@@ -44455,6 +44854,51 @@ cultureInfo en-US
 			        }
 			      ]
 			    },
+			    "cost_detail_in_region_name": {
+			      "Binding": {
+			        "ConceptualEntity": "CostDetails"
+			      },
+			      "State": "Generated",
+			      "Roles": {
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        },
+			        "cost_detail.region_name": {
+			          "Target": {
+			            "Entity": "cost_detail.region_name"
+			          }
+			        }
+			      },
+			      "SemanticSlots": {
+			        "Where": {
+			          "Role": "cost_detail.region_name"
+			        }
+			      },
+			      "Phrasings": [
+			        {
+			          "Preposition": {
+			            "Subject": {
+			              "Role": "cost_detail"
+			            },
+			            "Prepositions": [
+			              {
+			                "in": {
+			                  "State": "Generated"
+			                }
+			              }
+			            ],
+			            "Object": {
+			              "Role": "cost_detail.region_name"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "cost_details_are_in_region_names"
+			        }
+			      ]
+			    },
 			    "cost_detail_in_x_sku_region": {
 			      "Binding": {
 			        "ConceptualEntity": "CostDetails"
@@ -44542,51 +44986,6 @@ cultureInfo en-US
 			          "State": "Generated",
 			          "Weight": 0.99,
 			          "ID": "instance_size_flexibilities_are_in_resource_locations"
-			        }
-			      ]
-			    },
-			    "cost_detail_in_costdetails_region": {
-			      "Binding": {
-			        "ConceptualEntity": "CostDetails"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "cost_detail": {
-			          "Target": {
-			            "Entity": "cost_detail"
-			          }
-			        },
-			        "costdetails.region": {
-			          "Target": {
-			            "Entity": "costdetails.region"
-			          }
-			        }
-			      },
-			      "SemanticSlots": {
-			        "Where": {
-			          "Role": "costdetails.region"
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Preposition": {
-			            "Subject": {
-			              "Role": "cost_detail"
-			            },
-			            "Prepositions": [
-			              {
-			                "in": {
-			                  "State": "Generated"
-			                }
-			              }
-			            ],
-			            "Object": {
-			              "Role": "costdetails.region"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "cost_details_are_in_regions"
 			        }
 			      ]
 			    },
@@ -44797,72 +45196,6 @@ cultureInfo en-US
 			          "State": "Generated",
 			          "Weight": 0.9,
 			          "ID": "cost_details_are_rated_on_x_billing_exchange_rate_dates"
-			        }
-			      ]
-			    },
-			    "hub_data_created_variation_date_hierarchy_has_year": {
-			      "Binding": {
-			        "ConceptualEntity": "HubData"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "hub_data.created.variation.date_hierarchy": {
-			          "Target": {
-			            "Entity": "hub_data.created.variation.date_hierarchy"
-			          }
-			        },
-			        "hub_data.created.variation.date_hierarchy.year": {
-			          "Target": {
-			            "Entity": "hub_data.created.variation.date_hierarchy.year"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "hub_data.created.variation.date_hierarchy"
-			            },
-			            "Object": {
-			              "Role": "hub_data.created.variation.date_hierarchy.year"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "created_date_hierarchies_have_created_years"
-			        }
-			      ]
-			    },
-			    "hub_data_created_variation_date_hierarchy_has_quarter": {
-			      "Binding": {
-			        "ConceptualEntity": "HubData"
-			      },
-			      "State": "Generated",
-			      "Roles": {
-			        "hub_data.created.variation.date_hierarchy": {
-			          "Target": {
-			            "Entity": "hub_data.created.variation.date_hierarchy"
-			          }
-			        },
-			        "hub_data.created.variation.date_hierarchy.quarter": {
-			          "Target": {
-			            "Entity": "hub_data.created.variation.date_hierarchy.quarter"
-			          }
-			        }
-			      },
-			      "Phrasings": [
-			        {
-			          "Attribute": {
-			            "Subject": {
-			              "Role": "hub_data.created.variation.date_hierarchy"
-			            },
-			            "Object": {
-			              "Role": "hub_data.created.variation.date_hierarchy.quarter"
-			            }
-			          },
-			          "State": "Generated",
-			          "Weight": 0.99,
-			          "ID": "created_date_hierarchies_have_created_quarters"
 			        }
 			      ]
 			    },

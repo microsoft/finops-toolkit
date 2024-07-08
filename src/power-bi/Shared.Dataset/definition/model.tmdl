@@ -20,11 +20,11 @@ queryGroup '🛠️ Setup\CM connector'
 
 queryGroup '🛠️ Setup\FinOps hubs'
 
-	annotation PBI_QueryGroupOrder = 2
+	annotation PBI_QueryGroupOrder = 3
 
 queryGroup '🛠️ Setup\Functions'
 
-	annotation PBI_QueryGroupOrder = 3
+	annotation PBI_QueryGroupOrder = 4
 
 queryGroup '🛠️ Setup\Instructions'
 
