@@ -39,7 +39,7 @@ The FinOps toolkit module requires PowerShell 7, which is supported on all major
 ```powershell
 Install-Module -Name Az.Accounts
 Install-Module -Name Az.Resources
-Import-Module -Name FinOpsToolkit
+Install-Module -Name FinOpsToolkit
 ```
 
 If this is the first time using Azure PowerShell, you will also need to sign into your account and select a default subscription:
