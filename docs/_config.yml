@@ -21,7 +21,7 @@ collections:
   reporting:
     permalink: /:collection/:path/
     output: true
-  workbooks:
+  optimize:
     permalink: /:collection/:path/
     output: true
   automation:
@@ -37,8 +37,8 @@ just_the_docs:
       name: Implementing FinOps
     reporting:
       name: Reporting + analytics
-    workbooks:
-      name: Azure Monitor workbooks
+    optimize:
+      name: Optimization + governance
     automation:
       name: Automation + extensibility
     resources:

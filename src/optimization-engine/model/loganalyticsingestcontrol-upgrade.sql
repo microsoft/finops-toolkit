@@ -1,0 +1,5 @@
+UPDATE [dbo].[LogAnalyticsIngestControl] SET CollectedType = 'ARGVirtualMachine' WHERE StorageContainerName = 'argvmexports'
+UPDATE [dbo].[LogAnalyticsIngestControl] SET CollectedType = 'ARGManagedDisk' WHERE StorageContainerName = 'argdiskexports'
+UPDATE [dbo].[LogAnalyticsIngestControl] SET CollectedType = 'AzureAdvisor' WHERE StorageContainerName = 'advisorexports'
+UPDATE [dbo].[LogAnalyticsIngestControl] SET CollectedType = 'RemediationLogs' WHERE StorageContainerName = 'remediationlogs'
+UPDATE [dbo].[LogAnalyticsIngestControl] SET CollectedType = 'AzureConsumption' WHERE StorageContainerName = 'consumptionexports'
