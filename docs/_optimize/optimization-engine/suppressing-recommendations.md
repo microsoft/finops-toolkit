@@ -30,7 +30,7 @@ When working on the recommendations provided by AOE, you may find some cases whe
 
 In the Power BI report, if you drill through the details of a recommendation (Rec. Details page), you will find the Recommendation Id in the header. Copy this Id, by using the "Copy value" right-click menu option. You'll need this ID to call the Supress-Recommendation.ps1 script.
 
-![Copying the Recommendation Id value from the Recommendation Details page in the Power BI report](../../assets/images/aoe/powerbi-recdetails-recommendationid.jpg "Copy the Recommendation Id value")
+![Copying the Recommendation Id value from the Recommendation Details page in the Power BI report](../assets/images/aoe/powerbi-recdetails-recommendationid.jpg "Copy the Recommendation Id value")
 
 ## 🔕 Supressing the recommendation
 
