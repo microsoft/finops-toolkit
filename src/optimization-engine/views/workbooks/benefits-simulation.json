@@ -1,0 +1,612 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "b58b4eb8-5821-44d2-bc7e-54054df27320",
+            "version": "KqlParameterItem/1.0",
+            "name": "LookbackPeriod",
+            "label": "Lookback Period",
+            "type": 4,
+            "isRequired": true,
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 1209600000
+                },
+                {
+                  "durationMs": 2592000000
+                },
+                {
+                  "durationMs": 5184000000
+                },
+                {
+                  "durationMs": 7776000000
+                }
+              ],
+              "allowCustom": true
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "value": {
+              "durationMs": 2592000000
+            }
+          },
+          {
+            "id": "121c03f2-6ca3-4438-a828-8dffec3e208a",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscriptions",
+            "type": 2,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "AzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) > todatetime('{LookbackPeriod:startISO}') and todatetime(Date_s) < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and MeterCategory_s == 'Virtual Machines'\r\n| join kind=leftouter (\r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > ago(2d)\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | distinct SubscriptionId=SubscriptionGuid_g, SubscriptionName=ContainerName_s, Cloud=Cloud_s\r\n) on SubscriptionId\r\n| where Cloud == 'AzureCloud'\r\n| extend PricingModel = iif(isnotempty(PricingModel_s), PricingModel_s, iif(isnotempty(ReservationName_s), 'Reservation', iif(MeterName_s endswith 'Spot', 'Spot', iif(isnotempty(benefitName_s), 'SavingsPlan', 'OnDemand'))))\r\n| where PricingModel == 'OnDemand'\r\n| extend SubscriptionName = iif(isnotempty(SubscriptionName_s), SubscriptionName_s, SubscriptionName)\r\n| distinct SubscriptionName\r\n| order by SubscriptionName asc",
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ]
+            },
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "value": [
+              "value::all"
+            ]
+          },
+          {
+            "id": "0c9fd864-c30b-4f8f-8065-e44aa1b55a51",
+            "version": "KqlParameterItem/1.0",
+            "name": "GroupBy",
+            "label": "Group by",
+            "type": 2,
+            "isRequired": true,
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "jsonData": "[{ \"value\": \"SubscriptionName\", \"label\": \"Subscription\", \"selected\": true }, { \"value\": \"SKUName\", \"label\": \"VM Size\" },{ \"value\": \"ISFGroup\", \"label\": \"Instance Size Flexibility Group\" }]"
+          }
+        ],
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "parameters - 0"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "Unless specified, usage values unit corresponds to your billing currency. **Only applies to Virtual Machines usage in Azure Global**.",
+        "style": "info"
+      },
+      "name": "text - 7"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "If below tabs are reporting query errors, you must set up Pricesheet exports. See more details [here](https://aka.ms/AzureOptimizationEngine/commitmentssetup).",
+        "style": "warning"
+      },
+      "name": "text - 6"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let ISFGroups = externaldata(ISFGroup:string, ArmSKUName:string, Ratio:double) [@\"https://aka.ms/isf\"] with(ignoreFirstRecord=true) | extend ArmSKUName=tolower(ArmSKUName);\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) > todatetime('{LookbackPeriod:startISO}') and todatetime(Date_s) < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and MeterCategory_s == 'Virtual Machines'\r\n| join kind=leftouter (\r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > ago(2d)\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | distinct SubscriptionId=SubscriptionGuid_g, SubscriptionName=ContainerName_s, Cloud=Cloud_s\r\n) on SubscriptionId\r\n| where Cloud == 'AzureCloud'\r\n| extend PricingModel = iif(isnotempty(PricingModel_s), PricingModel_s, iif(isnotempty(ReservationName_s), 'Reservation', iif(MeterName_s endswith 'Spot', 'Spot', iif(isnotempty(benefitName_s), 'SavingsPlan', 'OnDemand'))))\r\n| where PricingModel == 'OnDemand'\r\n| extend SubscriptionName = iif(isnotempty(SubscriptionName_s), SubscriptionName_s, SubscriptionName)\r\n| where SubscriptionName in ({Subscriptions})\r\n| extend VMSize = tolower(parse_json(AdditionalInfo_s)['ServiceType'])\r\n| extend SKUName = strcat(VMSize, ' ', ResourceLocation_s)\r\n| project Date_s, QtyHours=todouble(Quantity_s), BillingMeter=MeterName_s, ResourceLocation_s, MeterId=MeterId_g, ResourceId, OnDemandPrice=todouble(iif(todouble(UnitPrice_s) > 0.0, UnitPrice_s, EffectivePrice_s)), SubscriptionName, VMSize, SKUName\r\n| join kind=leftouter ( ISFGroups ) on $left.VMSize == $right.ArmSKUName\r\n| extend ISFGroup = strcat(ISFGroup, ' ', ResourceLocation_s)\r\n| extend OnDemandCost = QtyHours * OnDemandPrice\r\n| summarize HourlyCost=sum(OnDemandCost)/24 by bin(todatetime(Date_s), 1d), {GroupBy}",
+        "size": 1,
+        "aggregation": 3,
+        "title": "Average On-Demand hourly usage (actual cost)",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "visualization": "barchart",
+        "chartSettings": {
+          "seriesLabelSettings": [
+            {
+              "seriesName": "Reservation",
+              "color": "green"
+            },
+            {
+              "seriesName": "OnDemand",
+              "color": "red"
+            }
+          ]
+        }
+      },
+      "name": "onDemandUsageAsIs"
+    },
+    {
+      "type": 11,
+      "content": {
+        "version": "LinkItem/1.0",
+        "style": "tabs",
+        "links": [
+          {
+            "id": "1d33e1ca-6d19-4b74-8903-00c5671b8f87",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Savings Plans",
+            "subTarget": "SavingsPlans",
+            "style": "link"
+          },
+          {
+            "id": "b26e72a1-167d-4449-a8b6-6665814331a3",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Reservations",
+            "subTarget": "Reservations",
+            "style": "link"
+          }
+        ]
+      },
+      "name": "analysisTabs"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "Enter a hourly commitment to estimate your savings according to the lookback period",
+              "style": "info"
+            },
+            "name": "text - 1"
+          },
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "977209de-fdec-4c84-86fd-7b0815aa71e1",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "SavingsPlanTerm",
+                  "label": "Savings Plan Term",
+                  "type": 10,
+                  "description": "Savings Plan term to get the Savings Plan prices from",
+                  "isRequired": true,
+                  "typeSettings": {
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "jsonData": "[\"1 Year\", \"3 Years\"]",
+                  "timeContext": {
+                    "durationMs": 86400000
+                  },
+                  "value": "3 Years"
+                },
+                {
+                  "id": "368dffea-79c4-45a9-9876-fc77cf691541",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "HourlyCommitment",
+                  "label": "Hourly commitment",
+                  "type": 1,
+                  "isRequired": true,
+                  "value": ""
+                }
+              ],
+              "style": "above",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces"
+            },
+            "name": "savingsPlansParameters"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let ISFGroups = externaldata(ISFGroup:string, ArmSKUName:string, Ratio:double) [@\"https://aka.ms/isf\"] with(ignoreFirstRecord=true) | extend ArmSKUName=tolower(ArmSKUName);\r\nlet LinuxOnDemandPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s == 'Consumption' and MeterSubCategory_s !endswith \"Windows\"\r\n| extend MeterSubCategory_s = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Linux'))\r\n| summarize LinuxUnitPrice=max(todouble(UnitPrice_s)) by LinuxMeterId=MeterID_g, MeterName_s, MeterSubCategory_s, MeterRegion_s, LinuxUnitOfMeasure=UnitOfMeasure_s;\r\nlet OnDemandPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s == 'Consumption'\r\n| extend NonWindowsMeterSubcategory = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Windows'))\r\n| extend WindowsMeterSubCategory = MeterSubCategory_s\r\n| extend NonWindowsMeterSubcategory = substring(NonWindowsMeterSubcategory, 0, indexof(NonWindowsMeterSubcategory, ' Linux'))\r\n| summarize UnitPrice_s=max(todouble(UnitPrice_s)) by MeterID_g, MeterName_s, NonWindowsMeterSubcategory, WindowsMeterSubCategory, MeterRegion_s, UnitOfMeasure_s\r\n| join kind=leftouter ( LinuxOnDemandPriceSheet ) on MeterName_s, MeterRegion_s, $left.NonWindowsMeterSubcategory == $right.MeterSubCategory_s\r\n| extend PricesheetPrice = iif(isnotempty(LinuxUnitPrice), LinuxUnitPrice, UnitPrice_s)\r\n| extend PricesheetUnitOfMeasure = iif(isnotempty(LinuxUnitOfMeasure), LinuxUnitOfMeasure, UnitOfMeasure_s)\r\n| extend UnitHrs = toint(substring(PricesheetUnitOfMeasure, 0, indexof(PricesheetUnitOfMeasure, 'Hour')-1))\r\n| extend OnDemandPrice = PricesheetPrice/UnitHrs\r\n| distinct MeterID_g, OnDemandPrice;\r\nlet LinuxSavingsPlanPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s in ('Savings Plan','SavingsPlan') and MeterSubCategory_s !endswith \"Windows\" and Term_s == iif('{SavingsPlanTerm}' == '3 Years','P3Y','P1Y')\r\n| extend MeterSubCategory_s = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Linux'))\r\n| summarize LinuxUnitPrice=max(todouble(UnitPrice_s)) by LinuxMeterId=MeterID_g, MeterName_s, MeterSubCategory_s, MeterRegion_s, LinuxUnitOfMeasure=UnitOfMeasure_s;\r\nlet SavingsPlanPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s in ('Savings Plan','SavingsPlan') and Term_s == iif('{SavingsPlanTerm}' == '3 Years','P3Y','P1Y')\r\n| extend NonWindowsMeterSubcategory = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Windows'))\r\n| extend WindowsMeterSubCategory = MeterSubCategory_s\r\n| extend NonWindowsMeterSubcategory = substring(NonWindowsMeterSubcategory, 0, indexof(NonWindowsMeterSubcategory, ' Linux'))\r\n| summarize UnitPrice_s=max(todouble(UnitPrice_s)) by MeterID_g, MeterName_s, NonWindowsMeterSubcategory, WindowsMeterSubCategory, MeterRegion_s, UnitOfMeasure_s\r\n| join kind=leftouter ( LinuxSavingsPlanPriceSheet ) on MeterName_s, MeterRegion_s, $left.NonWindowsMeterSubcategory == $right.MeterSubCategory_s\r\n| extend PricesheetPrice = iif(isnotempty(LinuxUnitPrice), LinuxUnitPrice, UnitPrice_s)\r\n| extend PricesheetUnitOfMeasure = iif(isnotempty(LinuxUnitOfMeasure), LinuxUnitOfMeasure, UnitOfMeasure_s)\r\n| extend UnitHrs = toint(substring(PricesheetUnitOfMeasure, 0, indexof(PricesheetUnitOfMeasure, 'Hour')-1))\r\n| extend SavingsPlanPrice = PricesheetPrice/UnitHrs\r\n| distinct MeterID_g, SavingsPlanPrice;\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) > todatetime('{LookbackPeriod:startISO}') and todatetime(Date_s) < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and MeterCategory_s == 'Virtual Machines'\r\n| join kind=leftouter (\r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > ago(2d)\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | distinct SubscriptionId=SubscriptionGuid_g, SubscriptionName=ContainerName_s, Cloud=Cloud_s\r\n) on SubscriptionId\r\n| where Cloud == 'AzureCloud'\r\n| extend PricingModel = iif(isnotempty(PricingModel_s), PricingModel_s, iif(isnotempty(ReservationName_s), 'Reservation', iif(MeterName_s endswith 'Spot', 'Spot', iif(isnotempty(benefitName_s), 'SavingsPlan', 'OnDemand'))))\r\n| where PricingModel == 'OnDemand'\r\n| extend SubscriptionName = iif(isnotempty(SubscriptionName_s), SubscriptionName_s, SubscriptionName)\r\n| where SubscriptionName in ({Subscriptions})\r\n| join kind=inner ( OnDemandPriceSheet ) on $left.MeterId_g == $right.MeterID_g\r\n| extend VMSize = tolower(parse_json(AdditionalInfo_s)['ServiceType'])\r\n| extend ResourceLocation_s=tolower(ResourceLocation_s)\r\n| extend SKUName = strcat(VMSize, ' ', ResourceLocation_s)\r\n| project Date_s, QtyHours=todouble(Quantity_s), BillingMeter=MeterName_s, ResourceLocation_s, MeterId=MeterId_g, ResourceId, OnDemandPrice, SubscriptionName, VMSize, SKUName\r\n| join kind=leftouter ( ISFGroups ) on $left.VMSize == $right.ArmSKUName\r\n| extend ISFGroup = strcat(ISFGroup, ' ', ResourceLocation_s)\r\n| join kind=inner ( SavingsPlanPriceSheet ) on $left.MeterId == $right.MeterID_g\r\n| extend SavingsPlanCost = QtyHours * SavingsPlanPrice\r\n| summarize HourlyCost=sum(SavingsPlanCost)/24 by todatetime(Date_s), {GroupBy}",
+              "size": 1,
+              "aggregation": 3,
+              "title": "Average On-Demand hourly usage (Savings Plan prices)",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "barchart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Reservation",
+                    "color": "green"
+                  },
+                  {
+                    "seriesName": "OnDemand",
+                    "color": "red"
+                  }
+                ]
+              }
+            },
+            "name": "onDemandUsageSavingsPlansPerspective"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let HourlyCommitment = {HourlyCommitment};\r\nlet LinuxOnDemandPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s == 'Consumption' and MeterSubCategory_s !endswith \"Windows\"\r\n| extend MeterSubCategory_s = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Linux'))\r\n| summarize LinuxUnitPrice=max(todouble(UnitPrice_s)) by LinuxMeterId=MeterID_g, MeterName_s, MeterSubCategory_s, MeterRegion_s, LinuxUnitOfMeasure=UnitOfMeasure_s;\r\nlet OnDemandPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s == 'Consumption'\r\n| extend NonWindowsMeterSubcategory = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Windows'))\r\n| extend WindowsMeterSubCategory = MeterSubCategory_s\r\n| extend NonWindowsMeterSubcategory = substring(NonWindowsMeterSubcategory, 0, indexof(NonWindowsMeterSubcategory, ' Linux'))\r\n| summarize UnitPrice_s=max(todouble(UnitPrice_s)) by MeterID_g, MeterName_s, NonWindowsMeterSubcategory, WindowsMeterSubCategory, MeterRegion_s, UnitOfMeasure_s\r\n| join kind=leftouter ( LinuxOnDemandPriceSheet ) on MeterName_s, MeterRegion_s, $left.NonWindowsMeterSubcategory == $right.MeterSubCategory_s\r\n| extend PricesheetPrice = iif(isnotempty(LinuxUnitPrice), LinuxUnitPrice, UnitPrice_s)\r\n| extend PricesheetUnitOfMeasure = iif(isnotempty(LinuxUnitOfMeasure), LinuxUnitOfMeasure, UnitOfMeasure_s)\r\n| extend UnitHrs = toint(substring(PricesheetUnitOfMeasure, 0, indexof(PricesheetUnitOfMeasure, 'Hour')-1))\r\n| extend OnDemandPrice = PricesheetPrice/UnitHrs\r\n| distinct MeterID_g, OnDemandPrice;\r\nlet LinuxSavingsPlanPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s in ('Savings Plan','SavingsPlan') and MeterSubCategory_s !endswith \"Windows\" and Term_s == iif('{SavingsPlanTerm}' == '3 Years','P3Y','P1Y')\r\n| extend MeterSubCategory_s = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Linux'))\r\n| summarize LinuxUnitPrice=max(todouble(UnitPrice_s)) by LinuxMeterId=MeterID_g, MeterName_s, MeterSubCategory_s, MeterRegion_s, LinuxUnitOfMeasure=UnitOfMeasure_s;\r\nlet SavingsPlanPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s in ('Savings Plan','SavingsPlan') and Term_s == iif('{SavingsPlanTerm}' == '3 Years','P3Y','P1Y')\r\n| extend NonWindowsMeterSubcategory = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Windows'))\r\n| extend WindowsMeterSubCategory = MeterSubCategory_s\r\n| extend NonWindowsMeterSubcategory = substring(NonWindowsMeterSubcategory, 0, indexof(NonWindowsMeterSubcategory, ' Linux'))\r\n| summarize UnitPrice_s=max(todouble(UnitPrice_s)) by MeterID_g, MeterName_s, NonWindowsMeterSubcategory, WindowsMeterSubCategory, MeterRegion_s, UnitOfMeasure_s\r\n| join kind=leftouter ( LinuxSavingsPlanPriceSheet ) on MeterName_s, MeterRegion_s, $left.NonWindowsMeterSubcategory == $right.MeterSubCategory_s\r\n| extend PricesheetPrice = iif(isnotempty(LinuxUnitPrice), LinuxUnitPrice, UnitPrice_s)\r\n| extend PricesheetUnitOfMeasure = iif(isnotempty(LinuxUnitOfMeasure), LinuxUnitOfMeasure, UnitOfMeasure_s)\r\n| extend UnitHrs = toint(substring(PricesheetUnitOfMeasure, 0, indexof(PricesheetUnitOfMeasure, 'Hour')-1))\r\n| extend SavingsPlanPrice = PricesheetPrice/UnitHrs\r\n| distinct MeterID_g, SavingsPlanPrice;\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) > todatetime('{LookbackPeriod:startISO}') and todatetime(Date_s) < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and MeterCategory_s == 'Virtual Machines'\r\n| join kind=leftouter (\r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > ago(2d)\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | distinct SubscriptionId=SubscriptionGuid_g, SubscriptionName=ContainerName_s, Cloud=Cloud_s\r\n) on SubscriptionId\r\n| where Cloud == 'AzureCloud'\r\n| extend PricingModel = iif(isnotempty(PricingModel_s), PricingModel_s, iif(isnotempty(ReservationName_s), 'Reservation', iif(MeterName_s endswith 'Spot', 'Spot', iif(isnotempty(benefitName_s), 'SavingsPlan', 'OnDemand'))))\r\n| where PricingModel == 'OnDemand'\r\n| extend SubscriptionName = iif(isnotempty(SubscriptionName_s), SubscriptionName_s, SubscriptionName)\r\n| where SubscriptionName in ({Subscriptions})\r\n| join kind=inner ( OnDemandPriceSheet ) on $left.MeterId_g == $right.MeterID_g\r\n| extend ResourceLocation_s=tolower(ResourceLocation_s)\r\n| project Date_s, QtyHours=todouble(Quantity_s), BillingMeter=MeterName_s, ArmRegion=ResourceLocation_s, MeterId=MeterId_g, ResourceId, OnDemandPrice, SubscriptionName\r\n| join kind=inner ( SavingsPlanPriceSheet ) on $left.MeterId == $right.MeterID_g\r\n| extend SavingsPlanCost = QtyHours * SavingsPlanPrice\r\n| extend OnDemandCost = QtyHours * OnDemandPrice\r\n| extend SavingsPlanDiscount = 1 - SavingsPlanPrice / OnDemandPrice\r\n| extend MeterAndRegion = strcat(BillingMeter, ' - ', ArmRegion)\r\n| summarize HourlySavingsPlanCost=sum(SavingsPlanCost)/24, HourlyOnDemandCost=sum(OnDemandCost)/24, SavingsPlanDiscount=round(avg(SavingsPlanDiscount), 3) by Date_s, MeterAndRegion\r\n| order by todatetime(Date_s), SavingsPlanDiscount\r\n| extend SavingsPlanHourlyBalance = row_cumsum(HourlySavingsPlanCost, prev(Date_s) != Date_s)\r\n| extend CutOff = iif(prev(Date_s) != Date_s or prev(SavingsPlanHourlyBalance, 1, 0) < HourlyCommitment, false, true)\r\n| where not(CutOff)\r\n| extend SavingsAllocationPercentage = iif(SavingsPlanHourlyBalance < HourlyCommitment, 1.0, 1 - (SavingsPlanHourlyBalance - HourlyCommitment) / HourlySavingsPlanCost)\r\n| summarize SavedAmount=sum((HourlyOnDemandCost - HourlySavingsPlanCost) * SavingsAllocationPercentage)*24 by todatetime(Date_s)",
+              "size": 1,
+              "title": "Estimated savings (in your billing currency)",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "barchart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Reservation",
+                    "color": "green"
+                  },
+                  {
+                    "seriesName": "OnDemand",
+                    "color": "red"
+                  },
+                  {
+                    "seriesName": "SavedAmount",
+                    "label": "Saved Amount"
+                  }
+                ]
+              }
+            },
+            "name": "onDemandUsageSavingsPlansSimulation"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let HourlyCommitment = {HourlyCommitment};\r\nlet LinuxOnDemandPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s == 'Consumption' and MeterSubCategory_s !endswith \"Windows\"\r\n| extend MeterSubCategory_s = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Linux'))\r\n| summarize LinuxUnitPrice=max(todouble(UnitPrice_s)) by LinuxMeterId=MeterID_g, MeterName_s, MeterSubCategory_s, MeterRegion_s, LinuxUnitOfMeasure=UnitOfMeasure_s;\r\nlet OnDemandPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s == 'Consumption'\r\n| extend NonWindowsMeterSubcategory = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Windows'))\r\n| extend WindowsMeterSubCategory = MeterSubCategory_s\r\n| extend NonWindowsMeterSubcategory = substring(NonWindowsMeterSubcategory, 0, indexof(NonWindowsMeterSubcategory, ' Linux'))\r\n| summarize UnitPrice_s=max(todouble(UnitPrice_s)) by MeterID_g, MeterName_s, NonWindowsMeterSubcategory, WindowsMeterSubCategory, MeterRegion_s, UnitOfMeasure_s\r\n| join kind=leftouter ( LinuxOnDemandPriceSheet ) on MeterName_s, MeterRegion_s, $left.NonWindowsMeterSubcategory == $right.MeterSubCategory_s\r\n| extend PricesheetPrice = iif(isnotempty(LinuxUnitPrice), LinuxUnitPrice, UnitPrice_s)\r\n| extend PricesheetUnitOfMeasure = iif(isnotempty(LinuxUnitOfMeasure), LinuxUnitOfMeasure, UnitOfMeasure_s)\r\n| extend UnitHrs = toint(substring(PricesheetUnitOfMeasure, 0, indexof(PricesheetUnitOfMeasure, 'Hour')-1))\r\n| extend OnDemandPrice = PricesheetPrice/UnitHrs\r\n| distinct MeterID_g, OnDemandPrice;\r\nlet LinuxSavingsPlanPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s in ('Savings Plan','SavingsPlan') and MeterSubCategory_s !endswith \"Windows\" and Term_s == iif('{SavingsPlanTerm}' == '3 Years','P3Y','P1Y')\r\n| extend MeterSubCategory_s = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Linux'))\r\n| summarize LinuxUnitPrice=max(todouble(UnitPrice_s)) by LinuxMeterId=MeterID_g, MeterName_s, MeterSubCategory_s, MeterRegion_s, LinuxUnitOfMeasure=UnitOfMeasure_s;\r\nlet SavingsPlanPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s in ('Savings Plan','SavingsPlan') and Term_s == iif('{SavingsPlanTerm}' == '3 Years','P3Y','P1Y')\r\n| extend NonWindowsMeterSubcategory = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Windows'))\r\n| extend WindowsMeterSubCategory = MeterSubCategory_s\r\n| extend NonWindowsMeterSubcategory = substring(NonWindowsMeterSubcategory, 0, indexof(NonWindowsMeterSubcategory, ' Linux'))\r\n| summarize UnitPrice_s=max(todouble(UnitPrice_s)) by MeterID_g, MeterName_s, NonWindowsMeterSubcategory, WindowsMeterSubCategory, MeterRegion_s, UnitOfMeasure_s\r\n| join kind=leftouter ( LinuxSavingsPlanPriceSheet ) on MeterName_s, MeterRegion_s, $left.NonWindowsMeterSubcategory == $right.MeterSubCategory_s\r\n| extend PricesheetPrice = iif(isnotempty(LinuxUnitPrice), LinuxUnitPrice, UnitPrice_s)\r\n| extend PricesheetUnitOfMeasure = iif(isnotempty(LinuxUnitOfMeasure), LinuxUnitOfMeasure, UnitOfMeasure_s)\r\n| extend UnitHrs = toint(substring(PricesheetUnitOfMeasure, 0, indexof(PricesheetUnitOfMeasure, 'Hour')-1))\r\n| extend SavingsPlanPrice = PricesheetPrice/UnitHrs\r\n| distinct MeterID_g, SavingsPlanPrice;\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) > todatetime('{LookbackPeriod:startISO}') and todatetime(Date_s) < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and MeterCategory_s == 'Virtual Machines'\r\n| join kind=leftouter (\r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > ago(2d)\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | distinct SubscriptionId=SubscriptionGuid_g, SubscriptionName=ContainerName_s, Cloud=Cloud_s\r\n) on SubscriptionId\r\n| where Cloud == 'AzureCloud'\r\n| extend PricingModel = iif(isnotempty(PricingModel_s), PricingModel_s, iif(isnotempty(ReservationName_s), 'Reservation', iif(MeterName_s endswith 'Spot', 'Spot', iif(isnotempty(benefitName_s), 'SavingsPlan', 'OnDemand'))))\r\n| where PricingModel == 'OnDemand'\r\n| extend SubscriptionName = iif(isnotempty(SubscriptionName_s), SubscriptionName_s, SubscriptionName)\r\n| where SubscriptionName in ({Subscriptions})\r\n| join kind=inner ( OnDemandPriceSheet ) on $left.MeterId_g == $right.MeterID_g\r\n| extend ResourceLocation_s=tolower(ResourceLocation_s)\r\n| project Date_s, QtyHours=todouble(Quantity_s), BillingMeter=MeterName_s, ArmRegion=ResourceLocation_s, MeterId=MeterId_g, ResourceId, OnDemandPrice, SubscriptionName\r\n| join kind=inner ( SavingsPlanPriceSheet ) on $left.MeterId == $right.MeterID_g\r\n| extend SavingsPlanCost = QtyHours * SavingsPlanPrice\r\n| extend OnDemandCost = QtyHours * OnDemandPrice\r\n| extend SavingsPlanDiscount = 1 - SavingsPlanPrice / OnDemandPrice\r\n| extend MeterAndRegion = strcat(BillingMeter, ' - ', ArmRegion)\r\n| summarize HourlySavingsPlanCost=sum(SavingsPlanCost)/24, HourlyOnDemandCost=sum(OnDemandCost)/24, SavingsPlanDiscount=round(avg(SavingsPlanDiscount), 3) by Date_s, MeterAndRegion\r\n| order by todatetime(Date_s), SavingsPlanDiscount\r\n| extend SavingsPlanHourlyBalance = row_cumsum(HourlySavingsPlanCost, prev(Date_s) != Date_s)\r\n| extend CutOff = iif(prev(Date_s) != Date_s or prev(SavingsPlanHourlyBalance, 1, 0) < HourlyCommitment, false, true)\r\n| where not(CutOff)\r\n| extend SavingsAllocationPercentage = iif(SavingsPlanHourlyBalance < HourlyCommitment, 1.0, 1 - (SavingsPlanHourlyBalance - HourlyCommitment) / HourlySavingsPlanCost)\r\n| summarize SavedAmount=sum((HourlyOnDemandCost - HourlySavingsPlanCost) * SavingsAllocationPercentage)*24, AmountWouldSpendOnDemand=(sum(HourlyOnDemandCost * SavingsAllocationPercentage))*24 by Date_s\r\n| extend SavedPercentage = SavedAmount / AmountWouldSpendOnDemand\r\n| project SavedPercentage, todatetime(Date_s)",
+              "size": 1,
+              "aggregation": 3,
+              "title": "Estimated savings (percentage)",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "barchart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Reservation",
+                    "color": "green"
+                  },
+                  {
+                    "seriesName": "OnDemand",
+                    "color": "red"
+                  },
+                  {
+                    "seriesName": "SavingsPlanUsagePercentage",
+                    "label": "Efficiency"
+                  }
+                ],
+                "ySettings": {
+                  "numberFormatSettings": {
+                    "unit": 17,
+                    "options": {
+                      "style": "percent",
+                      "useGrouping": true
+                    }
+                  }
+                }
+              }
+            },
+            "name": "onDemandUsageSavingsPlansPercentageSimulation"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let HourlyCommitment = {HourlyCommitment};\r\nlet LinuxOnDemandPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s == 'Consumption' and MeterSubCategory_s !endswith \"Windows\"\r\n| extend MeterSubCategory_s = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Linux'))\r\n| summarize LinuxUnitPrice=max(todouble(UnitPrice_s)) by LinuxMeterId=MeterID_g, MeterName_s, MeterSubCategory_s, MeterRegion_s, LinuxUnitOfMeasure=UnitOfMeasure_s;\r\nlet OnDemandPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s == 'Consumption'\r\n| extend NonWindowsMeterSubcategory = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Windows'))\r\n| extend WindowsMeterSubCategory = MeterSubCategory_s\r\n| extend NonWindowsMeterSubcategory = substring(NonWindowsMeterSubcategory, 0, indexof(NonWindowsMeterSubcategory, ' Linux'))\r\n| summarize UnitPrice_s=max(todouble(UnitPrice_s)) by MeterID_g, MeterName_s, NonWindowsMeterSubcategory, WindowsMeterSubCategory, MeterRegion_s, UnitOfMeasure_s\r\n| join kind=leftouter ( LinuxOnDemandPriceSheet ) on MeterName_s, MeterRegion_s, $left.NonWindowsMeterSubcategory == $right.MeterSubCategory_s\r\n| extend PricesheetPrice = iif(isnotempty(LinuxUnitPrice), LinuxUnitPrice, UnitPrice_s)\r\n| extend PricesheetUnitOfMeasure = iif(isnotempty(LinuxUnitOfMeasure), LinuxUnitOfMeasure, UnitOfMeasure_s)\r\n| extend UnitHrs = toint(substring(PricesheetUnitOfMeasure, 0, indexof(PricesheetUnitOfMeasure, 'Hour')-1))\r\n| extend OnDemandPrice = PricesheetPrice/UnitHrs\r\n| distinct MeterID_g, OnDemandPrice;\r\nlet LinuxSavingsPlanPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s in ('Savings Plan','SavingsPlan') and MeterSubCategory_s !endswith \"Windows\" and Term_s == iif('{SavingsPlanTerm}' == '3 Years','P3Y','P1Y')\r\n| extend MeterSubCategory_s = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Linux'))\r\n| summarize LinuxUnitPrice=max(todouble(UnitPrice_s)) by LinuxMeterId=MeterID_g, MeterName_s, MeterSubCategory_s, MeterRegion_s, LinuxUnitOfMeasure=UnitOfMeasure_s;\r\nlet SavingsPlanPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s in ('Savings Plan','SavingsPlan') and Term_s == iif('{SavingsPlanTerm}' == '3 Years','P3Y','P1Y')\r\n| extend NonWindowsMeterSubcategory = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Windows'))\r\n| extend WindowsMeterSubCategory = MeterSubCategory_s\r\n| extend NonWindowsMeterSubcategory = substring(NonWindowsMeterSubcategory, 0, indexof(NonWindowsMeterSubcategory, ' Linux'))\r\n| summarize UnitPrice_s=max(todouble(UnitPrice_s)) by MeterID_g, MeterName_s, NonWindowsMeterSubcategory, WindowsMeterSubCategory, MeterRegion_s, UnitOfMeasure_s\r\n| join kind=leftouter ( LinuxSavingsPlanPriceSheet ) on MeterName_s, MeterRegion_s, $left.NonWindowsMeterSubcategory == $right.MeterSubCategory_s\r\n| extend PricesheetPrice = iif(isnotempty(LinuxUnitPrice), LinuxUnitPrice, UnitPrice_s)\r\n| extend PricesheetUnitOfMeasure = iif(isnotempty(LinuxUnitOfMeasure), LinuxUnitOfMeasure, UnitOfMeasure_s)\r\n| extend UnitHrs = toint(substring(PricesheetUnitOfMeasure, 0, indexof(PricesheetUnitOfMeasure, 'Hour')-1))\r\n| extend SavingsPlanPrice = PricesheetPrice/UnitHrs\r\n| distinct MeterID_g, SavingsPlanPrice;\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) > todatetime('{LookbackPeriod:startISO}') and todatetime(Date_s) < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and MeterCategory_s == 'Virtual Machines'\r\n| join kind=leftouter (\r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > ago(2d)\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | distinct SubscriptionId=SubscriptionGuid_g, SubscriptionName=ContainerName_s, Cloud=Cloud_s\r\n) on SubscriptionId\r\n| where Cloud == 'AzureCloud'\r\n| extend PricingModel = iif(isnotempty(PricingModel_s), PricingModel_s, iif(isnotempty(ReservationName_s), 'Reservation', iif(MeterName_s endswith 'Spot', 'Spot', iif(isnotempty(benefitName_s), 'SavingsPlan', 'OnDemand'))))\r\n| where PricingModel == 'OnDemand'\r\n| extend SubscriptionName = iif(isnotempty(SubscriptionName_s), SubscriptionName_s, SubscriptionName)\r\n| where SubscriptionName in ({Subscriptions})\r\n| join kind=inner ( OnDemandPriceSheet ) on $left.MeterId_g == $right.MeterID_g\r\n| extend ResourceLocation_s=tolower(ResourceLocation_s)\r\n| project Date_s, QtyHours=todouble(Quantity_s), BillingMeter=MeterName_s, ArmRegion=ResourceLocation_s, MeterId=MeterId_g, ResourceId, OnDemandPrice=OnDemandPrice, SubscriptionName\r\n| join kind=inner ( SavingsPlanPriceSheet ) on $left.MeterId == $right.MeterID_g\r\n| extend SavingsPlanCost = QtyHours * SavingsPlanPrice\r\n| extend OnDemandCost = QtyHours * OnDemandPrice\r\n| extend SavingsPlanDiscount = 1 - SavingsPlanPrice / OnDemandPrice\r\n| extend MeterAndRegion = strcat(BillingMeter, ' - ', ArmRegion)\r\n| summarize HourlySavingsPlanCost=sum(SavingsPlanCost)/24, HourlyOnDemandCost=sum(OnDemandCost)/24, SavingsPlanDiscount=round(avg(SavingsPlanDiscount), 3) by Date_s, MeterAndRegion\r\n| order by todatetime(Date_s), SavingsPlanDiscount\r\n| extend SavingsPlanHourlyBalance = row_cumsum(HourlySavingsPlanCost, prev(Date_s) != Date_s)\r\n| extend CutOff = iif(prev(Date_s) != Date_s or prev(SavingsPlanHourlyBalance, 1, 0) < HourlyCommitment, false, true)\r\n| where not(CutOff)\r\n| extend SavingsAllocationPercentage = iif(SavingsPlanHourlyBalance < HourlyCommitment, 1.0, 1 - (SavingsPlanHourlyBalance - HourlyCommitment) / HourlySavingsPlanCost)\r\n| summarize AmountSpentOnSavingsPlan=(sum(HourlySavingsPlanCost * SavingsAllocationPercentage))*24 by todatetime(Date_s)\r\n| extend SavingsPlanUsagePercentage = AmountSpentOnSavingsPlan / ({HourlyCommitment}*24)\r\n| project-away AmountSpentOnSavingsPlan",
+              "size": 1,
+              "aggregation": 3,
+              "title": "Estimated efficiency",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "barchart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Reservation",
+                    "color": "green"
+                  },
+                  {
+                    "seriesName": "OnDemand",
+                    "color": "red"
+                  },
+                  {
+                    "seriesName": "SavingsPlanUsagePercentage",
+                    "label": "Savings Plan Usage"
+                  }
+                ],
+                "customThresholdLine": "1",
+                "customThresholdLineStyle": 4,
+                "ySettings": {
+                  "numberFormatSettings": {
+                    "unit": 17,
+                    "options": {
+                      "style": "percent",
+                      "useGrouping": true
+                    }
+                  }
+                }
+              }
+            },
+            "name": "onDemandUsageSavingsPlansEfficiencySimulation"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "SavingsPlans"
+      },
+      "name": "savingsPlansGroup"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "Enter the number of reserved instances for a given size and region to estimate your savings according to the lookback period.",
+              "style": "info"
+            },
+            "name": "text - 5"
+          },
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "5955658a-2b0d-4e33-b68d-a55f0792bd48",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "ReservationTerm",
+                  "label": "Reservation Term",
+                  "type": 10,
+                  "description": "Reservation term to get the Reservations prices from",
+                  "isRequired": true,
+                  "typeSettings": {
+                    "additionalResourceOptions": []
+                  },
+                  "jsonData": "[\"1 Year\", \"3 Years\"]",
+                  "timeContext": {
+                    "durationMs": 86400000
+                  },
+                  "value": "3 Years"
+                },
+                {
+                  "version": "KqlParameterItem/1.0",
+                  "name": "UseISF",
+                  "label": "Instance Size Flexibility?",
+                  "type": 10,
+                  "isRequired": true,
+                  "typeSettings": {
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "jsonData": "[\"Yes\", \"No\"]",
+                  "timeContext": {
+                    "durationMs": 86400000
+                  },
+                  "value": "No",
+                  "id": "a3a21a9b-d89d-4d30-a3fd-0ec6a1896602"
+                },
+                {
+                  "id": "8b97a186-0656-4edc-bc7f-d2077ba9ade0",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "VMSize",
+                  "label": "Size",
+                  "type": 2,
+                  "isRequired": true,
+                  "query": "let ISFGroups = externaldata(ISFGroup:string, ArmSKUName:string, Ratio:double) [@\"https://aka.ms/isf\"] with(ignoreFirstRecord=true) | extend ArmSKUName=tolower(ArmSKUName);\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) > todatetime('{LookbackPeriod:startISO}') and todatetime(Date_s) < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and MeterCategory_s == 'Virtual Machines'\r\n| join kind=leftouter (\r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > ago(2d)\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | distinct SubscriptionId=SubscriptionGuid_g, SubscriptionName=ContainerName_s, Cloud=Cloud_s\r\n) on SubscriptionId\r\n| where Cloud == 'AzureCloud'\r\n| extend PricingModel = iif(isnotempty(PricingModel_s), PricingModel_s, iif(isnotempty(ReservationName_s), 'Reservation', iif(MeterName_s endswith 'Spot', 'Spot', iif(isnotempty(benefitName_s), 'SavingsPlan', 'OnDemand'))))\r\n| where PricingModel == 'OnDemand'\r\n| extend SubscriptionName = iif(isnotempty(SubscriptionName_s), SubscriptionName_s, SubscriptionName)\r\n| where SubscriptionName in ({Subscriptions})\r\n| extend ServiceType = tolower(parse_json(AdditionalInfo_s).ServiceType)\r\n| join kind=inner ( ISFGroups ) on $left.ServiceType == $right.ArmSKUName\r\n| distinct ServiceType\r\n| order by ServiceType asc",
+                  "typeSettings": {
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "timeContext": {
+                    "durationMs": 0
+                  },
+                  "timeContextFromParameter": "LookbackPeriod",
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces",
+                  "value": null
+                },
+                {
+                  "id": "52beb8df-e32a-4ce1-b38e-c363c2a4714f",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "VMRegion",
+                  "label": "Region",
+                  "type": 2,
+                  "isRequired": true,
+                  "query": "let ISFGroups = externaldata(ISFGroup:string, ArmSKUName:string, Ratio:double) [@\"https://aka.ms/isf\"] with(ignoreFirstRecord=true) | extend ArmSKUName=tolower(ArmSKUName);\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) > todatetime('{LookbackPeriod:startISO}') and todatetime(Date_s) < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and MeterCategory_s == 'Virtual Machines'\r\n| join kind=leftouter (\r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > ago(2d)\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | distinct SubscriptionId=SubscriptionGuid_g, SubscriptionName=ContainerName_s, Cloud=Cloud_s\r\n) on SubscriptionId\r\n| where Cloud == 'AzureCloud'\r\n| extend PricingModel = iif(isnotempty(PricingModel_s), PricingModel_s, iif(isnotempty(ReservationName_s), 'Reservation', iif(MeterName_s endswith 'Spot', 'Spot', iif(isnotempty(benefitName_s), 'SavingsPlan', 'OnDemand'))))\r\n| where PricingModel == 'OnDemand'\r\n| extend SubscriptionName = iif(isnotempty(SubscriptionName_s), SubscriptionName_s, SubscriptionName)\r\n| where SubscriptionName in ({Subscriptions})\r\n| extend ServiceType = tolower(parse_json(AdditionalInfo_s).ServiceType)\r\n| join kind=inner ( ISFGroups ) on $left.ServiceType == $right.ArmSKUName\r\n| where ServiceType == '{VMSize}'\r\n| extend ResourceLocation_s=tolower(ResourceLocation_s)\r\n| distinct ResourceLocation_s\r\n| order by ResourceLocation_s asc",
+                  "typeSettings": {
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "timeContext": {
+                    "durationMs": 2592000000
+                  },
+                  "timeContextFromParameter": "LookbackPeriod",
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces",
+                  "value": null
+                },
+                {
+                  "id": "fa4fe488-5590-4df7-8a22-a3f9639892e6",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "VMQuantity",
+                  "label": "Quantity",
+                  "type": 1,
+                  "isRequired": true,
+                  "timeContext": {
+                    "durationMs": 0
+                  },
+                  "timeContextFromParameter": "LookbackPeriod",
+                  "value": ""
+                }
+              ],
+              "style": "above",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces"
+            },
+            "name": "reservationsParameters"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let ISFGroups = materialize(externaldata(ISFGroup:string, ArmSKUName:string, Ratio:double) [@\"https://aka.ms/isf\"] with(ignoreFirstRecord=true) | extend ArmSKUName=tolower(ArmSKUName));\r\nlet SelectedISFGroup = toscalar(ISFGroups | where ArmSKUName == '{VMSize}' | project ISFGroup);\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) > todatetime('{LookbackPeriod:startISO}') and todatetime(Date_s) < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and MeterCategory_s == 'Virtual Machines'\r\n| join kind=leftouter (\r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > ago(2d)\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | distinct SubscriptionId=SubscriptionGuid_g, SubscriptionName=ContainerName_s, Cloud=Cloud_s\r\n) on SubscriptionId\r\n| where Cloud == 'AzureCloud'\r\n| extend PricingModel = iif(isnotempty(PricingModel_s), PricingModel_s, iif(isnotempty(ReservationName_s), 'Reservation', iif(MeterName_s endswith 'Spot', 'Spot', iif(isnotempty(benefitName_s), 'SavingsPlan', 'OnDemand'))))\r\n| where PricingModel == 'OnDemand'\r\n| extend SubscriptionName = iif(isnotempty(SubscriptionName_s), SubscriptionName_s, SubscriptionName)\r\n| where SubscriptionName in ({Subscriptions})\r\n| extend ServiceType = tolower(parse_json(AdditionalInfo_s).ServiceType)\r\n| join kind=inner ( ISFGroups ) on $left.ServiceType == $right.ArmSKUName\r\n| project Date_s, QtyHours=todouble(Quantity_s), ArmRegion=tolower(ResourceLocation_s), MeterId=MeterId_g, ResourceId, ServiceType, SubscriptionName, ISFGroup\r\n| where iif('{UseISF}' == 'Yes', ISFGroup == SelectedISFGroup, ServiceType == '{VMSize}')\r\n| where ArmRegion == '{VMRegion}'\r\n| extend ReservationSKU = strcat(ServiceType, ' ', ArmRegion)\r\n| summarize HourlyVMs=sum(QtyHours/24) by bin(todatetime(Date_s), 1d), ReservationSKU",
+              "size": 1,
+              "aggregation": 3,
+              "title": "Average On-Demand usage (VMs #)",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "barchart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Reservation",
+                    "color": "green"
+                  },
+                  {
+                    "seriesName": "OnDemand",
+                    "color": "red"
+                  }
+                ]
+              }
+            },
+            "name": "onDemandUsageReservationsPerspective"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let ISFGroups = materialize(externaldata(ISFGroup:string, ArmSKUName:string, Ratio:double) [@\"https://aka.ms/isf\"] with(ignoreFirstRecord=true) | extend ArmSKUName=tolower(ArmSKUName));\r\nlet SelectedISFGroup = toscalar(ISFGroups | where ArmSKUName == '{VMSize}' | project ISFGroup);\r\nlet ISFRatio = toscalar(ISFGroups | where ArmSKUName == '{VMSize}' | project Ratio);\r\nlet TermDivider = iif('{ReservationTerm}' == '3 Years', 3, 1);\r\nlet VMQuantity = {VMQuantity};\r\nlet LinuxOnDemandPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s == 'Consumption' and MeterSubCategory_s !endswith \"Windows\"\r\n| extend MeterSubCategory_s = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Linux'))\r\n| summarize LinuxUnitPrice=max(todouble(UnitPrice_s)) by LinuxMeterId=MeterID_g, MeterName_s, MeterSubCategory_s, MeterRegion_s, LinuxUnitOfMeasure=UnitOfMeasure_s;\r\nlet OnDemandPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s == 'Consumption'\r\n| extend NonWindowsMeterSubcategory = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Windows'))\r\n| extend WindowsMeterSubCategory = MeterSubCategory_s\r\n| extend NonWindowsMeterSubcategory = substring(NonWindowsMeterSubcategory, 0, indexof(NonWindowsMeterSubcategory, ' Linux'))\r\n| summarize UnitPrice_s=max(todouble(UnitPrice_s)) by MeterID_g, MeterName_s, NonWindowsMeterSubcategory, WindowsMeterSubCategory, MeterRegion_s, UnitOfMeasure_s\r\n| join kind=leftouter ( LinuxOnDemandPriceSheet ) on MeterName_s, MeterRegion_s, $left.NonWindowsMeterSubcategory == $right.MeterSubCategory_s\r\n| extend PricesheetPrice = iif(isnotempty(LinuxUnitPrice), LinuxUnitPrice, UnitPrice_s)\r\n| extend PricesheetUnitOfMeasure = iif(isnotempty(LinuxUnitOfMeasure), LinuxUnitOfMeasure, UnitOfMeasure_s)\r\n| extend UnitHrs = toint(substring(PricesheetUnitOfMeasure, 0, indexof(PricesheetUnitOfMeasure, 'Hour')-1))\r\n| extend OnDemandPrice = PricesheetPrice/UnitHrs\r\n| distinct MeterID_g, OnDemandPrice;\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) > todatetime('{LookbackPeriod:startISO}') and todatetime(Date_s) < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and MeterCategory_s == 'Virtual Machines'\r\n| join kind=leftouter (\r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > ago(2d)\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | distinct SubscriptionId=SubscriptionGuid_g, SubscriptionName=ContainerName_s, Cloud=Cloud_s\r\n) on SubscriptionId\r\n| where Cloud == 'AzureCloud'\r\n| extend PricingModel = iif(isnotempty(PricingModel_s), PricingModel_s, iif(isnotempty(ReservationName_s), 'Reservation', iif(MeterName_s endswith 'Spot', 'Spot', iif(isnotempty(benefitName_s), 'SavingsPlan', 'OnDemand'))))\r\n| where PricingModel == 'OnDemand'\r\n| extend SubscriptionName = iif(isnotempty(SubscriptionName_s), SubscriptionName_s, SubscriptionName)\r\n| where SubscriptionName in ({Subscriptions})\r\n| extend ServiceType = tolower(parse_json(AdditionalInfo_s).ServiceType)\r\n| join kind=inner ( OnDemandPriceSheet ) on $left.MeterId_g == $right.MeterID_g\r\n| project Date_s, QtyHours=todouble(Quantity_s), ArmRegion=tolower(ResourceLocation_s), ServiceType, MeterId=MeterId_g, ResourceId, OnDemandPrice, SubscriptionName\r\n| join kind=inner ( ISFGroups ) on $left.ServiceType == $right.ArmSKUName\r\n| where iif('{UseISF}' == 'Yes', ISFGroup == SelectedISFGroup, ServiceType == '{VMSize}')\r\n| where ArmRegion == '{VMRegion}'\r\n| join kind=inner ( \r\n    AzureOptimizationReservationsPriceV1_CL\r\n    | where TimeGenerated > ago(14d)\r\n    | where serviceName_s == 'Virtual Machines' and reservationTerm_s == '{ReservationTerm}'\r\n    | extend ReservationPrice = todouble(replace_string(unitPrice_s,',','.'))/TermDivider/12/730\r\n    | summarize arg_max(TimeGenerated, ReservationPrice) by ArmRegion=tolower(armRegionName_s), ServiceType=tolower(armSkuName_s)\r\n) on ArmRegion and ServiceType\r\n| order by todatetime(Date_s)\r\n| extend RIConsumed = row_cumsum(QtyHours * Ratio / ISFRatio / 24, prev(Date_s) != Date_s)\r\n| extend CutOff = iif(prev(Date_s) != Date_s or prev(RIConsumed, 1, 0) < VMQuantity, false, true)\r\n| where not(CutOff)\r\n| extend RICost = QtyHours * ReservationPrice\r\n| extend OnDemandCost = QtyHours * OnDemandPrice\r\n| summarize DailyRICost=sum(RICost), DailyOnDemandCost=sum(OnDemandCost), MaxRIConsumed=max(RIConsumed) by Date_s\r\n| extend RIAllocationPercentage = iif(MaxRIConsumed < VMQuantity, 1.0, 1 - (MaxRIConsumed - VMQuantity) / MaxRIConsumed)\r\n| project todatetime(Date_s), SavedAmount = (DailyOnDemandCost-DailyRICost) * RIAllocationPercentage\r\n",
+              "size": 1,
+              "title": "Estimated savings (in your billing currency)",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "barchart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Reservation",
+                    "color": "green"
+                  },
+                  {
+                    "seriesName": "OnDemand",
+                    "color": "red"
+                  },
+                  {
+                    "seriesName": "SavedAmount",
+                    "label": "Saved Amount"
+                  }
+                ]
+              }
+            },
+            "name": "onDemandUsageRISimulation"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let ISFGroups = materialize(externaldata(ISFGroup:string, ArmSKUName:string, Ratio:double) [@\"https://aka.ms/isf\"] with(ignoreFirstRecord=true) | extend ArmSKUName=tolower(ArmSKUName));\r\nlet SelectedISFGroup = toscalar(ISFGroups | where ArmSKUName == '{VMSize}' | project ISFGroup);\r\nlet ISFRatio = toscalar(ISFGroups | where ArmSKUName == '{VMSize}' | project Ratio);\r\nlet TermDivider = iif('{ReservationTerm}' == '3 Years', 3, 1);\r\nlet VMQuantity = {VMQuantity};\r\nlet LinuxOnDemandPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s == 'Consumption' and MeterSubCategory_s !endswith \"Windows\"\r\n| extend MeterSubCategory_s = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Linux'))\r\n| summarize LinuxUnitPrice=max(todouble(UnitPrice_s)) by LinuxMeterId=MeterID_g, MeterName_s, MeterSubCategory_s, MeterRegion_s, LinuxUnitOfMeasure=UnitOfMeasure_s;\r\nlet OnDemandPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s == 'Consumption'\r\n| extend NonWindowsMeterSubcategory = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Windows'))\r\n| extend WindowsMeterSubCategory = MeterSubCategory_s\r\n| extend NonWindowsMeterSubcategory = substring(NonWindowsMeterSubcategory, 0, indexof(NonWindowsMeterSubcategory, ' Linux'))\r\n| summarize UnitPrice_s=max(todouble(UnitPrice_s)) by MeterID_g, MeterName_s, NonWindowsMeterSubcategory, WindowsMeterSubCategory, MeterRegion_s, UnitOfMeasure_s\r\n| join kind=leftouter ( LinuxOnDemandPriceSheet ) on MeterName_s, MeterRegion_s, $left.NonWindowsMeterSubcategory == $right.MeterSubCategory_s\r\n| extend PricesheetPrice = iif(isnotempty(LinuxUnitPrice), LinuxUnitPrice, UnitPrice_s)\r\n| extend PricesheetUnitOfMeasure = iif(isnotempty(LinuxUnitOfMeasure), LinuxUnitOfMeasure, UnitOfMeasure_s)\r\n| extend UnitHrs = toint(substring(PricesheetUnitOfMeasure, 0, indexof(PricesheetUnitOfMeasure, 'Hour')-1))\r\n| extend OnDemandPrice = PricesheetPrice/UnitHrs\r\n| distinct MeterID_g, OnDemandPrice;\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) > todatetime('{LookbackPeriod:startISO}') and todatetime(Date_s) < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and MeterCategory_s == 'Virtual Machines'\r\n| join kind=leftouter (\r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > ago(2d)\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | distinct SubscriptionId=SubscriptionGuid_g, SubscriptionName=ContainerName_s, Cloud=Cloud_s\r\n) on SubscriptionId\r\n| where Cloud == 'AzureCloud'\r\n| extend PricingModel = iif(isnotempty(PricingModel_s), PricingModel_s, iif(isnotempty(ReservationName_s), 'Reservation', iif(MeterName_s endswith 'Spot', 'Spot', iif(isnotempty(benefitName_s), 'SavingsPlan', 'OnDemand'))))\r\n| where PricingModel == 'OnDemand'\r\n| extend SubscriptionName = iif(isnotempty(SubscriptionName_s), SubscriptionName_s, SubscriptionName)\r\n| where SubscriptionName in ({Subscriptions})\r\n| extend ServiceType = tolower(parse_json(AdditionalInfo_s).ServiceType)\r\n| join kind=inner ( OnDemandPriceSheet ) on $left.MeterId_g == $right.MeterID_g\r\n| project Date_s, QtyHours=todouble(Quantity_s), ArmRegion=tolower(ResourceLocation_s), ServiceType, MeterId=MeterId_g, ResourceId, OnDemandPrice, SubscriptionName\r\n| join kind=inner ( ISFGroups ) on $left.ServiceType == $right.ArmSKUName\r\n| where iif('{UseISF}' == 'Yes', ISFGroup == SelectedISFGroup, ServiceType == '{VMSize}')\r\n| where ArmRegion == '{VMRegion}'\r\n| join kind=inner ( \r\n    AzureOptimizationReservationsPriceV1_CL\r\n    | where TimeGenerated > ago(14d)\r\n    | where serviceName_s == 'Virtual Machines' and reservationTerm_s == '{ReservationTerm}'\r\n    | extend ReservationPrice = todouble(replace_string(unitPrice_s,',','.'))/TermDivider/12/730\r\n    | summarize arg_max(TimeGenerated, ReservationPrice) by ArmRegion=tolower(armRegionName_s), ServiceType=tolower(armSkuName_s)\r\n) on ArmRegion and ServiceType\r\n| order by todatetime(Date_s)\r\n| extend RIConsumed = row_cumsum(QtyHours * Ratio / ISFRatio / 24, prev(Date_s) != Date_s)\r\n| extend CutOff = iif(prev(Date_s) != Date_s or prev(RIConsumed, 1, 0) < VMQuantity, false, true)\r\n| where not(CutOff)\r\n| extend RICost = QtyHours * ReservationPrice\r\n| extend OnDemandCost = QtyHours * OnDemandPrice\r\n| summarize DailyRICost=sum(RICost), DailyOnDemandCost=sum(OnDemandCost), MaxRIConsumed=max(RIConsumed) by Date_s\r\n| extend RIAllocationPercentage = iif(MaxRIConsumed < VMQuantity, 1.0, 1 - (MaxRIConsumed - VMQuantity) / MaxRIConsumed)\r\n| project Date_s, SavedAmount = (DailyOnDemandCost-DailyRICost) * RIAllocationPercentage, AmountWouldSpendOnDemand = DailyOnDemandCost * RIAllocationPercentage\r\n| extend SavedPercentage = SavedAmount / AmountWouldSpendOnDemand\r\n| project SavedPercentage, todatetime(Date_s)",
+              "size": 1,
+              "aggregation": 3,
+              "title": "Estimated savings (percentage)",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "barchart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Reservation",
+                    "color": "green"
+                  },
+                  {
+                    "seriesName": "OnDemand",
+                    "color": "red"
+                  },
+                  {
+                    "seriesName": "SavingsPlanUsagePercentage",
+                    "label": "Efficiency"
+                  }
+                ],
+                "ySettings": {
+                  "numberFormatSettings": {
+                    "unit": 17,
+                    "options": {
+                      "style": "percent",
+                      "useGrouping": true
+                    }
+                  }
+                }
+              }
+            },
+            "name": "onDemandUsageRIPercentageSimulation"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let ISFGroups = materialize(externaldata(ISFGroup:string, ArmSKUName:string, Ratio:double) [@\"https://aka.ms/isf\"] with(ignoreFirstRecord=true) | extend ArmSKUName=tolower(ArmSKUName));\r\nlet SelectedISFGroup = toscalar(ISFGroups | where ArmSKUName == '{VMSize}' | project ISFGroup);\r\nlet ISFRatio = toscalar(ISFGroups | where ArmSKUName == '{VMSize}' | project Ratio);\r\nlet TermDivider = iif('{ReservationTerm}' == '3 Years', 3, 1);\r\nlet VMQuantity = {VMQuantity};\r\nlet LinuxOnDemandPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s == 'Consumption' and MeterSubCategory_s !endswith \"Windows\"\r\n| extend MeterSubCategory_s = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Linux'))\r\n| summarize LinuxUnitPrice=max(todouble(UnitPrice_s)) by LinuxMeterId=MeterID_g, MeterName_s, MeterSubCategory_s, MeterRegion_s, LinuxUnitOfMeasure=UnitOfMeasure_s;\r\nlet OnDemandPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s == 'Consumption'\r\n| extend NonWindowsMeterSubcategory = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Windows'))\r\n| extend WindowsMeterSubCategory = MeterSubCategory_s\r\n| extend NonWindowsMeterSubcategory = substring(NonWindowsMeterSubcategory, 0, indexof(NonWindowsMeterSubcategory, ' Linux'))\r\n| summarize UnitPrice_s=max(todouble(UnitPrice_s)) by MeterID_g, MeterName_s, NonWindowsMeterSubcategory, WindowsMeterSubCategory, MeterRegion_s, UnitOfMeasure_s\r\n| join kind=leftouter ( LinuxOnDemandPriceSheet ) on MeterName_s, MeterRegion_s, $left.NonWindowsMeterSubcategory == $right.MeterSubCategory_s\r\n| extend PricesheetPrice = iif(isnotempty(LinuxUnitPrice), LinuxUnitPrice, UnitPrice_s)\r\n| extend PricesheetUnitOfMeasure = iif(isnotempty(LinuxUnitOfMeasure), LinuxUnitOfMeasure, UnitOfMeasure_s)\r\n| extend UnitHrs = toint(substring(PricesheetUnitOfMeasure, 0, indexof(PricesheetUnitOfMeasure, 'Hour')-1))\r\n| extend OnDemandPrice = PricesheetPrice/UnitHrs\r\n| distinct MeterID_g, OnDemandPrice;\r\nAzureOptimizationConsumptionV1_CL\r\n| where todatetime(Date_s) > todatetime('{LookbackPeriod:startISO}') and todatetime(Date_s) < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and MeterCategory_s == 'Virtual Machines'\r\n| join kind=leftouter (\r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > ago(2d)\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | distinct SubscriptionId=SubscriptionGuid_g, SubscriptionName=ContainerName_s, Cloud=Cloud_s\r\n) on SubscriptionId\r\n| where Cloud == 'AzureCloud'\r\n| extend PricingModel = iif(isnotempty(PricingModel_s), PricingModel_s, iif(isnotempty(ReservationName_s), 'Reservation', iif(MeterName_s endswith 'Spot', 'Spot', iif(isnotempty(benefitName_s), 'SavingsPlan', 'OnDemand'))))\r\n| where PricingModel == 'OnDemand'\r\n| extend SubscriptionName = iif(isnotempty(SubscriptionName_s), SubscriptionName_s, SubscriptionName)\r\n| where SubscriptionName in ({Subscriptions})\r\n| extend ServiceType = tolower(parse_json(AdditionalInfo_s).ServiceType)\r\n| join kind=inner ( OnDemandPriceSheet ) on $left.MeterId_g == $right.MeterID_g\r\n| project Date_s, QtyHours=todouble(Quantity_s), ArmRegion=tolower(ResourceLocation_s), ServiceType, MeterId=MeterId_g, ResourceId, OnDemandPrice, SubscriptionName\r\n| join kind=inner ( ISFGroups ) on $left.ServiceType == $right.ArmSKUName\r\n| where iif('{UseISF}' == 'Yes', ISFGroup == SelectedISFGroup, ServiceType == '{VMSize}')\r\n| where ArmRegion == '{VMRegion}'\r\n| join kind=inner ( \r\n    AzureOptimizationReservationsPriceV1_CL\r\n    | where TimeGenerated > ago(14d)\r\n    | where serviceName_s == 'Virtual Machines' and reservationTerm_s == '{ReservationTerm}'\r\n    | extend ReservationPrice = todouble(replace_string(unitPrice_s,',','.'))/TermDivider/12/730\r\n    | summarize arg_max(TimeGenerated, ReservationPrice) by ArmRegion=tolower(armRegionName_s), ServiceType=tolower(armSkuName_s)\r\n) on ArmRegion and ServiceType\r\n| order by todatetime(Date_s)\r\n| extend RIConsumed = row_cumsum(QtyHours * Ratio / ISFRatio / 24, prev(Date_s) != Date_s)\r\n| extend CutOff = iif(prev(Date_s) != Date_s or prev(RIConsumed, 1, 0) < VMQuantity, false, true)\r\n| where not(CutOff)\r\n| summarize MaxRIConsumed=max(RIConsumed) by todatetime(Date_s)\r\n| extend RIUsagePercentage = iif(MaxRIConsumed >= VMQuantity, 1.0, MaxRIConsumed / VMQuantity)\r\n| project-away MaxRIConsumed",
+              "size": 1,
+              "aggregation": 3,
+              "title": "Estimated efficiency",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "barchart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Reservation",
+                    "color": "green"
+                  },
+                  {
+                    "seriesName": "OnDemand",
+                    "color": "red"
+                  },
+                  {
+                    "seriesName": "SavingsPlanUsagePercentage",
+                    "label": "Efficiency"
+                  },
+                  {
+                    "seriesName": "RIUsagePercentage",
+                    "label": "Reservation Usage"
+                  }
+                ],
+                "customThresholdLine": "1",
+                "customThresholdLineStyle": 4,
+                "ySettings": {
+                  "numberFormatSettings": {
+                    "unit": 17,
+                    "options": {
+                      "style": "percent",
+                      "useGrouping": true
+                    }
+                  }
+                }
+              }
+            },
+            "name": "onDemandUsageRIEfficiencySimulation"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Reservations"
+      },
+      "name": "reservationsGroup"
+    }
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

@@ -1,0 +1,1726 @@
+{
+    "version": "Notebook/1.0",
+    "items": [
+      {
+        "type": 9,
+        "content": {
+          "version": "KqlParameterItem/1.0",
+          "parameters": [
+            {
+              "id": "b58b4eb8-5821-44d2-bc7e-54054df27320",
+              "version": "KqlParameterItem/1.0",
+              "name": "LookbackPeriod",
+              "label": "Lookback Period",
+              "type": 4,
+              "isRequired": true,
+              "value": {
+                "durationMs": 2592000000
+              },
+              "typeSettings": {
+                "selectableValues": [
+                  {
+                    "durationMs": 604800000
+                  },
+                  {
+                    "durationMs": 1209600000
+                  },
+                  {
+                    "durationMs": 2592000000
+                  },
+                  {
+                    "durationMs": 5184000000
+                  },
+                  {
+                    "durationMs": 7776000000
+                  }
+                ],
+                "allowCustom": true
+              },
+              "timeContext": {
+                "durationMs": 86400000
+              }
+            },
+            {
+              "id": "08c51931-8b6c-419d-8de2-f9d24e8e6dd7",
+              "version": "KqlParameterItem/1.0",
+              "name": "ResourceType",
+              "label": "Resource Type",
+              "type": 2,
+              "isRequired": true,
+              "multiSelect": true,
+              "quote": "'",
+              "delimiter": ",",
+              "query": "AzureOptimizationReservationsUsageV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}') and TimeGenerated < todatetime('{LookbackPeriod:endISO}') and ProvisioningState_s == 'Succeeded'\r\n| distinct ResourceType\r\n| order by ResourceType asc",
+              "typeSettings": {
+                "additionalResourceOptions": [
+                  "value::all"
+                ],
+                "showDefault": false
+              },
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "LookbackPeriod",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "value": [
+                "value::all"
+              ]
+            },
+            {
+              "id": "5b2d78e9-7177-4d9b-86fa-2a9b12dd470a",
+              "version": "KqlParameterItem/1.0",
+              "name": "Reservation",
+              "type": 2,
+              "isRequired": true,
+              "multiSelect": true,
+              "quote": "'",
+              "delimiter": ",",
+              "query": "AzureOptimizationReservationsUsageV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}') and TimeGenerated < todatetime('{LookbackPeriod:endISO}') and ProvisioningState_s == 'Succeeded' and ResourceType in ({ResourceType:value})\r\n| distinct ReservationId_g, DisplayName_s\r\n| order by DisplayName_s asc",
+              "typeSettings": {
+                "additionalResourceOptions": [
+                  "value::all"
+                ],
+                "showDefault": false
+              },
+              "timeContext": {
+                "durationMs": 0
+              },
+              "timeContextFromParameter": "LookbackPeriod",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "value": [
+                "value::all"
+              ]
+            },
+            {
+              "version": "KqlParameterItem/1.0",
+              "name": "Aggregator",
+              "label": "Aggregator Tag",
+              "type": 1,
+              "isRequired": true,
+              "timeContext": {
+                "durationMs": 2592000000
+              },
+              "id": "a3fb4877-28ef-43fc-8821-376df486fa2a"
+            },
+            {
+              "id": "3e36a073-14b2-4406-a84a-1b6d0a15f363",
+              "version": "KqlParameterItem/1.0",
+              "name": "UseISF",
+              "label": "Instance Size Flexibility?",
+              "type": 10,
+              "description": "Groups reservation by ISF (excludes non-VM reservations)",
+              "isRequired": true,
+              "typeSettings": {
+                "additionalResourceOptions": [],
+                "showDefault": false
+              },
+              "jsonData": "[\"Yes\", \"No\"]",
+              "value": "No"
+            }
+          ],
+          "style": "above",
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces"
+        },
+        "name": "parameters"
+      },
+      {
+        "type": 1,
+        "content": {
+          "json": "Consumption data is updated once every 24 hours and is presented in the currency of your Azure consumption agreement.",
+          "style": "info"
+        },
+        "name": "text - 7"
+      },
+      {
+        "type": 1,
+        "content": {
+          "json": "If below tiles are reporting query errors, you must set up Pricesheet exports. See more details [here](https://aka.ms/AzureOptimizationEngine/commitmentssetup).",
+          "style": "warning"
+        },
+        "name": "text - 10"
+      },
+      {
+        "type": 11,
+        "content": {
+          "version": "LinkItem/1.0",
+          "style": "tabs",
+          "links": [
+            {
+              "id": "93e7a6c7-cb1f-49ee-b135-468b9f528b04",
+              "cellValue": "selectedTab",
+              "linkTarget": "parameter",
+              "linkLabel": "Reservation Usage Analysis",
+              "subTarget": "reservationAnalysis",
+              "style": "link"
+            },
+            {
+              "id": "abd2af9f-2f88-45a2-9d09-4b439e736a71",
+              "cellValue": "selectedTab",
+              "linkTarget": "parameter",
+              "linkLabel": "Usage by Tag",
+              "subTarget": "usageByTag",
+              "style": "link"
+            },
+            {
+              "id": "96332944-d3f7-4b0b-ad56-ab25a9e91049",
+              "cellValue": "selectedTab",
+              "linkTarget": "parameter",
+              "linkLabel": "Full Usage Report",
+              "subTarget": "fullReport",
+              "style": "link"
+            },
+            {
+              "id": "1f438af9-e6ff-470e-9b11-b1b5a701e51b",
+              "cellValue": "selectedTab",
+              "linkTarget": "parameter",
+              "linkLabel": "Unused Reservations Analysis",
+              "subTarget": "unusedReservations",
+              "style": "link"
+            }
+          ]
+        },
+        "name": "tabs"
+      },
+      {
+        "type": 12,
+        "content": {
+          "version": "NotebookGroup/1.0",
+          "groupType": "editable",
+          "items": [
+            {
+              "type": 3,
+              "content": {
+                "version": "KqlItem/1.0",
+                "query": "let LinuxOnDemandPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s == 'Consumption' and MeterSubCategory_s !endswith \"Windows\"\r\n| extend MeterSubCategory_s = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Linux'))\r\n| summarize LinuxUnitPrice=max(todouble(UnitPrice_s)) by LinuxMeterId=MeterID_g, MeterName_s, MeterSubCategory_s, MeterRegion_s, LinuxUnitOfMeasure=UnitOfMeasure_s;\r\nlet VMOnDemandPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s == 'Consumption'\r\n| extend NonWindowsMeterSubcategory = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Windows'))\r\n| extend WindowsMeterSubCategory = MeterSubCategory_s\r\n| extend NonWindowsMeterSubcategory = substring(NonWindowsMeterSubcategory, 0, indexof(NonWindowsMeterSubcategory, ' Linux'))\r\n| summarize UnitPrice_s=max(todouble(UnitPrice_s)) by MeterID_g, MeterName_s, NonWindowsMeterSubcategory, WindowsMeterSubCategory, MeterRegion_s, UnitOfMeasure_s\r\n| join kind=leftouter ( LinuxOnDemandPriceSheet ) on MeterName_s, MeterRegion_s, $left.NonWindowsMeterSubcategory == $right.MeterSubCategory_s\r\n| extend PricesheetPrice = iif(isnotempty(LinuxUnitPrice), LinuxUnitPrice, UnitPrice_s)\r\n| extend PricesheetUnitOfMeasure = iif(isnotempty(LinuxUnitOfMeasure), LinuxUnitOfMeasure, UnitOfMeasure_s)\r\n| extend UnitHrs = toint(substring(PricesheetUnitOfMeasure, 0, indexof(PricesheetUnitOfMeasure, 'Hour')-1))\r\n| extend OnDemandUnitPrice = PricesheetPrice/UnitHrs\r\n| distinct MeterID_g, OnDemandUnitPrice;\r\nlet OnDemandPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s != 'Virtual Machines' and PriceType_s == 'Consumption'\r\n| summarize OnDemandUnitPrice = max(todouble(UnitPrice_s)) by MeterID_g\r\n| distinct MeterID_g, OnDemandUnitPrice\r\n| union (VMOnDemandPriceSheet)\r\n| summarize OnDemandUnitPrice=min(OnDemandUnitPrice) by MeterID_g;\r\nlet ReservationPricesheet = AzureOptimizationReservationsPriceV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| extend Term_s = iif(reservationTerm_s == '3 Years', 'P3Y', 'P1Y')\r\n| extend TermDivider = iif(reservationTerm_s == '3 Years', 3, 1)\r\n| extend ReservationPrice = todouble(replace_string(unitPrice_s,',','.'))/TermDivider/12/730\r\n| summarize arg_max(TimeGenerated, ReservationPrice) by Location_s=tolower(armRegionName_s), SkuName=tolower(armSkuName_s), Term_s;\r\nlet ReservationOnDemandMeters = AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}') and TimeGenerated < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and isnotempty(ReservationName_s)\r\n| extend SkuName = tolower(parse_json(AdditionalInfo_s).ServiceType)\r\n| distinct ReservationId_g, MeterId_g, SkuName;\r\nAzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}') and TimeGenerated < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and isnotempty(ReservationName_s)\r\n| where ReservationId_g in ({Reservation:value})\r\n| extend RINormalizationRatio = tostring(parse_json(AdditionalInfo_s).RINormalizationRatio)\r\n| extend UsedRIs = todouble(Quantity_s) * todouble(RINormalizationRatio) / 24\r\n| summarize UsedRIsDaily=round(sum(UsedRIs),2) by Date_s, ReservationId_g\r\n| summarize AvgRIsUsedDaily=round(avg(UsedRIsDaily),2) by ReservationId_g\r\n| join kind=rightouter (\r\n    AzureOptimizationReservationsUsageV1_CL\r\n    | where TimeGenerated > ago(1d)\r\n    | where ReservationId_g in ({Reservation:value})\r\n    | summarize arg_max(TimeGenerated, *) by ReservationId_g\r\n    | where ProvisioningState_s == 'Succeeded'\r\n    | project ReservationId_g, ReservationName_s=DisplayName_s, SKUName_s, Location_s, Util7Days_s, Util30Days_s, TotalReservedQuantity_s, Term_s\r\n) on ReservationId_g\r\n| project ReservationId_g=ReservationId_g1, ReservationName_s, TotalReservedQuantity_s, SKUName_s=tolower(SKUName_s), Location_s, AvgRIsUsedDaily=iif(isempty(AvgRIsUsedDaily), 0.0, AvgRIsUsedDaily), Util7Days_s, Util30Days_s, Term_s\r\n| join kind=leftouter (ReservationOnDemandMeters) on ReservationId_g\r\n| summarize arg_max(MeterId_g, *) by ReservationId_g\r\n| join kind=leftouter (ReservationPricesheet) on SkuName and Location_s and Term_s\r\n| join kind=leftouter (OnDemandPriceSheet) on $left.MeterId_g == $right.MeterID_g\r\n| extend DiscountPercent = (1 - ReservationPrice/OnDemandUnitPrice) * 100\r\n| project ReservationId_g, ReservationName_s, TotalReservedQuantity_s=round(todouble(TotalReservedQuantity_s)), SKUName_s, Location_s, AvgRIsUsedDaily, Util7Days_s=round(todouble(Util7Days_s)), Util30Days_s=round(todouble(Util30Days_s)), DiscountPercent, SavingsMargin=round(todouble(Util7Days_s))-100.0+DiscountPercent \r\n| order by Util7Days_s asc",
+                "size": 0,
+                "showAnalytics": true,
+                "title": "Reservation Usage Details (click on a line for more details)",
+                "timeContextFromParameter": "LookbackPeriod",
+                "exportedParameters": [
+                  {
+                    "fieldName": "ReservationId_g",
+                    "parameterName": "selectedReservation",
+                    "parameterType": 1
+                  },
+                  {
+                    "fieldName": "TotalReservedQuantity_s",
+                    "parameterName": "selectedQuantity",
+                    "parameterType": 1
+                  }
+                ],
+                "showExportToExcel": true,
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "gridSettings": {
+                  "formatters": [
+                    {
+                      "columnMatch": "ReservationId_g",
+                      "formatter": 5
+                    },
+                    {
+                      "columnMatch": "ReservationName_s",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "17ch"
+                      }
+                    },
+                    {
+                      "columnMatch": "TotalReservedQuantity_s",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "9ch"
+                      },
+                      "numberFormat": {
+                        "unit": 0,
+                        "options": {
+                          "style": "decimal",
+                          "useGrouping": true,
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "SKUName_s",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "18ch"
+                      }
+                    },
+                    {
+                      "columnMatch": "Location_s",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "13ch"
+                      }
+                    },
+                    {
+                      "columnMatch": "Util7Days_s",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "14ch"
+                      },
+                      "numberFormat": {
+                        "unit": 1,
+                        "options": {
+                          "style": "decimal",
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "Util30Days_s",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "15ch"
+                      },
+                      "numberFormat": {
+                        "unit": 1,
+                        "options": {
+                          "style": "decimal",
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "DiscountPercent",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "13ch"
+                      },
+                      "numberFormat": {
+                        "unit": 1,
+                        "options": {
+                          "style": "decimal",
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "SavingsMargin",
+                      "formatter": 18,
+                      "formatOptions": {
+                        "thresholdsOptions": "colors",
+                        "thresholdsGrid": [
+                          {
+                            "operator": "<",
+                            "thresholdValue": "0",
+                            "representation": "redBright",
+                            "text": "{0}{1}"
+                          },
+                          {
+                            "operator": "<",
+                            "thresholdValue": "5",
+                            "representation": "yellow",
+                            "text": "{0}{1}"
+                          },
+                          {
+                            "operator": "Default",
+                            "thresholdValue": null,
+                            "representation": "green",
+                            "text": "{0}{1}"
+                          }
+                        ],
+                        "customColumnWidthSetting": "12ch"
+                      },
+                      "numberFormat": {
+                        "unit": 1,
+                        "options": {
+                          "style": "decimal",
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    }
+                  ],
+                  "rowLimit": 5000,
+                  "sortBy": [
+                    {
+                      "itemKey": "$gen_number_Util7Days_s_6",
+                      "sortOrder": 1
+                    }
+                  ],
+                  "labelSettings": [
+                    {
+                      "columnId": "ReservationName_s",
+                      "label": "Reservation"
+                    },
+                    {
+                      "columnId": "TotalReservedQuantity_s",
+                      "label": "Qty."
+                    },
+                    {
+                      "columnId": "SKUName_s",
+                      "label": "Size"
+                    },
+                    {
+                      "columnId": "Location_s",
+                      "label": "Region"
+                    },
+                    {
+                      "columnId": "AvgRIsUsedDaily",
+                      "label": "Qty. Used (Avg)"
+                    },
+                    {
+                      "columnId": "Util7Days_s",
+                      "label": "Used (7d)"
+                    },
+                    {
+                      "columnId": "Util30Days_s",
+                      "label": "Used (30d)"
+                    },
+                    {
+                      "columnId": "DiscountPercent",
+                      "label": "Discount"
+                    },
+                    {
+                      "columnId": "SavingsMargin",
+                      "label": "Savings"
+                    }
+                  ]
+                },
+                "sortBy": [
+                  {
+                    "itemKey": "$gen_number_Util7Days_s_6",
+                    "sortOrder": 1
+                  }
+                ]
+              },
+              "customWidth": "55",
+              "name": "riUsageDetailsV2"
+            },
+            {
+              "type": 3,
+              "content": {
+                "version": "KqlItem/1.0",
+                "query": "AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}') and TimeGenerated < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and isnotempty(ReservationName_s)\r\n| where ReservationId_g == '{selectedReservation:value}'\r\n| extend RINormalizationRatio = tostring(parse_json(AdditionalInfo_s).RINormalizationRatio)\r\n| extend VMSize = tostring(parse_json(AdditionalInfo_s).ServiceType)\r\n| extend ConsumedSize = iif(isnotempty(VMSize), VMSize, strcat(MeterSubCategory_s, ' ', MeterName_s))\r\n| extend UsedRIs = todouble(Quantity_s) * todouble(RINormalizationRatio) / 24\r\n| summarize round(sum(UsedRIs),1) by todatetime(Date_s), ConsumedSize",
+                "size": 0,
+                "aggregation": 3,
+                "showAnalytics": true,
+                "title": "Average RI Usage Count by Size (click on a line in the table at the left)",
+                "timeContextFromParameter": "LookbackPeriod",
+                "exportFieldName": "ReservationId_g",
+                "exportParameterName": "selectedReservation",
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "visualization": "barchart",
+                "gridSettings": {
+                  "formatters": [
+                    {
+                      "columnMatch": "ReservationId_g",
+                      "formatter": 5
+                    }
+                  ],
+                  "rowLimit": 1000
+                },
+                "chartSettings": {
+                  "group": "ConsumedSize",
+                  "createOtherGroup": null,
+                  "customThresholdLine": "{selectedQuantity}",
+                  "customThresholdLineStyle": 1
+                }
+              },
+              "customWidth": "45",
+              "name": "riUsageDailyAverageBySize"
+            },
+            {
+              "type": 3,
+              "content": {
+                "version": "KqlItem/1.0",
+                "query": "let absoluteRIBought = toscalar(AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}')\r\n    and TimeGenerated < todatetime('{LookbackPeriod:endISO}')\r\n    and ChargeType_s == 'Usage'\r\n    and isnotempty(ReservationName_s)\r\n| where ReservationId_g == '{selectedReservation:value}'\r\n| summarize (datetime_diff('Day',max(todatetime(Date_s)),min(todatetime(Date_s)))+1)*{selectedQuantity});\r\nAzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}') and TimeGenerated < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and isnotempty(ReservationName_s)\r\n| where ReservationId_g == '{selectedReservation:value}'\r\n| extend RINormalizationRatio = tostring(parse_json(AdditionalInfo_s).RINormalizationRatio)\r\n| extend UsedRIs = todouble(Quantity_s) * todouble(RINormalizationRatio) / 24\r\n| summarize UsedRIPercentage=round(sum(UsedRIs) / absoluteRIBought * 100, 2) by ResourceId, SubscriptionId\r\n| join kind=leftouter ( \r\n    AzureOptimizationResourceContainersV1_CL \r\n    | where TimeGenerated > ago(1d) and ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | project Subscription=ContainerName_s, SubscriptionId=SubscriptionGuid_g\r\n) on SubscriptionId\r\n| project-away SubscriptionId*\r\n| project-reorder ResourceId, Subscription, UsedRIPercentage\r\n| order by ResourceId asc, UsedRIPercentage",
+                "size": 1,
+                "showAnalytics": true,
+                "title": "Average Daily Reservation Usage by Resource (click on a line in the table above)",
+                "timeContextFromParameter": "LookbackPeriod",
+                "exportFieldName": "ReservationId_g",
+                "exportParameterName": "selectedReservation",
+                "showExportToExcel": true,
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "gridSettings": {
+                  "formatters": [
+                    {
+                      "columnMatch": "ReservationId_g",
+                      "formatter": 5
+                    }
+                  ],
+                  "rowLimit": 5000,
+                  "labelSettings": [
+                    {
+                      "columnId": "ResourceId",
+                      "label": "Resource"
+                    },
+                    {
+                      "columnId": "Subscription",
+                      "label": "Used RI (%)"
+                    },
+                    {
+                      "columnId": "UsedRIPercentage",
+                      "label": "Used RI (%)"
+                    }
+                  ]
+                }
+              },
+              "customWidth": "50",
+              "name": "riUsageDailyAverageByResource"
+            },
+            {
+              "type": 3,
+              "content": {
+                "version": "KqlItem/1.0",
+                "query": "let absoluteRIBought = toscalar(AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}')\r\n    and TimeGenerated < todatetime('{LookbackPeriod:endISO}')\r\n    and ChargeType_s == 'Usage'\r\n    and isnotempty(ReservationName_s)\r\n| where ReservationId_g == '{selectedReservation:value}'\r\n| summarize (datetime_diff('Day',max(todatetime(Date_s)),min(todatetime(Date_s)))+1)*{selectedQuantity});\r\nAzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}') and TimeGenerated < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and isnotempty(ReservationName_s)\r\n| where ReservationId_g == '{selectedReservation:value}'\r\n| extend RINormalizationRatio = tostring(parse_json(AdditionalInfo_s).RINormalizationRatio)\r\n| extend Tags_s = iif(Tags_s startswith \"{\", Tags_s, strcat(\"{\", Tags_s, \"}\"))\r\n| extend AggregatorTag = tostring(parse_json(Tags_s)['{Aggregator}'])\r\n| extend UsedRIs = todouble(Quantity_s) * todouble(RINormalizationRatio) / 24\r\n| summarize UsedRIPercentage=round(sum(UsedRIs) / absoluteRIBought * 100, 2) by AggregatorTag, SubscriptionId\r\n| join kind=leftouter ( \r\n    AzureOptimizationResourceContainersV1_CL \r\n    | where TimeGenerated > ago(1d) and ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | project Subscription=ContainerName_s, SubscriptionId=SubscriptionGuid_g\r\n) on SubscriptionId\r\n| project-away SubscriptionId*\r\n| project-reorder AggregatorTag, Subscription, UsedRIPercentage\r\n| order by AggregatorTag asc, UsedRIPercentage",
+                "size": 1,
+                "showAnalytics": true,
+                "title": "Average Daily Reservation Usage by Tag (click on a line in the table above)",
+                "timeContextFromParameter": "LookbackPeriod",
+                "exportFieldName": "ReservationId_g",
+                "exportParameterName": "selectedReservation",
+                "showExportToExcel": true,
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "gridSettings": {
+                  "formatters": [
+                    {
+                      "columnMatch": "ReservationId_g",
+                      "formatter": 5
+                    }
+                  ],
+                  "rowLimit": 5000,
+                  "labelSettings": [
+                    {
+                      "columnId": "AggregatorTag",
+                      "label": "Aggregator Tag"
+                    },
+                    {
+                      "columnId": "UsedRIPercentage",
+                      "label": "Used RI (%)"
+                    }
+                  ]
+                }
+              },
+              "customWidth": "50",
+              "name": "riUsageDailyAverageByInstance"
+            }
+          ]
+        },
+        "conditionalVisibilities": [
+          {
+            "parameterName": "selectedTab",
+            "comparison": "isEqualTo",
+            "value": "reservationAnalysis"
+          },
+          {
+            "parameterName": "UseISF",
+            "comparison": "isEqualTo",
+            "value": "No"
+          }
+        ],
+        "name": "reservationAnalysisGroup"
+      },
+      {
+        "type": 12,
+        "content": {
+          "version": "NotebookGroup/1.0",
+          "groupType": "editable",
+          "items": [
+            {
+              "type": 1,
+              "content": {
+                "json": "VM count for Instance Size Flexibility Groups is proportional to the VM size with the lowest ratio (1).",
+                "style": "warning"
+              },
+              "name": "text - 3"
+            },
+            {
+              "type": 3,
+              "content": {
+                "version": "KqlItem/1.0",
+                "query": "let ISFGroups = externaldata(ISFGroup:string, ArmSKUName:string, Ratio:double) [@\"https://aka.ms/isf\"] with(ignoreFirstRecord=true) | extend ArmSKUName=tolower(ArmSKUName);\r\nlet LinuxOnDemandPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s == 'Consumption' and MeterSubCategory_s !endswith \"Windows\"\r\n| extend MeterSubCategory_s = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Linux'))\r\n| summarize LinuxUnitPrice=max(todouble(UnitPrice_s)) by LinuxMeterId=MeterID_g, MeterName_s, MeterSubCategory_s, MeterRegion_s, LinuxUnitOfMeasure=UnitOfMeasure_s;\r\nlet VMOnDemandPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s == 'Consumption'\r\n| extend NonWindowsMeterSubcategory = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Windows'))\r\n| extend WindowsMeterSubCategory = MeterSubCategory_s\r\n| extend NonWindowsMeterSubcategory = substring(NonWindowsMeterSubcategory, 0, indexof(NonWindowsMeterSubcategory, ' Linux'))\r\n| summarize UnitPrice_s=max(todouble(UnitPrice_s)) by MeterID_g, MeterName_s, NonWindowsMeterSubcategory, WindowsMeterSubCategory, MeterRegion_s, UnitOfMeasure_s\r\n| join kind=leftouter ( LinuxOnDemandPriceSheet ) on MeterName_s, MeterRegion_s, $left.NonWindowsMeterSubcategory == $right.MeterSubCategory_s\r\n| extend PricesheetPrice = iif(isnotempty(LinuxUnitPrice), LinuxUnitPrice, UnitPrice_s)\r\n| extend PricesheetUnitOfMeasure = iif(isnotempty(LinuxUnitOfMeasure), LinuxUnitOfMeasure, UnitOfMeasure_s)\r\n| extend UnitHrs = toint(substring(PricesheetUnitOfMeasure, 0, indexof(PricesheetUnitOfMeasure, 'Hour')-1))\r\n| extend OnDemandUnitPrice = PricesheetPrice/UnitHrs\r\n| distinct MeterID_g, OnDemandUnitPrice;\r\nlet OnDemandPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s != 'Virtual Machines' and PriceType_s == 'Consumption'\r\n| summarize OnDemandUnitPrice = max(todouble(UnitPrice_s)) by MeterID_g\r\n| distinct MeterID_g, OnDemandUnitPrice\r\n| union (VMOnDemandPriceSheet)\r\n| summarize OnDemandUnitPrice=min(OnDemandUnitPrice) by MeterID_g;\r\nlet ReservationPricesheet = AzureOptimizationReservationsPriceV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| extend Term_s = iif(reservationTerm_s == '3 Years', 'P3Y', 'P1Y')\r\n| extend TermDivider = iif(reservationTerm_s == '3 Years', 3, 1)\r\n| extend ReservationPrice = todouble(replace_string(unitPrice_s,',','.'))/TermDivider/12/730\r\n| summarize arg_max(TimeGenerated, ReservationPrice) by Location_s=tolower(armRegionName_s), SkuName=tolower(armSkuName_s), Term_s;\r\nlet ReservationOnDemandMeters = AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}') and TimeGenerated < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and isnotempty(ReservationName_s)\r\n| extend SkuName = tolower(parse_json(AdditionalInfo_s).ServiceType)\r\n| distinct ReservationId_g, MeterId_g, SkuName;\r\nAzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}') and TimeGenerated < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and isnotempty(ReservationName_s)\r\n| where ReservationId_g in ({Reservation:value})\r\n| extend RINormalizationRatio = tostring(parse_json(AdditionalInfo_s).RINormalizationRatio)\r\n| extend UsedRIs = todouble(Quantity_s) * todouble(RINormalizationRatio) / 24\r\n| summarize UsedRIsDaily=round(sum(UsedRIs),2) by Date_s, ReservationId_g\r\n| summarize AvgRIsUsedDaily=round(avg(UsedRIsDaily),2) by ReservationId_g\r\n| join kind=rightouter (\r\n    AzureOptimizationReservationsUsageV1_CL\r\n    | where TimeGenerated > ago(1d)\r\n    | where ReservationId_g in ({Reservation:value})\r\n    | summarize arg_max(TimeGenerated, *) by ReservationId_g\r\n    | where ProvisioningState_s == 'Succeeded'\r\n    | extend UsedQuantity = todouble(TotalReservedQuantity_s) * todouble(Util7Days_s) / 100\r\n    | extend UsedQuantity30d = todouble(TotalReservedQuantity_s) * todouble(Util30Days_s) / 100\r\n    | extend SKUName_s=tolower(SKUName_s)\r\n    | project ReservationId_g, ReservationName_s=DisplayName_s, SKUName_s, Location_s, UsedQuantity, UsedQuantity30d, TotalReservedQuantity_s, Term_s, AppliedScopeType_s\r\n) on ReservationId_g\r\n| project ReservationId_g=ReservationId_g1, ReservationName_s, TotalReservedQuantity_s, SKUName_s, Location_s, AvgRIsUsedDaily=iif(isempty(AvgRIsUsedDaily), 0.0, AvgRIsUsedDaily), UsedQuantity, UsedQuantity30d, Term_s, AppliedScopeType_s\r\n| join kind=inner ( ISFGroups ) on $left.SKUName_s == $right.ArmSKUName\r\n| join kind=leftouter ( ReservationOnDemandMeters ) on ReservationId_g\r\n| summarize arg_max(MeterId_g, *) by ReservationId_g\r\n| join kind=leftouter ( ReservationPricesheet ) on SkuName and Location_s and Term_s\r\n| join kind=leftouter ( OnDemandPriceSheet ) on $left.MeterId_g == $right.MeterID_g\r\n| extend DiscountPercent = (1 - ReservationPrice/OnDemandUnitPrice) * 100\r\n| extend AvgRIsUsedInSmallestRatio = Ratio * AvgRIsUsedDaily\r\n| summarize TotalReservedQuantity_s=sum(todouble(TotalReservedQuantity_s)*Ratio), AvgRIsUsedDaily=sum(AvgRIsUsedInSmallestRatio), UsedQuantity=sum(UsedQuantity*Ratio), UsedQuantity30d=sum(UsedQuantity30d*Ratio), AvgDiscountPercent=avg(DiscountPercent) by ISFGroup, Location_s, Term_s, AppliedScopeType_s\r\n| extend Util7Days_s = UsedQuantity/TotalReservedQuantity_s*100, Util30Days_s = UsedQuantity30d/TotalReservedQuantity_s*100\r\n| extend AvgRIUsagePercentInSmallestRatio = round(AvgRIsUsedDaily / TotalReservedQuantity_s * 100, 1)\r\n| extend AvgDiscountPercent=iif(AvgDiscountPercent > 0.0, AvgDiscountPercent, 0.0)\r\n| extend SavingsMargin=round(todouble(Util7Days_s))-100.0+AvgDiscountPercent \r\n| project-away AvgRIUsagePercentInSmallestRatio, AvgRIsUsedDaily\r\n| project-reorder ISFGroup, Location_s, Term_s, AppliedScopeType_s, TotalReservedQuantity_s, Util7Days_s, UsedQuantity, Util30Days_s, UsedQuantity30d\r\n| order by Util7Days_s asc",
+                "size": 0,
+                "showAnalytics": true,
+                "title": "Reservation Usage Details grouped by ISF group (click on a line for more details)",
+                "timeContextFromParameter": "LookbackPeriod",
+                "exportedParameters": [
+                  {
+                    "fieldName": "ISFGroup",
+                    "parameterName": "selectedISFGroup",
+                    "parameterType": 1
+                  },
+                  {
+                    "fieldName": "TotalReservedQuantity_s",
+                    "parameterName": "selectedQuantity",
+                    "parameterType": 1
+                  },
+                  {
+                    "fieldName": "Location_s",
+                    "parameterName": "selectedRegion",
+                    "parameterType": 1
+                  }
+                ],
+                "showExportToExcel": true,
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "gridSettings": {
+                  "formatters": [
+                    {
+                      "columnMatch": "ISFGroup",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "14ch"
+                      }
+                    },
+                    {
+                      "columnMatch": "Location_s",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "15ch"
+                      }
+                    },
+                    {
+                      "columnMatch": "AppliedScopeType_s",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "11ch"
+                      }
+                    },
+                    {
+                      "columnMatch": "TotalReservedQuantity_s",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "10ch"
+                      },
+                      "numberFormat": {
+                        "unit": 0,
+                        "options": {
+                          "style": "decimal",
+                          "useGrouping": true,
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "Util7Days_s",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "14ch"
+                      },
+                      "numberFormat": {
+                        "unit": 1,
+                        "options": {
+                          "style": "decimal",
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "UsedQuantity",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "18ch"
+                      },
+                      "numberFormat": {
+                        "unit": 0,
+                        "options": {
+                          "style": "decimal",
+                          "useGrouping": true,
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "Util30Days_s",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "15ch"
+                      },
+                      "numberFormat": {
+                        "unit": 1,
+                        "options": {
+                          "style": "decimal",
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "UsedQuantity30d",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "20ch"
+                      },
+                      "numberFormat": {
+                        "unit": 0,
+                        "options": {
+                          "style": "decimal",
+                          "useGrouping": true,
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "AvgDiscountPercent",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "18ch"
+                      },
+                      "numberFormat": {
+                        "unit": 1,
+                        "options": {
+                          "style": "decimal",
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "SavingsMargin",
+                      "formatter": 18,
+                      "formatOptions": {
+                        "thresholdsOptions": "colors",
+                        "thresholdsGrid": [
+                          {
+                            "operator": "<",
+                            "thresholdValue": "0",
+                            "representation": "redBright",
+                            "text": "{0}{1}"
+                          },
+                          {
+                            "operator": "<",
+                            "thresholdValue": "5",
+                            "representation": "yellow",
+                            "text": "{0}{1}"
+                          },
+                          {
+                            "operator": "Default",
+                            "thresholdValue": null,
+                            "representation": "green",
+                            "text": "{0}{1}"
+                          }
+                        ],
+                        "customColumnWidthSetting": "12ch"
+                      },
+                      "numberFormat": {
+                        "unit": 1,
+                        "options": {
+                          "style": "decimal",
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "AvgRIsUsedDaily",
+                      "formatter": 0,
+                      "numberFormat": {
+                        "unit": 0,
+                        "options": {
+                          "style": "decimal",
+                          "useGrouping": true,
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "AvgRIUsagePercentInSmallestRatio",
+                      "formatter": 0,
+                      "numberFormat": {
+                        "unit": 1,
+                        "options": {
+                          "style": "decimal",
+                          "minimumFractionDigits": 1,
+                          "maximumFractionDigits": 1
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "ReservationId_g",
+                      "formatter": 5
+                    },
+                    {
+                      "columnMatch": "ReservationName_s",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "30ch"
+                      }
+                    },
+                    {
+                      "columnMatch": "SKUName_s",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "20ch"
+                      }
+                    }
+                  ],
+                  "rowLimit": 5000,
+                  "sortBy": [
+                    {
+                      "itemKey": "$gen_number_Util7Days_s_5",
+                      "sortOrder": 1
+                    }
+                  ],
+                  "labelSettings": [
+                    {
+                      "columnId": "ISFGroup",
+                      "label": "ISF Group"
+                    },
+                    {
+                      "columnId": "Location_s",
+                      "label": "Region"
+                    },
+                    {
+                      "columnId": "Term_s",
+                      "label": "Term"
+                    },
+                    {
+                      "columnId": "AppliedScopeType_s",
+                      "label": "Scope"
+                    },
+                    {
+                      "columnId": "TotalReservedQuantity_s",
+                      "label": "Qty."
+                    },
+                    {
+                      "columnId": "Util7Days_s",
+                      "label": "Used (7d)"
+                    },
+                    {
+                      "columnId": "UsedQuantity",
+                      "label": "Used Qty. (7d)"
+                    },
+                    {
+                      "columnId": "Util30Days_s",
+                      "label": "Used (30d)"
+                    },
+                    {
+                      "columnId": "UsedQuantity30d",
+                      "label": "Used Qty. (30d)"
+                    },
+                    {
+                      "columnId": "AvgDiscountPercent",
+                      "label": "Avg. Discount"
+                    },
+                    {
+                      "columnId": "SavingsMargin",
+                      "label": "Savings"
+                    }
+                  ]
+                },
+                "sortBy": [
+                  {
+                    "itemKey": "$gen_number_Util7Days_s_5",
+                    "sortOrder": 1
+                  }
+                ]
+              },
+              "customWidth": "65",
+              "name": "riUsageDetailsV2ISF"
+            },
+            {
+              "type": 3,
+              "content": {
+                "version": "KqlItem/1.0",
+                "query": "let ISFGroups = externaldata(ISFGroup:string, ArmSKUName:string, Ratio:double) [@\"https://aka.ms/isf\"] with(ignoreFirstRecord=true) | extend ArmSKUName=tolower(ArmSKUName);\r\nAzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}') and TimeGenerated < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and isnotempty(ReservationName_s)\r\n| where ResourceLocation_s =~ '{selectedRegion}'\r\n| extend VMSize = tolower(parse_json(AdditionalInfo_s).ServiceType)\r\n| join kind=inner ( ISFGroups ) on $left.VMSize == $right.ArmSKUName\r\n| where ISFGroup == '{selectedISFGroup:value}'\r\n| extend RINormalizationRatio = tostring(parse_json(AdditionalInfo_s).RINormalizationRatio)\r\n| extend ConsumedSize = iif(isnotempty(VMSize), VMSize, strcat(MeterSubCategory_s, ' ', MeterName_s))\r\n| extend UsedRIs = todouble(Quantity_s) / 24 * Ratio\r\n| summarize round(sum(UsedRIs),1) by todatetime(Date_s), ConsumedSize",
+                "size": 0,
+                "aggregation": 3,
+                "showAnalytics": true,
+                "title": "Average RI Usage Count by Size (click on a line in the table at the left)",
+                "timeContextFromParameter": "LookbackPeriod",
+                "exportFieldName": "ReservationId_g",
+                "exportParameterName": "selectedReservation",
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "visualization": "barchart",
+                "gridSettings": {
+                  "formatters": [
+                    {
+                      "columnMatch": "ReservationId_g",
+                      "formatter": 5
+                    }
+                  ],
+                  "rowLimit": 1000
+                },
+                "chartSettings": {
+                  "group": "ConsumedSize",
+                  "createOtherGroup": null,
+                  "customThresholdLine": "{selectedQuantity}",
+                  "customThresholdLineStyle": 1
+                }
+              },
+              "customWidth": "35",
+              "name": "riUsageDailyAverageBySizeISF"
+            },
+            {
+              "type": 3,
+              "content": {
+                "version": "KqlItem/1.0",
+                "query": "let ISFGroups = externaldata(ISFGroup:string, ArmSKUName:string, Ratio:double) [@\"https://aka.ms/isf\"] with(ignoreFirstRecord=true) | extend ArmSKUName=tolower(ArmSKUName);\r\nlet absoluteRIBought = toscalar(AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}')\r\n    and TimeGenerated < todatetime('{LookbackPeriod:endISO}')\r\n    and ChargeType_s == 'Usage'\r\n    and isnotempty(ReservationName_s)\r\n| extend VMSize = tolower(parse_json(AdditionalInfo_s).ServiceType)\r\n| where ResourceLocation_s =~ '{selectedRegion}'\r\n| join kind=inner ( ISFGroups ) on $left.VMSize == $right.ArmSKUName\r\n| where ISFGroup == '{selectedISFGroup:value}'\r\n| summarize (datetime_diff('Day',max(todatetime(Date_s)),min(todatetime(Date_s)))+1)*{selectedQuantity});\r\nAzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}') and TimeGenerated < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and isnotempty(ReservationName_s)\r\n| extend VMSize = tolower(parse_json(AdditionalInfo_s).ServiceType)\r\n| where ResourceLocation_s =~ '{selectedRegion}'\r\n| join kind=inner ( ISFGroups ) on $left.VMSize == $right.ArmSKUName\r\n| where ISFGroup == '{selectedISFGroup:value}'\r\n| extend UsedRIs = todouble(Quantity_s) * Ratio / 24\r\n| summarize UsedRIPercentage=round(sum(UsedRIs) / absoluteRIBought * 100, 2) by ResourceId, SubscriptionId\r\n| join kind=leftouter ( \r\n    AzureOptimizationResourceContainersV1_CL \r\n    | where TimeGenerated > ago(1d) and ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | project Subscription=ContainerName_s, SubscriptionId=SubscriptionGuid_g\r\n) on SubscriptionId\r\n| project-away SubscriptionId*\r\n| project-reorder ResourceId, Subscription, UsedRIPercentage\r\n| order by ResourceId asc, UsedRIPercentage",
+                "size": 1,
+                "showAnalytics": true,
+                "title": "Average Daily Reservation Usage by Resource (click on a line in the table above)",
+                "timeContextFromParameter": "LookbackPeriod",
+                "exportFieldName": "ReservationId_g",
+                "exportParameterName": "selectedReservation",
+                "showExportToExcel": true,
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "gridSettings": {
+                  "formatters": [
+                    {
+                      "columnMatch": "ReservationId_g",
+                      "formatter": 5
+                    }
+                  ],
+                  "rowLimit": 5000,
+                  "labelSettings": [
+                    {
+                      "columnId": "ResourceId",
+                      "label": "Resource"
+                    },
+                    {
+                      "columnId": "Subscription",
+                      "label": "Subscription"
+                    },
+                    {
+                      "columnId": "UsedRIPercentage",
+                      "label": "Used RI (%)"
+                    }
+                  ]
+                }
+              },
+              "customWidth": "50",
+              "name": "riUsageDailyAverageByResourceISF"
+            },
+            {
+              "type": 3,
+              "content": {
+                "version": "KqlItem/1.0",
+                "query": "let ISFGroups = externaldata(ISFGroup:string, ArmSKUName:string, Ratio:double) [@\"https://aka.ms/isf\"] with(ignoreFirstRecord=true) | extend ArmSKUName=tolower(ArmSKUName);\r\nlet absoluteRIBought = toscalar(AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}')\r\n    and TimeGenerated < todatetime('{LookbackPeriod:endISO}')\r\n    and ChargeType_s == 'Usage'\r\n    and isnotempty(ReservationName_s)\r\n| extend VMSize = tolower(parse_json(AdditionalInfo_s).ServiceType)\r\n| where ResourceLocation_s =~ '{selectedRegion}'\r\n| join kind=inner ( ISFGroups ) on $left.VMSize == $right.ArmSKUName\r\n| where ISFGroup == '{selectedISFGroup:value}'\r\n| summarize (datetime_diff('Day',max(todatetime(Date_s)),min(todatetime(Date_s)))+1)*{selectedQuantity});\r\nAzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}') and TimeGenerated < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and isnotempty(ReservationName_s)\r\n| extend VMSize = tolower(parse_json(AdditionalInfo_s).ServiceType)\r\n| where ResourceLocation_s =~ '{selectedRegion}'\r\n| join kind=inner ( ISFGroups ) on $left.VMSize == $right.ArmSKUName\r\n| where ISFGroup == '{selectedISFGroup:value}'\r\n| extend Tags_s = iif(Tags_s startswith \"{\", Tags_s, strcat(\"{\", Tags_s, \"}\"))\r\n| extend AggregatorTag = tostring(parse_json(Tags_s)['{Aggregator}'])\r\n| extend UsedRIs = todouble(Quantity_s) * Ratio / 24\r\n| summarize UsedRIPercentage=round(sum(UsedRIs) / absoluteRIBought * 100, 2) by AggregatorTag, SubscriptionId\r\n| join kind=leftouter ( \r\n    AzureOptimizationResourceContainersV1_CL \r\n    | where TimeGenerated > ago(1d) and ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | project Subscription=ContainerName_s, SubscriptionId=SubscriptionGuid_g\r\n) on SubscriptionId\r\n| project-away SubscriptionId*\r\n| project-reorder AggregatorTag, Subscription, UsedRIPercentage\r\n| order by AggregatorTag asc, UsedRIPercentage",
+                "size": 1,
+                "showAnalytics": true,
+                "title": "Average Daily Reservation Usage by Tag (click on a line in the table above)",
+                "timeContextFromParameter": "LookbackPeriod",
+                "exportFieldName": "ReservationId_g",
+                "exportParameterName": "selectedReservation",
+                "showExportToExcel": true,
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "gridSettings": {
+                  "formatters": [
+                    {
+                      "columnMatch": "ReservationId_g",
+                      "formatter": 5
+                    }
+                  ],
+                  "rowLimit": 5000,
+                  "labelSettings": [
+                    {
+                      "columnId": "AggregatorTag",
+                      "label": "Aggregator Tag"
+                    },
+                    {
+                      "columnId": "Subscription",
+                      "label": "Subscription"
+                    },
+                    {
+                      "columnId": "UsedRIPercentage",
+                      "label": "Used RI (%)"
+                    }
+                  ]
+                }
+              },
+              "customWidth": "50",
+              "name": "riUsageDailyAverageByInstanceISF"
+            }
+          ]
+        },
+        "conditionalVisibilities": [
+          {
+            "parameterName": "selectedTab",
+            "comparison": "isEqualTo",
+            "value": "reservationAnalysis"
+          },
+          {
+            "parameterName": "UseISF",
+            "comparison": "isEqualTo",
+            "value": "Yes"
+          }
+        ],
+        "name": "reservationAnalysisGroupISF"
+      },
+      {
+        "type": 12,
+        "content": {
+          "version": "NotebookGroup/1.0",
+          "groupType": "editable",
+          "items": [
+            {
+              "type": 3,
+              "content": {
+                "version": "KqlItem/1.0",
+                "query": "let DaysSeenByReservation = AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}') and TimeGenerated < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and isnotempty(ReservationName_s)\r\n| where ReservationId_g in ({Reservation:value})\r\n| summarize DaysSeen=datetime_diff('Day', max(todatetime(Date_s)), min(todatetime(Date_s)))+1 by ReservationId_g;\r\nAzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}') and TimeGenerated < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and isnotempty(ReservationName_s)\r\n| where ReservationId_g in ({Reservation:value})\r\n| extend RINormalizationRatio = tostring(parse_json(AdditionalInfo_s).RINormalizationRatio)\r\n| extend Tags_s = iif(Tags_s startswith \"{\", Tags_s, strcat(\"{\", Tags_s, \"}\"))\r\n| extend AggregatorTag = tostring(parse_json(Tags_s)['{Aggregator}'])\r\n| extend UsedRIs = todouble(Quantity_s) * todouble(RINormalizationRatio) / 24\r\n| summarize TotalUsedRIs=round(sum(UsedRIs),2) by ReservationId_g, AggregatorTag, SubscriptionId\r\n| join kind=inner (DaysSeenByReservation) on ReservationId_g\r\n| project-away ReservationId_g1\r\n| join kind=leftouter ( \r\n    AzureOptimizationResourceContainersV1_CL \r\n    | where TimeGenerated > ago(1d) and ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | project Subscription=ContainerName_s, SubscriptionId=SubscriptionGuid_g\r\n) on SubscriptionId\r\n| project-away SubscriptionId*\r\n| join kind=inner (\r\n    AzureOptimizationReservationsUsageV1_CL\r\n    | where TimeGenerated > todatetime('{LookbackPeriod:startISO}')\r\n    | where ReservationId_g in ({Reservation:value})\r\n    | summarize arg_max(TimeGenerated, *) by ReservationId_g\r\n    | project ReservationId_g, TotalReservedQuantity_s, ReservationName_s=DisplayName_s\r\n) on ReservationId_g\r\n| project-away ReservationId_g1\r\n| extend UsedRIPercentage = TotalUsedRIs / (todouble(TotalReservedQuantity_s) * DaysSeen) * 100\r\n| project-reorder ReservationName_s, AggregatorTag\r\n| order by ReservationId_g",
+                "size": 2,
+                "showAnalytics": true,
+                "exportedParameters": [
+                  {
+                    "fieldName": "ReservationId_g",
+                    "parameterName": "selectedReservation"
+                  },
+                  {
+                    "fieldName": "ReservationName_s",
+                    "parameterName": "selectedReservationName",
+                    "parameterType": 1
+                  }
+                ],
+                "showExportToExcel": true,
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "gridSettings": {
+                  "formatters": [
+                    {
+                      "columnMatch": "ReservationId_g",
+                      "formatter": 5
+                    },
+                    {
+                      "columnMatch": "TotalUsedRIs",
+                      "formatter": 5
+                    },
+                    {
+                      "columnMatch": "DaysSeen",
+                      "formatter": 5
+                    },
+                    {
+                      "columnMatch": "ReservationId_g1",
+                      "formatter": 5
+                    },
+                    {
+                      "columnMatch": "TotalReservedQuantity_s",
+                      "formatter": 5
+                    },
+                    {
+                      "columnMatch": "UsedRIPercentage",
+                      "formatter": 0,
+                      "numberFormat": {
+                        "unit": 1,
+                        "options": {
+                          "style": "decimal",
+                          "maximumFractionDigits": 1
+                        }
+                      }
+                    }
+                  ],
+                  "rowLimit": 10000,
+                  "labelSettings": [
+                    {
+                      "columnId": "ReservationName_s",
+                      "label": "Reservation"
+                    },
+                    {
+                      "columnId": "AggregatorTag",
+                      "label": "Aggregator Tag"
+                    },
+                    {
+                      "columnId": "UsedRIPercentage",
+                      "label": "Used RI"
+                    }
+                  ]
+                }
+              },
+              "name": "riUsageByTag"
+            }
+          ]
+        },
+        "conditionalVisibility": {
+          "parameterName": "selectedTab",
+          "comparison": "isEqualTo",
+          "value": "usageByTag"
+        },
+        "name": "usageByTagGroup"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}') and TimeGenerated < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'UnusedReservation'\r\n| where ReservationId_g in ({Reservation:value})\r\n| extend UnusedCost = todouble(CostInBillingCurrency_s)\r\n| project todatetime(Date_s), ReservationName_s, UnusedCost",
+          "size": 0,
+          "title": "Cost of Unused Reservations over time",
+          "timeContextFromParameter": "LookbackPeriod",
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces",
+          "visualization": "barchart"
+        },
+        "conditionalVisibility": {
+          "parameterName": "selectedTab",
+          "comparison": "isEqualTo",
+          "value": "unusedReservations"
+        },
+        "name": "unusedReservationsOverTime"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "let ISFGroups = externaldata(ISFGroup:string, ArmSKUName:string, Ratio:double) [@\"https://aka.ms/isf\"] with(ignoreFirstRecord=true) | extend ArmSKUName=tolower(ArmSKUName);\r\nAzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}') and TimeGenerated < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'UnusedReservation'\r\n| where ReservationId_g in ({Reservation:value})\r\n| extend UnusedCost = todouble(CostInBillingCurrency_s)\r\n| join kind=leftouter (\r\n    AzureOptimizationReservationsUsageV1_CL\r\n    | where TimeGenerated > ago(1d)\r\n    | where ProvisioningState_s == 'Succeeded'\r\n    | extend UnusedQuantity = todouble(TotalReservedQuantity_s) - (todouble(TotalReservedQuantity_s) * todouble(Util7Days_s) / 100)\r\n    | extend UnusedQuantity30d = todouble(TotalReservedQuantity_s) - (todouble(TotalReservedQuantity_s) * todouble(Util30Days_s) / 100)\r\n    | project ReservationId_g, SKUName_s=tolower(SKUName_s), Location_s\r\n) on ReservationId_g\r\n| join kind=leftouter ( ISFGroups ) on $left.SKUName_s == $right.ArmSKUName\r\n| extend SKUName = iif('{UseISF}' == 'Yes', strcat(ISFGroup, \" \", Location_s), strcat(SKUName_s, \" \", Location_s))\r\n| extend SKUName = iif(strlen(SKUName) < 2, 'Canceled RIs', SKUName)\r\n| summarize sum(UnusedCost) by todatetime(Date_s), SKUName",
+          "size": 0,
+          "showAnalytics": true,
+          "title": "Cost of Unused Reservations over time (by SKU)",
+          "timeContextFromParameter": "LookbackPeriod",
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces",
+          "visualization": "barchart"
+        },
+        "conditionalVisibility": {
+          "parameterName": "selectedTab",
+          "comparison": "isEqualTo",
+          "value": "unusedReservations"
+        },
+        "name": "unusedReservationsOverTimebySKU"
+      },
+      {
+        "type": 1,
+        "content": {
+          "json": "Canceled RIs are not considered in the historical view. VM count for Instance Size Flexibility Groups is proportional to the VM size with the lowest ratio (1).",
+          "style": "warning"
+        },
+        "conditionalVisibility": {
+          "parameterName": "selectedTab",
+          "comparison": "isEqualTo",
+          "value": "unusedReservations"
+        },
+        "name": "warningISFCanceled"
+      },
+      {
+        "type": 3,
+        "content": {
+          "version": "KqlItem/1.0",
+          "query": "let ISFGroups = externaldata(ISFGroup:string, ArmSKUName:string, Ratio:double) [@\"https://aka.ms/isf\"] with(ignoreFirstRecord=true) | extend ArmSKUName=tolower(ArmSKUName);\r\nAzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}') and TimeGenerated < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'UnusedReservation'\r\n| where ReservationId_g in ({Reservation:value})\r\n| extend UnusedHours = todouble(Quantity_s)\r\n| join kind=inner (\r\n    AzureOptimizationReservationsUsageV1_CL\r\n    | where TimeGenerated > ago(1d)\r\n    | where ProvisioningState_s == 'Succeeded'\r\n    | extend UnusedQuantity = todouble(TotalReservedQuantity_s) - (todouble(TotalReservedQuantity_s) * todouble(Util7Days_s) / 100)\r\n    | extend UnusedQuantity30d = todouble(TotalReservedQuantity_s) - (todouble(TotalReservedQuantity_s) * todouble(Util30Days_s) / 100)\r\n    | project ReservationId_g, SKUName_s=tolower(SKUName_s), Location_s\r\n) on ReservationId_g\r\n| join kind=leftouter ( ISFGroups ) on $left.SKUName_s == $right.ArmSKUName\r\n| extend SKUName = iif('{UseISF}' == 'Yes', strcat(ISFGroup, \" \", Location_s), strcat(SKUName_s, \" \", Location_s))\r\n| extend UnusedVMs = iif('{UseISF}' == 'Yes', UnusedHours * Ratio / 24, UnusedHours / 24)\r\n| summarize sum(UnusedVMs) by todatetime(Date_s), SKUName",
+          "size": 0,
+          "showAnalytics": true,
+          "title": "Unused Reservations over time (by VM count)",
+          "timeContextFromParameter": "LookbackPeriod",
+          "queryType": 0,
+          "resourceType": "microsoft.operationalinsights/workspaces",
+          "visualization": "barchart"
+        },
+        "conditionalVisibility": {
+          "parameterName": "selectedTab",
+          "comparison": "isEqualTo",
+          "value": "unusedReservations"
+        },
+        "name": "unusedReservationsOverTimebyISFGroup"
+      },
+      {
+        "type": 12,
+        "content": {
+          "version": "NotebookGroup/1.0",
+          "groupType": "editable",
+          "items": [
+            {
+              "type": 3,
+              "content": {
+                "version": "KqlItem/1.0",
+                "query": "AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}') and TimeGenerated < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'UnusedReservation'\r\n| where ReservationId_g in ({Reservation:value})\r\n| summarize TotalUnusedCost = sum(todouble(CostInBillingCurrency_s)) by ReservationId_g\r\n| where round(TotalUnusedCost) > 0\r\n| join kind=inner (\r\n    AzureOptimizationReservationsUsageV1_CL\r\n    | where TimeGenerated > ago(1d)\r\n    | where ProvisioningState_s == 'Succeeded'\r\n    | extend UnusedQuantity = todouble(TotalReservedQuantity_s) - (todouble(TotalReservedQuantity_s) * todouble(Util7Days_s) / 100)\r\n    | extend UnusedQuantity30d = todouble(TotalReservedQuantity_s) - (todouble(TotalReservedQuantity_s) * todouble(Util30Days_s) / 100)\r\n    | project ReservationId_g, ReservationName_s=DisplayName_s, ExpiryDate_s, SKUName_s, Location_s, TotalReservedQuantity_s, Term_s, AppliedScopeType_s, Util7Days_s, UnusedQuantity, Util30Days_s, UnusedQuantity30d\r\n) on ReservationId_g\r\n| project-away ReservationId_g1\r\n| project-reorder ReservationName_s, TotalUnusedCost\r\n| order by TotalUnusedCost\r\n",
+                "size": 2,
+                "showAnalytics": true,
+                "title": "Unused Reservations Details",
+                "timeContextFromParameter": "LookbackPeriod",
+                "showExportToExcel": true,
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "gridSettings": {
+                  "formatters": [
+                    {
+                      "columnMatch": "ReservationName_s",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "40ch"
+                      }
+                    },
+                    {
+                      "columnMatch": "TotalUnusedCost",
+                      "formatter": 1,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "22ch"
+                      },
+                      "numberFormat": {
+                        "unit": 0,
+                        "options": {
+                          "style": "decimal",
+                          "useGrouping": true,
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "ReservationId_g",
+                      "formatter": 5
+                    },
+                    {
+                      "columnMatch": "TotalReservedQuantity_s",
+                      "formatter": 1,
+                      "numberFormat": {
+                        "unit": 0,
+                        "options": {
+                          "style": "decimal",
+                          "useGrouping": true,
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "Util7Days_s",
+                      "formatter": 1,
+                      "numberFormat": {
+                        "unit": 1,
+                        "options": {
+                          "style": "decimal",
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "UnusedQuantity",
+                      "formatter": 1,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "20ch"
+                      },
+                      "numberFormat": {
+                        "unit": 17,
+                        "options": {
+                          "style": "decimal",
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "Util30Days_s",
+                      "formatter": 0,
+                      "numberFormat": {
+                        "unit": 1,
+                        "options": {
+                          "style": "decimal",
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "ProvisioningState_s",
+                      "formatter": 18,
+                      "formatOptions": {
+                        "thresholdsOptions": "icons",
+                        "thresholdsGrid": [
+                          {
+                            "operator": "==",
+                            "thresholdValue": "Cancelled",
+                            "representation": "4",
+                            "text": "{0}{1}"
+                          },
+                          {
+                            "operator": "Default",
+                            "thresholdValue": null,
+                            "representation": "success",
+                            "text": "{0}{1}"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "labelSettings": [
+                    {
+                      "columnId": "ReservationName_s",
+                      "label": "Reservation"
+                    },
+                    {
+                      "columnId": "TotalUnusedCost",
+                      "label": "Total Unused Cost"
+                    },
+                    {
+                      "columnId": "ExpiryDate_s",
+                      "label": "Expires On"
+                    },
+                    {
+                      "columnId": "SKUName_s",
+                      "label": "Size"
+                    },
+                    {
+                      "columnId": "Location_s",
+                      "label": "Region"
+                    },
+                    {
+                      "columnId": "TotalReservedQuantity_s",
+                      "label": "Qty."
+                    },
+                    {
+                      "columnId": "Term_s",
+                      "label": "Term"
+                    },
+                    {
+                      "columnId": "AppliedScopeType_s",
+                      "label": "Scope"
+                    },
+                    {
+                      "columnId": "Util7Days_s",
+                      "label": "Used (7d)"
+                    },
+                    {
+                      "columnId": "UnusedQuantity",
+                      "label": "Unused Qty. (7d)"
+                    },
+                    {
+                      "columnId": "Util30Days_s",
+                      "label": "Used (30d)"
+                    },
+                    {
+                      "columnId": "UnusedQuantity30d",
+                      "label": "Unused Qty. (30d)"
+                    }
+                  ]
+                }
+              },
+              "name": "unusedReservationsDetails"
+            }
+          ]
+        },
+        "conditionalVisibilities": [
+          {
+            "parameterName": "selectedTab",
+            "comparison": "isEqualTo",
+            "value": "unusedReservations"
+          },
+          {
+            "parameterName": "UseISF",
+            "comparison": "isEqualTo",
+            "value": "No"
+          }
+        ],
+        "name": "unusedReservationsGroup"
+      },
+      {
+        "type": 12,
+        "content": {
+          "version": "NotebookGroup/1.0",
+          "groupType": "editable",
+          "items": [
+            {
+              "type": 1,
+              "content": {
+                "json": "VM count for Instance Size Flexibility Groups is proportional to the VM size with the lowest ratio (1).",
+                "style": "warning"
+              },
+              "name": "text - 1"
+            },
+            {
+              "type": 3,
+              "content": {
+                "version": "KqlItem/1.0",
+                "query": "let ISFGroups = externaldata(ISFGroup:string, ArmSKUName:string, Ratio:double) [@\"https://aka.ms/isf\"] with(ignoreFirstRecord=true) | extend ArmSKUName=tolower(ArmSKUName);\r\nAzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}') and TimeGenerated < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'UnusedReservation'\r\n| where ReservationId_g in ({Reservation:value})\r\n| summarize TotalUnusedCost = sum(todouble(CostInBillingCurrency_s)) by ReservationId_g\r\n| where round(TotalUnusedCost) > 0\r\n| join kind=inner (\r\n    AzureOptimizationReservationsUsageV1_CL\r\n    | where TimeGenerated > ago(1d)\r\n    | where ProvisioningState_s == 'Succeeded'\r\n    | extend UnusedQuantity = todouble(TotalReservedQuantity_s) - (todouble(TotalReservedQuantity_s) * todouble(Util7Days_s) / 100)\r\n    | extend UnusedQuantity30d = todouble(TotalReservedQuantity_s) - (todouble(TotalReservedQuantity_s) * todouble(Util30Days_s) / 100)\r\n    | project ReservationId_g, ReservationName_s=DisplayName_s, SKUName_s=tolower(SKUName_s), Location_s, TotalReservedQuantity_s, Term_s, AppliedScopeType_s, UnusedQuantity, UnusedQuantity30d\r\n) on ReservationId_g\r\n| project-away ReservationId_g1\r\n| join kind=inner ( ISFGroups ) on $left.SKUName_s == $right.ArmSKUName\r\n| summarize TotalUnusedCost=sum(TotalUnusedCost), TotalReservedQuantity_s=sum(todouble(TotalReservedQuantity_s)*Ratio), UnusedQuantity=sum(UnusedQuantity*Ratio), UnusedQuantity30d=sum(UnusedQuantity30d*Ratio) by ISFGroup, Location_s, Term_s, AppliedScopeType_s\r\n| extend Util7Days_s = (1-UnusedQuantity/TotalReservedQuantity_s)*100, Util30Days_s = (1-UnusedQuantity30d/TotalReservedQuantity_s)*100\r\n| project-reorder ISFGroup, TotalUnusedCost, Location_s, Term_s, AppliedScopeType_s, TotalReservedQuantity_s, Util7Days_s, UnusedQuantity, Util30Days_s\r\n| order by TotalUnusedCost",
+                "size": 2,
+                "showAnalytics": true,
+                "title": "Unused Reservations Details (grouped by Instance Size Flexibility group)",
+                "timeContextFromParameter": "LookbackPeriod",
+                "showExportToExcel": true,
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "gridSettings": {
+                  "formatters": [
+                    {
+                      "columnMatch": "TotalUnusedCost",
+                      "formatter": 1,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "22ch"
+                      },
+                      "numberFormat": {
+                        "unit": 0,
+                        "options": {
+                          "style": "decimal",
+                          "useGrouping": true,
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "TotalReservedQuantity_s",
+                      "formatter": 1,
+                      "numberFormat": {
+                        "unit": 0,
+                        "options": {
+                          "style": "decimal",
+                          "useGrouping": true,
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "Util7Days_s",
+                      "formatter": 1,
+                      "numberFormat": {
+                        "unit": 1,
+                        "options": {
+                          "style": "decimal",
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "UnusedQuantity",
+                      "formatter": 1,
+                      "numberFormat": {
+                        "unit": 0,
+                        "options": {
+                          "style": "decimal",
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "Util30Days_s",
+                      "formatter": 0,
+                      "numberFormat": {
+                        "unit": 1,
+                        "options": {
+                          "style": "decimal",
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "ReservationName_s",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "40ch"
+                      }
+                    },
+                    {
+                      "columnMatch": "ReservationId_g",
+                      "formatter": 5
+                    },
+                    {
+                      "columnMatch": "ProvisioningState_s",
+                      "formatter": 18,
+                      "formatOptions": {
+                        "thresholdsOptions": "icons",
+                        "thresholdsGrid": [
+                          {
+                            "operator": "==",
+                            "thresholdValue": "Cancelled",
+                            "representation": "4",
+                            "text": "{0}{1}"
+                          },
+                          {
+                            "operator": "Default",
+                            "thresholdValue": null,
+                            "representation": "success",
+                            "text": "{0}{1}"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "labelSettings": [
+                    {
+                      "columnId": "ISFGroup",
+                      "label": "ISF Group"
+                    },
+                    {
+                      "columnId": "TotalUnusedCost",
+                      "label": "Total Unused Cost"
+                    },
+                    {
+                      "columnId": "Location_s",
+                      "label": "Region"
+                    },
+                    {
+                      "columnId": "Term_s",
+                      "label": "Term"
+                    },
+                    {
+                      "columnId": "AppliedScopeType_s",
+                      "label": "Scope"
+                    },
+                    {
+                      "columnId": "TotalReservedQuantity_s",
+                      "label": "Qty."
+                    },
+                    {
+                      "columnId": "Util7Days_s",
+                      "label": "Used (7d)"
+                    },
+                    {
+                      "columnId": "UnusedQuantity",
+                      "label": "Unused Qty. (7d)"
+                    },
+                    {
+                      "columnId": "Util30Days_s",
+                      "label": "Used (30d)"
+                    },
+                    {
+                      "columnId": "UnusedQuantity30d",
+                      "label": "Unused Qty. (30d)"
+                    }
+                  ]
+                }
+              },
+              "name": "unusedReservationsDetailsISF"
+            }
+          ]
+        },
+        "conditionalVisibilities": [
+          {
+            "parameterName": "selectedTab",
+            "comparison": "isEqualTo",
+            "value": "unusedReservations"
+          },
+          {
+            "parameterName": "UseISF",
+            "comparison": "isEqualTo",
+            "value": "Yes"
+          }
+        ],
+        "name": "unusedReservationsGroupISF"
+      },
+      {
+        "type": 12,
+        "content": {
+          "version": "NotebookGroup/1.0",
+          "groupType": "editable",
+          "items": [
+            {
+              "type": 3,
+              "content": {
+                "version": "KqlItem/1.0",
+                "query": "let LinuxOnDemandPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s == 'Consumption' and MeterSubCategory_s !endswith \"Windows\"\r\n| extend MeterSubCategory_s = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Linux'))\r\n| summarize LinuxUnitPrice=max(todouble(UnitPrice_s)) by LinuxMeterId=MeterID_g, MeterName_s, MeterSubCategory_s, MeterRegion_s, LinuxUnitOfMeasure=UnitOfMeasure_s;\r\nlet VMOnDemandPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s == 'Virtual Machines' and PriceType_s == 'Consumption'\r\n| extend NonWindowsMeterSubcategory = substring(MeterSubCategory_s, 0, indexof(MeterSubCategory_s, ' Windows'))\r\n| extend WindowsMeterSubCategory = MeterSubCategory_s\r\n| extend NonWindowsMeterSubcategory = substring(NonWindowsMeterSubcategory, 0, indexof(NonWindowsMeterSubcategory, ' Linux'))\r\n| summarize UnitPrice_s=max(todouble(UnitPrice_s)) by MeterID_g, MeterName_s, NonWindowsMeterSubcategory, WindowsMeterSubCategory, MeterRegion_s, UnitOfMeasure_s\r\n| join kind=leftouter ( LinuxOnDemandPriceSheet ) on MeterName_s, MeterRegion_s, $left.NonWindowsMeterSubcategory == $right.MeterSubCategory_s\r\n| extend PricesheetPrice = iif(isnotempty(LinuxUnitPrice), LinuxUnitPrice, UnitPrice_s)\r\n| extend PricesheetUnitOfMeasure = iif(isnotempty(LinuxUnitOfMeasure), LinuxUnitOfMeasure, UnitOfMeasure_s)\r\n| extend UnitHrs = toint(substring(PricesheetUnitOfMeasure, 0, indexof(PricesheetUnitOfMeasure, 'Hour')-1))\r\n| extend OnDemandUnitPrice = PricesheetPrice/UnitHrs\r\n| distinct MeterID_g, OnDemandUnitPrice;\r\nlet OnDemandPriceSheet = AzureOptimizationPricesheetV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| where MeterCategory_s != 'Virtual Machines' and PriceType_s == 'Consumption'\r\n| summarize OnDemandUnitPrice = max(todouble(UnitPrice_s)) by MeterID_g\r\n| union (VMOnDemandPriceSheet)\r\n| summarize OnDemandUnitPrice=min(OnDemandUnitPrice) by MeterID_g;\r\nlet ReservationPricesheet = materialize(AzureOptimizationReservationsPriceV1_CL\r\n| where TimeGenerated > ago(14d)\r\n| extend Term_s = iif(reservationTerm_s == '3 Years', 'P3Y', 'P1Y')\r\n| extend TermDivider = iif(reservationTerm_s == '3 Years', 3, 1)\r\n| extend ReservationPrice = todouble(replace_string(unitPrice_s,',','.'))/TermDivider/12/730\r\n| summarize arg_max(TimeGenerated, ReservationPrice) by Location_s=tolower(armRegionName_s), SkuName=tolower(armSkuName_s), Term_s);\r\nlet ReservationOnDemandMeters = AzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}') and TimeGenerated < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and isnotempty(ReservationName_s)\r\n| extend SkuName = tolower(parse_json(AdditionalInfo_s).ServiceType)\r\n| distinct ReservationId_g, MeterId_g, SkuName;\r\nlet ISFGroups = externaldata(ISFGroup:string, ArmSKUName:string, Ratio:double) [@\"https://aka.ms/isf\"] with(ignoreFirstRecord=true) | extend skuName=tolower(ArmSKUName);\r\nAzureOptimizationConsumptionV1_CL\r\n| where TimeGenerated > todatetime('{LookbackPeriod:startISO}') and TimeGenerated < todatetime('{LookbackPeriod:endISO}') and ChargeType_s == 'Usage' and isnotempty(ReservationName_s)\r\n| where ReservationId_g in ({Reservation:value})\r\n| extend RINormalizationRatio = tostring(parse_json(AdditionalInfo_s).RINormalizationRatio)\r\n| extend UsedRIs = todouble(Quantity_s) * todouble(RINormalizationRatio) / 24\r\n| summarize UsedRIsDaily=round(sum(UsedRIs),2) by Date_s, ReservationId_g\r\n| summarize AvgRIsUsedDaily=round(avg(UsedRIsDaily),2) by ReservationId_g\r\n| join kind=rightouter (\r\n    AzureOptimizationReservationsUsageV1_CL\r\n    | where TimeGenerated > ago(1d)\r\n    | where ReservationId_g in ({Reservation:value})\r\n    | summarize arg_max(TimeGenerated, *) by ReservationId_g\r\n    | where ProvisioningState_s == 'Succeeded'\r\n    | project ReservationId_g, ReservationName_s=DisplayName_s, SKUName_s, Location_s, Util7Days_s, Util30Days_s, TotalReservedQuantity_s, Term_s, ExpiryDate_s\r\n) on ReservationId_g\r\n| project ReservationId_g=ReservationId_g1, ReservationName_s, TotalReservedQuantity_s, SKUName_s=tolower(SKUName_s), Location_s, AvgRIsUsedDaily=iif(isempty(AvgRIsUsedDaily), 0.0, AvgRIsUsedDaily), Util7Days_s, Util30Days_s, Term_s, ExpiryDate_s\r\n| join kind=leftouter ( ISFGroups ) on $left.SKUName_s==$right.skuName\r\n| join kind=leftouter (ReservationOnDemandMeters) on ReservationId_g\r\n| summarize arg_max(MeterId_g, *) by ReservationId_g\r\n| join kind=leftouter (ReservationPricesheet) on SkuName and Location_s and Term_s\r\n| join kind=leftouter (OnDemandPriceSheet) on $left.MeterId_g == $right.MeterID_g\r\n| extend DiscountPercent = (1 - ReservationPrice/OnDemandUnitPrice) * 100\r\n| project-away ReservationPrice\r\n| join kind=leftouter (ReservationPricesheet) on $left.SKUName_s==$right.SkuName and Location_s and Term_s\r\n| extend HoursUntilExpiry=(todatetime(ExpiryDate_s)-now())/1h\r\n| extend TotalReservedHoursToConsume=todouble(TotalReservedQuantity_s)*HoursUntilExpiry\r\n| extend AmountRemainingToConsume = round(TotalReservedHoursToConsume * ReservationPrice, 2)\r\n| project ReservationId_g, ReservationName_s, TotalReservedQuantity_s=round(todouble(TotalReservedQuantity_s)), SKUName_s, ISFGroup, Location_s, Term_s, ExpiryDate_s, AmountRemainingToConsume, AvgRIsUsedDaily, Util7Days_s=round(todouble(Util7Days_s)), Util30Days_s=round(todouble(Util30Days_s)), DiscountPercent, SavingsMargin=round(todouble(Util7Days_s))-100.0+DiscountPercent \r\n| order by Util7Days_s asc",
+                "size": 0,
+                "showAnalytics": true,
+                "timeContextFromParameter": "LookbackPeriod",
+                "exportedParameters": [
+                  {
+                    "fieldName": "ReservationId_g",
+                    "parameterName": "selectedReservation",
+                    "parameterType": 1
+                  },
+                  {
+                    "fieldName": "TotalReservedQuantity_s",
+                    "parameterName": "selectedQuantity",
+                    "parameterType": 1
+                  }
+                ],
+                "showExportToExcel": true,
+                "queryType": 0,
+                "resourceType": "microsoft.operationalinsights/workspaces",
+                "gridSettings": {
+                  "formatters": [
+                    {
+                      "columnMatch": "ReservationId_g",
+                      "formatter": 5
+                    },
+                    {
+                      "columnMatch": "ReservationName_s",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "24ch"
+                      }
+                    },
+                    {
+                      "columnMatch": "TotalReservedQuantity_s",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "9ch"
+                      },
+                      "numberFormat": {
+                        "unit": 0,
+                        "options": {
+                          "style": "decimal",
+                          "useGrouping": true,
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "SKUName_s",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "18ch"
+                      }
+                    },
+                    {
+                      "columnMatch": "ISFGroup",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "20ch"
+                      }
+                    },
+                    {
+                      "columnMatch": "Location_s",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "13ch"
+                      }
+                    },
+                    {
+                      "columnMatch": "AmountRemainingToConsume",
+                      "formatter": 0,
+                      "numberFormat": {
+                        "unit": 0,
+                        "options": {
+                          "style": "decimal",
+                          "useGrouping": true,
+                          "minimumFractionDigits": 2,
+                          "maximumFractionDigits": 2
+                        }
+                      },
+                      "tooltipFormat": {
+                        "tooltip": "Remaining commitment to be consumed until the reservation expiry date (value in the currency of your consumption agreement)"
+                      }
+                    },
+                    {
+                      "columnMatch": "Util7Days_s",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "14ch"
+                      },
+                      "numberFormat": {
+                        "unit": 1,
+                        "options": {
+                          "style": "decimal",
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "Util30Days_s",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "15ch"
+                      },
+                      "numberFormat": {
+                        "unit": 1,
+                        "options": {
+                          "style": "decimal",
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "DiscountPercent",
+                      "formatter": 0,
+                      "formatOptions": {
+                        "customColumnWidthSetting": "13ch"
+                      },
+                      "numberFormat": {
+                        "unit": 1,
+                        "options": {
+                          "style": "decimal",
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    },
+                    {
+                      "columnMatch": "SavingsMargin",
+                      "formatter": 18,
+                      "formatOptions": {
+                        "thresholdsOptions": "colors",
+                        "thresholdsGrid": [
+                          {
+                            "operator": "<",
+                            "thresholdValue": "0",
+                            "representation": "redBright",
+                            "text": "{0}{1}"
+                          },
+                          {
+                            "operator": "<",
+                            "thresholdValue": "5",
+                            "representation": "yellow",
+                            "text": "{0}{1}"
+                          },
+                          {
+                            "operator": "Default",
+                            "thresholdValue": null,
+                            "representation": "green",
+                            "text": "{0}{1}"
+                          }
+                        ],
+                        "customColumnWidthSetting": "12ch"
+                      },
+                      "numberFormat": {
+                        "unit": 1,
+                        "options": {
+                          "style": "decimal",
+                          "maximumFractionDigits": 0
+                        }
+                      }
+                    }
+                  ],
+                  "rowLimit": 5000,
+                  "labelSettings": [
+                    {
+                      "columnId": "ReservationId_g",
+                      "label": "ID"
+                    },
+                    {
+                      "columnId": "ReservationName_s",
+                      "label": "Reservation"
+                    },
+                    {
+                      "columnId": "TotalReservedQuantity_s",
+                      "label": "Qty."
+                    },
+                    {
+                      "columnId": "SKUName_s",
+                      "label": "Size"
+                    },
+                    {
+                      "columnId": "ISFGroup",
+                      "label": "ISF Group"
+                    },
+                    {
+                      "columnId": "Location_s",
+                      "label": "Region"
+                    },
+                    {
+                      "columnId": "Term_s",
+                      "label": "Term"
+                    },
+                    {
+                      "columnId": "ExpiryDate_s",
+                      "label": "Expires On"
+                    },
+                    {
+                      "columnId": "AmountRemainingToConsume",
+                      "label": "Remain. Commit.",
+                      "comment": ""
+                    },
+                    {
+                      "columnId": "AvgRIsUsedDaily",
+                      "label": "Qty. Used (Avg)"
+                    },
+                    {
+                      "columnId": "Util7Days_s",
+                      "label": "Used (7d)"
+                    },
+                    {
+                      "columnId": "Util30Days_s",
+                      "label": "Used (30d)"
+                    },
+                    {
+                      "columnId": "DiscountPercent",
+                      "label": "Discount"
+                    },
+                    {
+                      "columnId": "SavingsMargin",
+                      "label": "Savings"
+                    }
+                  ]
+                },
+                "sortBy": []
+              },
+              "name": "riUsageDetailsFull"
+            }
+          ]
+        },
+        "conditionalVisibility": {
+          "parameterName": "selectedTab",
+          "comparison": "isEqualTo",
+          "value": "fullReport"
+        },
+        "name": "fullReport"
+      }
+    ],
+    "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+  }
