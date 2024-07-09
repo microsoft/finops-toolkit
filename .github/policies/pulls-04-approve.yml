@@ -30,6 +30,8 @@ configuration:
           - addLabel:
               label: 'Status: ▶️ Ready'
           - removeLabel:
+              label: 'Needs: Review 👀'
+          - removeLabel:
               label: 'Needs: Attention 👋'
           - assignTo:
               author: True
