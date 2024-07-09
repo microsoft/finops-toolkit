@@ -160,7 +160,7 @@ table RecommendationsShared
 				let
 				    Source = try ftk_CMConnector("rirecommendationsshared") otherwise #table(
 				        {"meterId", "term", "costWithNoReservedInstances", "recommendedQuantity", "totalCostWithReservedInstances", "netSavings", "firstUsageDate", "scope", "lookBackPeriod", "instanceFlexibilityRatio", "instanceFlexibilityGroup", "normalizedSize", "recommendedQuantityNormalized", "skuProperties"},
-				        {}
+				        {{"Failed to get data",null,null,null,null,null,null,null,null,null,null,null,null,null}}
 				    ),
 				    BackfillNormQty  = if Table.HasColumns(Source, {"recommendedQuantityNormalized"}) then Source          else Table.AddColumn(Source,          "recommendedQuantityNormalized", each null, type number),
 				    BackfillNormSize = if Table.HasColumns(Source, {"normalizedSize"})                then BackfillNormQty else Table.AddColumn(BackfillNormQty, "normalizedSize",                each null, type number),
