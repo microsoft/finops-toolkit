@@ -1,0 +1,5 @@
+# 📦 Data Collection Automation Runbooks
+
+This folder contains the several data collection Azure Automation Runbooks that are executed periodically by AOE to collect data from several sources. All the `Export-*` runbooks follow the same pattern, collecting data from its respective source (Azure Resource Graph, Azure Monitor, Billing APIs, etc.) and exporting as a CSV to Azure Storage.
+
+The [Ingest-OptimizationCSVExportsToLogAnalytics](./Ingest-OptimizationCSVExportsToLogAnalytics.ps1) runbook is a generic Azure Storage to Log Analytics ingestion script that takes whatever exported CSV and ingests its data into the corresponding Log Analytics table, according to the mappings defined in the `LogAnalyticsIngestControl` SQL Database table (see the [table initialization script](../../model/loganalyticsingestcontrol-initialize.sql) for more details).

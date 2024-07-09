@@ -42,7 +42,5 @@ configuration:
         then:
           - addLabel:
               label: 'Needs: Triage 🔍'
-          - assignTo:
-              user: flanakin
 onFailure:
 onSuccess:

@@ -118,3 +118,29 @@ Get-ChildItem "$PSScriptRoot/../templates/$Template*" -Directory -ErrorAction Si
 
     Write-Host ''
 }
+
+# TODO: review build logic to make it more generic across all toolkit components
+# Package optimization engine
+$srcDir = "$PSScriptRoot/../optimization-engine"
+Write-Host "Building optimization engine..."
+
+# Create target directory
+$destDir = "$outdir/optimization-engine"
+Remove-Item $destDir -Recurse -ErrorAction SilentlyContinue
+& "$PSScriptRoot/New-Directory" $destDir
+
+# Copy required files
+Write-Host "  Copying files..."
+Get-ChildItem $srcDir | Copy-Item -Destination $destDir -Recurse -Exclude ".buildignore"
+
+# Remove ignored files
+Get-Content "$srcDir/.buildignore" `
+| ForEach-Object {
+    $file = $_
+    if (Test-Path "$destDir/$file")
+    {
+        Remove-Item "$destDir/$file" -Recurse -Force
+    }
+}
+
+$ver | Out-File "$destDir/ftkver.txt" -NoNewline

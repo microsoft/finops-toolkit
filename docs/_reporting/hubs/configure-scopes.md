@@ -68,7 +68,7 @@ Managed exports allow FinOps hubs to setup and maintain Cost Management exports 
     <!--
     ### Enterprise agreement billing accounts and departments
    
-    1. [Find your enrollment (and department) Id](https://learn.microsoft.com/en-us/azure/cost-management-billing/manage/view-all-accounts#switch-billing-scope-in-the-azure-portal).
+    1. [Find your enrollment (and department) Id](https://learn.microsoft.com/azure/cost-management-billing/manage/view-all-accounts#switch-billing-scope-in-the-azure-portal).
     2. Load the FinOps Toolkit PowerShell module.
     3. Grant reader permissions to the data factory
    

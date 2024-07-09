@@ -1,4 +1,4 @@
-id: pulls-00-file-paths
++id: pulls-00-file-paths
 name: GitOps.PullRequestIssueManagement
 description: Handles when a PR is opened with specific file paths
 owner:
@@ -35,6 +35,8 @@ configuration:
                     user: benshy
                 - isActivitySender:
                     user: flanakin
+                - isActivitySender:
+                    user: helderpinto
                 - isActivitySender:
                     user: msbrett
                 - isActivitySender:
@@ -84,7 +86,7 @@ configuration:
           # docs
           - if:
               - filesMatchPattern:
-                  pattern: ^(docs|docs-wiki)\/.*
+                  pattern: ^(docs|docs-mslearn|docs-wiki)\/.*
               - not:
                   or:
                     - isActivitySender:
@@ -109,6 +111,16 @@ configuration:
               targetsBranch:
                 branch: main
         then:
+          # all paths -- Arthur
+          - if:
+              - not:
+                  isActivitySender:
+                    user: arthurclares
+            then:
+              - requestReview:
+                  reviewer: arthurclares
+              - assignTo:
+                  user: arthurclares
           # all paths -- Michael
           - if:
               - not:
@@ -130,7 +142,7 @@ configuration:
                       pattern: ^package.json$
             then:
               - addLabel:
-                  label: 'Area: DevOps'
+                  label: 'Skill: DevOps'
               # Anthony
               - if:
                   - not:
@@ -147,26 +159,36 @@ configuration:
                   pattern: ^docs\/.*
             then:
               - addLabel:
-                  label: 'Area: Documentation'
+                  label: 'Skill: Documentation'
+          - if:
+              - filesMatchPattern:
+                  pattern: ^(docs\/(_docs|_guide)|docs-mslearn\/framework|docs-mslearn\/focus)\/.*
+            then:
+              - addLabel:
+                  label: 'Tool: FinOps guide'
           # bicep
           - if:
               - filesMatchPattern:
-                  pattern: ^(docs|src)\/bicep-registry\/.*
+                  pattern: ^src\/.*\.bicep
             then:
               - addLabel:
-                  label: 'Solution: Bicep Registry'
+                  label: 'Skill: ARM'
+          - if:
+              - filesMatchPattern:
+                  pattern: ^(docs\/_automation|docs-mslearn\/toolkit|src)\/bicep-registry\/.*
+            then:
+              - addLabel:
+                  label: 'Tool: Bicep Registry'
           # hubs
           - if:
               - or:
                   - filesMatchPattern:
-                      pattern: ^docs\/finops-hub\/.*
+                      pattern: ^(docs\/_reporting\/hubs|src\/templates\/finops-hub)\/.*
                   - filesMatchPattern:
-                      pattern: ^src\/templates\/finops-hub\/.*
-                  - filesMatchPattern:
-                      pattern: ^src\/powershell\/(Public|Private)\/[^-]+-FinOpsHub[^\.]*\.ps1
+                      pattern: ^src\/powershell\/.*Hub.*
             then:
               - addLabel:
-                  label: 'Solution: FinOps hubs'
+                  label: 'Tool: FinOps hubs'
               # Brett
               - if:
                   - not:
@@ -180,17 +202,17 @@ configuration:
           # open data
           - if:
               - filesMatchPattern:
-                  pattern: ^(docs|src)\/open-data\/.*
+                  pattern: ^(docs\/_reporting\/data|(docs-mslearn\/toolkit|src)\/open-data)\/.*
             then:
               - addLabel:
-                  label: 'Solution: Open data'
+                  label: 'Tool: Open data'
           # powershell
           - if:
               - filesMatchPattern:
-                  pattern: ^(docs|src)\/powershell\/.*
+                  pattern: ^(docs\/_automation|docs-mslearn\/toolkit+|src)\/powershell\/.*
             then:
               - addLabel:
-                  label: 'Area: PowerShell'
+                  label: 'Tool: PowerShell'
               # Anthony
               - if:
                   - not:
@@ -201,16 +223,6 @@ configuration:
                       reviewer: aromano2
                   - assignTo:
                       user: aromano2
-              # Arthur
-              - if:
-                  - not:
-                      isActivitySender:
-                        user: arthurclares
-                then:
-                  - requestReview:
-                      reviewer: arthurclares
-                  - assignTo:
-                      user: arthurclares
               # Divyadeep
               - if:
                   - not:
@@ -221,16 +233,16 @@ configuration:
                       reviewer: didayal-msft
                   - assignTo:
                       user: didayal-msft
-              # Saad
+              # Helder
               - if:
                   - not:
                       isActivitySender:
-                        user: saadmsft
+                        user: helderpinto
                 then:
                   - requestReview:
-                      reviewer: saadmsft
+                      reviewer: helderpinto
                   - assignTo:
-                      user: saadmsft
+                      user: helderpinto
               # Sacha
               - if:
                   - not:
@@ -241,50 +253,52 @@ configuration:
                       reviewer: springstone
                   - assignTo:
                       user: springstone
-              # Seif
+          # optimization engine
+          - if:
+              - filesMatchPattern:
+                  pattern: ^(docs\/_optimize|docs-mslearn\/toolkit|src)\/optimization-engine\/.*
+            then:
+              - addLabel:
+                  label: 'Tool: Optimization Engine'
+              # Helder
               - if:
                   - not:
                       isActivitySender:
-                        user: sebassem
+                        user: helderpinto
                 then:
                   - requestReview:
-                      reviewer: sebassem
+                      reviewer: helderpinto
                   - assignTo:
-                      user: sebassem
+                      user: helderpinto
           # workbooks
           - if:
               - or:
                   - filesMatchPattern:
-                      pattern: ^docs\/[^-]+-workbook\/.*
+                      pattern: ^docs\/_optimize\/[^-]+-workbook\/.*
                   - filesMatchPattern:
                       pattern: ^src\/scripts\/Build-Workbook.ps1$
                   - filesMatchPattern:
                       pattern: ^src\/workbooks\/.*
             then:
               - addLabel:
-                  label: 'Solution: Workbooks'
-              # Arthur
+                  label: 'Skill: Workbooks'
               - if:
-                  - or:
-                      - filesMatchPattern:
-                          pattern: ^docs\/optimization-workbook\/.*
-                      - filesMatchPattern:
-                          pattern: ^src\/scripts\/Build-Workbook.ps1$
-                      - filesMatchPattern:
-                          pattern: ^src\/workbooks\/(\.scaffold|optimization)\/.*
-                  - not:
-                      isActivitySender:
-                        user: arthurclares
+                  - filesMatchPattern:
+                      pattern: ^(docs\/_optimize\/optimization-workbook|src\/workbooks\/optimization)\/.*
                 then:
-                  - requestReview:
-                      reviewer: arthurclares
-                  - assignTo:
-                      user: arthurclares
+                  - addLabel:
+                      label: 'Tool: Optimization workbook'
+              - if:
+                  - filesMatchPattern:
+                      pattern: ^(docs\/governance-workbook|src\/workbooks\/governance)\/.*
+                then:
+                  - addLabel:
+                      label: 'Tool: Governance workbook'
               # Nicolas
               - if:
                   - or:
                       - filesMatchPattern:
-                          pattern: ^docs\/governance-workbook\/.*
+                          pattern: ^docs\/_optimize\/governance-workbook\/.*
                       - filesMatchPattern:
                           pattern: ^src\/scripts\/Build-Workbook.ps1$
                       - filesMatchPattern:
@@ -301,7 +315,7 @@ configuration:
               - if:
                   - or:
                       - filesMatchPattern:
-                          pattern: ^docs\/optimization-workbook\/.*
+                          pattern: ^docs\/_optimize\/optimization-workbook\/.*
                       - filesMatchPattern:
                           pattern: ^src\/scripts\/Build-Workbook.ps1$
                       - filesMatchPattern:
