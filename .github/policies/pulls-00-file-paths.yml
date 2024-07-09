@@ -36,8 +36,6 @@ configuration:
                 - isActivitySender:
                     user: flanakin
                 - isActivitySender:
-                    user: helderpinto
-                - isActivitySender:
                     user: msbrett
                 - isActivitySender:
                     user: springstone
