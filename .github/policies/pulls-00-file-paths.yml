@@ -161,11 +161,8 @@ configuration:
               - addLabel:
                   label: 'Skill: Documentation'
           - if:
-              - or:
-                  - filesMatchPattern:
-                      pattern: ^docs\/_docs\/.*
-                  - filesMatchPattern:
-                      pattern: ^docs\/_guide\/.*
+              - filesMatchPattern:
+                  pattern: ^(docs\/(_docs|_guide)|docs-mslearn\/framework|docs-mslearn\/focus)\/.*
             then:
               - addLabel:
                   label: 'Tool: FinOps guide'
@@ -178,7 +175,7 @@ configuration:
                   label: 'Skill: ARM'
           - if:
               - filesMatchPattern:
-                  pattern: ^(docs|src)\/bicep-registry\/.*
+                  pattern: ^(docs\/_automation|docs-mslearn\/toolkit|src)\/bicep-registry\/.*
             then:
               - addLabel:
                   label: 'Tool: Bicep Registry'
@@ -188,7 +185,7 @@ configuration:
                   - filesMatchPattern:
                       pattern: ^(docs\/_reporting\/hubs|src\/templates\/finops-hub)\/.*
                   - filesMatchPattern:
-                      pattern: ^src\/powershell\/(Public|Private|Tests)\/[^-]+-FinOpsHub.*
+                      pattern: ^src\/powershell\/.*Hub.*
             then:
               - addLabel:
                   label: 'Tool: FinOps hubs'
@@ -205,14 +202,14 @@ configuration:
           # open data
           - if:
               - filesMatchPattern:
-                  pattern: ^(docs|src)\/(data|open-data)\/.*
+                  pattern: ^(docs\/_reporting\/data|(docs-mslearn\/toolkit|src)\/open-data)\/.*
             then:
               - addLabel:
                   label: 'Tool: Open data'
           # powershell
           - if:
               - filesMatchPattern:
-                  pattern: ^(docs|src)\/powershell\/.*
+                  pattern: ^(docs\/_automation|docs-mslearn\/toolkit+|src)\/powershell\/.*
             then:
               - addLabel:
                   label: 'Tool: PowerShell'
@@ -258,11 +255,8 @@ configuration:
                       user: springstone
           # optimization engine
           - if:
-              - or:
-                  - filesMatchPattern:
-                      pattern: ^docs\/_optimize\/optimization-engine\/.*
-                  - filesMatchPattern:
-                      pattern: ^src\/optimization-engine\/.*
+              - filesMatchPattern:
+                  pattern: ^(docs\/_optimize|docs-mslearn\/toolkit|src)\/optimization-engine\/.*
             then:
               - addLabel:
                   label: 'Tool: Optimization Engine'
