@@ -40,13 +40,13 @@ configuration:
           # breaking change
           - if:
               - commentContains:
-                  pattern: '[x] This is a breaking change.'
+                  pattern: '[x] 🚨 This is a breaking change'
             then:
               - addLabel:
                   label: 'Breaking change 🚨'
           - if:
               - commentContains:
-                  pattern: '[ ] This is a breaking change.'
+                  pattern: '[ ] 🚨 This is a breaking change'
             then:
               - removeLabel:
                   label: 'Breaking change 🚨'
@@ -57,13 +57,13 @@ configuration:
           # micro PR
           - if:
               - commentContains:
-                  pattern: '[x] 🤏 The change is less than 20 lines of code.'
+                  pattern: '[x] 🤏 The change is less than 20 lines'
             then:
               - addLabel:
                   label: 'Micro PR 🔬'
           - if:
               - commentContains:
-                  pattern: '[ ] 🤏 The change is less than 20 lines of code.'
+                  pattern: '[ ] 🤏 The change is less than 20 lines'
             then:
               - removeLabel:
                   label: 'Micro PR 🔬'
