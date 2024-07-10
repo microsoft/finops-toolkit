@@ -1,13 +1,28 @@
-param office365_1_Connection_Name string = 'WasteReductionConnection'
-param office365_1_Connection_DisplayName string = 'WasteReductionConnection'
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
+//==============================================================================
+// Parameters
+//==============================================================================
+
+@description('The name of the connection to use for the logic app')
+param ConnectionName string = 'WasteReductionConnection'
+
+param DisplayName string = 'WasteReductionConnection'
+
+@description('The location of the logic app must be the same as the resource group')
 @minLength(1)
-param WasteReductionLocation string = resourceGroup().location
+param Location string = resourceGroup().location
 
+@description('Then name of the logic app')
 @minLength(1)
-param WasteReductionName string = 'WasteReductionApp'
+param appName string = 'WasteReductionApp'
 
-resource WasteReduction 'Microsoft.Logic/workflows@2017-07-01' = {
+//==============================================================================
+// Resources
+//==============================================================================
+
+resource WasteReduction 'Microsoft.Logic/workflows@2019-05-01' = {
   properties: {
     state: 'Enabled'
     definition: {
@@ -36,47 +51,43 @@ resource WasteReduction 'Microsoft.Logic/workflows@2017-07-01' = {
         For_each_App_GW: {
           foreach: '@body(\'Parse_Idle_App_Gateways\')?[\'data\']'
           actions: {
-            'Send_an_email_(V2)': {
+            'Send_an_email_(V2)_AppGw': {
               runAfter: {
-                'Set_Email_body_-_App_Gateways': [
+                Compose_AppGw: [
                   'Succeeded'
                 ]
               }
               type: 'ApiConnection'
               inputs: {
-                body: {
-                  Body: '<p><span style="font-size: 24px"><u><strong>Idle Application Gateway detected<br>\n<br>\n</strong></u></span><span style="font-size: 12px"><strong>Name: </strong></span>@{items(\'For_each_App_GW\')?[\'name\']}<br>\n<strong>Resource group: </strong>@{items(\'For_each_App_GW\')?[\'resourceGroup\']}<br>\n<strong>Resource URL: </strong>@{variables(\'AppGwURI\')}<br>\n<br>\n<em>Please review if it should be deleted.&nbsp;</em></p>'
-                  Subject: 'Idle Application Gateway detected'
-                  To: '@variables(\'SendAlertTo\')'
-                }
                 host: {
                   connection: {
                     name: '@parameters(\'$connections\')[\'office365\'][\'connectionId\']'
                   }
                 }
                 method: 'post'
+                body: {
+                  To: '@variables(\'SendAlertTo\')'
+                  Subject: 'Idle Application Gateway detected'
+                  Body: '<p><u><b><strong style="font-size: 24px;">Idle Application Gateway detected</strong></b></u></p><p><b><strong style="font-size: 15px;">Name:</strong></b><b><strong style="font-size: 12px;"> </strong></b>@{items(\'For_each_App_GW\')?[\'name\']}</p><p><b><strong>Resource group: </strong></b>@{items(\'For_each_App_GW\')?[\'resourceGroup\']}</p><p><b><strong>Resource URL: </strong></b>@{outputs(\'Compose_AppGw\')} </p><p><i><em>Please review if it should be deleted.&nbsp;</em></i></p>'
+                }
                 path: '/v2/Mail'
               }
             }
             Set_App_Gateways_URI: {
-              runAfter: {}
               type: 'SetVariable'
               inputs: {
                 name: 'AppGwURI'
                 value: '@{concat(\'https://portal.azure.com/#@\',items(\'For_each_App_GW\')?[\'tenantId\'],\'/resource\',items(\'For_each_App_GW\')?[\'id\'])}'
               }
             }
-            'Set_Email_body_-_App_Gateways': {
+            Compose_AppGw: {
               runAfter: {
                 Set_App_Gateways_URI: [
                   'Succeeded'
                 ]
               }
-              type: 'SetVariable'
-              inputs: {
-                name: 'EmailBody-AppGws'
-                value: '<h1>Idle Application Gateway detected</h1>\n<b>@{items(\'For_each_App_GW\')?[\'name\']}</b> in resource group <b>@{items(\'For_each_App_GW\')?[\'resourceGroup\']}</b> is Idle\n</br>\nResource URL: @{variables(\'AppGwURI\')}\nPlease review if it should be deleted. '
-              }
+              type: 'Compose'
+              inputs: '@variables(\'AppGwURI\')'
             }
           }
           runAfter: {
@@ -85,51 +96,52 @@ resource WasteReduction 'Microsoft.Logic/workflows@2017-07-01' = {
             ]
           }
           type: 'Foreach'
+          runtimeConfiguration: {
+            concurrency: {
+              repetitions: 1
+            }
+          }
         }
         For_each_Disk: {
           foreach: '@body(\'Parse_Idle_disks\')?[\'data\']'
           actions: {
-            'Send_an_email_(V2)_2': {
+            'Send_an_email_(V2)_Disk': {
               runAfter: {
-                'Set_Email_body_-_Disks': [
+                Compose_Disk: [
                   'Succeeded'
                 ]
               }
               type: 'ApiConnection'
               inputs: {
-                body: {
-                  Body: '<p><span style="font-size: 24px"><u><strong>Idle disk detected<br>\n</strong></u></span><br>\n<strong>Name:</strong> @{items(\'For_each_Disk\')?[\'DiskName\']}<br>\n<strong>Resource group:</strong> @{items(\'For_each_Disk\')?[\'resourceGroup\']}<strong><br>\nResource URL:</strong> &nbsp;@{variables(\'DiskURI\')}<br>\n<br>\n<em>Please review if it should be deleted.&nbsp;</em></p>'
-                  Subject: 'Idle disk detected'
-                  To: '@variables(\'SendAlertTo\')'
-                }
                 host: {
                   connection: {
                     name: '@parameters(\'$connections\')[\'office365\'][\'connectionId\']'
                   }
                 }
                 method: 'post'
+                body: {
+                  To: '@variables(\'SendAlertTo\')'
+                  Subject: 'Idle disk detected'
+                  Body: '<p><u><b><strong style="font-size: 24px;">Idle Disk detected</strong></b></u></p><p><b><strong>Name:</strong></b> @{items(\'For_each_Disk\')?[\'DiskName\']}</p><p><b><strong>Resource group:</strong></b> @{items(\'For_each_Disk\')?[\'resourceGroup\']}</p><p><b><strong>Resource URL:</strong></b> &nbsp;@{outputs(\'Compose_Disk\')}</p><p><i><em>Please review if it should be deleted.&nbsp;</em></i></p>'
+                }
                 path: '/v2/Mail'
               }
             }
             Set_Disk_URI: {
-              runAfter: {}
               type: 'SetVariable'
               inputs: {
                 name: 'DiskURI'
                 value: '@{concat(\'https://portal.azure.com/#@\',items(\'For_each_Disk\')?[\'tenantId\'],\'/resource\',items(\'For_each_Disk\')?[\'DiskId\'])}'
               }
             }
-            'Set_Email_body_-_Disks': {
+            Compose_Disk: {
               runAfter: {
                 Set_Disk_URI: [
                   'Succeeded'
                 ]
               }
-              type: 'SetVariable'
-              inputs: {
-                name: 'EmailBody-disks'
-                value: '<h1>Idle disk detected</h1>\n<b>@{items(\'For_each_Disk\')?[\'name\']}</b>  in resource group <b>@{items(\'For_each_Disk\')?[\'resourceGroup\']}</b> is unattached.\n</br>\nResource URL:  @{variables(\'DiskURI\')}\nPlease review if it should be deleted. '
-              }
+              type: 'Compose'
+              inputs: '@variables(\'DiskURI\')'
             }
           }
           runAfter: {
@@ -138,50 +150,51 @@ resource WasteReduction 'Microsoft.Logic/workflows@2017-07-01' = {
             ]
           }
           type: 'Foreach'
+          runtimeConfiguration: {
+            concurrency: {
+              repetitions: 1
+            }
+          }
         }
         For_each_IP_address: {
           foreach: '@body(\'Parse_Idle_IP_addresses\')?[\'data\']'
           actions: {
-            'Send_an_email_(V2)_3': {
+            Set_IP_address_URI: {
+              type: 'SetVariable'
+              inputs: {
+                name: 'IPAddressURI'
+                value: '@{concat(\'https://portal.azure.com/#@\',items(\'For_each_IP_address\')?[\'tenantId\'],\'/resource\',items(\'For_each_IP_address\')?[\'PublicIpId\'])}'
+              }
+            }
+            Compose_IP: {
               runAfter: {
-                'Set_Email_body_-_IP_addresses': [
+                Set_IP_address_URI: [
+                  'Succeeded'
+                ]
+              }
+              type: 'Compose'
+              inputs: '@variables(\'IPAddressURI\')'
+            }
+            'Send_an_email_(V2)_IP': {
+              runAfter: {
+                Compose_IP: [
                   'Succeeded'
                 ]
               }
               type: 'ApiConnection'
               inputs: {
-                body: {
-                  Body: '<p><span style="font-size: 24px"><u><strong>Idle IP address detected<br>\n<br>\n</strong></u></span><strong>Name:</strong> @{items(\'For_each_IP_address\')?[\'IPName\']}<br>\n<strong>Resource group:</strong> @{items(\'For_each_IP_address\')?[\'resourceGroup\']}<br>\n<strong>Resource URL:</strong> &nbsp;@{variables(\'IPAddressURI\')}<br>\n<br>\n<em>Please review if it should be deleted.&nbsp;</em></p>'
-                  Subject: 'Idle IP address detected'
-                  To: '@variables(\'SendAlertTo\')'
-                }
                 host: {
                   connection: {
                     name: '@parameters(\'$connections\')[\'office365\'][\'connectionId\']'
                   }
                 }
                 method: 'post'
+                body: {
+                  To: '@variables(\'SendAlertTo\')'
+                  Subject: 'Idle IP address detected'
+                  Body: '<p><u><b><strong style="font-size: 24px;">Idle IP Address detected</strong></b></u></p><p><b><strong>Name:</strong></b> @{items(\'For_each_IP_address\')?[\'IPName\']}</p><p><b><strong>Resource group:</strong></b> @{items(\'For_each_IP_address\')?[\'resourceGroup\']}</p><p><b><strong>Resource URL:</strong></b> &nbsp;@{outputs(\'Compose_IP\')}</p><p><i><em>Please review if it should be deleted.&nbsp;</em></i></p>'
+                }
                 path: '/v2/Mail'
-              }
-            }
-            'Set_Email_body_-_IP_addresses': {
-              runAfter: {
-                Set_IP_address_URI: [
-                  'Succeeded'
-                ]
-              }
-              type: 'SetVariable'
-              inputs: {
-                name: 'EmailBody-IP-Addresses'
-                value: '<h1>Idle IP address detected</h1>\n<b>@{items(\'For_each_IP_address\')?[\'name\']} </b>  in resource group <b> @{items(\'For_each_IP_address\')?[\'resourceGroup\']}</b> is unattached.\n</br>Resource URL:  @{variables(\'IPAddressURI\')}\nPlease review if it should be deleted. '
-              }
-            }
-            Set_IP_address_URI: {
-              runAfter: {}
-              type: 'SetVariable'
-              inputs: {
-                name: 'IPAddressURI'
-                value: '@{concat(\'https://portal.azure.com/#@\',items(\'For_each_IP_address\')?[\'tenantId\'],\'/resource\',items(\'For_each_IP_address\')?[\'PublicIpId\'])}'
               }
             }
           }
@@ -191,51 +204,52 @@ resource WasteReduction 'Microsoft.Logic/workflows@2017-07-01' = {
             ]
           }
           type: 'Foreach'
+          runtimeConfiguration: {
+            concurrency: {
+              repetitions: 1
+            }
+          }
         }
         For_each_Load_Balancer: {
           foreach: '@body(\'Parse_Idle_Load_Balancers\')?[\'data\']'
           actions: {
-            'Send_an_email_(V2)_4': {
+            'Send_an_email_(V2)_LB': {
               runAfter: {
-                'Set_Email_body_-_Load_Balancers': [
+                Compose_LB: [
                   'Succeeded'
                 ]
               }
               type: 'ApiConnection'
               inputs: {
-                body: {
-                  Body: '<p><span style="font-size: 24px"><u><strong>Idle Load Balancer detected<br>\n<br>\n</strong></u></span><strong>Name:</strong> @{items(\'For_each_Load_Balancer\')?[\'LoadBalancerName\']}<br>\n<strong>Resource group:</strong> @{items(\'For_each_Load_Balancer\')?[\'resourceGroup\']}<strong><br>\nResource URL:</strong> &nbsp;@{variables(\'LoadBalancerURI\')}<br>\n<br>\n<em>Please review if it should be deleted.&nbsp;</em></p>'
-                  Subject: 'Idle Load Balancer detected'
-                  To: '@variables(\'SendAlertTo\')'
-                }
                 host: {
                   connection: {
                     name: '@parameters(\'$connections\')[\'office365\'][\'connectionId\']'
                   }
                 }
                 method: 'post'
+                body: {
+                  To: '@variables(\'SendAlertTo\')'
+                  Subject: 'Idle Load Balancer detected'
+                  Body: '<p><u><b><strong style="font-size: 24px;">Idle Load Balancer detected</strong></b></u></p><p><b><strong>Name:</strong></b> @{items(\'For_each_Load_Balancer\')?[\'LoadBalancerName\']}</p><p><b><strong>Resource group:</strong></b> @{items(\'For_each_Load_Balancer\')?[\'resourceGroup\']}</p><p><b><strong>Resource URL:</strong></b> &nbsp;@{outputs(\'Compose_LB\')}</p><p><i><em>Please review if it should be deleted.&nbsp;</em></i></p><br><br>'
+                }
                 path: '/v2/Mail'
               }
             }
-            'Set_Email_body_-_Load_Balancers': {
-              runAfter: {
-                Set_Load_Balancer_URI: [
-                  'Succeeded'
-                ]
-              }
-              type: 'SetVariable'
-              inputs: {
-                name: 'EmailBody-LoadBalancers'
-                value: '<h1>Idle Lod Balancer detected</h1>\n<b>@{items(\'For_each_Load_Balancer\')?[\'name\']}</b>  in resource group <b>@{items(\'For_each_Load_Balancer\')?[\'resourceGroup\']}</b> is Idle.\n</br>\nResource URL:  @{variables(\'LoadBalancerURI\')}\nPlease review if it should be deleted. '
-              }
-            }
             Set_Load_Balancer_URI: {
-              runAfter: {}
               type: 'SetVariable'
               inputs: {
                 name: 'LoadBalancerURI'
                 value: '@{concat(\'https://portal.azure.com/#@\',items(\'For_each_Load_Balancer\')?[\'tenantId\'],\'/resource\',items(\'For_each_Load_Balancer\')?[\'loadBalancerid\'])}'
               }
+            }
+            Compose_LB: {
+              runAfter: {
+                Set_Load_Balancer_URI: [
+                  'Succeeded'
+                ]
+              }
+              type: 'Compose'
+              inputs: '@variables(\'LoadBalancerURI\')'
             }
           }
           runAfter: {
@@ -244,51 +258,52 @@ resource WasteReduction 'Microsoft.Logic/workflows@2017-07-01' = {
             ]
           }
           type: 'Foreach'
+          runtimeConfiguration: {
+            concurrency: {
+              repetitions: 1
+            }
+          }
         }
         For_each_Snapshot: {
           foreach: '@body(\'Parse_Snapshots\')?[\'data\']'
           actions: {
-            'Send_an_email_(V2)_6': {
+            'Send_an_email_(V2)_Snapshot': {
               runAfter: {
-                'Set_Email_body_-_Snapshot': [
+                Compose_Snapshot: [
                   'Succeeded'
                 ]
               }
               type: 'ApiConnection'
               inputs: {
-                body: {
-                  Body: '<p><span style="font-size: 24px"><u><strong>Old Disk Snapshot detected<br>\n<br>\n</strong></u></span><span style="font-size: 12px"><strong>Name: </strong></span><span style="font-size: 12px"><strong>@{items(\'For_each_Snapshot\')?[\'Snapshotname\']}</strong></span><span style="font-size: 12px"><strong><br>\nResource Group: </strong></span><span style="font-size: 12px"><strong>@{items(\'For_each_Snapshot\')?[\'resourceGroup\']}</strong></span><span style="font-size: 12px"><strong><br>\nResource URL: </strong></span><span style="font-size: 12px"><strong>@{variables(\'SnapshotURI\')}</strong></span><span style="font-size: 12px"><strong><br>\n<br>\n</strong></span><span style="font-size: 12px"><em>Please review if it should be deleted.&nbsp;<br>\n</em></span></p>'
-                  Subject: 'Disk Snapshot older than 30 days detected'
-                  To: '@variables(\'SendAlertTo\')'
-                }
                 host: {
                   connection: {
                     name: '@parameters(\'$connections\')[\'office365\'][\'connectionId\']'
                   }
                 }
                 method: 'post'
+                body: {
+                  To: '@variables(\'SendAlertTo\')'
+                  Subject: 'Disk Snapshot older than 30 days detected'
+                  Body: '<p><u><b><strong style="font-size: 24px;">Old Disk Snapshot detected</strong></b></u></p><p><b><strong style="font-size: 15px;">Name:</strong></b><b><strong style="font-size: 12px;"> </strong></b>@{items(\'For_each_Snapshot\')?[\'Snapshotname\']}</p><p><b><strong style="font-size: 15px;">Resource Group:</strong></b><b><strong style="font-size: 12px;"> </strong></b>@{items(\'For_each_Snapshot\')?[\'resourceGroup\']}</p><p><b><strong style="font-size: 15px;">Resource URL:</strong></b><b><strong style="font-size: 12px;"> </strong></b>@{outputs(\'Compose_Snapshot\')}</p><p><i><em style="font-size: 15px;">Please review if it should be deleted.&nbsp;</em></i></p>'
+                }
                 path: '/v2/Mail'
               }
             }
-            'Set_Email_body_-_Snapshot': {
-              runAfter: {
-                Set_Snapshot_URI: [
-                  'Succeeded'
-                ]
-              }
-              type: 'SetVariable'
-              inputs: {
-                name: 'EmailBody-Snapshots'
-                value: '<h1>Idle Snapshot detected</h1>\n<b> @{items(\'For_each_Snapshot\')?[\'name\']} </b>  in resource group <b>@{items(\'For_each_Snapshot\')?[\'resourceGroup\']}</b> is Idle.\n</br>\nResource URL:  @{variables(\'SnapshotURI\')}\nPlease review if it should be deleted. '
-              }
-            }
             Set_Snapshot_URI: {
-              runAfter: {}
               type: 'SetVariable'
               inputs: {
                 name: 'SnapshotURI'
                 value: '@{concat(\'https://portal.azure.com/#@\',items(\'For_each_Snapshot\')?[\'tenantId\'],\'/resource\',items(\'For_each_Snapshot\')?[\'SnapshotId\'])}\n'
               }
+            }
+            Compose_Snapshot: {
+              runAfter: {
+                Set_Snapshot_URI: [
+                  'Succeeded'
+                ]
+              }
+              type: 'Compose'
+              inputs: '@variables(\'SnapshotURI\')'
             }
           }
           runAfter: {
@@ -297,51 +312,52 @@ resource WasteReduction 'Microsoft.Logic/workflows@2017-07-01' = {
             ]
           }
           type: 'Foreach'
+          runtimeConfiguration: {
+            concurrency: {
+              repetitions: 1
+            }
+          }
         }
         For_each_Stopped_VM: {
           foreach: '@body(\'Parse_Stopped_VMs\')?[\'data\']'
           actions: {
-            'Send_an_email_(V2)_5': {
+            'Send_an_email_(V2)_VM': {
               runAfter: {
-                'Set_Email_body_-_Stopped_VM': [
+                Compose_VM: [
                   'Succeeded'
                 ]
               }
               type: 'ApiConnection'
               inputs: {
-                body: {
-                  Body: '<p><span style="font-size: 24px"><u><strong>Stopped VM detected<br>\n<br>\n</strong></u></span><strong>Name:</strong> @{items(\'For_each_Stopped_VM\')?[\'VMname\']}<br>\n<strong>Resource group:</strong> @{items(\'For_each_Stopped_VM\')?[\'resourceGroup\']}<br>\n<strong>Resource URL: &nbsp;</strong>@{variables(\'StoppedVMURI\')}<br>\n<br>\n<em>Please review if it should be deleted.&nbsp;</em></p>'
-                  Subject: 'Stopped VM detected'
-                  To: '@variables(\'SendAlertTo\')'
-                }
                 host: {
                   connection: {
                     name: '@parameters(\'$connections\')[\'office365\'][\'connectionId\']'
                   }
                 }
                 method: 'post'
+                body: {
+                  To: '@variables(\'SendAlertTo\')'
+                  Subject: 'Stopped VM detected'
+                  Body: '<p><u><b><strong style="font-size: 24px;">Stopped VM detected</strong></b></u></p><p><b><strong>Name:</strong></b> @{items(\'For_each_Stopped_VM\')?[\'VMname\']}</p><p><b><strong>Resource group:</strong></b> @{items(\'For_each_Stopped_VM\')?[\'resourceGroup\']}</p><p><b><strong>Resource URL: &nbsp;</strong></b>@{outputs(\'Compose_VM\')}</p><p><i><em>Please review if it should be deleted.&nbsp;</em></i></p>'
+                }
                 path: '/v2/Mail'
               }
             }
-            'Set_Email_body_-_Stopped_VM': {
-              runAfter: {
-                Set_Stopped_VM_URI: [
-                  'Succeeded'
-                ]
-              }
-              type: 'SetVariable'
-              inputs: {
-                name: 'EmailBody-StoppedVMs'
-                value: '<h1>Stopped VM detected</h1>\n<b> @{items(\'For_each_Stopped_VM\')?[\'name\']}</b>  in resource group <b> @{items(\'For_each_Stopped_VM\')?[\'resourceGroup\']}</b> is Idle.\n</br>\nResource URL:  @{variables(\'StoppedVMURI\')}\nPlease review if it should be deleted. '
-              }
-            }
             Set_Stopped_VM_URI: {
-              runAfter: {}
               type: 'SetVariable'
               inputs: {
                 name: 'StoppedVMURI'
                 value: '@{concat(\'https://portal.azure.com/#@\',items(\'For_each_Stopped_VM\')?[\'tenantId\'],\'/resource\',items(\'For_each_Stopped_VM\')?[\'VirtualMachineId\'])}'
               }
+            }
+            Compose_VM: {
+              runAfter: {
+                Set_Stopped_VM_URI: [
+                  'Succeeded'
+                ]
+              }
+              type: 'Compose'
+              inputs: '@variables(\'StoppedVMURI\')'
             }
           }
           runAfter: {
@@ -350,6 +366,11 @@ resource WasteReduction 'Microsoft.Logic/workflows@2017-07-01' = {
             ]
           }
           type: 'Foreach'
+          runtimeConfiguration: {
+            concurrency: {
+              repetitions: 1
+            }
+          }
         }
         Get_Idle_App_Gateways: {
           runAfter: {
@@ -359,15 +380,15 @@ resource WasteReduction 'Microsoft.Logic/workflows@2017-07-01' = {
           }
           type: 'Http'
           inputs: {
-            authentication: {
-              type: 'ManagedServiceIdentity'
-            }
+            uri: 'https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
+            method: 'POST'
             body: {
               query: 'resources| where type =~ \'Microsoft.Network/applicationGateways\'| extend backendPoolsCount = array_length(properties.backendAddressPools),SKUName= tostring(properties.sku.name), SKUTier=tostring(properties.sku.tier),SKUCapacity=properties.sku.capacity,backendPools=properties.backendAddressPools|  join (resources | where type =~ \'Microsoft.Network/applicationGateways\'| mvexpand backendPools = properties.backendAddressPools| extend backendIPCount =array_length(backendPools.properties.backendIPConfigurations) | extend backendAddressesCount = array_length(backendPools.properties.backendAddresses) | extend backendPoolName=backendPools.properties.backendAddressPools.name | summarize backendIPCount = sum(backendIPCount) ,backendAddressesCount=sum(backendAddressesCount) by id) on id| project-away id1| where  (backendIPCount == 0 or isempty(backendIPCount)) and (backendAddressesCount==0 or isempty(backendAddressesCount))| order by id asc'
               subscriptions: '@variables(\'Subscriptions\')'
             }
-            method: 'POST'
-            uri: 'https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
+            authentication: {
+              type: 'ManagedServiceIdentity'
+            }
           }
         }
         Get_Idle_Disks: {
@@ -378,15 +399,15 @@ resource WasteReduction 'Microsoft.Logic/workflows@2017-07-01' = {
           }
           type: 'Http'
           inputs: {
-            authentication: {
-              type: 'ManagedServiceIdentity'
-            }
+            uri: 'https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
+            method: 'POST'
             body: {
               query: 'resources | where type =~ \'microsoft.compute/disks\' and managedBy == \'\'| extend diskState = tostring(properties.diskState) | where managedBy == \'\' and diskState != \'ActiveSAS\' or diskState == \'Unattached\' and diskState != \'ActiveSAS\' | extend DiskId=id, DiskName=name, SKUName=sku.name, SKUTier=sku.tier, DiskSizeGB=tostring(properties.diskSizeGB), Location=location, TimeCreated=tostring(properties.timeCreated) | order by DiskId asc  | project DiskId, DiskName, DiskSizeGB, SKUName, SKUTier, resourceGroup, Location, TimeCreated, subscriptionId'
               subscriptions: '@variables(\'Subscriptions\')'
             }
-            method: 'POST'
-            uri: 'https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
+            authentication: {
+              type: 'ManagedServiceIdentity'
+            }
           }
         }
         Get_Idle_IP_addresses: {
@@ -397,15 +418,15 @@ resource WasteReduction 'Microsoft.Logic/workflows@2017-07-01' = {
           }
           type: 'Http'
           inputs: {
-            authentication: {
-              type: 'ManagedServiceIdentity'
-            }
+            uri: 'https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
+            method: 'POST'
             body: {
               query: 'resources | where type =~ \'Microsoft.Network/publicIPAddresses\' and isempty(properties.ipConfiguration) and isempty(properties.natGateway) | extend PublicIpId=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, Location=location | project PublicIpId,IPName, SKUName, resourceGroup, Location, AllocationMethod, subscriptionId, tenantId | union ( Resources | where type =~ \'microsoft.network/networkinterfaces\' and isempty(properties.virtualMachine) and isnull(properties.privateEndpoint) and isnotempty(properties.ipConfigurations) | extend IPconfig = properties.ipConfigurations | mv-expand IPconfig | extend PublicIpId= tostring(IPconfig.properties.publicIPAddress.id) | project PublicIpId | join (  resources | where type =~ \'Microsoft.Network/publicIPAddresses\' | extend PublicIpId=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, resourceGroup, Location=location  ) on PublicIpId | project PublicIpId,IPName, SKUName, resourceGroup, Location, AllocationMethod, subscriptionId, tenantId)'
               subscriptions: '@variables(\'Subscriptions\')'
             }
-            method: 'POST'
-            uri: 'https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
+            authentication: {
+              type: 'ManagedServiceIdentity'
+            }
           }
         }
         Get_Idle_Load_Balancers: {
@@ -416,15 +437,15 @@ resource WasteReduction 'Microsoft.Logic/workflows@2017-07-01' = {
           }
           type: 'Http'
           inputs: {
-            authentication: {
-              type: 'ManagedServiceIdentity'
-            }
+            uri: 'https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
+            method: 'POST'
             body: {
               query: 'resources | where type =~ \'microsoft.network/loadbalancers\' and tostring(properties.backendAddressPools) == \'[]\' | extend loadBalancerId=id,LBRG=resourceGroup, LoadBalancerName=name, SKU=sku, LBLocation=location | order by loadBalancerId asc | project loadBalancerId,LoadBalancerName, SKU.name,SKU.tier, LBLocation, resourceGroup, subscriptionId'
               subscriptions: '@variables(\'Subscriptions\')'
             }
-            method: 'POST'
-            uri: 'https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
+            authentication: {
+              type: 'ManagedServiceIdentity'
+            }
           }
         }
         Get_Disk_Snapshots_older_than_30_days: {
@@ -435,15 +456,15 @@ resource WasteReduction 'Microsoft.Logic/workflows@2017-07-01' = {
           }
           type: 'Http'
           inputs: {
-            authentication: {
-              type: 'ManagedServiceIdentity'
-            }
+            uri: 'https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
+            method: 'POST'
             body: {
               query: 'resources | where type =~ \'microsoft.compute/snapshots\' | extend TimeCreated = properties.timeCreated | where TimeCreated < ago(30d) | extend SnapshotId=id, Snapshotname=name | order by id asc | project id, SnapshotId, Snapshotname, resourceGroup, location, TimeCreated ,subscriptionId'
               subscriptions: '@variables(\'Subscriptions\')'
             }
-            method: 'POST'
-            uri: 'https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
+            authentication: {
+              type: 'ManagedServiceIdentity'
+            }
           }
         }
         Get_Stopped_VMs: {
@@ -454,20 +475,20 @@ resource WasteReduction 'Microsoft.Logic/workflows@2017-07-01' = {
           }
           type: 'Http'
           inputs: {
-            authentication: {
-              type: 'ManagedServiceIdentity'
-            }
+            uri: 'https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
+            method: 'POST'
             body: {
               query: 'resources | where type =~ \'microsoft.compute/virtualmachines\' and tostring(properties.extended.instanceView.powerState.displayStatus) != \'VM deallocated\' and tostring(properties.extended.instanceView.powerState.displayStatus) != \'VM running\'| extend  VMname=name, PowerState=tostring(properties.extended.instanceView.powerState.displayStatus), VMLocation=location, VirtualMachineId=id| order by VirtualMachineId asc| project VirtualMachineId,VMname, PowerState, VMLocation, resourceGroup, subscriptionId'
               subscriptions: '@variables(\'Subscriptions\')'
             }
-            method: 'POST'
-            uri: 'https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01'
+            authentication: {
+              type: 'ManagedServiceIdentity'
+            }
           }
         }
         Initialize_App_Gateways_URI: {
           runAfter: {
-            Initialize_App_Gateways_emailBody: [
+            Parse_Idle_App_Gateways: [
               'Succeeded'
             ]
           }
@@ -481,25 +502,9 @@ resource WasteReduction 'Microsoft.Logic/workflows@2017-07-01' = {
             ]
           }
         }
-        Initialize_App_Gateways_emailBody: {
-          runAfter: {
-            Parse_Idle_App_Gateways: [
-              'Succeeded'
-            ]
-          }
-          type: 'InitializeVariable'
-          inputs: {
-            variables: [
-              {
-                name: 'EmailBody-AppGws'
-                type: 'string'
-              }
-            ]
-          }
-        }
         Initialize_Disk_URI: {
           runAfter: {
-            Initialize_Disks_emailBody: [
+            Parse_Idle_disks: [
               'Succeeded'
             ]
           }
@@ -513,25 +518,9 @@ resource WasteReduction 'Microsoft.Logic/workflows@2017-07-01' = {
             ]
           }
         }
-        Initialize_Disks_emailBody: {
-          runAfter: {
-            Parse_Idle_disks: [
-              'Succeeded'
-            ]
-          }
-          type: 'InitializeVariable'
-          inputs: {
-            variables: [
-              {
-                name: 'EmailBody-disks'
-                type: 'string'
-              }
-            ]
-          }
-        }
         Initialize_IP_addresses_URI: {
           runAfter: {
-            Initialize_IP_addresses_emailBody: [
+            Parse_Idle_IP_addresses: [
               'Succeeded'
             ]
           }
@@ -545,25 +534,9 @@ resource WasteReduction 'Microsoft.Logic/workflows@2017-07-01' = {
             ]
           }
         }
-        Initialize_IP_addresses_emailBody: {
-          runAfter: {
-            Parse_Idle_IP_addresses: [
-              'Succeeded'
-            ]
-          }
-          type: 'InitializeVariable'
-          inputs: {
-            variables: [
-              {
-                name: 'EmailBody-IP-Addresses'
-                type: 'string'
-              }
-            ]
-          }
-        }
         Initialize_Load_Balancer_URI: {
           runAfter: {
-            Initialize_Load_balancers_emailBody: [
+            Parse_Idle_Load_Balancers: [
               'Succeeded'
             ]
           }
@@ -577,25 +550,9 @@ resource WasteReduction 'Microsoft.Logic/workflows@2017-07-01' = {
             ]
           }
         }
-        Initialize_Load_balancers_emailBody: {
-          runAfter: {
-            Parse_Idle_Load_Balancers: [
-              'Succeeded'
-            ]
-          }
-          type: 'InitializeVariable'
-          inputs: {
-            variables: [
-              {
-                name: 'EmailBody-LoadBalancers'
-                type: 'string'
-              }
-            ]
-          }
-        }
         Initialize_Snapshot_URI: {
           runAfter: {
-            Initialize_Snapshots_emailBody: [
+            Parse_Snapshots: [
               'Succeeded'
             ]
           }
@@ -609,39 +566,7 @@ resource WasteReduction 'Microsoft.Logic/workflows@2017-07-01' = {
             ]
           }
         }
-        Initialize_Snapshots_emailBody: {
-          runAfter: {
-            Parse_Snapshots: [
-              'Succeeded'
-            ]
-          }
-          type: 'InitializeVariable'
-          inputs: {
-            variables: [
-              {
-                name: 'EmailBody-Snapshots'
-                type: 'string'
-              }
-            ]
-          }
-        }
         Initialize_Stopped_VM_URI: {
-          runAfter: {
-            Initialize_Stopped_VMs_emailBody: [
-              'Succeeded'
-            ]
-          }
-          type: 'InitializeVariable'
-          inputs: {
-            variables: [
-              {
-                name: 'StoppedVMURI'
-                type: 'string'
-              }
-            ]
-          }
-        }
-        Initialize_Stopped_VMs_emailBody: {
           runAfter: {
             Parse_Stopped_VMs: [
               'Succeeded'
@@ -651,7 +576,7 @@ resource WasteReduction 'Microsoft.Logic/workflows@2017-07-01' = {
           inputs: {
             variables: [
               {
-                name: 'EmailBody-StoppedVMs'
+                name: 'StoppedVMURI'
                 type: 'string'
               }
             ]
@@ -3600,7 +3525,6 @@ resource WasteReduction 'Microsoft.Logic/workflows@2017-07-01' = {
               {
                 name: 'SendAlertTo'
                 type: 'string'
-                value: ''
               }
             ]
           }
@@ -3612,28 +3536,29 @@ resource WasteReduction 'Microsoft.Logic/workflows@2017-07-01' = {
       '$connections': {
         value: {
           office365: {
-            connectionId: office365_1_Connection.id
-            connectionName: office365_1_Connection_Name
-            id: '${subscription().id}/providers/Microsoft.Web/locations/${WasteReductionLocation}/managedApis/office365'
+            connectionId: Connection.id
+            connectionName: ConnectionName
+            id: '${subscription().id}/providers/Microsoft.Web/locations/${Location}/managedApis/office365'
           }
         }
       }
     }
   }
-  name: WasteReductionName
-  location: WasteReductionLocation
+  name: appName
+  location: Location
   tags: {
     displayName: 'WasteReduction'
   }
 }
 
-resource office365_1_Connection 'MICROSOFT.WEB/CONNECTIONS@2018-07-01-preview' = {
-  name: office365_1_Connection_Name
-  location: WasteReductionLocation
+resource Connection 'MICROSOFT.WEB/CONNECTIONS@2015-08-01-preview' = {
+  name: ConnectionName
+  location: Location
   properties: {
     api: {
-      id: '${subscription().id}/providers/Microsoft.Web/locations/${WasteReductionLocation}/managedApis/office365'
+      id: '${subscription().id}/providers/Microsoft.Web/locations/${Location}/managedApis/office365'
+      location: Location
     }
-    displayName: office365_1_Connection_DisplayName
+    displayName: DisplayName
   }
 }
