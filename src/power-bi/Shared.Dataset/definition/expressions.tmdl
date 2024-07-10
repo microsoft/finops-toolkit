@@ -91,9 +91,9 @@ expression ftk_Hub = ```
 		
 		    // TODO: Extract from the manifest
 		    _armResourceName = (id) => List.Last(Text.Split(id, "/")),
-		    DataSet = Table.AddColumn(FilterRowsByDate, "x_DatasetType", each "FocusCost"),
-		    Schema =  Table.AddColumn(DataSet, "x_DatasetVersion", each "1.0-preview(v1)"),
-		    AccountType = Table.AddColumn(Schema, "x_AccountType", 
+		    DataType    = Table.AddColumn(FilterRowsByDate, "x_DatasetType", each "FocusCost"),
+		    DataVer     = Table.AddColumn(DataType,         "x_DatasetVersion", each if Table.HasColumns(Dataset, {"ChargeSubcategory"}) then "1.0-preview(v1)" else "1.0"),
+		    AccountType = Table.AddColumn(DataVer,          "x_AccountType", 
 		        each if [BillingAccountId] = [SubAccountId] then "MOSA"
 		        else if _armResourceName([BillingAccountId]) = [x_BillingAccountId] then "EA"
 		        else if _armResourceName([BillingAccountId]) = [x_BillingProfileId] then (if [InvoiceIssuerName] = "Microsoft" then "MCA" else "MPA")
@@ -108,6 +108,8 @@ expression ftk_Hub = ```
 	queryGroup: '🛠️ Setup\Functions'
 
 	annotation PBI_ResultType = Function
+
+	annotation PBI_NavigationStepName = Navigation
 
 /// Loads FOCUS cost and usage data from the configured FinOps hub.
 /// 
@@ -130,6 +132,9 @@ expression ftk_CostDetails = ```
 		        {"x_ServicePeriodEnd",        type datetimezone},
 		        // Cost/price columns
 		        {"BilledCost",                type number},
+		        {"ContractedCost",            type number},
+		        {"ContractedCostInUsd",       type number},
+		        {"ContractedUnitPrice",       type number},
 		        {"EffectiveCost",             type number},
 		        {"ListCost",                  type number},
 		        {"ListUnitPrice",             type number},
@@ -141,6 +146,7 @@ expression ftk_CostDetails = ```
 		        {"x_OnDemandCostInUsd",       type number},
 		        {"x_OnDemandUnitPrice",       type number},
 		        // Other columns
+		        {"ConsumedQuantity",          type number},
 		        {"PricingQuantity",           type number},
 		        {"UsageQuantity",             type number},
 		        {"x_BillingExchangeRate",     type number},
@@ -182,8 +188,42 @@ expression ftk_CostDetails = ```
 		    _parseResourceName = (id) => _parseResourceId(id, true),
 		    _parseResourceType = (id) => _parseResourceId(id, false),
 		    
-		    // FOCUS "1.0-preview(v1)" bugs
-		    SkuTerm = _resetCol(FixTypes, "x_SkuTerm", each if [x_SkuTerm] = "1Year" then 12 else if [x_SkuTerm] = "3Years" then 36 else if [x_SkuTerm] = "5Years" then 60 else Number.FromText([x_SkuTerm]), type number),
+		    // Update previous FOCUS versions
+		    HasPreview = Table.HasColumns(FixTypes, {"ChargeSubcategory"}),
+		    Has10      = Table.HasColumns(FixTypes, {"ChargeClass"}),
+		    PreviewToGA = if HasPreview 
+		        then (
+		            let
+		                ChargeClass         = if Has10 
+		                    then Table.ReplaceValue(FixTypes,         each [ChargeClass],              each if [ChargeClass] <> null then [ChargeClass] else if [ChargeSubcategory] = "Refund" then "Correction" else null)
+		                    else Table.AddColumn(   FixTypes,              "ChargeClass",                                                               each if [ChargeSubcategory] = "Refund" then "Correction" else null),
+		                CDStatus            = if Has10 
+		                    then Table.ReplaceValue(ChargeClass,      each [CommitmentDiscountStatus], each if [CommitmentDiscountStatus] <> null then [CommitmentDiscountStatus] else if [ChargeSubcategory] = "Used Commitment" or [ChargeSubcategory] = "Unused Commitment" then Text.Replace([ChargeSubcategory], " Commitment", "") else null)
+		                    else Table.AddColumn(   ChargeClass,           "CommitmentDiscountStatus",                                                                            each if [ChargeSubcategory] = "Used Commitment" or [ChargeSubcategory] = "Unused Commitment" then Text.Replace([ChargeSubcategory], " Commitment", "") else null),
+		                ConsumedQuantity    = if Has10 
+		                    then Table.ReplaceValue(CDStatus,         each [ConsumedQuantity],         each if [ConsumedQuantity] <> null then [ConsumedQuantity] else if [ChargeCategory] = "Usage" then [UsageQuantity] else null)
+		                    else Table.AddColumn(   CDStatus,              "ConsumedQuantity",                                                                    each if [ChargeCategory] = "Usage" then [UsageQuantity] else null),
+		                ConsumedUnit        = if Has10 
+		                    then Table.ReplaceValue(ConsumedQuantity, each [ConsumedUnit],             each if [ConsumedUnit] <> null then [ConsumedUnit] else if [ChargeCategory] = "Usage" then [UsageUnit] else null)
+		                    else Table.AddColumn(   ConsumedQuantity,      "ConsumedUnit",                                                                each if [ChargeCategory] = "Usage" then [UsageUnit] else null),
+		                ChargeCategory      = Table.ReplaceValue(ConsumedUnit,   each [ChargeCategory],  each if [ChargeCategory] = "Adjustment" and [ChargeSubcategory] = "Refund" then "Purchase" else [ChargeCategory], Replacer.ReplaceValue, {"ChargeCategory"}),
+		                PricingCategory     = Table.ReplaceValue(ChargeCategory, each [PricingCategory], each if [PricingCategory] = "On-Demand" then "Standard" else if [PricingCategory] = "Commitment-Based" then+ "Committed" else [PricingCategory], Replacer.ReplaceValue, {"PricingCategory"}),
+		                RenamePreviewCols   = if Has10 
+		                    then Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(PricingCategory, 
+		                        each [ContractedCost],      each if [ContractedCost] <> null      then [ContractedCost]      else [x_OnDemandCost]),
+		                        each [ContractedUnitPrice], each if [ContractedUnitPrice] <> null then [ContractedUnitPrice] else [x_OnDemandUnitPrice]),
+		                        each [RegionName],          each if [RegionName] <> null          then [RegionName]          else [Region])
+		                    else Table.RenameColumns(PricingCategory, {{"x_OnDemandCost", "ContractedCost"}, {"x_OnDemandUnitPrice", "ContractedUnitPrice"}, {"Region", "RegionName"}}),
+		                RemovePreviewCols   = Table.RemoveColumns(PricingCategory, {"ChargeSubcategory", "Region", "UsageQuantity", "UsageUnit", "x_ChargeId", "x_OnDemandCost", "x_OnDemandUnitPrice"})
+		            in
+		                RemovePreviewCols
+		        ) else FixTypes,
+		
+		    // Data fixes
+		    // Create AvailabilityZone column if missing to support non-Microsoft clouds
+		    AvailabilityZone = if Table.HasColumns(PreviewToGA, {"AvailabilityZone"}) then PreviewToGA else Table.AddColumn(PreviewToGA, "AvailabilityZone", each null),
+		    // Fix inconsistent Microsoft x_SkuTerm values
+		    SkuTerm = _resetCol(AvailabilityZone, "x_SkuTerm", each if [x_SkuTerm] = "1Year" then 12 else if [x_SkuTerm] = "3Years" then 36 else if [x_SkuTerm] = "5Years" then 60 else Number.FromText([x_SkuTerm]), type number),
 		
 		    // Parse arrays
 		    SkuDetailsDict        = Table.AddColumn(SkuTerm,        "x_SkuDetailsDictionary", each if _isNotBlank([x_SkuDetails]) then Json.Document([x_SkuDetails]) else null),
@@ -193,10 +233,9 @@ expression ftk_CostDetails = ```
 		    TagsDictionary        = Table.AddColumn(Tags_backfill,  "x_TagsDictionary", each if _isNotBlank([Tags]) then Json.Document([Tags]) else null),
 		    TagsDictionary_copy   = Table.AddColumn(TagsDictionary, "tmp_Tags",         each [x_TagsDictionary]),
 		    TagsDictionary_errors = Table.ReplaceErrorValues(TagsDictionary_copy, {{"tmp_Tags", null}}),
-		    ParsedArrays = TagsDictionary_errors,
 		
 		    // FTK columns
-		    Tags_expand  = Table.ExpandRecordColumn(ParsedArrays, "tmp_Tags",
+		    Tags_expand  = Table.ExpandRecordColumn(TagsDictionary_errors, "tmp_Tags",
 		        {"cm-resource-parent", "ms-resource-parent", "hidden-managedby", "costanalysis-parent", "ftk-version",      "ftk-tool"},
 		        {"tmp_cmParent",       "tmp_msParent",       "tmp_ManagedBy",    "tmp_caParent",        "x_ToolkitVersion", "tmp_ToolkitTool"}
 		    ),
@@ -233,23 +272,23 @@ expression ftk_CostDetails = ```
 		    // Commitment metadata
 		    CommitmentDiscountKey          = Table.AddColumn(AHB,                            "x_CommitmentDiscountKey",          each [x_SkuType] & [x_SkuMeterId]),
 		    CommitmentUtilizationPotential = Table.AddColumn(CommitmentDiscountKey,          "x_CommitmentUtilizationPotential", each if [CommitmentDiscountCategory] = "Usage" then [UsageQuantity] else if [CommitmentDiscountCategory] = "Spend" then [EffectiveCost] else 0, type number),
-		    CommitmentUtilizationAmount    = Table.AddColumn(CommitmentUtilizationPotential, "x_CommitmentUtilizationAmount",    each if [ChargeSubcategory] = "Used Commitment" then [x_CommitmentUtilizationPotential] else 0, type number),
+		    CommitmentUtilizationAmount    = Table.AddColumn(CommitmentUtilizationPotential, "x_CommitmentUtilizationAmount",    each if [CommitmentDiscountStatus] = "Used" then [x_CommitmentUtilizationPotential] else 0, type number),
 		    Commitments = CommitmentUtilizationAmount,
 		
 		    // Savings calculations
-		    CommitmentUnitPriceSavings = Table.AddColumn(Commitments,                "x_CommitmentUnitPriceSavings", each if [x_OnDemandUnitPrice] > 0 and [x_OnDemandUnitPrice] >= [x_EffectiveUnitPrice] then [x_OnDemandUnitPrice] - [x_EffectiveUnitPrice] else null, type number),
-		    NegotiatedUnitPriceSavings = Table.AddColumn(CommitmentUnitPriceSavings, "x_NegotiatedUnitPriceSavings", each if [ListUnitPrice]       > 0 and [ListUnitPrice]       >= [x_OnDemandUnitPrice]  then [ListUnitPrice]       - [x_OnDemandUnitPrice]  else null, type number),
+		    CommitmentUnitPriceSavings = Table.AddColumn(Commitments,                "x_CommitmentUnitPriceSavings", each if [ContractedUnitPrice] > 0 and [ContractedUnitPrice] >= [x_EffectiveUnitPrice] then [ContractedUnitPrice] - [x_EffectiveUnitPrice] else null, type number),
+		    NegotiatedUnitPriceSavings = Table.AddColumn(CommitmentUnitPriceSavings, "x_NegotiatedUnitPriceSavings", each if [ListUnitPrice]       > 0 and [ListUnitPrice]       >= [ContractedUnitPrice]  then [ListUnitPrice]       - [ContractedUnitPrice]  else null, type number),
 		    DiscountUnitPriceSavings   = Table.AddColumn(NegotiatedUnitPriceSavings, "x_DiscountUnitPriceSavings",   each if [ListUnitPrice]       > 0 and [ListUnitPrice]       >= [x_EffectiveUnitPrice] then [ListUnitPrice]       - [x_EffectiveUnitPrice] else null, type number),
-		    CommitmentCostSavings      = Table.AddColumn(DiscountUnitPriceSavings,   "x_CommitmentCostSavings",      each if _isBlank([CommitmentDiscountCategory]) then 0 else if [x_OnDemandCost] > 0 and [x_OnDemandCost] >= [EffectiveCost] then [x_OnDemandCost] - [EffectiveCost] else null, type number),
-		    NegotiatedCostSavings      = Table.AddColumn(CommitmentCostSavings,      "x_NegotiatedCostSavings",      each if [ListCost]            > 0 and [ListCost]            >= [x_OnDemandCost]       then [ListCost]            - [x_OnDemandCost] else null, type number),
-		    DiscountCostSavings        = Table.AddColumn(NegotiatedCostSavings,      "x_DiscountCostSavings",        each if [ListCost]            > 0 and [ListCost]            >= [EffectiveCost]        then [ListCost]            - [EffectiveCost]  else if [x_OnDemandCost] > 0 and [x_OnDemandCost] >= [EffectiveCost] then [x_OnDemandCost] - [EffectiveCost] else null, type number),
+		    CommitmentCostSavings      = Table.AddColumn(DiscountUnitPriceSavings,   "x_CommitmentCostSavings",      each if _isBlank([CommitmentDiscountCategory]) then 0 else if [ContractedCost] > 0 and [ContractedCost] >= [EffectiveCost] then [ContractedCost] - [EffectiveCost] else null, type number),
+		    NegotiatedCostSavings      = Table.AddColumn(CommitmentCostSavings,      "x_NegotiatedCostSavings",      each if [ListCost]            > 0 and [ListCost]            >= [ContractedCost]       then [ListCost]            - [ContractedCost] else null, type number),
+		    DiscountCostSavings        = Table.AddColumn(NegotiatedCostSavings,      "x_DiscountCostSavings",        each if [ListCost]            > 0 and [ListCost]            >= [EffectiveCost]        then [ListCost]            - [EffectiveCost]  else if [ContractedCost] > 0 and [ContractedCost] >= [EffectiveCost] then [ContractedCost] - [EffectiveCost] else null, type number),
 		    Savings = DiscountCostSavings,
 		
 		    // Data cleansing
 		    FreeReason = Table.AddColumn(Savings, "x_FreeReason", 
 		        each if [BilledCost] <> 0.0 or [EffectiveCost] <> 0.0 then null
-		        else if [PricingCategory] = "Commitment-Based" then "Unknown " & [ChargeSubcategory]
-		        else if [x_BilledUnitPrice] = 0.0 and [x_EffectiveUnitPrice] = 0.0 and [x_OnDemandUnitPrice] = 0.0 and [ListUnitPrice] = 0.0 and _isBlank([CommitmentDiscountType]) then (
+		        else if [PricingCategory] = "Committed" then "Unknown " & [CommitmentDiscountStatus] & " Commitment"
+		        else if [x_BilledUnitPrice] = 0.0 and [x_EffectiveUnitPrice] = 0.0 and [ContractedUnitPrice] = 0.0 and [ListUnitPrice] = 0.0 and _isBlank([CommitmentDiscountType]) then (
 		            if _isNotBlank([x_SkuDescription]) and Text.Contains([x_SkuDescription], "Trial") then "Trial" else if _isNotBlank([x_SkuDescription]) and Text.Contains([x_SkuDescription], "Preview") then "Preview" else "Other"
 		        )
 		        else if [x_BilledUnitPrice] > 0.0 or [x_EffectiveUnitPrice] > 0.0 then (
@@ -264,10 +303,9 @@ expression ftk_CostDetails = ```
 		    ResourceNameUnique           = Table.AddColumn(CommitmentDiscountNameUnique, "ResourceNameUnique",           each if _isBlank([ResourceId])           then null else [ResourceName] & " (" & [ResourceType] & ")"),
 		    ResourceGroupNameUnique      = Table.AddColumn(ResourceNameUnique,           "x_ResourceGroupNameUnique",    each if _isBlank([x_ResourceGroupName])  then null else [x_ResourceGroupName] & " (" & [SubAccountName] & ")"),
 		    SubscriptionNameUnique       = Table.AddColumn(ResourceGroupNameUnique,      "SubAccountNameUnique",         each if _isBlank([SubAccountId])         then null else [SubAccountName] & " (" & _parseResourceName([SubAccountId]) & ")"),
-		    Names = SubscriptionNameUnique,
 		
 		    // Month column
-		    Month = Table.AddColumn(Names, "x_Month", each DateTime.Date(Date.StartOfMonth([ChargePeriodStart])), type date),
+		    Month = Table.AddColumn(SubscriptionNameUnique, "x_Month", each DateTime.Date(Date.StartOfMonth([ChargePeriodStart])), type date),
 		
 		    // Unique key for the record -- WARNING: This increases the data size significantly.
 		    /*
