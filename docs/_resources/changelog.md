@@ -84,7 +84,7 @@ Legend:
 
 > ➕ Added:
 >
-> 1. Ingest FOCUS 1.0 or FOCUS 1.0 preview data in FinOps hubs.
+> 1. Ingest FOCUS 1.0 data in FinOps hubs.
 > 2. Grant access to FinOps hubs to [create and manage exports](../_reporting/hubs/configure-scopes.md#-configure-managed-exports) for you.
 > 3. Connect to a hub instance in another Entra ID tenant.
 
@@ -113,6 +113,7 @@ Legend:
 >    </blockquote>
 > 7. Simplified formatting for the `BillingPeriod` and `ChargePeriod` measures in Power BI.
 > 8. Changed the [Cost summary Purchases page](../_reporting/power-bi/cost-summary.md#purchases) and [Rate optimization Purchases page](../_reporting/power-bi/rate-optimization.md#purchases) to use PricingQuantity instead of Usage/ConsumedQuantity and added the PricingUnit column.
+> 9. Improved error handling for derived savings columns in the CostDetails query.
 >
 > 🛠️ Fixed:
 >

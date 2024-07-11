@@ -366,5 +366,5 @@ table HubData
 				    ReorderColumns
 				```
 
-	annotation PBI_ResultType = Exception
+	annotation PBI_ResultType = Table
 
