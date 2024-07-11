@@ -95,7 +95,7 @@
   x_SkuTier:string
   )
 
-.create materialized-view FocusClean on table Focus
+.create-or-alter materialized-view FocusClean on table Focus
 {
     Focus
     | extend IngestionTime = ingestion_time()
