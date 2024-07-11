@@ -1,4 +1,4 @@
-id: pulls-04-approve
+id: pulls-05-approve
 name: GitOps.PullRequestIssueManagement
 description: Handles when PR is approved
 owner:
