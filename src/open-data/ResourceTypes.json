@@ -49,7 +49,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://learn.microsoft.com/en-us/azure/partner-solutions/"
+        "uri": "https://learn.microsoft.com/azure/partner-solutions/"
       }
     ]
   },
@@ -754,11 +754,11 @@
     "links": [
       {
         "title": "Learn more about App Configuration & Pricing",
-        "uri": "https://azure.microsoft.com/en-us/products/app-configuration/#overview"
+        "uri": "https://azure.microsoft.com/products/app-configuration/#overview"
       },
       {
         "title": "Learn how to use the service with our documentation",
-        "uri": "https://learn.microsoft.com/en-us/azure/azure-app-configuration/overview"
+        "uri": "https://learn.microsoft.com/azure/azure-app-configuration/overview"
       }
     ]
   },
@@ -2275,7 +2275,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://docs.microsoft.com/en-us/azure/azure-arc/data/managed-instance-overview"
+        "uri": "https://docs.microsoft.com/azure/azure-arc/data/managed-instance-overview"
       }
     ]
   },
@@ -4848,7 +4848,7 @@
       },
       {
         "title": "Documentation",
-        "uri": "https://docs.microsoft.com/en-us/azure/communication-services/overview"
+        "uri": "https://docs.microsoft.com/azure/communication-services/overview"
       }
     ]
   },
@@ -4890,7 +4890,7 @@
       },
       {
         "title": "Learn how to use this service using our documentation",
-        "uri": "https://learn.microsoft.com/en-us/azure/industry/training-services/microsoft-community-training/"
+        "uri": "https://learn.microsoft.com/azure/industry/training-services/microsoft-community-training/"
       }
     ]
   },
@@ -5045,7 +5045,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://docs.microsoft.com/en-us/azure/virtual-machines/windows/shared-image-galleries"
+        "uri": "https://docs.microsoft.com/azure/virtual-machines/windows/shared-image-galleries"
       }
     ]
   },
@@ -5061,7 +5061,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://docs.microsoft.com/en-us/azure/virtual-machines/windows/shared-image-galleries"
+        "uri": "https://docs.microsoft.com/azure/virtual-machines/windows/shared-image-galleries"
       }
     ]
   },
@@ -5336,7 +5336,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://learn.microsoft.com/en-us/windows/deployment/do/waas-microsoft-connected-cache"
+        "uri": "https://learn.microsoft.com/windows/deployment/do/waas-microsoft-connected-cache"
       }
     ]
   },
@@ -5352,7 +5352,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://learn.microsoft.com/en-us/windows/deployment/do/waas-microsoft-connected-cache"
+        "uri": "https://learn.microsoft.com/windows/deployment/do/waas-microsoft-connected-cache"
       }
     ]
   },
@@ -5368,7 +5368,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://learn.microsoft.com/en-us/windows/deployment/do/waas-microsoft-connected-cache"
+        "uri": "https://learn.microsoft.com/windows/deployment/do/waas-microsoft-connected-cache"
       }
     ]
   },
@@ -5395,7 +5395,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://learn.microsoft.com/en-us/windows/deployment/do/waas-microsoft-connected-cache"
+        "uri": "https://learn.microsoft.com/windows/deployment/do/waas-microsoft-connected-cache"
       }
     ]
   },
@@ -6160,7 +6160,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://docs.microsoft.com/en-us/azure/data-share"
+        "uri": "https://docs.microsoft.com/azure/data-share"
       }
     ]
   },
@@ -6187,7 +6187,7 @@
     "links": [
       {
         "title": "Learn more about Datadog",
-        "uri": "https://learn.microsoft.com/en-us/azure/partner-solutions/datadog/overview"
+        "uri": "https://learn.microsoft.com/azure/partner-solutions/datadog/overview"
       }
     ]
   },
@@ -6431,7 +6431,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://docs.microsoft.com/en-us/azure/data-share"
+        "uri": "https://docs.microsoft.com/azure/data-share"
       }
     ]
   },
@@ -7541,7 +7541,7 @@
     "links": [
       {
         "title": "Get started with Elastic Cloud (Elasticsearch) – An Azure Native ISV Service",
-        "uri": "https://azuremarketplace.microsoft.com/en-us/marketplace/apps/elastic.ec-azure-pp?tab=Overview"
+        "uri": "https://azuremarketplace.microsoft.com/marketplace/apps/elastic.ec-azure-pp?tab=Overview"
       }
     ]
   },
@@ -7804,7 +7804,7 @@
     "links": [
       {
         "title": "Learn more about Event Hubs Clusters",
-        "uri": "https://docs.microsoft.com/en-us/azure/event-hubs/event-hubs-dedicated-overview"
+        "uri": "https://docs.microsoft.com/azure/event-hubs/event-hubs-dedicated-overview"
       }
     ]
   },
@@ -10377,11 +10377,11 @@
     "links": [
       {
         "title": "Learn more about Azure Load Testing",
-        "uri": "https://azure.microsoft.com/en-us/services/load-testing"
+        "uri": "https://azure.microsoft.com/services/load-testing"
       },
       {
         "title": "Documentation",
-        "uri": "https://docs.microsoft.com/en-us/azure/load-testing/"
+        "uri": "https://docs.microsoft.com/azure/load-testing/"
       }
     ]
   },
@@ -12097,7 +12097,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://azure.microsoft.com/en-us/"
+        "uri": "https://azure.microsoft.com/"
       }
     ]
   },
@@ -12113,7 +12113,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://azure.microsoft.com/en-us/"
+        "uri": "https://azure.microsoft.com/"
       }
     ]
   },
@@ -12129,7 +12129,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://azure.microsoft.com/en-us/"
+        "uri": "https://azure.microsoft.com/"
       }
     ]
   },
@@ -12145,7 +12145,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://azure.microsoft.com/en-us/"
+        "uri": "https://azure.microsoft.com/"
       }
     ]
   },
@@ -12161,7 +12161,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://azure.microsoft.com/en-us/"
+        "uri": "https://azure.microsoft.com/"
       }
     ]
   },
@@ -12177,7 +12177,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://azure.microsoft.com/en-us/"
+        "uri": "https://azure.microsoft.com/"
       }
     ]
   },
@@ -12193,7 +12193,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://azure.microsoft.com/en-us/"
+        "uri": "https://azure.microsoft.com/"
       }
     ]
   },
@@ -12209,7 +12209,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://azure.microsoft.com/en-us/"
+        "uri": "https://azure.microsoft.com/"
       }
     ]
   },
@@ -12225,7 +12225,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://azure.microsoft.com/en-us/"
+        "uri": "https://azure.microsoft.com/"
       }
     ]
   },
@@ -12241,7 +12241,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://azure.microsoft.com/en-us/"
+        "uri": "https://azure.microsoft.com/"
       }
     ]
   },
@@ -12257,7 +12257,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://azure.microsoft.com/en-us/"
+        "uri": "https://azure.microsoft.com/"
       }
     ]
   },
@@ -12273,7 +12273,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://azure.microsoft.com/en-us/products/object-anchors/"
+        "uri": "https://azure.microsoft.com/products/object-anchors/"
       }
     ]
   },
@@ -12289,7 +12289,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://azure.microsoft.com/en-us/products/object-anchors/"
+        "uri": "https://azure.microsoft.com/products/object-anchors/"
       }
     ]
   },
@@ -12305,7 +12305,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://azure.microsoft.com/en-us/products/remote-rendering/"
+        "uri": "https://azure.microsoft.com/products/remote-rendering/"
       }
     ]
   },
@@ -12321,7 +12321,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://azure.microsoft.com/en-us/products/spatial-anchors/"
+        "uri": "https://azure.microsoft.com/products/spatial-anchors/"
       }
     ]
   },
@@ -12370,7 +12370,7 @@
     "links": [
       {
         "title": "Learn more about Azure Private 5G Core",
-        "uri": "https://docs.microsoft.com/en-us/azure/private-5g-core/"
+        "uri": "https://docs.microsoft.com/azure/private-5g-core/"
       }
     ]
   },
@@ -13338,7 +13338,7 @@
     "links": [
       {
         "title": "Learn more about Firewall Policy",
-        "uri": "https://docs.microsoft.com/en-us/azure/firewall/"
+        "uri": "https://docs.microsoft.com/azure/firewall/"
       }
     ]
   },
@@ -13717,7 +13717,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://docs.microsoft.com/en-us/azure/dns/private-dns-overview"
+        "uri": "https://docs.microsoft.com/azure/dns/private-dns-overview"
       }
     ]
   },
@@ -14395,7 +14395,7 @@
     "links": [
       {
         "title": "Learn more about ExpressRoute Traffic Collector",
-        "uri": "https://docs.microsoft.com/en-us/azure/expressroute/traffic-collector"
+        "uri": "https://docs.microsoft.com/azure/expressroute/traffic-collector"
       }
     ]
   },
@@ -15382,7 +15382,7 @@
     "links": [
       {
         "title": "Learn more",
-        "uri": "https://docs.microsoft.com/en-us/azure/internet-peering/howto-subscription-association-portal"
+        "uri": "https://docs.microsoft.com/azure/internet-peering/howto-subscription-association-portal"
       },
       {
         "title": "PeeringDb",

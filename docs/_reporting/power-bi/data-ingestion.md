@@ -21,6 +21,7 @@ Get insights into your data ingestion layer.
 - [Hubs](#hubs)
 - [Exports](#exports)
 - [Ingestion](#ingestion)
+- [Ingestion errors](#ingestion-errors)
 - [🙋‍♀️ Looking for more?](#️-looking-for-more)
 
 </details>
@@ -37,7 +38,7 @@ You can download the Data ingestion report from the [latest release](https://git
 
 The **Get started** page includes a basic introduction to the report with additional links to learn more.
 
-![Screenshot of the Get started page](https://github.com/microsoft/finops-toolkit/assets/399533/42e8ff56-7bfd-4359-b7ce-cdf4a6b9fe20)
+![Screenshot of the Get started page](https://github.com/microsoft/finops-toolkit/assets/399533/a245ec33-cf49-4cc7-afe3-4f456525b9cd)
 
 <br>
 
@@ -50,7 +51,7 @@ This page includes the same KPIs as most pages within the [Cost summary report](
 - **Effective cost** shows the effective cost for the period with reservation purchases amortized across the commitment term.
 - **Total savings** shows how much you're saving compared to list prices.
 
-![Screenshot of the Hubs page](https://github.com/microsoft/finops-toolkit/assets/399533/55354126-46dd-4cde-bc60-c1110b6535f0)
+![Screenshot of the Hubs page](https://github.com/microsoft/finops-toolkit/assets/399533/09e8b7b0-0ee2-4ca2-a5d8-10e36827c9db)
 
 <br>
 
@@ -62,7 +63,7 @@ The **Exports** page shows which months have been exported for which scopes, whe
   _If you only see one export run per month, you may have configured file overwriting. While this seting is important when using Power BI against raw data exports, it is not recommended for FinOps hubs because it removes the ability to monitor export runs over time (since files are deleted)._
 </blockquote>
 
-![Screenshot of the Exports page](https://github.com/microsoft/finops-toolkit/assets/399533/5a2c6e27-2fc9-48fc-bb7d-f13e35eedbea)
+![Screenshot of the Exports page](https://github.com/microsoft/finops-toolkit/assets/399533/bb8cbcee-dacf-4c68-8922-230494ce7807)
 
 <br>
 
@@ -74,7 +75,15 @@ Similar to exports that are run until the 5th of the following month, you will t
 
 If you notice exports from before ingested months, this typically means older data was removed from the `ingestion` container but the export metadata was not removed from `msexports`. Files in `msexports` can be safely be removed at any time. They are only useful for monitoring export runs.
 
-![Screenshot of the Ingestion page](https://github.com/microsoft/finops-toolkit/assets/399533/34076615-21d9-4519-a9a7-c650c487b6cc)
+![Screenshot of the Ingestion page](https://github.com/microsoft/finops-toolkit/assets/399533/37b7fb34-8475-463c-8722-04c4607ccea9)
+
+<br>
+
+## Ingestion errors
+
+The **Ingestion errors** page summarizes potential issues that have been identified after reviewing data in hub storage. For troubleshooting details about each error, refer to [Troubleshooting](../../_resources/troubleshooting.md).
+
+![Screenshot of the Ingestion errors page](https://github.com/microsoft/finops-toolkit/assets/399533/052ac803-e17a-4137-a79e-49bf81dfbb2c)
 
 <br>
 

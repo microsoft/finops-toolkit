@@ -34,25 +34,15 @@ Learn about the new billing data specification that will make it easier to under
 
 The FinOps Open Cost and Usage Specification (FOCUS) is a groundbreaking initiative to define a common format for billing data that empowers organizations to better understand cost and usage patterns and optimize spending and performance across multiple cloud, SaaS, and even on-premises service offerings.
 
-FOCUS will provide organizations with a consistent, clear, and accessible view of their cost data explicitly designed for FinOps needs such as allocation, analytics, monitoring, and optimization. As the new “language” of FinOps, FOCUS will enable practitioners to collaborate more efficiently and effectively with peers throughout the organization and even maximize transferability and onboarding for new team members, getting people up and running quicker. Paired with the FinOps Framework, practitioners will be armed with the tools needed to build a streamlined FinOps practice that maximizes the value of the cloud.
+FOCUS provides organizations with a consistent, clear, and accessible view of their cost data explicitly designed for FinOps needs such as allocation, analytics, monitoring, and optimization. As the new "language" of FinOps, FOCUS enables practitioners to collaborate more efficiently and effectively with peers throughout the organization and even maximize transferability and onboarding for new team members, getting people up and running quicker. Paired with the FinOps Framework, practitioners have the tools needed to build a streamlined FinOps practice that maximizes the value of the cloud.
 
 <br>
 
 ## 🤔 Why FOCUS?
 
-### Why organizations need FOCUS
-
 The variety and flexibility of Microsoft cloud services allows you to build amazing things while only paying for what you need, when you need it. And with this flexibility comes varying operational models where services are billed and can be tuned differently based on a variety of factors. When services are billed differently, their cost and usage data tends to differ as well, making it challenging to allocate, analyze, monitor, and optimize consistently. Of course, this goes beyond just Microsoft’s cloud services. Organizations often rely on software as a service (SaaS) products, licensed software, on-premises infrastructure, or even other clouds, exacerbating the problem with each provider sharing data in proprietary formats.
 
-FOCUS solves this problem by establishing a provider and service agnostic data specification that addresses some of the biggest challenges organizations face in managing the value of their cloud investments—understanding and quantifying the business value of their spending. FOCUS will enable organizations to spend more time driving value and less struggling to understand data caused by inconsistencies between and unfamiliarity with different services and providers.
-
-### Why Microsoft believes in FOCUS
-
-But why would Microsoft want to join other cloud providers and SaaS vendors to promote a common billing data specification? Because consistent cloud billing promotes the innovation and experimentation that Azure is built to provide. Building and optimizing applications in Azure in an iterative way using modern architectures is easier when you clearly understand how you’re billed and can weigh cost equally amongst other business priorities in building those systems. Better collaboration between business, technical, and finance teams will make your organization more productive overall, which maps back to our core mission to empower every person and every organization on the planet to achieve more.
-
-Widespread adoption of FOCUS will make allocating, analyzing, monitoring, and optimizing costs across providers as easy as using a single provider, enabling you to do more with less. FinOps skills become more portable than ever, and practitioners, vendors, and consultants will become more efficient and effective when moving to an organization that uses different clouds or SaaS products. Without having to spend time learning proprietary data formats, organizations can focus on value-added FinOps capabilities that help deliver real value.
-
-Our adoption of FOCUS removes a barrier to cloud adoption and helps organizations make better data-driven decisions about their cloud use that translates to business value on top of the Microsoft cloud.
+FOCUS solves this problem by establishing a provider- and service-agnostic data specification that addresses some of the biggest challenges organizations face in managing the value of their cloud investments – understanding and quantifying the business value of their spending. FOCUS enables organizations to spend more time driving value and less struggling to understand data caused by inconsistencies between and unfamiliarity with different services and providers. But FOCUS isn't just for organizations using multiple cloud providers. FOCUS can help organizations that use one cloud provider with complementary service providers, multiple accounts within a single cloud provider, and even organizations that have a single account with a single cloud provider. The benefits from using FOCUS are wide-reaching, from streamlined operations within an enterprise to making skills as a FinOps practitioner more portable.
 
 <br>
 
@@ -62,11 +52,11 @@ FOCUS is the **best** version of cost and usage data you can get from Cost Manag
 
 - 💰 **Save 30% on storage and compute costs**
 
-  > FOCUS combines billed (actual) and amortized costs in a single row, which results in 49% fewer rows compared to actual and amortized datasets together. Factoring in new FOCUS columns, the total data size is ~30% smaller than actual and amortized datasets, which is a direct savings on storage costs. You'll also save on compute costs since you'll be processing fewer rows. Exact compute savings will vary depending on your solution.
+  > FOCUS combines actual (billed) and amortized (effective) costs in a single row, which results in 49% fewer rows compared to actual and amortized datasets together. Factoring in new FOCUS columns, the total data size is ~30% smaller than actual and amortized datasets, which is a direct savings on storage costs. You'll also save on compute costs since you'll be processing fewer rows. Exact compute savings will vary depending on your solution.
 
 - 🔀 **Designed to handle multiple accounts and clouds**
 
-  > Whether you're using multiple clouds or you have multiple account types in a single cloud (e.g., EA and MCA), FOCUS aligns your cost data into a single schema with consistent terminology that makes it easy to understand and optimize your costs across all your accounts.
+  > Whether you're using multiple clouds or you have multiple account types in a single cloud (e.g., EA and MCA), FOCUS aligns your cost data into a single schema with consistent terminology that makes it easy to understand and optimize your costs across all your accounts. For organizations still on EA, switching to FOCUS now puts you in control of timing so you're not "offline" after your account is transitioned to MCA.
 
 - 🍎 **Easier to learn and aligned with the FinOps Framework**
 
@@ -78,11 +68,11 @@ FOCUS is the **best** version of cost and usage data you can get from Cost Manag
 
 - 💲 **Uniquely identify the exact price-point**
 
-  > FOCUS includes an identifier for the specific SKU price-point used for each charge (SkuPriceId). This is a unique identifier for the SKU inclusive of all pricing variations, like tiering and discounts, which is not currently available in actual or amortized datasets. Each charge also includes the unit prices you need to understand how you are or could be charged. List (or retail) unit price is what you would pay per unit without any negotiated discounts, your on-demand unit price is after negotiated discounts are applied, your effective (or amortized) unit price shows the conceptual price after pre-purchase commitment discounts were applied, and your billed unit price represents what was or will be invoiced.
+  > FOCUS includes an identifier for the specific SKU price-point used for each charge (SkuPriceId). This is a unique identifier for the SKU inclusive of all pricing variations, like tiering and discounts, which is not currently available in actual or amortized datasets. Each charge also includes the unit prices you need to understand how you are or could be charged. List (or retail) unit price is what you would pay per unit without any negotiated discounts, your contracted (or on-demand) unit price is after negotiated discounts are applied, your effective (or amortized) unit price shows the conceptual price after pre-purchase commitment discounts were applied, and your billed (or actual) unit price represents what was or will be invoiced.
 
 - 💹 **Easier to quantify cost savings**
 
-  > In addition to unit prices, FOCUS also includes columns to identify the specific pricing model used for each charge with list, on-demand, effective, and billed cost which makes it easier to quantify cost savings from negotiated and commitment discounts.
+  > In addition to unit prices, FOCUS also includes columns to identify the specific pricing model used for each charge with list, contracted, effective, and billed cost which makes it easier to quantify cost savings from negotiated and commitment discounts.
 
 - 💎 **All prices and costs in a consistent currency**
 
@@ -112,24 +102,24 @@ FOCUS is the **best** version of cost and usage data you can get from Cost Manag
 
 ## ▶️ Getting started
 
-FOCUS 1.0 preview covers the resources you deployed, the internal SKUs each resource used, the type of charge, how much you used or purchased, how it was priced, and the specific
+FOCUS 1.0 covers the resources you deployed, the internal SKUs each resource used, the type of charge, how much you used or purchased, how it was priced, and the specific:
 
 - Billing details related to invoicing, like the provider you used, who generated the invoice (invoice issuer), and the billing period for the invoice.
 - Resource details about what you deployed with the provider, like the service, resource type, region, and tags.
 - SKU details about the product you used or purchased, like the publisher and SKU identifiers.
 - Charge details that describe and categorize the charge, like the type, description, frequency, and amount used or purchased.
 - Discount details that summarize the pricing model, like the pricing category and commitment discount details.
-- Pricing + costs that include the raw details about how each charge is priced, like the pricing quantity, unit price, and cost.
+- Pricing and costs that include the raw details about how each charge is priced, like the pricing quantity, unit price, and cost.
 
-Resources are identified by a **ResourceId** and **ResourceName** and organized into their respective **ServiceName** and **ServiceCategory**. **ServiceCategory** enables you to organize your costs into a top-level set of categories consistent across cloud providers, which makes it especially interesting. You can also see additional details, like a friendly **ResourceType** label, the **Region** a resource was deployed to, and any **Tags** that were applied to the resource.
+Resources are identified by a **ResourceId** and **ResourceName** and organized into their respective **ServiceName** and **ServiceCategory**. **ServiceCategory** enables you to organize your costs into a top-level set of categories consistent across cloud providers, which makes it especially interesting. You can also see additional details, like a friendly **ResourceType** label, the **RegionId** and **RegionName** a resource was deployed to, and any **Tags** that were applied to the resource.
 
 Behind the scenes, resources use one or more products to enable their core capabilities. FOCUS refers to these as SKUs. Use of these SKUs is ultimately what you are charged for. Each SKU has a **PublisherName** of the company who developed the SKU, a **SkuId** that identifies the SKU that was used, and a **SkuPriceId** that identifies the specific price-point for the SKU, inclusive of all pricing variations like tiering and discounts.
 
-All charges include a **ChargeCategory** and **ChargeSubcategory** to describe what kind of charge it is (such as usage or purchase), the **ChargePeriodStart** and **ChargePeriodEnd** dates the charge applied to, the **ChargeFrequency** to know how often you can expect to see this charge, and a high-level **ChargeDescription** to explain what the row represents. They also include a specific **UsageQuantity** and **UsageUnit** in distinct units based on what was used or purchased.
+All charges include a **ChargeCategory** to describe what kind of charge it is (such as usage or purchase), **ChargeClass** that identifies corrections to previous charges, the **ChargePeriodStart** and **ChargePeriodEnd** dates the charge applied to, the **ChargeFrequency** to know how often you can expect to see this charge, and a high-level **ChargeDescription** to explain what the row represents. They also include a specific **ConsumedQuantity** and **ConsumedUnit** in distinct units based on what was used or purchased.
 
-Each charge has a **PricingCategory** that indicates how the charge was priced and, if a commitment discount was applied, they include **CommitmentDiscountCategory** and **CommitmentDiscountType** for friendly provider-agnostic and provider-specific labels for the type of commitment discount, **CommitmentDiscountId** to identify which commitment discount was applied to usage, and the **CommitmentDiscountName** of that instance.
+Each charge has a **PricingCategory** that indicates how the charge was priced and, if a commitment discount was applied, they include **CommitmentDiscountCategory** and **CommitmentDiscountType** for friendly provider-agnostic and provider-specific labels for the type of commitment discount, **CommitmentDiscountId** to identify which commitment discount was applied to usage, the **CommitmentDiscountName** of that instance, and the **CommitmentDiscountStatus** that indicates whether the charge was for the utilized (used) or unutilized (unused) portion of the commitment discount.
 
-Since prices are determined based on the billing relationship, you can also find the **BillingAccountId** and **BillingAccountName** that invoices are generated against, the **BillingPeriodStart** and **BillingPeriodEnd** dates the invoice applies to, the **InvoiceIssuerName** for the company responsible for invoicing, and the **ProviderName** of the cloud, SaaS, on-prem, or other provider you used. Please note the "billing account" term in FOCUS refers to the scope at which an invoice is generated and not the top-level, root account. For organizations with a Microsoft Customer Agreement (MCA) account, this maps to your billing profile and not your Microsoft billing account. Within each billing account, you also have a **SubAccountId** and **SubAccountName** for the subscription within the billing account.
+Since prices are determined based on the billing relationship, you can also find the **BillingAccountId** and **BillingAccountName** that invoices are generated against, the **BillingPeriodStart** and **BillingPeriodEnd** dates the invoice applies to, the **InvoiceIssuerName** for the company responsible for invoicing, and the **ProviderName** of the cloud, SaaS, on-premises, or other provider you used. Please note the "billing account" term in FOCUS refers to the scope at which an invoice is generated and not the top-level, root account. For organizations with a Microsoft Customer Agreement (MCA) account, this maps to your billing profile and not your Microsoft billing account. Within each billing account, you also have a **SubAccountId** and **SubAccountName** for the subscription within the billing account.
 
 Last but not least you also have the price and cost details. Each charge has a **BillingCurrency** that all prices and costs use, which may be different than how the provider prices charges. As an example, most MCA accounts are priced in USD and may be billed in another currency like Yen or Euros.
 
@@ -137,13 +127,13 @@ Last but not least you also have the price and cost details. Each charge has a *
    _Please note that since FOCUS relies on the billing currency, the prices shown in FOCUS datasets may not match native Cost Management schemas._
 </blockquote>
 
-Each charge includes the **PricingQuantity** and **PricingUnit** based on how the SKU was priced (which may be in chunks or "blocks" of units) and a set of unit prices for the cost of each individual pricing unit (based on the **SkuPriceId**) and the total cost based on the pricing quantity. Currently, FOCUS includes the **ListUnitPrice** and **ListCost** for the public retail or market prices without discounts, **EffectiveCost** after commitment discount purchases have been amortized, and **BilledCost** that was or will be invoiced.
+Each charge includes the **PricingQuantity** and **PricingUnit** based on how the SKU was priced (which may be in chunks or "blocks" of units) and a set of unit prices for the cost of each individual pricing unit (based on the **SkuPriceId**) and the total cost based on the pricing quantity. FOCUS includes the **ListUnitPrice** and **ListCost** for the public retail or market prices without discounts, **ContractedUnitPrice** and **ContractedCost** for prices after negotiated contractual discounts but without commitment discounts, **EffectiveCost** after commitment discount purchases have been amortized, and **BilledCost** that was or will be invoiced.
 
 <blockquote class="important" markdown="1">
-   _Perhaps the biggest difference between FOCUS and native schemas is that FOCUS combines "actual" and "amortized" cost into a single datasets. This saves you time and money with a smaller dataset size compared to managing both datasets separately. Data size is on par with the amortized cost data except with less than 100 more rows for commitment discount purchases and refunds._
+   _Perhaps the biggest difference between FOCUS and native schemas is that FOCUS combines "actual" and "amortized" cost into a single dataset. This saves you time and money with a smaller dataset size compared to managing both datasets separately. Data size is on par with the amortized cost data except with less than 100 more rows for commitment discount purchases and refunds._
 </blockquote>
 
-Beyond these, each provider can include additional columns prefixed with **x\_** to denote them as external columns that are not part of the FOCUS schema but provide useful details about your cost and usage. Microsoft Cost Management provides the same details within its FOCUS dataset as the native schemas by utilizing this prefix. FinOps toolkit reports add to these columns with additional details to facilitate reporting and optimization goals.
+Beyond these, each provider can include additional columns prefixed with **x\_** to denote them as extended columns that are not part of the FOCUS schema but provide useful details about your cost and usage. Microsoft Cost Management provides the same details within its FOCUS dataset as the native schemas by utilizing this prefix. FinOps toolkit reports add to these columns with additional details to facilitate reporting and optimization goals.
 
 <br>
 

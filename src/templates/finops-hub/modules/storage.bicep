@@ -44,12 +44,15 @@ param ingestionRetentionInMonths int = 13
 var safeHubName = replace(replace(toLower(hubName), '-', ''), '_', '')
 var storageAccountSuffix = uniqueSuffix
 var storageAccountName = '${take(safeHubName, 24 - length(storageAccountSuffix))}${storageAccountSuffix}'
-var focusSchemaFile = loadTextContent('../schema/focuscost_1.0-preview(v1).json')
+var schemaFiles = {
+  'focuscost_1.0': loadTextContent('../schemas/focuscost_1.0.json')
+  'focuscost_1.0-preview(v1)': loadTextContent('../schemas/focuscost_1.0-preview(v1).json')
+}
 
 // Roles needed to auto-start triggers
 var blobUploadRbacRoles = [
   'ba92f5b4-2d11-453d-a403-e96b0029c9fe' // Storage Blob Data Contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor
-  'e40ec5ca-96e0-45a2-b4ff-59039f2c2b59' // Managed Identity Contributor - https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#managed-identity-contributor
+  'e40ec5ca-96e0-45a2-b4ff-59039f2c2b59' // Managed Identity Contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#managed-identity-contributor
 ]
 
 //==============================================================================
@@ -131,7 +134,7 @@ resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-0
 }]
 
 resource uploadSettings 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: 'uploadSettings'
+  name: '${storageAccountName}_uploadSettings'
   kind: 'AzurePowerShell'
   // chinaeast2 is the only region in China that supports deployment scripts
   location: startsWith(location, 'china') ? 'chinaeast2' : location
@@ -175,8 +178,8 @@ resource uploadSettings 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
         value: 'config'
       }
       {
-        name: 'focusSchemaFile'
-        value: focusSchemaFile
+        name: 'schemaFiles'
+        value: string(schemaFiles)
       }
     ]
     scriptContent: loadTextContent('./scripts/Copy-FileToAzureBlob.ps1')
