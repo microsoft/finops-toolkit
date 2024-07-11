@@ -34,11 +34,18 @@ The FinOps toolkit PowerShell module is a collection of commands to automate and
 
 ## 📥 Install the module
 
-The FinOps toolkit module requires PowerShell 7, which is supported on all major operating systems but is not installed by default. For details, see [Install PowerShell](https://learn.microsoft.com/powershell/scripting/install/installing-powershell). Once PowerShell has been installed, run the following:
+The FinOps toolkit module requires PowerShell 7, which is built into [Azure Cloud Shell](https://portal.azure.com/#cloudshell) and supported on all major operating systems. 
+
+Azure Cloud Shell comes with PowerShell 7 and Azure PowerShell pre-installed. If you are not using Azure Cloud Shell, you will need to [Install PowerShell](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) first and then run the following commands to install Azure PowerShell:
 
 ```powershell
 Install-Module -Name Az.Accounts
 Install-Module -Name Az.Resources
+```
+
+To install the FinOps toolkit module, run the following in either Azure Cloud Shell or a PowerShell client:
+
+```powershell
 Install-Module -Name FinOpsToolkit
 ```
 
