@@ -194,36 +194,35 @@ If you cannot grant permissions for your scope, you can create Cost Management e
 
    <!-- TODO: Replace the portal link with the docs link when exports v2 docs are available. -->
 
-   - **Type of data** = `Cost and usage details (FOCUS)`
-     <blockquote class="important" markdown="1">
-       _FinOps hubs 0.2 requires FOCUS cost data. While FOCUS is fully supported, the option to export FOCUS cost data from Cost Management is currently in preview and has not rolled out to everyone yet. In order to create and manage FOCUS exports, please use the [Exports preview link](https://aka.ms/exportsv2)._
-     </blockquote>
-   - **Dataset version** = `1.0-preview(v1)`
-   - **Frequency** = `Daily export of month-to-date costs`
-     <blockquote class="tip" markdown="1">
-       _Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range._
-     </blockquote>
+   - **Type of data** = `Cost and usage details (FOCUS)`<sup>1</sup>
+   - **Dataset version** = `1.0`<sup>2</sup>
+   - **Frequency** = `Daily export of month-to-date costs`<sup>3</sup>
    - **File partitioning** = On
-   - **Overwrite data** = Off
-     <blockquote class="note" markdown="1">
-       _While most settings are required, overwriting is optional. We recommend **not** overwriting files so you can monitor your ingestion pipeline using the [Data ingestion](../power-bi/data-ingestion.md) report. If you do not plan to use that report, please enable overwriting._
-     </blockquote>
+   - **Overwrite data** = Off<sup>4</sup>
    - **Storage account** = (Use subscription/resource deployed with your hub)
    - **Container** = `msexports`
-   - **Directory** = (Use the resource ID of the scope<sup>1</sup> you're exporting without the first "/")
+   - **Directory** = (Use the resource ID of the scope<sup>5</sup> you're exporting without the first "/")
      - _**Billing account:** `providers/Microsoft.Billing/billingAccounts/{billingAccountId}`_
      - _**Billing profile:** `providers/Microsoft.Billing/billingAccounts/{billingAccountId}/billingProfiles/{billingProfileId}`_
      - _**Department:** `providers/Microsoft.Billing/billingAccounts/{billingAccountId}/departments/{departmentId}`_
 
-2. Create another export with the same settings except set **Export type** to `Monthly export of last month's costs`.
-3. Repeat steps 1 and 2 except set **Metric** to `Actual cost`.
-4. Run your exports to initialize the dataset.
+    <blockquote class="tip" markdown="1">
+      _If you get an error about invalid characters for a billing scope, replace the unsupported characters (e.g., `:`) in the billing account ID with a dash (`-`)._
+    </blockquote>
+
+2. Create another export with the same settings except set **Frequency** to `Monthly export of last month's costs`.
+3. Run your exports to initialize the dataset.
    - Exports can take up to a day to show up after first created.
    - Use the **Run now** command at the top of the Cost Management Exports page.
    - Your data should be available within 15 minutes or so, depending on how big your account is.
-5. Repeat steps 1-4 for each scope you want to monitor.
+   - If you want to backfill data, open the export details and select the **Export selected dates** command to export one month at a time or use the [Start-FinOpsCostExport PowerShell command](../../_automation/powershell/cost/Start-FinOpsCostExport.md) to export a larger date range.
+4. Repeat steps 1-3 for each scope you want to monitor.
 
-_<sup>1) A "scope" is an Azure construct that contains resources or enables purchasing services, like a resource group, subscription, management group, or billing account. The resource ID for a scope will be the Azure Resource Manager URI that identifies the scope (e.g., "/subscriptions/###" for a subscription or "/providers/Microsoft.Billing/billingAccounts/###" for a billing account). To learn more, see [Understand and work with scopes](https://aka.ms/costmgmt/scopes).</sup>_
+_<sup>1) FinOps hubs 0.2 and beyond requires FOCUS cost data. As of July 2024, the option to export FOCUS cost data is only accessible from the central Cost Management experience in the Azure portal. If you do not see this option, please search for or navigate to [Cost Management Exports](https://portal.azure.com/#blade/Microsoft_Azure_CostManagement/Menu/open/exports).</sup>_
+_<sup>2) FinOps hubs 0.4 supports both FOCUS 1.0 and FOCUS 1.0 preview. Power BI reports in 0.4 are aligned to FOCUS 1.0 regardless of whether data was ingested as FOCUS 1.0 preview. If you need 1.0 preview data and reports, please use FinOps hubs 0.3.</sup>_
+_<sup>3) Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range.</sup>_
+_<sup>4) While most settings are required, overwriting is optional. We recommend **not** overwriting files so you can monitor your ingestion pipeline using the [Data ingestion](../power-bi/data-ingestion.md) report. If you do not plan to use that report, please enable overwriting.</sup>_
+_<sup>5) A "scope" is an Azure construct that contains resources or enables purchasing services, like a resource group, subscription, management group, or billing account. The resource ID for a scope will be the Azure Resource Manager URI that identifies the scope (e.g., "/subscriptions/###" for a subscription or "/providers/Microsoft.Billing/billingAccounts/###" for a billing account). To learn more, see [Understand and work with scopes](https://aka.ms/costmgmt/scopes).</sup>_
 
 ---
 
