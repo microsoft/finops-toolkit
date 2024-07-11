@@ -86,7 +86,12 @@ function Invoke-Rest
     catch
     {
         $response = $_.Exception.Response
-        $content = $_.ErrorDetails.Message | ConvertFrom-Json -Depth 10
+        try
+        {
+            $content = $_.ErrorDetails.Message | ConvertFrom-Json -Depth 10
+        }
+        catch {}
+
         if ($content.error)
         {
             $errorCode = $content.error.code
@@ -104,6 +109,7 @@ function Invoke-Rest
         Success    = $response.StatusCode -ge 200 -and $response.StatusCode -lt 300
         Failure    = $response.StatusCode -ge 300
         NotFound   = $response.StatusCode -eq 404 -or $response.StatusCode -eq 'NotFound'
+        Throttled  = $response.StatusCode -eq 429 -or $response.StatusCode -eq 'ResourceRequestsThrottled'
         Content    = $content
     }
 }

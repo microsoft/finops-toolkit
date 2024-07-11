@@ -125,6 +125,19 @@ Legend:
 >
 > 1. Removed `ConvertTo-FinOpsSchema` and `Invoke-FinOpsSchemaTransform` commands which were deprecated in [0.2 (January 2024)](#-v02).
 
+🖥️ PowerShell
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Added progress tracking to [Start-FinOpsCostExport](../_automation/powershell/cost/Start-FinOpsCostExport.md) for multi-month exports.
+> 2. Added a 60-second delay when Cost Management returns throttling (429) errors in [Start-FinOpsCostExport](../_automation/powershell/cost/Start-FinOpsCostExport.md).
+>
+> 🗑️ Removed:
+>
+> 1. Removed support for Windows PowerShell.
+>    > _We discovered errors with Windows PowerShell due to incompatibilities in Windows PowerShell and PowerShell 7. Due to our limited capacity, we decided to only support [PowerShell 7](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) going forward._
+
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
