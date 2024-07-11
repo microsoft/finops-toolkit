@@ -5,8 +5,6 @@ expression 'Storage URL' = "https://ftkmicfland5pd7gdo37oozc.dfs.core.windows.ne
 
 	annotation PBI_ResultType = Text
 
-	annotation PBI_NavigationStepName = Navigation
-
 expression 'File Type' = ".parquet" meta [IsParameterQuery = true, IsParameterQueryRequired = true, Type = type text, List = {".parquet", ".gz"}, DefaultValue = ".parquet"]
 	lineageTag: 72b5bbfd-a222-4629-b5e5-0d57245f25ff
 	queryGroup: '🛠️ Setup\FinOps hubs'
@@ -466,14 +464,10 @@ expression Scope = "8611537" meta [IsParameterQuery=true, Type="Text", IsParamet
 
 	annotation PBI_ResultType = Text
 
-	annotation PBI_NavigationStepName = Navigation
-
 /// Select "Enrollment Number" if using EA; otherwise, select "Manually Input Scope". These values are required in order to refresh data from the connector in the Power BI service.
 expression Type = "Enrollment Number" meta [IsParameterQuery=true, List={"Enrollment Number", "Manually Input Scope"}, DefaultValue="Enrollment Number", Type="Text", IsParameterQueryRequired=true]
 	lineageTag: e700b3d3-f2af-45a3-af15-199df0040f7b
 	queryGroup: '🛠️ Setup\CM connector'
 
 	annotation PBI_ResultType = Text
-
-	annotation PBI_NavigationStepName = Navigation
 

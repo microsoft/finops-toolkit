@@ -106,12 +106,15 @@ $text | Out-File $filePath
 
 # Upload new/updated settings
 Write-Output "Uploading settings.json file..."
-Set-AzStorageBlobContent @storageContext -File $filePath -Force
+Set-AzStorageBlobContent @storageContext -File $filePath -Force | Out-Null
 
 # Save focusSchemaFile file to storage
-Write-Output "Uploading schema files..."
-$env:schemaFiles.Keys | ForEach-Object {
-    $tempFileName = Join-Path -Path .\ -ChildPath "$_.json"
-    $env:schemaFiles[$_] | Out-File $tempFileName
-    Set-AzStorageBlobContent @storageContext -File $tempFileName -Force
+$schemaFiles = $env:schemaFiles | ConvertFrom-Json -Depth 10
+Write-Output "Uploading ${$schemaFiles.PSObject.Properties.Count} schema files..."
+$schemaFiles.PSObject.Properties | ForEach-Object {
+    $fileName = "$($_.Name).json"
+    $tempPath = "./$fileName"
+    Write-Output "  Uploading $($_.Name).json..."
+    $_.Value | Out-File $tempPath
+    Set-AzStorageBlobContent @storageContext -File $tempPath -Blob "schemas/$fileName" -Force | Out-Null
 }
