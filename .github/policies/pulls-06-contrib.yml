@@ -1,4 +1,4 @@
-id: pulls-00-file-paths
+id: pulls-06-contrib
 name: GitOps.PullRequestIssueManagement
 description: Handles when a PR is opened with specific file paths
 owner:
