@@ -45,6 +45,8 @@ configuration:
               - addLabel:
                   label: 'Breaking change 🚨'
           - if:
+              - hasLabel:
+                  label: 'Breaking change 🚨'
               - bodyContains:
                   pattern: '[ ] 🚨 This is a breaking change'
             then:
