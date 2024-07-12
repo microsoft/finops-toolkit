@@ -5,17 +5,17 @@
 // Parameters
 //==============================================================================
 
-@description('The name of the connection to use for the logic app')
-param ConnectionName string = 'WasteReductionConnection'
+@description('Name of the connection to use for the logic app')
+param connectionName string = 'WasteReductionConnection'
 
 @description('Display name of the connection')
-param DisplayName string = 'WasteReductionConnection'
+param displayName string = 'WasteReductionConnection'
 
-@description('The location of the logic app')
+@description('Azure location where resources should be created')
 @minLength(1)
-param Location string = resourceGroup().location
+param location string = resourceGroup().location
 
-@description('Then name of the logic app')
+@description('Name of the logic app')
 @minLength(1)
 param appName string = 'WasteReductionApp'
 
@@ -3538,28 +3538,28 @@ resource WasteReduction 'Microsoft.Logic/workflows@2019-05-01' = {
         value: {
           office365: {
             connectionId: Connection.id
-            connectionName: ConnectionName
-            id: '${subscription().id}/providers/Microsoft.Web/locations/${Location}/managedApis/office365'
+            connectionName: connectionName
+            id: '${subscription().id}/providers/Microsoft.Web/locations/${location}/managedApis/office365'
           }
         }
       }
     }
   }
   name: appName
-  location: Location
+  location: location
   tags: {
     displayName: 'WasteReduction'
   }
 }
 
 resource Connection 'MICROSOFT.WEB/CONNECTIONS@2015-08-01-preview' = {
-  name: ConnectionName
-  location: Location
+  name: connectionName
+  location: location
   properties: {
     api: {
-      id: '${subscription().id}/providers/Microsoft.Web/locations/${Location}/managedApis/office365'
-      location: Location
+      id: '${subscription().id}/providers/Microsoft.Web/locations/${location}/managedApis/office365'
+      location: location
     }
-    displayName: DisplayName
+    displayName: displayName
   }
 }
