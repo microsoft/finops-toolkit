@@ -34,7 +34,7 @@ annotation __PBI_TimeIntelligenceEnabled = 1
 
 annotation PBIDesktopVersion = 2.131.427.0 (24.07)
 
-annotation PBI_QueryOrder = ["Storage URL","File Type","RangeStart","RangeEnd","CostDetails","RecommendationsSingle","RecommendationsShared","ftk_Hub","ftk_CostDetails","▶️  START HERE","Data Source","Scope","Type","Number of Months","InstanceSizeFlexibility","HubData","HubErrors","ftk_CMConnector","HubSettings","HubScopes"]
+annotation PBI_QueryOrder = ["Storage URL","RangeStart","RangeEnd","CostDetails","RecommendationsSingle","RecommendationsShared","ftk_Hub","▶️  START HERE","Scope","Type","Number of Months","InstanceSizeFlexibility","HubData","HubErrors","ftk_CMConnector","HubSettings","HubScopes"]
 
 annotation PBI_ProTooling = ["DevMode"]
 

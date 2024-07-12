@@ -87,6 +87,12 @@ Legend:
 > 1. Ingest FOCUS 1.0 data in FinOps hubs.
 > 2. Grant access to FinOps hubs to [create and manage exports](../_reporting/hubs/configure-scopes.md#-configure-managed-exports) for you.
 > 3. Connect to a hub instance in another Entra ID tenant.
+>
+> 🛠️ Fixed:
+>
+> 1. Fixed an issue where some dates are showing as off by 1 based on local time zone.
+>    - If you see dates that are off, upgrade to 0.4 and re-export those months. The fix is in ingestion.
+>    - You can re-export data in FOCUS 1.0 or FOCUS 1.0 preview. We recommend FOCUS 1.0 for slightly faster refresh times in Power BI.
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -106,7 +112,8 @@ Legend:
 >   1. Changed the **Tags** column to default to `{}` when empty to facilitate tag expansion ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
 >   2. Simplified formatting for the `BillingPeriod` and `ChargePeriod` measures in Power BI.
 >   3. Improved error handling for derived savings columns in the CostDetails query.
->   4. Changed internal storage for reports to use [Tabular Model Definition Language (TMDL)](https://learn.microsoft.com/power-bi/developer/projects/projects-dataset#tmdl-format).
+>   4. Simplified queries and improved error handling in the START HERE query for report setup steps.
+>   5. Changed internal storage for reports to use [Tabular Model Definition Language (TMDL)](https://learn.microsoft.com/power-bi/developer/projects/projects-dataset#tmdl-format).
 >      - This change makes it easier to review changes to the data model in Power BI.
 >      - Reports will still be released as PBIX files so this change should not impact end users.
 >      - Visualizations are not being switched to [Power BI Enhanced Report (PBIR)](https://learn.microsoft.com/power-bi/developer/projects/projects-report#pbir-format) format yet due to functional limitations that would impact end users (as of June 2024).
