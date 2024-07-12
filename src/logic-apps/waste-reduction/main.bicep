@@ -8,9 +8,10 @@
 @description('The name of the connection to use for the logic app')
 param ConnectionName string = 'WasteReductionConnection'
 
+@description('Display name of the connection')
 param DisplayName string = 'WasteReductionConnection'
 
-@description('The location of the logic app must be the same as the resource group')
+@description('The location of the logic app')
 @minLength(1)
 param Location string = resourceGroup().location
 
