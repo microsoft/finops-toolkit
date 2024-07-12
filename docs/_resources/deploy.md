@@ -3,7 +3,7 @@ layout: default
 title: Deployment options
 nav_order: 10
 description: 'Deploy FinOps toolkit solutions.'
-permalink: /resources/deploy
+permalink: /help/deploy
 ---
 
 <span class="fs-9 d-block mb-4">FinOps toolkit deployment options</span>

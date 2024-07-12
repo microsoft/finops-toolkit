@@ -87,6 +87,7 @@ Legend:
 > 1. Ingest FOCUS 1.0 data in FinOps hubs.
 > 2. Grant access to FinOps hubs to [create and manage exports](../_reporting/hubs/configure-scopes.md#-configure-managed-exports) for you.
 > 3. Connect to a hub instance in another Entra ID tenant.
+> 4. Step-by-step troubleshooting guide and expanded set of common errors for validating FinOps hubs and Power BI setup.
 >
 > 🛠️ Fixed:
 >
@@ -101,6 +102,7 @@ Legend:
 >
 > - General:
 >   1. **x_IncrementalRefreshDate** column to facilitate configuring incremental refresh in Power BI.
+>   2. Step-by-step troubleshooting guide and expanded set of common errors for validating Power BI setup.
 > - [Cost summary](../_reporting/power-bi/cost-summary.md):
 >   1. Resource count and cost per resource in the [Inventory page](../_reporting/power-bi/cost-summary.md#inventory).
 > - [Data ingestion](../_reporting/power-bi/data-ingestion.md):
