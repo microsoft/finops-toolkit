@@ -4,7 +4,7 @@ grand_parent: FinOps Framework
 parent: Quantify
 title: Benchmarking
 permalink: /framework/capabilities/quantify/benchmarking
-nav_order: 3
+nav_order: 4
 description: This article helps you understand the benchmarking capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: ripadrao
 ms.author: banders

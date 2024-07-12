@@ -4,7 +4,7 @@ grand_parent: FinOps Framework
 parent: Quantify
 title: Planning and estimating
 permalink: /framework/capabilities/quantify/planning
-nav_order: 3
+nav_order: 1
 description: This article helps you understand the planning and estimating capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
@@ -22,6 +22,7 @@ This article helps you understand the planning and estimating capability within 
 <details open markdown="1">
   <summary class="fs-2 text-uppercase">On this page</summary>
 
+- [✋ Before you begin](#-before-you-begin)
 - [▶️ Getting started](#️-getting-started)
 - [🏗️ Building on the basics](#️-building-on-the-basics)
 - [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)

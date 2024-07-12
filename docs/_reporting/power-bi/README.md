@@ -30,7 +30,7 @@ Accelerate your analytics efforts with simple, targeted reports. Summarize and b
 <!-- markdownlint-disable-line --> {% include_relative _intro.md %}
 
 <blockquote class="note" markdown="1">
-   _As of FinOps toolkit 0.2, all reports have been updated to use the FinOps Open Cost and Usage Specification (FOCUS). To learn more, see [About FOCUS](../../_docs/focus/README.md)._
+   _As of FinOps toolkit 0.4, all reports have been updated to use the FinOps Open Cost and Usage Specification (FOCUS) 1.0. To use FOCUS 1.0 preview, please leverage the 0.3 toolkit release. To learn more, see [About FOCUS](../../_docs/focus/README.md)._
 </blockquote>
 
 <br>
