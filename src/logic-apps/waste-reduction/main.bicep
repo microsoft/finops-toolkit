@@ -5,10 +5,10 @@
 // Parameters
 //==============================================================================
 
-@description('Name of the connection to use for the logic app')
+@description('Name of the API connection to use for the logic app')
 param connectionName string = 'WasteReductionConnection'
 
-@description('Display name of the connection')
+@description('Display name of the API connection')
 param displayName string = 'WasteReductionConnection'
 
 @description('Azure location where resources should be created')
