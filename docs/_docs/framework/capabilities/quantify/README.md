@@ -15,7 +15,7 @@ Measure product and cloud performance and map to organizational KPIs to facilita
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [� Capabilities](#-capabilities)
+- [📝 Capabilities](#-capabilities)
 - [⏩ Next steps](#-next-steps)
 - [🧰 Related tools](#-related-tools)
 

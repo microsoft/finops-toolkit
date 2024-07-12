@@ -4,7 +4,7 @@ grand_parent: FinOps Framework
 parent: Manage
 title: Onboarding
 permalink: /framework/capabilities/manage/onboarding
-nav_order: 4
+nav_order: 3
 description: This article helps you understand the onboarding workloads capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders

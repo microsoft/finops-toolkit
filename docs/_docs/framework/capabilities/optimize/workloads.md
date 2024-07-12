@@ -4,7 +4,7 @@ grand_parent: FinOps Framework
 parent: Optimize
 title: Workloads
 permalink: /framework/capabilities/optimize/workloads
-nav_order: 1
+nav_order: 2
 description: This article helps you understand the Workload optimization capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
