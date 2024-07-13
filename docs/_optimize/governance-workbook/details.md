@@ -64,6 +64,7 @@ The **Virtual machine** tab is focused on Compute resources to get more informat
 - Virtual machine scale set capacity and size
 - Compute disks (OS & data disk attached, OS & data disk size, OS disk SKU)
 - Compute networking (NIC, private IP, public IP attached)
+- Managed disk utilization
 - Compute optimization
   - Underused assets (identified by Azure Advisor)
   - Orphaned disks

@@ -353,7 +353,8 @@ MigrationBackup/
 coverage.xml
 
 # Microsoft Power BI
-.pbi/
+**/.pbi/cache.abf
+**/.pbi/localSettings.json
 
 # Optimization Engine local deployment files
 last-deployment-state.json

@@ -101,28 +101,22 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
 ## ➕ Create a new hub
 
 <blockquote class="note" markdown="1">
-  _FinOps hubs 0.2 is a breaking change. To upgrade an existing hub instance, please refer to the [Upgrade guide](./upgrade.md)._
+  _FinOps hubs 0.4 introduces support for FOCUS 1.0. This is **not** a breaking change and is completely backwards compatible with v0.3. To learn more, please refer to the [Upgrade guide](./upgrade.md)._
 </blockquote>
 
-1. **Register resource providers.**
-
-   FinOps hubs use Event Grid and Cost Management behind the scenes. Before you deploy your template, register the `Microsoft.EventGrid` and `Microsoft.CostManagementExports` resource providers.
-
-   [Learn more](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider)
-
-2. **Deploy your FinOps hub.**
+1. **Deploy your FinOps hub.**
 
    {% include deploy.html template="finops-hub" public="1" gov="0" china="0" %}
 
    [Learn more](../../_resources/deploy.md)
 
-3. **Configure scopes to monitor.**
+2. **Configure scopes to monitor.**
 
    FinOps hubs use Cost Management exports to load the data you want to monitor. You can configure exports manually or grant access to your hub to manage exports for you.
 
    [Learn more](./configure-scopes.md)
 
-4. **Connect to your data.**
+3. **Connect to your data.**
 
    You can connect to your data from any system that supports Azure storage. For ideas, see [get started with hubs](#-get-started-with-hubs) below. We recommend using pre-built Power BI starter templates to get started quickly.
 
@@ -188,7 +182,7 @@ Required permissions for deploying or updating hub instances are covered in the 
 
 You will need one or more of the following to export your cost data:
 
-| Scope                             | Permission                                                                                                                            |
+| Scope                                                 | Permission                                                                                                                             |
 | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | Subscriptions and resource groups (all account types) | [Cost Management Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cost-management-contributor). |
 | EA billing scopes                                     | Enterprise Reader, Department Reader, or Account Owner (aka enrollment account).                                                       |

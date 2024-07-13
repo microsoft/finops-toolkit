@@ -20,26 +20,21 @@ queryGroup '🛠️ Setup\CM connector'
 
 queryGroup '🛠️ Setup\FinOps hubs'
 
-	annotation PBI_QueryGroupOrder = 2
+	annotation PBI_QueryGroupOrder = 3
 
 queryGroup '🛠️ Setup\Functions'
 
-	annotation PBI_QueryGroupOrder = 3
+	annotation PBI_QueryGroupOrder = 4
 
 queryGroup '🛠️ Setup\Instructions'
 
 	annotation PBI_QueryGroupOrder = 0
 
-/// Errors in queries that were loaded on 6/6/2024 1:48:22 PM.
-queryGroup 'Query Errors - 6/6/2024 1:48:22 PM'
-
-	annotation PBI_QueryGroupOrder = 6
-
 annotation __PBI_TimeIntelligenceEnabled = 1
 
 annotation PBIDesktopVersion = 2.131.427.0 (24.07)
 
-annotation PBI_QueryOrder = ["Storage URL","File Type","RangeStart","RangeEnd","CostDetails","RecommendationsSingle","RecommendationsShared","ftk_Hub","ftk_CostDetails","▶️  START HERE","Data Source","Scope","Type","Number of Months","InstanceSizeFlexibility","ftk_CMConnector","HubSettings","HubScopes","HubData","HubExports","HubIngestion","Errors in HubExports","Errors in HubIngestion"]
+annotation PBI_QueryOrder = ["Storage URL","RangeStart","RangeEnd","CostDetails","RecommendationsSingle","RecommendationsShared","ftk_Hub","▶️  START HERE","Scope","Type","Number of Months","InstanceSizeFlexibility","HubData","HubErrors","ftk_CMConnector","HubSettings","HubScopes"]
 
 annotation PBI_ProTooling = ["DevMode"]
 
@@ -60,17 +55,14 @@ ref table LocalDateTable_f581f9e4-7dfc-448d-a6d1-fb4cc5c95f27
 ref table LocalDateTable_fef26e24-a208-4f98-9587-9e837520485d
 ref table HubSettings
 ref table HubScopes
-ref table HubExports
-ref table LocalDateTable_b4481e6d-7b57-4236-b430-b5260c37ff6f
-ref table LocalDateTable_d24e3edf-a759-4c92-a59f-1fc8cf54a6c8
-ref table LocalDateTable_9c2ef32e-1f64-425a-80cf-53a4020c55fd
-ref table LocalDateTable_cc194c8b-c38e-44b7-81e4-19de95f9eb7b
-ref table HubIngestion
-ref table LocalDateTable_41efb852-a77d-41a4-8d93-fa1942f528a3
-ref table LocalDateTable_c7280346-3e7b-4b97-8f9a-9eece9b5d3ed
-ref table LocalDateTable_1cba35dd-c086-4d23-8329-b3c1c5cbdc70
-ref table LocalDateTable_7e252193-4a78-4d83-a440-30c8768441b6
-ref table LocalDateTable_767a87d5-01db-48e9-b034-577f5dc943a1
+ref table HubData
+ref table LocalDateTable_f8c522a9-514b-435e-9c83-a31fe0c99a22
+ref table LocalDateTable_0ac3758b-3ab8-42b7-bc85-9cfda5289f14
+ref table LocalDateTable_1be86c8b-1d56-4c92-b0c1-2de21a6b4e4d
+ref table HubErrors
+ref table LocalDateTable_c3c47274-cc2f-4ba2-a257-6f5d529787d5
+ref table LocalDateTable_c4ce9464-15a6-4444-a0af-08644805dec6
+ref table LocalDateTable_c351bfa8-dbcf-4886-9895-35cf730d7efe
 
 ref cultureInfo en-US
 

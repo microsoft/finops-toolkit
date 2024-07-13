@@ -238,6 +238,103 @@ Describe 'CostExports' {
         }
     }
 
+    It 'Should handle progress and throttling for 12 month backfill' {
+        # Arrange
+        $startDate = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0)
+
+        Monitor "Export throttling tests..." -Indent '  ' {
+            Monitor "Creating $exportName export..." {
+                # Act -- create
+                $newResult = New-FinOpsCostExport -Name $exportName -Scope $scope -StorageAccountId $storage.Id -Execute -Backfill 12
+                # TODO: Run tests for all supported API versions: -ApiVersion '2023-08-01'
+                
+                # Assert
+                Report -Object $newResult
+                $newResult.Name | Should -Be $exportName
+                $newResult.RunHistory | Should -BeNullOrEmpty -Because "the -RunHistory option was not specified"
+            }
+
+            Monitor "Getting $exportName..." {
+                # Act -- read
+                $getResult = Get-FinOpsCostExport -Name $exportName -Scope $scope -RunHistory
+
+                # Assert
+                Report "Found $($getResult.Count) export(s)"
+                Report -Object $getResult
+                $getResult.Count | Should -Be 1
+                $getResult.Name | Should -Be $exportName
+                $getResult.RunHistory.Count | Should -BeGreaterThan 0 -Because "-Execute -Backfill was specified during creation"
+            }
+
+            Monitor "Deleting $exportName..." {
+                # Act -- delete
+                $deleteResult = Remove-FinOpsCostExport -Name $exportName -Scope $scope
+                $confirmDeleteResult = Get-FinOpsCostExport -Name $exportName -Scope $scope
+                
+                # Assert
+                Report $deleteResult
+                $deleteResult | Should -BeTrue
+                Report "$($getResult.Count) export(s) remaining"
+                $confirmDeleteResult | Should -BeNullOrEmpty
+            }
+        }
+    }
+
+    Context "Long-running unit tests" {
+        BeforeAll {
+            [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "")]
+            $exportName = 'ftk-test-Start-FinOpsCostExport'
+            
+            [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "")]
+            $scope = "/subscriptions/$([Guid]::NewGuid())"
+            
+            [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "")]
+            $mockExport = @{
+                id   = "$scope/providers/Microsoft.CostManagement/exports/$exportName"
+                name = $exportName
+            }
+        }
+
+        It 'Should wait 60s when throttled' {
+            # NOTE: This is a unit test that mocks dependencies. It's run with integration tests due to how long it takes to run.
+
+            # Arrange
+            $waited = $false
+            $testStartTime = Get-Date
+            function CheckDate($date) {
+                $monthToThrottle = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0 -AsUTC).AddMonths(-3).ToUniversalTime().Date.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")
+                if ($date -eq $monthToThrottle -and -not $waited) {
+                    $waited = $true
+                    return $true
+                }
+                return $false
+            }
+            Mock -ModuleName FinOpsToolkit -CommandName 'Get-FinOpsCostExport' -MockWith { $mockExport }
+            Mock -ModuleName FinOpsToolkit -CommandName 'Invoke-Rest'          -MockWith { 
+                if (CheckDate($Body.timePeriod.from))
+                {
+                    @{ Success = $false; Throttled = $true }
+                }
+                else 
+                {
+                    @{ Success = $true }
+                }
+            }
+            Mock -ModuleName FinOpsToolkit -CommandName 'Write-Progress'       -MockWith {}
+            
+            # Act
+            $success = Start-FinOpsCostExport `
+                -Name $exportName `
+                -Scope $scope `
+                -Backfill 12
+            
+            # Assert
+            Assert-MockCalled -ModuleName FinOpsToolkit -CommandName 'Write-Progress' -Times 4
+            $success | Should -Be $true
+            ((Get-Date) - $testStartTime).TotalSeconds | Should -BeGreaterThan 60
+        }
+    }
+
     AfterAll {
         # Cleanup
         Remove-AzStorageAccount -ResourceGroupName $rg -Name $storageName -Force

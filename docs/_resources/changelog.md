@@ -42,6 +42,7 @@ Legend:
 ➕ Added
 ✏️ Changed
 🛠️ Fixed
+🚫 Deprecated
 🗑️ Removed
 
 📒 Workbook
@@ -56,15 +57,15 @@ Legend:
 
 > ➕ Added:
 >
-> 1. Managed exports – Let FinOps hubs manage exports for you.
+> 1. Analytics engine – Ingest cost data into an Azure Data Explorer cluster.
 > 2. Auto-backfill – Backfill historical data from Microsoft Cost Management.
-> 3. Remote hubs – Ingest cost data from other tenants.
-> 4. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
-> 5. Analytics engine – Ingest cost data into an Azure Data Explorer cluster.
+> 3. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
 
 <br>
 
 ## 🚚 v0.4
+
+<sup>Released July 2024</sup>
 
 📗 FinOps guide
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -76,23 +77,88 @@ Legend:
 > ✏️ Changed:
 >
 > 1. Updated [FinOps Framework guidance](../_docs/framework/README.md) to account for the 2024 updates.
+> 2. Updated [FOCUS guidance](../_docs/focus/README.md) to FOCUS 1.0.
+
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Ingest FOCUS 1.0 data in FinOps hubs.
+> 2. Grant access to FinOps hubs to [create and manage exports](../_reporting/hubs/configure-scopes.md#-configure-managed-exports) for you.
+> 3. Connect to a hub instance in another Entra ID tenant.
+> 4. Step-by-step troubleshooting guide and expanded set of common errors for validating FinOps hubs and Power BI setup.
+>
+> 🛠️ Fixed:
+>
+> 1. Fixed an issue where some dates are showing as off by 1 based on local time zone.
+>    - If you see dates that are off, upgrade to 0.4 and re-export those months. The fix is in ingestion.
+>    - You can re-export data in FOCUS 1.0 or FOCUS 1.0 preview. We recommend FOCUS 1.0 for slightly faster refresh times in Power BI.
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
-> 🛠️ Fixed:
+> ➕ Added:
 >
-> 1. Improved parsing for the `x_ResourceParentName` and `x_ResourceParentType` columns ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
-> 2. Added error handling for missing `normalizedSize` and `recommendedQuantityNormalized` columns in the [Rate optimization (Commitment discounts) report](../_reporting/power-bi/rate-optimization.md) ([#702](https://github.com/microsoft/finops-toolkit/issues/702)).
+> - General:
+>   1. **x_IncrementalRefreshDate** column to facilitate configuring incremental refresh in Power BI.
+>   2. Step-by-step troubleshooting guide and expanded set of common errors for validating Power BI setup.
+> - [Cost summary](../_reporting/power-bi/cost-summary.md):
+>   1. Resource count and cost per resource in the [Inventory page](../_reporting/power-bi/cost-summary.md#inventory).
+> - [Data ingestion](../_reporting/power-bi/data-ingestion.md):
+>   1. [Ingestion errors page](../_reporting/power-bi/data-ingestion.md#ingestion-errors) to help identify FinOps hub data ingestion issues.
 >
 > ✏️ Changed
 >
-> 1. Renamed the "Commitment discounts" report to "Rate optimization" to align to the FinOps Framework 2024 updates.
-> 2. Changed the **Tags** column to default to `{}` when empty to facilitate tag expansion ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
-> 3. Changed internal storage for reports to use [Tabular Model Definition Language (TMDL)](https://learn.microsoft.com/power-bi/developer/projects/projects-dataset#tmdl-format).
->    - This change makes it easier to review changes to the data model in Power BI.
->    - Reports will still be released as PBIX files so this change should not impact end users.
->    - Visualizations are not being switched to [Power BI Enhanced Report (PBIR)](https://learn.microsoft.com/power-bi/developer/projects/projects-report#pbir-format) format yet due to functional limitations that would impact end users (as of June 2024).
+> - General:
+>   1. Changed the **Tags** column to default to `{}` when empty to facilitate tag expansion ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
+>   2. Simplified formatting for the `BillingPeriod` and `ChargePeriod` measures in Power BI.
+>   3. Improved error handling for derived savings columns in the CostDetails query.
+>   4. Simplified queries and improved error handling in the START HERE query for report setup steps.
+>   5. Changed internal storage for reports to use [Tabular Model Definition Language (TMDL)](https://learn.microsoft.com/power-bi/developer/projects/projects-dataset#tmdl-format).
+>      - This change makes it easier to review changes to the data model in Power BI.
+>      - Reports will still be released as PBIX files so this change should not impact end users.
+>      - Visualizations are not being switched to [Power BI Enhanced Report (PBIR)](https://learn.microsoft.com/power-bi/developer/projects/projects-report#pbir-format) format yet due to functional limitations that would impact end users (as of June 2024).
+> - [Cost summary](../_reporting/power-bi/cost-summary.md):
+>   1. Changed the [Cost summary Purchases page](../_reporting/power-bi/cost-summary.md#purchases) and [Rate optimization Purchases page](../_reporting/power-bi/rate-optimization.md#purchases) to use PricingQuantity instead of Usage/ConsumedQuantity and added the PricingUnit column.
+>   2. Updated the [DQ page](../_reporting/power-bi/cost-summary.md#dq) to identify empty ChargeDescription rows.
+>   3. Updated the [DQ page](../_reporting/power-bi/cost-summary.md#dq) to identify potentially missing rounding adjustments.
+> - [Rate optimization](../_reporting/power-bi/rate-optimization.md):
+>   1. Renamed the "Commitment discounts" report to "Rate optimization" to align to the FinOps Framework 2024 updates.
+> - [Data ingestion](../_reporting/power-bi/data-ingestion.md):
+>   1. Optimized [Data ingestion report](../_reporting/power-bi/data-ingestion.md) queries to reduce memory footprint and load faster.
+>      <blockquote class="warning" markdown="1">
+>         _We are investigating an issue where we are missing rounding adjustments since May 2024. We do not yet know the cause of this issue._
+>      </blockquote>
+>
+> 🛠️ Fixed:
+>
+> - General:
+>   1. Improved parsing for the `x_ResourceParentName` and `x_ResourceParentType` columns ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
+> - [Rate optimization](../_reporting/power-bi/rate-optimization.md):
+>   1. Added error handling for missing `normalizedSize` and `recommendedQuantityNormalized` columns in the [Rate optimization (Commitment discounts) report](../_reporting/power-bi/rate-optimization.md) ([#702](https://github.com/microsoft/finops-toolkit/issues/702)).
+> - [Data ingestion](../_reporting/power-bi/data-ingestion.md):
+>   1. Fixed error in [Data ingestion report](../_reporting/power-bi/data-ingestion.md) queries.
+
+📒 Azure Monitor workbooks
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> - [Optimization workbook](../_optimize/optimization-workbook/README.md):
+>   1. Added reservation recommendations with the break-even point to identify when savings would be achieved.
+>   2. Identify idle ExpressRoute circuits to streamline costs.
+>   3. Gain insights into the routing preferences for public IP addresses to optimize network performance.
+>   4. Explore commitment discount savings to get a clear overview of rate optimization opportunities.
+>   5. Quickly view public IP addresses with DDoS protection enabled and compare if it would be cheaper to enable DDoS to the vNet instead.
+>   6. Identify Azure Hybrid Benefit usage for SQL Database elastic pools to maximize cost efficiency.
+>
+> ✏️ Changed:
+>
+> - [Optimization workbook](../_optimize/optimization-workbook/README.md):
+>   1. Redesigned the Sustainability tab to clarify recommendations.
+>   2. Ignore dynamic IPs in the public IP addresses list to ensure more accurate results.
+>   3. Ignore free tier web apps to provide a clearer picture of your top services.
 
 🔍 Optimization engine
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -101,7 +167,23 @@ Legend:
 >
 > 1. Added Azure Optimization Engine (AOE), an extensible solution for custom optimization recommendations.
 
-<br>
+🖥️ PowerShell
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Added progress tracking to [Start-FinOpsCostExport](../_automation/powershell/cost/Start-FinOpsCostExport.md) for multi-month exports.
+> 2. Added a 60-second delay when Cost Management returns throttling (429) errors in [Start-FinOpsCostExport](../_automation/powershell/cost/Start-FinOpsCostExport.md).
+>
+> ✏️ Changed:
+>
+> 1. Updated [New-FinOpsCostExport](../_automation/powershell/cost/New-FinOpsCostExport.md) to default to FOCUS 1.0.
+>
+> 🗑️ Removed:
+>
+> 1. Removed support for Windows PowerShell.
+>    > _We discovered errors with Windows PowerShell due to incompatibilities in Windows PowerShell and PowerShell 7. Due to our limited capacity, we decided to only support [PowerShell 7](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) going forward._
+> 2. Removed `ConvertTo-FinOpsSchema` and `Invoke-FinOpsSchemaTransform` commands which were deprecated in [0.2 (January 2024)](#-v02).
 
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -120,6 +202,8 @@ Legend:
 <br>
 
 ## 🚚 v0.3
+
+<sup>Released March 28, 2024</sup>
 
 📗 FinOps guide
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -187,28 +271,6 @@ Legend:
 > 6. Changed the `x_PricingBlockSize` column to a whole number and not summarize by default.
 > 7. Renamed the **Coverage** pages in the [Commitment discounts report](../_reporting/power-bi/rate-optimization.md) to **Recommendations**.
 
-📒 Azure Monitor workbooks
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-**May**:
-> 1. 🔹 Reservations Recommendations:<br>
-> New Tab: We've added a new tab specifically for Reservations recommendations. <br>This tab includes a handy **Break-Even Point** feature, allowing you to prioritize recommendations that will reach their break-even point sooner.
-> > :warning: **Permissions**: Please note, this tab now requires Enterprise Admin or Billing Profile Reader permissions. We have kept the old tab for the time being to ensure a smooth transition.
-> 2. 🔹 Sustainability: <br>
-> Redesigned Tab: The sustainability tab has been completely redesigned with an improved layout, making it easier to understand the provided recommendations.
-> 3. 🔹 Networking Tab: <br>
-> Query Improvement: The Public IP Addresses query has been enhanced to ignore dynamic IPs, ensuring more accurate results.
-> 4. 🔹 Top 10 Services:<br>
-> Web App Query Update: The Web App query now ignores the free tier, providing a clearer picture of your top services.
-
-> **April**:
-> ➕ Added:
-> 1. 1️⃣🕵️‍♂️ Identify Idle ExpressRoute Circuits: Now, easily pinpoint and optimize inactive ExpressRoute circuits to streamline costs.
-> 2. 2️⃣ 📊Routing Preference for Public IP Addresses: Gain insights into the routing preferences for your public IP addresses to optimize network performance.
-> 3. 3️⃣ 🥧Commitment Discount Savings Summary: Explore a new pie chart summarizing commitment discount savings, providing a clear overview of cost-saving opportunities.
->4.  4️⃣ 💰DDoS-enabled Public IP Addresses Query: Quickly view public IP addresses with DDoS protection enabled and compare if it would be cheaper to enable DDoS to the vNet instead.
-> 5. 5️⃣ 💡Azure Hybrid Benefit for SQL Database Elastic Pools: Leverage new queries to identify Azure Hybrid Benefit usage for SQL Database elastic pools, maximizing cost efficiencies.
-
 🖥️ PowerShell
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
@@ -242,6 +304,8 @@ Legend:
 <br>
 
 ## 🚚 v0.2
+
+<sup>Released January 22, 2024</sup>
 
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -294,7 +358,7 @@ Legend:
 
 > ➕ Added:
 >
-> - [Optimization workbook](../_workbooks/optimization-workbook/README.md):
+> - [Optimization workbook](../_optimize/optimization-workbook/README.md):
 >   1. Storage: Identify Idle Backups: Review protected items' backup activity to spot items not backed up in the last 90 days.
 >   2. Storage: Review Replication Settings: Evaluate and improve your backup strategy by identifying resources with default geo-redundant storage (GRS) replication.
 >   3. Networking: Azure Firewall Premium Features: Identify Azure Firewalls with Premium SKU and ensure associated policies leverage premium-only features.
@@ -302,12 +366,12 @@ Legend:
 >
 > ✏️ Changed:
 >
-> - [Optimization workbook](../_workbooks/optimization-workbook/README.md):
+> - [Optimization workbook](../_optimize/optimization-workbook/README.md):
 >   1. Top 10 services: Improved Monitoring tabs: Enhance your monitoring experience with updated Azure Advisor recommendations for Log Analytics.
 >
 > 🛠️ Fixed:
 >
-> - [Optimization workbook](../_workbooks/optimization-workbook/README.md):
+> - [Optimization workbook](../_optimize/optimization-workbook/README.md):
 >   1. AHB: Fixed AHB to support Windows 10/Windows 11
 
 🖥️ PowerShell
@@ -328,7 +392,7 @@ Legend:
 >
 > 1. Fixed typo in [Deploy-FinOpsHub](../_automation/powershell/hubs/Deploy-FinOpsHub.md) causing it to fail.
 >
-> 🗑️ Removed:
+> 🚫 Deprecated:
 >
 > 1. `ConvertTo-FinOpsSchema` and `Invoke-FinOpsSchemaTransform` are no longer being maintained and will be removed in a future update.
 >    - With native support for FOCUS 1.0 preview in Cost Management, we are deprecating both commands, which only support FOCUS 0.5.
@@ -356,6 +420,8 @@ Legend:
 <br>
 
 ## 🛠️ v0.1.1
+
+<sup>Released October 26, 2023</sup>
 
 🖥️ PowerShell
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -396,6 +462,8 @@ Legend:
 <br>
 
 ## 🚚 v0.1
+
+<sup>Released October 22, 2023</sup>
 
 🖥️ PowerShell
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -438,11 +506,11 @@ Legend:
 
 > ➕ Added:
 >
-> 1. [Governance workbook](../_workbooks/governance-workbook/README.md) to centralize governance.
+> 1. [Governance workbook](../_optimize/governance-workbook/README.md) to centralize governance.
 >
 > ✏️ Changed:
 >
-> 1. [Optimization workbook](../_workbooks/optimization-workbook/README.md) updated to cover more scenarios.
+> 1. [Optimization workbook](../_optimize/optimization-workbook/README.md) updated to cover more scenarios.
 
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -459,6 +527,8 @@ Legend:
 <br>
 
 ## 🌱 v0.0.1
+
+<sup>Released May 27, 2023</sup>
 
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -481,7 +551,7 @@ Legend:
 
 > ➕ Added:
 >
-> 1. [Cost optimization workbook](../_workbooks/optimization-workbook/README.md) to centralize cost optimization.
+> 1. [Cost optimization workbook](../_optimize/optimization-workbook/README.md) to centralize cost optimization.
 
 [Download v0.0.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.0.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [Full changelog](https://github.com/microsoft/finops-toolkit/compare/878e4864ca785db4fc13bdd2ec3a6a00058688c3...v0.0.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }

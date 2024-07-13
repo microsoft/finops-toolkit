@@ -4,7 +4,7 @@ grand_parent: FinOps Framework
 parent: Quantify
 title: Planning and estimating
 permalink: /framework/capabilities/quantify/planning
-nav_order: 3
+nav_order: 1
 description: This article helps you understand the planning and estimating capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
@@ -22,6 +22,7 @@ This article helps you understand the planning and estimating capability within 
 <details open markdown="1">
   <summary class="fs-2 text-uppercase">On this page</summary>
 
+- [✋ Before you begin](#-before-you-begin)
 - [▶️ Getting started](#️-getting-started)
 - [🏗️ Building on the basics](#️-building-on-the-basics)
 - [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
@@ -81,7 +82,7 @@ Starting with well-defined requirements that are aligned across teams helps set 
 
 ## 🏗️ Building on the basics
 
-- Use the [Cost optimization workbook](../../../../_workbooks/optimization-workbook/README.md) to optimize current workloads and reduce potential future estimates.
+- Use the [Cost optimization workbook](../../../../_optimize/optimization-workbook/README.md) to optimize current workloads and reduce potential future estimates.
 - Review the [Architecting for cloud](../optimize/architecting.md) capability to ensure workloads are designed for efficiency.
 - Evaluate options to reduce costs through the [Rate optimization](../optimize/rates.md) capability.
 - Automate best practices through [Azure Policy](https://learn.microsoft.com/azure/governance/policy/overview) to enforce organizational standards at scale.

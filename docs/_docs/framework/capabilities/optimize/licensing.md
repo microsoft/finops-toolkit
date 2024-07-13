@@ -4,8 +4,7 @@ grand_parent: FinOps Framework
 parent: Optimize
 title: Licensing and SaaS
 permalink: /framework/capabilities/optimize/licensing
-
-nav_order: 3
+nav_order: 4
 description: This article helps you understand the licensing and SaaS capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders

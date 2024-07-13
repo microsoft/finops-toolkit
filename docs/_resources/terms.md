@@ -3,7 +3,7 @@ layout: default
 title: Common terms
 nav_order: 30
 description: 'Common terms and definitions used throughout FinOps hubs.'
-permalink: /resources/terms
+permalink: /help/terms
 ---
 
 <span class="fs-9 d-block mb-4">Common terms</span>
@@ -61,7 +61,7 @@ See [Commitment discounts](#commitment-discounts).
 
 #### Commitment savings
 
-"Commitment savings" refers to the total amount saved compared to negotiated, on-demand rates. This only includes [commitment discounts](#commitment-discounts). To include negotiated discounts, use [Discount savings](#discount-savings).
+"Commitment savings" refers to the total amount saved compared to negotiated, on-demand rates defined on the contract. This only includes [commitment discounts](#commitment-discounts). To include negotiated discounts, use [Discount savings](#discount-savings).
 
 <br>
 
@@ -69,7 +69,7 @@ See [Commitment discounts](#commitment-discounts).
 
 #### Discount savings
 
-"Discount savings" refers to the total amount saved compared to retail (PAYG) rates. This includes [negotiated](#negotiated-discounts) and [commitment discounts](#commitment-discounts).
+"Discount savings" refers to the total amount saved compared to list (retail or PAYG) rates. This includes [negotiated](#negotiated-discounts) and [commitment discounts](#commitment-discounts).
 
 <br>
 

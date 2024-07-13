@@ -4,7 +4,7 @@ grand_parent: FinOps Framework
 parent: Manage
 title: FinOps tools and services
 permalink: /framework/capabilities/manage/tools
-nav_order: 6
+nav_order: 7
 description: This article helps you understand the FinOps tools and services capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 ---
 
@@ -87,7 +87,7 @@ At this point, you've defined your organizational objectives, identified how cur
 
 - Evaluate limitations and gaps in existing tools and services and establish a plan to address them.
   - Automate tasks with [PowerShell commands](../../../../_automation/powershell/README.md) and [Bicep modules](../../../../_automation/bicep-registry/README.md).
-  - Consider lightweight tools for engineers, like the [Cost optimization](../../../../_workbooks/optimization-workbook/README.md) or [Governance](../../../../_workbooks/governance-workbook/README.md) workbooks.
+  - Consider lightweight tools for engineers, like the [Cost optimization](../../../../_optimize/optimization-workbook/README.md) or [Governance](../../../../_optimize/governance-workbook/README.md) workbooks.
   - If you're looking for an extensible platform for reporting and analytics, check out [FinOps hubs](../../../../_reporting/hubs/README.md) and connect to your hub from Microsoft Fabric to go even further.
 - Document the key processes around the tools and services available to teams.
   - Include when to use and how to get started with each.

@@ -4,7 +4,7 @@ grand_parent: FinOps Framework
 parent: Manage
 title: Chargeback
 permalink: /framework/capabilities/manage/invoicing-chargeback
-nav_order: 6
+nav_order: 5
 description: This article helps you understand the invoicing and chargeback capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders

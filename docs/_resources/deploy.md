@@ -3,7 +3,7 @@ layout: default
 title: Deployment options
 nav_order: 10
 description: 'Deploy FinOps toolkit solutions.'
-permalink: /resources/deploy
+permalink: /help/deploy
 ---
 
 <span class="fs-9 d-block mb-4">FinOps toolkit deployment options</span>
@@ -24,8 +24,8 @@ Explore the different options to deploy FinOps toolkit solutions. Deploy from th
 The FinOps toolkit includes multiple ARM templates. Prerequisites, parameters, and post-deployment setup steps differ per template. Please refer to the template details for more information:
 
 - [FinOps hub](../_reporting/hubs/template.md)
-- [Optimization workbook](../_workbooks/optimization-workbook/README.md)
-- [Governance workbook](../_workbooks/governance-workbook/README.md)
+- [Optimization workbook](../_optimize/optimization-workbook/README.md)
+- [Governance workbook](../_optimize/governance-workbook/README.md)
 
 Note Bicep Registry modules can be referenced directly from your Bicep code and are not deployed using the steps below.
 
@@ -49,11 +49,11 @@ Note Bicep Registry modules can be referenced directly from your Bicep code and 
 
 1. Select the **Deploy to Azure** button for the desired template:
 
-   | Template                                                               | Azure Commercial                                                      | Azure Gov                                                          | Azure China                                                          |
-   | ---------------------------------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------ | -------------------------------------------------------------------- |
-   | [FinOps hub](../_reporting/hubs/README.md)                             | {% include deploy.html template="finops-hub" public="1" %}            | {% include deploy.html template="finops-hub" gov="1" %}            | {% include deploy.html template="finops-hub" china="1" %}            |
-   | [Optimization workbook](../_workbooks/optimization-workbook/README.md) | {% include deploy.html template="optimization-workbook" public="1" %} | {% include deploy.html template="optimization-workbook" gov="1" %} | {% include deploy.html template="optimization-workbook" china="1" %} |
-   | [Governance workbook](../_workbooks/governance-workbook/README.md)     | {% include deploy.html template="governance-workbook" public="1" %}   | {% include deploy.html template="governance-workbook" gov="1" %}   | {% include deploy.html template="governance-workbook" china="1" %}   |
+   | Template                                                              | Azure Commercial                                                      | Azure Gov                                                          | Azure China                                                          |
+   | --------------------------------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------ | -------------------------------------------------------------------- |
+   | [FinOps hub](../_reporting/hubs/README.md)                            | {% include deploy.html template="finops-hub" public="1" %}            | {% include deploy.html template="finops-hub" gov="1" %}            | {% include deploy.html template="finops-hub" china="1" %}            |
+   | [Optimization workbook](../_optimize/optimization-workbook/README.md) | {% include deploy.html template="optimization-workbook" public="1" %} | {% include deploy.html template="optimization-workbook" gov="1" %} | {% include deploy.html template="optimization-workbook" china="1" %} |
+   | [Governance workbook](../_optimize/governance-workbook/README.md)     | {% include deploy.html template="governance-workbook" public="1" %}   | {% include deploy.html template="governance-workbook" gov="1" %}   | {% include deploy.html template="governance-workbook" china="1" %}   |
 
 2. Specify the desired values for each parameter. See the template details for more information.
    <blockquote class="tip" markdown="1">

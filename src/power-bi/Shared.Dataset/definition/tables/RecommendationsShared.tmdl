@@ -158,9 +158,9 @@ table RecommendationsShared
 		queryGroup: 'FinOps toolkit'
 		source =
 				let
-				    Source = try ftk_CMConnector("rirecommendationsshared") otherwise #table(
+				    Source = try AzureCostManagement.Tables(Type, Scope, #"Number of Months", []){[Key="rirecommendationsshared"]}[Data] otherwise #table(
 				        {"meterId", "term", "costWithNoReservedInstances", "recommendedQuantity", "totalCostWithReservedInstances", "netSavings", "firstUsageDate", "scope", "lookBackPeriod", "instanceFlexibilityRatio", "instanceFlexibilityGroup", "normalizedSize", "recommendedQuantityNormalized", "skuProperties"},
-				        {}
+				        {{"Failed to get data",null,null,null,null,null,null,null,null,null,null,null,null,null}}
 				    ),
 				    BackfillNormQty  = if Table.HasColumns(Source, {"recommendedQuantityNormalized"}) then Source          else Table.AddColumn(Source,          "recommendedQuantityNormalized", each null, type number),
 				    BackfillNormSize = if Table.HasColumns(Source, {"normalizedSize"})                then BackfillNormQty else Table.AddColumn(BackfillNormQty, "normalizedSize",                each null, type number),
@@ -170,6 +170,4 @@ table RecommendationsShared
 				    ChangeType
 
 	annotation PBI_ResultType = Table
-
-	annotation PBI_NavigationStepName = Navigation
 

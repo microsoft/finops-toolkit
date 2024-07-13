@@ -25,6 +25,7 @@ Common breakdowns of your cost to identify top contributors, review changes over
 - [Resource groups](#resource-groups)
 - [Resources](#resources)
 - [Regions](#regions)
+- [Inventory](#inventory)
 - [Commitments](#commitments)
 - [Hybrid Benefit](#hybrid-benefit)
 - [Prices](#prices)
@@ -136,7 +137,15 @@ The **Regions** page includes a breakdown of cost by region with a map showing t
    _Regions in the Cost Management FOCUS dataset include additional data cleansing for consistency with Azure regions and may not match the exact values in actual and amortized datasets._
 </blockquote>
 
-> ![Screenshot of the Regions page](https://github.com/microsoft/finops-toolkit/assets/399533/dd95301a-4227-46d5-8a62-e31b812dee2a)
+![Screenshot of the Regions page](https://github.com/microsoft/finops-toolkit/assets/399533/dd95301a-4227-46d5-8a62-e31b812dee2a)
+
+<br>
+
+## Inventory
+
+The **Inventory** page includes a list of resource types with the count, total cost, and cost per resource for each type.
+
+![Screenshot of the Inventory page](https://github.com/microsoft/finops-toolkit/assets/399533/a9a9b252-f306-49f9-842c-e3f196638ed6)
 
 <br>
 
