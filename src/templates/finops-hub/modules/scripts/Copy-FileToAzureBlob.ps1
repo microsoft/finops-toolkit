@@ -78,6 +78,20 @@ if (!$json)
 
 # Set values from inputs
 $json.scopes = $env:scopes.Split('|') | ForEach-Object { @{ 'scope' = $_ } }
+if (!($json.retention))
+{
+    $retention = @"
+    {
+        "msexports": {
+            "days": 0
+        },
+        "ingestion": {
+            "months": 13
+        }
+    }
+"@
+    $json | Add-Member -Name retention -Value (Convertfrom-Json $retention) -MemberType NoteProperty
+}
 $json.retention.msexports.days = [Int32]::Parse($env:msexportRetentionInDays)
 $json.retention.ingestion.months = [Int32]::Parse($env:ingestionRetentionInMonths)
 
