@@ -4,7 +4,7 @@ This document outlines the high-level support escalation process. The goal of th
 
 On this page:
 
-- [🙋‍♀️ Support requests](#-support-requests)
+- [🙋‍♀️ Support requests](#️-support-requests)
 - [🔎 Escalation process](#-escalation-process)
 
 ---
@@ -20,12 +20,12 @@ If you run into an issue, we recommend taking the following actions:
 
 1. **Report security issues securely.**<br>If you believe you've found a security vulnerability, refer to [Reporting security issues](https://github.com/microsoft/finops-toolkit/blob/dev/SECURITY.md).<br>&nbsp;
 2. **Confirm all setup instructions were completed in order.**<br>9 out of 10 issues are due to missing steps. Please follow instructions carefully.<br>&nbsp;
-3. **Review the [troubleshooting guide](https://aka.ms/ftk/trouble).**<br>The most common issues and their solutions are documented and should be able to be resolved indepdentantly.<br>&nbsp;
+3. **Review the [troubleshooting guide](https://aka.ms/ftk/trouble).**<br>The most common issues and their solutions are documented and should be able to be resolved indepdentently.<br>&nbsp;
 4. **Identify the source of the issue.**<br>For error messages, what product is showing the error? Does the error refer to another product? For missing or incorrect data, is the data generated in Power BI report or does it come directly from a product, like Cost Management?<br>&nbsp;
 5. **Create support requests for product issues.**<br>If the source of the issue is a managed product (including data from Cost Management), create a Microsoft support request for that specific product. If you're not sure, ask in the [Q&A discussion forum](https://github.com/microsoft/finops-toolkit/discussions/categories/q-a).<br>&nbsp;
 6. **Create an issue in GitHub.**<br>Whether you submit a support request or not, we recommend [creating an issue](https://aka.ms/ftk/idea) to let us know about the problems you're facing. Even if the issue is a product bug, we would like to document it to help others.
 
-We try to respond to issues and discussions within 2 business days but there can sometimes be unanticipated delays. If you've completed all steps above and the issue has not been within a week, we should setup a Teams call for you to share your screen so we can troubleshoot the issue together.
+We try to respond to issues and discussions within 2 business days but there can sometimes be unanticipated delays. If you've completed all steps above and the issue has not been resolved within a week, we should set up a Teams call for you to share your screen so we can troubleshoot the issue together.
 
 > [!NOTE]
 > Internal Microsoft employees are encouraged to utlize this same process for any issues. However, you are welcome to ping Microsoft employees in Microsoft Teams.

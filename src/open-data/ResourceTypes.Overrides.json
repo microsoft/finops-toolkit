@@ -240,6 +240,13 @@
     "icon": "<svg version='1.0' id='e0050721-e8d8-4c79-ae50-d8fc2871d932' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 18 18' enable-background='new 0 0 18 18' xml:space='preserve'><path fill='#FFCA00' d='M15.89,2.91h1.27c0.188,0,0.34,0.152,0.34,0.34l0,0v3.5c0,0.188-0.152,0.34-0.34,0.34l0,0h-1.27l0,0V2.91 L15.89,2.91z'/><path fill='#FFCA00' d='M15.89,9h1.27c0.188,0,0.34,0.152,0.34,0.34l0,0v5.86c0,0.188-0.152,0.34-0.34,0.34l0,0h-1.27l0,0V9L15.89,9 z'/><linearGradient id='bb847533-c351-4b52-ba55-1be31e7d1b3f' gradientUnits='userSpaceOnUse' x1='9.01' y1='3.5' x2='9.01' y2='18.5' gradientTransform='matrix(1 0 0 -1 0 20)'><stop offset='0' style='stop-color:#5E9641'/><stop  offset='0.34' style='stop-color:#6BAA42'/><stop  offset='0.67' style='stop-color:#73B743'/><stop  offset='1' style='stop-color:#76BB43'/></linearGradient><path fill='url(#bb847533-c351-4b52-ba55-1be31e7d1b3f)' d='M2.82,1.5H15.2c0.381,0,0.69,0.309,0.69,0.69v13.62c0,0.381-0.309,0.69-0.69,0.69H2.82 c-0.381,0-0.69-0.309-0.69-0.69V2.19C2.13,1.809,2.439,1.5,2.82,1.5z'/><path fill='#B4EC36' d='M5.9,12.9H5.19C5.08,12.895,4.995,12.801,5,12.69c0,0,0,0,0,0V4.34c-0.006-0.105,0.075-0.194,0.18-0.2 c0.003,0,0.007,0,0.01,0h1.93c0.105,0,0.19,0.085,0.19,0.19c0,0.003,0,0.007,0,0.01c0.006,0.11-0.079,0.204-0.19,0.21c0,0,0,0,0,0 H5.38v7.93H5.9c0.11,0.005,0.195,0.099,0.19,0.21c0,0,0,0,0,0C6.09,12.799,6.008,12.89,5.9,12.9z'/><path fill='#B4EC36' d='M6,13.92H4.4c-0.11-0.005-0.195-0.099-0.19-0.21c0,0,0,0,0,0L4.08,3.38C4.078,3.324,4.1,3.269,4.14,3.23 c0.031-0.039,0.08-0.062,0.13-0.06h2.85v0.41H4.47l0.12,9.92H6V13.92z'/><path fill='#B4EC36' d='M12,13h-1.59c-0.055-0.002-0.106-0.028-0.14-0.07c-0.04-0.035-0.062-0.087-0.06-0.14V7.9 c-0.006-0.105,0.075-0.194,0.18-0.2c0.003,0,0.007,0,0.01,0h0.91V5.45h0.38v2.44c0.006,0.107-0.073,0.199-0.18,0.21H10.6v4.42H12V13 z'/><path fill='#365615' d='M7.33,2.29h5.62c0.144,0,0.26,0.116,0.26,0.26v2.59c0,0.144-0.116,0.26-0.26,0.26H7.33 c-0.144,0-0.26-0.116-0.26-0.26V2.55C7.07,2.406,7.186,2.29,7.33,2.29z'/><path fill='#365615' d='M8.85,11.05v4.38c0,0.144-0.116,0.26-0.26,0.26H8.02c-0.144,0-0.26-0.116-0.26-0.26v-4.38 c0-0.144,0.116-0.26,0.26-0.26h0.57C8.734,10.79,8.85,10.906,8.85,11.05z'/><path fill='#365615' d='M6.99,11.07v4.38c0,0.144-0.116,0.26-0.26,0.26H6.16c-0.144,0-0.26-0.116-0.26-0.26v-4.38 c0-0.144,0.116-0.26,0.26-0.26h0.57C6.874,10.81,6.99,10.926,6.99,11.07z'/><path fill='#F2F2F2' d='M12.97,11.07v4.38c0,0.144-0.116,0.26-0.26,0.26h-0.57c-0.144,0-0.26-0.116-0.26-0.26v-4.38 c0-0.144,0.116-0.26,0.26-0.26h0.57C12.854,10.81,12.97,10.926,12.97,11.07z'/><ellipse fill='#F2F2F2' cx='8.11' cy='8.06' rx='1.04' ry='1.12'/><path fill='#3B3B3B' d='M2.11,12.25H0.84c-0.173,0.001-0.32-0.128-0.34-0.3V6.09c0-0.188,0.152-0.34,0.34-0.34h0h1.27l0,0V12.25 L2.11,12.25z'/></svg>"
   },
   {
+    "type": "microsoft.network/virtualnetworkgateways/connections",
+    "singular": "Virtual network gateway connection",
+    "plural": "Virtual network gateway connections",
+    "lowerSingular": "virtual network gateway connection",
+    "lowerPlural": "virtual network gateway connections"
+  },
+  {
     "type": "microsoft.relay/namespaces/hybridconnections",
     "originalPlural": "Hybrid Connections",
     "originalSingular": "Hybrid Connection",
@@ -320,6 +327,11 @@
     "originalSingular": "Microsoft.StorSimple manager",
     "plural": "StorSimple device managers",
     "singular": "StorSimple device manager"
+  },
+  {
+    "type": "microsoft.visualstudio/organizations",
+    "plural": "Azure DevOps organizations",
+    "singular": "Azure DevOps organization"
   },
   {
     "type": "microsoft.web/connectiongateways",

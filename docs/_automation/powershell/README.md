@@ -2,7 +2,7 @@
 layout: default
 title: PowerShell
 has_children: true
-nav_order: 40
+nav_order: 41
 description: 'Automate and scale your FinOps efforts.'
 permalink: /powershell
 ---
@@ -34,9 +34,28 @@ The FinOps toolkit PowerShell module is a collection of commands to automate and
 
 ## 📥 Install the module
 
+The FinOps toolkit module requires PowerShell 7, which is built into [Azure Cloud Shell](https://portal.azure.com/#cloudshell) and supported on all major operating systems. 
+
+Azure Cloud Shell comes with PowerShell 7 and Azure PowerShell pre-installed. If you are not using Azure Cloud Shell, you will need to [Install PowerShell](https://learn.microsoft.com/powershell/scripting/install/installing-powershell) first and then run the following commands to install Azure PowerShell:
+
 ```powershell
-Import-Module -Name FinOpsToolkit
+Install-Module -Name Az.Accounts
+Install-Module -Name Az.Resources
 ```
+
+To install the FinOps toolkit module, run the following in either Azure Cloud Shell or a PowerShell client:
+
+```powershell
+Install-Module -Name FinOpsToolkit
+```
+
+If this is the first time using Azure PowerShell, you will also need to sign into your account and select a default subscription:
+
+```powershell
+Connect-AzAccount
+```
+
+This will show a popup window to sign in to your account. If you do not see the window, it may be on a different screen.
 
 <br>
 
@@ -67,15 +86,6 @@ Import-Module -Name FinOpsToolkit
 - [Get-FinOpsRegion](data/Get-FinOpsRegion.md) – Gets an Azure region ID and name.
 - [Get-FinOpsResourceType](data/Get-FinOpsResourceType.md) – Gets details about an Azure resource type.
 - [Get-FinOpsService](data/Get-FinOpsService.md) – Gets the name and category for a service, publisher, and cloud provider.
-
-### Deprecated: FinOps Open Cost and Usage Specification (FOCUS) commands
-
-<blockquote class="warning" markdown="1">
-  _FOCUS commands were implemented before Microsoft Cost Management supported a native FOCUS export. Going forward, we recommend using the native export. These commands will remain available but will not be updated to support FOCUS 1.0-preview. If you have a scenario where you need a PowerShell converter, please [create an issue](https://aka.ms/ftk/idea) to request what you need._
-</blockquote>
-
-- [ConvertTo-FinOpsSchema](focus/ConvertTo-FinOpsSchema.md) – Converts Cost Management cost data to the FOCUS schema.
-- [Invoke-FinOpsSchema](focus/Invoke-FinOpsSchemaTransform.md) – Loads Cost Management data from a CSV file, converts it to FOCUS schema, and saves it to a new CSV file.
 
 <br>
 

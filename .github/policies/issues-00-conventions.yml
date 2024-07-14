@@ -28,7 +28,7 @@ configuration:
                       isRegex: true
             then:
               - addLabel:
-                  label: 'Area: DevOps'
+                  label: 'Skill: DevOps'
           # devops
           - if:
               - or:
@@ -40,7 +40,7 @@ configuration:
                       isRegex: true
             then:
               - addLabel:
-                  label: 'Area: DevOps'
+                  label: 'Skill: DevOps'
           # hubs
           - if:
               - or:
@@ -52,7 +52,7 @@ configuration:
                       isRegex: true
             then:
               - addLabel:
-                  label: 'Solution: FinOps hubs'
+                  label: 'Tool: FinOps hubs'
           # open data
           - if:
               - or:
@@ -64,7 +64,7 @@ configuration:
                       isRegex: true
             then:
               - addLabel:
-                  label: 'Solution: Open data'
+                  label: 'Tool: Open data'
           # powershell
           - if:
               - or:
@@ -76,7 +76,7 @@ configuration:
                       isRegex: true
             then:
               - addLabel:
-                  label: 'Area: PowerShell'
+                  label: 'Tool: PowerShell'
           # workbooks
           - if:
               - or:
@@ -88,6 +88,6 @@ configuration:
                       isRegex: true
             then:
               - addLabel:
-                  label: 'Solution: Workbooks'
+                  label: 'Skill: Workbooks'
 onFailure:
 onSuccess:

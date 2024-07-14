@@ -1,33 +1,37 @@
 ---
 title: Data ingestion and normalization
-description: This article helps you understand the data ingestion and normalization capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+description: This article helps you understand the data ingestion capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
 ms.date: 06/06/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
-# customer intent: As a FinOps practitioner, I want to understand the data ingestion and normalization capability so that I can implement it in the Microsoft Cloud.
+# customer intent: As a FinOps practitioner, I want to understand the data ingestion capability so that I can implement it in the Microsoft Cloud.
 
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
-# Data ingestion and normalization
+# Data ingestion
 
-This article helps you understand the data ingestion and normalization capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+This article helps you understand the data ingestion capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 
 <br>
 
 ## Definition
 
-**Data ingestion and normalization refers to the process of collecting, transforming, and organizing data from various sources into a single, easily accessible repository.**
+**Data ingestion refers to the process of collecting, transforming, and organizing data from various sources into a single, easily accessible repository.**
 
 Gather cost, utilization, performance, and other business data from cloud providers, vendors, and on-premises systems. Gathering the data can include:
 
 - Internal IT data. For example, from a configuration management database (CMDB) or IT asset management (ITAM) systems.
 - Business-specific data, like organizational hierarchies and metrics that map cloud costs to or quantify business value. For example, revenue, as defined by your organizational and divisional mission statements.
 
-Consider how data gets reported and plan for data standardization requirements to support reporting on similar data from multiple sources, like cost data from multiple clouds or account types. Prefer open standards and interoperability with and across providers, vendors, and internal tools. You might also need to organize the data logically and meaningfully. You can categorize or tag it, to make it easy to access, analyze, and understand.
+Understand how data gets reported and plan for data standardization requirements to support reporting on similar data from multiple sources. 
+
+Consider how to handle cost data from multiple clouds or account types. Prefer open standards, like the FinOps Open Cost & Usage Specification ([FOCUS project](../../../focus/README.md)), which delivers consistency and standardization to cloud cost data, and interoperability with and across providers, vendors, and internal tools.
+
+It may also require restructuring data in a logical and meaningful way by categorizing or tagging data so it can be easily accessed, analyzed, and understood.
 
 When armed with a comprehensive collection of cost and usage information tied to business value, organizations can empower stakeholders and accelerate the goals of other FinOps capabilities. Stakeholders are able to make more informed decisions, leading to more efficient use of resources and potentially significant cost savings.
 
@@ -35,7 +39,9 @@ When armed with a comprehensive collection of cost and usage information tied to
 
 ## Before you begin
 
-While data ingestion and normalization are critical to long-term efficiency and effectiveness of any FinOps practice, it isn't a blocking requirement for your initial set of FinOps investments. If it is your first iteration through the FinOps lifecycle, consider lighter-weight capabilities that can deliver quicker return on investment, like [Data analysis and showback](./reporting.md). Data ingestion and normalization can require significant time and effort depending on account size and complexity. We recommend focusing on this process once you have the right level of understanding of the effort and commitment from key stakeholders to support that effort.
+While data ingestion is critical to long-term efficiency and effectiveness of any FinOps practice, it isn't a blocking requirement for your initial set of FinOps investments. If it is your first iteration through the FinOps lifecycle, consider lighter-weight capabilities that can deliver quicker return on investment, like [Reporting and analytics](./reporting.md). Data ingestion can require significant time and effort depending on account size and complexity. We recommend focusing on this process once you have the right level of understanding of the effort and commitment from key stakeholders to support that effort.
+
+During the first iteration to start adopting this capability, consider using FOCUS as the standard billing data format for all of your data sources. To learn why organizations needs it and why Microsoft belives in FOCUS, you can review the [FOCUS documentation](../../../focus/README.md) available on FinOps toolkit provided by Microsoft.
 
 <br>
 
@@ -45,13 +51,16 @@ When you first start managing cost in the cloud, you use the native tools availa
 
 - Before you ingest cost data, think about your reporting needs.
   - Talk to your stakeholders to ensure you have a firm understanding of what they need. Try to understand their motivations and goals to ensure the data or reporting helps them.
+  - Determine whether to adopt FOCUS as the standard billing schema for any new solution. Converting existing dashboards to utilize a different dataset could pose challenges.
+    - Microsoft Cost Management supports cost and usage data exports aligned to the FOCUS schema which can save you significant time and effort.
   - Identify the data you need, where you can get the data from, and who can give you access. Make note of any common datasets that might require normalization.
   - Determine the level of granularity required and how often the data needs to be refreshed. Daily cost data can be a challenge to manage for a large account. Consider monthly aggregates to reduce costs and increase query performance and reliability if that meets your reporting needs.
 - Consider using a third-party FinOps platform.
   - Review the available [third-party solutions in the Azure Marketplace](https://portal.azure.com/#view/Microsoft_Azure_Marketplace/MarketplaceOffersBlade/searchQuery/cost).
   - If you decide to build your own solution, consider starting with [FinOps hubs](https://aka.ms/finops/hubs), part of the open source FinOps toolkit provided by Microsoft.
     - FinOps hubs accelerate your development and help you focus on building the features you need rather than infrastructure.
-- Select the [cost details solution](/azure/cost-management-billing/automate/usage-details-best-practices.md) that is right for you. We recommend scheduled exports, which push cost data to a storage account on a daily or monthly basis.
+- Complement cloud cost data with organizational hierarchies and budgets.    
+- Select the [cost details solution](https://learn.microsoft.com/azure/cost-management-billing/automate/usage-details-best-practices) that is right for you. We recommend scheduled exports, which push cost data to a storage account on a daily or monthly basis.
   - If you use daily exports, notice that data is pushed into a new file each day. Ensure that you only select the latest day when reporting on costs.
 - Determine if you need a data integration or workflow technology to process data.
   - In an early phase, you might be able to keep data in the exported storage account without other processing. We recommend that you keep the data there for small accounts with lightweight requirements and minimal customization.
@@ -79,9 +88,15 @@ At this point, you have a data pipeline and are ingesting data into a central da
     - [Price sheets](/rest/api/cost-management/price-sheet) for organizational pricing for Microsoft Customer Agreement accounts.
     - [Price sheets](/rest/api/consumption/price-sheet/get) for organizational pricing for Enterprise Agreement accounts.
     - [Balance summary](/rest/api/consumption/balances/get-by-billing-account) for Enterprise Agreement monetary commitment balance.
-  - Commitment-based discounts
+  - Commitment discounts
     - [Reservation details](/rest/api/cost-management/generate-reservation-details-report) for recommendation details.
     - [Benefit utilization summaries](/rest/api/cost-management/generate-benefit-utilization-summaries-report) for savings plans.
+    <!-- TODO: Add Savings plan details -->
+    <!-- TODO: Add Savings plan transactions -->
+    <!-- TODO: Add Savings plan recommendations -->
+    <!-- TODO: Add Reservation transactions -->
+    <!-- TODO: Add Reservation recommendations -->
+    <!-- TODO: Add Reservation utilization summaries -->
   - Utilization and efficiency
     - [Resource Graph](/rest/api/azureresourcegraph/resourcegraph(2020-04-01-preview)/resources/resources) for Azure Advisor recommendations.
     - [Monitor metrics](/cli/azure/monitor/metrics) for resource usage.
@@ -96,7 +111,7 @@ At this point, you have a data pipeline and are ingesting data into a central da
 
 ## Learn more at the FinOps Foundation
 
-This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Data ingestion and normalization capability](https://www.finops.org/framework/capabilities/data-normalization/) article in the FinOps Framework documentation.
+This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [data ingestion capability](https://www.finops.org/framework/capabilities/data-ingestion/) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 

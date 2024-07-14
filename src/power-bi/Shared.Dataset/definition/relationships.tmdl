@@ -1,0 +1,121 @@
+relationship 4009bfcd-18b8-46b4-88c5-71ea97f03b6b
+	joinOnDateBehavior: datePartOnly
+	fromColumn: RecommendationsShared.firstUsageDate
+	toColumn: LocalDateTable_7db3b421-e9d8-4995-932d-7b77ee85eed9.Date
+
+relationship 897e9400-2166-4689-8658-79e60dd0a94a
+	isActive: false
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: RecommendationsShared.NormalizedSizeKey
+	toColumn: InstanceSizeFlexibility.NormalizedSizeKey
+
+relationship 6cb90943-2588-4c7d-82cf-c4fda982a683
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: RecommendationsShared.Key
+	toColumn: InstanceSizeFlexibility.NormalizedSizeKey
+
+relationship 41f5bd29-6d77-4189-b18c-a58c8cdcd18f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: RecommendationsSingle.firstUsageDate
+	toColumn: LocalDateTable_b00da7a2-2588-4e52-8b54-e94792ea3ba8.Date
+
+relationship f1681103-e1fe-4574-9084-0d7d8cdb021d
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: RecommendationsSingle.Key
+	toColumn: InstanceSizeFlexibility.NormalizedSizeKey
+
+relationship 1e7240a9-35aa-44e6-85fa-0adeb590b43d
+	joinOnDateBehavior: datePartOnly
+	fromColumn: CostDetails.ChargePeriodStart
+	toColumn: LocalDateTable_f404d4da-597d-4db3-8c17-e985f68c9dc4.Date
+
+relationship ff450739-8c10-4307-ba1a-cbf5e026dc6e
+	joinOnDateBehavior: datePartOnly
+	fromColumn: CostDetails.x_BillingExchangeRateDate
+	toColumn: LocalDateTable_5b617bbf-90ab-4847-9cab-7068fda94084.Date
+
+relationship 5583e9d2-4cda-498f-a46a-0cdd1a06e18b
+	joinOnDateBehavior: datePartOnly
+	fromColumn: CostDetails.x_ServicePeriodEnd
+	toColumn: LocalDateTable_0195151c-8910-45c4-8c88-2946b3f9ffe8.Date
+
+relationship 673a9dca-ff35-4c75-b009-02a98630632d
+	joinOnDateBehavior: datePartOnly
+	fromColumn: CostDetails.x_ServicePeriodStart
+	toColumn: LocalDateTable_dcfea72a-52cc-4e5b-bb91-472ff21b7b25.Date
+
+relationship 369e7501-4fe1-40b9-bc22-924c50f896e0
+	joinOnDateBehavior: datePartOnly
+	fromColumn: CostDetails.BillingPeriodEnd
+	toColumn: LocalDateTable_506735ba-eb3a-4e77-a52f-70c407778c05.Date
+
+relationship 21bb000c-4aaa-46ea-a891-45fd722e7aea
+	joinOnDateBehavior: datePartOnly
+	fromColumn: CostDetails.BillingPeriodStart
+	toColumn: LocalDateTable_41a1933b-26d3-4c56-aecf-605bc04c1fe7.Date
+
+relationship 074e98ca-4ace-4197-8baa-3dc62649257f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: CostDetails.ChargePeriodEnd
+	toColumn: LocalDateTable_f581f9e4-7dfc-448d-a6d1-fb4cc5c95f27.Date
+
+relationship b0066f28-aca7-4267-9118-bbf5c3242f58
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: InstanceSizeFlexibility.CompositeKey
+	toColumn: CostDetails.x_CommitmentDiscountKey
+
+relationship 84724950-127c-4859-9cbe-611fa2abf14f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: CostDetails.x_Month
+	toColumn: LocalDateTable_fef26e24-a208-4f98-9587-9e837520485d.Date
+
+relationship 0bdee9e9-a59b-4464-9b13-1b4bc9238893
+	joinOnDateBehavior: datePartOnly
+	fromColumn: HubData.Month
+	toColumn: LocalDateTable_f8c522a9-514b-435e-9c83-a31fe0c99a22.Date
+
+relationship cbec0f51-5f49-4a53-9dfa-6547e601a31a
+	joinOnDateBehavior: datePartOnly
+	fromColumn: HubData.Updated
+	toColumn: LocalDateTable_0ac3758b-3ab8-42b7-bc85-9cfda5289f14.Date
+
+relationship AutoDetected_72a70a3e-749a-435a-a8f3-71251d2cd609
+	fromColumn: HubData.Scope
+	toColumn: HubScopes.Scope
+
+relationship AutoDetected_e6fde430-2494-43c7-a688-3a0809e33966
+	fromColumn: HubData.StorageAccount
+	toColumn: HubSettings.StorageAccount
+
+relationship 3e5b5a82-1615-455a-b7fd-22bdfa92857a
+	joinOnDateBehavior: datePartOnly
+	fromColumn: HubData.Created
+	toColumn: LocalDateTable_1be86c8b-1d56-4c92-b0c1-2de21a6b4e4d.Date
+
+relationship d6cc07ff-8e76-48f9-be13-b2fd6cd79dcb
+	joinOnDateBehavior: datePartOnly
+	fromColumn: HubErrors.Month
+	toColumn: LocalDateTable_c3c47274-cc2f-4ba2-a257-6f5d529787d5.Date
+
+relationship df266e34-1a2c-4dad-8bc0-7d50597b1af4
+	joinOnDateBehavior: datePartOnly
+	fromColumn: HubErrors.Created
+	toColumn: LocalDateTable_c4ce9464-15a6-4444-a0af-08644805dec6.Date
+
+relationship ca9ea6c6-eeee-430a-a936-bb09914ffa49
+	joinOnDateBehavior: datePartOnly
+	fromColumn: HubErrors.Updated
+	toColumn: LocalDateTable_c351bfa8-dbcf-4886-9895-35cf730d7efe.Date
+
+relationship AutoDetected_60477dee-0609-4d6d-84a1-ba0cb2c9aec2
+	fromColumn: HubErrors.Scope
+	toColumn: HubScopes.Scope
+
+relationship AutoDetected_78c92904-4b92-4f52-bdd3-375e2b0fee33
+	fromColumn: HubErrors.StorageAccount
+	toColumn: HubSettings.StorageAccount
+

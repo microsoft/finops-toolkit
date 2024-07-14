@@ -1,29 +1,29 @@
 ---
-title: Measuring unit costs
-description: This article helps you understand the measuring unit costs capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+title: Unit economics
+description: This article helps you understand the unit economics capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 06/12/2024
+ms.date: 07/14/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
-# customer intent: As a FinOps practitioner, I want to understand the measuring unit costs capability so that I can implement it in the Microsoft Cloud.
+# customer intent: As a FinOps practitioner, I want to understand the unit economics capability so that I can implement it in the Microsoft Cloud.
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
-# Measuring unit costs
+# Unit economics
 
-This article helps you understand the measuring unit costs capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+This article helps you understand the unit economics capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 
 <br>
 
 ## Definition
 
-**Measuring unit costs refers to the process of calculating the cost of a single unit of a business that can show the business value of the cloud.**
+**Unit economics refers to the process of calculating the cost of a single unit of a business that can show the business value of the cloud.**
 
 Identify what a single unit is for your business – like a sale transaction for an ecommerce site or a user for a social app. Map each unit to the supporting cloud services that support it. To quantify the total cost of each unit, split the cost of shared infrastructure with utilization data.
 
-Measuring unit costs provides insights into profitability and allows organizations to make data-driven business decisions regarding cloud investments. Unit economics is what ties the cloud to measurable business value.
+Unit economics provides insights into profitability and allows organizations to make data-driven business decisions regarding cloud investments. Unit economics is what ties the cloud to measurable business value.
 
 The ultimate goal of unit economics, as a derivative of activity-based costing methodology, is to factor in the whole picture of your business's cost. This article focuses on capturing how you can factor your Microsoft Cloud costs into those efforts. As your FinOps practice matures, consider the manual processes and steps outside of the cloud that might be important for calculating units that are critical for your business to track the most accurate cost per unit.
 
@@ -37,7 +37,7 @@ Before you can effectively measure unit costs, you need to familiarize yourself 
 
 ## Getting started
 
-Measuring unit costs isn't a simple task. Unit economics requires a deep understanding of your architecture and needs multiple datasets to pull together the full picture. The exact data you need depends on the services you use and the telemetry you have in place.
+Unit economics isn't a simple task. Unit economics requires a deep understanding of your architecture and needs multiple datasets to pull together the full picture. The exact data you need depends on the services you use and the telemetry you have in place.
 
 - Start with application telemetry.
   - The more comprehensive your application telemetry is, the simpler unit economics can be to generate. Log when critical functions are executed and how long they run. You can use that to deduce the run time of each unit or relative to a function that correlates back to the unit.
@@ -64,7 +64,7 @@ Measuring unit costs isn't a simple task. Unit economics requires a deep underst
 
 ## Learn more at the FinOps Foundation
 
-This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Measuring unit costs capability](https://www.finops.org/framework/capabilities/measure-unit-costs/) article in the FinOps Framework documentation.
+This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Unit economics capability](https://www.finops.org/framework/capabilities/unit-economics/) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
@@ -77,7 +77,7 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 Related FinOps capabilities:
 
 - [Data analysis and showback](../understand/reporting.md)
-- [Managing shared costs](../understand/shared-cost.md)
+- [Cost Allocation](../understand/allocation.md)
 
 Related products:
 

@@ -49,7 +49,7 @@ The simplest option is to [use Cost analysis to project future costs](/azure/cos
 If you do see anomalies or large (possibly expected) variations in costs, you might want to customize the view to build a more accurate forecast. To do so, you need to analyze the data and filter out anything that might skew the results.
 
 - Use Cost analysis to analyze historical trends and identify abnormalities.
-  - Before you start, determine if you're interested in your costs as they're billed or if you want to forecast the effective costs after accounting for commitment-based discounts. If you want the effective cost, [change the view to use amortized cost](/azure/cost-management-billing/costs/customize-cost-analysis-views#switch-between-actual-and-amortized-cost.md).
+  - Before you start, determine if you're interested in your costs as they're billed or if you want to forecast the effective costs after accounting for commitment discounts. If you want the effective cost, [change the view to use amortized cost](/azure/cost-management-billing/costs/customize-cost-analysis-views#switch-between-actual-and-amortized-cost.md).
   - Start with the Daily costs view, then change the date range to look back as far as you're interested in looking forward. For instance, if you want to predict the next 12 months, then set the date range to the last 12 months.
   - Filter out all purchases (`Charge type = Purchase`). Make a note of them as you need to forecast them separately.
   - Group costs to identify new and old (deleted) subscriptions, resource groups, and resources.
@@ -122,8 +122,8 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 Related FinOps capabilities:
 
-- [Budget management](./budgeting.md)
-- [Managing commitment-based discounts](../optimize/commitment-discounts.md)
+- [Budgeting](./budgeting.md)
+- [Rate optimization](../optimize/rates.md)
 
 Related products:
 

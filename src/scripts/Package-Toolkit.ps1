@@ -58,10 +58,10 @@ if ($Template -ne "*" -and -not (Test-Path $relDir))
     return
 }
 
-Write-Host "Packaging v$version templates..."
-
 # Package templates
 $version = & "$PSScriptRoot/Get-Version"
+Write-Host "Packaging v$version templates..."
+
 $isPrerelease = $version -like '*-*'
 
 Write-Verbose "Removing existing ZIP files..."
@@ -93,12 +93,51 @@ $templates = Get-ChildItem $relDir -Directory `
         }
     }
 
-    # Copy azuredeploy.json to docs/deploy folder
     Write-Verbose "Updating $($path.Name) deployment file in docs..."
-    Copy-Item "$path/azuredeploy.json" "$deployDir/$($path.Name)-$version.json"
-    Copy-Item "$path/azuredeploy.json" "$deployDir/$($path.Name)-latest.json"
-    Copy-Item "$path/createUiDefinition.json" "$deployDir/$($path.Name)-$version.ui.json"
-    Copy-Item "$path/createUiDefinition.json" "$deployDir/$($path.Name)-latest.ui.json"
+
+    $packageManifestPath = "$path/package-manifest.json"
+    if (Test-Path $packageManifestPath)
+    {
+        $packageManifest = Get-Content $packageManifestPath -Raw | ConvertFrom-Json
+        $docsDeployDir = $deployDir
+        if ($packageManifest.deploySubDir)
+        {
+            $docsDeployDir = "$deployDir/$($packageManifest.deploySubDir)"
+            & "$PSScriptRoot/New-Directory" $docsDeployDir
+        }
+        if ($packageManifest.deploySubDirVersioned)
+        {
+            $docsDeployDirVersioned = "$deployDir/$($packageManifest.deploySubDirVersioned.Replace('{version}', $version))"
+            & "$PSScriptRoot/New-Directory" $docsDeployDirVersioned
+        }
+        foreach ($file in $packageManifest.deployFiles)
+        {
+            Copy-Item "$path/$($file.source)" "$docsDeployDir/$($file.destination.Replace('{version}', $version))"
+            if ($packageManifest.deploySubDirVersioned)
+            {
+                Copy-Item "$path/$($file.source)" "$docsDeployDirVersioned/$($file.destination.Replace('{version}', $version))"
+            }
+        }
+        foreach ($directory in $packageManifest.deployDirectories)
+        {
+            & "$PSScriptRoot/New-Directory" "$($docsDeployDir)/$($directory.destination)"
+            Get-ChildItem "$path/$($directory.source)" | Copy-Item -Destination "$($docsDeployDir)/$($directory.destination)" -Recurse -Force
+            if ($packageManifest.deploySubDirVersioned)
+            {
+                & "$PSScriptRoot/New-Directory" "$($docsDeployDirVersioned)/$($directory.destination)"
+                Get-ChildItem "$path/$($directory.source)" | Copy-Item -Destination "$($docsDeployDirVersioned)/$($directory.destination)" -Recurse -Force
+            }
+        }
+    }
+    else
+    {
+        # TODO include this fallback logic in a fallback package-manifest.json file
+        # Copy azuredeploy.json to docs/deploy folder
+        Copy-Item "$path/azuredeploy.json" "$deployDir/$($path.Name)-$version.json"
+        Copy-Item "$path/azuredeploy.json" "$deployDir/$($path.Name)-latest.json"
+        Copy-Item "$path/createUiDefinition.json" "$deployDir/$($path.Name)-$version.ui.json"
+        Copy-Item "$path/createUiDefinition.json" "$deployDir/$($path.Name)-latest.ui.json"
+    }
 
     Write-Verbose ("Compressing $path to $zip" -replace (Get-Item $relDir).FullName, '.')
     Compress-Archive -Path "$path/*" -DestinationPath $zip
@@ -114,9 +153,13 @@ Copy-Item "$PSScriptRoot/../open-data/*.json" $relDir
 Write-Host "✅ $((@(Get-ChildItem "$relDir/*.csv") + @(Get-ChildItem "$relDir/*.json")).Count) open data files"
 
 # Package sample data files together
-Write-Verbose "Packaging sample data files..."
-Compress-Archive -Path "$PSScriptRoot/../sample-data/*.csv" -DestinationPath "$relDir/sample-data.zip"
-Write-Host "✅ $((Get-ChildItem "$PSScriptRoot/../sample-data/*.csv").Count) sample data files"
+Write-Verbose "Packaging open data files..."
+Get-ChildItem -Path "$PSScriptRoot/../open-data" -Directory `
+| ForEach-Object {
+    $dir = $_
+    Compress-Archive -Path "$dir/*.*" -DestinationPath "$relDir/$($dir.BaseName).zip"
+    Write-Host "✅ $((Get-ChildItem "$dir/*.*").Count) $($dir.BaseName) files"
+}
 
 # Copy PBIX files
 Write-Verbose "Copying PBIX files..."

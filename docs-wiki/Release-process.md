@@ -131,7 +131,7 @@ Once the above requirements have been met, the feature branch can be merged into
            1. Delete both **Recommendations\*** queries.
            2. Delete the **InstanceSizeFlexibility** query.
            3. Open the **▶️ START HERE** query in the advanced editor and remove connector settings and generated rows in the table from the separator line to the end.
-        5. For the Cost summary and Commitment discounts reports, remove the following from the Transform data (query editor):
+        5. For the Cost summary and Rate optimization reports, remove the following from the Transform data (query editor):
            1. Delete all **Hub\*** queries.
         6. Save PBIX again in the release folder.
            > ⚠️ _**DO NOT** save the above changes back to the Power BI project files!_

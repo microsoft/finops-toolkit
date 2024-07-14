@@ -1,48 +1,50 @@
 ---
-title: Data analysis and showback
-description: This article helps you understand the data analysis and showback capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+title: Reporting and analytics
+description: This article helps you understand the reporting and analytics capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
 ms.date: 06/17/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
-# customer intent: As a FinOps practitioner, I want to understand the data analysis and showback capability so that I can implement it in the Microsoft Cloud.
+# customer intent: As a FinOps practitioner, I want to understand the reporting and analytics capability so that I can implement it in the Microsoft Cloud.
 
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
-# Data analysis and showback
+# Reporting and analytics
 
-This article helps you understand the data analysis and showback capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+This article helps you understand the reporting and analytics capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 
 <br>
 
 ## Definition
 
-**Data analysis refers to the practice of analyzing and interpreting data related to cloud usage and costs. Showback refers to enabling cost visibility throughout an organization.**
+**Reporting and analytics refers to the analysis of cloud data and creation of reports to gain insights into usage and spend patterns, identify opportunities for improvement, and support informed decision-making about cloud resources.**
 
 Provides transparency and visibility into cloud usage and costs across different departments, teams, and projects. Organizational alignment requires cost allocation metadata and hierarchies, and enabling visibility requires structured access control against these hierarchies.
 
-Data analysis and showback require a deep understanding of organizational needs to provide an appropriate level of detail to each stakeholder. Consider the following points:
+Reporting and analytics require a deep understanding of organizational needs to provide an appropriate level of detail to each stakeholder. Consider the following points:
 
 - Level of knowledge and experience each stakeholder has
 - Different types of reporting and analytics you can provide
 - Assistance they need to answer their questions
 
-With the right tools, data analysis and showback enable stakeholders to understand how resources are used, track cost trends, and make informed decisions regarding resource allocation, optimization, and budget planning.
+With the right tools, Reporting and analytics enable stakeholders to understand how resources are used, track cost trends, and make informed decisions regarding resource allocation, optimization, and budget planning.
 
 <br>
 
 ## When to prioritize
 
-Data analysis and showback are a common part of your iterative process. Some examples of when you want to prioritize data analysis and showback include:
+Reporting and analytics are a common part of your iterative process. Some examples of when you want to prioritize Reporting and analytics include:
 
 - New datasets become available, which need to be prepared for stakeholders.
 - New requirements are raised to add or update reports.
+- Adoption of a multi-cloud environment and the need of having a single report to access cross-cloud information.
 - Implementing more cost visibility measures to drive awareness.
 
-If you're new to FinOps, we recommend starting with data analysis and showback using native cloud tools as you learn more about the data and the specific needs of your stakeholders. You revisit this capability again as you adopt new tools and datasets. Data could be ingested into a custom data store or used by a third-party solution from the Marketplace.
+If you're new to FinOps, we recommend starting with reporting and analytics using native cloud tools as you learn more about the data and the specific needs of your stakeholders. You revisit this capability again as you adopt new tools and datasets. Data could be ingested into a custom data store or used by a third-party solution from the Marketplace.
+
 
 <br>
 
@@ -64,6 +66,8 @@ We also recommend learning about [how cost data is tracked, stored, and refreshe
 - How credits are applied. For instance, credits are applied when the invoice is generated and not when usage is tracked.
 
 Understanding your cost data is critical to enable accurate and meaningful showback to all stakeholders.
+
+If there is the need to report from multiple sources, for example multiple cloud providers, configuration management database (CMDB), or  IT asset management (ITAM) systems, consider using the FinOps Open Cost & Usage Specification ([FOCUS project](../../../focus/README.md)) as the standard billing schema for this report.
 
 <br>
 
@@ -125,7 +129,7 @@ At this point, you're likely utilizing the native reporting and analysis solutio
 
 ## Learn more at the FinOps Foundation
 
-This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Data analysis and showback capability](https://www.finops.org/framework/capabilities/analysis-showback/) article in the FinOps Framework documentation.
+This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Reporting and analytics capability](https://www.finops.org/framework/capabilities/reporting-analytics/) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
@@ -138,8 +142,8 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 Related FinOps capabilities:
 
 - [Forecasting](../quantify/forecasting.md)
-- [Managing anomalies](./anomalies.md)
-- [Budget management](../quantify/budgeting.md)
+- [Anomaly management](./anomalies.md)
+- [Budgeting](../quantify/budgeting.md)
 
 Related products:
 
