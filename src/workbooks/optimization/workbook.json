@@ -98,10 +98,8 @@
                   "quote": "'",
                   "delimiter": ",",
                   "typeSettings": {
-                    "additionalResourceOptions": [
-                      "value::all"
-                    ],
-                    "includeAll": true,
+                    "additionalResourceOptions": ["value::all"],
+                    "includeAll": false,
                     "showDefault": false
                   },
                   "timeContext": {
@@ -109,9 +107,7 @@
                   },
                   "defaultValue": "value::all",
                   "label": " Subscription",
-                  "value": [
-                    "value::all"
-                  ]
+                  "value": ["value::all"]
                 },
                 {
                   "id": "f342a111-002a-47fd-807f-0d4ccac0618a",
@@ -124,13 +120,9 @@
                   "quote": "'",
                   "delimiter": ",",
                   "query": "resources\r\n| distinct resourceGroup",
-                  "crossComponentResources": [
-                    "{Subscription}"
-                  ],
+                  "crossComponentResources": ["{Subscription}"],
                   "typeSettings": {
-                    "additionalResourceOptions": [
-                      "value::all"
-                    ],
+                    "additionalResourceOptions": ["value::all"],
                     "showDefault": false
                   },
                   "defaultValue": "value::all",
@@ -144,9 +136,7 @@
                   "type": 1,
                   "isRequired": true,
                   "query": "resourcecontainers\r\n| where type==\"microsoft.resources/subscriptions\"\r\n| take 1\r\n| project subscriptionId",
-                  "crossComponentResources": [
-                    "{Subscription}"
-                  ],
+                  "crossComponentResources": ["{Subscription}"],
                   "isHiddenWhenLocked": true,
                   "queryType": 1,
                   "resourceType": "microsoft.resourcegraph/resources",
@@ -158,9 +148,7 @@
                   "name": "TagName",
                   "type": 2,
                   "query": "Resources\r\n| where tags != '' and tags != '[]'\r\n| mvexpand tags\r\n| extend tagName = tostring(bag_keys(tags)[0])\r\n| distinct tagName\r\n| sort by tagName asc",
-                  "crossComponentResources": [
-                    "{Subscription}"
-                  ],
+                  "crossComponentResources": ["{Subscription}"],
                   "typeSettings": {
                     "additionalResourceOptions": []
                   },
@@ -175,9 +163,7 @@
                   "name": "TagValue",
                   "type": 2,
                   "query": "Resources\r\n| mvexpand tags\r\n| extend tagName = tostring(bag_keys(tags)[0])\r\n| extend tagValue = tostring(tags[tagName])\r\n| where tags != '' and tags != '[]' and tostring(bag_keys(tags)[0]) == '{TagName}'\r\n| distinct tagValue\r\n| sort by tagValue asc",
-                  "crossComponentResources": [
-                    "{Subscription}"
-                  ],
+                  "crossComponentResources": ["{Subscription}"],
                   "typeSettings": {
                     "additionalResourceOptions": []
                   },
@@ -341,9 +327,7 @@
               "noDataMessageStyle": 3,
               "queryType": 1,
               "resourceType": "microsoft.resourcegraph/resources",
-              "crossComponentResources": [
-                "value::all"
-              ],
+              "crossComponentResources": ["value::all"],
               "visualization": "piechart",
               "chartSettings": {
                 "seriesLabelSettings": [
@@ -372,9 +356,7 @@
               "noDataMessageStyle": 3,
               "queryType": 1,
               "resourceType": "microsoft.resourcegraph/resources",
-              "crossComponentResources": [
-                "value::all"
-              ],
+              "crossComponentResources": ["value::all"],
               "visualization": "piechart",
               "chartSettings": {
                 "seriesLabelSettings": [
@@ -490,10 +472,8 @@
                   "quote": "'",
                   "delimiter": ",",
                   "typeSettings": {
-                    "additionalResourceOptions": [
-                      "value::all"
-                    ],
-                    "includeAll": true,
+                    "additionalResourceOptions": ["value::all"],
+                    "includeAll": false,
                     "showDefault": false
                   },
                   "timeContext": {
@@ -501,9 +481,7 @@
                   },
                   "defaultValue": "value::all",
                   "label": " Subscription",
-                  "value": [
-                    "value::all"
-                  ]
+                  "value": ["value::all"]
                 },
                 {
                   "id": "03fbf28a-892d-4b68-929c-3ba5056f4b94",
@@ -516,13 +494,9 @@
                   "quote": "'",
                   "delimiter": ",",
                   "query": "resources\r\n| distinct resourceGroup",
-                  "crossComponentResources": [
-                    "{Subscription}"
-                  ],
+                  "crossComponentResources": ["{Subscription}"],
                   "typeSettings": {
-                    "additionalResourceOptions": [
-                      "value::all"
-                    ],
+                    "additionalResourceOptions": ["value::all"],
                     "showDefault": false
                   },
                   "defaultValue": "value::all",
@@ -536,9 +510,7 @@
                   "type": 1,
                   "isRequired": true,
                   "query": "resourcecontainers\r\n| where type==\"microsoft.resources/subscriptions\"\r\n| take 1\r\n| project subscriptionId",
-                  "crossComponentResources": [
-                    "{Subscription}"
-                  ],
+                  "crossComponentResources": ["{Subscription}"],
                   "isHiddenWhenLocked": true,
                   "queryType": 1,
                   "resourceType": "microsoft.resourcegraph/resources",
@@ -550,9 +522,7 @@
                   "name": "TagName",
                   "type": 2,
                   "query": "Resources\r\n| where tags != '' and tags != '[]'\r\n| mvexpand tags\r\n| extend tagName = tostring(bag_keys(tags)[0])\r\n| distinct tagName\r\n| sort by tagName asc",
-                  "crossComponentResources": [
-                    "{Subscription}"
-                  ],
+                  "crossComponentResources": ["{Subscription}"],
                   "typeSettings": {
                     "additionalResourceOptions": []
                   },
@@ -567,9 +537,7 @@
                   "name": "TagValue",
                   "type": 2,
                   "query": "Resources\r\n| mvexpand tags\r\n| extend tagName = tostring(bag_keys(tags)[0])\r\n| extend tagValue = tostring(tags[tagName])\r\n| where tags != '' and tags != '[]' and tostring(bag_keys(tags)[0]) == '{TagName}'\r\n| distinct tagValue\r\n| sort by tagValue asc",
-                  "crossComponentResources": [
-                    "{Subscription}"
-                  ],
+                  "crossComponentResources": ["{Subscription}"],
                   "typeSettings": {
                     "additionalResourceOptions": []
                   },
@@ -595,9 +563,7 @@
             "type": 9,
             "content": {
               "version": "KqlParameterItem/1.0",
-              "crossComponentResources": [
-                "{Subscription}"
-              ],
+              "crossComponentResources": ["{Subscription}"],
               "parameters": [
                 {
                   "id": "f74bc7f5-2b16-4440-8053-106e040b73b6",
@@ -605,13 +571,9 @@
                   "name": "Location",
                   "type": 2,
                   "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| project name, location\r\n| summarize count () by location\r\n| project location",
-                  "crossComponentResources": [
-                    "{Subscription}"
-                  ],
+                  "crossComponentResources": ["{Subscription}"],
                   "typeSettings": {
-                    "additionalResourceOptions": [
-                      "value::1"
-                    ]
+                    "additionalResourceOptions": ["value::1"]
                   },
                   "timeContext": {
                     "durationMs": 86400000
@@ -728,18 +690,14 @@
             "quote": "'",
             "delimiter": ",",
             "typeSettings": {
-              "additionalResourceOptions": [
-                "value::all"
-              ],
-              "includeAll": true
+              "additionalResourceOptions": ["value::all"],
+              "includeAll": false
             },
             "timeContext": {
               "durationMs": 86400000
             },
             "defaultValue": "value::all",
-            "value": [
-              "value::all"
-            ]
+            "value": ["value::all"]
           }
         ],
         "style": "pills",
@@ -777,9 +735,7 @@
               "noDataMessageStyle": 3,
               "queryType": 1,
               "resourceType": "microsoft.resourcegraph/resources",
-              "crossComponentResources": [
-                "{mapSubscriptions}"
-              ],
+              "crossComponentResources": ["{mapSubscriptions}"],
               "gridSettings": {
                 "formatters": [
                   {
@@ -835,9 +791,7 @@
                 "filter": true,
                 "hierarchySettings": {
                   "treeType": 1,
-                  "groupBy": [
-                    "Impact"
-                  ]
+                  "groupBy": ["Impact"]
                 }
               }
             },
@@ -875,7 +829,7 @@
           {
             "type": 1,
             "content": {
-              "json": "### Reference: [Microsoft Azure Well-Architected Framework - cost optimization pillar](https://learn.microsoft.com/en-us/azure/architecture/framework/cost/overview)",
+              "json": "### Reference: [Microsoft Azure Well-Architected Framework - cost optimization pillar](https://learn.microsoft.com/azure/architecture/framework/cost/overview)",
               "style": "upsell"
             },
             "name": "Reference"
@@ -883,14 +837,14 @@
           {
             "type": 1,
             "content": {
-              "json": "The objective of this workbook is to provide a comprehensive overview of the resources usage of your Azure environment. The workbook offers cost-relevant insights aligned with the WAF Cost Optimization pillar and has the capability to identify and implement recommendations to optimize the usage and efficiency . It's important to note that the workbook serves as guidance to highlight the optimization opportunities. The cost reduction is dependent on implementation of the identified optimization opportunities.\r\n\r\n## Overview of the cost optimization pillar\r\n\r\n* The cost optimization pillar provides principles for balancing business goals with technology needs to create a cost-effective workload while avoiding capital-intensive solutions.The workbook emphasizes the importance of reducing waste and improving operational efficiencies.\r\n\r\n* To assess your workload based on the principles outlined in the [Microsoft Azure Well-Architected Framework](https://learn.microsoft.com/en-us/azure/architecture/framework/), reference the [Microsoft Azure Well-Architected Review](https://learn.microsoft.com/en-us/assessments/?id=azure-architecture-review&mode=pre-assessment&session=20dc50e4-5b71-4f38-bc49-51cc1d9f205c) tool.\r\n\r\n\r\n\r\n\r\n"
+              "json": "This workbook aims to offer a comprehensive overview of your Azure environment's resource usage, aligning with the WAF Cost Optimization pillar. It identifies recommendations to optimize efficiency, providing guidance on potential opportunities. Please note that the workbook serves as guidance to highlight optimization opportunities, and the extent of cost reduction depends on their implementation.\r\n\r\n## Overview of the cost optimization pillar\r\n\r\n* The cost optimization pillar provides principles for balancing business goals with technology needs to create a cost-effective workload while avoiding capital-intensive solutions.The workbook emphasizes the importance of reducing waste and improving operational efficiencies.\r\n\r\n* To assess your workload based on the principles outlined in the [Microsoft Azure Well-Architected Framework](https://learn.microsoft.com/azure/architecture/framework/), reference the [Microsoft Azure Well-Architected Review](https://learn.microsoft.com/assessments/?id=azure-architecture-review&mode=pre-assessment&session=20dc50e4-5b71-4f38-bc49-51cc1d9f205c) tool.\r\n\r\n\r\n\r\n\r\n"
             },
             "name": "objective"
           },
           {
             "type": 1,
             "content": {
-              "json": "Indicates an implemented feature that can result in a environment that is following the Cost Optimization & Cost Governance principles.",
+              "json": "Indicates an implemented recommendation that can result in a environment that is following the Cost Optimization & Cost Governance principles.",
               "style": "success"
             },
             "customWidth": "50",
@@ -903,7 +857,7 @@
           {
             "type": 1,
             "content": {
-              "json": "## Prerequisites\r\n\r\nThis workbook will present various cost-related details in the categories of governance, networking, storage, VMs, Webapps and SQL to educate the business about cost related to the resources.\r\n\r\nThis workbook requires the following least-privileged (minimum) roles on your Subscriptions:\r\n\r\n  * **Reader** : allows you to import the workbook without saving it and view all of the workbook tabs.\r\n  * **Workbook Contributor** : allows you to import and save the workbook\r\n\r\nThis workbook includes \"Quick Fix\" actions within certain queries. The permissions necessary to execute these actions may vary and are documented for each specific action.\r\n\r\n\r\n"
+              "json": "## Prerequisites\r\n\r\nThis workbook requires the following least-privileged (minimum) roles on your Subscriptions:\r\n\r\n  * **Reader** : allows you to import the workbook without saving it and view all of the workbook tabs.\r\n  * **Workbook Contributor** : allows you to import and save the workbook\r\n\r\nThis workbook includes \"Quick Fix\" actions within certain queries. The permissions necessary to execute these actions may vary and are documented for each specific action.\r\n\r\n\r\n"
             },
             "name": "Prerequisites"
           },
@@ -945,9 +899,7 @@
               "title": "Resource distribution per region",
               "queryType": 1,
               "resourceType": "microsoft.resourcegraph/resources",
-              "crossComponentResources": [
-                "{mapSubscriptions}"
-              ],
+              "crossComponentResources": ["{mapSubscriptions}"],
               "visualization": "map",
               "mapSettings": {
                 "locInfo": "AzureLoc",
@@ -1000,9 +952,7 @@
               "noDataMessageStyle": 3,
               "queryType": 1,
               "resourceType": "microsoft.resourcegraph/resources",
-              "crossComponentResources": [
-                "{mapSubscriptions}"
-              ],
+              "crossComponentResources": ["{mapSubscriptions}"],
               "gridSettings": {
                 "formatters": [
                   {
@@ -1058,9 +1008,7 @@
                 "filter": true,
                 "hierarchySettings": {
                   "treeType": 1,
-                  "groupBy": [
-                    "Impact"
-                  ]
+                  "groupBy": ["Impact"]
                 }
               }
             },
@@ -1083,8 +1031,6 @@
       "name": "group - reliabilityRecommendations"
     }
   ],
-  "fallbackResourceIds": [
-    "Azure Monitor"
-  ],
+  "fallbackResourceIds": ["Azure Monitor"],
   "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
 }

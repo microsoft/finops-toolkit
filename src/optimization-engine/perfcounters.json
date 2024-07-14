@@ -1,0 +1,86 @@
+[
+    {
+        "objectName": "LogicalDisk",
+        "instance": "*",
+        "counterName": "Disk Read Bytes/sec",
+        "osType": "Windows"
+    },
+    {
+        "objectName": "LogicalDisk",
+        "instance": "*",
+        "counterName": "Disk Reads/sec",
+        "osType": "Windows"
+    },
+    {
+        "objectName": "LogicalDisk",
+        "instance": "*",
+        "counterName": "Disk Write Bytes/sec",
+        "osType": "Windows"
+    },
+    {
+        "objectName": "LogicalDisk",
+        "instance": "*",
+        "counterName": "Disk Writes/sec",
+        "osType": "Windows"
+    },
+    {
+        "objectName": "Memory",
+        "instance": "*",
+        "counterName": "Available MBytes",
+        "osType": "Windows"
+    },
+    {
+        "objectName": "Network Adapter",
+        "instance": "*",
+        "counterName": "Bytes Total/sec",
+        "osType": "Windows"
+    },
+    {
+        "objectName": "Processor",
+        "instance": "*",
+        "counterName": "% Processor Time",
+        "osType": "Windows"
+    },
+    {
+        "objectName": "Logical Disk",
+        "instance": "*",
+        "counterName": "Disk Read Bytes/sec",
+        "osType": "Linux"
+    },
+    {
+        "objectName": "Logical Disk",
+        "instance": "*",
+        "counterName": "Disk Reads/sec",
+        "osType": "Linux"
+    },
+    {
+        "objectName": "Logical Disk",
+        "instance": "*",
+        "counterName": "Disk Write Bytes/sec",
+        "osType": "Linux"
+    },
+    {
+        "objectName": "Logical Disk",
+        "instance": "*",
+        "counterName": "Disk Writes/sec",
+        "osType": "Linux"
+    },
+    {
+        "objectName": "Memory",
+        "instance": "*",
+        "counterName": "% Used Memory",
+        "osType": "Linux"
+    },
+    {
+        "objectName": "Network",
+        "instance": "*",
+        "counterName": "Total Bytes",
+        "osType": "Linux"
+    },
+    {
+        "objectName": "Processor",
+        "instance": "*",
+        "counterName": "% Processor Time",
+        "osType": "Linux"
+    }
+]

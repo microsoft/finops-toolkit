@@ -1,0 +1,47 @@
+id: pulls-05-approve
+name: GitOps.PullRequestIssueManagement
+description: Handles when PR is approved
+owner:
+resource: repository
+disabled: false
+where:
+
+# spell-checker:disable
+configuration:
+  resourceManagementConfiguration:
+    eventResponderTasks:
+      - description: >-
+          When PR is approved:
+          - Assign to author
+          - Label with `Status: ▶️ Ready`
+          - Remove `Needs: Attention 👋` label
+        if:
+          - payloadType: Pull_Request_Review
+          - isAction:
+              action: Submitted
+          - isReviewState:
+              reviewState: Approved
+          - isActivitySender:
+              issueAuthor: False
+          - not:
+              targetsBranch:
+                branch: main
+        then:
+          - addLabel:
+              label: 'Status: ▶️ Ready'
+          - removeLabel:
+              label: 'Needs: Review 👀'
+          - removeLabel:
+              label: 'Needs: Attention 👋'
+          - assignTo:
+              author: True
+          - if:
+              - isActivitySender:
+                  user: flanakin
+              - titleContains:
+                  pattern: '^add [^ ]+ as a contributor for [a-z]+$'
+            then:
+              - enableAutoMerge:
+                  mergeMethod: squash
+onFailure:
+onSuccess:

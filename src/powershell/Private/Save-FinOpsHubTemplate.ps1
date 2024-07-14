@@ -41,12 +41,49 @@ function Save-FinOpsHubTemplate
 
     $progress = $ProgressPreference
     $ProgressPreference = 'SilentlyContinue'
+
+    try
+    {
+        # Get environment to verify hubs version
+        $azEnv = (Get-AzContext).Environment.Name
+
+        # If no environment is found, check without the Name property
+        if (-not $azEnv)
+        {
+            $azEnv = (Get-AzContext).Environment
+        }
+    }
+    catch
+    {
+        # Don't fail the script if this fails; just assume public cloud
+        $azEnv = 'AzureCloud'
+    }
+
     try
     {
         New-Directory -Path $Destination
-        $releases = Get-FinOpsToolkitVersion -Latest:$($Version -eq 'Latest') -Preview:$Preview
+        # TODO: Remove 0.2+ filter for Azure Gov/China when FOCUS exports are supported
+        $releases = Get-FinOpsToolkitVersion -Latest:$($Version -eq 'Latest') -Preview:$Preview `
+        | Where-Object { $_.Version -ne '0.2' -and ($azEnv -eq 'AzureCloud' -or $_.Version.StartsWith('0.0') -or $_.Version.StartsWith('0.1')) }  # 0.2 not supported in Azure Gov/China (as of Feb 2024)
 
-        if ($Version -eq 'Latest')
+        # Redirect 0.2 to 0.3 due to bug
+        if ($Version -eq '0.2')
+        {
+            Write-Information $LocalizedData.Hub_Deploy_02to021
+            $Version = '0.3'
+        }
+        
+        # TODO: Remove 0.2+ redirect for Azure Gov/China when FOCUS exports are supported
+        # Redirect 0.2.* to 0.1.1 for Azure Gov/China
+        if ($azEnv -ne 'AzureCloud' -and $Version -ne '0.0' -and $Version.StartsWith('0.1') -eq $false -and $Version -ne 'latest')
+        {
+            Write-Information $LocalizedData.Hub_Deploy_02to011
+            $Version = '0.1.1'
+        }
+
+
+        # Get the version
+        if ($Version.ToLower() -eq 'latest')
         {
             $release = $releases | Select-Object -First 1
         }
@@ -55,10 +92,12 @@ function Save-FinOpsHubTemplate
             $release = $releases | Where-Object -FilterScript { $_.Version -eq $Version }
         }
 
+        # Save files
         foreach ($asset in $release.Files)
         {
             Write-Verbose -Message ($script:LocalizedData.HubTemplate_Save_FoundAsset -f $asset.Name)
             $saveFilePath = Join-Path -Path $Destination -ChildPath $asset.Name
+            
             if (Test-Path -Path $saveFilePath)
             {
                 Remove-Item -Path $saveFilePath -Recurse -Force

@@ -13,6 +13,9 @@
     2. Strip control characters
     3. Remove trailing 0s (keep major/minor/label)
 
+    .PARAMETER AsDotNetVersion
+    Optional. Indicates that the returned version should be in the format "x.x.x.x". Otherwise, semantic versioning is used. Deafult = false.
+
     .EXAMPLE
     ./Get-Version
 
