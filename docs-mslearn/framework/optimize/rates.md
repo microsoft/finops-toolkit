@@ -1,25 +1,25 @@
 ---
-title: Managing commitment-based discounts
-description: This article helps you understand the managing commitment-based discounts capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+title: Rate optimization
+description: This article helps you understand the rate optimization capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 06/12/2024
+ms.date: 07/14/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
-# customer intent: As a FinOps practitioner, I want to understand the managing commitment-based discounts capability so that I can implement it in the Microsoft Cloud.
+# customer intent: As a FinOps practitioner, I want to understand the rate optimization capability so that I can implement that in the Microsoft cloud.
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
-# Managing commitment-based discounts
+# Rate optimization
 
-This article helps you understand the managing commitment-based discounts capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+This article helps you understand the rate optimization capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 
 <br>
 
 ## Definition
 
-**Managing commitment-based discounts is the practice of obtaining reduced rates on cloud services by committing to a certain level of usage or spend over a specific period.**
+**Rate otpimization is the practice of obtaining reduced rates on cloud services, often by committing to a certain level of usage or spend over a specific period.**
 
 Review daily usage and cost trends to estimate how much you expect to use or spend over the next one to five years. Use [Forecasting](../quantify/forecasting.md) and account for future plans.
 
@@ -39,6 +39,10 @@ Consider the usage you want to commit to before you purchase either a reservatio
 
 ## Getting started
 
+<!-- TODO: Consider adding dev/test, but make sure it's for more than just EA 
+Leverage the [Azure Dev/Test](https://azure.microsoft.com/pricing/offers/ms-azr-0148p/) offer that comes with a Visual Studio subscription to take advantage of Azure monthly credits to explore and try various Azure services, benefit from discounted Azure dev/test rates, and enable cost-efficient developing and testing. Although rate optimization strategies can be applied to resources in a development environment, the Azure Dev/Test environment is primarily used for learning and training, development and testing, evaluating proof of concepts, and experimenting and innovating to ensure efficient use of resources.
+-->
+
 Microsoft offers several tools to help you identify when you should consider purchasing reservations or savings plans. You can choose whether you want to start by analyzing usage or by reviewing the system-generated recommendations based on your historical usage and cost. We recommend starting with the recommendations to focus your initial efforts:
 
 - One of the most common starting points is [Azure Advisor cost recommendations](/azure/advisor/advisor-reference-cost-recommendations.md).
@@ -57,20 +61,21 @@ After purchasing commitments, you can:
 
 ## Building on the basics
 
-You have commitment-based discounts in place at this point. As you move beyond the basics, consider the following points:
+You have commitment discounts in place at this point. As you move beyond the basics, consider the following points:
 
 - Configure commitments to automatically renew for [reservations](/azure/cost-management-billing/reservations/reservation-renew.md) and [savings plans](/azure/cost-management-billing/savings-plan/renew-savings-plan.md).
 - Calculate cost savings for [reservations](/azure/cost-management-billing/reservations/calculate-ea-reservations-savings.md) and [savings plans](/azure/cost-management-billing/savings-plan/calculate-ea-savings-plan-savings.md).
-- If you use multiple accounts, clouds, or providers, expand coverage of your commitment-based discounts efforts to include all accounts.
+- If you use multiple accounts, clouds, or providers, expand coverage of your commitment discounts efforts to include all accounts.
   - Consider implementing a consistent utilization and coverage monitoring system that covers all accounts.
 - Establish a process for centralized purchasing of commitment-based offers, assigning responsibility to a dedicated team or individual.
 - Consider programmatically aligning governance policies with commitments to prioritize SKUs and locations that are covered by reservations and aren't fully utilized when deploying new applications.
+- If you need to monitor the usage of commitment discounts outside of the Azure portal, consider deploying FinOps hubs which includes a [Rate optimization report](https://aka.ms/ftk/pbi/RateOptimization) that summarizes existing and potential savings from commitment discounts, like reservations and savings plans.
 
 <br>
 
 ## Learn more at the FinOps Foundation
 
-This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Managing commitment-based discounts capability](https://www.finops.org/framework/capabilities/manage-commitment-based-discounts/) article in the FinOps Framework documentation.
+This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Rate optimization](https://www.finops.org/framework/capabilities/rate-optimization/) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
@@ -101,8 +106,6 @@ Related solutions:
 
 Other resources:
 
-- [Cloud Adoption Framework](/azure/cloud-adoption-framework/)
-- [Well-Architected Framework](/azure/well-architected/)
 - [Azure pricing](https://azure.microsoft.com/pricing#product-pricing)
 
 <br>

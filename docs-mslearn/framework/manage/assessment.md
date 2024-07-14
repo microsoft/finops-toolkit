@@ -34,7 +34,7 @@ Review metrics and reassess teams on a recurring basis. Adjust focus areas as or
 When you first start managing cost in the cloud, leverage the native assessment tools.
 
 - Review the [How to conduct a FinOps iteration tutorial](../../../conduct-an-iteration.md) to identify the best capabilities to start with.
-- Complete the [Microsoft FinOps Review](https://aka.ms/finops/review) for a lightweight, self-guided assessment.
+- Complete the [Microsoft FinOps Review](/assessments/ad1c0f6b-396b-44a4-924b-7a4c778a13d3) for a lightweight, self-guided assessment.
   - Start small and focus on the capabilities identified in the previous step.
   - Document assessment results and plan to reassess progress in 1-3 months.
   - Add the recommendations to your roadmap based on impact and effort.
@@ -64,5 +64,10 @@ Related FinOps capabilities:
 
 - [Benchmarking](../quantify/benchmarking.md)
 - [Reporting and analytics](../understand/reporting.md)
+
+Other resources:
+
+- [How to conduct a FinOps iteration tutorial](../../../conduct-an-iteration.md)
+- [FinOps review assessment](/assessments/ad1c0f6b-396b-44a4-924b-7a4c778a13d3)
 
 <br>

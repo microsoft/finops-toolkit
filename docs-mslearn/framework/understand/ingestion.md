@@ -3,7 +3,7 @@ title: Data ingestion and normalization
 description: This article helps you understand the data ingestion capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 06/06/2024
+ms.date: 07/14/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
@@ -41,7 +41,7 @@ When armed with a comprehensive collection of cost and usage information tied to
 
 While data ingestion is critical to long-term efficiency and effectiveness of any FinOps practice, it isn't a blocking requirement for your initial set of FinOps investments. If it is your first iteration through the FinOps lifecycle, consider lighter-weight capabilities that can deliver quicker return on investment, like [Reporting and analytics](./reporting.md). Data ingestion can require significant time and effort depending on account size and complexity. We recommend focusing on this process once you have the right level of understanding of the effort and commitment from key stakeholders to support that effort.
 
-During the first iteration to start adopting this capability, consider using FOCUS as the standard billing data format for all of your data sources. To learn why organizations needs it and why Microsoft belives in FOCUS, you can review the [FOCUS documentation](../../../focus/README.md) available on FinOps toolkit provided by Microsoft.
+During the first iteration to start adopting this capability, consider using FOCUS as the standard billing data format for all of your data sources. To learn why organizations needs it and why Microsoft believes in FOCUS, you can review the [FOCUS documentation](../../../focus/README.md) available on FinOps toolkit provided by Microsoft.
 
 <br>
 

@@ -85,7 +85,7 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 <br>
 
-## Next steps
+## Related content
 
 Related FinOps capabilities:
 

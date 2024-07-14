@@ -1,46 +1,31 @@
 ---
-layout: default
-grand_parent: FinOps Framework
-parent: Optimize
 title: Architecting for cloud
-permalink: /framework/capabilities/optimize/architecting
-nav_order: 1
 description: This article helps you understand the architecting for cloud capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 04/08/2024
-ms.topic: conceptual
+ms.date: 07/14/2024
+ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
+# customer intent: As a FinOps practitioner, I want to understand the architecting for cloud capability so that I can implement that in the Microsoft cloud.
 ---
 
-<span class="fs-9 d-block mb-4">Architecting for cloud</span>
+<!-- markdownlint-disable-next-line MD025 -->
+# Architecting for cloud
+
 This article helps you understand the architecting for cloud capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
-{: .fs-6 .fw-300 }
 
-<details open markdown="1">
-  <summary class="fs-2 text-uppercase">On this page</summary>
+<br>
 
-- [✋ Before you begin](#-before-you-begin)
-- [▶️ Getting started](#️-getting-started)
-- [🏗️ Building on the basics](#️-building-on-the-basics)
-- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
-- [⏩ Next steps](#-next-steps)
-- [🧰 Related tools](#-related-tools)
+## Definition
 
-</details>
-
----
-
-<a name="definition"></a>
 **Architecting for the cloud involves designing and implementing cloud infrastructure and applications in a manner that optimizes cost, performance, scalability, and reliability while aligning with business objectives.**
-{: .fs-6 .fw-300 }
 
 This capability encompasses the architectural decisions and best practices aimed at maximizing the value derived from cloud investments while minimizing unnecessary expenditure.
 
 <br>
 
-## ✋ Before you begin
+## Before you begin
 
 Integrating the [Cloud Adoption Framework (CAF)](https://learn.microsoft.com/azure/cloud-adoption-framework) and the [Well-Architected Framework (WAF)](https://learn.microsoft.com/azure/well-architected/pillars) with the FinOps approach is crucial for a comprehensive and effective cloud governance strategy, especially when leveraging Microsoft Azure. Here's a refined list of prerequisites considering these frameworks:
 
@@ -50,7 +35,7 @@ Integrating the [Cloud Adoption Framework (CAF)](https://learn.microsoft.com/azu
 
 <br>
 
-## ▶️ Getting started
+## Getting started
 
 Starting with the "Architecting for Cloud" capability within the FinOps Framework, especially for customers at lower maturity levels, involves a step-by-step approach to gradually build foundational knowledge, establish processes, and implement best practices for designing cloud architectures that optimize cost, performance, and reliability. 
 
@@ -66,10 +51,9 @@ Starting with the "Architecting for Cloud" capability within the FinOps Framewor
 
 <br>
 
-## 🏗️ Building on the basics
+## Building on the basics
 
 At this point, you should have a clear architectural guidance. As you move beyond the basics, consider the following points:
-
 
 - **Advanced Architectural Patterns:** Review and explore the [Azure Architecture Center](https://learn.microsoft.com/azure/architecture/browse/) for advanced architectural patterns and design principles specific to Azure, such as microservices, serverless computing, event-driven architectures, and distributed systems.
 - **Cloud-native Technologies:** Leverage managed services to simplify architecture, improve scalability, and reduce operational overhead. Embrace cloud-native technologies and services offered by Azure, such as [Azure Kubernetes Service (AKS)](https://learn.microsoft.com/azure/well-architected/service-guides/azure-kubernetes-service), [Azure Functions](https://learn.microsoft.com/azure/well-architected/service-guides/azure-functions-security), Azure Logic Apps, and Azure Event Grid. 
@@ -83,25 +67,22 @@ At this point, you should have a clear architectural guidance. As you move beyon
 
 <br>
 
-## 🍎 Learn more at the FinOps Foundation
+## Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Architecting for cloud](https://www.finops.org/framework/capabilities/architecting-for-cloud/) article in the FinOps Framework documentation.
 
 <br>
 
-## ⏩ Next steps
+## Related content
 
 Related FinOps capabilities:
 
 - [Workload optimization](./workloads.md)
 - [Rate optimization](./rates.md)
 
-<br>
+Other resources:
 
----
-
-## 🧰 Related tools
-
-{% include tools.md bicep="0" data="0" gov="0" hubs="1" opt="1" pbi="1" ps="0" %}
+- [Cloud Adoption Framework](/azure/cloud-adoption-framework/)
+- [Well-Architected Framework](/azure/well-architected/)
 
 <br>

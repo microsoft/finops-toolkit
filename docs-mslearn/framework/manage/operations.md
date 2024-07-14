@@ -47,7 +47,7 @@ Most organizations find it's important to establish a FinOps team as they near $
   - Understand what motivates them through their mission and success criteria.
   - Learn about the challenges they face and look for opportunities for FinOps to help address them.
   - Identify potential promoters and detractors and empathize with why they would or wouldn't support your efforts. Factor both sides into your strategy.
-- Identify an initial sponsor and prepare a pitch that explains how your strategy leads to a positive impact on their mission and success criteria. Present your plan with clear asks and next steps.
+- Identify an initial sponsor and prepare a pitch that explains how your strategy leads to a positive change on their mission and success criteria. Present your plan with clear asks and next steps.
   - You're creating a mini startup. Do your research around how to prepare for these early meetings.
   - Document the FinOps strategy, including staffing and funding requirements and how the team will support others.
   - Leverage the [FinOps assessment capability](./assessment.md) to build a complete plan.

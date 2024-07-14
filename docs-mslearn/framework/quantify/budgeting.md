@@ -1,32 +1,32 @@
 ---
-title: Budget management
-description: This article helps you understand the budget management capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+title: Budgeting
+description: This article helps you understand the budgeting capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
 ms.date: 06/14/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
-# customer intent: As a FinOps practitioner, I want to understand the budget management capability so that I can implement it in the Microsoft Cloud.
+# customer intent: As a FinOps practitioner, I want to understand the budgeting capability so that I can implement it in the Microsoft Cloud.
 
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
-# Budget management
+# Budgeting
 
-This article helps you understand the budget management capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+This article helps you understand the budgeting capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 
 <br>
 
 ## Definition
 
-**Budget management refers to the process of overseeing and tracking financial plans and limits over a given period to effectively manage and control spending.**
+**Budgeting refers to the process of overseeing and tracking financial plans and limits over a given period to effectively manage and control spending.**
 
 Analyze historical usage and cost trends and adjust for future plans to estimate monthly, quarterly, and yearly costs that are realistic and achievable. Repeat for each level in the organization for a complete picture of organizational budgets.
 
 Configure alerting and automated actions to notify stakeholders and protect against budget overages. Investigate unexpected variance to budget and take appropriate actions. Review and adjust budgets regularly to ensure they remain accurate and reflect any changes in the organization's financial situation.
 
-Effective budget management helps ensure organizations operate within their means and are able to achieve financial goals. Unexpected costs can affect external business decisions and initiatives that could have widespread influence.
+Effective budgeting helps ensure organizations operate within their means and are able to achieve financial goals. Unexpected costs can affect external business decisions and initiatives that could have widespread influence.
 
 <br>
 
@@ -62,7 +62,7 @@ So far, you defined granular and targeted cost alerts for each scope and applica
 
 ## Learn more at the FinOps Foundation
 
-This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see to the [Budget management](https://www.finops.org/framework/capabilities/budget-management) article in the FinOps Framework documentation.
+This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see to the [Budgeting](https://www.finops.org/framework/capabilities/budgeting) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
