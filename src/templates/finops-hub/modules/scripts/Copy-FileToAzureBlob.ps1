@@ -80,6 +80,7 @@ if (!$json)
 $json.scopes = $env:scopes.Split('|') | ForEach-Object { @{ 'scope' = $_ } }
 if (!($json.retention))
 {
+    # In case the retention object is not present in the settings.json file (versions before 0.4), add it with default values
     $retention = @"
     {
         "msexports": {
@@ -90,7 +91,7 @@ if (!($json.retention))
         }
     }
 "@
-    $json | Add-Member -Name retention -Value (Convertfrom-Json $retention) -MemberType NoteProperty
+    $json | Add-Member -Name retention -Value (ConvertFrom-Json $retention) -MemberType NoteProperty
 }
 $json.retention.msexports.days = [Int32]::Parse($env:msexportRetentionInDays)
 $json.retention.ingestion.months = [Int32]::Parse($env:ingestionRetentionInMonths)
