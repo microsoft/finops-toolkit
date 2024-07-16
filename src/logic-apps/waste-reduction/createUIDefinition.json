@@ -1,0 +1,72 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+  "handler": "Microsoft.Azure.CreateUIDef",
+  "version": "0.1.2-preview",
+  "parameters": {
+   "config": {
+        "basics": {
+          "description": "The Waste Reduction Logic App is an automated detection tool that runs on a configurable schedule to monitor a set of idle resources and send notifications once it finds any of those resources to alert users to investigate and take action.",
+          "location": {
+            "label": "Location",
+            "resourceTypes": ["Microsoft.Logic/workflows", "Microsoft.Web/Connections" ]
+          }
+    }
+},
+"resourceTypes": [
+      "Microsoft.Logic/workflows",
+      "Microsoft.Web/Connections"
+    ],
+      "basics": [
+          {
+      "name": "appName",
+      "type": "Microsoft.Common.TextBox",
+      "label": "Logic App name",
+      "defaultValue": "WasteReductionApp",
+      "toolTip": "Name of the LogicApp. Used to ensure unique resource names.",
+      "constraints": {
+        "required": true,
+        "regex": "^[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9]$",
+        "validationMessage": "Name must be between 3 and 63 characters long and can contain only lowercase letters, numbers, and hyphens. The first and last characters in the name must be alphanumeric."
+      },
+      "visible": true
+    },
+    {
+      "name": "connectionName",
+      "type": "Microsoft.Common.TextBox",
+      "label": "Connection name",
+      "defaultValue": "WasteReductionConnection",
+      "toolTip": "Name of the API connection to use for the logic app",
+      "constraints": {
+        "required": true,
+        "regex": "^[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9]$",
+        "validationMessage": "Name must be between 3 and 63 characters long and can contain only lowercase letters, numbers, and hyphens. The first and last characters in the name must be alphanumeric."
+      },
+      "visible": true
+    }
+      ],
+       "steps": [
+    {
+      "name": "tags",
+      "label": "Tags",
+      "elements": [
+        {
+          "name": "tagsByResource",
+          "label": "Tags",
+          "toolTip": "Tags to apply to resources.",
+          "type": "Microsoft.Common.TagsByResource",
+          "resources": [
+            "Microsoft.Logic/workflows",
+            "Microsoft.Web/Connections"
+          ]
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "appName": "[basics('appName')]",
+    "location": "[location()]",
+    "connectionName": "[basics('connectionName')]",
+    "tagsByResource": "[steps('tags').tagsByResource]"
+  }
+}
+}

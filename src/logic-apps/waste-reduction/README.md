@@ -48,7 +48,7 @@ Description of the prerequisites for the deployment
    > [![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)] &nbsp; [![Deploy To Azure US Gov](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.svg?sanitize=true)]
 2. Authorize API connection
      > After the deployment has been completed, the API connection will have an error. This is expected and will be fixed after authorizing the connection.  
-   - Click on the **API connection** resource, then click on **Edit API Connection** in the General tab to authorize the connection.
+   - Click on the **API connection** resource, then click on **Edit API connection** in the General tab to authorize the connection.
    - Click on **Authorize**  
       > Be aware that the account authorizing the connection will be used to by the Logic App to send the Alerts.
    - **Save** your change after the authorization is successful
@@ -58,7 +58,7 @@ Description of the prerequisites for the deployment
    - Click on **Identity** under the Settings tab and toggle the Status to **On**
    - **Save** your changes and select **yes** to enable the system assigned managed identity
    - Go to **Azure role assignments** within the *system assigned* blade
-   - Click on **Add role Assignment** and assign the following permissions then click on **Save**
+   - Click on **Add role assignment** and assign the following permissions then click on **Save**
 4. Configure the Logic App
    - Navigate to the **WasteReductionApp** and select **Logic App Designer** under the Development Tools tab
    - Configure the reoccurrence
