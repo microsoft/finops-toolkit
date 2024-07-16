@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - dev
+    paths:
+      - 'src/optimization-engine/**'       
 permissions:
       id-token: write
       contents: read      
