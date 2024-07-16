@@ -1,0 +1,9 @@
+{
+  "$schema": "https://aka.ms/azure-quickstart-templates-metadata-schema#",
+  "type": "QuickStart",
+  "itemDisplayName": "Waste Reduction Logic App",
+  "summary": "Create a new Logic App for waste reduction",
+  "description": "This template creates a new Logic App instance, including an API connection.",
+  "githubUsername": "ro100e",
+  "dateUpdated": "2024-07-16"
+}
