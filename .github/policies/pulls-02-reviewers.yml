@@ -78,7 +78,7 @@ configuration:
                   pattern: ^src\/.*\.bicep
             then:
               - addLabel:
-                  label: 'Skill: ARM'
+                  label: 'Skill: Deployment'
           - if:
               - filesMatchPattern:
                   pattern: ^(docs\/_automation|docs-mslearn\/toolkit|src)\/bicep-registry\/.*
@@ -176,6 +176,13 @@ configuration:
                       reviewer: helderpinto
                   - assignTo:
                       user: helderpinto
+          # terraform
+          - if:
+              - filesMatchPattern:
+                  pattern: ^src\/.*\.tf
+            then:
+              - addLabel:
+                  label: 'Skill: Deployment'
           # workbooks
           - if:
               - or:
