@@ -11,7 +11,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
 {: .fs-6 .fw-300 }
 
 [Download the latest release](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[See changes](#-v01){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[See changes](#latest){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
@@ -61,11 +61,11 @@ Legend:
 > 2. Auto-backfill – Backfill historical data from Microsoft Cost Management.
 > 3. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
 
-<br>
+<br><a name="latest"></a>
 
 ## 🚚 v0.4
 
-<sup>Released July 2024</sup>
+<sup>Released July 12, 2024</sup>
 
 📗 FinOps guide
 {: .fs-5 .fw-500 .mt-4 mb-0 }
