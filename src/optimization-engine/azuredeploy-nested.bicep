@@ -734,7 +734,7 @@ var csvParameterizedExports = [
     exportJobId: monitorDiskIOPSAvgExportJobId
     parameters: {
       ResourceType: 'microsoft.compute/disks'
-      ARGFilter: 'sku.name =~ \'Premium_LRS\' and properties.diskState != \'Unattached\''
+      ARGFilter: 'sku.name startswith \'Premium_\' and properties.diskState =~ \'Attached\''
       TimeSpan: '01:00:00'
       aggregationType: 'Average'
       AggregationOfType: 'Maximum'
@@ -748,7 +748,7 @@ var csvParameterizedExports = [
     exportJobId: monitorDiskMBPsAvgExportJobId
     parameters: {
       ResourceType: 'microsoft.compute/disks'
-      ARGFilter: 'sku.name =~ \'Premium_LRS\' and properties.diskState != \'Unattached\''
+      ARGFilter: 'sku.name startswith \'Premium_\' and properties.diskState =~ \'Attached\''
       TimeSpan: '01:00:00'
       aggregationType: 'Average'
       AggregationOfType: 'Maximum'
