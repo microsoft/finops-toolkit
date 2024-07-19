@@ -232,4 +232,11 @@ df.write.mode("overwrite").format("delta").save(export_table)
 
 ## Related content
 
-- [FinOps toolkit](https://microsoft.github.io/finops-toolkit/optimization-workbook)
+Related products:
+
+- [Cost Management](/azure/cost-management-billing/costs)
+
+Related solutions:
+
+- [FinOps hubs](https://aka.ms/finops/hubs)
+- [FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi)
