@@ -119,6 +119,6 @@ While our community is growing, we don't have dedicated staff and cannot commit 
 
 ## 🆕 New tools
 
-🔄️ **New**: Cost optimization notifications ([Milestone #24](https://github.com/microsoft/finops-toolkit/milestone/24)) – Email notifications when optimization opportunities are identified.<br>
+🔄️ **New tool**: Cost optimization notifications ([Milestone #24](https://github.com/microsoft/finops-toolkit/milestone/24)) – Email notifications when optimization opportunities are identified.<br>
 
 <br>
