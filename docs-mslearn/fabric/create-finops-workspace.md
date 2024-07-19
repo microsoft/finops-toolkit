@@ -186,17 +186,15 @@ For detailed information about automating the process to ingest data into Fabric
 Here are the high-level steps:
 
 1. Open the lakehouse instance.
-2. Create a notebook as follows:
-    1. Select **Open notebook** > **New notebook**. New notebook might be hidden behind an ellipsis (...) menu overflow symbol.
-    2. Select **PySpark (Python)** notebook and paste the following example Python script.
-    3. Replace `read_path` with &lt;abs-folder-path&gt;. You can find the Azure Blob Filesystem driver (ABFS) path by navigating to the desired path. Select the ellipsis (**...**), and then select **Copy ABFS path** as shown in the following screenshot.  
-        :::image type="content" source="./media/create-fabric-workspace-finops/fabric-lakehouse-copy-path-load-table.png" border="true" alt-text="Screenshot an example of copying ABFS path to load table." lightbox="./media/create-fabric-workspace-finops/fabric-lakehouse-copy-path-load-table.png" :::
-    4. Replace `export_table` with the name for the table that you want to create.
-    5. Running the script ingests the data into Fabric.
-3. Automate data ingestion
-    1. You can create a schedule to automate running the script that results in automating the data ingestion pipeline.
-    2. To create a daily automation schedule, select the gear symbol on the left menu and select the **Schedule** option.  
-        :::image type="content" source="./media/create-fabric-workspace-finops/schedule-tab.png" border="true" alt-text="Screenshot showing the Schedule tab to automate data ingestion." lightbox="./media/create-fabric-workspace-finops/schedule-tab.png" :::
+2. Select **Open notebook** > **New notebook**. New notebook might be hidden behind an ellipsis (...) menu overflow symbol.
+3. Select **PySpark (Python)** notebook and paste the following example Python script.
+4. Replace `read_path` with &lt;abs-folder-path&gt;. You can find the Azure Blob Filesystem driver (ABFS) path by navigating to the desired path. Select the ellipsis (**...**), and then select **Copy ABFS path** as shown in the following screenshot.  
+   :::image type="content" source="./media/create-fabric-workspace-finops/fabric-lakehouse-copy-path-load-table.png" border="true" alt-text="Screenshot an example of copying ABFS path to load table." lightbox="./media/create-fabric-workspace-finops/fabric-lakehouse-copy-path-load-table.png" :::
+5. Replace `export_table` with the name for the table that you want to create.
+6. Running the script ingests the data into Fabric.
+7. You can create a schedule to automate running the script that results in automating the data ingestion pipeline.
+8. To create a daily automation schedule, select the gear symbol on the left menu and select the **Schedule** option.  
+   :::image type="content" source="./media/create-fabric-workspace-finops/schedule-tab.png" border="true" alt-text="Screenshot showing the Schedule tab to automate data ingestion." lightbox="./media/create-fabric-workspace-finops/schedule-tab.png" :::
 
 ## Example Python script
 
