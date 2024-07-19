@@ -228,6 +228,8 @@ df.write.mode("overwrite").format("delta").option("overwriteSchema", "true").sav
 df.write.mode("overwrite").format("delta").save(export_table) 
 ```
 
+<br>
+
 ## Related content
 
 - [FinOps toolkit](https://microsoft.github.io/finops-toolkit/optimization-workbook)
