@@ -55,25 +55,21 @@ To create an export, see [Create exports](/azure/cost-management-billing/costs/t
 
 Here are the high-level steps to create an export:
 
-1. To navigate:
-    1. Sign in to the Azure portal at [https://portal.azure.com](https://portal.azure.com/), search for **Cost Management**.
-    2. Select the required scope and select **Exports** in the left navigation menu.
-    3. Select **+ Create**
-2. On the Basics tab:
-    1. Select the template = **Cost and usage (FOCUS)**
-        :::image type="content" source="./media/create-fabric-workspace-finops/exports-cost-and-usage-focus.png" border="true" alt-text="Screenshot showing creating a new FOCUS export dataset." lightbox="./media/create-fabric-workspace-finops/exports-cost-and-usage-focus.png" :::
-3. On the Datasets tab:
-    1. Fill in **Export prefix** to ensure you have a unique name for the export. For example, *june2024focus*.
-4. On the Destination tab:
-    1. Storage type = Azure blob storage
-    2. Destination and storage = **Use existing**
-    3. Subscription = *Contoso subscription*
-    4. Storage account = *Contoso-storage-account*
-    5. Container = *msexports*
-    6. Directory = focuscost/&lt;*scope-id*&gt;
-    7. Overwrite data = **Enabled**
-5. On the Review + Create tab:
-    - Select **Create**
+1. Sign in to the Azure portal at [https://portal.azure.com](https://portal.azure.com/), search for **Cost Management**.
+2. Select the required scope and select **Exports** in the left navigation menu.
+3. Select **+ Create**
+4. On the Basics tab, select the template = **Cost and usage (FOCUS)**
+   :::image type="content" source="./media/create-fabric-workspace-finops/exports-cost-and-usage-focus.png" border="true" alt-text="Screenshot showing creating a new FOCUS export dataset." lightbox="./media/create-fabric-workspace-finops/exports-cost-and-usage-focus.png" :::
+5. On the Datasets tab, fill in **Export prefix** to ensure you have a unique name for the export. For example, *june2024focus*.
+6. On the Destination tab, select:
+   - Storage type = Azure blob storage
+   - Destination and storage = **Use existing**
+   - Subscription = *Contoso subscription*
+   - Storage account = *Contoso-storage-account*
+   - Container = *msexports*
+   - Directory = focuscost/&lt;*scope-id*&gt;
+   - Overwrite data = **Enabled**
+7. On the Review + Create tab, select **Create**
 
 Ensure that your export completed and that the file is available before moving to the next step.
 
