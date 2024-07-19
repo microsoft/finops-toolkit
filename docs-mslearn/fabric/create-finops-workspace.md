@@ -43,6 +43,8 @@ For the following example, we used the following Data Lake Gen 2 storage account
 
 :::image type="content" source="./media/create-fabric-workspace-finops/storage-account-configuration-gen-2.png" border="true" alt-text="Screenshot showing converting an existing storage account into Data Lake storage." lightbox="./media/create-fabric-workspace-finops/storage-account-configuration-gen-2.png" :::
 
+<br>
+
 ## Export cost data
 
 You can use existing actual or amortized cost exports; however, the following example creates a new cost and usage details (FOCUS) data export.
