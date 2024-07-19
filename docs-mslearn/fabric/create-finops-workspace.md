@@ -24,6 +24,8 @@ To complete this walkthrough, you create the following resources that incur cost
 - An Azure Data Lake Storage Gen2 account
 - A Fabric or Power BI workspace
 
+<br>
+
 ## Create and configure Azure Data Lake Storage
 
 Microsoft Fabric is optimized to work with storage accounts with hierarchical namespace enabled, also known as Azure Data Lake Storage Gen2. You have two options to get a Data Lake storage account:
