@@ -177,6 +177,8 @@ Here’s an example screenshot showing data in the Lakehouse table.
 
 :::image type="content" source="./media/create-fabric-workspace-finops/fabric-load-table-lakehouse.png" border="true" alt-text="Screenshot showing data in the table." lightbox="./media/create-fabric-workspace-finops/fabric-load-table-lakehouse.png" :::
 
+<br>
+
 ## Create a Power BI report
 
 After the data is ingested into Fabric and Delta parquet tables are ready, you can move on to reporting.
