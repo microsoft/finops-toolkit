@@ -196,7 +196,7 @@ Here are the high-level steps:
 8. To create a daily automation schedule, select the gear symbol on the left menu and select the **Schedule** option.  
    :::image type="content" source="./media/create-fabric-workspace-finops/schedule-tab.png" border="true" alt-text="Screenshot showing the Schedule tab to automate data ingestion." lightbox="./media/create-fabric-workspace-finops/schedule-tab.png" :::
 
-## Example Python script
+### Example Python script
 
 Here's an example Python script to ingest data into Fabric tables that gets used in the preceding [Automate data ingestion](#automate-data-ingestion) section.
 
