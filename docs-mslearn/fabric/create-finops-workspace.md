@@ -198,7 +198,7 @@ Here are the high-level steps:
 
 ### Example Python script
 
-Here's an example Python script to ingest data into Fabric tables that gets used in the preceding [Automate data ingestion](#automate-data-ingestion) section.
+Use the following Python script in step 3 above to ingest data into Fabric tables.
 
 ```python
 #!/usr/bin/env python
