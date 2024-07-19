@@ -108,6 +108,9 @@ While our community is growing, we don't have dedicated staff and cannot commit 
 ✅ Service model – Add ServiceModel to the services open data file.<br>
 🔄️ Update all data – Ongoing updates all open data file with each release.<br>
 
+## 🔍 Optimization engine
+
+🔄️ SQL Database Entra ID authentication - Replace SQL Server authentication with Entra ID-only authentication.<br>
 <br>
 
 ## 🆕 New tools
