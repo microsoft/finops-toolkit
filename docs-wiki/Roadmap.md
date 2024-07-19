@@ -108,14 +108,17 @@ While our community is growing, we don't have dedicated staff and cannot commit 
 ✅ Service model – Add ServiceModel to the services open data file.<br>
 🔄️ Update all data – Ongoing updates all open data file with each release.<br>
 
+<br>
+
 ## 🔍 Optimization engine
 
-🔄️ SQL Database Entra ID authentication - Replace SQL Server authentication with Entra ID-only authentication.<br>
+✅ **New tool**: Azure Optimization Engine – Custom recommendation engine.<br>
+🔄️ SQL database Entra ID authentication – Replace SQL Server authentication with Entra ID-only authentication.<br>
+
 <br>
 
 ## 🆕 New tools
 
-✅ **New**: Azure Optimization Engine – Custom recommendation engine.<br>
 🔄️ **New**: Cost optimization notifications ([Milestone #24](https://github.com/microsoft/finops-toolkit/milestone/24)) – Email notifications when optimization opportunities are identified.<br>
 
 <br>
