@@ -118,6 +118,8 @@ For more information, see [Create a lakehouse](/fabric/data-engineering/create-l
 >[!NOTE]
 >Microsoft Fabric [lakehouses](/fabric/data-engineering/lakehouse-overview) are data architectures that allow organizations to store and manage structured and unstructured data in a single location. They use  various tools and frameworks to process and analyze that data. These tools and frameworks can include SQL-based queries and analytics, machine learning, and other advanced analytics techniques.
 
+<br>
+
 ## Create a shortcut to storage
 
 Shortcuts in lakehouse allow you to reference data without copying it. It unifies data from different lakehouses, workspaces, or external storage, such as Data Lake Gen2 or Amazon Web Services (AWS) S3. You can quickly make large amounts of data available in your lakehouse locally without the latency of copying data from the source.
