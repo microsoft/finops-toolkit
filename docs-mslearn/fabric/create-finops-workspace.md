@@ -131,12 +131,12 @@ To create a shortcut, see [Create an Azure Data Lake Storage Gen2 shortcut](/fab
     You add CSV and Parquet files under **Files**. Delta tables get added under **Tables**.
 3. Select **New shortcut**.  
     :::image type="content" source="./media/create-fabric-workspace-finops/fabric-new-shortcut.png" border="true" alt-text="Screenshot showing creating a new shortcut in a lakehouse under the Files folder." lightbox="./media/create-fabric-workspace-finops/fabric-new-shortcut.png" :::
-4. Select **Azure Data Lake Storage Gen 2** and provide the following settings.
-    1. URL = **Data Lake Storage** URL of the Data Lake storage account. See the following note about authentication.
-    2. Connection = **Create a new connection**
-    3. Connection name = &lt;*Any name of your choice*&gt;
-    4. Authentication kind = **Organizational account**
-    5. Sign in when prompted.
+4. Select **Azure Data Lake Storage Gen 2** and provide the following settings:
+   - URL = **Data Lake Storage** URL of the Data Lake storage account. See the following note about authentication.
+   - Connection = **Create a new connection**
+   - Connection name = &lt;*Any name of your choice*&gt;
+   - Authentication kind = **Organizational account**
+   - Sign in when prompted.
 
 Here’s an example screenshot showing the New shortcut connection settings.
 
