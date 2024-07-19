@@ -81,6 +81,8 @@ If you want to automate export creation, consider using the [New-FinOpsCostExpor
 
 If you deployed [FinOps hubs](https://aka.ms/finops/hubs), you can skip this step and use the processed data in hub storage.
 
+<br>
+
 ## Create a Fabric workspace
 
 1. Sign in to the Fabric app using your [Fabric free account](https://www.microsoft.com/microsoft-fabric/getting-started) or [Microsoft Power BI](https://app.powerbi.com) account.
