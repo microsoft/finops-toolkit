@@ -22,7 +22,8 @@ Before you begin, you must have:
 To complete this walkthrough, you create the following resources that incur costs:
 
 - An Azure Data Lake Storage Gen2 account
-- A Fabric or Power BI workspace
+- A Power BI workspace
+- A Fabric workspace
 
 <br>
 
