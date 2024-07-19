@@ -81,7 +81,9 @@ Ensure that your export completed and that the file is available before moving t
 
 If you want to automate export creation, consider using the [New-FinOpsCostExport command](https://microsoft.github.io/finops-toolkit/powershell/cost/New-FinOpsCostExport) in the FinOps toolkit PowerShell module.
 
-If you deployed [FinOps hubs](https://aka.ms/finops/hubs), you can use the exports configured against the hub.
+If you deployed [FinOps hubs](https://aka.ms/finops/hubs), you can skip this step and use the processed data in hub storage.
+
+<br>
 
 ## Create a Fabric workspace
 
@@ -100,6 +102,8 @@ Here's an example screenshot showing a new Fabric workspace getting created.
 
 :::image type="content" source="./media/create-fabric-workspace-finops/fabric-create-workspace.png" border="true" alt-text="Screenshot showing a workspace getting created." lightbox="./media/create-fabric-workspace-finops/fabric-create-workspace.png" :::
 
+<br>
+
 ## Create a lakehouse
 
 Microsoft Fabric [lakehouses](/fabric/data-engineering/lakehouse-overview) are data architectures that allow organizations to store and manage structured and unstructured data in a single location. They use  various tools and frameworks to process and analyze that data. These tools and frameworks can include SQL-based queries and analytics, machine learning, and other advanced analytics techniques.
@@ -115,6 +119,8 @@ To create a new lakehouse in the Fabric workspace of your choice:
 
 For more information, see [Create a lakehouse](/fabric/data-engineering/create-lakehouse).
 
+<br>
+
 ## Create a shortcut to storage
 
 Shortcuts in lakehouse allow you to reference data without copying it. It unifies data from different lakehouses, workspaces, or external storage, such as Data Lake Gen2 or Amazon Web Services (AWS) S3. You can quickly make large amounts of data available in your lakehouse locally without the latency of copying data from the source.
@@ -126,12 +132,12 @@ To create a shortcut, see [Create an Azure Data Lake Storage Gen2 shortcut](/fab
     You add CSV and Parquet files under **Files**. Delta tables get added under **Tables**.
 3. Select **New shortcut**.  
     :::image type="content" source="./media/create-fabric-workspace-finops/fabric-new-shortcut.png" border="true" alt-text="Screenshot showing creating a new shortcut in a lakehouse under the Files folder." lightbox="./media/create-fabric-workspace-finops/fabric-new-shortcut.png" :::
-4. Select **Azure Data Lake Storage Gen 2** and provide the following settings.
-    1. URL = **Data Lake Storage** URL of the Data Lake storage account. See the following note about authentication.
-    2. Connection = **Create a new connection**
-    3. Connection name = &lt;*Any name of your choice*&gt;
-    4. Authentication kind = **Organizational account**
-    5. Sign in when prompted.
+4. Select **Azure Data Lake Storage Gen 2** and provide the following settings:
+   - URL = **Data Lake Storage** URL of the Data Lake storage account. See the following note about authentication.
+   - Connection = **Create a new connection**
+   - Connection name = &lt;*Any name of your choice*&gt;
+   - Authentication kind = **Organizational account**
+   - Sign in when prompted.
 
 Here’s an example screenshot showing the New shortcut connection settings.
 
@@ -142,6 +148,8 @@ To get the Data Lake Storage URL, view the storage account where the export crea
 Here’s an example screenshot showing the Data Lake Storage URL on the **Endpoints** page.
 
 :::image type="content" source="./media/create-fabric-workspace-finops/endpoints-page-storage-account.png" border="true" alt-text="Screenshot showing the Endpoints page of the storage account." lightbox="./media/create-fabric-workspace-finops/endpoints-page-storage-account.png" :::
+
+<br>
 
 ## Copy data into Fabric
 
@@ -167,9 +175,11 @@ Here’s an example screenshot showing data in the Lakehouse table.
 
 :::image type="content" source="./media/create-fabric-workspace-finops/fabric-load-table-lakehouse.png" border="true" alt-text="Screenshot showing data in the table." lightbox="./media/create-fabric-workspace-finops/fabric-load-table-lakehouse.png" :::
 
+<br>
+
 ## Create a Power BI report
 
-After the data is ingested into Fabric and Delta parquet tables are ready, you can move on to reporting.
+After the data is ingested into Fabric and tables are ready, you can move on to reporting.
 
 1. Create a semantic model by selecting **New semantic model** and naming the model. For more information, see [Default Power BI semantic models](/fabric/data-warehouse/semantic-models#sync-the-default-power-bi-semantic-model).
 2. Select the Power BI symbol at the bottom left.
