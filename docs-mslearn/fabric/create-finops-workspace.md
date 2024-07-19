@@ -72,7 +72,8 @@ Here are the high-level steps to create an export:
    - Container = *msexports*
    - Directory = focuscost/&lt;*scope-id*&gt;
    - Overwrite data = **Enabled**
-7. On the Review + Create tab, select **Create**
+7. On the Review + Create tab, select **Create**.
+8. Run the export by selecting **Run now** on the export page.
 
 Ensure that your export completed and that the file is available before moving to the next step.
 
@@ -87,12 +88,12 @@ If you deployed [FinOps hubs](https://aka.ms/finops/hubs), you can skip this ste
 
 ## Create a Fabric workspace
 
-1. Sign in to the Fabric app using your [Fabric free account](https://www.microsoft.com/microsoft-fabric/getting-started) or [Microsoft Power BI](https://app.powerbi.com) account.
-2. You can create a new workspace for your FinOps resources or choose to use an existing workspace. To create a workspace, see [Create a workspace](/fabric/get-started/create-workspaces).
-
 If you already have a [Microsoft Fabric workspace](/fabric/get-started/workspaces), you can skip creating a new workspace, unless you want to keep your FinOps resources separate from others.
 
 If you didn't set up Microsoft Fabric, see [Enable Microsoft Fabric for your organization](/fabric/admin/fabric-switch).
+
+1. Sign in to the Fabric app using your [Fabric free account](https://www.microsoft.com/microsoft-fabric/getting-started) or [Microsoft Power BI](https://app.powerbi.com) account.
+2. You can create a new workspace for your FinOps resources or choose to use an existing workspace. To create a workspace, see [Create a workspace](/fabric/get-started/create-workspaces).
 
 If you’re new to Microsoft Fabric or don’t have Fabric capacity enabled, see [Fabric trial](/fabric/get-started/fabric-trial). If Fabric trials are disabled, you might need to [create a new Fabric capacity](/fabric/admin/capacity-settings?tabs=fabric-capacity#create-a-new-capacity).
 
