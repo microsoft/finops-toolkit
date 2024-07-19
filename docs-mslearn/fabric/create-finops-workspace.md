@@ -181,7 +181,7 @@ Here’s an example screenshot showing data in the Lakehouse table.
 
 ## Create a Power BI report
 
-After the data is ingested into Fabric and Delta parquet tables are ready, you can move on to reporting.
+After the data is ingested into Fabric and tables are ready, you can move on to reporting.
 
 1. Create a semantic model by selecting **New semantic model** and naming the model. For more information, see [Default Power BI semantic models](/fabric/data-warehouse/semantic-models#sync-the-default-power-bi-semantic-model).
 2. Select the Power BI symbol at the bottom left.
