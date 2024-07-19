@@ -79,7 +79,7 @@ Ensure that your export completed and that the file is available before moving t
 
 If you want to automate export creation, consider using the [New-FinOpsCostExport command](https://microsoft.github.io/finops-toolkit/powershell/cost/New-FinOpsCostExport) in the FinOps toolkit PowerShell module.
 
-If you deployed [FinOps hubs](https://aka.ms/finops/hubs), you can use the exports configured against the hub.
+If you deployed [FinOps hubs](https://aka.ms/finops/hubs), you can skip this step and use the processed data in hub storage.
 
 ## Create a Fabric workspace
 
