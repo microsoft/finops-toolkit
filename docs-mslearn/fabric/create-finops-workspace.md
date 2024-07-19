@@ -151,6 +151,8 @@ Here’s an example screenshot showing the Data Lake Storage URL on the **Endpoi
 
 :::image type="content" source="./media/create-fabric-workspace-finops/endpoints-page-storage-account.png" border="true" alt-text="Screenshot showing the Endpoints page of the storage account." lightbox="./media/create-fabric-workspace-finops/endpoints-page-storage-account.png" :::
 
+<br>
+
 ## Copy data into Fabric
 
 After the shortcut gets created, you can view the FOCUS cost data inside **Files**. You can load the data directly into a Fabric table by using the following steps.
