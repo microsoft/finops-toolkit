@@ -18,6 +18,8 @@ This article walks you through creating and configuring a [Microsoft Fabric](/fa
 Before you begin, you must have:
 
 - A paid Azure subscription with cost and usage information
+- Owner of a storage account or have access to grant permissions to the storage account
+- You must have the *Storage Blob Data Contributor* role when you use *Organizational account* authentication. If you don't have the required permission, you can use other authentication types like *Account key*. Otherwise, you get an `Invalid credentials` error.
 
 To complete this walkthrough, you create the following resources that incur costs:
 
@@ -100,6 +102,8 @@ Here's an example screenshot showing a new Fabric workspace getting created.
 
 ## Create a lakehouse
 
+Microsoft Fabric [lakehouses](/fabric/data-engineering/lakehouse-overview) are data architectures that allow organizations to store and manage structured and unstructured data in a single location. They use  various tools and frameworks to process and analyze that data. These tools and frameworks can include SQL-based queries and analytics, machine learning, and other advanced analytics techniques.
+
 You can either create a new lakehouse or use an existing one. Lakehouses are interoperable so we would generally recommend using a single lakehouse for all your FinOps datasets. A single lakehouse keeps related information together to share data models, pipelines, and security measures.
 
 To create a new lakehouse in the Fabric workspace of your choice:
@@ -110,9 +114,6 @@ To create a new lakehouse in the Fabric workspace of your choice:
     :::image type="content" source="./media/create-fabric-workspace-finops/fabric-new-lakehouse.png" border="true" alt-text="Screenshot showing the Lakehouse option." lightbox="./media/create-fabric-workspace-finops/fabric-new-lakehouse.png" :::
 
 For more information, see [Create a lakehouse](/fabric/data-engineering/create-lakehouse).
-
->[!NOTE]
->Microsoft Fabric [lakehouses](/fabric/data-engineering/lakehouse-overview) are data architectures that allow organizations to store and manage structured and unstructured data in a single location. They use  various tools and frameworks to process and analyze that data. These tools and frameworks can include SQL-based queries and analytics, machine learning, and other advanced analytics techniques.
 
 ## Create a shortcut to storage
 
@@ -135,9 +136,6 @@ To create a shortcut, see [Create an Azure Data Lake Storage Gen2 shortcut](/fab
 Here’s an example screenshot showing the New shortcut connection settings.
 
 :::image type="content" source="./media/create-fabric-workspace-finops/fabric-new-shortcut-connection-settings.png" border="true" alt-text="Screenshot showing the New shortcut connection settings." lightbox="./media/create-fabric-workspace-finops/fabric-new-shortcut-connection-settings.png" :::
-
->[!IMPORTANT]
->You must have the *Storage Blob Data Contributor* role when you use *Organizational account* authentication. If you don't have the required permission, you can use other authentication types like *Account key*. Otherwise, you get an `Invalid credentials` error.
 
 To get the Data Lake Storage URL, view the storage account where the export created a directory and the FOCUS cost file. Under **Settings**, select **Endpoints**. Copy the URL marked as **Data Lake Storage**. 
 
