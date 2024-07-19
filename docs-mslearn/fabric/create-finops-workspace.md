@@ -100,6 +100,8 @@ Here's an example screenshot showing a new Fabric workspace getting created.
 
 :::image type="content" source="./media/create-fabric-workspace-finops/fabric-create-workspace.png" border="true" alt-text="Screenshot showing a workspace getting created." lightbox="./media/create-fabric-workspace-finops/fabric-create-workspace.png" :::
 
+<br>
+
 ## Create a lakehouse
 
 You can either create a new lakehouse or use an existing one. Lakehouses are interoperable so we would generally recommend using a single lakehouse for all your FinOps datasets. A single lakehouse keeps related information together to share data models, pipelines, and security measures.
