@@ -848,7 +848,7 @@ else
     else
     {
         "Starting cost details export process from $targetStartDate to $targetEndDate for Billing Account ID $BillingAccountID..."
-        Generate-CostDetails -ScopeId "/providers/Microsoft.Billing/billingAccounts/$BillingAccountID" -ScopeName $BillingAccountID
+        Generate-CostDetails -ScopeId "/providers/Microsoft.Billing/billingAccounts/$BillingAccountID" -ScopeName $BillingAccountID.Replace(":","_")
     }    
 }
 
