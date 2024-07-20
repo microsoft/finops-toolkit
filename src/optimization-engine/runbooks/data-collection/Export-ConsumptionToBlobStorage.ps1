@@ -335,9 +335,17 @@ else
     }
     else
     {
-        if ($consumptionScope -ne "Subscription")
+        if ($consumptionScope -eq "BillingProfile")
         {
-            throw "Invalid value for AzureOptimization_ConsumptionScope. Valid values are 'Subscription' or 'BillingAccount'."
+            $BillingAccountID = Get-AutomationVariable -Name  "AzureOptimization_BillingAccountID"        
+            $BillingProfileID = Get-AutomationVariable -Name  "AzureOptimization_BillingProfileID"
+        }
+        else
+        {
+            if ($consumptionScope -ne "Subscription")
+            {
+                throw "Invalid value for AzureOptimization_ConsumptionScope. Valid values are 'Subscription' or 'BillingAccount'."
+            }
         }
     }
 }
@@ -400,7 +408,7 @@ if ($consumptionScope -eq "Subscription")
 }
 else
 {
-    "Exporting consumption data from $targetStartDate to $targetEndDate for Billing Account ID $BillingAccountID..."
+    "Exporting consumption data from $targetStartDate to $targetEndDate for $consumptionScope..."
 }
 
 
@@ -847,8 +855,16 @@ else
     }
     else
     {
-        "Starting cost details export process from $targetStartDate to $targetEndDate for Billing Account ID $BillingAccountID..."
-        Generate-CostDetails -ScopeId "/providers/Microsoft.Billing/billingAccounts/$BillingAccountID" -ScopeName $BillingAccountID.Replace(":","_")
+        if ($consumptionScope -eq "BillingAccount")
+        {
+            "Starting cost details export process from $targetStartDate to $targetEndDate for Billing Account ID $BillingAccountID..."
+            Generate-CostDetails -ScopeId "/providers/Microsoft.Billing/billingAccounts/$BillingAccountID" -ScopeName $BillingAccountID.Replace(":","_")    
+        }
+        if ($consumptionScope -eq "BillingProfile")
+        {
+            "Starting cost details export process from $targetStartDate to $targetEndDate for Billing Account ID $BillingAccountID / Billing Profile ID $BillingProfileID ..."
+            Generate-CostDetails -ScopeId "/providers/Microsoft.Billing/billingAccounts/$BillingAccountID/billingProfiles/$BillingProfileID" -ScopeName $BillingProfileID    
+        }
     }    
 }
 
