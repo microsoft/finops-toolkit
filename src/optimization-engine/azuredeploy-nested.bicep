@@ -1179,7 +1179,7 @@ var runbooks = [
   }
   {
     name: diskOptimizationsRecommendationsRunbookName
-    version: '1.1.1.0'
+    version: '1.1.2.0'
     description: 'Generates Disk optimizations recommendations'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${diskOptimizationsRecommendationsRunbookName}.ps1')
