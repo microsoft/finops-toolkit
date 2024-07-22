@@ -113,7 +113,9 @@ You can either create a new lakehouse or use an existing one. Lakehouses are int
 
 To create a new lakehouse in the Fabric workspace of your choice:
 
-1. Select **New** > **More options**.  
+1. Sign in to the Fabric app using your [Fabric free account](https://www.microsoft.com/microsoft-fabric/getting-started) or [Microsoft Power BI](https://app.powerbi.com) account.
+1. Select the workspace where you want to create the lakehouse.
+1. Near the top left of the page, select **+ New** and then select **More options**.  
     :::image type="content" source="./media/create-fabric-workspace-finops/fabric-new-more-options.png" border="true" alt-text="Screenshot showing navigation to More options." lightbox="./media/create-fabric-workspace-finops/fabric-new-more-options.png" :::
 3. Select **Lakehouse**  
     :::image type="content" source="./media/create-fabric-workspace-finops/fabric-new-lakehouse.png" border="true" alt-text="Screenshot showing the Lakehouse option." lightbox="./media/create-fabric-workspace-finops/fabric-new-lakehouse.png" :::
@@ -128,6 +130,7 @@ Shortcuts in lakehouse allow you to reference data without copying it. It unifie
 
 To create a shortcut, see [Create an Azure Data Lake Storage Gen2 shortcut](/fabric/onelake/create-adls-shortcut).
 
+1. Sign in to the Fabric app using your [Fabric free account](https://www.microsoft.com/microsoft-fabric/getting-started) or [Microsoft Power BI](https://app.powerbi.com) account.
 1. Select the lakehouse of your choice.
 2. Select the ellipsis (**...**) next to **Files**.  
     You add CSV and Parquet files under **Files**. Delta tables get added under **Tables**.
@@ -182,9 +185,12 @@ Here’s an example screenshot showing data in the Lakehouse table.
 
 After the data is ingested into Fabric and tables are ready, you can move on to reporting.
 
-1. Create a semantic model by selecting **New semantic model** and naming the model. For more information, see [Default Power BI semantic models](/fabric/data-warehouse/semantic-models#sync-the-default-power-bi-semantic-model).
-2. Select the Power BI symbol at the bottom left.
-3. Select the same semantic model to build reports and then use Copilot to generate insights from your ingested data.
+1. Sign in to the Fabric app using your [Fabric free account](https://www.microsoft.com/microsoft-fabric/getting-started) or [Microsoft Power BI](https://app.powerbi.com) account.
+1. Select the workspace where you created the lakehouse and then select the lakehouse.
+1. In the Explorer pane, select **Tables** and then select the table that you created.
+1. At the top of the page, select **New semantic model** and name the model. For more information, see [Default Power BI semantic models](/fabric/data-warehouse/semantic-models#sync-the-default-power-bi-semantic-model).
+4. Select the Power BI symbol at the bottom left.
+5. Select the same semantic model to build reports and then use Copilot to generate insights from your ingested data.
 
 >[!NOTE]
 > The Power BI demo uses simulated cost data for illustration purposes.
