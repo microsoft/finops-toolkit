@@ -5,6 +5,7 @@ on:
     branches:
       - main
     paths:
+      - 'docs/deploy/optimization-engine/**'
       - 'src/optimization-engine/**'       
 permissions:
       id-token: write

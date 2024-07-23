@@ -663,7 +663,7 @@
                     "schedule": "AzureOptimization_ExportMonitorDiskIOPSHourly",
                     "parameters": {
                         "ResourceType": "microsoft.compute/disks",
-                        "ARGFilter": "sku.name =~ 'Premium_LRS' and properties.diskState != 'Unattached'",
+                        "ARGFilter": "sku.name startswith 'Premium_' and properties.diskState =~ 'Attached'",
                         "TimeSpan": "01:00:00",
                         "aggregationType": "Average",
                         "AggregationOfType": "Maximum",
@@ -675,7 +675,7 @@
                     "schedule": "AzureOptimization_ExportMonitorDiskMBPsHourly",
                     "parameters": {
                         "ResourceType": "microsoft.compute/disks",
-                        "ARGFilter": "sku.name =~ 'Premium_LRS' and properties.diskState != 'Unattached'",
+                        "ARGFilter": "sku.name startswith 'Premium_' and properties.diskState =~ 'Attached'",
                         "TimeSpan": "01:00:00",
                         "aggregationType": "Average",
                         "AggregationOfType": "Maximum",
@@ -969,7 +969,7 @@
         {
             "runbook": {
                 "name": "runbooks/recommendations/Recommend-DiskOptimizationsToBlobStorage.ps1",
-                "version": "1.1.1.0"
+                "version": "1.1.2.0"
             },
             "requiredVariables": [
                 {
