@@ -5,68 +5,64 @@ The **Waste Reduction Logic App** is an automated detection mechanism provided b
 
 Use the following steps to deploy the Logic App
 
-1. Create a new **Custom Deployment** by navigating to **Deploy a custom template** and clicking on **Build your own template in the editor**
+1. Create a new **Custom Deployment**
+    > [!IMPORTANT]
+    > The logic app needs to be in the same region as its resource group
+   * Navigate to **Deploy a custom template** and select **Build your own template in the editor**
+    <img src="https://raw.githubusercontent.com\docs\_automation\waste-reduction-logic-app\images\Portal-screenshot-1.png" alt="Azure Portal search page">
+   * You will see a blank template.
+   * You can either load the Bicep file "**Waste Reduction Logic App**" or replace the blank template with the code.
+   * Select  **Save**.
+   * Then select  **Review + create**
+   * After the portal validates the template, select  **Create**.
 
-* You will see a blank template.
+2. Authorize Connection
+    > [!NOTE]
+    > After the deployment is complete, the API connection will have an error. This is expected and will be fixed after authorizing the connection.  
 
-* You can either load the Bicep file "**Waste Reduction Logic App**" or replace the blank template with the code
-* Select  **Save**.
-* Then select  **Review + create**
-* After the portal validates the template, select  **Create**.
+   * Select the **API connection** resource, then click on **Edit API Connection** in the General tab to authorize the connection.
 
-> [!IMPORTANT]
-> The logic app needs to be in the same region as its resource group
+   * Select **Authorize**
 
-1. Authorize Connection
+    > [!IMPORTANT]
+    > Be aware that the account authorizing the connection will be used by the Logic App to send the Alerts.
 
-> [!NOTE]
-> After the deployment has been completed, the API connection will have an error. This is expected and will be fixed after authorizing the connection.  
+   * Select **Save** after the authorization is successful
 
-* Click on the **API connection** resource, then click on **Edit API Connection** in the General tab to authorize the connection.
+   * Go back to the **Overview** blade and verify that the **Status: Connected**
 
-* Click on **Authorize**
+3. Create a system-assigned identity to allow the Logic App to "read" the resources in the subscription.
 
-> [!IMPORTANT]
-> Be aware that the account authorizing the connection will be used to by the Logic App to send the Alerts.
+   * Select the **WasteReductionApp**
+   * Select **Identity** under the Settings tab and toggle the Status to **On**
 
-* **Save** your change after the authorization is successful
+   * **Save** your changes and select **yes** to enable the system assigned managed identity
 
-* Go back to the **Overview** blade and verify that the **Status: Connected**
+   * Go to **Azure role assignments** within the *system assigned* blade
 
-1. Create a system-assigned identity to allow the Logic App to "read" the resources in the subscription.
+   * Click on **Add role Assignment** and assign the following permissions then click on **Save** ([Figure WR-12](../logicapp/media/waste-app-11.png)):  
 
-* Navigate to the **WasteReductionApp**
-* Click on **Identity** under the Settings tab and toggle the Status to **On**
+    ```text
 
-* **Save** your changes and select **yes** to enable the system assigned managed identity
+    Scope: Subscription
 
-* Go to **Azure role assignments** within the *system assigned* blade
+    Subscription: Subscription to be analyzed by this Logic App
 
-* Click on **Add role Assignment** and assign the following permissions then click on **Save** ([Figure WR-12](../logicapp/media/waste-app-11.png)):  
+    Role: Reader
 
-```text
+    ```
 
-Scope: Subscription
+4. Configure the Logic App
 
-Subscription: Subscription to be analyzed by this Logic App
+   * Navigate to the **WasteReductionApp** and select **Logic App Designer** under the Development Tools tab ([Figure WR-13](../logicapp/media/waste-app-13.png))
 
-Role: Reader
+   * Configure the **reoccurrence**
+   * Configure the **alert recipient email**
+   * Set **subscription IDs** in scope
 
-```
+   > [!NOTE]
+   > If the customer has multiple subscriptions, you can add the IDs to the array, by using the following format: ["subscriptionID1", "subscriptionID2", "subscriptionID3"]
 
-1. Configure the Logic App
+5. Test Logic App
 
-* Navigate to the **WasteReductionApp** and select **Logic App Designer** under the Development Tools tab ([Figure WR-13](../logicapp/media/waste-app-13.png))
-
-* Configure the reoccurrence
-* Configure the alert recipient
-* Set subscriptions in scope
-
-* **Set subscriptions** in scope ([Figure WR-14](../logicapp/media/waste-app-14.png))
-
-> [!NOTE]
-> If the customer has multiple subscriptions, you can add them to the array, by using the following format: ["subscription1", "subscription2", "subscription3"]
-
-1. Test Logic App
-
-* Click on **Run** to test the Logic App
+   * Select **Run** to test the Logic App
