@@ -63,6 +63,24 @@ Legend:
 
 <br><a name="latest"></a>
 
+## 🚚 v0.5
+
+<sup>Released August 2024</sup>
+
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Added an optional `skipEventGridRegistration` template parameter to support skipping Event Grid RP registration.
+> 2. Added an Event Grid section to the hubs create form.
+>
+> ✏️ Changed:
+>
+> 1. Changed the Event Grid location selection logic to only identify fallback regions rather than supported regions.
+
+<br>
+
 ## 🚚 v0.4
 
 <sup>Released July 12, 2024</sup>
