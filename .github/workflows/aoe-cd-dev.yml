@@ -16,8 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      AOE_SQL_ADMIN: ${{ secrets.AOE_SQL_ADMIN }}
-      AOE_SQL_PASSWD: ${{ secrets.AOE_SQL_PASSWD }}
       AOE_LOCATION: ${{ secrets.AOE_LOCATION }}
       AOE_NAMEPREFIX: ${{ secrets.AOE_NAMEPREFIX }}
     steps:
@@ -49,8 +47,6 @@ jobs:
             "NamePrefix": "'"$AOE_NAMEPREFIX"'",
             "WorkspaceReuse": "n",
             "DeployWorkbooks": "y",
-            "SqlAdmin": "'"$AOE_SQL_ADMIN"'",
-            "SqlPass": "'"$AOE_SQL_PASSWD"'",
             "TargetLocation": "'"$AOE_LOCATION"'",
             "DeployBenefitsUsageDependencies": "n"
           }' > ./src/optimization-engine/deploymentSettings.json          
@@ -58,5 +54,5 @@ jobs:
         shell: pwsh
         run: |
           Set-Location ./src/optimization-engine
-          ./Deploy-AzureOptimizationEngine.ps1 -SilentDeploymentSettingsPath ./deploymentSettings.json -TemplateUri "https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/src/optimization-engine/azuredeploy.bicep"
+          ./Deploy-AzureOptimizationEngine.ps1 -SilentDeploymentSettingsPath ./deploymentSettings.json -TemplateUri "https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/src/optimization-engine/azuredeploy.bicep" -SqlAdminPrincipalType "Group" -SqlAdminPrincipalName ${{ secrets.AOE_SQL_ADMIN_PRINCIPAL_NAME }} -SqlAdminPrincipalObjectId ${{ secrets.AOE_SQL_ADMIN_PRINCIPAL_ID }}
       - run: echo "🍏 This job's status is ${{ job.status }}."

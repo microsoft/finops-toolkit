@@ -16,10 +16,9 @@ param logAnalyticsWorkspaceName string
 param logAnalyticsWorkspaceRG string
 param logAnalyticsRetentionDays int = 120
 param sqlBackupRetentionDays int = 7
-param sqlAdminLogin string
-
-@secure()
-param sqlAdminPassword string
+param userPrincipalName string
+param userObjectId string
+param sqlAdminPrincipalType string = 'User'
 param cloudEnvironment string = 'AzureCloud'
 param authenticationOption string = 'ManagedIdentity'
 
@@ -54,13 +53,14 @@ module resourcesDeployment './azuredeploy-nested.bicep' = {
     logAnalyticsWorkspaceRG: logAnalyticsWorkspaceRG
     logAnalyticsRetentionDays: logAnalyticsRetentionDays
     sqlBackupRetentionDays: sqlBackupRetentionDays
-    sqlAdminLogin: sqlAdminLogin
-    sqlAdminPassword: sqlAdminPassword
     cloudEnvironment: cloudEnvironment
     authenticationOption: authenticationOption
     baseTime: baseTime
     contributorRoleAssignmentGuid: contributorRoleAssignmentGuid
     resourceTags: resourceTags
+    userPrincipalName: userPrincipalName
+    userObjectId: userObjectId
+    sqlAdminPrincipalType: sqlAdminPrincipalType
     enableDefaultTelemetry: enableDefaultTelemetry
   }
   dependsOn: [
