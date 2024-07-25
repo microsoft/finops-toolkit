@@ -3,7 +3,11 @@
 This script adds job schedules for all Azure Optimization Engine data collection runbooks for a given tenant/cloud.
 
 .DESCRIPTION
-This script resets the Azure Optimization Engine schedules to a new base time and optionally changes the Hybrid Worker Group for all schedules.
+This script adds job schedules for all Azure Optimization Engine data collection runbooks for a given tenant/cloud.
+It is useful when you want to collect data from multiple tenants/clouds in a single AOE deployment.
+The script will create new schedules with a suffix and offset for each existing schedule, and associate them to the corresponding runbooks.
+It requires you to create first a service principal in the target tenant and grant it the necessary permissions to the target subscriptions/tenant.
+You also need to create an Automation Credential in the AOE Automation Account with the service principal credentials (client ID and secret).
 
 .PARAMETER AzureEnvironment
 The Azure environment to use. Possible values are AzureCloud, AzureChinaCloud, AzureUSGovernment.
@@ -14,8 +18,29 @@ The name of the Automation Account where the Azure Optimization Engine is deploy
 .PARAMETER ResourceGroupName
 The name of the Resource Group where the Automation Account is located.
 
+.PARAMETER TargetSchedulesSuffix
+The suffix to append to the new schedules names.
+
+.PARAMETER TargetSchedulesOffsetMinutes
+The offset in minutes to apply to the new schedules start times (defaults to 0).
+
+.PARAMETER TargetAzureEnvironment
+The target Azure environment to collect data from. Possible values are AzureCloud, AzureChinaCloud, AzureUSGovernment. Defaults to AzureCloud.
+
+.PARAMETER TargetTenantId
+The target tenant ID to collect data from.
+
+.PARAMETER TargetTenantCredentialName
+The name of the Automation Credential in the AOE Automation Account containing the service principal credentials (client ID and secret).
+
+.PARAMETER ExcludedRunbooks
+An array of runbook names to exclude from the process. Defaults to runbooks that export data at the EA/MCA level, which should only run on the source tenant.
+
+.PARAMETER IncludedRunbooks
+An array of runbook names to include in the process. If none are provided, all data collection runbooks will be processed.
+
 .EXAMPLE
-.\Reset-AutomationSchedules.ps1 -AutomationAccountName "MyAutomationAccount" -ResourceGroupName "MyResourceGroup"
+Register-MultitenantAutomationSchedules.ps1 -AutomationAccountName "AOE" -ResourceGroupName "AOE-RG" -TargetSchedulesSuffix "-Tenant1" -TargetTenantId "00000000-0000-0000-0000-000000000000" -TargetTenantCredentialName "Tenant1" -ExcludedRunbooks @("Export-ReservationsPriceToBlobStorage")
 
 .LINK
 https://aka.ms/AzureOptimizationEngine/customize
@@ -46,7 +71,7 @@ param(
     [String] $TargetTenantCredentialName,
 
     [Parameter(Mandatory = $false)] 
-    [String[]] $ExcludedRunbooks = @(),
+    [String[]] $ExcludedRunbooks = @("Export-ReservationsPriceToBlobStorage","Export-PriceSheetToBlobStorage","Export-ReservationsUsageToBlobStorage","Export-SavingsPlansUsageToBlobStorage"),
 
     [Parameter(Mandatory = $false)] 
     [String[]] $IncludedRunbooks = @()
