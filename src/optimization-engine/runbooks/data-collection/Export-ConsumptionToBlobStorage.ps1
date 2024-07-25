@@ -335,9 +335,17 @@ else
     }
     else
     {
-        if ($consumptionScope -ne "Subscription")
+        if ($consumptionScope -eq "BillingProfile")
         {
-            throw "Invalid value for AzureOptimization_ConsumptionScope. Valid values are 'Subscription' or 'BillingAccount'."
+            $BillingAccountID = Get-AutomationVariable -Name  "AzureOptimization_BillingAccountID"        
+            $BillingProfileID = Get-AutomationVariable -Name  "AzureOptimization_BillingProfileID"
+        }
+        else
+        {
+            if ($consumptionScope -ne "Subscription")
+            {
+                throw "Invalid value for AzureOptimization_ConsumptionScope. Valid values are 'Subscription' or 'BillingAccount'."
+            }
         }
     }
 }
@@ -400,7 +408,7 @@ if ($consumptionScope -eq "Subscription")
 }
 else
 {
-    "Exporting consumption data from $targetStartDate to $targetEndDate for Billing Account ID $BillingAccountID..."
+    "Exporting consumption data from $targetStartDate to $targetEndDate for $consumptionScope..."
 }
 
 
@@ -667,59 +675,128 @@ else
                             {
                                 $tags = $null
                             }
+
+                            if ([string]::IsNullOrEmpty($consumptionLine.properties.billingProfileId))
+                            {
+                                # legacy consumption schema
             
-                            $billingEntry = New-Object PSObject -Property @{
-                                Timestamp = $timestamp
-                                AccountName = $consumptionLine.properties.accountName
-                                AccountOwnerId = $consumptionLine.properties.accountOwnerId
-                                AdditionalInfo = $consumptionLine.properties.additionalInfo
-                                benefitId = $consumptionLine.properties.benefitId
-                                benefitName = $consumptionLine.properties.benefitName
-                                BillingAccountId = $consumptionLine.properties.billingAccountId
-                                BillingAccountName = $consumptionLine.properties.billingAccountName
-                                BillingCurrencyCode = $consumptionLine.properties.billingCurrency
-                                BillingPeriodEndDate= $consumptionLine.properties.billingPeriodEndDate
-                                BillingPeriodStartDate= $consumptionLine.properties.billingPeriodStartDate
-                                BillingProfileId = $consumptionLine.properties.billingProfileId
-                                BillingProfileName= $consumptionLine.properties.billingProfileName
-                                ChargeType = $consumptionLine.properties.chargeType
-                                ConsumedService = $consumptionLine.properties.consumedService
-                                CostAllocationRuleName = $consumptionLine.properties.costAllocationRuleName
-                                CostCenter = $consumptionLine.properties.costCenter
-                                CostInBillingCurrency = $consumptionLine.properties.cost
-                                Date = (Get-Date $consumptionLine.properties.date).ToString("MM/dd/yyyy")
-                                EffectivePrice = $consumptionLine.properties.effectivePrice
-                                Frequency = $consumptionLine.properties.frequency
-                                InvoiceSectionName = $consumptionLine.properties.invoiceSection
-                                IsAzureCreditEligible = $consumptionLine.properties.isAzureCreditEligible
-                                MeterCategory = $consumptionLine.properties.meterDetails.meterCategory
-                                MeterId = $consumptionLine.properties.meterId
-                                MeterName = $consumptionLine.properties.meterDetails.meterName
-                                MeterRegion = $consumptionLine.properties.meterDetails.meterRegion
-                                MeterSubCategory = $consumptionLine.properties.meterDetails.meterSubCategory
-                                OfferId = $consumptionLine.properties.offerId
-                                PartNumber = $consumptionLine.properties.partNumber
-                                PayGPrice = $consumptionLine.properties.PayGPrice
-                                PlanName = $consumptionLine.properties.planName
-                                PricingModel = $consumptionLine.properties.pricingModel
-                                ProductName = $consumptionLine.properties.product
-                                PublisherName = $consumptionLine.properties.publisherName
-                                PublisherType = $consumptionLine.properties.publisherType
-                                Quantity = $consumptionLine.properties.quantity
-                                ReservationId = $consumptionLine.properties.reservationId
-                                ReservationName = $consumptionLine.properties.reservationName
-                                ResourceGroup = $consumptionLine.properties.resourceGroup
-                                ResourceId = $consumptionLine.properties.resourceId
-                                ResourceLocation = $consumptionLine.properties.resourceLocation
-                                ResourceName = $consumptionLine.properties.resourceName
-                                ServiceFamily = $consumptionLine.properties.meterDetails.serviceFamily
-                                SubscriptionId = $consumptionLine.properties.subscriptionId
-                                SubscriptionName = $consumptionLine.properties.subscriptionName
-                                Tags = $tags
-                                Term = $consumptionLine.properties.term
-                                UnitOfMeasure = $consumptionLine.properties.meterDetails.unitOfMeasure
-                                UnitPrice = $consumptionLine.properties.unitPrice
-                            }            
+                                $billingEntry = New-Object PSObject -Property @{
+                                    Timestamp = $timestamp
+                                    AccountName = $consumptionLine.properties.accountName
+                                    AccountOwnerId = $consumptionLine.properties.accountOwnerId
+                                    AdditionalInfo = $consumptionLine.properties.additionalInfo
+                                    benefitId = $consumptionLine.properties.benefitId
+                                    benefitName = $consumptionLine.properties.benefitName
+                                    BillingAccountId = $consumptionLine.properties.billingAccountId
+                                    BillingAccountName = $consumptionLine.properties.billingAccountName
+                                    BillingCurrencyCode = $consumptionLine.properties.billingCurrency
+                                    BillingPeriodEndDate= $consumptionLine.properties.billingPeriodEndDate
+                                    BillingPeriodStartDate= $consumptionLine.properties.billingPeriodStartDate
+                                    BillingProfileId = $consumptionLine.properties.billingProfileId
+                                    BillingProfileName= $consumptionLine.properties.billingProfileName
+                                    ChargeType = $consumptionLine.properties.chargeType
+                                    ConsumedService = $consumptionLine.properties.consumedService
+                                    CostAllocationRuleName = $consumptionLine.properties.costAllocationRuleName
+                                    CostCenter = $consumptionLine.properties.costCenter
+                                    CostInBillingCurrency = $consumptionLine.properties.cost
+                                    Date = (Get-Date $consumptionLine.properties.date).ToString("MM/dd/yyyy")
+                                    EffectivePrice = $consumptionLine.properties.effectivePrice
+                                    Frequency = $consumptionLine.properties.frequency
+                                    InvoiceSectionName = $consumptionLine.properties.invoiceSection
+                                    IsAzureCreditEligible = $consumptionLine.properties.isAzureCreditEligible
+                                    MeterCategory = $consumptionLine.properties.meterDetails.meterCategory
+                                    MeterId = $consumptionLine.properties.meterId
+                                    MeterName = $consumptionLine.properties.meterDetails.meterName
+                                    MeterRegion = $consumptionLine.properties.meterDetails.meterRegion
+                                    MeterSubCategory = $consumptionLine.properties.meterDetails.meterSubCategory
+                                    OfferId = $consumptionLine.properties.offerId
+                                    PartNumber = $consumptionLine.properties.partNumber
+                                    PayGPrice = $consumptionLine.properties.PayGPrice
+                                    PlanName = $consumptionLine.properties.planName
+                                    PricingModel = $consumptionLine.properties.pricingModel
+                                    ProductName = $consumptionLine.properties.product
+                                    PublisherName = $consumptionLine.properties.publisherName
+                                    PublisherType = $consumptionLine.properties.publisherType
+                                    Quantity = $consumptionLine.properties.quantity
+                                    ReservationId = $consumptionLine.properties.reservationId
+                                    ReservationName = $consumptionLine.properties.reservationName
+                                    ResourceGroup = $consumptionLine.properties.resourceGroup
+                                    ResourceId = $consumptionLine.properties.resourceId
+                                    ResourceLocation = $consumptionLine.properties.resourceLocation
+                                    ResourceName = $consumptionLine.properties.resourceName
+                                    ServiceFamily = $consumptionLine.properties.meterDetails.serviceFamily
+                                    SubscriptionId = $consumptionLine.properties.subscriptionId
+                                    SubscriptionName = $consumptionLine.properties.subscriptionName
+                                    Tags = $tags
+                                    Term = $consumptionLine.properties.term
+                                    UnitOfMeasure = $consumptionLine.properties.meterDetails.unitOfMeasure
+                                    UnitPrice = $consumptionLine.properties.unitPrice
+                                }            
+                            }
+                            else
+                            {
+                                # MCA consumption schema
+                                $billingEntry = New-Object PSObject -Property @{
+                                    Timestamp = $timestamp
+                                    AdditionalInfo = $consumptionLine.properties.additionalInfo
+                                    benefitId = $consumptionLine.properties.benefitId
+                                    benefitName = $consumptionLine.properties.benefitName
+                                    BillingAccountId = $consumptionLine.properties.billingAccountId
+                                    BillingAccountName = $consumptionLine.properties.billingAccountName
+                                    BillingCurrencyCode = $consumptionLine.properties.billingCurrencyCode
+                                    BillingPeriodEndDate= $consumptionLine.properties.billingPeriodEndDate
+                                    BillingPeriodStartDate= $consumptionLine.properties.billingPeriodStartDate
+                                    BillingProfileId = $consumptionLine.properties.billingProfileId
+                                    BillingProfileName= $consumptionLine.properties.billingProfileName
+                                    ChargeType = $consumptionLine.properties.chargeType
+                                    ConsumedService = $consumptionLine.properties.consumedService
+                                    CostAllocationRuleName = $consumptionLine.properties.costAllocationRuleName
+                                    CostCenter = $consumptionLine.properties.costCenter
+                                    CostInBillingCurrency = $consumptionLine.properties.costInBillingCurrency
+                                    costInPricingCurrency = $consumptionLine.properties.costInPricingCurrency
+                                    costInUSD = $consumptionLine.properties.costInUSD
+                                    customerName = $consumptionLine.properties.customerName
+                                    Date = (Get-Date $consumptionLine.properties.date).ToString("MM/dd/yyyy")
+                                    EffectivePrice = $consumptionLine.properties.effectivePrice
+                                    exchangeRate = $consumptionLine.properties.exchangeRate
+                                    exchangeRateDate = $consumptionLine.properties.exchangeRateDate
+                                    exchangeRatePricingToBilling = $consumptionLine.properties.exchangeRatePricingToBilling
+                                    Frequency = $consumptionLine.properties.frequency
+                                    invoiceSectionId = $consumptionLine.properties.invoiceSectionId
+                                    InvoiceSectionName = $consumptionLine.properties.invoiceSectionName
+                                    IsAzureCreditEligible = $consumptionLine.properties.isAzureCreditEligible
+                                    MeterCategory = $consumptionLine.properties.meterCategory
+                                    MeterId = $consumptionLine.properties.meterId
+                                    MeterName = $consumptionLine.properties.meterName
+                                    MeterRegion = $consumptionLine.properties.meterRegion
+                                    MeterSubCategory = $consumptionLine.properties.meterSubCategory
+                                    PartNumber = $consumptionLine.properties.partNumber
+                                    paygCostInBillingCurrency = $consumptionLine.properties.paygCostInBillingCurrency
+                                    paygCostInUSD = $consumptionLine.properties.paygCostInUSD
+                                    PayGPrice = $consumptionLine.properties.payGPrice
+                                    PlanName = $consumptionLine.properties.planName
+                                    pricingCurrencyCode = $consumptionLine.properties.pricingCurrencyCode
+                                    PricingModel = $consumptionLine.properties.pricingModel
+                                    ProductName = $consumptionLine.properties.product
+                                    productIdentifier = $consumptionLine.properties.productIdentifier
+                                    PublisherName = $consumptionLine.properties.publisherName
+                                    PublisherType = $consumptionLine.properties.publisherType
+                                    Quantity = $consumptionLine.properties.quantity
+                                    ReservationId = $consumptionLine.properties.reservationId
+                                    ReservationName = $consumptionLine.properties.reservationName
+                                    ResourceGroup = $consumptionLine.properties.resourceGroup
+                                    ResourceId = $consumptionLine.properties.instanceName
+                                    ResourceLocation = $consumptionLine.properties.resourceLocation
+                                    resourceLocationNormalized = $consumptionLine.properties.resourceLocationNormalized
+                                    ServiceFamily = $consumptionLine.properties.serviceFamily
+                                    SubscriptionId = $consumptionLine.properties.subscriptionGuid
+                                    SubscriptionName = $consumptionLine.properties.subscriptionName
+                                    Tags = $tags
+                                    Term = $consumptionLine.properties.term
+                                    UnitOfMeasure = $consumptionLine.properties.unitOfMeasure
+                                    UnitPrice = $consumptionLine.properties.unitPrice
+                                }            
+                            }
                             $billingEntries += $billingEntry    
                         }
                     }    
@@ -778,8 +855,16 @@ else
     }
     else
     {
-        "Starting cost details export process from $targetStartDate to $targetEndDate for Billing Account ID $BillingAccountID..."
-        Generate-CostDetails -ScopeId "/providers/Microsoft.Billing/billingAccounts/$BillingAccountID" -ScopeName $BillingAccountID
+        if ($consumptionScope -eq "BillingAccount")
+        {
+            "Starting cost details export process from $targetStartDate to $targetEndDate for Billing Account ID $BillingAccountID..."
+            Generate-CostDetails -ScopeId "/providers/Microsoft.Billing/billingAccounts/$BillingAccountID" -ScopeName $BillingAccountID.Replace(":","_")    
+        }
+        if ($consumptionScope -eq "BillingProfile")
+        {
+            "Starting cost details export process from $targetStartDate to $targetEndDate for Billing Account ID $BillingAccountID / Billing Profile ID $BillingProfileID ..."
+            Generate-CostDetails -ScopeId "/providers/Microsoft.Billing/billingAccounts/$BillingAccountID/billingProfiles/$BillingProfileID" -ScopeName $BillingProfileID    
+        }
     }    
 }
 

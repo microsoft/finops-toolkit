@@ -521,7 +521,7 @@
         {
             "runbook": {
                 "name": "runbooks/data-collection/Export-ConsumptionToBlobStorage.ps1",
-                "version": "2.0.4.1"
+                "version": "2.1.0.0"
             },
             "container": "consumptionexports",
             "requiredVariables": [

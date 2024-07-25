@@ -948,7 +948,7 @@ var runbooks = [
   }
   {
     name: consumptionExportsRunbookName
-    version: '2.0.4.1'
+    version: '2.1.0.0'
     description: 'Exports Azure Consumption events to Blob Storage using Azure Consumption API'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${consumptionExportsRunbookName}.ps1')
