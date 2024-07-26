@@ -75,6 +75,23 @@ Legend:
 >
 > 1. Documented [how to compare FOCUS and actual/amortized data](../_docs/focus/validate.md) to learn and validate FOCUS data.
 
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed:
+>
+> - General
+>   1. Updated `ListCost`, `ListUnitPrice`, `ContractedCost`, and `ContractedUnitPrice` when not provided in Cost Management exports.
+>      - Contracted cost/price are set to effective cost/price when not available.
+>      - List cost/price are set to contracted cost/price when not available.
+>      - This means savings can be calculated, but will not be complete.
+>      - Refer to the DQ page for details about missing or updated data.
+>
+> 🛠️ Fixed:
+>
+> - General
+>   1. Fixed a bug in Cost Management exports where committed usage is showing as "Standard" pricing category.
+
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
