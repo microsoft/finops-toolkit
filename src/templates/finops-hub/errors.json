@@ -31,10 +31,16 @@
       "mitigation": "Update the storage path for the Cost Management export to use the full Azure resource ID for the scope."
     },
     {
-      "code": "ExportNotFound",
+      "code": "ExportDataNotFound",
       "severity": "Critical",
-      "message": "Cost Management data has not been exported.",
-      "mitigation": "Create a new FOCUS export in Cost Management at https://aka.ms/exportsv2. After created, select 'Run now' to start the export process."
+      "message": "Exports were not found in the specified storage path.",
+      "mitigation": "Confirm that a Cost Management export was created and configured with the correct storage account, container, and storage path. After created, select 'Run now' to start the export process. Exports can take 15-30 minutes to complete depending on the size of the account. If you intended to use FinOps hubs, please correct the storage URL to point to the 'ingestion' container. Refer to the 'storageUrlForPowerBI' output from the FinOps hub deployment for the full URL."
+    },
+    {
+      "code": "HubDataNotFound",
+      "severity": "Critical",
+      "message": "FinOps hub data was not found in the specified storage account.",
+      "mitigation": "Confirm the storage URL matches the 'StorageUrlForPowerBI' from your FinOps hub deployment, Cost Management exports are pointing to the 'msexports' container and have successfully exported data, and that FinOps hub data factory triggers are started and pipelines are running successfully. Leverage the Data ingestion report and the troubleshooting guide (https://aka.ms/finops/hubs/troubleshoot) to validate your deployment."
     },
     {
       "code": "ManifestReadFailed",

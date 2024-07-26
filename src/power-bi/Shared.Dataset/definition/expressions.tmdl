@@ -1,19 +1,21 @@
 /// Name of the Azure DataLake Gen2 storage account to pull data from.
-expression 'Storage URL' = "https://ftkmicfland5pd7gdo37oozc.dfs.core.windows.net/ingestion" meta [IsParameterQuery = true, IsParameterQueryRequired = true, Type = type text]
+expression 'Storage URL' = "https://ftkmicfland5pd7gdo37oozc.dfs.core.windows.net/samples" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 	lineageTag: 421c1232-0e40-45a4-bc59-257ce648478c
-	queryGroup: '🛠️ Setup\FinOps hubs'
+	queryGroup: '🛠️ Setup\Storage'
 
 	annotation PBI_ResultType = Text
 
-expression RangeStart = #datetime(2024, 1, 1, 0, 0, 0) meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=true]
+	annotation PBI_NavigationStepName = Navigation
+
+expression RangeStart = #datetime(2024, 6, 1, 0, 0, 0) meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=true]
 	lineageTag: 90085870-f708-4bc2-90c1-3a343e88a26b
-	queryGroup: '🛠️ Setup\FinOps hubs'
+	queryGroup: '🛠️ Setup\Storage'
 
 	annotation PBI_ResultType = DateTime
 
-expression RangeEnd = #datetime(2025, 1, 1, 0, 0, 0) meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=true]
+expression RangeEnd = #datetime(2024, 7, 1, 0, 0, 0) meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=true]
 	lineageTag: 695f1d3b-7b1a-49fa-8d83-f2c25dc787de
-	queryGroup: '🛠️ Setup\FinOps hubs'
+	queryGroup: '🛠️ Setup\Storage'
 
 	annotation PBI_ResultType = DateTime
 
@@ -27,73 +29,189 @@ expression 'Number of Months' = 1 meta [IsParameterQuery = true, IsParameterQuer
 /// Loads data from the configured FinOps hub.
 /// 
 /// Learn more @ https://aka.ms/finops/hubs
-expression ftk_Hub = ```
-		(optional datasetType as text, optional startDate as datetime, optional endDate as datetime) =>
+expression ftk_Storage = ```
+		(optional datasetType as text) =>
 		let
 		    // Config
-		    url     = #"Storage URL",
-		    start   = if startDate = null then RangeStart else startDate,
-		    end     = if endDate = null then RangeEnd else endDate,
-		// TODO: Allow pulling other datasets -- if datasetType = null or datasetType = "" then "focuscost" else datasetType
-		    dataset = "focuscost",
+		    url   = Text.Trim(#"Storage URL", "/"),
+		    start = RangeStart,
+		    end   = RangeEnd,
+		    data  = if datasetType = null or datasetType = "" then "focuscost" else Text.Lower(datasetType),
 		
-		    ADLS = AzureStorage.DataLake(url),
-		    FilterHiddenFiles = Table.SelectRows(ADLS, each [Attributes]?[Hidden]? <> true),
+		    // Connect to ADLS
+		    ADLS = Table.SelectRows(AzureStorage.DataLake(url), each [Attributes]?[Hidden]? <> true),
 		
-		    // Parse folder path
-		    Dataset   = Table.AddColumn(FilterHiddenFiles, "Dataset",   each List.Last(List.RemoveLastN(Text.Split([Folder Path],"/"), 1))),
-		    Month     = Table.AddColumn(Dataset,           "Month",     each List.Last(List.RemoveLastN(List.RemoveLastN(Text.Split([Folder Path],"/"), 1), 1) )),
-		// TODO: Update date handling for raw exports
-		    StartDate = Table.AddColumn(Month,             "StartDate", each [Month] & "01"),
-		    StartDate_type = Table.TransformColumnTypes(StartDate, {{"StartDate", type date}}),
-		    EndDate   = Table.AddColumn(StartDate_type,    "EndDate",   each Date.EndOfMonth([StartDate])),
+		    // NOTE: Do not convert to UTC - UTC dates can show as the previous month based on the local timezone
+		    _toMonth    = (s) => Date.FromText(Text.Range(s, 0, 4) & "-" & Text.Range(s, 4, 2) & "-01"),
 		
-		    // Only FOCUS costs
-		// TODO: Include CSV files for raw exports
-		    FilterFilesByMetricAndFileType = Table.SelectRows(EndDate, each [Dataset] = dataset and [Extension] = ".parquet"),
+		    // If hub storage, parse file path; otherwise, find metadata file
+		    IsHub = Text.EndsWith(url, "/ingestion"),
+		    Source = 
+		        if IsHub then (
+		            let
+		                FilterHub = Table.SelectRows(ADLS, each [Extension] = ".parquet" and data = Text.Lower(List.Last(List.RemoveLastN(Text.Split([Folder Path],"/"), 1)))),
+		                HubMonth  = Table.AddColumn(FilterHub, "StartDate", each _toMonth(List.Last(List.RemoveLastN(List.RemoveLastN(Text.Split([Folder Path],"/"), 1), 1))), type date)
+		            in
+		                HubMonth
+		        ) else (
+		            let
+		                // Filter out anything that doesn't look like a CM export
+		                Segments  = Table.AddColumn(Table.AddColumn(ADLS,
+		                    "Segments",     each Text.Split(Text.Replace(Text.Trim([Folder Path], "/"), "https://", ""), "/")),
+		                    "SegmentCount", each List.Count([Segments])),
+		                FilterExports = Table.SelectRows(Segments,
+		                    each ([SegmentCount] >= 7 and Text.Length([Segments]{[SegmentCount]-1}) = 36 and Text.Length([Segments]{[SegmentCount]-2}) = 12 and Text.Length([Segments]{[SegmentCount]-3}) = 17)
+		                      or ([SegmentCount] >= 6 and Text.Length([Segments]{[SegmentCount]-1}) = 36 and Text.Length([Segments]{[SegmentCount]-2}) = 17) // Exports v2 preview bug had a missing folder (remove after June 2025)
+		                      or ([SegmentCount] >= 5 and Text.Length([Segments]{[SegmentCount]-1}) = 36 and data = "reservationrecommendations") // Reservation recommendations do not have a date folder
+		                ),
+		
+		                // Find the paths that hae the desired dataset with overwriting enabled (so we don't show duplicate data)
+		                DatasetPaths = Table.SelectColumns(
+		                    Table.SelectRows(
+		                        Table.AddColumn(FilterExports, "Json", each try if [Name] = "manifest.json" then Json.Document([Content]) else null otherwise null), 
+		                        each try [Name] = "manifest.json" 
+		                            and Text.Lower([Json][exportConfig][type]) = data
+		                            and [Json][deliveryConfig][dataOverwriteBehavior] = "OverwritePreviousReport"
+		                            otherwise false
+		                    ),
+		                    {"Folder Path"}
+		                ),
+		                FilterExpData = Table.SelectRows(FilterExports, each ([Extension] = ".parquet" or [Extension] = ".csv") and List.Contains(Table.Column(DatasetPaths, "Folder Path"), [Folder Path])),
+		                ExportMonth = Table.AddColumn(FilterExpData, "StartDate", each if data = "reservationrecommendations" then null else _toMonth([Segments]{[SegmentCount]-(if Text.Length([Segments]{[SegmentCount]-2}) = 17 then 2 else 3)}), type date)
+		            in
+		                ExportMonth
+		        ),
 		
 		    // Only process files for months within the date range
 		    FilterFilesByDate =
-		        if start = null and end = null then FilterFilesByMetricAndFileType
-		        else Table.SelectRows(FilterFilesByMetricAndFileType, each (start = null or [StartDate] >= Date.StartOfMonth(Date.From(start))) and (end = null or [EndDate] <= Date.EndOfMonth(Date.From(end)))),
-		
-		    // Extract
-		    unpack = (zipData) => Table.PromoteHeaders(Csv.Document(Binary.Decompress(zipData, Compression.GZip), [Delimiter=",", Columns=60, Encoding=1252, QuoteStyle=QuoteStyle.Csv, CsvStyle=CsvStyle.QuoteAlways]), [PromoteAllScalars=true]),
-		// TODO: Add dataset type column based on file path (or manifest for exports)
-		    SelectContent = Table.SelectColumns(FilterFilesByDate, {"Content", "Extension"}),
-		    UnpackContent = Table.AddColumn(SelectContent, "Custom", each if [Extension] = ".gz" then unpack([Content]) else if [Extension] = ".parquet" then Parquet.Document([Content]) else [Content]),
-		    ExpandedColumns = Table.ExpandTableColumn(UnpackContent, "Custom", List.Sort(Table.ColumnNames(List.First(UnpackContent[Custom], null)))),
-		    RemovedContent = Table.RemoveColumns(ExpandedColumns, {"Content", "Extension"}),
-		
-		    // Only pull from the predefined date range (if specified)
-		    tbl = RemovedContent,
-		    FilterRowsByDate =
-		        if start = null and end = null then tbl
-		        else Table.SelectRows(tbl, each
-		            (start = null or [ChargePeriodEnd] >= DateTime.From(start))
-		            and (end = null or [ChargePeriodStart] < DateTime.From(end))
+		        if start = null and end = null then Source
+		        else Table.SelectRows(
+		            Table.AddColumn(Source, "EndDate", each if [StartDate] = null then null else Date.EndOfMonth([StartDate]), type datetime), 
+		            each (start = null or [StartDate] = null or [StartDate] >= Date.StartOfMonth(Date.From(start))) and (end = null or [EndDate] = null or [EndDate] <= Date.EndOfMonth(Date.From(end)))
 		        ),
 		
-		    // TODO: Extract from the manifest
-		    _armResourceName = (id) => List.Last(Text.Split(id, "/")),
-		    DataType    = Table.AddColumn(FilterRowsByDate, "x_DatasetType", each dataset),
-		    DataVer     = Table.AddColumn(DataType,         "x_DatasetVersion", 
-		        each if Table.HasColumns(Dataset, {"ChageClass"}) then (
-		            if Table.HasColumns(Dataset, {"ChargeSubcategory"}) then (
-		                if ([Region] = null and [RegionName] <> null) or ([x_OnDemandCost] = null and [ContractedCost] <> null) or ([ChargeSubcategry] = null and [CommitmentDiscountStatus] <> null) then "1.0"
-		                else if ([Region] <> null and [RegionName] = null) or ([x_OnDemandCost] <> null and [ContractedCost] = null) or ([ChargeSubcategry] <> null and [CommitmentDiscountStatus] = null) then "1.0-preview(v1)"
-		                else "Unknown"
-		            ) else "1.0"
-		        ) else "1.0-preview(v1)"
+		    // Extract
+		    _dataNotFound = () =>
+		        if IsHub then "HubDataNotFound: No " & data & " data found in the storage account (" & Text.SplitAny(url, "/."){2} & "). Please confirm data was exported and processed by hub ingestion pipelines. Refer to the troubleshooting guide for assistance: https://aka.ms/finops/hubs/troubleshoot."
+		        else "ExportDataNotFound: No " & data & " exports found in the storage path. Please confirm exports were run and configured to push data to the storage account (" & Text.SplitAny(url, "/."){2} & "), container (" & Text.Split(url, "/"){3} & "), and path (" & Text.Combine(List.RemoveFirstN(Text.Split(url, "/"), 3), "/") & ").",
+		    _parseCsv = (d) => Table.PromoteHeaders(Csv.Document(d, [Delimiter=",", Encoding=1252, QuoteStyle=QuoteStyle.Csv, CsvStyle=CsvStyle.QuoteAlways]), [PromoteAllScalars=true]),
+		    _getColumnRenames = (tbl) =>
+		        let
+		            // Remove spaces and capitalize all columns
+		            _original = Table.ColumnNames(tbl),
+		            _updated = List.Transform(_original, each Text.Replace(Text.Upper(Text.Start(_, 1)) & Text.Range(_, 1), " ", "")),
+		            columnRenames = List.Zip({_original, _updated})
+		        in
+		            columnRenames
+		    ,
+		    ReadContent = Table.SelectRows(
+		        Table.SelectColumns(
+		            Table.AddColumn(FilterFilesByDate, "Data",
+		                each if [Extension] = ".parquet" then Parquet.Document([Content]) 
+		                else if [Extension] = ".gz"      then _parseCsv(Binary.Decompress([Content], Compression.GZip)) 
+		                else if [Extension] = ".csv"     then _parseCsv([Content])
+		                else [Content]
+		            ),
+		            {"Data"}
+		        ),
+		        each Table.RowCount([Data]) > 0
 		    ),
-		    AccountType = Table.AddColumn(DataVer,          "x_AccountType", 
-		        each if [BillingAccountId] = [SubAccountId] then "MOSA"
-		        else if _armResourceName([BillingAccountId]) = [x_BillingAccountId] then "EA"
-		        else if _armResourceName([BillingAccountId]) = [x_BillingProfileId] then (if [InvoiceIssuerName] = "Microsoft" then "MCA" else "MPA")
-		        else "Unknown"
+		    ExtractColumns =
+		        if Table.RowCount(ReadContent) > 0 then
+		            Table.ExpandTableColumn(ReadContent, "Data", List.Distinct(List.Combine(List.Transform(ReadContent[Data], each Table.ColumnNames(_)))))
+		        else if data = "focuscost" then
+		            #table(
+		                { "BilledCost", "BillingAccountId", "BillingAccountName", "BillingAccountType", "BillingCurrency", "BillingPeriodEnd", "BillingPeriodStart", "ChargeCategory", "ChargeClass", "ChargeDescription", "ChargeFrequency", "ChargePeriodEnd", "ChargePeriodStart", "CommitmentDiscountCategory", "CommitmentDiscountId", "CommitmentDiscountName", "CommitmentDiscountStatus", "CommitmentDiscountType", "ConsumedQuantity", "ConsumedUnit", "ContractedCost", "ContractedUnitPrice", "EffectiveCost", "InvoiceIssuerName", "ListCost", "ListUnitPrice", "PricingCategory", "PricingQuantity", "PricingUnit", "ProviderName", "PublisherName", "RegionId", "RegionName", "ResourceId", "ResourceName", "ResourceType", "ServiceCategory", "ServiceName", "SkuId", "SkuPriceId", "SubAccountId", "SubAccountName", "SubAccountType", "Tags", "x_AccountId", "x_AccountName", "x_AccountOwnerId", "x_BilledCostInUsd", "x_BilledUnitPrice", "x_BillingAccountId", "x_BillingAccountName", "x_BillingExchangeRate", "x_BillingExchangeRateDate", "x_BillingProfileId", "x_BillingProfileName", "x_ContractedCostInUsd", "x_CostAllocationRuleName", "x_CostCenter", "x_CustomerId", "x_CustomerName", "x_EffectiveCostInUsd", "x_EffectiveUnitPrice", "x_InvoiceId", "x_InvoiceIssuerId", "x_InvoiceSectionId", "x_InvoiceSectionName", "x_ListCostInUsd", "x_PartnerCreditApplied", "x_PartnerCreditRate", "x_PricingBlockSize", "x_PricingCurrency", "x_PricingSubcategory", "x_PricingUnitDescription", "x_PublisherCategory", "x_PublisherId", "x_ResellerId", "x_ResellerName", "x_ResourceGroupName", "x_ResourceType", "x_ServicePeriodEnd", "x_ServicePeriodStart", "x_SkuDescription", "x_SkuDetails", "x_SkuIsCreditEligible", "x_SkuMeterCategory", "x_SkuMeterId", "x_SkuMeterName", "x_SkuMeterSubcategory", "x_SkuOfferId", "x_SkuOrderId", "x_SkuOrderName", "x_SkuPartNumber", "x_SkuRegion", "x_SkuServiceFamily", "x_SkuTerm", "x_SkuTier" },
+		                {} // {{ null, null, null, null, null, null, null, null, null, _dataNotFound(), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null }}
+		            )
+		        else if data = "pricesheet" then
+		            #table(
+		                { "BasePrice", "CurrencyCode", "EffectiveEndDate", "EffectiveStartDate", "EnrollmentNumber", "IncludedQuantity", "MarketPrice", "MeterCategory", "MeterID", "MeterName", "MeterRegion", "MeterSubCategory", "MeterType", "OfferID", "PartNumber", "PriceType", "Product", "ProductID", "ServiceFamily", "SkuID", "Term", "UnitOfMeasure", "UnitPrice" },
+		                {} // {{ null, null, null, null, null, null, null, null, null, _dataNotFound(), null, null, null, null, null, null, null, null, null, null, null, null, null }}
+		            )
+		        else if data = "reservationdetails" then
+		            #table(
+		                { "InstanceFlexibilityGroup", "InstanceFlexibilityRatio", "InstanceId", "Kind", "ReservationId", "ReservationOrderId", "ReservedHours", "SkuName", "TotalReservedQuantity", "UsageDate", "UsedHours" },
+		                {} // {{ null, null, null, null, null, null, null, _dataNotFound(), null, null, null }}
+		            )
+		        else if data = "reservationtransactions" then
+		            #table(
+		                { "AccountName", "AccountOwnerEmail", "Amount", "ArmSkuName", "BillingFrequency", "BillingMonth", "CostCenter", "Currency", "CurrentEnrollmentId", "DepartmentName", "Description", "EventDate", "EventType", "MonetaryCommitment", "Overage", "PurchasingEnrollment", "PurchasingSubscriptionGuid", "PurchasingSubscriptionName", "Quantity", "Region", "ReservationOrderId", "ReservationOrderName", "Term" },
+		                {} // {{ null, null, null, _dataNotFound(), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null }}
+		            )
+		        else if data = "reservationrecommendations" then
+		            #table(
+		                { "CostWithNoReservedInstances", "FirstUsageDate", "InstanceFlexibilityGroup", "InstanceFlexibilityRatio", "Location", "LookBackPeriod", "MeterId", "NetSavings", "NormalizedSize", "RecommendedQuantity", "RecommendedQuantityNormlized", "ResourceType", "SKU", "Scope", "SkuProperties", "Term", "TotaCostWithReservedInstances" },
+		                {} // {{ null, null, null, null, null, null, null, null, null, null, null, _dataNotFound(), null, null, null, null }}
+		            )
+		        else
+		            #table(
+		                { "Error" },
+		                {{ _dataNotFound() }}
+		            ),
+		    
+		    // Fix column name inconsistencies across channels
+		    CleanColumns = if data = "focuscost" then ExtractColumns else List.Accumulate(
+		        List.Select(_getColumnRenames(ExtractColumns), each _{0} <> _{1}),
+		        ExtractColumns,
+		        (state, columns) =>
+		            // Copy old value to a temp column, then remove original columns, then rename the temp column
+		            Table.RenameColumns(
+		                Table.RemoveColumns(
+		                    Table.AddColumn(state, "Temp" & columns{1}, each if Record.Field(_, columns{0}) <> null then Record.Field(_, columns{0}) else Record.Field(_, columns{1})),
+		                    columns
+		                ),
+		                {{"Temp" & columns{1}, columns{1}}}
+		            )
 		    ),
 		
-		    Output = AccountType
+		    // Only pull from the predefined date range (if specified)
+		    RefreshDate = Table.AddColumn(CleanColumns, "x_IncrementalRefreshDate",
+		        each if data = "focuscost"               then Number.From(DateTime.From(Text.Range([ChargePeriodStart], 0, 10)))
+		        else if data = "pricesheet"              then Number.From(DateTime.From(Text.Range([EffectiveStartDate], 6, 4) & "-" & Text.Range([EffectiveStartDate], 0, 2) & "-" & Text.Range([EffectiveStartDate], 3, 2)))
+		        else if data = "reservationdetails"      then Number.From(DateTime.From([UsageDate]))
+		        else if data = "reservationtransactions" then Number.From(DateTime.From([EventDate]))
+		        else null // Will not support incremental refresh
+		    ),
+		    FilterRowsByDate = if (start = null and end = null) then RefreshDate else Table.SelectRows(RefreshDate, each
+		        (start = null or [x_IncrementalRefreshDate] = null or [x_IncrementalRefreshDate] >= Number.From(DateTime.From(start)))
+		        and (end = null or [x_IncrementalRefreshDate] = null or [x_IncrementalRefreshDate] < Number.From(DateTime.From(end)))
+		    ),
+		
+		    // TODO: Try using "_" instead of "FilterRowsByDate"
+		    CustomColumns = Table.AddColumn(Table.AddColumn(Table.AddColumn(FilterRowsByDate,
+		        "x_DatasetType", each data),
+		        "x_DatasetVersion",
+		            // TODO: Extract from the manifest
+		            each if data = "focuscost"                  then (
+		                if Table.HasColumns(Dataset, {"ChageClass"}) then (
+		                    if Table.HasColumns(Dataset, {"ChargeSubcategory"}) then (
+		                        if ([Region] = null and [RegionName] <> null) or ([x_OnDemandCost] = null and [ContractedCost] <> null) or ([ChargeSubcategry] = null and [CommitmentDiscountStatus] <> null) then "1.0"
+		                        else if ([Region] <> null and [RegionName] = null) or ([x_OnDemandCost] <> null and [ContractedCost] = null) or ([ChargeSubcategry] <> null and [CommitmentDiscountStatus] = null) then "1.0-preview(v1)"
+		                        else "Unknown"
+		                    ) else "1.0"
+		                ) else "1.0-preview(v1)"
+		            ),
+		            else if data = "pricesheet"                 then "2023-05-01"
+		            else if data = "reservationdetails"         then "2023-05-01"
+		            else if data = "reservationtransactions"    then "2023-05-01"
+		            else if data = "reservationrecommendations" then "2023-05-01"
+		            else null
+		        ),
+		        "x_AccountType",
+		            each if data = "focuscost"                  then (
+		                if [BillingAccountId] = [SubAccountId] then "MOSA"
+		                else if ftk_ParseResourceName([BillingAccountId]) = [x_BillingAccountId] then "EA"
+		                else if ftk_ParseResourceName([BillingAccountId]) = [x_BillingProfileId] then (if [InvoiceIssuerName] = "Microsoft" then "MCA" else "MPA")
+		                else "Unknown"
+		            )
+		            else if data = "pricesheet"                 then (if Table.HasColumns(FilterRowsByDate, "EnrollmentNumber") and [EnrollmentNumber] <> null then "EA" else "MCA") // TODO: Can we detect MPA separately?
+		            else if data = "reservationdetails"         then "Unknown" // TODO: Consider using export manifest if we get feedback that this should always be available
+		            else if data = "reservationtransactions"    then (if Table.HasColumns(FilterRowsByDate, "CurrentEnrollmentId") and [CurrentEnrollmentId] <> null then "EA" else "MCA") // TODO: Can we detect MPA separately?
+		            else if data = "reservationrecommendations" then (if Table.HasColumns(FilterRowsByDate, "Scope") and [Scope] <> null then "EA" else "MCA")
+		            else "Unknown"
+		    ),
+		    Output = Table.SelectColumns(CustomColumns, List.Sort(Table.ColumnNames(CustomColumns)))
 		in
 		    Output
 		```
@@ -254,4 +372,59 @@ expression Type = "Enrollment Number" meta [IsParameterQuery=true, List={"Enroll
 	queryGroup: '🛠️ Setup\CM connector'
 
 	annotation PBI_ResultType = Text
+
+/// Loads data from the configured FinOps hub.
+/// 
+/// Learn more @ https://aka.ms/finops/hubs
+expression ftk_ParseResourceId = ```
+		(id, getName) => 
+		if id = null or id = "" then null else 
+		let
+		    // Handle implicit Microsoft.Resources RP names
+		    updatedId = if Text.StartsWith(id, "/subscriptions/") or Text.StartsWith(id, "/tenants/") then "/providers/Microsoft.Resources" & id else id,
+		
+		    // Parse resource ID segments separately
+		    allSegments = Text.Split(List.Last(Text.Split(updatedId, "/providers/")), "/"),
+		    provider = allSegments{0},
+		    _parseId = (evenOrOdd) => List.RemoveNulls(List.Transform({1..List.Count(allSegments)-1}, each if Number.Mod(_, 2) = evenOrOdd then allSegments{_} else null)),
+		    nameSegments = _parseId(0),
+		    typeSegments = _parseId(1),
+		    
+		    // Remove the sub ID if it's a child resource of the subscription
+		    isChildOfSubscription = provider = "Microsoft.Resources" and Text.Lower(typeSegments{0}) = "subscriptions" and List.Count(typeSegments) > 1,
+		    fullName = Text.Combine((if isChildOfSubscription then List.RemoveFirstN(nameSegments, 1) else nameSegments), "/"),
+		
+		    fullType = provider & "/" & Text.Combine(typeSegments, "/"),
+		    result = if getName then fullName else fullType
+		in
+		    result
+		```
+	lineageTag: 47af7699-603d-457e-ac71-57d695f11fca
+	queryGroup: '🛠️ Setup\Functions'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Function
+
+/// Loads data from the configured FinOps hub.
+/// 
+/// Learn more @ https://aka.ms/finops/hubs
+expression ftk_ParseResourceName = (id) => ftk_ParseResourceId(id, true)
+	lineageTag: 0dde2951-d866-4f3b-9c34-e324ce31541e
+	queryGroup: '🛠️ Setup\Functions'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Function
+
+/// Loads data from the configured FinOps hub.
+/// 
+/// Learn more @ https://aka.ms/finops/hubs
+expression ftk_ParseResourceType = (id) => ftk_ParseResourceId(id, false)
+	lineageTag: e0916ea5-0653-40f5-ac6d-84ea4164cabe
+	queryGroup: '🛠️ Setup\Functions'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Function
 
