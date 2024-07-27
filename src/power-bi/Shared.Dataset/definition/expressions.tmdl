@@ -11,15 +11,11 @@ expression RangeStart = #datetime(2024, 1, 1, 0, 0, 0) meta [IsParameterQuery=tr
 
 	annotation PBI_ResultType = DateTime
 
-	annotation PBI_NavigationStepName = Navigation
-
 expression RangeEnd = #datetime(2025, 1, 1, 0, 0, 0) meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=true]
 	lineageTag: 695f1d3b-7b1a-49fa-8d83-f2c25dc787de
 	queryGroup: '🛠️ Setup\FinOps hubs'
 
 	annotation PBI_ResultType = DateTime
-
-	annotation PBI_NavigationStepName = Navigation
 
 /// Enter the number of months
 expression 'Number of Months' = 1 meta [IsParameterQuery = true, IsParameterQueryRequired = false, Type = type number]
@@ -81,7 +77,15 @@ expression ftk_Hub = ```
 		    // TODO: Extract from the manifest
 		    _armResourceName = (id) => List.Last(Text.Split(id, "/")),
 		    DataType    = Table.AddColumn(FilterRowsByDate, "x_DatasetType", each dataset),
-		    DataVer     = Table.AddColumn(DataType,         "x_DatasetVersion", each if Table.HasColumns(Dataset, {"ChargeSubcategory"}) then "1.0-preview(v1)" else "1.0"),
+		    DataVer     = Table.AddColumn(DataType,         "x_DatasetVersion", 
+		        each if Table.HasColumns(Dataset, {"ChageClass"}) then (
+		            if Table.HasColumns(Dataset, {"ChargeSubcategory"}) then (
+		                if ([Region] = null and [RegionName] <> null) or ([x_OnDemandCost] = null and [ContractedCost] <> null) or ([ChargeSubcategry] = null and [CommitmentDiscountStatus] <> null) then "1.0"
+		                else if ([Region] <> null and [RegionName] = null) or ([x_OnDemandCost] <> null and [ContractedCost] = null) or ([ChargeSubcategry] <> null and [CommitmentDiscountStatus] = null) then "1.0-preview(v1)"
+		                else "Unknown"
+		            ) else "1.0"
+		        ) else "1.0-preview(v1)"
+		    ),
 		    AccountType = Table.AddColumn(DataVer,          "x_AccountType", 
 		        each if [BillingAccountId] = [SubAccountId] then "MOSA"
 		        else if _armResourceName([BillingAccountId]) = [x_BillingAccountId] then "EA"
@@ -97,6 +101,8 @@ expression ftk_Hub = ```
 	queryGroup: '🛠️ Setup\Functions'
 
 	annotation PBI_ResultType = Function
+
+	annotation PBI_NavigationStepName = Navigation
 
 expression '▶️  START HERE' = ```
 		let
