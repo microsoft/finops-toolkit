@@ -32,13 +32,13 @@ Fixes # <!-- TODO: Add related issues (e.g., Fixes #123, #246, #369) -->
 
 ### 📑 Did you update `docs/changelog.md`?
 
-> - [ ] ✅ Yes (required for `dev` PRs)
-> - [ ] ➡️ Will cover in a future PR (feature branch PRs only)
-> - [ ] ❎ Not needed (small/internal change)
+> - [ ] ✅ Updated changelog (required for `dev` PRs)
+> - [ ] ➡️ Will add log in a future PR (feature branch PRs only)
+> - [ ] ❎ Log not needed (small/internal change)
 
 ### 📖 Did you update documentation?
 
 > - [ ] ✅ Public docs in `docs` (required for `dev`)
 > - [ ] ✅ Internal dev docs in `src` (required for `dev`)
-> - [ ] ➡️ Will cover in a future PR (feature branch PRs only)
-> - [ ] ❎ Not needed (small/internal change)
+> - [ ] ➡️ Will add docs in a future PR (feature branch PRs only)
+> - [ ] ❎ Docs not needed (small/internal change)
