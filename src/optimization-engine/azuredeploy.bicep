@@ -10,6 +10,7 @@ param templateLocation string
 param storageAccountName string
 param automationAccountName string
 param sqlServerName string
+param sqlServerAlreadyExists bool = false
 param sqlDatabaseName string = 'azureoptimization'
 param logAnalyticsReuse bool
 param logAnalyticsWorkspaceName string
@@ -47,6 +48,7 @@ module resourcesDeployment './azuredeploy-nested.bicep' = {
     storageAccountName: storageAccountName
     automationAccountName: automationAccountName
     sqlServerName: sqlServerName
+    sqlServerAlreadyExists: sqlServerAlreadyExists
     sqlDatabaseName: sqlDatabaseName
     logAnalyticsReuse: logAnalyticsReuse
     logAnalyticsWorkspaceName: logAnalyticsWorkspaceName

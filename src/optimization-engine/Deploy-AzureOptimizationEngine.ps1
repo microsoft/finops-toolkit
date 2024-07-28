@@ -525,6 +525,7 @@ else {
 }
 
 Write-Host "...for the Azure SQL Server..." -ForegroundColor Green
+$sqlServerAlreadyExists = $false
 $sql = Get-AzSqlServer -ResourceGroupName $resourceGroupName -Name $sqlServerName -ErrorAction SilentlyContinue
 if ($null -eq $sql -and -not($sqlServerName -like "*.database.*") -and -not($IgnoreNamingAvailabilityErrors)) {
 
@@ -538,7 +539,9 @@ if ($null -eq $sql -and -not($sqlServerName -like "*.database.*") -and -not($Ign
         Write-Host "$($sqlNameResult.message) ($sqlServerName)" -ForegroundColor Red
     }
 }
-else {
+else
+{
+    $sqlServerAlreadyExists = $true
     Write-Host "(The SQL Server was already deployed)" -ForegroundColor Green
 }
 
@@ -726,7 +729,7 @@ if ("Y", "y" -contains $continueInput) {
                 $deployment = New-AzDeployment -TemplateFile ".\azuredeploy.bicep" -templateLocation $TemplateUri.Replace("azuredeploy.bicep", "") -Location $targetLocation -rgName $resourceGroupName -Name $deploymentName `
                     -projectLocation $targetlocation -logAnalyticsReuse $logAnalyticsReuse -baseTime $baseTime `
                     -logAnalyticsWorkspaceName $laWorkspaceName -logAnalyticsWorkspaceRG $laWorkspaceResourceGroup `
-                    -storageAccountName $storageAccountName -automationAccountName $automationAccountName `
+                    -storageAccountName $storageAccountName -automationAccountName $automationAccountName -sqlServerAlreadyExists $sqlServerAlreadyExists `
                     -sqlServerName $sqlServerName -sqlDatabaseName $sqlDatabaseName -cloudEnvironment $AzureEnvironment `
                     -userPrincipalName $userPrincipalName -userObjectId $userObjectId -sqlAdminPrincipalType $SqlAdminPrincipalType `
                     -resourceTags $ResourceTags -enableDefaultTelemetry $EnableDefaultTelemetry -WarningAction SilentlyContinue

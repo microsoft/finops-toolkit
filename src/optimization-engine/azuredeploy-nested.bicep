@@ -4,6 +4,7 @@ param templateLocation string
 param storageAccountName string
 param automationAccountName string
 param sqlServerName string
+param sqlServerAlreadyExists bool
 param sqlDatabaseName string
 param logAnalyticsReuse bool
 param logAnalyticsWorkspaceName string
@@ -1701,7 +1702,11 @@ resource storageLifecycleManagementPolicy 'Microsoft.Storage/storageAccounts/man
   ]
 }
 
-resource sqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
+resource existingSqlServer 'Microsoft.Sql/servers@2022-05-01-preview' existing = if (sqlServerAlreadyExists) {
+  name: sqlServerName
+}
+
+resource sqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = if (!sqlServerAlreadyExists) {
   name: sqlServerName
   location: projectLocation
   tags: resourceTags
@@ -1718,6 +1723,26 @@ resource sqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
       tenantId: tenant().tenantId
     }
   }
+}
+
+resource sqlAdminsResource 'Microsoft.Sql/servers/administrators@2022-05-01-preview' = if (sqlServerAlreadyExists) {
+  parent: existingSqlServer
+  name: 'ActiveDirectory'
+  properties: {
+        administratorType: 'ActiveDirectory'
+        login: userPrincipalName 
+        sid: userObjectId
+        tenantId: tenant().tenantId
+    }
+}
+
+resource sqlAzureAdOnly 'Microsoft.Sql/servers/azureADOnlyAuthentications@2022-05-01-preview' = if (sqlServerAlreadyExists) {
+  name: 'Default'
+  parent: existingSqlServer
+  properties: {
+    azureADOnlyAuthentication: true
+  }
+  dependsOn:[sqlAdminsResource]
 }
 
 resource sqlServerFirewall 'Microsoft.Sql/servers/firewallRules@2022-05-01-preview' = {
