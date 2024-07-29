@@ -63,8 +63,14 @@ An example of the content of such silent deployment file is:
     "BillingAccountId": "<guid>:<guid>_YYYY-MM-DD", // mandatory if DeployBenefitsUsageDependencies is set to 'y', MCA or EA Billing Account ID
     "BillingProfileId": "ABCD-DEF-GHI-JKL", // mandatory if CustomerType is set to 'MCA"
     "CurrencyCode": "EUR" // mandatory if DeployBenefitsUsageDependencies is set to 'y'
-  }
-  
+  } 
+```
+
+When silently deploying AOE, which typically happens in automated continuous deployment workflows, you might want to leverage SQL Entra ID authentication
+parameters, for example to grant the SQL administrator role to an Entra ID group having the workflow automation service principal as member. For example:
+
+```powershell
+.\Deploy-AzureOptimizationEngine.ps1 -SilentDeploymentSettingsPath "<path to deployment settings file>" -SqlAdminPrincipalType Group -SqlAdminPrincipalName "<Group Name>" -SqlAdminPrincipalObjectId "<Group Object GUID>"
 ```
 
 ## 🤝 Enabling Azure commitments workbooks
