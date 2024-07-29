@@ -57,8 +57,6 @@ An example of the content of such silent deployment file is:
     "WorkspaceName": "<<ExistingName>>", // mandatory if WorkspaceReuse is set to 'n'
     "WorkspaceResourceGroupName": "<<ExistingName>>", // mandatory if workspaceReuse is set to 'n'
     "DeployWorkbooks": "y", // y = deploy the workbooks, n = don't deploy the workbooks
-    "SqlAdmin": "<<sqlaAdmin>>",
-    "SqlPass": "<<sqlPass>>",
     "TargetLocation": "westeurope",
     "DeployBenefitsUsageDependencies": "y", // deploy the dependencies for the Azure commitments workbooks (EA/MCA customers only + agreement administrator role required)
     "CustomerType": "MCA", // mandatory if DeployBenefitsUsageDependencies is set to 'y', MCA/EA
