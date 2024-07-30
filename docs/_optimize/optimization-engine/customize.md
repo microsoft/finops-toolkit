@@ -1,6 +1,6 @@
 ---
 layout: default
-parent: Optimization Engine
+parent: Optimization engine
 title: Customizations
 nav_order: 20
 description: 'Customize the Azure Optimization Engine settings according to your organization requirements.'

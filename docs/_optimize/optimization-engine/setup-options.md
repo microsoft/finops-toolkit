@@ -1,6 +1,6 @@
 ---
 layout: default
-parent: Optimization Engine
+parent: Optimization engine
 title: Setup options
 nav_order: 50
 description: 'Advanced scenarios for setting up or upgrading AOE.'

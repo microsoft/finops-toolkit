@@ -1,6 +1,6 @@
 ---
 layout: default
-parent: Optimization Engine
+parent: Optimization engine
 title: FAQ
 nav_order: 60
 description: 'All the frequently asked questions about AOE in one place.'

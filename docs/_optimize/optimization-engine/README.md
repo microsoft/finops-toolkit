@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Optimization Engine
+title: Optimization engine
 has_children: true
 nav_order: 40
 description: 'The Azure Optimization Engine (AOE) is an extensible solution designed to generate optimization recommendations for your Azure environment.'
