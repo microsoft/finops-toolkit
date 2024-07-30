@@ -45,9 +45,11 @@ New to FinOps? Start with a quick intro and get to know the principles:
 
 - [What is FinOps?](./_docs/what-is-finops.md) – Quick introduction to FinOps.
 - [FinOps on Azure e-book](https://aka.ms/finops/ebook) – Executive walkthrough of the FinOps principles.
+- [Get started with FinOps](https://aka.ms/finops/learn/start) – Self-paced FinOps introduction.
 
 Start implementing FinOps capabilities or learn how to mature your FinOps practice:
 
+- [Adopt FinOps on Azure](https://aka.ms/finops/learn/adopt) – Learn FinOps capabilities at your own pace.
 - [Conduct a FinOps iteration](./_docs/conduct-an-iteration.md) – Plan your first or next iteration.
 - [FinOps review assessment](https://aka.ms/finops/review) – Review and refine your process.
 - [FinOps Framework](./_docs/framework/README.md) – Implement FinOps in the Microsoft Cloud.
