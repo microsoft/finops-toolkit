@@ -10,16 +10,16 @@ param templateLocation string
 param storageAccountName string
 param automationAccountName string
 param sqlServerName string
+param sqlServerAlreadyExists bool = false
 param sqlDatabaseName string = 'azureoptimization'
 param logAnalyticsReuse bool
 param logAnalyticsWorkspaceName string
 param logAnalyticsWorkspaceRG string
 param logAnalyticsRetentionDays int = 120
 param sqlBackupRetentionDays int = 7
-param sqlAdminLogin string
-
-@secure()
-param sqlAdminPassword string
+param userPrincipalName string
+param userObjectId string
+param sqlAdminPrincipalType string = 'User'
 param cloudEnvironment string = 'AzureCloud'
 param authenticationOption string = 'ManagedIdentity'
 
@@ -48,19 +48,21 @@ module resourcesDeployment './azuredeploy-nested.bicep' = {
     storageAccountName: storageAccountName
     automationAccountName: automationAccountName
     sqlServerName: sqlServerName
+    sqlServerAlreadyExists: sqlServerAlreadyExists
     sqlDatabaseName: sqlDatabaseName
     logAnalyticsReuse: logAnalyticsReuse
     logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
     logAnalyticsWorkspaceRG: logAnalyticsWorkspaceRG
     logAnalyticsRetentionDays: logAnalyticsRetentionDays
     sqlBackupRetentionDays: sqlBackupRetentionDays
-    sqlAdminLogin: sqlAdminLogin
-    sqlAdminPassword: sqlAdminPassword
     cloudEnvironment: cloudEnvironment
     authenticationOption: authenticationOption
     baseTime: baseTime
     contributorRoleAssignmentGuid: contributorRoleAssignmentGuid
     resourceTags: resourceTags
+    userPrincipalName: userPrincipalName
+    userObjectId: userObjectId
+    sqlAdminPrincipalType: sqlAdminPrincipalType
     enableDefaultTelemetry: enableDefaultTelemetry
   }
   dependsOn: [

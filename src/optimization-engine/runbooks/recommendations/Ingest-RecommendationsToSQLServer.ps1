@@ -16,9 +16,6 @@ if ($authenticationOption -eq "UserAssignedManagedIdentity")
 }
 
 $sqlserver = Get-AutomationVariable -Name  "AzureOptimization_SQLServerHostname"
-$sqlserverCredential = Get-AutomationPSCredential -Name "AzureOptimization_SQLServerCredential"
-$SqlUsername = $sqlserverCredential.UserName 
-$SqlPass = $sqlserverCredential.GetNetworkCredential().Password 
 $sqldatabase = Get-AutomationVariable -Name  "AzureOptimization_SQLServerDatabase" -ErrorAction SilentlyContinue
 if ([string]::IsNullOrEmpty($sqldatabase))
 {
@@ -57,6 +54,9 @@ switch ($authenticationOption) {
     }
 }
 
+$cloudDetails = Get-AzEnvironment -Name $CloudEnvironment
+$azureSqlDomain = $cloudDetails.SqlDatabaseDnsSuffix.Substring(1)
+
 # get reference to storage sink
 Write-Output "Getting reference to $storageAccountSink storage account (recommendations exports sink)"
 Select-AzSubscription -SubscriptionId $storageAccountSinkSubscriptionId
@@ -84,7 +84,9 @@ $connectionSuccess = $false
 do {
     $tries++
     try {
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;User ID=$SqlUsername;Password=$SqlPass;Trusted_Connection=False;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
+        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $Conn.AccessToken = $dbToken.Token
         $Conn.Open() 
         $Cmd=new-object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
@@ -227,13 +229,15 @@ foreach ($blob in $unprocessedBlobs) {
                     }
                 }
 
-                $Conn2 = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;User ID=$SqlUsername;Password=$SqlPass;Trusted_Connection=False;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+                $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
+                $Conn2 = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+                $Conn2.AccessToken = $dbToken.Token
                 $Conn2.Open() 
         
                 $Cmd=new-object system.Data.SqlClient.SqlCommand
                 $Cmd.Connection = $Conn2
                 $Cmd.CommandText = $sqlStatement
-                $Cmd.CommandTimeout=120 
+                $Cmd.CommandTimeout = $SqlTimeout
                 try
                 {
                     $Cmd.ExecuteReader()
@@ -263,12 +267,14 @@ foreach ($blob in $unprocessedBlobs) {
                 $lastProcessedDateTime = $updatedLastProcessedDateTime
                 Write-Output "Updating last processed time / line to $($updatedLastProcessedDateTime) / $updatedLastProcessedLine"
                 $sqlStatement = "UPDATE [$SqlServerIngestControlTable] SET LastProcessedLine = $updatedLastProcessedLine, LastProcessedDateTime = '$updatedLastProcessedDateTime' WHERE StorageContainerName = '$storageAccountSinkContainer'"
-                $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;User ID=$SqlUsername;Password=$SqlPass;Trusted_Connection=False;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+                $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
+                $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+                $Conn.AccessToken = $dbToken.Token
                 $Conn.Open() 
                 $Cmd=new-object system.Data.SqlClient.SqlCommand
                 $Cmd.Connection = $Conn
                 $Cmd.CommandText = $sqlStatement
-                $Cmd.CommandTimeout=$SqlTimeout 
+                $Cmd.CommandTimeout = $SqlTimeout 
                 $Cmd.ExecuteReader()
                 $Conn.Close()
             }

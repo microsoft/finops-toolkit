@@ -152,13 +152,19 @@ Legend:
 >   4. Explore commitment discount savings to get a clear overview of rate optimization opportunities.
 >   5. Quickly view public IP addresses with DDoS protection enabled and compare if it would be cheaper to enable DDoS to the vNet instead.
 >   6. Identify Azure Hybrid Benefit usage for SQL Database elastic pools to maximize cost efficiency.
->
+>    
+> - [Governance workbook](../_optimize/governance-workbook/README.md):
+>   1. Added managed disk usage monitoring.
+
 > ✏️ Changed:
 >
 > - [Optimization workbook](../_optimize/optimization-workbook/README.md):
 >   1. Redesigned the Sustainability tab to clarify recommendations.
 >   2. Ignore dynamic IPs in the public IP addresses list to ensure more accurate results.
 >   3. Ignore free tier web apps to provide a clearer picture of your top services.
+>
+> - [Governance workbook](../_optimize/governance-workbook/README.md):
+>   1. Overview has been revised to align with the latest governance principles of the cloud adoption framework.
 
 🔍 Optimization engine
 {: .fs-5 .fw-500 .mt-4 mb-0 }
