@@ -29,6 +29,17 @@ By default, the Azure Automation Managed Identity is assigned the Reader role on
 
 In the context of augmented VM right-size recommendations, you may have your VMs reporting to multiple workspaces. If you need to include other workspaces - besides the main one AOE is using - in the recommendations scope, you just have to add their workspace IDs to the `AzureOptimization_RightSizeAdditionalPerfWorkspaces` variable (see more details in [Configuring workspaces](./configuring-workspaces.md)).
 
+If you are a multi-tenant customer, you can extend the reach of AOE to a tenant other than the one where it was deployed. To achieve this, you must ensure the following pre-requisites:
+
+* Create a service principal (App registration) and a secret in the secondary tenant.
+* Grant the required permissions to the service principal in the secondary tenant, namely **Reader** in Azure subscriptions/management groups and **Global Reader** in Entra ID.
+* Create an [Automation credential](https://learn.microsoft.com/azure/automation/shared-resources/credentials?tabs=azure-powershell#create-a-new-credential-asset) in the AOE's Automation Account, with the service principal's client ID as username and the secret as password.
+* Execute the `Register-MultitenantAutomationSchedules.ps1` script (available in the [AOE root folder](https://aka.ms/AzureOptimizationEngine/code)) in the context of the subscription where AOE was deployed. This script will create new job schedules for each of the export runbooks and configure them to query the secondary tenant. You just have to call the script following the syntax below:
+
+```powershell
+./Register-MultitenantAutomationSchedules.ps1 -AutomationAccountName <AOE automation account> -ResourceGroupName <AOE resource group> -TargetSchedulesSuffix <suffix to append to every new job schedules, e.g., Tenant2> -TargetTenantId <secondary tenant GUID> -TargetTenantCredentialName <name of the Automation credential created in the previous step> [-TargetSchedulesOffsetMinutes <offset in minutes relative to original schedules, defaults to 0>] [-TargetAzureEnvironment <AzureUSGovernment|AzureGermanCloud|AzureCloud>] [-ExcludedRunbooks <An array of runbook names to exclude from the process>] [-IncludedRunbooks <An array of runbook names to include in the process>]
+```
+
 <br>
 
 ## ⏰ Adjust schedules
