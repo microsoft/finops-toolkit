@@ -1,6 +1,6 @@
 ---
 layout: default
-parent: Optimization Engine
+parent: Optimization engine
 title: Reports
 nav_order: 10
 description: 'Visualize the Azure Optimization Engine rich recommendations and insights.'

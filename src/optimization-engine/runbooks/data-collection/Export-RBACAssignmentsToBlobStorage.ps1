@@ -203,8 +203,18 @@ if (-not([string]::IsNullOrEmpty($externalCredentialName)))
 }
 else
 {
-    "Logging in to Microsoft Graph..."
-    Connect-MgGraph -Identity -Environment $graphEnvironment -NoWelcome
+    "Logging in to Microsoft Graph with $authenticationOption..."
+
+    switch ($authenticationOption) {
+        "UserAssignedManagedIdentity" { 
+            Connect-MgGraph -Identity -ClientId $uamiClientID -Environment $graphEnvironment -NoWelcome
+            break
+        }
+        Default { #ManagedIdentity
+            Connect-MgGraph -Identity -Environment $graphEnvironment -NoWelcome
+            break
+        }
+    }
 }
 
 $domainName = (Get-MgDomain | Where-Object { $_.IsVerified -and $_.IsDefault } | Select-Object -First 1).Id

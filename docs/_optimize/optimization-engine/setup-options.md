@@ -1,6 +1,6 @@
 ---
 layout: default
-parent: Optimization Engine
+parent: Optimization engine
 title: Setup options
 nav_order: 50
 description: 'Advanced scenarios for setting up or upgrading AOE.'
@@ -57,16 +57,20 @@ An example of the content of such silent deployment file is:
     "WorkspaceName": "<<ExistingName>>", // mandatory if WorkspaceReuse is set to 'n'
     "WorkspaceResourceGroupName": "<<ExistingName>>", // mandatory if workspaceReuse is set to 'n'
     "DeployWorkbooks": "y", // y = deploy the workbooks, n = don't deploy the workbooks
-    "SqlAdmin": "<<sqlaAdmin>>",
-    "SqlPass": "<<sqlPass>>",
     "TargetLocation": "westeurope",
     "DeployBenefitsUsageDependencies": "y", // deploy the dependencies for the Azure commitments workbooks (EA/MCA customers only + agreement administrator role required)
     "CustomerType": "MCA", // mandatory if DeployBenefitsUsageDependencies is set to 'y', MCA/EA
     "BillingAccountId": "<guid>:<guid>_YYYY-MM-DD", // mandatory if DeployBenefitsUsageDependencies is set to 'y', MCA or EA Billing Account ID
     "BillingProfileId": "ABCD-DEF-GHI-JKL", // mandatory if CustomerType is set to 'MCA"
     "CurrencyCode": "EUR" // mandatory if DeployBenefitsUsageDependencies is set to 'y'
-  }
-  
+  } 
+```
+
+When silently deploying AOE, which typically happens in automated continuous deployment workflows, you might want to leverage SQL Entra ID authentication
+parameters, for example to grant the SQL administrator role to an Entra ID group having the workflow automation service principal as member. For example:
+
+```powershell
+.\Deploy-AzureOptimizationEngine.ps1 -SilentDeploymentSettingsPath "<path to deployment settings file>" -SqlAdminPrincipalType Group -SqlAdminPrincipalName "<Group Name>" -SqlAdminPrincipalObjectId "<Group Object GUID>"
 ```
 
 ## 🤝 Enabling Azure commitments workbooks

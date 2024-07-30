@@ -1,6 +1,6 @@
 ---
 layout: default
-parent: Optimization Engine
+parent: Optimization engine
 title: Configuring workspaces
 nav_order: 30
 description: 'Include the VM performance logs available in your Log Analytics workspaces to get deeper insights and more accurate results.'
