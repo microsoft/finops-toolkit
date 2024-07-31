@@ -181,7 +181,7 @@ Managed exports allow FinOps hubs to setup and maintain Cost Management exports 
 
 ## 🖥️ Configure exports via PowerShell
 
-If this is the first time you are using the FinOps toolkit PowerShell module , refer to the [PowerShell](/docs/_automation/powershell/README.md) deployment guide to install the module.
+If this is the first time you are using the FinOps toolkit PowerShell module, refer to the [PowerShell](../../_automation/powershell/README.md) deployment guide to install the module.
 
 1. Install the FinOps toolkit PowerShell module.
 
