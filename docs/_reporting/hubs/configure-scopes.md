@@ -65,7 +65,7 @@ Managed exports allow FinOps hubs to setup and maintain Cost Management exports 
      - EA departments – [Assign department reader role permission](https://learn.microsoft.com/azure/cost-management-billing/manage/assign-roles-azure-service-principals#assign-enrollment-account-role-permission-to-the-spn).
      - Subscriptions and resource groups – [Assign Azure roles using the Azure portal](https://learn.microsoft.com/azure/role-based-access-control/role-assignments-portal).
 
-    <!--
+<!--
     ### Enterprise agreement billing accounts and departments
    
     1. [Find your enrollment (and department) Id](https://learn.microsoft.com/azure/cost-management-billing/manage/view-all-accounts#switch-billing-scope-in-the-azure-portal).
@@ -86,7 +86,7 @@ Managed exports allow FinOps hubs to setup and maintain Cost Management exports 
          -BillingAccountId 12345 `                        # Enrollment Id
          -DepartmentId 67890                              # Department Id
         ```
-    -->
+-->
 
 2. **Add the desired scopes.**
 
@@ -101,11 +101,11 @@ Managed exports allow FinOps hubs to setup and maintain Cost Management exports 
 
 3. **Backfill historical data.**
 
-   As soon as you configure a new scope, FinOps hubs will start to monitor current and future costs. To backfill historical data, you must run the **msexports_backfill** pipeline.
+   As soon as you configure a new scope, FinOps hubs will start to monitor current and future costs. To backfill historical data, you must run the **config_RunBackfill** pipeline.
 
    To run the pipeline from the Azure portal:
 
-   1. From the FinOps hub resource group, open the Data Factory instance, select **Launch Studio**, and navigate to **Author** > **Pipelines** > **msexports_backfill**.
+   1. From the FinOps hub resource group, open the Data Factory instance, select **Launch Studio**, and navigate to **Author** > **Pipelines** > **config_RunBackfill**.
    2. Select **Debug** in the command bar to run the pipeline. The total run time will vary depending on the retention period and number of scopes you're monitoring.
 
    To run the pipeline from PowerShell:
@@ -118,7 +118,7 @@ Managed exports allow FinOps hubs to setup and maintain Cost Management exports 
        Invoke-AzDataFactoryV2Pipeline `
          -ResourceGroupName $_.ResourceGroupName `
          -DataFactoryName $_.DataFactoryName `
-         -PipelineName 'msexports_backfill'
+         -PipelineName 'config_RunBackfill'
    }
    ```
 
@@ -154,6 +154,19 @@ Managed exports allow FinOps hubs to setup and maintain Cost Management exports 
   ]
   ```
 
+- Multiple subscriptions
+
+  ```json
+  "scopes": [
+    {
+      "scope": "/subscriptions/00000000-0000-0000-0000-000000000000"
+    },
+    {
+      "scope": "subscriptions/00000000-0000-0000-0000-000000000001"
+    }
+  ]
+  ```
+
 - Resource group
 
   ```json
@@ -167,6 +180,8 @@ Managed exports allow FinOps hubs to setup and maintain Cost Management exports 
 <br>
 
 ## 🖥️ Configure exports via PowerShell
+
+If this is the first time you are using the FinOps toolkit PowerShell module, refer to the [PowerShell](../../_automation/powershell/README.md) deployment guide to install the module.
 
 1. Install the FinOps toolkit PowerShell module.
 

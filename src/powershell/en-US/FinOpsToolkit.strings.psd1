@@ -6,8 +6,8 @@ ConvertFrom-StringData -StringData @'
     Common_ContextNotFound = Could not retrieve Az context. Run Az-Login.
     Common_ErrorResponse = {0} (Code: {1}).
 
-    CostExport_Remove_NotFound = Cost Management export not found. Operation failed with message: '{0}' (Code: {1}).
-    CostExport_Remove_Failed = Delete Cost Management export operation failed with message: '{0}' (Code: {1}).
+    CostExport_Common_NotFoundFormat = Cost Management export '{0}' not found. Export ID: {1}/providers/Microsoft.CostManagement/exports/{0}.
+    CostExport_Remove_DeleteFailedFormat = Unable to delete Cost Management export '{0}': '{1}' (Code: {2}).
 
     Hub_Deploy_Deploy = Deploying FinOps hub '{0}' to resource group '{1}'.
     Hub_Deploy_TemplateNotFound = Could not find template 'main.bicep' at path '{0}'.

@@ -45,9 +45,11 @@ New to FinOps? Start with a quick intro and get to know the principles:
 
 - [What is FinOps?](./_docs/what-is-finops.md) – Quick introduction to FinOps.
 - [FinOps on Azure e-book](https://aka.ms/finops/ebook) – Executive walkthrough of the FinOps principles.
+- [Get started with FinOps](https://aka.ms/finops/learn/start) – Self-paced FinOps introduction.
 
 Start implementing FinOps capabilities or learn how to mature your FinOps practice:
 
+- [Adopt FinOps on Azure](https://aka.ms/finops/learn/adopt) – Learn FinOps capabilities at your own pace.
 - [Conduct a FinOps iteration](./_docs/conduct-an-iteration.md) – Plan your first or next iteration.
 - [FinOps review assessment](https://aka.ms/finops/review) – Review and refine your process.
 - [FinOps Framework](./_docs/framework/README.md) – Implement FinOps in the Microsoft Cloud.
@@ -166,6 +168,7 @@ All the main changes are tracked in the changelog. For additional details, refer
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/ripadrao"><img src="https://avatars.githubusercontent.com/u/61794401?v=4?s=100" width="100px;" alt="ripadrao"/><br /><sub><b>ripadrao</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=ripadrao" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/pedrocsousa"><img src="https://avatars.githubusercontent.com/u/99349050?v=4?s=100" width="100px;" alt="Pedro Sousa"/><br /><sub><b>Pedro Sousa</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=pedrocsousa" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/KevDLR"><img src="https://avatars.githubusercontent.com/u/86437159?v=4?s=100" width="100px;" alt="Kevin De La Rosa"/><br /><sub><b>Kevin De La Rosa</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=KevDLR" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/ro100e"><img src="https://avatars.githubusercontent.com/u/59753782?v=4?s=100" width="100px;" alt="Robel"/><br /><sub><b>Robel</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=ro100e" title="Documentation">📖</a></td>
     </tr>
   </tbody>
 </table>
