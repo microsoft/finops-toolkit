@@ -17,6 +17,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
+- [🚚 v0.5](#-v05)
 - [🚚 v0.4](#-v04)
 - [🚚 v0.3](#-v03)
 - [🚚 v0.2](#-v02)
@@ -67,19 +68,13 @@ Legend:
 
 <sup>Released August 2024</sup>
 
-🏦 FinOps hubs
+🖥️ PowerShell
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
-> 1. Added an optional `skipEventGridRegistration` template parameter to support skipping Event Grid RP registration.
-> 2. Added an Event Grid section to the hubs create form.
->
-> ✏️ Changed:
->
-> 1. Changed the Event Grid location selection logic to only identify fallback regions rather than supported regions.
-
-<br>
+> 1. Added support for FOCUS, pricesheet, and reservation dataset filters in [Get-FinOpsCostExport](../_automation/powershell/cost/Get-FinOpsCostExport.md).
+> 2. Added a `-DatasetVersion` filter in [Get-FinOpsCostExport](../_automation/powershell/cost/Get-FinOpsCostExport.md).
 
 ## 🚚 v0.4
 
