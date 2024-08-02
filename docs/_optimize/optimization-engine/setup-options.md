@@ -73,6 +73,10 @@ parameters, for example to grant the SQL administrator role to an Entra ID group
 .\Deploy-AzureOptimizationEngine.ps1 -SilentDeploymentSettingsPath "<path to deployment settings file>" -SqlAdminPrincipalType Group -SqlAdminPrincipalName "<Group Name>" -SqlAdminPrincipalObjectId "<Group Object GUID>"
 ```
 
+<blockquote class="note" markdown="1">
+  When deploying AOE with non-user identities (service principals), you must ensure you assign a system identity to the AOE SQL Server and grant it the `Directory Readers` role in Entra ID. Please follow the steps described [here](https://aka.ms/sqlaadsetup).
+</blockquote>
+
 ## 🤝 Enabling Azure commitments workbooks
 
 In order to leverage the Workbooks that allow you to analyze your Azure commitments usage (`Benefits Usage`, `Reservations Usage` and `Savings Plans Usage`) or estimate the impact of doing additional consumption commitments (`Benefits Simulation` and `Reservations Potential`), you need to configure AOE and grant privileges to its Managed Identity at your consumption agreement level (EA or MCA). If you could not do it during setup/upgrade, you can still execute those extra configuration steps, provided you do it with a user that is **both Contributor in the AOE resource group and have administrative privileges over the consumption agreement** (Enterprise Enrollment Administrator for EA or Billing Profile Owner for MCA). You just have to use the `Setup-BenefitsUsageDependencies.ps1` script following the syntax below and answer the input requests:
