@@ -80,7 +80,9 @@ Managed exports allow FinOps hubs to setup and maintain Cost Management exports 
 ![Screenshot of the hubs supported scopes](https://raw.githubusercontent.com/microsoft/finops-toolkit/11b24a372b9bd57e7829c4224e2569647908b261/src/images/hubs-scopes.jpg)
 
 
-> **Note:** Managed exports are only available in FinOps hubs 0.4 and beyond.
+<blockquote class="note" markdown="1">
+  _Managed exports are only available in FinOps hubs 0.4 and beyond._
+</blockquote>
 
 Managed exports use a managed identity (MI) to configure the exports automatically. Follow these steps to set it up:
 
