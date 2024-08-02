@@ -34,8 +34,6 @@ FinOps hubs uses Cost Management exports to import cost data for the billing acc
 
 For the most seamless experience, we recommend allowing FinOps hubs to manage exports for you when possible. This option requires the least effort to maintain over time.
 
-<!-- TODO: The  sentence above can be changed when ME can be configured through UI and not command line -->
-
 <br>
 
 
