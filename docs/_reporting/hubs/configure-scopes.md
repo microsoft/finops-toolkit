@@ -41,7 +41,7 @@ For the most seamless experience, we recommend allowing FinOps hubs to manage ex
 
 Manual exports are available if you cannot grant permissions for your scope. This method allows you to create Cost Management exports to accomplish the same goal.
 
-1. [Create a new FOCUS cost export](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data?tabs=azure-portal) using the following settings:
+1. [Create a new FOCUS cost export](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-improved-exports) using the following settings:
 
    <!-- TODO: Replace the portal link with the docs link when exports v2 docs are available. -->
 
