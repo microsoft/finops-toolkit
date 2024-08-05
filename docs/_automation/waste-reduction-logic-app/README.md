@@ -8,31 +8,31 @@ Use the following steps to deploy the Logic App
 1. Create a new **Custom Deployment**
     > [!IMPORTANT]
     > The logic app needs to be in the same region as its resource group
-   * Navigate to **Deploy a custom template** and select **Build your own template in the editor**
-   * You will see a blank template.
-   * You can either load the Bicep file "**Waste Reduction Logic App**" or replace the blank template with the code.
-   * Select  **Save**.
-   * Then select  **Review + create**
-   * After the portal validates the template, select  **Create**.
+   * Select one of the following options to deploy the **main.bicep** Logic App file
+     * [Cloud Shell](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-cloud-shell?tabs=azure-cli)
+     * [PowerShell](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-powershell)
+     * [VS Code](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-vscode)
+     * [CLI](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-cli)
+   * Verify the deployment is successful
 
 2. Authorize Connection
     > [!NOTE]
-    > After the deployment is complete, the API connection will have an error. This is expected and will be fixed after authorizing the connection.  
+    > After the deployment is complete, the API connection will have an error. This is expected and will be fixed after authorizing the connection
 
-   * Select the **API connection** resource, then select **Edit API Connection** in the General tab to authorize the connection.
+   * Select the **API connection** resource, then select **Edit API Connection** in the General tab to authorize the connection
     ![Edit API connection page](images/Edit-API-connection.png)
    * Select **Authorize**
 
     <br>
   
     > [!IMPORTANT]
-    > The account authorizing the connection will be used by the Logic App to send the Alerts.
+    > The account authorizing the connection will be used by the Logic App to send the Alerts
 
    * Select **Save** after the authorization is successful
     ![Authorize & Save page](images/Authorize-&-Save.png)
    * Go back to the **Overview** blade and verify that the **Status: Connected**
 
-3. Create a system-assigned identity to allow the Logic App to "read" the resources in the subscription.
+3. Create a system-assigned identity to allow the Logic App to "read" the resources in the subscription
 
    * Select the **WasteReductionApp**
    * Select **Identity** under the Settings tab and toggle the Status to **On**
