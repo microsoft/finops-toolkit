@@ -125,6 +125,7 @@ Use the following table to update existing automation and reporting solutions to
 ## 🧐 See also
 
 - [How to convert Cost Management data to FOCUS](./convert.md)
+- [How to compare FOCUS with actual/amortized cost](./validate.md)
 - [Data dictionary](../../_resources/data-dictionary.md)
 - [Generating a unique ID](../../_resources/data-dictionary.md#-generating-a-unique-id)
 - [Known issues](../../_resources/data-dictionary.md#-known-issues)
