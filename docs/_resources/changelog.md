@@ -68,25 +68,6 @@ Legend:
 
 <sup>Released August 2024</sup>
 
-🖥️ PowerShell
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. Added support for FOCUS, pricesheet, and reservation dataset filters in [Get-FinOpsCostExport](../_automation/powershell/cost/Get-FinOpsCostExport.md).
-> 2. Added a `-DatasetVersion` filter in [Get-FinOpsCostExport](../_automation/powershell/cost/Get-FinOpsCostExport.md).
-
-🌐 Open data
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ✏️ Changed
->
-> 1. Changed Microsoft Genomics to the "Analytics" service category and "PaaS" service model in the [Services](../_reporting/data/README.md#️-services) open data file.
-
-<br>
-
-## 🚚 v0.4
-
 <sup>Released July 12, 2024</sup>
 
 📗 FinOps guide
