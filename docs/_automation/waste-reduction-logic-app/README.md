@@ -8,7 +8,7 @@ Use the following steps to deploy the Logic App
 1. Create a new **Custom Deployment**
     > [!IMPORTANT]
     > The logic app needs to be in the same region as its resource group
-   * Select one of the following options to deploy the **main.bicep** Logic App file
+   * Select one of the following options to deploy the [main.bicep](https://github.com/microsoft/finops-toolkit/blob/f81e0669ddf104e3db1d5fe21b470f0231e4d936/src/logic-apps/waste-reduction/main.bicep).
      * [Cloud Shell](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-cloud-shell?tabs=azure-cli)
      * [PowerShell](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-powershell)
      * [VS Code](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/deploy-vscode)
