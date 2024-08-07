@@ -125,6 +125,24 @@ Legend:
 > 1. Changed Microsoft Genomics to the "Analytics" service category and "PaaS" service model in the [Services](../_reporting/data/README.md#️-services) open data file.
 
 
+🔍 Optimization engine
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. `Register-MultitenantAutomationSchedules` PowerShell script helper to [add a different Azure tenant to the scope of AOE](../_optimize/optimization-engine/customize.md).
+> 2. ZRS disks included in the scope of the `Premium SSD disk has been underutilized` recommendation (besides LRS).
+> 3. Option to scope consumption exports to MCA Billing Profile.
+>
+> ✏️ Changed:
+>
+> 1. Improved SQL Database security, replacing SQL authentication by Entra ID authentication-only.
+>
+> 🛠️ Fixed:
+>
+> 1. `Premium SSD disk has been underutilized` recommendation was not showing results due to a meter name change in Cost Management ([#831](https://github.com/microsoft/finops-toolkit/issues/831)).
+> 2. Consumption exports for Pay-As-You-Go MCA subscriptions were missing cost data ([#828](https://github.com/microsoft/finops-toolkit/issues/828))
+
 <br>
 
 
