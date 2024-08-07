@@ -14,12 +14,18 @@ Sorry to hear you're having a problem. We're here to help!
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [BadHubVersion](#badhubversion)
+- [ContractedCostMissing](#contractedcostmissing)
+- [ContractedUnitPriceMissing](#contractedunitpricemissing)
 - [InvalidExportContainer](#invalidexportcontainer)
 - [InvalidExportVersion](#invalidexportversion)
 - [InvalidHubVersion](#invalidhubversion)
 - [InvalidScopeId](#invalidscopeid)
 - [ExportDataNotFound](#exportdatanotfound)
 - [HubDataNotFound](#hubdatanotfound)
+- [MissingContractedCost](#missingcontractedcost)
+- [MissingContractedUnitPrice](#missingcontractedunitprice)
+- [MissingListCost](#missinglistcost)
+- [MissingListUnitPrice](#missinglistunitprice)
 - [ManifestReadFailed](#manifestreadfailed)
 - [ResourceAccessForbiddenException](#resourceaccessforbiddenexception)
 - [RoleAssignmentUpdateNotPermitted](#roleassignmentupdatenotpermitted)
@@ -55,6 +61,28 @@ FinOps hubs 0.2 is not operational. Please upgrade to version 0.3 or later.
 **Mitigation**: Upgrade to the latest version of [FinOps hubs](../_reporting/hubs/README.md).
 
 <br>
+
+## ContractedCostMissing
+
+<sup>Severity: Informational</sup>
+
+This error code is shown in the `x_DatasetChanges` column when `ContractedCost` is either null or 0 and `EffectiveCost` is greater than 0. The error indicates Microsoft Cost Management did not include `ContractedCost` for the specified rows, which means savings cannot be calculated.
+
+**Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `EffectiveCost` into the `ContractedCost` column for rows flagged with this error code. Savings will not be available for these records.
+
+To calculate complete savings, you can join cost and usage data with prices. For additional details, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
+
+<br>
+
+## ContractedUnitPriceMissing
+
+<sup>Severity: Informational</sup>
+
+This error code is shown in the `x_DatasetChanges` column when `ContractedUnitPrice` is either null or 0 and `EffectiveUnitPrice` is greater than 0. The error indicates Microsoft Cost Management did not include `ContractedUnitPrice` for the specified rows, which means savings cannot be calculated.
+
+**Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `EffectiveUnitPrice` into the `ContractedUnitPrice` column for rows flagged with this error code. Savings will not be available for these records.
+
+To calculate complete savings, you can join cost and usage data with prices. For additional details, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
 
 ## InvalidExportContainer
 
@@ -121,6 +149,54 @@ FinOps hub data was not found in the specified storage account.
 5. FinOps hub data factory pipelines should be successful.
 
 For more details and debugging steps, see [Validate your FinOps hub deployment](./troubleshooting.md#-validate-your-finops-hub-deployment).
+
+<br>
+
+## MissingContractedCost
+
+<sup>Severity: Informational</sup>
+
+This error code is shown in the `x_DatasetChanges` column when `ContractedCost` is either null or 0 and `EffectiveCost` is greater than 0. The error indicates Microsoft Cost Management did not include `ContractedCost` for the specified rows, which means savings cannot be calculated.
+
+**Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `EffectiveCost` into the `ContractedCost` column for rows flagged with this error code. Savings will not be available for these records.
+
+To calculate complete savings, you can join cost and usage data with prices. For additional details, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
+
+<br>
+
+## MissingContractedUnitPrice
+
+<sup>Severity: Informational</sup>
+
+This error code is shown in the `x_DatasetChanges` column when `ContractedUnitPrice` is either null or 0 and `EffectiveUnitPrice` is greater than 0. The error indicates Microsoft Cost Management did not include `ContractedUnitPrice` for the specified rows, which means savings cannot be calculated.
+
+**Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `EffectiveUnitPrice` into the `ContractedUnitPrice` column for rows flagged with this error code. Savings will not be available for these records.
+
+To calculate complete savings, you can join cost and usage data with prices. For additional details, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
+
+<br>
+
+## MissingListCost
+
+<sup>Severity: Informational</sup>
+
+This error code is shown in the `x_DatasetChanges` column when `ListCost` is either null or 0 and `ContractedCost` is greater than 0. The error indicates Microsoft Cost Management did not include `ListCost` for the specified rows, which means savings cannot be calculated.
+
+**Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `ContractedCost` into the `ListCost` column for rows flagged with this error code. Savings will not be available for these records.
+
+To calculate complete savings, you can join cost and usage data with prices. For additional details, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
+
+<br>
+
+## MissingListUnitPrice
+
+<sup>Severity: Informational</sup>
+
+This error code is shown in the `x_DatasetChanges` column when `ListUnitPrice` is either null or 0 and `ContractedUnitPrice` is greater than 0. The error indicates Microsoft Cost Management did not include `ListUnitPrice` for the specified rows, which means savings cannot be calculated.
+
+**Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `ContractedUnitPrice` into the `ListUnitPrice` column for rows flagged with this error code. Savings will not be available for these records.
+
+To calculate complete savings, you can join cost and usage data with prices. For additional details, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
 
 <br>
 

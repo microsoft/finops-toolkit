@@ -86,6 +86,13 @@ Legend:
 >      - List cost/price are set to contracted cost/price when not available.
 >      - This means savings can be calculated, but will not be complete.
 >      - Refer to the DQ page for details about missing or updated data.
+>   2. Added support for pointing Power BI reports to directly to Cost Management exports (without FinOps hubs).
+>   3. Added new tables for Prices, ReservationDetails, ReservationRecommendations, and ReservationTransactions (works with exports only; does not work with hubs).
+> - [Rate optimization](../_reporting/power-bi/rate-optimization.md)
+>   1. Commitment savings no longer filters out rows with missing list/contracted cost.
+>      - Since `ListCost` and `ContractedCost` are set to a fallback value when not included in Cost Management data, we can now calculate partial savings.
+>      - Calculated savings is still incomplete since we do not have accurate list/contracted cost values.
+>   2. Merged shared and single reservation recommendations into a single [Reservation recommendations](../_reporting/power-bi/rate-optimization.md#reservation-recommendations) page.
 >
 > 🛠️ Fixed:
 >

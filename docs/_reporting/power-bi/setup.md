@@ -50,26 +50,24 @@ The FinOps toolkit Power BI reports include pre-configured visuals, but are not 
    - `FinOps hubs` requires [Storage Blob Data Reader](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-reader) access to the storage account deployed with your hub.
 -->
 
-1. If connecting to a FinOps hub instance, set the following properties:
+1. If connecting to exports or a FinOps hub instance, set the following properties:
 
-   - **Storage URL** is the URL of your hub storage account. Copy this value from the portal:
-     1. Open the [list of resource groups](https://portal.azure.com/#view/HubsExtension/BrowseResourceGroups) in the Azure portal.
-     2. Select the hub resource group.
-     3. Select Deployments in the menu.
-     4. Select the **hub** deployment.
-     5. Select **Outputs**.
-     6. Copy the value for `storageUrlForPowerBI`.
-   - If you customized the deployment to use compressed CSV instead of Parquet, change **FileType** to `.gz`. Most people will not change this.
+   - **Storage URL** is the URL of your storage account. You can copy this value from the portal.
+     - For FinOps hubs:
+       1. Open the [list of resource groups](https://portal.azure.com/#view/HubsExtension/BrowseResourceGroups) in the Azure portal.
+       2. Select the hub resource group.
+       3. Select Deployments in the menu.
+       4. Select the **hub** deployment.
+       5. Select **Outputs**.
+       6. Copy the value for `storageUrlForPowerBI`.
    - Change **RangeStart** and **RangeEnd** to the desired start/end dates for your report. The default is the current calendar year. Consider using your fiscal year.
      <blockquote class="warning" markdown="1">
        _[Enable incremental refresh](https://learn.microsoft.com/power-bi/connect-data/incremental-refresh-configure#define-policy) to load more than $5M of raw cost details. Power BI reports can only support $2-5M of data when incremental refresh is not enabled. After incremental refresh is enabled, they can support $2-5M/month for a total of ~$65M in raw cost details._
      </blockquote>
-   - **CM connector** settings are required for any reports that rely on data not supported in FinOps hubs yet (i.e., actual costs, reservation recommendations). Be sure to also supply those settings in the next section.
-   - Actual costs are included by default when the connector details are specified. If you do not want to include actual cost data from the Cost Management connector, open the **CostDetails** query in the advanced editor and change the `2` to a `1`. This will avoid calling the Cost Management connector.
 
    ![Screenshot of instructions to connect to a FinOps hub](https://github.com/microsoft/finops-toolkit/assets/399533/5582b428-e811-4d7e-83d0-4a8fbb905d30)
 
-2. If using the [Cost Management connector report](./connector.md) or [Rate optimization report](./rate-optimization.md), set the following properties in the **🛠️ Setup** > **CM connector** folder:
+2. If using the [Cost Management connector report](./connector.md), set the following properties in the **🛠️ Setup** > **CM connector** folder:
 
    - **Scope** is your EA enrollment number or MCA scope ID.
      - A "scope ID" is a fully-qualified Azure resource ID for the MCA billing account or billing profile you want to connect to.
@@ -137,18 +135,19 @@ If you don't need any of the custom columns and measures provided by the FinOps 
 
 If using the Cost Management connector, refer to [Create visuals and reports with the Cost Management connector](https://learn.microsoft.com/power-bi/connect-data/desktop-connect-azure-cost-management).
 
-If using FinOps hubs, you'll use the Azure Data Lake Storage Gen2 connector:
+If using exports or FinOps hubs, you'll use the Azure Data Lake Storage Gen2 connector:
 
 1. Open your desired report in Power BI Desktop.
 2. Select **Get data** in the toolbar.
 3. Search for `lake` and select **Azure Data Lake Storage Gen2**
-4. Set the URL using deployment outputs:
-   1. Open the [list of resource groups](https://portal.azure.com/#view/HubsExtension/BrowseResourceGroups) in the Azure portal.
-   2. Select the hub resource group.
-   3. Select Deployments in the menu.
-   4. Select the **hub** deployment.
-   5. Select **Outputs**.
-   6. Copy the value for `storageUrlForPowerBI`.
+4. Set the URL of your storage account.
+   - If using FinOps hubs, copy the URL from deployment outputs:
+     1. Open the [list of resource groups](https://portal.azure.com/#view/HubsExtension/BrowseResourceGroups) in the Azure portal.
+     2. Select the hub resource group.
+     3. Select Deployments in the menu.
+     4. Select the **hub** deployment.
+     5. Select **Outputs**.
+     6. Copy the value for `storageUrlForPowerBI`.
 5. Select the **OK** button.
    <blockquote class="warning" markdown="1">
       _If you receive an "Access to the resource is forbidden" error, grant the account loading data in Power BI the [Storage Blob Data Reader role](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-reader)._

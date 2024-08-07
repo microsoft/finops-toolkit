@@ -13,14 +13,6 @@ table Prices
 
 		annotation SummarizationSetBy = Automatic
 
-	column BillingAccountName
-		dataType: string
-		lineageTag: db49c580-84b6-4aca-b7da-7fbf917ce2ee
-		summarizeBy: none
-		sourceColumn: BillingAccountName
-
-		annotation SummarizationSetBy = Automatic
-
 	column BillingCurrency
 		dataType: string
 		lineageTag: 83a303a4-023f-41c9-8f55-8ab5fc8bac44
@@ -151,14 +143,6 @@ table Prices
 
 		annotation SummarizationSetBy = Automatic
 
-	column x_BillingProfileName
-		dataType: string
-		lineageTag: a1077a2a-29b2-4e8a-809f-d02d13b68db0
-		summarizeBy: none
-		sourceColumn: x_BillingProfileName
-
-		annotation SummarizationSetBy = Automatic
-
 	column x_DatasetType
 		dataType: string
 		lineageTag: f3f8b960-c332-4b5b-a76a-097e1551799e
@@ -204,14 +188,6 @@ table Prices
 		lineageTag: e7bab184-be37-45f3-8fc8-012ac641b0d1
 		summarizeBy: none
 		sourceColumn: x_SkuDescription
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_SkuId
-		dataType: string
-		lineageTag: d6128623-8b94-4bc7-b9e7-e16d6a8fde00
-		summarizeBy: none
-		sourceColumn: x_SkuId
 
 		annotation SummarizationSetBy = Automatic
 
@@ -297,21 +273,15 @@ table Prices
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
-	column x_SkuTierMinimum
-		dataType: string
-		lineageTag: 995fc192-f017-4061-8935-1620ae569abe
-		summarizeBy: none
-		sourceColumn: x_SkuTierMinimum
-
-		annotation SummarizationSetBy = Automatic
-
 	column x_SkuIncludedQuantity
-		dataType: string
+		dataType: double
 		lineageTag: dd01c686-b624-4782-9a05-7c57a6817f1c
-		summarizeBy: none
+		summarizeBy: sum
 		sourceColumn: x_SkuIncludedQuantity
 
 		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column x_SkuOfferId
 		dataType: string
@@ -326,6 +296,14 @@ table Prices
 		lineageTag: bffe87e9-8706-423e-909c-514a76d545c4
 		summarizeBy: none
 		sourceColumn: x_SkuPartNumber
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'SkuID 2'
+		dataType: string
+		lineageTag: ac6585ce-79ef-45e1-a13d-5fc4a7639517
+		summarizeBy: none
+		sourceColumn: SkuID
 
 		annotation SummarizationSetBy = Automatic
 
@@ -429,7 +407,7 @@ table Prices
 				        "CommitmentDiscountCategory", each if [x_SkuPriceType] = "Reservation" then "Usage"       else if [x_SkuPriceType] = "SavingsPlan" then "Spend" else null),
 				        "CommitmentDiscountType",     each if [x_SkuPriceType] = "Reservation" then "Reservation" else if [x_SkuPriceType] = "SavingsPlan" then "Savings Plan" else null),
 				        "SkuId",      each [x_SkuProductId]),
-				        "SkuPriceId", each [x_SkuProductId] & "_" & [x_SkuId] & "_" & [x_SkuMeterType]),
+				        "SkuPriceId", each [x_SkuProductId] & "_" & (if Table.HasColumns(Rename, {"x_SkuId"}) and [x_SkuId] <> null and [x_SkuId] <> "" then [x_SkuId] else "(MISSING-SKU-ID)") & "_" & [x_SkuMeterType]),
 				
 				    // Sort columns alphabetically
 				    Output = Table.ReorderColumns(Add, List.Sort(Table.ColumnNames(Add)))
