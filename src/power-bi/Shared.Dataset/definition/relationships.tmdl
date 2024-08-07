@@ -1,32 +1,3 @@
-relationship 4009bfcd-18b8-46b4-88c5-71ea97f03b6b
-	joinOnDateBehavior: datePartOnly
-	fromColumn: RecommendationsShared.firstUsageDate
-	toColumn: LocalDateTable_7db3b421-e9d8-4995-932d-7b77ee85eed9.Date
-
-relationship 897e9400-2166-4689-8658-79e60dd0a94a
-	isActive: false
-	crossFilteringBehavior: bothDirections
-	toCardinality: many
-	fromColumn: RecommendationsShared.NormalizedSizeKey
-	toColumn: InstanceSizeFlexibility.x_CommitmentDiscountKeyNormalized
-
-relationship 6cb90943-2588-4c7d-82cf-c4fda982a683
-	crossFilteringBehavior: bothDirections
-	toCardinality: many
-	fromColumn: RecommendationsShared.Key
-	toColumn: InstanceSizeFlexibility.x_CommitmentDiscountKeyNormalized
-
-relationship 41f5bd29-6d77-4189-b18c-a58c8cdcd18f
-	joinOnDateBehavior: datePartOnly
-	fromColumn: RecommendationsSingle.firstUsageDate
-	toColumn: LocalDateTable_b00da7a2-2588-4e52-8b54-e94792ea3ba8.Date
-
-relationship f1681103-e1fe-4574-9084-0d7d8cdb021d
-	crossFilteringBehavior: bothDirections
-	toCardinality: many
-	fromColumn: RecommendationsSingle.Key
-	toColumn: InstanceSizeFlexibility.x_CommitmentDiscountKeyNormalized
-
 relationship 1e7240a9-35aa-44e6-85fa-0adeb590b43d
 	joinOnDateBehavior: datePartOnly
 	fromColumn: CostDetails.ChargePeriodStart

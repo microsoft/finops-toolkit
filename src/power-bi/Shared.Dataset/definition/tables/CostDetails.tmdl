@@ -130,12 +130,13 @@ table CostDetails
 
 	column ListCost
 		dataType: double
-		formatString: #,0.00
 		lineageTag: 93c7a3c3-4c49-48ba-aa44-1f71b6059922
 		summarizeBy: sum
 		sourceColumn: ListCost
 
 		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column CommitmentDiscountId
 		dataType: string
@@ -245,12 +246,13 @@ table CostDetails
 
 	column ListUnitPrice
 		dataType: double
-		formatString: 0.000
 		lineageTag: db17aa29-c7bf-4038-b91d-716d3f8bc4de
-		summarizeBy: none
+		summarizeBy: sum
 		sourceColumn: ListUnitPrice
 
-		annotation SummarizationSetBy = User
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column PricingCategory
 		dataType: string
@@ -1260,35 +1262,11 @@ table CostDetails
 
 		annotation SummarizationSetBy = Automatic
 
-	column Region
+	column x_DatasetChanges
 		dataType: string
-		lineageTag: e0f0e5f0-faa9-4fcb-80d0-aecc77dde970
+		lineageTag: 7162fa87-5d0f-45cd-b887-eadfe2748190
 		summarizeBy: none
-		sourceColumn: Region
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_OnDemandCost
-		dataType: string
-		lineageTag: 0f7102c5-a9ac-4f32-93bd-44603c64592c
-		summarizeBy: none
-		sourceColumn: x_OnDemandCost
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_OnDemandCostInUsd
-		dataType: string
-		lineageTag: 8b84f047-d534-4f9b-ba14-7a70b609db48
-		summarizeBy: none
-		sourceColumn: x_OnDemandCostInUsd
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_OnDemandUnitPrice
-		dataType: string
-		lineageTag: ea7f7c56-de5c-4b6e-a201-ec0cbdc36212
-		summarizeBy: none
-		sourceColumn: x_OnDemandUnitPrice
+		sourceColumn: x_DatasetChanges
 
 		annotation SummarizationSetBy = Automatic
 
@@ -1341,8 +1319,8 @@ table CostDetails
 				                RemovePreviewCols
 				        ) else RawData,
 				
-				    // Fix types
-				    FixTypes = Table.TransformColumnTypes(
+				    // Fix known bugs and set datatyps
+				    Fixes = Table.TransformColumnTypes(
 				        // Data fixes
 				// TODO: BUG: SkuId == SkuPriceId for EA???
 				        Table.ReplaceValue(Table.ReplaceValue(
@@ -1379,19 +1357,46 @@ table CostDetails
 				            {"x_BillingExchangeRate",     type number},
 				            {"x_PartnerCreditRate",       type number},
 				            {"x_PricingBlockSize",        type number},
-				            {"x_SkuTerm",                 type text}  // Text due to a bug in CM data; converted to a number below
+				            {"x_SkuTerm",                 type number}
 				            // TODO: {"x_SkuIsCreditEligible",   type logical}
 				            // TODO: {"x_PartnerCreditApplied",  type logical}
 				        }
 				    ),
 				
-				    Add = Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
-				        FixTypes,
+				    // Identify and fix known issues
+				    Changes = Table.TransformColumnTypes(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(
+				        Table.AddColumn(Fixes, "x_DatasetChanges",
+				            each let
+				                value = Text.Combine(List.RemoveNulls({
+				                    if ([ListCost] = null            or [ListCost] = 0)            and ([ContractedCost] <> 0      or [EffectiveCost] <> 0)        then "MissingListCost"            else null,
+				                    if ([ListUnitPrice] = null       or [ListUnitPrice] = 0)       and ([ContractedUnitPrice] <> 0 or [x_EffectiveUnitPrice] <> 0) then "MissingListUnitPrice"       else null,
+				                    if ([ContractedCost] = null      or [ContractedCost] = 0)      and [EffectiveCost] <> 0                                        then "MissingContractedCost"      else null,
+				                    if ([ContractedUnitPrice] = null or [ContractedUnitPrice] = 0) and [x_EffectiveUnitPrice] <> 0                                 then "MissingContractedUnitPrice" else null
+				                }), ","),
+				                output = if _isBlank(value) then null else value
+				            in
+				                output
+				        ),
+				        each [ContractedCost],      each if Text.Contains([x_DatasetChanges], "MissingContractedCost")      then [EffectiveCost]        else [ContractedCost],      Replacer.ReplaceValue, {"ContractedCost"}),
+				        each [ContractedUnitPrice], each if Text.Contains([x_DatasetChanges], "MissingContractedUnitPrice") then [x_EffectiveUnitPrice] else [ContractedUnitPrice], Replacer.ReplaceValue, {"ContractedUnitPrice"}),
+				        each [ListCost],            each if Text.Contains([x_DatasetChanges], "MissingListCost")            then [ContractedCost]       else [ListCost],            Replacer.ReplaceValue, {"ListCost"}),
+				        each [ListUnitPrice],       each if Text.Contains([x_DatasetChanges], "MissingListUnitPrice")       then [ContractedUnitPrice]  else [ListUnitPrice],       Replacer.ReplaceValue, {"ListUnitPrice"}),
+				        {
+				            {"ContractedCost",            type number},
+				            {"ContractedUnitPrice",       type number},
+				            {"EffectiveCost",             type number},
+				            {"ListCost",                  type number},
+				            {"ListUnitPrice",             type number},
+				            {"x_EffectiveUnitPrice",      type number}
+				        }
+				    ),
+				
+				    Add = Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
+				        Changes,
 				        // Parse arrays
-				        "x_SkuDetailsDictionary", each if _isBlank([x_SkuDetails]) then {} else try Json.Document([x_SkuDetails]) otherwise {}),
-				        "x_TagsDictionary",       each if _isBlank([Tags])         then {} else try Json.Document([Tags])         otherwise {}),
+				        "x_SkuDetailsDictionary", each if _isBlank([x_SkuDetails]) then [] else try Json.Document([x_SkuDetails]) otherwise []),
+				        "x_TagsDictionary",       each if _isBlank([Tags])         then [] else try Json.Document([Tags])         otherwise []),
 				        // Commitment metadata
-				        "x_CommitmentDiscountKey",          each [x_SkuType] & [x_SkuMeterId]),
 				        "x_CommitmentUtilizationPotential", each if [CommitmentDiscountCategory] = "Usage" then [ConsumedQuantity] else if [CommitmentDiscountCategory] = "Spend" then [EffectiveCost] else 0, type number),
 				        "x_CommitmentUtilizationAmount",    each if [CommitmentDiscountStatus] = "Used" then [x_CommitmentUtilizationPotential] else 0, type number),
 				        // Savings calculations
@@ -1455,7 +1460,7 @@ table CostDetails
 				    // AHB columns
 				// TODO: Add SQL AHB handling
 				    AHB = Table.RemoveColumns(
-				        Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
+				        Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
 				            Table.TransformColumnTypes(
 				                Table.ExpandRecordColumn(
 				                    Table.ReplaceErrorValues(Table.AddColumn(FTK, "tmp_SkuDetails", each [x_SkuDetailsDictionary]), {{"tmp_SkuDetails", null}}),
@@ -1465,17 +1470,17 @@ table CostDetails
 				                ),
 				                {{"tmp_VMvCPUs", Int64.Type}, {"tmp_SQLvCores", Int64.Type}}
 				            ),
-				            "x_ResourceMachineName", each if _isNotBlank([tmp_VMName]) then [tmp_VMName] else null),
-				            "x_SkuCPUs",          each if [tmp_VMvCPUs] <> null then [tmp_VMvCPUs] else if [tmp_SQLvCores] <> null then [tmp_SQLvCores] else null, Int64.Type),
-				            "x_UsageCPUHours",    each if [x_SkuCPUs] <> null then [x_SkuCPUs] * [ConsumedQuantity] else null, type number),
-				            "x_SkuLicenseStatus", each if _isNotBlank([x_SkuMeterSubcategory]) and Text.Contains([x_SkuMeterSubcategory], "Windows") or [tmp_SQLAHB] = "False" then "Not enabled" else if (_isNotBlank([x_SkuImageType]) and Text.Contains([x_SkuImageType], "Windows Server BYOL")) or [tmp_SQLAHB] = "True" or (_isNotBlank([x_SkuMeterSubcategory]) and Text.Contains([x_SkuMeterSubcategory], "Azure Hybrid Benefit")) then "Enabled" else "Not supported"),
-				            "x_SkuLicenseCPUs",   each if [x_SkuCPUs] = null then 0 else if [x_SkuCPUs] <= 8 then 8 else if [x_SkuCPUs] <= 16 then 16 else if [x_SkuCPUs] = 20 then 24 else if [x_SkuCPUs] > 20 then [x_SkuCPUs] else 0, type number),
+				            "x_ResourceMachineName",   each if _isNotBlank([tmp_VMName]) then [tmp_VMName] else null),
+				            "x_SkuCPUs",               each if [tmp_VMvCPUs] <> null then [tmp_VMvCPUs] else if [tmp_SQLvCores] <> null then [tmp_SQLvCores] else null, Int64.Type),
+				            "x_UsageCPUHours",         each if [x_SkuCPUs] <> null then [x_SkuCPUs] * [ConsumedQuantity] else null, type number),
+				            "x_SkuLicenseStatus",      each if _isNotBlank([x_SkuMeterSubcategory]) and Text.Contains([x_SkuMeterSubcategory], "Windows") or [tmp_SQLAHB] = "False" then "Not enabled" else if (_isNotBlank([x_SkuImageType]) and Text.Contains([x_SkuImageType], "Windows Server BYOL")) or [tmp_SQLAHB] = "True" or (_isNotBlank([x_SkuMeterSubcategory]) and Text.Contains([x_SkuMeterSubcategory], "Azure Hybrid Benefit")) then "Enabled" else "Not supported"),
+				            "x_SkuLicenseCPUs",        each if [x_SkuCPUs] = null then 0 else if [x_SkuCPUs] <= 8 then 8 else if [x_SkuCPUs] <= 16 then 16 else if [x_SkuCPUs] = 20 then 24 else if [x_SkuCPUs] > 20 then [x_SkuCPUs] else 0, type number),
+				            "x_CommitmentDiscountKey", each [x_SkuType] & [x_SkuMeterId]),
 				        { "tmp_AddlReservationOrderId", "tmp_AddlReservationId", "tmp_SQLAHB", "tmp_SQLvCores", "tmp_VMName", "tmp_VMvCPUs" }
 				    ),
 				
 				    // Unique key for the record -- WARNING: This increases the data size significantly.
 				    /*
-				    _addIdSegment = (val) => (if _isNotBlank(val) then "-" & val else ""),
 				    ChargeId = Table.AddColumn(Month, "x_ChargeId", each Text.Combine(List.RemoveItems({
 				        Date.ToText([ChargePeriodStart]),
 				        [x_BillingAccountId],

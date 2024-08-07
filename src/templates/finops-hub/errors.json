@@ -49,6 +49,33 @@
       "mitigation": "If the error occurred on a working hub instance when no changes were made to the hub or export, then Cost Management may have changed the manifest schema for an existing API version. If the error occurred after creating a new or changing an existing export, then the export API version may use a new manifest schema that is not supported yet. If the error occurred after a hub deployment (initial install or upgrade), then the deployment may have failed or there could be a bug in the pipeline. Review the manifest file to determine if 1 or 2 are applicable. Review and redeploy the template if 3 is applicable. Create an issue or start a discussion in GitHub for further assistance as needed."
     },
     {
+      "code": "MissingContractedCost",
+      "severity": "Informational",
+      "message": "This error code is shown in the `x_DatasetChanges` column when `ContractedCost` is either null or 0 and `EffectiveCost` is greater than 0. The error indicates Microsoft Cost Management did not include `ContractedCost` for the specified rows, which means savings cannot be calculated.",
+      "mitigation": "As a workaround to the missing data, FinOps toolkit reports copy the `EffectiveCost` into the `ContractedCost` column for rows flagged with this error code. Savings will not be available for these records. To calculate complete savings, you can join cost and usage data with prices. For additional details, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873)."
+    },
+
+    {
+      "code": "MissingContractedUnitPrice",
+      "severity": "Informational",
+      "message": "This error code is shown in the `x_DatasetChanges` column when `ContractedUnitPrice` is either null or 0 and `EffectiveUnitPrice` is greater than 0. The error indicates Microsoft Cost Management did not include `ContractedUnitPrice` for the specified rows, which means savings cannot be calculated.",
+      "mitigation": "As a workaround to the missing data, FinOps toolkit reports copy the `EffectiveUnitPrice` into the `ContractedUnitPrice` column for rows flagged with this error code. Savings will not be available for these records. To calculate complete savings, you can join cost and usage data with prices. For additional details, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873)."
+    },
+
+    {
+      "code": "MissingListCost",
+      "severity": "Informational",
+      "message": "This error code is shown in the `x_DatasetChanges` column when `ListCost` is either null or 0 and `ContractedCost` is greater than 0. The error indicates Microsoft Cost Management did not include `ListCost` for the specified rows, which means savings cannot be calculated.",
+      "mitigation": "As a workaround to the missing data, FinOps toolkit reports copy the `ContractedCost` into the `ListCost` column for rows flagged with this error code. Savings will not be available for these records. To calculate complete savings, you can join cost and usage data with prices. For additional details, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873)."
+    },
+
+    {
+      "code": "MissingListUnitPrice",
+      "severity": "Informational",
+      "message": "This error code is shown in the `x_DatasetChanges` column when `ListUnitPrice` is either null or 0 and `ContractedUnitPrice` is greater than 0. The error indicates Microsoft Cost Management did not include `ListUnitPrice` for the specified rows, which means savings cannot be calculated.",
+      "mitigation": "As a workaround to the missing data, FinOps toolkit reports copy the `ContractedUnitPrice` into the `ListUnitPrice` column for rows flagged with this error code. Savings will not be available for these records. To calculate complete savings, you can join cost and usage data with prices. For additional details, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873)."
+    },
+    {
       "code": "NoDataIngested",
       "severity": "Critical",
       "message": "The export path is not a valid scope ID. FinOps hubs expects the export path to be an Azure resource ID for the scope the export was created to simplify management. This should not cause failures, but may result in confusing results for scope-related reports.",

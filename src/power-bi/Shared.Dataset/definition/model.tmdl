@@ -8,43 +8,27 @@ model Model
 
 queryGroup 'FinOps toolkit'
 
-	annotation PBI_QueryGroupOrder = 1
+	annotation PBI_QueryGroupOrder = 2
 
 queryGroup '🛠️ Setup'
 
 	annotation PBI_QueryGroupOrder = 0
 
-queryGroup '🛠️ Setup\CM connector'
+queryGroup Functions
 
 	annotation PBI_QueryGroupOrder = 1
 
-queryGroup '🛠️ Setup\Functions'
-
-	annotation PBI_QueryGroupOrder = 4
-
-queryGroup '🛠️ Setup\Instructions'
-
-	annotation PBI_QueryGroupOrder = 5
-
-queryGroup '🛠️ Setup\Storage'
-
-	annotation PBI_QueryGroupOrder = 3
-
 annotation __PBI_TimeIntelligenceEnabled = 1
 
-annotation PBIDesktopVersion = 2.132.403.0 (24.08)
+annotation PBIDesktopVersion = 2.132.629.0 (24.08)
 
-annotation PBI_QueryOrder = ["Storage URL","RangeStart","RangeEnd","CostDetails","RecommendationsSingle","RecommendationsShared","ftk_Storage","▶️  START HERE","Scope","Type","Number of Months","InstanceSizeFlexibility","HubData","HubErrors","ftk_CMConnector","HubSettings","HubScopes","Prices","ReservationDetails","ReservationTransactions","ReservationRecomendations","ftk_ParseResourceId","ftk_ParseResourceName","ftk_ParseResourceType"]
+annotation PBI_QueryOrder = ["▶️  START HERE","Storage URL","RangeStart","RangeEnd","CostDetails","ftk_Storage","InstanceSizeFlexibility","HubData","HubErrors","HubSettings","HubScopes","Prices","ReservationDetails","ReservationTransactions","ReservationRecomendations","ftk_ParseResourceId","ftk_ParseResourceName","ftk_ParseResourceType"]
 
 annotation PBI_ProTooling = ["DevMode"]
 
 ref table DateTableTemplate_8150e96b-3319-4654-9395-1629b2428e72
 ref table CostDetails
-ref table RecommendationsShared
-ref table LocalDateTable_7db3b421-e9d8-4995-932d-7b77ee85eed9
 ref table InstanceSizeFlexibility
-ref table RecommendationsSingle
-ref table LocalDateTable_b00da7a2-2588-4e52-8b54-e94792ea3ba8
 ref table LocalDateTable_f404d4da-597d-4db3-8c17-e985f68c9dc4
 ref table LocalDateTable_5b617bbf-90ab-4847-9cab-7068fda94084
 ref table LocalDateTable_0195151c-8910-45c4-8c88-2946b3f9ffe8

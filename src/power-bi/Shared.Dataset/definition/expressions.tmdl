@@ -1,30 +1,27 @@
 /// Name of the Azure DataLake Gen2 storage account to pull data from.
-expression 'Storage URL' = "https://ftkmicfland5pd7gdo37oozc.dfs.core.windows.net/samples" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+expression 'Storage URL' = "https://ftkmicfland5pd7gdo37oozc.dfs.core.windows.net/raw-exports" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 	lineageTag: 421c1232-0e40-45a4-bc59-257ce648478c
-	queryGroup: '🛠️ Setup\Storage'
+	queryGroup: '🛠️ Setup'
 
 	annotation PBI_ResultType = Text
 
 	annotation PBI_NavigationStepName = Navigation
 
-expression RangeStart = #datetime(2024, 6, 1, 0, 0, 0) meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=true]
+expression RangeStart = #datetime(2024, 1, 1, 0, 0, 0) meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=true]
 	lineageTag: 90085870-f708-4bc2-90c1-3a343e88a26b
-	queryGroup: '🛠️ Setup\Storage'
+	queryGroup: '🛠️ Setup'
 
 	annotation PBI_ResultType = DateTime
 
-expression RangeEnd = #datetime(2024, 7, 1, 0, 0, 0) meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=true]
+	annotation PBI_NavigationStepName = Navigation
+
+expression RangeEnd = #datetime(2025, 1, 1, 0, 0, 0) meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=true]
 	lineageTag: 695f1d3b-7b1a-49fa-8d83-f2c25dc787de
-	queryGroup: '🛠️ Setup\Storage'
+	queryGroup: '🛠️ Setup'
 
 	annotation PBI_ResultType = DateTime
 
-/// Enter the number of months
-expression 'Number of Months' = 1 meta [IsParameterQuery = true, IsParameterQueryRequired = false, Type = type number]
-	lineageTag: 2ddc095d-bca9-471d-b5e9-70a45facb053
-	queryGroup: '🛠️ Setup\CM connector'
-
-	annotation PBI_ResultType = Number
+	annotation PBI_NavigationStepName = Navigation
 
 /// Loads data from the configured FinOps hub.
 /// 
@@ -166,7 +163,9 @@ expression ftk_Storage = ```
 		    ),
 		
 		    // Only pull from the predefined date range (if specified)
-		    RefreshDate = Table.AddColumn(CleanColumns, "x_IncrementalRefreshDate",
+		    RefreshDate = Table.AddColumn(
+		        Table.ReplaceValue(CleanColumns, "", null, Replacer.ReplaceValue, Table.ColumnsOfType(CleanColumns, {type text, type any})),
+		        "x_IncrementalRefreshDate",
 		        each if data = "focuscost"               then Number.From(DateTime.From(Text.Range([ChargePeriodStart], 0, 10)))
 		        else if data = "pricesheet"              then Number.From(DateTime.From(Text.Range([EffectiveStartDate], 6, 4) & "-" & Text.Range([EffectiveStartDate], 0, 2) & "-" & Text.Range([EffectiveStartDate], 3, 2)))
 		        else if data = "reservationdetails"      then Number.From(DateTime.From([UsageDate]))
@@ -183,15 +182,7 @@ expression ftk_Storage = ```
 		        "x_DatasetType", each data),
 		        "x_DatasetVersion",
 		            // TODO: Extract from the manifest
-		            each if data = "focuscost"                  then (
-		                if Table.HasColumns(Dataset, {"ChageClass"}) then (
-		                    if Table.HasColumns(Dataset, {"ChargeSubcategory"}) then (
-		                        if ([Region] = null and [RegionName] <> null) or ([x_OnDemandCost] = null and [ContractedCost] <> null) or ([ChargeSubcategry] = null and [CommitmentDiscountStatus] <> null) then "1.0"
-		                        else if ([Region] <> null and [RegionName] = null) or ([x_OnDemandCost] <> null and [ContractedCost] = null) or ([ChargeSubcategry] <> null and [CommitmentDiscountStatus] = null) then "1.0-preview(v1)"
-		                        else "Unknown"
-		                    ) else "1.0"
-		                ) else "1.0-preview(v1)"
-		            ),
+		            each if data = "focuscost"                  then (if Table.HasColumns(FilterRowsByDate, {"ChargeSubcategory"}) and [ChargeSubcategory] <> null then "1.0-preview(v1)" else "1.0")
 		            else if data = "pricesheet"                 then "2023-05-01"
 		            else if data = "reservationdetails"         then "2023-05-01"
 		            else if data = "reservationtransactions"    then "2023-05-01"
@@ -216,7 +207,7 @@ expression ftk_Storage = ```
 		    Output
 		```
 	lineageTag: 1195459e-bb6d-4ef2-8823-5f63c16fbcf5
-	queryGroup: '🛠️ Setup\Functions'
+	queryGroup: Functions
 
 	annotation PBI_ResultType = Function
 
@@ -231,7 +222,7 @@ expression '▶️  START HERE' = ```
 		    StorageCheck = 
 		        if StorageUrl = "" or StorageUrl = null then {"✖ Missing", "Please specify the storage URL."}
 		        else if Text.StartsWith(StorageUrl, "https://") = false then {"✖ Invalid", "Please check your storage URL."} 
-		        else if StorageSegmentCount = 3 or (StorageSegmentCount = 4 and (Text.Lower(StorageSegments{3}) = "ingestion" or Text.Lower(StorageSegments{3}) = "msexports")) then (
+		        else if StorageSegmentCount = 3 or (StorageSegmentCount = 4 and Text.Lower(StorageSegments{3}) = "ingestion") then (
 		            let
 		                // Looks like hubs; try to get hub version
 		                Settings = try Json.Document(AzureStorage.DataLake(StorageUrl & (if StorageSegmentCount = 3 then "/config" else "/../config")){[Name="settings.json"]}[Content], 1252) otherwise null,
@@ -249,6 +240,7 @@ expression '▶️  START HERE' = ```
 		            in
 		                Output
 		        )
+		        else if StorageSegmentCount >= 3 and (try AzureStorage.DataLake(StorageUrl) otherwise null) <> null then {"✔️ Specified", "Will pull costs from exports in storage account: " & Text.Split(StorageUrl, "."){0} & "."}
 		        else {"✖️ Invalid", "Configured storage account is not a FinOps hub deployment: " & Text.Split(StorageUrl, "."){0} & "."},
 		
 		    // Incremental refresh
@@ -265,28 +257,6 @@ expression '▶️  START HERE' = ```
 		        else if DateStart > DateEnd then {"✖ Invalid", "The start date must be before the end date."}
 		        else if DateStart < DateEnd then try {"✔️ Specified", "Will pull costs for " & Number.ToText(Duration.Days(DateEnd - DateStart)) & " days."} otherwise {"✖ Invalid", "Unable to parse dates: " & DateStart & " - " & DateEnd & "."}
 		        else {"✖ Invalid", "Unable to confirm dates: '" & DateStart & "' - '" & DateEnd & "'."},
-		
-		    // Connector
-		    ScopeType = if Scope = "" or Scope = null then "" else if Text.Contains(Scope, "-") then "MCA" else "EA",
-		    ScopeCheck = 
-		        if ScopeType = "" then {"✖ Missing", "Please specify an EA enrollment number or MCA scope ID."}
-		        else if ScopeType = "MCA" then (
-		            if Text.StartsWith(Text.Lower(Scope), "/providers/microsoft.billing/billingaccounts/") = false then {"✖ Invalid", "Please specify a fully-qualified scope ID to connect to an MCA account."}
-		            else if Text.Contains(Text.Lower(Scope), "/billingprofiles/") then {"✔️ Specified", "Connecting to MCA billing profile."}
-		            else {"✖ Invalid", "Please specify a billing profile to include reservation recommendations."}
-		        )
-		        else {"✔️ Specified", "Connecting to EA enrollment " & Scope & "."},
-		    TypeCheck = 
-		        if ScopeType = "EA" then (if Type = "Enrollment Number" then {"✔️ Specified", "Connecting to an EA account."} else {"✖ Invalid", "Type must be 'Enrollment Number' for EA accounts."})
-		        else if ScopeType = "MCA" then (if Type = "Manually Input Scope" then {"✔️ Specified", "Connecting to an MCA account."} else {"✖ Invalid", "Type must be 'Manually Input Scope' for MCA accounts."})
-		        else if Type = "Enrollment Number" then {"✔️ Specified", "Expecting an EA account. Please specify the Scope parameter."}
-		        else if Type = "Manually Input Scope" then {"✔️ Specified", "Expecting an MCA account. Please specify the Scope parameter."}
-		        else {"✖ Invalid", "Please select a Type value."},
-		    Months = #"Number of Months",
-		    MonthCheck = 
-		        if Months = "" or Months = null then {"✖ Missing", "Please specify the number of months to include."}
-		        else if Months < 0 then {"✖ Invalid", "Please specify 0 for only the current month or 1+ to include one or more previous months."}
-		        else {"✔️ Specified", "Will get data for " & Text.From(Months) & (if Months = 1 then " month." else " months.")},
 		
 		    // 
 		    /*
@@ -309,69 +279,17 @@ expression '▶️  START HERE' = ```
 		        [ Instructions = "② Set the start/end dates", Value = DateValue, Status = DateCheck{0}, Message = DateCheck{1} ],
 		        [ Instructions = "        ➖ Dates are only required to support incremental refresh", Value = "", Status = "", Message = if DateCheck{0} = "⚠️ Warning" then "Incremental refresh requires dates." else if DateCheck{0} = "✔️ Specified" then "Please configure incremental refresh to support up to $2-5M/mo." else "" ],
 		        [ Instructions = "        ➖ NOTE: Power BI only supports a total of $2-5M without incremental refresh", Value = "", Status = "", Message = "" ],
-		        [ Instructions = "        ", Value = "", Status = "", Message = "" ],
-		        [ Instructions = "▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂", Value = "", Status = "", Message = "" ],
-		        [ Instructions = "        ", Value = "", Status = "", Message = "" ],
-		        [ Instructions = "The following are only needed for reservation recommendations", Value = "", Status = "", Message = "" ],
-		        [ Instructions = "        ", Value = "", Status = "", Message = "" ],
-		        [ Instructions = "③ Set the Scope parameter on the left", Value = Scope, Status = ScopeCheck{0}, Message = ScopeCheck{1} ],
-		        [ Instructions = "        ➖ If using EA, set it to your enrollment number", Value = "", Status = "", Message = "" ],
-		        [ Instructions = "        ➖ If using MCA, use the following steps to set your scope ID", Value = "", Status = "", Message = "" ],
-		        [ Instructions = "              1. Go to https://aka.ms/costmgmt/config", Value = "", Status = "", Message = "" ],
-		        [ Instructions = "              2. Change scope to the desired billing profile", Value = "", Status = "", Message = "" ],
-		        [ Instructions = "              3. Select the Properties tile", Value = "", Status = "", Message = "" ],
-		        [ Instructions = "              4. Use the 'ID' and 'Billing account ID' values to generate the scope ID", Value = "", Status = "", Message = "Example: /providers/Microsoft.Billing/billingAccounts/<id>/billingProfiles/<id>" ],
-		        [ Instructions = "                   NOTE: Billing profile is required for MCA reservation recommendations", Value = "", Status = "", Message = "" ],
-		        [ Instructions = "              5. Save the value in 'CM connector' > 'Scope'", Value = "", Status = "", Message = "" ],
-		        [ Instructions = "        ", Value = "", Status = "", Message = "" ],
-		        [ Instructions = "④ Set the Type parameter based on your account type", Value = Type, Status = TypeCheck{0}, Message = TypeCheck{1} ],
-		        [ Instructions = "        ➖ For EA, use 'Enrollment Number'", Value = "", Status = "", Message = "" ],
-		        [ Instructions = "        ➖ For MCA, use 'Manually Input Scope'", Value = "", Status = "", Message = "" ],
-		        [ Instructions = "        ➖ This value is required for the Cost Management connector", Value = "", Status = "", Message = "" ],
-		        [ Instructions = "        ", Value = "", Status = "", Message = "" ],
-		        [ Instructions = "⑤ Set the number of months to include (more = slower load time)", Value = Months, Status = MonthCheck{0}, Message = MonthCheck{1} ],
-		        [ Instructions = "        ➖ 0  = current month only", Value = "", Status = "", Message = "" ],
-		        [ Instructions = "        ➖ 1  = current month and 1 previous month", Value = "", Status = "", Message = "" ],
-		        [ Instructions = "        ➖ 2+ = current month and 2+ previous months", Value = "", Status = "", Message = "" ],
-		        [ Instructions = "        ➖ NOTE: Power BI can only support ~$16M in cost details!", Value = "", Status = "", Message = "" ]
+		        [ Instructions = "        ", Value = "", Status = "", Message = "" ]
 		    })
 		in
 		    MainChecks
 		```
 	lineageTag: 6cfe80b8-1c4b-4c11-9916-43fc98b49dac
-	queryGroup: '🛠️ Setup\Instructions'
+	queryGroup: '🛠️ Setup'
 
-	annotation PBI_ResultType = Exception
+	annotation PBI_ResultType = Table
 
 	annotation PBI_NavigationStepName = Navigation
-
-/// Loads data from the configured FinOps hubs instance or from a billing account using the Cost Management connector.
-/// datasets = 0 (Actual cost), 1 (Amortized cost), 2 (Both)
-expression ftk_CMConnector =
-		(optional dataset) =>
-		let
-		    Connector = AzureCostManagement.Tables(Type, Scope, #"Number of Months", []),
-		    Data = if dataset = "" or dataset = null then Connector else Connector{[Key=dataset]}[Data]
-		in
-		    Data
-	lineageTag: 9fcc7fe0-336d-49fd-9a77-eeb57b2f7aef
-	queryGroup: '🛠️ Setup\Functions'
-
-	annotation PBI_ResultType = Function
-
-/// Enter your EA enrollment number or fully-qualified MCA billing profile resource ID. You must have at least read access to use Power BI. For more options, please use https://aka.ms/finops/hubs.
-expression Scope = "8611537" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
-	lineageTag: 244a1951-f3fa-4d07-913e-c5770a195267
-	queryGroup: '🛠️ Setup\CM connector'
-
-	annotation PBI_ResultType = Text
-
-/// Select "Enrollment Number" if using EA; otherwise, select "Manually Input Scope". These values are required in order to refresh data from the connector in the Power BI service.
-expression Type = "Enrollment Number" meta [IsParameterQuery=true, List={"Enrollment Number", "Manually Input Scope"}, DefaultValue="Enrollment Number", Type="Text", IsParameterQueryRequired=true]
-	lineageTag: e700b3d3-f2af-45a3-af15-199df0040f7b
-	queryGroup: '🛠️ Setup\CM connector'
-
-	annotation PBI_ResultType = Text
 
 /// Loads data from the configured FinOps hub.
 /// 
@@ -400,7 +318,7 @@ expression ftk_ParseResourceId = ```
 		    result
 		```
 	lineageTag: 47af7699-603d-457e-ac71-57d695f11fca
-	queryGroup: '🛠️ Setup\Functions'
+	queryGroup: Functions
 
 	annotation PBI_NavigationStepName = Navigation
 
@@ -411,7 +329,7 @@ expression ftk_ParseResourceId = ```
 /// Learn more @ https://aka.ms/finops/hubs
 expression ftk_ParseResourceName = (id) => ftk_ParseResourceId(id, true)
 	lineageTag: 0dde2951-d866-4f3b-9c34-e324ce31541e
-	queryGroup: '🛠️ Setup\Functions'
+	queryGroup: Functions
 
 	annotation PBI_NavigationStepName = Navigation
 
@@ -422,7 +340,7 @@ expression ftk_ParseResourceName = (id) => ftk_ParseResourceId(id, true)
 /// Learn more @ https://aka.ms/finops/hubs
 expression ftk_ParseResourceType = (id) => ftk_ParseResourceId(id, false)
 	lineageTag: e0916ea5-0653-40f5-ac6d-84ea4164cabe
-	queryGroup: '🛠️ Setup\Functions'
+	queryGroup: Functions
 
 	annotation PBI_NavigationStepName = Navigation
 
