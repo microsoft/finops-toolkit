@@ -68,25 +68,12 @@ Legend:
 
 <sup>Released August 2024</sup>
 
-
-📒 Azure Monitor workbooks
+📗 FinOps guide
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
-> - [Optimization workbook](../_optimize/optimization-workbook/README.md):
->   1. New compute query to identify VMs per processor architecture type
->   2. New database query to identify SQL Pool instances with 0 databases
->   3. New storage query to identify Powered Off VMs with Premium Disks
-
-> ✏️ Changed:
-
-> - [Optimization workbook](../_optimize/optimization-workbook/README.md):
->   1. Redesign of the Rate Optimization tab for easier identification of the break-even point for reservations
->   2. Fixed the AHB VMSS query to count the total cores consumed per the entire scale set
->   3. Improved storage idle disks query to ignore disks used by AKS pods
->   4. Updated Storage not v2 query to exclude blockBlobStorage accounts from the list
->   5. Added export option for the list of idle backups to streamline data extraction
+> 1. Documented [how to compare FOCUS and actual/amortized data](../_docs/focus/validate.md) to learn and validate FOCUS data.
 
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -100,30 +87,24 @@ Legend:
 >
 > 1. Changed the Event Grid location selection logic to only identify fallback regions rather than supported regions.
 
-🖥️ PowerShell
+📒 Azure Monitor workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
-> 1. Added support for FOCUS, pricesheet, and reservation dataset filters in [Get-FinOpsCostExport](../_automation/powershell/cost/Get-FinOpsCostExport.md).
-> 2. Added a `-DatasetVersion` filter in [Get-FinOpsCostExport](../_automation/powershell/cost/Get-FinOpsCostExport.md).
-
-
-📗 FinOps guide
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
+> - [Optimization workbook](../_optimize/optimization-workbook/README.md):
+>   1. New compute query to identify VMs per processor architecture type
+>   2. New database query to identify SQL Pool instances with 0 databases
+>   3. New storage query to identify Powered Off VMs with Premium Disks
 >
-> 1. Documented [how to compare FOCUS and actual/amortized data](../_docs/focus/validate.md) to learn and validate FOCUS data.
-
-
-🌐 Open data
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ✏️ Changed
+> ✏️ Changed:
 >
-> 1. Changed Microsoft Genomics to the "Analytics" service category and "PaaS" service model in the [Services](../_reporting/data/README.md#️-services) open data file.
-
+> > - [Optimization workbook](../_optimize/optimization-workbook/README.md):
+>   1. Redesign of the Rate Optimization tab for easier identification of the break-even point for reservations
+>   2. Fixed the AHB VMSS query to count the total cores consumed per the entire scale set
+>   3. Improved storage idle disks query to ignore disks used by AKS pods
+>   4. Updated Storage not v2 query to exclude blockBlobStorage accounts from the list
+>   5. Added export option for the list of idle backups to streamline data extraction
 
 🔍 Optimization engine
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -143,8 +124,22 @@ Legend:
 > 1. `Premium SSD disk has been underutilized` recommendation was not showing results due to a meter name change in Cost Management ([#831](https://github.com/microsoft/finops-toolkit/issues/831)).
 > 2. Consumption exports for Pay-As-You-Go MCA subscriptions were missing cost data ([#828](https://github.com/microsoft/finops-toolkit/issues/828))
 
-<br>
+🖥️ PowerShell
+{: .fs-5 .fw-500 .mt-4 mb-0 }
 
+> ➕ Added:
+>
+> 1. Added support for FOCUS, pricesheet, and reservation dataset filters in [Get-FinOpsCostExport](../_automation/powershell/cost/Get-FinOpsCostExport.md).
+> 2. Added a `-DatasetVersion` filter in [Get-FinOpsCostExport](../_automation/powershell/cost/Get-FinOpsCostExport.md).
+
+🌐 Open data
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed
+>
+> 1. Changed Microsoft Genomics to the "Analytics" service category and "PaaS" service model in the [Services](../_reporting/data/README.md#️-services) open data file.
+
+<br>
 
 ## 🚚 v0.4
 
