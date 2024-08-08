@@ -99,7 +99,7 @@ Legend:
 >
 > ✏️ Changed:
 >
-> > - [Optimization workbook](../_optimize/optimization-workbook/README.md):
+> - [Optimization workbook](../_optimize/optimization-workbook/README.md):
 >   1. Redesign of the Rate Optimization tab for easier identification of the break-even point for reservations
 >   2. Fixed the AHB VMSS query to count the total cores consumed per the entire scale set
 >   3. Improved storage idle disks query to ignore disks used by AKS pods
