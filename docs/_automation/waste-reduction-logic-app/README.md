@@ -40,16 +40,9 @@ Use the following steps to deploy the Logic App
     ![Identity configuration page](images/System-assigned-identity.png)
    * Go to **Azure role assignments** within the *system assigned* blade
    * Select **Add role assignment** and assign the following permissions then select **Save**
-  
-     ```text
-
-      Scope: Subscription
-
-      Subscription: Subscription to be analyzed by this Logic App
-
-      Role: Reader
-
-      ```
+      - Scope: Subscription
+      - Subscription: Subscription to be analyzed by this Logic App
+      - Role: Reader
 
      ![Adding role assignment page](images/Azure-role-assignment.png)
 
