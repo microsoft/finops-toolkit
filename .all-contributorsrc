@@ -456,6 +456,16 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "jojohpm",
+      "name": "Joseph John",
+      "avatar_url": "https://avatars.githubusercontent.com/u/103460544?v=4",
+      "profile": "https://github.com/jojohpm",
+      "contributions": [
+        "doc",
+        "review"
+      ]
     }
   ],
   "commitType": "docs",
