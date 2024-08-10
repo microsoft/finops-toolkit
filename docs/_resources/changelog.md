@@ -68,6 +68,84 @@ Legend:
 
 <sup>Released August 2024</sup>
 
+📗 FinOps guide
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Documented [how to compare FOCUS and actual/amortized data](../_docs/focus/validate.md) to learn and validate FOCUS data.
+
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Added an optional `skipEventGridRegistration` template parameter to support skipping Event Grid RP registration.
+> 2. Added an Event Grid section to the hubs create form.
+>
+> ✏️ Changed:
+>
+> 1. Changed the Event Grid location selection logic to only identify fallback regions rather than supported regions.
+
+📒 Azure Monitor workbooks
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> - [Optimization workbook](../_optimize/optimization-workbook/README.md):
+>   1. New compute query to identify VMs per processor architecture type
+>   2. New database query to identify SQL Pool instances with 0 databases
+>   3. New storage query to identify Powered Off VMs with Premium Disks
+>
+> ✏️ Changed:
+>
+> - [Optimization workbook](../_optimize/optimization-workbook/README.md):
+>   1. Redesign of the Rate Optimization tab for easier identification of the break-even point for reservations
+>   2. Fixed the AHB VMSS query to count the total cores consumed per the entire scale set
+>   3. Improved storage idle disks query to ignore disks used by AKS pods
+>   4. Updated Storage not v2 query to exclude blockBlobStorage accounts from the list
+>   5. Added export option for the list of idle backups to streamline data extraction
+
+🔍 Optimization engine
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. `Register-MultitenantAutomationSchedules` PowerShell script helper to [add a different Azure tenant to the scope of AOE](../_optimize/optimization-engine/customize.md).
+> 2. ZRS disks included in the scope of the `Premium SSD disk has been underutilized` recommendation (besides LRS).
+> 3. Option to scope consumption exports to MCA Billing Profile.
+>
+> ✏️ Changed:
+>
+> 1. Improved SQL Database security, replacing SQL authentication by Entra ID authentication-only.
+>
+> 🛠️ Fixed:
+>
+> 1. `Premium SSD disk has been underutilized` recommendation was not showing results due to a meter name change in Cost Management ([#831](https://github.com/microsoft/finops-toolkit/issues/831)).
+> 2. Consumption exports for Pay-As-You-Go MCA subscriptions were missing cost data ([#828](https://github.com/microsoft/finops-toolkit/issues/828))
+
+🖥️ PowerShell
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Added support for FOCUS, pricesheet, and reservation dataset filters in [Get-FinOpsCostExport](../_automation/powershell/cost/Get-FinOpsCostExport.md).
+> 2. Added a `-DatasetVersion` filter in [Get-FinOpsCostExport](../_automation/powershell/cost/Get-FinOpsCostExport.md).
+
+🌐 Open data
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed
+>
+> 1. Changed Microsoft Genomics to the "Analytics" service category and "PaaS" service model in the [Services](../_reporting/data/README.md#️-services) open data file.
+
+[Download v0.5](https://github.com/microsoft/finops-toolkit/releases/tag/v0.5){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.4...v0.5){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+
+<br>
+
+## 🚚 v0.4
+
 <sup>Released July 12, 2024</sup>
 
 📗 FinOps guide
@@ -207,6 +285,9 @@ Legend:
 > 1. Updated all [open data files](../_reporting/data/README.md) to include the latest data.
 > 2. Changed the primary columns in the [Regions](../_reporting/data/README.md#️-regions) and [Services](../_reporting/data/README.md#️-services) open data files to be lowercase.
 > 3. Updated all [sample exports](../_reporting/data/README.md#️-dataset-examples) to use the same date range as the FOCUS 1.0 dataset.
+
+[Download v0.4](https://github.com/microsoft/finops-toolkit/releases/tag/v0.4){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.3...v0.4){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
