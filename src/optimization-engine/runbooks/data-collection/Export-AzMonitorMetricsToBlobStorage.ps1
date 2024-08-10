@@ -124,7 +124,7 @@ if (-not([string]::IsNullOrEmpty($TargetSubscription))) {
 }
 else {
     $subscriptions = Get-AzSubscription | Where-Object { $_.State -eq "Enabled" } | ForEach-Object { "$($_.Id)"}
-    $subscriptionSuffix = $cloudSuffix + "all-" + $tenantId
+    $subscriptionSuffix = "all-" + $tenantId
 }
 
 [TimeSpan]::Parse($TimeGrain) | Out-Null

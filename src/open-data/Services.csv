@@ -153,7 +153,7 @@ microsoft.eventhub,microsoft.eventhub/namespaces,Event Hubs,Integration,Microsof
 microsoft.eventhub,microsoft.eventhub/clusters,Event Hubs,Integration,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.fabric,microsoft.fabric/capacities,Microsoft.Fabric,Analytics,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.fluidrelay,microsoft.fluidrelay/fluidrelayservers,Azure Fluid Relay,Web,Microsoft,Cloud Provider,Cloud,SaaS
-microsoft.genomics,microsoft.genomics/accounts,Microsoft Genomics,AI and Machine Learning,Microsoft,Cloud Provider,Cloud,SaaS
+microsoft.genomics,microsoft.genomics/accounts,Microsoft Genomics,Analytics,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.graph,microsoft.graph/azureadapplications,Microsoft Graph Data Connect,Integration,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.graphservices,microsoft.graphservices/accounts,Microsoft Graph,Integration,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.hanaonazure,microsoft.hanaonazure/hanainstances,SAP on Azure,Compute,Microsoft,Cloud Provider,Cloud,SaaS

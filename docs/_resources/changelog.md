@@ -139,6 +139,9 @@ Legend:
 >
 > 1. Changed Microsoft Genomics to the "Analytics" service category and "PaaS" service model in the [Services](../_reporting/data/README.md#️-services) open data file.
 
+[Download v0.5](https://github.com/microsoft/finops-toolkit/releases/tag/v0.5){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.4...v0.5){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+
 <br>
 
 ## 🚚 v0.4
@@ -282,6 +285,9 @@ Legend:
 > 1. Updated all [open data files](../_reporting/data/README.md) to include the latest data.
 > 2. Changed the primary columns in the [Regions](../_reporting/data/README.md#️-regions) and [Services](../_reporting/data/README.md#️-services) open data files to be lowercase.
 > 3. Updated all [sample exports](../_reporting/data/README.md#️-dataset-examples) to use the same date range as the FOCUS 1.0 dataset.
+
+[Download v0.4](https://github.com/microsoft/finops-toolkit/releases/tag/v0.4){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.3...v0.4){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 

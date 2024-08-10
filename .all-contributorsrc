@@ -159,6 +159,8 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/10661605?v=4",
       "profile": "https://aka.ms/helderpinto",
       "contributions": [
+        "code",
+        "review",
         "doc",
         "bug"
       ]
@@ -453,6 +455,16 @@
       "profile": "https://github.com/ro100e",
       "contributions": [
         "doc"
+      ]
+    },
+    {
+      "login": "jojohpm",
+      "name": "Joseph John",
+      "avatar_url": "https://avatars.githubusercontent.com/u/103460544?v=4",
+      "profile": "https://github.com/jojohpm",
+      "contributions": [
+        "doc",
+        "review"
       ]
     }
   ],
