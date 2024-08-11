@@ -86,6 +86,7 @@ Legend:
 > ✏️ Changed:
 >
 > 1. Changed the Event Grid location selection logic to only identify fallback regions rather than supported regions.
+> 2. Expanded cost estimate documentation to call out Power BI pricing and include a link to the Pricing Calculator.
 
 📒 Azure Monitor workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
