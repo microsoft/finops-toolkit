@@ -105,6 +105,9 @@ Legend:
 >   3. Improved storage idle disks query to ignore disks used by AKS pods
 >   4. Updated Storage not v2 query to exclude blockBlobStorage accounts from the list
 >   5. Added export option for the list of idle backups to streamline data extraction
+>    
+>   - [Governance workbook](../_optimize/governance-workbook/README.md):
+>   1. The Management Group filter has been removed to make the workbook easier to use. 
 
 🔍 Optimization engine
 {: .fs-5 .fw-500 .mt-4 mb-0 }

@@ -1,0 +1,66 @@
+name: Open Data CI
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/open-data/**/*.{csv,json}'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'src/open-data/**/*.{csv,json}'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env: 
+      CI_COMMIT_MESSAGE: Continuous Integration Build Artifacts
+      CI_COMMIT_AUTHOR: ${{ github.event.repository.name }} Continuous Integration
+    steps:
+
+    # Checkout that works with "push" and "pull_request" trigger event
+    - uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}
+        token: ${{ secrets.WORKFLOW_GIT_ACCESS_TOKEN }}
+
+    # Set environment variables based on the last commit
+    - name: Set environment variable "commit-message"
+      run: echo "commit-message=$(git log -1 --pretty=format:'%s')" >> $GITHUB_ENV
+    - name: Display environment variable "commit-message"
+      run: echo "commit-message=${{ env.commit-message }}"
+
+    - name: Set environment variable "commit-author"
+      run: echo "commit-author=$(git log -1 --pretty=format:'%an')" >> $GITHUB_ENV
+    - name: Display environment variable "commit-author"
+      run: echo "commit-author=${{ env.commit-author }}"
+
+    - name: Set environment variable "is-auto-commit"
+      if: env.commit-message == env.CI_COMMIT_MESSAGE && env.commit-author == env.CI_COMMIT_AUTHOR
+      run: echo "is-auto-commit=true" >> $GITHUB_ENV
+    - name: Display environment variable "is-auto-commit"
+      run: echo "is-auto-commit=${{ env.is-auto-commit }}"
+
+    # Build
+    - name: Build Open Data
+      if: env.is-auto-commit == false
+      shell: pwsh
+      run: |
+        src/scripts/Build-OpenData.ps1 -PowerShell        
+    
+    # Commit generated and commit files
+    - name: Display event name 
+      run: echo "github.event_name=${{ github.event_name }}"
+    - name: Commit build artifacts (dist, devdist, docs, coverage)
+      # Don't run again on already pushed auto commit. Don't run on pull request events.
+      if: env.is-auto-commit == false && github.event_name != 'pull_request'
+      run: |
+        git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+        git config --global user.email "username@users.noreply.github.com"
+        git commit -a -m "${{ env.CI_COMMIT_MESSAGE }}"
+        git push
+    - name: Open Data Unit Testing
+      if: env.is-auto-commit == true
+      shell: pwsh
+      run: |
+        src/scripts/Get-OpenData.ps1 -Test
