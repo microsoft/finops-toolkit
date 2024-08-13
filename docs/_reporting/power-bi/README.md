@@ -127,15 +127,11 @@ All FinOps toolkit reports, come with sample data to explore without connecting 
 
    ![Screenshot of the Transform data button in the Power BI Desktop toolbar.](https://user-images.githubusercontent.com/399533/216573265-fa76828f-c9a2-497d-ae1e-19b55fef412c.png)
 
-2. Select **Queries** > **🛠️ Setup** > **Instructions** > **▶ START HERE** and follow the instructions.
+2. Select **Queries** > **🛠️ Setup** > **▶ START HERE** and follow the instructions.
 
-   To connect to a FinOps hub instance, you will need the `storageUrlForPowerBI` value from the deployment outputs. Make sure you have the [Storage Blob Data Reader role](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-reader) on the storage account so you can access the data.
+   Make sure you have the [Storage Blob Data Reader role](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-reader) on the storage account so you can access the data.
 
-   ![Screenshot of instructions to connect to a FinOps hub](https://github.com/microsoft/finops-toolkit/assets/399533/5582b428-e811-4d7e-83d0-4a8fbb905d30)
-
-   To connect to the Cost Management connector, you will need the billing account ID and/or billing profile ID. You can find this in [Cost Management configuration settings](https://aka.ms/costmgmt/config) > **Properties**.
-
-   ![Screenshot of instructions to connect to the Cost Management connector](https://github.com/microsoft/finops-toolkit/assets/399533/efeb85d6-cdd3-40f8-a501-e1959fdb1d4f)
+   ![Screenshot of instructions to connect to a storage account](https://github.com/user-attachments/assets/3723c94b-d853-420e-9101-98d1ca518fa0)
 
 3. Select **Close & Apply** in the toolbar and allow Power BI to refresh to see your data.
 
