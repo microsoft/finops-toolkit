@@ -3,7 +3,7 @@ title: Create a Fabric workspace for FinOps
 description: This article walks you through creating and configuring a Microsoft Fabric workspace for FinOps.
 author: bandersmsft
 ms.author: banders
-ms.date: 07/17/2024
+ms.date: 08/13/2024
 ms.topic: how-to
 ms.service: finops
 ms.reviewer: micflan
@@ -157,6 +157,13 @@ Here’s an example screenshot showing the Data Lake Storage URL on the **Endpoi
 
 ## Copy data into Fabric
 
+After you create the shortcut, you can view the FOCUS cost data inside **Files**. You can load the data directly into a Fabric with one of the following methods, based on your requirements. The following tabs provide two options:
+
+- [Manual data ingestion](#manual-data-ingestion) as a one-time process
+- [Automate data ingestion](#automate-data-ingestion) for reuse
+
+### [Manual data ingestion](#tab/manual-data-ingestion)
+
 After the shortcut gets created, you can view the FOCUS cost data inside **Files**. You can load the data directly into a Fabric table by using the following steps.
 
 1. In the lakehouse, find the directory that you created when you set up the export. The Directory is in the **Files** section.
@@ -179,23 +186,7 @@ Here’s an example screenshot showing data in the Lakehouse table.
 
 :::image type="content" source="./media/create-fabric-workspace-finops/fabric-load-table-lakehouse.png" border="true" alt-text="Screenshot showing data in the table." lightbox="./media/create-fabric-workspace-finops/fabric-load-table-lakehouse.png" :::
 
-<br>
-
-## Create a Power BI report
-
-After the data is ingested into Fabric and tables are ready, you can move on to reporting.
-
-1. Sign in to the Fabric app using your [Fabric free account](https://www.microsoft.com/microsoft-fabric/getting-started) or [Microsoft Power BI](https://app.powerbi.com) account.
-1. Select the workspace where you created the lakehouse and then select the lakehouse.
-1. In the Explorer pane, select **Tables** and then select the table that you created.
-1. At the top of the page, select **New semantic model** and name the model. For more information, see [Default Power BI semantic models](/fabric/data-warehouse/semantic-models#sync-the-default-power-bi-semantic-model).
-4. Select the Power BI symbol at the bottom left.
-5. Select the same semantic model to build reports and then use Copilot to generate insights from your ingested data.
-
->[!NOTE]
-> The Power BI demo uses simulated cost data for illustration purposes.
-
-## Automate data ingestion
+### [Automate data ingestion](#tab/automate-data-ingestion)
 
 For detailed information about automating the process to ingest data into Fabric tables, see [How to use notebooks](/fabric/data-engineering/how-to-use-notebook). 
 
@@ -212,7 +203,7 @@ Here are the high-level steps:
 8. To create a daily automation schedule, select the gear symbol on the left menu and select the **Schedule** option.  
    :::image type="content" source="./media/create-fabric-workspace-finops/schedule-tab.png" border="true" alt-text="Screenshot showing the Schedule tab to automate data ingestion." lightbox="./media/create-fabric-workspace-finops/schedule-tab.png" :::
 
-### Example Python script
+#### Example Python script
 
 Use the following Python script in step 3 above to ingest data into Fabric tables.
 
@@ -244,7 +235,23 @@ df.write.mode("overwrite").format("delta").option("overwriteSchema", "true").sav
 df.write.mode("overwrite").format("delta").save(export_table) 
 ```
 
+---
+
 <br>
+
+## Create a Power BI report
+
+After the data is ingested into Fabric and tables are ready, you can move on to reporting.
+
+1. Sign in to the Fabric app using your [Fabric free account](https://www.microsoft.com/microsoft-fabric/getting-started) or [Microsoft Power BI](https://app.powerbi.com) account.
+1. Select the workspace where you created the lakehouse and then select the lakehouse.
+1. In the Explorer pane, select **Tables** and then select the table that you created.
+1. At the top of the page, select **New semantic model** and name the model. For more information, see [Default Power BI semantic models](/fabric/data-warehouse/semantic-models#sync-the-default-power-bi-semantic-model).
+4. Select the Power BI symbol at the bottom left.
+5. Select the same semantic model to build reports and then use Copilot to generate insights from your ingested data.
+
+>[!NOTE]
+> The Power BI demo uses simulated cost data for illustration purposes.
 
 ## Related content
 
