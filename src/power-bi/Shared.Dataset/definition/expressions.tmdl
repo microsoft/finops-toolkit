@@ -32,8 +32,8 @@ expression ftk_Hub = ```
 		let
 		    // Config
 		    url     = #"Storage URL",
-		    start   = if startDate = null then RangeStart else startDate,
-		    end     = if endDate = null then RangeEnd else endDate,
+		    start   = if startDate = null then  Date.AddMonths(Date.StartOfMonth(Date.From(DateTime.LocalNow())), -#"Number of Months"+1) else startDate,
+		    end     = if endDate = null then Date.EndOfMonth(Date.From(DateTime.LocalNow())) else endDate,
 		// TODO: Allow pulling other datasets -- if datasetType = null or datasetType = "" then "focuscost" else datasetType
 		    dataset = "focuscost",
 		
