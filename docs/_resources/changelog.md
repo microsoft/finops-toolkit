@@ -88,6 +88,9 @@ Legend:
 >      - Refer to the DQ page for details about missing or updated data.
 >   2. Added support for pointing Power BI reports to directly to Cost Management exports (without FinOps hubs).
 >   3. Added new tables for Prices, ReservationDetails, ReservationRecommendations, and ReservationTransactions (works with exports only; does not work with hubs).
+> - [Cost summary](../_reporting/power-bi/cost-summary.md)
+>   1. Added a table to the [DQ page](../_reporting/power-bi/cost-summary.md#dq) to identify rows for which a unique ID cannot be identified.
+>   2. Added a table to the [DQ page](../_reporting/power-bi/cost-summary.md#dq) to identify rows where billing currency and pricing currency are different.
 > - [Rate optimization](../_reporting/power-bi/rate-optimization.md)
 >   1. Commitment savings no longer filters out rows with missing list/contracted cost.
 >      - Since `ListCost` and `ContractedCost` are set to a fallback value when not included in Cost Management data, we can now calculate partial savings.

@@ -1,5 +1,5 @@
 /// Name of the Azure DataLake Gen2 storage account to pull data from.
-expression 'Storage URL' = "https://ftkmicfland5pd7gdo37oozc.dfs.core.windows.net/raw-exports" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+expression 'Hub Storage URL' = "https://ftkmicfland5pd7gdo37oozc.dfs.core.windows.net/ingestion" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 	lineageTag: 421c1232-0e40-45a4-bc59-257ce648478c
 	queryGroup: '🛠️ Setup'
 
@@ -30,54 +30,54 @@ expression ftk_Storage = ```
 		(optional datasetType as text) =>
 		let
 		    // Config
-		    url   = Text.Trim(#"Storage URL", "/"),
-		    start   = if RangeStart <> null then RangeStart else Date.AddMonths(Date.StartOfMonth(Date.From(DateTime.LocalNow())), (if #"Number of Months" <> null and #"Number of Months" > 0 then -#"Number of Months" else -3)+1),
-		    end     = if endDate = null then Date.EndOfMonth(Date.From(DateTime.LocalNow())) else endDate,
-		    data  = if datasetType <> null and datasetType <> "" then Text.Lower(datasetType) else "focuscost",
+		    hubUrl = Text.Trim(#"Hub Storage URL", "/"),
+		    expUrl = Text.Trim(#"Export Storage URL", "/"),
+		    start  = if RangeStart <> null then RangeStart else Date.AddMonths(Date.StartOfMonth(Date.From(DateTime.LocalNow())), (if #"Number of Months" <> null and #"Number of Months" > 0 then -#"Number of Months" else -3)+1),
+		    end    = if endDate = null then Date.EndOfMonth(Date.From(DateTime.LocalNow())) else endDate,
+		    data   = if datasetType <> null and datasetType <> "" then Text.Lower(datasetType) else "focuscost",
 		
 		    // Connect to ADLS
-		    ADLS = Table.SelectRows(AzureStorage.DataLake(url), each [Attributes]?[Hidden]? <> true),
+		    _loadStorage = (url) => try Table.SelectRows(AzureStorage.DataLake(url), each [Attributes]?[Hidden]? <> true) otherwise null,
+		    HubStorage = if hubUrl = null or hubUrl = "" then null else (
+		        try let
+		            FilterHub = Table.SelectRows(_loadStorage(hubUrl), each [Extension] = ".parquet" and data = Text.Lower(List.Last(List.RemoveLastN(Text.Split([Folder Path],"/"), 1)))),
+		            HubMonth  = Table.AddColumn(FilterHub, "StartDate", each _toMonth(List.Last(List.RemoveLastN(List.RemoveLastN(Text.Split([Folder Path],"/"), 1), 1))), type date)
+		        in HubMonth
+		        otherwise null
+		    ),
+		    IsHub = (HubStorage = null or Table.RowCount(HubStorage) = 0) = false,
+		    ExpStorage = if IsHub or expUrl = null or expUrl = "" then null else (
+		        try let
+		            // Filter out anything that doesn't look like a CM export
+		            Segments  = Table.AddColumn(Table.AddColumn(_loadStorage(expUrl),
+		                "Segments",     each Text.Split(Text.Replace(Text.Trim([Folder Path], "/"), "https://", ""), "/")),
+		                "SegmentCount", each List.Count([Segments])),
+		            FilterExports = Table.SelectRows(Segments,
+		                each ([SegmentCount] >= 7 and Text.Length([Segments]{[SegmentCount]-1}) = 36 and Text.Length([Segments]{[SegmentCount]-2}) = 12 and Text.Length([Segments]{[SegmentCount]-3}) = 17)
+		                    or ([SegmentCount] >= 6 and Text.Length([Segments]{[SegmentCount]-1}) = 36 and Text.Length([Segments]{[SegmentCount]-2}) = 17) // Exports v2 preview bug had a missing folder (remove after June 2025)
+		                    or ([SegmentCount] >= 5 and Text.Length([Segments]{[SegmentCount]-1}) = 36 and data = "reservationrecommendations") // Reservation recommendations do not have a date folder
+		            ),
+		
+		            // Find the paths that hae the desired dataset with overwriting enabled (so we don't show duplicate data)
+		            DatasetPaths = Table.SelectColumns(
+		                Table.SelectRows(
+		                    Table.AddColumn(FilterExports, "Json", each try if [Name] = "manifest.json" then Json.Document([Content]) else null otherwise null), 
+		                    each try [Name] = "manifest.json" 
+		                        and Text.Lower([Json][exportConfig][type]) = data
+		                        and [Json][deliveryConfig][dataOverwriteBehavior] = "OverwritePreviousReport"
+		                        otherwise false
+		                ),
+		                {"Folder Path"}
+		            ),
+		            FilterExpData = Table.SelectRows(FilterExports, each ([Extension] = ".parquet" or [Extension] = ".csv") and List.Contains(Table.Column(DatasetPaths, "Folder Path"), [Folder Path])),
+		            ExportMonth = Table.AddColumn(FilterExpData, "StartDate", each if data = "reservationrecommendations" then null else _toMonth([Segments]{[SegmentCount]-(if Text.Length([Segments]{[SegmentCount]-2}) = 17 then 2 else 3)}), type date)
+		        in ExportMonth
+		        otherwise null
+		    ),
+		    Source = if IsHub then HubStorage else ExpStorage,
 		
 		    // NOTE: Do not convert to UTC - UTC dates can show as the previous month based on the local timezone
 		    _toMonth    = (s) => Date.FromText(Text.Range(s, 0, 4) & "-" & Text.Range(s, 4, 2) & "-01"),
-		
-		    // If hub storage, parse file path; otherwise, find metadata file
-		    IsHub = Text.EndsWith(url, "/ingestion"),
-		    Source = 
-		        if IsHub then (
-		            let
-		                FilterHub = Table.SelectRows(ADLS, each [Extension] = ".parquet" and data = Text.Lower(List.Last(List.RemoveLastN(Text.Split([Folder Path],"/"), 1)))),
-		                HubMonth  = Table.AddColumn(FilterHub, "StartDate", each _toMonth(List.Last(List.RemoveLastN(List.RemoveLastN(Text.Split([Folder Path],"/"), 1), 1))), type date)
-		            in
-		                HubMonth
-		        ) else (
-		            let
-		                // Filter out anything that doesn't look like a CM export
-		                Segments  = Table.AddColumn(Table.AddColumn(ADLS,
-		                    "Segments",     each Text.Split(Text.Replace(Text.Trim([Folder Path], "/"), "https://", ""), "/")),
-		                    "SegmentCount", each List.Count([Segments])),
-		                FilterExports = Table.SelectRows(Segments,
-		                    each ([SegmentCount] >= 7 and Text.Length([Segments]{[SegmentCount]-1}) = 36 and Text.Length([Segments]{[SegmentCount]-2}) = 12 and Text.Length([Segments]{[SegmentCount]-3}) = 17)
-		                      or ([SegmentCount] >= 6 and Text.Length([Segments]{[SegmentCount]-1}) = 36 and Text.Length([Segments]{[SegmentCount]-2}) = 17) // Exports v2 preview bug had a missing folder (remove after June 2025)
-		                      or ([SegmentCount] >= 5 and Text.Length([Segments]{[SegmentCount]-1}) = 36 and data = "reservationrecommendations") // Reservation recommendations do not have a date folder
-		                ),
-		
-		                // Find the paths that hae the desired dataset with overwriting enabled (so we don't show duplicate data)
-		                DatasetPaths = Table.SelectColumns(
-		                    Table.SelectRows(
-		                        Table.AddColumn(FilterExports, "Json", each try if [Name] = "manifest.json" then Json.Document([Content]) else null otherwise null), 
-		                        each try [Name] = "manifest.json" 
-		                            and Text.Lower([Json][exportConfig][type]) = data
-		                            and [Json][deliveryConfig][dataOverwriteBehavior] = "OverwritePreviousReport"
-		                            otherwise false
-		                    ),
-		                    {"Folder Path"}
-		                ),
-		                FilterExpData = Table.SelectRows(FilterExports, each ([Extension] = ".parquet" or [Extension] = ".csv") and List.Contains(Table.Column(DatasetPaths, "Folder Path"), [Folder Path])),
-		                ExportMonth = Table.AddColumn(FilterExpData, "StartDate", each if data = "reservationrecommendations" then null else _toMonth([Segments]{[SegmentCount]-(if Text.Length([Segments]{[SegmentCount]-2}) = 17 then 2 else 3)}), type date)
-		            in
-		                ExportMonth
-		        ),
 		
 		    // Only process files for months within the date range
 		    FilterFilesByDate =
@@ -89,8 +89,8 @@ expression ftk_Storage = ```
 		
 		    // Extract
 		    _dataNotFound = () =>
-		        if IsHub then "HubDataNotFound: No " & data & " data found in the storage account (" & Text.SplitAny(url, "/."){2} & "). Please confirm data was exported and processed by hub ingestion pipelines. Refer to the troubleshooting guide for assistance: https://aka.ms/finops/hubs/troubleshoot."
-		        else "ExportDataNotFound: No " & data & " exports found in the storage path. Please confirm exports were run and configured to push data to the storage account (" & Text.SplitAny(url, "/."){2} & "), container (" & Text.Split(url, "/"){3} & "), and path (" & Text.Combine(List.RemoveFirstN(Text.Split(url, "/"), 3), "/") & ").",
+		        if IsHub then "HubDataNotFound: No " & data & " data found in the storage account (" & Text.SplitAny(hubUrl, "/."){2} & "). Please confirm data was exported and processed by hub ingestion pipelines. Refer to the troubleshooting guide for assistance: https://aka.ms/finops/hubs/troubleshoot."
+		        else "ExportDataNotFound: No " & data & " exports found in the storage path. Please confirm exports were run and configured to push data to the storage account (" & Text.SplitAny(expUrl, "/."){2} & "), container (" & Text.Split(expUrl, "/"){3} & "), and path (" & Text.Combine(List.RemoveFirstN(Text.Split(expUrl, "/"), 3), "/") & ").",
 		    _parseCsv = (d) => Table.PromoteHeaders(Csv.Document(d, [Delimiter=",", Encoding=1252, QuoteStyle=QuoteStyle.Csv, CsvStyle=CsvStyle.QuoteAlways]), [PromoteAllScalars=true]),
 		    _getColumnRenames = (tbl) =>
 		        let
@@ -163,15 +163,27 @@ expression ftk_Storage = ```
 		    ),
 		
 		    // Only pull from the predefined date range (if specified)
+		    _parseDate = (d) =>
+		        let
+		            segments = if d = null then null else Text.SplitAny(Text.From(d), "/- T"),
+		            output =
+		                try Number.From(Date.From(
+		                         if Text.Length(segments{0}) = 4 then segments{0} & "-" & Text.PadStart(segments{1}, 2, "0") & "-" & Text.PadStart(segments{2}, 2, "0")
+		                    else if Text.Length(segments{2}) = 4 then segments{2} & "-" & Text.PadStart(segments{0}, 2, "0") & "-" & Text.PadStart(segments{1}, 2, "0")
+		                    else d
+		                )) otherwise segments
+		        in output,
 		    RefreshDate = Table.AddColumn(
 		        Table.ReplaceValue(CleanColumns, "", null, Replacer.ReplaceValue, Table.ColumnsOfType(CleanColumns, {type text, type any})),
 		        "x_IncrementalRefreshDate",
-		        each if data = "focuscost"               then Number.From(DateTime.From(Text.Range([ChargePeriodStart], 0, 10)))
-		        else if data = "pricesheet"              then Number.From(DateTime.From(Text.Range([EffectiveStartDate], 6, 4) & "-" & Text.Range([EffectiveStartDate], 0, 2) & "-" & Text.Range([EffectiveStartDate], 3, 2)))
-		        else if data = "reservationdetails"      then Number.From(DateTime.From([UsageDate]))
-		        else if data = "reservationtransactions" then Number.From(DateTime.From([EventDate]))
-		        else null // Will not support incremental refresh
-		    ),
+		            each _parseDate(
+		                if data = "focuscost"                    then [ChargePeriodStart]
+		                else if data = "pricesheet"              then [EffectiveStartDate]
+		                else if data = "reservationdetails"      then [UsageDate]
+		                else if data = "reservationtransactions" then [EventDate]
+		                else null // Will not support incremental refresh
+		            )
+		        ),
 		    FilterRowsByDate = if (start = null and end = null) then RefreshDate else Table.SelectRows(RefreshDate, each
 		        (start = null or [x_IncrementalRefreshDate] = null or [x_IncrementalRefreshDate] >= Number.From(DateTime.From(start)))
 		        and (end = null or [x_IncrementalRefreshDate] = null or [x_IncrementalRefreshDate] < Number.From(DateTime.From(end)))
@@ -215,33 +227,41 @@ expression ftk_Storage = ```
 
 expression '▶️  START HERE' = ```
 		let
-		    // Storage
-		    StorageUrl = #"Storage URL",
-		    StorageSegments = if StorageUrl <> null then Text.Split(Text.Trim(StorageUrl, "/"), "/") else {},
-		    StorageSegmentCount = List.Count(StorageSegments),
-		    StorageCheck = 
-		        if StorageUrl = "" or StorageUrl = null then {"✖ Missing", "Please specify the storage URL."}
-		        else if Text.StartsWith(StorageUrl, "https://") = false then {"✖ Invalid", "Please check your storage URL."} 
-		        else if StorageSegmentCount = 3 or (StorageSegmentCount = 4 and Text.Lower(StorageSegments{3}) = "ingestion") then (
+		    // Hub storage
+		    HubUrl = #"Hub Storage URL",
+		    HubSegments = if HubUrl <> null then Text.Split(Text.Trim(HubUrl, "/"), "/") else {},
+		    HubSegmentCount = List.Count(HubSegments),
+		    HubCheck = 
+		        if HubUrl = "" or HubUrl = null then {"➖ Ignored", "Hub storage URL not specified. Will use exports."}
+		        else if Text.StartsWith(HubUrl, "https://") = false then {"✖ Invalid", "Hub storage URL must be a valid HTTPS path."} 
+		        else if HubSegmentCount = 3 or (HubSegmentCount = 4 and Text.Lower(HubSegments{3}) = "ingestion") then (
 		            let
 		                // Looks like hubs; try to get hub version
-		                Settings = try Json.Document(AzureStorage.DataLake(StorageUrl & (if StorageSegmentCount = 3 then "/config" else "/../config")){[Name="settings.json"]}[Content], 1252) otherwise null,
+		                Settings = try Json.Document(AzureStorage.DataLake(HubUrl & (if HubSegmentCount = 3 then "/config" else "/../config")){[Name="settings.json"]}[Content], 1252) otherwise null,
 		                HubVersion = if Settings <> null then try Settings[version] otherwise null else null,
 		                Output = 
 		                    if HubVersion = null then (
-		                        if StorageSegmentCount = 4 and Text.Lower(StorageSegments{3}) = "ingestion" 
-		                        then {"❓️ Unconfirmed", "Unable to confirm FinOps hub version from storage: " & Text.Split(StorageUrl, "."){0} & "."}
+		                        if HubSegmentCount = 4 and Text.Lower(HubSegments{3}) = "ingestion" 
+		                        then {"❓️ Unconfirmed", "Unable to confirm FinOps hub version from storage: " & Text.Split(HubUrl, "."){0} & "."}
 		                        else {"✖️ Invalid", "Configured storage account does not have FinOps hubs deployed."}
 		                    )
 		                    else (
-		                        if StorageSegmentCount = 3 or (StorageSegmentCount = 4 and Text.Lower(StorageSegments{3}) = "msexports") then {"✖ Invalid", "Referencing the wrong container – Change to ingestion container."}
-		                        else {"✔️ Specified", "Will pull costs from FinOps hub v" & HubVersion & " storage: " & Text.Split(StorageUrl, "."){0} & "."}
+		                        if HubSegmentCount = 3 or (HubSegmentCount = 4 and Text.Lower(HubSegments{3}) = "msexports") then {"✖ Invalid", "Referencing the wrong container – Change to ingestion container."}
+		                        else {"✔️ Specified", "Will use FinOps hub v" & HubVersion & " storage: " & Text.Split(HubUrl, "."){0} & "."}
 		                    )
 		            in
 		                Output
 		        )
-		        else if StorageSegmentCount >= 3 and (try AzureStorage.DataLake(StorageUrl) otherwise null) <> null then {"✔️ Specified", "Will pull costs from exports in storage account: " & Text.Split(StorageUrl, "."){0} & "."}
-		        else {"✖️ Invalid", "Configured storage account is not a FinOps hub deployment: " & Text.Split(StorageUrl, "."){0} & "."},
+		        else {"✖️ Invalid", "Configured storage account is not a FinOps hub deployment: " & Text.Split(HubUrl, "."){0} & "."},
+		
+		    // Export storage
+		    ExpUrl = #"Export Storage URL",
+		    ExpCheck = 
+		        if ExpUrl = "" or ExpUrl = null then {"➖ Ignored", "Export storage URL not specified."}
+		        else if Text.StartsWith(ExpUrl, "https://") = false then {"✖ Invalid", "Export storage URL must be a valid HTTPS path."} 
+		        else if (try AzureStorage.DataLake(ExpUrl) otherwise null) <> null then {"✔️ Specified", "Will use exports in storage account: " & Text.Split(ExpUrl, "."){0} & "."}
+		        // TODO: Read export manifests from the storage account to validate data is available
+		        else {"✖️ Invalid", "Unable to connect to the specified storage account: " & Text.Split(ExpUrl, "."){0} & "."},
 		
 		    // Incremental refresh
 		    DateStart = RangeStart,
@@ -271,12 +291,18 @@ expression '▶️  START HERE' = ```
 		    */
 		
 		    MainChecks = Table.InsertRows(#table({"Instructions", "Value", "Status", "Message"}, {}), 0, {
-		        [ Instructions = "① Set the storage URL parameter on the left", Value = StorageUrl, Status = StorageCheck{0}, Message = StorageCheck{1} ],
+		        [ Instructions = "① If using FinOps hubs, set the hub storage URL on the left", Value = HubUrl, Status = HubCheck{0}, Message = HubCheck{1} ],
 		        [ Instructions = "        ➖ Go to your hub resource group", Value = "", Status = "", Message = "" ],
 		        [ Instructions = "        ➖ Open Deployments > `hub` > Outputs", Value = "", Status = "", Message = "" ],
-		        [ Instructions = "        ➖ Copy the 'storageUrlForPowerBI' value", Value = "", Status = "", Message = "" ],
+		        [ Instructions = "        ➖ Copy the 'HubUrlForPowerBI' value", Value = "", Status = "", Message = "" ],
 		        [ Instructions = "        ", Value = "", Status = "", Message = "" ],
-		        [ Instructions = "② Set the start/end dates", Value = DateValue, Status = DateCheck{0}, Message = DateCheck{1} ],
+		        [ Instructions = "② If using exports, set the export storage URL on the left", Value = ExpUrl, Status = ExpCheck{0}, Message = ExpCheck{1} ],
+		        [ Instructions = "        ➖ Go to your storage account", Value = "", Status = "", Message = "" ],
+		        [ Instructions = "        ➖ Open Endpoints", Value = "", Status = "", Message = "" ],
+		        [ Instructions = "        ➖ Copy the 'Data Lake Storage' value", Value = "", Status = "", Message = "" ],
+		        [ Instructions = "        ➖ Optionally add a container or file path", Value = "", Status = "", Message = "" ],
+		        [ Instructions = "        ", Value = "", Status = "", Message = "" ],
+		        [ Instructions = "③ Set the start/end dates", Value = DateValue, Status = DateCheck{0}, Message = DateCheck{1} ],
 		        [ Instructions = "        ➖ Dates are only required to support incremental refresh", Value = "", Status = "", Message = if DateCheck{0} = "⚠️ Warning" then "Incremental refresh requires dates." else if DateCheck{0} = "✔️ Specified" then "Please configure incremental refresh to support up to $2-5M/mo." else "" ],
 		        [ Instructions = "        ➖ NOTE: Power BI only supports a total of $2-5M without incremental refresh", Value = "", Status = "", Message = "" ],
 		        [ Instructions = "        ", Value = "", Status = "", Message = "" ]
@@ -345,4 +371,13 @@ expression ftk_ParseResourceType = (id) => ftk_ParseResourceId(id, false)
 	annotation PBI_NavigationStepName = Navigation
 
 	annotation PBI_ResultType = Function
+
+/// Name of the Azure DataLake Gen2 storage account to pull data from.
+expression 'Export Storage URL' = "https://ftkmicfland5pd7gdo37oozc.dfs.core.windows.net/raw-exports" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 2d38b78a-1e1f-4446-b513-d842ba0bdfef
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Text
 

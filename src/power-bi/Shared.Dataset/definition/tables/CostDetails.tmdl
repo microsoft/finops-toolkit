@@ -1270,6 +1270,38 @@ table CostDetails
 
 		annotation SummarizationSetBy = Automatic
 
+	column Region
+		dataType: string
+		lineageTag: 331fa017-3d76-48c9-a77d-83079119426a
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_OnDemandCost
+		dataType: string
+		lineageTag: c6941082-1c09-45fc-b4df-3bfcc93ced7a
+		summarizeBy: none
+		sourceColumn: x_OnDemandCost
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_OnDemandCostInUsd
+		dataType: string
+		lineageTag: 52d47b92-3393-4713-be59-b67c9b85dfc1
+		summarizeBy: none
+		sourceColumn: x_OnDemandCostInUsd
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_OnDemandUnitPrice
+		dataType: string
+		lineageTag: f057e668-8238-4b22-90cc-4daccca55bcd
+		summarizeBy: none
+		sourceColumn: x_OnDemandUnitPrice
+
+		annotation SummarizationSetBy = Automatic
+
 	partition CostDetails-9a19f60d-0b5b-47c3-9fdf-8f57811d24d2 = m
 		mode: import
 		queryGroup: 'FinOps toolkit'

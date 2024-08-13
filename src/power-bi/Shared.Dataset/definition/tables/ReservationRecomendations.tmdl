@@ -223,8 +223,13 @@ table ReservationRecomendations
 				    // Get the data
 				    RawData = ftk_Storage("reservationrecommendations"),
 				
+				    _addMissing = (tbl, col, typ) => if Table.HasColumns(tbl, {col}) then tbl else Table.AddColumn(tbl, col, each null, typ),
 				    FixTypes = Table.TransformColumnTypes(
-				        Table.ReplaceValue(Table.ReplaceValue(RawData, 
+				        Table.ReplaceValue(Table.ReplaceValue(
+				            // Create missing columns
+				            _addMissing(_addMissing(RawData,
+				                "RecommendedQuantityNormalized", type number),
+				                "TotalCostWithReservedInstances", type number),
 				            // Normalize frequency
 				            each [LookBackPeriod], each Text.Replace(Text.Replace([LookBackPeriod], "Last", ""), "Days", " Days"), Replacer.ReplaceValue, {"LookBackPeriod"}),
 				            // Fix inconsistent Microsoft term values

@@ -170,7 +170,7 @@ table HubData
 		queryGroup: 'FinOps toolkit'
 		source = ```
 				let
-				    ADLS = AzureStorage.DataLake(Text.Trim(#"Storage URL", "/") & "/.."),
+				    ADLS = AzureStorage.DataLake(Text.Trim(#"Hub Storage URL", "/") & "/.."),
 				
 				    // Parse storage path segments
 				    Segments    = Table.AddColumn(ADLS,         "Segments",         each Text.Split(Text.Replace(Text.Trim([Folder Path], "/"), "https://", ""), "/")),
