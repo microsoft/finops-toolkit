@@ -201,15 +201,8 @@ If you cannot grant permissions for your scope, you can create Cost Management e
    - **Overwrite data** = Off<sup>4</sup>
    - **Storage account** = (Use subscription/resource deployed with your hub)
    - **Container** = `msexports`
-   - **Directory** = (Use the resource ID of the scope<sup>5</sup> you're exporting without the first "/")
-     - _**Billing account:** `providers/Microsoft.Billing/billingAccounts/{billingAccountId}`_
-     - _**Billing profile:** `providers/Microsoft.Billing/billingAccounts/{billingAccountId}/billingProfiles/{billingProfileId}`_
-     - _**Department:** `providers/Microsoft.Billing/billingAccounts/{billingAccountId}/departments/{departmentId}`_
-
-    <blockquote class="tip" markdown="1">
-      _If you get an error about invalid characters for a billing scope, replace the unsupported characters (e.g., `:`) in the billing account ID with a dash (`-`)._
-    </blockquote>
-
+   - **Directory** = (Specify the storage container and directory path<sup>5</sup> for the export file)
+  
 2. Create another export with the same settings except set **Frequency** to `Monthly export of last month's costs`.
 3. Run your exports to initialize the dataset.
    - Exports can take up to a day to show up after first created.
@@ -222,7 +215,7 @@ _<sup>1) FinOps hubs 0.2 and beyond requires FOCUS cost data. As of July 2024, t
 _<sup>2) FinOps hubs 0.4 supports both FOCUS 1.0 and FOCUS 1.0 preview. Power BI reports in 0.4 are aligned to FOCUS 1.0 regardless of whether data was ingested as FOCUS 1.0 preview. If you need 1.0 preview data and reports, please use FinOps hubs 0.3.</sup>_
 _<sup>3) Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range.</sup>_
 _<sup>4) While most settings are required, overwriting is optional. We recommend **not** overwriting files so you can monitor your ingestion pipeline using the [Data ingestion](../power-bi/data-ingestion.md) report. If you do not plan to use that report, please enable overwriting.</sup>_
-_<sup>5) A "scope" is an Azure construct that contains resources or enables purchasing services, like a resource group, subscription, management group, or billing account. The resource ID for a scope will be the Azure Resource Manager URI that identifies the scope (e.g., "/subscriptions/###" for a subscription or "/providers/Microsoft.Billing/billingAccounts/###" for a billing account). To learn more, see [Understand and work with scopes](https://aka.ms/costmgmt/scopes).</sup>_
+_<sup>5) Name the storage directory after an identifiable name or ID to assist when troubleshooting through cost exports. This can be the subscription name or subscription ID for a subscription scope (e.g., "corp-test-001" or "########-####-####-####-############"). This can also be the billing account name or the billing account ID  for a billing account scope (e.g., "billing name" or "#######"). To learn more, see [Understand and work with scopes](https://aka.ms/costmgmt/scopes).</sup>_
 
 ---
 
