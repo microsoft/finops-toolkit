@@ -173,7 +173,7 @@ After the shortcut gets created, you can view the FOCUS cost data inside **Files
 
 For more information, see [Lakehouse Load to Delta Lake tables](/fabric/data-engineering/load-to-tables).
 
-This process creates a table based on the CSV/Parquet file and you can transform data using Power Query in the report. For an automated process to ingest data using notebooks, see [Automate data ingestion](#automate-data-ingestion) later in this article.
+This process creates a table based on the CSV/Parquet file. For an automated process to ingest data using notebooks, see [Automate data ingestion](#automate-data-ingestion) later in this article.
 
 Here’s an example screenshot showing data in the Lakehouse table.
 
