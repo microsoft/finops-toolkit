@@ -106,9 +106,8 @@ Legend:
 >   3. Improved storage idle disks query to ignore disks used by AKS pods
 >   4. Updated Storage not v2 query to exclude blockBlobStorage accounts from the list
 >   5. Added export option for the list of idle backups to streamline data extraction
->    
->   - [Governance workbook](../_optimize/governance-workbook/README.md):
->   1. The Management Group filter has been removed to make the workbook easier to use. 
+> - [Governance workbook](../_optimize/governance-workbook/README.md):
+>   1. Removed the management group filter to simplify filtering by subscription.
 
 🔍 Optimization engine
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -141,7 +140,15 @@ Legend:
 
 > ✏️ Changed
 >
-> 1. Changed Microsoft Genomics to the "Analytics" service category and "PaaS" service model in the [Services](../_reporting/data/README.md#️-services) open data file.
+> - [Services](../_reporting/data/README.md#️-services)
+>   1. Moved Microsoft Genomics from the "AI and Machine Learning" service category to "Analytics".
+>   2. Changed Microsoft Genomics from the "SaaS" service model to "PaaS".
+>   3. Replace "Azure Active Directory" service name references with "Microsoft Entra".
+>   4. Move Azure Cache for Redis from the "Storage" service category to "Databases".
+>   5. Move Event Hubs from the "Integration" service category to "Analytics".
+>   6. Rename the Microsoft.HybridCompute consumed service service name from "Azure Resource Manager" to "Azure Arc".
+>   7. Move Microsoft Defender for Endpoint from the "Multicloud" service category to "Security".
+>   8. Move StorSimple from the "Multicloud" service category to "Storage".
 
 [Download v0.5](https://github.com/microsoft/finops-toolkit/releases/tag/v0.5){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.4...v0.5){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }

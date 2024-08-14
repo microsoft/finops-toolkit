@@ -42,8 +42,8 @@ microsoft.appplatform,microsoft.appplatform/spring,Azure Spring Apps,Compute,Mic
 microsoft.automation,microsoft.automation/automationaccounts,Azure Automation,Management and Governance,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.autonomousdevelopmentplatform,microsoft.autonomousdevelopmentplatform/workspaces,Microsoft Autonomous Systems,AI and Machine Learning,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.avs,microsoft.avs/privateclouds,Azure VMware Solution,Compute,Microsoft,Cloud Provider,Cloud,IaaS
-microsoft.azureactivedirectory,microsoft.azureactivedirectory/b2cdirectories,Microsoft Entra Directory External Identities,Identity,Microsoft,Cloud Provider,Cloud,SaaS
-microsoft.azureactivedirectory,microsoft.azureactivedirectory/guestusages,Microsoft Entra Directory External Identities,Identity,Microsoft,Cloud Provider,Cloud,SaaS
+microsoft.azureactivedirectory,microsoft.azureactivedirectory/b2cdirectories,Microsoft Entra External Identities,Identity,Microsoft,Cloud Provider,Cloud,SaaS
+microsoft.azureactivedirectory,microsoft.azureactivedirectory/guestusages,Microsoft Entra External Identities,Identity,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.azurearcdata,microsoft.azurearcdata/postgresinstances,Azure Arc,Multicloud,Microsoft,Cloud Provider,Hybrid,SaaS
 microsoft.azurearcdata,microsoft.azurearcdata/sqlmanagedinstances,Azure Arc,Multicloud,Microsoft,Cloud Provider,Hybrid,SaaS
 microsoft.azurearcdata,microsoft.azurearcdata/sqlserverinstances,Azure Arc,Multicloud,Microsoft,Cloud Provider,Hybrid,SaaS
