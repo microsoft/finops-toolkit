@@ -28,7 +28,7 @@ kubernetesservice,microsoft.security/pricings,Azure Kubernetes Service,Compute,M
 marketplace,marketplace/account,Azure Marketplace,Other,Microsoft,Cloud Provider,Cloud,SaaS
 mfa,mfa/perauthentication,Microsoft Entra ID,Identity,Microsoft,Cloud Provider,Cloud,SaaS
 mfa,mfa/peruser,Microsoft Entra ID,Identity,Microsoft,Cloud Provider,Cloud,SaaS
-microsoft.aad,microsoft.aad/domainservices,Azure Active Directory Domain Services,Identity,Microsoft,Cloud Provider,Cloud,SaaS
+microsoft.aad,microsoft.aad/domainservices,Microsoft Entra Domain Services,Identity,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.agfoodplatform,microsoft.agfoodplatform/farmbeats,Azure Data Manager for Agriculture,Integration,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.analysisservices,microsoft.analysisservices/servers,Azure Analysis Services,Analytics,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.apicenter,microsoft.apicenter/service,API Management,Web,Microsoft,Cloud Provider,Cloud,PaaS
@@ -42,8 +42,8 @@ microsoft.appplatform,microsoft.appplatform/spring,Azure Spring Apps,Compute,Mic
 microsoft.automation,microsoft.automation/automationaccounts,Azure Automation,Management and Governance,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.autonomousdevelopmentplatform,microsoft.autonomousdevelopmentplatform/workspaces,Microsoft Autonomous Systems,AI and Machine Learning,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.avs,microsoft.avs/privateclouds,Azure VMware Solution,Compute,Microsoft,Cloud Provider,Cloud,IaaS
-microsoft.azureactivedirectory,microsoft.azureactivedirectory/b2cdirectories,Azure Active Directory External Identities,Identity,Microsoft,Cloud Provider,Cloud,SaaS
-microsoft.azureactivedirectory,microsoft.azureactivedirectory/guestusages,Azure Active Directory External Identities,Identity,Microsoft,Cloud Provider,Cloud,SaaS
+microsoft.azureactivedirectory,microsoft.azureactivedirectory/b2cdirectories,Microsoft Entra External Identities,Identity,Microsoft,Cloud Provider,Cloud,SaaS
+microsoft.azureactivedirectory,microsoft.azureactivedirectory/guestusages,Microsoft Entra External Identities,Identity,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.azurearcdata,microsoft.azurearcdata/postgresinstances,Azure Arc,Multicloud,Microsoft,Cloud Provider,Hybrid,SaaS
 microsoft.azurearcdata,microsoft.azurearcdata/sqlmanagedinstances,Azure Arc,Multicloud,Microsoft,Cloud Provider,Hybrid,SaaS
 microsoft.azurearcdata,microsoft.azurearcdata/sqlserverinstances,Azure Arc,Multicloud,Microsoft,Cloud Provider,Hybrid,SaaS
@@ -56,8 +56,8 @@ microsoft.billingbenefits,Microsoft.BillingBenefits/savingsPlanOrders,Azure Savi
 microsoft.billingbenefits,Microsoft.BillingBenefits/savingsPlanOrders/savingsPlans,Azure Savings Plan for Compute,Compute,Microsoft,Cloud Provider,Cloud,IaaS
 microsoft.bing,microsoft.bing/accounts,Microsoft Bing,Web,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.botservice,microsoft.botservice/botservices,Azure AI Bot Service,AI and Machine Learning,Microsoft,Cloud Provider,Cloud,PaaS
-microsoft.cache,microsoft.cache/redisenterprise,Azure Cache for Redis,Storage,Microsoft,Cloud Provider,Cloud,PaaS
-microsoft.cache,microsoft.cache/redis,Azure Cache for Redis,Storage,Microsoft,Cloud Provider,Cloud,PaaS
+microsoft.cache,microsoft.cache/redisenterprise,Azure Cache for Redis,Databases,Microsoft,Cloud Provider,Cloud,PaaS
+microsoft.cache,microsoft.cache/redis,Azure Cache for Redis,Databases,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.capacity,microsoft.capacity/reservationOrders,Azure Reservations,Management and Governance,Microsoft,Cloud Provider,Cloud,IaaS
 microsoft.capacity,microsoft.capacity/reservationOrders/reservations,Azure Reservations,Management and Governance,Microsoft,Cloud Provider,Cloud,IaaS
 microsoft.cdn,microsoft.cdn/cdnwebapplicationfirewallpolicies,Content Delivery Network,Networking,Microsoft,Cloud Provider,Cloud,SaaS
@@ -125,7 +125,7 @@ microsoft.elasticsan,microsoft.elasticsan/elasticsans,Azure Elastic SAN,Storage,
 microsoft.eventgrid,microsoft.apimanagement/service,API Management,Web,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.eventgrid,microsoft.appconfiguration/configurationstores,App Configuration,Developer Tools,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.eventgrid,microsoft.autonomousdevelopmentplatform/workspaces,Microsoft Autonomous Systems,AI and Machine Learning,Microsoft,Cloud Provider,Cloud,PaaS
-microsoft.eventgrid,microsoft.cache/redis,Azure Cache for Redis,Storage,Microsoft,Cloud Provider,Cloud,PaaS
+microsoft.eventgrid,microsoft.cache/redis,Azure Cache for Redis,Databases,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.eventgrid,microsoft.communication/communicationservices,Azure Communication Services,Web,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.eventgrid,microsoft.containerregistry/registries,Azure Container Registry,Compute,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.eventgrid,microsoft.containerservice/managedclusters,Azure Kubernetes Service,Compute,Microsoft,Cloud Provider,Cloud,PaaS
@@ -136,7 +136,7 @@ microsoft.eventgrid,microsoft.eventgrid/partnertopics,Event Grid,Integration,Mic
 microsoft.eventgrid,microsoft.eventgrid/systemtopics,Event Grid,Integration,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.eventgrid,microsoft.eventgrid/topics,Event Grid,Integration,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.eventgrid,microsoft.devices/iothubs,Azure IoT Hub,Internet of Things,Microsoft,Cloud Provider,Cloud,PaaS
-microsoft.eventgrid,microsoft.eventhub/namespaces,Event Hubs,Integration,Microsoft,Cloud Provider,Cloud,PaaS
+microsoft.eventgrid,microsoft.eventhub/namespaces,Event Hubs,Analytics,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.eventgrid,microsoft.keyvault/vaults,Key Vault,Security,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.eventgrid,microsoft.maintenance/maintenanceconfigurations,Virtual Machines,Compute,Microsoft,Cloud Provider,Cloud,IaaS
 microsoft.eventgrid,microsoft.healthcareapis/workspaces,Azure Health Data Services,Integration,Microsoft,Cloud Provider,Cloud,SaaS
@@ -149,8 +149,8 @@ microsoft.eventgrid,microsoft.signalrservice/signalr,Azure SignalR Service,Web,M
 microsoft.eventgrid,microsoft.storage/storageaccounts,Storage Accounts,Storage,Microsoft,Cloud Provider,Cloud,IaaS
 microsoft.eventgrid,microsoft.web/serverfarms,Azure App Service,Web,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.eventgrid,microsoft.web/sites,Azure App Service,Web,Microsoft,Cloud Provider,Cloud,PaaS
-microsoft.eventhub,microsoft.eventhub/namespaces,Event Hubs,Integration,Microsoft,Cloud Provider,Cloud,PaaS
-microsoft.eventhub,microsoft.eventhub/clusters,Event Hubs,Integration,Microsoft,Cloud Provider,Cloud,PaaS
+microsoft.eventhub,microsoft.eventhub/namespaces,Event Hubs,Analytics,Microsoft,Cloud Provider,Cloud,PaaS
+microsoft.eventhub,microsoft.eventhub/clusters,Event Hubs,Analytics,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.fabric,microsoft.fabric/capacities,Microsoft.Fabric,Analytics,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.fluidrelay,microsoft.fluidrelay/fluidrelayservers,Azure Fluid Relay,Web,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.genomics,microsoft.genomics/accounts,Microsoft Genomics,Analytics,Microsoft,Cloud Provider,Cloud,PaaS
@@ -165,7 +165,7 @@ microsoft.healthbot,microsoft.healthbot/healthbots,Health Bot,AI and Machine Lea
 microsoft.healthcareapis,microsoft.healthcareapis/workspaces,Azure Health Data Services,Integration,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.healthcareapis,microsoft.healthcareapis/services,Azure Health Data Services,Integration,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.hybridcompute,microsoft.hybridcompute/machines,Azure Arc,Multicloud,Microsoft,Cloud Provider,Hybrid,SaaS
-microsoft.hybridcompute,microsoft.hybridcompute/licenses,Azure Resource Manager,Compute,Microsoft,Cloud Provider,Hybrid,IaaS
+microsoft.hybridcompute,microsoft.hybridcompute/licenses,Azure Arc,Multicloud,Microsoft,Cloud Provider,Hybrid,IaaS
 microsoft.importexport,microsoft.importexport/jobs,Azure Storage,Storage,Microsoft,Cloud Provider,Cloud,IaaS
 microsoft.insights,microsoft.insights/actiongroups,Azure Monitor,Management and Governance,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.insights,microsoft.insights/components,Azure Monitor,Management and Governance,Microsoft,Cloud Provider,Cloud,SaaS
@@ -258,7 +258,7 @@ microsoft.saas,microsoft.saas/resources,Azure Marketplace,Other,Microsoft,Market
 microsoft.saas,microsoft.saas/saasresources,Azure Marketplace,Other,Microsoft,Marketplace,Cloud,SaaS
 microsoft.search,microsoft.search/searchservices,Azure Cognitive Search,Web,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.security,microsoft.apimanagement/service,API Management,Web,Microsoft,Cloud Provider,Cloud,PaaS
-microsoft.security,microsoft.security/mdeservers,Microsoft Defender for Endpoint,Multicloud,Microsoft,Cloud Provider,Cloud,PaaS
+microsoft.security,microsoft.security/mdeservers,Microsoft Defender for Endpoint,Security,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.security,microsoft.security/pricings,Microsoft Defender for Cloud,Security,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.security,microsoft.security/securityconnectors,Microsoft Defender for Cloud,Security,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.securitycopilot,microsoft.securitycopilot/capacities,Microsoft Copilot for Security,Security,Microsoft,Cloud Provider,Cloud,SaaS
@@ -275,7 +275,7 @@ microsoft.storage,microsoft.storage/storageaccounts,Storage Accounts,Storage,Mic
 microsoft.storagecache,microsoft.storagecache/amlfilesystems,Azure HPC Cache,Storage,Microsoft,Cloud Provider,Hybrid,IaaS
 microsoft.storagecache,microsoft.storagecache/caches,Azure HPC Cache,Storage,Microsoft,Cloud Provider,Hybrid,IaaS
 microsoft.storagesync,microsoft.storagesync/storagesyncservices,Azure File Sync,Storage,Microsoft,Cloud Provider,Hybrid,PaaS
-microsoft.storsimple,microsoft.storsimple/managers,Azure StorSimple,Multicloud,Microsoft,Cloud Provider,Hybrid,IaaS
+microsoft.storsimple,microsoft.storsimple/managers,Azure StorSimple,Storage,Microsoft,Cloud Provider,Hybrid,IaaS
 microsoft.streamanalytics,microsoft.streamanalytics/clusters,Azure Stream Analytics,Analytics,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.streamanalytics,microsoft.streamanalytics/streamingjobs,Azure Stream Analytics,Analytics,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.synapse,microsoft.synapse/workspaces,Azure Synapse Analytics,Analytics,Microsoft,Cloud Provider,Cloud,PaaS
