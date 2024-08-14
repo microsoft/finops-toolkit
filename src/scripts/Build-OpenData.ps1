@@ -322,6 +322,8 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
             logOverrides $override.originalPlural        $override.plural        $asset.pluralDisplayName        'plural display name'
             logOverrides $override.originalLowerSingular $override.lowerSingular $asset.lowerSingularDisplayName 'lower singular display name'
             logOverrides $override.originalLowerPlural   $override.lowerPlural   $asset.lowerPluralDisplayName   'lower plural display name'
+            
+            [array]$links = $asset.links | Select-Object -Property title, @{Name = 'uri'; Expression = {$_.uri.Replace('/en-us/', '/')}}
             $typeInfo = [ordered]@{
                 resourceType             = $resourceType
                 singularDisplayName      = noPreview ($override.singular ?? $asset.singularDisplayName)
@@ -331,7 +333,7 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
                 isPreview                = $isPreview
                 description              = ($asset.description ?? '') -replace '[\n\r]', ' ' -replace '  *', ' ' ?? $null
                 icon                     = $icon ? "https://microsoft.github.io/finops-toolkit/svg/$resourceType.svg" : $null
-                links                    = $asset.links
+                links                    = $links
             }
 
             # Warn if names are missing
