@@ -14,7 +14,7 @@ assignees: ''
 ⭐ TODO: Add current backlog milestone # at end of link
 ⭐ TODO: After saving, update the next iteration link from the last iteration with this issue #
 
-⬅️ [Previous release]() &nbsp; | &nbsp; ▶️ [Current backlog](../milestone/) &nbsp; | &nbsp; Next iteration ➡️
+⬅️ [Previous release]() &nbsp; | &nbsp; ▶️ [Current backlog](../milestone/) &nbsp; | &nbsp; Next release ➡️
 
 ## 👀 Last month
 Things we released or are monitoring...
