@@ -64,7 +64,7 @@ if ($Template -ne "*" -and -not (Test-Path $relDir))
 
 # Package templates
 $version = & "$PSScriptRoot/Get-Version"
-Write-Host "Packaging v$version templates..."
+Write-Host "Packaging $(if ($Template) { "$Template v$version template" } else { "v$version templates" })..."
 
 $isPrerelease = $version -like '*-*'
 
@@ -74,22 +74,23 @@ Remove-Item "$relDir/*.zip" -Force
 $templates = Get-ChildItem "$relDir/$Template*" -Directory `
 | ForEach-Object {
     Write-Verbose ("Packaging $_" -replace (Get-Item $relDir).FullName, '.')
-    $path = $_
-    $versionSubFolder = (Join-Path $path $version)
-    $zip = Join-Path (Get-Item $relDir) "$($path.Name)-v$version.zip"
+    $srcPath = $_
+    $templateName = $srcPath.Name
+    $versionSubFolder = (Join-Path $srcPath $version)
+    $zip = Join-Path (Get-Item $relDir) "$templateName-v$version.zip"
 
     Write-Verbose "Checking for a nested version folder: $versionSubFolder"
     if ((Test-Path -Path $versionSubFolder -PathType Container) -eq $true)
     {
         Write-Verbose "  Switching to sub folder"
-        $path = $versionSubFolder
+        $srcPath = $versionSubFolder
     }
 
     # Skip if template is a Bicep Registry module
     Write-Verbose "Checking version.json to see if it's targeting the Bicep Registry"
-    if (Test-Path $path/version.json)
+    if (Test-Path $srcPath/version.json)
     {
-        $versionSchema = (Get-Content "$path\version.json" -Raw | ConvertFrom-Json | Select-Object -ExpandProperty '$schema')
+        $versionSchema = (Get-Content "$srcPath\version.json" -Raw | ConvertFrom-Json | Select-Object -ExpandProperty '$schema')
         if ($versionSchema -like '*bicep-registry-module*')
         {
             Write-Verbose "Skipping Bicep Registry module (not included in releases)"
@@ -97,33 +98,33 @@ $templates = Get-ChildItem "$relDir/$Template*" -Directory `
         }
     }
 
-    Write-Verbose "Updating $($path.Name) deployment files in docs..."
+    Write-Verbose "Updating $templateName deployment files in docs..."
 
     function Copy-DeploymentFiles($suffix)
     {
-        $packageManifestPath = "$path/package-manifest.json"
+        $packageManifestPath = "$srcPath/package-manifest.json"
         if (Test-Path $packageManifestPath)
         {
             # Read files/directories from package-manifest.json
             $packageManifest = Get-Content $packageManifestPath -Raw | ConvertFrom-Json
 
             # Create release directory
-            $targetDir = "$deployDir/$($path.Name)/$suffix"
+            $targetDir = "$deployDir/$templateName/$suffix"
             & "$PSScriptRoot/New-Directory" $targetDir
             
             # Copy files and directories
-            $packageManifest.deployment.Files | ForEach-Object { Copy-Item "$path/$($_.source)" "$targetDir/$($_.destination)" }
+            $packageManifest.deployment.Files | ForEach-Object { Copy-Item "$srcPath/$($_.source)" "$targetDir/$($_.destination)" -Force }
             $packageManifest.deployment.Directories | ForEach-Object {
                 & "$PSScriptRoot/New-Directory" "$targetDir/$($_.destination)"
-                Get-ChildItem "$path/$($_.source)" | Copy-Item -Destination "$targetDir/$($_.destination)" -Recurse -Force
+                Get-ChildItem "$srcPath/$($_.source)" | Copy-Item -Destination "$targetDir/$($_.destination)" -Recurse -Force
             }
         }
         else
         {
             # TODO include this fallback logic in a fallback package-manifest.json file
             # Copy azuredeploy.json to docs/deploy folder
-            Copy-Item "$path/azuredeploy.json" "$deployDir/$($path.Name)-$suffix.json"
-            Copy-Item "$path/createUiDefinition.json" "$deployDir/$($path.Name)-$suffix.ui.json"
+            Copy-Item "$srcPath/azuredeploy.json" "$deployDir/$templateName-$suffix.json"
+            Copy-Item "$srcPath/createUiDefinition.json" "$deployDir/$templateName-$suffix.ui.json"
         }
     }
 
@@ -137,8 +138,8 @@ $templates = Get-ChildItem "$relDir/$Template*" -Directory `
         Copy-DeploymentFiles "latest"
     }
 
-    Write-Verbose ("Compressing $path to $zip" -replace (Get-Item $relDir).FullName, '.')
-    Compress-Archive -Path "$path/*" -DestinationPath $zip
+    Write-Verbose ("Compressing $srcPath to $zip" -replace (Get-Item $relDir).FullName, '.')
+    Compress-Archive -Path "$srcPath/*" -DestinationPath $zip
     return $zip
 }
 Write-Host "✅ $($templates.Count) templates"
