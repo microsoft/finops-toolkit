@@ -114,8 +114,8 @@ $templates = Get-ChildItem "$relDir/$Template*" -Directory `
             # Copy files and directories
             $packageManifest.deployment.Files | ForEach-Object { Copy-Item "$path/$($_.source)" "$targetDir/$($_.destination)" }
             $packageManifest.deployment.Directories | ForEach-Object {
-                & "$PSScriptRoot/New-Directory" "$targetDir/$($directory.destination)"
-                Get-ChildItem "$path/$($directory.source)" | Copy-Item -Destination "$docsDeployDir/$($directory.destination)" -Recurse -Force
+                & "$PSScriptRoot/New-Directory" "$targetDir/$($_.destination)"
+                Get-ChildItem "$path/$($_.source)" | Copy-Item -Destination "$targetDir/$($_.destination)" -Recurse -Force
             }
         }
         else
