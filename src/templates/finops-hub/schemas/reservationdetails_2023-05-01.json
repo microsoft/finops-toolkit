@@ -8,7 +8,7 @@
         "sink": { "name": "InstanceFlexibilityGroup" }
       },
       {
-        "source": { "name": "InstanceFlexibilityRatio", "type": "String" },
+        "source": { "name": "InstanceFlexibilityRatio", "type": "Ratio" },
         "sink": { "name": "InstanceFlexibilityRatio" }
       },
       {
@@ -28,7 +28,7 @@
         "sink": { "name": "ReservationId" }
       },
       {
-        "source": { "name": "ReservedHours", "type": "String" },
+        "source": { "name": "ReservedHours", "type": "Decimal" },
         "sink": { "name": "ReservedHours" }
       },
       {

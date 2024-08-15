@@ -40,19 +40,19 @@
         "sink": { "name": "EventType" }
       },
       {
-        "source": { "name": "Invoice", "type": "Decimal" },
+        "source": { "name": "Invoice", "type": "String" },
         "sink": { "name": "Invoice" }
       },
       {
-        "source": { "name": "InvoiceId", "type": "Decimal" },
+        "source": { "name": "InvoiceId", "type": "String" },
         "sink": { "name": "InvoiceId" }
       },
       {
-        "source": { "name": "InvoiceSectionId", "type": "Decimal" },
+        "source": { "name": "InvoiceSectionId", "type": "String" },
         "sink": { "name": "InvoiceSectionId" }
       },
       {
-        "source": { "name": "InvoiceSectionName", "type": "Decimal" },
+        "source": { "name": "InvoiceSectionName", "type": "String" },
         "sink": { "name": "InvoiceSectionName" }
       },
       {
