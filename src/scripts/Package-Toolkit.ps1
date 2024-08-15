@@ -121,7 +121,6 @@ $templates = Get-ChildItem "$relDir/$Template*" -Directory `
         }
         else
         {
-            # TODO include this fallback logic in a fallback package-manifest.json file
             # Copy azuredeploy.json to docs/deploy folder
             Copy-Item "$srcPath/azuredeploy.json" "$deployDir/$templateName-$suffix.json"
             Copy-Item "$srcPath/createUiDefinition.json" "$deployDir/$templateName-$suffix.ui.json"
