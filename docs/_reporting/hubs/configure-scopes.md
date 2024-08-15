@@ -219,7 +219,7 @@ _<sup>1) FinOps hubs 0.2 and beyond requires FOCUS cost data. As of July 2024, t
 _<sup>2) FinOps hubs 0.4 supports both FOCUS 1.0 and FOCUS 1.0 preview. Power BI reports in 0.4 are aligned to FOCUS 1.0 regardless of whether data was ingested as FOCUS 1.0 preview. If you need 1.0 preview data and reports, please use FinOps hubs 0.3.</sup>_
 _<sup>3) Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range.</sup>_
 _<sup>4) While most settings are required, overwriting is optional. We recommend **not** overwriting files so you can monitor your ingestion pipeline using the [Data ingestion](../power-bi/data-ingestion.md) report. If you do not plan to use that report, please enable overwriting.</sup>_
-_<sup>5) Name the storage directory after an identifiable name or ID to assist when troubleshooting through cost exports. This can be the subscription name or subscription ID for a subscription scope (e.g., "corp-test-001" or "########-####-####-####-############"). This can also be the billing account name or the billing account ID  for a billing account scope (e.g., "billing name" or "#######"). To learn more, see [Understand and work with scopes](https://aka.ms/costmgmt/scopes).</sup>_
+_<sup>5) Export paths can be any value but must be unique per scope. We recommended using a path that identifies the source scope (e.g., subscription or billing account). If 2 scopes share the same path, there could be ingestion errors.</sup>_
 
 ---
 
