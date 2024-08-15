@@ -1,9 +1,21 @@
 $ErrorActionPreference = "Stop"
 
+$cloudEnvironment = Get-AutomationVariable -Name "AzureOptimization_CloudEnvironment" -ErrorAction SilentlyContinue # AzureCloud|AzureChinaCloud
+if ([string]::IsNullOrEmpty($cloudEnvironment))
+{
+    $cloudEnvironment = "AzureCloud"
+}
+$authenticationOption = Get-AutomationVariable -Name  "AzureOptimization_AuthenticationOption" -ErrorAction SilentlyContinue # ManagedIdentity|UserAssignedManagedIdentity
+if ([string]::IsNullOrEmpty($authenticationOption))
+{
+    $authenticationOption = "ManagedIdentity"
+}
+if ($authenticationOption -eq "UserAssignedManagedIdentity")
+{
+    $uamiClientID = Get-AutomationVariable -Name "AzureOptimization_UAMIClientID"
+}
+
 $sqlserver = Get-AutomationVariable -Name  "AzureOptimization_SQLServerHostname"
-$sqlserverCredential = Get-AutomationPSCredential -Name "AzureOptimization_SQLServerCredential"
-$SqlUsername = $sqlserverCredential.UserName 
-$SqlPass = $sqlserverCredential.GetNetworkCredential().Password 
 $sqldatabase = Get-AutomationVariable -Name  "AzureOptimization_SQLServerDatabase" -ErrorAction SilentlyContinue
 if ([string]::IsNullOrEmpty($sqldatabase))
 {
@@ -16,6 +28,23 @@ if (-not($RecommendationsMaxAge -gt 0))
 }
 
 $recommendationsTable = "Recommendations"
+$SqlTimeout = 120
+
+"Logging in to Azure with $authenticationOption..."
+
+switch ($authenticationOption) {
+    "UserAssignedManagedIdentity" { 
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment -AccountId $uamiClientID
+        break
+    }
+    Default { #ManagedIdentity
+        Connect-AzAccount -Identity -EnvironmentName $cloudEnvironment 
+        break
+    }
+}
+
+$cloudDetails = Get-AzEnvironment -Name $CloudEnvironment
+$azureSqlDomain = $cloudDetails.SqlDatabaseDnsSuffix.Substring(1)
 
 $tries = 0
 $connectionSuccess = $false
@@ -25,7 +54,9 @@ Write-Output "Cleaning up recommendations older than $RecommendationsMaxAge days
 do {
     $tries++
     try {
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;User ID=$SqlUsername;Password=$SqlPass;Trusted_Connection=False;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
+        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $Conn.AccessToken = $dbToken.Token
         $Conn.Open() 
         $Cmd=new-object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn

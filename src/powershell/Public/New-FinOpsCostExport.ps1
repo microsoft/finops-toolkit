@@ -344,7 +344,7 @@ function New-FinOpsCostExport
     $context = Get-AzContext
     if (-not $context)
     {
-        throw $script:localizedData.ContextNotFound
+        throw $script:localizedData.Common_ContextNotFound
     }
     
     # Register the Microsoft.CostManagementExports RP

@@ -20,6 +20,8 @@ Upgrade an existing FinOps hub instance to the latest version to leverage new ca
 - [Before you begin](#before-you-begin)
 - [Upgrading 0.0.1](#upgrading-001)
 - [Upgrading 0.1.x](#upgrading-01x)
+- [Upgrading 0.2](#upgrading-02)
+- [Upgrading 0.3](#upgrading-03)
 - [⏭️ Next steps](#️-next-steps)
 
 </details>
@@ -27,10 +29,6 @@ Upgrade an existing FinOps hub instance to the latest version to leverage new ca
 ---
 
 Upgrading a FinOps hub instance is usually the same as the initial setup but depending on what version you're moving from or to, you may have specific steps that are needed. Use the following sections to move from one version to another. If you have any questions, please [start a discussion](https://github.com/microsoft/finops-toolkit/discussions).
-
-<blockquote class="warning" markdown="1">
-  _The most common issue people face when upgrading to `0.2` is trying to use **new** Power BI reports with an **old** hub or using **old** Power BI reports with an **upgraded** hub. FinOps hubs and reports from the `0.0.1` and `0.1.x` releases are compatible, but they are not compatible with `0.2`._
-</blockquote>
 
 <br>
 
@@ -65,6 +63,7 @@ Microsoft Online Services Agreement (MOSA, aka PAYG) and Microsoft internal subs
 If you have an EA or MCA account, please upgrade to `0.2` which uses the new [FOCUS](../../_docs/focus/README.md) cost data format and covers both billed (actual) and amortized costs with 30% less data size (and storage costs). This will be the baseline for all future updates.
 
 [See 0.2 upgrade instructions](#ea-and-mca-accounts-for-01x){: .btn .mb-4 .mb-md-0 .mr-4 }
+[View changes](../../_resources/changelog.md#-v01){: .btn .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
@@ -98,17 +97,45 @@ Before you upgrade, consider the following:
    - If you modified the reports, you will need to re-apply your changes to the new reports. Refer to [How to update existing reports to FOCUS](../../_docs/focus/README.md#how-to-update-existing-reports-to-focus) for details.
    - If you need your customized reports to continue to run while you upgrade, deploy a second instance of FinOps hubs using a different storage account to avoid data processing errors.
 
-Based on the above, use the following steps to upgrade your hub instance from `0.1.x` to `0.2.x`:
+Based on the above, use the following steps to upgrade your hub instance from `0.1.x` to `0.3`:
 
 1. Delete any amortized cost exports pointing to your hub instance.
 2. If desired, delete the historical amortized cost data to keep storage costs down.
-3. Deploy FinOps hubs `0.2.1` and create new FOCUS exports using the [Create a new hub](./README.md#-create-a-new-hub) instructions.
+3. Deploy FinOps hubs `0.3` and create new FOCUS exports using the [Create a new hub](./README.md#-create-a-new-hub) instructions.
    <blockquote class="note" markdown="1">
      _You can skip step 1 since resource providers have already been registered._
    </blockquote>
 4. Backfill historical data using the FOCUS export.
 
-[Download](https://github.com/microsoft/finops-toolkit/releases/tag/v0.2.1){: .btn .mb-4 .mb-md-0 .mr-4 }
+[Download 0.3](https://github.com/microsoft/finops-toolkit/releases/tag/v0.3){: .btn .mb-4 .mb-md-0 .mr-4 }
+[View changes](../../_resources/changelog.md#-v02){: .btn .mb-4 .mb-md-0 .mr-4 }
+
+<br>
+
+## Upgrading 0.2
+
+Upgrading FinOps hubs 0.2 to 0.4 is as simple as re-deploying the template and optionally update to the v0.3 Power BI reports. There are no breaking changes, so Power BI reports from v0.2 should work with v0.3 and vice-versa.
+
+[Download 0.3](https://github.com/microsoft/finops-toolkit/releases/tag/v0.3){: .btn .mb-4 .mb-md-0 .mr-4 }
+[View changes](../../_resources/changelog.md#-v03){: .btn .mb-4 .mb-md-0 .mr-4 }
+
+<br>
+
+## Upgrading 0.3
+
+Upgrading FinOps hubs 0.3 to 0.4 is as simple as re-deploying the template and optionally update to the v0.4 Power BI reports. There are no breaking changes, so Power BI reports from v0.3 should work with v0.4 and vice-versa.
+
+FinOps hubs 0.4 aligns with FOCUS 1.0, so you will notice changes to the following columns:
+
+- ChargeCategory is "Purchase" for refunds instead of "Adjustment".
+- ChargeClass (new) is "Correction" for refunds.
+- CommitmentDiscountStatus (new) replaces ChargeSubcategory for commitment discount usage.
+- Region is replaced by RegionId and RegionName.
+
+Reports work with both FOCUS 1.0 and FOCUS 1.0 preview exports, so there's no need to change exports in order to use the new reports. The reports themselves update the schema to meet FOCUS 1.0 requirements.
+
+[Download 0.4](https://github.com/microsoft/finops-toolkit/releases/tag/v0.4){: .btn .mb-4 .mb-md-0 .mr-4 }
+[View changes](../../_resources/changelog.md#-v04){: .btn .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 

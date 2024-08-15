@@ -4,7 +4,7 @@ This document outlines the high-level support escalation process. The goal of th
 
 On this page:
 
-- [🙋‍♀️ Support requests](#-support-requests)
+- [🙋‍♀️ Support requests](#️-support-requests)
 - [🔎 Escalation process](#-escalation-process)
 
 ---

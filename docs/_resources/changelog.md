@@ -11,12 +11,13 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
 {: .fs-6 .fw-300 }
 
 [Download the latest release](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[See changes](#-v01){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[See changes](#latest){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
 
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
+- [🚚 v0.5](#-v05)
 - [🚚 v0.4](#-v04)
 - [🚚 v0.3](#-v03)
 - [🚚 v0.2](#-v02)
@@ -61,11 +62,102 @@ Legend:
 > 2. Auto-backfill – Backfill historical data from Microsoft Cost Management.
 > 3. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
 
+<br><a name="latest"></a>
+
+## 🚚 v0.5
+
+<sup>Released August 2024</sup>
+
+📗 FinOps guide
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Documented [how to compare FOCUS and actual/amortized data](../_docs/focus/validate.md) to learn and validate FOCUS data.
+
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Added an optional `skipEventGridRegistration` template parameter to support skipping Event Grid RP registration.
+> 2. Added an Event Grid section to the hubs create form.
+>
+> ✏️ Changed:
+>
+> 1. Changed the Event Grid location selection logic to only identify fallback regions rather than supported regions.
+> 2. Expanded cost estimate documentation to call out Power BI pricing and include a link to the Pricing Calculator.
+
+📒 Azure Monitor workbooks
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> - [Optimization workbook](../_optimize/optimization-workbook/README.md):
+>   1. New compute query to identify VMs per processor architecture type
+>   2. New database query to identify SQL Pool instances with 0 databases
+>   3. New storage query to identify Powered Off VMs with Premium Disks
+>
+> ✏️ Changed:
+>
+> - [Optimization workbook](../_optimize/optimization-workbook/README.md):
+>   1. Redesign of the Rate Optimization tab for easier identification of the break-even point for reservations
+>   2. Fixed the AHB VMSS query to count the total cores consumed per the entire scale set
+>   3. Improved storage idle disks query to ignore disks used by AKS pods
+>   4. Updated Storage not v2 query to exclude blockBlobStorage accounts from the list
+>   5. Added export option for the list of idle backups to streamline data extraction
+> - [Governance workbook](../_optimize/governance-workbook/README.md):
+>   1. Removed the management group filter to simplify filtering by subscription.
+
+🔍 Optimization engine
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. `Register-MultitenantAutomationSchedules` PowerShell script helper to [add a different Azure tenant to the scope of AOE](../_optimize/optimization-engine/customize.md).
+> 2. ZRS disks included in the scope of the `Premium SSD disk has been underutilized` recommendation (besides LRS).
+> 3. Option to scope consumption exports to MCA Billing Profile.
+>
+> ✏️ Changed:
+>
+> 1. Improved SQL Database security, replacing SQL authentication by Entra ID authentication-only.
+>
+> 🛠️ Fixed:
+>
+> 1. `Premium SSD disk has been underutilized` recommendation was not showing results due to a meter name change in Cost Management ([#831](https://github.com/microsoft/finops-toolkit/issues/831)).
+> 2. Consumption exports for Pay-As-You-Go MCA subscriptions were missing cost data ([#828](https://github.com/microsoft/finops-toolkit/issues/828))
+
+🖥️ PowerShell
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Added support for FOCUS, pricesheet, and reservation dataset filters in [Get-FinOpsCostExport](../_automation/powershell/cost/Get-FinOpsCostExport.md).
+> 2. Added a `-DatasetVersion` filter in [Get-FinOpsCostExport](../_automation/powershell/cost/Get-FinOpsCostExport.md).
+
+🌐 Open data
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed
+>
+> - [Services](../_reporting/data/README.md#️-services)
+>   1. Moved Microsoft Genomics from the "AI and Machine Learning" service category to "Analytics".
+>   2. Changed Microsoft Genomics from the "SaaS" service model to "PaaS".
+>   3. Replace "Azure Active Directory" service name references with "Microsoft Entra".
+>   4. Move Azure Cache for Redis from the "Storage" service category to "Databases".
+>   5. Move Event Hubs from the "Integration" service category to "Analytics".
+>   6. Rename the Microsoft.HybridCompute consumed service service name from "Azure Resource Manager" to "Azure Arc".
+>   7. Move Microsoft Defender for Endpoint from the "Multicloud" service category to "Security".
+>   8. Move StorSimple from the "Multicloud" service category to "Storage".
+
+[Download v0.5](https://github.com/microsoft/finops-toolkit/releases/tag/v0.5){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.4...v0.5){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+
 <br>
 
 ## 🚚 v0.4
 
-<sup>Released July 2024</sup>
+<sup>Released July 12, 2024</sup>
 
 📗 FinOps guide
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -87,6 +179,13 @@ Legend:
 > 1. Ingest FOCUS 1.0 data in FinOps hubs.
 > 2. Grant access to FinOps hubs to [create and manage exports](../_reporting/hubs/configure-scopes.md#-configure-managed-exports) for you.
 > 3. Connect to a hub instance in another Entra ID tenant.
+> 4. Step-by-step troubleshooting guide and expanded set of common errors for validating FinOps hubs and Power BI setup.
+>
+> 🛠️ Fixed:
+>
+> 1. Fixed an issue where some dates are showing as off by 1 based on local time zone.
+>    - If you see dates that are off, upgrade to 0.4 and re-export those months. The fix is in ingestion.
+>    - You can re-export data in FOCUS 1.0 or FOCUS 1.0 preview. We recommend FOCUS 1.0 for slightly faster refresh times in Power BI.
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -95,6 +194,7 @@ Legend:
 >
 > - General:
 >   1. **x_IncrementalRefreshDate** column to facilitate configuring incremental refresh in Power BI.
+>   2. Step-by-step troubleshooting guide and expanded set of common errors for validating Power BI setup.
 > - [Cost summary](../_reporting/power-bi/cost-summary.md):
 >   1. Resource count and cost per resource in the [Inventory page](../_reporting/power-bi/cost-summary.md#inventory).
 > - [Data ingestion](../_reporting/power-bi/data-ingestion.md):
@@ -106,7 +206,8 @@ Legend:
 >   1. Changed the **Tags** column to default to `{}` when empty to facilitate tag expansion ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
 >   2. Simplified formatting for the `BillingPeriod` and `ChargePeriod` measures in Power BI.
 >   3. Improved error handling for derived savings columns in the CostDetails query.
->   4. Changed internal storage for reports to use [Tabular Model Definition Language (TMDL)](https://learn.microsoft.com/power-bi/developer/projects/projects-dataset#tmdl-format).
+>   4. Simplified queries and improved error handling in the START HERE query for report setup steps.
+>   5. Changed internal storage for reports to use [Tabular Model Definition Language (TMDL)](https://learn.microsoft.com/power-bi/developer/projects/projects-dataset#tmdl-format).
 >      - This change makes it easier to review changes to the data model in Power BI.
 >      - Reports will still be released as PBIX files so this change should not impact end users.
 >      - Visualizations are not being switched to [Power BI Enhanced Report (PBIR)](https://learn.microsoft.com/power-bi/developer/projects/projects-report#pbir-format) format yet due to functional limitations that would impact end users (as of June 2024).
@@ -143,13 +244,19 @@ Legend:
 >   4. Explore commitment discount savings to get a clear overview of rate optimization opportunities.
 >   5. Quickly view public IP addresses with DDoS protection enabled and compare if it would be cheaper to enable DDoS to the vNet instead.
 >   6. Identify Azure Hybrid Benefit usage for SQL Database elastic pools to maximize cost efficiency.
->
+>    
+> - [Governance workbook](../_optimize/governance-workbook/README.md):
+>   1. Added managed disk usage monitoring.
+
 > ✏️ Changed:
 >
 > - [Optimization workbook](../_optimize/optimization-workbook/README.md):
 >   1. Redesigned the Sustainability tab to clarify recommendations.
 >   2. Ignore dynamic IPs in the public IP addresses list to ensure more accurate results.
 >   3. Ignore free tier web apps to provide a clearer picture of your top services.
+>
+> - [Governance workbook](../_optimize/governance-workbook/README.md):
+>   1. Overview has been revised to align with the latest governance principles of the cloud adoption framework.
 
 🔍 Optimization engine
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -189,6 +296,9 @@ Legend:
 > 1. Updated all [open data files](../_reporting/data/README.md) to include the latest data.
 > 2. Changed the primary columns in the [Regions](../_reporting/data/README.md#️-regions) and [Services](../_reporting/data/README.md#️-services) open data files to be lowercase.
 > 3. Updated all [sample exports](../_reporting/data/README.md#️-dataset-examples) to use the same date range as the FOCUS 1.0 dataset.
+
+[Download v0.4](https://github.com/microsoft/finops-toolkit/releases/tag/v0.4){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.3...v0.4){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 

@@ -41,9 +41,6 @@ if ([string]::IsNullOrEmpty($lognamePrefix))
 }
 
 $sqlserver = Get-AutomationVariable -Name  "AzureOptimization_SQLServerHostname"
-$sqlserverCredential = Get-AutomationPSCredential -Name "AzureOptimization_SQLServerCredential"
-$SqlUsername = $sqlserverCredential.UserName 
-$SqlPass = $sqlserverCredential.GetNetworkCredential().Password 
 $sqldatabase = Get-AutomationVariable -Name  "AzureOptimization_SQLServerDatabase" -ErrorAction SilentlyContinue
 if ([string]::IsNullOrEmpty($sqldatabase))
 {
@@ -71,6 +68,9 @@ switch ($authenticationOption) {
     }
 }
 
+$cloudDetails = Get-AzEnvironment -Name $CloudEnvironment
+$azureSqlDomain = $cloudDetails.SqlDatabaseDnsSuffix.Substring(1)
+
 Write-Output "Finding tables where recommendations will be generated from..."
 
 $tries = 0
@@ -78,7 +78,9 @@ $connectionSuccess = $false
 do {
     $tries++
     try {
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;User ID=$SqlUsername;Password=$SqlPass;Trusted_Connection=False;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
+        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $Conn.AccessToken = $dbToken.Token
         $Conn.Open() 
         $Cmd=new-object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn

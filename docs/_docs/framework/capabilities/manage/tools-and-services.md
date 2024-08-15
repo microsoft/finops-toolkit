@@ -4,7 +4,7 @@ grand_parent: FinOps Framework
 parent: Manage
 title: FinOps tools and services
 permalink: /framework/capabilities/manage/tools
-nav_order: 6
+nav_order: 7
 description: This article helps you understand the FinOps tools and services capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 ---
 

@@ -89,7 +89,7 @@ function Remove-FinOpsCostExport
         }
         else
         {
-            Write-Warning "Cost Management export '$Name' not found."
+            Write-Warning ($script:localizedData.CostExport_Common_NotFoundFormat -f $Name, $Scope)
             return $true
         }
         
@@ -98,7 +98,7 @@ function Remove-FinOpsCostExport
             $response = Invoke-Rest -Method "DELETE" -Uri "$($export.Id)?api-version=$ApiVersion" -CommandName "Remove-FinOpsCostExport"
             if ($response.Failure)
             {
-                Write-Error "Unable to delete export '$Name'. Error: $($response.Content.error.message) ($($response.Content.error.code))." -ErrorAction Stop
+                Write-Error ($script:localizedData.CostExport_Remove_DeleteFailedFormat -f $Name, $response.Content.error.message, $response.Content.error.code) -ErrorAction Stop
             }
             return $response.Success
         }

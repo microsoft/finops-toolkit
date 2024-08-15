@@ -4,7 +4,7 @@ grand_parent: FinOps Framework
 parent: Optimize
 title: Architecting for cloud
 permalink: /framework/capabilities/optimize/architecting
-nav_order: 3
+nav_order: 1
 description: This article helps you understand the architecting for cloud capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders

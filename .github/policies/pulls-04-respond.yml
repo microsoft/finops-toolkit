@@ -23,7 +23,7 @@ configuration:
                   - isActivitySender:
                       issueAuthor: True
               - and:
-                  - payloadType: Pull_Request_Review
+                  - payloadType: Pull_Request
                   - isAction:
                       action: Synchronize
               - commentContains:
@@ -36,6 +36,8 @@ configuration:
         then:
           - removeLabel:
               label: 'Needs: Attention 👋'
+          - addLabel:
+              label: 'Needs: Review 👀'
           - assignTo:
               author: False
 onFailure:

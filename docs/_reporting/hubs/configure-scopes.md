@@ -17,9 +17,9 @@ Connect FinOps hubs to your billing accounts and subscriptions by configuring Co
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
+- [🛠️ Configure exports manually](#️-configure-exports-manually)
 - [🔐 Configure managed exports](#-configure-managed-exports)
 - [🖥️ Configure exports via PowerShell](#️-configure-exports-via-powershell)
-- [🛠️ Configure exports manually](#️-configure-exports-manually)
 - [⏭️ Next steps](#️-next-steps)
 
 </details>
@@ -32,7 +32,7 @@ FinOps hubs uses Cost Management exports to import cost data for the billing acc
   _Microsoft Cost Management does not support managed exports for Microsoft Customer Agreement billing accounts. Please [configure Cost Management exports manually](#️-configure-exports-manually)._
 </blockquote>
 
-For the most seamless experience, we recommend allowing FinOps hubs to manage exports for you when possible. This is the simplest to setup and requires the least effort to maintain over time. We only recommend configuring Cost Management exports manually if you cannot grant FinOps hubs access to manage exports for you.
+For the most seamless experience, we recommend allowing FinOps hubs to manage exports for you when possible. This option requires the least effort to maintain over time.
 
 <br>
 
@@ -40,22 +40,15 @@ For the most seamless experience, we recommend allowing FinOps hubs to manage ex
 
 Managed exports allow FinOps hubs to setup and maintain Cost Management exports for you. To enable managed exports, you must grant Azure Data Factory access to read data across each scope you want to monitor.
 
-| Scope type            | Minimum required permissions |
-| --------------------- | ---------------------------- |
-| EA enrollment         | Enterprise Reader            |
-| EA department         | Department Reader            |
-| EA enrollment account | Not supported<sup>1</sup>    |
-| MPA billing account   | Not supported<sup>1</sup>    |
-| MPA customer          | Not supported<sup>1</sup>    |
-| MCA billing account   | Not supported<sup>1</sup>    |
-| MCA billing profile   | Not supported<sup>1</sup>    |
-| MCA invoice section   | Not supported<sup>1</sup>    |
-| Management group      | Not supported<sup>2</sup>    |
-| Subscription          | Cost Management Contributor  |
-| Resource group        | Cost Management Contributor  |
+![Screenshot of the hubs supported scopes](https://raw.githubusercontent.com/microsoft/finops-toolkit/11b24a372b9bd57e7829c4224e2569647908b261/src/images/hubs-scopes.jpg)
 
-<sup>1) Scope does not support managed exports. Please [configure exports manually](#️-configure-exports-manually).</sup><br>
-<sup>2) Scope not supported by FinOps hubs. Please enable each subscription separately.</sup><br>
+
+<blockquote class="note" markdown="1">
+  _Managed exports are only available in FinOps hubs 0.4 and beyond._
+</blockquote>
+
+Managed exports use a managed identity (MI) to configure the exports automatically. Follow these steps to set it up:
+
 
 1. **Grant access to Azure Data Factory.**
 
@@ -65,7 +58,7 @@ Managed exports allow FinOps hubs to setup and maintain Cost Management exports 
      - EA departments – [Assign department reader role permission](https://learn.microsoft.com/azure/cost-management-billing/manage/assign-roles-azure-service-principals#assign-enrollment-account-role-permission-to-the-spn).
      - Subscriptions and resource groups – [Assign Azure roles using the Azure portal](https://learn.microsoft.com/azure/role-based-access-control/role-assignments-portal).
 
-    <!--
+<!--
     ### Enterprise agreement billing accounts and departments
    
     1. [Find your enrollment (and department) Id](https://learn.microsoft.com/azure/cost-management-billing/manage/view-all-accounts#switch-billing-scope-in-the-azure-portal).
@@ -86,7 +79,7 @@ Managed exports allow FinOps hubs to setup and maintain Cost Management exports 
          -BillingAccountId 12345 `                        # Enrollment Id
          -DepartmentId 67890                              # Department Id
         ```
-    -->
+-->
 
 2. **Add the desired scopes.**
 
@@ -101,11 +94,11 @@ Managed exports allow FinOps hubs to setup and maintain Cost Management exports 
 
 3. **Backfill historical data.**
 
-   As soon as you configure a new scope, FinOps hubs will start to monitor current and future costs. To backfill historical data, you must run the **msexports_backfill** pipeline.
+   As soon as you configure a new scope, FinOps hubs will start to monitor current and future costs. To backfill historical data, you must run the **config_RunBackfill** pipeline.
 
    To run the pipeline from the Azure portal:
 
-   1. From the FinOps hub resource group, open the Data Factory instance, select **Launch Studio**, and navigate to **Author** > **Pipelines** > **msexports_backfill**.
+   1. From the FinOps hub resource group, open the Data Factory instance, select **Launch Studio**, and navigate to **Author** > **Pipelines** > **config_RunBackfill**.
    2. Select **Debug** in the command bar to run the pipeline. The total run time will vary depending on the retention period and number of scopes you're monitoring.
 
    To run the pipeline from PowerShell:
@@ -118,7 +111,7 @@ Managed exports allow FinOps hubs to setup and maintain Cost Management exports 
        Invoke-AzDataFactoryV2Pipeline `
          -ResourceGroupName $_.ResourceGroupName `
          -DataFactoryName $_.DataFactoryName `
-         -PipelineName 'msexports_backfill'
+         -PipelineName 'config_RunBackfill'
    }
    ```
 
@@ -154,6 +147,19 @@ Managed exports allow FinOps hubs to setup and maintain Cost Management exports 
   ]
   ```
 
+- Multiple subscriptions
+
+  ```json
+  "scopes": [
+    {
+      "scope": "/subscriptions/00000000-0000-0000-0000-000000000000"
+    },
+    {
+      "scope": "subscriptions/00000000-0000-0000-0000-000000000001"
+    }
+  ]
+  ```
+
 - Resource group
 
   ```json
@@ -167,6 +173,8 @@ Managed exports allow FinOps hubs to setup and maintain Cost Management exports 
 <br>
 
 ## 🖥️ Configure exports via PowerShell
+
+If this is the first time you are using the FinOps toolkit PowerShell module, refer to the [PowerShell](../../_automation/powershell/README.md) deployment guide to install the module.
 
 1. Install the FinOps toolkit PowerShell module.
 

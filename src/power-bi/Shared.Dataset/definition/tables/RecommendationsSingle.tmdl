@@ -158,7 +158,7 @@ table RecommendationsSingle
 		queryGroup: 'FinOps toolkit'
 		source =
 				let
-				    Source = try ftk_CMConnector("rirecommendationssingle") otherwise #table(
+				    Source = try AzureCostManagement.Tables(Type, Scope, #"Number of Months", []){[Key="rirecommendationssingle"]}[Data] otherwise #table(
 				        {"meterId", "term", "costWithNoReservedInstances", "recommendedQuantity", "totalCostWithReservedInstances", "netSavings", "firstUsageDate", "scope", "lookBackPeriod", "instanceFlexibilityRatio", "instanceFlexibilityGroup", "normalizedSize", "recommendedQuantityNormalized", "skuProperties"},
 				        {{"Failed to get data",null,null,null,null,null,null,null,null,null,null,null,null,null}}
 				    ),
