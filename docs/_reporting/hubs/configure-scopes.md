@@ -201,7 +201,11 @@ If you cannot grant permissions for your scope, you can create Cost Management e
    - **Overwrite data** = Off<sup>4</sup>
    - **Storage account** = (Use subscription/resource deployed with your hub)
    - **Container** = `msexports`
-   - **Directory** = (Specify the storage container and directory path<sup>5</sup> for the export file)
+   - **Directory** = (Specify a unique path for this scope<sup>5</sup>)
+     - _**EA billing account:** `billingAccounts/{enrollment-number}`_
+     - _**MCA billing profile:** `billingProfiles/{billing-profile-id}`_
+     - _**Subscription:** `subscriptions/{subscription-id}`_
+     - _**Resource group:** `subscriptions/{subscription-id}/resourceGroups/{rg-name}`_
   
 2. Create another export with the same settings except set **Frequency** to `Monthly export of last month's costs`.
 3. Run your exports to initialize the dataset.
