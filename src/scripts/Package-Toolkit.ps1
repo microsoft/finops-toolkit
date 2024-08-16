@@ -141,7 +141,7 @@ $templates = Get-ChildItem "$relDir/$Template*" -Directory `
     Compress-Archive -Path "$srcPath/*" -DestinationPath $zip
     return $zip
 }
-Write-Host "✅ $($templates.Count) templates"
+Write-Host "✅ $($templates.Count) template$(if ($templates.Count -ne 1) { 's' })"
 Write-Host "ℹ️ Deployment files updated... Please commit the changes manually..."
 
 # Only package remaining files if not preview
