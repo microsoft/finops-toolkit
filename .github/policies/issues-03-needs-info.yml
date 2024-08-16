@@ -32,5 +32,22 @@ configuration:
               label: 'Needs: Triage 🔍'
           - assignTo:
               author: True
+      - description: >-
+          When an issue that needs info has been responded to:
+          - Remove author assignee
+          - Remove the `Needs: Information` label
+          - Label with `Needs: Triage 🔍`
+        if:
+          - payloadType: Issue_Comment
+          - isOpen
+          - isActivitySender:
+              issueAuthor: true
+        then:
+          - removeLabel:
+              label: 'Needs: Information'
+          - addLabel:
+              label: 'Needs: Triage 🔍'
+          - assignTo:
+              author: False
 onFailure:
 onSuccess:
