@@ -36,6 +36,43 @@ For the most seamless experience, we recommend allowing FinOps hubs to manage ex
 
 <br>
 
+
+## 🛠️ Configure exports manually
+
+If you cannot grant permissions for your scope, you can create Cost Management exports manually to accomplish the same goal.
+
+1. [Create a new FOCUS cost export](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data?tabs=azure-portal) using the following settings:
+
+   <!-- TODO: Replace the portal link with the docs link when exports v2 docs are available. -->
+
+   - **Type of data** = `Cost and usage details (FOCUS)`<sup>1</sup>
+   - **Dataset version** = `1.0`<sup>2</sup>
+   - **Frequency** = `Daily export of month-to-date costs`<sup>3</sup>
+   - **File partitioning** = On
+   - **Overwrite data** = Off<sup>4</sup>
+   - **Storage account** = (Use subscription/resource deployed with your hub)
+   - **Container** = `msexports`
+   - **Directory** = (Specify a unique path for this scope<sup>5</sup>)
+     - _**EA billing account:** `billingAccounts/{enrollment-number}`_
+     - _**MCA billing profile:** `billingProfiles/{billing-profile-id}`_
+     - _**Subscription:** `subscriptions/{subscription-id}`_
+     - _**Resource group:** `subscriptions/{subscription-id}/resourceGroups/{rg-name}`_
+  
+2. Create another export with the same settings except set **Frequency** to `Monthly export of last month's costs`.
+3. Run your exports to initialize the dataset.
+   - Exports can take up to a day to show up after first created.
+   - Use the **Run now** command at the top of the Cost Management Exports page.
+   - Your data should be available within 15 minutes or so, depending on how big your account is.
+   - If you want to backfill data, open the export details and select the **Export selected dates** command to export one month at a time or use the [Start-FinOpsCostExport PowerShell command](../../_automation/powershell/cost/Start-FinOpsCostExport.md) to export a larger date range.
+4. Repeat steps 1-3 for each scope you want to monitor.
+
+_<sup>1) FinOps hubs 0.2 and beyond requires FOCUS cost data. As of July 2024, the option to export FOCUS cost data is only accessible from the central Cost Management experience in the Azure portal. If you do not see this option, please search for or navigate to [Cost Management Exports](https://portal.azure.com/#blade/Microsoft_Azure_CostManagement/Menu/open/exports).</sup>_
+_<sup>2) FinOps hubs 0.4 supports both FOCUS 1.0 and FOCUS 1.0 preview. Power BI reports in 0.4 are aligned to FOCUS 1.0 regardless of whether data was ingested as FOCUS 1.0 preview. If you need 1.0 preview data and reports, please use FinOps hubs 0.3.</sup>_
+_<sup>3) Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range.</sup>_
+_<sup>4) While most settings are required, overwriting is optional. We recommend **not** overwriting files so you can monitor your ingestion pipeline using the [Data ingestion](../power-bi/data-ingestion.md) report. If you do not plan to use that report, please enable overwriting.</sup>_
+_<sup>5) Export paths can be any value but must be unique per scope. We recommended using a path that identifies the source scope (e.g., subscription or billing account). If 2 scopes share the same path, there could be ingestion errors.</sup>_
+
+
 ## 🔐 Configure managed exports
 
 Managed exports allow FinOps hubs to setup and maintain Cost Management exports for you. To enable managed exports, you must grant Azure Data Factory access to read data across each scope you want to monitor.
@@ -193,41 +230,6 @@ If this is the first time you are using the FinOps toolkit PowerShell module, re
    ```
 
 <br>
-
-## 🛠️ Configure exports manually
-
-If you cannot grant permissions for your scope, you can create Cost Management exports manually to accomplish the same goal.
-
-1. [Create a new FOCUS cost export](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data?tabs=azure-portal) using the following settings:
-
-   <!-- TODO: Replace the portal link with the docs link when exports v2 docs are available. -->
-
-   - **Type of data** = `Cost and usage details (FOCUS)`<sup>1</sup>
-   - **Dataset version** = `1.0`<sup>2</sup>
-   - **Frequency** = `Daily export of month-to-date costs`<sup>3</sup>
-   - **File partitioning** = On
-   - **Overwrite data** = Off<sup>4</sup>
-   - **Storage account** = (Use subscription/resource deployed with your hub)
-   - **Container** = `msexports`
-   - **Directory** = (Specify a unique path for this scope<sup>5</sup>)
-     - _**EA billing account:** `billingAccounts/{enrollment-number}`_
-     - _**MCA billing profile:** `billingProfiles/{billing-profile-id}`_
-     - _**Subscription:** `subscriptions/{subscription-id}`_
-     - _**Resource group:** `subscriptions/{subscription-id}/resourceGroups/{rg-name}`_
-  
-2. Create another export with the same settings except set **Frequency** to `Monthly export of last month's costs`.
-3. Run your exports to initialize the dataset.
-   - Exports can take up to a day to show up after first created.
-   - Use the **Run now** command at the top of the Cost Management Exports page.
-   - Your data should be available within 15 minutes or so, depending on how big your account is.
-   - If you want to backfill data, open the export details and select the **Export selected dates** command to export one month at a time or use the [Start-FinOpsCostExport PowerShell command](../../_automation/powershell/cost/Start-FinOpsCostExport.md) to export a larger date range.
-4. Repeat steps 1-3 for each scope you want to monitor.
-
-_<sup>1) FinOps hubs 0.2 and beyond requires FOCUS cost data. As of July 2024, the option to export FOCUS cost data is only accessible from the central Cost Management experience in the Azure portal. If you do not see this option, please search for or navigate to [Cost Management Exports](https://portal.azure.com/#blade/Microsoft_Azure_CostManagement/Menu/open/exports).</sup>_
-_<sup>2) FinOps hubs 0.4 supports both FOCUS 1.0 and FOCUS 1.0 preview. Power BI reports in 0.4 are aligned to FOCUS 1.0 regardless of whether data was ingested as FOCUS 1.0 preview. If you need 1.0 preview data and reports, please use FinOps hubs 0.3.</sup>_
-_<sup>3) Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range.</sup>_
-_<sup>4) While most settings are required, overwriting is optional. We recommend **not** overwriting files so you can monitor your ingestion pipeline using the [Data ingestion](../power-bi/data-ingestion.md) report. If you do not plan to use that report, please enable overwriting.</sup>_
-_<sup>5) Export paths can be any value but must be unique per scope. We recommended using a path that identifies the source scope (e.g., subscription or billing account). If 2 scopes share the same path, there could be ingestion errors.</sup>_
 
 ---
 
