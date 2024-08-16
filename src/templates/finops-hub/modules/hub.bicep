@@ -90,7 +90,7 @@ var eventGridLocationFallback = {
   spaincentral: 'francecentral'
   usdodeast: 'usdodcentral'
 }
-var finalEventGridLocation = eventGridLocation != null && !empty(eventGridLocation) ? eventGridLocation : (contains(eventGridLocationFallback, location) ? eventGridLocationFallback[location] : location)
+var finalEventGridLocation = eventGridLocation != null && !empty(eventGridLocation) ? eventGridLocation : (eventGridLocationFallback[?location] ?? location)
 
 // The last segment of the telemetryId is used to identify this module
 var telemetryId = '00f120b5-2007-6120-0000-40b000000000'
