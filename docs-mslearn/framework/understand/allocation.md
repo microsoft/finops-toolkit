@@ -3,7 +3,7 @@ title: Allocation
 description: This article helps you understand the Allocation capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 06/06/2024
+ms.date: 08/15/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan

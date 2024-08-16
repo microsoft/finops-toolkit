@@ -1,6 +1,12 @@
 ---
 title: FinOps Framework overview
 description: 'Learn about what the FinOps Framework is and how you can use it to accelerate your cost management and optimization goals.'
+author: bandersmsft
+ms.author: banders
+ms.date: 08/15/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -81,41 +87,41 @@ The FinOps Framework defines a simple lifecycle with three phases:
 
 ## 📝 Capabilities
 
-The FinOps Framework includes capabilities that cover everything pfrom cost analysis and monitoring to optimization and organizational alignment, grouped into a set of related domains. Each capability defines a functional area of activity and a set of tasks to support your FinOps practice.
+The FinOps Framework includes capabilities that cover everything you need to perform FinOps tasks and manage a FinOps practice. Capabilities are organized into a set of related domains based on the goals of the capabilities. Each capability defines a functional area of activity and a set of tasks to support your FinOps practice.
 
 - Understand cloud usage and cost
 
-  - [Data ingestion](./capabilities/understand/ingestion.md)
-  - [Allocation](./capabilities/understand/allocation.md)
-  - [Reporting and analytics](./capabilities/understand/reporting.md)
-  - [Anomaly management](./capabilities/understand/anomalies.md)
+  - [Data ingestion](./understand/ingestion.md)
+  - [Allocation](./understand/allocation.md)
+  - [Reporting and analytics](./understand/reporting.md)
+  - [Anomaly management](./understand/anomalies.md)
 
 - Quantify business value
 
-  - [Planning and estimating](./capabilities/quantify/planning.md)
-  - [Forecasting](./capabilities/quantify/forecasting.md)
-  - [Budgeting](./capabilities/quantify/budgeting.md)
-  - [Benchmarking](./capabilities/quantify/benchmarking.md)
-  - [Unit economics](./capabilities/quantify/unit-economics.md)
+  - [Planning and estimating](./quantify/planning.md)
+  - [Forecasting](./quantify/forecasting.md)
+  - [Budgeting](./quantify/budgeting.md)
+  - [Benchmarking](./quantify/benchmarking.md)
+  - [Unit economics](./quantify/unit-economics.md)
 
 - Optimize cloud usage and cost
 
-  - [Architecting for the cloud](./capabilities/optimize/architecting.md)
-  - [Workload optimization](./capabilities/optimize/workloads.md)
-  - [Rate optimization](./capabilities/optimize/rates.md)
-  - [Licensing and SaaS](./capabilities/optimize/licensing.md)
-  - [Cloud sustainability](./capabilities/optimize/sustainability.md)
+  - [Architecting for the cloud](./optimize/architecting.md)
+  - [Workload optimization](./optimize/workloads.md)
+  - [Rate optimization](./optimize/rates.md)
+  - [Licensing and SaaS](./optimize/licensing.md)
+  - [Cloud sustainability](./optimize/sustainability.md)
 
 - Manage the FinOps practice
 
-  - [FinOps education and enablement](./capabilities/manage/education.md)
-  - [FinOps practice operations](./capabilities/manage/operations.md)
-  - [Onboarding workloads](./capabilities/manage/onboarding.md)
-  - [Cloud policy and governance](./capabilities/manage/policy.md)
-  - [Invoicing and chargeback](./capabilities/manage/invoicing-chargeback.md)
-  - [FinOps assessment](./capabilities/manage/assessment.md)
-  - [FinOps tools and services](./capabilities/manage/tools-and-services.md)
-  - [Intersecting frameworks](./capabilities/manage/intersecting-disciplines.md)
+  - [FinOps education and enablement](./manage/education.md)
+  - [FinOps practice operations](./manage/operations.md)
+  - [Onboarding workloads](./manage/onboarding.md)
+  - [Cloud policy and governance](./manage/governance.md)
+  - [Invoicing and chargeback](./manage/invoicing-chargeback.md)
+  - [FinOps assessment](./manage/assessment.md)
+  - [FinOps tools and services](./manage/tools-and-services.md)
+  - [Intersecting frameworks](./manage/intersecting-disciplines.md)
 
 <br>
 

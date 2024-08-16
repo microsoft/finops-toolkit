@@ -3,7 +3,7 @@ title: Invoicing and chargeback
 description: This article helps you understand the invoicing and chargeback capability in the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 07/14/2024
+ms.date: 08/15/2024
 ms.service: finops
 ms.reviewer: micflan
 ms.topic: concept-article

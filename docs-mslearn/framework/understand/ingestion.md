@@ -3,12 +3,11 @@ title: Data ingestion and normalization
 description: This article helps you understand the data ingestion capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 07/14/2024
+ms.date: 08/15/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
 # customer intent: As a FinOps practitioner, I want to understand the data ingestion capability so that I can implement it in the Microsoft Cloud.
-
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->

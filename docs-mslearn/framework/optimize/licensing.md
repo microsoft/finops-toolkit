@@ -3,7 +3,7 @@ title: Licensing and SaaS
 description: This article helps you understand the licensing and SaaS capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 07/14/2024
+ms.date: 08/15/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
@@ -62,7 +62,7 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 Related FinOps capabilities:
 
 - [Reporting and analytics](../understand/reporting.md)
-- [Cloud policy and governance](../manage/policy.md)
+- [Cloud policy and governance](../manage/governance.md)
 
 Related solutions:
 

@@ -3,7 +3,7 @@ title: FinOps and intersecting frameworks
 description: This article helps you understand the FinOps and intersecting frameworks capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 06/11/2024
+ms.date: 08/15/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan

@@ -3,7 +3,7 @@ title: Rate optimization
 description: This article helps you understand the rate optimization capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
-ms.date: 07/14/2024
+ms.date: 08/15/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
@@ -19,7 +19,7 @@ This article helps you understand the rate optimization capability within the Fi
 
 ## Definition
 
-**Rate otpimization is the practice of obtaining reduced rates on cloud services, often by committing to a certain level of usage or spend over a specific period.**
+**Rate optimization is the practice of obtaining reduced rates on cloud services, often by committing to a certain level of usage or spend over a specific period.**
 
 Review daily usage and cost trends to estimate how much you expect to use or spend over the next one to five years. Use [Forecasting](../quantify/forecasting.md) and account for future plans.
 
@@ -88,7 +88,7 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 Related FinOps capabilities:
 
 - [Data analysis and showback](../understand/reporting.md)
-- [Cloud policy and governance](../manage/policy.md)
+- [Cloud policy and governance](../manage/governance.md)
 
 Related products:
 
