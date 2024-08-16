@@ -75,6 +75,11 @@ Legend:
 >
 > 1. Documented [how to compare FOCUS and actual/amortized data](../_docs/focus/validate.md) to learn and validate FOCUS data.
 
+> 🚚💎 Minor
+>
+> 1. Published initial guidance for FinOps best practices. For the initial commit, this page contains the Azure Resource Graph (ARG) queries used by the Cost Optimization workbook.
+
+
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
