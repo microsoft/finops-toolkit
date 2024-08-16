@@ -103,7 +103,7 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 Related FinOps capabilities:
 
 - [Rate optimization](./rates.md)
-- [Cloud policy and governance](../manage/policy.md)
+- [Cloud policy and governance](../manage/governance.md)
 
 Related products:
 
