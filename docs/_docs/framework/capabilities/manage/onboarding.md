@@ -91,8 +91,8 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
-<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.html title="Onboarding workloads videos" id="bdlIGuBMajCFydA-" list="PLUSCToibAswk2tx4PuWlztgSK9DZpL04b" %}
+<!--[!VIDEO https://www.youtube.com/embed/iL7H6oyzf7M?list=PLUSCToibAswk2tx4PuWlztgSK9DZpL04b&pp=iAQB]-->
+{% include video.html title="Onboarding workloads videos" id="iL7H6oyzf7M-" list="PLUSCToibAswk2tx4PuWlztgSK9DZpL04b" %}
 
 <br>
 

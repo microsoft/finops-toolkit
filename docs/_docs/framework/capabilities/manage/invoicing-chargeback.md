@@ -80,8 +80,8 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
-<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.html title="Invoicing and chargeback videos" id="SVkS0EjsZS56I1qO" list="PLUSCToibAswkALdvffeZWF-3L4ubFuobD" %}
+<!--[!VIDEO https://www.youtube.com/embed/9JQQOVkN51g?list=PLUSCToibAswkALdvffeZWF-3L4ubFuobD&pp=iAQB]-->
+{% include video.html title="Invoicing and chargeback videos" id="9JQQOVkN51g" list="PLUSCToibAswkALdvffeZWF-3L4ubFuobD" %}
 
 <br>
 

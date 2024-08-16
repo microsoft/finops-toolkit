@@ -71,6 +71,9 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
+<!--[!VIDEO https://www.youtube.com/embed/E0apggxoBbc?list=PLUSCToibAswlWejHPVjbCqa3fJQvogzB9&pp=iAQB]-->
+{% include video.html title="Licensing and SaaS videos" id="E0apggxoBbc" list="PLUSCToibAswlWejHPVjbCqa3fJQvogzB9" %}
+
 <br>
 
 ## ⏩ Next steps
