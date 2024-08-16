@@ -1,38 +1,22 @@
 ---
-layout: default
-parent: FOCUS
 title: Convert to FOCUS
-nav_order: 2
 description: 'Convert existing Cost Management datasets to FOCUS.'
-permalink: /focus/convert
+author: bandersmsft
+ms.author: banders
+ms.date: 07/15/2024
+ms.topic: how-to
+ms.service: finops
+ms.reviewer: micflan
 ---
 
-<span class="fs-9 d-block mb-4">Convert Cost Management data to FOCUS</span>
-Convert existing Cost Management actual and amortized datasets to FOCUS.
-{: .fs-6 .fw-300 }
+<!-- markdownlint-disable-next-line MD025 -->
+# Convert Cost Management data to FOCUS
 
-<!--
-[Download the latest release](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[See changes](#-v01){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
--->
-
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [➡️ How to convert Cost Management data to FOCUS](#️-how-to-convert-cost-management-data-to-focus)
-- [🙋‍♀️ Feedback about FOCUS columns](#️-feedback-about-focus-columns)
-- [🧐 See also](#-see-also)
-- [🧰 Related tools](#-related-tools)
-
-</details>
-
----
-
-This document provides guidance for converting Cost Management actual and amortized datasets to the FinOps Open Cost and Usage Specification (FOCUS). To learn more about FOCUS, refer to the [FOCUS overview](./README.md).
+This document provides guidance for converting Cost Management actual and amortized datasets to the FinOps Open Cost and Usage Specification (FOCUS). To learn more about FOCUS, refer to the [FOCUS overview](./what-is-focus.md).
 
 <br>
 
-## ➡️ How to convert Cost Management data to FOCUS
+## How to convert Cost Management data to FOCUS
 
 The following mapping is assuming you have all amortized cost rows and only commitment purchases and refunds from the actual cost dataset.
 
@@ -89,26 +73,34 @@ _<sup>3. While RegionName is a direct mapping of ResourceLocation, Cost Manageme
 
 <br>
 
-## 🙋‍♀️ Feedback about FOCUS columns
+## Feedback about FOCUS columns
 
-<!-- markdownlint-disable-line --> {% include focus_feedback.md %}
+[!INCLUDE _focus_feedback.md]
 
 <br>
 
-## 🧐 See also
+## Related content
+
+Related resources:
 
 - [How to update existing reports to FOCUS](./mapping.md)
+
+<!--
+TODO: Add these after we bring in the rest of the toolkit content
 - [Data dictionary](../../_resources/data-dictionary.md)
 - [Generating a unique ID](../../_resources/data-dictionary.md#-generating-a-unique-id)
 - [Known issues](../../_resources/data-dictionary.md#-known-issues)
 - [Common terms](../../_resources/terms.md)
+-->
 
-<br>
+Related products:
 
----
+- [Cost Management](/azure/cost-management-billing/costs)
 
-## 🧰 Related tools
+Related solutions:
 
-{% include tools.md bicep="0" data="1" gov="0" hubs="1" opt="0" pbi="1" ps="1" %}
+- [FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi)
+- [FinOps hubs](https://aka.ms/finops/hubs)
+- [FinOps toolkit PowerShell module](https://aka.ms/ftk/ps)
 
 <br>

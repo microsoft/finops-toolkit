@@ -1,39 +1,24 @@
 ---
-layout: default
-parent: FOCUS
 title: Metadata
-nav_order: 99
-description: 'General information about the FOCUS dataset including the data generator, schema version, and columns included in the dataset.'
-permalink: /focus/metadata
+description: General information about the FOCUS dataset including the data generator, schema version, and columns included in the dataset.
+author: bandersmsft
+ms.author: banders
+ms.date: 07/15/2024
+ms.topic: reference
+ms.service: finops
+ms.reviewer: micflan
 ---
 
-<span class="fs-9 d-block mb-4">Details about the FOCUS dataset</span>
-General information about the FOCUS dataset including the data generator, schema version, and columns included in the dataset.
-{: .fs-6 .fw-300 }
+<!-- markdownlint-disable-next-line MD025 -->
+# Details about the FOCUS dataset
 
-<!--
-[Download the latest release](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[See changes](#-v01){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
--->
-
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [FocusCost 1.0](#focuscost-10)
-- [FocusCost 1.0-preview(v1)](#focuscost-10-previewv1)
-- [🙋‍♀️ Feedback about FOCUS columns](#️-feedback-about-focus-columns)
-- [🧐 See also](#-see-also)
-- [🧰 Related tools](#-related-tools)
-
-</details>
-
----
-
-This document describes what's included in the FOCUS cost and usage details dataset (aka FocusCost). The details provided below are also available as a JSON file as defined by the FOCUS specification. To learn more about FOCUS, refer to the [FOCUS overview](./README.md).
+This document describes what's included in the FOCUS cost and usage details dataset (aka FocusCost). The details provided below are also available as a JSON file as defined by the FOCUS specification. To learn more about FOCUS, refer to the [FOCUS overview](./what-is-focus.md).
 
 <br>
 
 ## FocusCost 1.0
+
+[Download metadata](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-metadata.zip)
 
 - Data generator: Microsoft
 - Schema ID: `1.0`
@@ -146,6 +131,8 @@ Columns include:
 
 ## FocusCost 1.0-preview(v1)
 
+[Download metadata](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-metadata.zip)
+
 - Data generator: Microsoft
 - Schema ID: `1.0-preview(v1)`
 - FOCUS version: `1.0-preview`
@@ -253,26 +240,34 @@ Columns include:
 
 <br>
 
-## 🙋‍♀️ Feedback about FOCUS columns
+## Feedback about FOCUS columns
 
-<!-- markdownlint-disable-line --> {% include focus_feedback.md %}
+[!INCLUDE _focus_feedback.md]
 
 <br>
 
-## 🧐 See also
+## Related content
 
-- [Microsoft Cost Management FOCUS dataset](https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/cost-usage-details-focus)
+Related resources:
+
+- [Microsoft Cost Management FOCUS dataset](/azure/cost-management-billing/dataset-schema/cost-usage-details-focus.md)
+
+<!--
+TODO: Add these after we bring in the rest of the toolkit content
 - [Data dictionary](../../_resources/data-dictionary.md)
 - [Generating a unique ID](../../_resources/data-dictionary.md#-generating-a-unique-id)
 - [Known issues](../../_resources/data-dictionary.md#-known-issues)
 - [Common terms](../../_resources/terms.md)
+-->
 
-<br>
+Related products:
 
----
+- [Cost Management](/azure/cost-management-billing/costs)
 
-## 🧰 Related tools
+Related solutions:
 
-{% include tools.md bicep="0" data="1" gov="0" hubs="1" opt="0" pbi="1" ps="1" %}
+- [FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi)
+- [FinOps hubs](https://aka.ms/finops/hubs)
+- [FinOps toolkit PowerShell module](https://aka.ms/ftk/ps)
 
 <br>

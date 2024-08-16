@@ -1,36 +1,22 @@
 ---
-layout: default
 title: FOCUS
-has_children: true
-nav_order: zzz
-description: 'Cloud agnostics format for cost and usage data.'
-permalink: /focus
+description: Cloud agnostics format for cost and usage data.
+author: bandersmsft
+ms.author: banders
+ms.date: 07/15/2024
+ms.topic: overview
+ms.service: finops
+ms.reviewer: micflan
 ---
 
-<span class="fs-9 d-block mb-4">FinOps Open Cost and Usage Specification</span>
+<!-- markdownlint-disable-next-line MD025 -->
+# FinOps Open Cost and Usage Specification
+
 Learn about the new billing data specification that will make it easier to understand and optimize cost and usage across any cloud, SaaS, or on-prem provider.
-{: .fs-6 .fw-300 }
 
-<!--
-[Download the latest release](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[See changes](#-v01){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
--->
+<br>
 
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [🤔 Why FOCUS?](#-why-focus)
-- [🌟 Benefits](#-benefits)
-- [▶️ Getting started](#️-getting-started)
-- [ℹ️ Important notes about FOCUS columns](#ℹ️-important-notes-about-focus-columns)
-- [🙋‍♀️ Feedback about FOCUS columns](#️-feedback-about-focus-columns)
-- [🧐 See also](#-see-also)
-- [🍎 Learn more at the FinOps Foundation](#-learn-more-at-the-finops-foundation)
-- [🧰 Related tools](#-related-tools)
-
-</details>
-
----
+## What is FOCUS?
 
 The FinOps Open Cost and Usage Specification (FOCUS) is a groundbreaking initiative to define a common format for billing data that empowers organizations to better understand cost and usage patterns and optimize spending and performance across multiple cloud, SaaS, and even on-premises service offerings.
 
@@ -38,7 +24,7 @@ FOCUS provides organizations with a consistent, clear, and accessible view of th
 
 <br>
 
-## 🤔 Why FOCUS?
+## Why FOCUS?
 
 The variety and flexibility of Microsoft cloud services allows you to build amazing things while only paying for what you need, when you need it. And with this flexibility comes varying operational models where services are billed and can be tuned differently based on a variety of factors. When services are billed differently, their cost and usage data tends to differ as well, making it challenging to allocate, analyze, monitor, and optimize consistently. Of course, this goes beyond just Microsoft’s cloud services. Organizations often rely on software as a service (SaaS) products, licensed software, on-premises infrastructure, or even other clouds, exacerbating the problem with each provider sharing data in proprietary formats.
 
@@ -46,7 +32,7 @@ FOCUS solves this problem by establishing a provider- and service-agnostic data 
 
 <br>
 
-## 🌟 Benefits
+## Benefits
 
 FOCUS is the **best** version of cost and usage data you can get from Cost Management. Some of the benefits you'll see with FOCUS compared to actual and amortized cost data include:
 
@@ -100,7 +86,7 @@ FOCUS is the **best** version of cost and usage data you can get from Cost Manag
 
 <br>
 
-## ▶️ Getting started
+## Getting started
 
 FOCUS 1.0 covers the resources you deployed, the internal SKUs each resource used, the type of charge, how much you used or purchased, how it was priced, and the specific:
 
@@ -137,7 +123,7 @@ Beyond these, each provider can include additional columns prefixed with **x\_**
 
 <br>
 
-## ℹ️ Important notes about FOCUS columns
+## Important notes about FOCUS columns
 
 Please note the following when working with FOCUS data:
 
@@ -160,38 +146,45 @@ Please note the following when working with FOCUS data:
 
 <br>
 
-## 🙋‍♀️ Feedback about FOCUS columns
+## Feedback about FOCUS columns
 
-<!-- markdownlint-disable-line --> {% include focus_feedback.md %}
-
-<br>
-
-## 🧐 See also
-
-- [How to convert Cost Management data to FOCUS](./convert.md)
-- [How to update existing reports to FOCUS](./mapping.md)
-- [Data dictionary](../../_resources/data-dictionary.md)
-- [Generating a unique ID](../../_resources/data-dictionary.md#-generating-a-unique-id)
-- [Known issues](../../_resources/data-dictionary.md#-known-issues)
-- [Common terms](../../_resources/terms.md)
+[!INCLUDE _focus_feedback.md]
 
 <br>
 
-## 🍎 Learn more at the FinOps Foundation
+## Learn more at the FinOps Foundation
 
 The FinOps Open Cost and Usage Specification (FOCUS) was built in collaboration with the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FOCUS, see the [FOCUS project site](https://focus.finops.org) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
-<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.html title="FinOps Open Cost and Usage Specification videos" id="w-RiyFpUhTSXtixI" list="PLUSCToibAswmzF4s0HHYlyoN9J9wi4Aur" %}
+> [!VIDEO https://www.youtube.com/embed/w-RiyFpUhTSXtixI?list=PLUSCToibAswmzF4s0HHYlyoN9J9wi4Aur]
 
 <br>
 
----
+## Related content
 
-## 🧰 Related tools
+Related resources:
 
-{% include tools.md bicep="0" data="1" gov="0" hubs="1" opt="0" pbi="1" ps="1" %}
+- [How to convert Cost Management data to FOCUS](./convert.md)
+- [How to update existing reports to FOCUS](./mapping.md)
+
+<!--
+TODO: Add these after we bring in the rest of the toolkit content
+- [Data dictionary](../../_resources/data-dictionary.md)
+- [Generating a unique ID](../../_resources/data-dictionary.md#-generating-a-unique-id)
+- [Known issues](../../_resources/data-dictionary.md#-known-issues)
+- [Common terms](../../_resources/terms.md)
+-->
+
+Related products:
+
+- [Cost Management](/azure/cost-management-billing/costs)
+
+Related solutions:
+
+- [FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi)
+- [FinOps hubs](https://aka.ms/finops/hubs)
+- [FinOps toolkit PowerShell module](https://aka.ms/ftk/ps)
 
 <br>
