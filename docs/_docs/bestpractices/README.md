@@ -36,7 +36,7 @@ Discover essential FinOps best practices to optimize cost efficiency and governa
 - [Compute](compute/compute.md) – List of compute best practices
 - [Databases](databases/databases.md) – List of databases best practices
 - [Networking](networking/networking.md) – List of networking best practices
-- [Storage](sustainability/storage.md) – List of storage best practices
+- [Storage](storage/storage.md) – List of storage best practices
 - [Sustainability](sustainability/sustainability.md) – List of sustainability best practices
 
 <br>
