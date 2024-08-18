@@ -24,82 +24,85 @@ The following list is a classification of the known conformance gaps categorized
 
 ### Scenarios cannot be completed as intended
 
-| Column              | ID                     | Gap             | Description                                                                                                                                                                                                |
-| ------------------- | ---------------------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ContractedCost      | NH2-3, CnC1.2, DH2.4.2 | Missing data    | `ContractedCost` is not supported and will be 0 for EA Marketplace charges, EA reservation usage when cost allocation is enabled, MCA reservation usage.<br>Workaround: Join with pricesheet dataset.      |
-| ContractedUnitPrice | NH2-3, CnUP3.1         | Missing data    | `ContractedUnitPrice` is not supported and will be 0 for EA Marketplace charges, EA reservation usage when cost allocation is enabled, MCA reservation usage.<br>Workaround: Join with pricesheet dataset. |
-| ListCost            | NH2-3, LC1.2           | Missing data    | `ListCost` is not supported and will be 0 for EA or MCA Marketplace charges, EA or MCA reservation usage.<br>Workaround: Join with pricesheet dataset.                                                     |
-| ListUnitPrice       | NH2-3, LUP3.1          | Missing data    | `ListUnitPrice` is not supported and will be 0 for EA or MCA Marketplace charges, EA or MCA reservation usage.<br>Workaround: Join with pricesheet dataset.                                                |
-| SkuPriceId          | SkPI4                  | Broken scenario | `SkuPriceId` does not identify a single price and does not have an equivalent in the pricesheet.                                                                                                           |
+| Column              | ID                                                                                 | Gap             | Description                                                                                                                                                                                                    |
+| ------------------- | ---------------------------------------------------------------------------------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ContractedCost      | [NH1-3](#null-handling), [CnC1.2](#contracted-cost), [DH2.4.2](#discount-handling) | Missing data    | `ContractedCost` is not supported and will be 0 for EA Marketplace charges, EA reservation usage when cost allocation is enabled, MCA reservation usage.<br><br>Workaround: Join with pricesheet dataset.      |
+| ContractedUnitPrice | [NH1-3](#null-handling), [CnUP3.1](#contracted-unit-price)                         | Missing data    | `ContractedUnitPrice` is not supported and will be 0 for EA Marketplace charges, EA reservation usage when cost allocation is enabled, MCA reservation usage.<br><br>Workaround: Join with pricesheet dataset. |
+| ListCost            | [NH1-3](#null-handling), [LC1.2](#list-cost)                                       | Missing data    | `ListCost` is not supported and will be 0 for EA or MCA Marketplace charges, EA or MCA reservation usage.<br><br>Workaround: Join with pricesheet dataset.                                                     |
+| ListUnitPrice       | [NH1-3](#null-handling), [LUP3.1](#list-unit-price)                                | Missing data    | `ListUnitPrice` is not supported and will be 0 for EA or MCA Marketplace charges, EA or MCA reservation usage.<br><br>Workaround: Join with pricesheet dataset.                                                |
+| SkuPriceId          | [SkPI4](#sku-price-id)                                                             | Broken scenario | `SkuPriceId` does not identify a single price and does not have an equivalent in the pricesheet.                                                                                                               |
 
 ### Scenarios require additional logic
 
-| Column         | ID          | Gap              | Description                                                                                                                                                                                |
-| -------------- | ----------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| SkuPriceId     | NH1-3       | Should be null   | `SkuPriceId` can be "-2" when there is no value.<br>Workaround: Replace "-2" with null.                                                                                                    |
-| SubAccountName | NH1-3, SAN3 | Should be null   | `SubAccountName` can be "Unassigned" when there is no value.<br>Workaround: Replace "Unassigned" with null.                                                                                |
-| PublisherName  | PbN2.2      | Missing data     | `PublisherName` is null for reservation usage, reservation purchases, and savings plan unused charges.<br>Workaround: Replace null with "Microsoft".                                       |
-| ResourceName   | SH2         | Incorrect casing | `ResourceName` may not be in the original case.<br>Workaround: Lowercase to ensure consistent casing when grouping and file a support request on the service responsible for the resource. |
+| Column         | ID                                                 | Gap              | Description                                                                                                                                                                                    |
+| -------------- | -------------------------------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SkuPriceId     | [NH1-3](#null-handling)                            | Should be null   | `SkuPriceId` can be "-2" when there is no value.<br><br>Workaround: Replace "-2" with null.                                                                                                    |
+| SubAccountName | [NH1-3](#null-handling), [SAN3](#sub-account-name) | Should be null   | `SubAccountName` can be "Unassigned" when there is no value.<br><br>Workaround: Replace "Unassigned" with null.                                                                                |
+| PublisherName  | [PbN2.2](#publisher-name)                          | Missing data     | `PublisherName` is null for reservation usage, reservation purchases, and savings plan unused charges.<br><br>Workaround: Replace null with "Microsoft".                                       |
+| ResourceName   | [SH2](#string-handling)                            | Incorrect casing | `ResourceName` may not be in the original case.<br><br>Workaround: Lowercase to ensure consistent casing when grouping and file a support request on the service responsible for the resource. |
 
 ### No impact to documented scenarios
 
-| Column             | ID     | Gap                     | Description                                                                                                                                                                     |
-| ------------------ | ------ | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SkuId              | SkI3.1 | Missing data            | `SkuId` is null when a charge does not have a corresponding price in the pricesheet, like savings plan unused charges and Marketplace charges.<br>Workaround: No action needed. |
-| BillingAccountName | BAN3   | Nonfunctional alignment | `BillingAccountName` is not guaranteed to be unique.<br>Workaround: Update billing account/profile name to be unique.                                                           |
-| Tags               | T10    | Nonfunctional alignment | Provider-specified tags are not prefixed.<br>Workaround: No action needed.                                                                                                      |
-| BillingAccountType | CNO2   | Invalid column name     | `BillingAccountType` should be prefixed with `x_`.<br>Workaround: Do nothing. This column is pending inclusion.                                                                 |
-| SubAccountType     | CNO2   | Invalid column name     | `SubAccountType` should be prefixed with `x_`.<br>Workaround: Do nothing. This column is pending inclusion.                                                                     |
-| ResourceId         | SH2    | Incorrect casing        | `ResourceId` is lowercased to meet FOCUS requirements.<br>Workaround: No action needed.                                                                                         |
+| Column             | ID                                  | Gap                     | Description                                                                                                                                                                         |
+| ------------------ | ----------------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BillingAccountName | [BAN3](#billing-account-name)       | Nonfunctional alignment | `BillingAccountName` is not guaranteed to be unique.<br><br>Workaround: Update billing account/profile name to be unique.                                                           |
+| Tags               | [T10](#tags)                        | Nonfunctional alignment | Provider-specified tags are not prefixed.<br><br>Workaround: No action needed.                                                                                                      |
+| ResourceId         | [SH2](#string-handling)             | Incorrect casing        | `ResourceId` is lowercased to meet FOCUS requirements.<br><br>Workaround: No action needed.                                                                                         |
+| SkuId              | [SkI3.1](#sku-id)                   | Missing data            | `SkuId` is null when a charge does not have a corresponding price in the pricesheet, like savings plan unused charges and Marketplace charges.<br><br>Workaround: No action needed. |
+| BillingAccountType | [CNO2](#column-naming-and-ordering) | Invalid column name     | `BillingAccountType` should be prefixed with `x_`.<br><br>Workaround: Do nothing. This column is pending inclusion.                                                                 |
+| SubAccountType     | [CNO2](#column-naming-and-ordering) | Invalid column name     | `SubAccountType` should be prefixed with `x_`.<br><br>Workaround: Do nothing. This column is pending inclusion.                                                                     |
 
 ### FOCUS suggestions
 
 The following are not blocking specification conformance, but are not fully supported.
 
-| Column                   | ID    | Gap                   | Description                                                                                                                  |
-| ------------------------ | ----- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| AvailabilityZone         | AZ1   | Missing data          | `AvailabilityZone` is not specified.                                                                                         |
-| ChargeDescription        | CD4   | Missing documentation | `ChargeDescription` max length is not documented.                                                                            |
-| ChargeDescription        | CD3   | Missing data          | `ChargeDescription` is null for savings plan unused charges and charges that are not directly associated with a product SKU. |
-| x_AccountId              | NH1-3 | Should be null        | `x_AccountId` can be "-2" when there is no value.<br>Workaround: Replace "-2" with null.                                     |
-| x_AccountName            | NH1-3 | Should be null        | `x_AccountName` can be "Unassigned" when there is no value.<br>Workaround: Replace "Unassigned" with null.                   |
-| x_AccountOwnerId         | NH1-3 | Should be null        | `x_AccountOwnerId` can be "Unassigned" when there is no value.<br>Workaround: Replace "Unassigned" with null.                |
-| x_InvoiceSectionId       | NH1-3 | Should be null        | `x_InvoiceSectionId` can be "-2" when there is no value.<br>Workaround: Replace "-2" with null.                              |
-| x_InvoiceSectionName     | NH1-3 | Should be null        | `x_InvoiceSectionName` can be "Unassigned" when there is no value.<br>Workaround: Replace "Unassigned" with null.            |
-| x_PricingUnitDescription | NH1-3 | Should be null        | `x_PricingUnitDescription` can be "Unassigned" when there is no value.<br>Workaround: Replace "Unassigned" with null.        |
+| Column                   | ID                         | Gap                   | Description                                                                                                                  |
+| ------------------------ | -------------------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| AvailabilityZone         | [AZ1](#availability-zone)  | Missing data          | `AvailabilityZone` is not specified.                                                                                         |
+| ChargeDescription        | [CD4](#charge-description) | Missing documentation | `ChargeDescription` max length is not documented.                                                                            |
+| ChargeDescription        | [CD3](#charge-description) | Missing data          | `ChargeDescription` is null for savings plan unused charges and charges that are not directly associated with a product SKU. |
+| x_AccountId              | [NH1-3](#null-handling)    | Should be null        | `x_AccountId` can be "-2" when there is no value.<br><br>Workaround: Replace "-2" with null.                                 |
+| x_AccountName            | [NH1-3](#null-handling)    | Should be null        | `x_AccountName` can be "Unassigned" when there is no value.<br><br>Workaround: Replace "Unassigned" with null.               |
+| x_AccountOwnerId         | [NH1-3](#null-handling)    | Should be null        | `x_AccountOwnerId` can be "Unassigned" when there is no value.<br><br>Workaround: Replace "Unassigned" with null.            |
+| x_InvoiceSectionId       | [NH1-3](#null-handling)    | Should be null        | `x_InvoiceSectionId` can be "-2" when there is no value.<br><br>Workaround: Replace "-2" with null.                          |
+| x_InvoiceSectionName     | [NH1-3](#null-handling)    | Should be null        | `x_InvoiceSectionName` can be "Unassigned" when there is no value.<br><br>Workaround: Replace "Unassigned" with null.        |
+| x_PricingUnitDescription | [NH1-3](#null-handling)    | Should be null        | `x_PricingUnitDescription` can be "Unassigned" when there is no value.<br><br>Workaround: Replace "Unassigned" with null.    |
 
 ### Pending review
 
 The following requirements have not been fully reviewed for conformance yet.
 
-| Column              | ID      | Type | Criteria                                                                                                                                                                                                                                                          | Status        | Notes |
-| ------------------- | ------- | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ----- |
-| DH                  | DH3.12  | MUST | Such rows MUST have their CommitmentDiscountId and ResourceId set to the ID assigned to the commitment-based discount.                                                                                                                                            | Not Evaluated |       |
-| ContractedCost      | CnC3    | MUST | When ContractedUnitPrice is present and not null, multiplying the ContractedUnitPrice by PricingQuantity MUST produce the ContractedCost, except in cases of ChargeClass "Correction", which may address PricingQuantity or any cost discrepancies independently. | Not Evaluated |       |
-| ContractedCost      | CnC4    | MUST | The ContractedCost of a charge calculated based on other charges (e.g., when the ChargeCategory is "Tax") MUST be calculated based on the ContractedCost of those related charges.                                                                                | Not Evaluated |       |
-| ContractedCost      | CnC5    | MUST | The ContractedCost of a charge unrelated to other charges (e.g., when the ChargeCategory is "Credit") MUST match the BilledCost.                                                                                                                                  | Not Evaluated |       |
-| ContractedUnitPrice | CnUP4   | MUST | When ContractedUnitPrice is present and not null, multiplying ContractedUnitPrice by PricingQuantity MUST equal ContractedCost, except in cases of ChargeClass "Correction", which may address PricingQuantity or any cost discrepancies independently.           | Not Evaluated |       |
-| ListCost            | LC3     | MUST | When ListUnitPrice is present and not null, multiplying the ListUnitPrice by PricingQuantity MUST produce the ListCost, except in cases of ChargeClass "Correction", which may address PricingQuantity or any cost discrepancies independently.                   | Not Evaluated |       |
-| ListCost            | LC4     | MUST | The ListCost of a charge calculated based on other charges (e.g., when the ChargeCategory is "Tax") MUST be calculated based on the ListCost of those related charges.                                                                                            | Not Evaluated |       |
-| ListCost            | LC5     | MUST | The ListCost of a charge unrelated to other charges (e.g., when the ChargeCategory is "Credit") MUST match the BilledCost.                                                                                                                                        | Not Evaluated |       |
-| ListUnitPrice       | LUP3.3  | MAY  | It... MAY be null for all other combinations of ChargeClass and ChargeCategory.                                                                                                                                                                                   | Not Evaluated |       |
-| ListUnitPrice       | LUP4    | MUST | When ListUnitPrice is present and is not null, multiplying ListUnitPrice by PricingQuantity MUST equal ListCost, except in cases of ChargeClass "Correction", which may address PricingQuantity or any cost discrepancies independently.                          | Not Evaluated |       |
-| PricingCategory     | PC2.1   | MUST | PricingCategory MUST NOT be null when ChargeClass is not "Correction" and ChargeCategory is "Usage" or "Purchase"...                                                                                                                                              | Not Evaluated |       |
-| PricingCategory     | PC2.3   | MAY  | PricingCategory... MAY be null for all other combinations of ChargeClass and ChargeCategory.                                                                                                                                                                      | Not Evaluated |       |
-| PricingQuantity     | PQ5     | MAY  | When unit prices are not null, multiplying PricingQuantity by a unit price MUST produce a result equal to the corresponding cost metric, except in cases of ChargeClass "Correction", which may address PricingQuantity or any cost discrepancies independently.  | Not Evaluated |       |
-| PricingUnit         | PU3.3   | MAY  | It... MAY be null for all other combinations of ChargeClass and ChargeCategory.                                                                                                                                                                                   | Not Evaluated |       |
-| PricingUnit         | PU5     | MUST | The PricingUnit value MUST be semantically equal to the corresponding pricing measurement unit value provided in the provider-published price list or invoice, when the invoice includes a pricing measurement unit.                                              | Not Evaluated |       |
-| SkuId               | SkI3.3  | MAY  | It... MAY be null for all other combinations of ChargeClass and ChargeCategory.                                                                                                                                                                                   | Not Evaluated |       |
-| SkuPriceId          | SkPI5.1 | MUST | This column MUST NOT be null when ChargeClass is not "Correction" and ChargeCategory is "Usage" or "Purchase"...                                                                                                                                                  | Not Evaluated |       |
-| SkuPriceId          | SkPI5.3 | MAY  | This column... MAY be null for all other combinations of ChargeClass and ChargeCategory.                                                                                                                                                                          | Not Evaluated |       |
+| Column               | ID                              | Type | Criteria                                                                                                                                                                                                                                                          |
+| -------------------- | ------------------------------- | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CommitmentDiscountId | [DH3.12](#discount-handling)    | MUST | Such rows MUST have their CommitmentDiscountId and ResourceId set to the ID assigned to the commitment-based discount.                                                                                                                                            |
+| ContractedCost       | [CnC3](#contracted-cost)        | MUST | When ContractedUnitPrice is present and not null, multiplying the ContractedUnitPrice by PricingQuantity MUST produce the ContractedCost, except in cases of ChargeClass "Correction", which may address PricingQuantity or any cost discrepancies independently. |
+| ContractedCost       | [CnC4](#contracted-cost)        | MUST | The ContractedCost of a charge calculated based on other charges (e.g., when the ChargeCategory is "Tax") MUST be calculated based on the ContractedCost of those related charges.                                                                                |
+| ContractedCost       | [CnC5](#contracted-cost)        | MUST | The ContractedCost of a charge unrelated to other charges (e.g., when the ChargeCategory is "Credit") MUST match the BilledCost.                                                                                                                                  |
+| ContractedUnitPrice  | [CnUP4](#contracted-unit-price) | MUST | When ContractedUnitPrice is present and not null, multiplying ContractedUnitPrice by PricingQuantity MUST equal ContractedCost, except in cases of ChargeClass "Correction", which may address PricingQuantity or any cost discrepancies independently.           |
+| ListCost             | [LC3](#list-cost)               | MUST | When ListUnitPrice is present and not null, multiplying the ListUnitPrice by PricingQuantity MUST produce the ListCost, except in cases of ChargeClass "Correction", which may address PricingQuantity or any cost discrepancies independently.                   |
+| ListCost             | [LC4](#list-cost)               | MUST | The ListCost of a charge calculated based on other charges (e.g., when the ChargeCategory is "Tax") MUST be calculated based on the ListCost of those related charges.                                                                                            |
+| ListCost             | [LC5](#list-cost)               | MUST | The ListCost of a charge unrelated to other charges (e.g., when the ChargeCategory is "Credit") MUST match the BilledCost.                                                                                                                                        |
+| ListUnitPrice        | [LUP3.3](#list-unit-price)      | MAY  | It... MAY be null for all other combinations of ChargeClass and ChargeCategory.                                                                                                                                                                                   |
+| ListUnitPrice        | [LUP4](#list-unit-price)        | MUST | When ListUnitPrice is present and is not null, multiplying ListUnitPrice by PricingQuantity MUST equal ListCost, except in cases of ChargeClass "Correction", which may address PricingQuantity or any cost discrepancies independently.                          |
+| PricingCategory      | [PC2.1](#pricing-category)      | MUST | PricingCategory MUST NOT be null when ChargeClass is not "Correction" and ChargeCategory is "Usage" or "Purchase"...                                                                                                                                              |
+| PricingCategory      | [PC2.3](#pricing-category)      | MAY  | PricingCategory... MAY be null for all other combinations of ChargeClass and ChargeCategory.                                                                                                                                                                      |
+| PricingQuantity      | [PQ5](#pricing-quantity)        | MAY  | When unit prices are not null, multiplying PricingQuantity by a unit price MUST produce a result equal to the corresponding cost metric, except in cases of ChargeClass "Correction", which may address PricingQuantity or any cost discrepancies independently.  |
+| PricingUnit          | [PU3.3](#pricing-unit)          | MAY  | It... MAY be null for all other combinations of ChargeClass and ChargeCategory.                                                                                                                                                                                   |
+| PricingUnit          | [PU5](#pricing-unit)            | MUST | The PricingUnit value MUST be semantically equal to the corresponding pricing measurement unit value provided in the provider-published price list or invoice, when the invoice includes a pricing measurement unit.                                              |
+| ResourceId           | [DH3.12](#discount-handling)    | MUST | Such rows MUST have their CommitmentDiscountId and ResourceId set to the ID assigned to the commitment-based discount.                                                                                                                                            |
+| SkuId                | [SkI3.3](#sku-id)               | MAY  | It... MAY be null for all other combinations of ChargeClass and ChargeCategory.                                                                                                                                                                                   |
+| SkuPriceId           | [SkPI5.1](#sku-price-id)        | MUST | This column MUST NOT be null when ChargeClass is not "Correction" and ChargeCategory is "Usage" or "Purchase"...                                                                                                                                                  |
+| SkuPriceId           | [SkPI5.3](#sku-price-id)        | MAY  | This column... MAY be null for all other combinations of ChargeClass and ChargeCategory.                                                                                                                                                                          |
 
 <br>
+
+---
 
 ## Attributes
 
 ### Column naming and ordering
 
-Source: [attributes/column_naming_and_ordering.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/attributes/column_naming_and_ordering.md)
+<sup>Source: [attributes/column_naming_and_ordering.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/attributes/column_naming_and_ordering.md)</sup>
 
 | ID     | Type   | Criteria                                                                                                                                                                                      | Status             | Notes                                                                                                                                                                                                                                                                                                                                  |
 | ------ | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -123,7 +126,7 @@ Source: [attributes/column_naming_and_ordering.md](https://github.com/FinOps-Ope
 
 ### Currency code format
 
-Source: [attributes/currency_code_format.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/attributes/currency_code_format.md)
+<sup>Source: [attributes/currency_code_format.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/attributes/currency_code_format.md)</sup>
 
 | ID   | Type   | Criteria                                                                                                                            | Status   | Notes |
 | ---- | ------ | ----------------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
@@ -133,7 +136,7 @@ Source: [attributes/currency_code_format.md](https://github.com/FinOps-Open-Cost
 
 ### Date/time format
 
-Source: [attributes/datetime_format.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/attributes/datetime_format.md)
+<sup>Source: [attributes/datetime_format.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/attributes/datetime_format.md)</sup>
 
 | ID   | Type   | Criteria                                                                                                                                                                                           | Status   | Notes |
 | ---- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
@@ -145,7 +148,7 @@ Source: [attributes/datetime_format.md](https://github.com/FinOps-Open-Cost-and-
 
 ### Discount handling
 
-Source: [attributes/discount_handling.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/attributes/discount_handling.md)
+<sup>Source: [attributes/discount_handling.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/attributes/discount_handling.md)</sup>
 
 | ID      | Type   | Criteria                                                                                                                                                                                                                                           | Status          | Notes                                                                                                                                                                                                                                                                            |
 | ------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -173,7 +176,7 @@ Source: [attributes/discount_handling.md](https://github.com/FinOps-Open-Cost-an
 
 ### Key value format
 
-Source: [attributes/key_value_format.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/attributes/key_value_format.md)
+<sup>Source: [attributes/key_value_format.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/attributes/key_value_format.md)</sup>
 
 | ID   | Type | Criteria                                                                                                              | Status   | Notes |
 | ---- | ---- | --------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
@@ -184,7 +187,7 @@ Source: [attributes/key_value_format.md](https://github.com/FinOps-Open-Cost-and
 
 ### Null handling
 
-Source: [attributes/null_handling.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/attributes/null_handling.md)
+<sup>Source: [attributes/null_handling.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/attributes/null_handling.md)</sup>
 
 | ID  | Type   | Criteria                                                                                                                                                                                                                       | Status             | Notes                                                                                                                                                                                                                                                                                                                                                                                                 |
 | --- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -194,7 +197,7 @@ Source: [attributes/null_handling.md](https://github.com/FinOps-Open-Cost-and-Us
 
 ### Numeric format
 
-Source: [attributes/numeric_format.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/attributes/numeric_format.md)
+<sup>Source: [attributes/numeric_format.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/attributes/numeric_format.md)</sup>
 
 | ID   | Type   | Criteria                                                                                                                                                                                                                                               | Status   | Notes |
 | ---- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | ----- |
@@ -214,7 +217,7 @@ Source: [attributes/numeric_format.md](https://github.com/FinOps-Open-Cost-and-U
 
 ### String handling
 
-Source: [attributes/string_handling.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/attributes/string_handling.md)
+<sup>Source: [attributes/string_handling.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/attributes/string_handling.md)</sup>
 
 | ID    | Type   | Criteria                                                                                                                                                                        | Status             | Notes                                                                                                                                                                                                                                   |
 | ----- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -228,7 +231,7 @@ Source: [attributes/string_handling.md](https://github.com/FinOps-Open-Cost-and-
 
 ### Unit format
 
-Source: [attributes/unit_format.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/attributes/unit_format.md)
+<sup>Source: [attributes/unit_format.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/attributes/unit_format.md)</sup>
 
 | ID     | Type   | Criteria                                                                                                                                                                                                                                                                                   | Status   | Notes                                                                                                                                        |
 | ------ | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -254,7 +257,7 @@ Source: [attributes/unit_format.md](https://github.com/FinOps-Open-Cost-and-Usag
 
 ### Availability zone
 
-Source: [columns/availabilityzone.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/availabilityzone.md)
+<sup>Source: [columns/availabilityzone.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/availabilityzone.md)</sup>
 
 | ID    | Type        | Criteria                                                                                                                                                             | Status           | Notes                                                                                                               |
 | ----- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------- |
@@ -265,7 +268,7 @@ Source: [columns/availabilityzone.md](https://github.com/FinOps-Open-Cost-and-Us
 
 ### Billed cost
 
-Source: [columns/billedcost.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/billedcost.md)
+<sup>Source: [columns/billedcost.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/billedcost.md)</sup>
 
 | ID     | Type        | Criteria                                                                                                                                                                 | Status   | Notes |
 | ------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | ----- |
@@ -279,7 +282,7 @@ Source: [columns/billedcost.md](https://github.com/FinOps-Open-Cost-and-Usage-Sp
 
 ### Billing account ID
 
-Source: [columns/billingaccountid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/billingaccountid.md)
+<sup>Source: [columns/billingaccountid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/billingaccountid.md)</sup>
 
 | ID   | Type        | Criteria                                                                 | Status   | Notes                                                                                                                                                                                                                                                     |
 | ---- | ----------- | ------------------------------------------------------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -291,7 +294,7 @@ Source: [columns/billingaccountid.md](https://github.com/FinOps-Open-Cost-and-Us
 
 ### Billing account name
 
-Source: [columns/billingaccountname.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/billingaccountname.md)
+<sup>Source: [columns/billingaccountname.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/billingaccountname.md)</sup>
 
 | ID     | Type        | Criteria                                                                                                                       | Status           | Notes                                                                                                                                                                                                 |
 | ------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------ | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -303,7 +306,7 @@ Source: [columns/billingaccountname.md](https://github.com/FinOps-Open-Cost-and-
 
 ### Billing currency
 
-Source: [columns/billingcurrency.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/billingcurrency.md)
+<sup>Source: [columns/billingcurrency.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/billingcurrency.md)</sup>
 
 | ID     | Type        | Criteria                                                                                     | Status   | Notes |
 | ------ | ----------- | -------------------------------------------------------------------------------------------- | -------- | ----- |
@@ -316,7 +319,7 @@ Source: [columns/billingcurrency.md](https://github.com/FinOps-Open-Cost-and-Usa
 
 ### Billing period end
 
-Source: [columns/billingperiodend.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/billingperiodend.md)
+<sup>Source: [columns/billingperiodend.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/billingperiodend.md)</sup>
 
 | ID     | Type        | Criteria                                                                                                                                                       | Status   | Notes |
 | ------ | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
@@ -329,7 +332,7 @@ Source: [columns/billingperiodend.md](https://github.com/FinOps-Open-Cost-and-Us
 
 ### Billing period start
 
-Source: [columns/billingperiodstart.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/billingperiodstart.md)
+<sup>Source: [columns/billingperiodstart.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/billingperiodstart.md)</sup>
 
 | ID     | Type        | Criteria                                                                                                                                                           | Status   | Notes |
 | ------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | ----- |
@@ -342,7 +345,7 @@ Source: [columns/billingperiodstart.md](https://github.com/FinOps-Open-Cost-and-
 
 ### Charge category
 
-Source: [columns/chargecategory.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/chargecategory.md)
+<sup>Source: [columns/chargecategory.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/chargecategory.md)</sup>
 
 | ID      | Type        | Criteria                                                                                         | Status   | Notes |
 | ------- | ----------- | ------------------------------------------------------------------------------------------------ | -------- | ----- |
@@ -353,7 +356,7 @@ Source: [columns/chargecategory.md](https://github.com/FinOps-Open-Cost-and-Usag
 
 ### Charge class
 
-Source: [columns/chargeclass.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/chargeclass.md)
+<sup>Source: [columns/chargeclass.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/chargeclass.md)</sup>
 
 | ID      | Type        | Criteria                                                                                                                               | Status   | Notes |
 | ------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
@@ -365,7 +368,7 @@ Source: [columns/chargeclass.md](https://github.com/FinOps-Open-Cost-and-Usage-S
 
 ### Charge description
 
-Source: [columns/chargedescription.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/chargedescription.md)
+<sup>Source: [columns/chargedescription.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/chargedescription.md)</sup>
 
 | ID  | Type        | Criteria                                                                                      | Status             | Notes                                                                                                                            |
 | --- | ----------- | --------------------------------------------------------------------------------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
@@ -377,7 +380,7 @@ Source: [columns/chargedescription.md](https://github.com/FinOps-Open-Cost-and-U
 
 ### Charge frequency
 
-Source: [columns/chargefrequency.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/chargefrequency.md)
+<sup>Source: [columns/chargefrequency.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/chargefrequency.md)</sup>
 
 | ID    | Type        | Criteria                                                                      | Status   | Notes |
 | ----- | ----------- | ----------------------------------------------------------------------------- | -------- | ----- |
@@ -389,7 +392,7 @@ Source: [columns/chargefrequency.md](https://github.com/FinOps-Open-Cost-and-Usa
 
 ### Charge period end
 
-Source: [columns/chargeperiodend.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/chargeperiodend.md)
+<sup>Source: [columns/chargeperiodend.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/chargeperiodend.md)</sup>
 
 | ID     | Type        | Criteria                                                                                            | Status   | Notes |
 | ------ | ----------- | --------------------------------------------------------------------------------------------------- | -------- | ----- |
@@ -402,7 +405,7 @@ Source: [columns/chargeperiodend.md](https://github.com/FinOps-Open-Cost-and-Usa
 
 ### Charge period start
 
-Source: [columns/chargeperiodstart.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/chargeperiodstart.md)
+<sup>Source: [columns/chargeperiodstart.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/chargeperiodstart.md)</sup>
 
 | ID     | Type        | Criteria                                                                                                 | Status   | Notes |
 | ------ | ----------- | -------------------------------------------------------------------------------------------------------- | -------- | ----- |
@@ -415,7 +418,7 @@ Source: [columns/chargeperiodstart.md](https://github.com/FinOps-Open-Cost-and-U
 
 ### Commitment discount category
 
-Source: [columns/commitmentdiscountcategory.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/commitmentdiscountcategory.md)
+<sup>Source: [columns/commitmentdiscountcategory.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/commitmentdiscountcategory.md)</sup>
 
 | ID     | Type        | Criteria                                                                                                                                        | Status   | Notes |
 | ------ | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
@@ -428,7 +431,7 @@ Source: [columns/commitmentdiscountcategory.md](https://github.com/FinOps-Open-C
 
 ### Commitment discount ID
 
-Source: [columns/commitmentdiscountid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/commitmentdiscountid.md)
+<sup>Source: [columns/commitmentdiscountid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/commitmentdiscountid.md)</sup>
 
 | ID     | Type        | Criteria                                                                                                                   | Status   | Notes |
 | ------ | ----------- | -------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
@@ -441,7 +444,7 @@ Source: [columns/commitmentdiscountid.md](https://github.com/FinOps-Open-Cost-an
 
 ### Commitment discount name
 
-Source: [columns/commitmentdiscountname.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/commitmentdiscountname.md)
+<sup>Source: [columns/commitmentdiscountname.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/commitmentdiscountname.md)</sup>
 
 | ID     | Type        | Criteria                                                                                                                     | Status   | Notes |
 | ------ | ----------- | ---------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
@@ -454,7 +457,7 @@ Source: [columns/commitmentdiscountname.md](https://github.com/FinOps-Open-Cost-
 
 ### Commitment discount status
 
-Source: [columns/commitmentdiscountstatus.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/commitmentdiscountstatus.md)
+<sup>Source: [columns/commitmentdiscountstatus.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/commitmentdiscountstatus.md)</sup>
 
 | ID     | Type        | Criteria                                                                                                                                    | Status   | Notes |
 | ------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
@@ -467,7 +470,7 @@ Source: [columns/commitmentdiscountstatus.md](https://github.com/FinOps-Open-Cos
 
 ### Commitment discount type
 
-Source: [columns/commitmentdiscounttype.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/commitmentdiscounttype.md)
+<sup>Source: [columns/commitmentdiscounttype.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/commitmentdiscounttype.md)</sup>
 
 | ID     | Type        | Criteria                                                                                                                     | Status   | Notes |
 | ------ | ----------- | ---------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
@@ -479,7 +482,7 @@ Source: [columns/commitmentdiscounttype.md](https://github.com/FinOps-Open-Cost-
 
 ### Consumed quantity
 
-Source: [columns/consumedquantity.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/consumedquantity.md)
+<sup>Source: [columns/consumedquantity.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/consumedquantity.md)</sup>
 
 | ID    | Type        | Criteria                                                                                                         | Status   | Notes |
 | ----- | ----------- | ---------------------------------------------------------------------------------------------------------------- | -------- | ----- |
@@ -493,7 +496,7 @@ Source: [columns/consumedquantity.md](https://github.com/FinOps-Open-Cost-and-Us
 
 ### Consumed unit
 
-Source: [columns/consumedunit.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/consumedunit.md)
+<sup>Source: [columns/consumedunit.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/consumedunit.md)</sup>
 
 | ID  | Type        | Criteria                                                                                                                                         | Status   | Notes |
 | --- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | ----- |
@@ -507,7 +510,7 @@ Source: [columns/consumedunit.md](https://github.com/FinOps-Open-Cost-and-Usage-
 
 ### Contracted cost
 
-Source: [columns/contractedcost.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/contractedcost.md)
+<sup>Source: [columns/contractedcost.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/contractedcost.md)</sup>
 
 | ID     | Type        | Criteria                                                                                                                                                                                                                                                          | Status             | Notes                                                                                                                                                  |
 | ------ | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -523,7 +526,7 @@ Source: [columns/contractedcost.md](https://github.com/FinOps-Open-Cost-and-Usag
 
 ### Contracted unit price
 
-Source: [columns/contractedunitprice.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/contractedunitprice.md)
+<sup>Source: [columns/contractedunitprice.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/contractedunitprice.md)</sup>
 
 | ID      | Type        | Criteria                                                                                                                                                                                                                                                | Status             | Notes                                                                                                                                                       |
 | ------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -539,7 +542,7 @@ Source: [columns/contractedunitprice.md](https://github.com/FinOps-Open-Cost-and
 
 ### Effective cost
 
-Source: [columns/effectivecost.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/effectivecost.md)
+<sup>Source: [columns/effectivecost.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/effectivecost.md)</sup>
 
 | ID    | Type        | Criteria                                                                                                                                                                                  | Status   | Notes |
 | ----- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
@@ -555,7 +558,7 @@ Source: [columns/effectivecost.md](https://github.com/FinOps-Open-Cost-and-Usage
 
 ### Invoice issuer name
 
-Source: [columns/invoiceissuer.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/invoiceissuer.md)
+<sup>Source: [columns/invoiceissuer.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/invoiceissuer.md)</sup>
 
 | ID   | Type        | Criteria                                                                                 | Status   | Notes                                                                                                                                                                                                                                                                                                                                                                        |
 | ---- | ----------- | ---------------------------------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -566,7 +569,7 @@ Source: [columns/invoiceissuer.md](https://github.com/FinOps-Open-Cost-and-Usage
 
 ### List cost
 
-Source: [columns/listcost.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/listcost.md)
+<sup>Source: [columns/listcost.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/listcost.md)</sup>
 
 | ID    | Type        | Criteria                                                                                                                                                                                                                                        | Status             | Notes                                                                                                   |
 | ----- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------- |
@@ -582,7 +585,7 @@ Source: [columns/listcost.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec
 
 ### List unit price
 
-Source: [columns/listunitprice.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/listunitprice.md)
+<sup>Source: [columns/listunitprice.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/listunitprice.md)</sup>
 
 | ID     | Type        | Criteria                                                                                                                                                                                                                                 | Status             | Notes                                                                                                        |
 | ------ | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------ |
@@ -598,7 +601,7 @@ Source: [columns/listunitprice.md](https://github.com/FinOps-Open-Cost-and-Usage
 
 ### Pricing category
 
-Source: [columns/pricingcategory.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/pricingcategory.md)
+<sup>Source: [columns/pricingcategory.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/pricingcategory.md)</sup>
 
 | ID    | Type        | Criteria                                                                                                                                              | Status         | Notes                                                                 |
 | ----- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | --------------------------------------------------------------------- |
@@ -616,7 +619,7 @@ Source: [columns/pricingcategory.md](https://github.com/FinOps-Open-Cost-and-Usa
 
 ### Pricing quantity
 
-Source: [columns/pricingquantity.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/pricingquantity.md)
+<sup>Source: [columns/pricingquantity.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/pricingquantity.md)</sup>
 
 | ID    | Type        | Criteria                                                                                                                                                                                                                                                         | Status         | Notes                                                                 |
 | ----- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | --------------------------------------------------------------------- |
@@ -632,7 +635,7 @@ Source: [columns/pricingquantity.md](https://github.com/FinOps-Open-Cost-and-Usa
 
 ### Pricing unit
 
-Source: [columns/pricingunit.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/pricingunit.md)
+<sup>Source: [columns/pricingunit.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/pricingunit.md)</sup>
 
 | ID    | Type        | Criteria                                                                                                                                                                                                             | Status         | Notes                                                                 |
 | ----- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | --------------------------------------------------------------------- |
@@ -647,7 +650,7 @@ Source: [columns/pricingunit.md](https://github.com/FinOps-Open-Cost-and-Usage-S
 
 ### Provider name
 
-Source: [columns/provider.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/provider.md)
+<sup>Source: [columns/provider.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/provider.md)</sup>
 
 | ID     | Type        | Criteria                                                                           | Status   | Notes |
 | ------ | ----------- | ---------------------------------------------------------------------------------- | -------- | ----- |
@@ -658,7 +661,7 @@ Source: [columns/provider.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec
 
 ### Publisher name
 
-Source: [columns/publisher.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/publisher.md)
+<sup>Source: [columns/publisher.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/publisher.md)</sup>
 
 | ID     | Type        | Criteria                                                                            | Status             | Notes                                                                                             |
 | ------ | ----------- | ----------------------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------- |
@@ -669,7 +672,7 @@ Source: [columns/publisher.md](https://github.com/FinOps-Open-Cost-and-Usage-Spe
 
 ### Region ID
 
-Source: [columns/regionid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/regionid.md)
+<sup>Source: [columns/regionid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/regionid.md)</sup>
 
 | ID     | Type        | Criteria                                                                                                                              | Status   | Notes |
 | ------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
@@ -681,7 +684,7 @@ Source: [columns/regionid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec
 
 ### Region name
 
-Source: [columns/regionname.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/regionname.md)
+<sup>Source: [columns/regionname.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/regionname.md)</sup>
 
 | ID   | Type        | Criteria                                                                                                                                | Status   | Notes |
 | ---- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
@@ -693,7 +696,7 @@ Source: [columns/regionname.md](https://github.com/FinOps-Open-Cost-and-Usage-Sp
 
 ### Resource ID
 
-Source: [columns/resourceid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/resourceid.md)
+<sup>Source: [columns/resourceid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/resourceid.md)</sup>
 
 | ID   | Type        | Criteria                                                                                                                     | Status   | Notes                                                                                                                                                                                |
 | ---- | ----------- | ---------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -706,7 +709,7 @@ Source: [columns/resourceid.md](https://github.com/FinOps-Open-Cost-and-Usage-Sp
 
 ### Resource name
 
-Source: [columns/resourcename.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/resourcename.md)
+<sup>Source: [columns/resourcename.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/resourcename.md)</sup>
 
 | ID   | Type        | Criteria                                                                                                                                                                 | Status   | Notes                                                                                                                                                                                  |
 | ---- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -719,7 +722,7 @@ Source: [columns/resourcename.md](https://github.com/FinOps-Open-Cost-and-Usage-
 
 ### Resource type
 
-Source: [columns/resourcetype.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/resourcetype.md)
+<sup>Source: [columns/resourcetype.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/resourcetype.md)</sup>
 
 | ID     | Type        | Criteria                                                                                                                                                                   | Status   | Notes |
 | ------ | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
@@ -731,7 +734,7 @@ Source: [columns/resourcetype.md](https://github.com/FinOps-Open-Cost-and-Usage-
 
 ### Service category
 
-Source: [columns/servicecategory.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/servicecategory.md)
+<sup>Source: [columns/servicecategory.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/servicecategory.md)</sup>
 
 | ID     | Type        | Criteria                                                                             | Status   | Notes |
 | ------ | ----------- | ------------------------------------------------------------------------------------ | -------- | ----- |
@@ -742,7 +745,7 @@ Source: [columns/servicecategory.md](https://github.com/FinOps-Open-Cost-and-Usa
 
 ### Service name
 
-Source: [columns/servicename.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/servicename.md)
+<sup>Source: [columns/servicename.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/servicename.md)</sup>
 
 | ID     | Type        | Criteria                                                                                                                                         | Status   | Notes |
 | ------ | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | ----- |
@@ -753,7 +756,7 @@ Source: [columns/servicename.md](https://github.com/FinOps-Open-Cost-and-Usage-S
 
 ### SKU ID
 
-Source: [columns/skuid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/skuid.md)
+<sup>Source: [columns/skuid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/skuid.md)</sup>
 
 | ID     | Type        | Criteria                                                                                                                                 | Status             | Notes                                                                                        |
 | ------ | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | -------------------------------------------------------------------------------------------- |
@@ -767,7 +770,7 @@ Source: [columns/skuid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FO
 
 ### SKU price ID
 
-Source: [columns/skupriceid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/skupriceid.md)
+<sup>Source: [columns/skupriceid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/skupriceid.md)</sup>
 
 | ID      | Type        | Criteria                                                                                                                        | Status             | Notes                                                                                                                                                                                                                  |
 | ------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -783,7 +786,7 @@ Source: [columns/skupriceid.md](https://github.com/FinOps-Open-Cost-and-Usage-Sp
 
 ### Sub account ID
 
-Source: [columns/subaccountid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/subaccountid.md)
+<sup>Source: [columns/subaccountid.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/subaccountid.md)</sup>
 
 | ID   | Type        | Criteria                                                                                                        | Status   | Notes                                                    |
 | ---- | ----------- | --------------------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------- |
@@ -794,7 +797,7 @@ Source: [columns/subaccountid.md](https://github.com/FinOps-Open-Cost-and-Usage-
 
 ### Sub account name
 
-Source: [columns/subaccountname.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/subaccountname.md)
+<sup>Source: [columns/subaccountname.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/subaccountname.md)</sup>
 
 | ID   | Type        | Criteria                                                                                                          | Status             | Notes                                                        |
 | ---- | ----------- | ----------------------------------------------------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------ |
@@ -805,7 +808,7 @@ Source: [columns/subaccountname.md](https://github.com/FinOps-Open-Cost-and-Usag
 
 ### Tags
 
-Source: [columns/tags.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/tags.md)
+<sup>Source: [columns/tags.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/tags.md)</sup>
 
 | ID  | Type        | Criteria                                                                                                                                  | Status           | Notes                                                                                                                                                                                         |
 | --- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
