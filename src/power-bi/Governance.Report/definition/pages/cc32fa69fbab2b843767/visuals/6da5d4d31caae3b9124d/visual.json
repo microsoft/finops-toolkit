@@ -4,10 +4,10 @@
   "position": {
     "x": 0,
     "y": 437,
-    "z": 1,
+    "z": 1000,
     "height": 283,
     "width": 1280,
-    "tabOrder": 1
+    "tabOrder": 1000
   },
   "visual": {
     "visualType": "tableEx",
@@ -175,7 +175,7 @@
             "value": {
               "expr": {
                 "Literal": {
-                  "Value": "228D"
+                  "Value": "251.28358432225798D"
                 }
               }
             }
@@ -210,6 +210,34 @@
           },
           "selector": {
             "metadata": "Network Security Groups.properties.securityRules.properties.destinationAddressPrefix"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "256.5865129895632D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Network Security Groups.properties.securityRules.name"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "114.44774773338557D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Network Security Groups.properties.securityRules.properties.destinationPortRange"
           }
         }
       ]

@@ -3,11 +3,11 @@
   "name": "3d0ce5323190fb796378",
   "position": {
     "x": 0,
-    "y": 117,
-    "z": 2,
-    "height": 200,
-    "width": 481,
-    "tabOrder": 2
+    "y": 117.31343283582089,
+    "z": 2000,
+    "height": 199.70149253731344,
+    "width": 684.17910447761187,
+    "tabOrder": 2000
   },
   "visual": {
     "visualType": "tableEx",
@@ -27,7 +27,23 @@
                 }
               },
               "queryRef": "Subscriptions.name",
-              "nativeQueryRef": "name"
+              "nativeQueryRef": "Subscription",
+              "displayName": "Subscription"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Subscriptions"
+                    }
+                  },
+                  "Property": "subscriptionId"
+                }
+              },
+              "queryRef": "Subscriptions.subscriptionId",
+              "nativeQueryRef": "Subscription Id",
+              "displayName": "Subscription Id"
             },
             {
               "field": {
@@ -46,8 +62,8 @@
                 }
               },
               "queryRef": "Count(Resources.id)",
-              "nativeQueryRef": "Count of resource",
-              "displayName": "Count of resource"
+              "nativeQueryRef": "Quantity",
+              "displayName": "Quantity"
             }
           ]
         }
@@ -74,6 +90,38 @@
           }
         ]
       }
+    },
+    "objects": {
+      "columnWidth": [
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "312.49587627966844D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Subscriptions.name"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "279.64179120306494D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Subscriptions.subscriptionId"
+          }
+        }
+      ]
     },
     "drillFilterOtherVisuals": true
   }

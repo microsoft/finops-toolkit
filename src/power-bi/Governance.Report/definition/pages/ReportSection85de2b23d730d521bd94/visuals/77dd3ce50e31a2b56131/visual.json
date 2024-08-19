@@ -3,11 +3,11 @@
   "name": "77dd3ce50e31a2b56131",
   "position": {
     "x": 0,
-    "y": 317,
-    "z": 3,
-    "height": 200,
-    "width": 481,
-    "tabOrder": 3
+    "y": 317.0149253731343,
+    "z": 3000,
+    "height": 199.70149253731344,
+    "width": 684.17910447761187,
+    "tabOrder": 3000
   },
   "visual": {
     "visualType": "tableEx",
@@ -20,6 +20,21 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
+                      "Entity": "Resources"
+                    }
+                  },
+                  "Property": "type"
+                }
+              },
+              "queryRef": "Resources.type",
+              "nativeQueryRef": "Unformatted type",
+              "displayName": "Unformatted type"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
                       "Entity": "Resource types"
                     }
                   },
@@ -27,8 +42,8 @@
                 }
               },
               "queryRef": "Resource types.SingularDisplayName",
-              "nativeQueryRef": "Resource type",
-              "displayName": "Resource type"
+              "nativeQueryRef": "Type",
+              "displayName": "Type"
             },
             {
               "field": {
@@ -47,8 +62,8 @@
                 }
               },
               "queryRef": "Count(Resources.id)",
-              "nativeQueryRef": "Count of resource",
-              "displayName": "Count of resource"
+              "nativeQueryRef": "Quantity",
+              "displayName": "Quantity"
             }
           ]
         }
@@ -84,7 +99,7 @@
             "value": {
               "expr": {
                 "Literal": {
-                  "Value": "121.75583555682871D"
+                  "Value": "80.47719860875483D"
                 }
               }
             }
@@ -98,13 +113,27 @@
             "value": {
               "expr": {
                 "Literal": {
-                  "Value": "312.9041607425811D"
+                  "Value": "221.51819014643783D"
                 }
               }
             }
           },
           "selector": {
             "metadata": "Resource types.SingularDisplayName"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "352.58194877686856D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Resources.type"
           }
         }
       ]

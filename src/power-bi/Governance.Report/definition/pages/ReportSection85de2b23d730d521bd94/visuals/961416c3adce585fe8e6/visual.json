@@ -2,12 +2,12 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
   "name": "961416c3adce585fe8e6",
   "position": {
-    "x": 0,
-    "y": 517,
-    "z": 8,
-    "height": 200,
-    "width": 481,
-    "tabOrder": 8
+    "x": 684.17910447761187,
+    "y": 519.40298507462683,
+    "z": 8000,
+    "height": 200.59701492537312,
+    "width": 595.52238805970148,
+    "tabOrder": 8000
   },
   "visual": {
     "visualType": "tableEx",
@@ -20,13 +20,13 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "Resources"
+                      "Entity": "Region"
                     }
                   },
-                  "Property": "location"
+                  "Property": "RegionName"
                 }
               },
-              "queryRef": "Resources.location",
+              "queryRef": "Region.RegionName",
               "nativeQueryRef": "Region",
               "displayName": "Region"
             },
@@ -47,8 +47,8 @@
                 }
               },
               "queryRef": "Count(Resources.id)",
-              "nativeQueryRef": "Count of resource",
-              "displayName": "Count of resource"
+              "nativeQueryRef": "Quantity",
+              "displayName": "Quantity"
             }
           ]
         }
@@ -73,8 +73,7 @@
             },
             "direction": "Descending"
           }
-        ],
-        "isDefaultSort": true
+        ]
       }
     },
     "objects": {
@@ -91,20 +90,6 @@
           },
           "selector": {
             "metadata": "Count(Resources.id)"
-          }
-        },
-        {
-          "properties": {
-            "value": {
-              "expr": {
-                "Literal": {
-                  "Value": "312D"
-                }
-              }
-            }
-          },
-          "selector": {
-            "metadata": "Resources.location"
           }
         }
       ]
