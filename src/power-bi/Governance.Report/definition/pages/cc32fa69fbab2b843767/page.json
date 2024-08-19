@@ -1,0 +1,8 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/1.1.0/schema.json",
+  "name": "cc32fa69fbab2b843767",
+  "displayName": "Network security group",
+  "displayOption": "FitToPage",
+  "height": 720,
+  "width": 1280
+}

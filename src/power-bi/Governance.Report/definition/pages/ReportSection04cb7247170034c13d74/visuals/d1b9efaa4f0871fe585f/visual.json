@@ -1,0 +1,174 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
+  "name": "d1b9efaa4f0871fe585f",
+  "position": {
+    "x": 63.582089552238806,
+    "y": 366.26865671641792,
+    "z": 3,
+    "height": 353.73134328358208,
+    "width": 776.41791044776119,
+    "tabOrder": 6
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "How to connect to your data",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "fontSize": "12pt"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "This report connects to your data using the Azure Resource Graph Power BI connector.",
+                    "textStyle": {
+                      "fontSize": "11pt"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "To connect your data, select Home > Data Source Settings and update the connection with your credentials.",
+                    "textStyle": {
+                      "fontSize": "11pt"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "About the FinOps toolkit",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "fontSize": "12pt"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "This report is a part of the FinOps toolkit, an open-source collection of customizable FinOps solutions that automate and extend native Microsoft Cloud capabilities. ",
+                    "textStyle": {
+                      "fontSize": "11pt"
+                    }
+                  },
+                  {
+                    "value": "Learn more",
+                    "textStyle": {
+                      "fontSize": "11pt"
+                    },
+                    "url": "https://aka.ms/finops/toolkit"
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Need help? Have a suggestion?",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "fontSize": "12pt"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "🛟 ",
+                    "textStyle": {
+                      "fontSize": "11pt"
+                    }
+                  },
+                  {
+                    "value": "Troubleshooting tips",
+                    "textStyle": {
+                      "fontSize": "11pt"
+                    },
+                    "url": "https://aka.ms/finops/toolkit/troubleshoot"
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "💡",
+                    "textStyle": {
+                      "fontSize": "14.6667px"
+                    }
+                  },
+                  {
+                    "value": " ",
+                    "textStyle": {
+                      "fontSize": "11pt"
+                    }
+                  },
+                  {
+                    "value": "Share ideas",
+                    "textStyle": {
+                      "fontSize": "11pt"
+                    },
+                    "url": "https://aka.ms/finops/toolkit/ideas"
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "🙋‍♀️ ",
+                    "textStyle": {
+                      "fontSize": "14.6667px"
+                    }
+                  },
+                  {
+                    "value": "Ask a question",
+                    "textStyle": {
+                      "fontSize": "11pt"
+                    },
+                    "url": "https://aka.ms/finops/toolkit/discuss"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

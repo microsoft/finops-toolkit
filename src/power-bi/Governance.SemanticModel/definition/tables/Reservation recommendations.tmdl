@@ -1,0 +1,414 @@
+table 'Reservation recommendations'
+	lineageTag: f8a7216c-3ff2-43b2-94f8-0f0c214e41c7
+
+	column id
+		dataType: string
+		lineageTag: 26be755c-9440-42dc-a019-5736edc36150
+		summarizeBy: none
+		sourceColumn: id
+
+		annotation SummarizationSetBy = Automatic
+
+	column name
+		dataType: string
+		lineageTag: d292350c-ec24-4ea5-9979-85eac56f0530
+		summarizeBy: none
+		sourceColumn: name
+
+		annotation SummarizationSetBy = Automatic
+
+	column type
+		dataType: string
+		lineageTag: 30bb51f4-e29c-400f-9e70-620770c6f163
+		summarizeBy: none
+		sourceColumn: type
+
+		annotation SummarizationSetBy = Automatic
+
+	column tenantId
+		dataType: string
+		lineageTag: 92914d1a-c57f-4a5a-a209-ef7ce5f73e29
+		summarizeBy: none
+		sourceColumn: tenantId
+
+		annotation SummarizationSetBy = Automatic
+
+	column kind
+		dataType: string
+		lineageTag: fd21ed9b-d8aa-45e7-a944-88f46942a7a5
+		summarizeBy: none
+		sourceColumn: kind
+
+		annotation SummarizationSetBy = Automatic
+
+	column location
+		dataType: string
+		lineageTag: 2d1dd88e-1349-48d9-b7ee-08fb60180653
+		summarizeBy: none
+		sourceColumn: location
+
+		annotation SummarizationSetBy = Automatic
+
+	column resourceGroup
+		dataType: string
+		lineageTag: 7a607a88-efbb-4019-a64e-bb0d4a2ed4b9
+		summarizeBy: none
+		sourceColumn: resourceGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column subscriptionId
+		dataType: string
+		lineageTag: 7d7548d8-7a1a-4e0a-93f7-82ac73d6e9e6
+		summarizeBy: none
+		sourceColumn: subscriptionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column managedBy
+		dataType: string
+		lineageTag: 107e685a-d8d7-432b-bae0-1c48cf0488f1
+		summarizeBy: none
+		sourceColumn: managedBy
+
+		annotation SummarizationSetBy = Automatic
+
+	column sku
+		dataType: string
+		lineageTag: 0fc3a335-8fc2-48cd-b7ed-c64927a45154
+		summarizeBy: none
+		sourceColumn: sku
+
+		annotation SummarizationSetBy = Automatic
+
+	column plan
+		dataType: string
+		lineageTag: 9898f36c-73e5-4d94-9d5c-a6793a63caab
+		summarizeBy: none
+		sourceColumn: plan
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.recommendationTypeId'
+		dataType: string
+		lineageTag: a999f74d-55d1-4393-9672-bb3ba14d00b4
+		summarizeBy: none
+		sourceColumn: properties.recommendationTypeId
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.extendedProperties.reservedResourceType'
+		dataType: string
+		lineageTag: 8debfea8-6e9a-4b67-8b58-fe7f11ac7d21
+		summarizeBy: none
+		sourceColumn: properties.extendedProperties.reservedResourceType
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.extendedProperties.annualSavingsAmount'
+		dataType: double
+		lineageTag: 4e6f4eb0-95c4-467f-9c7f-2bf279249f0b
+		summarizeBy: sum
+		sourceColumn: properties.extendedProperties.annualSavingsAmount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'properties.extendedProperties.targetResourceCount'
+		dataType: int64
+		formatString: 0
+		lineageTag: dc47e31d-ae5d-485c-a457-ffc759dd2078
+		summarizeBy: sum
+		sourceColumn: properties.extendedProperties.targetResourceCount
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.extendedProperties.savingsCurrency'
+		dataType: string
+		lineageTag: 0188f62c-5ede-40c6-97ad-4ad628d3688b
+		summarizeBy: none
+		sourceColumn: properties.extendedProperties.savingsCurrency
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.extendedProperties.lookbackPeriod'
+		dataType: string
+		lineageTag: dd3720c9-16d7-4a82-bc73-02c8a4f0d25b
+		summarizeBy: none
+		sourceColumn: properties.extendedProperties.lookbackPeriod
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.extendedProperties.savingsAmount'
+		dataType: double
+		lineageTag: a1dc181e-3fb1-4a58-ab05-9ab65916896d
+		summarizeBy: sum
+		sourceColumn: properties.extendedProperties.savingsAmount
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'properties.extendedProperties.displaySKU'
+		dataType: string
+		lineageTag: 8f43281f-9a7e-44d9-a9b0-380d67cf5ca8
+		summarizeBy: none
+		sourceColumn: properties.extendedProperties.displaySKU
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.extendedProperties.displayQty'
+		dataType: int64
+		formatString: 0
+		lineageTag: b2980955-8db7-4668-a115-9366cdb85d20
+		summarizeBy: sum
+		sourceColumn: properties.extendedProperties.displayQty
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.extendedProperties.location'
+		dataType: string
+		lineageTag: 5e2b6dcc-7c6e-45b0-9074-1d76fb562a83
+		summarizeBy: none
+		sourceColumn: properties.extendedProperties.location
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.extendedProperties.region'
+		dataType: string
+		lineageTag: f83cb1d6-04b4-485b-a08d-42028447bdad
+		summarizeBy: none
+		sourceColumn: properties.extendedProperties.region
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.extendedProperties.vmSize'
+		dataType: string
+		lineageTag: d7631dda-a016-4085-a10d-04c194a639c6
+		summarizeBy: none
+		sourceColumn: properties.extendedProperties.vmSize
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.extendedProperties.subId'
+		dataType: string
+		lineageTag: 554ce1ef-e377-4584-a275-2a048ed0a969
+		summarizeBy: none
+		sourceColumn: properties.extendedProperties.subId
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.extendedProperties.scope'
+		dataType: string
+		lineageTag: 37eba05f-b96b-497c-90af-0675a02e07a6
+		summarizeBy: none
+		sourceColumn: properties.extendedProperties.scope
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.extendedProperties.term'
+		dataType: string
+		lineageTag: ff61f507-8de5-4481-bc3d-192104864367
+		summarizeBy: none
+		sourceColumn: properties.extendedProperties.term
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.extendedProperties.sku'
+		dataType: string
+		lineageTag: e801c7a2-224e-45da-8b91-e91e4f710bb9
+		summarizeBy: none
+		sourceColumn: properties.extendedProperties.sku
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.extendedProperties.qty'
+		dataType: int64
+		formatString: 0
+		lineageTag: 7557dd48-7353-4571-8760-8e023a71446d
+		summarizeBy: sum
+		sourceColumn: properties.extendedProperties.qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.resourceMetadata.resourceId'
+		dataType: string
+		lineageTag: c862416f-b353-4586-8ab4-6153a80c63b3
+		summarizeBy: none
+		sourceColumn: properties.resourceMetadata.resourceId
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.resourceMetadata.singular'
+		dataType: string
+		lineageTag: bc4ed9e2-8c5b-49d2-99ba-3e1c9e55c5e0
+		summarizeBy: none
+		sourceColumn: properties.resourceMetadata.singular
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.resourceMetadata.plural'
+		dataType: string
+		lineageTag: 882d5cfa-faa5-4a84-b467-fa6fa9ba7e6e
+		summarizeBy: none
+		sourceColumn: properties.resourceMetadata.plural
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.resourceMetadata.action'
+		dataType: string
+		lineageTag: 0807fcbd-4315-4774-8a88-537d29065db3
+		summarizeBy: none
+		sourceColumn: properties.resourceMetadata.action
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.resourceMetadata.source'
+		dataType: string
+		lineageTag: 33e1c21d-e72d-420a-ae59-cdabe3571ae5
+		summarizeBy: none
+		sourceColumn: properties.resourceMetadata.source
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.shortDescription.solution'
+		dataType: string
+		lineageTag: 5c324770-cd65-4433-af17-13729e7eae3e
+		summarizeBy: none
+		sourceColumn: properties.shortDescription.solution
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.shortDescription.problem'
+		dataType: string
+		lineageTag: c9cd8a10-b0fd-4d47-90b7-cd73329f76a7
+		summarizeBy: none
+		sourceColumn: properties.shortDescription.problem
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.suppressionIds'
+		dataType: string
+		lineageTag: 111cd6dd-2e24-4fc9-a922-a20c0e8398dd
+		summarizeBy: none
+		sourceColumn: properties.suppressionIds
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.impactedField'
+		dataType: string
+		lineageTag: 10c901c6-0853-486e-ae86-dd5d9e95c5c8
+		summarizeBy: none
+		sourceColumn: properties.impactedField
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.impactedValue'
+		dataType: string
+		lineageTag: 9d51b1a0-c8e9-4d60-9bf4-45c902323524
+		summarizeBy: none
+		sourceColumn: properties.impactedValue
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.lastUpdated'
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 7ddfc8db-659d-4991-82c7-f26c52b74b28
+		summarizeBy: none
+		sourceColumn: properties.lastUpdated
+
+		variation Variation
+			isDefault
+			relationship: 0a793a54-0ab0-4d65-b6ee-e5da03973633
+			defaultHierarchy: LocalDateTable_b8bd867e-8e27-4649-adcd-406d66f143ff.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.metadata'
+		dataType: string
+		lineageTag: ed7b3986-455c-423d-ba74-7cc41707abf9
+		summarizeBy: none
+		sourceColumn: properties.metadata
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.category'
+		dataType: string
+		lineageTag: bc8c1dd8-056a-4ccf-b7fe-7b43f25af8af
+		summarizeBy: none
+		sourceColumn: properties.category
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.impact'
+		dataType: string
+		lineageTag: 8490a8e5-882a-40bc-b0a7-ab6acd98921d
+		summarizeBy: none
+		sourceColumn: properties.impact
+
+		annotation SummarizationSetBy = Automatic
+
+	column tags
+		dataType: string
+		lineageTag: 9256c0d8-403c-47e7-a3c2-bfb45effa0a5
+		summarizeBy: none
+		sourceColumn: tags
+
+		annotation SummarizationSetBy = Automatic
+
+	column identity
+		dataType: string
+		lineageTag: 31049af9-d33e-4e8f-886c-72ce9a321166
+		summarizeBy: none
+		sourceColumn: identity
+
+		annotation SummarizationSetBy = Automatic
+
+	column zones
+		dataType: string
+		lineageTag: 1444521b-91ae-424c-88b7-11e6e79f8f34
+		summarizeBy: none
+		sourceColumn: zones
+
+		annotation SummarizationSetBy = Automatic
+
+	column extendedLocation
+		dataType: string
+		lineageTag: 3d97b772-4e53-4887-8171-3377d086f7ac
+		summarizeBy: none
+		sourceColumn: extendedLocation
+
+		annotation SummarizationSetBy = Automatic
+
+	column recommendedActions
+		dataType: string
+		lineageTag: 929379ab-e4ec-4904-afb2-a0e158d08464
+		summarizeBy: none
+		sourceColumn: recommendedActions
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Reservation recommendations' = m
+		mode: import
+		queryGroup: 'FinOps toolkit'
+		source =
+				let
+				  Source = AzureResourceGraph.Query("advisorresources | where type == ""microsoft.advisor/recommendations"" | where properties['category'] == 'Cost' | where properties['shortDescription']['solution'] == 'Consider virtual machine reserved instance to save over your on-demand costs'", "Tenant", null, null, [resultTruncated = true]),
+				  #"Expanded properties 1" = Table.ExpandRecordColumn(Source, "properties", {"recommendationTypeId", "extendedProperties", "resourceMetadata", "shortDescription", "suppressionIds", "impactedField", "impactedValue", "lastUpdated", "metadata", "category", "impact"}, {"properties.recommendationTypeId", "properties.extendedProperties", "properties.resourceMetadata", "properties.shortDescription", "properties.suppressionIds", "properties.impactedField", "properties.impactedValue", "properties.lastUpdated", "properties.metadata", "properties.category", "properties.impact"}),
+				  #"Expanded properties.shortDescription 1" = Table.ExpandRecordColumn(#"Expanded properties 1", "properties.shortDescription", {"solution", "problem"}, {"properties.shortDescription.solution", "properties.shortDescription.problem"}),
+				  #"Expanded properties.extendedProperties" = Table.ExpandRecordColumn(#"Expanded properties.shortDescription 1", "properties.extendedProperties", {"reservedResourceType", "annualSavingsAmount", "targetResourceCount", "savingsCurrency", "lookbackPeriod", "savingsAmount", "displaySKU", "displayQty", "location", "region", "vmSize", "subId", "scope", "term", "sku", "qty"}, {"properties.extendedProperties.reservedResourceType", "properties.extendedProperties.annualSavingsAmount", "properties.extendedProperties.targetResourceCount", "properties.extendedProperties.savingsCurrency", "properties.extendedProperties.lookbackPeriod", "properties.extendedProperties.savingsAmount", "properties.extendedProperties.displaySKU", "properties.extendedProperties.displayQty", "properties.extendedProperties.location", "properties.extendedProperties.region", "properties.extendedProperties.vmSize", "properties.extendedProperties.subId", "properties.extendedProperties.scope", "properties.extendedProperties.term", "properties.extendedProperties.sku", "properties.extendedProperties.qty"}),
+				  #"Expanded properties.resourceMetadata" = Table.ExpandRecordColumn(#"Expanded properties.extendedProperties", "properties.resourceMetadata", {"resourceId", "singular", "plural", "action", "source"}, {"properties.resourceMetadata.resourceId", "properties.resourceMetadata.singular", "properties.resourceMetadata.plural", "properties.resourceMetadata.action", "properties.resourceMetadata.source"}),
+				  #"Changed column type 2" = Table.TransformColumnTypes(#"Expanded properties.resourceMetadata", {{"properties.extendedProperties.annualSavingsAmount", type number}}, "en-US"),
+				  #"Replaced errors" = Table.ReplaceErrorValues(#"Changed column type 2", {{"properties.extendedProperties.annualSavingsAmount", null}}),
+				  #"Changed column type 1" = Table.TransformColumnTypes(#"Replaced errors", {{"properties.extendedProperties.savingsAmount", type number}}, "en-US"),
+				  #"Replaced errors 1" = Table.ReplaceErrorValues(#"Changed column type 1", {{"properties.extendedProperties.savingsAmount", null}}),
+				  #"Replaced value" = Table.ReplaceValue(#"Replaced errors 1", null, 0, Replacer.ReplaceValue, {"properties.extendedProperties.savingsAmount"}),
+				  #"Replaced value 1" = Table.ReplaceValue(#"Replaced value", null, 0, Replacer.ReplaceValue, {"properties.extendedProperties.annualSavingsAmount"}),
+				  #"Changed column type" = Table.TransformColumnTypes(#"Replaced value 1", {{"properties.lastUpdated", type datetimezone}}),
+				  #"Added custom" = Table.TransformColumnTypes(Table.AddColumn(#"Changed column type", "recommendedActions", each [properties.extendedProperties.displaySKU] & " virtual machines in " & [properties.extendedProperties.location]), {{"recommendedActions", type text}}),
+				  #"Changed column type 3" = Table.TransformColumnTypes(#"Added custom", {{"properties.extendedProperties.targetResourceCount", Int64.Type}, {"properties.extendedProperties.displayQty", Int64.Type}, {"properties.extendedProperties.qty", Int64.Type}})
+				in
+				  #"Changed column type 3"
+

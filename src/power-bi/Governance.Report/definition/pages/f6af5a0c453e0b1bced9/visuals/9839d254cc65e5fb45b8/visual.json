@@ -1,0 +1,143 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
+  "name": "9839d254cc65e5fb45b8",
+  "position": {
+    "x": 0,
+    "y": 588,
+    "z": 12,
+    "height": 132,
+    "width": 1087,
+    "tabOrder": 12
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Virtual Machines"
+                    }
+                  },
+                  "Property": "name"
+                }
+              },
+              "queryRef": "Virtual Machines.name",
+              "nativeQueryRef": "Virtual machine name",
+              "displayName": "Virtual machine name"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Network interfaces"
+                    }
+                  },
+                  "Property": "name"
+                }
+              },
+              "queryRef": "Network interfaces.name",
+              "nativeQueryRef": "Network interface",
+              "displayName": "Network interface"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Network interfaces"
+                    }
+                  },
+                  "Property": "location"
+                }
+              },
+              "queryRef": "Network interfaces.location",
+              "nativeQueryRef": "Region",
+              "displayName": "Region"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Network interfaces"
+                    }
+                  },
+                  "Property": "properties.ipConfigurations.properties.privateIPAddress"
+                }
+              },
+              "queryRef": "Network interfaces.properties.ipConfigurations.properties.privateIPAddress",
+              "nativeQueryRef": "Private IP address",
+              "displayName": "Private IP address"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Public ip addresses"
+                    }
+                  },
+                  "Property": "name"
+                }
+              },
+              "queryRef": "Public ip addresses.name",
+              "nativeQueryRef": "Public IP name",
+              "displayName": "Public IP name"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Public ip addresses"
+                    }
+                  },
+                  "Property": "properties.ipAddress"
+                }
+              },
+              "queryRef": "Public ip addresses.properties.ipAddress",
+              "nativeQueryRef": "Public IP address",
+              "displayName": "Public IP address"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Public IP addresses'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "12D"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

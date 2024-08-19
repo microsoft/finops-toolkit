@@ -1,0 +1,475 @@
+table 'Network Security Groups'
+	lineageTag: 99c70442-1a5b-415d-8bf7-c3191b401aab
+
+	column id
+		dataType: string
+		lineageTag: a219a6dd-72d1-41a6-952a-b75d5eb4fa6a
+		summarizeBy: none
+		sourceColumn: id
+
+		annotation SummarizationSetBy = Automatic
+
+	column name
+		dataType: string
+		lineageTag: 2a2d9ba7-b1af-48ab-a90d-42333b9de480
+		summarizeBy: none
+		sourceColumn: name
+
+		annotation SummarizationSetBy = Automatic
+
+	column type
+		dataType: string
+		lineageTag: 6268b6c5-6eec-4d04-9de9-7ae667183f43
+		summarizeBy: none
+		sourceColumn: type
+
+		annotation SummarizationSetBy = Automatic
+
+	column tenantId
+		dataType: string
+		lineageTag: 52e9deb4-250e-48d9-9353-eb27a3c03f80
+		summarizeBy: none
+		sourceColumn: tenantId
+
+		annotation SummarizationSetBy = Automatic
+
+	column kind
+		dataType: string
+		lineageTag: 84180253-3b88-49e5-831b-e6332b50b8b3
+		summarizeBy: none
+		sourceColumn: kind
+
+		annotation SummarizationSetBy = Automatic
+
+	column location
+		dataType: string
+		lineageTag: d956683f-c1a0-4353-9385-b22fb5883b89
+		summarizeBy: none
+		sourceColumn: location
+
+		annotation SummarizationSetBy = Automatic
+
+	column resourceGroup
+		dataType: string
+		lineageTag: 77dbe92c-3339-4411-a544-bc8b5acc7d08
+		summarizeBy: none
+		sourceColumn: resourceGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column subscriptionId
+		dataType: string
+		lineageTag: efd14247-f008-4175-b799-3451a74a4fe5
+		summarizeBy: none
+		sourceColumn: subscriptionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column managedBy
+		dataType: string
+		lineageTag: d6e4ed2d-eee8-40d2-a28c-657b9ccaefe0
+		summarizeBy: none
+		sourceColumn: managedBy
+
+		annotation SummarizationSetBy = Automatic
+
+	column sku
+		dataType: string
+		lineageTag: 2dfe3127-45b3-4b7b-bd41-a5cc3c1d8f96
+		summarizeBy: none
+		sourceColumn: sku
+
+		annotation SummarizationSetBy = Automatic
+
+	column plan
+		dataType: string
+		lineageTag: de2ae84c-fafb-4f71-a71b-8dd425811699
+		summarizeBy: none
+		sourceColumn: plan
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.provisioningState'
+		dataType: string
+		lineageTag: 42a87d5d-e6a9-45a2-88bc-973863d50ae3
+		summarizeBy: none
+		sourceColumn: properties.provisioningState
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.networkInterfaces.id'
+		dataType: string
+		lineageTag: e1179627-c24e-4389-82f7-93b7a25a1a8b
+		summarizeBy: none
+		sourceColumn: properties.networkInterfaces.id
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.resourceGuid'
+		dataType: string
+		lineageTag: f4229fc6-7d45-4aab-ad31-cba0d11433c5
+		summarizeBy: none
+		sourceColumn: properties.resourceGuid
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.defaultSecurityRules.type'
+		dataType: string
+		lineageTag: 8626bb05-09fe-4205-a329-1e89b7128ccb
+		summarizeBy: none
+		sourceColumn: properties.defaultSecurityRules.type
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.defaultSecurityRules.properties.provisioningState'
+		dataType: string
+		lineageTag: 9999a725-d45c-48bf-96ae-78711ea7d637
+		summarizeBy: none
+		sourceColumn: properties.defaultSecurityRules.properties.provisioningState
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.defaultSecurityRules.properties.destinationAddressPrefixes'
+		dataType: string
+		lineageTag: 38bd1a2c-1dc8-4d4c-853b-7b25edeccc12
+		summarizeBy: none
+		sourceColumn: properties.defaultSecurityRules.properties.destinationAddressPrefixes
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.defaultSecurityRules.properties.destinationAddressPrefix'
+		dataType: string
+		lineageTag: bb3c0dad-bc44-4b62-bf88-6b6092cc2553
+		summarizeBy: none
+		sourceColumn: properties.defaultSecurityRules.properties.destinationAddressPrefix
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.defaultSecurityRules.properties.destinationPortRanges'
+		dataType: string
+		lineageTag: e46ef0ba-8f3c-4848-be6d-11d9486dab08
+		summarizeBy: none
+		sourceColumn: properties.defaultSecurityRules.properties.destinationPortRanges
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.defaultSecurityRules.properties.sourceAddressPrefixes'
+		dataType: string
+		lineageTag: 959e0def-df32-45cb-ac19-e1315ddcc276
+		summarizeBy: none
+		sourceColumn: properties.defaultSecurityRules.properties.sourceAddressPrefixes
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.defaultSecurityRules.properties.sourceAddressPrefix'
+		dataType: string
+		lineageTag: 8afd4779-8c71-4c67-ad6a-70cc866d0305
+		summarizeBy: none
+		sourceColumn: properties.defaultSecurityRules.properties.sourceAddressPrefix
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.defaultSecurityRules.properties.destinationPortRange'
+		dataType: string
+		lineageTag: 498e0bbc-67d9-4cad-b6af-4b5b7737dd49
+		summarizeBy: none
+		sourceColumn: properties.defaultSecurityRules.properties.destinationPortRange
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.defaultSecurityRules.properties.sourcePortRanges'
+		dataType: string
+		lineageTag: 5449c633-f01d-4dea-92d3-5d47767fa6a7
+		summarizeBy: none
+		sourceColumn: properties.defaultSecurityRules.properties.sourcePortRanges
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.defaultSecurityRules.properties.sourcePortRange'
+		dataType: string
+		lineageTag: 8c8b519f-f4a6-4140-abc8-35448cb8309a
+		summarizeBy: none
+		sourceColumn: properties.defaultSecurityRules.properties.sourcePortRange
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.defaultSecurityRules.properties.description'
+		dataType: string
+		lineageTag: 757b8b4d-1473-4743-a67b-cf0d403360fe
+		summarizeBy: none
+		sourceColumn: properties.defaultSecurityRules.properties.description
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.defaultSecurityRules.properties.protocol'
+		dataType: string
+		lineageTag: 580f26e1-480e-4ad8-9267-e06015ae4d96
+		summarizeBy: none
+		sourceColumn: properties.defaultSecurityRules.properties.protocol
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.defaultSecurityRules.properties.direction'
+		dataType: string
+		lineageTag: 8f7350db-201b-4e92-b83e-f8ec46e375cd
+		summarizeBy: none
+		sourceColumn: properties.defaultSecurityRules.properties.direction
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.defaultSecurityRules.properties.priority'
+		dataType: string
+		lineageTag: 83b4ad31-b184-4249-9185-8fc01da962d9
+		summarizeBy: none
+		sourceColumn: properties.defaultSecurityRules.properties.priority
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.defaultSecurityRules.properties.access'
+		dataType: string
+		lineageTag: 6e08e56b-a71f-4339-9409-f434705b23ba
+		summarizeBy: none
+		sourceColumn: properties.defaultSecurityRules.properties.access
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.defaultSecurityRules.name'
+		dataType: string
+		lineageTag: 22f03d4e-6adc-41d7-870b-735807b0b8d6
+		summarizeBy: none
+		sourceColumn: properties.defaultSecurityRules.name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.defaultSecurityRules.id'
+		dataType: string
+		lineageTag: 4110b9ef-3479-4cc8-9c87-f4120e5782b3
+		summarizeBy: none
+		sourceColumn: properties.defaultSecurityRules.id
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.defaultSecurityRules.etag'
+		dataType: string
+		lineageTag: e3e8ae6b-0940-49b3-b779-329cd96bcbc7
+		summarizeBy: none
+		sourceColumn: properties.defaultSecurityRules.etag
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.type'
+		dataType: string
+		lineageTag: ad09c927-3825-45e4-92e4-1062e905e65c
+		summarizeBy: none
+		sourceColumn: properties.securityRules.type
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.properties.provisioningState'
+		dataType: string
+		lineageTag: 782a6df3-59c8-4770-b658-5dcdafa5f891
+		summarizeBy: none
+		sourceColumn: properties.securityRules.properties.provisioningState
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.properties.destinationAddressPrefixes'
+		dataType: string
+		lineageTag: 0bd02f37-d4a8-4d4c-a574-5dc3b197e1d6
+		summarizeBy: none
+		sourceColumn: properties.securityRules.properties.destinationAddressPrefixes
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.properties.destinationAddressPrefix'
+		dataType: string
+		lineageTag: 9b384822-7918-49ea-ac5b-e44aa9af6295
+		summarizeBy: none
+		sourceColumn: properties.securityRules.properties.destinationAddressPrefix
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.properties.destinationPortRanges'
+		dataType: string
+		lineageTag: b5f8d74d-295e-4909-9e55-a3d2a72d58d0
+		summarizeBy: none
+		sourceColumn: properties.securityRules.properties.destinationPortRanges
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.properties.sourceAddressPrefixes'
+		dataType: string
+		lineageTag: 7be255ee-973a-4822-a2a3-5642c8e4a609
+		summarizeBy: none
+		sourceColumn: properties.securityRules.properties.sourceAddressPrefixes
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.properties.sourceAddressPrefix'
+		dataType: string
+		lineageTag: 457b93e5-8023-42a6-b7dd-681a699c0215
+		summarizeBy: none
+		sourceColumn: properties.securityRules.properties.sourceAddressPrefix
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.properties.destinationPortRange'
+		dataType: string
+		lineageTag: c61b955f-fc85-4601-85f7-a98c97cddb7b
+		summarizeBy: none
+		sourceColumn: properties.securityRules.properties.destinationPortRange
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.properties.sourcePortRanges'
+		dataType: string
+		lineageTag: f850473c-3b39-4a83-8bf4-430b3cbbf0f7
+		summarizeBy: none
+		sourceColumn: properties.securityRules.properties.sourcePortRanges
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.properties.sourcePortRange'
+		dataType: string
+		lineageTag: 235a20d3-19ad-4ea7-9277-712a30c7ee9e
+		summarizeBy: none
+		sourceColumn: properties.securityRules.properties.sourcePortRange
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.properties.protocol'
+		dataType: string
+		lineageTag: 64251e25-c22e-4d63-b49b-3691d85f4343
+		summarizeBy: none
+		sourceColumn: properties.securityRules.properties.protocol
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.properties.direction'
+		dataType: string
+		lineageTag: 4f49e110-5715-479a-9e94-f861ff1fde41
+		summarizeBy: none
+		sourceColumn: properties.securityRules.properties.direction
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.properties.priority'
+		dataType: string
+		lineageTag: 76a601a7-897f-4076-868d-0b217885ef62
+		summarizeBy: none
+		sourceColumn: properties.securityRules.properties.priority
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.properties.access'
+		dataType: string
+		lineageTag: fddc172a-016d-4cd0-b4e4-48914ffd289a
+		summarizeBy: none
+		sourceColumn: properties.securityRules.properties.access
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.name'
+		dataType: string
+		lineageTag: 3bfa9cff-0d7a-4597-855d-e4b4134582e1
+		summarizeBy: none
+		sourceColumn: properties.securityRules.name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.id'
+		dataType: string
+		lineageTag: f53c154b-3612-4f5a-a1e4-97c484373af7
+		summarizeBy: none
+		sourceColumn: properties.securityRules.id
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.securityRules.etag'
+		dataType: string
+		lineageTag: 69cdfbcc-b8a6-4bb0-b714-121155a06644
+		summarizeBy: none
+		sourceColumn: properties.securityRules.etag
+
+		annotation SummarizationSetBy = Automatic
+
+	column tags
+		dataType: string
+		lineageTag: 591fd79a-5019-406c-a6fa-bb3e18f7f34c
+		summarizeBy: none
+		sourceColumn: tags
+
+		annotation SummarizationSetBy = Automatic
+
+	column identity
+		dataType: string
+		lineageTag: 582c1c2d-7a83-4738-b7b4-170b9d3f7b12
+		summarizeBy: none
+		sourceColumn: identity
+
+		annotation SummarizationSetBy = Automatic
+
+	column zones
+		dataType: string
+		lineageTag: 21e2b55a-20f2-4d75-9275-149d20f55087
+		summarizeBy: none
+		sourceColumn: zones
+
+		annotation SummarizationSetBy = Automatic
+
+	column extendedLocation
+		dataType: string
+		lineageTag: 97722bb7-7386-4103-88eb-c035bbc52453
+		summarizeBy: none
+		sourceColumn: extendedLocation
+
+		annotation SummarizationSetBy = Automatic
+
+	column isWarning = ```
+			IF('Network Security Groups'[properties.securityRules.properties.access]="Allow",
+			        SWITCH(
+			            'Network Security Groups'[properties.securityRules.properties.destinationPortRange],
+			            "80", "True",
+			            "22", "True",
+			            "3389", "True",
+			            "False"
+			    ), "False" 
+			)
+			```
+		dataType: string
+		lineageTag: 317c1768-ca45-4014-b530-ecaef83a9917
+		summarizeBy: none
+		isDataTypeInferred
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Network Security Groups' = m
+		mode: import
+		queryGroup: 'FinOps toolkit'
+		source =
+				let
+				  Source = AzureResourceGraph.Query("Resources | where type =~ 'microsoft.network/networksecuritygroups'", "Tenant", null, null, [resultTruncated = false]),
+				  #"Expanded properties" = Table.ExpandRecordColumn(Source, "properties", {"provisioningState", "networkInterfaces", "resourceGuid", "defaultSecurityRules", "securityRules"}, {"properties.provisioningState", "properties.networkInterfaces", "properties.resourceGuid", "properties.defaultSecurityRules", "properties.securityRules"}),
+				  #"Expanded properties.networkInterfaces" = Table.ExpandListColumn(#"Expanded properties", "properties.networkInterfaces"),
+				  #"Expanded properties.networkInterfaces 1" = Table.ExpandRecordColumn(#"Expanded properties.networkInterfaces", "properties.networkInterfaces", {"id"}, {"properties.networkInterfaces.id"}),
+				  #"Expanded properties.defaultSecurityRules" = Table.ExpandListColumn(#"Expanded properties.networkInterfaces 1", "properties.defaultSecurityRules"),
+				  #"Expanded properties.defaultSecurityRules 1" = Table.ExpandRecordColumn(#"Expanded properties.defaultSecurityRules", "properties.defaultSecurityRules", {"type", "properties", "name", "id", "etag"}, {"properties.defaultSecurityRules.type", "properties.defaultSecurityRules.properties", "properties.defaultSecurityRules.name", "properties.defaultSecurityRules.id", "properties.defaultSecurityRules.etag"}),
+				  #"Expanded properties.defaultSecurityRules.properties" = Table.ExpandRecordColumn(#"Expanded properties.defaultSecurityRules 1", "properties.defaultSecurityRules.properties", {"provisioningState", "destinationAddressPrefixes", "destinationAddressPrefix", "destinationPortRanges", "sourceAddressPrefixes", "sourceAddressPrefix", "destinationPortRange", "sourcePortRanges", "sourcePortRange", "description", "protocol", "direction", "priority", "access"}, {"properties.defaultSecurityRules.properties.provisioningState", "properties.defaultSecurityRules.properties.destinationAddressPrefixes", "properties.defaultSecurityRules.properties.destinationAddressPrefix", "properties.defaultSecurityRules.properties.destinationPortRanges", "properties.defaultSecurityRules.properties.sourceAddressPrefixes", "properties.defaultSecurityRules.properties.sourceAddressPrefix", "properties.defaultSecurityRules.properties.destinationPortRange", "properties.defaultSecurityRules.properties.sourcePortRanges", "properties.defaultSecurityRules.properties.sourcePortRange", "properties.defaultSecurityRules.properties.description", "properties.defaultSecurityRules.properties.protocol", "properties.defaultSecurityRules.properties.direction", "properties.defaultSecurityRules.properties.priority", "properties.defaultSecurityRules.properties.access"}),
+				  #"Expanded properties.defaultSecurityRules.properties.destinationAddressPrefixes" = Table.ExpandListColumn(#"Expanded properties.defaultSecurityRules.properties", "properties.defaultSecurityRules.properties.destinationAddressPrefixes"),
+				  #"Expanded properties.defaultSecurityRules.properties.destinationPortRanges" = Table.ExpandListColumn(#"Expanded properties.defaultSecurityRules.properties.destinationAddressPrefixes", "properties.defaultSecurityRules.properties.destinationPortRanges"),
+				  #"Expanded properties.defaultSecurityRules.properties.sourceAddressPrefixes" = Table.ExpandListColumn(#"Expanded properties.defaultSecurityRules.properties.destinationPortRanges", "properties.defaultSecurityRules.properties.sourceAddressPrefixes"),
+				  #"Expanded properties.defaultSecurityRules.properties.sourcePortRanges" = Table.ExpandListColumn(#"Expanded properties.defaultSecurityRules.properties.sourceAddressPrefixes", "properties.defaultSecurityRules.properties.sourcePortRanges"),
+				  #"Expanded properties.securityRules" = Table.ExpandListColumn(#"Expanded properties.defaultSecurityRules.properties.sourcePortRanges", "properties.securityRules"),
+				  #"Expanded properties.securityRules 1" = Table.ExpandRecordColumn(#"Expanded properties.securityRules", "properties.securityRules", {"type", "properties", "name", "id", "etag"}, {"properties.securityRules.type", "properties.securityRules.properties", "properties.securityRules.name", "properties.securityRules.id", "properties.securityRules.etag"}),
+				  #"Expanded properties.securityRules.properties" = Table.ExpandRecordColumn(#"Expanded properties.securityRules 1", "properties.securityRules.properties", {"provisioningState", "destinationAddressPrefixes", "destinationAddressPrefix", "destinationPortRanges", "sourceAddressPrefixes", "sourceAddressPrefix", "destinationPortRange", "sourcePortRanges", "sourcePortRange", "protocol", "direction", "priority", "access"}, {"properties.securityRules.properties.provisioningState", "properties.securityRules.properties.destinationAddressPrefixes", "properties.securityRules.properties.destinationAddressPrefix", "properties.securityRules.properties.destinationPortRanges", "properties.securityRules.properties.sourceAddressPrefixes", "properties.securityRules.properties.sourceAddressPrefix", "properties.securityRules.properties.destinationPortRange", "properties.securityRules.properties.sourcePortRanges", "properties.securityRules.properties.sourcePortRange", "properties.securityRules.properties.protocol", "properties.securityRules.properties.direction", "properties.securityRules.properties.priority", "properties.securityRules.properties.access"}),
+				  #"Expanded properties.securityRules.properties.destinationAddressPrefixes" = Table.ExpandListColumn(#"Expanded properties.securityRules.properties", "properties.securityRules.properties.destinationAddressPrefixes"),
+				  #"Expanded properties.securityRules.properties.destinationPortRanges" = Table.ExpandListColumn(#"Expanded properties.securityRules.properties.destinationAddressPrefixes", "properties.securityRules.properties.destinationPortRanges"),
+				  #"Expanded properties.securityRules.properties.sourceAddressPrefixes" = Table.ExpandListColumn(#"Expanded properties.securityRules.properties.destinationPortRanges", "properties.securityRules.properties.sourceAddressPrefixes"),
+				  #"Expanded properties.securityRules.properties.sourcePortRanges" = Table.ExpandListColumn(#"Expanded properties.securityRules.properties.sourceAddressPrefixes", "properties.securityRules.properties.sourcePortRanges")
+				in
+				  #"Expanded properties.securityRules.properties.sourcePortRanges"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

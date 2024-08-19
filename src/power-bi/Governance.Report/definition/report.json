@@ -1,0 +1,144 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/1.1.0/schema.json",
+  "themeCollection": {
+    "baseTheme": {
+      "name": "CY19SU06",
+      "reportVersionAtImport": "5.5",
+      "type": "SharedResources"
+    },
+    "customTheme": {
+      "name": "Ibiza_Data_Visualization_Theme4744941034384995.json",
+      "reportVersionAtImport": "5.6",
+      "type": "RegisteredResources"
+    }
+  },
+  "layoutOptimization": "None",
+  "objects": {
+    "section": [
+      {
+        "properties": {
+          "verticalAlignment": {
+            "expr": {
+              "Literal": {
+                "Value": "'Top'"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "outspacePane": [
+      {
+        "properties": {
+          "expanded": {
+            "expr": {
+              "Literal": {
+                "Value": "true"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "publicCustomVisuals": [
+    "Sunburst1445472000808"
+  ],
+  "resourcePackages": [
+    {
+      "name": "RegisteredResources",
+      "type": "RegisteredResources",
+      "items": [
+        {
+          "name": "ACMLearnMore3455599414129229.png",
+          "path": "ACMLearnMore3455599414129229.png",
+          "type": "Image"
+        },
+        {
+          "name": "AzureCost_HeroAdjustment-Resize2x5775843843846507.png",
+          "path": "AzureCost_HeroAdjustment-Resize2x5775843843846507.png",
+          "type": "Image"
+        },
+        {
+          "name": "Ibiza_Data_Visualization_Theme4744941034384995.json",
+          "path": "Ibiza_Data_Visualization_Theme4744941034384995.json",
+          "type": "Image"
+        },
+        {
+          "name": "LearnMore7090101546343053.png",
+          "path": "LearnMore7090101546343053.png",
+          "type": "Image"
+        },
+        {
+          "name": "feedback3410273840221807.png",
+          "path": "feedback3410273840221807.png",
+          "type": "Image"
+        },
+        {
+          "name": "Azure-A-256px996007451380647.png",
+          "path": "Azure-A-256px996007451380647.png",
+          "type": "Image"
+        },
+        {
+          "name": "vm06708951889065995.png",
+          "path": "vm06708951889065995.png",
+          "type": "Image"
+        },
+        {
+          "name": "disk6571640188862808.png",
+          "path": "disk6571640188862808.png",
+          "type": "Image"
+        },
+        {
+          "name": "nsg6854197109727664.png",
+          "path": "nsg6854197109727664.png",
+          "type": "Image"
+        },
+        {
+          "name": "Resource49507205499620377.png",
+          "path": "Resource49507205499620377.png",
+          "type": "Image"
+        },
+        {
+          "name": "advisor14309866509205804.png",
+          "path": "advisor14309866509205804.png",
+          "type": "Image"
+        },
+        {
+          "name": "Capture_d'_cran_2024-08-14_1210771499060723313.png",
+          "path": "Capture_d'_cran_2024-08-14_1210771499060723313.png",
+          "type": "Image"
+        },
+        {
+          "name": "reservations20879075429738325.png",
+          "path": "reservations20879075429738325.png",
+          "type": "Image"
+        }
+      ]
+    },
+    {
+      "name": "SharedResources",
+      "type": "SharedResources",
+      "items": [
+        {
+          "name": "CY19SU06",
+          "path": "BaseThemes/CY19SU06.json",
+          "type": "BaseTheme"
+        }
+      ]
+    }
+  ],
+  "settings": {
+    "useStylableVisualContainerHeader": true,
+    "defaultDrillFilterOtherVisuals": true,
+    "allowChangeFilterTypes": true,
+    "useEnhancedTooltips": true
+  },
+  "slowDataSourceSettings": {
+    "isCrossHighlightingDisabled": false,
+    "isSlicerSelectionsButtonEnabled": false,
+    "isFilterSelectionsButtonEnabled": false,
+    "isFieldWellButtonEnabled": false,
+    "isApplyAllButtonEnabled": false
+  }
+}

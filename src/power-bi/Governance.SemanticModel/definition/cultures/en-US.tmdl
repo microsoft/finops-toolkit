@@ -1,0 +1,2786 @@
+cultureInfo en-US
+
+	linguisticMetadata =
+			{
+			  "Version": "3.5.0",
+			  "Language": "en-US",
+			  "Entities": {
+			    "instancesizeflexibility.armskuname": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "InstanceSizeFlexibility",
+			          "ConceptualProperty": "ArmSkuName"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "arm sku name": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "ArmSkuName": {
+			            "Type": "Noun",
+			            "State": "Generated",
+			            "Weight": 0.99
+			          }
+			        },
+			        {
+			          "sku": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "arm sku": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "sku name": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "arm sku nickname": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.739
+			          }
+			        },
+			        {
+			          "arm sku title": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.739
+			          }
+			        },
+			        {
+			          "arm sku label": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.739
+			          }
+			        },
+			        {
+			          "arm sku tag": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.739
+			          }
+			        },
+			        {
+			          "sku nickname": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "sku title": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "sku label": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "sku tag": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.727
+			          }
+			        }
+			      ]
+			    },
+			    "instancesizeflexibility.resourcelocation": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "InstanceSizeFlexibility",
+			          "ConceptualProperty": "ResourceLocation"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "resource location": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "ResourceLocation": {
+			            "Type": "Noun",
+			            "State": "Generated",
+			            "Weight": 0.99
+			          }
+			        },
+			        {
+			          "location": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "resource locality": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "resource placement": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "resource scene": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "resource venue": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "locality": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.736
+			          }
+			        },
+			        {
+			          "placement": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.736
+			          }
+			        },
+			        {
+			          "scene": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.736
+			          }
+			        },
+			        {
+			          "venue": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.736
+			          }
+			        },
+			        {
+			          "resource address": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "resource place": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.727
+			          }
+			        }
+			      ]
+			    },
+			    "instance_size_flexibility": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "InstanceSizeFlexibility"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "instance size flexibility": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "InstanceSizeFlexibility": {
+			            "Type": "Noun",
+			            "State": "Generated",
+			            "Weight": 0.99
+			          }
+			        },
+			        {
+			          "flexibility": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "size flexibility": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "instance size suppleness": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.508
+			          }
+			        },
+			        {
+			          "instance size litheness": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.508
+			          }
+			        },
+			        {
+			          "instance size elasticity": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.508
+			          }
+			        },
+			        {
+			          "instance size plasticity": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.508
+			          }
+			        },
+			        {
+			          "instance size springiness": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.508
+			          }
+			        },
+			        {
+			          "instance size tractability": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.508
+			          }
+			        },
+			        {
+			          "size suppleness": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.5
+			          }
+			        },
+			        {
+			          "size litheness": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.5
+			          }
+			        },
+			        {
+			          "size elasticity": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.5
+			          }
+			        },
+			        {
+			          "size plasticity": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.5
+			          }
+			        }
+			      ]
+			    },
+			    "instance_size_flexibility.instance_size_flexibility_group": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "InstanceSizeFlexibility",
+			          "ConceptualProperty": "InstanceSizeFlexibilityGroup"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "instance size flexibility group": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "InstanceSizeFlexibilityGroup": {
+			            "Type": "Noun",
+			            "State": "Generated",
+			            "Weight": 0.99
+			          }
+			        },
+			        {
+			          "flexibility group": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "size flexibility group": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "instance size flexibility category": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.771
+			          }
+			        },
+			        {
+			          "instance size flexibility organization": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.771
+			          }
+			        },
+			        {
+			          "size flexibility category": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.762
+			          }
+			        },
+			        {
+			          "size flexibility organization": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.762
+			          }
+			        },
+			        {
+			          "flexibility category": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "flexibility organization": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "instance size flexibility bracket": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.748
+			          }
+			        },
+			        {
+			          "instance size flexibility class": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.748
+			          }
+			        },
+			        {
+			          "instance size flexibility crew": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.748
+			          }
+			        },
+			        {
+			          "instance size flexibility team": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.748
+			          }
+			        }
+			      ]
+			    },
+			    "instance_size_flexibility.ratio": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "InstanceSizeFlexibility",
+			          "ConceptualProperty": "Ratio"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "ratio": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "relation": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.491
+			          }
+			        },
+			        {
+			          "quotient": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.491
+			          }
+			        },
+			        {
+			          "relationship": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.491
+			          }
+			        },
+			        {
+			          "proportion": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.476
+			          }
+			        },
+			        {
+			          "share": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.476
+			          }
+			        },
+			        {
+			          "fraction": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.476
+			          }
+			        },
+			        {
+			          "part": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.476
+			          }
+			        }
+			      ]
+			    },
+			    "instance_size_flexibility.combo_meter": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "InstanceSizeFlexibility",
+			          "ConceptualProperty": "ComboMeter"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "combo meter": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "ComboMeter": {
+			            "Type": "Noun",
+			            "State": "Generated",
+			            "Weight": 0.99
+			          }
+			        },
+			        {
+			          "meter": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "combo rhythm": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.5
+			          }
+			        },
+			        {
+			          "combo tempo": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.5
+			          }
+			        },
+			        {
+			          "combo cadence": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.5
+			          }
+			        },
+			        {
+			          "rhythm": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.491
+			          }
+			        },
+			        {
+			          "tempo": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.491
+			          }
+			        },
+			        {
+			          "cadence": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.491
+			          }
+			        },
+			        {
+			          "combo beat": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.485
+			          }
+			        },
+			        {
+			          "combo pulse": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.485
+			          }
+			        },
+			        {
+			          "combo pattern": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.485
+			          }
+			        },
+			        {
+			          "combo stress": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.485
+			          }
+			        }
+			      ]
+			    },
+			    "instance_size_flexibility.hardware_meter": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "InstanceSizeFlexibility",
+			          "ConceptualProperty": "HardwareMeter"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "hardware meter": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "HardwareMeter": {
+			            "Type": "Noun",
+			            "State": "Generated",
+			            "Weight": 0.99
+			          }
+			        },
+			        {
+			          "meter": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "hardware rhythm": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.5
+			          }
+			        },
+			        {
+			          "hardware tempo": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.5
+			          }
+			        },
+			        {
+			          "hardware cadence": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.5
+			          }
+			        },
+			        {
+			          "rhythm": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.491
+			          }
+			        },
+			        {
+			          "tempo": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.491
+			          }
+			        },
+			        {
+			          "cadence": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.491
+			          }
+			        },
+			        {
+			          "hardware beat": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.485
+			          }
+			        },
+			        {
+			          "hardware pulse": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.485
+			          }
+			        },
+			        {
+			          "hardware pattern": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.485
+			          }
+			        },
+			        {
+			          "hardware stress": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.485
+			          }
+			        }
+			      ]
+			    },
+			    "instance_size_flexibility.software_meter": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "InstanceSizeFlexibility",
+			          "ConceptualProperty": "SoftwareMeter"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "software meter": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "SoftwareMeter": {
+			            "Type": "Noun",
+			            "State": "Generated",
+			            "Weight": 0.99
+			          }
+			        },
+			        {
+			          "meter": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "software rhythm": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.5
+			          }
+			        },
+			        {
+			          "software tempo": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.5
+			          }
+			        },
+			        {
+			          "software cadence": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.5
+			          }
+			        },
+			        {
+			          "rhythm": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.491
+			          }
+			        },
+			        {
+			          "tempo": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.491
+			          }
+			        },
+			        {
+			          "cadence": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.491
+			          }
+			        },
+			        {
+			          "software beat": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.485
+			          }
+			        },
+			        {
+			          "software pulse": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.485
+			          }
+			        },
+			        {
+			          "software pattern": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.485
+			          }
+			        },
+			        {
+			          "software stress": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.485
+			          }
+			        }
+			      ]
+			    },
+			    "instance_size_flexibility.composite_key": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "InstanceSizeFlexibility",
+			          "ConceptualProperty": "CompositeKey"
+			        }
+			      },
+			      "State": "Generated",
+			      "Visibility": {
+			        "Value": "Hidden"
+			      },
+			      "Terms": [
+			        {
+			          "composite key": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "CompositeKey": {
+			            "Type": "Noun",
+			            "State": "Generated",
+			            "Weight": 0.99
+			          }
+			        },
+			        {
+			          "key": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "main": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.476
+			          }
+			        },
+			        {
+			          "basic": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.476
+			          }
+			        },
+			        {
+			          "fundamental": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.476
+			          }
+			        },
+			        {
+			          "central": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.476
+			          }
+			        },
+			        {
+			          "major": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.476
+			          }
+			        },
+			        {
+			          "keynote": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.476
+			          }
+			        },
+			        {
+			          "essential": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.476
+			          }
+			        },
+			        {
+			          "composite solution": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.475
+			          }
+			        },
+			        {
+			          "composite explanation": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.475
+			          }
+			        },
+			        {
+			          "composite basis": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.475
+			          }
+			        }
+			      ]
+			    },
+			    "instance_size_flexibility.normalized_SKU": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "InstanceSizeFlexibility",
+			          "ConceptualProperty": "NormalizedSKU"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "normalized SKU": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "NormalizedSKU": {
+			            "Type": "Noun",
+			            "State": "Generated",
+			            "Weight": 0.99
+			          }
+			        },
+			        {
+			          "SKU": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        }
+			      ]
+			    },
+			    "instance_size_flexibility.normalized_size_key": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "InstanceSizeFlexibility",
+			          "ConceptualProperty": "NormalizedSizeKey"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "normalized size key": {
+			            "State": "Generated"
+			          }
+			        },
+			        {
+			          "NormalizedSizeKey": {
+			            "Type": "Noun",
+			            "State": "Generated",
+			            "Weight": 0.99
+			          }
+			        },
+			        {
+			          "key": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "size key": {
+			            "State": "Generated",
+			            "Weight": 0.97
+			          }
+			        },
+			        {
+			          "normalized size solution": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.482
+			          }
+			        },
+			        {
+			          "normalized size explanation": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.482
+			          }
+			        },
+			        {
+			          "normalized size basis": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.482
+			          }
+			        },
+			        {
+			          "normalized size recipe": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.482
+			          }
+			        },
+			        {
+			          "normalized size interpretation": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.482
+			          }
+			        },
+			        {
+			          "normalized size resolution": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.482
+			          }
+			        },
+			        {
+			          "main": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.476
+			          }
+			        },
+			        {
+			          "basic": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.476
+			          }
+			        },
+			        {
+			          "fundamental": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.476
+			          }
+			        },
+			        {
+			          "central": {
+			            "Type": "Noun",
+			            "State": "Suggested",
+			            "Source": {
+			              "Agent": "Thesaurus"
+			            },
+			            "Weight": 0.476
+			          }
+			        }
+			      ]
+			    },
+			    "resources.location": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Resources",
+			          "ConceptualProperty": "location"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Region": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "resources.resourcegroup": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Resources",
+			          "ConceptualProperty": "resourceGroup"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Resource group": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "resources.name": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Resources",
+			          "ConceptualProperty": "name"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Resource": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "resource_types.singulardisplayname": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Resource types",
+			          "ConceptualProperty": "SingularDisplayName"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Resource type": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "subscriptions.name": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Subscriptions",
+			          "ConceptualProperty": "name"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Subscription": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Subscription name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "virtual_machines.powerstate_displaystatus": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Virtual Machines",
+			          "ConceptualProperty": "powerState.displayStatus"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Power state": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "State": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "virtual_machines.hardwareprofile_vmsize": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Virtual Machines",
+			          "ConceptualProperty": "hardwareProfile.vmSize"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Size": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "virtual_machines.name": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Virtual Machines",
+			          "ConceptualProperty": "name"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Virtual machine name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Virtual machine": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "virtual_machines.storageprofile_osdisk_ostype": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Virtual Machines",
+			          "ConceptualProperty": "storageProfile.osDisk.osType"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "OS": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "OS type": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "virtual_machines.resourcegroup": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Virtual Machines",
+			          "ConceptualProperty": "resourceGroup"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Resource group": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "virtual_machines.storageprofile_imagereference_sku": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Virtual Machines",
+			          "ConceptualProperty": "storageProfile.imageReference.sku"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Image reference SKU": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "virtual_machines.diagnosticsprofile_bootdiagnostics_enabled": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Virtual Machines",
+			          "ConceptualProperty": "diagnosticsProfile.bootDiagnostics.enabled"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Diagnostics settings": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "virtual_machines.zones": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Virtual Machines",
+			          "ConceptualProperty": "zones"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Zones": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "network_interfaces.name": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Network interfaces",
+			          "ConceptualProperty": "name"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Network interface": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "network_interfaces.properties_ipconfigurations_properties_privateipaddress": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Network interfaces",
+			          "ConceptualProperty": "properties.ipConfigurations.properties.privateIPAddress"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Private IP address": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "network_interfaces.location": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Network interfaces",
+			          "ConceptualProperty": "location"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Region": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "public_ip_addresses.name": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Public ip addresses",
+			          "ConceptualProperty": "name"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Public IP name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "public_ip_addresses.properties_ipaddress": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Public ip addresses",
+			          "ConceptualProperty": "properties.ipAddress"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Public IP address": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "disks.name": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Disks",
+			          "ConceptualProperty": "name"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Disk name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "disks.location": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Disks",
+			          "ConceptualProperty": "location"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Region": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "disks.sku_name": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Disks",
+			          "ConceptualProperty": "sku.name"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "SKU": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "disks.properties_disksizegb": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Disks",
+			          "ConceptualProperty": "properties.diskSizeGB"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Disk size GB": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "disks.disktype": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Disks",
+			          "ConceptualProperty": "diskType"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Disk type": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "disks.resourcegroup": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Disks",
+			          "ConceptualProperty": "resourceGroup"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Resource group": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "disks.parentvm": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Disks",
+			          "ConceptualProperty": "parentVM"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Attached to": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "disks.properties_diskstate": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Disks",
+			          "ConceptualProperty": "properties.diskState"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Disk state": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "State": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "advisor.properties_extendedproperties_currentsku": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Advisor",
+			          "ConceptualProperty": "properties.extendedProperties.currentSku"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Current SKU": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "advisor.properties_extendedproperties_targetsku": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Advisor",
+			          "ConceptualProperty": "properties.extendedProperties.targetSku"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Target SKU": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "advisor.properties_impactedvalue": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Advisor",
+			          "ConceptualProperty": "properties.impactedValue"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Resource name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "advisor.properties_extendedproperties_term": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Advisor",
+			          "ConceptualProperty": "properties.extendedProperties.term"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Term": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "advisor.properties_extendedproperties_lookbackperiod": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Advisor",
+			          "ConceptualProperty": "properties.extendedProperties.lookbackPeriod"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Lookback period": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "advisor.properties_impact": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Advisor",
+			          "ConceptualProperty": "properties.impact"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Impact": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "advisor.properties_shortdescription_problem": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Advisor",
+			          "ConceptualProperty": "properties.shortDescription.problem"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Description": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "network_security_groups.properties_securityrules_properties_sourceportrange": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Network Security Groups",
+			          "ConceptualProperty": "properties.securityRules.properties.sourcePortRange"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Source port range": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "network_security_groups.name": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Network Security Groups",
+			          "ConceptualProperty": "name"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Resource name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "network_security_groups.resourcegroup": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Network Security Groups",
+			          "ConceptualProperty": "resourceGroup"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Resource group": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "network_security_groups.location": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Network Security Groups",
+			          "ConceptualProperty": "location"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Region": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "network_security_groups.properties_securityrules_properties_destinationaddressprefix": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Network Security Groups",
+			          "ConceptualProperty": "properties.securityRules.properties.destinationAddressPrefix"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Destination address prefix": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "network_security_groups.properties_securityrules_properties_destinationportrange": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Network Security Groups",
+			          "ConceptualProperty": "properties.securityRules.properties.destinationPortRange"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Destination port range": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "network_security_groups.properties_securityrules_properties_sourceaddressprefix": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Network Security Groups",
+			          "ConceptualProperty": "properties.securityRules.properties.sourceAddressPrefix"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Source address prefix": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "network_security_groups.properties_securityrules_properties_access": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Network Security Groups",
+			          "ConceptualProperty": "properties.securityRules.properties.access"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Access": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "network_security_groups.properties_securityrules_properties_direction": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Network Security Groups",
+			          "ConceptualProperty": "properties.securityRules.properties.direction"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Direction": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "network_security_groups.properties_securityrules_properties_priority": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Network Security Groups",
+			          "ConceptualProperty": "properties.securityRules.properties.priority"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Priority": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "network_security_groups.properties_securityrules_name": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Network Security Groups",
+			          "ConceptualProperty": "properties.securityRules.name"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Security rules name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "reservation_recommendations.properties_extendedproperties_term": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Reservation recommendations",
+			          "ConceptualProperty": "properties.extendedProperties.term"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Term": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "reservation_recommendations.properties_extendedproperties_lookbackperiod": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Reservation recommendations",
+			          "ConceptualProperty": "properties.extendedProperties.lookbackPeriod"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Lookback Period": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Look-back period": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "reservation_recommendations.properties_extendedproperties_displayqty": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Reservation recommendations",
+			          "ConceptualProperty": "properties.extendedProperties.displayQty"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Recommended quantity": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "reservation_recommendations.properties_lastupdated": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Reservation recommendations",
+			          "ConceptualProperty": "properties.lastUpdated"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Last updated": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "reservation_recommendations.recommendedactions": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Reservation recommendations",
+			          "ConceptualProperty": "recommendedActions"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Recommended actions": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "network_security_groups.iswarning": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "Network Security Groups",
+			          "ConceptualProperty": "isWarning"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Warning": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    }
+			  },
+			  "Relationships": {
+			    "instance_size_flexibility_has_cost_detail": {
+			      "Binding": {
+			        "ConceptualEntity": "InstanceSizeFlexibility"
+			      },
+			      "State": "Generated",
+			      "Roles": {
+			        "instance_size_flexibility": {
+			          "Target": {
+			            "Entity": "instance_size_flexibility"
+			          }
+			        },
+			        "cost_detail": {
+			          "Target": {
+			            "Entity": "cost_detail"
+			          }
+			        }
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Subject": {
+			              "Role": "instance_size_flexibility"
+			            },
+			            "Object": {
+			              "Role": "cost_detail"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "instance_size_flexibilities_have_cost_details"
+			        }
+			      ]
+			    },
+			    "instance_size_flexibility_has_normalized_size_key": {
+			      "Binding": {
+			        "ConceptualEntity": "InstanceSizeFlexibility"
+			      },
+			      "State": "Generated",
+			      "Roles": {
+			        "instance_size_flexibility": {
+			          "Target": {
+			            "Entity": "instance_size_flexibility"
+			          }
+			        },
+			        "instance_size_flexibility.normalized_size_key": {
+			          "Target": {
+			            "Entity": "instance_size_flexibility.normalized_size_key"
+			          }
+			        }
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Subject": {
+			              "Role": "instance_size_flexibility"
+			            },
+			            "Object": {
+			              "Role": "instance_size_flexibility.normalized_size_key"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "instance_size_flexibilities_have_normalized_size_keys"
+			        }
+			      ]
+			    },
+			    "instance_size_flexibility_has_normalized_SKU": {
+			      "Binding": {
+			        "ConceptualEntity": "InstanceSizeFlexibility"
+			      },
+			      "State": "Generated",
+			      "Roles": {
+			        "instance_size_flexibility": {
+			          "Target": {
+			            "Entity": "instance_size_flexibility"
+			          }
+			        },
+			        "instance_size_flexibility.normalized_SKU": {
+			          "Target": {
+			            "Entity": "instance_size_flexibility.normalized_SKU"
+			          }
+			        }
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Subject": {
+			              "Role": "instance_size_flexibility"
+			            },
+			            "Object": {
+			              "Role": "instance_size_flexibility.normalized_SKU"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "instance_size_flexibilities_have_normalized_SKUs"
+			        }
+			      ]
+			    },
+			    "instance_size_flexibility_has_software_meter": {
+			      "Binding": {
+			        "ConceptualEntity": "InstanceSizeFlexibility"
+			      },
+			      "State": "Generated",
+			      "Roles": {
+			        "instance_size_flexibility": {
+			          "Target": {
+			            "Entity": "instance_size_flexibility"
+			          }
+			        },
+			        "instance_size_flexibility.software_meter": {
+			          "Target": {
+			            "Entity": "instance_size_flexibility.software_meter"
+			          }
+			        }
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Subject": {
+			              "Role": "instance_size_flexibility"
+			            },
+			            "Object": {
+			              "Role": "instance_size_flexibility.software_meter"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "instance_size_flexibilities_have_software_meters"
+			        }
+			      ]
+			    },
+			    "instance_size_flexibility_has_hardware_meter": {
+			      "Binding": {
+			        "ConceptualEntity": "InstanceSizeFlexibility"
+			      },
+			      "State": "Generated",
+			      "Roles": {
+			        "instance_size_flexibility": {
+			          "Target": {
+			            "Entity": "instance_size_flexibility"
+			          }
+			        },
+			        "instance_size_flexibility.hardware_meter": {
+			          "Target": {
+			            "Entity": "instance_size_flexibility.hardware_meter"
+			          }
+			        }
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Subject": {
+			              "Role": "instance_size_flexibility"
+			            },
+			            "Object": {
+			              "Role": "instance_size_flexibility.hardware_meter"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "instance_size_flexibilities_have_hardware_meters"
+			        }
+			      ]
+			    },
+			    "instance_size_flexibility_has_combo_meter": {
+			      "Binding": {
+			        "ConceptualEntity": "InstanceSizeFlexibility"
+			      },
+			      "State": "Generated",
+			      "Roles": {
+			        "instance_size_flexibility": {
+			          "Target": {
+			            "Entity": "instance_size_flexibility"
+			          }
+			        },
+			        "instance_size_flexibility.combo_meter": {
+			          "Target": {
+			            "Entity": "instance_size_flexibility.combo_meter"
+			          }
+			        }
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Subject": {
+			              "Role": "instance_size_flexibility"
+			            },
+			            "Object": {
+			              "Role": "instance_size_flexibility.combo_meter"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "instance_size_flexibilities_have_combo_meters"
+			        }
+			      ]
+			    },
+			    "instance_size_flexibility_has_ratio": {
+			      "Binding": {
+			        "ConceptualEntity": "InstanceSizeFlexibility"
+			      },
+			      "State": "Generated",
+			      "Roles": {
+			        "instance_size_flexibility": {
+			          "Target": {
+			            "Entity": "instance_size_flexibility"
+			          }
+			        },
+			        "instance_size_flexibility.ratio": {
+			          "Target": {
+			            "Entity": "instance_size_flexibility.ratio"
+			          }
+			        }
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Subject": {
+			              "Role": "instance_size_flexibility"
+			            },
+			            "Object": {
+			              "Role": "instance_size_flexibility.ratio"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "instance_size_flexibilities_have_ratios"
+			        }
+			      ]
+			    },
+			    "instance_size_flexibility_has_instance_size_flexibility_group": {
+			      "Binding": {
+			        "ConceptualEntity": "InstanceSizeFlexibility"
+			      },
+			      "State": "Generated",
+			      "Roles": {
+			        "instance_size_flexibility": {
+			          "Target": {
+			            "Entity": "instance_size_flexibility"
+			          }
+			        },
+			        "instance_size_flexibility.instance_size_flexibility_group": {
+			          "Target": {
+			            "Entity": "instance_size_flexibility.instance_size_flexibility_group"
+			          }
+			        }
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Subject": {
+			              "Role": "instance_size_flexibility"
+			            },
+			            "Object": {
+			              "Role": "instance_size_flexibility.instance_size_flexibility_group"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "instance_size_flexibilities_have_instance_size_flexibility_groups"
+			        }
+			      ]
+			    },
+			    "instance_size_flexibility_has_instancesizeflexibility_resourcelocation": {
+			      "Binding": {
+			        "ConceptualEntity": "InstanceSizeFlexibility"
+			      },
+			      "State": "Generated",
+			      "Roles": {
+			        "instance_size_flexibility": {
+			          "Target": {
+			            "Entity": "instance_size_flexibility"
+			          }
+			        },
+			        "instancesizeflexibility.resourcelocation": {
+			          "Target": {
+			            "Entity": "instancesizeflexibility.resourcelocation"
+			          }
+			        }
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Subject": {
+			              "Role": "instance_size_flexibility"
+			            },
+			            "Object": {
+			              "Role": "instancesizeflexibility.resourcelocation"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "instance_size_flexibilities_have_resource_locations"
+			        }
+			      ]
+			    },
+			    "instance_size_flexibility_has_instancesizeflexibility_armskuname": {
+			      "Binding": {
+			        "ConceptualEntity": "InstanceSizeFlexibility"
+			      },
+			      "State": "Generated",
+			      "Roles": {
+			        "instance_size_flexibility": {
+			          "Target": {
+			            "Entity": "instance_size_flexibility"
+			          }
+			        },
+			        "instancesizeflexibility.armskuname": {
+			          "Target": {
+			            "Entity": "instancesizeflexibility.armskuname"
+			          }
+			        }
+			      },
+			      "Phrasings": [
+			        {
+			          "Attribute": {
+			            "Subject": {
+			              "Role": "instance_size_flexibility"
+			            },
+			            "Object": {
+			              "Role": "instancesizeflexibility.armskuname"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "instance_size_flexibilities_have_arm_sku_names"
+			        }
+			      ]
+			    },
+			    "instance_size_flexibility_in_instancesizeflexibility_resourcelocation": {
+			      "Binding": {
+			        "ConceptualEntity": "InstanceSizeFlexibility"
+			      },
+			      "State": "Generated",
+			      "Roles": {
+			        "instance_size_flexibility": {
+			          "Target": {
+			            "Entity": "instance_size_flexibility"
+			          }
+			        },
+			        "instancesizeflexibility.resourcelocation": {
+			          "Target": {
+			            "Entity": "instancesizeflexibility.resourcelocation"
+			          }
+			        }
+			      },
+			      "SemanticSlots": {
+			        "Where": {
+			          "Role": "instancesizeflexibility.resourcelocation"
+			        }
+			      },
+			      "Phrasings": [
+			        {
+			          "Preposition": {
+			            "Subject": {
+			              "Role": "instance_size_flexibility"
+			            },
+			            "Prepositions": [
+			              {
+			                "in": {
+			                  "State": "Generated"
+			                }
+			              }
+			            ],
+			            "Object": {
+			              "Role": "instancesizeflexibility.resourcelocation"
+			            }
+			          },
+			          "State": "Generated",
+			          "Weight": 0.99,
+			          "ID": "instance_size_flexibilities_are_in_resource_locations"
+			        }
+			      ]
+			    }
+			  }
+			}
+		contentType: json
+

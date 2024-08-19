@@ -1,0 +1,8 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/1.1.0/schema.json",
+  "name": "f6af5a0c453e0b1bced9",
+  "displayName": "Virtual Machine",
+  "displayOption": "FitToPage",
+  "height": 720,
+  "width": 1280
+}

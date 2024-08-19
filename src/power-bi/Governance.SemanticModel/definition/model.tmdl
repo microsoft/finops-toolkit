@@ -1,0 +1,65 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+queryGroup 'FinOps toolkit'
+
+	annotation PBI_QueryGroupOrder = 1
+
+queryGroup '🛠️ Setup'
+
+	annotation PBI_QueryGroupOrder = 0
+
+queryGroup '🛠️ Setup\CM connector'
+
+	annotation PBI_QueryGroupOrder = 1
+
+queryGroup '🛠️ Setup\FinOps hubs'
+
+	annotation PBI_QueryGroupOrder = 3
+
+queryGroup '🛠️ Setup\Functions'
+
+	annotation PBI_QueryGroupOrder = 4
+
+queryGroup '🛠️ Setup\Instructions'
+
+	annotation PBI_QueryGroupOrder = 0
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBIDesktopVersion = 2.132.905.0 (24.08)
+
+annotation PBI_QueryOrder = ["InstanceSizeFlexibility","Advisor","Resources","Management Groups","Subscriptions","Resource types","Region","Virtual Machines","Disks","Network interfaces","Public ip addresses","Reservation recommendations","Network Security Groups"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table DateTableTemplate_8150e96b-3319-4654-9395-1629b2428e72
+ref table InstanceSizeFlexibility
+ref table Advisor
+ref table LocalDateTable_ac9897d3-425b-4cef-a25e-b1d092bb2456
+ref table LocalDateTable_ea860140-03ae-4b7f-bdd2-f0881a3070c4
+ref table LocalDateTable_1f795c4c-0799-4297-b26c-93547ab1ac92
+ref table Resources
+ref table 'Management Groups'
+ref table Subscriptions
+ref table 'Resource types'
+ref table Region
+ref table 'Virtual Machines'
+ref table Disks
+ref table 'Network interfaces'
+ref table 'Public ip addresses'
+ref table 'Reservation recommendations'
+ref table LocalDateTable_b8bd867e-8e27-4649-adcd-406d66f143ff
+ref table 'Network Security Groups'
+ref table Table
+ref table LocalDateTable_892bbd48-76b1-4a72-80da-c1ad3cb43561
+ref table LocalDateTable_603d2997-cda7-47fd-a77b-dd10e5f5cc63
+ref table LocalDateTable_6997d679-8d8a-480c-8d5b-c02863567959
+
+ref cultureInfo en-US
+

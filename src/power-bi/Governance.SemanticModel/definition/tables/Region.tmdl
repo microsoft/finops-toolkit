@@ -1,0 +1,37 @@
+table Region
+	lineageTag: 69cf00b3-f871-48a0-b902-568e410bc416
+
+	column OriginalValue
+		dataType: string
+		lineageTag: 17260feb-f15c-404d-80eb-8b5e4e861b71
+		summarizeBy: none
+		sourceColumn: OriginalValue
+
+		annotation SummarizationSetBy = Automatic
+
+	column RegionId
+		dataType: string
+		lineageTag: 139367c6-a8fe-415a-bc50-99005c2ebfbf
+		summarizeBy: none
+		sourceColumn: RegionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column RegionName
+		dataType: string
+		lineageTag: 613854cc-5eb3-4607-aef0-9b54eb9e3489
+		summarizeBy: none
+		sourceColumn: RegionName
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Region = m
+		mode: import
+		queryGroup: 'FinOps toolkit'
+		source =
+				let
+				  Source = Csv.Document(Web.Contents("https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv"), [Delimiter = ",", Columns = 3, QuoteStyle = QuoteStyle.None]),
+				  #"Promoted headers" = Table.PromoteHeaders(Source, [PromoteAllScalars = true])
+				in
+				  #"Promoted headers"
+

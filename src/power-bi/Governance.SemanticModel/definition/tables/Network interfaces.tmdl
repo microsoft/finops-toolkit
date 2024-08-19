@@ -1,0 +1,363 @@
+table 'Network interfaces'
+	lineageTag: 288ccc48-cd73-4f51-8f35-6861cad58a21
+
+	column id
+		dataType: string
+		lineageTag: 9a05590a-aa2e-41a9-abc5-b7b5c605f32b
+		summarizeBy: none
+		sourceColumn: id
+
+		annotation SummarizationSetBy = Automatic
+
+	column name
+		dataType: string
+		lineageTag: 9f67695a-fbb7-4bf9-bc84-3555cb035eac
+		summarizeBy: none
+		sourceColumn: name
+
+		annotation SummarizationSetBy = Automatic
+
+	column type
+		dataType: string
+		lineageTag: 05c710e9-714a-4e82-9f34-15bc8d12dd57
+		summarizeBy: none
+		sourceColumn: type
+
+		annotation SummarizationSetBy = Automatic
+
+	column tenantId
+		dataType: string
+		lineageTag: 600c001b-4ed0-438b-951d-ce495e7aa473
+		summarizeBy: none
+		sourceColumn: tenantId
+
+		annotation SummarizationSetBy = Automatic
+
+	column kind
+		dataType: string
+		lineageTag: 4bf706f0-1f17-4411-8222-1f95b7a64548
+		summarizeBy: none
+		sourceColumn: kind
+
+		annotation SummarizationSetBy = Automatic
+
+	column location
+		dataType: string
+		lineageTag: 5ee5468c-3486-46c3-98dd-6f6597856da1
+		summarizeBy: none
+		sourceColumn: location
+
+		annotation SummarizationSetBy = Automatic
+
+	column resourceGroup
+		dataType: string
+		lineageTag: f702b43c-9de4-46fe-a8b6-14b9ad7feb4a
+		summarizeBy: none
+		sourceColumn: resourceGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column subscriptionId
+		dataType: string
+		lineageTag: b8d1159d-605a-4020-8bb7-c569ef36cab7
+		summarizeBy: none
+		sourceColumn: subscriptionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column managedBy
+		dataType: string
+		lineageTag: 2f4d17c9-819e-4108-b3c3-fc0ad181fcdf
+		summarizeBy: none
+		sourceColumn: managedBy
+
+		annotation SummarizationSetBy = Automatic
+
+	column sku
+		dataType: string
+		lineageTag: 2a4696cf-bcc7-4558-8c19-d698f3a949b9
+		summarizeBy: none
+		sourceColumn: sku
+
+		annotation SummarizationSetBy = Automatic
+
+	column plan
+		dataType: string
+		lineageTag: 2476c22c-01b3-47bf-a2c8-1bd1be7e0496
+		summarizeBy: none
+		sourceColumn: plan
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.provisioningState'
+		dataType: string
+		lineageTag: c14dbdbd-c053-4db8-bb68-26dad5d30cae
+		summarizeBy: none
+		sourceColumn: properties.provisioningState
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.resourceGuid'
+		dataType: string
+		lineageTag: 4fdebc41-3b05-424d-a5e7-858817757d36
+		summarizeBy: none
+		sourceColumn: properties.resourceGuid
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.enableAcceleratedNetworking'
+		dataType: string
+		lineageTag: e7e6f940-6fc1-4374-a26b-dc3274b430c5
+		summarizeBy: none
+		sourceColumn: properties.enableAcceleratedNetworking
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.disableTcpStateTracking'
+		dataType: string
+		lineageTag: 3220cd47-a8e0-4b71-900c-f942c9ffa4d7
+		summarizeBy: none
+		sourceColumn: properties.disableTcpStateTracking
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.vnetEncryptionSupported'
+		dataType: string
+		lineageTag: 31a1934c-5bb5-4e31-9203-63980cb3542a
+		summarizeBy: none
+		sourceColumn: properties.vnetEncryptionSupported
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.networkSecurityGroup.id'
+		dataType: string
+		lineageTag: bbafeec3-fef8-4dd0-b7b1-4556df1f78dd
+		summarizeBy: none
+		sourceColumn: properties.networkSecurityGroup.id
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.ipConfigurations.type'
+		dataType: string
+		lineageTag: e9c9db4f-afba-47b1-9b0c-d148b91ceffa
+		summarizeBy: none
+		sourceColumn: properties.ipConfigurations.type
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.ipConfigurations.name'
+		dataType: string
+		lineageTag: eea26566-80a7-430f-b22d-adeec1c7d015
+		summarizeBy: none
+		sourceColumn: properties.ipConfigurations.name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.ipConfigurations.properties.provisioningState'
+		dataType: string
+		lineageTag: fbd26cf7-74a4-47ff-b8d2-a2232aa8ce81
+		summarizeBy: none
+		sourceColumn: properties.ipConfigurations.properties.provisioningState
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.ipConfigurations.properties.privateIPAddressVersion'
+		dataType: string
+		lineageTag: 0b041445-5426-40c3-8643-ae8e104bedf9
+		summarizeBy: none
+		sourceColumn: properties.ipConfigurations.properties.privateIPAddressVersion
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.ipConfigurations.properties.privateIPAllocationMethod'
+		dataType: string
+		lineageTag: e8eb4c44-3a2d-48eb-9c46-3bd395b20706
+		summarizeBy: none
+		sourceColumn: properties.ipConfigurations.properties.privateIPAllocationMethod
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.ipConfigurations.properties.subnet'
+		dataType: string
+		lineageTag: 7b054eb0-7d04-4c0e-9011-20fa924512e3
+		summarizeBy: none
+		sourceColumn: properties.ipConfigurations.properties.subnet
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.ipConfigurations.properties.privateIPAddress'
+		dataType: string
+		lineageTag: 3fb12fc4-adb3-4611-9298-79e30efee905
+		summarizeBy: none
+		sourceColumn: properties.ipConfigurations.properties.privateIPAddress
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.ipConfigurations.properties.primary'
+		dataType: string
+		lineageTag: befb64f9-387e-4a19-872d-f553c94c4893
+		summarizeBy: none
+		sourceColumn: properties.ipConfigurations.properties.primary
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.ipConfigurations.properties.publicIPAddress.id'
+		dataType: string
+		lineageTag: b44cbf8a-7008-4f1a-ae74-74c9016dee62
+		summarizeBy: none
+		sourceColumn: properties.ipConfigurations.properties.publicIPAddress.id
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.ipConfigurations.id'
+		dataType: string
+		lineageTag: 45685614-19c0-4a2b-b4c7-dc87c2553714
+		summarizeBy: none
+		sourceColumn: properties.ipConfigurations.id
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.ipConfigurations.etag'
+		dataType: string
+		lineageTag: 1ee13367-570c-4c0c-b738-78ca85fa56b2
+		summarizeBy: none
+		sourceColumn: properties.ipConfigurations.etag
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.enableIPForwarding'
+		dataType: string
+		lineageTag: 2511a42e-44af-4f75-81cd-1cc68b17901b
+		summarizeBy: none
+		sourceColumn: properties.enableIPForwarding
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.tapConfigurations'
+		dataType: string
+		lineageTag: 1cce235d-5ce6-41ad-89a0-231b84646205
+		summarizeBy: none
+		sourceColumn: properties.tapConfigurations
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.hostedWorkloads'
+		dataType: string
+		lineageTag: 91d550b1-a508-4fba-a624-0fdc7cc53787
+		summarizeBy: none
+		sourceColumn: properties.hostedWorkloads
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.allowPort25Out'
+		dataType: string
+		lineageTag: 09438776-5dee-45ff-a16e-f10544239791
+		summarizeBy: none
+		sourceColumn: properties.allowPort25Out
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.auxiliaryMode'
+		dataType: string
+		lineageTag: 1a190ffa-7a4f-40ab-a110-6672cc23a74b
+		summarizeBy: none
+		sourceColumn: properties.auxiliaryMode
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.dnsSettings'
+		dataType: string
+		lineageTag: dd014245-8108-4534-b9c8-a30582b15c97
+		summarizeBy: none
+		sourceColumn: properties.dnsSettings
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.auxiliarySku'
+		dataType: string
+		lineageTag: 9c7fd612-e044-4ed7-b03a-29d11d75bd42
+		summarizeBy: none
+		sourceColumn: properties.auxiliarySku
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.macAddress'
+		dataType: string
+		lineageTag: 4fb991bf-96ce-46e6-b22f-31d8eec87b3a
+		summarizeBy: none
+		sourceColumn: properties.macAddress
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.nicType'
+		dataType: string
+		lineageTag: 6e7cee08-e02d-4ac7-8f1b-a5dbbb2e2954
+		summarizeBy: none
+		sourceColumn: properties.nicType
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.primary'
+		dataType: string
+		lineageTag: e522d420-338b-4e05-bbf3-dba4c7bf6579
+		summarizeBy: none
+		sourceColumn: properties.primary
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.virtualMachine.id'
+		dataType: string
+		lineageTag: 8d6f57a4-abc9-4f54-994b-0188776248ef
+		summarizeBy: none
+		sourceColumn: properties.virtualMachine.id
+
+		annotation SummarizationSetBy = Automatic
+
+	column tags
+		dataType: string
+		lineageTag: 7c425462-6770-44d6-8e1e-e6a3398745a2
+		summarizeBy: none
+		sourceColumn: tags
+
+		annotation SummarizationSetBy = Automatic
+
+	column identity
+		dataType: string
+		lineageTag: d5912859-3693-450a-9f57-6d34a4b85e54
+		summarizeBy: none
+		sourceColumn: identity
+
+		annotation SummarizationSetBy = Automatic
+
+	column zones
+		dataType: string
+		lineageTag: e4b9221b-6773-4abf-aae1-c67ec1f9fbb9
+		summarizeBy: none
+		sourceColumn: zones
+
+		annotation SummarizationSetBy = Automatic
+
+	column extendedLocation
+		dataType: string
+		lineageTag: 0b29021d-c908-4c3a-8612-223ad0c58f51
+		summarizeBy: none
+		sourceColumn: extendedLocation
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Network interfaces' = m
+		mode: import
+		queryGroup: 'FinOps toolkit'
+		source =
+				let
+				  Source = AzureResourceGraph.Query("Resources | where type =~ 'microsoft.network/networkinterfaces'", "Tenant", null, null, [resultTruncated = false]),
+				  #"Expanded properties" = Table.ExpandRecordColumn(Source, "properties", {"provisioningState", "resourceGuid", "enableAcceleratedNetworking", "disableTcpStateTracking", "vnetEncryptionSupported", "networkSecurityGroup", "ipConfigurations", "enableIPForwarding", "tapConfigurations", "hostedWorkloads", "allowPort25Out", "auxiliaryMode", "dnsSettings", "auxiliarySku", "macAddress", "nicType", "primary", "virtualMachine"}, {"properties.provisioningState", "properties.resourceGuid", "properties.enableAcceleratedNetworking", "properties.disableTcpStateTracking", "properties.vnetEncryptionSupported", "properties.networkSecurityGroup", "properties.ipConfigurations", "properties.enableIPForwarding", "properties.tapConfigurations", "properties.hostedWorkloads", "properties.allowPort25Out", "properties.auxiliaryMode", "properties.dnsSettings", "properties.auxiliarySku", "properties.macAddress", "properties.nicType", "properties.primary", "properties.virtualMachine"}),
+				  #"Expanded properties.virtualMachine" = Table.ExpandRecordColumn(#"Expanded properties", "properties.virtualMachine", {"id"}, {"properties.virtualMachine.id"}),
+				  #"Expanded properties.ipConfigurations" = Table.ExpandListColumn(#"Expanded properties.virtualMachine", "properties.ipConfigurations"),
+				  #"Expanded properties.ipConfigurations 1" = Table.ExpandRecordColumn(#"Expanded properties.ipConfigurations", "properties.ipConfigurations", {"type", "name", "properties", "id", "etag"}, {"properties.ipConfigurations.type", "properties.ipConfigurations.name", "properties.ipConfigurations.properties", "properties.ipConfigurations.id", "properties.ipConfigurations.etag"}),
+				  #"Expanded properties.ipConfigurations.properties" = Table.ExpandRecordColumn(#"Expanded properties.ipConfigurations 1", "properties.ipConfigurations.properties", {"provisioningState", "privateIPAddressVersion", "privateIPAllocationMethod", "subnet", "privateIPAddress", "primary", "publicIPAddress"}, {"properties.ipConfigurations.properties.provisioningState", "properties.ipConfigurations.properties.privateIPAddressVersion", "properties.ipConfigurations.properties.privateIPAllocationMethod", "properties.ipConfigurations.properties.subnet", "properties.ipConfigurations.properties.privateIPAddress", "properties.ipConfigurations.properties.primary", "properties.ipConfigurations.properties.publicIPAddress"}),
+				  #"Expanded properties.ipConfigurations.properties.publicIPAddress" = Table.ExpandRecordColumn(#"Expanded properties.ipConfigurations.properties", "properties.ipConfigurations.properties.publicIPAddress", {"id"}, {"properties.ipConfigurations.properties.publicIPAddress.id"}),
+				  #"Expanded properties.networkSecurityGroup" = Table.ExpandRecordColumn(#"Expanded properties.ipConfigurations.properties.publicIPAddress", "properties.networkSecurityGroup", {"id"}, {"properties.networkSecurityGroup.id"})
+				in
+				  #"Expanded properties.networkSecurityGroup"
+

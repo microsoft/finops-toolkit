@@ -1,0 +1,251 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
+  "name": "6eabf12a2cd3cf70b35e",
+  "position": {
+    "x": 0,
+    "y": 284,
+    "z": 5,
+    "height": 165,
+    "width": 1280,
+    "tabOrder": 5
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Virtual Machines"
+                    }
+                  },
+                  "Property": "name"
+                }
+              },
+              "queryRef": "Virtual Machines.name",
+              "nativeQueryRef": "Virtual machine name",
+              "displayName": "Virtual machine name"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Subscriptions"
+                    }
+                  },
+                  "Property": "name"
+                }
+              },
+              "queryRef": "Subscriptions.name",
+              "nativeQueryRef": "Subscription name",
+              "displayName": "Subscription name"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Virtual Machines"
+                    }
+                  },
+                  "Property": "resourceGroup"
+                }
+              },
+              "queryRef": "Virtual Machines.resourceGroup",
+              "nativeQueryRef": "Resource group",
+              "displayName": "Resource group"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Virtual Machines"
+                    }
+                  },
+                  "Property": "hardwareProfile.vmSize"
+                }
+              },
+              "queryRef": "Virtual Machines.hardwareProfile.vmSize",
+              "nativeQueryRef": "Size",
+              "displayName": "Size"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Virtual Machines"
+                    }
+                  },
+                  "Property": "powerState.displayStatus"
+                }
+              },
+              "queryRef": "Virtual Machines.powerState.displayStatus",
+              "nativeQueryRef": "State",
+              "displayName": "State"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Virtual Machines"
+                    }
+                  },
+                  "Property": "storageProfile.imageReference.sku"
+                }
+              },
+              "queryRef": "Virtual Machines.storageProfile.imageReference.sku",
+              "nativeQueryRef": "Image reference SKU",
+              "displayName": "Image reference SKU"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Virtual Machines"
+                    }
+                  },
+                  "Property": "storageProfile.osDisk.osType"
+                }
+              },
+              "queryRef": "Virtual Machines.storageProfile.osDisk.osType",
+              "nativeQueryRef": "OS",
+              "displayName": "OS"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Virtual Machines"
+                    }
+                  },
+                  "Property": "zones"
+                }
+              },
+              "queryRef": "Virtual Machines.zones",
+              "nativeQueryRef": "Zones",
+              "displayName": "Zones"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Virtual Machines"
+                    }
+                  },
+                  "Property": "diagnosticsProfile.bootDiagnostics.enabled"
+                }
+              },
+              "queryRef": "Virtual Machines.diagnosticsProfile.bootDiagnostics.enabled",
+              "nativeQueryRef": "Diagnostics settings",
+              "displayName": "Diagnostics settings"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Virtual Machines"
+                  }
+                },
+                "Property": "name"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ]
+      }
+    },
+    "objects": {
+      "columnWidth": [
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "170.0571002035889D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Virtual Machines.resourceGroup"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "198D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Virtual Machines.storageProfile.imageReference.sku"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "114D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Virtual Machines.powerState.displayStatus"
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Virtual machine summary'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "12D"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

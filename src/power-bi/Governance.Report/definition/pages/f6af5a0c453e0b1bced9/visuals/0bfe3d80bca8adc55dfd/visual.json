@@ -1,0 +1,248 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
+  "name": "0bfe3d80bca8adc55dfd",
+  "position": {
+    "x": 583,
+    "y": 117,
+    "z": 6,
+    "height": 167,
+    "width": 697,
+    "tabOrder": 6
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Advisor"
+                    }
+                  },
+                  "Property": "properties.impactedValue"
+                }
+              },
+              "queryRef": "Advisor.properties.impactedValue",
+              "nativeQueryRef": "Resource name1",
+              "displayName": "Resource name"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Advisor"
+                        }
+                      },
+                      "Property": "properties.extendedProperties.savingsAmount"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(Advisor.properties.extendedProperties.savingsAmount)",
+              "nativeQueryRef": "Monthly savings",
+              "displayName": "Monthly savings"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Advisor"
+                        }
+                      },
+                      "Property": "properties.extendedProperties.annualSavingsAmount"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(Advisor.properties.extendedProperties.annualSavingsAmount)",
+              "nativeQueryRef": "Annual savings",
+              "displayName": "Annual savings"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Advisor"
+                    }
+                  },
+                  "Property": "properties.extendedProperties.currentSku"
+                }
+              },
+              "queryRef": "Advisor.properties.extendedProperties.currentSku",
+              "nativeQueryRef": "Current SKU",
+              "displayName": "Current SKU"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Advisor"
+                    }
+                  },
+                  "Property": "properties.extendedProperties.targetSku"
+                }
+              },
+              "queryRef": "Advisor.properties.extendedProperties.targetSku",
+              "nativeQueryRef": "Target SKU",
+              "displayName": "Target SKU"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Aggregation": {
+                "Expression": {
+                  "Column": {
+                    "Expression": {
+                      "SourceRef": {
+                        "Entity": "Advisor"
+                      }
+                    },
+                    "Property": "properties.extendedProperties.savingsAmount"
+                  }
+                },
+                "Function": 0
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "objects": {
+      "total": [
+        {
+          "properties": {
+            "totals": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "columnWidth": [
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "201D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Advisor.properties.impactedValue"
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Right-size or shutdown underutilized virtual machines'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "12D"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "Filter1842f9a0958b740359a3",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Advisor"
+              }
+            },
+            "Property": "properties.shortDescription.solution"
+          }
+        },
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "a",
+              "Entity": "Advisor",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "a"
+                          }
+                        },
+                        "Property": "properties.shortDescription.solution"
+                      }
+                    }
+                  ],
+                  "Values": [
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'Right-size or shutdown underutilized virtual machines'"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "howCreated": "User"
+      }
+    ]
+  }
+}

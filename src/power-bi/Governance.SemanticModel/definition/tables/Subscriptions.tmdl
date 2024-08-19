@@ -1,0 +1,149 @@
+table Subscriptions
+	lineageTag: 02e109c3-7db1-44f5-add6-d957cef614bc
+
+	column id
+		dataType: string
+		lineageTag: 993b7a34-dbaf-4a5f-9548-1d56ffdca38f
+		summarizeBy: none
+		sourceColumn: id
+
+		annotation SummarizationSetBy = Automatic
+
+	column name
+		dataType: string
+		lineageTag: 18693fc6-d896-45a9-b67f-142e97925883
+		summarizeBy: none
+		sourceColumn: name
+
+		annotation SummarizationSetBy = Automatic
+
+	column type
+		dataType: string
+		lineageTag: f56800eb-7d33-4f40-a6eb-afcaf82fac0c
+		summarizeBy: none
+		sourceColumn: type
+
+		annotation SummarizationSetBy = Automatic
+
+	column tenantId
+		dataType: string
+		lineageTag: f8c135d1-3af8-4ed0-80bf-e40cbe328cad
+		summarizeBy: none
+		sourceColumn: tenantId
+
+		annotation SummarizationSetBy = Automatic
+
+	column kind
+		dataType: string
+		lineageTag: 41d52349-f5d4-431a-8550-e1be95bd22cc
+		summarizeBy: none
+		sourceColumn: kind
+
+		annotation SummarizationSetBy = Automatic
+
+	column location
+		dataType: string
+		lineageTag: d41c6ef0-073f-45fa-85a3-7e8391b415e8
+		summarizeBy: none
+		sourceColumn: location
+
+		annotation SummarizationSetBy = Automatic
+
+	column resourceGroup
+		dataType: string
+		lineageTag: 10d84270-0b4e-4f4c-ae85-4f835089325d
+		summarizeBy: none
+		sourceColumn: resourceGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column subscriptionId
+		dataType: string
+		lineageTag: c876b76c-4d57-4288-9362-8561ea889cde
+		summarizeBy: none
+		sourceColumn: subscriptionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column managedBy
+		dataType: string
+		lineageTag: 6ddf1f79-9f0f-436c-8366-c0dd4be694ac
+		summarizeBy: none
+		sourceColumn: managedBy
+
+		annotation SummarizationSetBy = Automatic
+
+	column sku
+		dataType: string
+		lineageTag: a828013b-31c5-48e8-91e1-0ffa92a899ba
+		summarizeBy: none
+		sourceColumn: sku
+
+		annotation SummarizationSetBy = Automatic
+
+	column plan
+		dataType: string
+		lineageTag: 3e531b09-ab56-4560-9502-8a3f899eae7b
+		summarizeBy: none
+		sourceColumn: plan
+
+		annotation SummarizationSetBy = Automatic
+
+	column managementGroupAncestorsChain
+		dataType: string
+		lineageTag: 95f10870-c96b-4383-9fe9-5424139ab373
+		summarizeBy: none
+		sourceColumn: managementGroupAncestorsChain
+
+		annotation SummarizationSetBy = Automatic
+
+	column state
+		dataType: string
+		lineageTag: 147f21c5-6e0e-4a4e-a2c3-89b07e369a14
+		summarizeBy: none
+		sourceColumn: state
+
+		annotation SummarizationSetBy = Automatic
+
+	column tags
+		dataType: string
+		lineageTag: e857d2d0-832b-4119-8dde-d8e6bc37d07a
+		summarizeBy: none
+		sourceColumn: tags
+
+		annotation SummarizationSetBy = Automatic
+
+	column identity
+		dataType: string
+		lineageTag: a8c6c314-b3c0-4e60-ae56-9700ac8fb243
+		summarizeBy: none
+		sourceColumn: identity
+
+		annotation SummarizationSetBy = Automatic
+
+	column zones
+		dataType: string
+		lineageTag: 945a4ff9-3931-4b99-83db-4567033c6289
+		summarizeBy: none
+		sourceColumn: zones
+
+		annotation SummarizationSetBy = Automatic
+
+	column extendedLocation
+		dataType: string
+		lineageTag: aab30284-1c60-4472-93ec-62a151d49ae9
+		summarizeBy: none
+		sourceColumn: extendedLocation
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Subscriptions = m
+		mode: import
+		queryGroup: 'FinOps toolkit'
+		source =
+				let
+				  Source = AzureResourceGraph.Query("resourcecontainers | where type == 'microsoft.resources/subscriptions'", "Tenant", null, null, [resultTruncated = false]),
+				  #"Expanded properties" = Table.ExpandRecordColumn(Source, "properties", {"managementGroupAncestorsChain", "state"}, {"managementGroupAncestorsChain", "state"})
+				in
+				  #"Expanded properties"
+

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
+  "name": "3b1ede92d1d7386385ba",
+  "position": {
+    "x": 0,
+    "y": 117,
+    "z": 6,
+    "height": 94,
+    "width": 929,
+    "tabOrder": 6
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Reserved instances can provide a significant discount over on-demand prices. With reserved instances, you can pre-purchase the base costs for your virtual machines. Discounts will automatically apply to new or existing VMs that have the same size and region as your reserved instance. We analyzed your usage over selected Term, look-back period and recommend money-saving reserved instances. ",
+                    "textStyle": {
+                      "fontSize": "14px",
+                      "color": "#292827"
+                    }
+                  },
+                  {
+                    "value": "Learn more",
+                    "textStyle": {
+                      "fontSize": "14px"
+                    },
+                    "url": "https://aka.ms/rirecommendations"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

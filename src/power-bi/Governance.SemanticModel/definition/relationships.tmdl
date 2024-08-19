@@ -1,0 +1,95 @@
+relationship 77731053-5922-483f-bef9-607ed94d2f5c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Advisor.'properties.extendedProperties.ObservationPeriodStartDate'
+	toColumn: LocalDateTable_ac9897d3-425b-4cef-a25e-b1d092bb2456.Date
+
+relationship 9ede57ce-c252-4460-9aff-e55389a6ef86
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Advisor.'properties.extendedProperties.ObservationPeriodEndDate'
+	toColumn: LocalDateTable_ea860140-03ae-4b7f-bdd2-f0881a3070c4.Date
+
+relationship 9dcfde33-be1c-4a23-bb6b-2e72551f6739
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Advisor.'properties.lastUpdated'
+	toColumn: LocalDateTable_1f795c4c-0799-4297-b26c-93547ab1ac92.Date
+
+relationship 0a793a54-0ab0-4d65-b6ee-e5da03973633
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Reservation recommendations'.'properties.lastUpdated'
+	toColumn: LocalDateTable_b8bd867e-8e27-4649-adcd-406d66f143ff.Date
+
+relationship 3f969187-c7d5-726c-2281-f77b36f31b02
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: Resources.id
+	toColumn: 'Virtual Machines'.id
+
+relationship 286a9fca-a105-4253-5c64-ece08d0ddac8
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: 'Network interfaces'.'properties.virtualMachine.id'
+	toColumn: 'Virtual Machines'.id
+
+relationship c2d7281a-9abb-5b84-ebbd-0ba295dbb90f
+	fromColumn: 'Network interfaces'.'properties.ipConfigurations.properties.publicIPAddress.id'
+	toColumn: 'Public ip addresses'.id
+
+relationship 7613b401-8e3b-b048-1d64-161b6325ee93
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: Disks.managedBy
+	toColumn: 'Virtual Machines'.id
+
+relationship 7e1ec773-ad5b-40b4-abea-a54b29643cb6
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Table.'properties.extendedProperties.ObservationPeriodStartDate'
+	toColumn: LocalDateTable_892bbd48-76b1-4a72-80da-c1ad3cb43561.Date
+
+relationship 1f7877ce-1980-4f21-a463-1ef916e57684
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Table.'properties.extendedProperties.ObservationPeriodEndDate'
+	toColumn: LocalDateTable_603d2997-cda7-47fd-a77b-dd10e5f5cc63.Date
+
+relationship bb4c50c4-4341-402b-b09f-2f1225085eda
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Table.'properties.lastUpdated'
+	toColumn: LocalDateTable_6997d679-8d8a-480c-8d5b-c02863567959.Date
+
+relationship 9ef6dcf4-f8a0-7909-725d-87b750d3adff
+	crossFilteringBehavior: bothDirections
+	fromColumn: Table.'properties.resourceMetadata.resourceId'
+	toColumn: Disks.id
+
+relationship 0442d79d-3485-5a19-a0f7-7a6886a00ffc
+	crossFilteringBehavior: bothDirections
+	fromColumn: Resources.type
+	toColumn: 'Resource types'.ResourceType
+
+relationship 6c2da329-8a04-f2c4-4be1-282853bb8127
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: 'Network Security Groups'.id
+	toColumn: Resources.id
+
+relationship b1d5bd02-7ac6-aa3d-54dc-ff7b23b4ceca
+	crossFilteringBehavior: bothDirections
+	fromColumn: 'Reservation recommendations'.subscriptionId
+	toColumn: Subscriptions.subscriptionId
+
+relationship 0fa76e55-bcd8-c32e-8e3d-2c34b9c45a87
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: Resources.location
+	toColumn: Region.RegionId
+
+relationship 95fbe40f-f891-281d-70c4-9766ba1cb6b7
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: Advisor.'properties.resourceMetadata.resourceId'
+	toColumn: Resources.id
+
+relationship 04706949-b479-e297-f580-5bf6da4eeeb2
+	crossFilteringBehavior: bothDirections
+	fromColumn: Resources.subscriptionId
+	toColumn: Subscriptions.subscriptionId
+

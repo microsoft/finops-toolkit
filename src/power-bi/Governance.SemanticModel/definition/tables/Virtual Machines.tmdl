@@ -1,0 +1,440 @@
+table 'Virtual Machines'
+	lineageTag: a278530e-4a56-4bb8-ae61-256bf07d9b74
+
+	column id
+		dataType: string
+		lineageTag: 4c844183-cbb8-49dd-b083-0d414cf1595f
+		summarizeBy: none
+		sourceColumn: id
+
+		annotation SummarizationSetBy = Automatic
+
+	column name
+		dataType: string
+		lineageTag: 6a55d37d-94b0-46fe-bd5d-57ce9aca3288
+		summarizeBy: none
+		sourceColumn: name
+
+		annotation SummarizationSetBy = Automatic
+
+	column type
+		dataType: string
+		lineageTag: 64760652-6854-44ac-b68f-97b7402514b7
+		summarizeBy: none
+		sourceColumn: type
+
+		annotation SummarizationSetBy = Automatic
+
+	column tenantId
+		dataType: string
+		lineageTag: ead4839b-a386-4dea-8ea9-fd245595e3e0
+		summarizeBy: none
+		sourceColumn: tenantId
+
+		annotation SummarizationSetBy = Automatic
+
+	column kind
+		dataType: string
+		lineageTag: b819af4b-32ee-4a60-b6e3-f68746f3bff8
+		summarizeBy: none
+		sourceColumn: kind
+
+		annotation SummarizationSetBy = Automatic
+
+	column location
+		dataType: string
+		lineageTag: 4cc1233f-30f2-4c44-adba-77237810047d
+		summarizeBy: none
+		sourceColumn: location
+
+		annotation SummarizationSetBy = Automatic
+
+	column resourceGroup
+		dataType: string
+		lineageTag: f16af9e5-d772-4914-b7c2-7c83e527f658
+		summarizeBy: none
+		sourceColumn: resourceGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column subscriptionId
+		dataType: string
+		lineageTag: 45d30e3f-2c38-41bf-9b62-05c5da956e7f
+		summarizeBy: none
+		sourceColumn: subscriptionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column managedBy
+		dataType: string
+		lineageTag: 6bb998e0-613d-47c8-be6d-c1092d051957
+		summarizeBy: none
+		sourceColumn: managedBy
+
+		annotation SummarizationSetBy = Automatic
+
+	column sku
+		dataType: string
+		lineageTag: 8d062c4e-a43d-4579-a4a0-5ab128c4d5e2
+		summarizeBy: none
+		sourceColumn: sku
+
+		annotation SummarizationSetBy = Automatic
+
+	column plan
+		dataType: string
+		lineageTag: d0d58de2-66ac-4634-aad3-a0d3c3d3c9bc
+		summarizeBy: none
+		sourceColumn: plan
+
+		annotation SummarizationSetBy = Automatic
+
+	column provisioningState
+		dataType: string
+		lineageTag: e0bc6bf9-f4d2-4353-8a39-4fbcd3629ffc
+		summarizeBy: none
+		sourceColumn: provisioningState
+
+		annotation SummarizationSetBy = Automatic
+
+	column timeCreated
+		dataType: string
+		lineageTag: 891ef206-77ac-4d2d-b7bd-bc7f65dcba2a
+		summarizeBy: none
+		sourceColumn: timeCreated
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'networkInterfaces.properties.deleteOption'
+		dataType: string
+		lineageTag: f063e92a-8848-4e5e-9b96-a4855dda7225
+		summarizeBy: none
+		sourceColumn: networkInterfaces.properties.deleteOption
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'networkInterfaces.id'
+		dataType: string
+		lineageTag: 4b74349e-cd05-4f4b-9915-a1dcb7e45643
+		summarizeBy: none
+		sourceColumn: networkInterfaces.id
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'osProfile.computerName'
+		dataType: string
+		lineageTag: 588f941f-ce7a-4191-943e-b6f736b242ee
+		summarizeBy: none
+		sourceColumn: osProfile.computerName
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'osProfile.requireGuestProvisionSignal'
+		dataType: string
+		lineageTag: 58adf5b0-c80a-4204-a7a8-afad254fe118
+		summarizeBy: none
+		sourceColumn: osProfile.requireGuestProvisionSignal
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'osProfile.allowExtensionOperations'
+		dataType: string
+		lineageTag: 48f48538-937a-4905-8e4e-69001b8c2bbf
+		summarizeBy: none
+		sourceColumn: osProfile.allowExtensionOperations
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'osProfile.adminUsername'
+		dataType: string
+		lineageTag: a92b03aa-6442-4c7c-a26a-20982cb2c547
+		summarizeBy: none
+		sourceColumn: osProfile.adminUsername
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'osProfile.secrets'
+		dataType: string
+		lineageTag: 422db784-aafd-4bc4-9472-66faba94508b
+		summarizeBy: none
+		sourceColumn: osProfile.secrets
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'osProfile.linuxConfiguration'
+		dataType: string
+		lineageTag: 38ad2488-db06-4f54-bd85-2720c738fddf
+		summarizeBy: none
+		sourceColumn: osProfile.linuxConfiguration
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'osProfile.windowsConfiguration'
+		dataType: string
+		lineageTag: 8081bdee-acd5-4d40-8fe2-28a34ae38248
+		summarizeBy: none
+		sourceColumn: osProfile.windowsConfiguration
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'storageProfile.imageReference.publisher'
+		dataType: string
+		lineageTag: 7b99c86c-a774-4165-baf9-d056f795010b
+		summarizeBy: none
+		sourceColumn: storageProfile.imageReference.publisher
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'storageProfile.imageReference.sku'
+		dataType: string
+		lineageTag: c39291b2-a45f-4658-8d37-de4b67199536
+		summarizeBy: none
+		sourceColumn: storageProfile.imageReference.sku
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'storageProfile.imageReference.version'
+		dataType: string
+		lineageTag: 80cae80c-5306-41ee-b18c-331e5face721
+		summarizeBy: none
+		sourceColumn: storageProfile.imageReference.version
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'storageProfile.imageReference.exactVersion'
+		dataType: string
+		lineageTag: 5b2b474d-0e7b-4156-8d56-f84ba48bda09
+		summarizeBy: none
+		sourceColumn: storageProfile.imageReference.exactVersion
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'storageProfile.imageReference.offer'
+		dataType: string
+		lineageTag: 855ee354-feb5-4f63-994e-e93b7546caeb
+		summarizeBy: none
+		sourceColumn: storageProfile.imageReference.offer
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'storageProfile.dataDisks.name'
+		dataType: string
+		lineageTag: 9f196cd0-be9f-4a57-ba3c-2059f5ae47c9
+		summarizeBy: none
+		sourceColumn: storageProfile.dataDisks.name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'storageProfile.dataDisks.createOption'
+		dataType: string
+		lineageTag: 02e11fdd-5864-411b-9ecf-13e4cff642e3
+		summarizeBy: none
+		sourceColumn: storageProfile.dataDisks.createOption
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'storageProfile.dataDisks.deleteOption'
+		dataType: string
+		lineageTag: a45698ce-bbe3-488b-83b4-523f50d7645f
+		summarizeBy: none
+		sourceColumn: storageProfile.dataDisks.deleteOption
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'storageProfile.dataDisks.managedDisk.id'
+		dataType: string
+		lineageTag: 043f2f5c-5288-445a-9a84-a484136e9eaf
+		summarizeBy: none
+		sourceColumn: storageProfile.dataDisks.managedDisk.id
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'storageProfile.dataDisks.caching'
+		dataType: string
+		lineageTag: d7f6df9a-6f8e-4c36-98b6-5e0a800dd987
+		summarizeBy: none
+		sourceColumn: storageProfile.dataDisks.caching
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'storageProfile.dataDisks.toBeDetached'
+		dataType: string
+		lineageTag: 40406609-600f-4419-a3db-4f10e0a2f60b
+		summarizeBy: none
+		sourceColumn: storageProfile.dataDisks.toBeDetached
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'storageProfile.dataDisks.writeAcceleratorEnabled'
+		dataType: string
+		lineageTag: 010ecb09-9ae6-488a-9387-78e5c7aa3a0d
+		summarizeBy: none
+		sourceColumn: storageProfile.dataDisks.writeAcceleratorEnabled
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'storageProfile.dataDisks.lun'
+		dataType: string
+		lineageTag: b8de1f80-ee6e-471f-8d09-7599eddb81ef
+		summarizeBy: none
+		sourceColumn: storageProfile.dataDisks.lun
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'storageProfile.osDisk.name'
+		dataType: string
+		lineageTag: 9115c2ef-6cc1-4b1f-a7b9-8489b353447a
+		summarizeBy: none
+		sourceColumn: storageProfile.osDisk.name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'storageProfile.osDisk.createOption'
+		dataType: string
+		lineageTag: dc39c1f8-7444-4198-98b4-d2514000958b
+		summarizeBy: none
+		sourceColumn: storageProfile.osDisk.createOption
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'storageProfile.osDisk.osType'
+		dataType: string
+		lineageTag: 48b0b3b7-2f28-4733-8e7c-d62dd82d7802
+		summarizeBy: none
+		sourceColumn: storageProfile.osDisk.osType
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'storageProfile.osDisk.deleteOption'
+		dataType: string
+		lineageTag: a1002433-a899-4609-b2a1-bf1f814ac8fb
+		summarizeBy: none
+		sourceColumn: storageProfile.osDisk.deleteOption
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'storageProfile.osDisk.managedDisk.id'
+		dataType: string
+		lineageTag: ee9b7e93-b9d9-4291-8d59-2bb2cb74f8d1
+		summarizeBy: none
+		sourceColumn: storageProfile.osDisk.managedDisk.id
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'storageProfile.osDisk.caching'
+		dataType: string
+		lineageTag: 1e7b26a4-bc95-48c3-a61a-13891f018972
+		summarizeBy: none
+		sourceColumn: storageProfile.osDisk.caching
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'hardwareProfile.vmSize'
+		dataType: string
+		lineageTag: a34be209-6d68-4b63-b3de-ea0af70bd99a
+		summarizeBy: none
+		sourceColumn: hardwareProfile.vmSize
+
+		annotation SummarizationSetBy = Automatic
+
+	column vmId
+		dataType: string
+		lineageTag: 83860a08-b7f7-4628-a9b2-fde00c798b33
+		summarizeBy: none
+		sourceColumn: vmId
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'diagnosticsProfile.bootDiagnostics.enabled'
+		dataType: string
+		lineageTag: dfe66963-40bb-4736-823e-4930c7eeaf23
+		summarizeBy: none
+		sourceColumn: diagnosticsProfile.bootDiagnostics.enabled
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'diagnosticsProfile.bootDiagnostics.storageUri'
+		dataType: string
+		lineageTag: 19e38375-f62e-4fd0-a129-fbde4e6765f4
+		summarizeBy: none
+		sourceColumn: diagnosticsProfile.bootDiagnostics.storageUri
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'powerState.displayStatus'
+		dataType: string
+		lineageTag: c6cdaf0c-6372-4e9e-b622-2112d92035f2
+		summarizeBy: none
+		sourceColumn: powerState.displayStatus
+
+		annotation SummarizationSetBy = Automatic
+
+	column licenseType
+		dataType: string
+		lineageTag: 1676c306-8beb-4ca2-8c6c-20f970b74ab9
+		summarizeBy: none
+		sourceColumn: licenseType
+
+		annotation SummarizationSetBy = Automatic
+
+	column tags
+		dataType: string
+		lineageTag: d51a8a67-7731-4b6f-b65b-ecef07e3dd77
+		summarizeBy: none
+		sourceColumn: tags
+
+		annotation SummarizationSetBy = Automatic
+
+	column identity
+		dataType: string
+		lineageTag: 7f27a8be-bc22-48dc-bbb1-de7731001e2b
+		summarizeBy: none
+		sourceColumn: identity
+
+		annotation SummarizationSetBy = Automatic
+
+	column zones
+		dataType: string
+		lineageTag: 86fc1e09-585f-4730-bcf5-f2572e275b54
+		summarizeBy: none
+		sourceColumn: zones
+
+		annotation SummarizationSetBy = Automatic
+
+	column extendedLocation
+		dataType: string
+		lineageTag: 66d0ce83-af6f-4b5b-8ce6-033c5111aa30
+		summarizeBy: none
+		sourceColumn: extendedLocation
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Virtual Machines' = m
+		mode: import
+		queryGroup: 'FinOps toolkit'
+		source =
+				let
+				  Source = AzureResourceGraph.Query("Resources | where type =~ 'Microsoft.Compute/virtualMachines'", "Tenant", null, null, [resultTruncated = false]),
+				  #"Expanded properties" = Table.ExpandRecordColumn(Source, "properties", {"provisioningState", "timeCreated", "networkProfile", "osProfile", "storageProfile", "hardwareProfile", "vmId", "diagnosticsProfile", "extended", "licenseType"}, {"provisioningState", "timeCreated", "networkProfile", "osProfile", "storageProfile", "hardwareProfile", "vmId", "diagnosticsProfile", "extended", "licenseType"}),
+				  #"Expanded osProfile" = Table.ExpandRecordColumn(#"Expanded properties", "osProfile", {"computerName", "requireGuestProvisionSignal", "allowExtensionOperations", "adminUsername", "secrets", "linuxConfiguration", "windowsConfiguration"}, {"osProfile.computerName", "osProfile.requireGuestProvisionSignal", "osProfile.allowExtensionOperations", "osProfile.adminUsername", "osProfile.secrets", "osProfile.linuxConfiguration", "osProfile.windowsConfiguration"}),
+				  #"Expanded networkProfile" = Table.ExpandRecordColumn(#"Expanded osProfile", "networkProfile", {"networkInterfaces"}, {"networkInterfaces"}),
+				  #"Expanded networkInterfaces" = Table.ExpandListColumn(#"Expanded networkProfile", "networkInterfaces"),
+				  #"Expanded networkInterfaces 1" = Table.ExpandRecordColumn(#"Expanded networkInterfaces", "networkInterfaces", {"properties", "id"}, {"networkInterfaces.properties", "networkInterfaces.id"}),
+				  #"Expanded networkInterfaces.properties" = Table.ExpandRecordColumn(#"Expanded networkInterfaces 1", "networkInterfaces.properties", {"deleteOption"}, {"networkInterfaces.properties.deleteOption"}),
+				  #"Expanded storageProfile" = Table.ExpandRecordColumn(#"Expanded networkInterfaces.properties", "storageProfile", {"imageReference", "dataDisks", "osDisk"}, {"storageProfile.imageReference", "storageProfile.dataDisks", "storageProfile.osDisk"}),
+				  #"Expanded storageProfile.imageReference" = Table.ExpandRecordColumn(#"Expanded storageProfile", "storageProfile.imageReference", {"publisher", "sku", "version", "exactVersion", "offer"}, {"storageProfile.imageReference.publisher", "storageProfile.imageReference.sku", "storageProfile.imageReference.version", "storageProfile.imageReference.exactVersion", "storageProfile.imageReference.offer"}),
+				  #"Expanded storageProfile.dataDisks" = Table.ExpandListColumn(#"Expanded storageProfile.imageReference", "storageProfile.dataDisks"),
+				  #"Expanded storageProfile.dataDisks 1" = Table.ExpandRecordColumn(#"Expanded storageProfile.dataDisks", "storageProfile.dataDisks", {"name", "createOption", "deleteOption", "managedDisk", "caching", "toBeDetached", "writeAcceleratorEnabled", "lun"}, {"storageProfile.dataDisks.name", "storageProfile.dataDisks.createOption", "storageProfile.dataDisks.deleteOption", "storageProfile.dataDisks.managedDisk", "storageProfile.dataDisks.caching", "storageProfile.dataDisks.toBeDetached", "storageProfile.dataDisks.writeAcceleratorEnabled", "storageProfile.dataDisks.lun"}),
+				  #"Expanded storageProfile.dataDisks.managedDisk" = Table.ExpandRecordColumn(#"Expanded storageProfile.dataDisks 1", "storageProfile.dataDisks.managedDisk", {"id"}, {"storageProfile.dataDisks.managedDisk.id"}),
+				  #"Expanded storageProfile.osDisk" = Table.ExpandRecordColumn(#"Expanded storageProfile.dataDisks.managedDisk", "storageProfile.osDisk", {"name", "createOption", "osType", "deleteOption", "managedDisk", "caching"}, {"storageProfile.osDisk.name", "storageProfile.osDisk.createOption", "storageProfile.osDisk.osType", "storageProfile.osDisk.deleteOption", "storageProfile.osDisk.managedDisk", "storageProfile.osDisk.caching"}),
+				  #"Expanded storageProfile.osDisk.managedDisk" = Table.ExpandRecordColumn(#"Expanded storageProfile.osDisk", "storageProfile.osDisk.managedDisk", {"id"}, {"storageProfile.osDisk.managedDisk.id"}),
+				  #"Expanded hardwareProfile" = Table.ExpandRecordColumn(#"Expanded storageProfile.osDisk.managedDisk", "hardwareProfile", {"vmSize"}, {"hardwareProfile.vmSize"}),
+				  #"Expanded diagnosticsProfile" = Table.ExpandRecordColumn(#"Expanded hardwareProfile", "diagnosticsProfile", {"bootDiagnostics"}, {"diagnosticsProfile.bootDiagnostics"}),
+				  #"Expanded diagnosticsProfile.bootDiagnostics" = Table.ExpandRecordColumn(#"Expanded diagnosticsProfile", "diagnosticsProfile.bootDiagnostics", {"enabled", "storageUri"}, {"diagnosticsProfile.bootDiagnostics.enabled", "diagnosticsProfile.bootDiagnostics.storageUri"}),
+				  #"Expanded extended" = Table.ExpandRecordColumn(#"Expanded diagnosticsProfile.bootDiagnostics", "extended", {"instanceView"}, {"instanceView"}),
+				  #"Expanded instanceView" = Table.ExpandRecordColumn(#"Expanded extended", "instanceView", {"powerState"}, {"powerState"}),
+				  #"Expanded powerState" = Table.ExpandRecordColumn(#"Expanded instanceView", "powerState", {"displayStatus"}, {"powerState.displayStatus"}),
+				  #"Expanded zones" = Table.ExpandListColumn(#"Expanded powerState", "zones")
+				in
+				  #"Expanded zones"
+

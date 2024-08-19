@@ -1,0 +1,197 @@
+table 'Public ip addresses'
+	lineageTag: 0af04ff8-3d94-43a3-a83b-aabd3b88cf57
+
+	column id
+		dataType: string
+		lineageTag: 3996332f-a58e-44af-9fb1-3b01ca8d19b4
+		summarizeBy: none
+		sourceColumn: id
+
+		annotation SummarizationSetBy = Automatic
+
+	column name
+		dataType: string
+		lineageTag: 6f9249e4-e78f-45ea-a138-f900994a9907
+		summarizeBy: none
+		sourceColumn: name
+
+		annotation SummarizationSetBy = Automatic
+
+	column type
+		dataType: string
+		lineageTag: 6b20b61b-490d-496f-a20a-b1de463aaf58
+		summarizeBy: none
+		sourceColumn: type
+
+		annotation SummarizationSetBy = Automatic
+
+	column tenantId
+		dataType: string
+		lineageTag: 34b86d26-44fa-4340-8c1b-19c540b7bebb
+		summarizeBy: none
+		sourceColumn: tenantId
+
+		annotation SummarizationSetBy = Automatic
+
+	column kind
+		dataType: string
+		lineageTag: f945014a-8c40-4c36-8cba-2c4904cce761
+		summarizeBy: none
+		sourceColumn: kind
+
+		annotation SummarizationSetBy = Automatic
+
+	column location
+		dataType: string
+		lineageTag: c68e96ba-ed29-4ce9-bdd1-f7f029d7df96
+		summarizeBy: none
+		sourceColumn: location
+
+		annotation SummarizationSetBy = Automatic
+
+	column resourceGroup
+		dataType: string
+		lineageTag: d7cfb895-f4d5-4960-8ded-ef230b3e5444
+		summarizeBy: none
+		sourceColumn: resourceGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column subscriptionId
+		dataType: string
+		lineageTag: e8391165-4b2e-4ae5-b4aa-09a024d83013
+		summarizeBy: none
+		sourceColumn: subscriptionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column managedBy
+		dataType: string
+		lineageTag: d663b09b-df08-4eeb-873c-f4dcc091ed8b
+		summarizeBy: none
+		sourceColumn: managedBy
+
+		annotation SummarizationSetBy = Automatic
+
+	column sku
+		dataType: string
+		lineageTag: 568c3e33-431b-4801-ad7a-c126a77a0672
+		summarizeBy: none
+		sourceColumn: sku
+
+		annotation SummarizationSetBy = Automatic
+
+	column plan
+		dataType: string
+		lineageTag: a15fbcf9-1270-4df9-906c-746f65f292e1
+		summarizeBy: none
+		sourceColumn: plan
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.provisioningState'
+		dataType: string
+		lineageTag: 23725a11-4df2-43c9-a0c2-147635333a86
+		summarizeBy: none
+		sourceColumn: properties.provisioningState
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.resourceGuid'
+		dataType: string
+		lineageTag: d88d158b-84f9-4f5e-a2ac-ce20042465f3
+		summarizeBy: none
+		sourceColumn: properties.resourceGuid
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.idleTimeoutInMinutes'
+		dataType: string
+		lineageTag: ca94ed65-87a7-4420-813e-4b20e3f5a253
+		summarizeBy: none
+		sourceColumn: properties.idleTimeoutInMinutes
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.publicIPAllocationMethod'
+		dataType: string
+		lineageTag: 4da0829e-d3db-4214-87f3-896ea9143558
+		summarizeBy: none
+		sourceColumn: properties.publicIPAllocationMethod
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.publicIPAddressVersion'
+		dataType: string
+		lineageTag: 19a10f9d-e616-4c9c-aaba-a8e43da7849e
+		summarizeBy: none
+		sourceColumn: properties.publicIPAddressVersion
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.ipAddress'
+		dataType: string
+		lineageTag: b42db7a8-aa11-496a-ba70-b8cbd975c58f
+		summarizeBy: none
+		sourceColumn: properties.ipAddress
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.ipConfiguration'
+		dataType: string
+		lineageTag: 759c8900-7ab7-4e7d-8976-c189f9046da0
+		summarizeBy: none
+		sourceColumn: properties.ipConfiguration
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.ipTags'
+		dataType: string
+		lineageTag: e33844e8-3632-4732-a6e2-9e6e7733ad95
+		summarizeBy: none
+		sourceColumn: properties.ipTags
+
+		annotation SummarizationSetBy = Automatic
+
+	column tags
+		dataType: string
+		lineageTag: 933b066a-a142-4910-a1d7-55cf43b1ea32
+		summarizeBy: none
+		sourceColumn: tags
+
+		annotation SummarizationSetBy = Automatic
+
+	column identity
+		dataType: string
+		lineageTag: 9fff359e-e967-402b-abfc-3458a87e763f
+		summarizeBy: none
+		sourceColumn: identity
+
+		annotation SummarizationSetBy = Automatic
+
+	column zones
+		dataType: string
+		lineageTag: 20aaf03f-2d86-4ea7-be51-7d80c6ba5f7e
+		summarizeBy: none
+		sourceColumn: zones
+
+		annotation SummarizationSetBy = Automatic
+
+	column extendedLocation
+		dataType: string
+		lineageTag: ab128a96-b67b-419e-ab4f-f8d7479332e3
+		summarizeBy: none
+		sourceColumn: extendedLocation
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Public ip addresses' = m
+		mode: import
+		queryGroup: 'FinOps toolkit'
+		source =
+				let
+				  Source = AzureResourceGraph.Query("Resources | where type =~ 'microsoft.network/publicipaddresses'", "Tenant", null, null, [resultTruncated = false]),
+				  #"Expanded properties" = Table.ExpandRecordColumn(Source, "properties", {"provisioningState", "resourceGuid", "idleTimeoutInMinutes", "publicIPAllocationMethod", "publicIPAddressVersion", "ipAddress", "ipConfiguration", "ipTags"}, {"properties.provisioningState", "properties.resourceGuid", "properties.idleTimeoutInMinutes", "properties.publicIPAllocationMethod", "properties.publicIPAddressVersion", "properties.ipAddress", "properties.ipConfiguration", "properties.ipTags"})
+				in
+				  #"Expanded properties"
+

@@ -1,0 +1,186 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
+  "name": "80d6ce5531240f656ab3",
+  "position": {
+    "x": 0,
+    "y": 211,
+    "z": 0,
+    "height": 509,
+    "width": 1280,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Subscriptions"
+                    }
+                  },
+                  "Property": "name"
+                }
+              },
+              "queryRef": "Subscriptions.name",
+              "nativeQueryRef": "Subscription",
+              "displayName": "Subscription"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Reservation recommendations"
+                    }
+                  },
+                  "Property": "properties.extendedProperties.displayQty"
+                }
+              },
+              "queryRef": "Reservation recommendations.properties.extendedProperties.displayQty",
+              "nativeQueryRef": "Recommended quantity",
+              "displayName": "Recommended quantity"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Reservation recommendations"
+                    }
+                  },
+                  "Property": "recommendedActions"
+                }
+              },
+              "queryRef": "Reservation recommendations.recommendedActions",
+              "nativeQueryRef": "Recommended actions",
+              "displayName": "Recommended actions"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Reservation recommendations"
+                    }
+                  },
+                  "Property": "properties.extendedProperties.term"
+                }
+              },
+              "queryRef": "Reservation recommendations.properties.extendedProperties.term",
+              "nativeQueryRef": "Term",
+              "displayName": "Term"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Reservation recommendations"
+                    }
+                  },
+                  "Property": "properties.extendedProperties.lookbackPeriod"
+                }
+              },
+              "queryRef": "Reservation recommendations.properties.extendedProperties.lookbackPeriod",
+              "nativeQueryRef": "Look-back period",
+              "displayName": "Look-back period"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Reservation recommendations"
+                    }
+                  },
+                  "Property": "properties.lastUpdated"
+                }
+              },
+              "queryRef": "Reservation recommendations.properties.lastUpdated",
+              "nativeQueryRef": "Last updated",
+              "displayName": "Last updated"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Reservation recommendations"
+                        }
+                      },
+                      "Property": "properties.extendedProperties.savingsAmount"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(Reservation recommendations.properties.extendedProperties.savingsAmount)",
+              "nativeQueryRef": "Potential monthly savings",
+              "displayName": "Potential monthly savings"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "Reservation recommendations"
+                        }
+                      },
+                      "Property": "properties.extendedProperties.annualSavingsAmount"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(Reservation recommendations.properties.extendedProperties.annualSavingsAmount)",
+              "nativeQueryRef": "Potential yearly savings",
+              "displayName": "Potential yearly savings"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Subscriptions"
+                  }
+                },
+                "Property": "name"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "objects": {
+      "values": [
+        {
+          "properties": {
+            "urlIcon": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

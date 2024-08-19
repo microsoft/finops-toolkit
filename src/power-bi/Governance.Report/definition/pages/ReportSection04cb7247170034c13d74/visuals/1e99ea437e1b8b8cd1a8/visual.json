@@ -1,0 +1,97 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
+  "name": "1e99ea437e1b8b8cd1a8",
+  "position": {
+    "x": 15.223880597014926,
+    "y": 111.94029850746269,
+    "z": 1,
+    "height": 194.32835820895522,
+    "width": 1232.2388059701493,
+    "tabOrder": 4
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "The "
+                  },
+                  {
+                    "value": "Governance report",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "color": "#0078d4"
+                    }
+                  },
+                  {
+                    "value": " provides several summaries of your Azure environment governance posture. It offers the standard metrics aligned with the Cloud Adoption Framework and has the capability to identify and apply recommendations to identify non compliance. This workbook is part of the "
+                  },
+                  {
+                    "value": "FinOps toolkit",
+                    "textStyle": {},
+                    "url": "https://aka.ms/finops/toolkit"
+                  },
+                  {
+                    "value": "."
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": ""
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Overview of the Cloud Adoption Framework"
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "The CAF Govern methodology provides a structured approach for establishing and optimizing cloud governance in Azure. The guidance is relevant for organizations across any industry. It covers essential categories of cloud governance, such as regulatory compliance, security, operations, cost, data, resource management, and artificial intelligence (AI)."
+                  }
+                ],
+                "listType": "bullet"
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Cloud governance is how you control cloud use across your organization. Cloud governance sets up guardrails that regulate cloud interactions. These guardrails are a framework of policies, procedures, and tools you use to establish control. Policies define acceptable and unacceptable cloud activity, and the procedures and tools you use ensure all cloud usage aligns with those policies. Successful cloud governance prevents all unauthorized or unmanaged cloud usage."
+                  }
+                ],
+                "listType": "bullet"
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "To assess your transformation journey, try the "
+                  },
+                  {
+                    "value": "governance benchmark tool",
+                    "textStyle": {},
+                    "url": "https://learn.microsoft.com/assessments/b1891add-7646-4d60-a875-32a4ab26327e/?WT.mc_id=Portal-fx"
+                  },
+                  {
+                    "value": ".﻿"
+                  }
+                ],
+                "listType": "bullet"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}
