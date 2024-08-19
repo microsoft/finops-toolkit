@@ -31,6 +31,7 @@ relationship 286a9fca-a105-4253-5c64-ece08d0ddac8
 	toColumn: 'Virtual Machines'.id
 
 relationship c2d7281a-9abb-5b84-ebbd-0ba295dbb90f
+	crossFilteringBehavior: bothDirections
 	fromColumn: 'Network interfaces'.'properties.ipConfigurations.properties.publicIPAddress.id'
 	toColumn: 'Public ip addresses'.id
 
