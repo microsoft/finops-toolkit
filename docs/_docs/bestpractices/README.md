@@ -6,7 +6,8 @@ description: 'Discover essential FinOps best practices to optimize cost efficien
 permalink: /bestpractices
 
 ---
-<span class="fs-9 d-block mb-4">FinOps Best Practices Library</span>
+<span class="fs-9 d-block mb-4">FinOps best practices Library</span>
+
 Discover essential FinOps best practices to optimize cost efficiency and governance for your Azure resources.
 {: .fs-6 .fw-300 }
 
