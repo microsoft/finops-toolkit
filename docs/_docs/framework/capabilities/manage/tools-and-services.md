@@ -100,6 +100,11 @@ At this point, you've defined your organizational objectives, identified how cur
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [FinOps tools and services](https://www.finops.org/framework/capabilities/finops-tools-services/) article in the FinOps Framework documentation.
 
+You can also find related videos on the FinOps Foundation YouTube channel:
+
+<!--[!VIDEO https://www.youtube.com/embed/I4nRDraHaJc?list=PLUSCToibAswnrMcPgpshJr-10XDwD0E0i&pp=iAQB]-->
+{% include video.html title="Tools and services videos" id="I4nRDraHaJc" list="PLUSCToibAswnrMcPgpshJr-10XDwD0E0i" %}
+
 <br>
 
 ## ⏩ Next steps

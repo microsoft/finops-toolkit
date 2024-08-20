@@ -2,7 +2,7 @@
 layout: default
 grand_parent: FinOps Framework
 parent: Optimize
-title: Workloads
+title: Workload optimization
 permalink: /framework/capabilities/optimize/workloads
 nav_order: 2
 description: This article helps you understand the Workload optimization capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
@@ -108,8 +108,8 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
-<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.html title="Workload optimization videos" id="DIcO8EulN8PuXuWL" list="PLUSCToibAswlL6Ms76cl9GDmcpM85nlWA" %}
+<!--[!VIDEO https://www.youtube.com/embed/w2tDf_PMnZY?list=PLUSCToibAswnEoBY6zl_1bpIAqbdIDxUW&pp=iAQB]-->
+{% include video.html title="Workload optimization videos" id="w2tDf_PMnZY" list="PLUSCToibAswnEoBY6zl_1bpIAqbdIDxUW" %}
 
 <br>
 
