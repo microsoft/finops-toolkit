@@ -105,7 +105,7 @@ table LocalDateTable_603d2997-cda7-47fd-a77b-dd10e5f5cc63
 
 	partition LocalDateTable_603d2997-cda7-47fd-a77b-dd10e5f5cc63 = calculated
 		mode: import
-		source = Calendar(Date(Year(MIN('Table'[properties.extendedProperties.ObservationPeriodEndDate])), 1, 1), Date(Year(MAX('Table'[properties.extendedProperties.ObservationPeriodEndDate])), 12, 31))
+		source = Calendar(Date(Year(MIN('Advisor for disks'[properties.extendedProperties.ObservationPeriodEndDate])), 1, 1), Date(Year(MAX('Advisor for disks'[properties.extendedProperties.ObservationPeriodEndDate])), 12, 31))
 
 	annotation __PBI_LocalDateTable = true
 

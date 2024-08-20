@@ -1,0 +1,237 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
+  "name": "12e4c6ade0d666af251e",
+  "position": {
+    "x": 0,
+    "y": 117.31343283582089,
+    "z": 2000,
+    "height": 602.68656716417911,
+    "width": 1279.7014925373135,
+    "tabOrder": 2000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "SQL DB"
+                    }
+                  },
+                  "Property": "name"
+                }
+              },
+              "queryRef": "SQL DB.name",
+              "nativeQueryRef": "Name",
+              "displayName": "Name"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "SQL DB"
+                    }
+                  },
+                  "Property": "resourceGroup"
+                }
+              },
+              "queryRef": "SQL DB.resourceGroup",
+              "nativeQueryRef": "Resource group",
+              "displayName": "Resource group"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "SQL DB"
+                    }
+                  },
+                  "Property": "location"
+                }
+              },
+              "queryRef": "SQL DB.location",
+              "nativeQueryRef": "Region",
+              "displayName": "Region"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "SQL DB"
+                    }
+                  },
+                  "Property": "properties.licenseType"
+                }
+              },
+              "queryRef": "SQL DB.properties.licenseType",
+              "nativeQueryRef": "License type",
+              "displayName": "License type"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "SQL DB"
+                    }
+                  },
+                  "Property": "sku.name"
+                }
+              },
+              "queryRef": "SQL DB.sku.name",
+              "nativeQueryRef": "SKU",
+              "displayName": "SKU"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "SQL DB"
+                    }
+                  },
+                  "Property": "sku.capacity"
+                }
+              },
+              "queryRef": "SQL DB.sku.capacity",
+              "nativeQueryRef": "Capacity",
+              "displayName": "Capacity"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "SQL DB"
+                    }
+                  },
+                  "Property": "sku.tier"
+                }
+              },
+              "queryRef": "SQL DB.sku.tier",
+              "nativeQueryRef": "Tier",
+              "displayName": "Tier"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "SQL DB"
+                    }
+                  },
+                  "Property": "properties.status"
+                }
+              },
+              "queryRef": "SQL DB.properties.status",
+              "nativeQueryRef": "Status",
+              "displayName": "Status"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "SQL DB"
+                    }
+                  },
+                  "Property": "properties.licenseType"
+                }
+              },
+              "queryRef": "SQL DB.properties.licenseType",
+              "nativeQueryRef": "License type",
+              "displayName": "License type"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "SQL DB"
+                    }
+                  },
+                  "Property": "properties.requestedBackupStorageRedundancy"
+                }
+              },
+              "queryRef": "SQL DB.properties.requestedBackupStorageRedundancy",
+              "nativeQueryRef": "Backup storage redundancy",
+              "displayName": "Backup storage redundancy"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "total": [
+        {
+          "properties": {
+            "totals": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "grid": [
+        {
+          "properties": {
+            "gridVertical": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "values": [
+        {
+          "properties": {
+            "urlIcon": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'SQL Database'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

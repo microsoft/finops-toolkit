@@ -1,4 +1,4 @@
-table Table
+table 'Advisor for disks'
 	lineageTag: c8b2034b-f40d-4012-b731-ef9915ab3e19
 
 	column id
@@ -564,7 +564,7 @@ table Table
 
 		annotation SummarizationSetBy = Automatic
 
-	partition Table = calculated
+	partition 'Advisor for disks' = calculated
 		mode: import
 		source = Advisor
 

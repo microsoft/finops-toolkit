@@ -70,7 +70,7 @@
                 "Measure": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "Table 2"
+                      "Entity": "Compliance calculation"
                     }
                   },
                   "Property": "Compliant"
@@ -84,7 +84,7 @@
                 "Measure": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "Table 2"
+                      "Entity": "Compliance calculation"
                     }
                   },
                   "Property": "NonCompliant"
@@ -98,7 +98,7 @@
                 "Measure": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "Table 2"
+                      "Entity": "Compliance calculation"
                     }
                   },
                   "Property": "Compliance"
@@ -117,7 +117,7 @@
               "Measure": {
                 "Expression": {
                   "SourceRef": {
-                    "Entity": "Table 2"
+                    "Entity": "Compliance calculation"
                   }
                 },
                 "Property": "NonCompliant"
@@ -173,7 +173,7 @@
                               "Measure": {
                                 "Expression": {
                                   "SourceRef": {
-                                    "Entity": "Table 2"
+                                    "Entity": "Compliance calculation"
                                   }
                                 },
                                 "Property": "NonCompliant"
@@ -200,7 +200,7 @@
                               "Measure": {
                                 "Expression": {
                                   "SourceRef": {
-                                    "Entity": "Table 2"
+                                    "Entity": "Compliance calculation"
                                   }
                                 },
                                 "Property": "NonCompliant"

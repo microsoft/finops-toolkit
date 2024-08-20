@@ -2055,16 +2055,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.476
 			          }
-			        },
-			        {
-			          "Zones": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -29983,7 +29973,7 @@ cultureInfo en-US
 			    "table": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table"
+			          "ConceptualEntity": "Advisor for disks"
 			        }
 			      },
 			      "State": "Generated",
@@ -30098,7 +30088,7 @@ cultureInfo en-US
 			    "table.id": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "id"
 			        }
 			      },
@@ -30135,7 +30125,7 @@ cultureInfo en-US
 			    "table.name": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "name"
 			        }
 			      },
@@ -30172,7 +30162,7 @@ cultureInfo en-US
 			    "table.type": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "type"
 			        }
 			      },
@@ -30278,7 +30268,7 @@ cultureInfo en-US
 			    "table.tenant_id": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "tenantId"
 			        }
 			      },
@@ -30407,7 +30397,7 @@ cultureInfo en-US
 			    "table.kind": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "kind"
 			        }
 			      },
@@ -30523,7 +30513,7 @@ cultureInfo en-US
 			    "table.location": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "location"
 			        }
 			      },
@@ -30629,7 +30619,7 @@ cultureInfo en-US
 			    "table.resource_group": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "resourceGroup"
 			        }
 			      },
@@ -30712,7 +30702,7 @@ cultureInfo en-US
 			    "table.subscription_id": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "subscriptionId"
 			        }
 			      },
@@ -30775,7 +30765,7 @@ cultureInfo en-US
 			    "table.managed_by": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "managedBy"
 			        }
 			      },
@@ -30798,7 +30788,7 @@ cultureInfo en-US
 			    "table.sku": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "sku"
 			        }
 			      },
@@ -30814,7 +30804,7 @@ cultureInfo en-US
 			    "table.plan": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "plan"
 			        }
 			      },
@@ -30930,7 +30920,7 @@ cultureInfo en-US
 			    "table.properties_recommendationTypeId": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.recommendationTypeId"
 			        }
 			      },
@@ -30953,7 +30943,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_ObservationPeriodStartDate": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.extendedProperties.ObservationPeriodStartDate"
 			        }
 			      },
@@ -30983,7 +30973,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_ObservationPeriodStartDate.variation.date_hierarchy": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "VariationSource": "properties.extendedProperties.ObservationPeriodStartDate",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy"
@@ -31015,7 +31005,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_ObservationPeriodStartDate.variation.date_hierarchy.year": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "VariationSource": "properties.extendedProperties.ObservationPeriodStartDate",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -31069,7 +31059,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_ObservationPeriodStartDate.variation.date_hierarchy.quarter": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "VariationSource": "properties.extendedProperties.ObservationPeriodStartDate",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -31123,7 +31113,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_ObservationPeriodStartDate.variation.date_hierarchy.month": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "VariationSource": "properties.extendedProperties.ObservationPeriodStartDate",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -31177,7 +31167,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_ObservationPeriodStartDate.variation.date_hierarchy.day": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "VariationSource": "properties.extendedProperties.ObservationPeriodStartDate",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -31221,7 +31211,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_ObservationPeriodEndDate": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.extendedProperties.ObservationPeriodEndDate"
 			        }
 			      },
@@ -31251,7 +31241,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_ObservationPeriodEndDate.variation.date_hierarchy": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "VariationSource": "properties.extendedProperties.ObservationPeriodEndDate",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy"
@@ -31283,7 +31273,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_ObservationPeriodEndDate.variation.date_hierarchy.year": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "VariationSource": "properties.extendedProperties.ObservationPeriodEndDate",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -31337,7 +31327,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_ObservationPeriodEndDate.variation.date_hierarchy.quarter": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "VariationSource": "properties.extendedProperties.ObservationPeriodEndDate",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -31391,7 +31381,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_ObservationPeriodEndDate.variation.date_hierarchy.month": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "VariationSource": "properties.extendedProperties.ObservationPeriodEndDate",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -31445,7 +31435,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_ObservationPeriodEndDate.variation.date_hierarchy.day": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "VariationSource": "properties.extendedProperties.ObservationPeriodEndDate",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -31489,7 +31479,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_annualSavingsAmount": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.extendedProperties.annualSavingsAmount"
 			        }
 			      },
@@ -31512,7 +31502,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_HasRecommendation": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.extendedProperties.HasRecommendation"
 			        }
 			      },
@@ -31535,7 +31525,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_savingsCurrency": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.extendedProperties.savingsCurrency"
 			        }
 			      },
@@ -31558,7 +31548,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_IsInReplication": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.extendedProperties.IsInReplication"
 			        }
 			      },
@@ -31581,7 +31571,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_Recommended_DTU": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.extendedProperties.Recommended_DTU"
 			        }
 			      },
@@ -31604,7 +31594,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_Recommended_SKU": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.extendedProperties.Recommended_SKU"
 			        }
 			      },
@@ -31627,7 +31617,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_ResourceGroup": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.extendedProperties.ResourceGroup"
 			        }
 			      },
@@ -31650,7 +31640,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_savingsAmount": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.extendedProperties.savingsAmount"
 			        }
 			      },
@@ -31673,7 +31663,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_DatabaseSize": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.extendedProperties.DatabaseSize"
 			        }
 			      },
@@ -31696,7 +31686,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_DatabaseName": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.extendedProperties.DatabaseName"
 			        }
 			      },
@@ -31719,7 +31709,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_ServerName": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.extendedProperties.ServerName"
 			        }
 			      },
@@ -31742,7 +31732,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_region": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.extendedProperties.Region"
 			        }
 			      },
@@ -31835,7 +31825,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_lookbackPeriod": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.extendedProperties.lookbackPeriod"
 			        }
 			      },
@@ -31858,7 +31848,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_subId": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.extendedProperties.subId"
 			        }
 			      },
@@ -31881,7 +31871,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_scope": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.extendedProperties.scope"
 			        }
 			      },
@@ -32004,7 +31994,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_term": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.extendedProperties.term"
 			        }
 			      },
@@ -32127,7 +32117,7 @@ cultureInfo en-US
 			    "table.properties_extended_properties_sku": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.extendedProperties.sku"
 			        }
 			      },
@@ -32157,7 +32147,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_commitment": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.extendedProperties.commitment"
 			        }
 			      },
@@ -32280,7 +32270,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_currentSku": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.extendedProperties.currentSku"
 			        }
 			      },
@@ -32303,7 +32293,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_targetSku": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.extendedProperties.targetSku"
 			        }
 			      },
@@ -32326,7 +32316,7 @@ cultureInfo en-US
 			    "table.properties_extendedProperties_recommendationMessage": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.extendedProperties.recommendationMessage"
 			        }
 			      },
@@ -32349,7 +32339,7 @@ cultureInfo en-US
 			    "table.properties_shortDescription_solution": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.shortDescription.solution"
 			        }
 			      },
@@ -32472,7 +32462,7 @@ cultureInfo en-US
 			    "table.properties_shortDescription_problem": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.shortDescription.problem"
 			        }
 			      },
@@ -32595,7 +32585,7 @@ cultureInfo en-US
 			    "table.properties_resourceMetadata_resourceId": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.resourceMetadata.resourceId"
 			        }
 			      },
@@ -32621,7 +32611,7 @@ cultureInfo en-US
 			    "table.properties_resourceMetadata_singular": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.resourceMetadata.singular"
 			        }
 			      },
@@ -32644,7 +32634,7 @@ cultureInfo en-US
 			    "table.properties_resourceMetadata_plural": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.resourceMetadata.plural"
 			        }
 			      },
@@ -32667,7 +32657,7 @@ cultureInfo en-US
 			    "table.properties_resourceMetadata_action": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.resourceMetadata.action"
 			        }
 			      },
@@ -32790,7 +32780,7 @@ cultureInfo en-US
 			    "table.properties_resourceMetadata_source": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.resourceMetadata.source"
 			        }
 			      },
@@ -32913,7 +32903,7 @@ cultureInfo en-US
 			    "table.properties_suppressionId": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.suppressionIds"
 			        }
 			      },
@@ -32936,7 +32926,7 @@ cultureInfo en-US
 			    "table.properties_impactedField": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.impactedField"
 			        }
 			      },
@@ -32959,7 +32949,7 @@ cultureInfo en-US
 			    "table.properties_impactedValue": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.impactedValue"
 			        }
 			      },
@@ -32982,7 +32972,7 @@ cultureInfo en-US
 			    "table.properties_lastUpdated": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.lastUpdated"
 			        }
 			      },
@@ -33012,7 +33002,7 @@ cultureInfo en-US
 			    "table.properties_lastUpdated.variation.date_hierarchy": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "VariationSource": "properties.lastUpdated",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy"
@@ -33044,7 +33034,7 @@ cultureInfo en-US
 			    "table.properties_lastUpdated.variation.date_hierarchy.year": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "VariationSource": "properties.lastUpdated",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -33118,7 +33108,7 @@ cultureInfo en-US
 			    "table.properties_lastUpdated.variation.date_hierarchy.quarter": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "VariationSource": "properties.lastUpdated",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -33192,7 +33182,7 @@ cultureInfo en-US
 			    "table.properties_lastUpdated.variation.date_hierarchy.month": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "VariationSource": "properties.lastUpdated",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -33266,7 +33256,7 @@ cultureInfo en-US
 			    "table.properties_lastUpdated.variation.date_hierarchy.day": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "VariationSource": "properties.lastUpdated",
 			          "VariationSet": "Variation",
 			          "Hierarchy": "Date Hierarchy",
@@ -33310,7 +33300,7 @@ cultureInfo en-US
 			    "table.properties_category": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.category"
 			        }
 			      },
@@ -33393,7 +33383,7 @@ cultureInfo en-US
 			    "table.properties_metadata": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.metadata"
 			        }
 			      },
@@ -33416,7 +33406,7 @@ cultureInfo en-US
 			    "table.properties_impact": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "properties.impact"
 			        }
 			      },
@@ -33539,7 +33529,7 @@ cultureInfo en-US
 			    "table.tag": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "tags"
 			        }
 			      },
@@ -33625,7 +33615,7 @@ cultureInfo en-US
 			    "table.identity": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "identity"
 			        }
 			      },
@@ -33701,7 +33691,7 @@ cultureInfo en-US
 			    "table.zone": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "zones"
 			        }
 			      },
@@ -33767,7 +33757,7 @@ cultureInfo en-US
 			    "table.extended_location": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "extendedLocation"
 			        }
 			      },
@@ -33890,7 +33880,7 @@ cultureInfo en-US
 			    "table.sort_order": {
 			      "Definition": {
 			        "Binding": {
-			          "ConceptualEntity": "Table",
+			          "ConceptualEntity": "Advisor for disks",
 			          "ConceptualProperty": "SortOrder"
 			        }
 			      },
@@ -34054,19 +34044,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "properties.metadata.category"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Category": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "policystates.properties_compliancestate": {
 			      "Definition": {
@@ -34075,19 +34053,7 @@ cultureInfo en-US
 			          "ConceptualProperty": "properties.complianceState"
 			        }
 			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "Compliance state": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        }
-			      ]
+			      "State": "Generated"
 			    },
 			    "policyassignments.properties_scope": {
 			      "Definition": {
@@ -34118,12 +34084,211 @@ cultureInfo en-US
 			          }
 			        }
 			      ]
+			    },
+			    "sql_db.name": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "SQL DB",
+			          "ConceptualProperty": "name"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "SQL Database": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "sql_db.resourcegroup": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "SQL DB",
+			          "ConceptualProperty": "resourceGroup"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Resource group": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "sql_db.location": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "SQL DB",
+			          "ConceptualProperty": "location"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Region": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "sql_db.properties_licensetype": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "SQL DB",
+			          "ConceptualProperty": "properties.licenseType"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "License type": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "sql_db.sku_name": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "SQL DB",
+			          "ConceptualProperty": "sku.name"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "SKU": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "sql_db.sku_capacity": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "SQL DB",
+			          "ConceptualProperty": "sku.capacity"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Capacity": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "sql_db.sku_tier": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "SQL DB",
+			          "ConceptualProperty": "sku.tier"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Tier": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "sql_db.properties_status": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "SQL DB",
+			          "ConceptualProperty": "properties.status"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Status": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "sql_db.properties_requestedbackupstorageredundancy": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "SQL DB",
+			          "ConceptualProperty": "properties.requestedBackupStorageRedundancy"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Backup storage redundancy": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
 			    }
 			  },
 			  "Relationships": {
 			    "table_has_properties_resourceMetadata_plural": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34156,7 +34321,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_resourceMetadata_singular": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34189,7 +34354,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_shortDescription_problem": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34222,7 +34387,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_shortDescription_solution": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34255,7 +34420,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_extendedProperties_recommendationMessage": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34288,7 +34453,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_extendedProperties_targetSku": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34321,7 +34486,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_extendedProperties_currentSku": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34354,7 +34519,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_extendedProperties_commitment": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34387,7 +34552,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_extended_properties_sku": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34420,7 +34585,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_extendedProperties_term": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34453,7 +34618,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_extendedProperties_scope": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34486,7 +34651,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_extendedProperties_subId": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34519,7 +34684,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_extendedProperties_lookbackPeriod": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34552,7 +34717,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_extendedProperties_region": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34585,7 +34750,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_extendedProperties_ServerName": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34618,7 +34783,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_extendedProperties_DatabaseName": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34651,7 +34816,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_extendedProperties_DatabaseSize": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34684,7 +34849,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_extendedProperties_savingsAmount": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34717,7 +34882,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_extendedProperties_ResourceGroup": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34750,7 +34915,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_extendedProperties_Recommended_SKU": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34783,7 +34948,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_extendedProperties_Recommended_DTU": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34816,7 +34981,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_extendedProperties_IsInReplication": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34849,7 +35014,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_extendedProperties_savingsCurrency": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34882,7 +35047,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_extendedProperties_HasRecommendation": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34928,7 +35093,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_extendedProperties_annualSavingsAmount": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34961,7 +35126,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_extendedProperties_ObservationPeriodEndDate": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -34994,7 +35159,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_extendedProperties_ObservationPeriodStartDate": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -35027,7 +35192,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_recommendationTypeId": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -35060,7 +35225,7 @@ cultureInfo en-US
 			    },
 			    "table_has_plan": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -35093,7 +35258,7 @@ cultureInfo en-US
 			    },
 			    "table_has_sku": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -35126,7 +35291,7 @@ cultureInfo en-US
 			    },
 			    "table_has_managed_by": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -35179,7 +35344,7 @@ cultureInfo en-US
 			    },
 			    "table_has_subscription_id": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -35212,7 +35377,7 @@ cultureInfo en-US
 			    },
 			    "table_has_resource_group": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -35245,7 +35410,7 @@ cultureInfo en-US
 			    },
 			    "table_has_location": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -35278,7 +35443,7 @@ cultureInfo en-US
 			    },
 			    "table_has_kind": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -35311,7 +35476,7 @@ cultureInfo en-US
 			    },
 			    "table_has_tenant_id": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -35344,7 +35509,7 @@ cultureInfo en-US
 			    },
 			    "table_has_type": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -35377,7 +35542,7 @@ cultureInfo en-US
 			    },
 			    "table_has_name": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -35423,7 +35588,7 @@ cultureInfo en-US
 			    },
 			    "table_has_id": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -49311,7 +49476,7 @@ cultureInfo en-US
 			    },
 			    "table_in_extended_location": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -49356,7 +49521,7 @@ cultureInfo en-US
 			    },
 			    "table_in_properties_extendedProperties_region": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -49401,7 +49566,7 @@ cultureInfo en-US
 			    },
 			    "table_in_location": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -51021,7 +51186,7 @@ cultureInfo en-US
 			    },
 			    "table_is_lastUpdated_on_properties_lastUpdated": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -51152,7 +51317,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_resourceMetadata_action": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -51185,7 +51350,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_resourceMetadata_source": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -51218,7 +51383,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_suppressionId": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -51251,7 +51416,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_impactedField": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -51284,7 +51449,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_impactedValue": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -51317,7 +51482,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_lastUpdated": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -51350,7 +51515,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_category": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -51383,7 +51548,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_metadata": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -51416,7 +51581,7 @@ cultureInfo en-US
 			    },
 			    "table_has_properties_impact": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -51449,7 +51614,7 @@ cultureInfo en-US
 			    },
 			    "table_has_tag": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -51482,7 +51647,7 @@ cultureInfo en-US
 			    },
 			    "table_has_identity": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -51515,7 +51680,7 @@ cultureInfo en-US
 			    },
 			    "table_has_zone": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -51548,7 +51713,7 @@ cultureInfo en-US
 			    },
 			    "table_has_extended_location": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -51581,7 +51746,7 @@ cultureInfo en-US
 			    },
 			    "table_has_sort_order": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -51996,7 +52161,7 @@ cultureInfo en-US
 			    },
 			    "table_has_disk": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -52702,7 +52867,7 @@ cultureInfo en-US
 			    },
 			    "table_properties_extendedProperties_ObservationPeriodStartDate_has_variation_date_hierarchy": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -52735,7 +52900,7 @@ cultureInfo en-US
 			    },
 			    "table_properties_extendedProperties_ObservationPeriodStartDate_variation_date_hierarchy_has_year": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -52768,7 +52933,7 @@ cultureInfo en-US
 			    },
 			    "table_properties_extendedProperties_ObservationPeriodStartDate_variation_date_hierarchy_has_quarter": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -52801,7 +52966,7 @@ cultureInfo en-US
 			    },
 			    "table_properties_extendedProperties_ObservationPeriodStartDate_variation_date_hierarchy_has_month": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -52834,7 +52999,7 @@ cultureInfo en-US
 			    },
 			    "table_properties_extendedProperties_ObservationPeriodStartDate_variation_date_hierarchy_has_day": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -52867,7 +53032,7 @@ cultureInfo en-US
 			    },
 			    "table_properties_extendedProperties_ObservationPeriodEndDate_has_variation_date_hierarchy": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -52900,7 +53065,7 @@ cultureInfo en-US
 			    },
 			    "table_properties_extendedProperties_ObservationPeriodEndDate_variation_date_hierarchy_has_year": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -52933,7 +53098,7 @@ cultureInfo en-US
 			    },
 			    "table_properties_extendedProperties_ObservationPeriodEndDate_variation_date_hierarchy_has_quarter": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -52966,7 +53131,7 @@ cultureInfo en-US
 			    },
 			    "table_properties_extendedProperties_ObservationPeriodEndDate_variation_date_hierarchy_has_month": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -52999,7 +53164,7 @@ cultureInfo en-US
 			    },
 			    "table_properties_extendedProperties_ObservationPeriodEndDate_variation_date_hierarchy_has_day": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -53032,7 +53197,7 @@ cultureInfo en-US
 			    },
 			    "table_properties_lastUpdated_has_variation_date_hierarchy": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -53065,7 +53230,7 @@ cultureInfo en-US
 			    },
 			    "table_properties_lastUpdated_variation_date_hierarchy_has_year": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -53098,7 +53263,7 @@ cultureInfo en-US
 			    },
 			    "table_properties_lastUpdated_variation_date_hierarchy_has_quarter": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -53131,7 +53296,7 @@ cultureInfo en-US
 			    },
 			    "table_properties_lastUpdated_variation_date_hierarchy_has_month": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {
@@ -53164,7 +53329,7 @@ cultureInfo en-US
 			    },
 			    "table_properties_lastUpdated_variation_date_hierarchy_has_day": {
 			      "Binding": {
-			        "ConceptualEntity": "Table"
+			        "ConceptualEntity": "Advisor for disks"
 			      },
 			      "State": "Generated",
 			      "Roles": {

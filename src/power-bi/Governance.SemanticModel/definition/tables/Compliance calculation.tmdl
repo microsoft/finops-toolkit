@@ -1,7 +1,7 @@
-table 'Table 2'
+table 'Compliance calculation'
 	lineageTag: 3659d0f7-4159-4f03-8cff-ddbbe768ee44
 
-	measure NonCompliant = CALCULATE(DISTINCTCOUNT(PolicyStates[properties.resourceId]),RELATEDTABLE('Table 2'),PolicyStates[properties.complianceState] ="NonCompliant")
+	measure NonCompliant = CALCULATE(DISTINCTCOUNT(PolicyStates[properties.resourceId]),RELATEDTABLE('Compliance calculation'),PolicyStates[properties.complianceState] ="NonCompliant")
 		formatString: 0
 		lineageTag: d630bc36-39ba-4ee0-aa26-a9965a427572
 
@@ -13,11 +13,11 @@ table 'Table 2'
 		formatString: 0\ %;-0\ %;0\ %
 		lineageTag: fd597b28-5336-456c-a903-00909196c7de
 
-	measure Unknown = CALCULATE(COUNTROWS(PolicyStates),RELATEDTABLE('Table 2'),PolicyStates[properties.complianceState] ="Unknown")
+	measure Unknown = CALCULATE(COUNTROWS(PolicyStates),RELATEDTABLE('Compliance calculation'),PolicyStates[properties.complianceState] ="Unknown")
 		formatString: 0
 		lineageTag: 0b68abd8-ed8b-4233-b6e9-e9f5c008ccf0
 
-	measure Error = CALCULATE(COUNTROWS(PolicyStates),RELATEDTABLE('Table 2'),PolicyStates[properties.complianceState] ="Error")
+	measure Error = CALCULATE(COUNTROWS(PolicyStates),RELATEDTABLE('Compliance calculation'),PolicyStates[properties.complianceState] ="Error")
 		formatString: 0
 		lineageTag: 186d3ba5-a49c-4635-81b3-a9ef585b9fa4
 
@@ -35,7 +35,7 @@ table 'Table 2'
 
 		annotation SummarizationSetBy = Automatic
 
-	partition 'Table 2' = calculated
+	partition 'Compliance calculation' = calculated
 		mode: import
 		source = SUMMARIZE(PolicyAssignments,PolicyAssignments[id])
 

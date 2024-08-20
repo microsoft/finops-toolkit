@@ -43,22 +43,22 @@ relationship 7613b401-8e3b-b048-1d64-161b6325ee93
 
 relationship 7e1ec773-ad5b-40b4-abea-a54b29643cb6
 	joinOnDateBehavior: datePartOnly
-	fromColumn: Table.'properties.extendedProperties.ObservationPeriodStartDate'
+	fromColumn: 'Advisor for disks'.'properties.extendedProperties.ObservationPeriodStartDate'
 	toColumn: LocalDateTable_892bbd48-76b1-4a72-80da-c1ad3cb43561.Date
 
 relationship 1f7877ce-1980-4f21-a463-1ef916e57684
 	joinOnDateBehavior: datePartOnly
-	fromColumn: Table.'properties.extendedProperties.ObservationPeriodEndDate'
+	fromColumn: 'Advisor for disks'.'properties.extendedProperties.ObservationPeriodEndDate'
 	toColumn: LocalDateTable_603d2997-cda7-47fd-a77b-dd10e5f5cc63.Date
 
 relationship bb4c50c4-4341-402b-b09f-2f1225085eda
 	joinOnDateBehavior: datePartOnly
-	fromColumn: Table.'properties.lastUpdated'
+	fromColumn: 'Advisor for disks'.'properties.lastUpdated'
 	toColumn: LocalDateTable_6997d679-8d8a-480c-8d5b-c02863567959.Date
 
 relationship 9ef6dcf4-f8a0-7909-725d-87b750d3adff
 	crossFilteringBehavior: bothDirections
-	fromColumn: Table.'properties.resourceMetadata.resourceId'
+	fromColumn: 'Advisor for disks'.'properties.resourceMetadata.resourceId'
 	toColumn: Disks.id
 
 relationship 0442d79d-3485-5a19-a0f7-7a6886a00ffc
@@ -117,5 +117,16 @@ relationship cfbc0bb2-1148-20f3-ec4d-f35e50777415
 relationship c548ad3f-5fef-749c-d968-dcfd2c568238
 	crossFilteringBehavior: bothDirections
 	fromColumn: PolicyStates.'properties.policyAssignmentId'
-	toColumn: 'Table 2'.id
+	toColumn: 'Compliance calculation'.id
+
+relationship d62d9b01-9018-499a-9cbd-7ebdfed84a22
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'SQL DB'.'properties.creationDate'
+	toColumn: LocalDateTable_d89dd851-86bd-4eea-9ddc-b191b198699b.Date
+
+relationship eeef5a69-2287-d327-ac70-fb6d9f49ee4f
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: 'SQL DB'.id
+	toColumn: Resources.id
 

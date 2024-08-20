@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
-  "name": "84df14e1804d39e00f62",
+  "name": "1ac41c3390b0b395e94c",
   "position": {
-    "x": 221.19402985074626,
+    "x": 442.38805970149252,
     "y": 48.35820895522388,
-    "z": 4000,
+    "z": 3001,
     "height": 68.955223880597018,
     "width": 221.19402985074626,
-    "tabOrder": 4000
+    "tabOrder": 3001
   },
   "visual": {
     "visualType": "slicer",
@@ -20,16 +20,16 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "PolicyAssignments"
+                      "Entity": "SQL DB"
                     }
                   },
-                  "Property": "properties.displayName"
+                  "Property": "name"
                 }
               },
-              "queryRef": "PolicyAssignments.properties.displayName",
-              "nativeQueryRef": "Policy name",
+              "queryRef": "SQL DB.name",
+              "nativeQueryRef": "SQL Database",
               "active": true,
-              "displayName": "Policy name"
+              "displayName": "SQL Database"
             }
           ]
         }

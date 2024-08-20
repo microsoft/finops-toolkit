@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/1.1.0/schema.json",
-  "name": "84df14e1804d39e00f62",
+  "name": "4a442b693b4545be5f3b",
   "position": {
-    "x": 221.19402985074626,
+    "x": 0,
     "y": 48.35820895522388,
-    "z": 4000,
+    "z": 0,
     "height": 68.955223880597018,
     "width": 221.19402985074626,
-    "tabOrder": 4000
+    "tabOrder": 0
   },
   "visual": {
     "visualType": "slicer",
@@ -20,16 +20,16 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "PolicyAssignments"
+                      "Entity": "Subscriptions"
                     }
                   },
-                  "Property": "properties.displayName"
+                  "Property": "name"
                 }
               },
-              "queryRef": "PolicyAssignments.properties.displayName",
-              "nativeQueryRef": "Policy name",
+              "queryRef": "Subscriptions.name",
+              "nativeQueryRef": "Subscription",
               "active": true,
-              "displayName": "Policy name"
+              "displayName": "Subscription"
             }
           ]
         }
@@ -57,6 +57,44 @@
                 "Literal": {
                   "Value": "true"
                 }
+              }
+            },
+            "selfFilter": {
+              "filter": {
+                "Version": 2,
+                "From": [
+                  {
+                    "Name": "s",
+                    "Entity": "Subscriptions",
+                    "Type": 0
+                  }
+                ],
+                "Where": [
+                  {
+                    "Condition": {
+                      "Contains": {
+                        "Left": {
+                          "Column": {
+                            "Expression": {
+                              "SourceRef": {
+                                "Source": "s"
+                              }
+                            },
+                            "Property": "name"
+                          }
+                        },
+                        "Right": {
+                          "Literal": {
+                            "Value": "'trey'"
+                          }
+                        }
+                      }
+                    },
+                    "Annotations": {
+                      "PowerBI.MParameterBehavior": 1
+                    }
+                  }
+                ]
               }
             }
           }
@@ -88,6 +126,11 @@
           }
         }
       ]
+    },
+    "syncGroup": {
+      "groupName": "name",
+      "fieldChanges": true,
+      "filterChanges": true
     },
     "drillFilterOtherVisuals": true
   }

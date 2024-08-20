@@ -128,12 +128,12 @@
                       "Entity": "Virtual Machines"
                     }
                   },
-                  "Property": "zones"
+                  "Property": "licenseType"
                 }
               },
-              "queryRef": "Virtual Machines.zones",
-              "nativeQueryRef": "Zones",
-              "displayName": "Zones"
+              "queryRef": "Virtual Machines.licenseType",
+              "nativeQueryRef": "License type",
+              "displayName": "License type"
             },
             {
               "field": {
