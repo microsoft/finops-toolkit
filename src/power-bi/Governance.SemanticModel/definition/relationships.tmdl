@@ -94,3 +94,28 @@ relationship 04706949-b479-e297-f580-5bf6da4eeeb2
 	fromColumn: Resources.subscriptionId
 	toColumn: Subscriptions.subscriptionId
 
+relationship AutoDetected_062d4648-e642-4381-a806-3aa7b05139a0
+	fromColumn: PolicyStates.subscriptionId
+	toColumn: Subscriptions.subscriptionId
+
+relationship 150e8dfc-5640-d8da-ee80-4001105a25e6
+	crossFilteringBehavior: bothDirections
+	fromColumn: PolicyAssignments.'properties.policyDefinitionId'
+	toColumn: PolicyDefinitions.id
+
+relationship 245db0d5-2384-d527-3ff4-4c9bc2641cdd
+	crossFilteringBehavior: bothDirections
+	fromColumn: PolicyStates.'properties.policyDefinitionId'
+	toColumn: PolicyDefinitions.id
+
+relationship cfbc0bb2-1148-20f3-ec4d-f35e50777415
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: PolicyStates.'properties.policyAssignmentId'
+	toColumn: PolicyAssignments.id
+
+relationship c548ad3f-5fef-749c-d968-dcfd2c568238
+	crossFilteringBehavior: bothDirections
+	fromColumn: PolicyStates.'properties.policyAssignmentId'
+	toColumn: 'Table 2'.id
+

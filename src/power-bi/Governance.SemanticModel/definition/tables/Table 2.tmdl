@@ -1,0 +1,43 @@
+table 'Table 2'
+	lineageTag: 3659d0f7-4159-4f03-8cff-ddbbe768ee44
+
+	measure NonCompliant = CALCULATE(DISTINCTCOUNT(PolicyStates[properties.resourceId]),RELATEDTABLE('Table 2'),PolicyStates[properties.complianceState] ="NonCompliant")
+		formatString: 0
+		lineageTag: d630bc36-39ba-4ee0-aa26-a9965a427572
+
+	measure Compliant = [totalResource]-[NonCompliant]-[Error]
+		formatString: 0
+		lineageTag: 4398b66f-6900-4ce3-93fd-47e14194031c
+
+	measure Compliance = [Compliant]/([Compliant]+[NonCompliant])
+		formatString: 0\ %;-0\ %;0\ %
+		lineageTag: fd597b28-5336-456c-a903-00909196c7de
+
+	measure Unknown = CALCULATE(COUNTROWS(PolicyStates),RELATEDTABLE('Table 2'),PolicyStates[properties.complianceState] ="Unknown")
+		formatString: 0
+		lineageTag: 0b68abd8-ed8b-4233-b6e9-e9f5c008ccf0
+
+	measure Error = CALCULATE(COUNTROWS(PolicyStates),RELATEDTABLE('Table 2'),PolicyStates[properties.complianceState] ="Error")
+		formatString: 0
+		lineageTag: 186d3ba5-a49c-4635-81b3-a9ef585b9fa4
+
+	measure totalResource = DISTINCTCOUNT(PolicyStates[properties.resourceId])
+		formatString: 0
+		lineageTag: 07aaee0b-2010-4509-bd3e-fb24187ee98d
+
+	column id
+		dataType: string
+		lineageTag: d57287ed-499e-4758-bf16-ce8c710a060c
+		summarizeBy: none
+		isNameInferred
+		isDataTypeInferred
+		sourceColumn: PolicyAssignments[id]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Table 2' = calculated
+		mode: import
+		source = SUMMARIZE(PolicyAssignments,PolicyAssignments[id])
+
+	annotation PBI_Id = 71235f809eea407d805887220a94ed52
+

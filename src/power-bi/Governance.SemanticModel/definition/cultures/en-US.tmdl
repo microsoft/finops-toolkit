@@ -13853,7 +13853,9 @@ cultureInfo en-US
 			      },
 			      "State": "Generated",
 			      "Terms": [
-			        {},
+			        {
+			          "": {}
+			        },
 			        {
 			          "province": {
 			            "Type": "Noun",
@@ -34010,6 +34012,109 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.485
+			          }
+			        }
+			      ]
+			    },
+			    "policyassignments.properties_displayname": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "PolicyAssignments",
+			          "ConceptualProperty": "properties.displayName"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Policy": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Policy name": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "policyassignments.properties_metadata_category": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "PolicyAssignments",
+			          "ConceptualProperty": "properties.metadata.category"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Category": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "policystates.properties_compliancestate": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "PolicyStates",
+			          "ConceptualProperty": "properties.complianceState"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Compliance state": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "policyassignments.properties_scope": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "PolicyAssignments",
+			          "ConceptualProperty": "properties.scope"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "policystates.properties_policyassignmentscope": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "PolicyStates",
+			          "ConceptualProperty": "properties.policyAssignmentScope"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Scope": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]

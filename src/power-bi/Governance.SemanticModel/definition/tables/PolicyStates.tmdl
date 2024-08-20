@@ -1,0 +1,354 @@
+table PolicyStates
+	lineageTag: f8557117-aa3b-41a7-b125-382263015853
+
+	measure totalResourceCount = DISTINCTCOUNT(PolicyStates[properties.resourceId])
+		formatString: 0
+		lineageTag: 907f3e8e-8d31-4dcf-a05f-e6f0951222a4
+
+	measure nonCompliantCount = CALCULATE(DISTINCTCOUNT(PolicyStates[properties.resourceId]),FILTER(PolicyStates,PolicyStates[properties.complianceState]="NonCompliant"))
+		formatString: 0
+		lineageTag: 0c2b4dba-bb1a-44c6-a0d0-c83591175d68
+
+	measure compliantCount = [totalResourceCount]-[nonCompliantCount]
+		formatString: 0
+		lineageTag: efe435e4-9252-4ac1-a7fc-2ae9af7cde7c
+
+	measure complianceScore = [compliantCount]/[totalResourceCount]
+		formatString: 0\ %;-0\ %;0\ %
+		lineageTag: e939cbb9-9339-479e-a7e0-a40d7402af15
+
+	measure Measure = COUNT(PolicyAssignments[name])
+		formatString: 0
+		lineageTag: 4c00a4f7-c234-47cf-9f42-0d6540893c4d
+
+	measure errorCount = CALCULATE(DISTINCTCOUNT(PolicyStates[properties.resourceId]),FILTER(PolicyStates,PolicyStates[properties.complianceState]="Error"))
+		formatString: 0
+		lineageTag: 9830b3c0-87a5-4ca2-b115-af3c93a8893d
+
+	column id
+		dataType: string
+		lineageTag: ef984745-b58b-4676-b484-1b837db8b614
+		summarizeBy: none
+		sourceColumn: id
+
+		annotation SummarizationSetBy = Automatic
+
+	column name
+		dataType: string
+		lineageTag: d32916f0-a66d-4856-9e31-86fba58eba74
+		summarizeBy: none
+		sourceColumn: name
+
+		annotation SummarizationSetBy = Automatic
+
+	column type
+		dataType: string
+		lineageTag: bd4a338e-7e4d-4aee-87b7-57f177c371ee
+		summarizeBy: none
+		sourceColumn: type
+
+		annotation SummarizationSetBy = Automatic
+
+	column tenantId
+		dataType: string
+		lineageTag: a6db8a8a-a365-42ad-b412-0e1ad34af2b8
+		summarizeBy: none
+		sourceColumn: tenantId
+
+		annotation SummarizationSetBy = Automatic
+
+	column kind
+		dataType: string
+		lineageTag: b820b983-1197-456c-b768-e2b0c9dc2ca0
+		summarizeBy: none
+		sourceColumn: kind
+
+		annotation SummarizationSetBy = Automatic
+
+	column location
+		dataType: string
+		lineageTag: d63d4387-70e2-4f40-8897-c095e909f4bb
+		summarizeBy: none
+		sourceColumn: location
+
+		annotation SummarizationSetBy = Automatic
+
+	column resourceGroup
+		dataType: string
+		lineageTag: dd885b0f-e326-4363-8cb5-8f18fb0242ff
+		summarizeBy: none
+		sourceColumn: resourceGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column subscriptionId
+		dataType: string
+		lineageTag: 4ddce754-576f-4329-a30c-0ffb0a2bd93f
+		summarizeBy: none
+		sourceColumn: subscriptionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column managedBy
+		dataType: string
+		lineageTag: 2c1c82f6-2bcb-4d43-9f1e-a03d0a83c72b
+		summarizeBy: none
+		sourceColumn: managedBy
+
+		annotation SummarizationSetBy = Automatic
+
+	column sku
+		dataType: string
+		lineageTag: e26c8d70-84e1-482e-95ff-66b61ea06272
+		summarizeBy: none
+		sourceColumn: sku
+
+		annotation SummarizationSetBy = Automatic
+
+	column plan
+		dataType: string
+		lineageTag: d6698164-1607-4189-86f5-73b488ebd6c1
+		summarizeBy: none
+		sourceColumn: plan
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.policyAssignmentParameters'
+		dataType: string
+		lineageTag: 51dae7e1-5526-4611-ab6b-0bae2066f78e
+		summarizeBy: none
+		sourceColumn: properties.policyAssignmentParameters
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.policyDefinitionAction'
+		dataType: string
+		lineageTag: ed6313a7-3672-4a69-89be-3057b50c734a
+		summarizeBy: none
+		sourceColumn: properties.policyDefinitionAction
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.policyAssignmentScope'
+		dataType: string
+		lineageTag: 45611a71-47dd-4d5b-855d-8579d09631fa
+		summarizeBy: none
+		sourceColumn: properties.policyAssignmentScope
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.policyAssignmentName'
+		dataType: string
+		lineageTag: face191a-661f-46a7-b189-6a6a5a2385b7
+		summarizeBy: none
+		sourceColumn: properties.policyAssignmentName
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.policyDefinitionName'
+		dataType: string
+		lineageTag: 93cc388f-2c40-4735-ac24-abf0454d08ee
+		summarizeBy: none
+		sourceColumn: properties.policyDefinitionName
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.policyDefinitionReferenceId'
+		dataType: string
+		lineageTag: 295f4f29-6293-4b42-932a-65a204452447
+		summarizeBy: none
+		sourceColumn: properties.policyDefinitionReferenceId
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.policyDefinitionId'
+		dataType: string
+		lineageTag: 5af39408-85d8-46ae-a310-3637f25428ae
+		summarizeBy: none
+		sourceColumn: properties.policyDefinitionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.managementGroupIds'
+		dataType: string
+		lineageTag: 604fa3fa-c1ac-4651-978e-638085dc23cd
+		summarizeBy: none
+		sourceColumn: properties.managementGroupIds
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.policyAssignmentId'
+		dataType: string
+		lineageTag: 4fc7aaa8-a8ea-41df-a2d7-ee4e7ab28f37
+		summarizeBy: none
+		sourceColumn: properties.policyAssignmentId
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.policySetDefinitionName'
+		dataType: string
+		lineageTag: 037d8622-5ef2-4040-b27a-9b2eb5a9bf27
+		summarizeBy: none
+		sourceColumn: properties.policySetDefinitionName
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.complianceState'
+		dataType: string
+		lineageTag: 4966e898-a86a-474d-a852-abfa2a4d1a84
+		summarizeBy: none
+		sourceColumn: properties.complianceState
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.policySetDefinitionId'
+		dataType: string
+		lineageTag: 4d8946f6-9168-4f05-b11b-6493eb5af91f
+		summarizeBy: none
+		sourceColumn: properties.policySetDefinitionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.subscriptionId'
+		dataType: string
+		lineageTag: 168b86b1-cd08-453f-98e1-2febb70a1da1
+		summarizeBy: none
+		sourceColumn: properties.subscriptionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.resourceType'
+		dataType: string
+		lineageTag: a5bbbdb0-ba43-4317-9dc2-dac6c67a44ad
+		summarizeBy: none
+		sourceColumn: properties.resourceType
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.stateWeight'
+		dataType: string
+		lineageTag: 4cb87539-3cd8-4f45-8ab5-7be896b543dc
+		summarizeBy: none
+		sourceColumn: properties.stateWeight
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.resourceGroup'
+		dataType: string
+		lineageTag: da17b8a6-9fe9-44ce-8982-03e1336b7f9a
+		summarizeBy: none
+		sourceColumn: properties.resourceGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.resourceId'
+		dataType: string
+		lineageTag: f519ab9c-f163-40ee-b422-7741d8e8d92a
+		summarizeBy: none
+		sourceColumn: properties.resourceId
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.timestamp'
+		dataType: string
+		lineageTag: 1d7be20d-9a89-42ab-86c9-a721ab9cf7c9
+		summarizeBy: none
+		sourceColumn: properties.timestamp
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.isDeleted'
+		dataType: string
+		lineageTag: be5f6045-f1c2-4bb0-afce-a9ba1cd6ad40
+		summarizeBy: none
+		sourceColumn: properties.isDeleted
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.resourceLocation'
+		dataType: string
+		lineageTag: 475daf71-ccca-403a-b5eb-223c71120cce
+		summarizeBy: none
+		sourceColumn: properties.resourceLocation
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.policySetDefinitionCategory'
+		dataType: string
+		lineageTag: aad1b764-00d7-41e0-a853-ac743fbaa4eb
+		summarizeBy: none
+		sourceColumn: properties.policySetDefinitionCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.policyDefinitionGroupNames'
+		dataType: string
+		lineageTag: 75cebb69-eb2b-42e1-89be-faceae873f59
+		summarizeBy: none
+		sourceColumn: properties.policyDefinitionGroupNames
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.complianceReasonCode'
+		dataType: string
+		lineageTag: d8af7cda-9cf8-4578-b1f2-6e129d1dc916
+		summarizeBy: none
+		sourceColumn: properties.complianceReasonCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'properties.stateDetails'
+		dataType: string
+		lineageTag: 356a436f-3dc7-45fb-b53c-a49abcfa4abe
+		summarizeBy: none
+		sourceColumn: properties.stateDetails
+
+		annotation SummarizationSetBy = Automatic
+
+	column tags
+		dataType: string
+		lineageTag: 8d8f5e8a-9e6f-48f8-8ba0-f5af49e1d971
+		summarizeBy: none
+		sourceColumn: tags
+
+		annotation SummarizationSetBy = Automatic
+
+	column identity
+		dataType: string
+		lineageTag: f1e7b7dd-eed5-425a-bbc8-434f4486de56
+		summarizeBy: none
+		sourceColumn: identity
+
+		annotation SummarizationSetBy = Automatic
+
+	column zones
+		dataType: string
+		lineageTag: f2b40529-db18-4f79-8734-bc9ca5736603
+		summarizeBy: none
+		sourceColumn: zones
+
+		annotation SummarizationSetBy = Automatic
+
+	column extendedLocation
+		dataType: string
+		lineageTag: 9d1f20c4-356d-49dd-9b81-643b828aa3b1
+		summarizeBy: none
+		sourceColumn: extendedLocation
+
+		annotation SummarizationSetBy = Automatic
+
+	partition PolicyStates = m
+		mode: import
+		queryGroup: 'FinOps toolkit'
+		source =
+				let
+				  Source = AzureResourceGraph.Query("policyResources | where type =~'Microsoft.PolicyInsights/PolicyStates'", "Tenant", null, null, [resultTruncated = false]),
+				    #"Expanded properties" = Table.ExpandRecordColumn(Source, "properties", {"policyAssignmentParameters", "policyDefinitionAction", "policyAssignmentScope", "policyAssignmentName", "policyDefinitionName", "policyDefinitionReferenceId", "policyDefinitionId", "managementGroupIds", "policyAssignmentId", "policySetDefinitionName", "complianceState", "policySetDefinitionId", "subscriptionId", "resourceType", "stateWeight", "resourceGroup", "resourceId", "timestamp", "isDeleted", "resourceLocation", "policySetDefinitionCategory", "policyDefinitionGroupNames", "complianceReasonCode", "stateDetails"}, {"properties.policyAssignmentParameters", "properties.policyDefinitionAction", "properties.policyAssignmentScope", "properties.policyAssignmentName", "properties.policyDefinitionName", "properties.policyDefinitionReferenceId", "properties.policyDefinitionId", "properties.managementGroupIds", "properties.policyAssignmentId", "properties.policySetDefinitionName", "properties.complianceState", "properties.policySetDefinitionId", "properties.subscriptionId", "properties.resourceType", "properties.stateWeight", "properties.resourceGroup", "properties.resourceId", "properties.timestamp", "properties.isDeleted", "properties.resourceLocation", "properties.policySetDefinitionCategory", "properties.policyDefinitionGroupNames", "properties.complianceReasonCode", "properties.stateDetails"}),
+				    #"Extracted Text After Delimiter" = Table.TransformColumns(#"Expanded properties", {{"properties.policyAssignmentScope", each Text.AfterDelimiter(_, "/", {0, RelativePosition.FromEnd}), type text}})
+				in
+				  #"Extracted Text After Delimiter"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
