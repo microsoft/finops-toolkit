@@ -1,6 +1,6 @@
 ---
 layout: default
-parent: FinOps best practices library
+parent: Best practices
 permalink: /bestpractices/databases
 nav_order: 2
 title: Databases
@@ -17,9 +17,11 @@ description: 'Discover essential FinOps best practices to optimize cost efficien
 2. [SQL DB](#sql-db)
 2. [SQL Elastic Pool](#sql-elastic-pool)
 
+<br>
+
 ## Cosmos DB
 
-### Query: Cosmos DB Check Correct RU
+### Query: Confirm Cosmos DB request units
 
 This Azure Resource Graph (ARG) query analyzes Cosmos DB accounts within your Azure environment to ensure they are configured with the appropriate Request Units (RUs).
 
@@ -31,27 +33,32 @@ This query identifies Cosmos DB accounts with recommendations for optimizing the
 
 Optimization
 
-#### Potential Benefits
+#### Benefits
 
-- **Cost Optimization:** Identifies opportunities to optimize the cost of Cosmos DB by adjusting the provisioned RUs according to the recommendations, leading to potential savings.
-- **Performance Management:** Ensures that Cosmos DB accounts are provisioned with the correct RUs, maintaining performance while avoiding over-provisioning.
+- **Cost optimization:** Identifies opportunities to optimize the cost of Cosmos DB by adjusting the provisioned RUs according to the recommendations, leading to potential savings.
+- **Performance management:** Ensures that Cosmos DB accounts are provisioned with the correct RUs, maintaining performance while avoiding over-provisioning.
+
+#### Query
 
 <details>
   <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code> advisorresources
-| where type =~ 'microsoft.advisor/recommendations'
-| where properties.impactedField == 'microsoft.documentdb/databaseaccounts' and properties.recommendationTypeId == '8b993855-1b3f-4392-8860-6ed4f5afd8a7'
-| order by id asc
-| project 
-    id, subscriptionId, resourceGroup, CosmosDBAccountName=properties.extendedProperties.GlobalDatabaseAccountName, 
-    DatabaseName=properties.extendedProperties.DatabaseName, CollectionName=properties.extendedProperties.CollectionName,
-    EstimatedAnnualSavings=bin(toreal(properties.extendedProperties.annualSavingsAmount), 1), SavingsCurrency=properties.extendedProperties.savingsCurrency
-</code></pre>
-  </div>
+  ```kql
+  advisorresources
+  | where type =~ 'microsoft.advisor/recommendations'
+  | where properties.impactedField == 'microsoft.documentdb/databaseaccounts'
+      and properties.recommendationTypeId == '8b993855-1b3f-4392-8860-6ed4f5afd8a7'
+  | order by id asc
+  | project 
+      id, subscriptionId, resourceGroup,
+      CosmosDBAccountName = properties.extendedProperties.GlobalDatabaseAccountName,
+      DatabaseName = properties.extendedProperties.DatabaseName,
+      CollectionName = properties.extendedProperties.CollectionName,
+      EstimatedAnnualSavings = bin(toreal(properties.extendedProperties.annualSavingsAmount), 1),
+      SavingsCurrency = properties.extendedProperties.savingsCurrency
+  ```
 </details>
 
-### Query: Cosmos DB Collections that Would Benefit from Switching to Other Throughput Mode
+### Query: Cosmos DB collections that would benefit from switching to another throughput mode
 
 This Azure Resource Graph (ARG) query identifies Cosmos DB collections within your Azure environment that would benefit from switching their throughput mode, based on Azure Advisor recommendations.
 
@@ -63,28 +70,32 @@ This query surfaces Cosmos DB collections that have recommendations to switch th
 
 Optimization
 
-#### Potential Benefits
+#### Benefits
 
-- **Cost Optimization:** Identifies Cosmos DB collections that can save costs by switching to a more appropriate throughput mode based on usage patterns and recommendations.
-- **Performance Management:** Ensures that Cosmos DB collections are using the optimal throughput mode, enhancing performance and avoiding over-provisioning or under-provisioning.
+- **Cost optimization:** Identifies Cosmos DB collections that can save costs by switching to a more appropriate throughput mode based on usage patterns and recommendations.
+- **Performance management:** Ensures that Cosmos DB collections are using the optimal throughput mode, enhancing performance and avoiding over-provisioning or under-provisioning.
+
+#### Query
 
 <details>
   <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code> advisorresources
-| where type =~ 'microsoft.advisor/recommendations'
-| where properties.impactedField == 'microsoft.documentdb/databaseaccounts' and properties.recommendationTypeId in (' cdf51428-a41b-4735-ba23-39f3b7cde20c', ' 6aa7a0df-192f-4dfa-bd61-f43db4843e7d')
-| order by id asc
-| project 
-    id, subscriptionId, resourceGroup, CosmosDBAccountName=properties.extendedProperties.GlobalDatabaseAccountName, 
-    DatabaseName=properties.extendedProperties.DatabaseName, CollectionName=properties.extendedProperties.CollectionName,
-    EstimatedAnnualSavings=bin(toreal(properties.extendedProperties.annualSavingsAmount), 1), SavingsCurrency=properties.extendedProperties.savingsCurrency
-</code></pre>
-  </div>
+  ```kql
+  advisorresources
+  | where type =~ 'microsoft.advisor/recommendations'
+  | where properties.impactedField == 'microsoft.documentdb/databaseaccounts'
+      and properties.recommendationTypeId in (' cdf51428-a41b-4735-ba23-39f3b7cde20c', ' 6aa7a0df-192f-4dfa-bd61-f43db4843e7d')
+  | order by id asc
+  | project 
+      id, subscriptionId, resourceGroup,
+      CosmosDBAccountName = properties.extendedProperties.GlobalDatabaseAccountName,
+      DatabaseName = properties.extendedProperties.DatabaseName,
+      CollectionName = properties.extendedProperties.CollectionName,
+      EstimatedAnnualSavings = bin(toreal(properties.extendedProperties.annualSavingsAmount), 1),
+      SavingsCurrency = properties.extendedProperties.savingsCurrency
+  ```
 </details>
 
-
-### Query: Cosmos DB Backup Mode
+### Query: Cosmos DB backup mode details
 
 This Azure Resource Graph (ARG) query analyzes Cosmos DB accounts within your Azure environment to ensure they are using an optimal backup mode.
 
@@ -96,10 +107,12 @@ This query identifies Cosmos DB accounts that use the 'Periodic' backup policy a
 
 Optimization
 
-#### Potential Benefits
+#### Benefits
 
-- **Cost Optimization:** Identifies opportunities to optimize the cost of Cosmos DB by adjusting the backup retention and interval settings, ensuring cost-effective backup strategies.
-- **Resource Management:** Ensures that Cosmos DB accounts have an optimal backup configuration, balancing backup frequency and retention to meet data protection requirements without unnecessary cost.
+- **Cost optimization:** Identifies opportunities to optimize the cost of Cosmos DB by adjusting the backup retention and interval settings, ensuring cost-effective backup strategies.
+- **Resource management:** Ensures that Cosmos DB accounts have an optimal backup configuration, balancing backup frequency and retention to meet data protection requirements without unnecessary cost.
+
+#### Query
 
 <details>
   <summary>Click to view the code</summary>

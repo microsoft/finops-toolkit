@@ -8,7 +8,7 @@ permalink: /bestpractices
 ---
 <span class="fs-9 d-block mb-4">FinOps best practices Library</span>
 
-Discover essential FinOps best practices to optimize cost efficiency and governance for your Azure resources.
+Discover essential proven practices to manage and optimize cost, usage, and carbon efficiency across your Microsoft Cloud environment.
 {: .fs-6 .fw-300 }
 
 
@@ -23,22 +23,15 @@ Discover essential FinOps best practices to optimize cost efficiency and governa
 
 ---
 
-
 ## 📇 List of services
 
 <!-- Sort list alphabetically for findability -->
 
-<!--
-### AI + machine learning
-### Analytics
-### Business applications
--->
-
-- [Compute](compute/compute.md) – List of compute best practices
-- [Databases](databases/databases.md) – List of databases best practices
-- [Networking](networking/networking.md) – List of networking best practices
-- [Storage](storage/storage.md) – List of storage best practices
-- [Sustainability](sustainability/sustainability.md) – List of sustainability best practices
+- [Compute](compute/compute.md)
+- [Databases](databases/databases.md)
+- [Networking](networking/networking.md)
+- [Storage](storage/storage.md)
+- [Sustainability](sustainability/sustainability.md)
 
 <br>
 
