@@ -122,7 +122,7 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
 
    [Learn more](../power-bi/README.md#-connect-to-your-data)
 
-If you run into any issues, see [Troubleshooting Power BI reports](../resources/troubleshooting.md).
+If you run into any issues, see [Troubleshooting Power BI reports](../_resources/troubleshooting.md).
 
 <blockquote class="note" markdown="1">
   _If you need to deploy to Azure Gov or Azure China, please use [FinOps hubs 0.1.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1). Instructions are the same except you will create an amortized cost export instead of a FOCUS export._
