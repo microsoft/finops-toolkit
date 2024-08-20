@@ -3,10 +3,10 @@
   "name": "895d29dda1bf237aa31b",
   "position": {
     "x": 0,
-    "y": 281,
+    "y": 351.94029850746267,
     "z": 6000,
-    "height": 439,
-    "width": 1280,
+    "height": 368.05970149253733,
+    "width": 1279.7014925373135,
     "tabOrder": 6000
   },
   "visual": {
@@ -427,6 +427,13 @@
               "expr": {
                 "Literal": {
                   "Value": "'Compute disks'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "12D"
                 }
               }
             }

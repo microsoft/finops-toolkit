@@ -134,21 +134,6 @@
               "queryRef": "Virtual Machines.licenseType",
               "nativeQueryRef": "License type",
               "displayName": "License type"
-            },
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
-                      "Entity": "Virtual Machines"
-                    }
-                  },
-                  "Property": "diagnosticsProfile.bootDiagnostics.enabled"
-                }
-              },
-              "queryRef": "Virtual Machines.diagnosticsProfile.bootDiagnostics.enabled",
-              "nativeQueryRef": "Diagnostics settings",
-              "displayName": "Diagnostics settings"
             }
           ]
         }
@@ -178,7 +163,7 @@
             "value": {
               "expr": {
                 "Literal": {
-                  "Value": "170.0571002035889D"
+                  "Value": "185.27678387042303D"
                 }
               }
             }
@@ -213,6 +198,48 @@
           },
           "selector": {
             "metadata": "Virtual Machines.powerState.displayStatus"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "191.47622535693588D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Virtual Machines.name"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "246.17910804947712D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Subscriptions.name"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "144.07462149101514D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Virtual Machines.hardwareProfile.vmSize"
           }
         }
       ]
