@@ -466,6 +466,15 @@
         "doc",
         "review"
       ]
+    },
+    {
+      "login": "misba-yousuf",
+      "name": "Misba Yousuf",
+      "avatar_url": "https://avatars.githubusercontent.com/u/139533426?v=4",
+      "profile": "https://github.com/Misba-Yousuf",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "commitType": "docs",
