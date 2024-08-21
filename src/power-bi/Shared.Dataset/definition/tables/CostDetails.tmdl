@@ -1,6 +1,5 @@
 /// Cost and usage (FOCUS) data from Cost Management exports.
 /// 
-/// Data version = 1.0-preview(v1)
 /// Learn more @ https://aka.ms/finops/hubs
 table CostDetails
 	lineageTag: 4b9830c4-e7c7-43ee-823c-d6b15359c25f

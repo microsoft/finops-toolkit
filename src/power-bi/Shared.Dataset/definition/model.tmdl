@@ -20,9 +20,9 @@ queryGroup Functions
 
 annotation __PBI_TimeIntelligenceEnabled = 1
 
-annotation PBIDesktopVersion = 2.132.629.0 (24.08)
+annotation PBIDesktopVersion = 2.132.905.0 (24.08)
 
-annotation PBI_QueryOrder = ["▶️  START HERE","Hub Storage URL","Export Storage URL","RangeStart","RangeEnd","CostDetails","ftk_Storage","InstanceSizeFlexibility","HubData","HubErrors","HubSettings","HubScopes","Prices","ReservationDetails","ReservationTransactions","ReservationRecomendations","ftk_ParseResourceId","ftk_ParseResourceName","ftk_ParseResourceType"]
+annotation PBI_QueryOrder = ["▶️  START HERE","Hub Storage URL","Export Storage URL","RangeStart","RangeEnd","CostDetails","ftk_Storage","InstanceSizeFlexibility","StorageData","StorageErrors","HubSettings","HubScopes","Prices","ReservationDetails","ReservationTransactions","ReservationRecomendations","ftk_ParseResourceId","ftk_ParseResourceName","ftk_ParseResourceType"]
 
 annotation PBI_ProTooling = ["DevMode"]
 
@@ -39,11 +39,10 @@ ref table LocalDateTable_f581f9e4-7dfc-448d-a6d1-fb4cc5c95f27
 ref table LocalDateTable_fef26e24-a208-4f98-9587-9e837520485d
 ref table HubSettings
 ref table HubScopes
-ref table HubData
+ref table StorageData
 ref table LocalDateTable_f8c522a9-514b-435e-9c83-a31fe0c99a22
-ref table LocalDateTable_0ac3758b-3ab8-42b7-bc85-9cfda5289f14
 ref table LocalDateTable_1be86c8b-1d56-4c92-b0c1-2de21a6b4e4d
-ref table HubErrors
+ref table StorageErrors
 ref table LocalDateTable_c3c47274-cc2f-4ba2-a257-6f5d529787d5
 ref table LocalDateTable_c4ce9464-15a6-4444-a0af-08644805dec6
 ref table LocalDateTable_c351bfa8-dbcf-4886-9895-35cf730d7efe
@@ -57,6 +56,7 @@ ref table LocalDateTable_d40b7430-e260-4066-92b8-6bd87adf1ac2
 ref table LocalDateTable_eb23340c-7bc4-423a-8368-7d88e0455c14
 ref table ReservationRecomendations
 ref table LocalDateTable_5399b385-fafe-40a7-b043-5cbb2b2bf725
+ref table LocalDateTable_501171be-aa02-401b-9e82-2bf6f16d7de3
 
 ref cultureInfo en-US
 

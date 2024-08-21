@@ -1,3 +1,4 @@
+/// Instance size flexibility data loaded from a Cost Management storage account. Use anonymous access to connect to this data.
 table InstanceSizeFlexibility
 	lineageTag: 04a435c4-9138-4c1f-ad59-dd939cd8e139
 
@@ -95,4 +96,6 @@ table InstanceSizeFlexibility
 				    #"Renamed Columns"
 
 	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
 

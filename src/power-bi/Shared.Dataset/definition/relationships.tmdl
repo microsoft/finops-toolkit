@@ -46,40 +46,35 @@ relationship 84724950-127c-4859-9cbe-611fa2abf14f
 
 relationship 0bdee9e9-a59b-4464-9b13-1b4bc9238893
 	joinOnDateBehavior: datePartOnly
-	fromColumn: HubData.Month
+	fromColumn: StorageData.Month
 	toColumn: LocalDateTable_f8c522a9-514b-435e-9c83-a31fe0c99a22.Date
 
-relationship cbec0f51-5f49-4a53-9dfa-6547e601a31a
-	joinOnDateBehavior: datePartOnly
-	fromColumn: HubData.Updated
-	toColumn: LocalDateTable_0ac3758b-3ab8-42b7-bc85-9cfda5289f14.Date
-
 relationship AutoDetected_72a70a3e-749a-435a-a8f3-71251d2cd609
-	fromColumn: HubData.Scope
+	fromColumn: StorageData.Scope
 	toColumn: HubScopes.Scope
 
 relationship 3e5b5a82-1615-455a-b7fd-22bdfa92857a
 	joinOnDateBehavior: datePartOnly
-	fromColumn: HubData.Created
+	fromColumn: StorageData.Created
 	toColumn: LocalDateTable_1be86c8b-1d56-4c92-b0c1-2de21a6b4e4d.Date
 
 relationship d6cc07ff-8e76-48f9-be13-b2fd6cd79dcb
 	joinOnDateBehavior: datePartOnly
-	fromColumn: HubErrors.Month
+	fromColumn: StorageErrors.Month
 	toColumn: LocalDateTable_c3c47274-cc2f-4ba2-a257-6f5d529787d5.Date
 
 relationship df266e34-1a2c-4dad-8bc0-7d50597b1af4
 	joinOnDateBehavior: datePartOnly
-	fromColumn: HubErrors.Created
+	fromColumn: StorageErrors.Created
 	toColumn: LocalDateTable_c4ce9464-15a6-4444-a0af-08644805dec6.Date
 
 relationship ca9ea6c6-eeee-430a-a936-bb09914ffa49
 	joinOnDateBehavior: datePartOnly
-	fromColumn: HubErrors.Updated
+	fromColumn: StorageErrors.Updated
 	toColumn: LocalDateTable_c351bfa8-dbcf-4886-9895-35cf730d7efe.Date
 
 relationship AutoDetected_60477dee-0609-4d6d-84a1-ba0cb2c9aec2
-	fromColumn: HubErrors.Scope
+	fromColumn: StorageErrors.Scope
 	toColumn: HubScopes.Scope
 
 relationship 25c21746-645d-4738-8523-f62a1880d490
@@ -124,4 +119,9 @@ relationship 59d51fbf-fd6f-a956-d7cb-3f19e7e25394
 	toCardinality: many
 	fromColumn: ReservationRecomendations.x_CommitmentDiscountKey
 	toColumn: InstanceSizeFlexibility.x_CommitmentDiscountKeyNormalized
+
+relationship 61063fb0-0ac4-420c-89e2-9240625a4b80
+	joinOnDateBehavior: datePartOnly
+	fromColumn: StorageData.Updated
+	toColumn: LocalDateTable_501171be-aa02-401b-9e82-2bf6f16d7de3.Date
 

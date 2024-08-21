@@ -61,32 +61,6 @@
         },
         {
           "location": {
-            "x": 3165.51140422367,
-            "y": 257.4510553705461
-          },
-          "nodeIndex": "HubData",
-          "nodeLineageTag": "4dbd4a61-a185-428e-83f1-b5b3dcb80134",
-          "size": {
-            "height": 300,
-            "width": 234
-          },
-          "zIndex": 0
-        },
-        {
-          "location": {
-            "x": 3131.1185565434816,
-            "y": 220.34837309791718
-          },
-          "nodeIndex": "HubErrors",
-          "nodeLineageTag": "02d75203-d20c-4de5-92b5-9c4c062b96db",
-          "size": {
-            "height": 300,
-            "width": 234
-          },
-          "zIndex": 0
-        },
-        {
-          "location": {
             "x": 3709.5016065581754,
             "y": 167.69094213898998
           },
@@ -131,6 +105,30 @@
           },
           "nodeIndex": "ReservationTransactions",
           "nodeLineageTag": "4f416097-b08b-4b6e-abca-b82e5f6c5e59",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3165.51140422367,
+            "y": 257.4510553705461
+          },
+          "nodeIndex": "StorageData",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3131.1185565434816,
+            "y": 220.34837309791718
+          },
+          "nodeIndex": "StorageErrors",
           "size": {
             "height": 300,
             "width": 234

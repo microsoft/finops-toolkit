@@ -1,5 +1,5 @@
 /// Name of the Azure DataLake Gen2 storage account to pull data from.
-expression 'Hub Storage URL' = "https://ftkmicfland5pd7gdo37oozc.dfs.core.windows.net/ingestion" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+expression 'Hub Storage URL' = "https://ftkmicfland5pd7gdo37oozc.dfs.core.windows.net/ingestion" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
 	lineageTag: 421c1232-0e40-45a4-bc59-257ce648478c
 	queryGroup: '🛠️ Setup'
 
@@ -7,25 +7,25 @@ expression 'Hub Storage URL' = "https://ftkmicfland5pd7gdo37oozc.dfs.core.window
 
 	annotation PBI_NavigationStepName = Navigation
 
-expression RangeStart = #datetime(2024, 1, 1, 0, 0, 0) meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=true]
+expression RangeStart = #datetime(2024, 1, 1, 0, 0, 0) meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=false]
 	lineageTag: 90085870-f708-4bc2-90c1-3a343e88a26b
 	queryGroup: '🛠️ Setup'
 
-	annotation PBI_ResultType = DateTime
+	annotation PBI_ResultType = Exception
 
 	annotation PBI_NavigationStepName = Navigation
 
-expression RangeEnd = #datetime(2025, 1, 1, 0, 0, 0) meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=true]
+expression RangeEnd = #datetime(2025, 1, 1, 0, 0, 0) meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=false]
 	lineageTag: 695f1d3b-7b1a-49fa-8d83-f2c25dc787de
 	queryGroup: '🛠️ Setup'
 
-	annotation PBI_ResultType = DateTime
+	annotation PBI_ResultType = Exception
 
 	annotation PBI_NavigationStepName = Navigation
 
-/// Loads data from the configured FinOps hub.
+/// Loads data from the configured storage account for FinOps hubs or with Cost Management exports.
 /// 
-/// Learn more @ https://aka.ms/finops/hubs
+/// Learn more about FinOps hubs @ https://aka.ms/finops/hubs
 expression ftk_Storage = ```
 		(optional datasetType as text) =>
 		let
@@ -373,7 +373,7 @@ expression ftk_ParseResourceType = (id) => ftk_ParseResourceId(id, false)
 	annotation PBI_ResultType = Function
 
 /// Name of the Azure DataLake Gen2 storage account to pull data from.
-expression 'Export Storage URL' = "https://ftkmicfland5pd7gdo37oozc.dfs.core.windows.net/raw-exports" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+expression 'Export Storage URL' = "https://ftkmicfland5pd7gdo37oozc.dfs.core.windows.net/raw-exports" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
 	lineageTag: 2d38b78a-1e1f-4446-b513-d842ba0bdfef
 	queryGroup: '🛠️ Setup'
 
