@@ -171,6 +171,9 @@ All the main changes are tracked in the changelog. For additional details, refer
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/ro100e"><img src="https://avatars.githubusercontent.com/u/59753782?v=4?s=100" width="100px;" alt="Robel"/><br /><sub><b>Robel</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=ro100e" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/jojohpm"><img src="https://avatars.githubusercontent.com/u/103460544?v=4?s=100" width="100px;" alt="Joseph John"/><br /><sub><b>Joseph John</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=jojohpm" title="Documentation">📖</a> <a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3Ajojohpm" title="Reviewed Pull Requests">👀</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/Misba-Yousuf"><img src="https://avatars.githubusercontent.com/u/139533426?v=4?s=100" width="100px;" alt="Misba Yousuf"/><br /><sub><b>Misba Yousuf</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=misba-yousuf" title="Documentation">📖</a></td>
+    </tr>
   </tbody>
 </table>
 
