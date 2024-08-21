@@ -11,7 +11,7 @@ expression RangeStart = #datetime(2024, 1, 1, 0, 0, 0) meta [IsParameterQuery=tr
 	lineageTag: 90085870-f708-4bc2-90c1-3a343e88a26b
 	queryGroup: '🛠️ Setup'
 
-	annotation PBI_ResultType = Exception
+	annotation PBI_ResultType = DateTime
 
 	annotation PBI_NavigationStepName = Navigation
 
