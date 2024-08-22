@@ -10,8 +10,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env: 
-      CI_COMMIT_MESSAGE: Open Data CI Commit
-      CI_COMMIT_AUTHOR: ${{ github.event.repository.name }} CI
+      CI_COMMIT_MESSAGE: Update open data
+      CI_COMMIT_AUTHOR: Open Data CI
     steps:
     - uses: actions/checkout@v3
       with:
