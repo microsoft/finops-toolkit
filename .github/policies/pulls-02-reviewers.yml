@@ -112,6 +112,13 @@ configuration:
             then:
               - addLabel:
                   label: 'Tool: Open data'
+          # power-bi
+          - if:
+              - filesMatchPattern:
+                  pattern: ^(docs\/_reporting|src)\/power-bi\/.*
+            then:
+              - addLabel:
+                  label: 'Tool: Power BI'
           # powershell
           - if:
               - filesMatchPattern:
@@ -187,6 +194,8 @@ configuration:
           - if:
               - or:
                   - filesMatchPattern:
+                      pattern: ^docs\/_optimize\/workbooks\/.*
+                  - filesMatchPattern:
                       pattern: ^docs\/_optimize\/[^-]+-workbook\/.*
                   - filesMatchPattern:
                       pattern: ^src\/scripts\/Build-Workbook.ps1$
@@ -194,7 +203,7 @@ configuration:
                       pattern: ^src\/workbooks\/.*
             then:
               - addLabel:
-                  label: 'Skill: Workbooks'
+                  label: 'Tool: Workbooks'
               - if:
                   - filesMatchPattern:
                       pattern: ^(docs\/_optimize\/optimization-workbook|src\/workbooks\/optimization)\/.*
