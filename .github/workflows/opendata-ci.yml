@@ -1,0 +1,42 @@
+name: Open Data CI
+on:
+  pull_request:
+    branches:
+      - dev
+    paths:
+      - 'src/open-data/**/*.csv'
+      - 'src/open-data/**/*.json'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env: 
+      CI_COMMIT_MESSAGE: Open Data CI Commit
+      CI_COMMIT_AUTHOR: ${{ github.event.repository.name }} CI
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.pull_request.head.ref }}
+        token: ${{ secrets.WORKFLOW_GIT_ACCESS_TOKEN }}
+    - name: Set environment variable "commit-message"
+      run: echo "commit-message=$(git log -1 --pretty=format:'%s')" >> $GITHUB_ENV
+    - name: Set environment variable "commit-author"
+      run: echo "commit-author=$(git log -1 --pretty=format:'%an')" >> $GITHUB_ENV
+    - name: Set environment variable "is-auto-commit"
+      if: env.commit-message == env.CI_COMMIT_MESSAGE && env.commit-author == env.CI_COMMIT_AUTHOR
+      run: echo "is-auto-commit=true" >> $GITHUB_ENV
+    - name: Build Open Data
+      if: env.is-auto-commit == false
+      shell: pwsh
+      run: |
+        src/scripts/Build-OpenData.ps1 -PowerShell
+        if (git status --porcelain)
+        {
+          git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+          git config --global user.email "finopstoolkit@users.noreply.github.com"
+          git commit -a -m "${{ env.CI_COMMIT_MESSAGE }}"
+          git push
+        }
+    - name: Test Open Data
+      shell: pwsh
+      run: |
+        src/scripts/Build-OpenData.ps1 -Test
