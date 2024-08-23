@@ -14,7 +14,7 @@ On this page:
 ## 📏 Pricing units
 
 <sup>
-    📅 Updated: Jun 1, 2024<br>
+    📅 Updated: Aug 22, 2024<br>
     ➡️ Source: Cost Management team<br>
 </sup>
 
@@ -60,6 +60,7 @@ Meters
 | extend DistinctUnits = replace_regex(DistinctUnits, @'^Gb( ?/ ?Month)?$', @'GB\1')
 //
 // Clean up units per period
+| extend DistinctUnits = iff(DistinctUnits matches regex '^[a-z]', strcat(toupper(substring(DistinctUnits, 0, 1)), substring(DistinctUnits, 1)), DistinctUnits)  // Capitalize first word
 | extend DistinctUnits = replace_string(DistinctUnits, ' / ', '/')  // Don't space out the slash
 | extend DistinctUnits = replace_regex(DistinctUnits, @'(App|Border|Call|Certificate|Connection|Day|Device|Domain|Hour|Key|Machine|Meter|Minute|Month|Node|Pack|Pipeline|Plan|Request|Resource|Second|Subscription|Unit|User|Website|Zone)(/.*)?$', @'\1s\2') // Always plural before slash
 | extend DistinctUnits = replace_regex(DistinctUnits, @'/(Second|Minute|Hour|Day|Month)s$', @'/\1') // Always singular after slash
@@ -68,10 +69,11 @@ Meters
 | extend DistinctUnits = case(
     UnitOfMeasure == '10000s' and DistinctUnits == 'S', 'Transactions',
     DistinctUnits == '1,000s', 'Transactions in Thousands',
-    DistinctUnits in ('API Calls', 'print job'), 'Requests',
+    DistinctUnits in ('API Calls', 'Print job'), 'Requests',
     DistinctUnits == 'Concurrent DVC', 'Configurations',
     DistinctUnits == 'CallingMinutes', 'Minutes',
     DistinctUnits == 'Key Use', 'Keys',
+    DistinctUnits == 'Text', 'Messages',
     DistinctUnits == 'Unassigned', 'Units',
     DistinctUnits == 'VM', 'Virtual Machines',
     DistinctUnits in ('MAUS', 'MAUs'), 'Users/Month',
@@ -81,7 +83,6 @@ Meters
 // Prefix cleanup
 | extend DistinctUnits = replace_regex(DistinctUnits, @'^1 ', '')  // Remove duplicate quantity
 | extend DistinctUnits = replace_regex(DistinctUnits, @'^[\s\pZ\pC]+', '')  // Remove leading spaces
-| extend DistinctUnits = iff(DistinctUnits matches regex '^[a-z]', strcat(toupper(substring(DistinctUnits, 0, 1)), substring(DistinctUnits, 1)), DistinctUnits)  // Capitalize first word
 | extend DistinctUnits = replace_regex(DistinctUnits, @'^(Per|Por) ', '')  // Remove starting "per"
 | extend DistinctUnits = replace_regex(DistinctUnits, @'^(Activity|Border|Content|Core|Database|Hosted|Instance|Messaging|Named|Operation|Privacy Subject Rights|Relay|Reserved|Service|Virtual User) ', '')  // Trim extra adjectives
 //
@@ -91,8 +92,6 @@ Meters
 | extend DistinctUnits = replace_regex(DistinctUnits, @'\(s\)$', 's')  // Always plural
 //
 | order by UnitOfMeasure asc
-// Write as a single column with quotes to maintain spaces for easy copy/paste to CSV -- 
-| project ["UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits"] = strcat('"', UnitOfMeasure, '",', iff(AccountTypes contains ',', '"', ''), AccountTypes, iff(AccountTypes contains ',', '"', ''), ',', PricingBlockSize ,',', DistinctUnits)
 ```
 
 <br>

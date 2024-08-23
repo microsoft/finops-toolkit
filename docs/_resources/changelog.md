@@ -138,8 +138,15 @@ Legend:
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
+> ➕ Added:
+>
+> - [Pricing units](../_reporting/data/README.md#-pricing-units)
+>   1. Added handling for the following new UnitOfMeasure values: "1 /Minute", "10 PiB/Hour", "100000 /Month", "Text".
+>
 > ✏️ Changed
 >
+> - [Pricing units](../_reporting/data/README.md#-pricing-units)
+>   1. Changed DistinctUnits for the "10000s" UnitOfMeasure from "Units" to "Transactions".
 > - [Services](../_reporting/data/README.md#️-services)
 >   1. Moved Microsoft Genomics from the "AI and Machine Learning" service category to "Analytics".
 >   2. Changed Microsoft Genomics from the "SaaS" service model to "PaaS".
