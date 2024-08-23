@@ -107,8 +107,13 @@ configuration:
                       user: msbrett
           # open data
           - if:
-              - filesMatchPattern:
-                  pattern: ^(docs\/_reporting\/data|(docs-mslearn\/toolkit|src)\/open-data)\/.*
+              - or:
+                  - filesMatchPattern:
+                      pattern: ^docs\/_reporting\/data\/.*
+                  - filesMatchPattern:
+                      pattern: ^docs-mslearn\/toolkit\/open-data\/.*
+                  - filesMatchPattern:
+                      pattern: ^src\/open-data\/.*
             then:
               - addLabel:
                   label: 'Tool: Open data'
