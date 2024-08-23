@@ -111,13 +111,31 @@ Use the following query to update the data:
 
 ```kql
 let oldValues = externaldata(OriginalValue:string, RegionId:string, RegionName:string,) [@"https://raw.githubusercontent.com/microsoft/finops-toolkit/dev/src/open-data/Regions.csv"] with (format="csv", ignoreFirstRecord=true);
-let newValues = union cluster('<cluster>.kusto.windows.net').database('<shard>*').<table> | distinct ResourceLocation, ResourceLocationNormalized;
+let newValues = union cluster('<cluster>.kusto.windows.net').database('<shard>*').<table> | where ResourceType != 'Microsoft.Security/securityConnectors' | distinct ResourceLocation, ResourceLocationNormalized;
 newValues | project OriginalValue = tolower(ResourceLocation)
 | union (newValues | project OriginalValue = tolower(ResourceLocationNormalized))
-| where isnotempty(OriginalValue)
+| where isnotempty(OriginalValue) and OriginalValue !in ('null', 'true', 'false', 'test', 'unknown', 'zone1', 'zone 1')
 | distinct OriginalValue
 | where OriginalValue !in ((oldValues | distinct OriginalValue))
 | union (oldValues)
+| as reg
+| extend regionWithoutLetter = extract(@'^([a-z ]+[1-2])[a-c]$', 1, OriginalValue)
+| extend regionWithoutNumber = extract(@'^([a-z]+( [a-z]+)*)[1-3][a-c]?$', 1, OriginalValue)
+| extend regionWithoutSpace = case(
+    OriginalValue contains ' ', replace_string(OriginalValue, ' ', ''),
+    OriginalValue == 'eastsu2', 'eastus2',
+    OriginalValue == 'gbs', 'uksouth',
+    OriginalValue == 'usa', 'usgovarizona',
+    OriginalValue == 'usv', 'usgovvirginia',
+    '')
+// DEBUG: | where isempty(regionWithoutLetter) or regionWithoutLetter !in ((reg | distinct OriginalValue))
+// DEBUG: | where isempty(regionWithoutNumber) or regionWithoutNumber !in ((reg | distinct OriginalValue))
+| join kind=leftouter (reg) on $left.regionWithoutLetter == $right.OriginalValue
+| join kind=leftouter (reg) on $left.regionWithoutNumber == $right.OriginalValue
+| join kind=leftouter (reg) on $left.regionWithoutSpace == $right.OriginalValue
+| extend RegionId = case(isnotempty(RegionId), RegionId, isnotempty(RegionId1), RegionId1, isnotempty(RegionId2), RegionId2, isnotempty(RegionId3), RegionId3, RegionId)
+| extend RegionName = case(isnotempty(RegionName), RegionName, isnotempty(RegionName1), RegionName1, isnotempty(RegionName2), RegionName2, isnotempty(RegionName3), RegionName3, RegionName)
+| project OriginalValue, RegionId, RegionName
 | order by OriginalValue asc
 ```
 
