@@ -475,6 +475,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "simonarbel",
+      "name": "simonarbel",
+      "avatar_url": "https://avatars.githubusercontent.com/u/100203391?v=4",
+      "profile": "https://github.com/simonarbel",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "commitType": "docs",
