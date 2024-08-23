@@ -493,6 +493,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "DUeffing",
+      "name": "Daniel Ueffing",
+      "avatar_url": "https://avatars.githubusercontent.com/u/94981829?v=4",
+      "profile": "https://github.com/DUeffing",
+      "contributions": [
+        "ideas"
+      ]
     }
   ],
   "commitType": "docs",
