@@ -8,7 +8,7 @@
 @description('Required. Name of the FinOps hub instance.')
 param hubName string
 
-@description('Required. Name of the Data Factory instance.')
+@description('Optional. Name of the hub. Used to ensure unique resource names. Default: "finops-hub".')
 param dataFactoryName string
 
 @description('Required. The name of the Azure Key Vault instance.')
@@ -38,6 +38,29 @@ param tags object = {}
 @description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
 param tagsByResource object = {}
 
+@description('Optional. The resource ID of the storage account to use for deployment scripts.')
+param dsStorageAccountResourceId string
+
+@description('Optional. The user assigned managed identity to use for the storage account.')
+param userAssignedManagedIdentityResourceId string
+
+@description('Optional. The principal ID of the user assigned managed identity to use for the storage account.')
+param userAssignedManagedIdentityPrincipalId string
+
+@description('Optional. To use Private Endpoints, add target subnet for deployment scripts.')
+param scriptsSubnetResourceId string
+
+@description('Optional. To create networking resources.')
+@allowed([
+  'Public'
+  'Private'
+  'PrivateWithExistingNetwork'
+])
+param networkingOption string = 'Public'
+
+@description('Optional. Id of the scripts created subnet.')
+param newScriptsSubnetResourceId string = ''
+
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
@@ -47,20 +70,20 @@ var ftkVersion = loadTextContent('ftkver.txt')
 var exportApiVersion = '2023-07-01-preview'
 
 // Function to generate the body for a Cost Management export
-func getExportBody(exportContainerName string, focusSchemaVersion string, isMonthly bool) string => '{ "properties": { "definition": { "dataSet": { "configuration": { "dataVersion": "${focusSchemaVersion}", "filters": [] }, "granularity": "Daily" }, "timeframe": "${isMonthly ? 'TheLastMonth': 'MonthToDate' }", "type": "FocusCost" }, "deliveryInfo": { "destination": { "container": "${exportContainerName}", "rootFolderPath": "@{if(startswith(item().scope, \'/\'), substring(item().scope, 1, sub(length(item().scope), 1)) ,item().scope)}", "type": "AzureBlob", "resourceId": "@{variables(\'storageAccountId\')}" } }, "schedule": { "recurrence": "${ isMonthly ? 'Monthly' : 'Daily'}", "recurrencePeriod": { "from": "2024-01-01T00:00:00.000Z", "to": "2050-02-01T00:00:00.000Z" }, "status": "Inactive" }, "format": "Csv", "partitionData": true, "dataOverwriteBehavior": "CreateNewReport", "compressionMode": "None" }, "id": "@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}", "name": "@{variables(\'exportName\')}", "type": "Microsoft.CostManagement/reports", "identity": { "type": "systemAssigned" }, "location": "global" }'
+func getExportBody(exportContainerName string, focusSchemaVersion string, isMonthly bool) string => '{ "properties": { "definition": { "dataSet": { "configuration": { "dataVersion": "${focusSchemaVersion}", "filters": [] }, "granularity": "Daily" }, "timeframe": "${isMonthly ? 'TheLastMonth': 'MonthToDate' }", "type": "FocusCost" }, "deliveryInfo": { "destination": { "container": "${exportContainerName}", "rootFolderPath": "@{item().scope}", "type": "AzureBlob", "resourceId": "@{variables(\'storageAccountId\')}" } }, "schedule": { "recurrence": "${ isMonthly ? 'Monthly' : 'Daily'}", "recurrencePeriod": { "from": "2024-01-01T00:00:00.000Z", "to": "2050-02-01T00:00:00.000Z" }, "status": "Inactive" }, "format": "Csv", "partitionData": true, "dataOverwriteBehavior": "CreateNewReport", "compressionMode": "None" }, "id": "@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}", "name": "@{variables(\'exportName\')}", "type": "Microsoft.CostManagement/reports", "identity": { "type": "systemAssigned" }, "location": "global" }'
 
 var datasetPropsDefault = {
-    location: {
-    type: 'AzureBlobFSLocation'
-    fileName: {
-      value: '@{dataset().fileName}'
-      type: 'Expression'
-    }
-    folderPath: {
-      value: '@{dataset().folderPath}'
-      type: 'Expression'
-    }
+  location: {
+  type: 'AzureBlobFSLocation'
+  fileName: {
+    value: '@{dataset().fileName}'
+    type: 'Expression'
   }
+  folderPath: {
+    value: '@{dataset().folderPath}'
+    type: 'Expression'
+  }
+}
 }
 
 var safeExportContainerName = replace('${exportContainerName}', '-', '_')
@@ -82,7 +105,7 @@ var allHubTriggers = [
 // Roles needed to auto-start triggers
 var autoStartRbacRoles = [
   '673868aa-7521-48a0-acc6-0f60742d39f5' // Data Factory contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#data-factory-contributor
-  'e40ec5ca-96e0-45a2-b4ff-59039f2c2b59' // Managed Identity Contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#managed-identity-contributor
+  'e40ec5ca-96e0-45a2-b4ff-59039f2c2b59' // Managed Identity Contributor - https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#managed-identity-contributor
 ]
 
 // Storage roles needed for ADF to create CM exports and process the output
@@ -103,13 +126,11 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   name: dataFactoryName
 }
 
-// Get storage account instance
 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
   name: storageAccountName
 }
 
-// Get keyvault instance
-resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
+resource keyVault 'Microsoft.KeyVault/vaults@2022-11-01' existing = {
   name: keyVaultName
 }
 
@@ -126,17 +147,18 @@ module azuretimezones 'azuretimezones.bicep' = {
 
 // Create managed identity to start/stop triggers
 resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: '${dataFactory.name}_triggerManager'
+  name: '${dataFactoryName}_triggerManager'
   location: location
-  tags: union(tags, contains(tagsByResource, 'Microsoft.ManagedIdentity/userAssignedIdentities') ? tagsByResource['Microsoft.ManagedIdentity/userAssignedIdentities'] : {})
+  tags: union(tags, tagsByResource[?'Microsoft.ManagedIdentity/userAssignedIdentities'] ?? {})
 }
 
+// Assign access to the identity
 resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in autoStartRbacRoles: {
   name: guid(dataFactory.id, role, identity.id)
   scope: dataFactory
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
-    principalId: identity.properties.principalId
+    principalId: userAssignedManagedIdentityPrincipalId
     principalType: 'ServicePrincipal'
   }
 }]
@@ -155,41 +177,44 @@ resource pipelineIdentityRoleAssignments 'Microsoft.Authorization/roleAssignment
 //------------------------------------------------------------------------------
 // Delete old triggers and pipelines
 //------------------------------------------------------------------------------
-
-resource deleteOldResources 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: '${dataFactory.name}_deleteOldResources'
-  // chinaeast2 is the only region in China that supports deployment scripts
-  location: startsWith(location, 'china') ? 'chinaeast2' : location
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${identity.id}': {}
-    }
-  }
-  kind: 'AzurePowerShell'
+module deleteOldResources 'br/public:avm/res/resources/deployment-script:0.2.4' = {
+  name: '${dataFactoryName}_deleteOldResources'
   dependsOn: [
     identityRoleAssignments
   ]
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
-  properties: {
-    azPowerShellVersion: '8.0'
+  params: {
+    name: 'deleteOldResources'
+    location: startsWith(location, 'china') ? 'chinaeast2' : location
+    kind: 'AzurePowerShell'
+    tags: tags
+    azPowerShellVersion: '12.0'
     retentionInterval: 'PT1H'
     cleanupPreference: 'OnSuccess'
     scriptContent: loadTextContent('./scripts/Remove-OldResources.ps1')
-    environmentVariables: [
-      {
-        name: 'DataFactorySubscriptionId'
-        value: subscription().id
-      }
-      {
-        name: 'DataFactoryResourceGroup'
-        value: resourceGroup().name
-      }
-      {
-        name: 'DataFactoryName'
-        value: dataFactory.name
-      }
-    ]
+    managedIdentities: {
+      userAssignedResourcesIds: [
+        userAssignedManagedIdentityResourceId
+      ]
+    }
+    environmentVariables: {
+      secureList: [
+        {
+          name: 'DataFactorySubscriptionId'
+          value: subscription().id
+        }
+        {
+          name: 'DataFactoryResourceGroup'
+          value: resourceGroup().name
+        }
+        {
+          name: 'DataFactoryName'
+          value: dataFactory.name
+        }
+      ]
+    }
+    subnetResourceIds: (networkingOption == 'Public') ? [] : (networkingOption == 'Private') ? [newScriptsSubnetResourceId] : [scriptsSubnetResourceId]
+    storageAccountResourceId: (networkingOption == 'Public') ? null : dsStorageAccountResourceId
+
   }
 }
 
@@ -197,44 +222,51 @@ resource deleteOldResources 'Microsoft.Resources/deploymentScripts@2020-10-01' =
 // Stop all triggers before deploying
 //------------------------------------------------------------------------------
 
-resource stopTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: '${dataFactory.name}_stopTriggers'
-  location: location
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${identity.id}': {}
-    }
-  }
-  kind: 'AzurePowerShell'
+module stopTriggers 'br/public:avm/res/resources/deployment-script:0.2.0' = {
+  name: '${dataFactoryName}_stopHubTriggers'
   dependsOn: [
     identityRoleAssignments
   ]
-  tags: tags
-  properties: {
-    azPowerShellVersion: '8.0'
+  params: {
+    name: 'stopHubTriggers'
+    location: location
+    kind: 'AzurePowerShell'
+    tags: union(
+      tags,
+      tagsByResource[?'Microsoft.Resources/deploymentScripts'] ?? {}
+    )
+    azPowerShellVersion: '12.0'
     retentionInterval: 'PT1H'
     cleanupPreference: 'OnSuccess'
     scriptContent: loadTextContent('./scripts/Start-Triggers.ps1')
     arguments: '-Stop'
-    environmentVariables: [
-      {
-        name: 'DataFactorySubscriptionId'
-        value: subscription().id
-      }
-      {
-        name: 'DataFactoryResourceGroup'
-        value: resourceGroup().name
-      }
-      {
-        name: 'DataFactoryName'
-        value: dataFactory.name
-      }
-      {
-        name: 'Triggers'
-        value: join(allHubTriggers, '|')
-      }
-    ]
+    environmentVariables: {
+      secureList: [
+        {
+          name: 'DataFactorySubscriptionId'
+          value: subscription().id
+        }
+        {
+          name: 'DataFactoryResourceGroup'
+          value: resourceGroup().name
+        }
+        {
+          name: 'DataFactoryName'
+          value: dataFactory.name
+        }
+        {
+          name: 'Triggers'
+          value: join(allHubTriggers, '|')
+        }
+      ]
+    }
+    managedIdentities: {
+      userAssignedResourcesIds: [
+        userAssignedManagedIdentityResourceId
+      ]
+    }
+    subnetResourceIds: (networkingOption == 'Public') ? [] : (networkingOption == 'Private') ? [newScriptsSubnetResourceId] : [scriptsSubnetResourceId]
+    storageAccountResourceId: (networkingOption == 'Public') ? null : dsStorageAccountResourceId
   }
 }
 
@@ -250,7 +282,7 @@ resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@
     parameters: {}
     type: 'AzureKeyVault'
     typeProperties: {
-      baseUrl: reference('Microsoft.KeyVault/vaults/${keyVault.name}', '2023-02-01').vaultUri
+      baseUrl: keyVault.properties.vaultUri
     }
   }
 }
@@ -263,7 +295,7 @@ resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedser
     parameters: {}
     type: 'AzureBlobFS'
     typeProperties: {
-      url: reference('Microsoft.Storage/storageAccounts/${storageAccount.name}', '2021-08-01').primaryEndpoints.dfs
+      url: storageAccount.properties.primaryEndpoints.dfs
     }
   }
 }
@@ -898,7 +930,7 @@ resource pipeline_RunBackfill 'Microsoft.DataFactory/factories/pipelines@2018-06
                 }
                 method: 'POST'
                 headers: {
-                  'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunBackfill@${ftkVersion}'  
+                  'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunBackfill@${ftkVersion}'
                   'Content-Type': 'application/json'
                   ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
                 }
@@ -952,7 +984,6 @@ resource pipeline_RunBackfill 'Microsoft.DataFactory/factories/pipelines@2018-06
     }
   }
 }
-
 //------------------------------------------------------------------------------
 // Microsoft Cost Management scheduled exports
 // Triggered by config_DailySchedule/MonthlySchedule triggers
@@ -2099,22 +2130,15 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
   }
 }
 
+
+
 //------------------------------------------------------------------------------
 // Start all triggers
 //------------------------------------------------------------------------------
 
-resource startTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: '${dataFactory.name}_startTriggers'
-  // chinaeast2 is the only region in China that supports deployment scripts
-  location: startsWith(location, 'china') ? 'chinaeast2' : location
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${identity.id}': {}
-    }
-  }
-  kind: 'AzurePowerShell'
+// Start hub triggers
+module startHubTriggers 'br/public:avm/res/resources/deployment-script:0.2.4' = {
+  name: '${dataFactoryName}_startHubTriggers'
   dependsOn: [
     identityRoleAssignments
     trigger_FileAdded
@@ -2122,29 +2146,45 @@ resource startTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     trigger_DailySchedule
     trigger_MonthlySchedule
   ]
-  properties: {
-    azPowerShellVersion: '8.0'
+  params: {
+    name: 'startHubTriggers'
+    location: location
+    tags: union(
+      tags,
+      tagsByResource[?'Microsoft.Resources/deploymentScripts'] ?? {}
+    )
+    kind: 'AzurePowerShell'
+    azPowerShellVersion: '12.0'
     retentionInterval: 'PT1H'
     cleanupPreference: 'OnSuccess'
+    managedIdentities: {
+      userAssignedResourcesIds: [
+        userAssignedManagedIdentityResourceId
+      ]
+    }
     scriptContent: loadTextContent('./scripts/Start-Triggers.ps1')
-    environmentVariables: [
-      {
-        name: 'DataFactorySubscriptionId'
-        value: subscription().id
-      }
-      {
-        name: 'DataFactoryResourceGroup'
-        value: resourceGroup().name
-      }
-      {
-        name: 'DataFactoryName'
-        value: dataFactory.name
-      }
-      {
-        name: 'Triggers'
-        value: join(allHubTriggers, '|')
-      }
-    ]
+    environmentVariables: {
+      secureList: [
+        {
+          name: 'DataFactorySubscriptionId'
+          value: subscription().id
+        }
+        {
+          name: 'DataFactoryResourceGroup'
+          value: resourceGroup().name
+        }
+        {
+          name: 'DataFactoryName'
+          value: dataFactory.name
+        }
+        {
+          name: 'Triggers'
+          value: join(allHubTriggers, '|')
+        }
+      ]
+    }
+    subnetResourceIds: (networkingOption == 'Public') ? [] : (networkingOption == 'Private') ? [newScriptsSubnetResourceId] : [scriptsSubnetResourceId]
+    storageAccountResourceId: (networkingOption == 'Public') ? null : dsStorageAccountResourceId
   }
 }
 

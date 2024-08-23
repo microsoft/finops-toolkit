@@ -17,9 +17,8 @@ param location string = resourceGroup().location
 @description('Optional. Array of access policies object.')
 param accessPolicies array = []
 
-@description('Optional. Create and store a key for a remote storage account.')
-@secure()
-param storageAccountKey string
+@description('Required. Name of the storage account to store access keys for.')
+param storageAccountName string
 
 @description('Optional. Specifies the SKU for the vault.')
 @allowed([
@@ -34,6 +33,29 @@ param tags object = {}
 @description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
 param tagsByResource object = {}
 
+@description('Optional. To use Private Endpoints, add target subnet resource Id.')
+param subnetResourceId string = ''
+
+@description('Optional. To create networking resources.')
+@allowed([
+  'Public'
+  'Private'
+  'PrivateWithExistingNetwork'
+])
+param networkingOption string = 'Public'
+
+@description('Optional. Id of the created subnet for private endpoints.')
+param newsubnetResourceId string = ''
+
+@description('Optional. To use Private Endpoints in an existing virtual network, add target KeyVault private DNS zone resource Id.')
+param keyVaultPrivateDNSZoneName string = ''
+
+@description('Optional. To use Private Endpoints in an existing virtual network, add target private DNS zones resource group name.')
+param privateDNSZonesResourceGroupName string = ''
+
+@description('Optional. Name of the virtual network.')
+param virtualNetworkName string = ''
+
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
@@ -42,60 +64,73 @@ param tagsByResource object = {}
 var keyVaultPrefix = '${replace(hubName, '_', '-')}-vault'
 var keyVaultSuffix = '-${uniqueSuffix}'
 var keyVaultName = replace('${take(keyVaultPrefix, 24 - length(keyVaultSuffix))}${keyVaultSuffix}', '--', '-')
-var keyVaultSecretName = '${toLower(hubName)}-storage-key'
-
-var formattedAccessPolicies = [for accessPolicy in accessPolicies: {
-  applicationId: contains(accessPolicy, 'applicationId') ? accessPolicy.applicationId : ''
-  objectId: contains(accessPolicy, 'objectId') ? accessPolicy.objectId : ''
-  permissions: accessPolicy.permissions
-  tenantId: contains(accessPolicy, 'tenantId') ? accessPolicy.tenantId : tenant().tenantId
-}]
 
 //==============================================================================
 // Resources
 //==============================================================================
-
-resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = {
+module keyVault 'br/public:avm/res/key-vault/vault:0.7.0' = {
   name: keyVaultName
-  location: location
-  tags: union(tags, contains(tagsByResource, 'Microsoft.KeyVault/vaults') ? tagsByResource['Microsoft.KeyVault/vaults'] : {})
-  properties: {
-    enabledForDeployment: true
-    enabledForTemplateDeployment: true
-    enabledForDiskEncryption: true
+  params: {
+    name: keyVaultName
+    location: location
+    tags: union(tags, tagsByResource[?'Microsoft.KeyVault/vaults'] ?? {})
+    enableVaultForDeployment: true
     enableSoftDelete: true
     softDeleteRetentionInDays: 90
+    enablePurgeProtection: false //TODO: Change to true
     enableRbacAuthorization: false
     createMode: 'default'
-    tenantId: subscription().tenantId
-    accessPolicies: formattedAccessPolicies
-    sku: {
-      // chinaeast2 is the only region in China that supports deployment scripts
-      name: startsWith(location, 'china') ? 'standard' : sku
-      family: 'A'
-    }
+    publicNetworkAccess: (networkingOption != 'Public') ? 'Disabled' : 'Enabled'
+    sku: startsWith(location, 'china') ? 'standard' : sku
+    accessPolicies: accessPolicies
+    secrets: [
+      {
+        name: storageRef.name
+        attributes: {
+          enabled: true
+          exp: 1702648632
+          nbf: 10000
+        }
+        value: storageRef.listKeys().keys[0].value
+      }
+    ]
+    privateEndpoints: (networkingOption == 'Public') ? null : [
+      {
+        service: 'vault'
+        name: 'pve-kv'
+        subnetResourceId: (networkingOption == 'PrivateWithExistingNetwork') ? subnetResourceId : newsubnetResourceId
+        privateDnsZoneResourceIds: (networkingOption == 'Private') ? [
+          privateDNSZoneKeyVault.outputs.resourceId
+        ]
+        : (networkingOption == 'PrivateWithExistingNetwork') ? [keyVaultPrivateDNSZone.id]
+        :[]
+        privateDnsZoneGroupName: (networkingOption == 'Private') ? keyVaultPrivateDNSZone.name : (networkingOption == 'PrivateWithExistingNetwork') ? keyVaultPrivateDNSZone.name : null
+      }
+    ]
   }
 }
 
-resource keyVault_accessPolicies 'Microsoft.KeyVault/vaults/accessPolicies@2023-02-01' = if (!empty(accessPolicies)) {
-  name: 'add'
-  parent: keyVault
-  properties: {
-    accessPolicies: formattedAccessPolicies
+resource keyVaultPrivateDNSZone 'Microsoft.Network/privateDnsZones@2020-06-01' existing = if(networkingOption == 'PrivateWithExistingNetwork') {
+  name: keyVaultPrivateDNSZoneName
+  scope: resourceGroup(privateDNSZonesResourceGroupName)
+}
+
+module privateDNSZoneKeyVault 'br/public:avm/res/network/private-dns-zone:0.5.0' = if(networkingOption == 'Private'){
+  name: 'keyVaultDnsZone'
+  params: {
+    name: 'privatelink.vaultcore.azure.net'
+    location: 'global'
+    virtualNetworkLinks: [
+      {
+        virtualNetworkResourceId: resourceId('Microsoft.Network/virtualNetworks', virtualNetworkName )
+        registrationEnabled: false
+      }
+    ]
   }
 }
 
-resource keyVault_secret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = if (!empty(storageAccountKey)) {
-  name: keyVaultSecretName
-  parent: keyVault
-  properties: {
-    attributes: {
-      enabled: true
-      exp: 1702648632
-      nbf: 10000
-    }
-    value: storageAccountKey
-  }
+resource storageRef 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+  name: storageAccountName
 }
 
 //==============================================================================
@@ -103,10 +138,10 @@ resource keyVault_secret 'Microsoft.KeyVault/vaults/secrets@2023-02-01' = if (!e
 //==============================================================================
 
 @description('The resource ID of the key vault.')
-output resourceId string = keyVault.id
+output resourceId string = keyVault.outputs.resourceId
 
 @description('The name of the key vault.')
 output name string = keyVault.name
 
 @description('The URI of the key vault.')
-output uri string = keyVault.properties.vaultUri
+output uri string = keyVault.outputs.uri
