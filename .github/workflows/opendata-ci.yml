@@ -10,13 +10,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env: 
-      CI_COMMIT_MESSAGE: Update open data
+      CI_COMMIT_MESSAGE: Generate PowerShell commands for open data
       CI_COMMIT_AUTHOR: Open Data CI
     steps:
     - uses: actions/checkout@v3
       with:
         ref: ${{ github.event.pull_request.head.ref }}
-        token: ${{ secrets.WORKFLOW_GIT_ACCESS_TOKEN }}
+        token: ${{ secrets.GIT_CICD_ACCESS_TOKEN }}
     - name: Set environment variable "commit-message"
       run: echo "commit-message=$(git log -1 --pretty=format:'%s')" >> $GITHUB_ENV
     - name: Set environment variable "commit-author"
