@@ -4,8 +4,8 @@ on:
     branches:
       - dev
     paths:
-      - 'src/open-data/**/*.csv'
-      - 'src/open-data/**/*.json'
+      - 'src/open-data/*.csv'
+      - 'src/open-data/*.json'
 jobs:
   build:
     runs-on: ubuntu-latest
