@@ -11,6 +11,7 @@ ap southeast,southeastasia,Southeast Asia
 apeast,eastasia,East Asia
 apsoutheast,southeastasia,Southeast Asia
 asiaeast,eastasia,East Asia
+asiapacific,asiapacific,Asia Pacific
 asiasoutheast,southeastasia,Southeast Asia
 at east,austriaeast,Austria East
 ate,austriaeast,Austria East
@@ -23,6 +24,7 @@ aucentral2,australiacentral2,Australia Central 2
 aueast,australiaeast,Australia East
 auh,uaecentral,UAE Central
 ausoutheast,australiasoutheast,Australia Southeast
+australia,australia,Australia
 australia east,australiaeast,Australia East
 australia southeast,australiasoutheast,Australia Southeast
 australia_east,australiaeast,Australia East
@@ -34,6 +36,7 @@ australiaeast,australiaeast,Australia East
 australiasoutheast,australiasoutheast,Australia Southeast
 austriae,austriaeast,Austria East
 austriaeast,austriaeast,Austria East
+azure stack,azurestack,Azure Stack
 azurestack,azurestack,Azure Stack
 bd,usdodeast,USDoD East
 be central,belgiumcentral,Belgium Central
@@ -140,6 +143,7 @@ east_asia,eastasia,East Asia
 eastasia,eastasia,East Asia
 eastcanada,canadaeast,Canada East
 eastjapan,japaneast,Japan East
+eastsu2,eastus2,East US 2
 eastus,eastus,East US
 eastus2,eastus2,East US 2
 eastus2euap,eastus2euap,East US 2 EUAP
@@ -173,6 +177,8 @@ francesouth,francesouth,France South
 frc,francecentral,France Central
 frcentral,francecentral,France Central
 frsouth,francesouth,France South
+gbs,uksouth,UK South
+germany west central,germanywestcentral,Germany West Central
 germanycentral,germanycentral,Germany Central
 germanyn,germanynorth,Germany North
 germanynorth,germanynorth,Germany North
@@ -220,6 +226,7 @@ itn,italynorth,Italy North
 ja east,japaneast,Japan East
 ja west,japanwest,Japan West
 jaeast,japaneast,Japan East
+japan,japan,Japan
 japan east,japaneast,Japan East
 japan west,japanwest,Japan West
 japan_east,japaneast,Japan East
@@ -353,6 +360,7 @@ southindia,southindia,South India
 southsoutheastasia,southeastasia,Southeast Asia
 spainc,spaincentral,Spain Central
 spaincentral,spaincentral,Spain Central
+sweden central,swedencentral,Sweden Central
 swedenc,swedencentral,Sweden Central
 swedencentral,swedencentral,Sweden Central
 swedens,swedensouth,Sweden South
@@ -388,12 +396,17 @@ ukwest,ukwest,UK West
 unassigned,global,Global
 unitedkingdomsouth,uksouth,UK South
 unitedkingdomsouth2,uksouth,UK South
+unitedstates,unitedstates,United States
 us central,centralus,Central US
+us dod central,usdodcentral,USDoD Central
+us dod east,usdodeast,USDoD East
 us east,eastus,East US
 us east 2,eastus2,East US 2
 us east 3,eastus3,East US 3
 us gov az,usgovarizona,USGov Arizona
+us gov iowa,usgoviowa,USGov Iowa
 us gov tx,usgovtexas,USGov Texas
+us gov virginia,usgovvirginia,USGov Virginia
 us north central,northcentralus,North Central US
 us sec east,usseceast,USSec East
 us sec west,ussecwest,USSec West
@@ -403,9 +416,10 @@ us west,westus,West US
 us west 2,westus2,West US 2
 us west 3,westus3,West US 3
 us west central,westcentralus,West Central US
+us2,eastus2,East US 2
 us_east,eastus,East US
 us_west,westus,West US
-us2,eastus2,East US 2
+usa,usgovarizona,USGov Arizona
 uscentral,centralus,Central US
 usdodcentral,usdodcentral,USDoD Central
 usdodeast,usdodeast,USDoD East
@@ -446,6 +460,7 @@ usstagesc,southcentralusstg,South Central US STG
 ussw,ussecwest,USSec West
 usswc,ussecwestcentral,USSec West Central
 ustsc,southcentralusstg,South Central US STG
+usv,usgovvirginia,USGov Virginia
 usw3,westus3,West US 3
 uswest,westus,West US
 uswest2,westus2,West US 2

@@ -99,15 +99,29 @@ Meters
 ## 🗺️ Regions
 
 <sup>
-    📅 Updated: Jun 1, 2024<br>
+    📅 Updated: Aug 22, 2024<br>
     ➡️ Source: Commerce Platform Data Model team<br>
 </sup>
 
 <br>
 
-The [Regions.csv](./Regions.csv) file contains data from several internal sources. We shouldn't need to update this file as Cost Management data is standardizing on Azure regions.
+The [Regions.csv](./Regions.csv) file contains the list of all unique `ResourceLocation` and `ResourceLocationNormalized` values. This data will need to be updated periodically as new regions are added.
 
-> ℹ️ _Internal only: Contact the CPDM PM team for any updates._
+Use the following query to update the data:
+
+```kql
+let oldValues = externaldata(OriginalValue:string, RegionId:string, RegionName:string,) [@"https://raw.githubusercontent.com/microsoft/finops-toolkit/dev/src/open-data/Regions.csv"] with (format="csv", ignoreFirstRecord=true);
+let newValues = union cluster('<cluster>.kusto.windows.net').database('<shard>*').<table> | distinct ResourceLocation, ResourceLocationNormalized;
+newValues | project OriginalValue = tolower(ResourceLocation)
+| union (newValues | project OriginalValue = tolower(ResourceLocationNormalized))
+| where isnotempty(OriginalValue)
+| distinct OriginalValue
+| where OriginalValue !in ((oldValues | distinct OriginalValue))
+| union (oldValues)
+| order by OriginalValue asc
+```
+
+After updating the list of available original values, other columns must be manually populated.
 
 <br>
 
