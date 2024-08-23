@@ -484,6 +484,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "wwmurphyAB",
+      "name": "Will Murphy",
+      "avatar_url": "https://avatars.githubusercontent.com/u/18669260?v=4",
+      "profile": "http://www.acuitybrands.com",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "commitType": "docs",
