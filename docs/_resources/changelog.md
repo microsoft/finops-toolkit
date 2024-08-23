@@ -142,6 +142,8 @@ Legend:
 >
 > - [Pricing units](../_reporting/data/README.md#-pricing-units)
 >   1. Added handling for the following new UnitOfMeasure values: "1 /Minute", "10 PiB/Hour", "100000 /Month", "Text".
+> - [Regions](../_reporting/data/README.md#️-regions)
+>   1. Added the following new region values: "asiapacific", "australia", azure "stack", "eastsu2", "gbs", germany west "central", "japan", sweden "central", "unitedstates", us dod "central", us dod "east", us gov "iowa", us gov "virginia", "us2", "usa", "usv".
 >
 > ✏️ Changed
 >
