@@ -173,6 +173,7 @@ All the main changes are tracked in the changelog. For additional details, refer
     </tr>
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/Misba-Yousuf"><img src="https://avatars.githubusercontent.com/u/139533426?v=4?s=100" width="100px;" alt="Misba Yousuf"/><br /><sub><b>Misba Yousuf</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=misba-yousuf" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/simonarbel"><img src="https://avatars.githubusercontent.com/u/100203391?v=4?s=100" width="100px;" alt="simonarbel"/><br /><sub><b>simonarbel</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Asimonarbel" title="Bug reports">🐛</a></td>
     </tr>
   </tbody>
 </table>
