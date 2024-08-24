@@ -276,7 +276,7 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
             $icon = $override.icon ?? $asset.icon.data ?? $internalIcon ?? $oldIcon ?? $defaultIcon
             if ($icon)
             {
-                # replace SVG classes with their fill equivalents
+                # Replace SVG classes with their fill equivalents
                 $svgCssClasses | ForEach-Object { $icon = $icon.Replace("class='" + ($_.cssClass) + "'", "fill='$($_.fill)'").Replace(" class=''", "").Replace(" fill=''", ""); }
                 $icon = $icon.Replace('"', "'")
                 $icon = $icon.Replace("<stop stop-color", "<stop offset='0' stop-color")
@@ -284,10 +284,14 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
                 $icon = $icon.Replace("class='fxs-portal-svg'", "")
                 $icon = $icon.Replace("class=""fxs-portal-svg""", "")
 
-                # remove unnecessary properties/tags and switch opacity to fill-opacity (ffimg bug)
+                # Remove unnecessary properties/tags and switch opacity to fill-opacity (ffimg bug)
                 $icon = ($icon.Replace(" opacity=", " fill-opacity=") -replace ' xmlns:svg=', ' xmlns=' -replace " (focusable|role|xmlns:[^=]+)='[^']+'", "") -replace "<title>[^<]*</title>", ""
 
-                # save SVG to file
+                # Replace clip paths that change often
+                $icon = $icon -replace ' clip-path=''url\(#([^\)]+)', " clip-path='url(#$resourceType"
+                $icon = $icon -replace '<clipPath id=''([^'']+)', "<clipPath id='$resourceType"
+
+                # Save SVG to file
                 $resourceTypeParent = $resourceType -split '/'
                 $resourceTypeParent = $resourceTypeParent[0..($resourceTypeParent.Length - 2)] -join '/'
                 & $PSScriptRoot/New-Directory "$svgDir/$resourceTypeParent"
@@ -323,8 +327,8 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
             logOverrides $override.originalLowerSingular $override.lowerSingular $asset.lowerSingularDisplayName 'lower singular display name'
             logOverrides $override.originalLowerPlural   $override.lowerPlural   $asset.lowerPluralDisplayName   'lower plural display name'
             
-            [array]$links = $asset.links | Select-Object -Property title, @{Name = 'uri'; Expression = {$_.uri.Replace('/en-us/', '/')}}
-            $typeInfo = [ordered]@{
+            [array]$links = $asset.links | Select-Object -Property title, @{Name = 'uri'; Expression = { $_.uri.Replace('/en-us/', '/') } }
+            $typeInfo = [PSCustomObject]@{
                 resourceType             = $resourceType
                 singularDisplayName      = noPreview ($override.singular ?? $asset.singularDisplayName)
                 pluralDisplayName        = noPreview ($override.plural ?? $asset.pluralDisplayName)
@@ -342,25 +346,8 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
                 Write-Warning "Missing display name for $($resourceType): $($typeInfo | ConvertTo-Json -Depth 10)"
             }
 
-            # PowerShell isn't respecting wrapping the value in @(), so forcing it with string manipulation
-            function forceArray($val) { if ($val -and $val.Length -gt 0 -and $val[0] -ne '[') { return "[$val]" } else { return $val } }
-
             # Write output
-            return @{
-                type = $typeInfo.resourceType
-                csv  = [ordered]@{
-                    ResourceType             = $typeInfo.resourceType
-                    SingularDisplayName      = $typeInfo.singularDisplayName
-                    PluralDisplayName        = $typeInfo.pluralDisplayName
-                    LowerSingularDisplayName = $typeInfo.lowerSingularDisplayName
-                    LowerPluralDisplayName   = $typeInfo.lowerPluralDisplayName
-                    IsPreview                = $typeInfo.isPreview ? 'true' : 'false'
-                    Description              = $typeInfo.description ?? '' # Convert null to empty string for Export-Csv
-                    Icon                     = $typeInfo.icon
-                    Links                    = ($null -eq $typeInfo.links -or $typeInfo.links.Count -eq 0) ? '' : (forceArray ($typeInfo.links | ConvertTo-Json -Depth 2 -Compress))
-                }
-                json = $typeInfo
-            }
+            return $typeInfo
         }
 
         if ($asset.addOverrides)
@@ -375,7 +362,9 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
                 return processResourceType $_.type @{} $_
             }
         }
-        elseif ($asset.resourceType.resourceTypeName.StartsWith('private.') -or $asset.resourceType.resourceTypeName -eq 'providers.test')
+        elseif ($asset.resourceType.resourceTypeName.ToLower().StartsWith('private.') `
+                -or $asset.resourceType.resourceTypeName.ToLower().StartsWith('providers.test') `
+                -or $asset.resourceType.resourceTypeName.ToLower() -contains '/browse')
         {
             # Skip private and test resource types
             Write-Warning "Skipping $($asset.resourceType.resourceTypeName)..."
@@ -401,16 +390,52 @@ if (($Name -eq "ResourceTypes" -or $Name -eq "*") -and $Data)
 
             return processResourceType $resourceType $asset $override
         }
-    } | Sort-Object -Property type
-    $resourceTypes.csv | Export-Csv "$srcDir/ResourceTypes.csv" -UseQuotes Always -NoTypeInformation -Encoding utf8
-    $resourceTypes.json | ConvertTo-Json -Depth 10 | Out-File "$srcDir/ResourceTypes.json" -Encoding utf8
+    }
+    Write-Host "Found $($resourceTypes.Count) portal resource types"
 
-    # Write-Host 'To update resource types, download Metadata.json and Metadata.resjson from:'
-    # Write-Host "  $azureAppMetadataDir"
-    # Write-Host ''
-    # Write-Host 'After downloading, run: ' -NoNewline
-    # Write-Host './Build-OpenData' -ForegroundColor Cyan
-    # Write-Host ''
+    # Keep retired resource types for historical reporting
+    $uniqueTypes = $resourceTypes | Select-Object -ExpandProperty resourceType -Unique
+    $oldTypes = Get-Content "$srcDir/ResourceTypes.json" -Raw | ConvertFrom-Json -Depth 100
+    Write-Host "Found $($oldTypes.Count) published resource types"
+    $missingTypes = $oldTypes `
+    | Where-Object { $uniqueTypes -notcontains $_.resourceType } `
+    | ForEach-Object {
+        if (($_.PSObject.Properties | Select-Object -ExpandProperty Name) -contains "missingMetadata")
+        {
+            $_.missingMetadata = $true
+        }
+        else
+        {
+            $_ | Add-Member -MemberType NoteProperty -Name missingMetadata -Value $true
+        }
+        return $_
+    }
+    Write-Host "Adding $($missingTypes.Count) missing resource types..."
+    $resourceTypes += $missingTypes
+    
+    # Sort resource types
+    $resourceTypes = $resourceTypes | Sort-Object -Property resourceType
+
+    # PowerShell isn't respecting wrapping the value in @(), so forcing it with string manipulation
+    function forceArray($val) { if ($val -and $val.Length -gt 0 -and $val[0] -ne '[') { return "[$val]" } else { return $val } }
+
+    # Save files
+    $resourceTypes | ConvertTo-Json -Depth 10 | Out-File "$srcDir/ResourceTypes.json" -Encoding utf8    
+    $resourceTypes `
+    | ForEach-Object {
+        return [ordered]@{
+            ResourceType             = $_.resourceType
+            SingularDisplayName      = $_.singularDisplayName
+            PluralDisplayName        = $_.pluralDisplayName
+            LowerSingularDisplayName = $_.lowerSingularDisplayName
+            LowerPluralDisplayName   = $_.lowerPluralDisplayName
+            IsPreview                = $_.isPreview ? 'true' : 'false'
+            Description              = $_.description ?? '' # Convert null to empty string for Export-Csv
+            Icon                     = $_.icon
+            Links                    = ($null -eq $_.links -or $_.links.Count -eq 0) ? '' : (forceArray ($_.links | ConvertTo-Json -Depth 2 -Compress))
+        }
+    } `
+    | Export-Csv "$srcDir/ResourceTypes.csv" -UseQuotes Always -NoTypeInformation -Encoding utf8
 }
 
 # Generate PowerShell functions from data files

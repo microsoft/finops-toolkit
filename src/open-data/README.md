@@ -146,13 +146,13 @@ After updating the list of available original values, other columns must be manu
 ## 🗺️ Resource types
 
 <sup>
-    📅 Updated: Jun 1, 2024<br>
+    📅 Updated: Aug 24, 2024<br>
     ➡️ Source: Azure portal / Azure mobile app<br>
 </sup>
 
 <br>
 
-The [ResourceTypes.csv](./ResourceTypes.csv) file contains data from the Azure portal. The Build-OpenData script generates the fie without any additional work.
+The [ResourceTypes.csv](./ResourceTypes.csv) file contains data from the Azure portal. The Build-OpenData script generates the fie. After the file is generated, review the updates to ensure values are not removed.
 
 If you find a resource type is missing, add it to [ResourceTypes.Overrides.csv](./ResourceTypes.Overrides.json). The override file supports overriding names and icons.
 
