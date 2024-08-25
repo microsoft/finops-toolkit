@@ -1,0 +1,1058 @@
+{
+    "modules": [
+        {
+            "name": "Az.Accounts",
+            "url": "https://www.powershellgallery.com/api/v2/package/Az.Accounts/2.12.1"
+        },
+        {
+            "name": "Microsoft.Graph.Authentication",
+            "url": "https://www.powershellgallery.com/api/v2/package/Microsoft.Graph.Authentication/2.4.0"
+        },
+        {
+            "name": "Az.Compute",
+            "url": "https://www.powershellgallery.com/api/v2/package/Az.Compute/5.7.0"
+        },
+        {
+            "name": "Az.OperationalInsights",
+            "url": "https://www.powershellgallery.com/api/v2/package/Az.OperationalInsights/3.2.0"
+        },
+        {
+            "name": "Az.ResourceGraph",
+            "url": "https://www.powershellgallery.com/api/v2/package/Az.ResourceGraph/0.13.0"
+        },
+        {
+            "name": "Az.Storage",
+            "url": "https://www.powershellgallery.com/api/v2/package/Az.Storage/5.5.0"
+        },
+        {
+            "name": "Az.Resources",
+            "url": "https://www.powershellgallery.com/api/v2/package/Az.Resources/6.6.0"
+        },
+        {
+            "name": "Az.Monitor",
+            "url": "https://www.powershellgallery.com/api/v2/package/Az.Monitor/4.4.1"
+        },
+        {
+            "name": "Az.PolicyInsights",
+            "url": "https://www.powershellgallery.com/api/v2/package/Az.PolicyInsights/1.6.0"
+        },
+        {
+            "name": "Microsoft.Graph.Users",
+            "url": "https://www.powershellgallery.com/api/v2/package/Microsoft.Graph.Users/2.4.0"
+        },
+        {
+            "name": "Microsoft.Graph.Groups",
+            "url": "https://www.powershellgallery.com/api/v2/package/Microsoft.Graph.Groups/2.4.0"
+        },
+        {
+            "name": "Microsoft.Graph.Applications",
+            "url": "https://www.powershellgallery.com/api/v2/package/Microsoft.Graph.Applications/2.4.0"
+        },
+        {
+            "name": "Microsoft.Graph.Identity.DirectoryManagement",
+            "url": "https://www.powershellgallery.com/api/v2/package/Microsoft.Graph.Identity.DirectoryManagement/2.4.0"
+        }
+    ],
+    "schedules": [
+        {
+            "name": "AzureOptimization_ExportAADObjectsDaily",
+            "offset": "PT1H",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_IngestAADObjectsDaily",
+            "offset": "PT2H",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_ExportAdvisorWeekly",
+            "offset": "PT1H15M",
+            "frequency": "Week"
+        },
+        {
+            "name": "AzureOptimization_IngestAdvisorWeekly",
+            "offset": "PT1H45M",
+            "frequency": "Week"
+        },
+        {
+            "name": "AzureOptimization_ExportARGDaily",
+            "offset": "PT1H05M",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_ExportPolicyStateDaily",
+            "offset": "PT1H",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_IngestARGAppGWsDaily",
+            "offset": "PT1H30M",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_IngestARGAvailSetsDaily",
+            "offset": "PT1H30M",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_IngestARGLoadBalancersDaily",
+            "offset": "PT1H30M",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_IngestARGDisksDaily",
+            "offset": "PT1H30M",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_IngestARGPublicIPsDaily",
+            "offset": "PT1H31M",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_IngestARGNICsDaily",
+            "offset": "PT1H31M",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_IngestARGNSGsDaily",
+            "offset": "PT1H31M",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_IngestARGVNetsDaily",
+            "offset": "PT1H31M",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_IngestARGVHDsDaily",
+            "offset": "PT1H32M",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_IngestARGVMsDaily",
+            "offset": "PT1H32M",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_IngestARGVMSSDaily",
+            "offset": "PT1H32M",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_IngestARGSqlDbDaily",
+            "offset": "PT1H32M",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_IngestARGAppServicePlanDaily",
+            "offset": "PT1H33M",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_IngestPolicyStateDaily",
+            "offset": "PT1H33M",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_IngestARGResourceContainersDaily",
+            "offset": "PT1H33M",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_ExportConsumptionDaily",
+            "offset": "PT1H",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_IngestConsumptionDaily",
+            "offset": "PT2H",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_ExportRBACDaily",
+            "offset": "PT1H02M",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_IngestRBACDaily",
+            "offset": "PT2H02M",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_RecommendationsWeekly",
+            "offset": "PT2H30M",
+            "frequency": "Week"
+        },
+        {
+            "name": "AzureOptimization_IngestRecommendationsWeekly",
+            "offset": "PT3H30M",
+            "frequency": "Week"
+        },
+        {
+            "name": "AzureOptimization_IngestSuppressionsWeekly",
+            "offset": "PT3H00M",
+            "frequency": "Week"
+        },
+        {
+            "name": "AzureOptimization_IngestRemediationLogsDaily",
+            "offset": "PT1H35M",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_ExportMonitorVmssCpuMaxHourly",
+            "offset": "PT1H15M",
+            "frequency": "Hour"
+        },
+        {
+            "name": "AzureOptimization_ExportMonitorVmssCpuAvgHourly",
+            "offset": "PT1H15M",
+            "frequency": "Hour"
+        },
+        {
+            "name": "AzureOptimization_ExportMonitorVmssMemoryMinHourly",
+            "offset": "PT1H15M",
+            "frequency": "Hour"
+        },
+        {
+            "name": "AzureOptimization_ExportMonitorSqlDbDtuMaxHourly",
+            "offset": "PT1H15M",
+            "frequency": "Hour"
+        },
+        {
+            "name": "AzureOptimization_ExportMonitorSqlDbDtuAvgHourly",
+            "offset": "PT1H16M",
+            "frequency": "Hour"
+        },
+        {
+            "name": "AzureOptimization_ExportMonitorAppServiceCpuMaxHourly",
+            "offset": "PT1H16M",
+            "frequency": "Hour"
+        },
+        {
+            "name": "AzureOptimization_ExportMonitorAppServiceCpuAvgHourly",
+            "offset": "PT1H16M",
+            "frequency": "Hour"
+        },
+        {
+            "name": "AzureOptimization_ExportMonitorAppServiceMemoryMaxHourly",
+            "offset": "PT1H16M",
+            "frequency": "Hour"
+        },
+        {
+            "name": "AzureOptimization_ExportMonitorAppServiceMemoryAvgHourly",
+            "offset": "PT1H17M",
+            "frequency": "Hour"
+        },
+        {
+            "name": "AzureOptimization_ExportMonitorDiskIOPSHourly",
+            "offset": "PT1H17M",
+            "frequency": "Hour"
+        },
+        {
+            "name": "AzureOptimization_ExportMonitorDiskMBPsHourly",
+            "offset": "PT1H17M",
+            "frequency": "Hour"
+        },
+        {
+            "name": "AzureOptimization_IngestAzMonitorMetricsHourly",
+            "offset": "PT2H",
+            "frequency": "Hour"
+        },
+        {
+            "name": "AzureOptimization_CleanUpRecommendationsWeekly",
+            "offset": "P6D",
+            "frequency": "Week"
+        },
+        {
+            "name": "AzureOptimization_ExportPricesWeekly",
+            "offset": "PT1H35M",
+            "frequency": "Week"
+        },
+        {
+            "name": "AzureOptimization_IngestPricesheetWeekly",
+            "offset": "PT2H10M",
+            "frequency": "Week"
+        },
+        {
+            "name": "AzureOptimization_IngestReservationsPriceWeekly",
+            "offset": "PT2H10M",
+            "frequency": "Week"
+        },
+        {
+            "name": "AzureOptimization_ExportReservationsDaily",
+            "offset": "PT2H",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_ExportSavingsPlansDaily",
+            "offset": "PT2H05M",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_IngestReservationsUsageDaily",
+            "offset": "PT2H30M",
+            "frequency": "Day"
+        },
+        {
+            "name": "AzureOptimization_IngestSavingsPlansUsageDaily",
+            "offset": "PT2H35M",
+            "frequency": "Day"
+        }
+    ],
+    "baseIngest": [
+        {
+            "runbook": {
+                "name": "runbooks/data-collection/Ingest-OptimizationCSVExportsToLogAnalytics.ps1",
+                "version": "1.6.0.0"
+            },
+            "source": "dataCollection"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/recommendations/Ingest-RecommendationsToSQLServer.ps1",
+                "version": "1.7.0.0"
+            },
+            "source": "recommendations",
+            "schedule": "AzureOptimization_IngestRecommendationsWeekly"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/recommendations/Ingest-RecommendationsToLogAnalytics.ps1",
+                "version": "1.1.0.0"
+            },
+            "source": "recommendations",
+            "schedule": "AzureOptimization_IngestRecommendationsWeekly"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/recommendations/Ingest-SuppressionsToLogAnalytics.ps1",
+                "version": "1.1.0.0"
+            },
+            "source": "recommendations",
+            "schedule": "AzureOptimization_IngestSuppressionsWeekly"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/maintenance/CleanUp-OlderRecommendationsFromSqlServer.ps1",
+                "version": "1.1.0.0"
+            },
+            "source": "maintenance",
+            "schedule": "AzureOptimization_CleanUpRecommendationsWeekly"
+        }
+    ],
+    "dataCollection": [
+        {
+            "runbook": {
+                "name": "runbooks/data-collection/Export-AADObjectsToBlobStorage.ps1",
+                "version": "1.3.0.0"
+            },
+            "container": "aadobjectsexports",
+            "requiredVariables": [
+            ],
+            "exportSchedule": "AzureOptimization_ExportAADObjectsDaily",
+            "ingestSchedule": "AzureOptimization_IngestAADObjectsDaily"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/data-collection/Export-ARGAppGatewayPropertiesToBlobStorage.ps1",
+                "version": "1.1.4.1"
+            },
+            "container": "argappgwexports",
+            "requiredVariables": [
+            ],
+            "exportSchedule": "AzureOptimization_ExportARGDaily",
+            "ingestSchedule": "AzureOptimization_IngestARGAppGWsDaily"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/data-collection/Export-ARGAvailabilitySetPropertiesToBlobStorage.ps1",
+                "version": "1.1.4.1"
+            },
+            "container": "argavailsetexports",
+            "requiredVariables": [
+            ],
+            "exportSchedule": "AzureOptimization_ExportARGDaily",
+            "ingestSchedule": "AzureOptimization_IngestARGAvailSetsDaily"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/data-collection/Export-ARGLoadBalancerPropertiesToBlobStorage.ps1",
+                "version": "1.1.4.1"
+            },
+            "container": "arglbexports",
+            "requiredVariables": [
+            ],
+            "exportSchedule": "AzureOptimization_ExportARGDaily",
+            "ingestSchedule": "AzureOptimization_IngestARGLoadBalancersDaily"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/data-collection/Export-ARGManagedDisksPropertiesToBlobStorage.ps1",
+                "version": "1.3.4.1"
+            },
+            "container": "argdiskexports",
+            "requiredVariables": [
+            ],
+            "exportSchedule": "AzureOptimization_ExportARGDaily",
+            "ingestSchedule": "AzureOptimization_IngestARGDisksDaily"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/data-collection/Export-ARGNICPropertiesToBlobStorage.ps1",
+                "version": "1.0.2.1"
+            },
+            "container": "argnicexports",
+            "requiredVariables": [
+            ],
+            "exportSchedule": "AzureOptimization_ExportARGDaily",
+            "ingestSchedule": "AzureOptimization_IngestARGNICsDaily"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/data-collection/Export-ARGNSGPropertiesToBlobStorage.ps1",
+                "version": "1.0.2.1"
+            },
+            "container": "argnsgexports",
+            "requiredVariables": [
+            ],
+            "exportSchedule": "AzureOptimization_ExportARGDaily",
+            "ingestSchedule": "AzureOptimization_IngestARGNSGsDaily"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/data-collection/Export-ARGPublicIpPropertiesToBlobStorage.ps1",
+                "version": "1.0.2.1"
+            },
+            "container": "argpublicipexports",
+            "requiredVariables": [
+            ],
+            "exportSchedule": "AzureOptimization_ExportARGDaily",
+            "ingestSchedule": "AzureOptimization_IngestARGPublicIPsDaily"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/data-collection/Export-ARGResourceContainersPropertiesToBlobStorage.ps1",
+                "version": "1.0.5.1"
+            },
+            "container": "argrescontainersexports",
+            "requiredVariables": [
+            ],
+            "exportSchedule": "AzureOptimization_ExportARGDaily",
+            "ingestSchedule": "AzureOptimization_IngestARGResourceContainersDaily"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/data-collection/Export-ARGUnmanagedDisksPropertiesToBlobStorage.ps1",
+                "version": "1.1.4.1"
+            },
+            "container": "argvhdexports",
+            "requiredVariables": [
+            ],
+            "exportSchedule": "AzureOptimization_ExportARGDaily",
+            "ingestSchedule": "AzureOptimization_IngestARGVHDsDaily"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/data-collection/Export-ARGVNetPropertiesToBlobStorage.ps1",
+                "version": "1.0.2.1"
+            },
+            "container": "argvnetexports",
+            "requiredVariables": [
+            ],
+            "exportSchedule": "AzureOptimization_ExportARGDaily",
+            "ingestSchedule": "AzureOptimization_IngestARGVNetsDaily"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/data-collection/Export-ARGVirtualMachinesPropertiesToBlobStorage.ps1",
+                "version": "1.4.4.1"
+            },
+            "container": "argvmexports",
+            "requiredVariables": [
+            ],
+            "exportSchedule": "AzureOptimization_ExportARGDaily",
+            "ingestSchedule": "AzureOptimization_IngestARGVMsDaily"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/data-collection/Export-ARGVMSSPropertiesToBlobStorage.ps1",
+                "version": "1.0.2.1"
+            },
+            "container": "argvmssexports",
+            "requiredVariables": [
+            ],
+            "exportSchedule": "AzureOptimization_ExportARGDaily",
+            "ingestSchedule": "AzureOptimization_IngestARGVMSSDaily"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/data-collection/Export-ARGSqlDatabasePropertiesToBlobStorage.ps1",
+                "version": "1.0.2.1"
+            },
+            "container": "argsqldbexports",
+            "requiredVariables": [
+            ],
+            "exportSchedule": "AzureOptimization_ExportARGDaily",
+            "ingestSchedule": "AzureOptimization_IngestARGSqlDbDaily"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/data-collection/Export-ARGAppServicePlanPropertiesToBlobStorage.ps1",
+                "version": "1.0.1.1"
+            },
+            "container": "argappserviceplanexports",
+            "requiredVariables": [
+            ],
+            "exportSchedule": "AzureOptimization_ExportARGDaily",
+            "ingestSchedule": "AzureOptimization_IngestARGAppServicePlanDaily"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/data-collection/Export-AdvisorRecommendationsToBlobStorage.ps1",
+                "version": "1.4.2.1"
+            },
+            "container": "advisorexports",
+            "requiredVariables": [
+            ],
+            "exportSchedule": "AzureOptimization_ExportAdvisorWeekly",
+            "ingestSchedule": "AzureOptimization_IngestAdvisorWeekly"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/data-collection/Export-ConsumptionToBlobStorage.ps1",
+                "version": "2.1.0.0"
+            },
+            "container": "consumptionexports",
+            "requiredVariables": [
+            ],
+            "exportSchedule": "AzureOptimization_ExportConsumptionDaily",
+            "ingestSchedule": "AzureOptimization_IngestConsumptionDaily"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/data-collection/Export-RBACAssignmentsToBlobStorage.ps1",
+                "version": "1.1.0.0"
+            },
+            "container": "rbacexports",
+            "requiredVariables": [
+            ],
+            "exportSchedule": "AzureOptimization_ExportRBACDaily",
+            "ingestSchedule": "AzureOptimization_IngestRBACDaily"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/data-collection/Export-PolicyComplianceToBlobStorage.ps1",
+                "version": "1.0.3.1"
+            },
+            "container": "policystateexports",
+            "requiredVariables": [
+            ],
+            "exportSchedule": "AzureOptimization_ExportPolicyStateDaily",
+            "ingestSchedule": "AzureOptimization_IngestPolicyStateDaily"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/data-collection/Export-AzMonitorMetricsToBlobStorage.ps1",
+                "version": "1.0.2.1"
+            },
+            "container": "azmonitorexports",
+            "requiredVariables": [
+            ],
+            "exportSchedules": [
+                {
+                    "schedule": "AzureOptimization_ExportMonitorVmssCpuMaxHourly",
+                    "parameters": {
+                        "ResourceType": "microsoft.compute/virtualmachinescalesets",
+                        "TimeSpan": "01:00:00",
+                        "aggregationType": "Maximum",
+                        "MetricNames": "Percentage CPU",
+                        "TimeGrain": "01:00:00"
+                    }
+                },
+                {
+                    "schedule": "AzureOptimization_ExportMonitorVmssCpuAvgHourly",
+                    "parameters": {
+                        "ResourceType": "microsoft.compute/virtualmachinescalesets",
+                        "TimeSpan": "01:00:00",
+                        "aggregationType": "Average",
+                        "MetricNames": "Percentage CPU",
+                        "TimeGrain": "01:00:00"
+                    }
+                },
+                {
+                    "schedule": "AzureOptimization_ExportMonitorVmssMemoryMinHourly",
+                    "parameters": {
+                        "ResourceType": "microsoft.compute/virtualmachinescalesets",
+                        "TimeSpan": "01:00:00",
+                        "aggregationType": "Minimum",
+                        "MetricNames": "Available Memory Bytes",
+                        "TimeGrain": "01:00:00"
+                    }
+                },
+                {
+                    "schedule": "AzureOptimization_ExportMonitorSqlDbDtuMaxHourly",
+                    "parameters": {
+                        "ResourceType": "microsoft.sql/servers/databases",
+                        "ARGFilter": "sku.tier in ('Standard','Premium')",
+                        "TimeSpan": "01:00:00",
+                        "aggregationType": "Maximum",
+                        "MetricNames": "dtu_consumption_percent",
+                        "TimeGrain": "01:00:00"
+                    }
+                },
+                {
+                    "schedule": "AzureOptimization_ExportMonitorSqlDbDtuAvgHourly",
+                    "parameters": {
+                        "ResourceType": "microsoft.sql/servers/databases",
+                        "ARGFilter": "sku.tier in ('Standard','Premium')",
+                        "TimeSpan": "01:00:00",
+                        "AggregationOfType": "Maximum",
+                        "aggregationType": "Average",
+                        "MetricNames": "dtu_consumption_percent",
+                        "TimeGrain": "00:01:00"
+                    }
+                },
+                {
+                    "schedule": "AzureOptimization_ExportMonitorAppServiceCpuMaxHourly",
+                    "parameters": {
+                        "ResourceType": "microsoft.web/serverfarms",
+                        "ARGFilter": "properties.computeMode == 'Dedicated' and sku.tier != 'Free'",
+                        "TimeSpan": "01:00:00",
+                        "aggregationType": "Maximum",
+                        "MetricNames": "CpuPercentage",
+                        "TimeGrain": "01:00:00"
+                    }
+                },
+                {
+                    "schedule": "AzureOptimization_ExportMonitorAppServiceCpuAvgHourly",
+                    "parameters": {
+                        "ResourceType": "microsoft.web/serverfarms",
+                        "ARGFilter": "properties.computeMode == 'Dedicated' and sku.tier != 'Free'",
+                        "TimeSpan": "01:00:00",
+                        "aggregationType": "Average",
+                        "AggregationOfType": "Maximum",
+                        "MetricNames": "CpuPercentage",
+                        "TimeGrain": "00:01:00"
+                    }
+                },
+                {
+                    "schedule": "AzureOptimization_ExportMonitorAppServiceMemoryMaxHourly",
+                    "parameters": {
+                        "ResourceType": "microsoft.web/serverfarms",
+                        "ARGFilter": "properties.computeMode == 'Dedicated' and sku.tier != 'Free'",
+                        "TimeSpan": "01:00:00",
+                        "aggregationType": "Maximum",
+                        "MetricNames": "MemoryPercentage",
+                        "TimeGrain": "01:00:00"
+                    }
+                },
+                {
+                    "schedule": "AzureOptimization_ExportMonitorAppServiceMemoryAvgHourly",
+                    "parameters": {
+                        "ResourceType": "microsoft.web/serverfarms",
+                        "ARGFilter": "properties.computeMode == 'Dedicated' and sku.tier != 'Free'",
+                        "TimeSpan": "01:00:00",
+                        "aggregationType": "Average",
+                        "AggregationOfType": "Maximum",
+                        "MetricNames": "MemoryPercentage",
+                        "TimeGrain": "00:01:00"
+                    }
+                },
+                {
+                    "schedule": "AzureOptimization_ExportMonitorDiskIOPSHourly",
+                    "parameters": {
+                        "ResourceType": "microsoft.compute/disks",
+                        "ARGFilter": "sku.name startswith 'Premium_' and properties.diskState =~ 'Attached'",
+                        "TimeSpan": "01:00:00",
+                        "aggregationType": "Average",
+                        "AggregationOfType": "Maximum",
+                        "MetricNames": "Composite Disk Read Operations/sec,Composite Disk Write Operations/sec",
+                        "TimeGrain": "00:01:00"
+                    }
+                },
+                {
+                    "schedule": "AzureOptimization_ExportMonitorDiskMBPsHourly",
+                    "parameters": {
+                        "ResourceType": "microsoft.compute/disks",
+                        "ARGFilter": "sku.name startswith 'Premium_' and properties.diskState =~ 'Attached'",
+                        "TimeSpan": "01:00:00",
+                        "aggregationType": "Average",
+                        "AggregationOfType": "Maximum",
+                        "MetricNames": "Composite Disk Read Bytes/sec,Composite Disk Write Bytes/sec",
+                        "TimeGrain": "00:01:00"
+                    }
+                }
+            ],
+            "ingestSchedule": "AzureOptimization_IngestAzMonitorMetricsHourly"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/data-collection/Export-PriceSheetToBlobStorage.ps1",
+                "version": "1.1.1.1"
+            },
+            "container": "pricesheetexports",
+            "requiredVariables": [
+                {
+                    "name": "AzureOptimization_PriceSheetMeterCategories",
+                    "defaultValue": "Virtual Machines,Storage"
+                }
+            ],
+            "exportSchedule": "AzureOptimization_ExportPricesWeekly",
+            "ingestSchedule": "AzureOptimization_IngestPricesheetWeekly"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/data-collection/Export-ReservationsPriceToBlobStorage.ps1",
+                "version": "1.0.1.1"
+            },
+            "container": "reservationspriceexports",
+            "requiredVariables": [
+                {
+                    "name": "AzureOptimization_RetailPricesCurrencyCode",
+                    "defaultValue": "EUR"
+                }
+            ],
+            "exportSchedule": "AzureOptimization_ExportPricesWeekly",
+            "ingestSchedule": "AzureOptimization_IngestReservationsPriceWeekly"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/data-collection/Export-ReservationsUsageToBlobStorage.ps1",
+                "version": "1.1.2.1"
+            },
+            "container": "reservationsexports",
+            "requiredVariables": [
+            ],
+            "exportSchedule": "AzureOptimization_ExportReservationsDaily",
+            "ingestSchedule": "AzureOptimization_IngestReservationsUsageDaily"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/data-collection/Export-SavingsPlansUsageToBlobStorage.ps1",
+                "version": "1.0.0.0"
+            },
+            "container": "savingsplansexports",
+            "requiredVariables": [
+            ],
+            "exportSchedule": "AzureOptimization_ExportSavingsPlansDaily",
+            "ingestSchedule": "AzureOptimization_IngestSavingsPlansUsageDaily"
+        }
+    ],
+    "recommendations": [
+        {
+            "runbook": {
+                "name": "runbooks/recommendations/Recommend-AADExpiringCredentialsToBlobStorage.ps1",
+                "version": "1.2.0.0"
+            },
+            "requiredVariables": [
+                {
+                    "name": "AzureOptimization_RecommendationAADMinCredValidityDays",
+                    "defaultValue": 30
+                },
+                {
+                    "name": "AzureOptimization_RecommendationAADMaxCredValidityYears",
+                    "defaultValue": 2
+                }
+            ],
+            "exportSchedule": "AzureOptimization_RecommendationsWeekly"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/recommendations/Recommend-AdvisorAsIsToBlobStorage.ps1",
+                "version": "1.6.0.0"
+            },
+            "requiredVariables": [
+            ],
+            "exportSchedule": "AzureOptimization_RecommendationsWeekly"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/recommendations/Recommend-AdvisorCostAugmentedToBlobStorage.ps1",
+                "version": "2.10.0.0"
+            },
+            "requiredVariables": [
+                {
+                    "name": "AzureOptimization_ConsumptionOffsetDays",
+                    "defaultValue": 3
+                }
+            ],
+            "exportSchedule": "AzureOptimization_RecommendationsWeekly"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/recommendations/Recommend-VMOptimizationsToBlobStorage.ps1",
+                "version": "1.1.0.0"
+            },
+            "requiredVariables": [
+                {
+                    "name": "AzureOptimization_RecommendationLongDeallocatedVmsIntervalDays",
+                    "defaultValue": 30
+                },
+                {
+                    "name": "AzureOptimization_ConsumptionOffsetDays",
+                    "defaultValue": 3
+                }
+            ],
+            "exportSchedule": "AzureOptimization_RecommendationsWeekly"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/recommendations/Recommend-UnattachedDisksToBlobStorage.ps1",
+                "version": "2.5.0.0"
+            },
+            "requiredVariables": [
+                {
+                    "name": "AzureOptimization_ConsumptionOffsetDays",
+                    "defaultValue": 3
+                }
+            ],
+            "exportSchedule": "AzureOptimization_RecommendationsWeekly"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/recommendations/Recommend-UnusedAppGWsToBlobStorage.ps1",
+                "version": "1.3.0.0"
+            },
+            "requiredVariables": [
+                {
+                    "name": "AzureOptimization_ConsumptionOffsetDays",
+                    "defaultValue": 3
+                }
+            ],
+            "exportSchedule": "AzureOptimization_RecommendationsWeekly"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/recommendations/Recommend-UnusedLoadBalancersToBlobStorage.ps1",
+                "version": "1.3.0.0"
+            },
+            "requiredVariables": [
+                {
+                    "name": "AzureOptimization_ConsumptionOffsetDays",
+                    "defaultValue": 3
+                }
+            ],
+            "exportSchedule": "AzureOptimization_RecommendationsWeekly"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/recommendations/Recommend-VMsHighAvailabilityToBlobStorage.ps1",
+                "version": "1.1.0.0"
+            },
+            "requiredVariables": [
+            ],
+            "exportSchedule": "AzureOptimization_RecommendationsWeekly"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/recommendations/Recommend-ARMOptimizationsToBlobStorage.ps1",
+                "version": "1.1.0.0"
+            },
+            "requiredVariables": [
+                {
+                    "name": "AzureOptimization_RecommendationRBACAssignmentsPercentageThreshold",
+                    "defaultValue": 80
+                },
+                {
+                    "name": "AzureOptimization_RecommendationResourceGroupsPerSubPercentageThreshold",
+                    "defaultValue": 80
+                }
+            ],
+            "exportSchedule": "AzureOptimization_RecommendationsWeekly"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/recommendations/Recommend-VNetOptimizationsToBlobStorage.ps1",
+                "version": "1.1.0.0"
+            },
+            "requiredVariables": [
+                {
+                    "name": "AzureOptimization_RecommendationVNetSubnetMaxUsedPercentageThreshold",
+                    "defaultValue": 80
+                },
+                {
+                    "name": "AzureOptimization_RecommendationVNetSubnetMinUsedPercentageThreshold",
+                    "defaultValue": 5
+                },
+                {
+                    "name": "AzureOptimization_RecommendationVNetSubnetEmptyMinAgeInDays",
+                    "defaultValue": 30
+                }
+            ],
+            "exportSchedule": "AzureOptimization_RecommendationsWeekly"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/recommendations/Recommend-VMSSOptimizationsToBlobStorage.ps1",
+                "version": "1.2.0.0"
+            },
+            "requiredVariables": [
+                {
+                    "name": "AzureOptimization_PerfThresholdCpuDegradedMaxPercentage",
+                    "defaultValue": 95
+                },
+                {
+                    "name": "AzureOptimization_PerfThresholdCpuDegradedAvgPercentage",
+                    "defaultValue": 75
+                },
+                {
+                    "name": "AzureOptimization_PerfThresholdMemoryDegradedPercentage",
+                    "defaultValue": 90
+                }
+            ],
+            "exportSchedule": "AzureOptimization_RecommendationsWeekly"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/recommendations/Recommend-SqlDbOptimizationsToBlobStorage.ps1",
+                "version": "1.2.0.0"
+            },
+            "requiredVariables": [
+                {
+                    "name": "AzureOptimization_PerfPercentileSqlDtu",
+                    "defaultValue": 99
+                },
+                {
+                    "name": "AzureOptimization_PerfThresholdDtuPercentage",
+                    "defaultValue": 40
+                },
+                {
+                    "name": "AzureOptimization_PerfThresholdDtuDegradedPercentage",
+                    "defaultValue": 75
+                }
+            ],
+            "exportSchedule": "AzureOptimization_RecommendationsWeekly"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/recommendations/Recommend-StorageAccountOptimizationsToBlobStorage.ps1",
+                "version": "1.1.0.0"
+            },
+            "requiredVariables": [
+                {
+                    "name": "AzureOptimization_RecommendationStorageAcountGrowthThresholdPercentage",
+                    "defaultValue": 5
+                },
+                {
+                    "name": "AzureOptimization_RecommendationStorageAcountGrowthMonthlyCostThreshold",
+                    "defaultValue": 50
+                },
+                {
+                    "name": "AzureOptimization_RecommendationStorageAcountGrowthLookbackDays",
+                    "defaultValue": 30
+                }
+            ],
+            "exportSchedule": "AzureOptimization_RecommendationsWeekly"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/recommendations/Recommend-AppServiceOptimizationsToBlobStorage.ps1",
+                "version": "1.1.0.0"
+            },
+            "requiredVariables": [
+                {
+                    "name": "AzureOptimization_PerfThresholdCpuDegradedMaxPercentage",
+                    "defaultValue": 95
+                },
+                {
+                    "name": "AzureOptimization_PerfThresholdCpuDegradedAvgPercentage",
+                    "defaultValue": 75
+                },
+                {
+                    "name": "AzureOptimization_PerfThresholdMemoryDegradedPercentage",
+                    "defaultValue": 90
+                }
+            ],
+            "exportSchedule": "AzureOptimization_RecommendationsWeekly"
+        },
+        {
+            "runbook": {
+                "name": "runbooks/recommendations/Recommend-DiskOptimizationsToBlobStorage.ps1",
+                "version": "1.2.0.0"
+            },
+            "requiredVariables": [
+                {
+                    "name": "AzureOptimization_PerfThresholdDiskIOPSPercentage",
+                    "defaultValue": 5
+                },
+                {
+                    "name": "AzureOptimization_PerfThresholdDiskMBsPercentage",
+                    "defaultValue": 5
+                }
+            ],
+            "exportSchedule": "AzureOptimization_RecommendationsWeekly"
+        }
+    ],
+    "remediations": [
+        {
+            "runbook": {
+                "name": "runbooks/remediations/Remediate-AdvisorRightSizeFiltered.ps1",
+                "version": "1.3.0.0"
+            },
+            "requiredVariables": [
+                {
+                    "name": "AzureOptimization_RemediateRightSizeMinFitScore",
+                    "defaultValue": 5.0
+                },
+                {
+                    "name": "AzureOptimization_RemediateRightSizeMinWeeksInARow",
+                    "defaultValue": 4
+                }
+            ]
+        },
+        {
+            "runbook": {
+                "name": "runbooks/remediations/Remediate-LongDeallocatedVMsFiltered.ps1",
+                "version": "1.1.0.0"
+            },
+            "requiredVariables": [
+                {
+                    "name": "AzureOptimization_RemediateLongDeallocatedVMsMinFitScore",
+                    "defaultValue": 5.0
+                },
+                {
+                    "name": "AzureOptimization_RemediateLongDeallocatedVMsMinWeeksInARow",
+                    "defaultValue": 4
+                }
+            ]
+        },
+        {
+            "runbook": {
+                "name": "runbooks/remediations/Remediate-UnattachedDisksFiltered.ps1",
+                "version": "1.1.0.0"
+            },
+            "requiredVariables": [
+                {
+                    "name": "AzureOptimization_RemediateUnattachedDisksMinFitScore",
+                    "defaultValue": 5.0
+                },
+                {
+                    "name": "AzureOptimization_RemediateUnattachedDisksMinWeeksInARow",
+                    "defaultValue": 4
+                },
+                {
+                    "name": "AzureOptimization_RemediateUnattachedDisksAction",
+                    "defaultValue": "Delete"
+                }
+            ]
+        }
+    ],
+    "deprecatedRunbooks": [
+        "Recommend-AvailSetsWithLowFaultDomainCountToBlobStorage",
+        "Recommend-AvailSetsWithLowUpdateDomainCountToBlobStorage",
+        "Recommend-AvailSetsWithVMsSharingStorageAccountsToBlobStorage",
+        "Recommend-StorageAccountsWithMultipleVMsToBlobStorage",
+        "Recommend-VMsNoAvailSetToBlobStorage",
+        "Recommend-VMsSingleInAvailSetToBlobStorage",
+        "Recommend-VMsWithDisksMultipleStorageAccountsToBlobStorage",
+        "Recommend-VMsWithUnmanagedDisksToBlobStorage",
+        "Recommend-LongDeallocatedVmsToBlobStorage"
+    ],
+    "overwriteVariables": [
+        {
+            "name": "AzureOptimization_LogAnalyticsChunkSize",
+            "value": 6000
+        }
+    ]
+}

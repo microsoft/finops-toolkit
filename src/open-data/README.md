@@ -14,7 +14,7 @@ On this page:
 ## 📏 Pricing units
 
 <sup>
-    📅 Updated: Jun 1, 2024<br>
+    📅 Updated: Aug 22, 2024<br>
     ➡️ Source: Cost Management team<br>
 </sup>
 
@@ -60,6 +60,7 @@ Meters
 | extend DistinctUnits = replace_regex(DistinctUnits, @'^Gb( ?/ ?Month)?$', @'GB\1')
 //
 // Clean up units per period
+| extend DistinctUnits = iff(DistinctUnits matches regex '^[a-z]', strcat(toupper(substring(DistinctUnits, 0, 1)), substring(DistinctUnits, 1)), DistinctUnits)  // Capitalize first word
 | extend DistinctUnits = replace_string(DistinctUnits, ' / ', '/')  // Don't space out the slash
 | extend DistinctUnits = replace_regex(DistinctUnits, @'(App|Border|Call|Certificate|Connection|Day|Device|Domain|Hour|Key|Machine|Meter|Minute|Month|Node|Pack|Pipeline|Plan|Request|Resource|Second|Subscription|Unit|User|Website|Zone)(/.*)?$', @'\1s\2') // Always plural before slash
 | extend DistinctUnits = replace_regex(DistinctUnits, @'/(Second|Minute|Hour|Day|Month)s$', @'/\1') // Always singular after slash
@@ -68,10 +69,11 @@ Meters
 | extend DistinctUnits = case(
     UnitOfMeasure == '10000s' and DistinctUnits == 'S', 'Transactions',
     DistinctUnits == '1,000s', 'Transactions in Thousands',
-    DistinctUnits in ('API Calls', 'print job'), 'Requests',
+    DistinctUnits in ('API Calls', 'Print job'), 'Requests',
     DistinctUnits == 'Concurrent DVC', 'Configurations',
     DistinctUnits == 'CallingMinutes', 'Minutes',
     DistinctUnits == 'Key Use', 'Keys',
+    DistinctUnits == 'Text', 'Messages',
     DistinctUnits == 'Unassigned', 'Units',
     DistinctUnits == 'VM', 'Virtual Machines',
     DistinctUnits in ('MAUS', 'MAUs'), 'Users/Month',
@@ -81,7 +83,6 @@ Meters
 // Prefix cleanup
 | extend DistinctUnits = replace_regex(DistinctUnits, @'^1 ', '')  // Remove duplicate quantity
 | extend DistinctUnits = replace_regex(DistinctUnits, @'^[\s\pZ\pC]+', '')  // Remove leading spaces
-| extend DistinctUnits = iff(DistinctUnits matches regex '^[a-z]', strcat(toupper(substring(DistinctUnits, 0, 1)), substring(DistinctUnits, 1)), DistinctUnits)  // Capitalize first word
 | extend DistinctUnits = replace_regex(DistinctUnits, @'^(Per|Por) ', '')  // Remove starting "per"
 | extend DistinctUnits = replace_regex(DistinctUnits, @'^(Activity|Border|Content|Core|Database|Hosted|Instance|Messaging|Named|Operation|Privacy Subject Rights|Relay|Reserved|Service|Virtual User) ', '')  // Trim extra adjectives
 //
@@ -91,8 +92,6 @@ Meters
 | extend DistinctUnits = replace_regex(DistinctUnits, @'\(s\)$', 's')  // Always plural
 //
 | order by UnitOfMeasure asc
-// Write as a single column with quotes to maintain spaces for easy copy/paste to CSV -- 
-| project ["UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits"] = strcat('"', UnitOfMeasure, '",', iff(AccountTypes contains ',', '"', ''), AccountTypes, iff(AccountTypes contains ',', '"', ''), ',', PricingBlockSize ,',', DistinctUnits)
 ```
 
 <br>
@@ -100,15 +99,47 @@ Meters
 ## 🗺️ Regions
 
 <sup>
-    📅 Updated: Jun 1, 2024<br>
+    📅 Updated: Aug 22, 2024<br>
     ➡️ Source: Commerce Platform Data Model team<br>
 </sup>
 
 <br>
 
-The [Regions.csv](./Regions.csv) file contains data from several internal sources. We shouldn't need to update this file as Cost Management data is standardizing on Azure regions.
+The [Regions.csv](./Regions.csv) file contains the list of all unique `ResourceLocation` and `ResourceLocationNormalized` values. This data will need to be updated periodically as new regions are added.
 
-> ℹ️ _Internal only: Contact the CPDM PM team for any updates._
+Use the following query to update the data:
+
+```kql
+let oldValues = externaldata(OriginalValue:string, RegionId:string, RegionName:string,) [@"https://raw.githubusercontent.com/microsoft/finops-toolkit/dev/src/open-data/Regions.csv"] with (format="csv", ignoreFirstRecord=true);
+let newValues = union cluster('<cluster>.kusto.windows.net').database('<shard>*').<table> | where ResourceType != 'Microsoft.Security/securityConnectors' | distinct ResourceLocation, ResourceLocationNormalized;
+newValues | project OriginalValue = tolower(ResourceLocation)
+| union (newValues | project OriginalValue = tolower(ResourceLocationNormalized))
+| where isnotempty(OriginalValue) and OriginalValue !in ('null', 'true', 'false', 'test', 'unknown', 'zone1', 'zone 1')
+| distinct OriginalValue
+| where OriginalValue !in ((oldValues | distinct OriginalValue))
+| union (oldValues)
+| as reg
+| extend regionWithoutLetter = extract(@'^([a-z ]+[1-2])[a-c]$', 1, OriginalValue)
+| extend regionWithoutNumber = extract(@'^([a-z]+( [a-z]+)*)[1-3][a-c]?$', 1, OriginalValue)
+| extend regionWithoutSpace = case(
+    OriginalValue contains ' ', replace_string(OriginalValue, ' ', ''),
+    OriginalValue == 'eastsu2', 'eastus2',
+    OriginalValue == 'gbs', 'uksouth',
+    OriginalValue == 'usa', 'usgovarizona',
+    OriginalValue == 'usv', 'usgovvirginia',
+    '')
+// DEBUG: | where isempty(regionWithoutLetter) or regionWithoutLetter !in ((reg | distinct OriginalValue))
+// DEBUG: | where isempty(regionWithoutNumber) or regionWithoutNumber !in ((reg | distinct OriginalValue))
+| join kind=leftouter (reg) on $left.regionWithoutLetter == $right.OriginalValue
+| join kind=leftouter (reg) on $left.regionWithoutNumber == $right.OriginalValue
+| join kind=leftouter (reg) on $left.regionWithoutSpace == $right.OriginalValue
+| extend RegionId = case(isnotempty(RegionId), RegionId, isnotempty(RegionId1), RegionId1, isnotempty(RegionId2), RegionId2, isnotempty(RegionId3), RegionId3, RegionId)
+| extend RegionName = case(isnotempty(RegionName), RegionName, isnotempty(RegionName1), RegionName1, isnotempty(RegionName2), RegionName2, isnotempty(RegionName3), RegionName3, RegionName)
+| project OriginalValue, RegionId, RegionName
+| order by OriginalValue asc
+```
+
+After updating the list of available original values, other columns must be manually populated.
 
 <br>
 

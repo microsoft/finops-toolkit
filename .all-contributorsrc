@@ -159,6 +159,8 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/10661605?v=4",
       "profile": "https://aka.ms/helderpinto",
       "contributions": [
+        "code",
+        "review",
         "doc",
         "bug"
       ]
@@ -444,6 +446,62 @@
       "profile": "https://github.com/KevDLR",
       "contributions": [
         "doc"
+      ]
+    },
+    {
+      "login": "ro100e",
+      "name": "Robel",
+      "avatar_url": "https://avatars.githubusercontent.com/u/59753782?v=4",
+      "profile": "https://github.com/ro100e",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "jojohpm",
+      "name": "Joseph John",
+      "avatar_url": "https://avatars.githubusercontent.com/u/103460544?v=4",
+      "profile": "https://github.com/jojohpm",
+      "contributions": [
+        "doc",
+        "review"
+      ]
+    },
+    {
+      "login": "misba-yousuf",
+      "name": "Misba Yousuf",
+      "avatar_url": "https://avatars.githubusercontent.com/u/139533426?v=4",
+      "profile": "https://github.com/Misba-Yousuf",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "simonarbel",
+      "name": "simonarbel",
+      "avatar_url": "https://avatars.githubusercontent.com/u/100203391?v=4",
+      "profile": "https://github.com/simonarbel",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "wwmurphyAB",
+      "name": "Will Murphy",
+      "avatar_url": "https://avatars.githubusercontent.com/u/18669260?v=4",
+      "profile": "http://www.acuitybrands.com",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "DUeffing",
+      "name": "Daniel Ueffing",
+      "avatar_url": "https://avatars.githubusercontent.com/u/94981829?v=4",
+      "profile": "https://github.com/DUeffing",
+      "contributions": [
+        "ideas",
+        "bug"
       ]
     }
   ],

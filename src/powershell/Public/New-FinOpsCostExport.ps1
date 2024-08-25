@@ -284,12 +284,12 @@ function New-FinOpsCostExport
         # Add version-specific settings
         if ($ApiVersion -eq '2023-07-01-preview' -or $ApiVersion.Substring(0, 4) -ge 2024)
         {
-            # Default dataset versions
+            # Default dataset versions -- as of July 3, 2024
             if (-not $DatasetVersion)
             {
                 if ($Dataset -eq "FocusCost")
                 {
-                    $DatasetVersion = "1.0-preview(v1)"
+                    $DatasetVersion = "1.0"
                 }
                 elseif ($Dataset -eq "ActualCost" -or $Dataset -eq "AmortizedCost")
                 {
@@ -344,7 +344,7 @@ function New-FinOpsCostExport
     $context = Get-AzContext
     if (-not $context)
     {
-        throw $script:localizedData.ContextNotFound
+        throw $script:localizedData.Common_ContextNotFound
     }
     
     # Register the Microsoft.CostManagementExports RP

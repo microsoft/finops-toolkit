@@ -83,15 +83,15 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
-<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.html title="Unit economics videos" id="YAoi1Aip3fMwNfaY" list="PLUSCToibAswkxZme8TQKg3uBNh2Qk1MvL" %}
+<!--[!VIDEO https://www.youtube.com/embed/wrUsblmKCKU?list=PLUSCToibAswkxZme8TQKg3uBNh2Qk1MvL&pp=iAQB]-->
+{% include video.html title="Unit economics videos" id="wrUsblmKCKU" list="PLUSCToibAswkxZme8TQKg3uBNh2Qk1MvL" %}
 
 <br>
 
 ## ⏩ Next steps
 
 - [Data analysis and showback](../understand/reporting.md)
-- [Managing shared costs](../understand/shared-cost.md)
+- [Cost Allocation](../understand/allocation.md)
 
 <br>
 

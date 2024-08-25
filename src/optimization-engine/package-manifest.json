@@ -1,0 +1,20 @@
+{
+  "deployment": {
+    "files": [
+      {
+        "source": "azuredeploy.bicep",
+        "destination": "azuredeploy.bicep"
+      },
+      {
+        "source": "azuredeploy-nested.bicep",
+        "destination": "azuredeploy-nested.bicep"
+      }
+    ],
+    "directories": [
+      {
+        "source": "runbooks",
+        "destination": "runbooks"
+      }
+    ]
+  }
+}

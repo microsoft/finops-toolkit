@@ -1,0 +1,173 @@
+table RecommendationsSingle
+	lineageTag: 0a71c84d-0cd2-440d-87f4-52bf9cadd226
+
+	column meterId
+		dataType: string
+		lineageTag: ca81bd34-fe5c-42dc-a6f9-15560c5b0ca6
+		summarizeBy: none
+		sourceColumn: meterId
+
+		annotation SummarizationSetBy = Automatic
+
+	column term
+		dataType: string
+		lineageTag: 3a0efa0a-aab5-4251-9367-ab6dd62eaa70
+		summarizeBy: none
+		sourceColumn: term
+
+		annotation SummarizationSetBy = Automatic
+
+	column costWithNoReservedInstances
+		dataType: double
+		lineageTag: 9d079409-fbc7-42a4-b28e-2ffdeb47fb8f
+		summarizeBy: sum
+		sourceColumn: costWithNoReservedInstances
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column recommendedQuantity
+		dataType: double
+		lineageTag: c108523d-c078-431f-85d7-4b1e25b5c887
+		summarizeBy: sum
+		sourceColumn: recommendedQuantity
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column totalCostWithReservedInstances
+		dataType: double
+		lineageTag: 8545d3d5-651a-47d4-a45c-52c5a22da01b
+		summarizeBy: sum
+		sourceColumn: totalCostWithReservedInstances
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column netSavings
+		dataType: double
+		lineageTag: 94b813b6-034a-460e-92f2-a42715cf6d82
+		summarizeBy: sum
+		sourceColumn: netSavings
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column firstUsageDate
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 06c4649a-65f6-445c-975c-bc6f4a59054f
+		summarizeBy: none
+		sourceColumn: firstUsageDate
+
+		variation Variation
+			isDefault
+			relationship: 41f5bd29-6d77-4189-b18c-a58c8cdcd18f
+			defaultHierarchy: LocalDateTable_b00da7a2-2588-4e52-8b54-e94792ea3ba8.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column scope
+		dataType: string
+		lineageTag: f158b030-70b6-4f01-9623-0aee86b20887
+		summarizeBy: none
+		sourceColumn: scope
+
+		annotation SummarizationSetBy = Automatic
+
+	column lookBackPeriod
+		dataType: string
+		lineageTag: 07bcc997-1e0c-492b-8005-76e750f2f5d3
+		summarizeBy: none
+		sourceColumn: lookBackPeriod
+
+		annotation SummarizationSetBy = Automatic
+
+	column instanceFlexibilityRatio
+		dataType: double
+		formatString: 0
+		lineageTag: 3529f8f7-2127-483f-90e6-de9bddc9b84b
+		summarizeBy: sum
+		sourceColumn: instanceFlexibilityRatio
+
+		annotation SummarizationSetBy = Automatic
+
+	column instanceFlexibilityGroup
+		dataType: string
+		lineageTag: 5992a42c-15c1-4d40-9db5-a38c3986145a
+		summarizeBy: none
+		sourceColumn: instanceFlexibilityGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column normalizedSize
+		dataType: string
+		lineageTag: d408cc35-5507-47ac-a88b-6f09af6ef08e
+		summarizeBy: none
+		sourceColumn: normalizedSize
+
+		annotation SummarizationSetBy = Automatic
+
+	column recommendedQuantityNormalized
+		dataType: double
+		formatString: 0
+		lineageTag: e4d0a1bb-b8b1-4fd0-b4a3-b1ae1e5f7da2
+		summarizeBy: sum
+		sourceColumn: recommendedQuantityNormalized
+
+		annotation SummarizationSetBy = Automatic
+
+	column skuProperties
+		dataType: string
+		lineageTag: 9a2c8411-bebe-4ec4-b9b2-aa4f5b2408b1
+		summarizeBy: none
+		sourceColumn: skuProperties
+
+		annotation SummarizationSetBy = Automatic
+
+	column Key = CONCATENATE([normalizedSize], [meterId])
+		dataType: string
+		lineageTag: cce63e61-68f1-4b0a-943f-7b79a9ae9d0b
+		summarizeBy: none
+		isDataTypeInferred
+
+		annotation SummarizationSetBy = Automatic
+
+	column NormalizedSizeKey = [normalizedSize] & [meterId]
+		dataType: string
+		lineageTag: 2342ceb6-e325-416f-a5c2-fb08e0c359df
+		summarizeBy: none
+		isDataTypeInferred
+
+		annotation SummarizationSetBy = Automatic
+
+	column TermLabel = if([term] = "P1Y", "1 year", if([term] = "P3Y", "3 year", if([term] = "P5Y", "5 year", [term])))
+		dataType: string
+		lineageTag: 40b1fb15-3936-4bf4-88bf-22243a3d7085
+		summarizeBy: none
+		isDataTypeInferred
+
+		annotation SummarizationSetBy = Automatic
+
+	partition RecommendationsSingle = m
+		mode: import
+		queryGroup: 'FinOps toolkit'
+		source =
+				let
+				    Source = try AzureCostManagement.Tables(Type, Scope, #"Number of Months", []){[Key="rirecommendationssingle"]}[Data] otherwise #table(
+				        {"meterId", "term", "costWithNoReservedInstances", "recommendedQuantity", "totalCostWithReservedInstances", "netSavings", "firstUsageDate", "scope", "lookBackPeriod", "instanceFlexibilityRatio", "instanceFlexibilityGroup", "normalizedSize", "recommendedQuantityNormalized", "skuProperties"},
+				        {{"Failed to get data",null,null,null,null,null,null,null,null,null,null,null,null,null}}
+				    ),
+				    BackfillNormQty  = if Table.HasColumns(Source, {"recommendedQuantityNormalized"}) then Source          else Table.AddColumn(Source,          "recommendedQuantityNormalized", each null, type number),
+				    BackfillNormSize = if Table.HasColumns(Source, {"normalizedSize"})                then BackfillNormQty else Table.AddColumn(BackfillNormQty, "normalizedSize",                each null, type number),
+				    SelectColumns    = Table.SelectColumns(BackfillNormSize, {"meterId", "term", "costWithNoReservedInstances", "recommendedQuantity", "totalCostWithReservedInstances", "netSavings", "firstUsageDate", "scope", "lookBackPeriod", "instanceFlexibilityRatio", "instanceFlexibilityGroup", "normalizedSize", "recommendedQuantityNormalized", "skuProperties"}),
+				    ChangeType       = Table.TransformColumnTypes(SelectColumns, {{"instanceFlexibilityRatio", type number}, {"recommendedQuantityNormalized", type number}})
+				in
+				    ChangeType
+
+	annotation PBI_ResultType = Table
+

@@ -4,7 +4,7 @@ grand_parent: FinOps Framework
 parent: Quantify
 title: Benchmarking
 permalink: /framework/capabilities/quantify/benchmarking
-nav_order: 3
+nav_order: 4
 description: This article helps you understand the benchmarking capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: ripadrao
 ms.author: banders
@@ -48,7 +48,7 @@ When you first start managing cost in the cloud, leverage the existing guidance 
 - Review the [Azure Advisor score](https://learn.microsoft.com/azure/advisor/azure-advisor-score) at the primary scope you manage, whether that's a subscription, resource group, or based on tags.
   - The Advisor score consists of an overall score, which can be further broken down into five category scores. One score for each category of Advisor represents the five pillars of the Well-Architected Framework.
   - Leverage the [Workload optimization](../optimize/workloads.md] capability to prioritize and implement recommendations with the highest priority.
-  - Leverage the [Rate optimization](../optimize/commitment-discounts.md) capability to maximize savings with commitment discounts, like reservations and savings plans.
+  - Leverage the [Rate optimization](../optimize/rates.md) capability to maximize savings with commitment discounts, like reservations and savings plans.
 - Complete the [Azure Well-Architected Review self-assessment](https://learn.microsoft.com/azure/well-architected/cross-cutting-guides/implementing-recommendations) to identify areas your existing workloads can be improved based on the Azure Well-Architected Framework.
   - Link your subscription to include Azure Advisor recommendations in the assessment.
 

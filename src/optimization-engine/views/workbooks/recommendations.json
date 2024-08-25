@@ -1,0 +1,2536 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "f0273bce-7653-4934-92bf-9f1d89832330",
+            "version": "KqlParameterItem/1.0",
+            "name": "LastRecommendationDateTime",
+            "label": "Generated On",
+            "type": 1,
+            "isRequired": true,
+            "query": "AzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > ago(90d)\r\n| summarize max(TimeGenerated)",
+            "isHiddenWhenLocked": true,
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces"
+          },
+          {
+            "id": "36de52f8-3a82-4ec5-b55a-38f3d5ac2a87",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscriptions",
+            "type": 2,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| where isnotempty(SubscriptionName_s)\r\n| distinct SubscriptionName_s\r\n| order by SubscriptionName_s asc",
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "selectAllValue": "*",
+              "showDefault": false
+            },
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "value": [
+              "value::all"
+            ]
+          },
+          {
+            "id": "8c645a8b-ff34-4402-b064-48ef7f5d14ad",
+            "version": "KqlParameterItem/1.0",
+            "name": "Impact",
+            "type": 2,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ]
+            },
+            "jsonData": "[\"High\",\"Medium\",\"Low\"]",
+            "value": [
+              "value::all"
+            ]
+          },
+          {
+            "version": "KqlParameterItem/1.0",
+            "name": "Category",
+            "type": 2,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "jsonData": "[\"Cost\", \"Security\", \"OperationalExcellence\", \"HighAvailability\", \"Performance\"]",
+            "value": [
+              "value::all"
+            ],
+            "id": "be856cc3-5d47-4c41-a368-4ac80def811b"
+          },
+          {
+            "version": "KqlParameterItem/1.0",
+            "name": "TagName",
+            "label": "Tag Name",
+            "type": 2,
+            "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where isnotempty(Tags_s)\r\n| extend jsonTags = parse_json(Tags_s)\r\n| extend tagKeys = bag_keys(jsonTags)\r\n| mv-expand tagKey = tagKeys\r\n| extend tagKey = trim(' ', tostring(tagKey))\r\n| where tagKey !startswith 'hidden' and tagKey !startswith \"aks-managed\" and tagKey !startswith \"kubernetes.io\"\r\n| distinct tagKey\r\n| order by tagKey asc",
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "value": null,
+            "id": "cb207140-200f-4237-a00a-f93f61b1ea8e"
+          },
+          {
+            "version": "KqlParameterItem/1.0",
+            "name": "TagValue",
+            "label": "Tag Value",
+            "type": 2,
+            "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where isnotempty(Tags_s) and isnotempty(parse_json(Tags_s)['{TagName:label}'])\r\n| extend tagValue = tostring(parse_json(Tags_s)['{TagName:label}'])\r\n| distinct tagValue\r\n| order by tagValue asc",
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "showDefault": false
+            },
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces",
+            "value": null,
+            "id": "5c4ee4a3-a1a9-4210-8281-888dd20e5394"
+          }
+        ],
+        "style": "above",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "globalParameters"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "# Latest Recommendations\r\nGenerated on **{LastRecommendationDateTime}**. If recommendations generation date is *unset*, review the latest Automation Account runbooks status and fix accordingly."
+      },
+      "name": "titleText"
+    },
+    {
+      "type": 11,
+      "content": {
+        "version": "LinkItem/1.0",
+        "style": "tabs",
+        "links": [
+          {
+            "id": "550ca300-c6e8-4d5e-a4bf-ce30d5032dd5",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Overview",
+            "subTarget": "Overview",
+            "style": "link"
+          },
+          {
+            "id": "e38a5bd0-19c3-48ae-b299-d1eebe76f02a",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Cost",
+            "subTarget": "Cost",
+            "style": "link"
+          },
+          {
+            "id": "27c86ef8-c64d-43be-af08-dd73bd44c0bc",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Security",
+            "subTarget": "Security",
+            "style": "link"
+          },
+          {
+            "id": "1636acc7-3a5c-4553-8a58-16636461d65e",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Operational Excellence",
+            "subTarget": "OperationalExcellence",
+            "style": "link"
+          },
+          {
+            "id": "5c94d48d-e48b-443b-b9d6-76cc1d2c4b51",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "High Availability",
+            "subTarget": "HighAvailability",
+            "style": "link"
+          },
+          {
+            "id": "12182804-33fe-48a3-aca2-7aaeb2367d23",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Performance",
+            "subTarget": "Performance",
+            "style": "link"
+          }
+        ]
+      },
+      "name": "links - 4"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where Category in ({Category})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| summarize count() by Category\r\n",
+              "size": 4,
+              "title": "Count by category",
+              "noDataMessage": "No recommendations available. Review the latest Automation Account runbooks status and fix accordingly.",
+              "noDataMessageStyle": 4,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "HighAvailability",
+                    "color": "lightBlue"
+                  },
+                  {
+                    "seriesName": "OperationalExcellence",
+                    "color": "magenta"
+                  },
+                  {
+                    "seriesName": "Cost",
+                    "color": "turquoise"
+                  },
+                  {
+                    "seriesName": "Security",
+                    "color": "brown"
+                  },
+                  {
+                    "seriesName": "Performance",
+                    "color": "blueDarkDark"
+                  }
+                ]
+              }
+            },
+            "customWidth": "50",
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "Overview"
+            },
+            "showPin": true,
+            "name": "categoriesSummary"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where Category in ({Category})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| summarize count() by Impact_s\r\n",
+              "size": 4,
+              "title": "Count by impact",
+              "noDataMessage": "No recommendations available. Review the latest Automation Account runbooks status and fix accordingly.",
+              "noDataMessageStyle": 4,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Medium",
+                    "color": "yellow"
+                  },
+                  {
+                    "seriesName": "Low",
+                    "color": "blue"
+                  },
+                  {
+                    "seriesName": "High",
+                    "color": "redBright"
+                  }
+                ]
+              }
+            },
+            "customWidth": "50",
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "Overview"
+            },
+            "showPin": true,
+            "name": "impactSummary"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where Category in ({Category})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| summarize count() by SubscriptionName_s\r\n",
+              "size": 4,
+              "title": "Count by subscription",
+              "noDataMessage": "No recommendations available. Review the latest Automation Account runbooks status and fix accordingly.",
+              "noDataMessageStyle": 4,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart"
+            },
+            "customWidth": "50",
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "Overview"
+            },
+            "showPin": true,
+            "name": "subscriptionsSummary"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where Category in ({Category})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| summarize count() by ImpactedArea_s",
+              "size": 4,
+              "title": "Count by impacted area",
+              "noDataMessage": "No recommendations available. Review the latest Automation Account runbooks status and fix accordingly.",
+              "noDataMessageStyle": 4,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart"
+            },
+            "customWidth": "50",
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "Overview"
+            },
+            "showPin": true,
+            "name": "impactedAreaSummary"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > ago(730d)\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where Category in ({Category})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| extend Weight = iif(Impact_s == 'Low', 1, iif(Impact_s == 'Medium', 5, 15))\r\n| summarize WeightedCount=sum(Weight) by Category, bin(TimeGenerated, 7d)\r\n| join kind=inner ( \r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > ago(730d)\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | where \"'*'\" == \"{Subscriptions}\" or ContainerName_s in ({Subscriptions})\r\n    | summarize ResourceCount=sum(toint(ResourceCount_s)) by bin(TimeGenerated, 1d)\r\n) on TimeGenerated\r\n| extend Score = round((1-todouble(WeightedCount)/todouble(ResourceCount))*100,1)\r\n| project Category, TimeGenerated, Score",
+              "size": 1,
+              "aggregation": 3,
+              "title": "Optimization Score by Category Over Time (weighted by recommendation impact and overall resources count)",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "timechart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Cost",
+                    "color": "turquoise"
+                  },
+                  {
+                    "seriesName": "OperationalExcellence",
+                    "color": "magenta"
+                  },
+                  {
+                    "seriesName": "HighAvailability",
+                    "color": "lightBlue"
+                  },
+                  {
+                    "seriesName": "Security",
+                    "color": "brown"
+                  },
+                  {
+                    "seriesName": "Performance",
+                    "color": "blueDarkDark"
+                  }
+                ]
+              }
+            },
+            "customWidth": "80",
+            "name": "scoreByCategoryOverTime"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > todatetime('{LastRecommendationDateTime}')-27d\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where Category in ({Category})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| make-series RecCounts=count() on TimeGenerated from todatetime('{LastRecommendationDateTime}')-27d to todatetime('{LastRecommendationDateTime}') step 7d by InstanceId_s, RecommendationDescription_s\r\n| where array_length(RecCounts) == 4 and not(set_has_element(RecCounts, 0))\r\n| summarize count() by Text='over past 4 weeks'",
+              "size": 4,
+              "title": "Long standing recommendations #",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "tiles",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "count_",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "none"
+                  },
+                  "numberFormat": {
+                    "unit": 0,
+                    "options": {
+                      "style": "decimal"
+                    }
+                  }
+                },
+                "subtitleContent": {
+                  "columnMatch": "Text",
+                  "formatter": 1
+                },
+                "rightContent": {
+                  "columnMatch": "Count",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "none"
+                  }
+                },
+                "showBorder": false
+              },
+              "textSettings": {
+                "style": "bignumber"
+              }
+            },
+            "customWidth": "20",
+            "name": "longStandingRecs",
+            "styleSettings": {
+              "margin": "20px",
+              "padding": "20px"
+            }
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > ago(730d)\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where Category in ({Category})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| summarize count() by Category, bin(TimeGenerated, 7d)",
+              "size": 1,
+              "aggregation": 3,
+              "title": "Recommendations # by Category Over Time",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "timechart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "OperationalExcellence",
+                    "color": "magenta"
+                  },
+                  {
+                    "seriesName": "HighAvailability",
+                    "color": "lightBlue"
+                  },
+                  {
+                    "seriesName": "Cost",
+                    "color": "turquoise"
+                  },
+                  {
+                    "seriesName": "Security",
+                    "color": "brown"
+                  },
+                  {
+                    "seriesName": "Performance",
+                    "color": "blueDarkDark"
+                  }
+                ]
+              }
+            },
+            "customWidth": "80",
+            "name": "recsCategoryOverTime"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let PreviousWeek = AzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > todatetime('{LastRecommendationDateTime}')-8d and TimeGenerated < todatetime('{LastRecommendationDateTime}')-1d\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where Category in ({Category})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| summarize PreviousWeekCount=count() by InstanceId_s, RecommendationSubTypeId_g;\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > todatetime('{LastRecommendationDateTime}')-1d\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where Category in ({Category})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| summarize ThisWeekCount=count() by InstanceId_s, RecommendationSubTypeId_g\r\n| join kind=leftouter (PreviousWeek) on InstanceId_s, RecommendationSubTypeId_g\r\n| where isempty(InstanceId_s1) and isempty(RecommendationSubTypeId_g1)\r\n| summarize sum(ThisWeekCount) by Text='since previous week'",
+              "size": 4,
+              "title": "New recommendations #",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "tiles",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "sum_ThisWeekCount",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "none"
+                  },
+                  "numberFormat": {
+                    "unit": 0,
+                    "options": {
+                      "style": "decimal"
+                    }
+                  }
+                },
+                "subtitleContent": {
+                  "columnMatch": "Text",
+                  "formatter": 1
+                },
+                "rightContent": {
+                  "columnMatch": "Count",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "none"
+                  }
+                },
+                "showBorder": false
+              },
+              "textSettings": {
+                "style": "bignumber"
+              }
+            },
+            "customWidth": "20",
+            "name": "newRecs",
+            "styleSettings": {
+              "margin": "20px",
+              "padding": "20px"
+            }
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > ago(730d)\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where Category in ({Category})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| summarize count() by Impact_s, bin(TimeGenerated, 7d)",
+              "size": 1,
+              "aggregation": 3,
+              "title": "Recommendations # by Impact Over Time",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "timechart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Medium",
+                    "color": "yellow"
+                  },
+                  {
+                    "seriesName": "High",
+                    "color": "redBright"
+                  },
+                  {
+                    "seriesName": "Low",
+                    "color": "blue"
+                  }
+                ]
+              }
+            },
+            "customWidth": "80",
+            "name": "recsImpactOverTime"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let PreviousWeek = AzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > todatetime('{LastRecommendationDateTime}')-8d and TimeGenerated < todatetime('{LastRecommendationDateTime}')-1d\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where Category in ({Category})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| summarize PreviousWeekCount=count() by InstanceId_s, RecommendationSubTypeId_g;\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > todatetime('{LastRecommendationDateTime}')-1d\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where Category in ({Category})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| summarize ThisWeekCount=count() by InstanceId_s, RecommendationSubTypeId_g\r\n| join kind=rightouter (PreviousWeek) on InstanceId_s, RecommendationSubTypeId_g\r\n| where isempty(InstanceId_s) and isempty(RecommendationSubTypeId_g)\r\n| summarize sum(PreviousWeekCount) by Text='since previous week'",
+              "size": 4,
+              "title": "Dropped recommendations #",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "tiles",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "sum_PreviousWeekCount",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "none"
+                  },
+                  "numberFormat": {
+                    "unit": 0,
+                    "options": {
+                      "style": "decimal"
+                    }
+                  }
+                },
+                "subtitleContent": {
+                  "columnMatch": "Text",
+                  "formatter": 1
+                },
+                "rightContent": {
+                  "columnMatch": "Count",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "none"
+                  }
+                },
+                "showBorder": false
+              },
+              "textSettings": {
+                "style": "bignumber"
+              }
+            },
+            "customWidth": "20",
+            "name": "droppedRecs",
+            "styleSettings": {
+              "margin": "20px",
+              "padding": "20px"
+            }
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "AzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > ago(730d)\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where Category in ({Category})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| summarize RecCount=count() by bin(TimeGenerated, 7d)\r\n| join kind=inner ( \r\n    AzureOptimizationResourceContainersV1_CL\r\n    | where TimeGenerated > ago(730d)\r\n    | where ContainerType_s == 'microsoft.resources/subscriptions'\r\n    | where \"'*'\" == \"{Subscriptions}\" or ContainerName_s in ({Subscriptions})\r\n    | summarize ResourceCount=sum(toint(ResourceCount_s)) by bin(TimeGenerated, 1d)\r\n) on TimeGenerated\r\n| project TimeGenerated, ResourceCount",
+              "size": 1,
+              "aggregation": 3,
+              "title": "Resources # Over Time",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "timechart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Cost",
+                    "color": "turquoise"
+                  },
+                  {
+                    "seriesName": "OperationalExcellence",
+                    "color": "magenta"
+                  },
+                  {
+                    "seriesName": "HighAvailability",
+                    "color": "lightBlue"
+                  },
+                  {
+                    "seriesName": "Security",
+                    "color": "brown"
+                  },
+                  {
+                    "seriesName": "Performance",
+                    "color": "blueDarkDark"
+                  }
+                ]
+              }
+            },
+            "customWidth": "80",
+            "name": "resourcesOverTime"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Overview"
+      },
+      "name": "overviewGroup"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "* Estimated cost savings are relative to 30 days of consumption.\r\n* Cost values are based on the currency of your consumption agreement. Adjust the currency parameter below to reflect your actual currency (changing the currency code does not perform any currency exchange in cost values).",
+              "style": "info"
+            },
+            "name": "text - 5"
+          },
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "143959c5-1b91-4f61-bc65-970aa2c66b8d",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "Currency",
+                  "type": 1,
+                  "description": "The currency to display savings amounts. Must be your Azure consumption agreement currency.",
+                  "isRequired": true,
+                  "timeContext": {
+                    "durationMs": 86400000
+                  },
+                  "value": "EUR"
+                },
+                {
+                  "id": "1d6e5f51-df51-4989-90ee-0a014253bbf9",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "USDRate",
+                  "label": "USD Rate",
+                  "type": 1,
+                  "description": "Used to convert some of the Azure Advisor-generated USD savings into your currency. If your currency is USD, set the rate to 1.",
+                  "isRequired": true,
+                  "timeContext": {
+                    "durationMs": 86400000
+                  },
+                  "value": "0.93"
+                },
+                {
+                  "id": "941690c0-8e7f-48fe-b8ad-f668b066bae5",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "CostFitScore",
+                  "label": "Min. Fit Score",
+                  "type": 1,
+                  "description": "Minimum acceptable fit score",
+                  "isRequired": true,
+                  "timeContext": {
+                    "durationMs": 86400000
+                  },
+                  "value": "-1"
+                },
+                {
+                  "id": "69ecab4f-05bb-4b53-aa39-68a30e09a70b",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "Origin",
+                  "type": 2,
+                  "isRequired": true,
+                  "multiSelect": true,
+                  "quote": "'",
+                  "delimiter": ",",
+                  "typeSettings": {
+                    "additionalResourceOptions": [
+                      "value::all"
+                    ]
+                  },
+                  "jsonData": "[\"Advisor\",\"Custom\"]",
+                  "value": [
+                    "value::all"
+                  ]
+                },
+                {
+                  "id": "57abf104-8b39-4d00-934b-1365a8d34266",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "RecommendationsSubType",
+                  "label": "Type",
+                  "type": 2,
+                  "isRequired": true,
+                  "multiSelect": true,
+                  "quote": "'",
+                  "delimiter": ",",
+                  "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where Category == 'Cost'\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| extend Origin = iif(RecommendationSubType_s startswith \"Advisor\", \"Advisor\", \"Custom\")\r\n| where Origin in ({Origin:value})\r\n| distinct RecommendationSubType_s\r\n| order by RecommendationSubType_s asc",
+                  "typeSettings": {
+                    "additionalResourceOptions": [
+                      "value::all"
+                    ],
+                    "showDefault": false
+                  },
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces",
+                  "value": [
+                    "value::all"
+                  ]
+                },
+                {
+                  "version": "KqlParameterItem/1.0",
+                  "name": "CostRecommendations",
+                  "label": "Recommendations",
+                  "type": 2,
+                  "isRequired": true,
+                  "multiSelect": true,
+                  "quote": "'",
+                  "delimiter": ",",
+                  "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where Category == 'Cost'\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| extend Origin = iif(RecommendationSubType_s startswith \"Advisor\", \"Advisor\", \"Custom\")\r\n| where Origin in ({Origin:value})\r\n| where RecommendationSubType_s in ({RecommendationsSubType:value})\r\n| distinct RecommendationDescription_s\r\n| order by RecommendationDescription_s asc",
+                  "typeSettings": {
+                    "additionalResourceOptions": [
+                      "value::all"
+                    ],
+                    "showDefault": false
+                  },
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces",
+                  "value": [
+                    "value::all"
+                  ],
+                  "id": "64fb1183-a7fa-43e7-be95-cc7a3afc4733"
+                }
+              ],
+              "style": "above",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces"
+            },
+            "name": "costParameters"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where Category == 'Cost'\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| where FitScore_d >= {CostFitScore}\r\n| where RecommendationDescription_s in ({CostRecommendations})\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| extend SavingsAmount = todouble(parse_json(AdditionalInfo_s).savingsAmount)\r\n| extend Currency = iif(isnotempty(parse_json(AdditionalInfo_s).savingsCurrency), parse_json(AdditionalInfo_s).savingsCurrency, '{Currency}')\r\n| extend SavingsAmount = iif(Currency == 'USD', SavingsAmount*{USDRate}, SavingsAmount)\r\n| summarize arg_max(SavingsAmount, *) by RecommendationSubTypeId_g, InstanceName_s, ResourceGroup, SubscriptionGuid_g, tostring(parse_json(AdditionalInfo_s).sku)\r\n| summarize sum(SavingsAmount) by SubscriptionName_s",
+              "size": 4,
+              "title": "Potential cost savings by subscription (in {Currency})",
+              "noDataMessage": "No recommendations available. Review the latest Automation Account runbooks status and fix accordingly.",
+              "noDataMessageStyle": 4,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "Category",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "sum_SavingsAmount",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2,
+                      "maximumSignificantDigits": 3
+                    }
+                  }
+                },
+                "showBorder": false
+              },
+              "textSettings": {
+                "style": "bignumber"
+              }
+            },
+            "customWidth": "33",
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "Cost"
+            },
+            "showPin": true,
+            "name": "costSavingsBySubscription"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where Category == 'Cost'\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| where FitScore_d >= {CostFitScore}\r\n| where RecommendationDescription_s in ({CostRecommendations})\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| extend SavingsAmount = todouble(parse_json(AdditionalInfo_s).savingsAmount)\r\n| extend Currency = iif(isnotempty(parse_json(AdditionalInfo_s).savingsCurrency), parse_json(AdditionalInfo_s).savingsCurrency, '{Currency}')\r\n| extend SavingsAmount = iif(Currency == 'USD', SavingsAmount*{USDRate}, SavingsAmount)\r\n| summarize arg_max(SavingsAmount, *) by RecommendationSubTypeId_g, InstanceName_s, ResourceGroup, SubscriptionGuid_g, tostring(parse_json(AdditionalInfo_s).sku)\r\n| summarize sum(SavingsAmount) by RecommendationSubType_s",
+              "size": 4,
+              "title": "Potential savings by type (in {Currency})",
+              "noDataMessage": "No recommendations available. Review the latest Automation Account runbooks status and fix accordingly.",
+              "noDataMessageStyle": 4,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "Category",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "sum_SavingsAmount",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2,
+                      "maximumSignificantDigits": 3
+                    }
+                  }
+                },
+                "showBorder": false
+              },
+              "textSettings": {
+                "style": "bignumber"
+              }
+            },
+            "customWidth": "33",
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "Cost"
+            },
+            "showPin": true,
+            "name": "costSavingsByType"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where Category == 'Cost'\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| where FitScore_d >= {CostFitScore}\r\n| where RecommendationDescription_s in ({CostRecommendations})\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| extend SavingsAmount = todouble(parse_json(AdditionalInfo_s).savingsAmount)\r\n| extend Currency = iif(isnotempty(parse_json(AdditionalInfo_s).savingsCurrency), parse_json(AdditionalInfo_s).savingsCurrency, '{Currency}')\r\n| extend SavingsAmount = iif(Currency == 'USD', SavingsAmount*{USDRate}, SavingsAmount)\r\n| summarize arg_max(SavingsAmount, *) by RecommendationSubTypeId_g, InstanceName_s, ResourceGroup, SubscriptionGuid_g, tostring(parse_json(AdditionalInfo_s).sku)\r\n| extend Origin = iif(RecommendationSubType_s startswith \"Advisor\", \"Advisor\", \"Custom\")\r\n| summarize sum(SavingsAmount) by Origin",
+              "size": 4,
+              "title": "Potential savings by origin (in {Currency})",
+              "noDataMessage": "No recommendations available. Review the latest Automation Account runbooks status and fix accordingly.",
+              "noDataMessageStyle": 4,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "Category",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "sum_SavingsAmount",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2,
+                      "maximumSignificantDigits": 3
+                    }
+                  }
+                },
+                "showBorder": false
+              },
+              "textSettings": {
+                "style": "bignumber"
+              }
+            },
+            "customWidth": "33",
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "Cost"
+            },
+            "showPin": true,
+            "name": "costSavingsByOrigin"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| where Category == 'Cost'\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| where FitScore_d >= {CostFitScore}\r\n| where RecommendationDescription_s in ({CostRecommendations})\r\n| extend SavingsAmount = todouble(parse_json(AdditionalInfo_s).savingsAmount)\r\n| summarize arg_max(SavingsAmount, *) by RecommendationSubTypeId_g, InstanceName_s, ResourceGroup, SubscriptionGuid_g, tostring(parse_json(AdditionalInfo_s).sku)\r\n| extend Currency = iif(isnotempty(parse_json(AdditionalInfo_s).savingsCurrency), parse_json(AdditionalInfo_s).savingsCurrency, '{Currency}')\r\n| extend SavingsAmount = iif(Currency == 'USD', SavingsAmount*{USDRate}, SavingsAmount)\r\n| project Recommendation=RecommendationDescription_s, Instance=InstanceName_s, ['Resource Group']=ResourceGroup, Subscription=SubscriptionName_s, Impact=Impact_s, ['Fit Score']=FitScore_d, ['Savings ({Currency})']=SavingsAmount, Tags=parse_json(Tags_s), ['Additional Info']=parse_json(AdditionalInfo_s), Details=DetailsURL_s\r\n| order by ['Savings ({Currency})']",
+              "size": 0,
+              "noDataMessage": "No Cost recommendations available",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Recommendation",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "40ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Instance",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "30ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Resource Group",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "30ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Subscription",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "25ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Impact",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "==",
+                          "thresholdValue": "High",
+                          "representation": "Sev1",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Medium",
+                          "representation": "Sev2",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Low",
+                          "representation": "Sev3",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "more",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "Fit Score",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "min": 0,
+                      "max": 5,
+                      "palette": "redGreen"
+                    }
+                  },
+                  {
+                    "columnMatch": "Savings",
+                    "formatter": 2,
+                    "formatOptions": {
+                      "aggregation": "Sum"
+                    },
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "minimumFractionDigits": 2,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  },
+                  {
+                    "columnMatch": "Tags",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "9ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Additional Info",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "18ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Details",
+                    "formatter": 7,
+                    "formatOptions": {
+                      "linkTarget": "Url",
+                      "linkLabel": "Link"
+                    }
+                  }
+                ],
+                "rowLimit": 10000
+              }
+            },
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "Cost"
+            },
+            "name": "costRecommendationsList"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Cost"
+      },
+      "name": "costGroup"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "941690c0-8e7f-48fe-b8ad-f668b066bae5",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "SecurityFitScore",
+                  "label": "Min. Fit Score",
+                  "type": 1,
+                  "description": "Minimum acceptable fit score",
+                  "isRequired": true,
+                  "timeContext": {
+                    "durationMs": 86400000
+                  },
+                  "value": "-1"
+                },
+                {
+                  "id": "404387de-475b-4729-b0d9-b6acf8d9594e",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "Origin",
+                  "type": 2,
+                  "isRequired": true,
+                  "multiSelect": true,
+                  "quote": "'",
+                  "delimiter": ",",
+                  "typeSettings": {
+                    "additionalResourceOptions": [
+                      "value::all"
+                    ]
+                  },
+                  "jsonData": "[\"Advisor\",\"Custom\"]",
+                  "value": [
+                    "value::all"
+                  ]
+                },
+                {
+                  "id": "57abf104-8b39-4d00-934b-1365a8d34266",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "RecommendationsSubType",
+                  "label": "Type",
+                  "type": 2,
+                  "isRequired": true,
+                  "multiSelect": true,
+                  "quote": "'",
+                  "delimiter": ",",
+                  "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where Category == 'Security'\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| extend Origin = iif(RecommendationSubType_s startswith \"Advisor\", \"Advisor\", \"Custom\")\r\n| where Origin in ({Origin:value})\r\n| distinct RecommendationSubType_s\r\n| order by RecommendationSubType_s asc",
+                  "typeSettings": {
+                    "additionalResourceOptions": [
+                      "value::all"
+                    ],
+                    "showDefault": false
+                  },
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces",
+                  "value": [
+                    "value::all"
+                  ]
+                },
+                {
+                  "version": "KqlParameterItem/1.0",
+                  "name": "SecurityRecommendations",
+                  "label": "Recommendations",
+                  "type": 2,
+                  "isRequired": true,
+                  "multiSelect": true,
+                  "quote": "'",
+                  "delimiter": ",",
+                  "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where Category == 'Security'\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| extend Origin = iif(RecommendationSubType_s startswith \"Advisor\", \"Advisor\", \"Custom\")\r\n| where Origin in ({Origin:value})\r\n| where RecommendationSubType_s in ({RecommendationsSubType:value})\r\n| distinct RecommendationDescription_s\r\n| order by RecommendationDescription_s asc",
+                  "typeSettings": {
+                    "additionalResourceOptions": [
+                      "value::all"
+                    ],
+                    "showDefault": false
+                  },
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces",
+                  "value": [
+                    "value::all"
+                  ],
+                  "id": "42b5d3ed-d221-496e-b911-b91c0ca73983"
+                }
+              ],
+              "style": "above",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces"
+            },
+            "name": "costParameters"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where Category == 'Security'\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| where FitScore_d >= {SecurityFitScore}\r\n| where RecommendationDescription_s in ({SecurityRecommendations})\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| summarize count() by SubscriptionName_s",
+              "size": 4,
+              "title": "Recommendations by subscription",
+              "noDataMessage": "No recommendations available. Review the latest Automation Account runbooks status and fix accordingly.",
+              "noDataMessageStyle": 4,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "Category",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "sum_SavingsAmount",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2,
+                      "maximumSignificantDigits": 3
+                    }
+                  }
+                },
+                "showBorder": false
+              },
+              "textSettings": {
+                "style": "bignumber"
+              }
+            },
+            "customWidth": "33",
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "Security"
+            },
+            "showPin": true,
+            "name": "securityRecsBySubscription"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where Category == 'Security'\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| where FitScore_d >= {SecurityFitScore}\r\n| where RecommendationDescription_s in ({SecurityRecommendations})\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| summarize count() by RecommendationSubType_s",
+              "size": 4,
+              "title": "Recommendations by type",
+              "noDataMessage": "No recommendations available. Review the latest Automation Account runbooks status and fix accordingly.",
+              "noDataMessageStyle": 4,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "Category",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "sum_SavingsAmount",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2,
+                      "maximumSignificantDigits": 3
+                    }
+                  }
+                },
+                "showBorder": false
+              },
+              "textSettings": {
+                "style": "bignumber"
+              }
+            },
+            "customWidth": "33",
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "Security"
+            },
+            "showPin": true,
+            "name": "securityRecommendationsByType"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where Category == 'Security'\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| where FitScore_d >= {SecurityFitScore}\r\n| where RecommendationDescription_s in ({SecurityRecommendations})\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| extend Origin = iif(RecommendationSubType_s startswith \"Advisor\", \"Advisor\", \"Custom\")\r\n| summarize count() by Origin",
+              "size": 4,
+              "title": "Recommendations by origin",
+              "noDataMessage": "No recommendations available. Review the latest Automation Account runbooks status and fix accordingly.",
+              "noDataMessageStyle": 4,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "Category",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "sum_SavingsAmount",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2,
+                      "maximumSignificantDigits": 3
+                    }
+                  }
+                },
+                "showBorder": false
+              },
+              "textSettings": {
+                "style": "bignumber"
+              }
+            },
+            "customWidth": "33",
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "Security"
+            },
+            "showPin": true,
+            "name": "securityRecommendationsByOrigin"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| where Category == 'Security'\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| where FitScore_d >= {SecurityFitScore}\r\n| where RecommendationDescription_s in ({SecurityRecommendations})\r\n| project Recommendation=RecommendationDescription_s, Instance=InstanceName_s, ['Resource Group']=ResourceGroup, Subscription=SubscriptionName_s, Impact=Impact_s, ['Fit Score']=FitScore_d, Tags=parse_json(Tags_s), ['Additional Info']=parse_json(AdditionalInfo_s), Details=DetailsURL_s\r\n| order by Impact asc, ['Fit Score']",
+              "size": 2,
+              "noDataMessage": "No Security recommendations available",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Recommendation",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "40ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Instance",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "30ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Resource Group",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "30ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Subscription",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "25ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Impact",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "==",
+                          "thresholdValue": "High",
+                          "representation": "Sev1",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Medium",
+                          "representation": "Sev2",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Low",
+                          "representation": "Sev3",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "more",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "Fit Score",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "min": 0,
+                      "max": 5,
+                      "palette": "redGreen"
+                    }
+                  },
+                  {
+                    "columnMatch": "Tags",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "9ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Additional Info",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "18ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Details",
+                    "formatter": 7,
+                    "formatOptions": {
+                      "linkTarget": "Url",
+                      "linkLabel": "Link"
+                    }
+                  },
+                  {
+                    "columnMatch": "Savings",
+                    "formatter": 2,
+                    "formatOptions": {
+                      "aggregation": "Sum"
+                    },
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "minimumFractionDigits": 2,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 10000
+              }
+            },
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "Security"
+            },
+            "name": "securityRecommendationsList"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Security"
+      },
+      "name": "securityGroup"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "941690c0-8e7f-48fe-b8ad-f668b066bae5",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "OperationalExcellenceFitScore",
+                  "label": "Min. Fit Score",
+                  "type": 1,
+                  "description": "Minimum acceptable fit score",
+                  "isRequired": true,
+                  "timeContext": {
+                    "durationMs": 86400000
+                  },
+                  "value": "-1"
+                },
+                {
+                  "id": "88e40f64-4813-4766-a0bc-0e067dbfceb9",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "Origin",
+                  "type": 2,
+                  "isRequired": true,
+                  "multiSelect": true,
+                  "quote": "'",
+                  "delimiter": ",",
+                  "typeSettings": {
+                    "additionalResourceOptions": [
+                      "value::all"
+                    ]
+                  },
+                  "jsonData": "[\"Advisor\",\"Custom\"]",
+                  "value": [
+                    "value::all"
+                  ]
+                },
+                {
+                  "id": "57abf104-8b39-4d00-934b-1365a8d34266",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "RecommendationsSubType",
+                  "label": "Type",
+                  "type": 2,
+                  "isRequired": true,
+                  "multiSelect": true,
+                  "quote": "'",
+                  "delimiter": ",",
+                  "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where Category == 'OperationalExcellence'\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| extend Origin = iif(RecommendationSubType_s startswith \"Advisor\", \"Advisor\", \"Custom\")\r\n| where Origin in ({Origin:value})\r\n| distinct RecommendationSubType_s\r\n| order by RecommendationSubType_s asc",
+                  "typeSettings": {
+                    "additionalResourceOptions": [
+                      "value::all"
+                    ],
+                    "showDefault": false
+                  },
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces",
+                  "value": [
+                    "value::all"
+                  ]
+                },
+                {
+                  "version": "KqlParameterItem/1.0",
+                  "name": "OperationalExcellenceRecommendations",
+                  "label": "Recommendations",
+                  "type": 2,
+                  "isRequired": true,
+                  "multiSelect": true,
+                  "quote": "'",
+                  "delimiter": ",",
+                  "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where Category == 'OperationalExcellence'\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| extend Origin = iif(RecommendationSubType_s startswith \"Advisor\", \"Advisor\", \"Custom\")\r\n| where Origin in ({Origin:value})\r\n| where RecommendationSubType_s in ({RecommendationsSubType:value})\r\n| distinct RecommendationDescription_s\r\n| order by RecommendationDescription_s asc",
+                  "typeSettings": {
+                    "additionalResourceOptions": [
+                      "value::all"
+                    ],
+                    "showDefault": false
+                  },
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces",
+                  "value": [
+                    "value::all"
+                  ],
+                  "id": "2f82e306-088a-417f-b896-0fa126974807"
+                }
+              ],
+              "style": "above",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces"
+            },
+            "name": "operationalExcellenceParameters"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where Category == 'OperationalExcellence'\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| where FitScore_d >= {OperationalExcellenceFitScore}\r\n| where RecommendationDescription_s in ({OperationalExcellenceRecommendations})\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| summarize count() by SubscriptionName_s",
+              "size": 4,
+              "title": "Recommendations by subscription",
+              "noDataMessage": "No recommendations available. Review the latest Automation Account runbooks status and fix accordingly.",
+              "noDataMessageStyle": 4,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "Category",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "sum_SavingsAmount",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2,
+                      "maximumSignificantDigits": 3
+                    }
+                  }
+                },
+                "showBorder": false
+              },
+              "textSettings": {
+                "style": "bignumber"
+              }
+            },
+            "customWidth": "33",
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "OperationalExcellence"
+            },
+            "showPin": true,
+            "name": "operationalExcellenceRecsBySubscription"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where Category == 'OperationalExcellence'\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| where FitScore_d >= {OperationalExcellenceFitScore}\r\n| where RecommendationDescription_s in ({OperationalExcellenceRecommendations})\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| summarize count() by RecommendationSubType_s",
+              "size": 4,
+              "title": "Recommendations by type",
+              "noDataMessage": "No recommendations available. Review the latest Automation Account runbooks status and fix accordingly.",
+              "noDataMessageStyle": 4,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "Category",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "sum_SavingsAmount",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2,
+                      "maximumSignificantDigits": 3
+                    }
+                  }
+                },
+                "showBorder": false
+              },
+              "textSettings": {
+                "style": "bignumber"
+              }
+            },
+            "customWidth": "33",
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "OperationalExcellence"
+            },
+            "showPin": true,
+            "name": "operationalExcellenceRecommendationsByType"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where Category == 'OperationalExcellence'\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| where FitScore_d >= {OperationalExcellenceFitScore}\r\n| where RecommendationDescription_s in ({OperationalExcellenceRecommendations})\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| extend Origin = iif(RecommendationSubType_s startswith \"Advisor\", \"Advisor\", \"Custom\")\r\n| summarize count() by Origin",
+              "size": 4,
+              "title": "Recommendations by origin",
+              "noDataMessage": "No recommendations available. Review the latest Automation Account runbooks status and fix accordingly.",
+              "noDataMessageStyle": 4,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "Category",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "sum_SavingsAmount",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2,
+                      "maximumSignificantDigits": 3
+                    }
+                  }
+                },
+                "showBorder": false
+              },
+              "textSettings": {
+                "style": "bignumber"
+              }
+            },
+            "customWidth": "33",
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "OperationalExcellence"
+            },
+            "showPin": true,
+            "name": "operationalExcellenceRecommendationsByOrigin"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| where Category == 'OperationalExcellence'\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| where FitScore_d >= {OperationalExcellenceFitScore}\r\n| where RecommendationDescription_s in ({OperationalExcellenceRecommendations})\r\n| project Recommendation=RecommendationDescription_s, Instance=InstanceName_s, ['Resource Group']=ResourceGroup, Subscription=SubscriptionName_s, Impact=Impact_s, ['Fit Score']=FitScore_d, Tags=parse_json(Tags_s), ['Additional Info']=parse_json(AdditionalInfo_s), Details=DetailsURL_s\r\n| order by Impact asc, ['Fit Score']",
+              "size": 2,
+              "noDataMessage": "No Operational Excellence recommendations available",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Recommendation",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "40ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Instance",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "30ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Resource Group",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "30ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Subscription",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "25ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Impact",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "==",
+                          "thresholdValue": "High",
+                          "representation": "Sev1",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Medium",
+                          "representation": "Sev2",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Low",
+                          "representation": "Sev3",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "more",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "Fit Score",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "min": 0,
+                      "max": 5,
+                      "palette": "redGreen"
+                    }
+                  },
+                  {
+                    "columnMatch": "Tags",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "9ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Additional Info",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "18ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Details",
+                    "formatter": 7,
+                    "formatOptions": {
+                      "linkTarget": "Url",
+                      "linkLabel": "Link"
+                    }
+                  },
+                  {
+                    "columnMatch": "Savings",
+                    "formatter": 2,
+                    "formatOptions": {
+                      "aggregation": "Sum"
+                    },
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "minimumFractionDigits": 2,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 10000
+              }
+            },
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "OperationalExcellence"
+            },
+            "name": "operationalExcellenceRecommendationsList"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "OperationalExcellence"
+      },
+      "name": "operationalExcellenceGroup"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "941690c0-8e7f-48fe-b8ad-f668b066bae5",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "HighAvailabilityFitScore",
+                  "label": "Min. Fit Score",
+                  "type": 1,
+                  "description": "Minimum acceptable fit score",
+                  "isRequired": true,
+                  "timeContext": {
+                    "durationMs": 86400000
+                  },
+                  "value": "-1"
+                },
+                {
+                  "id": "c5da94b9-1eaa-4a1a-aa0f-62733fb6a3cc",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "Origin",
+                  "type": 2,
+                  "isRequired": true,
+                  "multiSelect": true,
+                  "quote": "'",
+                  "delimiter": ",",
+                  "typeSettings": {
+                    "additionalResourceOptions": [
+                      "value::all"
+                    ],
+                    "showDefault": false
+                  },
+                  "jsonData": "[\"Advisor\",\"Custom\"]",
+                  "value": [
+                    "value::all"
+                  ]
+                },
+                {
+                  "id": "57abf104-8b39-4d00-934b-1365a8d34266",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "RecommendationsSubType",
+                  "label": "Type",
+                  "type": 2,
+                  "isRequired": true,
+                  "multiSelect": true,
+                  "quote": "'",
+                  "delimiter": ",",
+                  "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where Category == 'HighAvailability'\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| extend Origin = iif(RecommendationSubType_s startswith \"Advisor\", \"Advisor\", \"Custom\")\r\n| where Origin in ({Origin:value})\r\n| distinct RecommendationSubType_s\r\n| order by RecommendationSubType_s asc",
+                  "typeSettings": {
+                    "additionalResourceOptions": [
+                      "value::all"
+                    ],
+                    "showDefault": false
+                  },
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces",
+                  "value": [
+                    "value::all"
+                  ]
+                },
+                {
+                  "version": "KqlParameterItem/1.0",
+                  "name": "HighAvailabilityRecommendations",
+                  "label": "Recommendations",
+                  "type": 2,
+                  "isRequired": true,
+                  "multiSelect": true,
+                  "quote": "'",
+                  "delimiter": ",",
+                  "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where Category == 'HighAvailability'\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| extend Origin = iif(RecommendationSubType_s startswith \"Advisor\", \"Advisor\", \"Custom\")\r\n| where Origin in ({Origin:value})\r\n| where RecommendationSubType_s in ({RecommendationsSubType:value})\r\n| distinct RecommendationDescription_s\r\n| order by RecommendationDescription_s asc",
+                  "typeSettings": {
+                    "additionalResourceOptions": [
+                      "value::all"
+                    ],
+                    "showDefault": false
+                  },
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces",
+                  "value": [
+                    "value::all"
+                  ],
+                  "id": "06f783a2-135e-4906-a8b6-cbb6eedfb919"
+                }
+              ],
+              "style": "above",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces"
+            },
+            "name": "highAvailabilityParameters"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where Category == 'HighAvailability'\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| where FitScore_d >= {HighAvailabilityFitScore}\r\n| where RecommendationDescription_s in ({HighAvailabilityRecommendations})\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| summarize count() by SubscriptionName_s",
+              "size": 4,
+              "title": "Recommendations by subscription",
+              "noDataMessage": "No recommendations available. Review the latest Automation Account runbooks status and fix accordingly.",
+              "noDataMessageStyle": 4,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "Category",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "sum_SavingsAmount",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2,
+                      "maximumSignificantDigits": 3
+                    }
+                  }
+                },
+                "showBorder": false
+              },
+              "textSettings": {
+                "style": "bignumber"
+              }
+            },
+            "customWidth": "33",
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "HighAvailability"
+            },
+            "showPin": true,
+            "name": "highAvailabilityRecsBySubscription"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where Category == 'HighAvailability'\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| where FitScore_d >= {HighAvailabilityFitScore}\r\n| where RecommendationDescription_s in ({HighAvailabilityRecommendations})\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| summarize count() by RecommendationSubType_s",
+              "size": 4,
+              "title": "Recommendations by type",
+              "noDataMessage": "No recommendations available. Review the latest Automation Account runbooks status and fix accordingly.",
+              "noDataMessageStyle": 4,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "Category",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "sum_SavingsAmount",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2,
+                      "maximumSignificantDigits": 3
+                    }
+                  }
+                },
+                "showBorder": false
+              },
+              "textSettings": {
+                "style": "bignumber"
+              }
+            },
+            "customWidth": "33",
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "HighAvailability"
+            },
+            "showPin": true,
+            "name": "highAvailabilityRecommendationsByType"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where Category == 'HighAvailability'\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| where FitScore_d >= {HighAvailabilityFitScore}\r\n| where RecommendationDescription_s in ({HighAvailabilityRecommendations})\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| extend Origin = iif(RecommendationSubType_s startswith \"Advisor\", \"Advisor\", \"Custom\")\r\n| summarize count() by Origin",
+              "size": 4,
+              "title": "Recommendations by origin",
+              "noDataMessage": "No recommendations available. Review the latest Automation Account runbooks status and fix accordingly.",
+              "noDataMessageStyle": 4,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "Category",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "sum_SavingsAmount",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2,
+                      "maximumSignificantDigits": 3
+                    }
+                  }
+                },
+                "showBorder": false
+              },
+              "textSettings": {
+                "style": "bignumber"
+              }
+            },
+            "customWidth": "33",
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "HighAvailability"
+            },
+            "showPin": true,
+            "name": "highAvailabilityRecommendationsByOrigin"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| where Category == 'HighAvailability'\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| where FitScore_d >= {HighAvailabilityFitScore}\r\n| where RecommendationDescription_s in ({HighAvailabilityRecommendations})\r\n| project Recommendation=RecommendationDescription_s, Instance=InstanceName_s, ['Resource Group']=ResourceGroup, Subscription=SubscriptionName_s, Impact=Impact_s, ['Fit Score']=FitScore_d, Tags=parse_json(Tags_s), ['Additional Info']=parse_json(AdditionalInfo_s), Details=DetailsURL_s\r\n| order by Impact asc, ['Fit Score']",
+              "size": 2,
+              "noDataMessage": "No High Availability recommendations available",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Recommendation",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "40ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Instance",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "30ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Resource Group",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "30ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Subscription",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "25ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Impact",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "==",
+                          "thresholdValue": "High",
+                          "representation": "Sev1",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Medium",
+                          "representation": "Sev2",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Low",
+                          "representation": "Sev3",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "more",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "Fit Score",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "min": 0,
+                      "max": 5,
+                      "palette": "redGreen"
+                    }
+                  },
+                  {
+                    "columnMatch": "Tags",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "9ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Additional Info",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "18ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Details",
+                    "formatter": 7,
+                    "formatOptions": {
+                      "linkTarget": "Url",
+                      "linkLabel": "Link"
+                    }
+                  },
+                  {
+                    "columnMatch": "Savings",
+                    "formatter": 2,
+                    "formatOptions": {
+                      "aggregation": "Sum"
+                    },
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "minimumFractionDigits": 2,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 10000
+              }
+            },
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "HighAvailability"
+            },
+            "name": "highAvailabilityRecommendationsList"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "HighAvailability"
+      },
+      "name": "highAvailabilityGroup"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "941690c0-8e7f-48fe-b8ad-f668b066bae5",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "PerformanceFitScore",
+                  "label": "Min. Fit Score",
+                  "type": 1,
+                  "description": "Minimum acceptable fit score",
+                  "isRequired": true,
+                  "timeContext": {
+                    "durationMs": 86400000
+                  },
+                  "value": "-1"
+                },
+                {
+                  "id": "74975b92-2f5d-4e1f-81ec-7af18fe851e6",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "Origin",
+                  "type": 2,
+                  "isRequired": true,
+                  "multiSelect": true,
+                  "quote": "'",
+                  "delimiter": ",",
+                  "typeSettings": {
+                    "additionalResourceOptions": [
+                      "value::all"
+                    ]
+                  },
+                  "jsonData": "[\"Advisor\",\"Custom\"]",
+                  "value": [
+                    "value::all"
+                  ]
+                },
+                {
+                  "id": "57abf104-8b39-4d00-934b-1365a8d34266",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "RecommendationsSubType",
+                  "label": "Type",
+                  "type": 2,
+                  "isRequired": true,
+                  "multiSelect": true,
+                  "quote": "'",
+                  "delimiter": ",",
+                  "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where Category == 'Performance'\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| extend Origin = iif(RecommendationSubType_s startswith \"Advisor\", \"Advisor\", \"Custom\")\r\n| where Origin in ({Origin:value})\r\n| distinct RecommendationSubType_s\r\n| order by RecommendationSubType_s asc",
+                  "typeSettings": {
+                    "additionalResourceOptions": [
+                      "value::all"
+                    ],
+                    "showDefault": false
+                  },
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces",
+                  "value": [
+                    "value::all"
+                  ]
+                },
+                {
+                  "version": "KqlParameterItem/1.0",
+                  "name": "PerformanceRecommendations",
+                  "label": "Recommendations",
+                  "type": 2,
+                  "isRequired": true,
+                  "multiSelect": true,
+                  "quote": "'",
+                  "delimiter": ",",
+                  "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where Category == 'Performance'\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| extend Origin = iif(RecommendationSubType_s startswith \"Advisor\", \"Advisor\", \"Custom\")\r\n| where Origin in ({Origin:value})\r\n| where RecommendationSubType_s in ({RecommendationsSubType:value})\r\n| distinct RecommendationDescription_s\r\n| order by RecommendationDescription_s asc",
+                  "typeSettings": {
+                    "additionalResourceOptions": [
+                      "value::all"
+                    ],
+                    "showDefault": false
+                  },
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces",
+                  "value": [
+                    "value::all"
+                  ],
+                  "id": "3e1c7c88-d638-41d2-88ca-9f237eb2dc95"
+                }
+              ],
+              "style": "above",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces"
+            },
+            "name": "performanceParameters"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where Category == 'Performance'\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| where FitScore_d >= {PerformanceFitScore}\r\n| where RecommendationDescription_s in ({PerformanceRecommendations})\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| summarize count() by SubscriptionName_s",
+              "size": 4,
+              "title": "Recommendations by subscription",
+              "noDataMessage": "No recommendations available. Review the latest Automation Account runbooks status and fix accordingly.",
+              "noDataMessageStyle": 4,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "Category",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "sum_SavingsAmount",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2,
+                      "maximumSignificantDigits": 3
+                    }
+                  }
+                },
+                "showBorder": false
+              },
+              "textSettings": {
+                "style": "bignumber"
+              }
+            },
+            "customWidth": "33",
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "Performance"
+            },
+            "showPin": true,
+            "name": "performanceRecsBySubscription"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where Category == 'Performance'\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| where FitScore_d >= {PerformanceFitScore}\r\n| where RecommendationDescription_s in ({PerformanceRecommendations})\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| summarize count() by RecommendationSubType_s",
+              "size": 4,
+              "title": "Recommendations by type",
+              "noDataMessage": "No recommendations available. Review the latest Automation Account runbooks status and fix accordingly.",
+              "noDataMessageStyle": 4,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "Category",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "sum_SavingsAmount",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2,
+                      "maximumSignificantDigits": 3
+                    }
+                  }
+                },
+                "showBorder": false
+              },
+              "textSettings": {
+                "style": "bignumber"
+              }
+            },
+            "customWidth": "33",
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "Performance"
+            },
+            "showPin": true,
+            "name": "performanceRecommendationsByType"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| where Category == 'Performance'\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| where FitScore_d >= {PerformanceFitScore}\r\n| where RecommendationDescription_s in ({PerformanceRecommendations})\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| extend Origin = iif(RecommendationSubType_s startswith \"Advisor\", \"Advisor\", \"Custom\")\r\n| summarize count() by Origin",
+              "size": 4,
+              "title": "Recommendations by origin",
+              "noDataMessage": "No recommendations available. Review the latest Automation Account runbooks status and fix accordingly.",
+              "noDataMessageStyle": 4,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "Category",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "sum_SavingsAmount",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2,
+                      "maximumSignificantDigits": 3
+                    }
+                  }
+                },
+                "showBorder": false
+              },
+              "textSettings": {
+                "style": "bignumber"
+              }
+            },
+            "customWidth": "33",
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "Performance"
+            },
+            "showPin": true,
+            "name": "performanceRecommendationsByOrigin"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let beginTime = todatetime('{LastRecommendationDateTime}')-6d;\r\nlet ActiveGlobalSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isempty(InstanceId_g) and isempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g;\r\nlet ActiveSubscriptionSuppressions = AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceId_g)\r\n| extend SubscriptionGuid_g = InstanceId_g\r\n| project RecommendationSubTypeId_g, SubscriptionGuid_g;\r\nlet ActiveInstanceSuppressions = materialize(AzureOptimizationSuppressionsV1_CL \r\n| where TimeGenerated > beginTime and FilterStartDate_t < beginTime and FilterEndDate_t > now()\r\n| where FilterType_s in ('Snooze','Dismiss')\r\n| where isnotempty(InstanceName_s)\r\n| project RecommendationSubTypeId_g, InstanceName_s);\r\nAzureOptimizationRecommendationsV1_CL\r\n| where TimeGenerated > beginTime\r\n| join kind=leftouter ( ActiveGlobalSuppressions ) on RecommendationSubTypeId_g\r\n| where isempty(RecommendationSubTypeId_g1)\r\n| join kind=leftouter ( ActiveSubscriptionSuppressions ) on RecommendationSubTypeId_g and SubscriptionGuid_g\r\n| where isempty(RecommendationSubTypeId_g2)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.InstanceName_s == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g3)\r\n| join kind=leftouter ( ActiveInstanceSuppressions ) on RecommendationSubTypeId_g and $left.ResourceGroup == $right.InstanceName_s\r\n| where isempty(RecommendationSubTypeId_g4)\r\n| where Category == 'Performance'\r\n| where \"'*'\" == \"{Subscriptions}\" or SubscriptionName_s in ({Subscriptions})\r\n| where Impact_s in ({Impact})\r\n| where iif('{TagName:label}' == '<unset>' or '{TagValue:label}' == '<unset>', true, isnotempty(parse_json(Tags_s)['{TagName:label}']) and tostring(parse_json(Tags_s)['{TagName:label}']) =~ '{TagValue}')\r\n| where FitScore_d >= {PerformanceFitScore}\r\n| where RecommendationDescription_s in ({PerformanceRecommendations})\r\n| project Recommendation=RecommendationDescription_s, Instance=InstanceName_s, ['Resource Group']=ResourceGroup, Subscription=SubscriptionName_s, Impact=Impact_s, ['Fit Score']=FitScore_d, Tags=parse_json(Tags_s), ['Additional Info']=parse_json(AdditionalInfo_s), Details=DetailsURL_s\r\n| order by Impact asc, ['Fit Score']",
+              "size": 2,
+              "noDataMessage": "No Performance recommendations available",
+              "showExportToExcel": true,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Recommendation",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "40ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Instance",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "30ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Resource Group",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "30ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Subscription",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "25ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Impact",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "==",
+                          "thresholdValue": "High",
+                          "representation": "Sev1",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Medium",
+                          "representation": "Sev2",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Low",
+                          "representation": "Sev3",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "more",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "Fit Score",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "min": 0,
+                      "max": 5,
+                      "palette": "redGreen"
+                    }
+                  },
+                  {
+                    "columnMatch": "Tags",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "9ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Additional Info",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "18ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Details",
+                    "formatter": 7,
+                    "formatOptions": {
+                      "linkTarget": "Url",
+                      "linkLabel": "Link"
+                    }
+                  },
+                  {
+                    "columnMatch": "Savings",
+                    "formatter": 2,
+                    "formatOptions": {
+                      "aggregation": "Sum"
+                    },
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "decimal",
+                        "minimumFractionDigits": 2,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ],
+                "rowLimit": 10000
+              }
+            },
+            "conditionalVisibility": {
+              "parameterName": "selectedTab",
+              "comparison": "isEqualTo",
+              "value": "Performance"
+            },
+            "name": "performanceRecommendationsList"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Performance"
+      },
+      "name": "performanceGroup"
+    }
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

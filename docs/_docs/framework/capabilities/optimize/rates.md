@@ -57,7 +57,7 @@ Before you purchase either a reservation or a savings plan, consider the usage y
 ## ▶️ Getting started
 
 <!-- TODO: Consider adding dev/test, but make sure it's for more than just EA 
-Leverage the [Azure Dev/Test](https://azure.microsoft.com/en-us/pricing/offers/ms-azr-0148p/) offer that comes with a Visual Studio subscription to take advantage of Azure monthly credits to explore and try various Azure services, benefit from discounted Azure dev/test rates, and enable cost-efficient developing and testing. Although rate optimization strategies can be applied to resources in a development environment, the Azure Dev/Test environment is primarily used for learning and training, development and testing, evaluating proof of concepts, and experimenting and innovating to ensure efficient use of resources.
+Leverage the [Azure Dev/Test](https://azure.microsoft.com/pricing/offers/ms-azr-0148p/) offer that comes with a Visual Studio subscription to take advantage of Azure monthly credits to explore and try various Azure services, benefit from discounted Azure dev/test rates, and enable cost-efficient developing and testing. Although rate optimization strategies can be applied to resources in a development environment, the Azure Dev/Test environment is primarily used for learning and training, development and testing, evaluating proof of concepts, and experimenting and innovating to ensure efficient use of resources.
 -->
 
 Microsoft offers several tools to help you identify when you should consider purchasing reservations or savings plans. You can choose whether you want to start by analyzing usage or by reviewing the system-generated recommendations based on your historical usage and cost. We recommend starting with the recommendations to focus your initial efforts:
@@ -86,7 +86,7 @@ At this point, you have commitment discounts in place. As you move beyond the ba
   - Consider implementing a consistent utilization and coverage monitoring system that covers all accounts.
 - Establish a process for centralized purchasing of commitment-based offers, assigning responsibility to a dedicated team or individual.
 - Consider programmatically aligning governance policies with commitments to prioritize SKUs and locations that are covered by reservations and aren't fully utilized when deploying new applications.
-- If you need to monitor the usage of commitment discounts outside of the Azure portal, consider deploying FinOps hubs which includes a [Commitment discounts report](../../../../_reporting/power-bi/commitment-discounts.md) that summarizes existing and potential savings from commitment discounts, like reservations and savings plans.
+- If you need to monitor the usage of commitment discounts outside of the Azure portal, consider deploying FinOps hubs which includes a [Rate optimization report](../../../../_reporting/power-bi/rate-optimization.md) that summarizes existing and potential savings from commitment discounts, like reservations and savings plans.
 
 <br>
 
@@ -96,8 +96,8 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
-<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.html title="Managing commitment discounts videos" id="CR6D5DlPwtm7Bbdr" list="PLUSCToibAswm37b7-VLl3nJ7A4wuGSpCI" %}
+<!--[!VIDEO https://www.youtube.com/embed/jO2WlOHmbN8?list=PLUSCToibAswm37b7-VLl3nJ7A4wuGSpCI&pp=iAQB]-->
+{% include video.html title="Rate optimization videos" id="jO2WlOHmbN8" list="PLUSCToibAswm37b7" %}
 
 <br>
 

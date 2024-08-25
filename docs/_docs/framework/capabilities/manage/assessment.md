@@ -4,7 +4,7 @@ grand_parent: FinOps Framework
 parent: Manage
 title: Assessment
 permalink: /framework/capabilities/manage/assessment
-nav_order: 1
+nav_order: 6
 description: This article helps you understand the FinOps assessment capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
@@ -76,7 +76,7 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 Related FinOps capabilities:
 
-- [Benchmarking](../optimize/benchmarking.md)
+- [Benchmarking](../quantify/benchmarking.md)
 - [Reporting and analytics](../understand/reporting.md)
 
 <br>

@@ -1,0 +1,82 @@
+{
+  "errors": [
+    {
+      "code": "BadHubVersion",
+      "severity": "Critical",
+      "message": "FinOps hubs 0.2 is not operational. Please upgrade to version 0.3 or later.",
+      "mitigation": "Upgrade to the latest version of FinOps hubs at https://aka.ms/finops/hubs."
+    },
+    {
+      "code": "InvalidExportContainer",
+      "severity": "Critical",
+      "message": "This file looks like it may be exported from Cost Management but it is not in the correct container.",
+      "mitigation": "Update your Cost Management export to point to the 'msexports' storage container. The 'ingestion' container is only used for querying ingested cost data."
+    },
+    {
+      "code": "InvalidExportVersion",
+      "severity": "Critical",
+      "message": "FinOps hubs requires FOCUS cost exports but this file looks like a legacy Cost Management export.",
+      "mitigation": "Create a new Cost Management export for FOCUS cost and either stop the current export or change it to export to a different storage container."
+    },
+    {
+      "code": "InvalidHubVersion",
+      "severity": "Critical",
+      "message": "FinOps hubs 0.1.1 and earlier does not work with this Power BI report.",
+      "mitigation": "Upgrade to the latest version of FinOps hubs at https://aka.ms/finops/hubs or download Power BI reports from https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1."
+    },
+    {
+      "code": "InvalidScopeId",
+      "severity": "Informational",
+      "message": "The export path is not a valid scope ID. FinOps hubs expects the export path to be an Azure resource ID for the scope the export was created to simplify management. This should not cause failures, but may result in confusing results for scope-related reports.",
+      "mitigation": "Update the storage path for the Cost Management export to use the full Azure resource ID for the scope."
+    },
+    {
+      "code": "ExportNotFound",
+      "severity": "Critical",
+      "message": "Cost Management data has not been exported.",
+      "mitigation": "Create a new FOCUS export in Cost Management at https://aka.ms/exportsv2. After created, select 'Run now' to start the export process."
+    },
+    {
+      "code": "ManifestReadFailed",
+      "severity": "Critical",
+      "message": "FinOps hub msexports_ExecuteETL pipeline failed to read the Cost Management manifest file.",
+      "mitigation": "If the error occurred on a working hub instance when no changes were made to the hub or export, then Cost Management may have changed the manifest schema for an existing API version. If the error occurred after creating a new or changing an existing export, then the export API version may use a new manifest schema that is not supported yet. If the error occurred after a hub deployment (initial install or upgrade), then the deployment may have failed or there could be a bug in the pipeline. Review the manifest file to determine if 1 or 2 are applicable. Review and redeploy the template if 3 is applicable. Create an issue or start a discussion in GitHub for further assistance as needed."
+    },
+    {
+      "code": "NoDataIngested",
+      "severity": "Critical",
+      "message": "The export path is not a valid scope ID. FinOps hubs expects the export path to be an Azure resource ID for the scope the export was created to simplify management. This should not cause failures, but may result in confusing results for scope-related reports.",
+      "mitigation": "Update the storage path for the Cost Management export to use the full Azure resource ID for the scope."
+    },
+    {
+      "code": "SchemaLoadFailed",
+      "severity": "Critical",
+      "message": "FinOps hub msexports_ETL_ingestion pipeline failed to load the schema file.",
+      "mitigation": "Review the error message to note the dataset type and version, which are formatted with an underscore (e.g., '<type>_<version>' or 'FocusCost_1.0'). Confirm that the dataset and type are both supported by the deployed version of FinOps hubs."
+    },
+    {
+      "code": "SchemaNotFound",
+      "severity": "Critical",
+      "message": "FinOps hub msexports_ExecuteETL pipeline was not able to find the schema mapping file for the exported dataset.",
+      "mitigation": "Confirm the dataset type and version are supported."
+    },
+    {
+      "code": "UnknownExportFile",
+      "severity": "Informational",
+      "message": "This file does not look like it was exported from Cost Management. File will be ignored.",
+      "mitigation": "The 'msexports' container is intended for Cost Management exports only. Please move other files in another storage container."
+    },
+    {
+      "code": "UnknownHubVersion",
+      "severity": "Critical",
+      "message": "Unable to identify the version of FinOps hubs from the settings file. Please verify settings are correct. FinOps hubs 0.1.1 and earlier does not work with this Power BI report.",
+      "mitigation": "Upgrade to the latest version of FinOps hubs at https://aka.ms/finops/hubs or download Power BI reports from https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1."
+    },
+    {
+      "code": "UnsupportedExportType",
+      "severity": "Warning",
+      "message": "This export manifest indicates the export was for an unsupported dataset. Exported data will be reported as ingestion errors.",
+      "mitigation": "Create a new Cost Management export for FOCUS cost and either stop the current export or change it to export to a different storage container."
+    }
+  ]
+}

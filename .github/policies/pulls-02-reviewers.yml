@@ -1,0 +1,259 @@
+id: pulls-02-reviewers
+name: GitOps.PullRequestIssueManagement
+description: Handles when a PR is opened with specific file paths
+owner:
+resource: repository
+disabled: false
+where:
+
+# spell-checker:disable
+configuration:
+  resourceManagementConfiguration:
+    eventResponderTasks:
+      - description: When a PR is opened, add reviewers and labels based on file paths
+        if:
+          - payloadType: Pull_Request
+          - not:
+              targetsBranch:
+                branch: main
+        then:
+          # all paths -- Arthur
+          - if:
+              - not:
+                  isActivitySender:
+                    user: arthurclares
+            then:
+              - requestReview:
+                  reviewer: arthurclares
+              - assignTo:
+                  user: arthurclares
+          # all paths -- Michael
+          - if:
+              - not:
+                  isActivitySender:
+                    user: flanakin
+            then:
+              - requestReview:
+                  reviewer: flanakin
+              - assignTo:
+                  user: flanakin
+          # devops
+          - if:
+              - or:
+                  - filesMatchPattern:
+                      pattern: ^(\.build|\.github|\.vscode|src\/scripts)\/.*
+                  - filesMatchPattern:
+                      pattern: ^src\/([^\/]+\/)?[^\/]+.md$
+                  - filesMatchPattern:
+                      pattern: ^package.json$
+            then:
+              - addLabel:
+                  label: 'Skill: DevOps'
+              # Anthony
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: aromano2
+                then:
+                  - requestReview:
+                      reviewer: aromano2
+                  - assignTo:
+                      user: aromano2
+          # docs
+          - if:
+              - filesMatchPattern:
+                  pattern: ^docs\/.*
+            then:
+              - addLabel:
+                  label: 'Skill: Documentation'
+          - if:
+              - filesMatchPattern:
+                  pattern: ^(docs\/(_docs|_guide)|docs-mslearn\/framework|docs-mslearn\/focus)\/.*
+            then:
+              - addLabel:
+                  label: 'Tool: FinOps guide'
+          # bicep
+          - if:
+              - filesMatchPattern:
+                  pattern: ^src\/.*\.bicep
+            then:
+              - addLabel:
+                  label: 'Skill: Deployment'
+          - if:
+              - filesMatchPattern:
+                  pattern: ^(docs\/_automation|docs-mslearn\/toolkit|src)\/bicep-registry\/.*
+            then:
+              - addLabel:
+                  label: 'Tool: Bicep Registry'
+          # hubs
+          - if:
+              - or:
+                  - filesMatchPattern:
+                      pattern: ^(docs\/_reporting\/hubs|src\/templates\/finops-hub)\/.*
+                  - filesMatchPattern:
+                      pattern: ^src\/powershell\/.*Hub.*
+            then:
+              - addLabel:
+                  label: 'Tool: FinOps hubs'
+              # Brett
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: msbrett
+                then:
+                  - requestReview:
+                      reviewer: msbrett
+                  - assignTo:
+                      user: msbrett
+          # open data
+          - if:
+              - or:
+                  - filesMatchPattern:
+                      pattern: ^docs\/_reporting\/data\/.*
+                  - filesMatchPattern:
+                      pattern: ^docs-mslearn\/toolkit\/open-data\/.*
+                  - filesMatchPattern:
+                      pattern: ^src\/open-data\/.*
+            then:
+              - addLabel:
+                  label: 'Tool: Open data'
+          # power-bi
+          - if:
+              - filesMatchPattern:
+                  pattern: ^(docs\/_reporting|src)\/power-bi\/.*
+            then:
+              - addLabel:
+                  label: 'Tool: Power BI'
+          # powershell
+          - if:
+              - filesMatchPattern:
+                  pattern: ^(docs\/_automation|docs-mslearn\/toolkit|src)\/powershell\/.*
+            then:
+              - addLabel:
+                  label: 'Tool: PowerShell'
+              # Anthony
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: aromano2
+                then:
+                  - requestReview:
+                      reviewer: aromano2
+                  - assignTo:
+                      user: aromano2
+              # Divyadeep
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: didayal-msft
+                then:
+                  - requestReview:
+                      reviewer: didayal-msft
+                  - assignTo:
+                      user: didayal-msft
+              # Helder
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: helderpinto
+                then:
+                  - requestReview:
+                      reviewer: helderpinto
+                  - assignTo:
+                      user: helderpinto
+              # Sacha
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: springstone
+                then:
+                  - requestReview:
+                      reviewer: springstone
+                  - assignTo:
+                      user: springstone
+          # optimization engine
+          - if:
+              - filesMatchPattern:
+                  pattern: ^(docs\/_optimize|docs-mslearn\/toolkit|src)\/optimization-engine\/.*
+            then:
+              - addLabel:
+                  label: 'Tool: Optimization Engine'
+              # Helder
+              - if:
+                  - not:
+                      isActivitySender:
+                        user: helderpinto
+                then:
+                  - requestReview:
+                      reviewer: helderpinto
+                  - assignTo:
+                      user: helderpinto
+          # terraform
+          - if:
+              - filesMatchPattern:
+                  pattern: ^src\/.*\.tf
+            then:
+              - addLabel:
+                  label: 'Skill: Deployment'
+          # workbooks
+          - if:
+              - or:
+                  - filesMatchPattern:
+                      pattern: ^docs\/_optimize\/workbooks\/.*
+                  - filesMatchPattern:
+                      pattern: ^docs\/_optimize\/[^-]+-workbook\/.*
+                  - filesMatchPattern:
+                      pattern: ^src\/scripts\/Build-Workbook.ps1$
+                  - filesMatchPattern:
+                      pattern: ^src\/workbooks\/.*
+            then:
+              - addLabel:
+                  label: 'Tool: Workbooks'
+              - if:
+                  - filesMatchPattern:
+                      pattern: ^(docs\/_optimize\/optimization-workbook|src\/workbooks\/optimization)\/.*
+                then:
+                  - addLabel:
+                      label: 'Tool: Optimization workbook'
+              - if:
+                  - filesMatchPattern:
+                      pattern: ^(docs\/_optimize\/governance-workbook|docs-mslearn\/toolkit\/governance-workbook|src\/workbooks\/governance)\/.*
+                then:
+                  - addLabel:
+                      label: 'Tool: Governance workbook'
+              # Nicolas
+              - if:
+                  - or:
+                      - filesMatchPattern:
+                          pattern: ^(docs\/_optimize|docs-mslearn\/toolkit)\/governance-workbook\/.*
+                      - filesMatchPattern:
+                          pattern: ^src\/scripts\/Build-Workbook.ps1$
+                      - filesMatchPattern:
+                          pattern: ^src\/workbooks\/(\.scaffold|governance)\/.*
+                  - not:
+                      isActivitySender:
+                        user: nteyan
+                then:
+                  - requestReview:
+                      reviewer: nteyan
+                  - assignTo:
+                      user: nteyan
+              # Seif
+              - if:
+                  - or:
+                      - filesMatchPattern:
+                          pattern: ^(docs\/_optimize|docs-mslearn\/toolkit)\/optimization-workbook\/.*
+                      - filesMatchPattern:
+                          pattern: ^src\/scripts\/Build-Workbook.ps1$
+                      - filesMatchPattern:
+                          pattern: ^src\/workbooks\/(\.scaffold|optimization)\/.*
+                  - not:
+                      isActivitySender:
+                        user: sebassem
+                then:
+                  - requestReview:
+                      reviewer: sebassem
+                  - assignTo:
+                      user: sebassem
+onFailure:
+onSuccess:
