@@ -61,6 +61,7 @@ Legend:
 > 1. Analytics engine – Ingest cost data into an Azure Data Explorer cluster.
 > 2. Auto-backfill – Backfill historical data from Microsoft Cost Management.
 > 3. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
+> 4. Added documentation to use a SAS token to configuring Power BI reports.
 
 <br><a name="latest"></a>
 
