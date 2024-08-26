@@ -82,7 +82,7 @@ Starting with well-defined requirements that are aligned across teams helps set 
 
 ## 🏗️ Building on the basics
 
-- Use the [Cost optimization workbook](../../../../_optimize/optimization-workbook/README.md) to optimize current workloads and reduce potential future estimates.
+- Use the [Cost optimization workbook](../../../../_optimize/workbooks/optimization/README.md) to optimize current workloads and reduce potential future estimates.
 - Review the [Architecting for cloud](../optimize/architecting.md) capability to ensure workloads are designed for efficiency.
 - Evaluate options to reduce costs through the [Rate optimization](../optimize/rates.md) capability.
 - Automate best practices through [Azure Policy](https://learn.microsoft.com/azure/governance/policy/overview) to enforce organizational standards at scale.

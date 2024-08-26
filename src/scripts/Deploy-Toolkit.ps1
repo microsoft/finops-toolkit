@@ -56,28 +56,27 @@ Param(
 # Use the debug flag from common parameters to determine whether to run in debug mode
 $Debug = $DebugPreference -eq "Continue"
 
-function iff([bool]$Condition, $IfTrue, $IfFalse) {
+function iff([bool]$Condition, $IfTrue, $IfFalse)
+{
     if ($Condition) { $IfTrue } else { $IfFalse }
 }
 
 # Build toolkit if requested
-if ($Build) {
+if ($Build)
+{
     & "$PSScriptRoot/Build-Toolkit" -Template $Template
-    # NOTE: Include templates after release to account for test templates, which are not included in release builds
-    $templateFolders = @("$PSScriptRoot/../../release", "$PSScriptRoot/../templates")
-} else {
-    # NOTE: Do not include the workbooks folder since they must be built first; they're included in the release folder
-    $templateFolders = @("$PSScriptRoot/../templates", "$PSScriptRoot/../bicep-registry", "$PSScriptRoot/../../release")
 }
 
 # Don't run test and demo deployment at the same time
-if ($Test -and $Demo) {
+if ($Test -and $Demo)
+{
     Write-Error "Cannot specify both -Test and -Demo. Please try again."
     return
 }
 
 # Generates a unique name based on the signed in username and computer name for local testing
-function Get-UniqueName() {
+function Get-UniqueName()
+{
     # NOTE: For some reason, using variables directly does not get the value until we write them
     $c = $env:ComputerName
     $u = $env:USERNAME
@@ -97,12 +96,14 @@ $defaultParameters = @{
 $global:ftkDeployment = $null
 
 # If deploying a workbook, switch to the release folder name
-if (Test-Path "$PSScriptRoot/../workbooks/$Template") {
+if (Test-Path "$PSScriptRoot/../workbooks/$Template")
+{
     $Template = "$Template-workbook"
 }
 
 # Find bicep file
-$templateFolders `
+# NOTE: Include templates after release to account for test templates, which are not included in release builds
+@("$PSScriptRoot/../../release") `
 | ForEach-Object { Get-Item (Join-Path $_ $Template (iff $Test test/main.test.bicep main.bicep)) -ErrorAction SilentlyContinue } `
 | ForEach-Object {
     $templateFile = $_
@@ -115,14 +116,19 @@ $templateFolders `
     $Parameters = iff ($null -eq $Parameters) @{} $Parameters
 
     Write-Host "Deploying $templateName (from $parentFolder)..."
-    switch ($targetScope) {
-        "resourceGroup" {
+    switch ($targetScope)
+    {
+        "resourceGroup"
+        {
 
             # Set default RG name
-            if ($Demo) {
+            if ($Demo)
+            {
                 # Use "FinOps-Toolkit-Demo" for the demo
                 $ResourceGroup = "FinOps-Toolkit-Demo"
-            } elseif ([string]::IsNullOrEmpty($ResourceGroup)) {
+            }
+            elseif ([string]::IsNullOrEmpty($ResourceGroup))
+            {
                 # Use "ftk-<username>-<computername>" for local testing
                 $ResourceGroup = Get-UniqueName
             }
@@ -130,12 +136,16 @@ $templateFolders `
             Write-Host "  → [rg] $ResourceGroup..."
             $Parameters.Keys | ForEach-Object { Write-Host "         $($_) = $($Parameters[$_])" }
 
-            if ($Debug) {
+            if ($Debug)
+            {
                 Write-Host "         $templateFile"
-            } else {
+            }
+            else
+            {
                 # Create resource group if it doesn't exist
                 $rg = Get-AzResourceGroup $ResourceGroup -ErrorAction SilentlyContinue
-                If ($null -eq $rg) {
+                If ($null -eq $rg)
+                {
                     New-AzResourceGroup `
                         -Name $ResourceGroup `
                         -Location $Location `
@@ -154,14 +164,18 @@ $templateFolders `
             return "https://portal.azure.com/#resource/subscriptions/$((Get-AzContext).Subscription.Id)/resourceGroups/$ResourceGroup"
 
         }
-        "subscription" {
+        "subscription"
+        {
 
             Write-Host "  → [sub] $((Get-AzContext).Subscription.Name)..."
             $Parameters.Keys | ForEach-Object { Write-Host "          $($_) = $($Parameters[$_])" }
 
-            if ($Debug) {
+            if ($Debug)
+            {
                 Write-Host "          $templateFile"
-            } else {
+            }
+            else
+            {
                 $global:ftkDeployment = New-AzSubscriptionDeployment `
                     -TemplateFile $templateFile `
                     -TemplateParameterObject $Parameters `
@@ -173,18 +187,23 @@ $templateFolders `
             return "https://portal.azure.com/#resource/subscriptions/$((Get-AzContext).Subscription.Id)"
 
         }
-        "managementGroup" {
+        "managementGroup"
+        {
             Write-Error "Management group deployments have not been implemented yet"
         }
-        "tenant" {
+        "tenant"
+        {
 
             $azContext = (Get-AzContext).Tenant
             Write-Host "  → [tenant] $(iff ([string]::IsNullOrWhitespace($azContext.Name)) $azContext.Id $azContext.Name)..."
             $Parameters.Keys | ForEach-Object { Write-Host "             $($_) = $($Parameters[$_])" }
 
-            if ($Debug) {
+            if ($Debug)
+            {
                 Write-Host "             $templateFile"
-            } else {
+            }
+            else
+            {
                 $global:ftkDeployment = New-AzTenantDeployment `
                     -TemplateFile $templateFile `
                     -TemplateParameterObject $Parameters `
