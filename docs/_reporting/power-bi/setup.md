@@ -70,9 +70,8 @@ The FinOps toolkit Power BI reports include pre-configured visuals, but are not 
    ![Screenshot of instructions to connect to a FinOps hub](https://github.com/microsoft/finops-toolkit/assets/399533/5582b428-e811-4d7e-83d0-4a8fbb905d30)
 
 2. **Use the SAS Token to setup permission for the power BI dashboards:** Generate the Shared Access Signature (SAS) token for storage account ingestion container to provide required permissions for the power BI dashboards. Follow the steps below:
-   - Navigate the FinOps deployment storage account, within the storage account blade select **Data Storage > Containers** and open the ingestion container.
-   - Within the ingestion container blade on the left select **settings> Shared access tokens**. Choose the account key radio button.
-   - On the permissions dropdown select the **Read, Add, Create, Write, Delete, List, Move, Execute, Ownership, Permissions**, provide the start and expiry date and time range, keep the rest as default. Select `Generate SAS token and URL` button. Copy the generated token.
+   - Navigate the FinOps deployment storage account, within the storage account blade under security + networking tab on the left, select **Shared access signature**. 
+   - On the Shared Accesss Signature blade. On the Allowed resource types select `Container` and `Object`, in the allowed permissions field select the **Read, List**, provide the start and expiry date and time range, keep the rest as default. Select `Generate SAS token and URL` button. Copy the generated token.
   ![Image representing the SAS token configuration](../../assets/images/aoe/azure-storage-account-SAS.png)
    - On the opened power BI dashboard, within **Transform data** window, select the `Data Source Settings`, within the windows select the `Edit permissions` button, in the edit permissions windows, click on 'Edit' button below credentials. 
   ![data source settings within Transform Data](../../assets/images/aoe/powerbi-dashboard-SAS-setup.png)  
