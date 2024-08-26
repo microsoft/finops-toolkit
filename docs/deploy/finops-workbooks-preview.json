@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "4500247078298091093"
+      "templateHash": "2719732251749605005"
     }
   },
   "parameters": {
@@ -116,7 +116,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "17463300463104115290"
+              "templateHash": "375643854344658305"
             }
           },
           "parameters": {
@@ -11497,7 +11497,7 @@
             "workbookId": "0b2",
             "telemetryId": "[format('00f120b5-2007-6120-0000-{0}30126b006', variables('workbookId'))]",
             "finOpsToolkitVersion": "0.5-dev",
-            "resourceTags": "[union(parameters('tags'), createObject('ftk-version', variables('finOpsToolkitVersion'), 'ftk-tool', format('{0} workbook', parameters('displayName'))))]"
+            "resourceTags": "[if(contains(parameters('tags'), 'ftk-tool'), parameters('tags'), union(parameters('tags'), createObject('ftk-version', variables('finOpsToolkitVersion'), 'ftk-tool', format('{0} workbook', parameters('displayName')))))]"
           },
           "resources": [
             {
@@ -11587,7 +11587,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "9348274408623406855"
+              "templateHash": "11087907330537215873"
             }
           },
           "parameters": {
@@ -19761,7 +19761,7 @@
             "workbookId": "907",
             "telemetryId": "[format('00f120b5-2007-6120-0000-{0}30126b006', variables('workbookId'))]",
             "finOpsToolkitVersion": "0.5-dev",
-            "resourceTags": "[union(parameters('tags'), createObject('ftk-version', variables('finOpsToolkitVersion'), 'ftk-tool', format('{0} workbook', parameters('displayName'))))]"
+            "resourceTags": "[if(contains(parameters('tags'), 'ftk-tool'), parameters('tags'), union(parameters('tags'), createObject('ftk-version', variables('finOpsToolkitVersion'), 'ftk-tool', format('{0} workbook', parameters('displayName')))))]"
           },
           "resources": [
             {

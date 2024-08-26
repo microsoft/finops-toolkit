@@ -17,13 +17,13 @@
       {
         "name": "displayNamePrefix",
         "type": "Microsoft.Common.TextBox",
-        "label": "Name",
+        "label": "Name prefix",
         "defaultValue": "FinOps",
-        "toolTip": "Prefix to use for each of the workbook names.",
+        "toolTip": "Prefix to use for each of the workbook names (e.g., 'FinOps-Optimization', 'FinOps-Governance').",
         "constraints": {
           "required": true,
           "regex": "^.{1,220}$",
-          "validationMessage": "Name cannot be longer than 250 characters."
+          "validationMessage": "Name prefix cannot be longer than 220 characters."
         },
         "visible": true
       }
@@ -41,14 +41,16 @@
           {
             "name": "includeOptimization",
             "label": "Optimization",
-            "toolTip": "Select to include the optimization workbook.",
-            "type": "Microsoft.Common.CheckBox"
+            "toolTip": "Select to include the optimization workbook for workload and rate optimization as well as sustainability, security, and more.",
+            "type": "Microsoft.Common.CheckBox",
+            "defaultValue": true
           },
           {
             "name": "includeGovernance",
             "label": "Governance",
-            "toolTip": "Select to include the governance workbook.",
-            "type": "Microsoft.Common.CheckBox"
+            "toolTip": "Select to include the governance workbook for queries to support the Well-Architected Framework governance pillar.",
+            "type": "Microsoft.Common.CheckBox",
+            "defaultValue": true
           }
         ]
       },
