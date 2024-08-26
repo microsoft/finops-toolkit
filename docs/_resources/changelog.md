@@ -118,14 +118,14 @@ Legend:
 📒 Azure Monitor workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
-> ➕ Added:
+> ➕ Added::
 >
 > - [Optimization workbook](../_optimize/optimization-workbook/README.md):
 >   1. New compute query to identify VMs per processor architecture type
 >   2. New database query to identify SQL Pool instances with 0 databases
 >   3. New storage query to identify Powered Off VMs with Premium Disks
 >
-> ✏️ Changed:
+> ✏️ Changed::
 >
 > - [Optimization workbook](../_optimize/optimization-workbook/README.md):
 >   1. Redesign of the Rate Optimization tab for easier identification of the break-even point for reservations
@@ -161,11 +161,15 @@ Legend:
 >
 > 1. Added support for FOCUS, pricesheet, and reservation dataset filters in [Get-FinOpsCostExport](../_automation/powershell/cost/Get-FinOpsCostExport.md).
 > 2. Added a `-DatasetVersion` filter in [Get-FinOpsCostExport](../_automation/powershell/cost/Get-FinOpsCostExport.md).
+>
+> 🛠️ Fixed:
+>
+> 1. Fixed [New-FinOpsCostExport](../_automation/powershell/cost/New-FinOpsCostExport.md) to address breaking change in Cost Management when storage paths start with "/".
 
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
-> ➕ Added:
+> ➕ Added::
 >
 > - [Pricing units](../_reporting/data/README.md#-pricing-units)
 >   1. Added handling for the following new UnitOfMeasure values: "1 /Minute", "10 PiB/Hour", "100000 /Month", "Text".
@@ -177,7 +181,7 @@ Legend:
 >   1. Added the following consumed services:  "API Center", "API Management", "Bastion Scale Units", "Microsoft.Community", "Microsoft.DataReplication.Admin", "Microsoft.DevOpsInfrastructure", "Microsoft.Dynamics365FraudProtection", "Microsoft.HybridContainerService", "Microsoft.NetworkFunction", "Microsoft.RecommendationsService", "Microsoft.ServiceNetworking", "Virtual Network".
 >   2. Added the following resource types to existing services:  "Microsoft.AgFoodPlatform/farmBeats", "Microsoft.App/sessionPools", "Microsoft.AzureActiveDirectory/ciamDirectories", "Microsoft.AzureArcData/sqlServerEsuLicenses", "Microsoft.Graph/accounts", "Microsoft.MachineLearningServices/registries", "Microsoft.Orbital/groundStations", "PlayFabBillingService/partyVoice".
 >
-> ✏️ Changed
+> ✏️ Changed:
 >
 > - [Pricing units](../_reporting/data/README.md#-pricing-units)
 >   1. Changed DistinctUnits for the "10000s" UnitOfMeasure from "Units" to "Transactions".
@@ -240,7 +244,7 @@ Legend:
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
-> ➕ Added:
+> ➕ Added::
 >
 > - General:
 >   1. **x_IncrementalRefreshDate** column to facilitate configuring incremental refresh in Power BI.
@@ -250,7 +254,7 @@ Legend:
 > - [Data ingestion](../_reporting/power-bi/data-ingestion.md):
 >   1. [Ingestion errors page](../_reporting/power-bi/data-ingestion.md#ingestion-errors) to help identify FinOps hub data ingestion issues.
 >
-> ✏️ Changed
+> ✏️ Changed:
 >
 > - General:
 >   1. Changed the **Tags** column to default to `{}` when empty to facilitate tag expansion ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
@@ -273,7 +277,7 @@ Legend:
 >         _We are investigating an issue where we are missing rounding adjustments since May 2024. We do not yet know the cause of this issue._
 >      </blockquote>
 >
-> 🛠️ Fixed:
+> 🛠️ Fixed::
 >
 > - General:
 >   1. Improved parsing for the `x_ResourceParentName` and `x_ResourceParentType` columns ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
@@ -285,7 +289,7 @@ Legend:
 📒 Azure Monitor workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
-> ➕ Added:
+> ➕ Added::
 >
 > - [Optimization workbook](../_optimize/optimization-workbook/README.md):
 >   1. Added reservation recommendations with the break-even point to identify when savings would be achieved.
@@ -298,7 +302,7 @@ Legend:
 > - [Governance workbook](../_optimize/governance-workbook/README.md):
 >   1. Added managed disk usage monitoring.
 
-> ✏️ Changed:
+> ✏️ Changed::
 >
 > - [Optimization workbook](../_optimize/optimization-workbook/README.md):
 >   1. Redesigned the Sustainability tab to clarify recommendations.
@@ -341,7 +345,7 @@ Legend:
 > 1. Added a new FOCUS 1.0 [dataset example](../_reporting/data/README.md#️-dataset-examples).
 > 2. Added [dataset metadata](../_reporting/data/README.md#️-dataset-metadata) for FOCUS 1.0 and FOCUS 1.0-preview.
 >
-> ✏️ Changed
+> ✏️ Changed:
 >
 > 1. Updated all [open data files](../_reporting/data/README.md) to include the latest data.
 > 2. Changed the primary columns in the [Regions](../_reporting/data/README.md#️-regions) and [Services](../_reporting/data/README.md#️-services) open data files to be lowercase.
@@ -507,7 +511,7 @@ Legend:
 📒 Azure Monitor workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
-> ➕ Added:
+> ➕ Added::
 >
 > - [Optimization workbook](../_optimize/optimization-workbook/README.md):
 >   1. Storage: Identify Idle Backups: Review protected items' backup activity to spot items not backed up in the last 90 days.
@@ -515,12 +519,12 @@ Legend:
 >   3. Networking: Azure Firewall Premium Features: Identify Azure Firewalls with Premium SKU and ensure associated policies leverage premium-only features.
 >   4. Networking: Firewall Optimization: Streamline Azure Firewall usage by centralizing instances in the hub virtual network or Virtual WAN secure hub.
 >
-> ✏️ Changed:
+> ✏️ Changed::
 >
 > - [Optimization workbook](../_optimize/optimization-workbook/README.md):
 >   1. Top 10 services: Improved Monitoring tabs: Enhance your monitoring experience with updated Azure Advisor recommendations for Log Analytics.
 >
-> 🛠️ Fixed:
+> 🛠️ Fixed::
 >
 > - [Optimization workbook](../_optimize/optimization-workbook/README.md):
 >   1. AHB: Fixed AHB to support Windows 10/Windows 11

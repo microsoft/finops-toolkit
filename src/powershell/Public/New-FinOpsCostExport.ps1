@@ -22,7 +22,7 @@
     Optional. Dataset to export. Allowed values = "ActualCost", "AmortizedCost", "FocusCost", "PriceSheet", "ReservationDetails", "ReservationTransactions", "ReservationRecommendations". Default = "FocusCost".
     
     .PARAMETER DatasetVersion
-    Optional. Schema version of the dataset to export. Default = "1.0-preview(v1)" (applies to FocusCost only).
+    Optional. Schema version of the dataset to export. Default = "1.0" (applies to FocusCost only).
 
     .PARAMETER DatasetFilters
     Optional. Dictionary of key/value pairs to filter the dataset with. Only applies to ReservationRecommendations dataset in 2023-07-01-preview. Valid filters are reservationScope (Shared or Single), resourceType (e.g., VirtualMachines), lookBackPeriod (Last7Days, Last30Days, Last60Days).
@@ -64,7 +64,7 @@
     Optional. Number of months to export the data for. This is only run once at create time. Failed exports are not re-attempted. Not supported when -OneTime is set. Default = 0.
 
     .PARAMETER ApiVersion
-    Optional. API version to use when calling the Cost Management Exports API. Default = 2023-03-01.
+    Optional. API version to use when calling the Cost Management Exports API. Default = 2023-07-01-preview.
 
     .EXAMPLE
     New-FinopsCostExport -Name 'July2023OneTime' `
@@ -250,9 +250,8 @@ function New-FinOpsCostExport
                     destination = @{
                         resourceId     = $StorageAccountId
                         container      = $StorageContainer.ToLower()
-                        rootFolderPath = $StoragePath
-                        # TODO: Add sasToken
-                        # TODO: Add storageAccount
+                        rootFolderPath = $StoragePath.Trim('/')
+                        # TODO: Add storageAccount + sasToken
                     }
                 }
                 partitionData = (-not $DoNotPartition)
