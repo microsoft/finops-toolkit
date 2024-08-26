@@ -68,8 +68,8 @@
     ],
     "outputs": {
       "displayNamePrefix": "[basics('displayNamePrefix')]",
-      "includeOptimization": "[basics('includeOptimization')]",
-      "includeGovernance": "[basics('includeGovernance')]",
+      "includeOptimization": "[steps('workbooks').includeOptimization]",
+      "includeGovernance": "[steps('workbooks').includeGovernance]",
       "location": "[location()]",
       "tags": "[steps('tags').tagsByResource]"
     }
