@@ -39,10 +39,10 @@ configuration:
           - Remove the `Needs: Attention 👋` label
           - Label with `Needs: Triage 🔍`
         if:
-          - or
+          - or:
               - payloadType: Issues
               - payloadType: Issue_Comment
-          - or
+          - or:
               - labelAdded:
                   label: 'Needs: Information'
               - labelAdded:
@@ -62,10 +62,10 @@ configuration:
           - Remove the `Needs: Attention 👋` label
           - Label with `Needs: Triage 🔍`
         if:
-          - or
+          - or:
               - payloadType: Issues
               - payloadType: Issue_Comment
-          - or
+          - or:
               - hasLabel:
                   label: 'Needs: Information'
               - hasLabel:
