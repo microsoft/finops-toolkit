@@ -69,7 +69,16 @@ The FinOps toolkit Power BI reports include pre-configured visuals, but are not 
 
    ![Screenshot of instructions to connect to a FinOps hub](https://github.com/microsoft/finops-toolkit/assets/399533/5582b428-e811-4d7e-83d0-4a8fbb905d30)
 
-2. If using the [Cost Management connector report](./connector.md) or [Rate optimization report](./rate-optimization.md), set the following properties in the **🛠️ Setup** > **CM connector** folder:
+2. **Use the SAS Token to setup permission for the power BI dashboards:** Generate the Shared Access Signature (SAS) token for storage account ingestion container to provide required permissions for the power BI dashboards. Follow the steps below:
+   - Navigate the FinOps deployment storage account, within the storage account blade select **Data Storage > Containers** and open the ingestion container.
+   - Within the ingestion container blade on the left select **settings> Shared access tokens**. Choose the account key radio button.
+   - On the permissions dropdown select the **Read, Add, Create, Write, Delete, List, Move, Execute, Ownership, Permissions**, provide the start and expiry date and time range, keep the rest as default. Select `Generate SAS token and URL` button. Copy the generated token.
+  ![Image representing the SAS token configuration](../../assets/images/aoe/azure-storage-account-SAS.png)
+   - On the opened power BI dashboard, within **Transform data** window, select the `Data Source Settings`, within the windows select the `Edit permissions` button, in the edit permissions windows, click on 'Edit' button below credentials. 
+  ![data source settings within Transform Data](../../assets/images/aoe/powerbi-dashboard-SAS-setup.png)  
+   -  Select the Shared access signature tab and paste the copied Blob SAS token from Azure Portal. Click `Save` and 'Close' and then `Apply and Close' on the top ribbon of the transform window to apply the permissions and fetch the data.  
+  ![](../../assets/images/aoe/powerbi-dashboard-SAS-token.png)
+1. If using the [Cost Management connector report](./connector.md) or [Rate optimization report](./rate-optimization.md), set the following properties in the **🛠️ Setup** > **CM connector** folder:
 
    - **Scope** is your EA enrollment number or MCA scope ID.
      - A "scope ID" is a fully-qualified Azure resource ID for the MCA billing account or billing profile you want to connect to.
@@ -93,11 +102,15 @@ The FinOps toolkit Power BI reports include pre-configured visuals, but are not 
 
    ![Screenshot of instructions to connect to the Cost Management connector](https://github.com/microsoft/finops-toolkit/assets/399533/efeb85d6-cdd3-40f8-a501-e1959fdb1d4f)
 
-3. Select the **Close & Apply** to save your settings.
+2. Select the **Close & Apply** to save your settings.
 
 If you run into any issues syncing your data, see [Troubleshooting Power BI reports](../../_resources/troubleshooting.md).
 
 <br>
+
+<!-- ## Setup FinOps dashboard with SAS token in power BI
+
+Use the Shared Access Signature (SAS) token of your FinOps deployment's storage account to setup the power BI dashboards. Follow the following steps to setup the power BI dashboards: -->
 
 ## 📋 Copy queries from a toolkit report
 
