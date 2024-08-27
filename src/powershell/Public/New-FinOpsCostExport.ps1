@@ -16,7 +16,7 @@
     Required. Name of the export.
 
     .PARAMETER Scope
-    Required. Resource ID of the scope to export data for.
+    Optional. Resource ID of the scope to export data for. If empty, defaults to current subscription context.
 
     .PARAMETER Dataset
     Optional. Dataset to export. Allowed values = "ActualCost", "AmortizedCost", "FocusCost", "PriceSheet", "ReservationDetails", "ReservationTransactions", "ReservationRecommendations". Default = "FocusCost".
@@ -119,11 +119,11 @@ function New-FinOpsCostExport
     [CmdletBinding(DefaultParameterSetName = "Scheduled")]
     param
     (
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, Position = 0)]
         [string]
         $Name,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter(Position = 1)]
         [string]
         $Scope,
 
@@ -194,6 +194,13 @@ function New-FinOpsCostExport
         [string]
         $ApiVersion = '2023-07-01-preview'
     )
+
+    # if Scope is not passed, use current subscription scope
+    if ([string]::IsNullOrEmpty($Scope))
+    {
+        $Scope = "/subscriptions/$($context.Subscription.Id)"
+        Write-Verbose -Message "Scope parameter was not passed. Setting to subscription scope from current context"
+    }
 
     function getProperties()
     {

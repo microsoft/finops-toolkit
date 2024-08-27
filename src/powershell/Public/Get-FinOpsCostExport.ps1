@@ -3,14 +3,16 @@
 
 <#
     .SYNOPSIS
-    Get list of Cost Management exports.
+    Get a list of Cost Management exports.
 
     .DESCRIPTION
     The Get-FinOpsCostExport command gets a list of Cost Management exports for a given scope.
 
     This command has been tested with the following API versions:
+
     - 2023-07-01-preview (default) – Enables FocusCost and other datasets.
     - 2023-08-01
+    - 2023-03-01
 
     .PARAMETER Name
     Optional. Name of the export. Supports wildcards.
@@ -36,34 +38,89 @@
     .PARAMETER ApiVersion
     Optional. API version to use when calling the Cost Management exports API. Default = 2023-07-01-preview.
 
-    .EXAMPLE
-    Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000"
+    .OUTPUTS
+    ### FinOpsCostExport object
+    String Name = name
+    String Id = id
+    String Type = type
+    String eTag = eTag
+    String Description = properties.exportDescription
+    String Dataset = properties.definition.type
+    String DatasetVersion = properties.definition.configuration.dataVersion
+    String DatasetFilters = properties.definition.configuration.filter
+    String DatasetTimeFrame = properties.definition.timeframe
+    DateTime DatasetStartDate = properties.definition.timePeriod.from
+    DateTime DatasetEndDate = properties.definition.timePeriod.to
+    String DatasetGranularity = properties.definition.dataset.granularity
+    String ScheduleStatus = properties.schedule.status
+    String ScheduleRecurrence = properties.schedule.recurrence
+    DateTime ScheduleStartDate = properties.schedule.recurrencePeriod.from
+    DateTime ScheduleEndDate = properties.schedule.recurrencePeriod.to
+    DateTime NextRuntimeEstimate = properties.nextRunTimeEstimate
+    String Format = properties.format
+    String StorageAccountId = properties.deliveryInfo.destination.resourceId
+    String StorageContainer = properties.deliveryInfo.destination.container
+    String StoragePath = properties.deliveryInfo.destination.rootfolderpath
+    Boolean OverwriteData = properties.deliveryInfo.dataOverwriteBehavior` == "OverwritePreviousReport
+    Boolean PartitionData = properties.deliveryInfo.partitionData
+    String CompressionMode = properties.deliveryInfo.compressionMode
+    FinOpsCostExportRunHistory[] RunHistory = properties.runHistory.value
 
+    ### FinOpsCostExportRunHistory object
+    String Id = `properties.runHistory.value[].id
+    String ExecutionType = `properties.runHistory.value[].properties.executionType
+    String FileName = `properties.runHistory.value[].fileName
+    DateTime StartTime = `properties.runHistory.value[].processingStartTime
+    DateTime EndTime = `properties.runHistory.value[].processingEndTime
+    String Status = `properties.runHistory.value[].status
+    String SubmittedBy = `properties.runHistory.value[].submittedBy
+    DateTime SubmittedTime = `properties.runHistory.value[].submittedTime
+
+    .EXAMPLE
+    Get-FinOpsCostExport `
+        -Scope "/subscriptions/00000000-0000-0000-0000-000000000000"
+
+    ### Get cost exports for a subscription
     Gets all exports for a subscription. Does not include exports in nested resource groups.
 
     .EXAMPLE
-    Get-FinOpsCostExport -Name mtd* -Scope "providers/Microsoft.Billing/billingAccounts/00000000"
+    Get-FinOpsCostExport `
+        -Name mtd* `
+        -Scope "providers/Microsoft.Billing/billingAccounts/00000000"
 
+    ### Get exports matching a wildcard name
     Gets export with name matching wildcard mtd* within the specified billing account scope. Does not include exports in nested resource groups.
 
     .EXAMPLE
-    Get-FinOpsCostExport -Dataset "AmortizedCost"
+    Get-FinOpsCostExport `
+        -Dataset "AmortizedCost"
 
+    ### Get amortized cost exports
     Gets all exports within the current context subscription scope and filtered by dataset AmortizedCost.
 
     .EXAMPLE
-    Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageAccountId "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/MyResourceGroup/providers/Microsoft.Storage/storageAccounts/MyStorageAccount"
+    Get-FinOpsCostExport `
+        -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" `
+        -StorageAccountId "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/MyResourceGroup/providers/Microsoft.Storage/storageAccounts/MyStorageAccount"
 
+    ### Get exports using a storage account
     Gets all exports within the subscription scope filtered by a specific storage account.
 
     .EXAMPLE
-    Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageContainer "MyContainer*"
+    Get-FinOpsCostExport `
+        -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" `
+        -StorageContainer "MyContainer*"
 
+    ### Get exports using a storage container
     Gets all exports within the subscription scope for a specific container. Supports wildcard.
 
     .EXAMPLE
-    Get-FinOpsCostExport -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" -StorageContainer "mtd*" -ApiVersion "2023-07-01-preview"
+    Get-FinOpsCostExport `
+        -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" `
+        -StorageContainer "mtd*" `
+        -ApiVersion "2023-07-01-preview"
 
+    ### Get exports using an API version
     Gets all exports within the subscription scope for a container matching wildcard pattern and using a specific API version.
 
     .LINK
@@ -73,7 +130,7 @@ function Get-FinOpsCostExport
 {
     param
     (
-        [Parameter()]
+        [Parameter(Position = 0)]
         [SupportsWildcards()]
         [string]
         $Name,
@@ -114,6 +171,7 @@ function Get-FinOpsCostExport
     {
         throw $script:LocalizedData.Common_ContextNotFound
     }
+
     # if Scope is not passed, use current subscription scope
     if ([System.String]::IsNullOrEmpty($Scope))
     {
