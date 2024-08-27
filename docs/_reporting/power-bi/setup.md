@@ -76,7 +76,7 @@ The FinOps toolkit Power BI reports include pre-configured visuals, but are not 
   ![data source settings within Transform Data](../../assets/images/aoe/powerbi-dashboard-SAS-setup.png)  
    -  Select the Shared access signature tab and paste the copied Blob SAS token from Azure Portal. Click `Save` and 'Close' and then `Apply and Close' on the top ribbon of the transform window to apply the permissions and fetch the data.  
   ![](../../assets/images/aoe/powerbi-dashboard-SAS-token.png)
-5. Select the **Close & Apply** to save your settings.
+5. Select **Close & Apply** to save your settings.
 
 If you run into any issues syncing your data, see [Troubleshooting Power BI reports](../../_resources/troubleshooting.md).
 
