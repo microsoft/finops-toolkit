@@ -13,6 +13,32 @@
     "singular": "Analysis Services server"
   },
   {
+    "type": "microsoft.apimanagement/gateways",
+    "originalPlural": "Gateways",
+    "originalSingular": "Gateways",
+    "plural": "API Management gateways",
+    "singular": "API Management gateway"
+  },
+  {
+    "type": "microsoft.apimanagement/gateways/configconnections",
+    "plural": "API Management gateway connections",
+    "singular": "API Management gateway connection"
+  },
+  {
+    "type": "microsoft.app/logicapps",
+    "plural": "Logic apps",
+    "singular": "Logic app",
+    "lowerPlural": "logic apps",
+    "lowerSingular": "logic app"
+  },
+  {
+    "type": "microsoft.app/logicapps/workflows",
+    "plural": "Logic app workflows",
+    "singular": "Logic app workflow",
+    "lowerPlural": "logic app workflows",
+    "lowerSingular": "logic app workflow"
+  },
+  {
     "type": "microsoft.appservice/apiapps",
     "plural": "API apps",
     "singular": "API app"

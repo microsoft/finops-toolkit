@@ -11,7 +11,7 @@
         {
           "location": {
             "x": 3175.51140422367,
-            "y": 138.70145168904224
+            "y": 238.95105537054602
           },
           "nodeIndex": "CostDetails",
           "size": {
@@ -23,7 +23,7 @@
         {
           "location": {
             "x": 4139.7,
-            "y": 159.20145168904224
+            "y": 259.451055370546
           },
           "nodeIndex": "InstanceSizeFlexibility",
           "nodeLineageTag": "04a435c4-9138-4c1f-ad59-dd939cd8e139",
@@ -35,32 +35,8 @@
         },
         {
           "location": {
-            "x": 3855.7,
-            "y": 157.20145168904224
-          },
-          "nodeIndex": "RecommendationsShared",
-          "size": {
-            "height": 300,
-            "width": 234
-          },
-          "zIndex": 0
-        },
-        {
-          "location": {
-            "x": 4423.7,
-            "y": 157.20145168904224
-          },
-          "nodeIndex": "RecommendationsSingle",
-          "size": {
-            "height": 300,
-            "width": 234
-          },
-          "zIndex": 0
-        },
-        {
-          "location": {
             "x": 1576.5814434565182,
-            "y": 78.70524593701424
+            "y": 178.954849618518
           },
           "nodeIndex": "HubScopes",
           "nodeLineageTag": "6dfeb4ff-e902-435e-abed-2109389c66e3",
@@ -73,7 +49,7 @@
         {
           "location": {
             "x": 1826.3909942579139,
-            "y": 366.43262081183155
+            "y": 466.6822244933353
           },
           "nodeIndex": "HubSettings",
           "nodeLineageTag": "b391a865-7a16-491c-a9f4-8bc826285b97",
@@ -85,11 +61,62 @@
         },
         {
           "location": {
-            "x": 3165.51140422367,
-            "y": 157.2014516890423
+            "x": 3709.5016065581754,
+            "y": 167.69094213898998
           },
-          "nodeIndex": "HubData",
-          "nodeLineageTag": "4dbd4a61-a185-428e-83f1-b5b3dcb80134",
+          "nodeIndex": "Prices",
+          "nodeLineageTag": "71332c0b-dcb0-4c8a-86a9-b64ea64f0f8f",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3983.5016065581754,
+            "y": 194.11329111891246
+          },
+          "nodeIndex": "ReservationDetails",
+          "nodeLineageTag": "4f9c5acb-e811-40c7-9d01-347392d90bfd",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3141.1185565434816,
+            "y": 197.67605291858786
+          },
+          "nodeIndex": "ReservationRecomendations",
+          "nodeLineageTag": "e2acd751-9829-4624-bb15-d9a1cb22f057",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3425.3201177366668,
+            "y": 200.53564009883505
+          },
+          "nodeIndex": "ReservationTransactions",
+          "nodeLineageTag": "4f416097-b08b-4b6e-abca-b82e5f6c5e59",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3165.51140422367,
+            "y": 257.4510553705461
+          },
+          "nodeIndex": "StorageData",
           "size": {
             "height": 300,
             "width": 234
@@ -99,10 +126,9 @@
         {
           "location": {
             "x": 3131.1185565434816,
-            "y": 120.0987694164134
+            "y": 220.34837309791718
           },
-          "nodeIndex": "HubErrors",
-          "nodeLineageTag": "02d75203-d20c-4de5-92b5-9c4c062b96db",
+          "nodeIndex": "StorageErrors",
           "size": {
             "height": 300,
             "width": 234

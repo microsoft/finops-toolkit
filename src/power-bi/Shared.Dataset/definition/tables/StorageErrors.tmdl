@@ -1,4 +1,5 @@
-table HubErrors
+/// Errors identified when reviewing storage content.
+table StorageErrors
 	lineageTag: 02d75203-d20c-4de5-92b5-9c4c062b96db
 
 	column Scope
@@ -183,7 +184,7 @@ table HubErrors
 
 		annotation SummarizationSetBy = Automatic
 
-	partition HubErrors = m
+	partition StorageErrors = m
 		mode: import
 		queryGroup: 'FinOps toolkit'
 		source =
@@ -196,7 +197,7 @@ table HubErrors
 				            { "InvalidExportVersion",   "Critical",      "FinOps hubs requires FOCUS cost exports but this file looks like a legacy Cost Management export.",    "Create a new Cost Management export for FOCUS cost and either stop the current export or change it to export to a different storage container." },
 				            { "InvalidHubVersion",      "Critical",      "FinOps hubs 0.1.1 and earlier does not work with this Power BI report.",                               "Upgrade to the latest version of FinOps hubs at https://aka.ms/finops/hubs or download Power BI reports from https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1." },
 				            { "InvalidScopeId",         "Informational", "The export path is not a valid scope ID. FinOps hubs expects the export path to be an Azure resource ID for the scope the export was created to simplify management. This should not cause failures, but may result in confusing results for scope-related reports.", "Update the storage path for the Cost Management export to use the full Azure resource ID for the scope." },
-				            { "ExportNotFound",         "Critical",      "Cost Management data has not been exported.",                                                          "Create a new FOCUS export in Cost Management at https://aka.ms/exportsv2. After created, select 'Run now' to start the export process." },
+				            { "ExportDataNotFound",     "Critical",      "Cost Management data has not been exported.",                                                          "Create a new FOCUS export in Cost Management at https://aka.ms/exportsv2. After created, select 'Run now' to start the export process." },
 				            { "NoDataIngested",         "Critical",      "The export path is not a valid scope ID. FinOps hubs expects the export path to be an Azure resource ID for the scope the export was created to simplify management. This should not cause failures, but may result in confusing results for scope-related reports.", "Update the storage path for the Cost Management export to use the full Azure resource ID for the scope." },
 				            { "UnknownExportFile",      "Informational", "This file does not look like it was exported from Cost Management. File will be ignored.",             "The 'msexports' container is intended for Cost Management exports only. Please move other files in another storage container." },
 				            { "UnknownHubVersion",      "Critical",      "Unable to identify the version of FinOps hubs from the settings file. Please verify settings are correct. FinOps hubs 0.1.1 and earlier does not work with this Power BI report.", "Upgrade to the latest version of FinOps hubs at https://aka.ms/finops/hubs or download Power BI reports from https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1." },
@@ -204,7 +205,7 @@ table HubErrors
 				        }
 				    ),
 				
-				    Source = Table.SelectRows(HubData, each [Errors] <> null and List.Count([Errors]) > 0),
+				    Source = Table.SelectRows(StorageData, each [Errors] <> null and List.Count([Errors]) > 0),
 				    ExpandErrors = Table.ExpandListColumn(Source, "Errors"),
 				    RenameErrors = Table.RenameColumns(ExpandErrors, {{"Errors", "ErrorCode"}}),
 				    ErrorDetails = Table.NestedJoin(RenameErrors, {"ErrorCode"}, CommonErrors, {"Code"}, "ErrorDetails", JoinKind.LeftOuter),
@@ -213,4 +214,6 @@ table HubErrors
 				    ExpandDetails
 
 	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
 
