@@ -75,6 +75,33 @@ Legend:
 >
 > 1. Documented [how to compare FOCUS and actual/amortized data](../_docs/focus/validate.md) to learn and validate FOCUS data.
 
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed:
+>
+> - General
+>   1. Updated `ListCost`, `ListUnitPrice`, `ContractedCost`, and `ContractedUnitPrice` when not provided in Cost Management exports.
+>      - Contracted cost/price are set to effective cost/price when not available.
+>      - List cost/price are set to contracted cost/price when not available.
+>      - This means savings can be calculated, but will not be complete.
+>      - Refer to the DQ page for details about missing or updated data.
+>   2. Added support for pointing Power BI reports to directly to Cost Management exports (without FinOps hubs).
+>   3. Added new tables for Prices, ReservationDetails, ReservationRecommendations, and ReservationTransactions (works with exports only; does not work with hubs).
+> - [Cost summary](../_reporting/power-bi/cost-summary.md)
+>   1. Added a table to the [DQ page](../_reporting/power-bi/cost-summary.md#dq) to identify rows for which a unique ID cannot be identified.
+>   2. Added a table to the [DQ page](../_reporting/power-bi/cost-summary.md#dq) to identify rows where billing currency and pricing currency are different.
+> - [Rate optimization](../_reporting/power-bi/rate-optimization.md)
+>   1. Commitment savings no longer filters out rows with missing list/contracted cost.
+>      - Since `ListCost` and `ContractedCost` are set to a fallback value when not included in Cost Management data, we can now calculate partial savings.
+>      - Calculated savings is still incomplete since we do not have accurate list/contracted cost values.
+>   2. Merged shared and single reservation recommendations into a single [Reservation recommendations](../_reporting/power-bi/rate-optimization.md#reservation-recommendations) page.
+>
+> 🛠️ Fixed:
+>
+> - General
+>   1. Fixed a bug in Cost Management exports where committed usage is showing as "Standard" pricing category.
+
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
@@ -146,6 +173,9 @@ Legend:
 >   1. Added the following new region values: "asiapacific", "australia", azure "stack", "eastsu2", "gbs", germany west "central", "japan", sweden "central", "unitedstates", us dod "central", us dod "east", us gov "iowa", us gov "virginia", "us2", "usa", "usv".
 > - [Resource types](../_reporting/data/README.md#️-resource-types)
 >   1. Added the following new resource types: "microsoft.app/logicapps", "microsoft.app/logicapps/workflows", "microsoft.azurebusinesscontinuity/deletedunifiedprotecteditems", "microsoft.azurebusinesscontinuity/unifiedprotecteditems", "microsoft.azurecis/publishconfigvalues", "microsoft.compositesolutions/compositesolutiondefinitions", "microsoft.compositesolutions/compositesolutions", "microsoft.datareplication/replicationvaults/alertsettings", "microsoft.datareplication/replicationvaults/events", "microsoft.datareplication/replicationvaults/jobs", "microsoft.datareplication/replicationvaults/jobs/operations", "microsoft.datareplication/replicationvaults/operations", "microsoft.datareplication/replicationvaults/protecteditems", "microsoft.datareplication/replicationvaults/protecteditems/operations", "microsoft.datareplication/replicationvaults/protecteditems/recoverypoints", "microsoft.datareplication/replicationvaults/replicationextensions", "microsoft.datareplication/replicationvaults/replicationextensions/operations", "microsoft.datareplication/replicationvaults/replicationpolicies", "microsoft.datareplication/replicationvaults/replicationpolicies/operations", "microsoft.deviceregistry/billingcontainers", "microsoft.deviceregistry/discoveredassetendpointprofiles", "microsoft.deviceregistry/discoveredassets", "microsoft.deviceregistry/schemaregistries", "microsoft.deviceregistry/schemaregistries/schemas", "microsoft.deviceregistry/schemaregistries/schemas/schemaversions", "microsoft.eventgrid/systemtopics/eventsubscriptions", "microsoft.hardware/orders", "microsoft.hybridcompute/machines/microsoft.awsconnector/ec2instances", "microsoft.hybridonboarding/extensionmanagers", "microsoft.iotoperations/instances", "microsoft.iotoperations/instances/brokers", "microsoft.iotoperations/instances/brokers/authentications", "microsoft.iotoperations/instances/brokers/authorizations", "microsoft.iotoperations/instances/brokers/listeners", "microsoft.iotoperations/instances/dataflowendpoints", "microsoft.iotoperations/instances/dataflowprofiles", "microsoft.iotoperations/instances/dataflowprofiles/dataflows", "microsoft.messagingconnectors/connectors", "microsoft.mobilepacketcore/networkfunctions", "microsoft.saashub/cloudservices/hidden", "microsoft.secretsynccontroller/azurekeyvaultsecretproviderclasses", "microsoft.secretsynccontroller/secretsyncs", "microsoft.storagepool/diskpools/iscsitargets", "microsoft.windowsesu/multipleactivationkeys".
+> - [Services](../_reporting/data/README.md#️-services)
+>   1. Added the following consumed services:  "API Center", "API Management", "Bastion Scale Units", "Microsoft.Community", "Microsoft.DataReplication.Admin", "Microsoft.DevOpsInfrastructure", "Microsoft.Dynamics365FraudProtection", "Microsoft.HybridContainerService", "Microsoft.NetworkFunction", "Microsoft.RecommendationsService", "Microsoft.ServiceNetworking", "Virtual Network".
+>   2. Added the following resource types to existing services:  "Microsoft.AgFoodPlatform/farmBeats", "Microsoft.App/sessionPools", "Microsoft.AzureActiveDirectory/ciamDirectories", "Microsoft.AzureArcData/sqlServerEsuLicenses", "Microsoft.Graph/accounts", "Microsoft.MachineLearningServices/registries", "Microsoft.Orbital/groundStations", "PlayFabBillingService/partyVoice".
 >
 > ✏️ Changed
 >
