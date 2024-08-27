@@ -118,14 +118,14 @@ Legend:
 📒 Azure Monitor workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
-> ➕ Added::
+> ➕ Added:
 >
 > - [Optimization workbook](../_optimize/optimization-workbook/README.md):
 >   1. New compute query to identify VMs per processor architecture type
 >   2. New database query to identify SQL Pool instances with 0 databases
 >   3. New storage query to identify Powered Off VMs with Premium Disks
 >
-> ✏️ Changed::
+> ✏️ Changed:
 >
 > - [Optimization workbook](../_optimize/optimization-workbook/README.md):
 >   1. Redesign of the Rate Optimization tab for easier identification of the break-even point for reservations
@@ -169,7 +169,7 @@ Legend:
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
-> ➕ Added::
+> ➕ Added:
 >
 > - [Pricing units](../_reporting/data/README.md#-pricing-units)
 >   1. Added handling for the following new UnitOfMeasure values: "1 /Minute", "10 PiB/Hour", "100000 /Month", "Text".
@@ -244,7 +244,7 @@ Legend:
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
-> ➕ Added::
+> ➕ Added:
 >
 > - General:
 >   1. **x_IncrementalRefreshDate** column to facilitate configuring incremental refresh in Power BI.
@@ -277,7 +277,7 @@ Legend:
 >         _We are investigating an issue where we are missing rounding adjustments since May 2024. We do not yet know the cause of this issue._
 >      </blockquote>
 >
-> 🛠️ Fixed::
+> 🛠️ Fixed:
 >
 > - General:
 >   1. Improved parsing for the `x_ResourceParentName` and `x_ResourceParentType` columns ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
@@ -289,7 +289,7 @@ Legend:
 📒 Azure Monitor workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
-> ➕ Added::
+> ➕ Added:
 >
 > - [Optimization workbook](../_optimize/optimization-workbook/README.md):
 >   1. Added reservation recommendations with the break-even point to identify when savings would be achieved.
@@ -302,7 +302,7 @@ Legend:
 > - [Governance workbook](../_optimize/governance-workbook/README.md):
 >   1. Added managed disk usage monitoring.
 
-> ✏️ Changed::
+> ✏️ Changed:
 >
 > - [Optimization workbook](../_optimize/optimization-workbook/README.md):
 >   1. Redesigned the Sustainability tab to clarify recommendations.
@@ -511,7 +511,7 @@ Legend:
 📒 Azure Monitor workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
-> ➕ Added::
+> ➕ Added:
 >
 > - [Optimization workbook](../_optimize/optimization-workbook/README.md):
 >   1. Storage: Identify Idle Backups: Review protected items' backup activity to spot items not backed up in the last 90 days.
@@ -519,12 +519,12 @@ Legend:
 >   3. Networking: Azure Firewall Premium Features: Identify Azure Firewalls with Premium SKU and ensure associated policies leverage premium-only features.
 >   4. Networking: Firewall Optimization: Streamline Azure Firewall usage by centralizing instances in the hub virtual network or Virtual WAN secure hub.
 >
-> ✏️ Changed::
+> ✏️ Changed:
 >
 > - [Optimization workbook](../_optimize/optimization-workbook/README.md):
 >   1. Top 10 services: Improved Monitoring tabs: Enhance your monitoring experience with updated Azure Advisor recommendations for Log Analytics.
 >
-> 🛠️ Fixed::
+> 🛠️ Fixed:
 >
 > - [Optimization workbook](../_optimize/optimization-workbook/README.md):
 >   1. AHB: Fixed AHB to support Windows 10/Windows 11
