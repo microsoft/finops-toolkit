@@ -375,7 +375,7 @@ The following requirements have not been fully reviewed for conformance yet.
 | CD0 | Description | Self-contained summary of the charge's purpose and price.                                     | Supports           |                                                                                                                                  |
 | CD1 | MUST        | The ChargeDescription column MUST be present in the billing data...                           | Supports           |                                                                                                                                  |
 | CD2 | MUST        | The ChargeDescription column... MUST be of type String...                                     | Supports           |                                                                                                                                  |
-| CD3 | SHOULD      | The ChargeDescription column... SHOULD NOT be null.                                           | Partially Supports | `ChargeDescription` may be null for savings plan unused charges and charges that are not directly associated with a product SKU. |
+| CD3 | SHOULD      | The ChargeDescription column... SHOULD NOT be null.                                           | Partially Supports | `ChargeDescription` may be null for savings plan unused charges, Marketplace charges, and other charges that are not directly associated with a product SKU. |
 | CD4 | SHOULD      | Providers SHOULD specify the length of this column in their publicly available documentation. | Does Not Support   |                                                                                                                                  |
 
 ### Charge frequency
