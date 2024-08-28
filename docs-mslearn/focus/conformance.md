@@ -793,7 +793,7 @@ The following requirements have not been fully reviewed for conformance yet.
 | SAI0 | Description | An ID assigned to a grouping of resources or services, often used to manage access and/or cost.                 | Supports | FOCUS subaccount maps to a Microsoft Cloud subscription. |
 | SAI1 | MUST        | The SubAccountId column MUST be present in the billing data when the provider supports a sub account construct. | Supports |                                                          |
 | SAI2 | MUST        | This column MUST be of type String.                                                                             | Supports |                                                          |
-| SAI3 | MUST        | If a charge does not apply to a sub account, the SubAccountId column MUST be null.                              | Supports |                                                          |
+| SAI3 | MUST        | If a charge does not apply to a sub account, the SubAccountId column MUST be null.                              | Supports | `SubAccountId` will be null for MCA purchases and refunds. |
 
 ### Sub account name
 
@@ -804,7 +804,7 @@ The following requirements have not been fully reviewed for conformance yet.
 | SAN0 | Description | A name assigned to a grouping of resources or services, often used to manage access and/or cost.                  | Supports           | FOCUS subaccount maps to a Microsoft Cloud subscription.     |
 | SAN1 | MUST        | The SubAccountName column MUST be present in the billing data when the provider supports a sub account construct. | Supports           |                                                              |
 | SAN2 | MUST        | This column MUST be of type String.                                                                               | Supports           |                                                              |
-| SAN3 | MUST        | If a charge does not apply to a sub account, the SubAccountName column MUST be null.                              | Partially Supports | `SubAccountName` may be "Unassigned" when there is no value. |
+| SAN3 | MUST        | If a charge does not apply to a sub account, the SubAccountName column MUST be null.                              | Partially Supports | `SubAccountName` may be "Unassigned" when there is no value. `SubAccountName` will be null for MCA purchases and refunds. |
 
 ### Tags
 
