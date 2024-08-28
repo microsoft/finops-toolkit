@@ -161,6 +161,10 @@ Legend:
 >
 > 1. Added support for FOCUS, pricesheet, and reservation dataset filters in [Get-FinOpsCostExport](../_automation/powershell/cost/Get-FinOpsCostExport.md).
 > 2. Added a `-DatasetVersion` filter in [Get-FinOpsCostExport](../_automation/powershell/cost/Get-FinOpsCostExport.md).
+>
+> 🛠️ Fixed:
+>
+> 1. Fixed [New-FinOpsCostExport](../_automation/powershell/cost/New-FinOpsCostExport.md) to address breaking change in Cost Management when storage paths start with "/".
 
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -177,7 +181,7 @@ Legend:
 >   1. Added the following consumed services:  "API Center", "API Management", "Bastion Scale Units", "Microsoft.Community", "Microsoft.DataReplication.Admin", "Microsoft.DevOpsInfrastructure", "Microsoft.Dynamics365FraudProtection", "Microsoft.HybridContainerService", "Microsoft.NetworkFunction", "Microsoft.RecommendationsService", "Microsoft.ServiceNetworking", "Virtual Network".
 >   2. Added the following resource types to existing services:  "Microsoft.AgFoodPlatform/farmBeats", "Microsoft.App/sessionPools", "Microsoft.AzureActiveDirectory/ciamDirectories", "Microsoft.AzureArcData/sqlServerEsuLicenses", "Microsoft.Graph/accounts", "Microsoft.MachineLearningServices/registries", "Microsoft.Orbital/groundStations", "PlayFabBillingService/partyVoice".
 >
-> ✏️ Changed
+> ✏️ Changed:
 >
 > - [Pricing units](../_reporting/data/README.md#-pricing-units)
 >   1. Changed DistinctUnits for the "10000s" UnitOfMeasure from "Units" to "Transactions".
@@ -250,7 +254,7 @@ Legend:
 > - [Data ingestion](../_reporting/power-bi/data-ingestion.md):
 >   1. [Ingestion errors page](../_reporting/power-bi/data-ingestion.md#ingestion-errors) to help identify FinOps hub data ingestion issues.
 >
-> ✏️ Changed
+> ✏️ Changed:
 >
 > - General:
 >   1. Changed the **Tags** column to default to `{}` when empty to facilitate tag expansion ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
@@ -341,7 +345,7 @@ Legend:
 > 1. Added a new FOCUS 1.0 [dataset example](../_reporting/data/README.md#️-dataset-examples).
 > 2. Added [dataset metadata](../_reporting/data/README.md#️-dataset-metadata) for FOCUS 1.0 and FOCUS 1.0-preview.
 >
-> ✏️ Changed
+> ✏️ Changed:
 >
 > 1. Updated all [open data files](../_reporting/data/README.md) to include the latest data.
 > 2. Changed the primary columns in the [Regions](../_reporting/data/README.md#️-regions) and [Services](../_reporting/data/README.md#️-services) open data files to be lowercase.
