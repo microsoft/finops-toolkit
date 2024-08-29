@@ -20,9 +20,9 @@ queryGroup Functions
 
 annotation __PBI_TimeIntelligenceEnabled = 1
 
-annotation PBIDesktopVersion = 2.132.905.0 (24.08)
+annotation PBIDesktopVersion = 2.133.379.0 (24.09)
 
-annotation PBI_QueryOrder = ["▶️  START HERE","Hub Storage URL","Export Storage URL","RangeStart","RangeEnd","CostDetails","ftk_Storage","InstanceSizeFlexibility","StorageData","StorageErrors","HubSettings","HubScopes","Prices","ReservationDetails","ReservationTransactions","ReservationRecomendations","ftk_ParseResourceId","ftk_ParseResourceName","ftk_ParseResourceType","Number of Months"]
+annotation PBI_QueryOrder = ["▶️  START HERE","Hub Storage URL","Export Storage URL","RangeStart","RangeEnd","Number of Months","ftk_Storage","ftk_ParseResourceId","ftk_ParseResourceName","ftk_ParseResourceType","CostDetails","StorageData","StorageErrors","HubSettings","HubScopes","Prices","ReservationDetails","ReservationTransactions","ReservationRecomendations","InstanceSizeFlexibility","Advisor","Resources","Management Groups","Subscriptions","Resource types","Region","Virtual Machines","Disks","Network interfaces","Public ip addresses","Reservation recommendations","Network Security Groups","PolicyAssignments","PolicyDefinitions","PolicyStates","SQL DB"]
 
 annotation PBI_ProTooling = ["DevMode"]
 
@@ -57,6 +57,32 @@ ref table LocalDateTable_eb23340c-7bc4-423a-8368-7d88e0455c14
 ref table ReservationRecomendations
 ref table LocalDateTable_5399b385-fafe-40a7-b043-5cbb2b2bf725
 ref table LocalDateTable_501171be-aa02-401b-9e82-2bf6f16d7de3
+ref table Advisor
+ref table LocalDateTable_d8279185-d2c7-4455-9003-fc92a34f3607
+ref table LocalDateTable_e11d803c-f7bd-4c0e-96a9-6ab80f35b745
+ref table LocalDateTable_eb7ae8b8-9958-4816-bd33-f17b80df8c35
+ref table Resources
+ref table 'Management Groups'
+ref table Subscriptions
+ref table 'Resource types'
+ref table Region
+ref table 'Virtual Machines'
+ref table Disks
+ref table 'Network interfaces'
+ref table 'Public ip addresses'
+ref table 'Reservation recommendations'
+ref table LocalDateTable_9f5d917b-c335-474f-836b-65f614e8aa8a
+ref table 'Network Security Groups'
+ref table PolicyAssignments
+ref table PolicyDefinitions
+ref table PolicyStates
+ref table 'SQL DB'
+ref table LocalDateTable_570af09c-3ee5-48ee-9425-a2c2ee8808fb
+ref table 'Advisor for disks'
+ref table LocalDateTable_280f8620-a4b4-45b1-9e75-cf567b880a2c
+ref table LocalDateTable_8b74c4d3-e548-41c6-ba9b-0bb1b5b72e71
+ref table LocalDateTable_0951c383-0e48-4ca2-869d-e5e5c1551be6
+ref table 'Compliance calculation'
 
 ref cultureInfo en-US
 
