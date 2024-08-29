@@ -139,12 +139,12 @@
           "z": 3.00
         },
         {
-          "config": "{\"name\":\"27af6ddca7ecd11ac7eb\",\"layouts\":[{\"id\":0,\"position\":{\"x\":221,\"y\":48,\"z\":1,\"height\":69,\"width\":221,\"tabOrder\":1}}],\"singleVisual\":{\"visualType\":\"slicer\",\"projections\":{\"Values\":[{\"queryRef\":\"Reservation recommendations.properties.extendedProperties.lookbackPeriod\",\"active\":true}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"r\",\"Entity\":\"Reservation recommendations\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"r\"}},\"Property\":\"properties.extendedProperties.lookbackPeriod\"},\"Name\":\"Reservation recommendations.properties.extendedProperties.lookbackPeriod\",\"NativeReferenceName\":\"Lookback Period\"}]},\"columnProperties\":{\"Reservation recommendations.properties.extendedProperties.lookbackPeriod\":{\"displayName\":\"Lookback Period\"}},\"syncGroup\":{\"groupName\":\"properties.extendedProperties.lookbackPeriod\",\"fieldChanges\":true,\"filterChanges\":true},\"drillFilterOtherVisuals\":true,\"objects\":{\"data\":[{\"properties\":{\"mode\":{\"expr\":{\"Literal\":{\"Value\":\"'Dropdown'\"}}}}}],\"general\":[{\"properties\":{\"selfFilterEnabled\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}}],\"selection\":[{\"properties\":{\"selectAllCheckboxEnabled\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}}],\"items\":[{\"properties\":{\"textSize\":{\"expr\":{\"Literal\":{\"Value\":\"10D\"}}}}}]}}}",
+          "config": "{\"name\":\"27af6ddca7ecd11ac7eb\",\"layouts\":[{\"id\":0,\"position\":{\"x\":220.76923076923077,\"y\":47.69230769230769,\"z\":1,\"width\":333.07692307692304,\"height\":69.23076923076923,\"tabOrder\":1}}],\"singleVisual\":{\"visualType\":\"slicer\",\"projections\":{\"Values\":[{\"queryRef\":\"Reservation recommendations.properties.extendedProperties.lookbackPeriod\",\"active\":true}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"r\",\"Entity\":\"Reservation recommendations\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"r\"}},\"Property\":\"properties.extendedProperties.lookbackPeriod\"},\"Name\":\"Reservation recommendations.properties.extendedProperties.lookbackPeriod\",\"NativeReferenceName\":\"Lookback Period\"}]},\"columnProperties\":{\"Reservation recommendations.properties.extendedProperties.lookbackPeriod\":{\"displayName\":\"Lookback Period\"}},\"syncGroup\":{\"groupName\":\"properties.extendedProperties.lookbackPeriod\",\"fieldChanges\":true,\"filterChanges\":true},\"drillFilterOtherVisuals\":true,\"objects\":{\"data\":[{\"properties\":{\"mode\":{\"expr\":{\"Literal\":{\"Value\":\"'Basic'\"}}}}}],\"general\":[{\"properties\":{\"orientation\":{\"expr\":{\"Literal\":{\"Value\":\"1D\"}}}}}],\"selection\":[{\"properties\":{\"selectAllCheckboxEnabled\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}}],\"items\":[{\"properties\":{\"textSize\":{\"expr\":{\"Literal\":{\"Value\":\"10D\"}}}}}]}}}",
           "filters": "[]",
-          "height": 69.00,
-          "width": 221.00,
-          "x": 221.00,
-          "y": 48.00,
+          "height": 69.23,
+          "width": 333.08,
+          "x": 220.77,
+          "y": 47.69,
           "z": 1.00
         },
         {
@@ -173,12 +173,12 @@
           "z": 7.00
         },
         {
-          "config": "{\"name\":\"9ebc8f107d570572c0e6\",\"layouts\":[{\"id\":0,\"position\":{\"x\":442,\"y\":48,\"z\":2,\"height\":69,\"width\":221,\"tabOrder\":2}}],\"singleVisual\":{\"visualType\":\"slicer\",\"projections\":{\"Values\":[{\"queryRef\":\"Reservation recommendations.properties.extendedProperties.term\",\"active\":true}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"r\",\"Entity\":\"Reservation recommendations\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"r\"}},\"Property\":\"properties.extendedProperties.term\"},\"Name\":\"Reservation recommendations.properties.extendedProperties.term\",\"NativeReferenceName\":\"Term\"}]},\"columnProperties\":{\"Reservation recommendations.properties.extendedProperties.term\":{\"displayName\":\"Term\"}},\"syncGroup\":{\"groupName\":\"properties.extendedProperties.term\",\"fieldChanges\":true,\"filterChanges\":true},\"drillFilterOtherVisuals\":true,\"objects\":{\"data\":[{\"properties\":{\"mode\":{\"expr\":{\"Literal\":{\"Value\":\"'Dropdown'\"}}}}}],\"general\":[{\"properties\":{\"selfFilterEnabled\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}}],\"selection\":[{\"properties\":{\"selectAllCheckboxEnabled\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}}],\"items\":[{\"properties\":{\"textSize\":{\"expr\":{\"Literal\":{\"Value\":\"10D\"}}}}}]}}}",
+          "config": "{\"name\":\"9ebc8f107d570572c0e6\",\"layouts\":[{\"id\":0,\"position\":{\"x\":553.8461538461538,\"y\":47.69230769230769,\"z\":2,\"width\":220.76923076923077,\"height\":69.23076923076923,\"tabOrder\":2}}],\"singleVisual\":{\"visualType\":\"slicer\",\"projections\":{\"Values\":[{\"queryRef\":\"Reservation recommendations.properties.extendedProperties.term\",\"active\":true}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"r\",\"Entity\":\"Reservation recommendations\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"r\"}},\"Property\":\"properties.extendedProperties.term\"},\"Name\":\"Reservation recommendations.properties.extendedProperties.term\",\"NativeReferenceName\":\"Term\"}]},\"columnProperties\":{\"Reservation recommendations.properties.extendedProperties.term\":{\"displayName\":\"Term\"}},\"syncGroup\":{\"groupName\":\"properties.extendedProperties.term\",\"fieldChanges\":true,\"filterChanges\":true},\"drillFilterOtherVisuals\":true,\"objects\":{\"data\":[{\"properties\":{\"mode\":{\"expr\":{\"Literal\":{\"Value\":\"'Basic'\"}}}}}],\"general\":[{\"properties\":{\"orientation\":{\"expr\":{\"Literal\":{\"Value\":\"1D\"}}}}}],\"selection\":[{\"properties\":{\"selectAllCheckboxEnabled\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}}],\"items\":[{\"properties\":{\"textSize\":{\"expr\":{\"Literal\":{\"Value\":\"10D\"}}}}}],\"header\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}}]}}}",
           "filters": "[]",
-          "height": 69.00,
-          "width": 221.00,
-          "x": 442.00,
-          "y": 48.00,
+          "height": 69.23,
+          "width": 220.77,
+          "x": 553.85,
+          "y": 47.69,
           "z": 2.00
         },
         {
@@ -643,6 +643,7 @@
         },
         {
           "config": "{\"name\":\"bf66d7ce3d2967d38b34\",\"layouts\":[{\"id\":0,\"position\":{\"x\":684.1791044776119,\"y\":519.4029850746268,\"z\":8,\"height\":200.59701492537312,\"width\":595.5223880597015,\"tabOrder\":8}}],\"singleVisual\":{\"visualType\":\"tableEx\",\"projections\":{\"Values\":[{\"queryRef\":\"Region.RegionName\"},{\"queryRef\":\"Count(Resources.id)\"}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"r\",\"Entity\":\"Region\",\"Type\":0},{\"Name\":\"r1\",\"Entity\":\"Resources\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"r\"}},\"Property\":\"RegionName\"},\"Name\":\"Region.RegionName\",\"NativeReferenceName\":\"Region\"},{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"r1\"}},\"Property\":\"id\"}},\"Function\":2},\"Name\":\"Count(Resources.id)\",\"NativeReferenceName\":\"Quantity\"}],\"OrderBy\":[{\"Direction\":2,\"Expression\":{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"r1\"}},\"Property\":\"id\"}},\"Function\":2}}}]},\"columnProperties\":{\"Region.RegionName\":{\"displayName\":\"Region\"},\"Count(Resources.id)\":{\"displayName\":\"Quantity\"}},\"drillFilterOtherVisuals\":true,\"objects\":{\"columnWidth\":[{\"properties\":{\"value\":{\"expr\":{\"Literal\":{\"Value\":\"121.75583555682871D\"}}}},\"selector\":{\"metadata\":\"Count(Resources.id)\"}}]},\"vcObjects\":{\"visualTooltip\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"general\":[{\"properties\":{\"altText\":{\"expr\":{\"Literal\":{\"Value\":\"'Azure Extension are hidden from that list'\"}}}}}]}}}",
+          "filters": "[]",
           "height": 200.60,
           "width": 595.52,
           "x": 684.18,
