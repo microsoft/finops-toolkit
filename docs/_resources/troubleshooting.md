@@ -321,7 +321,7 @@ Applicable versions: **0.1 - 0.1.1** (fixed in **0.2**)
 
 ## Power BI: Reports are not showing data outside of RangeStart/RangeEnd
 
-If the report does not include any data outside of the RangeStart/RangeEnd parameter, you will need to change these parameters in the transform data page of the Power Bi report. See [Set up your first report](../_reporting/power-bi/setup.md) for details.
+If the report does not include any data outside of the RangeStart/RangeEnd parameter, you will need to go to the transform data page of the Power Bi report, and change RangeStart and RangeEnd to the desired start/end dates for your report. See [Set up your first report](../_reporting/power-bi/setup.md) for details.
 
 ---
 
