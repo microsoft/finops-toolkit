@@ -3,5 +3,6 @@
   "autodetectRelationships": true,
   "parallelQueryLoading": true,
   "typeDetectionEnabled": true,
-  "relationshipImportEnabled": true
+  "relationshipImportEnabled": true,
+  "shouldNotifyUserOfNameConflictResolution": true
 }

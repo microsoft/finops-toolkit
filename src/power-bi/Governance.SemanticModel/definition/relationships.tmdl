@@ -1,132 +1,129 @@
-relationship 77731053-5922-483f-bef9-607ed94d2f5c
+relationship 9a9a8ff2-6f49-4f61-886e-5c7b393b6127
 	joinOnDateBehavior: datePartOnly
 	fromColumn: Advisor.'properties.extendedProperties.ObservationPeriodStartDate'
-	toColumn: LocalDateTable_ac9897d3-425b-4cef-a25e-b1d092bb2456.Date
+	toColumn: LocalDateTable_ebe5ed2a-5f3f-459d-a6cb-cf15814bb4f5.Date
 
-relationship 9ede57ce-c252-4460-9aff-e55389a6ef86
+relationship 77ecc27a-f31d-4241-afd4-d7708086a51d
 	joinOnDateBehavior: datePartOnly
 	fromColumn: Advisor.'properties.extendedProperties.ObservationPeriodEndDate'
-	toColumn: LocalDateTable_ea860140-03ae-4b7f-bdd2-f0881a3070c4.Date
+	toColumn: LocalDateTable_0aa1ad5c-d7f4-4b27-93cc-875c8aa104c5.Date
 
-relationship 9dcfde33-be1c-4a23-bb6b-2e72551f6739
+relationship 76b49aa3-c4d8-47fb-956e-cc99798c7ab7
 	joinOnDateBehavior: datePartOnly
 	fromColumn: Advisor.'properties.lastUpdated'
-	toColumn: LocalDateTable_1f795c4c-0799-4297-b26c-93547ab1ac92.Date
+	toColumn: LocalDateTable_53b6ab5d-506b-417f-ae3d-823bdd4fb83c.Date
 
-relationship 0a793a54-0ab0-4d65-b6ee-e5da03973633
+relationship e4a57f31-a6db-4961-bb57-f048c5aa2fa0
 	joinOnDateBehavior: datePartOnly
 	fromColumn: 'Reservation recommendations'.'properties.lastUpdated'
-	toColumn: LocalDateTable_b8bd867e-8e27-4649-adcd-406d66f143ff.Date
+	toColumn: LocalDateTable_3d93e1c3-f4b8-441e-a637-90f0b60c40ce.Date
 
-relationship 3f969187-c7d5-726c-2281-f77b36f31b02
-	crossFilteringBehavior: bothDirections
-	toCardinality: many
-	fromColumn: Resources.id
-	toColumn: 'Virtual Machines'.id
-
-relationship 286a9fca-a105-4253-5c64-ece08d0ddac8
-	crossFilteringBehavior: bothDirections
-	toCardinality: many
-	fromColumn: 'Network interfaces'.'properties.virtualMachine.id'
-	toColumn: 'Virtual Machines'.id
-
-relationship c2d7281a-9abb-5b84-ebbd-0ba295dbb90f
-	crossFilteringBehavior: bothDirections
-	fromColumn: 'Network interfaces'.'properties.ipConfigurations.properties.publicIPAddress.id'
-	toColumn: 'Public ip addresses'.id
-
-relationship 7613b401-8e3b-b048-1d64-161b6325ee93
-	crossFilteringBehavior: bothDirections
-	toCardinality: many
-	fromColumn: Disks.managedBy
-	toColumn: 'Virtual Machines'.id
-
-relationship 7e1ec773-ad5b-40b4-abea-a54b29643cb6
+relationship f239fb3d-a7a3-415d-a381-6be0ee080c4c
 	joinOnDateBehavior: datePartOnly
-	fromColumn: 'Advisor for disks'.'properties.extendedProperties.ObservationPeriodStartDate'
-	toColumn: LocalDateTable_892bbd48-76b1-4a72-80da-c1ad3cb43561.Date
+	fromColumn: 'SQL DB'.'properties.creationDate'
+	toColumn: LocalDateTable_8d91fcb6-a298-4c66-bbd7-6a780b6991d1.Date
 
-relationship 1f7877ce-1980-4f21-a463-1ef916e57684
-	joinOnDateBehavior: datePartOnly
-	fromColumn: 'Advisor for disks'.'properties.extendedProperties.ObservationPeriodEndDate'
-	toColumn: LocalDateTable_603d2997-cda7-47fd-a77b-dd10e5f5cc63.Date
-
-relationship bb4c50c4-4341-402b-b09f-2f1225085eda
-	joinOnDateBehavior: datePartOnly
-	fromColumn: 'Advisor for disks'.'properties.lastUpdated'
-	toColumn: LocalDateTable_6997d679-8d8a-480c-8d5b-c02863567959.Date
-
-relationship 9ef6dcf4-f8a0-7909-725d-87b750d3adff
-	crossFilteringBehavior: bothDirections
-	fromColumn: 'Advisor for disks'.'properties.resourceMetadata.resourceId'
-	toColumn: Disks.id
-
-relationship 0442d79d-3485-5a19-a0f7-7a6886a00ffc
-	crossFilteringBehavior: bothDirections
-	fromColumn: Resources.type
-	toColumn: 'Resource types'.ResourceType
-
-relationship 6c2da329-8a04-f2c4-4be1-282853bb8127
-	crossFilteringBehavior: bothDirections
-	toCardinality: many
+relationship 8ec86051-8f8c-7f23-4ea5-f0cf0f8f74ac
 	fromColumn: 'Network Security Groups'.id
 	toColumn: Resources.id
 
-relationship b1d5bd02-7ac6-aa3d-54dc-ff7b23b4ceca
-	crossFilteringBehavior: bothDirections
-	fromColumn: 'Reservation recommendations'.subscriptionId
-	toColumn: Subscriptions.subscriptionId
-
-relationship 0fa76e55-bcd8-c32e-8e3d-2c34b9c45a87
+relationship 4678822b-d2eb-65cf-2f5b-7ce93ce5025a
 	crossFilteringBehavior: bothDirections
 	toCardinality: many
 	fromColumn: Resources.location
 	toColumn: Region.RegionId
 
-relationship 95fbe40f-f891-281d-70c4-9766ba1cb6b7
+relationship 353e2f88-421f-9b12-9322-fe81ed9384c9
 	crossFilteringBehavior: bothDirections
 	toCardinality: many
 	fromColumn: Advisor.'properties.resourceMetadata.resourceId'
 	toColumn: Resources.id
 
-relationship 04706949-b479-e297-f580-5bf6da4eeeb2
+relationship ed8f2f2b-e0bf-3154-1c13-878c2ebb5f3f
 	crossFilteringBehavior: bothDirections
-	fromColumn: Resources.subscriptionId
+	fromColumn: Resources.type
+	toColumn: 'Resource types'.ResourceType
+
+relationship fbfc4386-f912-ec36-f778-e2fafeeffa16
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: Resources.id
+	toColumn: 'Virtual Machines'.id
+
+relationship 057da11e-2c68-92ef-645a-044d5cec2d37
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: 'SQL DB'.id
+	toColumn: Resources.id
+
+relationship 20bb2512-e018-946b-08ec-cb5e08889230
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: 'Network interfaces'.'properties.virtualMachine.id'
+	toColumn: 'Virtual Machines'.id
+
+relationship 4e36bcea-870f-ae3a-6d83-a0597c6c1ac8
+	crossFilteringBehavior: bothDirections
+	fromColumn: 'Network interfaces'.'properties.ipConfigurations.properties.publicIPAddress.id'
+	toColumn: 'Public ip addresses'.id
+
+relationship 9312719b-f143-47e0-9919-5658609e668e
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Advisor for disks'.'properties.extendedProperties.ObservationPeriodStartDate'
+	toColumn: LocalDateTable_fb889ea3-c31e-44e8-a64c-1fb5d04583bd.Date
+
+relationship 03588aef-f4ac-4637-a9e3-92eadd62ecd1
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Advisor for disks'.'properties.extendedProperties.ObservationPeriodEndDate'
+	toColumn: LocalDateTable_1347b8b2-911f-46e4-8398-c26da44edf4c.Date
+
+relationship b3c71e73-b1fd-4cbe-b7d5-c0fb2a2494e5
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Advisor for disks'.'properties.lastUpdated'
+	toColumn: LocalDateTable_1700e1cb-4f1d-47c6-a677-2114f52d4d68.Date
+
+relationship 877d3a87-37df-14cf-d345-4afbaf3f8940
+	crossFilteringBehavior: bothDirections
+	fromColumn: 'Advisor for disks'.'properties.resourceMetadata.resourceId'
+	toColumn: Disks.id
+
+relationship 57036942-891a-ced1-f82e-561d6209421f
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: Disks.managedBy
+	toColumn: 'Virtual Machines'.id
+
+relationship 13c72945-397e-2f60-8b7c-7239f11f27bd
+	crossFilteringBehavior: bothDirections
+	fromColumn: 'Reservation recommendations'.subscriptionId
 	toColumn: Subscriptions.subscriptionId
 
-relationship AutoDetected_062d4648-e642-4381-a806-3aa7b05139a0
+relationship 9a7f3e92-b274-99f9-fe03-e8051d0e6855
 	fromColumn: PolicyStates.subscriptionId
 	toColumn: Subscriptions.subscriptionId
 
-relationship 150e8dfc-5640-d8da-ee80-4001105a25e6
+relationship befadb77-e324-ea56-d792-9ccf1c92893c
 	crossFilteringBehavior: bothDirections
-	fromColumn: PolicyAssignments.'properties.policyDefinitionId'
-	toColumn: PolicyDefinitions.id
+	fromColumn: PolicyStates.'properties.policyAssignmentId'
+	toColumn: 'Compliance calculation'.id
 
-relationship 245db0d5-2384-d527-3ff4-4c9bc2641cdd
+relationship 65a4b4f2-9f36-4496-34eb-30f43898fe59
 	crossFilteringBehavior: bothDirections
 	fromColumn: PolicyStates.'properties.policyDefinitionId'
 	toColumn: PolicyDefinitions.id
 
-relationship cfbc0bb2-1148-20f3-ec4d-f35e50777415
+relationship 52446eab-6725-a40b-e637-c35a1caa5eb7
+	crossFilteringBehavior: bothDirections
+	fromColumn: PolicyAssignments.'properties.policyDefinitionId'
+	toColumn: PolicyDefinitions.id
+
+relationship 0e8fee30-b425-f79c-af3c-8fe036678686
 	crossFilteringBehavior: bothDirections
 	toCardinality: many
 	fromColumn: PolicyStates.'properties.policyAssignmentId'
 	toColumn: PolicyAssignments.id
 
-relationship c548ad3f-5fef-749c-d968-dcfd2c568238
-	crossFilteringBehavior: bothDirections
-	fromColumn: PolicyStates.'properties.policyAssignmentId'
-	toColumn: 'Compliance calculation'.id
-
-relationship d62d9b01-9018-499a-9cbd-7ebdfed84a22
-	joinOnDateBehavior: datePartOnly
-	fromColumn: 'SQL DB'.'properties.creationDate'
-	toColumn: LocalDateTable_d89dd851-86bd-4eea-9ddc-b191b198699b.Date
-
-relationship eeef5a69-2287-d327-ac70-fb6d9f49ee4f
-	crossFilteringBehavior: bothDirections
-	fromCardinality: one
-	fromColumn: 'SQL DB'.id
-	toColumn: Resources.id
+relationship 17658216-06f2-467b-6fc3-f7fbdc44c2df
+	fromColumn: Resources.subscriptionId
+	toColumn: Subscriptions.subscriptionId
 

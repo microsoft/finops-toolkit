@@ -1,9 +1,9 @@
 table 'Virtual Machines'
-	lineageTag: a278530e-4a56-4bb8-ae61-256bf07d9b74
+	lineageTag: c8d18cc6-8328-4ec7-871c-770b1b53f96a
 
 	column id
 		dataType: string
-		lineageTag: 4c844183-cbb8-49dd-b083-0d414cf1595f
+		lineageTag: 5fdaa6e7-5070-4296-a1d8-cb3846a3a014
 		summarizeBy: none
 		sourceColumn: id
 
@@ -11,7 +11,7 @@ table 'Virtual Machines'
 
 	column name
 		dataType: string
-		lineageTag: 6a55d37d-94b0-46fe-bd5d-57ce9aca3288
+		lineageTag: ca681b08-2eb2-4cc9-80f3-11c864611211
 		summarizeBy: none
 		sourceColumn: name
 
@@ -19,7 +19,7 @@ table 'Virtual Machines'
 
 	column type
 		dataType: string
-		lineageTag: 64760652-6854-44ac-b68f-97b7402514b7
+		lineageTag: 6760ae60-8923-4b3e-85d4-3e5e71094a28
 		summarizeBy: none
 		sourceColumn: type
 
@@ -27,7 +27,7 @@ table 'Virtual Machines'
 
 	column tenantId
 		dataType: string
-		lineageTag: ead4839b-a386-4dea-8ea9-fd245595e3e0
+		lineageTag: 9a1270eb-d151-4ef2-8b5f-961226c584bc
 		summarizeBy: none
 		sourceColumn: tenantId
 
@@ -35,7 +35,7 @@ table 'Virtual Machines'
 
 	column kind
 		dataType: string
-		lineageTag: b819af4b-32ee-4a60-b6e3-f68746f3bff8
+		lineageTag: 3299b8b5-cfd7-4166-8872-84d39c595f1c
 		summarizeBy: none
 		sourceColumn: kind
 
@@ -43,7 +43,7 @@ table 'Virtual Machines'
 
 	column location
 		dataType: string
-		lineageTag: 4cc1233f-30f2-4c44-adba-77237810047d
+		lineageTag: 9ffc8b09-d517-445b-bc77-e3c039cdfd73
 		summarizeBy: none
 		sourceColumn: location
 
@@ -51,7 +51,7 @@ table 'Virtual Machines'
 
 	column resourceGroup
 		dataType: string
-		lineageTag: f16af9e5-d772-4914-b7c2-7c83e527f658
+		lineageTag: 750c3c78-1204-4435-a60a-38e1b3e9e7a0
 		summarizeBy: none
 		sourceColumn: resourceGroup
 
@@ -59,7 +59,7 @@ table 'Virtual Machines'
 
 	column subscriptionId
 		dataType: string
-		lineageTag: 45d30e3f-2c38-41bf-9b62-05c5da956e7f
+		lineageTag: 4ddf17ea-e834-46ed-8da4-d3b5253be0a2
 		summarizeBy: none
 		sourceColumn: subscriptionId
 
@@ -67,7 +67,7 @@ table 'Virtual Machines'
 
 	column managedBy
 		dataType: string
-		lineageTag: 6bb998e0-613d-47c8-be6d-c1092d051957
+		lineageTag: 0045f401-73cd-4fa8-a73e-ba1bf3005094
 		summarizeBy: none
 		sourceColumn: managedBy
 
@@ -75,7 +75,7 @@ table 'Virtual Machines'
 
 	column sku
 		dataType: string
-		lineageTag: 8d062c4e-a43d-4579-a4a0-5ab128c4d5e2
+		lineageTag: dd7ff99b-4427-4481-984f-49f2c1d44d9a
 		summarizeBy: none
 		sourceColumn: sku
 
@@ -83,7 +83,7 @@ table 'Virtual Machines'
 
 	column plan
 		dataType: string
-		lineageTag: d0d58de2-66ac-4634-aad3-a0d3c3d3c9bc
+		lineageTag: e696eeec-f56b-4a79-9f06-2fc171b1d30b
 		summarizeBy: none
 		sourceColumn: plan
 
@@ -91,7 +91,7 @@ table 'Virtual Machines'
 
 	column provisioningState
 		dataType: string
-		lineageTag: e0bc6bf9-f4d2-4353-8a39-4fbcd3629ffc
+		lineageTag: aeaa3163-ba0e-4795-aa04-4d4174ed7f55
 		summarizeBy: none
 		sourceColumn: provisioningState
 
@@ -99,7 +99,7 @@ table 'Virtual Machines'
 
 	column timeCreated
 		dataType: string
-		lineageTag: 891ef206-77ac-4d2d-b7bd-bc7f65dcba2a
+		lineageTag: bd89fa5a-cdf3-4686-be7a-3b6e8606254b
 		summarizeBy: none
 		sourceColumn: timeCreated
 
@@ -107,7 +107,7 @@ table 'Virtual Machines'
 
 	column 'networkInterfaces.properties.deleteOption'
 		dataType: string
-		lineageTag: f063e92a-8848-4e5e-9b96-a4855dda7225
+		lineageTag: 825ed5cb-2bcb-47e6-9a98-2261d417070f
 		summarizeBy: none
 		sourceColumn: networkInterfaces.properties.deleteOption
 
@@ -115,7 +115,7 @@ table 'Virtual Machines'
 
 	column 'networkInterfaces.id'
 		dataType: string
-		lineageTag: 4b74349e-cd05-4f4b-9915-a1dcb7e45643
+		lineageTag: 2701f0db-4efe-40df-94fd-de49168d6387
 		summarizeBy: none
 		sourceColumn: networkInterfaces.id
 
@@ -123,7 +123,7 @@ table 'Virtual Machines'
 
 	column 'osProfile.computerName'
 		dataType: string
-		lineageTag: 588f941f-ce7a-4191-943e-b6f736b242ee
+		lineageTag: 52c2757b-f8c6-4d22-b6e0-9d1327d25ece
 		summarizeBy: none
 		sourceColumn: osProfile.computerName
 
@@ -131,7 +131,7 @@ table 'Virtual Machines'
 
 	column 'osProfile.requireGuestProvisionSignal'
 		dataType: string
-		lineageTag: 58adf5b0-c80a-4204-a7a8-afad254fe118
+		lineageTag: c3b3c8f6-89ac-43b4-8f27-335384a0c930
 		summarizeBy: none
 		sourceColumn: osProfile.requireGuestProvisionSignal
 
@@ -139,7 +139,7 @@ table 'Virtual Machines'
 
 	column 'osProfile.allowExtensionOperations'
 		dataType: string
-		lineageTag: 48f48538-937a-4905-8e4e-69001b8c2bbf
+		lineageTag: 435b464d-568d-4de7-8aa1-bf0d027875c8
 		summarizeBy: none
 		sourceColumn: osProfile.allowExtensionOperations
 
@@ -147,7 +147,7 @@ table 'Virtual Machines'
 
 	column 'osProfile.adminUsername'
 		dataType: string
-		lineageTag: a92b03aa-6442-4c7c-a26a-20982cb2c547
+		lineageTag: bf70d2b7-7b5e-4ad4-86a0-442720f01ad0
 		summarizeBy: none
 		sourceColumn: osProfile.adminUsername
 
@@ -155,7 +155,7 @@ table 'Virtual Machines'
 
 	column 'osProfile.secrets'
 		dataType: string
-		lineageTag: 422db784-aafd-4bc4-9472-66faba94508b
+		lineageTag: 63d5eaa1-5598-4f9d-a690-806dd0d71799
 		summarizeBy: none
 		sourceColumn: osProfile.secrets
 
@@ -163,7 +163,7 @@ table 'Virtual Machines'
 
 	column 'osProfile.linuxConfiguration'
 		dataType: string
-		lineageTag: 38ad2488-db06-4f54-bd85-2720c738fddf
+		lineageTag: a2d71e2c-dc82-4b50-9130-5ca99918f6a9
 		summarizeBy: none
 		sourceColumn: osProfile.linuxConfiguration
 
@@ -171,7 +171,7 @@ table 'Virtual Machines'
 
 	column 'osProfile.windowsConfiguration'
 		dataType: string
-		lineageTag: 8081bdee-acd5-4d40-8fe2-28a34ae38248
+		lineageTag: 3473b502-84b0-4c49-a9a9-0066b4dc1b0d
 		summarizeBy: none
 		sourceColumn: osProfile.windowsConfiguration
 
@@ -179,7 +179,7 @@ table 'Virtual Machines'
 
 	column 'storageProfile.imageReference.publisher'
 		dataType: string
-		lineageTag: 7b99c86c-a774-4165-baf9-d056f795010b
+		lineageTag: 8a352acf-e049-46bc-a1a6-8e8bce01c199
 		summarizeBy: none
 		sourceColumn: storageProfile.imageReference.publisher
 
@@ -187,7 +187,7 @@ table 'Virtual Machines'
 
 	column 'storageProfile.imageReference.sku'
 		dataType: string
-		lineageTag: c39291b2-a45f-4658-8d37-de4b67199536
+		lineageTag: 21689d18-044e-4525-a59f-d853535cd49d
 		summarizeBy: none
 		sourceColumn: storageProfile.imageReference.sku
 
@@ -195,7 +195,7 @@ table 'Virtual Machines'
 
 	column 'storageProfile.imageReference.version'
 		dataType: string
-		lineageTag: 80cae80c-5306-41ee-b18c-331e5face721
+		lineageTag: ea183530-ee9c-4e29-9648-4ab19f6c509f
 		summarizeBy: none
 		sourceColumn: storageProfile.imageReference.version
 
@@ -203,7 +203,7 @@ table 'Virtual Machines'
 
 	column 'storageProfile.imageReference.exactVersion'
 		dataType: string
-		lineageTag: 5b2b474d-0e7b-4156-8d56-f84ba48bda09
+		lineageTag: a4059653-17d5-413c-819a-8721620f8946
 		summarizeBy: none
 		sourceColumn: storageProfile.imageReference.exactVersion
 
@@ -211,7 +211,7 @@ table 'Virtual Machines'
 
 	column 'storageProfile.imageReference.offer'
 		dataType: string
-		lineageTag: 855ee354-feb5-4f63-994e-e93b7546caeb
+		lineageTag: 65d40618-25c7-4358-85cc-416e9659223c
 		summarizeBy: none
 		sourceColumn: storageProfile.imageReference.offer
 
@@ -219,7 +219,7 @@ table 'Virtual Machines'
 
 	column 'storageProfile.dataDisks.name'
 		dataType: string
-		lineageTag: 9f196cd0-be9f-4a57-ba3c-2059f5ae47c9
+		lineageTag: b7acee6f-b2f3-4123-a09e-f54e2fb687e7
 		summarizeBy: none
 		sourceColumn: storageProfile.dataDisks.name
 
@@ -227,7 +227,7 @@ table 'Virtual Machines'
 
 	column 'storageProfile.dataDisks.createOption'
 		dataType: string
-		lineageTag: 02e11fdd-5864-411b-9ecf-13e4cff642e3
+		lineageTag: d4926a62-5551-456a-85f2-2380e2d82dc7
 		summarizeBy: none
 		sourceColumn: storageProfile.dataDisks.createOption
 
@@ -235,7 +235,7 @@ table 'Virtual Machines'
 
 	column 'storageProfile.dataDisks.deleteOption'
 		dataType: string
-		lineageTag: a45698ce-bbe3-488b-83b4-523f50d7645f
+		lineageTag: 6740f178-5f5a-47bf-b419-d147b2164f70
 		summarizeBy: none
 		sourceColumn: storageProfile.dataDisks.deleteOption
 
@@ -243,7 +243,7 @@ table 'Virtual Machines'
 
 	column 'storageProfile.dataDisks.managedDisk.id'
 		dataType: string
-		lineageTag: 043f2f5c-5288-445a-9a84-a484136e9eaf
+		lineageTag: 2d11cb97-57bc-4045-9095-e977f96fedba
 		summarizeBy: none
 		sourceColumn: storageProfile.dataDisks.managedDisk.id
 
@@ -251,7 +251,7 @@ table 'Virtual Machines'
 
 	column 'storageProfile.dataDisks.caching'
 		dataType: string
-		lineageTag: d7f6df9a-6f8e-4c36-98b6-5e0a800dd987
+		lineageTag: 649e8480-d932-4aa0-819d-3960b07c6696
 		summarizeBy: none
 		sourceColumn: storageProfile.dataDisks.caching
 
@@ -259,7 +259,7 @@ table 'Virtual Machines'
 
 	column 'storageProfile.dataDisks.toBeDetached'
 		dataType: string
-		lineageTag: 40406609-600f-4419-a3db-4f10e0a2f60b
+		lineageTag: 539a0de2-30f8-4d42-8cec-2e22d467e643
 		summarizeBy: none
 		sourceColumn: storageProfile.dataDisks.toBeDetached
 
@@ -267,7 +267,7 @@ table 'Virtual Machines'
 
 	column 'storageProfile.dataDisks.writeAcceleratorEnabled'
 		dataType: string
-		lineageTag: 010ecb09-9ae6-488a-9387-78e5c7aa3a0d
+		lineageTag: 4520cfe0-d4ca-4139-bac9-8b7dc484a8c0
 		summarizeBy: none
 		sourceColumn: storageProfile.dataDisks.writeAcceleratorEnabled
 
@@ -275,7 +275,7 @@ table 'Virtual Machines'
 
 	column 'storageProfile.dataDisks.lun'
 		dataType: string
-		lineageTag: b8de1f80-ee6e-471f-8d09-7599eddb81ef
+		lineageTag: 17a31b9d-06cb-417a-af1d-8b46c3bb1913
 		summarizeBy: none
 		sourceColumn: storageProfile.dataDisks.lun
 
@@ -283,7 +283,7 @@ table 'Virtual Machines'
 
 	column 'storageProfile.osDisk.name'
 		dataType: string
-		lineageTag: 9115c2ef-6cc1-4b1f-a7b9-8489b353447a
+		lineageTag: 53e51269-5f77-413a-a7fc-964084557dba
 		summarizeBy: none
 		sourceColumn: storageProfile.osDisk.name
 
@@ -291,7 +291,7 @@ table 'Virtual Machines'
 
 	column 'storageProfile.osDisk.createOption'
 		dataType: string
-		lineageTag: dc39c1f8-7444-4198-98b4-d2514000958b
+		lineageTag: a04d42c2-3164-4e16-921f-ba9e0e118f97
 		summarizeBy: none
 		sourceColumn: storageProfile.osDisk.createOption
 
@@ -299,7 +299,7 @@ table 'Virtual Machines'
 
 	column 'storageProfile.osDisk.osType'
 		dataType: string
-		lineageTag: 48b0b3b7-2f28-4733-8e7c-d62dd82d7802
+		lineageTag: cd6ec9d9-9457-43cd-a668-fcbc41f04dd7
 		summarizeBy: none
 		sourceColumn: storageProfile.osDisk.osType
 
@@ -307,7 +307,7 @@ table 'Virtual Machines'
 
 	column 'storageProfile.osDisk.deleteOption'
 		dataType: string
-		lineageTag: a1002433-a899-4609-b2a1-bf1f814ac8fb
+		lineageTag: 737bb1f2-0e01-4cb0-bd9a-84aa4a0a93e7
 		summarizeBy: none
 		sourceColumn: storageProfile.osDisk.deleteOption
 
@@ -315,7 +315,7 @@ table 'Virtual Machines'
 
 	column 'storageProfile.osDisk.managedDisk.id'
 		dataType: string
-		lineageTag: ee9b7e93-b9d9-4291-8d59-2bb2cb74f8d1
+		lineageTag: c5207dc5-5e89-415f-8a0f-06776fec2054
 		summarizeBy: none
 		sourceColumn: storageProfile.osDisk.managedDisk.id
 
@@ -323,7 +323,7 @@ table 'Virtual Machines'
 
 	column 'storageProfile.osDisk.caching'
 		dataType: string
-		lineageTag: 1e7b26a4-bc95-48c3-a61a-13891f018972
+		lineageTag: bea61b2c-c90c-4979-9da4-b7faf11b102c
 		summarizeBy: none
 		sourceColumn: storageProfile.osDisk.caching
 
@@ -331,7 +331,7 @@ table 'Virtual Machines'
 
 	column 'hardwareProfile.vmSize'
 		dataType: string
-		lineageTag: a34be209-6d68-4b63-b3de-ea0af70bd99a
+		lineageTag: 45fd8f69-49e7-4792-8a5f-a7afbb03763b
 		summarizeBy: none
 		sourceColumn: hardwareProfile.vmSize
 
@@ -339,7 +339,7 @@ table 'Virtual Machines'
 
 	column vmId
 		dataType: string
-		lineageTag: 83860a08-b7f7-4628-a9b2-fde00c798b33
+		lineageTag: 5abd5355-3ed9-4844-8253-eebc31b831dd
 		summarizeBy: none
 		sourceColumn: vmId
 
@@ -347,7 +347,7 @@ table 'Virtual Machines'
 
 	column 'diagnosticsProfile.bootDiagnostics.enabled'
 		dataType: string
-		lineageTag: dfe66963-40bb-4736-823e-4930c7eeaf23
+		lineageTag: 4c6ac9d8-7c72-410e-ae38-e2c388f8e7e8
 		summarizeBy: none
 		sourceColumn: diagnosticsProfile.bootDiagnostics.enabled
 
@@ -355,7 +355,7 @@ table 'Virtual Machines'
 
 	column 'diagnosticsProfile.bootDiagnostics.storageUri'
 		dataType: string
-		lineageTag: 19e38375-f62e-4fd0-a129-fbde4e6765f4
+		lineageTag: c9cdefe7-1c0f-42f4-9409-6730e67181eb
 		summarizeBy: none
 		sourceColumn: diagnosticsProfile.bootDiagnostics.storageUri
 
@@ -363,7 +363,7 @@ table 'Virtual Machines'
 
 	column 'powerState.displayStatus'
 		dataType: string
-		lineageTag: c6cdaf0c-6372-4e9e-b622-2112d92035f2
+		lineageTag: 4e64a079-2386-473a-bec0-47def6a86ba7
 		summarizeBy: none
 		sourceColumn: powerState.displayStatus
 
@@ -371,7 +371,7 @@ table 'Virtual Machines'
 
 	column licenseType
 		dataType: string
-		lineageTag: 1676c306-8beb-4ca2-8c6c-20f970b74ab9
+		lineageTag: ba1f41c4-23a1-4b31-8bdc-78200b328a14
 		summarizeBy: none
 		sourceColumn: licenseType
 
@@ -379,7 +379,7 @@ table 'Virtual Machines'
 
 	column tags
 		dataType: string
-		lineageTag: d51a8a67-7731-4b6f-b65b-ecef07e3dd77
+		lineageTag: 0fb25d0a-8b48-485c-8ac4-7c0eaa9c3a2a
 		summarizeBy: none
 		sourceColumn: tags
 
@@ -387,7 +387,7 @@ table 'Virtual Machines'
 
 	column identity
 		dataType: string
-		lineageTag: 7f27a8be-bc22-48dc-bbb1-de7731001e2b
+		lineageTag: 3a3ff514-56b8-4b9c-a056-2a9db508c36b
 		summarizeBy: none
 		sourceColumn: identity
 
@@ -395,7 +395,7 @@ table 'Virtual Machines'
 
 	column zones
 		dataType: string
-		lineageTag: 86fc1e09-585f-4730-bcf5-f2572e275b54
+		lineageTag: 0cd4408c-0262-40f2-aeca-ffa3def9d885
 		summarizeBy: none
 		sourceColumn: zones
 
@@ -403,7 +403,7 @@ table 'Virtual Machines'
 
 	column extendedLocation
 		dataType: string
-		lineageTag: 66d0ce83-af6f-4b5b-8ce6-033c5111aa30
+		lineageTag: dd92087c-35e5-4749-b45b-ce73c19ba9ae
 		summarizeBy: none
 		sourceColumn: extendedLocation
 

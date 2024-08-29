@@ -1,9 +1,9 @@
 table 'Advisor for disks'
-	lineageTag: c8b2034b-f40d-4012-b731-ef9915ab3e19
+	lineageTag: 8706c346-cecf-4e93-9aee-30b04dd9660f
 
 	column id
 		dataType: string
-		lineageTag: 010d2f7f-f9aa-4961-b6ae-d3d5d7673933
+		lineageTag: a05914f0-3f90-48d6-895a-bfca404cc5f1
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -13,7 +13,7 @@ table 'Advisor for disks'
 
 	column name
 		dataType: string
-		lineageTag: cf413d57-e44b-4039-b871-7b377723af46
+		lineageTag: 559475d6-a404-4002-9fb4-9397e0e22a28
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -23,7 +23,7 @@ table 'Advisor for disks'
 
 	column type
 		dataType: string
-		lineageTag: c5fd077e-bc63-4341-9dd1-2754f1ccc49c
+		lineageTag: 82384717-4fb1-4c1d-a7a4-d85970a70fa0
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -33,7 +33,7 @@ table 'Advisor for disks'
 
 	column tenantId
 		dataType: string
-		lineageTag: 4ffd0af1-81e0-44dc-8dd2-dbedd75da42d
+		lineageTag: 0698213b-facd-41cc-b48c-afb8ddaeeefc
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -43,7 +43,7 @@ table 'Advisor for disks'
 
 	column kind
 		dataType: string
-		lineageTag: 10e1c126-339b-4cc6-a86c-6c39297cf8c8
+		lineageTag: c4416266-3591-4022-918a-4e8a36401e8a
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -53,7 +53,7 @@ table 'Advisor for disks'
 
 	column location
 		dataType: string
-		lineageTag: 32efa623-f8ac-4f65-bf95-5ed2e55a6281
+		lineageTag: 47b0aa17-eab1-4c65-a794-d4da4e9c8742
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -63,7 +63,7 @@ table 'Advisor for disks'
 
 	column resourceGroup
 		dataType: string
-		lineageTag: 2fb6d2df-9be1-486c-a1e7-90b1565eaf1e
+		lineageTag: 4d267406-bcef-4a93-99cb-e1d6a5668378
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -73,7 +73,7 @@ table 'Advisor for disks'
 
 	column subscriptionId
 		dataType: string
-		lineageTag: e2ab2404-374f-44a9-ae34-097b7426c5d0
+		lineageTag: 1971dcc0-99d4-44c8-a9f1-65b031467049
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -83,7 +83,7 @@ table 'Advisor for disks'
 
 	column managedBy
 		dataType: string
-		lineageTag: bfd3ba0d-c842-452a-8d56-2e507fc76568
+		lineageTag: cf402dc3-0a94-43b6-ba30-0994e7ff663d
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -93,7 +93,7 @@ table 'Advisor for disks'
 
 	column sku
 		dataType: string
-		lineageTag: dd67527e-f1ce-44f9-8a4f-22583401b728
+		lineageTag: e953a41b-46bc-4d1c-badf-de95671d56c8
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -103,7 +103,7 @@ table 'Advisor for disks'
 
 	column plan
 		dataType: string
-		lineageTag: c4bcdaf6-2f32-49cd-b7f5-4dc8d1fe6b1d
+		lineageTag: 21aa93c1-b80a-4de9-826e-3d117f4ef292
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -113,7 +113,7 @@ table 'Advisor for disks'
 
 	column 'properties.recommendationTypeId'
 		dataType: string
-		lineageTag: dbb6ce02-b2c0-4eb8-b074-a6c3b1297f32
+		lineageTag: a1b92395-1cd2-4921-8db3-5069a43a1d2c
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -124,7 +124,7 @@ table 'Advisor for disks'
 	column 'properties.extendedProperties.ObservationPeriodStartDate'
 		dataType: dateTime
 		formatString: General Date
-		lineageTag: 18c93922-f41e-4c47-b10b-f443a112253b
+		lineageTag: 581c3b2d-b172-4527-9893-b67f610654be
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -132,15 +132,15 @@ table 'Advisor for disks'
 
 		variation Variation
 			isDefault
-			relationship: 7e1ec773-ad5b-40b4-abea-a54b29643cb6
-			defaultHierarchy: LocalDateTable_892bbd48-76b1-4a72-80da-c1ad3cb43561.'Date Hierarchy'
+			relationship: 9312719b-f143-47e0-9919-5658609e668e
+			defaultHierarchy: LocalDateTable_fb889ea3-c31e-44e8-a64c-1fb5d04583bd.'Date Hierarchy'
 
 		annotation SummarizationSetBy = Automatic
 
 	column 'properties.extendedProperties.ObservationPeriodEndDate'
 		dataType: dateTime
 		formatString: General Date
-		lineageTag: 963bc0bc-e376-43be-9e62-9f5b774f02bb
+		lineageTag: 23c5010c-394a-42eb-b17a-9efc525d53af
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -148,14 +148,14 @@ table 'Advisor for disks'
 
 		variation Variation
 			isDefault
-			relationship: 1f7877ce-1980-4f21-a463-1ef916e57684
-			defaultHierarchy: LocalDateTable_603d2997-cda7-47fd-a77b-dd10e5f5cc63.'Date Hierarchy'
+			relationship: 03588aef-f4ac-4637-a9e3-92eadd62ecd1
+			defaultHierarchy: LocalDateTable_1347b8b2-911f-46e4-8398-c26da44edf4c.'Date Hierarchy'
 
 		annotation SummarizationSetBy = Automatic
 
 	column 'properties.extendedProperties.annualSavingsAmount'
 		dataType: double
-		lineageTag: 1371056c-74dd-4cf1-806c-66573ce7c706
+		lineageTag: 7ac894b9-b409-41bd-ab3b-0b09ab14a299
 		summarizeBy: sum
 		isNameInferred
 		isDataTypeInferred
@@ -167,7 +167,7 @@ table 'Advisor for disks'
 
 	column 'properties.extendedProperties.HasRecommendation'
 		dataType: string
-		lineageTag: 856001f3-95bf-4445-b6d0-3df1bb7fea86
+		lineageTag: 92bb3844-7f19-406d-86a1-f2402b40e84e
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -177,7 +177,7 @@ table 'Advisor for disks'
 
 	column 'properties.extendedProperties.savingsCurrency'
 		dataType: string
-		lineageTag: 0639d893-32c9-41ff-beb8-610f8ce9da8e
+		lineageTag: bad52941-5e6c-49d5-9797-2f7e5a5e1de8
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -187,7 +187,7 @@ table 'Advisor for disks'
 
 	column 'properties.extendedProperties.IsInReplication'
 		dataType: string
-		lineageTag: de95a8a3-b65f-4c39-8d8c-bbfc2844ec61
+		lineageTag: 2a7d7fed-9aad-4197-95fc-ab95580ac8c9
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -197,7 +197,7 @@ table 'Advisor for disks'
 
 	column 'properties.extendedProperties.Recommended_DTU'
 		dataType: string
-		lineageTag: 9e141655-c6ff-4218-bb54-21ef2542c993
+		lineageTag: 31bed4bb-74bb-4d46-b858-0a732189b267
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -207,7 +207,7 @@ table 'Advisor for disks'
 
 	column 'properties.extendedProperties.Recommended_SKU'
 		dataType: string
-		lineageTag: b51f027e-dd00-4e72-867f-24a54b192d16
+		lineageTag: 987829df-5f18-412b-99cf-85863bd1aa03
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -217,7 +217,7 @@ table 'Advisor for disks'
 
 	column 'properties.extendedProperties.ResourceGroup'
 		dataType: string
-		lineageTag: cb2cd9ea-b4b5-4491-a05a-b7fa3fddc1db
+		lineageTag: fbf92501-da18-40ff-9279-c972667ea5a6
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -227,7 +227,7 @@ table 'Advisor for disks'
 
 	column 'properties.extendedProperties.savingsAmount'
 		dataType: double
-		lineageTag: 3e50f3ca-cfc6-4d8b-86ea-070542006dd7
+		lineageTag: aff2835b-faa6-4356-adc0-c771b1770f67
 		summarizeBy: sum
 		isNameInferred
 		isDataTypeInferred
@@ -239,7 +239,7 @@ table 'Advisor for disks'
 
 	column 'properties.extendedProperties.DatabaseSize'
 		dataType: string
-		lineageTag: 340aad6c-045a-4a93-ad9f-7c6b91fc8eb3
+		lineageTag: d0fcaa92-3d8f-47b4-a53e-bef1ea4b779f
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -249,7 +249,7 @@ table 'Advisor for disks'
 
 	column 'properties.extendedProperties.DatabaseName'
 		dataType: string
-		lineageTag: 65ef7797-6628-45bf-a6d9-6eee47821ee7
+		lineageTag: 9f66edd7-67de-49cf-bfa9-cef779493b47
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -259,7 +259,7 @@ table 'Advisor for disks'
 
 	column 'properties.extendedProperties.ServerName'
 		dataType: string
-		lineageTag: f7d78d9e-f63d-44d6-8e67-6e812f3ac871
+		lineageTag: d78a8959-070d-40ca-b0e5-bfba3d7b2948
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -269,7 +269,7 @@ table 'Advisor for disks'
 
 	column 'properties.extendedProperties.Region'
 		dataType: string
-		lineageTag: 1a7fd623-fc87-4e43-a921-d4b3bc5c2c23
+		lineageTag: b2928e9e-62d6-47bc-984b-fbd17b5f9465
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -279,7 +279,7 @@ table 'Advisor for disks'
 
 	column 'properties.extendedProperties.lookbackPeriod'
 		dataType: string
-		lineageTag: dccd63e3-5b6d-46ab-8a59-47ebaf529533
+		lineageTag: d063544c-a73e-444a-9f37-1790421e0954
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -289,7 +289,7 @@ table 'Advisor for disks'
 
 	column 'properties.extendedProperties.subId'
 		dataType: string
-		lineageTag: ef73d343-d36c-4d39-903a-deff8a3f4267
+		lineageTag: c69347e8-bdee-48ac-8500-d4b57195022f
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -299,7 +299,7 @@ table 'Advisor for disks'
 
 	column 'properties.extendedProperties.scope'
 		dataType: string
-		lineageTag: b59bcb82-d46a-481e-aa71-8aa5749dab1b
+		lineageTag: 5db6535d-dfc4-4d5b-9d7e-316adf906f58
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -309,7 +309,7 @@ table 'Advisor for disks'
 
 	column 'properties.extendedProperties.term'
 		dataType: string
-		lineageTag: a2baba59-ede1-482e-bf0f-e8075b171a0a
+		lineageTag: 0e8e1113-0f76-4e2d-b4bf-dd9945a2d28a
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -319,7 +319,7 @@ table 'Advisor for disks'
 
 	column 'properties.extendedProperties.sku'
 		dataType: string
-		lineageTag: 827f3b7d-20d0-4d95-a770-eed6b72a17b5
+		lineageTag: e75ecd5e-9044-46d2-8e7b-7c89623c52ee
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -329,7 +329,7 @@ table 'Advisor for disks'
 
 	column 'properties.extendedProperties.commitment'
 		dataType: string
-		lineageTag: 19260ece-7c1d-43e4-af9e-dbaadce8e8ba
+		lineageTag: 0c985b2a-594b-4f27-a2da-f3b6b18db48e
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -339,7 +339,7 @@ table 'Advisor for disks'
 
 	column 'properties.extendedProperties.currentSku'
 		dataType: string
-		lineageTag: f8158ed4-0244-4836-a052-c544e30cc67a
+		lineageTag: f12be972-4adc-44fb-bf16-29dd28391e71
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -349,7 +349,7 @@ table 'Advisor for disks'
 
 	column 'properties.extendedProperties.targetSku'
 		dataType: string
-		lineageTag: 9c2725cb-f8fb-46c4-afce-5b3c47ee3965
+		lineageTag: 8ad1b0af-7898-4b3f-a40d-9e5b6b97b09d
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -359,7 +359,7 @@ table 'Advisor for disks'
 
 	column 'properties.extendedProperties.recommendationMessage'
 		dataType: string
-		lineageTag: bd402412-0798-425c-a40f-c3b428088b0e
+		lineageTag: 432544b3-0905-4849-96c9-4f97de97993b
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -369,7 +369,7 @@ table 'Advisor for disks'
 
 	column 'properties.shortDescription.solution'
 		dataType: string
-		lineageTag: b6980d0b-b8ce-4968-b44f-6cc2ab98f08c
+		lineageTag: a6086e18-8cab-43d8-90da-1ce271208928
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -379,7 +379,7 @@ table 'Advisor for disks'
 
 	column 'properties.shortDescription.problem'
 		dataType: string
-		lineageTag: b2b6155a-6e90-43a5-88e2-f051ef31a50a
+		lineageTag: 122b19bf-424a-42f3-95da-5f1e4043ace4
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -389,7 +389,7 @@ table 'Advisor for disks'
 
 	column 'properties.resourceMetadata.resourceId'
 		dataType: string
-		lineageTag: 3dec07ff-d6d2-4eb1-aa4b-80597ade7a52
+		lineageTag: 91f38647-045e-4e89-aa06-f190ab7c8423
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -399,7 +399,7 @@ table 'Advisor for disks'
 
 	column 'properties.resourceMetadata.singular'
 		dataType: string
-		lineageTag: c9de006b-2cb1-46d6-b961-f36a032a97d3
+		lineageTag: e00c2626-da0d-40c4-8dfc-cc08db575f92
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -409,7 +409,7 @@ table 'Advisor for disks'
 
 	column 'properties.resourceMetadata.plural'
 		dataType: string
-		lineageTag: 29670e24-040c-4089-bd36-b532c35bfcef
+		lineageTag: 285e3661-c15c-4b7d-89e2-7eee9d7d255b
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -419,7 +419,7 @@ table 'Advisor for disks'
 
 	column 'properties.resourceMetadata.action'
 		dataType: string
-		lineageTag: 78174491-d9e8-43a4-82f6-c5746423ee53
+		lineageTag: 43236c24-a6a3-4a0a-90f1-5088729997e4
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -429,7 +429,7 @@ table 'Advisor for disks'
 
 	column 'properties.resourceMetadata.source'
 		dataType: string
-		lineageTag: 5914dd1e-07db-4581-8333-a6eb1d5029b0
+		lineageTag: d1131035-ce57-4354-9e7a-84419cec3af1
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -439,7 +439,7 @@ table 'Advisor for disks'
 
 	column 'properties.suppressionIds'
 		dataType: string
-		lineageTag: 6ac14752-cd26-4ce9-a513-7687e8072544
+		lineageTag: b33a2e85-624f-4640-aeb6-2fcdcea95cc1
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -449,7 +449,7 @@ table 'Advisor for disks'
 
 	column 'properties.impactedField'
 		dataType: string
-		lineageTag: 10010561-9e76-4539-997e-2b08211a0d03
+		lineageTag: 696f42f0-037c-49f0-be42-4037108d9a22
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -459,7 +459,7 @@ table 'Advisor for disks'
 
 	column 'properties.impactedValue'
 		dataType: string
-		lineageTag: 6bf60a20-23ad-4274-97a4-328cc9dd83ce
+		lineageTag: 40cc45f6-9604-48f9-b36a-67e03f8eb832
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -470,7 +470,7 @@ table 'Advisor for disks'
 	column 'properties.lastUpdated'
 		dataType: dateTime
 		formatString: General Date
-		lineageTag: 560fb79f-8b42-4607-9dec-9d1d74966b43
+		lineageTag: b278da8d-9b9e-443c-bf09-b990177cfc67
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -478,14 +478,14 @@ table 'Advisor for disks'
 
 		variation Variation
 			isDefault
-			relationship: bb4c50c4-4341-402b-b09f-2f1225085eda
-			defaultHierarchy: LocalDateTable_6997d679-8d8a-480c-8d5b-c02863567959.'Date Hierarchy'
+			relationship: b3c71e73-b1fd-4cbe-b7d5-c0fb2a2494e5
+			defaultHierarchy: LocalDateTable_1700e1cb-4f1d-47c6-a677-2114f52d4d68.'Date Hierarchy'
 
 		annotation SummarizationSetBy = Automatic
 
 	column 'properties.category'
 		dataType: string
-		lineageTag: 6c7967ec-c372-4046-9b5c-38bfd9ac944c
+		lineageTag: 0dea3b14-a84b-4fd9-86e0-53b690bbf6c3
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -495,7 +495,7 @@ table 'Advisor for disks'
 
 	column 'properties.metadata'
 		dataType: string
-		lineageTag: 9f609390-3c1f-41bc-8816-129b7f9ef815
+		lineageTag: c678abf6-9940-495e-b8ec-75be4f682a9d
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -505,7 +505,7 @@ table 'Advisor for disks'
 
 	column 'properties.impact'
 		dataType: string
-		lineageTag: 7ab9c6ed-994e-4770-921c-32cc86341908
+		lineageTag: f7430d33-e39a-43a1-a06d-a830f427f1ca
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -515,7 +515,7 @@ table 'Advisor for disks'
 
 	column tags
 		dataType: string
-		lineageTag: bbc594aa-43dd-4fcb-ba21-4b61bfde07ec
+		lineageTag: 30b9aaf0-2942-47d6-969d-ad18a79446b7
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -525,7 +525,7 @@ table 'Advisor for disks'
 
 	column identity
 		dataType: string
-		lineageTag: 6a770a33-6e6e-4ed2-9ff1-e4a85a42e152
+		lineageTag: 56f39a63-8735-417d-be7a-0af26ff5c2c2
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -535,7 +535,7 @@ table 'Advisor for disks'
 
 	column zones
 		dataType: string
-		lineageTag: 61843505-01ea-406b-ab3f-8580140d6067
+		lineageTag: 53a73134-4975-4238-98ad-4064f440f814
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -545,7 +545,7 @@ table 'Advisor for disks'
 
 	column extendedLocation
 		dataType: string
-		lineageTag: a5046ff1-7242-4741-abd6-da683fd24e2f
+		lineageTag: edcd9aee-a61f-44c2-ac4c-c563fea3c114
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -556,7 +556,7 @@ table 'Advisor for disks'
 	column SortOrder
 		dataType: int64
 		formatString: 0
-		lineageTag: b31343a5-1360-4c72-af03-a6ff43579fcc
+		lineageTag: af01c8d2-4439-4de4-9e07-0d7a20491d03
 		summarizeBy: sum
 		isNameInferred
 		isDataTypeInferred
@@ -568,5 +568,5 @@ table 'Advisor for disks'
 		mode: import
 		source = Advisor
 
-	annotation PBI_Id = b64ee3c63dc2444b8d2c58ac6ca7b730
+	annotation PBI_Id = dfbe28898de048d49402c9780741cd24
 

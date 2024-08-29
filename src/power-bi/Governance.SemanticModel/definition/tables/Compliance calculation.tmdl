@@ -1,33 +1,32 @@
 table 'Compliance calculation'
-	lineageTag: 3659d0f7-4159-4f03-8cff-ddbbe768ee44
-
-	measure NonCompliant = CALCULATE(DISTINCTCOUNT(PolicyStates[properties.resourceId]),RELATEDTABLE('Compliance calculation'),PolicyStates[properties.complianceState] ="NonCompliant")
-		formatString: 0
-		lineageTag: d630bc36-39ba-4ee0-aa26-a9965a427572
-
-	measure Compliant = [totalResource]-[NonCompliant]-[Error]
-		formatString: 0
-		lineageTag: 4398b66f-6900-4ce3-93fd-47e14194031c
+	lineageTag: 7e7fc609-aead-44a4-9f96-54c8ea4bbd8f
 
 	measure Compliance = [Compliant]/([Compliant]+[NonCompliant])
 		formatString: 0\ %;-0\ %;0\ %
-		lineageTag: fd597b28-5336-456c-a903-00909196c7de
+		lineageTag: f847d570-6582-428a-885a-00639e5ffa4d
 
-	measure Unknown = CALCULATE(COUNTROWS(PolicyStates),RELATEDTABLE('Compliance calculation'),PolicyStates[properties.complianceState] ="Unknown")
-		formatString: 0
-		lineageTag: 0b68abd8-ed8b-4233-b6e9-e9f5c008ccf0
+	measure Compliant = [totalResource]-[NonCompliant]-[Error]
+		lineageTag: 77b760fb-9db5-42fc-b67f-158dd70e53a5
 
 	measure Error = CALCULATE(COUNTROWS(PolicyStates),RELATEDTABLE('Compliance calculation'),PolicyStates[properties.complianceState] ="Error")
 		formatString: 0
-		lineageTag: 186d3ba5-a49c-4635-81b3-a9ef585b9fa4
+		lineageTag: 4453f273-dbab-4db2-b146-7d35c259d27f
+
+	measure NonCompliant = CALCULATE(DISTINCTCOUNT(PolicyStates[properties.resourceId]),RELATEDTABLE('Compliance calculation'),PolicyStates[properties.complianceState] ="NonCompliant")
+		formatString: 0
+		lineageTag: 2fb77442-b45e-4e34-9de5-fac821f19fa8
 
 	measure totalResource = DISTINCTCOUNT(PolicyStates[properties.resourceId])
 		formatString: 0
-		lineageTag: 07aaee0b-2010-4509-bd3e-fb24187ee98d
+		lineageTag: ba585a54-12b8-4aa4-9368-f8d5d1515dc2
+
+	measure Unknown = CALCULATE(COUNTROWS(PolicyStates),RELATEDTABLE('Compliance calculation'),PolicyStates[properties.complianceState] ="Unknown")
+		formatString: 0
+		lineageTag: 1b85d268-c56a-4c60-ae3a-68d89e660197
 
 	column id
 		dataType: string
-		lineageTag: d57287ed-499e-4758-bf16-ce8c710a060c
+		lineageTag: 255eae7e-e876-46c6-85c9-01c92bfacd5e
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
@@ -39,5 +38,5 @@ table 'Compliance calculation'
 		mode: import
 		source = SUMMARIZE(PolicyAssignments,PolicyAssignments[id])
 
-	annotation PBI_Id = 71235f809eea407d805887220a94ed52
+	annotation PBI_Id = 3625d4cfb0034cecb87fbea9fd2c9533
 

@@ -1,9 +1,9 @@
 table 'Reservation recommendations'
-	lineageTag: f8a7216c-3ff2-43b2-94f8-0f0c214e41c7
+	lineageTag: 32d03c9d-1549-44d4-8a29-24c58b034ce6
 
 	column id
 		dataType: string
-		lineageTag: 26be755c-9440-42dc-a019-5736edc36150
+		lineageTag: 1f188e79-f5da-402e-8c9f-cbbbb33d343b
 		summarizeBy: none
 		sourceColumn: id
 
@@ -11,7 +11,7 @@ table 'Reservation recommendations'
 
 	column name
 		dataType: string
-		lineageTag: d292350c-ec24-4ea5-9979-85eac56f0530
+		lineageTag: 20ef22a4-f948-4168-854e-dd9e7e106edf
 		summarizeBy: none
 		sourceColumn: name
 
@@ -19,7 +19,7 @@ table 'Reservation recommendations'
 
 	column type
 		dataType: string
-		lineageTag: 30bb51f4-e29c-400f-9e70-620770c6f163
+		lineageTag: a6d78e08-182b-4df3-a696-541bc7e8e749
 		summarizeBy: none
 		sourceColumn: type
 
@@ -27,7 +27,7 @@ table 'Reservation recommendations'
 
 	column tenantId
 		dataType: string
-		lineageTag: 92914d1a-c57f-4a5a-a209-ef7ce5f73e29
+		lineageTag: 49cb8580-0680-4a0d-84a8-5cf23f6fda0f
 		summarizeBy: none
 		sourceColumn: tenantId
 
@@ -35,7 +35,7 @@ table 'Reservation recommendations'
 
 	column kind
 		dataType: string
-		lineageTag: fd21ed9b-d8aa-45e7-a944-88f46942a7a5
+		lineageTag: ad57d40e-da78-4e7a-a0f4-d8b45c6ba213
 		summarizeBy: none
 		sourceColumn: kind
 
@@ -43,7 +43,7 @@ table 'Reservation recommendations'
 
 	column location
 		dataType: string
-		lineageTag: 2d1dd88e-1349-48d9-b7ee-08fb60180653
+		lineageTag: a5573c18-e735-4411-b4be-44d04c31c423
 		summarizeBy: none
 		sourceColumn: location
 
@@ -51,7 +51,7 @@ table 'Reservation recommendations'
 
 	column resourceGroup
 		dataType: string
-		lineageTag: 7a607a88-efbb-4019-a64e-bb0d4a2ed4b9
+		lineageTag: 874cafe7-0ee6-49cb-9db0-3e9ae2697437
 		summarizeBy: none
 		sourceColumn: resourceGroup
 
@@ -59,7 +59,7 @@ table 'Reservation recommendations'
 
 	column subscriptionId
 		dataType: string
-		lineageTag: 7d7548d8-7a1a-4e0a-93f7-82ac73d6e9e6
+		lineageTag: c4eeb263-374d-4755-8d4c-4b4f68fae6ef
 		summarizeBy: none
 		sourceColumn: subscriptionId
 
@@ -67,7 +67,7 @@ table 'Reservation recommendations'
 
 	column managedBy
 		dataType: string
-		lineageTag: 107e685a-d8d7-432b-bae0-1c48cf0488f1
+		lineageTag: 5ff18354-5632-462d-9e63-86f56be68315
 		summarizeBy: none
 		sourceColumn: managedBy
 
@@ -75,7 +75,7 @@ table 'Reservation recommendations'
 
 	column sku
 		dataType: string
-		lineageTag: 0fc3a335-8fc2-48cd-b7ed-c64927a45154
+		lineageTag: 3864eb7c-2e16-4bfe-ac02-4d78dc1a420f
 		summarizeBy: none
 		sourceColumn: sku
 
@@ -83,7 +83,7 @@ table 'Reservation recommendations'
 
 	column plan
 		dataType: string
-		lineageTag: 9898f36c-73e5-4d94-9d5c-a6793a63caab
+		lineageTag: 251b1655-17a6-4fbd-8402-674bba67afb8
 		summarizeBy: none
 		sourceColumn: plan
 
@@ -91,7 +91,7 @@ table 'Reservation recommendations'
 
 	column 'properties.recommendationTypeId'
 		dataType: string
-		lineageTag: a999f74d-55d1-4393-9672-bb3ba14d00b4
+		lineageTag: 34fda0dd-c055-4e7b-b560-48ff9172b31c
 		summarizeBy: none
 		sourceColumn: properties.recommendationTypeId
 
@@ -99,7 +99,7 @@ table 'Reservation recommendations'
 
 	column 'properties.extendedProperties.reservedResourceType'
 		dataType: string
-		lineageTag: 8debfea8-6e9a-4b67-8b58-fe7f11ac7d21
+		lineageTag: e1bb433f-77b7-4609-8934-532e6abfefcb
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.reservedResourceType
 
@@ -107,7 +107,7 @@ table 'Reservation recommendations'
 
 	column 'properties.extendedProperties.annualSavingsAmount'
 		dataType: double
-		lineageTag: 4e6f4eb0-95c4-467f-9c7f-2bf279249f0b
+		lineageTag: 3d6dc30b-3010-470e-bbeb-bb86375c086b
 		summarizeBy: sum
 		sourceColumn: properties.extendedProperties.annualSavingsAmount
 
@@ -118,7 +118,7 @@ table 'Reservation recommendations'
 	column 'properties.extendedProperties.targetResourceCount'
 		dataType: int64
 		formatString: 0
-		lineageTag: dc47e31d-ae5d-485c-a457-ffc759dd2078
+		lineageTag: e96df54f-0c6d-4183-8a4b-ee91ee074407
 		summarizeBy: sum
 		sourceColumn: properties.extendedProperties.targetResourceCount
 
@@ -126,7 +126,7 @@ table 'Reservation recommendations'
 
 	column 'properties.extendedProperties.savingsCurrency'
 		dataType: string
-		lineageTag: 0188f62c-5ede-40c6-97ad-4ad628d3688b
+		lineageTag: ebbb729e-f92c-462f-b641-19ad6e359529
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.savingsCurrency
 
@@ -134,7 +134,7 @@ table 'Reservation recommendations'
 
 	column 'properties.extendedProperties.lookbackPeriod'
 		dataType: string
-		lineageTag: dd3720c9-16d7-4a82-bc73-02c8a4f0d25b
+		lineageTag: 15ba1343-0cb7-453f-8061-d3976a330511
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.lookbackPeriod
 
@@ -142,7 +142,7 @@ table 'Reservation recommendations'
 
 	column 'properties.extendedProperties.savingsAmount'
 		dataType: double
-		lineageTag: a1dc181e-3fb1-4a58-ab05-9ab65916896d
+		lineageTag: f7b099d5-c0b8-4e46-a489-a672360878e6
 		summarizeBy: sum
 		sourceColumn: properties.extendedProperties.savingsAmount
 
@@ -152,7 +152,7 @@ table 'Reservation recommendations'
 
 	column 'properties.extendedProperties.displaySKU'
 		dataType: string
-		lineageTag: 8f43281f-9a7e-44d9-a9b0-380d67cf5ca8
+		lineageTag: 782dc52b-67a0-4c49-93b5-ae9fac55606a
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.displaySKU
 
@@ -161,7 +161,7 @@ table 'Reservation recommendations'
 	column 'properties.extendedProperties.displayQty'
 		dataType: int64
 		formatString: 0
-		lineageTag: b2980955-8db7-4668-a115-9366cdb85d20
+		lineageTag: 958867a9-ee32-44e7-af9e-f427c05eacb4
 		summarizeBy: sum
 		sourceColumn: properties.extendedProperties.displayQty
 
@@ -169,7 +169,7 @@ table 'Reservation recommendations'
 
 	column 'properties.extendedProperties.location'
 		dataType: string
-		lineageTag: 5e2b6dcc-7c6e-45b0-9074-1d76fb562a83
+		lineageTag: 0f879db4-d54b-46f4-bfd7-a965eae4f10e
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.location
 
@@ -177,7 +177,7 @@ table 'Reservation recommendations'
 
 	column 'properties.extendedProperties.region'
 		dataType: string
-		lineageTag: f83cb1d6-04b4-485b-a08d-42028447bdad
+		lineageTag: 0dcaffff-a657-4817-b26c-da305d613d84
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.region
 
@@ -185,7 +185,7 @@ table 'Reservation recommendations'
 
 	column 'properties.extendedProperties.vmSize'
 		dataType: string
-		lineageTag: d7631dda-a016-4085-a10d-04c194a639c6
+		lineageTag: 316c212d-70b2-4724-b649-c8d3e5afe7c6
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.vmSize
 
@@ -193,7 +193,7 @@ table 'Reservation recommendations'
 
 	column 'properties.extendedProperties.subId'
 		dataType: string
-		lineageTag: 554ce1ef-e377-4584-a275-2a048ed0a969
+		lineageTag: 6955d4bc-e9a8-4d11-9c18-5155f731b0e6
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.subId
 
@@ -201,7 +201,7 @@ table 'Reservation recommendations'
 
 	column 'properties.extendedProperties.scope'
 		dataType: string
-		lineageTag: 37eba05f-b96b-497c-90af-0675a02e07a6
+		lineageTag: 07aac04e-19e8-44cc-a36e-04e408877d9b
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.scope
 
@@ -209,7 +209,7 @@ table 'Reservation recommendations'
 
 	column 'properties.extendedProperties.term'
 		dataType: string
-		lineageTag: ff61f507-8de5-4481-bc3d-192104864367
+		lineageTag: 05c24fce-532b-4b5b-8ea0-94bcdbf208ee
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.term
 
@@ -217,7 +217,7 @@ table 'Reservation recommendations'
 
 	column 'properties.extendedProperties.sku'
 		dataType: string
-		lineageTag: e801c7a2-224e-45da-8b91-e91e4f710bb9
+		lineageTag: ae8c5616-13f1-45fa-899a-05747f11127a
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.sku
 
@@ -226,7 +226,7 @@ table 'Reservation recommendations'
 	column 'properties.extendedProperties.qty'
 		dataType: int64
 		formatString: 0
-		lineageTag: 7557dd48-7353-4571-8760-8e023a71446d
+		lineageTag: b5f02789-c583-453f-b9f9-501e1ca97101
 		summarizeBy: sum
 		sourceColumn: properties.extendedProperties.qty
 
@@ -234,7 +234,7 @@ table 'Reservation recommendations'
 
 	column 'properties.resourceMetadata.resourceId'
 		dataType: string
-		lineageTag: c862416f-b353-4586-8ab4-6153a80c63b3
+		lineageTag: 19f80650-65ed-4169-a480-bfc4eb6167b5
 		summarizeBy: none
 		sourceColumn: properties.resourceMetadata.resourceId
 
@@ -242,7 +242,7 @@ table 'Reservation recommendations'
 
 	column 'properties.resourceMetadata.singular'
 		dataType: string
-		lineageTag: bc4ed9e2-8c5b-49d2-99ba-3e1c9e55c5e0
+		lineageTag: e81001eb-0af1-4675-9adb-0daad9ce1937
 		summarizeBy: none
 		sourceColumn: properties.resourceMetadata.singular
 
@@ -250,7 +250,7 @@ table 'Reservation recommendations'
 
 	column 'properties.resourceMetadata.plural'
 		dataType: string
-		lineageTag: 882d5cfa-faa5-4a84-b467-fa6fa9ba7e6e
+		lineageTag: 48b10855-2abd-420c-914d-3b41299c7486
 		summarizeBy: none
 		sourceColumn: properties.resourceMetadata.plural
 
@@ -258,7 +258,7 @@ table 'Reservation recommendations'
 
 	column 'properties.resourceMetadata.action'
 		dataType: string
-		lineageTag: 0807fcbd-4315-4774-8a88-537d29065db3
+		lineageTag: 1887c6e0-ab3d-4662-92c4-2d2bdd747bd8
 		summarizeBy: none
 		sourceColumn: properties.resourceMetadata.action
 
@@ -266,7 +266,7 @@ table 'Reservation recommendations'
 
 	column 'properties.resourceMetadata.source'
 		dataType: string
-		lineageTag: 33e1c21d-e72d-420a-ae59-cdabe3571ae5
+		lineageTag: d87c9d3c-be85-4d73-8000-e50585aac16c
 		summarizeBy: none
 		sourceColumn: properties.resourceMetadata.source
 
@@ -274,7 +274,7 @@ table 'Reservation recommendations'
 
 	column 'properties.shortDescription.solution'
 		dataType: string
-		lineageTag: 5c324770-cd65-4433-af17-13729e7eae3e
+		lineageTag: 97e159ba-37f4-4aed-8dfe-008175f2df75
 		summarizeBy: none
 		sourceColumn: properties.shortDescription.solution
 
@@ -282,7 +282,7 @@ table 'Reservation recommendations'
 
 	column 'properties.shortDescription.problem'
 		dataType: string
-		lineageTag: c9cd8a10-b0fd-4d47-90b7-cd73329f76a7
+		lineageTag: 2acdc3e7-e5d4-4ffd-ba71-996db2aa66f4
 		summarizeBy: none
 		sourceColumn: properties.shortDescription.problem
 
@@ -290,7 +290,7 @@ table 'Reservation recommendations'
 
 	column 'properties.suppressionIds'
 		dataType: string
-		lineageTag: 111cd6dd-2e24-4fc9-a922-a20c0e8398dd
+		lineageTag: c7294601-5900-4057-847b-7490b0df9329
 		summarizeBy: none
 		sourceColumn: properties.suppressionIds
 
@@ -298,7 +298,7 @@ table 'Reservation recommendations'
 
 	column 'properties.impactedField'
 		dataType: string
-		lineageTag: 10c901c6-0853-486e-ae86-dd5d9e95c5c8
+		lineageTag: 8f6a3d84-3eb4-4fa6-8eeb-2c0df310d7f1
 		summarizeBy: none
 		sourceColumn: properties.impactedField
 
@@ -306,7 +306,7 @@ table 'Reservation recommendations'
 
 	column 'properties.impactedValue'
 		dataType: string
-		lineageTag: 9d51b1a0-c8e9-4d60-9bf4-45c902323524
+		lineageTag: ebd1e40e-4821-42e3-86e3-a38e5dc7f61f
 		summarizeBy: none
 		sourceColumn: properties.impactedValue
 
@@ -315,20 +315,20 @@ table 'Reservation recommendations'
 	column 'properties.lastUpdated'
 		dataType: dateTime
 		formatString: General Date
-		lineageTag: 7ddfc8db-659d-4991-82c7-f26c52b74b28
+		lineageTag: a1744314-846b-40a2-8160-75795180afd1
 		summarizeBy: none
 		sourceColumn: properties.lastUpdated
 
 		variation Variation
 			isDefault
-			relationship: 0a793a54-0ab0-4d65-b6ee-e5da03973633
-			defaultHierarchy: LocalDateTable_b8bd867e-8e27-4649-adcd-406d66f143ff.'Date Hierarchy'
+			relationship: e4a57f31-a6db-4961-bb57-f048c5aa2fa0
+			defaultHierarchy: LocalDateTable_3d93e1c3-f4b8-441e-a637-90f0b60c40ce.'Date Hierarchy'
 
 		annotation SummarizationSetBy = Automatic
 
 	column 'properties.metadata'
 		dataType: string
-		lineageTag: ed7b3986-455c-423d-ba74-7cc41707abf9
+		lineageTag: e8103084-b82c-47c5-8dbf-82a12f52f19a
 		summarizeBy: none
 		sourceColumn: properties.metadata
 
@@ -336,7 +336,7 @@ table 'Reservation recommendations'
 
 	column 'properties.category'
 		dataType: string
-		lineageTag: bc8c1dd8-056a-4ccf-b7fe-7b43f25af8af
+		lineageTag: a851a028-6922-4116-84d8-f72a142f92d4
 		summarizeBy: none
 		sourceColumn: properties.category
 
@@ -344,7 +344,7 @@ table 'Reservation recommendations'
 
 	column 'properties.impact'
 		dataType: string
-		lineageTag: 8490a8e5-882a-40bc-b0a7-ab6acd98921d
+		lineageTag: bc127f8c-fac1-4740-abf2-137d0aa81753
 		summarizeBy: none
 		sourceColumn: properties.impact
 
@@ -352,7 +352,7 @@ table 'Reservation recommendations'
 
 	column tags
 		dataType: string
-		lineageTag: 9256c0d8-403c-47e7-a3c2-bfb45effa0a5
+		lineageTag: 17124a5b-2ed9-4c39-b107-3d184059c825
 		summarizeBy: none
 		sourceColumn: tags
 
@@ -360,7 +360,7 @@ table 'Reservation recommendations'
 
 	column identity
 		dataType: string
-		lineageTag: 31049af9-d33e-4e8f-886c-72ce9a321166
+		lineageTag: 447dd6de-33f1-4441-8c72-af3ed2d731cd
 		summarizeBy: none
 		sourceColumn: identity
 
@@ -368,7 +368,7 @@ table 'Reservation recommendations'
 
 	column zones
 		dataType: string
-		lineageTag: 1444521b-91ae-424c-88b7-11e6e79f8f34
+		lineageTag: 8dfb4f19-b232-4913-8d3e-8b5d2e1c1844
 		summarizeBy: none
 		sourceColumn: zones
 
@@ -376,7 +376,7 @@ table 'Reservation recommendations'
 
 	column extendedLocation
 		dataType: string
-		lineageTag: 3d97b772-4e53-4887-8171-3377d086f7ac
+		lineageTag: d80e37d8-5e89-43bd-b5b1-fc51ee0fab37
 		summarizeBy: none
 		sourceColumn: extendedLocation
 
@@ -384,7 +384,7 @@ table 'Reservation recommendations'
 
 	column recommendedActions
 		dataType: string
-		lineageTag: 929379ab-e4ec-4904-afb2-a0e158d08464
+		lineageTag: 0213bcd5-c149-410d-92a2-39caa092b7eb
 		summarizeBy: none
 		sourceColumn: recommendedActions
 

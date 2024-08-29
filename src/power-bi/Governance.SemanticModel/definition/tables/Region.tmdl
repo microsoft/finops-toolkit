@@ -1,9 +1,9 @@
 table Region
-	lineageTag: 69cf00b3-f871-48a0-b902-568e410bc416
+	lineageTag: 952a455d-5502-4c7a-b836-9f2a00464182
 
 	column OriginalValue
 		dataType: string
-		lineageTag: 17260feb-f15c-404d-80eb-8b5e4e861b71
+		lineageTag: 445129f1-7e5e-488e-9a07-5672e049d26f
 		summarizeBy: none
 		sourceColumn: OriginalValue
 
@@ -11,7 +11,7 @@ table Region
 
 	column RegionId
 		dataType: string
-		lineageTag: 139367c6-a8fe-415a-bc50-99005c2ebfbf
+		lineageTag: f47ffeee-54d6-4bd0-8796-d427897eb19a
 		summarizeBy: none
 		sourceColumn: RegionId
 
@@ -19,7 +19,7 @@ table Region
 
 	column RegionName
 		dataType: string
-		lineageTag: 613854cc-5eb3-4607-aef0-9b54eb9e3489
+		lineageTag: 3369cd13-a700-4c0a-acab-098251fe1879
 		summarizeBy: none
 		sourceColumn: RegionName
 

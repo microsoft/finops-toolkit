@@ -1,9 +1,9 @@
 table 'SQL DB'
-	lineageTag: 1f7c38ce-8ce0-417d-87d1-ec8f522d2de4
+	lineageTag: 89addb7d-5b61-4175-8fdd-548239bb8a48
 
 	column id
 		dataType: string
-		lineageTag: 3ad9ad18-60dd-4229-8ddb-dde13229d191
+		lineageTag: 9f6c15fd-b716-4022-8f06-90f7bf49d7f4
 		summarizeBy: none
 		sourceColumn: id
 
@@ -11,7 +11,7 @@ table 'SQL DB'
 
 	column name
 		dataType: string
-		lineageTag: 735d0627-bae9-4e6d-879e-c8182c560e35
+		lineageTag: 1d3a7204-7d84-4244-aed6-7cdbdd03069e
 		summarizeBy: none
 		sourceColumn: name
 
@@ -19,7 +19,7 @@ table 'SQL DB'
 
 	column type
 		dataType: string
-		lineageTag: 63d2b147-ffbb-4aa6-8bbe-9a45b0d72a89
+		lineageTag: c2e72aa1-b04d-4eb4-9200-f3181e412485
 		summarizeBy: none
 		sourceColumn: type
 
@@ -27,7 +27,7 @@ table 'SQL DB'
 
 	column tenantId
 		dataType: string
-		lineageTag: da446d62-22e4-43c1-bd61-1d985df17a04
+		lineageTag: e55b9234-e33f-4125-b1c2-cbf8d453a199
 		summarizeBy: none
 		sourceColumn: tenantId
 
@@ -35,7 +35,7 @@ table 'SQL DB'
 
 	column kind
 		dataType: string
-		lineageTag: 6443544a-4407-44f9-9528-908f1fd88b1e
+		lineageTag: 1b938d5d-7176-42a5-b5ab-ab1f05cb609f
 		summarizeBy: none
 		sourceColumn: kind
 
@@ -43,7 +43,7 @@ table 'SQL DB'
 
 	column location
 		dataType: string
-		lineageTag: 3bd26c3a-2684-43a1-83ac-26940caed304
+		lineageTag: e828edfe-800c-48b3-aa91-025767524402
 		summarizeBy: none
 		sourceColumn: location
 
@@ -51,7 +51,7 @@ table 'SQL DB'
 
 	column resourceGroup
 		dataType: string
-		lineageTag: 494ea911-73d6-4886-822b-753a0634f900
+		lineageTag: f6222a8d-d150-4fae-9dcd-f9b65f1f3673
 		summarizeBy: none
 		sourceColumn: resourceGroup
 
@@ -59,7 +59,7 @@ table 'SQL DB'
 
 	column subscriptionId
 		dataType: string
-		lineageTag: c06ebabb-8156-4245-8d88-02b688984634
+		lineageTag: a6ce31ac-460d-45f9-bb74-b4c0aa8d0077
 		summarizeBy: none
 		sourceColumn: subscriptionId
 
@@ -67,7 +67,7 @@ table 'SQL DB'
 
 	column managedBy
 		dataType: string
-		lineageTag: 6ed282ae-9dcb-4097-b623-9b33f9f4b919
+		lineageTag: 1629a3c5-cc3c-4d97-9def-e6638be39c09
 		summarizeBy: none
 		sourceColumn: managedBy
 
@@ -75,7 +75,7 @@ table 'SQL DB'
 
 	column 'sku.name'
 		dataType: string
-		lineageTag: df7b60be-338a-4549-a87e-fed85d1f6a4d
+		lineageTag: c3aba652-5233-44ef-974c-40a40ed47f48
 		summarizeBy: none
 		sourceColumn: sku.name
 
@@ -83,7 +83,7 @@ table 'SQL DB'
 
 	column 'sku.tier'
 		dataType: string
-		lineageTag: 0102d3b5-fe36-47c4-a3d0-b3dfa9358f9c
+		lineageTag: dde80fc7-1bae-40b5-b2aa-55528a8a0716
 		summarizeBy: none
 		sourceColumn: sku.tier
 
@@ -91,7 +91,7 @@ table 'SQL DB'
 
 	column 'sku.capacity'
 		dataType: string
-		lineageTag: d39a5bd6-e164-40cc-b472-5f6320219cc8
+		lineageTag: 7565736d-0b96-42c4-9b1f-1ea25d382166
 		summarizeBy: none
 		sourceColumn: sku.capacity
 
@@ -99,7 +99,7 @@ table 'SQL DB'
 
 	column 'sku.family'
 		dataType: string
-		lineageTag: 784cb9e0-ed28-4dee-b91f-937318738681
+		lineageTag: ce87078a-93dc-4dc3-b331-44dd26290e0a
 		summarizeBy: none
 		sourceColumn: sku.family
 
@@ -107,7 +107,7 @@ table 'SQL DB'
 
 	column plan
 		dataType: string
-		lineageTag: ccabd230-d3c9-4d23-8a33-aa25c36afd36
+		lineageTag: a081a45c-2223-491d-98d9-1bc5d546015e
 		summarizeBy: none
 		sourceColumn: plan
 
@@ -115,7 +115,7 @@ table 'SQL DB'
 
 	column 'properties.status'
 		dataType: string
-		lineageTag: 2b9ae4ac-672b-44c7-8c23-37d965299668
+		lineageTag: 34d8673b-8c03-4773-9054-b7764b0bb8af
 		summarizeBy: none
 		sourceColumn: properties.status
 
@@ -123,7 +123,7 @@ table 'SQL DB'
 
 	column 'properties.requestedBackupStorageRedundancy'
 		dataType: string
-		lineageTag: 2c4a2eaf-3811-4b6a-8f9b-8602956995c1
+		lineageTag: 813f61dc-e34d-4e36-8e34-7b6927e64f10
 		summarizeBy: none
 		sourceColumn: properties.requestedBackupStorageRedundancy
 
@@ -131,7 +131,7 @@ table 'SQL DB'
 
 	column 'properties.currentBackupStorageRedundancy'
 		dataType: string
-		lineageTag: 1a4b1f07-a877-44df-90b7-f9654a897571
+		lineageTag: 3e33bdba-e5a8-4e62-82ad-03d89229a0bc
 		summarizeBy: none
 		sourceColumn: properties.currentBackupStorageRedundancy
 
@@ -139,7 +139,7 @@ table 'SQL DB'
 
 	column 'properties.requestedServiceObjectiveName'
 		dataType: string
-		lineageTag: e6dcd7ed-3f14-46fd-a094-df58f44c3176
+		lineageTag: af12a0e4-5f6b-4136-8f66-e758356b3fe4
 		summarizeBy: none
 		sourceColumn: properties.requestedServiceObjectiveName
 
@@ -147,7 +147,7 @@ table 'SQL DB'
 
 	column 'properties.currentServiceObjectiveName'
 		dataType: string
-		lineageTag: 347e19a3-9928-4597-b34f-33c2ef3c2944
+		lineageTag: cd1934b8-dc5c-48cb-8403-65271dc207c0
 		summarizeBy: none
 		sourceColumn: properties.currentServiceObjectiveName
 
@@ -155,7 +155,7 @@ table 'SQL DB'
 
 	column 'properties.maintenanceConfigurationId'
 		dataType: string
-		lineageTag: 381309df-4c45-435a-b674-158a3b549341
+		lineageTag: 1cb3c997-f2be-4859-af4d-6f3d36e5c179
 		summarizeBy: none
 		sourceColumn: properties.maintenanceConfigurationId
 
@@ -163,7 +163,7 @@ table 'SQL DB'
 
 	column 'properties.defaultSecondaryLocation'
 		dataType: string
-		lineageTag: 78a73228-bf24-455e-9728-fc70e720d6c8
+		lineageTag: 2bf59bbd-fc05-430d-b51e-69df2210c81b
 		summarizeBy: none
 		sourceColumn: properties.defaultSecondaryLocation
 
@@ -171,7 +171,7 @@ table 'SQL DB'
 
 	column 'properties.isInfraEncryptionEnabled'
 		dataType: string
-		lineageTag: f61c67df-5835-48fd-a22b-704a7b1b1bb1
+		lineageTag: e5b3fd5a-a63b-4157-9f66-044a496ffe59
 		summarizeBy: none
 		sourceColumn: properties.isInfraEncryptionEnabled
 
@@ -179,7 +179,7 @@ table 'SQL DB'
 
 	column 'properties.earliestRestoreDate'
 		dataType: string
-		lineageTag: f2f13b9c-f69d-46d9-ae03-1c96abbd00a3
+		lineageTag: 653f41c0-7694-4f68-bd7f-09e161b33118
 		summarizeBy: none
 		sourceColumn: properties.earliestRestoreDate
 
@@ -187,7 +187,7 @@ table 'SQL DB'
 
 	column 'properties.zoneRedundant'
 		dataType: string
-		lineageTag: a1c48f74-1d3b-4770-b869-095cad07c167
+		lineageTag: d9db1e18-acbf-43c1-b16e-ff65408f68ed
 		summarizeBy: none
 		sourceColumn: properties.zoneRedundant
 
@@ -195,7 +195,7 @@ table 'SQL DB'
 
 	column 'properties.availabilityZone'
 		dataType: string
-		lineageTag: 64154671-7391-41eb-99ad-77ddbeb0a457
+		lineageTag: ef60777a-7cec-4e37-8a43-a28ddee51173
 		summarizeBy: none
 		sourceColumn: properties.availabilityZone
 
@@ -203,7 +203,7 @@ table 'SQL DB'
 
 	column 'properties.catalogCollation'
 		dataType: string
-		lineageTag: b808d434-7cfb-41d2-a929-142da5c4fb11
+		lineageTag: df1011c7-6c1d-45eb-b046-26883ef3218b
 		summarizeBy: none
 		sourceColumn: properties.catalogCollation
 
@@ -212,20 +212,20 @@ table 'SQL DB'
 	column 'properties.creationDate'
 		dataType: dateTime
 		formatString: General Date
-		lineageTag: 4f8690d0-e569-45cf-b97a-8777c41ba105
+		lineageTag: b992fe85-3c85-417a-8d10-eabdd4637707
 		summarizeBy: none
 		sourceColumn: properties.creationDate
 
 		variation Variation
 			isDefault
-			relationship: d62d9b01-9018-499a-9cbd-7ebdfed84a22
-			defaultHierarchy: LocalDateTable_d89dd851-86bd-4eea-9ddc-b191b198699b.'Date Hierarchy'
+			relationship: f239fb3d-a7a3-415d-a381-6be0ee080c4c
+			defaultHierarchy: LocalDateTable_8d91fcb6-a298-4c66-bbd7-6a780b6991d1.'Date Hierarchy'
 
 		annotation SummarizationSetBy = Automatic
 
 	column 'properties.collation'
 		dataType: string
-		lineageTag: 1892ad2b-9e0b-4442-9adb-193308bb0136
+		lineageTag: 053e716a-3da5-4ed5-858f-0f6618f430ae
 		summarizeBy: none
 		sourceColumn: properties.collation
 
@@ -233,7 +233,7 @@ table 'SQL DB'
 
 	column 'properties.licenseType'
 		dataType: string
-		lineageTag: 5b0e43bd-54aa-43b9-b669-baeb80d26132
+		lineageTag: b9be0a63-ae1e-42ae-8956-4cccf9f6d01d
 		summarizeBy: none
 		sourceColumn: properties.licenseType
 
@@ -241,7 +241,7 @@ table 'SQL DB'
 
 	column 'properties.maxSizeBytes'
 		dataType: string
-		lineageTag: beab6505-cb1b-413f-87e1-1d90cfc6d71c
+		lineageTag: 4940f7c9-f6c3-4f10-94b9-44fd09481ef5
 		summarizeBy: none
 		sourceColumn: properties.maxSizeBytes
 
@@ -249,7 +249,7 @@ table 'SQL DB'
 
 	column 'properties.isLedgerOn'
 		dataType: string
-		lineageTag: 641e0a3c-4827-40d0-bc96-402164c2e135
+		lineageTag: 67367866-5b63-4dfd-83ee-167f300b712d
 		summarizeBy: none
 		sourceColumn: properties.isLedgerOn
 
@@ -257,7 +257,7 @@ table 'SQL DB'
 
 	column 'properties.databaseId'
 		dataType: string
-		lineageTag: da8cac9c-ac24-448d-812b-1b71c3505f39
+		lineageTag: b42b02cb-edd1-440f-8c26-5eea9a557bdf
 		summarizeBy: none
 		sourceColumn: properties.databaseId
 
@@ -265,7 +265,7 @@ table 'SQL DB'
 
 	column 'properties.currentSku'
 		dataType: string
-		lineageTag: f2c9ffec-7bcb-4988-aa45-9226829a9db4
+		lineageTag: 7eadd5d8-035e-4efb-980a-52f021d663f1
 		summarizeBy: none
 		sourceColumn: properties.currentSku
 
@@ -273,7 +273,7 @@ table 'SQL DB'
 
 	column 'properties.readScale'
 		dataType: string
-		lineageTag: f0e06544-b215-46be-9244-eaab68869a17
+		lineageTag: 4190c5df-985c-43d7-a284-15c82345f51f
 		summarizeBy: none
 		sourceColumn: properties.readScale
 
@@ -281,7 +281,7 @@ table 'SQL DB'
 
 	column 'properties.maxLogSizeBytes'
 		dataType: string
-		lineageTag: e191d673-2f52-41e3-87a5-03f0930d623a
+		lineageTag: f2a78803-02cc-43d9-b2cc-660ca517fcb8
 		summarizeBy: none
 		sourceColumn: properties.maxLogSizeBytes
 
@@ -289,7 +289,7 @@ table 'SQL DB'
 
 	column tags
 		dataType: string
-		lineageTag: 242a356b-7212-40ac-b8a8-7d78d2b88c75
+		lineageTag: d154f6a6-bc99-4b56-a7ef-57300b466b2e
 		summarizeBy: none
 		sourceColumn: tags
 
@@ -297,7 +297,7 @@ table 'SQL DB'
 
 	column identity
 		dataType: string
-		lineageTag: c9011af1-b007-4e46-ae61-54b48de0919f
+		lineageTag: 7fbf8855-8f95-4aea-95a6-92ea308ecd0f
 		summarizeBy: none
 		sourceColumn: identity
 
@@ -305,7 +305,7 @@ table 'SQL DB'
 
 	column zones
 		dataType: string
-		lineageTag: f0d3e72a-19b1-40aa-9e87-18b0241f8a14
+		lineageTag: 5f0a07c9-57ba-40c1-a09b-00a2d36cb844
 		summarizeBy: none
 		sourceColumn: zones
 
@@ -313,7 +313,7 @@ table 'SQL DB'
 
 	column extendedLocation
 		dataType: string
-		lineageTag: 6ada22d0-35d7-4c21-af5c-f5492bc1f279
+		lineageTag: 38cb854e-62d0-4beb-8998-e866ee7b755b
 		summarizeBy: none
 		sourceColumn: extendedLocation
 

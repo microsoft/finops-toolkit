@@ -1,9 +1,9 @@
 table 'Network Security Groups'
-	lineageTag: 99c70442-1a5b-415d-8bf7-c3191b401aab
+	lineageTag: ffe8364e-6dbb-4445-becd-210da363cb25
 
 	column id
 		dataType: string
-		lineageTag: a219a6dd-72d1-41a6-952a-b75d5eb4fa6a
+		lineageTag: 2892f48c-e3c5-4cef-a76a-3bf7522f10e7
 		summarizeBy: none
 		sourceColumn: id
 
@@ -11,7 +11,7 @@ table 'Network Security Groups'
 
 	column name
 		dataType: string
-		lineageTag: 2a2d9ba7-b1af-48ab-a90d-42333b9de480
+		lineageTag: 3d13273c-84b6-4188-a790-d7ab41b6996e
 		summarizeBy: none
 		sourceColumn: name
 
@@ -19,7 +19,7 @@ table 'Network Security Groups'
 
 	column type
 		dataType: string
-		lineageTag: 6268b6c5-6eec-4d04-9de9-7ae667183f43
+		lineageTag: af90f30a-4d43-422b-b2df-2b1286c5b662
 		summarizeBy: none
 		sourceColumn: type
 
@@ -27,7 +27,7 @@ table 'Network Security Groups'
 
 	column tenantId
 		dataType: string
-		lineageTag: 52e9deb4-250e-48d9-9353-eb27a3c03f80
+		lineageTag: e9dad901-4135-4bfd-8dca-f3588e162069
 		summarizeBy: none
 		sourceColumn: tenantId
 
@@ -35,7 +35,7 @@ table 'Network Security Groups'
 
 	column kind
 		dataType: string
-		lineageTag: 84180253-3b88-49e5-831b-e6332b50b8b3
+		lineageTag: 22d4fda6-b9ad-414c-8aad-6cd06b17ba72
 		summarizeBy: none
 		sourceColumn: kind
 
@@ -43,7 +43,7 @@ table 'Network Security Groups'
 
 	column location
 		dataType: string
-		lineageTag: d956683f-c1a0-4353-9385-b22fb5883b89
+		lineageTag: a9ac1db5-41cf-46e2-9c5f-08e1caa42f29
 		summarizeBy: none
 		sourceColumn: location
 
@@ -51,7 +51,7 @@ table 'Network Security Groups'
 
 	column resourceGroup
 		dataType: string
-		lineageTag: 77dbe92c-3339-4411-a544-bc8b5acc7d08
+		lineageTag: 8e5062d0-b216-4348-b166-f51d6a48ff56
 		summarizeBy: none
 		sourceColumn: resourceGroup
 
@@ -59,7 +59,7 @@ table 'Network Security Groups'
 
 	column subscriptionId
 		dataType: string
-		lineageTag: efd14247-f008-4175-b799-3451a74a4fe5
+		lineageTag: 56e1ae13-5a61-4a27-be50-59dec05a9303
 		summarizeBy: none
 		sourceColumn: subscriptionId
 
@@ -67,7 +67,7 @@ table 'Network Security Groups'
 
 	column managedBy
 		dataType: string
-		lineageTag: d6e4ed2d-eee8-40d2-a28c-657b9ccaefe0
+		lineageTag: d8658b9b-26a9-454d-9437-b00258b2b113
 		summarizeBy: none
 		sourceColumn: managedBy
 
@@ -75,7 +75,7 @@ table 'Network Security Groups'
 
 	column sku
 		dataType: string
-		lineageTag: 2dfe3127-45b3-4b7b-bd41-a5cc3c1d8f96
+		lineageTag: 3ff6d942-a291-4008-8cec-0ee19fc0a60e
 		summarizeBy: none
 		sourceColumn: sku
 
@@ -83,7 +83,7 @@ table 'Network Security Groups'
 
 	column plan
 		dataType: string
-		lineageTag: de2ae84c-fafb-4f71-a71b-8dd425811699
+		lineageTag: 6d06d24f-c5e0-4964-a3cc-e8379af238a4
 		summarizeBy: none
 		sourceColumn: plan
 
@@ -91,7 +91,7 @@ table 'Network Security Groups'
 
 	column 'properties.provisioningState'
 		dataType: string
-		lineageTag: 42a87d5d-e6a9-45a2-88bc-973863d50ae3
+		lineageTag: 2638ac07-ae2c-4e76-b6a6-7add6831d6bd
 		summarizeBy: none
 		sourceColumn: properties.provisioningState
 
@@ -99,7 +99,7 @@ table 'Network Security Groups'
 
 	column 'properties.networkInterfaces.id'
 		dataType: string
-		lineageTag: e1179627-c24e-4389-82f7-93b7a25a1a8b
+		lineageTag: 27eeda1b-63c9-40f7-b0d9-21085c31f147
 		summarizeBy: none
 		sourceColumn: properties.networkInterfaces.id
 
@@ -107,7 +107,7 @@ table 'Network Security Groups'
 
 	column 'properties.resourceGuid'
 		dataType: string
-		lineageTag: f4229fc6-7d45-4aab-ad31-cba0d11433c5
+		lineageTag: 94502235-bffd-4ca8-a38f-31d75545a7da
 		summarizeBy: none
 		sourceColumn: properties.resourceGuid
 
@@ -115,7 +115,7 @@ table 'Network Security Groups'
 
 	column 'properties.defaultSecurityRules.type'
 		dataType: string
-		lineageTag: 8626bb05-09fe-4205-a329-1e89b7128ccb
+		lineageTag: e9dddd15-cc27-4cd9-ba0f-9be1b71c61e6
 		summarizeBy: none
 		sourceColumn: properties.defaultSecurityRules.type
 
@@ -123,7 +123,7 @@ table 'Network Security Groups'
 
 	column 'properties.defaultSecurityRules.properties.provisioningState'
 		dataType: string
-		lineageTag: 9999a725-d45c-48bf-96ae-78711ea7d637
+		lineageTag: 0fe77811-e8d7-4ba0-b38a-6c28b665a9c2
 		summarizeBy: none
 		sourceColumn: properties.defaultSecurityRules.properties.provisioningState
 
@@ -131,7 +131,7 @@ table 'Network Security Groups'
 
 	column 'properties.defaultSecurityRules.properties.destinationAddressPrefixes'
 		dataType: string
-		lineageTag: 38bd1a2c-1dc8-4d4c-853b-7b25edeccc12
+		lineageTag: 74d01a32-d8b2-4344-a620-5a36cf1ca23a
 		summarizeBy: none
 		sourceColumn: properties.defaultSecurityRules.properties.destinationAddressPrefixes
 
@@ -139,7 +139,7 @@ table 'Network Security Groups'
 
 	column 'properties.defaultSecurityRules.properties.destinationAddressPrefix'
 		dataType: string
-		lineageTag: bb3c0dad-bc44-4b62-bf88-6b6092cc2553
+		lineageTag: 6394f35a-9599-472c-8d1c-437123692ac8
 		summarizeBy: none
 		sourceColumn: properties.defaultSecurityRules.properties.destinationAddressPrefix
 
@@ -147,7 +147,7 @@ table 'Network Security Groups'
 
 	column 'properties.defaultSecurityRules.properties.destinationPortRanges'
 		dataType: string
-		lineageTag: e46ef0ba-8f3c-4848-be6d-11d9486dab08
+		lineageTag: c3c12062-5743-436c-b95c-af50ddb72718
 		summarizeBy: none
 		sourceColumn: properties.defaultSecurityRules.properties.destinationPortRanges
 
@@ -155,7 +155,7 @@ table 'Network Security Groups'
 
 	column 'properties.defaultSecurityRules.properties.sourceAddressPrefixes'
 		dataType: string
-		lineageTag: 959e0def-df32-45cb-ac19-e1315ddcc276
+		lineageTag: 2533f540-51f1-4eb3-b606-f2e772c48d33
 		summarizeBy: none
 		sourceColumn: properties.defaultSecurityRules.properties.sourceAddressPrefixes
 
@@ -163,7 +163,7 @@ table 'Network Security Groups'
 
 	column 'properties.defaultSecurityRules.properties.sourceAddressPrefix'
 		dataType: string
-		lineageTag: 8afd4779-8c71-4c67-ad6a-70cc866d0305
+		lineageTag: 5e7e028a-0700-4737-a952-6de403f54644
 		summarizeBy: none
 		sourceColumn: properties.defaultSecurityRules.properties.sourceAddressPrefix
 
@@ -171,7 +171,7 @@ table 'Network Security Groups'
 
 	column 'properties.defaultSecurityRules.properties.destinationPortRange'
 		dataType: string
-		lineageTag: 498e0bbc-67d9-4cad-b6af-4b5b7737dd49
+		lineageTag: 7f428468-e45b-416b-8575-c68934927ff8
 		summarizeBy: none
 		sourceColumn: properties.defaultSecurityRules.properties.destinationPortRange
 
@@ -179,7 +179,7 @@ table 'Network Security Groups'
 
 	column 'properties.defaultSecurityRules.properties.sourcePortRanges'
 		dataType: string
-		lineageTag: 5449c633-f01d-4dea-92d3-5d47767fa6a7
+		lineageTag: 7430266b-1ff5-4e2e-9ca2-0aba0e3a19ab
 		summarizeBy: none
 		sourceColumn: properties.defaultSecurityRules.properties.sourcePortRanges
 
@@ -187,7 +187,7 @@ table 'Network Security Groups'
 
 	column 'properties.defaultSecurityRules.properties.sourcePortRange'
 		dataType: string
-		lineageTag: 8c8b519f-f4a6-4140-abc8-35448cb8309a
+		lineageTag: ad038ac2-f96a-4b37-924c-4b0a4c3d7044
 		summarizeBy: none
 		sourceColumn: properties.defaultSecurityRules.properties.sourcePortRange
 
@@ -195,7 +195,7 @@ table 'Network Security Groups'
 
 	column 'properties.defaultSecurityRules.properties.description'
 		dataType: string
-		lineageTag: 757b8b4d-1473-4743-a67b-cf0d403360fe
+		lineageTag: 42566175-fe59-4401-b086-a8894cef5573
 		summarizeBy: none
 		sourceColumn: properties.defaultSecurityRules.properties.description
 
@@ -203,7 +203,7 @@ table 'Network Security Groups'
 
 	column 'properties.defaultSecurityRules.properties.protocol'
 		dataType: string
-		lineageTag: 580f26e1-480e-4ad8-9267-e06015ae4d96
+		lineageTag: c377c75a-89a5-48f2-9466-a4b4b5eee2b7
 		summarizeBy: none
 		sourceColumn: properties.defaultSecurityRules.properties.protocol
 
@@ -211,7 +211,7 @@ table 'Network Security Groups'
 
 	column 'properties.defaultSecurityRules.properties.direction'
 		dataType: string
-		lineageTag: 8f7350db-201b-4e92-b83e-f8ec46e375cd
+		lineageTag: d9189e90-b26c-4e0f-9e7f-ab24e97b095b
 		summarizeBy: none
 		sourceColumn: properties.defaultSecurityRules.properties.direction
 
@@ -219,7 +219,7 @@ table 'Network Security Groups'
 
 	column 'properties.defaultSecurityRules.properties.priority'
 		dataType: string
-		lineageTag: 83b4ad31-b184-4249-9185-8fc01da962d9
+		lineageTag: 2886281b-9513-43ce-b2f8-8d2b83dd5d95
 		summarizeBy: none
 		sourceColumn: properties.defaultSecurityRules.properties.priority
 
@@ -227,7 +227,7 @@ table 'Network Security Groups'
 
 	column 'properties.defaultSecurityRules.properties.access'
 		dataType: string
-		lineageTag: 6e08e56b-a71f-4339-9409-f434705b23ba
+		lineageTag: f4fae996-68cb-466f-adf8-a1316989f1cc
 		summarizeBy: none
 		sourceColumn: properties.defaultSecurityRules.properties.access
 
@@ -235,7 +235,7 @@ table 'Network Security Groups'
 
 	column 'properties.defaultSecurityRules.name'
 		dataType: string
-		lineageTag: 22f03d4e-6adc-41d7-870b-735807b0b8d6
+		lineageTag: fb104d71-93bc-480e-b103-302ca32f6cde
 		summarizeBy: none
 		sourceColumn: properties.defaultSecurityRules.name
 
@@ -243,7 +243,7 @@ table 'Network Security Groups'
 
 	column 'properties.defaultSecurityRules.id'
 		dataType: string
-		lineageTag: 4110b9ef-3479-4cc8-9c87-f4120e5782b3
+		lineageTag: cb703ae1-10c6-4da7-9c71-e6173aced9f9
 		summarizeBy: none
 		sourceColumn: properties.defaultSecurityRules.id
 
@@ -251,7 +251,7 @@ table 'Network Security Groups'
 
 	column 'properties.defaultSecurityRules.etag'
 		dataType: string
-		lineageTag: e3e8ae6b-0940-49b3-b779-329cd96bcbc7
+		lineageTag: c593a1c3-b40c-4ebf-bc88-9b0770617c1d
 		summarizeBy: none
 		sourceColumn: properties.defaultSecurityRules.etag
 
@@ -259,7 +259,7 @@ table 'Network Security Groups'
 
 	column 'properties.securityRules.type'
 		dataType: string
-		lineageTag: ad09c927-3825-45e4-92e4-1062e905e65c
+		lineageTag: 5e53f2f0-a1fc-4401-bccd-ffc20324a1fa
 		summarizeBy: none
 		sourceColumn: properties.securityRules.type
 
@@ -267,7 +267,7 @@ table 'Network Security Groups'
 
 	column 'properties.securityRules.properties.provisioningState'
 		dataType: string
-		lineageTag: 782a6df3-59c8-4770-b658-5dcdafa5f891
+		lineageTag: ba4249d2-b6aa-4352-8bdb-4ddc20b89be2
 		summarizeBy: none
 		sourceColumn: properties.securityRules.properties.provisioningState
 
@@ -275,7 +275,7 @@ table 'Network Security Groups'
 
 	column 'properties.securityRules.properties.destinationAddressPrefixes'
 		dataType: string
-		lineageTag: 0bd02f37-d4a8-4d4c-a574-5dc3b197e1d6
+		lineageTag: 010a91c2-1ebc-48bf-aa50-f89610461552
 		summarizeBy: none
 		sourceColumn: properties.securityRules.properties.destinationAddressPrefixes
 
@@ -283,7 +283,7 @@ table 'Network Security Groups'
 
 	column 'properties.securityRules.properties.destinationAddressPrefix'
 		dataType: string
-		lineageTag: 9b384822-7918-49ea-ac5b-e44aa9af6295
+		lineageTag: c97fe4b1-f257-4c6e-b743-b8f8dc4d7203
 		summarizeBy: none
 		sourceColumn: properties.securityRules.properties.destinationAddressPrefix
 
@@ -291,7 +291,7 @@ table 'Network Security Groups'
 
 	column 'properties.securityRules.properties.destinationPortRanges'
 		dataType: string
-		lineageTag: b5f8d74d-295e-4909-9e55-a3d2a72d58d0
+		lineageTag: 3d1cae05-aaeb-40c3-bf1e-5bf5859b6241
 		summarizeBy: none
 		sourceColumn: properties.securityRules.properties.destinationPortRanges
 
@@ -299,7 +299,7 @@ table 'Network Security Groups'
 
 	column 'properties.securityRules.properties.sourceAddressPrefixes'
 		dataType: string
-		lineageTag: 7be255ee-973a-4822-a2a3-5642c8e4a609
+		lineageTag: 84bea4b5-40a6-4d43-a46a-944724335569
 		summarizeBy: none
 		sourceColumn: properties.securityRules.properties.sourceAddressPrefixes
 
@@ -307,7 +307,7 @@ table 'Network Security Groups'
 
 	column 'properties.securityRules.properties.sourceAddressPrefix'
 		dataType: string
-		lineageTag: 457b93e5-8023-42a6-b7dd-681a699c0215
+		lineageTag: 01c71888-0504-44d0-b632-9f8b6653e7bb
 		summarizeBy: none
 		sourceColumn: properties.securityRules.properties.sourceAddressPrefix
 
@@ -315,7 +315,7 @@ table 'Network Security Groups'
 
 	column 'properties.securityRules.properties.destinationPortRange'
 		dataType: string
-		lineageTag: c61b955f-fc85-4601-85f7-a98c97cddb7b
+		lineageTag: 2f714571-e23e-4e1d-9c37-ce1b6ba56da5
 		summarizeBy: none
 		sourceColumn: properties.securityRules.properties.destinationPortRange
 
@@ -323,7 +323,7 @@ table 'Network Security Groups'
 
 	column 'properties.securityRules.properties.sourcePortRanges'
 		dataType: string
-		lineageTag: f850473c-3b39-4a83-8bf4-430b3cbbf0f7
+		lineageTag: 7aef7450-5b98-49a3-bc0f-5e0f5dbdf250
 		summarizeBy: none
 		sourceColumn: properties.securityRules.properties.sourcePortRanges
 
@@ -331,7 +331,7 @@ table 'Network Security Groups'
 
 	column 'properties.securityRules.properties.sourcePortRange'
 		dataType: string
-		lineageTag: 235a20d3-19ad-4ea7-9277-712a30c7ee9e
+		lineageTag: 09a252f1-a40e-42b7-91ce-6bcc728cefdb
 		summarizeBy: none
 		sourceColumn: properties.securityRules.properties.sourcePortRange
 
@@ -339,7 +339,7 @@ table 'Network Security Groups'
 
 	column 'properties.securityRules.properties.protocol'
 		dataType: string
-		lineageTag: 64251e25-c22e-4d63-b49b-3691d85f4343
+		lineageTag: 1ff13bed-598c-43cd-9b78-6618ce6bc624
 		summarizeBy: none
 		sourceColumn: properties.securityRules.properties.protocol
 
@@ -347,7 +347,7 @@ table 'Network Security Groups'
 
 	column 'properties.securityRules.properties.direction'
 		dataType: string
-		lineageTag: 4f49e110-5715-479a-9e94-f861ff1fde41
+		lineageTag: d7956ed1-ba59-4851-8c97-bec6196f5a0e
 		summarizeBy: none
 		sourceColumn: properties.securityRules.properties.direction
 
@@ -355,7 +355,7 @@ table 'Network Security Groups'
 
 	column 'properties.securityRules.properties.priority'
 		dataType: string
-		lineageTag: 76a601a7-897f-4076-868d-0b217885ef62
+		lineageTag: 3fe74790-0788-46c6-8063-cdc8a4b32170
 		summarizeBy: none
 		sourceColumn: properties.securityRules.properties.priority
 
@@ -363,7 +363,7 @@ table 'Network Security Groups'
 
 	column 'properties.securityRules.properties.access'
 		dataType: string
-		lineageTag: fddc172a-016d-4cd0-b4e4-48914ffd289a
+		lineageTag: 995645db-f1d9-4e13-938a-1e052489001e
 		summarizeBy: none
 		sourceColumn: properties.securityRules.properties.access
 
@@ -371,7 +371,7 @@ table 'Network Security Groups'
 
 	column 'properties.securityRules.name'
 		dataType: string
-		lineageTag: 3bfa9cff-0d7a-4597-855d-e4b4134582e1
+		lineageTag: f89d78b6-68e0-4fa8-8a28-58b99a10197b
 		summarizeBy: none
 		sourceColumn: properties.securityRules.name
 
@@ -379,7 +379,7 @@ table 'Network Security Groups'
 
 	column 'properties.securityRules.id'
 		dataType: string
-		lineageTag: f53c154b-3612-4f5a-a1e4-97c484373af7
+		lineageTag: 15559c8d-537c-471a-82e8-49fd99404c1d
 		summarizeBy: none
 		sourceColumn: properties.securityRules.id
 
@@ -387,7 +387,7 @@ table 'Network Security Groups'
 
 	column 'properties.securityRules.etag'
 		dataType: string
-		lineageTag: 69cdfbcc-b8a6-4bb0-b714-121155a06644
+		lineageTag: 4976fa7a-e7a1-4add-980f-e39eb2060210
 		summarizeBy: none
 		sourceColumn: properties.securityRules.etag
 
@@ -395,7 +395,7 @@ table 'Network Security Groups'
 
 	column tags
 		dataType: string
-		lineageTag: 591fd79a-5019-406c-a6fa-bb3e18f7f34c
+		lineageTag: 208beb0a-2c4c-41fd-843c-dcf839b47c51
 		summarizeBy: none
 		sourceColumn: tags
 
@@ -403,7 +403,7 @@ table 'Network Security Groups'
 
 	column identity
 		dataType: string
-		lineageTag: 582c1c2d-7a83-4738-b7b4-170b9d3f7b12
+		lineageTag: be8d5528-8a94-4a6f-95ec-d709a62c9407
 		summarizeBy: none
 		sourceColumn: identity
 
@@ -411,7 +411,7 @@ table 'Network Security Groups'
 
 	column zones
 		dataType: string
-		lineageTag: 21e2b55a-20f2-4d75-9275-149d20f55087
+		lineageTag: b8cf52a6-e295-405b-b7c5-d244ff4997f2
 		summarizeBy: none
 		sourceColumn: zones
 
@@ -419,7 +419,7 @@ table 'Network Security Groups'
 
 	column extendedLocation
 		dataType: string
-		lineageTag: 97722bb7-7386-4103-88eb-c035bbc52453
+		lineageTag: 213cd670-dd74-4c92-9e01-07aca9f6ac05
 		summarizeBy: none
 		sourceColumn: extendedLocation
 
@@ -437,7 +437,7 @@ table 'Network Security Groups'
 			)
 			```
 		dataType: string
-		lineageTag: 317c1768-ca45-4014-b530-ecaef83a9917
+		lineageTag: f1652cc1-b28f-4f76-9c88-a3d714feed08
 		summarizeBy: none
 		isDataTypeInferred
 
@@ -468,8 +468,6 @@ table 'Network Security Groups'
 				  #"Expanded properties.securityRules.properties.sourcePortRanges" = Table.ExpandListColumn(#"Expanded properties.securityRules.properties.sourceAddressPrefixes", "properties.securityRules.properties.sourcePortRanges")
 				in
 				  #"Expanded properties.securityRules.properties.sourcePortRanges"
-
-	annotation PBI_NavigationStepName = Navigation
 
 	annotation PBI_ResultType = Table
 

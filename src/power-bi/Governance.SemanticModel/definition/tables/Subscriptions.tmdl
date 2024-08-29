@@ -1,9 +1,9 @@
 table Subscriptions
-	lineageTag: 02e109c3-7db1-44f5-add6-d957cef614bc
+	lineageTag: 758ebf4f-7d8d-43ca-b230-9c82fde7c2c8
 
 	column id
 		dataType: string
-		lineageTag: 993b7a34-dbaf-4a5f-9548-1d56ffdca38f
+		lineageTag: 33f65546-b3ec-4a6a-b980-481ea223822b
 		summarizeBy: none
 		sourceColumn: id
 
@@ -11,7 +11,7 @@ table Subscriptions
 
 	column name
 		dataType: string
-		lineageTag: 18693fc6-d896-45a9-b67f-142e97925883
+		lineageTag: b2ca4d1f-0c91-42f6-b3c3-1ce8894bc94f
 		summarizeBy: none
 		sourceColumn: name
 
@@ -19,7 +19,7 @@ table Subscriptions
 
 	column type
 		dataType: string
-		lineageTag: f56800eb-7d33-4f40-a6eb-afcaf82fac0c
+		lineageTag: f7ca7218-ac4e-49be-b2b3-53ab635e9c7a
 		summarizeBy: none
 		sourceColumn: type
 
@@ -27,7 +27,7 @@ table Subscriptions
 
 	column tenantId
 		dataType: string
-		lineageTag: f8c135d1-3af8-4ed0-80bf-e40cbe328cad
+		lineageTag: 1c8478eb-928f-416f-bf69-dab5e564ed62
 		summarizeBy: none
 		sourceColumn: tenantId
 
@@ -35,7 +35,7 @@ table Subscriptions
 
 	column kind
 		dataType: string
-		lineageTag: 41d52349-f5d4-431a-8550-e1be95bd22cc
+		lineageTag: 5d5e6a7d-33c6-40ad-b592-da52bea42fe8
 		summarizeBy: none
 		sourceColumn: kind
 
@@ -43,7 +43,7 @@ table Subscriptions
 
 	column location
 		dataType: string
-		lineageTag: d41c6ef0-073f-45fa-85a3-7e8391b415e8
+		lineageTag: f3900bf1-4741-4d10-8a72-6074f8d641b0
 		summarizeBy: none
 		sourceColumn: location
 
@@ -51,7 +51,7 @@ table Subscriptions
 
 	column resourceGroup
 		dataType: string
-		lineageTag: 10d84270-0b4e-4f4c-ae85-4f835089325d
+		lineageTag: cb15b543-51b0-49d6-8903-28571a8d6a83
 		summarizeBy: none
 		sourceColumn: resourceGroup
 
@@ -59,7 +59,7 @@ table Subscriptions
 
 	column subscriptionId
 		dataType: string
-		lineageTag: c876b76c-4d57-4288-9362-8561ea889cde
+		lineageTag: 9f42bdca-e613-43c2-aab8-ee175e25ad17
 		summarizeBy: none
 		sourceColumn: subscriptionId
 
@@ -67,7 +67,7 @@ table Subscriptions
 
 	column managedBy
 		dataType: string
-		lineageTag: 6ddf1f79-9f0f-436c-8366-c0dd4be694ac
+		lineageTag: 3f1a1483-2cc9-4b05-b252-051619c07ac8
 		summarizeBy: none
 		sourceColumn: managedBy
 
@@ -75,7 +75,7 @@ table Subscriptions
 
 	column sku
 		dataType: string
-		lineageTag: a828013b-31c5-48e8-91e1-0ffa92a899ba
+		lineageTag: 8849c3a9-5a18-46f6-b833-8e379d4b2e4e
 		summarizeBy: none
 		sourceColumn: sku
 
@@ -83,7 +83,7 @@ table Subscriptions
 
 	column plan
 		dataType: string
-		lineageTag: 3e531b09-ab56-4560-9502-8a3f899eae7b
+		lineageTag: c895d8b0-bfe2-48e9-9528-d6b06a93cbeb
 		summarizeBy: none
 		sourceColumn: plan
 
@@ -91,7 +91,7 @@ table Subscriptions
 
 	column managementGroupAncestorsChain
 		dataType: string
-		lineageTag: 95f10870-c96b-4383-9fe9-5424139ab373
+		lineageTag: ac10e1ed-656c-4e6d-b5c5-d1f1b4fd2177
 		summarizeBy: none
 		sourceColumn: managementGroupAncestorsChain
 
@@ -99,7 +99,7 @@ table Subscriptions
 
 	column state
 		dataType: string
-		lineageTag: 147f21c5-6e0e-4a4e-a2c3-89b07e369a14
+		lineageTag: 990b336f-0b4c-4652-93a1-961e054b9e25
 		summarizeBy: none
 		sourceColumn: state
 
@@ -107,7 +107,7 @@ table Subscriptions
 
 	column tags
 		dataType: string
-		lineageTag: e857d2d0-832b-4119-8dde-d8e6bc37d07a
+		lineageTag: e082f5de-4984-41e5-8fbb-3de0779d5e0a
 		summarizeBy: none
 		sourceColumn: tags
 
@@ -115,7 +115,7 @@ table Subscriptions
 
 	column identity
 		dataType: string
-		lineageTag: a8c6c314-b3c0-4e60-ae56-9700ac8fb243
+		lineageTag: b62ac558-e234-42de-8887-9a3f45ad58a9
 		summarizeBy: none
 		sourceColumn: identity
 
@@ -123,7 +123,7 @@ table Subscriptions
 
 	column zones
 		dataType: string
-		lineageTag: 945a4ff9-3931-4b99-83db-4567033c6289
+		lineageTag: 20dff3f5-9fc2-458d-a9fd-4cbb8b987faa
 		summarizeBy: none
 		sourceColumn: zones
 
@@ -131,7 +131,7 @@ table Subscriptions
 
 	column extendedLocation
 		dataType: string
-		lineageTag: aab30284-1c60-4472-93ec-62a151d49ae9
+		lineageTag: 6737ecb8-6329-4e29-9f02-2bd095a3b1f1
 		summarizeBy: none
 		sourceColumn: extendedLocation
 

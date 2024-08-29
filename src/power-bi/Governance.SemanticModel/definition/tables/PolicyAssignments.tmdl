@@ -1,9 +1,9 @@
 table PolicyAssignments
-	lineageTag: f1924eca-8767-414f-813b-7440a5404d77
+	lineageTag: b53417b1-ef04-48e6-b513-ec2eca942ec4
 
 	column id
 		dataType: string
-		lineageTag: f4661fd2-e005-4bc0-a2b8-2ee223c4e8c4
+		lineageTag: be39877a-556f-49f8-bf2c-61b381e20654
 		summarizeBy: none
 		sourceColumn: id
 
@@ -11,7 +11,7 @@ table PolicyAssignments
 
 	column name
 		dataType: string
-		lineageTag: 1b0b0702-5958-4a41-a7b4-9128aba19ecb
+		lineageTag: d86320ed-b29e-4210-a287-7a79eb0ed991
 		summarizeBy: none
 		sourceColumn: name
 
@@ -19,7 +19,7 @@ table PolicyAssignments
 
 	column type
 		dataType: string
-		lineageTag: 22ef8273-6df8-451c-afa9-860d71c49edd
+		lineageTag: cbb7051b-1b87-4a4e-89f8-b247844e18aa
 		summarizeBy: none
 		sourceColumn: type
 
@@ -27,7 +27,7 @@ table PolicyAssignments
 
 	column tenantId
 		dataType: string
-		lineageTag: ac73315c-2ee2-4dd8-9b39-684f9edce013
+		lineageTag: 4b8dbcc3-4012-48ba-bf8a-57d36b15acc3
 		summarizeBy: none
 		sourceColumn: tenantId
 
@@ -35,7 +35,7 @@ table PolicyAssignments
 
 	column kind
 		dataType: string
-		lineageTag: 11d86b9b-8897-427c-8baa-0b35857b79eb
+		lineageTag: c544bb4e-f04f-4e72-b0a5-5fe23f051c57
 		summarizeBy: none
 		sourceColumn: kind
 
@@ -43,7 +43,7 @@ table PolicyAssignments
 
 	column location
 		dataType: string
-		lineageTag: 1d218b28-0806-4c55-a641-6e49affa4c65
+		lineageTag: 5074be75-e970-42f7-9842-da7651a0ea61
 		summarizeBy: none
 		sourceColumn: location
 
@@ -51,7 +51,7 @@ table PolicyAssignments
 
 	column resourceGroup
 		dataType: string
-		lineageTag: 4df276d1-b2c5-4647-83b5-66c869d248f0
+		lineageTag: 19122c97-ff52-4901-a872-9c48a0a1b603
 		summarizeBy: none
 		sourceColumn: resourceGroup
 
@@ -59,7 +59,7 @@ table PolicyAssignments
 
 	column subscriptionId
 		dataType: string
-		lineageTag: 8995d62f-4d3c-4a3f-824d-b1d260057626
+		lineageTag: c8b0201a-debd-4929-bbe9-0207a3da3cb3
 		summarizeBy: none
 		sourceColumn: subscriptionId
 
@@ -67,7 +67,7 @@ table PolicyAssignments
 
 	column managedBy
 		dataType: string
-		lineageTag: e338a45c-247e-4a06-a3d2-67ceec725ec2
+		lineageTag: 64ddc663-653a-495a-a42f-084819696f3d
 		summarizeBy: none
 		sourceColumn: managedBy
 
@@ -75,7 +75,7 @@ table PolicyAssignments
 
 	column sku
 		dataType: string
-		lineageTag: a3ce3ba2-1915-4aeb-ab78-dc320c1c46da
+		lineageTag: f2687968-9681-4b6c-a372-6a923000c349
 		summarizeBy: none
 		sourceColumn: sku
 
@@ -83,7 +83,7 @@ table PolicyAssignments
 
 	column plan
 		dataType: string
-		lineageTag: 403af4e1-e36e-4a5d-9458-c0865e8bfef3
+		lineageTag: 2441408b-7de0-4757-a296-e51612fa7274
 		summarizeBy: none
 		sourceColumn: plan
 
@@ -91,7 +91,7 @@ table PolicyAssignments
 
 	column 'properties.policyDefinitionId'
 		dataType: string
-		lineageTag: 407e73fb-e48f-4880-a998-5a998d16fb6a
+		lineageTag: 1b1a758c-15b9-4a47-8100-badacddf1bc6
 		summarizeBy: none
 		sourceColumn: properties.policyDefinitionId
 
@@ -99,7 +99,7 @@ table PolicyAssignments
 
 	column 'properties.effectiveDefinitionVersion'
 		dataType: string
-		lineageTag: ebd6dda0-5148-4b95-a343-76cff2dcbafc
+		lineageTag: 3fdd019a-6818-4624-8883-fcbc2fcb5cbf
 		summarizeBy: none
 		sourceColumn: properties.effectiveDefinitionVersion
 
@@ -107,7 +107,7 @@ table PolicyAssignments
 
 	column 'properties.latestDefinitionVersion'
 		dataType: string
-		lineageTag: 32ca8b8f-be7d-4e3a-9ea1-abd729f5f632
+		lineageTag: b4d82c72-5088-4e2d-90af-6811e2d05749
 		summarizeBy: none
 		sourceColumn: properties.latestDefinitionVersion
 
@@ -115,7 +115,7 @@ table PolicyAssignments
 
 	column 'properties.nonComplianceMessages'
 		dataType: string
-		lineageTag: 41e86934-ed92-473f-b7c3-226039a666e1
+		lineageTag: 9b302262-c1b3-470e-8484-c12e0dbea748
 		summarizeBy: none
 		sourceColumn: properties.nonComplianceMessages
 
@@ -123,7 +123,7 @@ table PolicyAssignments
 
 	column 'properties.definitionVersion'
 		dataType: string
-		lineageTag: 036dd1c6-7096-4e87-9b06-9db34612853b
+		lineageTag: bf5a225f-7b82-4d2b-85f7-2560b7e061c4
 		summarizeBy: none
 		sourceColumn: properties.definitionVersion
 
@@ -131,7 +131,7 @@ table PolicyAssignments
 
 	column 'properties.resourceSelectors'
 		dataType: string
-		lineageTag: 9be2d190-d14f-49f1-be0d-517710dd30ca
+		lineageTag: 52f9e25e-406a-4b7d-9ac8-1cb60a933544
 		summarizeBy: none
 		sourceColumn: properties.resourceSelectors
 
@@ -139,7 +139,7 @@ table PolicyAssignments
 
 	column 'properties.enforcementMode'
 		dataType: string
-		lineageTag: effe03f2-0396-4bd1-9f8f-a39ad60e6997
+		lineageTag: efd04add-4679-4db9-bc73-8b6a2932b3e6
 		summarizeBy: none
 		sourceColumn: properties.enforcementMode
 
@@ -147,7 +147,7 @@ table PolicyAssignments
 
 	column 'properties.assignmentType'
 		dataType: string
-		lineageTag: 811af9b5-81ff-450f-b960-049a4bde777e
+		lineageTag: 12c1c5c6-11dc-4d1e-a7f4-6604475332ec
 		summarizeBy: none
 		sourceColumn: properties.assignmentType
 
@@ -155,7 +155,7 @@ table PolicyAssignments
 
 	column 'properties.description'
 		dataType: string
-		lineageTag: a1a65d15-84c1-42b8-b44e-c583042df8cb
+		lineageTag: 55399cef-9b56-4140-9b93-68173263cbab
 		summarizeBy: none
 		sourceColumn: properties.description
 
@@ -163,7 +163,7 @@ table PolicyAssignments
 
 	column 'properties.displayName'
 		dataType: string
-		lineageTag: 0d4aa94a-1c46-4a23-82ec-2c4a0a1c6263
+		lineageTag: 577b6922-7909-41c7-aa95-26e9375dc07d
 		summarizeBy: none
 		sourceColumn: properties.displayName
 
@@ -171,7 +171,7 @@ table PolicyAssignments
 
 	column 'properties.parameters'
 		dataType: string
-		lineageTag: 0d841111-8b4a-4db3-96d1-96914a8f63dc
+		lineageTag: 21fb9078-e018-4a13-84df-58d728972531
 		summarizeBy: none
 		sourceColumn: properties.parameters
 
@@ -179,7 +179,7 @@ table PolicyAssignments
 
 	column 'properties.notScopes'
 		dataType: string
-		lineageTag: 04458348-8964-4bf8-a6e7-f0df25c561b2
+		lineageTag: d1558915-83f7-43cf-a632-ab4cdb4bbc96
 		summarizeBy: none
 		sourceColumn: properties.notScopes
 
@@ -187,7 +187,7 @@ table PolicyAssignments
 
 	column 'properties.overrides'
 		dataType: string
-		lineageTag: 3e204fc5-6eae-4337-84ee-c9260ead4454
+		lineageTag: 1edc0739-a96c-4b26-909c-633876fa20b5
 		summarizeBy: none
 		sourceColumn: properties.overrides
 
@@ -195,7 +195,7 @@ table PolicyAssignments
 
 	column 'properties.metadata.createdOn'
 		dataType: string
-		lineageTag: c450b21a-5044-4bdf-969e-48210264c966
+		lineageTag: 60b52dae-769b-4524-af25-82fee7f6ea5a
 		summarizeBy: none
 		sourceColumn: properties.metadata.createdOn
 
@@ -203,7 +203,7 @@ table PolicyAssignments
 
 	column 'properties.metadata.createdBy'
 		dataType: string
-		lineageTag: e74bdbf5-1c2b-4bf8-bd52-4182b94f87a9
+		lineageTag: 34df15fe-6fff-4122-ba3f-4eddf7f6ee28
 		summarizeBy: none
 		sourceColumn: properties.metadata.createdBy
 
@@ -211,7 +211,7 @@ table PolicyAssignments
 
 	column 'properties.metadata.assignedBy'
 		dataType: string
-		lineageTag: e3f9d6e5-0e4c-4b53-85b6-eab8aca1c213
+		lineageTag: 504ac04b-5f15-4b20-b2d1-07ab6e6f3f3f
 		summarizeBy: none
 		sourceColumn: properties.metadata.assignedBy
 
@@ -219,7 +219,7 @@ table PolicyAssignments
 
 	column 'properties.metadata.parameterScopes'
 		dataType: string
-		lineageTag: 33f185d7-7493-45f8-bf94-ab757ad8e75c
+		lineageTag: 813d4a95-4b1e-44de-83be-f59effdcfa12
 		summarizeBy: none
 		sourceColumn: properties.metadata.parameterScopes
 
@@ -227,7 +227,7 @@ table PolicyAssignments
 
 	column 'properties.metadata.updatedOn'
 		dataType: string
-		lineageTag: 95bb639d-d5f6-40dd-be3e-8ee86c446fe9
+		lineageTag: fe4b7dbf-5b28-43d9-af99-09e7e2ad95ad
 		summarizeBy: none
 		sourceColumn: properties.metadata.updatedOn
 
@@ -235,7 +235,7 @@ table PolicyAssignments
 
 	column 'properties.metadata.updatedBy'
 		dataType: string
-		lineageTag: a6c75f1b-53eb-4f96-ad7a-d5d31c9749f4
+		lineageTag: 1807cb63-219c-4be1-87fa-679944bfdff6
 		summarizeBy: none
 		sourceColumn: properties.metadata.updatedBy
 
@@ -243,7 +243,7 @@ table PolicyAssignments
 
 	column 'properties.metadata.category'
 		dataType: string
-		lineageTag: a483cc2d-2354-4165-ac66-adbd926e6c75
+		lineageTag: 0971ee73-9996-4224-98ed-defb725a779f
 		summarizeBy: none
 		sourceColumn: properties.metadata.category
 
@@ -251,7 +251,7 @@ table PolicyAssignments
 
 	column 'properties.metadata.managedByResourceId'
 		dataType: string
-		lineageTag: e4efc22f-4b54-4bc0-a320-1a6692feed32
+		lineageTag: 6c2ddff2-45d2-4e23-865b-666d7756e2c9
 		summarizeBy: none
 		sourceColumn: properties.metadata.managedByResourceId
 
@@ -259,7 +259,7 @@ table PolicyAssignments
 
 	column 'properties.metadata.securityCenter'
 		dataType: string
-		lineageTag: 30e3e277-0525-4cda-81dd-ad2da6826caf
+		lineageTag: 80c893a5-ebaf-4f8a-8a51-4919c8f51bce
 		summarizeBy: none
 		sourceColumn: properties.metadata.securityCenter
 
@@ -267,7 +267,7 @@ table PolicyAssignments
 
 	column 'properties.metadata.excludedOutOfTheBoxStandards'
 		dataType: string
-		lineageTag: 9419bf1e-d123-4fcf-903b-a06a03825ba1
+		lineageTag: cf7174f5-9cb8-409c-b888-304adbfa4574
 		summarizeBy: none
 		sourceColumn: properties.metadata.excludedOutOfTheBoxStandards
 
@@ -275,7 +275,7 @@ table PolicyAssignments
 
 	column 'properties.scope'
 		dataType: string
-		lineageTag: 81578938-5357-468e-97df-6b50ec59e3e1
+		lineageTag: 6c718623-aad0-4ea3-882f-c2d8509e2e6c
 		summarizeBy: none
 		sourceColumn: properties.scope
 
@@ -283,7 +283,7 @@ table PolicyAssignments
 
 	column tags
 		dataType: string
-		lineageTag: 5517cc2d-cfb3-49fd-9357-871c8a407ded
+		lineageTag: 948994e6-71ed-4922-ba8b-443f2b7a48c6
 		summarizeBy: none
 		sourceColumn: tags
 
@@ -291,7 +291,7 @@ table PolicyAssignments
 
 	column 'identity.userAssignedIdentities'
 		dataType: string
-		lineageTag: 22cf3132-a9b4-452a-90c9-0f193e8847bf
+		lineageTag: 430d5b43-4f70-4835-ae26-95ee1dfc1e7c
 		summarizeBy: none
 		sourceColumn: identity.userAssignedIdentities
 
@@ -299,7 +299,7 @@ table PolicyAssignments
 
 	column 'identity.principalId'
 		dataType: string
-		lineageTag: 392197bb-679d-4c86-a5ec-ec22693b10c3
+		lineageTag: 3fc62654-b60a-4f8c-9b10-a2cabf31a667
 		summarizeBy: none
 		sourceColumn: identity.principalId
 
@@ -307,7 +307,7 @@ table PolicyAssignments
 
 	column 'identity.tenantId'
 		dataType: string
-		lineageTag: d9ccdbcb-cfb3-4f29-b614-aa5a80565f15
+		lineageTag: d8c88efb-4d9d-4554-b0f1-6d7b616b14ff
 		summarizeBy: none
 		sourceColumn: identity.tenantId
 
@@ -315,7 +315,7 @@ table PolicyAssignments
 
 	column 'identity.type'
 		dataType: string
-		lineageTag: 36f74979-5a25-45a7-90a9-40f7ab8f8fd5
+		lineageTag: 87e445d1-5ff0-4b9e-be11-ab034c486f73
 		summarizeBy: none
 		sourceColumn: identity.type
 
@@ -323,7 +323,7 @@ table PolicyAssignments
 
 	column zones
 		dataType: string
-		lineageTag: f93989c1-f17e-4926-b4ae-b46e6af99082
+		lineageTag: f97f2c26-57b6-4f89-a0f8-2c6d1d5ea14e
 		summarizeBy: none
 		sourceColumn: zones
 
@@ -331,7 +331,7 @@ table PolicyAssignments
 
 	column extendedLocation
 		dataType: string
-		lineageTag: 8ef53646-4ac0-49c6-b671-a07bf9eb3192
+		lineageTag: 9be71b86-100b-4dcd-99e1-282f20e65afb
 		summarizeBy: none
 		sourceColumn: extendedLocation
 
@@ -349,8 +349,6 @@ table PolicyAssignments
 				    #"Expanded properties.notScopes" = Table.ExpandListColumn(#"Expanded identity", "properties.notScopes")
 				in
 				    #"Expanded properties.notScopes"
-
-	annotation PBI_NavigationStepName = Navigation
 
 	annotation PBI_ResultType = Table
 

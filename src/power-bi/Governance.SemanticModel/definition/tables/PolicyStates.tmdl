@@ -1,33 +1,24 @@
 table PolicyStates
-	lineageTag: f8557117-aa3b-41a7-b125-382263015853
+	lineageTag: ddaaa169-beba-4cab-8e86-a90312768f86
+
+	measure complianceScore = [compliantCount]/[totalResourceCount]
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		lineageTag: 7184c6a4-ef41-4f8f-99f7-145e819cedd3
+
+	measure compliantCount = [totalResourceCount]-[nonCompliantCount]
+		lineageTag: f516dcb7-f7dd-42e4-b7cc-528d823e226a
 
 	measure totalResourceCount = DISTINCTCOUNT(PolicyStates[properties.resourceId])
 		formatString: 0
-		lineageTag: 907f3e8e-8d31-4dcf-a05f-e6f0951222a4
+		lineageTag: 977845bf-f755-44e1-ada3-65c66a6e3462
 
 	measure nonCompliantCount = CALCULATE(DISTINCTCOUNT(PolicyStates[properties.resourceId]),FILTER(PolicyStates,PolicyStates[properties.complianceState]="NonCompliant"))
 		formatString: 0
-		lineageTag: 0c2b4dba-bb1a-44c6-a0d0-c83591175d68
-
-	measure compliantCount = [totalResourceCount]-[nonCompliantCount]
-		formatString: 0
-		lineageTag: efe435e4-9252-4ac1-a7fc-2ae9af7cde7c
-
-	measure complianceScore = [compliantCount]/[totalResourceCount]
-		formatString: 0\ %;-0\ %;0\ %
-		lineageTag: e939cbb9-9339-479e-a7e0-a40d7402af15
-
-	measure Measure = COUNT(PolicyAssignments[name])
-		formatString: 0
-		lineageTag: 4c00a4f7-c234-47cf-9f42-0d6540893c4d
-
-	measure errorCount = CALCULATE(DISTINCTCOUNT(PolicyStates[properties.resourceId]),FILTER(PolicyStates,PolicyStates[properties.complianceState]="Error"))
-		formatString: 0
-		lineageTag: 9830b3c0-87a5-4ca2-b115-af3c93a8893d
+		lineageTag: bdc393be-71dc-461b-be1e-e1e20e80deb7
 
 	column id
 		dataType: string
-		lineageTag: ef984745-b58b-4676-b484-1b837db8b614
+		lineageTag: 7ba8de0a-f1e6-4260-bd38-ab5b97282edf
 		summarizeBy: none
 		sourceColumn: id
 
@@ -35,7 +26,7 @@ table PolicyStates
 
 	column name
 		dataType: string
-		lineageTag: d32916f0-a66d-4856-9e31-86fba58eba74
+		lineageTag: 80421f88-6495-4d42-815d-fd640b472663
 		summarizeBy: none
 		sourceColumn: name
 
@@ -43,7 +34,7 @@ table PolicyStates
 
 	column type
 		dataType: string
-		lineageTag: bd4a338e-7e4d-4aee-87b7-57f177c371ee
+		lineageTag: 462cea37-c85d-4287-ad75-f0a20ae7dde4
 		summarizeBy: none
 		sourceColumn: type
 
@@ -51,7 +42,7 @@ table PolicyStates
 
 	column tenantId
 		dataType: string
-		lineageTag: a6db8a8a-a365-42ad-b412-0e1ad34af2b8
+		lineageTag: 61d83c8a-9572-4407-a572-0847c249c5d6
 		summarizeBy: none
 		sourceColumn: tenantId
 
@@ -59,7 +50,7 @@ table PolicyStates
 
 	column kind
 		dataType: string
-		lineageTag: b820b983-1197-456c-b768-e2b0c9dc2ca0
+		lineageTag: ffb41542-24b2-497a-ac8b-25be65481bd5
 		summarizeBy: none
 		sourceColumn: kind
 
@@ -67,7 +58,7 @@ table PolicyStates
 
 	column location
 		dataType: string
-		lineageTag: d63d4387-70e2-4f40-8897-c095e909f4bb
+		lineageTag: 10bfdb76-7ae1-47d1-af19-3af804e98694
 		summarizeBy: none
 		sourceColumn: location
 
@@ -75,7 +66,7 @@ table PolicyStates
 
 	column resourceGroup
 		dataType: string
-		lineageTag: dd885b0f-e326-4363-8cb5-8f18fb0242ff
+		lineageTag: f14ac2f4-addb-461e-86fe-52c18e293b49
 		summarizeBy: none
 		sourceColumn: resourceGroup
 
@@ -83,7 +74,7 @@ table PolicyStates
 
 	column subscriptionId
 		dataType: string
-		lineageTag: 4ddce754-576f-4329-a30c-0ffb0a2bd93f
+		lineageTag: 626e561c-e32d-461f-b7b7-2774cc3e60a6
 		summarizeBy: none
 		sourceColumn: subscriptionId
 
@@ -91,7 +82,7 @@ table PolicyStates
 
 	column managedBy
 		dataType: string
-		lineageTag: 2c1c82f6-2bcb-4d43-9f1e-a03d0a83c72b
+		lineageTag: 0dd44396-ad4c-4a22-bb3b-bf0b8b82faef
 		summarizeBy: none
 		sourceColumn: managedBy
 
@@ -99,7 +90,7 @@ table PolicyStates
 
 	column sku
 		dataType: string
-		lineageTag: e26c8d70-84e1-482e-95ff-66b61ea06272
+		lineageTag: f2995d55-ee1e-4636-b779-366a71c4610b
 		summarizeBy: none
 		sourceColumn: sku
 
@@ -107,7 +98,7 @@ table PolicyStates
 
 	column plan
 		dataType: string
-		lineageTag: d6698164-1607-4189-86f5-73b488ebd6c1
+		lineageTag: c1dc3db4-50fc-485e-9490-abdc3e3c6703
 		summarizeBy: none
 		sourceColumn: plan
 
@@ -115,7 +106,7 @@ table PolicyStates
 
 	column 'properties.policyAssignmentParameters'
 		dataType: string
-		lineageTag: 51dae7e1-5526-4611-ab6b-0bae2066f78e
+		lineageTag: 976d4bcc-47a3-4445-be8f-99758a32e340
 		summarizeBy: none
 		sourceColumn: properties.policyAssignmentParameters
 
@@ -123,7 +114,7 @@ table PolicyStates
 
 	column 'properties.policyDefinitionAction'
 		dataType: string
-		lineageTag: ed6313a7-3672-4a69-89be-3057b50c734a
+		lineageTag: b8975dc1-bfc2-4b05-afc0-b17681495582
 		summarizeBy: none
 		sourceColumn: properties.policyDefinitionAction
 
@@ -131,7 +122,7 @@ table PolicyStates
 
 	column 'properties.policyAssignmentScope'
 		dataType: string
-		lineageTag: 45611a71-47dd-4d5b-855d-8579d09631fa
+		lineageTag: 7ad6604a-a34a-4d7f-9696-43b356e3d764
 		summarizeBy: none
 		sourceColumn: properties.policyAssignmentScope
 
@@ -139,7 +130,7 @@ table PolicyStates
 
 	column 'properties.policyAssignmentName'
 		dataType: string
-		lineageTag: face191a-661f-46a7-b189-6a6a5a2385b7
+		lineageTag: c4cbfde1-e98a-42c3-8f44-3452a16a190f
 		summarizeBy: none
 		sourceColumn: properties.policyAssignmentName
 
@@ -147,7 +138,7 @@ table PolicyStates
 
 	column 'properties.policyDefinitionName'
 		dataType: string
-		lineageTag: 93cc388f-2c40-4735-ac24-abf0454d08ee
+		lineageTag: 8958b907-827d-4ae0-a0cc-e762a82b9b85
 		summarizeBy: none
 		sourceColumn: properties.policyDefinitionName
 
@@ -155,7 +146,7 @@ table PolicyStates
 
 	column 'properties.policyDefinitionReferenceId'
 		dataType: string
-		lineageTag: 295f4f29-6293-4b42-932a-65a204452447
+		lineageTag: fb7a1465-d4b5-4110-b69f-07dc7bab9093
 		summarizeBy: none
 		sourceColumn: properties.policyDefinitionReferenceId
 
@@ -163,7 +154,7 @@ table PolicyStates
 
 	column 'properties.policyDefinitionId'
 		dataType: string
-		lineageTag: 5af39408-85d8-46ae-a310-3637f25428ae
+		lineageTag: e8535074-b10f-4f22-9fe4-a31d578833a6
 		summarizeBy: none
 		sourceColumn: properties.policyDefinitionId
 
@@ -171,7 +162,7 @@ table PolicyStates
 
 	column 'properties.managementGroupIds'
 		dataType: string
-		lineageTag: 604fa3fa-c1ac-4651-978e-638085dc23cd
+		lineageTag: 343f4bc3-088f-4e7e-93c5-75e9933a5539
 		summarizeBy: none
 		sourceColumn: properties.managementGroupIds
 
@@ -179,7 +170,7 @@ table PolicyStates
 
 	column 'properties.policyAssignmentId'
 		dataType: string
-		lineageTag: 4fc7aaa8-a8ea-41df-a2d7-ee4e7ab28f37
+		lineageTag: 9f9bc13f-3a7c-4c05-9df1-a960a7324088
 		summarizeBy: none
 		sourceColumn: properties.policyAssignmentId
 
@@ -187,7 +178,7 @@ table PolicyStates
 
 	column 'properties.policySetDefinitionName'
 		dataType: string
-		lineageTag: 037d8622-5ef2-4040-b27a-9b2eb5a9bf27
+		lineageTag: 935887d7-a20e-417f-a3dd-4082d3be7b7c
 		summarizeBy: none
 		sourceColumn: properties.policySetDefinitionName
 
@@ -195,7 +186,7 @@ table PolicyStates
 
 	column 'properties.complianceState'
 		dataType: string
-		lineageTag: 4966e898-a86a-474d-a852-abfa2a4d1a84
+		lineageTag: 4a4e349d-4d1d-4540-9009-a9185897ec87
 		summarizeBy: none
 		sourceColumn: properties.complianceState
 
@@ -203,7 +194,7 @@ table PolicyStates
 
 	column 'properties.policySetDefinitionId'
 		dataType: string
-		lineageTag: 4d8946f6-9168-4f05-b11b-6493eb5af91f
+		lineageTag: 81546c4a-65ec-4382-9850-eab0fdc9c517
 		summarizeBy: none
 		sourceColumn: properties.policySetDefinitionId
 
@@ -211,7 +202,7 @@ table PolicyStates
 
 	column 'properties.subscriptionId'
 		dataType: string
-		lineageTag: 168b86b1-cd08-453f-98e1-2febb70a1da1
+		lineageTag: dcd409e4-6287-4752-b902-e5cfe1a06ff6
 		summarizeBy: none
 		sourceColumn: properties.subscriptionId
 
@@ -219,7 +210,7 @@ table PolicyStates
 
 	column 'properties.resourceType'
 		dataType: string
-		lineageTag: a5bbbdb0-ba43-4317-9dc2-dac6c67a44ad
+		lineageTag: 327ea810-9263-442b-bfb1-30aa6c70807e
 		summarizeBy: none
 		sourceColumn: properties.resourceType
 
@@ -227,7 +218,7 @@ table PolicyStates
 
 	column 'properties.stateWeight'
 		dataType: string
-		lineageTag: 4cb87539-3cd8-4f45-8ab5-7be896b543dc
+		lineageTag: 9d365b85-9fc9-465b-b056-bf75be6ed2be
 		summarizeBy: none
 		sourceColumn: properties.stateWeight
 
@@ -235,7 +226,7 @@ table PolicyStates
 
 	column 'properties.resourceGroup'
 		dataType: string
-		lineageTag: da17b8a6-9fe9-44ce-8982-03e1336b7f9a
+		lineageTag: d1c8ea80-a667-4de4-9a77-d2a9fd54c661
 		summarizeBy: none
 		sourceColumn: properties.resourceGroup
 
@@ -243,7 +234,7 @@ table PolicyStates
 
 	column 'properties.resourceId'
 		dataType: string
-		lineageTag: f519ab9c-f163-40ee-b422-7741d8e8d92a
+		lineageTag: 38434022-80c6-474e-9613-e0fa6c1f8a7d
 		summarizeBy: none
 		sourceColumn: properties.resourceId
 
@@ -251,7 +242,7 @@ table PolicyStates
 
 	column 'properties.timestamp'
 		dataType: string
-		lineageTag: 1d7be20d-9a89-42ab-86c9-a721ab9cf7c9
+		lineageTag: 383a8625-d688-4036-87f1-ea0b7de2aa91
 		summarizeBy: none
 		sourceColumn: properties.timestamp
 
@@ -259,7 +250,7 @@ table PolicyStates
 
 	column 'properties.isDeleted'
 		dataType: string
-		lineageTag: be5f6045-f1c2-4bb0-afce-a9ba1cd6ad40
+		lineageTag: 5b741dff-1873-495a-962a-60f6cea82e0b
 		summarizeBy: none
 		sourceColumn: properties.isDeleted
 
@@ -267,7 +258,7 @@ table PolicyStates
 
 	column 'properties.resourceLocation'
 		dataType: string
-		lineageTag: 475daf71-ccca-403a-b5eb-223c71120cce
+		lineageTag: da681ebd-b892-4ca0-bd89-44845dba3973
 		summarizeBy: none
 		sourceColumn: properties.resourceLocation
 
@@ -275,7 +266,7 @@ table PolicyStates
 
 	column 'properties.policySetDefinitionCategory'
 		dataType: string
-		lineageTag: aad1b764-00d7-41e0-a853-ac743fbaa4eb
+		lineageTag: 8540107c-d194-443c-995e-4ed707a69fc8
 		summarizeBy: none
 		sourceColumn: properties.policySetDefinitionCategory
 
@@ -283,7 +274,7 @@ table PolicyStates
 
 	column 'properties.policyDefinitionGroupNames'
 		dataType: string
-		lineageTag: 75cebb69-eb2b-42e1-89be-faceae873f59
+		lineageTag: 9e43a4ce-4892-4125-bdc8-73b7bb573c64
 		summarizeBy: none
 		sourceColumn: properties.policyDefinitionGroupNames
 
@@ -291,7 +282,7 @@ table PolicyStates
 
 	column 'properties.complianceReasonCode'
 		dataType: string
-		lineageTag: d8af7cda-9cf8-4578-b1f2-6e129d1dc916
+		lineageTag: c91b7bea-b7fb-4919-8f6e-a663800a4264
 		summarizeBy: none
 		sourceColumn: properties.complianceReasonCode
 
@@ -299,7 +290,7 @@ table PolicyStates
 
 	column 'properties.stateDetails'
 		dataType: string
-		lineageTag: 356a436f-3dc7-45fb-b53c-a49abcfa4abe
+		lineageTag: fece490d-d422-4987-ad3d-83bd7e8ef9f3
 		summarizeBy: none
 		sourceColumn: properties.stateDetails
 
@@ -307,7 +298,7 @@ table PolicyStates
 
 	column tags
 		dataType: string
-		lineageTag: 8d8f5e8a-9e6f-48f8-8ba0-f5af49e1d971
+		lineageTag: 76ebca24-9288-4aaa-b53a-834e0b588b34
 		summarizeBy: none
 		sourceColumn: tags
 
@@ -315,7 +306,7 @@ table PolicyStates
 
 	column identity
 		dataType: string
-		lineageTag: f1e7b7dd-eed5-425a-bbc8-434f4486de56
+		lineageTag: 7cd7f649-2d4b-49d8-bf7c-55dac13d1ac8
 		summarizeBy: none
 		sourceColumn: identity
 
@@ -323,7 +314,7 @@ table PolicyStates
 
 	column zones
 		dataType: string
-		lineageTag: f2b40529-db18-4f79-8734-bc9ca5736603
+		lineageTag: f80f1302-d82f-486b-b38e-46dfaced7bdd
 		summarizeBy: none
 		sourceColumn: zones
 
@@ -331,7 +322,7 @@ table PolicyStates
 
 	column extendedLocation
 		dataType: string
-		lineageTag: 9d1f20c4-356d-49dd-9b81-643b828aa3b1
+		lineageTag: 7c3b3f23-60fd-4f2a-8e65-8c85073eb8ef
 		summarizeBy: none
 		sourceColumn: extendedLocation
 
@@ -347,8 +338,6 @@ table PolicyStates
 				    #"Extracted Text After Delimiter" = Table.TransformColumns(#"Expanded properties", {{"properties.policyAssignmentScope", each Text.AfterDelimiter(_, "/", {0, RelativePosition.FromEnd}), type text}})
 				in
 				  #"Extracted Text After Delimiter"
-
-	annotation PBI_NavigationStepName = Navigation
 
 	annotation PBI_ResultType = Table
 

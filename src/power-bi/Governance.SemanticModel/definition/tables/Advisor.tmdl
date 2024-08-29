@@ -1,9 +1,9 @@
 table Advisor
-	lineageTag: 507a46f3-3f21-47ea-8c7f-c9e8077d9be5
+	lineageTag: f0700d7c-8802-444e-a3b8-dc7c44d849a1
 
 	column id
 		dataType: string
-		lineageTag: d0d79adb-9e9f-4077-bc47-50b888a4ff97
+		lineageTag: af75e945-6338-40a6-b3a2-7e9ac77d11f1
 		summarizeBy: none
 		sourceColumn: id
 
@@ -11,7 +11,7 @@ table Advisor
 
 	column name
 		dataType: string
-		lineageTag: 7db848d9-4149-4e4f-b45b-0b811394fda4
+		lineageTag: 7b65f987-a450-4855-bca1-489d17cbc05e
 		summarizeBy: none
 		sourceColumn: name
 
@@ -19,7 +19,7 @@ table Advisor
 
 	column type
 		dataType: string
-		lineageTag: edc1f60b-294f-4645-b1e9-32a44edd6e6c
+		lineageTag: 8a048b79-b717-4699-88b9-b065990d462e
 		summarizeBy: none
 		sourceColumn: type
 
@@ -27,7 +27,7 @@ table Advisor
 
 	column tenantId
 		dataType: string
-		lineageTag: 880177fd-b45c-4154-971f-58ada8291c1e
+		lineageTag: 826f951f-b9bc-44d1-8949-fbeb8c27dc5a
 		summarizeBy: none
 		sourceColumn: tenantId
 
@@ -35,7 +35,7 @@ table Advisor
 
 	column kind
 		dataType: string
-		lineageTag: f22af53b-030f-4ed4-baf8-407e4dd64c1b
+		lineageTag: d5719a45-afab-4dcf-8641-6f0c5ff4c68d
 		summarizeBy: none
 		sourceColumn: kind
 
@@ -43,7 +43,7 @@ table Advisor
 
 	column location
 		dataType: string
-		lineageTag: c7bb786d-9979-4ef4-80e3-c2cbed08f1cb
+		lineageTag: ef00a906-bf90-472f-b72b-ca7a1a0be230
 		summarizeBy: none
 		sourceColumn: location
 
@@ -51,7 +51,7 @@ table Advisor
 
 	column resourceGroup
 		dataType: string
-		lineageTag: 8c239e9b-d3f5-4e43-bdc4-145ad99feadf
+		lineageTag: 55662cad-46cb-4b19-b33d-7520ccf1bbe3
 		summarizeBy: none
 		sourceColumn: resourceGroup
 
@@ -59,7 +59,7 @@ table Advisor
 
 	column subscriptionId
 		dataType: string
-		lineageTag: 8f064b40-efc4-45d1-adae-e06d5a863b56
+		lineageTag: 306c5ce1-5a40-4e8f-9694-ce16097d3ffd
 		summarizeBy: none
 		sourceColumn: subscriptionId
 
@@ -67,7 +67,7 @@ table Advisor
 
 	column managedBy
 		dataType: string
-		lineageTag: 6d39dad3-d770-482b-83de-a2260502af1b
+		lineageTag: 0ac957c4-f701-46ec-8ec1-5603ed1a32d4
 		summarizeBy: none
 		sourceColumn: managedBy
 
@@ -75,7 +75,7 @@ table Advisor
 
 	column sku
 		dataType: string
-		lineageTag: 5089e57c-c662-4765-b154-448b90fcc2cd
+		lineageTag: 8a2680c0-5205-4123-aa17-66701268e772
 		summarizeBy: none
 		sourceColumn: sku
 
@@ -83,7 +83,7 @@ table Advisor
 
 	column plan
 		dataType: string
-		lineageTag: e0d41db1-da84-4373-bb1e-10496e538461
+		lineageTag: e7f43d1b-a411-447b-824e-baa9a31ec649
 		summarizeBy: none
 		sourceColumn: plan
 
@@ -91,7 +91,7 @@ table Advisor
 
 	column 'properties.recommendationTypeId'
 		dataType: string
-		lineageTag: 89b22e9d-4907-49c1-8e80-38f883adf295
+		lineageTag: 3c7502c6-5f18-4bfc-8f4f-89bcaa68c30a
 		summarizeBy: none
 		sourceColumn: properties.recommendationTypeId
 
@@ -100,34 +100,34 @@ table Advisor
 	column 'properties.extendedProperties.ObservationPeriodStartDate'
 		dataType: dateTime
 		formatString: General Date
-		lineageTag: 1eb8b658-634c-4e85-b39d-9a7207bd1a74
+		lineageTag: 8548c789-018e-4149-9dfc-5f068dcbe7ca
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.ObservationPeriodStartDate
 
 		variation Variation
 			isDefault
-			relationship: 77731053-5922-483f-bef9-607ed94d2f5c
-			defaultHierarchy: LocalDateTable_ac9897d3-425b-4cef-a25e-b1d092bb2456.'Date Hierarchy'
+			relationship: 9a9a8ff2-6f49-4f61-886e-5c7b393b6127
+			defaultHierarchy: LocalDateTable_ebe5ed2a-5f3f-459d-a6cb-cf15814bb4f5.'Date Hierarchy'
 
 		annotation SummarizationSetBy = Automatic
 
 	column 'properties.extendedProperties.ObservationPeriodEndDate'
 		dataType: dateTime
 		formatString: General Date
-		lineageTag: 06cbfb6c-e333-4043-ac1c-09ce6699fc3d
+		lineageTag: 898c066b-011e-4827-9cfe-f81fc8fa29a6
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.ObservationPeriodEndDate
 
 		variation Variation
 			isDefault
-			relationship: 9ede57ce-c252-4460-9aff-e55389a6ef86
-			defaultHierarchy: LocalDateTable_ea860140-03ae-4b7f-bdd2-f0881a3070c4.'Date Hierarchy'
+			relationship: 77ecc27a-f31d-4241-afd4-d7708086a51d
+			defaultHierarchy: LocalDateTable_0aa1ad5c-d7f4-4b27-93cc-875c8aa104c5.'Date Hierarchy'
 
 		annotation SummarizationSetBy = Automatic
 
 	column 'properties.extendedProperties.annualSavingsAmount'
 		dataType: double
-		lineageTag: db375e8d-e2a8-4b9c-80cf-95f21e9ae55a
+		lineageTag: 7b8cb5e7-9783-4d50-b517-7a95cd0a938b
 		summarizeBy: sum
 		sourceColumn: properties.extendedProperties.annualSavingsAmount
 
@@ -137,7 +137,7 @@ table Advisor
 
 	column 'properties.extendedProperties.HasRecommendation'
 		dataType: string
-		lineageTag: 4f5c18bb-8093-43d2-a8cc-ce6e34981fc1
+		lineageTag: ea2a91d8-adb9-4eaf-8c46-b2305681c1e5
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.HasRecommendation
 
@@ -145,7 +145,7 @@ table Advisor
 
 	column 'properties.extendedProperties.savingsCurrency'
 		dataType: string
-		lineageTag: b1f5a6c5-3152-4ac5-b0af-8faaa0ea5988
+		lineageTag: 2dcc34e5-0144-4b7e-8174-787626fa4516
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.savingsCurrency
 
@@ -153,7 +153,7 @@ table Advisor
 
 	column 'properties.extendedProperties.IsInReplication'
 		dataType: string
-		lineageTag: 7670aab8-2436-4100-b624-0b642ba814a9
+		lineageTag: bdfe2787-3709-4ab8-9b8f-839055891b79
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.IsInReplication
 
@@ -161,7 +161,7 @@ table Advisor
 
 	column 'properties.extendedProperties.Recommended_DTU'
 		dataType: string
-		lineageTag: 236dd090-df9d-4769-a3ef-5ec1f51fecad
+		lineageTag: 847d33b8-0d23-4534-b3e1-1b4547bcbdd1
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.Recommended_DTU
 
@@ -169,7 +169,7 @@ table Advisor
 
 	column 'properties.extendedProperties.Recommended_SKU'
 		dataType: string
-		lineageTag: dd17b576-83e2-46a9-aeaa-442b3057b58d
+		lineageTag: 7d8d5556-7d06-4da7-96b9-ad5cba11e4ce
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.Recommended_SKU
 
@@ -177,7 +177,7 @@ table Advisor
 
 	column 'properties.extendedProperties.ResourceGroup'
 		dataType: string
-		lineageTag: e7189af5-7a34-4897-8ad4-d9dccda2fac8
+		lineageTag: 364164b2-e8c6-4951-be0d-9e392c2d5e37
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.ResourceGroup
 
@@ -185,7 +185,7 @@ table Advisor
 
 	column 'properties.extendedProperties.savingsAmount'
 		dataType: double
-		lineageTag: c0f43c98-d6cc-40ac-8e1d-e75b9d634e2c
+		lineageTag: bbb24996-db8d-4fb5-a32c-87a814906fba
 		summarizeBy: sum
 		sourceColumn: properties.extendedProperties.savingsAmount
 
@@ -195,7 +195,7 @@ table Advisor
 
 	column 'properties.extendedProperties.DatabaseSize'
 		dataType: string
-		lineageTag: 2b622cc1-8b26-445e-8c1e-1c68c02ac457
+		lineageTag: e7f650e3-5ca2-4100-9366-1ef234ed5697
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.DatabaseSize
 
@@ -203,7 +203,7 @@ table Advisor
 
 	column 'properties.extendedProperties.DatabaseName'
 		dataType: string
-		lineageTag: d425cd90-bfa6-4ef8-84ce-28107ac1a631
+		lineageTag: f17910dd-e415-4667-aef9-b1ae6fe0ac7f
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.DatabaseName
 
@@ -211,7 +211,7 @@ table Advisor
 
 	column 'properties.extendedProperties.ServerName'
 		dataType: string
-		lineageTag: 723f55c6-952b-46e3-bb8c-84eea6e1b44c
+		lineageTag: 7a55d599-c70a-4b52-8ead-3319b03944ee
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.ServerName
 
@@ -219,7 +219,7 @@ table Advisor
 
 	column 'properties.extendedProperties.Region'
 		dataType: string
-		lineageTag: 691baf31-27a8-4df0-bfc2-cba2deb5bef9
+		lineageTag: 09e8de02-9975-412a-8d32-2017bcbd0d6b
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.Region
 
@@ -227,7 +227,7 @@ table Advisor
 
 	column 'properties.extendedProperties.lookbackPeriod'
 		dataType: string
-		lineageTag: ad8fc528-6bd6-4870-a3b2-c08a87f1fd43
+		lineageTag: 7931942c-7c92-46e6-b761-bcecbbf269c4
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.lookbackPeriod
 
@@ -235,7 +235,7 @@ table Advisor
 
 	column 'properties.extendedProperties.subId'
 		dataType: string
-		lineageTag: 07df196d-0d0b-4b8d-86f3-4f37fdd282b2
+		lineageTag: b6d82cc6-3421-43bf-885d-204eeaeebc64
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.subId
 
@@ -243,7 +243,7 @@ table Advisor
 
 	column 'properties.extendedProperties.scope'
 		dataType: string
-		lineageTag: 1ff55c56-e870-4a01-bdfe-4df368b4fa13
+		lineageTag: 751b7d3d-89b3-4cd0-a5a0-3c2918ebdf67
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.scope
 
@@ -251,7 +251,7 @@ table Advisor
 
 	column 'properties.extendedProperties.term'
 		dataType: string
-		lineageTag: e587b8f6-3c01-47ab-b004-86003b9f9b27
+		lineageTag: 0e598f50-8470-4fac-966b-89fa6d2e4dfe
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.term
 
@@ -259,7 +259,7 @@ table Advisor
 
 	column 'properties.extendedProperties.sku'
 		dataType: string
-		lineageTag: f8dbd9a0-97b9-4e84-8560-77d662779da1
+		lineageTag: 4dacbd78-0892-44aa-8059-749bac8d4bb2
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.sku
 
@@ -267,7 +267,7 @@ table Advisor
 
 	column 'properties.extendedProperties.commitment'
 		dataType: string
-		lineageTag: 0753e860-a072-42ac-b1d2-041615ec7eaf
+		lineageTag: dd3d13c4-a00d-4174-940b-45e03d6ac528
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.commitment
 
@@ -275,7 +275,7 @@ table Advisor
 
 	column 'properties.extendedProperties.currentSku'
 		dataType: string
-		lineageTag: e1b21b66-de88-4f2a-83fc-e9cc2f38e98e
+		lineageTag: c20235dd-7474-4d80-96d2-8fc3bbab123a
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.currentSku
 
@@ -283,7 +283,7 @@ table Advisor
 
 	column 'properties.extendedProperties.targetSku'
 		dataType: string
-		lineageTag: 2d512fc1-8d10-4569-be52-df5ad4afdf7e
+		lineageTag: 9615ad44-2e5e-4548-9559-4d6376f71f20
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.targetSku
 
@@ -291,7 +291,7 @@ table Advisor
 
 	column 'properties.extendedProperties.recommendationMessage'
 		dataType: string
-		lineageTag: c2be0e1f-d576-42df-a6a8-c384ec46f98a
+		lineageTag: b642f2df-ee19-4d40-a8e2-cd29e539428b
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.recommendationMessage
 
@@ -299,7 +299,7 @@ table Advisor
 
 	column 'properties.shortDescription.solution'
 		dataType: string
-		lineageTag: 64cf411b-cddc-4a21-986a-eb184131d68b
+		lineageTag: 78310f71-4093-4c50-b666-5226581f13f3
 		summarizeBy: none
 		sourceColumn: properties.shortDescription.solution
 
@@ -307,7 +307,7 @@ table Advisor
 
 	column 'properties.shortDescription.problem'
 		dataType: string
-		lineageTag: bda0f798-7669-4cb9-87b0-0e547a4388b5
+		lineageTag: 8c863cc1-31e6-4ba9-a79c-180e1ee9c443
 		summarizeBy: none
 		sourceColumn: properties.shortDescription.problem
 
@@ -315,7 +315,7 @@ table Advisor
 
 	column 'properties.resourceMetadata.resourceId'
 		dataType: string
-		lineageTag: 653d4bab-3fa7-49a9-94cb-26633d386b28
+		lineageTag: 9331d2f4-372c-4fee-b28f-9077c6d7600c
 		summarizeBy: none
 		sourceColumn: properties.resourceMetadata.resourceId
 
@@ -323,7 +323,7 @@ table Advisor
 
 	column 'properties.resourceMetadata.singular'
 		dataType: string
-		lineageTag: 77643aff-bfcc-4026-9d91-bc570a72a736
+		lineageTag: b4155074-7793-4316-814a-652b57aa03bd
 		summarizeBy: none
 		sourceColumn: properties.resourceMetadata.singular
 
@@ -331,7 +331,7 @@ table Advisor
 
 	column 'properties.resourceMetadata.plural'
 		dataType: string
-		lineageTag: 69c83eb7-5348-4d10-a0a1-840d19efde2f
+		lineageTag: 51340f3a-416f-42dc-a015-1da05cbc2aab
 		summarizeBy: none
 		sourceColumn: properties.resourceMetadata.plural
 
@@ -339,7 +339,7 @@ table Advisor
 
 	column 'properties.resourceMetadata.action'
 		dataType: string
-		lineageTag: 29f6ead8-d00b-4e08-a47a-a95e8b5a5e40
+		lineageTag: 6ec793d3-a05e-403e-a003-32823be08f5e
 		summarizeBy: none
 		sourceColumn: properties.resourceMetadata.action
 
@@ -347,7 +347,7 @@ table Advisor
 
 	column 'properties.resourceMetadata.source'
 		dataType: string
-		lineageTag: 0c721e6f-263c-4eb9-b3f4-69782e1919c0
+		lineageTag: 2e638b65-4dc0-4bca-a86a-8b9ee573bbfa
 		summarizeBy: none
 		sourceColumn: properties.resourceMetadata.source
 
@@ -355,7 +355,7 @@ table Advisor
 
 	column 'properties.suppressionIds'
 		dataType: string
-		lineageTag: a666b59d-6d16-4460-97f8-e29db33c0045
+		lineageTag: d9aa656b-fc72-49be-b49f-e6454d9a9ae0
 		summarizeBy: none
 		sourceColumn: properties.suppressionIds
 
@@ -363,7 +363,7 @@ table Advisor
 
 	column 'properties.impactedField'
 		dataType: string
-		lineageTag: 1a3e54f1-a5ee-4b25-bc83-f9ebabd49f83
+		lineageTag: d21450c3-b988-4164-9674-c2f3bf3ec359
 		summarizeBy: none
 		sourceColumn: properties.impactedField
 
@@ -371,7 +371,7 @@ table Advisor
 
 	column 'properties.impactedValue'
 		dataType: string
-		lineageTag: d2f4a287-1be2-4a37-8188-8f4977bfb95b
+		lineageTag: 128a2373-5b05-4072-89f0-432b3649a659
 		summarizeBy: none
 		sourceColumn: properties.impactedValue
 
@@ -380,20 +380,20 @@ table Advisor
 	column 'properties.lastUpdated'
 		dataType: dateTime
 		formatString: General Date
-		lineageTag: 4988ba82-45b2-4022-ab3f-98c700e0862b
+		lineageTag: e72991e0-a360-4d16-a305-9fa93f499d1b
 		summarizeBy: none
 		sourceColumn: properties.lastUpdated
 
 		variation Variation
 			isDefault
-			relationship: 9dcfde33-be1c-4a23-bb6b-2e72551f6739
-			defaultHierarchy: LocalDateTable_1f795c4c-0799-4297-b26c-93547ab1ac92.'Date Hierarchy'
+			relationship: 76b49aa3-c4d8-47fb-956e-cc99798c7ab7
+			defaultHierarchy: LocalDateTable_53b6ab5d-506b-417f-ae3d-823bdd4fb83c.'Date Hierarchy'
 
 		annotation SummarizationSetBy = Automatic
 
 	column 'properties.category'
 		dataType: string
-		lineageTag: 91c1de2d-a5f7-4996-b979-00004dbb3e18
+		lineageTag: e749a0a5-6359-4855-b352-e8a575b00ba8
 		summarizeBy: none
 		sourceColumn: properties.category
 
@@ -401,7 +401,7 @@ table Advisor
 
 	column 'properties.metadata'
 		dataType: string
-		lineageTag: 15534141-bc53-45cf-81f0-7fe02aef03a5
+		lineageTag: 8b5b0b47-acaa-4d74-92c5-0c71fcefd37a
 		summarizeBy: none
 		sourceColumn: properties.metadata
 
@@ -409,15 +409,18 @@ table Advisor
 
 	column 'properties.impact'
 		dataType: string
-		lineageTag: 0534fd9e-ef20-4ccf-9ea3-5e2d25655161
+		lineageTag: b00d9661-6df3-4bdb-b14b-abe21b4d9f14
 		summarizeBy: none
 		sourceColumn: properties.impact
+		sortByColumn: SortOrder
+
+		changedProperty = SortByColumn
 
 		annotation SummarizationSetBy = Automatic
 
 	column tags
 		dataType: string
-		lineageTag: 6e6e3fc5-a7ad-4048-b097-eed66c9b3987
+		lineageTag: d97dde1c-3c7b-4ccb-b070-056b6a1bb81b
 		summarizeBy: none
 		sourceColumn: tags
 
@@ -425,7 +428,7 @@ table Advisor
 
 	column identity
 		dataType: string
-		lineageTag: 406d8f67-6bdc-4bf6-a38d-c469e904ff90
+		lineageTag: cb3859ae-05c5-417b-b706-f70ea3f9037e
 		summarizeBy: none
 		sourceColumn: identity
 
@@ -433,7 +436,7 @@ table Advisor
 
 	column zones
 		dataType: string
-		lineageTag: 092f89d2-aa27-4639-8676-60c4f0e38f99
+		lineageTag: f56c303d-573b-4bc1-9a5a-4c3cb5b3d736
 		summarizeBy: none
 		sourceColumn: zones
 
@@ -441,7 +444,7 @@ table Advisor
 
 	column extendedLocation
 		dataType: string
-		lineageTag: e89f4c70-7bfe-4bed-a605-4eca94a14463
+		lineageTag: 6b0a44d8-c4b0-4464-a2ca-c76738b19405
 		summarizeBy: none
 		sourceColumn: extendedLocation
 
@@ -450,11 +453,13 @@ table Advisor
 	column SortOrder
 		dataType: int64
 		formatString: 0
-		lineageTag: 4289ec25-a59f-45c3-be94-5ac4bade4456
-		summarizeBy: sum
+		lineageTag: 84828547-b16d-448a-9168-28d1466e556b
+		summarizeBy: none
 		sourceColumn: SortOrder
 
-		annotation SummarizationSetBy = Automatic
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = User
 
 	partition Advisor = m
 		mode: import

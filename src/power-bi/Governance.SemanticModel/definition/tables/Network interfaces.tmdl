@@ -1,9 +1,9 @@
 table 'Network interfaces'
-	lineageTag: 288ccc48-cd73-4f51-8f35-6861cad58a21
+	lineageTag: a8e69dab-191f-4b88-9efa-7ec426c2175c
 
 	column id
 		dataType: string
-		lineageTag: 9a05590a-aa2e-41a9-abc5-b7b5c605f32b
+		lineageTag: 379a4380-0538-4c5a-8947-552cce947e39
 		summarizeBy: none
 		sourceColumn: id
 
@@ -11,7 +11,7 @@ table 'Network interfaces'
 
 	column name
 		dataType: string
-		lineageTag: 9f67695a-fbb7-4bf9-bc84-3555cb035eac
+		lineageTag: 081469bc-fc87-49af-be82-a854aaa4c084
 		summarizeBy: none
 		sourceColumn: name
 
@@ -19,7 +19,7 @@ table 'Network interfaces'
 
 	column type
 		dataType: string
-		lineageTag: 05c710e9-714a-4e82-9f34-15bc8d12dd57
+		lineageTag: d5a17cfc-36c5-4b2e-be86-eb03a6146ddf
 		summarizeBy: none
 		sourceColumn: type
 
@@ -27,7 +27,7 @@ table 'Network interfaces'
 
 	column tenantId
 		dataType: string
-		lineageTag: 600c001b-4ed0-438b-951d-ce495e7aa473
+		lineageTag: 4d5807b1-061d-4652-b7ee-08528dcfcf30
 		summarizeBy: none
 		sourceColumn: tenantId
 
@@ -35,7 +35,7 @@ table 'Network interfaces'
 
 	column kind
 		dataType: string
-		lineageTag: 4bf706f0-1f17-4411-8222-1f95b7a64548
+		lineageTag: 1229ae37-b21e-4085-82c9-05838e31203b
 		summarizeBy: none
 		sourceColumn: kind
 
@@ -43,7 +43,7 @@ table 'Network interfaces'
 
 	column location
 		dataType: string
-		lineageTag: 5ee5468c-3486-46c3-98dd-6f6597856da1
+		lineageTag: e76c03de-e6b8-44c5-9306-3e5af91db2ff
 		summarizeBy: none
 		sourceColumn: location
 
@@ -51,7 +51,7 @@ table 'Network interfaces'
 
 	column resourceGroup
 		dataType: string
-		lineageTag: f702b43c-9de4-46fe-a8b6-14b9ad7feb4a
+		lineageTag: 7ae2fc45-1ee4-41a2-a0e8-164cd4083a58
 		summarizeBy: none
 		sourceColumn: resourceGroup
 
@@ -59,7 +59,7 @@ table 'Network interfaces'
 
 	column subscriptionId
 		dataType: string
-		lineageTag: b8d1159d-605a-4020-8bb7-c569ef36cab7
+		lineageTag: 97ef8a2c-31a3-4636-98e1-4e79cf419b2e
 		summarizeBy: none
 		sourceColumn: subscriptionId
 
@@ -67,7 +67,7 @@ table 'Network interfaces'
 
 	column managedBy
 		dataType: string
-		lineageTag: 2f4d17c9-819e-4108-b3c3-fc0ad181fcdf
+		lineageTag: da416139-1345-4eac-b3c6-08fcb47240e2
 		summarizeBy: none
 		sourceColumn: managedBy
 
@@ -75,7 +75,7 @@ table 'Network interfaces'
 
 	column sku
 		dataType: string
-		lineageTag: 2a4696cf-bcc7-4558-8c19-d698f3a949b9
+		lineageTag: ec799cbb-232c-4e30-bfd7-af9dbf248d64
 		summarizeBy: none
 		sourceColumn: sku
 
@@ -83,7 +83,7 @@ table 'Network interfaces'
 
 	column plan
 		dataType: string
-		lineageTag: 2476c22c-01b3-47bf-a2c8-1bd1be7e0496
+		lineageTag: ce708cb8-ee89-4e61-9cce-b64b0ab0240e
 		summarizeBy: none
 		sourceColumn: plan
 
@@ -91,7 +91,7 @@ table 'Network interfaces'
 
 	column 'properties.provisioningState'
 		dataType: string
-		lineageTag: c14dbdbd-c053-4db8-bb68-26dad5d30cae
+		lineageTag: 542d41d2-e31a-4aa3-8284-cac502957399
 		summarizeBy: none
 		sourceColumn: properties.provisioningState
 
@@ -99,7 +99,7 @@ table 'Network interfaces'
 
 	column 'properties.resourceGuid'
 		dataType: string
-		lineageTag: 4fdebc41-3b05-424d-a5e7-858817757d36
+		lineageTag: 260c5ce3-be73-44f3-8cb5-78329832693f
 		summarizeBy: none
 		sourceColumn: properties.resourceGuid
 
@@ -107,7 +107,7 @@ table 'Network interfaces'
 
 	column 'properties.enableAcceleratedNetworking'
 		dataType: string
-		lineageTag: e7e6f940-6fc1-4374-a26b-dc3274b430c5
+		lineageTag: 3c73c2f0-a338-4a7c-b90b-dff007826bce
 		summarizeBy: none
 		sourceColumn: properties.enableAcceleratedNetworking
 
@@ -115,7 +115,7 @@ table 'Network interfaces'
 
 	column 'properties.disableTcpStateTracking'
 		dataType: string
-		lineageTag: 3220cd47-a8e0-4b71-900c-f942c9ffa4d7
+		lineageTag: 6f5b0700-12b9-41b4-bec2-dddbd6514b84
 		summarizeBy: none
 		sourceColumn: properties.disableTcpStateTracking
 
@@ -123,7 +123,7 @@ table 'Network interfaces'
 
 	column 'properties.vnetEncryptionSupported'
 		dataType: string
-		lineageTag: 31a1934c-5bb5-4e31-9203-63980cb3542a
+		lineageTag: 07f06658-891b-417b-929b-dde13b69f9d6
 		summarizeBy: none
 		sourceColumn: properties.vnetEncryptionSupported
 
@@ -131,7 +131,7 @@ table 'Network interfaces'
 
 	column 'properties.networkSecurityGroup.id'
 		dataType: string
-		lineageTag: bbafeec3-fef8-4dd0-b7b1-4556df1f78dd
+		lineageTag: 2c121f83-3255-431a-a2f8-d76f2edb5b80
 		summarizeBy: none
 		sourceColumn: properties.networkSecurityGroup.id
 
@@ -139,7 +139,7 @@ table 'Network interfaces'
 
 	column 'properties.ipConfigurations.type'
 		dataType: string
-		lineageTag: e9c9db4f-afba-47b1-9b0c-d148b91ceffa
+		lineageTag: 093edf87-73f9-4946-a2fd-c1a5a29ef70b
 		summarizeBy: none
 		sourceColumn: properties.ipConfigurations.type
 
@@ -147,7 +147,7 @@ table 'Network interfaces'
 
 	column 'properties.ipConfigurations.name'
 		dataType: string
-		lineageTag: eea26566-80a7-430f-b22d-adeec1c7d015
+		lineageTag: 79c6635d-a038-4c72-8db3-0d93ea63436f
 		summarizeBy: none
 		sourceColumn: properties.ipConfigurations.name
 
@@ -155,7 +155,7 @@ table 'Network interfaces'
 
 	column 'properties.ipConfigurations.properties.provisioningState'
 		dataType: string
-		lineageTag: fbd26cf7-74a4-47ff-b8d2-a2232aa8ce81
+		lineageTag: 37c87b2d-875f-4e0f-b304-91586c8f20cf
 		summarizeBy: none
 		sourceColumn: properties.ipConfigurations.properties.provisioningState
 
@@ -163,7 +163,7 @@ table 'Network interfaces'
 
 	column 'properties.ipConfigurations.properties.privateIPAddressVersion'
 		dataType: string
-		lineageTag: 0b041445-5426-40c3-8643-ae8e104bedf9
+		lineageTag: 96947c09-64b6-4472-a6a5-d10fa34561c1
 		summarizeBy: none
 		sourceColumn: properties.ipConfigurations.properties.privateIPAddressVersion
 
@@ -171,7 +171,7 @@ table 'Network interfaces'
 
 	column 'properties.ipConfigurations.properties.privateIPAllocationMethod'
 		dataType: string
-		lineageTag: e8eb4c44-3a2d-48eb-9c46-3bd395b20706
+		lineageTag: 965ee011-c9fa-4d36-8581-0d7cd89cc0f9
 		summarizeBy: none
 		sourceColumn: properties.ipConfigurations.properties.privateIPAllocationMethod
 
@@ -179,7 +179,7 @@ table 'Network interfaces'
 
 	column 'properties.ipConfigurations.properties.subnet'
 		dataType: string
-		lineageTag: 7b054eb0-7d04-4c0e-9011-20fa924512e3
+		lineageTag: 3ac7ebb0-6d89-4f0f-afa8-a5a86afc06fd
 		summarizeBy: none
 		sourceColumn: properties.ipConfigurations.properties.subnet
 
@@ -187,7 +187,7 @@ table 'Network interfaces'
 
 	column 'properties.ipConfigurations.properties.privateIPAddress'
 		dataType: string
-		lineageTag: 3fb12fc4-adb3-4611-9298-79e30efee905
+		lineageTag: 397c4af2-d804-409a-a4a4-eaa6204046f7
 		summarizeBy: none
 		sourceColumn: properties.ipConfigurations.properties.privateIPAddress
 
@@ -195,7 +195,7 @@ table 'Network interfaces'
 
 	column 'properties.ipConfigurations.properties.primary'
 		dataType: string
-		lineageTag: befb64f9-387e-4a19-872d-f553c94c4893
+		lineageTag: 0de43591-84f6-4a0c-8179-5bc6d4c124f4
 		summarizeBy: none
 		sourceColumn: properties.ipConfigurations.properties.primary
 
@@ -203,7 +203,7 @@ table 'Network interfaces'
 
 	column 'properties.ipConfigurations.properties.publicIPAddress.id'
 		dataType: string
-		lineageTag: b44cbf8a-7008-4f1a-ae74-74c9016dee62
+		lineageTag: ae2da097-80c8-46dc-8c0a-7ccefdf38ed2
 		summarizeBy: none
 		sourceColumn: properties.ipConfigurations.properties.publicIPAddress.id
 
@@ -211,7 +211,7 @@ table 'Network interfaces'
 
 	column 'properties.ipConfigurations.id'
 		dataType: string
-		lineageTag: 45685614-19c0-4a2b-b4c7-dc87c2553714
+		lineageTag: 34f180bc-8cfe-4e4a-9d69-8ffbb67224f8
 		summarizeBy: none
 		sourceColumn: properties.ipConfigurations.id
 
@@ -219,7 +219,7 @@ table 'Network interfaces'
 
 	column 'properties.ipConfigurations.etag'
 		dataType: string
-		lineageTag: 1ee13367-570c-4c0c-b738-78ca85fa56b2
+		lineageTag: 4cc0bd2e-e68a-46da-b31a-70c36573c26b
 		summarizeBy: none
 		sourceColumn: properties.ipConfigurations.etag
 
@@ -227,7 +227,7 @@ table 'Network interfaces'
 
 	column 'properties.enableIPForwarding'
 		dataType: string
-		lineageTag: 2511a42e-44af-4f75-81cd-1cc68b17901b
+		lineageTag: 351fe7c2-e474-4c10-b09c-0c008460b6f6
 		summarizeBy: none
 		sourceColumn: properties.enableIPForwarding
 
@@ -235,7 +235,7 @@ table 'Network interfaces'
 
 	column 'properties.tapConfigurations'
 		dataType: string
-		lineageTag: 1cce235d-5ce6-41ad-89a0-231b84646205
+		lineageTag: 200780ed-d41e-4264-b456-6634a99a8eed
 		summarizeBy: none
 		sourceColumn: properties.tapConfigurations
 
@@ -243,7 +243,7 @@ table 'Network interfaces'
 
 	column 'properties.hostedWorkloads'
 		dataType: string
-		lineageTag: 91d550b1-a508-4fba-a624-0fdc7cc53787
+		lineageTag: d4b1c1da-aaf6-4876-a195-edd67985098d
 		summarizeBy: none
 		sourceColumn: properties.hostedWorkloads
 
@@ -251,7 +251,7 @@ table 'Network interfaces'
 
 	column 'properties.allowPort25Out'
 		dataType: string
-		lineageTag: 09438776-5dee-45ff-a16e-f10544239791
+		lineageTag: 06ff4669-3a12-4efc-8ff9-81cb0b8541f7
 		summarizeBy: none
 		sourceColumn: properties.allowPort25Out
 
@@ -259,7 +259,7 @@ table 'Network interfaces'
 
 	column 'properties.auxiliaryMode'
 		dataType: string
-		lineageTag: 1a190ffa-7a4f-40ab-a110-6672cc23a74b
+		lineageTag: ab0b4f5b-4a2f-4aed-a205-7c73706ffa4e
 		summarizeBy: none
 		sourceColumn: properties.auxiliaryMode
 
@@ -267,7 +267,7 @@ table 'Network interfaces'
 
 	column 'properties.dnsSettings'
 		dataType: string
-		lineageTag: dd014245-8108-4534-b9c8-a30582b15c97
+		lineageTag: 3e474a36-d415-4fb9-b3ea-3851db4595d8
 		summarizeBy: none
 		sourceColumn: properties.dnsSettings
 
@@ -275,7 +275,7 @@ table 'Network interfaces'
 
 	column 'properties.auxiliarySku'
 		dataType: string
-		lineageTag: 9c7fd612-e044-4ed7-b03a-29d11d75bd42
+		lineageTag: aa61105a-78f8-42f1-a3e9-f835877bbbbe
 		summarizeBy: none
 		sourceColumn: properties.auxiliarySku
 
@@ -283,7 +283,7 @@ table 'Network interfaces'
 
 	column 'properties.macAddress'
 		dataType: string
-		lineageTag: 4fb991bf-96ce-46e6-b22f-31d8eec87b3a
+		lineageTag: 9841b097-a582-413e-973e-0bd1a6c8c0a2
 		summarizeBy: none
 		sourceColumn: properties.macAddress
 
@@ -291,7 +291,7 @@ table 'Network interfaces'
 
 	column 'properties.nicType'
 		dataType: string
-		lineageTag: 6e7cee08-e02d-4ac7-8f1b-a5dbbb2e2954
+		lineageTag: 1d488c42-6d77-4053-9632-fb63085553b5
 		summarizeBy: none
 		sourceColumn: properties.nicType
 
@@ -299,7 +299,7 @@ table 'Network interfaces'
 
 	column 'properties.primary'
 		dataType: string
-		lineageTag: e522d420-338b-4e05-bbf3-dba4c7bf6579
+		lineageTag: e41e37aa-21f2-443a-96bd-90055a22b65b
 		summarizeBy: none
 		sourceColumn: properties.primary
 
@@ -307,7 +307,7 @@ table 'Network interfaces'
 
 	column 'properties.virtualMachine.id'
 		dataType: string
-		lineageTag: 8d6f57a4-abc9-4f54-994b-0188776248ef
+		lineageTag: 774e8c77-dcc8-4f0a-a9c1-8f98ea99a5ba
 		summarizeBy: none
 		sourceColumn: properties.virtualMachine.id
 
@@ -315,7 +315,7 @@ table 'Network interfaces'
 
 	column tags
 		dataType: string
-		lineageTag: 7c425462-6770-44d6-8e1e-e6a3398745a2
+		lineageTag: ff4c36e8-16b8-4a92-8f9a-a398268f8083
 		summarizeBy: none
 		sourceColumn: tags
 
@@ -323,7 +323,7 @@ table 'Network interfaces'
 
 	column identity
 		dataType: string
-		lineageTag: d5912859-3693-450a-9f57-6d34a4b85e54
+		lineageTag: 8cc758bc-0fc2-4d8f-80b4-1c5c360b2a53
 		summarizeBy: none
 		sourceColumn: identity
 
@@ -331,7 +331,7 @@ table 'Network interfaces'
 
 	column zones
 		dataType: string
-		lineageTag: e4b9221b-6773-4abf-aae1-c67ec1f9fbb9
+		lineageTag: 874a8c0c-5a25-4f99-9407-c8d217727329
 		summarizeBy: none
 		sourceColumn: zones
 
@@ -339,7 +339,7 @@ table 'Network interfaces'
 
 	column extendedLocation
 		dataType: string
-		lineageTag: 0b29021d-c908-4c3a-8612-223ad0c58f51
+		lineageTag: aefe2fb2-b5e5-4bff-8e4f-7810197d6485
 		summarizeBy: none
 		sourceColumn: extendedLocation
 
@@ -360,4 +360,6 @@ table 'Network interfaces'
 				  #"Expanded properties.networkSecurityGroup" = Table.ExpandRecordColumn(#"Expanded properties.ipConfigurations.properties.publicIPAddress", "properties.networkSecurityGroup", {"id"}, {"properties.networkSecurityGroup.id"})
 				in
 				  #"Expanded properties.networkSecurityGroup"
+
+	annotation PBI_NavigationStepName = Navigation
 

@@ -1,9 +1,9 @@
 table Resources
-	lineageTag: bf9c181c-a660-4907-bc29-46175c4cd17d
+	lineageTag: c439440e-806c-484a-952d-67405cf2d4e1
 
 	column id
 		dataType: string
-		lineageTag: afcc49db-db86-41c0-a053-be5a629433d4
+		lineageTag: 603f47eb-e992-4581-8ccd-18e395111d15
 		summarizeBy: none
 		sourceColumn: id
 
@@ -11,7 +11,7 @@ table Resources
 
 	column name
 		dataType: string
-		lineageTag: 944692a9-9e6a-4d48-917c-9eaf859a9bd0
+		lineageTag: 5b6aec64-1c3d-490e-b773-89aced5db8f4
 		summarizeBy: none
 		sourceColumn: name
 
@@ -19,7 +19,7 @@ table Resources
 
 	column type
 		dataType: string
-		lineageTag: e08a1e79-a523-4f89-8394-8592468b994f
+		lineageTag: 4d54e914-4c8f-4c18-8ebd-65edd5a549a3
 		summarizeBy: none
 		sourceColumn: type
 
@@ -27,7 +27,7 @@ table Resources
 
 	column tenantId
 		dataType: string
-		lineageTag: 2c58c247-a609-4b33-87f9-96d10fc37a70
+		lineageTag: 36c7ccde-416b-40f0-a1ae-558dde75b380
 		summarizeBy: none
 		sourceColumn: tenantId
 
@@ -35,7 +35,7 @@ table Resources
 
 	column kind
 		dataType: string
-		lineageTag: d2eb4bfb-c312-4231-aee4-699aa346f625
+		lineageTag: 224c2689-cde8-4160-bc50-4c24579cdb34
 		summarizeBy: none
 		sourceColumn: kind
 
@@ -43,7 +43,7 @@ table Resources
 
 	column location
 		dataType: string
-		lineageTag: a7261cb6-2f8d-4edb-b621-64a63030d211
+		lineageTag: 163e3828-e888-4c7e-a39e-a586cd0d8361
 		summarizeBy: none
 		sourceColumn: location
 
@@ -51,7 +51,7 @@ table Resources
 
 	column resourceGroup
 		dataType: string
-		lineageTag: 9473886a-83c8-49f9-b089-f75d39fb8880
+		lineageTag: e73dbbe0-d344-4eb7-b2e5-2ea45b93e2ba
 		summarizeBy: none
 		sourceColumn: resourceGroup
 
@@ -59,7 +59,7 @@ table Resources
 
 	column subscriptionId
 		dataType: string
-		lineageTag: 0bf3467b-4c46-476f-8135-732ea4e123b5
+		lineageTag: 9faeb081-cdbc-46eb-8008-16110f28f6a0
 		summarizeBy: none
 		sourceColumn: subscriptionId
 
@@ -67,7 +67,7 @@ table Resources
 
 	column managedBy
 		dataType: string
-		lineageTag: 0311780e-9abb-4fe0-b9b9-89656c0d12f4
+		lineageTag: ef42db3e-6f6f-4cef-8e14-1c16bb46fe38
 		summarizeBy: none
 		sourceColumn: managedBy
 
@@ -75,7 +75,7 @@ table Resources
 
 	column 'sku.name'
 		dataType: string
-		lineageTag: c144a4ca-85a7-4cbf-ade5-3f40587856f2
+		lineageTag: 21410b01-bc00-47b4-9527-1f665bc6065d
 		summarizeBy: none
 		sourceColumn: sku.name
 
@@ -83,7 +83,7 @@ table Resources
 
 	column 'sku.tier'
 		dataType: string
-		lineageTag: a5b4c03c-efa7-4144-af14-a7c6ea4459f6
+		lineageTag: e9a697e6-58ef-461f-b8ee-8e417ebc4075
 		summarizeBy: none
 		sourceColumn: sku.tier
 
@@ -91,7 +91,7 @@ table Resources
 
 	column plan
 		dataType: string
-		lineageTag: 9a9a805e-4f0d-494e-9459-36978d68c025
+		lineageTag: d0c52cc7-e2f5-41d4-8088-5d560cdb5e4c
 		summarizeBy: none
 		sourceColumn: plan
 
@@ -99,7 +99,7 @@ table Resources
 
 	column provisioningState
 		dataType: string
-		lineageTag: cc2e73b1-4667-4f04-a330-c5fefe9b3108
+		lineageTag: d7e02ed7-e8bf-4971-a2ad-a9498a674778
 		summarizeBy: none
 		sourceColumn: provisioningState
 
@@ -107,7 +107,7 @@ table Resources
 
 	column privateEndpointConnections
 		dataType: string
-		lineageTag: 5c03e5f3-83fa-4481-8f47-11dacf4c279a
+		lineageTag: e842716b-5f83-4829-ab75-56ab1007a37a
 		summarizeBy: none
 		sourceColumn: privateEndpointConnections
 
@@ -115,7 +115,7 @@ table Resources
 
 	column encryption
 		dataType: string
-		lineageTag: 85d7f4f0-3bab-4fc7-86e1-f2c6b362f81b
+		lineageTag: ae2d85e3-96f9-4613-b91a-43006cf2f3f2
 		summarizeBy: none
 		sourceColumn: encryption
 
@@ -123,7 +123,7 @@ table Resources
 
 	column creationTime
 		dataType: string
-		lineageTag: a4023879-e009-4159-94c4-4ef6c458f9bc
+		lineageTag: 4afccf80-da80-47e9-b0ff-74592e8914a6
 		summarizeBy: none
 		sourceColumn: creationTime
 
@@ -131,7 +131,7 @@ table Resources
 
 	column supportsHttpsTrafficOnly
 		dataType: string
-		lineageTag: 26502157-2988-4b6f-92f5-7788d5c86dfc
+		lineageTag: 63e65d81-03b7-48fd-889c-c4bbdee34521
 		summarizeBy: none
 		sourceColumn: supportsHttpsTrafficOnly
 
@@ -139,7 +139,7 @@ table Resources
 
 	column allowBlobPublicAccess
 		dataType: string
-		lineageTag: 5adb8076-4b3d-41e3-a1cc-051dae03de5f
+		lineageTag: f57eb8d6-7550-4d05-94e8-963bc32f1e32
 		summarizeBy: none
 		sourceColumn: allowBlobPublicAccess
 
@@ -147,7 +147,7 @@ table Resources
 
 	column minimumTlsVersion
 		dataType: string
-		lineageTag: b76b3bcc-4bc3-4159-b131-ed826709153d
+		lineageTag: b6ce16f4-fc5a-420d-8061-3394a53698df
 		summarizeBy: none
 		sourceColumn: minimumTlsVersion
 
@@ -155,7 +155,7 @@ table Resources
 
 	column primaryEndpoints
 		dataType: string
-		lineageTag: 1b5c1065-3f2f-4134-8449-62de9214c502
+		lineageTag: 11253e4c-7464-49c0-97a6-6bb5d46322cf
 		summarizeBy: none
 		sourceColumn: primaryEndpoints
 
@@ -163,7 +163,7 @@ table Resources
 
 	column keyCreationTime
 		dataType: string
-		lineageTag: 18817c85-7be8-4f16-b4af-8aa1bfa41e76
+		lineageTag: 6d42bc18-47a5-4c41-a47c-40aca7b37fd7
 		summarizeBy: none
 		sourceColumn: keyCreationTime
 
@@ -171,7 +171,7 @@ table Resources
 
 	column primaryLocation
 		dataType: string
-		lineageTag: 2151cb2b-b78a-42d6-ae51-9f50e40aa1b4
+		lineageTag: 9571faa4-fcc9-4a6b-a901-af14f333ef59
 		summarizeBy: none
 		sourceColumn: primaryLocation
 
@@ -179,7 +179,7 @@ table Resources
 
 	column statusOfPrimary
 		dataType: string
-		lineageTag: ef5e6b09-e0ef-4981-b990-6dc55b9fbd5d
+		lineageTag: d07b05bc-e112-4506-9535-3f29356c7e95
 		summarizeBy: none
 		sourceColumn: statusOfPrimary
 
@@ -187,7 +187,7 @@ table Resources
 
 	column networkAcls
 		dataType: string
-		lineageTag: 4c22723b-e0f5-4258-bbf0-4ddce826f03b
+		lineageTag: 8a610d77-8ffe-46e3-8a90-94c6fbb4b221
 		summarizeBy: none
 		sourceColumn: networkAcls
 
@@ -195,7 +195,7 @@ table Resources
 
 	column allowCrossTenantReplication
 		dataType: string
-		lineageTag: 5b9b50a0-f530-4d3f-8146-72c6834fea29
+		lineageTag: a12ef426-b95a-4724-b7bf-b5fd64bb19d3
 		summarizeBy: none
 		sourceColumn: allowCrossTenantReplication
 
@@ -203,7 +203,7 @@ table Resources
 
 	column allowSharedKeyAccess
 		dataType: string
-		lineageTag: 6f883df5-6425-4a66-a375-8721f6ade338
+		lineageTag: 9af588fa-f8a8-4e98-8535-972a6d43d213
 		summarizeBy: none
 		sourceColumn: allowSharedKeyAccess
 
@@ -211,7 +211,7 @@ table Resources
 
 	column accessTier
 		dataType: string
-		lineageTag: af560457-ed72-4a61-8e1d-c4b89b4147af
+		lineageTag: 486e2ce8-9591-46ce-a950-1134a5f74e52
 		summarizeBy: none
 		sourceColumn: accessTier
 
@@ -219,7 +219,7 @@ table Resources
 
 	column isHnsEnabled
 		dataType: string
-		lineageTag: 10a6b34e-d3a5-476f-a27a-8f552b7cf3ea
+		lineageTag: 68bce6cf-9b8d-4520-a3cb-88c7bc5d965b
 		summarizeBy: none
 		sourceColumn: isHnsEnabled
 
@@ -227,7 +227,7 @@ table Resources
 
 	column isBlueShiftAccount
 		dataType: string
-		lineageTag: 6dc7d0ea-1ae6-4d93-ba98-35f2d1507616
+		lineageTag: 08b93fb0-e9e7-48bc-8899-f23495eb8dbe
 		summarizeBy: none
 		sourceColumn: isBlueShiftAccount
 
@@ -235,7 +235,7 @@ table Resources
 
 	column tags
 		dataType: string
-		lineageTag: 6bebb7e3-d31e-43ec-85ff-11fdde67d4ba
+		lineageTag: 96baa77b-5f41-4be4-8413-021e7c681496
 		summarizeBy: none
 		sourceColumn: tags
 
@@ -243,7 +243,7 @@ table Resources
 
 	column identity
 		dataType: string
-		lineageTag: 20e1212f-4b67-4f33-a0de-c08224ca9b3c
+		lineageTag: 57a768ae-7c62-4b71-b078-e088f9289572
 		summarizeBy: none
 		sourceColumn: identity
 
@@ -251,7 +251,7 @@ table Resources
 
 	column zones
 		dataType: string
-		lineageTag: 7a78496a-fdda-4ba5-b174-2e597155eb12
+		lineageTag: 0c57c63d-ffea-4f2c-9c6c-d37bae17e952
 		summarizeBy: none
 		sourceColumn: zones
 
@@ -259,7 +259,7 @@ table Resources
 
 	column extendedLocation
 		dataType: string
-		lineageTag: 5c524133-f862-4478-8207-f398b623b472
+		lineageTag: ca0e010a-d3fe-4b0e-8726-ae28d8c28093
 		summarizeBy: none
 		sourceColumn: extendedLocation
 

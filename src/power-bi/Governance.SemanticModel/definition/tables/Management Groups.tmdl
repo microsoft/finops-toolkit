@@ -1,9 +1,9 @@
 table 'Management Groups'
-	lineageTag: aa98f26b-0f52-45f8-8cbd-64160800507c
+	lineageTag: aa51f542-78a4-4e06-9892-c3a2b02a26ff
 
 	column id
 		dataType: string
-		lineageTag: bc57ba08-61e5-4b01-b262-c64453dd2f2c
+		lineageTag: 4c95fe5f-548a-4155-b2b4-700510985bad
 		summarizeBy: none
 		sourceColumn: id
 
@@ -11,7 +11,7 @@ table 'Management Groups'
 
 	column name
 		dataType: string
-		lineageTag: d59f621b-36ed-4ea8-81c5-6d7602a4e3ff
+		lineageTag: 7ee2e5aa-7760-4199-998d-c35365b562f5
 		summarizeBy: none
 		sourceColumn: name
 
@@ -19,7 +19,7 @@ table 'Management Groups'
 
 	column type
 		dataType: string
-		lineageTag: 2f017fdc-9ce0-479c-9a18-d2ec9e70f273
+		lineageTag: 96090d28-1fe7-4d96-9b73-019453e514b6
 		summarizeBy: none
 		sourceColumn: type
 
@@ -27,7 +27,7 @@ table 'Management Groups'
 
 	column tenantId
 		dataType: string
-		lineageTag: 28a2a8b1-c27b-47cd-bfd7-5da044995d14
+		lineageTag: ee505f2c-3388-48a0-bd1d-36c40fed93ae
 		summarizeBy: none
 		sourceColumn: tenantId
 
@@ -35,7 +35,7 @@ table 'Management Groups'
 
 	column kind
 		dataType: string
-		lineageTag: e30e1e94-c5e7-446e-9945-a38ead55dc74
+		lineageTag: 9e586fa9-8d72-49ea-8d25-748c7947c5b6
 		summarizeBy: none
 		sourceColumn: kind
 
@@ -43,7 +43,7 @@ table 'Management Groups'
 
 	column location
 		dataType: string
-		lineageTag: 72ad5efb-7bda-4bde-b69f-a180566b60b6
+		lineageTag: 4cfdb599-7c52-4125-b778-9df3406d46a1
 		summarizeBy: none
 		sourceColumn: location
 
@@ -51,7 +51,7 @@ table 'Management Groups'
 
 	column resourceGroup
 		dataType: string
-		lineageTag: 0a2e80b8-7106-4dd6-a96b-01d4dd5644b0
+		lineageTag: 81449745-f2a8-49d6-b181-824634b6eccf
 		summarizeBy: none
 		sourceColumn: resourceGroup
 
@@ -59,7 +59,7 @@ table 'Management Groups'
 
 	column subscriptionId
 		dataType: string
-		lineageTag: 3b90ec63-0ccb-4e0f-adaf-8c495e6a37a9
+		lineageTag: 9143e8ae-5217-4a33-a967-59b5fa9a5492
 		summarizeBy: none
 		sourceColumn: subscriptionId
 
@@ -67,7 +67,7 @@ table 'Management Groups'
 
 	column managedBy
 		dataType: string
-		lineageTag: e711a8d4-570a-4f28-8bfc-2ccc2241c19b
+		lineageTag: 9a912547-3296-460a-b43a-f7262e4b630c
 		summarizeBy: none
 		sourceColumn: managedBy
 
@@ -75,7 +75,7 @@ table 'Management Groups'
 
 	column sku
 		dataType: string
-		lineageTag: f4a688db-aa60-47d2-a18d-4af2f571d248
+		lineageTag: ea3bbd5f-e46f-4421-a320-b5615042fd6c
 		summarizeBy: none
 		sourceColumn: sku
 
@@ -83,7 +83,7 @@ table 'Management Groups'
 
 	column plan
 		dataType: string
-		lineageTag: b7281547-001a-4ff7-8ac2-80404d01874c
+		lineageTag: b2f77e0e-b4e6-440c-8c78-66019fc0fe2c
 		summarizeBy: none
 		sourceColumn: plan
 
@@ -91,7 +91,7 @@ table 'Management Groups'
 
 	column displayName
 		dataType: string
-		lineageTag: 8e12995b-de3b-4151-b94f-77a04b034b6d
+		lineageTag: b5cf1548-4657-4fd1-a055-10f6f4e38758
 		summarizeBy: none
 		sourceColumn: displayName
 
@@ -99,7 +99,7 @@ table 'Management Groups'
 
 	column 'managementGroupAncestorsChain.displayName'
 		dataType: string
-		lineageTag: 52f70b98-ec72-4f90-a67d-1e7fd02f2269
+		lineageTag: 896ed7cd-2b37-46f6-a1ab-47ba99034a9c
 		summarizeBy: none
 		sourceColumn: managementGroupAncestorsChain.displayName
 
@@ -107,7 +107,7 @@ table 'Management Groups'
 
 	column 'managementGroupAncestorsChain.name'
 		dataType: string
-		lineageTag: f0ff4530-4a9d-4527-93b5-9f8bcdf05a8f
+		lineageTag: f84a6f13-bbf4-4cdc-9e69-20ca819702a3
 		summarizeBy: none
 		sourceColumn: managementGroupAncestorsChain.name
 
@@ -115,7 +115,7 @@ table 'Management Groups'
 
 	column updatedTime
 		dataType: string
-		lineageTag: a4b9946e-772d-4838-96cd-eeae1d1a9bbb
+		lineageTag: 5dbefbbf-b9c3-4379-aa91-4fa7e58ab0ac
 		summarizeBy: none
 		sourceColumn: updatedTime
 
@@ -123,7 +123,7 @@ table 'Management Groups'
 
 	column updatedBy
 		dataType: string
-		lineageTag: a63c0492-bacf-45e7-be65-0c38134ac3db
+		lineageTag: 290f1e92-e37a-40ab-8004-7a0abfa41065
 		summarizeBy: none
 		sourceColumn: updatedBy
 
@@ -131,7 +131,7 @@ table 'Management Groups'
 
 	column version
 		dataType: string
-		lineageTag: ad7b39e4-6e5d-43eb-86a3-74449a9411ba
+		lineageTag: 9a510efc-881e-4656-8fe0-9f489bf75fd7
 		summarizeBy: none
 		sourceColumn: version
 
@@ -139,7 +139,7 @@ table 'Management Groups'
 
 	column 'parent.displayName'
 		dataType: string
-		lineageTag: 24d65b07-67c5-416e-8761-8be50cf0473d
+		lineageTag: 77853fb4-51a5-4bb3-bf71-feb894e43705
 		summarizeBy: none
 		sourceColumn: parent.displayName
 
@@ -147,7 +147,7 @@ table 'Management Groups'
 
 	column 'parent.name'
 		dataType: string
-		lineageTag: fd546132-e1eb-46f1-9f49-5190c3bea9cd
+		lineageTag: beba2570-01d9-46a2-ba0d-4f39efb7cce2
 		summarizeBy: none
 		sourceColumn: parent.name
 
@@ -155,7 +155,7 @@ table 'Management Groups'
 
 	column 'parent.id'
 		dataType: string
-		lineageTag: 61f21760-1fdd-4e23-b1db-c3db16fd296a
+		lineageTag: 6794d9f0-ceb7-408b-bd94-582462962dc6
 		summarizeBy: none
 		sourceColumn: parent.id
 
@@ -163,7 +163,7 @@ table 'Management Groups'
 
 	column tags
 		dataType: string
-		lineageTag: fe9bf7e0-9005-416a-92d2-fe002fe72101
+		lineageTag: 00e33054-7d79-42b6-a888-3f8c1da223e5
 		summarizeBy: none
 		sourceColumn: tags
 
@@ -171,7 +171,7 @@ table 'Management Groups'
 
 	column identity
 		dataType: string
-		lineageTag: 5ddad223-fb95-4406-a179-7fe92f6f7ccb
+		lineageTag: 38e9657f-2bed-4641-863b-5f50e1f643a1
 		summarizeBy: none
 		sourceColumn: identity
 
@@ -179,7 +179,7 @@ table 'Management Groups'
 
 	column zones
 		dataType: string
-		lineageTag: b722b4c4-c283-4f0b-943d-0d8fa8a51439
+		lineageTag: a92724c9-d35b-429c-b8ef-f7f32058441f
 		summarizeBy: none
 		sourceColumn: zones
 
@@ -187,7 +187,7 @@ table 'Management Groups'
 
 	column extendedLocation
 		dataType: string
-		lineageTag: 2a4bfee3-5361-4d67-9b1c-595a3187f761
+		lineageTag: dd4a4b8a-1567-4d00-b38c-76ddd71935de
 		summarizeBy: none
 		sourceColumn: extendedLocation
 
