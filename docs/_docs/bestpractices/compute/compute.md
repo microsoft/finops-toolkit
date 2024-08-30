@@ -62,8 +62,8 @@ Optimization
 
 #### Potential Benefits
 
-- **Cost Optimization:** Identifies VMSS configurations that do not utilize spot instances or properly balance regular and spot VMs, potentially reducing infrastructure costs based on workload requirements.
-- **Resource Management:** Optimizes VMSS deployments by leveraging spot VMs effectively and ensuring compliance with priority mix policies.
+- **Cost optimization:** Identifies VMSS configurations that do not utilize spot instances or properly balance regular and spot VMs, potentially reducing infrastructure costs based on workload requirements.
+- **Resource management:** Optimizes VMSS deployments by leveraging spot VMs effectively and ensuring compliance with priority mix policies.
 
 #### Query
 
