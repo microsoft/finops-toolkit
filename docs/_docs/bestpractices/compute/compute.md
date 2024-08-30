@@ -33,6 +33,8 @@ Waste reduction
 
 - **Cost optimization:** Identifies VMs that are not properly deallocated, helping to prevent unnecessary costs from allocated resources.
 
+#### Query
+
 <details>
   <summary>Click to view the code</summary>
   <div class="code-block">
