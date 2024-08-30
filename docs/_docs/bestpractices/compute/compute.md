@@ -31,7 +31,7 @@ Waste reduction
 
 #### Benefits
 
-- **Cost Optimization:** Identifies VMs that are not properly deallocated, helping to prevent unnecessary costs from allocated resources.
+- **Cost optimization:** Identifies VMs that are not properly deallocated, helping to prevent unnecessary costs from allocated resources.
 
 <details>
   <summary>Click to view the code</summary>
