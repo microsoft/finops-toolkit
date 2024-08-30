@@ -42,6 +42,8 @@ Optimization
 
 #### Query
 
+#### Query
+
 <details>
   <summary>Click to view the code</summary>
   ```kql
