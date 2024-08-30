@@ -19,6 +19,8 @@ description: 'Discover essential FinOps best practices to optimize cost efficien
 
 <br>
 
+<br>
+
 ## Cosmos DB
 
 ### Query: Confirm Cosmos DB request units
