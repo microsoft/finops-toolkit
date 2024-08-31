@@ -114,6 +114,11 @@ Legend:
 >
 > 1. Changed the Event Grid location selection logic to only identify fallback regions rather than supported regions.
 > 2. Expanded cost estimate documentation to call out Power BI pricing and include a link to the Pricing Calculator.
+>
+> 🛠️ Fixed:
+>
+> 1. Updated the config_ConfigureExports pipeline to handle when scopes in settings.json is not an object.
+> 2. Fixed a bug where scopes added via the Add-FinOpsHubScope command are not added correctly due to missing brackets.
 
 📒 Azure Monitor workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -165,6 +170,7 @@ Legend:
 > 🛠️ Fixed:
 >
 > 1. Fixed [New-FinOpsCostExport](../_automation/powershell/cost/New-FinOpsCostExport.md) to address breaking change in Cost Management when storage paths start with "/".
+> 2. Fixed a bug where scopes added via the Add-FinOpsHubScope command are not added correctly due to missing brackets.
 
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
