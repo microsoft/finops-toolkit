@@ -1207,7 +1207,7 @@ resource pipeline_RunExports 'Microsoft.DataFactory/factories/pipelines@2018-06-
 }
 
 //------------------------------------------------------------------------------
-// msexports_ConfigureExports pipeline
+// config_ConfigureExports pipeline
 // Triggered by config_SettingsUpdated trigger
 //------------------------------------------------------------------------------
 @description('Creates Cost Management exports for all scopes.')
@@ -1261,14 +1261,14 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
         type: 'ForEach'
         dependsOn: [
           {
-            activity: 'Get Config'
+            activity: 'Remove empty scopes'
             dependencyConditions: ['Succeeded']
           }
         ]
         userProperties: []
         typeProperties: {
           items: {
-            value: '@activity(\'Get Config\').output.firstRow.scopes'
+            value: '@activity(\'Remove empty scopes\').output.value'
             type: 'Expression'
           }
           isSequential: true
@@ -1378,10 +1378,10 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                 }
               ]
               policy: {
-                                secureOutput: false
+                secureOutput: false
                 secureInput: false
               }
-                            userProperties: []
+              userProperties: []
               typeProperties: {
                 variableName: 'exportName'
                 value: {
@@ -1393,9 +1393,90 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
           ]
         }
       }
+      {
+        name: 'Save scopes as array'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Save scopes'
+            dependencyConditions: [
+              'Failed'
+            ]
+          }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'scopes'
+          value: {
+            value: '@array(activity(\'Get Config\').output.firstRow.scopes)'
+            type: 'Expression'
+          }
+        }
+      }
+      {
+        name: 'Save scopes'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Get Config'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'scopes'
+          value: {
+            value: '@activity(\'Get Config\').output.firstRow.scopes'
+            type: 'Expression'
+          }
+        }
+      }
+      {
+        name: 'Remove empty scopes'
+        type: 'Filter'
+        dependsOn: [
+          {
+            activity: 'Save scopes as array'
+            dependencyConditions: [
+              'Succeeded'
+              'Skipped'
+            ]
+          }
+          {
+            activity: 'Save scopes'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@variables(\'scopes\')'
+            type: 'Expression'
+          }
+          condition: {
+            value: '@greater(length(item().scope), 0)'
+            type: 'Expression'
+          }
+        }
+      }
     ]
     concurrency: 1
     variables: {
+      scopes: {
+        type: 'Array'
+      }
       exportName: {
         type: 'String'
       }
