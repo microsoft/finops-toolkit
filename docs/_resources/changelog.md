@@ -117,7 +117,8 @@ Legend:
 >
 > 🛠️ Fixed:
 >
-> 1. Fixed a bug where scopes added via the Add-FinOpsHubScope command are not added correctly due to missing brackets.
+> 1. Updated the config_ConfigureExports pipeline to handle when scopes in settings.json is not an object.
+> 2. Fixed a bug where scopes added via the Add-FinOpsHubScope command are not added correctly due to missing brackets.
 
 📒 Azure Monitor workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
