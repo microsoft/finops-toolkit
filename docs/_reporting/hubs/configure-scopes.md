@@ -42,8 +42,6 @@ If you cannot grant permissions for your scope, you can create Cost Management e
 
 1. [Create a new FOCUS cost export](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data?tabs=azure-portal) using the following settings:
 
-   <!-- TODO: Replace the portal link with the docs link when exports v2 docs are available. -->
-
    - **Type of data** = `Cost and usage details (FOCUS)`<sup>1</sup>
    - **Dataset version** = `1.0`<sup>2</sup>
    - **Frequency** = `Daily export of month-to-date costs`<sup>3</sup>
