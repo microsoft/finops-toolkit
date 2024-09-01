@@ -60,7 +60,7 @@ Learn the products you need to be successful:
 - [Interactive product guides](https://aka.ms/finops/guides) – Hands on experience with Microsoft products.
 - [Intro for cloud migration](https://info.microsoft.com/ww-ondemand-implement-finops-for-azure.html) – Great context when migrating from on-premises.
 - [FinOps Foundation YouTube channel](https://www.youtube.com/channel/UCyl26lvnoySlGWlF5oNHvYA) – All topics from the FinOps community.
-- [FinOps certification and training](https://learn.finops.org) – Advance your knowledge
+- [FinOps certification and training](https://learn.finops.org) – Advance your knowledge and get certified.
 
 Stay up to date on the latest news:
 

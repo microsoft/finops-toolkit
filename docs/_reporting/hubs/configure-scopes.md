@@ -231,7 +231,7 @@ If this is the first time you are using the FinOps toolkit PowerShell module, re
 
 ## ⏭️ Next steps
 
-[Connect to Power BI](./reports/README.md){: .btn .btn-primary .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Connect to Power BI](../power-bi/setup.md){: .btn .btn-primary .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [Learn more](./README.md#-why-finops-hubs){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
