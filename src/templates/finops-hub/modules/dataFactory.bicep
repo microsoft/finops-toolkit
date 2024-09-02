@@ -1216,7 +1216,7 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
   parent: dataFactory
   properties: {
     activities: [
-      {
+      { // 'Get Config'
         name: 'Get Config'
         type: 'Lookup'
         dependsOn: []
@@ -1256,7 +1256,7 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
           }
         }
       }
-      {
+      { // 'ForEach Export Scope'
         name: 'ForEach Export Scope'
         type: 'ForEach'
         dependsOn: [
@@ -1273,7 +1273,7 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
           }
           isSequential: true
           activities: [
-            {
+            { // 'Create or update open month focus export'
               name: 'Create or update open month focus export'
               type: 'WebActivity'
               dependsOn: [
@@ -1311,7 +1311,7 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                 }
               }
             }
-            {
+            { // 'Set open month focus export name'
               name: 'Set open month focus export name'
               type: 'SetVariable'
               dependsOn: []
@@ -1328,7 +1328,7 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                 }
               }
             }
-            {
+            { // 'Create or update closed month focus export'
               name: 'Create or update closed month focus export'
               type: 'WebActivity'
               dependsOn: [
@@ -1366,7 +1366,7 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                 }
               }
             }
-            {
+            { // 'Set closed month focus export name'
               name: 'Set closed month focus export name'
               type: 'SetVariable'
               dependsOn: [
@@ -1393,7 +1393,7 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
           ]
         }
       }
-      {
+      { // 'Save scopes as array'
         name: 'Save scopes as array'
         type: 'SetVariable'
         dependsOn: [
@@ -1417,7 +1417,7 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
           }
         }
       }
-      {
+      { // 'Save scopes'
         name: 'Save scopes'
         type: 'SetVariable'
         dependsOn: [
@@ -1441,7 +1441,7 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
           }
         }
       }
-      {
+      { // 'Remove empty scopes'
         name: 'Remove empty scopes'
         type: 'Filter'
         dependsOn: [
