@@ -62,6 +62,13 @@ Legend:
 > 2. Auto-backfill – Backfill historical data from Microsoft Cost Management.
 > 3. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
 
+🦾 Bicep modules
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Cost Management export modules for subscriptions and resource groups.
+
 <br><a name="latest"></a>
 
 ## 🚚 v0.5
@@ -709,7 +716,7 @@ Legend:
 
 > ➕ Added:
 >
-> 1. [Scheduled action modules](../_automation/bicep-registry/README.md#scheduled-actions) submitted to the Bicep Registry.
+> 1. [Scheduled action modules](../_automation/bicep-registry/scheduled-actions.md) submitted to the Bicep Registry.
 
 📒 Azure Monitor workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
