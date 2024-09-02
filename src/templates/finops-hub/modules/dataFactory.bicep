@@ -378,6 +378,35 @@ resource dataset_msexports 'Microsoft.DataFactory/factories/datasets@2018-06-01'
   }
 }
 
+resource dataset_msexports_parquet 'Microsoft.DataFactory/factories/datasets@2018-06-01' = {
+  name: '${safeExportContainerName}_parquet'
+  parent: dataFactory
+  properties: {
+    annotations: []
+    parameters: {
+      blobPath: {
+        type: 'String'
+      }
+      }
+    type: 'Parquet'
+    typeProperties: {
+      location: {
+        type: 'AzureBlobFSLocation'
+        fileName: {
+          value: '@{dataset().blobPath}'
+          type: 'Expression'
+        }
+        fileSystem: safeExportContainerName
+      }
+    }
+    linkedServiceName: {
+      parameters: {}
+      referenceName: linkedService_storageAccount.name
+      type: 'LinkedServiceReference'
+    }
+  }
+}
+
 resource dataset_ingestion 'Microsoft.DataFactory/factories/datasets@2018-06-01' = {
   name: safeIngestionContainerName
   parent: dataFactory
