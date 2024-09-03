@@ -6,7 +6,7 @@
     Gets available versions from published FinOps toolkit releases.
 
     .DESCRIPTION
-    The Get-FinOpsToolkitVersions command calls GitHub to retrieve all toolkit releases, then filters the list based on the specified options.
+    The Get-FinOpsToolkitVersion command calls GitHub to retrieve all toolkit releases, then filters the list based on the specified options.
 
     .PARAMETER Latest
     Optional. Indicates that only the most recent release should be returned. Default = false.
@@ -17,16 +17,19 @@
     .EXAMPLE
     Get-FinOpsToolkitVersion
 
+    ### Get stable release versions
     Returns all stable (non-preview) release versions.
 
     .EXAMPLE
     Get-FinOpsToolkitVersion -Latest
 
+    ### Get latest stable release only
     Returns only the latest stable (non-preview) release version.
 
     .EXAMPLE
     Get-FinOpsToolkitVersion -Preview
 
+    ### Get all versions
     Returns all release versions, including preview releases.
 
     .LINK
@@ -35,7 +38,7 @@
 function Get-FinOpsToolkitVersion
 {
     [CmdletBinding()]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope='Function')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Scope = 'Function')]
     param
     (
         [Parameter()]

@@ -3,8 +3,8 @@ layout: default
 grand_parent: PowerShell
 parent: FinOps hubs
 title: Remove-FinOpsHubScope
-nav_order: 1
-description: 'Stops monitoring a scope within a FinOps hub instance.'
+nav_order: 10
+description: Stops monitoring a scope within a FinOps hub instance.
 permalink: /powershell/hubs/Remove-FinOpsHubScope
 ---
 
@@ -27,7 +27,7 @@ Stops monitoring a scope within a FinOps hub instance.
 
 ---
 
-The **Remove-FinOpsHubScope** command removes a scope from being monitored by a FinOps hub instance. Data related to that scope is kept by default. To remove the data, use the `-RemoveData` option.
+The **Remove-FinOpsHubScope** command removes a scope from being monitored by a FinOps hub instance. Data related to that scope is kept by default. To remove the data, use the -RemoveData option.
 
 <br>
 
@@ -35,22 +35,24 @@ The **Remove-FinOpsHubScope** command removes a scope from being monitored by a 
 
 ```powershell
 Remove-FinOpsHubScope `
-    [-Id] <string> `
-    -HubName <string>
-    [-HubResourceGroupName <string>]
-    [-RemoveData]
+    [‑Id] <String> `
+    [‑HubName] <String> `
+    [[‑HubResourceGroupName] <String>] `
+    [‑RemoveData] `
+    [‑WhatIf]
 ```
 
 <br>
 
 ## 📥 Parameters
 
-| Name                  | Description                                                                                     |
-| --------------------- | ----------------------------------------------------------------------------------------------- |
-|`‑Id`|    Required resource ID of the scope to remove.
-|`‑HubName`|    Required. Name of the FinOps hub instance.
-|`‑HubResourceGroupName`|    Optional. Name of the resource group the FinOps hub was deployed to.
-|`‑RemoveData`|    Optional. Indicates whether to remove data for this scope from storage. Default = false
+| Name | Description |
+| ---- | ----------- |
+| `‑Id` | Required resource ID of the scope to remove. |
+| `‑HubName` | Required. Name of the FinOps hub instance. |
+| `‑HubResourceGroupName` | Optional. Name of the resource group the FinOps hub was deployed to. |
+| `‑RemoveData` | Optional. Indicates whether to remove data for this scope from storage. Default = false |
+| `‑WhatIf` | Optional. Shows what would happen if the command runs without actually running the command. Default = false. |
 
 <br>
 
@@ -62,7 +64,7 @@ Remove-FinOpsHubScope `
 Remove-FinOpsHubScope -Id "/providers/Microsoft.Billing/billingAccounts/123" -HubName "FooHub"
 ```
 
-Removes the exports configured to use the FooHub hub instance. Existing data is retained in the storage account.
+Deletes the exports configured to use the FooHub hub instance. Existing data is retained in the storage account.
 
 ### Remove subscription and historical data
 
@@ -70,7 +72,7 @@ Removes the exports configured to use the FooHub hub instance. Existing data is 
 Remove-FinOpsHubScope -Id "/subscriptions/##-#-#-#-###" -HubName "FooHub" -RemoveData
 ```
 
-Removes the exports configured to use the FooHub hub instance and removes data for that scope.
+Deletes the exports configured to use the FooHub hub instance and removes data for that scope.
 
 <br>
 
@@ -78,6 +80,7 @@ Removes the exports configured to use the FooHub hub instance and removes data f
 
 ## 🧰 Related tools
 
-{% include tools.md hubs="1" pbi="1" %}
+{% include tools.md aoe="1" bicep="0" data="0" hubs="1" pbi="1" ps="0" %}
 
 <br>
+

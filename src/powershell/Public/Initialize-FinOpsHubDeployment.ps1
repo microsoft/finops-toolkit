@@ -5,13 +5,14 @@
     .SYNOPSIS
     Initialize a FinOps hub deployment in order to enable resource group owners to deployment hubs via the portal.
 
+    .DESCRIPTION
+    The Initialize-FinOpsHubDeployment command performs any initialization tasks required for a resource group contributor to be able to deploy a FinOps hub instance in Azure, like registering resource providers. To view the full list of tasks performed, run the command with the -WhatIf option.
+
     .EXAMPLE
     Initialize-FinOpsHubDeployment -WhatIf
 
+    ### Test initialize FinOps hub deployment
     Shows what would happen if the command runs without actually running it.
-
-    .DESCRIPTION
-    The Initialize-FinOpsHubDeployment command performs any initialization tasks required for a resource group contributor to be able to deploy a FinOps hub instance in Azure, like registering resource providers. To view the full list of tasks performed, run the command with the -WhatIf option.
 
     .LINK
     https://aka.ms/ftk/Initialize-FinOpsHubDeployment

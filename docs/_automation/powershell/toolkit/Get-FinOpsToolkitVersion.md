@@ -3,8 +3,8 @@ layout: default
 grand_parent: PowerShell
 parent: Toolkit
 title: Get-FinOpsToolkitVersion
-nav_order: 1
-description: 'Gets available versions from published FinOps toolkit releases.'
+nav_order: 10
+description: Gets available versions from published FinOps toolkit releases.
 permalink: /powershell/toolkit/Get-FinOpsToolkitVersion
 ---
 
@@ -21,12 +21,13 @@ Gets available versions from published FinOps toolkit releases.
 - [🧮 Syntax](#-syntax)
 - [📥 Parameters](#-parameters)
 - [🌟 Examples](#-examples)
+- [🧰 Related tools](#-related-tools)
 
 </details>
 
 ---
 
-The Get-FinOpsToolkitVersions command calls GitHub to retrieve all toolkit releases, then filters the list based on the specified options.
+The **Get-FinOpsToolkitVersion** command calls GitHub to retrieve all toolkit releases, then filters the list based on the specified options.
 
 <br>
 
@@ -34,19 +35,18 @@ The Get-FinOpsToolkitVersions command calls GitHub to retrieve all toolkit relea
 
 ```powershell
 Get-FinOpsToolkitVersion `
-    [-Latest] `
-    [-Preview] `
-    [<CommonParameters>]
+    [‑Latest] `
+    [‑Preview]
 ```
 
 <br>
 
 ## 📥 Parameters
 
-| Name    | Description                                                                                |
-| ------- | ------------------------------------------------------------------------------------------ |
-| Latest  | Optional. Indicates that only the most recent release should be returned. Default = false. |
-| Preview | Optional. Indicates that preview releases should also be included. Default = false.        |
+| Name | Description |
+| ---- | ----------- |
+| `‑Latest` | Optional. Indicates that only the most recent release should be returned. Default = false. |
+| `‑Preview` | Optional. Indicates that preview releases should also be included. Default = false. |
 
 <br>
 
@@ -77,3 +77,12 @@ Get-FinOpsToolkitVersion -Preview
 Returns all release versions, including preview releases.
 
 <br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md aoe="1" bicep="0" hubs="1" wb="1" pbi="1" ps="0" %}
+
+<br>
+
