@@ -1930,6 +1930,40 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           }
         }
       }
+      { // Read Config
+        name: 'Read Hub Config'
+        type: 'Lookup'
+        dependsOn: [ ]
+        policy: {
+          timeout: '0.12:00:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          source: {
+            type: 'JsonSource'
+            storeSettings: {
+              type: 'AzureBlobFSReadSettings'
+              recursive: false
+              enablePartitionDiscovery: false
+            }
+            formatSettings: {
+              type: 'JsonReadSettings'
+            }
+          }
+          dataset: {
+            referenceName: dataset_config.name
+            type: 'DatasetReference'
+            parameters: {
+              fileName: 'settings.json'
+              folderPath: configContainerName
+            }
+          }
+        }
+      }
       { // Load Schema
         name: 'Load Schema Mappings'
         type: 'Lookup'
@@ -1994,6 +2028,10 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
             dependencyConditions: ['Completed']
           }
           {
+            activity: 'Read Hub Config'
+            dependencyConditions: ['Completed']
+          }
+          {
             activity: 'Load Schema Mappings'
             dependencyConditions: ['Succeeded']
           }
@@ -2025,8 +2063,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           }
         }
       }
-      { // Convert CSV
-        name: 'Convert CSV'
+      { // Convert CSV File
+        name: 'Convert CSV File'
         type: 'Copy'
         dependsOn: [
           {
@@ -2101,17 +2139,17 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           }
         ]
       }
-      { // Read Config
-        name: 'Read Hub Config'
-        type: 'Lookup'
+      { // Convert Parquet File
+        name: 'Convert Parquet File'
+        type: 'Copy'
         dependsOn: [
           {
-            activity: 'Convert CSV'
-            dependencyConditions: ['Succeeded']
+            activity: 'Delete Target'
+            dependencyConditions: ['Completed']
           }
         ]
         policy: {
-          timeout: '0.12:00:00'
+          timeout: '0.00:05:00'
           retry: 0
           retryIntervalInSeconds: 30
           secureOutput: false
@@ -2120,44 +2158,85 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         userProperties: []
         typeProperties: {
           source: {
-            type: 'JsonSource'
+            type: 'ParquetSource'
+            //additionalColumns: {
+            //  type: 'Expression'
+            //  value: '@activity(\'Load Schema Mappings\').output.firstRow.additionalColumns'
+            //}
             storeSettings: {
               type: 'AzureBlobFSReadSettings'
-              recursive: false
+              recursive: true
               enablePartitionDiscovery: false
             }
             formatSettings: {
-              type: 'JsonReadSettings'
+              type: 'ParquetReadSettings'
             }
           }
-          dataset: {
-            referenceName: dataset_config.name
+          sink: {
+            type: 'ParquetSink'
+            storeSettings: {
+              type: 'AzureBlobFSWriteSettings'
+            }
+            formatSettings: {
+              type: 'ParquetWriteSettings'
+              fileExtension: '.parquet'
+            }
+          }
+          enableStaging: false
+          parallelCopies: 1
+          validateDataConsistency: false
+          //translator: {
+          //  value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
+          //  type: 'Expression'
+          //}
+        }
+        inputs: [
+          {
+            referenceName: dataset_msexports_parquet.name
             type: 'DatasetReference'
             parameters: {
-              fileName: 'settings.json'
-              folderPath: configContainerName
+              blobPath: {
+                value: '@pipeline().parameters.blobPath'
+                type: 'Expression'
+              }
             }
           }
-        }
+        ]
+        outputs: [
+          {
+            referenceName: dataset_ingestion.name
+            type: 'DatasetReference'
+            parameters: {
+              blobPath: {
+                value: '@concat(pipeline().parameters.destinationFolder, \'/\', variables(\'destinationFile\'))'
+                type: 'Expression'
+              }
+            }
+          }
+        ]
       }
-      { // Delete CSV
+      { // Delete Source File
         name: 'If Retaining Exports'
         type: 'IfCondition'
         dependsOn: [
           {
-            activity: 'Read Hub Config'
+            activity: 'Convert Parquet File'
+            dependencyConditions: ['Completed']
+          }
+          {
+            activity: 'Convert CSV File'
             dependencyConditions: ['Completed']
           }
         ]
         userProperties: []
         typeProperties: {
           expression: {
-            value: '@greater(coalesce(activity(\'Read Hub Config\').output.firstRow.retention.msexports.days, 0), 0)'
+            value: '@and(greater(coalesce(activity(\'Read Hub Config\').output.firstRow.retention.msexports.days, 0), 0), or(equals(activity(\'Convert CSV File\').Status, \'Succeeded\'), equals(activity(\'Convert Parquet File\').Status, \'Succeeded\')))'
             type: 'Expression'
           }
           ifFalseActivities: [
             {
-              name: 'Delete CSV'
+              name: 'Delete Source File'
               type: 'Delete'
               dependsOn: []
               policy: {
@@ -2170,7 +2249,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
               userProperties: []
               typeProperties: {
                 dataset: {
-                  referenceName: dataset_msexports.name
+                  referenceName: dataset_msexports_parquet.name
                   type: 'DatasetReference'
                   parameters: {
                     blobPath: {
