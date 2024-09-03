@@ -4,6 +4,10 @@ on:
     paths:
       - 'src/open-data/*.csv'
       - 'src/open-data/*.json'
+permissions: 
+  contents: write
+  pull-requests: write
+  statuses: write
 jobs:
   build:
     runs-on: ubuntu-latest
