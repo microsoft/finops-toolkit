@@ -2,7 +2,7 @@ name: Open Data CI
 on:
   pull_request:
     branches:
-      - dev
+      - aromano/openDataFix
     paths:
       - 'src/open-data/*.csv'
       - 'src/open-data/*.json'
@@ -16,7 +16,6 @@ jobs:
     - uses: actions/checkout@v3
       with:
         ref: ${{ github.event.pull_request.head.ref }}
-        token: ${{ secrets.GIT_CICD_ACCESS_TOKEN }}
     - name: Set environment variable "commit-message"
       run: echo "commit-message=$(git log -1 --pretty=format:'%s')" >> $GITHUB_ENV
     - name: Set environment variable "commit-author"
