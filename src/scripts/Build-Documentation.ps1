@@ -84,6 +84,9 @@ Get-ChildItem -Path "$srcDir/powershell/Public/$Command*.ps1" `
         if ($NoNewLine) { [void]$sb.Append($Text) } else { [void]$sb.AppendLine($Text) }
     }
 
+    # Check if the command has a documented Confirm parameter so we can hide it when not applicable
+    $hasConfirm = ($psDoc.Parameters.Parameter | Where-Object { $_.Name -eq 'Confirm' -and [string]::Join($_.Description.Text, '').Length -gt 0 }).Count -gt 0
+
     append '---'
     append "layout: default"
     append "grand_parent: PowerShell"
@@ -138,6 +141,7 @@ Get-ChildItem -Path "$srcDir/powershell/Public/$Command*.ps1" `
         }
         append "$($_.Name)" -NoNewLine # Do not end the line yet
         $_.Parameter `
+        | Where-Object { $_.Name -ne 'Confirm' -or $hasConfirm }
         | ForEach-Object {
             $parameter = $_
             append ' `'
@@ -162,6 +166,7 @@ Get-ChildItem -Path "$srcDir/powershell/Public/$Command*.ps1" `
     append '| Name | Description |'
     append '| ---- | ----------- |'
     $psDoc.Parameters.Parameter `
+    | Where-Object { $_.Name -ne 'Confirm' -or $hasConfirm }
     | ForEach-Object {
         $parameter = $_
         $desc = ($parameter.Description.Text | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }) -join "<br><br>"
