@@ -1,8 +1,6 @@
 name: Open Data CI
 on:
   pull_request:
-    branches:
-      - aromano/openDataFix
     paths:
       - 'src/open-data/*.csv'
       - 'src/open-data/*.json'
