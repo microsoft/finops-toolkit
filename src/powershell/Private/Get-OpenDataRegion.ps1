@@ -499,5 +499,6 @@ function Get-OpenDataRegion
         ,[PSCustomObject]@{ OriginalValue = 'za west'; RegionId = 'southafricawest'; RegionName = 'South Africa West'; }
         ,[PSCustomObject]@{ OriginalValue = 'zanorth'; RegionId = 'southafricanorth'; RegionName = 'South Africa North'; }
         ,[PSCustomObject]@{ OriginalValue = 'zawest'; RegionId = 'southafricawest'; RegionName = 'South Africa West'; }
+        ,[PSCustomObject]@{ OriginalValue = 'test'; RegionId = 'test'; RegionName = 'test'; }
     )
 }
