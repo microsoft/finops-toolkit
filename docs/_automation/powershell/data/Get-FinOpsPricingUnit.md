@@ -56,7 +56,7 @@ Get-FinOpsPricingUnit `
 
 ## 🌟 Examples
 
-### Example 1
+### Get based on unit of measure
 
 ```powershell
 Get-FinOpsPricingUnit -UnitOfMeasure "*hours*"
@@ -64,7 +64,7 @@ Get-FinOpsPricingUnit -UnitOfMeasure "*hours*"
 
 Returns all pricing units with "hours" in the name.
 
-### Example 2
+### Get based on distinct units
 
 ```powershell
 Get-FinOpsPricingUnit -DistinctUnits "GB"

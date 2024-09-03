@@ -183,7 +183,7 @@ Gets all exports within the subscription scope for a container matching wildcard
 
 ## 🧰 Related tools
 
-{% include tools.md aoe="1" data="0" hubs="1" pbi="1" %}
+{% include tools.md aoe="1" bicep="0" data="0" hubs="1" pbi="1" ps="0" %}
 
 <br>
 

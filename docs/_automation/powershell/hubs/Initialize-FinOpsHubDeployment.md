@@ -50,7 +50,7 @@ Initialize-FinOpsHubDeployment `
 
 ## 🌟 Examples
 
-### Example 1
+### Test initialize FinOps hub deployment
 
 ```powershell
 Initialize-FinOpsHubDeployment -WhatIf

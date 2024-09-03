@@ -1,4 +1,3 @@
-False
 ---
 layout: default
 grand_parent: PowerShell
