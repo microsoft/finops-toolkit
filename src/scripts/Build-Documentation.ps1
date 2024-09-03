@@ -127,7 +127,14 @@ Get-ChildItem -Path "$srcDir/powershell/Public/$Command.ps1" `
     {
         $commandDescLines = $commandDesc.Split("`n")
         append ([regex]::Replace($commandDescLines[0], "(?<!$commandName.*)($commandName)", "**$commandName**", 2)) -NoNewLine
-        append ("`n" + ($commandDescLines[1..($commandDescLines.Length - 1)] -join "`n"))
+        if ($commandDescLines.Length -gt 1)
+        {
+            append ("`n" + ($commandDescLines[1..($commandDescLines.Length - 1)] -join "`n"))
+        }
+        else
+        {
+            append ''
+        }
         append ''
         append '<br>'
         append ''
