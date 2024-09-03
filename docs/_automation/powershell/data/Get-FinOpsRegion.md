@@ -3,8 +3,8 @@ layout: default
 grand_parent: PowerShell
 parent: Open data
 title: Get-FinOpsRegion
-nav_order: 20
-description: 'Gets an Azure region ID and name'
+nav_order: 10
+description: Gets an Azure region ID and name to clean up Cost Management cost data during ingestion.
 permalink: /powershell/data/Get-FinOpsRegion
 ---
 
@@ -35,20 +35,22 @@ The **Get-FinOpsRegion** command returns an Azure region ID and name based on th
 
 ```powershell
 Get-FinOpsRegion `
-    [[-ResourceLocation] <string>] `
-    [-RegionId <string>] `
-    [-RegionName <string>]
+    [[‑ResourceLocation] <String>] `
+    [‑RegionId <String>] `
+    [‑RegionName <String>] `
+    [‑IncludeResourceLocation]
 ```
 
 <br>
 
 ## 📥 Parameters
 
-| Name            | Description                                                                                                                      |
-| --------------- | -------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| ResouceLocation | Optional. Resource location value from a Cost Management cost/usage details dataset. Accepts wildcards. Default = \* (all).      |
-| RegionId        | Optional. Azure region ID (lowercase English name without spaces). Accepts wildcards. Default = \* (all).                        |
-| RegionName      | Optional. Azure region name (title case English name with spaces). Accepts wildcards. Default = \* (all).IncludeResourceLocation | Optional. Indicates whether to include the ResourceLocation property in the output. Default = false. |
+| Name | Description |
+| ---- | ----------- |
+| `‑ResourceLocation` | Optional. Resource location value from a Cost Management cost/usage details dataset. Accepts wildcards. Default = * (all). |
+| `‑RegionId` | Optional. Azure region ID (lowercase English name without spaces). Accepts wildcards. Default = * (all). |
+| `‑RegionName` | Optional. Azure region name (title case English name with spaces). Accepts wildcards. Default = * (all). |
+| `‑IncludeResourceLocation` | Optional. Indicates whether to include the ResourceLocation property in the output. Default = false. |
 
 <br>
 
@@ -76,6 +78,7 @@ Returns all Asia regions with the original Cost Management ResourceLocation valu
 
 ## 🧰 Related tools
 
-{% include tools.md data="1" %}
+{% include tools.md aoe="0" bicep="0" data="1" hubs="1" pbi="1" ps="0" %}
 
 <br>
+

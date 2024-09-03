@@ -31,7 +31,7 @@ $psDocs = "$docDir/_automation/powershell/"
 
 # Generate PowerShell docs
 Write-Host "Generating PowerShell documentation..."
-Get-ChildItem -Path "$srcDir/powershell/Public/$Command*.ps1" `
+Get-ChildItem -Path "$srcDir/powershell/Public/$Command.ps1" `
 | ForEach-Object {
     $file = $_
     $commandName = $_.BaseName

@@ -34,16 +34,19 @@
     .EXAMPLE
     Start-FinopsCostExport -Name 'CostExport'
 
+    ### Export configured period
     Runs an export called 'CostExport' for the configured period.
 
     .EXAMPLE
     Start-FinopsCostExport -Name 'CostExport' -StartDate '2023-01-01' -EndDate '2023-12-31'
 
+    ### Export specific dates
     Runs an export called 'CostExport' for a specific date range.
 
     .EXAMPLE
     Start-FinopsCostExport -Name 'CostExport' -Backfill 12
 
+    ### Backfill export
     Runs an export called 'CostExport' for the previous 12 months.
 
     .LINK
@@ -54,11 +57,11 @@ function Start-FinOpsCostExport
     [cmdletBinding()]
     param
     (
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, Position = 0)]
         [string]
         $Name,
 
-        [Parameter()]
+        [Parameter(Position = 1)]
         [string]
         $Scope,
         
@@ -201,6 +204,7 @@ function Start-FinOpsCostExport
                 Write-Progress `
                     -Activity $progressActivity `
                     -Status "$percent% complete - Throttled by Cost Management. Waiting 60 seconds." `
+            
             }
             else
             {

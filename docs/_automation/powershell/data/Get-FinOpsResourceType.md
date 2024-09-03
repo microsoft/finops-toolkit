@@ -3,8 +3,8 @@ layout: default
 grand_parent: PowerShell
 parent: Open data
 title: Get-FinOpsResourceType
-nav_order: 30
-description: 'Gets an Azure resource type and readable display names'
+nav_order: 10
+description: Gets details about an Azure resource type.
 permalink: /powershell/data/Get-FinOpsResourceType
 ---
 
@@ -35,18 +35,18 @@ The **Get-FinOpsResourceType** command returns an Azure resource type with reada
 
 ```powershell
 Get-FinOpsResourceType `
-    [[-ResourceType] <string>] `
-    [-IsPreview <bool>]
+    [[‑ResourceType] <String>] `
+    [‑IsPreview <Nullable`1>]
 ```
 
 <br>
 
 ## 📥 Parameters
 
-| Name            | Description                                                                                                                                                                                                                 |
-| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `‑ResourceType` | Optional. Azure resource type value. Accepts wildcards. Default = \* (all).                                                                                                                                                 |
-| `‑IsPreview`    | Optional. Indicates whether to include or exclude resource types that are in preview. Note: Not all resource types self-identify as being in preview, so this may not be completely accurate. Default = null (include all). |
+| Name | Description |
+| ---- | ----------- |
+| `‑ResourceType` | Optional. Azure resource type value. Accepts wildcards. Default = * (all). |
+| `‑IsPreview` | Optional. Indicates whether to include or exclude resource types that are in preview. Note: Not all resource types self-identify as being in preview, so this may not be completely accurate. Default = null (include all). |
 
 <br>
 
@@ -74,6 +74,7 @@ Returns all resource types that are not in preview.
 
 ## 🧰 Related tools
 
-{% include tools.md data="1" hubs="1" %}
+{% include tools.md aoe="0" bicep="0" data="1" hubs="1" pbi="1" ps="0" %}
 
 <br>
+
