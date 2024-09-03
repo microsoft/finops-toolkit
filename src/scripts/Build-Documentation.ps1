@@ -47,34 +47,35 @@ Get-ChildItem -Path "$srcDir/powershell/Public/$Command*.ps1" `
     {
         $navParent = 'Cost Management'
         $folder = 'cost'
-        $tools = 'aoe="1" data="0" hubs="1" pbi="1"'
+        $tools = 'aoe="1" bicep="0" data="0" hubs="1" pbi="1" ps="0"'
     }
     elseif ($noun.StartsWith('Hub'))
     {
         $navParent = 'FinOps hubs'
         $folder = 'hubs'
-        $tools = 'aoe="1" data="0" hubs="1" pbi="1"'
+        $tools = 'aoe="1" bicep="0" data="0" hubs="1" pbi="1" ps="0"'
     }
     elseif (@('PricingUnit', 'Region', 'ResourceType', 'Service') -contains $noun)
     {
         $navParent = 'Open data'
         $folder = 'data'
-        $tools = 'aoe="0" data="1" hubs="1" pbi="1"'
+        $tools = 'aoe="0" bicep="0" data="1" hubs="1" pbi="1" ps="0"'
     }
     else
     {
         $navParent = 'Toolkit'
         $folder = 'toolkit'
-        $tools = 'aoe="1" hubs="1" wb="1" pbi="1"'
+        $tools = 'aoe="1" bicep="0" hubs="1" wb="1" pbi="1" ps="0"'
     }
 
     # Load the script inline to get help content (since they are functions in each file)
     # TODO: Would it be better to just load the latest module version and use that?
-    $script:help = $null
     & {
         . $file
-        $script:help = Get-Help $commandName -Full
+        $script:helpOutput = Get-Help $commandName -Full
     }
+    $psDoc = $script:helpOutput
+    $psTxt = Get-Content $file
 
     # Collect file contents via string builder for perf
     $sb = [System.Text.StringBuilder]::new()
@@ -89,12 +90,12 @@ Get-ChildItem -Path "$srcDir/powershell/Public/$Command*.ps1" `
     append "parent: $navParent"
     append "title: $commandName"
     append "nav_order: 10" # All commands are 10 to save room for any higher priority content
-    append "description: $($script:help.Synopsis)"
+    append "description: $($psDoc.Synopsis)"
     append "permalink: /powershell/$folder/$commandName"
     append '---'
     append ''
     append "<span class=""fs-9 d-block mb-4"">$commandName</span>"
-    append $script:help.Synopsis
+    append $psDoc.Synopsis
     append '{: .fs-6 .fw-300 }'
     append ''
     append '[Syntax](#-syntax){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }'
@@ -105,6 +106,10 @@ Get-ChildItem -Path "$srcDir/powershell/Public/$Command*.ps1" `
     append ''
     append '- [🧮 Syntax](#-syntax)'
     append '- [📥 Parameters](#-parameters)'
+    if ($psDoc.ReturnValues)
+    {
+        append '- [📤 Return value](#-return-value)'
+    }
     append '- [🌟 Examples](#-examples)'
     append '- [🧰 Related tools](#-related-tools)'
     append ''
@@ -112,7 +117,7 @@ Get-ChildItem -Path "$srcDir/powershell/Public/$Command*.ps1" `
     append ''
     append '---'
     append ''
-    $commandDesc = ($script:help.Description.Text | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }) -join "<br><br>"
+    $commandDesc = ($psDoc.Description.Text | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }) -join "<br><br>"
     if ($commandDesc)
     {
         append ([regex]::Replace($commandDesc, $commandName, "**$commandName**", 1))
@@ -122,44 +127,81 @@ Get-ChildItem -Path "$srcDir/powershell/Public/$Command*.ps1" `
     }
     append '## 🧮 Syntax'
     append ''
-    append '```powershell'
-    append "$($script:help.Syntax.SyntaxItem.Name) ``"
-    $script:help.Syntax.SyntaxItem.Parameter `
+    $paramSets = $psTxt | Select-String -Pattern '#\s+\.PARAMETERSET\s+(.*)$' | ForEach-Object { $_.Matches.Groups[1].Value }
+    $paramSetIndex = 0
+    $psDoc.Syntax.SyntaxItem `
     | ForEach-Object {
-        $parameter = $_
-        append '    ' -NoNewLine
-        if ($parameter.Required -ne $true) { append '[' -NoNewLine }
-        if ($parameter.Position -ne 'named') { append '[' -NoNewLine }
-        append "‑$($parameter.Name)" -NoNewLine
-        if ($parameter.Position -ne 'named') { append ']' -NoNewLine }
-        if ($parameter.ParameterValue.Length -gt 0) { append " <$($parameter.ParameterValue)>" -NoNewLine }
-        if ($parameter.Required -ne $true) { append ']' -NoNewLine }
-        if ($Debug) { append " -- REQ: $($parameter.Required), POS: $($parameter.Position)" -NoNewLine }
-        append ' `'
-        # TODO: defaultValue?, globbing, pipelineInput
+        append '```powershell'
+        if ($paramSets.Length -gt $paramSetIndex)
+        {
+            append "# $($paramSets[$paramSetIndex++])"
+        }
+        append "$($_.Name)" -NoNewLine # Do not end the line yet
+        $_.Parameter `
+        | ForEach-Object {
+            $parameter = $_
+            append ' `'
+            append '    ' -NoNewLine
+            if ($parameter.Required -ne $true) { append '[' -NoNewLine }
+            if ($parameter.Position -ne 'named') { append '[' -NoNewLine }
+            append "‑$($parameter.Name)" -NoNewLine
+            if ($parameter.Position -ne 'named') { append ']' -NoNewLine }
+            if ($parameter.ParameterValue.Length -gt 0) { append " <$($parameter.ParameterValue)>" -NoNewLine }
+            if ($parameter.Required -ne $true) { append ']' -NoNewLine }
+            if ($Debug) { append " -- REQ: $($parameter.Required), POS: $($parameter.Position)" -NoNewLine }
+            # TODO: defaultValue?, globbing, pipelineInput
+        }
+        append '' # Write an extra line to end the previous line (because of -NoNewLine)
+        append '```'
+        append ''
     }
-    append '    [<CommonParameters>]'
-    append '```'
-    append ''
     append '<br>'
     append ''
     append '## 📥 Parameters'
     append ''
     append '| Name | Description |'
     append '| ---- | ----------- |'
-    $script:help.Parameters.Parameter `
+    $psDoc.Parameters.Parameter `
     | ForEach-Object {
         $parameter = $_
         $desc = ($parameter.Description.Text | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }) -join "<br><br>"
         append "| ``‑$($parameter.Name)`` | $desc |"
     }
     append ''
-    if ($Debug) { append ($script:help.Parameters | ConvertTo-Json -Depth 20) }
+    if ($Debug) { append ($psDoc.Parameters | ConvertTo-Json -Depth 20) }
     append '<br>'
     append ''
+    if ($psDoc.ReturnValues)
+    {
+        append '## 📤 Return value'
+        append ''
+        $linePrefix = $null
+        $psTxt | ForEach-Object {
+            $line = $_
+            if ($line -match '# .OUTPUTS')
+            {
+                $typeDef = $line.Split('.OUTPUTS')
+                $linePrefix = $typeDef[0]
+                $returnType = $typeDef[1].Trim()
+                append "### $returnType object"
+                append ''
+            }
+            elseif ($linePrefix -and $line.StartsWith($linePrefix))
+            {
+                append $line.Replace($linePrefix, '')
+            }
+            elseif ($linePrefix -and $line.StartsWith($linePrefix) -eq $false)
+            {
+                $linePrefix = $null
+                append ''
+            }
+        }
+        append '<br>'
+        append ''
+    }
     append '## 🌟 Examples'
     append ''
-    $script:help.Examples.Example `
+    $psDoc.Examples.Example `
     | ForEach-Object {
         $example = $_
         $desc = ($example.Remarks.Text | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }) -join '<br><br>'
@@ -190,7 +232,7 @@ Get-ChildItem -Path "$srcDir/powershell/Public/$Command*.ps1" `
     append "{% include tools.md $tools %}"
     append ''
     append '<br>'
-    if ($Debug) { append ($script:help | ConvertTo-Json -Depth 100) }
+    if ($Debug) { append ($psDoc | ConvertTo-Json -Depth 100) }
 
     $sb.Tostring() | Out-File "$psDocs/$folder/$commandName.md" -Force -Encoding 'UTF8'
     $sb.Clear() | Out-Null

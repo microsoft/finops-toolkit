@@ -39,42 +39,7 @@
     Optional. API version to use when calling the Cost Management exports API. Default = 2023-07-01-preview.
 
     .OUTPUTS
-    ### FinOpsCostExport object
-    String Name = name
-    String Id = id
-    String Type = type
-    String eTag = eTag
-    String Description = properties.exportDescription
-    String Dataset = properties.definition.type
-    String DatasetVersion = properties.definition.configuration.dataVersion
-    String DatasetFilters = properties.definition.configuration.filter
-    String DatasetTimeFrame = properties.definition.timeframe
-    DateTime DatasetStartDate = properties.definition.timePeriod.from
-    DateTime DatasetEndDate = properties.definition.timePeriod.to
-    String DatasetGranularity = properties.definition.dataset.granularity
-    String ScheduleStatus = properties.schedule.status
-    String ScheduleRecurrence = properties.schedule.recurrence
-    DateTime ScheduleStartDate = properties.schedule.recurrencePeriod.from
-    DateTime ScheduleEndDate = properties.schedule.recurrencePeriod.to
-    DateTime NextRuntimeEstimate = properties.nextRunTimeEstimate
-    String Format = properties.format
-    String StorageAccountId = properties.deliveryInfo.destination.resourceId
-    String StorageContainer = properties.deliveryInfo.destination.container
-    String StoragePath = properties.deliveryInfo.destination.rootfolderpath
-    Boolean OverwriteData = properties.deliveryInfo.dataOverwriteBehavior` == "OverwritePreviousReport
-    Boolean PartitionData = properties.deliveryInfo.partitionData
-    String CompressionMode = properties.deliveryInfo.compressionMode
-    FinOpsCostExportRunHistory[] RunHistory = properties.runHistory.value
-
-    ### FinOpsCostExportRunHistory object
-    String Id = `properties.runHistory.value[].id
-    String ExecutionType = `properties.runHistory.value[].properties.executionType
-    String FileName = `properties.runHistory.value[].fileName
-    DateTime StartTime = `properties.runHistory.value[].processingStartTime
-    DateTime EndTime = `properties.runHistory.value[].processingEndTime
-    String Status = `properties.runHistory.value[].status
-    String SubmittedBy = `properties.runHistory.value[].submittedBy
-    DateTime SubmittedTime = `properties.runHistory.value[].submittedTime
+    FinOpsCostExport
 
     .EXAMPLE
     Get-FinOpsCostExport `
@@ -226,6 +191,34 @@ function Get-FinOpsCostExport
         $exportdetails = @()
         $content | ForEach-Object {
             $item = [PSCustomObject]@{
+                # .OUTPUTS FinOpsCostExport
+                # | Property              | Type                  | JSON path                                                                    |
+                # | --------------------- | --------------------- | ---------------------------------------------------------------------------- |
+                # | `Name`                | String                | `name`                                                                       |
+                # | `Id`                  | String                | `id`                                                                         |
+                # | `Type`                | String                | `type`                                                                       |
+                # | `eTag`                | String                | `eTag`                                                                       |
+                # | `Description`         | String                | `properties.exportDescription`                                               |
+                # | `Dataset`             | String                | `properties.definition.type`                                                 |
+                # | `DatasetVersion`      | String                | `properties.definition.configuration.dataVersion`                            |
+                # | `DatasetFilters`      | String                | `properties.definition.configuration.filter`                                 |
+                # | `DatasetTimeFrame`    | String                | `properties.definition.timeframe`                                            |
+                # | `DatasetStartDate`    | DateTime              | `properties.definition.timePeriod.from`                                      |
+                # | `DatasetEndDate`      | DateTime              | `properties.definition.timePeriod.to`                                        |
+                # | `DatasetGranularity`  | String                | `properties.definition.dataset.granularity`                                  |
+                # | `ScheduleStatus`      | String                | `properties.schedule.status`                                                 |
+                # | `ScheduleRecurrence`  | String                | `properties.schedule.recurrence`                                             |
+                # | `ScheduleStartDate`   | DateTime              | `properties.schedule.recurrencePeriod.from`                                  |
+                # | `ScheduleEndDate`     | DateTime              | `properties.schedule.recurrencePeriod.to`                                    |
+                # | `NextRuntimeEstimate` | DateTime              | `properties.nextRunTimeEstimate`                                             |
+                # | `Format`              | String                | `properties.format`                                                          |
+                # | `StorageAccountId`    | String                | `properties.deliveryInfo.destination.resourceId`                             |
+                # | `StorageContainer`    | String                | `properties.deliveryInfo.destination.container`                              |
+                # | `StoragePath`         | String                | `properties.deliveryInfo.destination.rootfolderpath`                         |
+                # | `OverwriteData`       | Boolean               | `properties.deliveryInfo.dataOverwriteBehavior` == "OverwritePreviousReport" |
+                # | `PartitionData`       | Boolean               | `properties.deliveryInfo.partitionData`                                      |
+                # | `CompressionMode`     | String                | `properties.deliveryInfo.compressionMode`                                    |
+                # | `RunHistory`          | FinOpsCostExportRun[] | `properties.runHistory.value`                                                |
                 Name                = $_.name
                 Id                  = $_.id
                 Type                = $_.type
@@ -252,6 +245,17 @@ function Get-FinOpsCostExport
                 CompressionMode     = $_.properties.deliveryInfo.compressionMode
                 RunHistory          = $_.properties.runHistory.value | Where-Object { $_ -ne $null } | ForEach-Object {
                     [PSCustomObject]@{
+                        # .OUTPUTS FinOpsCostExportRun
+                        # | Property        | Type     | JSON path                                                |
+                        # | --------------- | -------- | -------------------------------------------------------- |
+                        # | `Id`            | String   | `properties.runHistory.value[].id`                       |
+                        # | `ExecutionType` | String   | `properties.runHistory.value[].properties.executionType` |
+                        # | `FileName`      | String   | `properties.runHistory.value[].fileName`                 |
+                        # | `StartTime`     | DateTime | `properties.runHistory.value[].processingStartTime`      |
+                        # | `EndTime`       | DateTime | `properties.runHistory.value[].processingEndTime`        |
+                        # | `Status`        | String   | `properties.runHistory.value[].status`                   |
+                        # | `SubmittedBy`   | String   | `properties.runHistory.value[].submittedBy`              |
+                        # | `SubmittedTime` | DateTime | `properties.runHistory.value[].submittedTime`            |
                         Id            = $_.id
                         ExecutionType = $_.properties.executionType
                         FileName      = $_.fileName
