@@ -120,10 +120,14 @@ Get-ChildItem -Path "$srcDir/powershell/Public/$Command.ps1" `
     append ''
     append '---'
     append ''
-    $commandDesc = ($psDoc.Description.Text | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }) -join "<br><br>"
+    $commandDesc = ($psDoc.Description.Text | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }) -join "`n`n"
+    $commandDesc = [regex]::Replace($commandDesc, "(([A-Z][a-z]+)-FinOps([A-Za-z]+))", "[`$1](`$1.md)")
+    $commandDesc = $commandDesc.Replace("[$commandName]($commandName.md)", "$commandName")
     if ($commandDesc)
     {
-        append ([regex]::Replace($commandDesc, $commandName, "**$commandName**", 1))
+        $commandDescLines = $commandDesc.Split("`n")
+        append ([regex]::Replace($commandDescLines[0], "(?<!$commandName.*)($commandName)", "**$commandName**", 2)) -NoNewLine
+        append ("`n" + ($commandDescLines[1..($commandDescLines.Length - 1)] -join "`n"))
         append ''
         append '<br>'
         append ''
@@ -169,7 +173,11 @@ Get-ChildItem -Path "$srcDir/powershell/Public/$Command.ps1" `
     | Where-Object { $_.Name -ne 'Confirm' -or $hasConfirm }
     | ForEach-Object {
         $parameter = $_
-        $desc = ($parameter.Description.Text | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }) -join "<br><br>"
+        $desc = (($parameter.Description.Text | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }) + '').Replace("`n", "<br>") -join "<br><br>"
+        if ($parameter.Name -eq 'WhatIf' -and [string]::IsNullOrWhiteSpace($desc))
+        {
+            $desc = 'Optional. Shows what would happen if the command runs without actually running the command. Default = false.'
+        }
         append "| ``‑$($parameter.Name)`` | $desc |"
     }
     append ''

@@ -25,9 +25,6 @@
     .PARAMETER ApiVersion
     Optional. API version to use when calling the Cost Management Exports API. Default = 2023-07-01-preview.
     
-    .PARAMETER WhatIf
-    Optional. Shows what would happen if the command runs without actually running the command. Default = false.
-
     .EXAMPLE
     Remove-FinOpsCostExport `
         -Name MyExport `
