@@ -1,6 +1,6 @@
 ---
 layout: default
-parent: FinOps best practices library
+parent: Best practices
 permalink: /bestpractices/Sustainability
 nav_order: 2
 title: Sustainability
@@ -9,10 +9,25 @@ ms.date: 08/16/2024
 ms.service: finops
 description: 'Discover essential FinOps best practices to optimize cost efficiency and governance for your Azure resources.'
 
+
 ---
 
-# 📇 Table of Contents
-1. [Carbon Optimization](#carbon-optimization)
+<span class="fs-9 d-block mb-4">Sustainability</span>
+Discover essential FinOps best practices to optimize cost efficiency and governance for your Azure resources.
+{: .fs-6 .fw-300 }
+
+[Share feedback](#️-looking-for-more){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+
+<details open markdown="1">
+   <summary class="fs-2 text-uppercase">On this page</summary>
+
+- [🍃 Carbon Optimization](#carbon-optimization)
+- [🙋‍♀️ Looking for more?](#️-looking-for-more)
+- [🧰 Related tools](#-related-tools)
+
+</details>
+
+---
 
 
 ## Carbon Optimization
@@ -29,11 +44,7 @@ This query surfaces Azure resources with recommendations from Azure Advisor for 
 
 Sustainability
 
-#### Potential Benefits
-
-- **Carbon Footprint Reduction:** Identifies opportunities to reduce the carbon emissions associated with your Azure resources, contributing to environmental sustainability.
-- **Cost Savings:** Optimizing resources for carbon efficiency can also lead to cost savings, as reducing energy consumption often aligns with reducing costs.
-- **Compliance:** Helps in meeting organizational and regulatory requirements for sustainability and carbon reduction.
+#### Query
 
 <details>
   <summary>Click to view the code</summary>
@@ -42,14 +53,32 @@ Sustainability
 | where tolower(type) == "microsoft.advisor/recommendations"
 | extend RecommendationTypeId = tostring(properties.recommendationTypeId)
 | where RecommendationTypeId in ("94aea435-ef39-493f-a547-8408092c22a7", "e10b1381-5f0a-47ff-8c7b-37bd13d7c974")
-| extend properties = parse_json(properties)
-| extend monthlyCarbonSavingsKg = toreal(properties.extendedProperties.PotentialMonthlyCarbonSavings)
-| extend shortDescription=properties.shortDescription.problem, recommendationType=properties.extendedProperties.recommendationType, recommendationMessage=properties.extendedProperties.recommendationMessage, PotentialMonthlyCarbonEmissions=properties.extendedProperties.PotentialMonthlyCarbonEmissions, PotentialMonthlyCarbonSavings=properties.extendedProperties.PotentialMonthlyCarbonSavings
-| extend ResourceId=properties.resourceMetadata.resourceId, ResourceType=tostring(properties.impactedField)
+    | extend properties = parse_json(properties)
+    | extend monthlyCarbonSavingsKg = toreal(properties.extendedProperties.PotentialMonthlyCarbonSavings)
+    | extend shortDescription=properties.shortDescription.problem
+    | extend recommendationType=properties.extendedProperties.recommendationType
+    | extend recommendationMessage=properties.extendedProperties.recommendationMessage
+    | extend PotentialMonthlyCarbonEmissions=properties.extendedProperties.PotentialMonthlyCarbonEmissions
+    | extend PotentialMonthlyCarbonSavings=properties.extendedProperties.PotentialMonthlyCarbonSavings
+    | extend ResourceId=properties.resourceMetadata.resourceId, ResourceType=tostring(properties.impactedField)
 | project subscriptionId, resourceGroup,ResourceId,ResourceType, shortDescription,recommendationType, recommendationMessage, PotentialMonthlyCarbonEmissions, PotentialMonthlyCarbonSavings, monthlyCarbonSavingsKg, properties
 </code></pre>
   </div>
 </details>
 
 
+## 🙋‍♀️ Looking for more?
 
+We'd love to hear about any datasets you're looking for. Create a new issue with the details that you'd like to see either included in existing or new best practices.
+
+[Share feedback](https://aka.ms/ftk/idea){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md bicep="0" data="0" gov="0" hubs="0" opt="1" pbi="0" ps="0" %}
+
+<br>
