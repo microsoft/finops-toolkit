@@ -34,41 +34,11 @@ Discover essential FinOps best practices to optimize cost efficiency and governa
 ---
 
 
-## Azure Firewall 
+## Azure firewall 
 
-### Query: Azure Firewall and Firewall Policies Analysis
+### Query: Azure firewall and firewall policies analysis
 
-This Azure Resource Graph (ARG) query analyzes Azure Firewalls and their associated Firewall Policies within your Azure environment. It specifically targets Firewalls with a Premium SKU tier and verifies that the configurations in their associated Firewall policies are utilizing the premium features.
-
-
-#### Category
-
-Optimization
-
-#### Query
-
-<details>
-  <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code> resources 
-  | where type =~ 'Microsoft.Network/azureFirewalls' and properties.sku.tier=="Premium"
-  | project FWID=id, firewallName=name, SkuTier=tostring(properties.sku.tier), resourceGroup, location
-  | join kind=inner (
-      resources
-      | where type =~ 'microsoft.network/firewallpolicies'
-      | mv-expand properties.firewalls
-      | extend intrusionDetection=tostring(properties.intrusionDetection contains "Alert" or properties.intrusionDetection contains "Deny"), transportSecurity=tostring(properties.transportSecurity contains "keyVaultSecretId")
-      | extend FWID=tostring(properties_firewalls.id)
-      | where intrusionDetection == "False" and transportSecurity == "False"
-      | project PolicyName=name, PolicySKU=tostring(properties.sku.tier), intrusionDetection, transportSecurity, FWID
-  ) on FWID</code></pre>
-  </div>
-</details>
-
-
-### Query: Azure Firewall and Associated Subnets Analysis
-
-This Azure Resource Graph (ARG) query analyzes Azure Firewalls and their associated subnets within your Azure environment. It provides insights into which subnets are associated with each Azure Firewall instance. Optimize the use of Azure Firewall by having a central instance of Azure Firewall in the hub virtual network or Virtual WAN secure hub and share the same firewall across many spoke virtual networks that are connected to the same hub from the same region.
+This Azure Resource Graph (ARG) query analyzes Azure firewalls and their associated firewall policies within your Azure environment. It specifically targets firewalls with a premium SKU tier and verifies that the configurations in their associated firewall policies are utilizing the premium features.
 
 
 #### Category
@@ -95,11 +65,41 @@ Optimization
   </div>
 </details>
 
-## Application Gateway
 
-### Query: Idle Application Gateways
+### Query: Azure firewall and associated subnets analysis
 
-This Azure Resource Graph (ARG) query analyzes Application Gateways and their associated backend pools within your Azure environment. It provides insights into which Application Gateways have empty backend pools, indicating they may be idle and potentially unnecessary.
+This Azure Resource Graph (ARG) query analyzes Azure firewalls and their associated subnets within your Azure environment. It provides insights into which subnets are associated with each Azure firewall instance. Optimize the use of Azure firewall by having a central instance of Azure firewall in the hub virtual network or Virtual WAN secure hub and share the same firewall across many spoke virtual networks that are connected to the same hub from the same region.
+
+
+#### Category
+
+Optimization
+
+#### Query
+
+<details>
+  <summary>Click to view the code</summary>
+  <div class="code-block">
+    <pre><code> resources 
+  | where type =~ 'Microsoft.Network/azureFirewalls' and properties.sku.tier=="Premium"
+  | project FWID=id, firewallName=name, SkuTier=tostring(properties.sku.tier), resourceGroup, location
+  | join kind=inner (
+      resources
+      | where type =~ 'microsoft.network/firewallpolicies'
+      | mv-expand properties.firewalls
+      | extend intrusionDetection=tostring(properties.intrusionDetection contains "Alert" or properties.intrusionDetection contains "Deny"), transportSecurity=tostring(properties.transportSecurity contains "keyVaultSecretId")
+      | extend FWID=tostring(properties_firewalls.id)
+      | where intrusionDetection == "False" and transportSecurity == "False"
+      | project PolicyName=name, PolicySKU=tostring(properties.sku.tier), intrusionDetection, transportSecurity, FWID
+  ) on FWID</code></pre>
+  </div>
+</details>
+
+## Application gateway
+
+### Query: Idle application gateways
+
+This Azure Resource Graph (ARG) query analyzes application gateways and their associated backend pools within your Azure environment. It provides insights into which application gateways have empty backend pools, indicating they may be idle and potentially unnecessary.
 
 
 #### Category
@@ -133,7 +133,7 @@ Optimization
 
 ## Load Balancer
 
-### Query: Idle Load Balancers
+### Query: Idle load balancers
 
 This Azure Resource Graph (ARG) query analyzes Azure load balancers and their associated backend pools within your Azure environment. It provides insights into which load balancers have empty backend pools, indicating they may be idle and potentially unnecessary.
 
@@ -159,9 +159,9 @@ Optimization
   </div>
 </details>
 
-## Public IP Address
+## Public IP address
 
-## Query: Idle Public IP Addresses
+## Query: Idle public IP addresses
 
 This Azure Resource Graph (ARG) query analyzes Azure public ip adresses. It provides insights into which public IPs are idle and potentially unnecessary.
 
@@ -197,7 +197,7 @@ Optimization
 </details>
 
 
-### Query: Identify the Routing Method of Your Public IP Addresses
+### Query: Identify public IP addresses routing method 
 
 This Azure Resource Graph (ARG) query analyzes public IP addresses and identifies the routing method, allocation method, SKU, and other details of public IP addresses that are associated with an IP configuration
 
@@ -219,9 +219,9 @@ Optimization
   </div>
 </details>
 
-### Query: Check Public IP Addresses' DDoS Protection Policy
+### Query: Check public IP addresses' DDoS protection policy
 
-If you need to protect fewer than 15 public IP resources, the IP Protection tier is the more cost-effective option. However, if you have more than 15 public IP resources to protect, then the Network Protection tier becomes more cost-effective.
+If you need to protect fewer than 15 public IP resources, the IP protection tier is the more cost-effective option. However, if you have more than 15 public IP resources to protect, then the network protection tier becomes more cost-effective.
 
 
 #### Category
@@ -246,7 +246,7 @@ Optimization
 
 ## Virtual Network Gateway
 
-### Query: Check for Idle Virtual Network Gateway
+### Query: Check for idle Virtual Network Gateway
 
 This Azure Resource Graph (ARG) query analyzes Virtual Network Gateways within your Azure environment to identify those that are idle.
 
@@ -277,9 +277,9 @@ Optimization
 </details>
 
 
-### Query: Check for Idle NAT Gateway
+### Query: Check for idle NAT gateway
 
-This Azure Resource Graph (ARG) query analyzes NAT Gateways within your Azure environment to identify those that are idle.
+This Azure Resource Graph (ARG) query analyzes NAT gateways within your Azure environment to identify those that are idle.
 
 #### Category
 

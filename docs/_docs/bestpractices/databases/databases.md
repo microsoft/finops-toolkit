@@ -128,7 +128,7 @@ Optimization
 
 ##  SQL Databases 
 
-### Query: SQL DB Idle
+### Query: SQL DB idle
 
 This Azure Resource Graph (ARG) query identifies SQL databases with names indicating they might be old, in development, or used for testing purposes.
 
@@ -152,7 +152,7 @@ Optimization
   </div>
 </details>
 
-### Query: Unused Elastic Pools Analysis
+### Query: Unused Elastic Pools analysis
 
 This Azure Resource Graph (ARG) query identifies potentially idle Elastic Pools in your Azure SQL environment by analyzing the number of databases associated with each Elastic Pool.
 

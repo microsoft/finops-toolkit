@@ -56,7 +56,7 @@ Optimization
 
 ## Disks
 
-### Query: Idle Disks
+### Query: Idle disks
 
 This Azure Resource Graph (ARG) query identifies idle or unattached managed disks within your Azure environment.
 
@@ -84,7 +84,7 @@ and tags !contains 'ASR-ReplicaDisk' and tags !contains 'asrseeddisk'
 </details>
 
 
-### Query: Disk Snapshot Older Than 30 Days
+### Query: Disk snapshot older than 30 days
 
 This Azure Resource Graph (ARG) query identifies disk snapshots that are older than 30 days.
 
@@ -111,7 +111,7 @@ Optimization
 </details>
 
 
-### Query: Snapshot Using Premium Storage
+### Query: Snapshot using premium storage
 
 This Azure Resource Graph (ARG) query identifies disk snapshots that are utilizing premium storage.
 
@@ -128,10 +128,10 @@ Optimization
   <summary>Click to view the code</summary>
   <div class="code-block">
     <pre><code> resources
-| where type == 'microsoft.compute/snapshots'
-| extend StorageSku = tostring(sku.tier), resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup),diskSize=tostring(properties.diskSizeGB)
-| where StorageSku == "Premium"
-| project id,name,StorageSku,diskSize,location,resourceGroup,subscriptionId
+| where type == 'microsoft.compute/snapshots'
+| extend StorageSku = tostring(sku.tier), resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup),diskSize=tostring(properties.diskSizeGB)
+| where StorageSku == "Premium"
+| project id,name,StorageSku,diskSize,location,resourceGroup,subscriptionId
 </code></pre>
   </div>
 </details>
@@ -139,7 +139,7 @@ Optimization
 
 ## Backup
 
-### Query: Idle Backups
+### Query: Idle backups
 
 This Azure Resource Graph (ARG) query analyzes backup items within Azure Recovery Services Vaults and identifies those that have not had a backup for over 90 days.
 
