@@ -1,6 +1,6 @@
 ---
 layout: default
-parent: FinOps best practices library
+parent: Best practices
 permalink: /bestpractices/storage
 nav_order: 2
 title: Storage
@@ -8,13 +8,27 @@ author: arclares
 ms.date: 08/16/2024
 ms.service: finops
 description: 'Discover essential FinOps best practices to optimize cost efficiency and governance for your Azure resources.'
+
 ---
 
-# 📇 Table of Contents
-1. [Storage Account](#storage-account)
-2. [Disks](#disks)
-3. [Backup](#backup)
- 
+<span class="fs-9 d-block mb-4">Storage</span>
+Discover essential FinOps best practices to optimize cost efficiency and governance for your Azure storage resources.
+{: .fs-6 .fw-300 }
+
+[Share feedback](#️-looking-for-more){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+
+<details open markdown="1">
+   <summary class="fs-2 text-uppercase">On this page</summary>
+
+- [🗄️ Storage Account](#storage-account)
+- [💽 Disks](#disks)
+- [💽 Backup](#backup)
+- [🙋‍♀️ Looking for more?](#️-looking-for-more)
+- [🧰 Related tools](#-related-tools)
+
+</details>
+
+---
 
 ## Storage Account
 
@@ -22,19 +36,11 @@ description: 'Discover essential FinOps best practices to optimize cost efficien
 
 This Azure Resource Graph (ARG) query identifies storage accounts that are still using the legacy v1 kind, which may not provide the same features and efficiencies as newer storage account types.
 
-### Description
-
-This query helps in identifying storage accounts that are using the older 'Storage' (v1) or 'BlobStorage' kinds instead of the newer 'StorageV2'. Upgrading to the latest storage account type can offer enhanced features, better performance, and potential cost savings.
-
 #### Category
 
 Optimization
 
-#### Potential Benefits
-
-- **Performance Improvement:** The newer storage account types often offer better performance characteristics.
-- **Cost Efficiency:** Potentially lower costs with the newer storage types due to data tiering options.
-
+#### Query
 
 <details>
   <summary>Click to view the code</summary>
@@ -54,31 +60,25 @@ Optimization
 
 This Azure Resource Graph (ARG) query identifies idle or unattached managed disks within your Azure environment.
 
-### Description
-
-The query helps in identifying managed disks that are not attached to any compute resource and are not in use, which can lead to unnecessary costs. By reviewing these disks, you can determine if they can be deleted or repurposed.
 
 #### Category
 
 Optimization
 
-#### Potential Benefits
-
-- **Cost Savings:** Eliminating unattached disks can reduce your storage costs as you are not paying for unused resources.
+#### Query
 
 <details>
   <summary>Click to view the code</summary>
   <div class="code-block">
     <pre><code> resources 
 | where type =~ 'microsoft.compute/disks' and managedBy == ""
-| where resourceGroup in ({ResourceGroup})
 | extend diskState = tostring(properties.diskState)
 | where managedBy == "" and diskState != 'ActiveSAS'
 or diskState == 'Unattached' and diskState != 'ActiveSAS'  
 and tags !contains 'ASR-ReplicaDisk' and tags !contains 'asrseeddisk'
-| extend DiskId=id, DiskIDfull=id, DiskName=name, SKUName=sku.name, SKUTier=sku.tier, DiskSizeGB=tostring(properties.diskSizeGB), Location=location, TimeCreated=tostring(properties.timeCreated), QuickFix=id, SubId=subscriptionId
+| extend DiskId=id, DiskIDfull=id, DiskName=name, SKUName=sku.name, SKUTier=sku.tier, DiskSizeGB=tostring(properties.diskSizeGB), Location=location, TimeCreated=tostring(properties.timeCreated), SubId=subscriptionId
 | order by DiskId asc 
-| project DiskId, DiskIDfull, DiskName, DiskSizeGB, SKUName, SKUTier, resourceGroup, QuickFix, Location, TimeCreated, subscriptionId,SubId
+| project DiskId, DiskIDfull, DiskName, DiskSizeGB, SKUName, SKUTier, resourceGroup, Location, TimeCreated, subscriptionId
 </code></pre>
   </div>
 </details>
@@ -88,17 +88,13 @@ and tags !contains 'ASR-ReplicaDisk' and tags !contains 'asrseeddisk'
 
 This Azure Resource Graph (ARG) query identifies disk snapshots that are older than 30 days.
 
-### Description
-
-The query helps in identifying outdated disk snapshots that may no longer be needed, leading to potential cost savings and resource optimization.
 
 #### Category
 
 Optimization
 
-#### Potential Benefits
+#### Query
 
-- **Cost Savings:** Deleting outdated snapshots can significantly reduce storage costs, as snapshots can accumulate over time and incur charges.
 
 <details>
   <summary>Click to view the code</summary>
@@ -119,17 +115,14 @@ Optimization
 
 This Azure Resource Graph (ARG) query identifies disk snapshots that are utilizing premium storage.
 
-### Description
-
-The query helps in identifying disk snapshots that are using premium storage, which may not be necessary and could lead to higher costs. By reviewing these snapshots, you can determine if they can be moved to a lower-cost storage option.
 
 #### Category
 
 Optimization
 
-#### Potential Benefits
 
-- **Cost Savings:** Moving snapshots from premium to standard storage can reduce storage costs without compromising the availability or performance for backup and archival purposes.
+#### Query
+
 
 <details>
   <summary>Click to view the code</summary>
@@ -148,19 +141,14 @@ Optimization
 
 ### Query: Idle Backups
 
-This Azure Resource Graph (ARG) query analyzes backup items within Azure Recovery Services Vaults and identifies those that have not had a backup for over 90 days and are associated with specific tags. 
-
-### Description
-
-This query identifies backup items in Azure Recovery Services Vaults that have not been backed up for more than 90 days (considered idle) and are associated with specific tags. By focusing on these idle resources, the query provides insights into which resources may need attention or can be decommissioned.
+This Azure Resource Graph (ARG) query analyzes backup items within Azure Recovery Services Vaults and identifies those that have not had a backup for over 90 days.
 
 #### Category
 
 Optimization
 
-#### Potential Benefits
 
-- **Cost Optimization:**  Identifies backup items that have not been backed up for over 90 days, indicating potentially idle or unnecessary backups that could be reviewed and possibly decommissioned to save costs.
+#### Query
 
 
 <details>
@@ -168,7 +156,14 @@ Optimization
   <div class="code-block">
     <pre><code> recoveryservicesresources
 | where type =~ 'microsoft.recoveryservices/vaults/backupfabrics/protectioncontainers/protecteditems'
-| extend vaultId = tostring(properties.vaultId),resourceId = tostring(properties.sourceResourceId),idleBackup= datetime_diff('day', now(), todatetime(properties.lastBackupTime)) > 90, resourceType=tostring(properties.workloadType), protectionState=tostring(properties.protectionState),lastBackupTime=tostring(properties.lastBackupTime), resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup),lastBackupDate=todatetime(properties.lastBackupTime)
+    | extend vaultId = tostring(properties.vaultId)
+    | extend resourceId = tostring(properties.sourceResourceId)
+    | extend idleBackup= datetime_diff('day', now(), todatetime(properties.lastBackupTime)) > 90
+    | extend  resourceType=tostring(properties.workloadType)
+    | extend protectionState=tostring(properties.protectionState)
+    | extend lastBackupTime=tostring(properties.lastBackupTime)
+    | extend resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)
+    | extend lastBackupDate=todatetime(properties.lastBackupTime)
 | where idleBackup != 0
 | project resourceId,vaultId,idleBackup,lastBackupDate,resourceType,protectionState,lastBackupTime,location,resourceGroup,subscriptionId
 </code></pre>
@@ -180,18 +175,11 @@ Optimization
 
 This Azure Resource Graph (ARG) query retrieves details of Azure Recovery Services Vaults. The query also includes information on the SKU tier, redundancy settings, and other relevant metadata.
 
-### Description
-
-This query identifies Azure Recovery Services Vaults. It provides insights into the SKU tier, redundancy settings, and other properties of the vaults, helping with targeted resource management and configuration verification.
-
 #### Category
 
 Optimization
 
-#### Potential Benefits
-
-- **Configuration Insights:** Provides detailed insights into the vaults' SKU tier and redundancy settings, assisting in verifying that resources are configured according to organizational standards and policies.
-
+#### Query
 
 <details>
   <summary>Click to view the code</summary>
@@ -199,9 +187,29 @@ Optimization
     <pre><code> Resources
 | where type == 'microsoft.recoveryservices/vaults'
 | where resourceGroup in ({ResourceGroup})
-| extend skuTier = tostring(sku['tier']), skuName = tostring(sku['name']), resourceGroup = strcat('/subscriptions/', subscriptionId, '/resourceGroups/', resourceGroup), redundancySettings = tostring(properties.redundancySettings['standardTierStorageRedundancy'])
+    | extend skuTier = tostring(sku['tier'])
+    | extend skuName = tostring(sku['name'])
+    | extend resourceGroup = strcat('/subscriptions/', subscriptionId, '/resourceGroups/', resourceGroup)
+    | extend redundancySettings = tostring(properties.redundancySettings['standardTierStorageRedundancy'])
 | order by id asc
 | project id, redundancySettings, resourceGroup, location, subscriptionId, skuTier, skuName
 </code></pre>
   </div>
 </details>
+
+
+## 🙋‍♀️ Looking for more?
+
+We'd love to hear about any datasets you're looking for. Create a new issue with the details that you'd like to see either included in existing or new best practices.
+
+[Share feedback](https://aka.ms/ftk/idea){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+
+<br>
+
+---
+
+## 🧰 Related tools
+
+{% include tools.md bicep="0" data="0" gov="0" hubs="0" opt="1" pbi="0" ps="0" %}
+
+<br>
