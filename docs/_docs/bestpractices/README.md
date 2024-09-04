@@ -6,6 +6,7 @@ description: 'Discover essential FinOps best practices to optimize cost efficien
 permalink: /bestpractices
 
 ---
+
 <span class="fs-9 d-block mb-4">FinOps best practices Library</span>
 
 Discover essential proven practices to manage and optimize cost, usage, and carbon efficiency across your Microsoft Cloud environment.
@@ -32,6 +33,7 @@ Discover essential proven practices to manage and optimize cost, usage, and carb
 - [Networking](networking/networking.md)
 - [Storage](storage/storage.md)
 - [Sustainability](sustainability/sustainability.md)
+- [Web](sustainability/web.md)
 
 <br>
 
