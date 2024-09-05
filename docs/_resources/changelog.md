@@ -63,6 +63,13 @@ Legend:
 > 3. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
 > 4. Added documentation to use a SAS token to configuring Power BI reports.
 
+🦾 Bicep modules
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Cost Management export modules for subscriptions and resource groups.
+
 <br><a name="latest"></a>
 
 ## 🚚 v0.5
@@ -115,6 +122,11 @@ Legend:
 >
 > 1. Changed the Event Grid location selection logic to only identify fallback regions rather than supported regions.
 > 2. Expanded cost estimate documentation to call out Power BI pricing and include a link to the Pricing Calculator.
+>
+> 🛠️ Fixed:
+>
+> 1. Updated the config_ConfigureExports pipeline to handle when scopes in settings.json is not an object.
+> 2. Fixed a bug where scopes added via the Add-FinOpsHubScope command are not added correctly due to missing brackets.
 
 📒 Azure Monitor workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -162,6 +174,15 @@ Legend:
 >
 > 1. Added support for FOCUS, pricesheet, and reservation dataset filters in [Get-FinOpsCostExport](../_automation/powershell/cost/Get-FinOpsCostExport.md).
 > 2. Added a `-DatasetVersion` filter in [Get-FinOpsCostExport](../_automation/powershell/cost/Get-FinOpsCostExport.md).
+>
+> ✏️ Changed:
+>
+> 1. Update Get-AzAccessToken calls to use -AsSecureString ([#946](https://github.com/microsoft/finops-toolkit/issues/946)).
+>
+> 🛠️ Fixed:
+>
+> 1. Fixed [New-FinOpsCostExport](../_automation/powershell/cost/New-FinOpsCostExport.md) to address breaking change in Cost Management when storage paths start with "/".
+> 2. Fixed a bug where scopes added via the Add-FinOpsHubScope command are not added correctly due to missing brackets.
 
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -173,17 +194,17 @@ Legend:
 > - [Regions](../_reporting/data/README.md#️-regions)
 >   1. Added the following new region values: "asiapacific", "australia", azure "stack", "eastsu2", "gbs", germany west "central", "japan", sweden "central", "unitedstates", us dod "central", us dod "east", us gov "iowa", us gov "virginia", "us2", "usa", "usv".
 > - [Resource types](../_reporting/data/README.md#️-resource-types)
->   1. Added the following new resource types: "microsoft.app/logicapps", "microsoft.app/logicapps/workflows", "microsoft.azurebusinesscontinuity/deletedunifiedprotecteditems", "microsoft.azurebusinesscontinuity/unifiedprotecteditems", "microsoft.azurecis/publishconfigvalues", "microsoft.compositesolutions/compositesolutiondefinitions", "microsoft.compositesolutions/compositesolutions", "microsoft.datareplication/replicationvaults/alertsettings", "microsoft.datareplication/replicationvaults/events", "microsoft.datareplication/replicationvaults/jobs", "microsoft.datareplication/replicationvaults/jobs/operations", "microsoft.datareplication/replicationvaults/operations", "microsoft.datareplication/replicationvaults/protecteditems", "microsoft.datareplication/replicationvaults/protecteditems/operations", "microsoft.datareplication/replicationvaults/protecteditems/recoverypoints", "microsoft.datareplication/replicationvaults/replicationextensions", "microsoft.datareplication/replicationvaults/replicationextensions/operations", "microsoft.datareplication/replicationvaults/replicationpolicies", "microsoft.datareplication/replicationvaults/replicationpolicies/operations", "microsoft.deviceregistry/billingcontainers", "microsoft.deviceregistry/discoveredassetendpointprofiles", "microsoft.deviceregistry/discoveredassets", "microsoft.deviceregistry/schemaregistries", "microsoft.deviceregistry/schemaregistries/schemas", "microsoft.deviceregistry/schemaregistries/schemas/schemaversions", "microsoft.eventgrid/systemtopics/eventsubscriptions", "microsoft.hardware/orders", "microsoft.hybridcompute/machines/microsoft.awsconnector/ec2instances", "microsoft.hybridonboarding/extensionmanagers", "microsoft.iotoperations/instances", "microsoft.iotoperations/instances/brokers", "microsoft.iotoperations/instances/brokers/authentications", "microsoft.iotoperations/instances/brokers/authorizations", "microsoft.iotoperations/instances/brokers/listeners", "microsoft.iotoperations/instances/dataflowendpoints", "microsoft.iotoperations/instances/dataflowprofiles", "microsoft.iotoperations/instances/dataflowprofiles/dataflows", "microsoft.messagingconnectors/connectors", "microsoft.mobilepacketcore/networkfunctions", "microsoft.saashub/cloudservices/hidden", "microsoft.secretsynccontroller/azurekeyvaultsecretproviderclasses", "microsoft.secretsynccontroller/secretsyncs", "microsoft.storagepool/diskpools/iscsitargets", "microsoft.windowsesu/multipleactivationkeys".
+>   1. Added the following new resource types: "microsoft.app/logicapps", "microsoft.app/logicapps/workflows", "microsoft.azurebusinesscontinuity/deletedunifiedprotecteditems", "microsoft.azurebusinesscontinuity/unifiedprotecteditems", "microsoft.azurecis/publishconfigvalues", "microsoft.compositesolutions/compositesolutiondefinitions", "microsoft.compositesolutions/compositesolutions", "microsoft.compute/capacityreservationgroups/capacityreservations", "microsoft.compute/virtualmachinescalesets/virtualmachines", "microsoft.datareplication/replicationvaults/alertsettings", "microsoft.datareplication/replicationvaults/events", "microsoft.datareplication/replicationvaults/jobs", "microsoft.datareplication/replicationvaults/jobs/operations", "microsoft.datareplication/replicationvaults/operations", "microsoft.datareplication/replicationvaults/protecteditems", "microsoft.datareplication/replicationvaults/protecteditems/operations", "microsoft.datareplication/replicationvaults/protecteditems/recoverypoints", "microsoft.datareplication/replicationvaults/replicationextensions", "microsoft.datareplication/replicationvaults/replicationextensions/operations", "microsoft.datareplication/replicationvaults/replicationpolicies", "microsoft.datareplication/replicationvaults/replicationpolicies/operations", "microsoft.deviceregistry/billingcontainers", "microsoft.deviceregistry/discoveredassetendpointprofiles", "microsoft.deviceregistry/discoveredassets", "microsoft.deviceregistry/schemaregistries", "microsoft.deviceregistry/schemaregistries/schemas", "microsoft.deviceregistry/schemaregistries/schemas/schemaversions", "microsoft.eventgrid/systemtopics/eventsubscriptions", "microsoft.hardware/orders", "microsoft.hybridcompute/machines/microsoft.awsconnector/ec2instances", "microsoft.hybridonboarding/extensionmanagers", "microsoft.iotoperations/instances", "microsoft.iotoperations/instances/brokers", "microsoft.iotoperations/instances/brokers/authentications", "microsoft.iotoperations/instances/brokers/authorizations", "microsoft.iotoperations/instances/brokers/listeners", "microsoft.iotoperations/instances/dataflowendpoints", "microsoft.iotoperations/instances/dataflowprofiles", "microsoft.iotoperations/instances/dataflowprofiles/dataflows", "microsoft.messagingconnectors/connectors", "microsoft.mobilepacketcore/networkfunctions", "microsoft.saashub/cloudservices/hidden", "microsoft.secretsynccontroller/azurekeyvaultsecretproviderclasses", "microsoft.secretsynccontroller/secretsyncs", "microsoft.storagepool/diskpools/iscsitargets", "microsoft.usagebilling/accounts/dataexports", "microsoft.usagebilling/accounts/metricexports", "microsoft.windowsesu/multipleactivationkeys".
 > - [Services](../_reporting/data/README.md#️-services)
 >   1. Added the following consumed services:  "API Center", "API Management", "Bastion Scale Units", "Microsoft.Community", "Microsoft.DataReplication.Admin", "Microsoft.DevOpsInfrastructure", "Microsoft.Dynamics365FraudProtection", "Microsoft.HybridContainerService", "Microsoft.NetworkFunction", "Microsoft.RecommendationsService", "Microsoft.ServiceNetworking", "Virtual Network".
 >   2. Added the following resource types to existing services:  "Microsoft.AgFoodPlatform/farmBeats", "Microsoft.App/sessionPools", "Microsoft.AzureActiveDirectory/ciamDirectories", "Microsoft.AzureArcData/sqlServerEsuLicenses", "Microsoft.Graph/accounts", "Microsoft.MachineLearningServices/registries", "Microsoft.Orbital/groundStations", "PlayFabBillingService/partyVoice".
 >
-> ✏️ Changed
+> ✏️ Changed:
 >
 > - [Pricing units](../_reporting/data/README.md#-pricing-units)
 >   1. Changed DistinctUnits for the "10000s" UnitOfMeasure from "Units" to "Transactions".
 > - [Resource types](../_reporting/data/README.md#️-resource-types)
->   1. Updated the following resource types: "microsoft.apimanagement/gateways", "microsoft.azurearcdata/sqlserveresulicenses", "microsoft.azurestackhci/edgenodepools", "microsoft.azurestackhci/galleryimages", "microsoft.azurestackhci/logicalnetworks", "microsoft.azurestackhci/marketplacegalleryimages", "microsoft.azurestackhci/networkinterfaces", "microsoft.azurestackhci/storagecontainers", "microsoft.cache/redisenterprise", "microsoft.cache/redisenterprise/databases", "microsoft.databricks/accessconnectors", "microsoft.datareplication/replicationvaults", "microsoft.devhub/iacprofiles", "microsoft.edge/sites", "microsoft.eventhub/namespaces", "microsoft.hybridcompute/gateways", "microsoft.impact/connectors", "microsoft.iotoperationsorchestrator/instances", "microsoft.iotoperationsorchestrator/solutions", "microsoft.iotoperationsorchestrator/targets", "microsoft.kubernetesruntime/loadbalancers", "microsoft.manufacturingplatform/manufacturingdataservices", "microsoft.network/dnsforwardingrulesets", "microsoft.network/dnsresolvers", "microsoft.network/dnszones", "microsoft.powerbidedicated/capacities", "microsoft.programmableconnectivity/gateways", "microsoft.programmableconnectivity/operatorapiconnections", "microsoft.programmableconnectivity/operatorapiplans", "microsoft.sovereign/transparencylogs", "microsoft.storagepool/diskpools".
+>   1. Updated the following resource types: "microsoft.apimanagement/gateways", "microsoft.azurearcdata/sqlserveresulicenses", "microsoft.azurestackhci/edgenodepools", "microsoft.azurestackhci/galleryimages", "microsoft.azurestackhci/logicalnetworks", "microsoft.azurestackhci/marketplacegalleryimages", "microsoft.azurestackhci/networkinterfaces", "microsoft.azurestackhci/storagecontainers", "microsoft.cache/redisenterprise", "microsoft.cache/redisenterprise/databases", "microsoft.databricks/accessconnectors", "microsoft.datareplication/replicationvaults", "microsoft.devhub/iacprofiles", "microsoft.edge/sites", "microsoft.eventhub/namespaces", "microsoft.hybridcompute/gateways", "microsoft.impact/connectors", "microsoft.iotoperationsorchestrator/instances", "microsoft.iotoperationsorchestrator/solutions", "microsoft.iotoperationsorchestrator/targets", "microsoft.kubernetesruntime/loadbalancers", "microsoft.manufacturingplatform/manufacturingdataservices", "microsoft.network/dnsforwardingrulesets", "microsoft.network/dnsresolvers", "microsoft.network/dnszones", "microsoft.powerbidedicated/capacities", "microsoft.programmableconnectivity/gateways", "microsoft.programmableconnectivity/operatorapiconnections", "microsoft.programmableconnectivity/operatorapiplans", "microsoft.resources/subscriptions/resourcegroups", "microsoft.security/pricings", "microsoft.sovereign/transparencylogs", "microsoft.storagepool/diskpools".
 >   2. Updated multiple resource types for the following resource providers: "microsoft.awsconnector".
 >   3. Changed the following resource providers to be GA: "microsoft.modsimworkbench".
 > - [Services](../_reporting/data/README.md#️-services)
@@ -251,7 +272,7 @@ Legend:
 > - [Data ingestion](../_reporting/power-bi/data-ingestion.md):
 >   1. [Ingestion errors page](../_reporting/power-bi/data-ingestion.md#ingestion-errors) to help identify FinOps hub data ingestion issues.
 >
-> ✏️ Changed
+> ✏️ Changed:
 >
 > - General:
 >   1. Changed the **Tags** column to default to `{}` when empty to facilitate tag expansion ([#691](https://github.com/microsoft/finops-toolkit/issues/691#issuecomment-2134072033)).
@@ -342,7 +363,7 @@ Legend:
 > 1. Added a new FOCUS 1.0 [dataset example](../_reporting/data/README.md#️-dataset-examples).
 > 2. Added [dataset metadata](../_reporting/data/README.md#️-dataset-metadata) for FOCUS 1.0 and FOCUS 1.0-preview.
 >
-> ✏️ Changed
+> ✏️ Changed:
 >
 > 1. Updated all [open data files](../_reporting/data/README.md) to include the latest data.
 > 2. Changed the primary columns in the [Regions](../_reporting/data/README.md#️-regions) and [Services](../_reporting/data/README.md#️-services) open data files to be lowercase.
@@ -581,8 +602,8 @@ Legend:
 > ➕ Added:
 >
 > 1. New PowerShell commands to convert data to FOCUS 0.5:
->    1. [ConvertTo-FinOpsSchema](../_automation/powershell/focus/ConvertTo-FinOpsSchema.md)
->    2. [Invoke-FinOpsSchemaTransform](../_automation/powershell/focus/Invoke-FinOpsSchemaTransform.md)
+>    1. ConvertTo-FinOpsSchema
+>    2. Invoke-FinOpsSchemaTransform
 > 2. New PowerShell commands to get and delete Cost Management exports:
 >    1. [Get-FinOpsCostExport](../_automation/powershell/cost/Get-FinOpsCostExport.md)
 >    2. [Remove-FinOpsCostExport](../_automation/powershell/cost/Remove-FinOpsCostExport.md)
@@ -696,7 +717,7 @@ Legend:
 
 > ➕ Added:
 >
-> 1. [Scheduled action modules](../_automation/bicep-registry/README.md#scheduled-actions) submitted to the Bicep Registry.
+> 1. [Scheduled action modules](../_automation/bicep-registry/scheduled-actions.md) submitted to the Bicep Registry.
 
 📒 Azure Monitor workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }

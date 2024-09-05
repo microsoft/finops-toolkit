@@ -46,7 +46,7 @@ invoicing and Chargeback enables increased transparency, more direct accountabil
 
 ## ✋ Before you begin
 
-Chargeback, cost allocation, and showback are all important components of your FinOps practice. While you can implement them in any order, we generally recommend most organizations start with [showback](../understand/reporting.md) to ensure each team has visibility of the charges they're responsible for – at least at a cloud scope level. Then implement [cost allocation](../understand/allocation.md) to align cloud costs to the organizational reporting hierarchies, and lastly implement chargeback based on that cost allocation strategy. Consider reviewing the [Data analysis and showback](../understand/reporting.md) and [Cost allocation](../understand/allocation.md) capabilities if you haven't implemented them yet. You may also find [Managing shared costs](../understand/shared-cost.md) and [Managing commitment discounts](../optimize/rates.md) capabilities to be helpful in implementing a complete chargeback solution.
+Chargeback, cost allocation, and showback are all important components of your FinOps practice. While you can implement them in any order, we generally recommend most organizations start with [showback](../understand/reporting.md) to ensure each team has visibility of the charges they're responsible for – at least at a cloud scope level. Then implement [cost allocation](../understand/allocation.md) to align cloud costs to the organizational reporting hierarchies, and lastly implement chargeback based on that cost allocation strategy. Consider reviewing the [Data analysis and showback](../understand/reporting.md) and [Cost allocation](../understand/allocation.md) capabilities if you haven't implemented them yet. You may also find the [Rate optimization](../optimize/rates.md) capability to be helpful in implementing a complete chargeback solution.
 
 <br>
 
@@ -89,7 +89,7 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 Related FinOps capabilities:
 
-- [Data analysis and showback](../understand/reporting.md)
+- [Reporting and analytics](../understand/reporting.md)
 - [Allocation](../understand/allocation.md)
 - [Rate optimization](../optimize/rates.md)
 
