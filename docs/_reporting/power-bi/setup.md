@@ -18,7 +18,7 @@ Publish new Power BI reports based on FinOps toolkit starter kits, extend them t
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [➕ Setup your first report](#-setup-your-first-report)
-- [� Use a SAS token to connect data to a report](#-use-a-sas-token-to-connect-data-to-a-report)
+- [🔑 Use a SAS token to connect data to a report](#-use-a-sas-token-to-connect-data-to-a-report)
 - [📋 Copy queries from a toolkit report](#-copy-queries-from-a-toolkit-report)
 - [🛠️ Connect manually](#️-connect-manually)
 - [🚚 Migrate from the Cost Management template app](#-migrate-from-the-cost-management-template-app)
