@@ -3,7 +3,7 @@ layout: default
 title: Best practices
 has_children: true
 description: 'Discover essential FinOps best practices to optimize cost efficiency and governance for your Azure resources.'
-permalink: /bestpractices
+permalink: /best-practices
 
 ---
 
@@ -33,7 +33,8 @@ Discover essential proven practices to manage and optimize cost, usage, and carb
 - [Networking](networking/networking.md)
 - [Storage](storage/storage.md)
 - [Sustainability](sustainability/sustainability.md)
-- [Web](sustainability/web.md)
+- [Web](web/web.md)
+
 
 <br>
 

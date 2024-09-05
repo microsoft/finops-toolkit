@@ -78,7 +78,7 @@ Legend:
 📗 FinOps guide
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
-> 🚚💎 Minor
+> ➕ Added:
 >
 > 1. Published initial guidance for FinOps best practices. For the initial commit, this page contains the Azure Resource Graph (ARG) queries used by the Cost Optimization workbook.
 

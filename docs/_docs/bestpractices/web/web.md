@@ -1,7 +1,7 @@
 ---
 layout: default
 parent: Best practices
-permalink: /bestpractices/web
+permalink: /best-practices/web
 nav_order: 2
 title: Web
 author: arclares
@@ -28,7 +28,7 @@ Discover essential FinOps best practices to optimize cost efficiency and governa
 
 ---
 
-## Azure App Service
+## App Service
 
 ### Query: Web Application Status
 

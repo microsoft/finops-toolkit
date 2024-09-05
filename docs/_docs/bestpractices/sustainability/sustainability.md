@@ -1,7 +1,7 @@
 ---
 layout: default
 parent: Best practices
-permalink: /bestpractices/Sustainability
+permalink: /best-practices/Sustainability
 nav_order: 2
 title: Sustainability
 author: arclares
@@ -32,7 +32,7 @@ Discover essential FinOps best practices to optimize cost efficiency and governa
 
 ## Carbon Optimization
 
-### Query: Carbon Emissions
+### Query: Carbon emissions
 
 This Azure Resource Graph (ARG) query identifies resources within your Azure environment that have recommendations for reducing carbon emissions, based on Azure Advisor recommendations.
 
@@ -66,6 +66,7 @@ Sustainability
   </div>
 </details>
 
+<br>
 
 ## 🙋‍♀️ Looking for more?
 

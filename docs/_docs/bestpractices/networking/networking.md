@@ -1,7 +1,7 @@
 ---
 layout: default
 parent: Best practices
-permalink: /bestpractices/networking
+permalink: /best-practices/networking
 nav_order: 2
 title: Networking
 author: arclares
@@ -34,7 +34,7 @@ Discover essential FinOps best practices to optimize cost efficiency and governa
 ---
 
 
-## Azure firewall 
+## Azure Firewall 
 
 ### Query: Azure firewall and firewall policies analysis
 
@@ -66,7 +66,7 @@ Optimization
 </details>
 
 
-### Query: Azure firewall and associated subnets analysis
+### Query: Azure Firewall and associated subnets analysis
 
 This Azure Resource Graph (ARG) query analyzes Azure firewalls and their associated subnets within your Azure environment. It provides insights into which subnets are associated with each Azure firewall instance. Optimize the use of Azure firewall by having a central instance of Azure firewall in the hub virtual network or Virtual WAN secure hub and share the same firewall across many spoke virtual networks that are connected to the same hub from the same region.
 
@@ -95,7 +95,9 @@ Optimization
   </div>
 </details>
 
-## Application gateway
+<br>
+
+## Application Gateway
 
 ### Query: Idle application gateways
 
@@ -131,6 +133,8 @@ Optimization
   </div>
 </details>
 
+<br>
+
 ## Load Balancer
 
 ### Query: Idle load balancers
@@ -158,6 +162,8 @@ Optimization
 </code></pre>
   </div>
 </details>
+
+<br>
 
 ## Public IP address
 
@@ -244,6 +250,8 @@ Optimization
   </div>
 </details>
 
+<br>
+
 ## Virtual Network Gateway
 
 ### Query: Check for idle Virtual Network Gateway
@@ -297,11 +305,13 @@ Optimization
   </div>
 </details>
 
-## Express Route
+<br>
 
-### Query: Idle Express Route
+## ExpressRoute
 
-This Azure Resource Graph (ARG) query analyzes Express Route circuits within your Azure environment to identify those without a completed circuit.
+### Query: Idle ExpressRoute circuits
+
+This Azure Resource Graph (ARG) query analyzes ExpressRoute circuits within your Azure environment to identify those without a completed circuit.
 
 #### Category
 
@@ -320,6 +330,8 @@ Optimization
 </code></pre>
   </div>
 </details>
+
+<br>
 
 ## Private DNS
 
@@ -342,6 +354,8 @@ Optimization
 </code></pre>
   </div>
 </details>
+
+<br>
 
 ## 🙋‍♀️ Looking for more?
 

@@ -1,7 +1,7 @@
 ---
 layout: default
 parent: Best practices
-permalink: /bestpractices/storage
+permalink: /best-practices/storage
 nav_order: 2
 title: Storage
 author: arclares
@@ -30,7 +30,7 @@ Discover essential FinOps best practices to optimize cost efficiency and governa
 
 ---
 
-## Storage Account
+## Storage accounts
 
 ### Query: Storage account v1
 
@@ -53,6 +53,8 @@ Optimization
 | project id,StorageAccountName, SKUName, SKUTier, SAKind,AccessTier, resourceGroup, Location, subscriptionId</code></pre>
   </div>
 </details>
+
+<br>
 
 ## Disks
 
@@ -136,6 +138,7 @@ Optimization
   </div>
 </details>
 
+<br>
 
 ## Backup
 
@@ -197,6 +200,7 @@ Optimization
   </div>
 </details>
 
+<br>
 
 ## 🙋‍♀️ Looking for more?
 

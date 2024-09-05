@@ -1,7 +1,7 @@
 ---
 layout: default
 parent: Best practices
-permalink: /bestpractices/compute
+permalink: /best-practices/compute
 nav_order: 2
 title: Compute
 author: arclares
@@ -57,13 +57,13 @@ Waste reduction
   </div>
 </details>
 
-### Query: Virtual machine scale sets details
+### Query: Virtual machine scale set details
 
 This query analyzes Virtual Machine Scale Sets (VMSS) in your Azure environment based on their SKU, spot VM priority, and priority mix policy. It provides insights for cost optimization and resource management strategies.
 
 #### Category
 
-Optimization
+Resource management
 
 #### Query
 
@@ -150,6 +150,8 @@ Resource management
 </code></pre>
   </div>
 </details>
+
+<br>
 
 ## 🙋‍♀️ Looking for more?
 

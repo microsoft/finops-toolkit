@@ -1,7 +1,7 @@
 ---
 layout: default
 parent: Best practices
-permalink: /bestpractices/databases
+permalink: /best-practices/databases
 nav_order: 2
 title: Databases
 author: arclares
@@ -126,6 +126,8 @@ Optimization
   </div>
 </details>
 
+<br>
+
 ##  SQL Databases 
 
 ### Query: SQL DB idle
@@ -179,6 +181,8 @@ Optimization
 </code></pre>
   </div>
 </details>
+
+<br>
 
 ## 🙋‍♀️ Looking for more?
 
