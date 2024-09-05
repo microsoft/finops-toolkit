@@ -21,7 +21,7 @@ This article helps you understand the FinOps tools and services capability withi
 
 **FinOps tools and services encapsulates identifying, configuring, and integrating tools and services that meet the needs of FinOps capabilities and enable the FinOps practice at scale throughout the organization.**
 
-Define selection criteria that maps to organizational needs and objectives and select the tools and services that complement each other and offer the best coverage. Prefer tools and services that can integrate easily with existing tools and processes to maximize return on investment.
+Define selection criteria that maps to organizational needs and objectives and select the tools and services that complement each other and offer the best coverage. To maximize your return on investment (ROI), prefer tools and services that can integrate easily with existing tools and processes.
 
 Implement and test tools and services to validate hypotheses before scaling efforts out to the rest of the organization. Track adoption as part of your assessment and maturity efforts. Periodically review selection criteria to ensure tools and services continue to meet the targeted objectives.
 
@@ -35,18 +35,18 @@ To clarify terminology, a FinOps "tool" is a software solution that facilitates 
 
 ## Getting started
 
-When you first start managing cost in the cloud, you use the native tools available in the portal. This includes, but is not limited to:
+When you first start managing cost in the cloud, you use the native tools available in the portal, including but no limited to:
 
 - **Microsoft Cost Management**: A suite of tools designed to help organizations monitor, allocate, and optimize their cloud costs within the Microsoft Cloud.
 - **Azure Advisor**: Follow best practices to optimize your Microsoft Cloud deployments.  
 - **Pricing Calculator**: Helps you configure and estimate the costs for Azure products and features based on specific scenarios.  
 
-If you're migrating on-premises infrastructure to the cloud, you'll also be interested in:
+If you're migrating on-premises infrastructure to the cloud, you might also be interested in:
 
 - **TCO Calculator**: Allows you to estimate the cost savings achievable by migrating your application workloads to Microsoft Cloud.  
 - **Azure Migrate**: Discover, migrate, and modernize on-premises infrastructure.
 
-As you dig deeper into optimization and governance, you'll start to use:
+As you dig deeper into optimization and governance, you start to use:
 
 - **Azure Monitor**: Monitoring solution that collects, analyzes, and responds to monitoring data from cloud and on-premises environments.
 - **Azure Resource Graph**: Powerful management tool to query, explore, and analyze your cloud resources at scale.
@@ -65,11 +65,11 @@ Once you have a consolidated list of the Microsoft, third-party, and homegrown t
 
 ## Building on the basics
 
-At this point, you've defined your organizational objectives, identified how current tools and services meet them, and hopefully identified any limitations and gaps. As you move beyond the basics, you'll focus on establishing a plan to address limitations and gaps or opportunities to go beyond your basic requirements to further maximize cloud ROI through new opportunities made available via new or existing tools and services.
+At this point, you defined your organizational objectives, identified how current tools and services meet them, and hopefully identified any limitations and gaps. As you move beyond the basics, you focus on establishing a plan to address limitations and gaps or opportunities to go beyond your basic requirements to further maximize cloud ROI through new opportunities made available via new or existing tools and services.
 
-- Evaluate limitations and gaps in existing tools and services and establish a plan to address them.
+- Evaluate limitations and gaps in existing tools and services and establish a plan to address.
   - Automate tasks with [PowerShell commands](https://aka.ms/ftk/ps) and [Bicep modules](https://aka.ms/ftk/bicep).
-  - Consider lightweight tools for engineers, like the [Cost optimization](../../../toolkit/optimization-workbook/cost-optimization-workbook.md) or [Governance](https://microsoft.github.io/finops-toolkit/governance-workbook) workbooks.
+  - Consider lightweight tools for engineers, like the [Cost optimization](../../toolkit/optimization-workbook/cost-optimization-workbook.md) or [Governance](https://microsoft.github.io/finops-toolkit/governance-workbook) workbooks.
   - If you're looking for an extensible platform for reporting and analytics, check out [FinOps hubs](https://aka.ms/finops/hubs) and connect to your hub from Microsoft Fabric to go even further.
 - Document the key processes around the tools and services available to teams.
   - Include when to use and how to get started with each.
@@ -103,7 +103,7 @@ Related solutions:
 
 - [FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi)
 - [FinOps hubs](https://aka.ms/finops/hubs)
-- [Cost optimization workbook](../../../toolkit/optimization-workbook/cost-optimization-workbook.md)
+- [Cost optimization workbook](../../toolkit/optimization-workbook/cost-optimization-workbook.md)
 - [Governance workbook](https://microsoft.github.io/finops-toolkit/governance-workbook)
 - [FinOps toolkit PowerShell commands](https://aka.ms/ftk/ps)
 - [FinOps toolkit bicep modules](https://aka.ms/ftk/bicep)

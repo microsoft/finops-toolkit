@@ -14,13 +14,13 @@ ms.reviewer: micflan
 
 This article helps you understand the **Understand cloud usage and cost** domain within the FinOps Framework and how to implement its capabilities in the Microsoft Cloud.
 
-This domain is focused on data acquisition, reporting, analysis, and alerting on top of your cost, usage, and carbon consumption. This domain is all about observability and business intelligence, bringing the data stakeholders need together (ingestion) into a meaningful breakdown for the organization (allocation) that can be reported on (reporting) and monitored to proactively identify and react to issues (anomalies).
+This domain is focused on data acquisition, reporting, analysis, and alerting on top of your cost, usage, and carbon consumption. This domain focuses on observability and business intelligence. It involves gathering data (ingestion), organizing it for the organization (allocation), generating reports (reporting), and monitoring to proactively identify and address issues (anomalies).
 
 <br>
 
 ## Data ingestion
 
-Data ingestion refers to the process of collecting, transforming, and organizing data from various sources into a single, easily accessible repository. With this capability, you will identify data sources needed to support your FinOps practice and facilitate FinOps tasks.
+Data ingestion refers to the process of collecting, transforming, and organizing data from various sources into a single, easily accessible repository. With this capability, you identify data sources needed to support your FinOps practice and facilitate FinOps tasks.
 
 To learn more, see [Data ingestion](./ingestion.md).
 
@@ -28,7 +28,7 @@ To learn more, see [Data ingestion](./ingestion.md).
 
 ## Allocation
 
-Allocation refers to the process of attributing, assigning, and redistributing shared cost and usage using accounts, tags, and other metadata to establish accountability among teams and projects within an organization. With this capability, you will identify the metadata needed to map cost, usage, and carbon data to the teams responsible. This capability is critical to support organizational reporting and driving the right level of accountability.
+Allocation is the process of attributing, assigning, and redistributing shared costs and usage by using accounts, tags, and other metadata. It helps establish accountability among teams and projects within an organization. With this capability, you identify the metadata needed to map cost, usage, and carbon data to the teams responsible. This capability is critical to support organizational reporting and driving the right level of accountability.
 
 To learn more, see [Allocation](./allocation.md).
 
@@ -36,7 +36,7 @@ To learn more, see [Allocation](./allocation.md).
 
 ## Reporting and analytics
 
-Reporting and analytics refers to the analysis of cloud data and creation of reports to gain insights into usage and spend patterns, identify opportunities for improvement, and support informed decision-making about cloud resources. With this capability, you will identify and build the reports and reporting infrastructure needed to facilitate other FinOps capabilities. This capability is critical to ensuring proper visibility and transparency and unblocks monitoring and optimization at scale across the organization.
+Reporting and analytics involve analyzing cloud data and creating reports to understand usage and spending patterns. It helps identify opportunities for improvement and supports informed decision-making about cloud resources. With this capability, you identify and build the reports and reporting infrastructure needed to facilitate other FinOps capabilities. This capability is critical to ensuring proper visibility and transparency and unblocks monitoring and optimization at scale across the organization.
 
 To learn more, see [Reporting and analytics](./reporting.md).
 
@@ -44,7 +44,7 @@ To learn more, see [Reporting and analytics](./reporting.md).
 
 ## Anomaly management
 
-Anomaly management refers to the practice of detecting and addressing abnormal or unexpected cost and usage patterns in a timely manner. With this capability, you will identify, triage, and address unexpected changes in cost, usage, and carbon. This capability is especially important with usage-based billing and sustainability models, where small fluctuations in usage can result in large fiscal and environmental impact.
+Anomaly management refers to the practice of detecting and addressing abnormal or unexpected cost and usage patterns in a timely manner. With this capability, you identify, triage, and address unexpected changes in cost, usage, and carbon. This capability is especially important with usage-based billing and sustainability models, where small fluctuations in usage can result in large fiscal and environmental impact.
 
 To learn more, see [Anomaly management](./anomalies.md).
 
@@ -54,9 +54,9 @@ To learn more, see [Anomaly management](./anomalies.md).
 
 Related FinOps capabilities:
 
-- [Quantify business value](../quantify/overview.md)
-- [Optimize cloud usage and cost](../optimize/overview.md)
-- [Manage the FinOps practice](../manage/overview.md)
+- [Quantify business value](../quantify/quantify-business-value.md)
+- [Optimize cloud usage and cost](../optimize/optimize-cloud-usage-cost.md)
+- [Manage the FinOps practice](../manage/manage-finops.md)
 
 Related products:
 
@@ -67,7 +67,7 @@ Related products:
 
 Related solutions:
 
-- [Microsoft Cloud for Sustainability](industry/sustainability)
+- [Microsoft Cloud for Sustainability](https://www.microsoft.com/sustainability/cloud)
 - [FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi)
 - [FinOps hubs](https://aka.ms/finops/hubs)
 - [FinOps toolkit Bicep Registry modules](https://aka.ms/ftk/bicep)
