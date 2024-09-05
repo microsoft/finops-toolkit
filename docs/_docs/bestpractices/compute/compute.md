@@ -29,6 +29,47 @@ Discover essential FinOps best practices to optimize cost efficiency and governa
 
 ---
 
+## Azure Kubernetes Service
+
+### Query: AKS Cluster
+
+This Azure Resource Graph (ARG) query retrieves detailed information about Azure Kubernetes Service (AKS) clusters within your Azure environment. 
+
+#### Category
+
+Resource management
+
+#### Query
+
+<details>
+  <summary>Click to view the code</summary>
+  <div class="code-block">
+    <pre><code>resources
+  | where type == "microsoft.containerservice/managedclusters"
+  | extend AgentPoolProfiles = properties.agentPoolProfiles
+  | mvexpand AgentPoolProfiles
+  | project
+      id,
+      ProfileName = tostring(AgentPoolProfiles.name),
+      Sku = tostring(sku.name),
+      Tier = tostring(sku.tier),
+      mode = AgentPoolProfiles.mode,
+      AutoScaleEnabled = AgentPoolProfiles.enableAutoScaling,
+      SpotVM = AgentPoolProfiles.scaleSetPriority,
+      VMSize = tostring(AgentPoolProfiles.vmSize),
+      nodeCount = tostring(AgentPoolProfiles.['count']),
+      minCount = tostring(AgentPoolProfiles.minCount),
+      maxCount = tostring(AgentPoolProfiles.maxCount),
+      location,
+      resourceGroup,
+      subscriptionId,
+      AKSname = name
+</code></pre>
+  </div>
+</details>
+
+<br>
+
 ## Virtual machines
 
 ### Query: List Virtual Machines stopped (and not deallocated)
@@ -43,8 +84,7 @@ Waste reduction
 
 <details>
   <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code>resources 
+```kql resources 
     | where type =~ 'microsoft.compute/virtualmachines' 
         and tostring(properties.extended.instanceView.powerState.displayStatus) != 'VM deallocated' 
         and tostring(properties.extended.instanceView.powerState.displayStatus) != 'VM running'
@@ -53,8 +93,7 @@ Waste reduction
     | extend resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)
     | order by id asc
     | project id, PowerState, VMLocation, resourceGroup, subscriptionId
-</code></pre>
-  </div>
+```
 </details>
 
 ### Query: Virtual machine scale set details
@@ -106,47 +145,6 @@ Resource management
     "Intel"
   )
   | project vmName = name, processorType, vmSize, resourceGroup
-</code></pre>
-  </div>
-</details>
-
-<br>
-
-## Azure Kubernetes Service
-
-### Query: AKS Cluster
-
-This Azure Resource Graph (ARG) query retrieves detailed information about Azure Kubernetes Service (AKS) clusters within your Azure environment. 
-
-#### Category
-
-Resource management
-
-#### Query
-
-<details>
-  <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code>resources
-  | where type == "microsoft.containerservice/managedclusters"
-  | extend AgentPoolProfiles = properties.agentPoolProfiles
-  | mvexpand AgentPoolProfiles
-  | project
-      id,
-      ProfileName = tostring(AgentPoolProfiles.name),
-      Sku = tostring(sku.name),
-      Tier = tostring(sku.tier),
-      mode = AgentPoolProfiles.mode,
-      AutoScaleEnabled = AgentPoolProfiles.enableAutoScaling,
-      SpotVM = AgentPoolProfiles.scaleSetPriority,
-      VMSize = tostring(AgentPoolProfiles.vmSize),
-      nodeCount = tostring(AgentPoolProfiles.['count']),
-      minCount = tostring(AgentPoolProfiles.minCount),
-      maxCount = tostring(AgentPoolProfiles.maxCount),
-      location,
-      resourceGroup,
-      subscriptionId,
-      AKSname = name
 </code></pre>
   </div>
 </details>

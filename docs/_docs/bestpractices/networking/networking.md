@@ -21,11 +21,12 @@ Discover essential FinOps best practices to optimize cost efficiency and governa
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🛡️ Azure Firewall](#azure-firewall)
-- [🔗  Load Balancer](#load-balancer)
+- [📡 Application Gateway](application-gateway)
+- [📡 ExpressRoute](express-route)
+- [🔗 Load Balancer](#load-balancer)
+- [📶 Private DNS](#private-dns)
 - [🌐 Public IP Address](#public-ip-address)
 - [🖧 Virtual Network Gateway](#virtual-network-gateway)
-- [📡 Express Route](express-route)
-- [📶  Private DNS](#private-dns)
 - [🙋‍♀️ Looking for more?](#️-looking-for-more)
 - [🧰 Related tools](#-related-tools)
 
@@ -135,6 +136,33 @@ Optimization
 
 <br>
 
+
+## ExpressRoute
+
+### Query: Idle ExpressRoute circuits
+
+This Azure Resource Graph (ARG) query analyzes ExpressRoute circuits within your Azure environment to identify those without a completed circuit.
+
+#### Category
+
+Optimization
+
+#### Query
+
+<details>
+  <summary>Click to view the code</summary>
+  <div class="code-block">
+    <pre><code> resources
+| where type =~ 'Microsoft.Network/expressRouteCircuits' and properties.serviceProviderProvisioningState == "NotProvisioned"
+| extend ServiceLocation=tostring(properties.serviceProviderProperties.peeringLocation), ServiceProvider=tostring(properties.serviceProviderProperties.serviceProviderName), BandwidthInMbps=tostring(properties.serviceProviderProperties.bandwidthInMbps)
+| project   ERId=id,ERName = name, ERRG = resourceGroup, SKUName=tostring(sku.name), SKUTier=tostring(sku.tier), SKUFamily=tostring(sku.family), ERLocation = location, ServiceLocation, ServiceProvider, BandwidthInMbps
+
+</code></pre>
+  </div>
+</details>
+
+<br>
+
 ## Load Balancer
 
 ### Query: Idle load balancers
@@ -165,9 +193,34 @@ Optimization
 
 <br>
 
+## Private DNS
+
+### Query: Private DNS
+
+This Azure Resource Graph (ARG) query analyzes Private DNS zones within your Azure environment to identify those without Virtual Network Links.
+
+#### Category
+
+Optimization
+
+#### Query
+
+<details>
+  <summary>Click to view the code</summary>
+  <div class="code-block">
+    <pre><code> resources
+| where type == "microsoft.network/privatednszones" and properties.numberOfVirtualNetworkLinks == 0
+| project id, PrivateDNSName=name, NumberOfRecordSets=tostring(properties.numberOfRecordSets),resourceGroup=tostring(strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)),vNets=tostring(properties.properties.numberOfVirtualNetworkLinks), subscriptionId
+</code></pre>
+  </div>
+</details>
+
+<br>
+
+
 ## Public IP address
 
-## Query: Idle public IP addresses
+### Query: Idle public IP addresses
 
 This Azure Resource Graph (ARG) query analyzes Azure public ip adresses. It provides insights into which public IPs are idle and potentially unnecessary.
 
@@ -307,55 +360,7 @@ Optimization
 
 <br>
 
-## ExpressRoute
 
-### Query: Idle ExpressRoute circuits
-
-This Azure Resource Graph (ARG) query analyzes ExpressRoute circuits within your Azure environment to identify those without a completed circuit.
-
-#### Category
-
-Optimization
-
-#### Query
-
-<details>
-  <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code> resources
-| where type =~ 'Microsoft.Network/expressRouteCircuits' and properties.serviceProviderProvisioningState == "NotProvisioned"
-| extend ServiceLocation=tostring(properties.serviceProviderProperties.peeringLocation), ServiceProvider=tostring(properties.serviceProviderProperties.serviceProviderName), BandwidthInMbps=tostring(properties.serviceProviderProperties.bandwidthInMbps)
-| project   ERId=id,ERName = name, ERRG = resourceGroup, SKUName=tostring(sku.name), SKUTier=tostring(sku.tier), SKUFamily=tostring(sku.family), ERLocation = location, ServiceLocation, ServiceProvider, BandwidthInMbps
-
-</code></pre>
-  </div>
-</details>
-
-<br>
-
-## Private DNS
-
-### Query: Private DNS
-
-This Azure Resource Graph (ARG) query analyzes Private DNS zones within your Azure environment to identify those without Virtual Network Links.
-
-#### Category
-
-Optimization
-
-#### Query
-
-<details>
-  <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code> resources
-| where type == "microsoft.network/privatednszones" and properties.numberOfVirtualNetworkLinks == 0
-| project id, PrivateDNSName=name, NumberOfRecordSets=tostring(properties.numberOfRecordSets),resourceGroup=tostring(strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)),vNets=tostring(properties.properties.numberOfVirtualNetworkLinks), subscriptionId
-</code></pre>
-  </div>
-</details>
-
-<br>
 
 ## 🙋‍♀️ Looking for more?
 

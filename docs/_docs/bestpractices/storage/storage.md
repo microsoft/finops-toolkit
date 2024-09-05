@@ -20,9 +20,9 @@ Discover essential FinOps best practices to optimize cost efficiency and governa
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [🗄️ Storage Account](#storage-account)
-- [💽 Disks](#disks)
 - [💽 Backup](#backup)
+- [💽 Disks](#disks)
+- [🗄️ Storage Account](#storage-account)
 - [🙋‍♀️ Looking for more?](#️-looking-for-more)
 - [🧰 Related tools](#-related-tools)
 
@@ -30,11 +30,43 @@ Discover essential FinOps best practices to optimize cost efficiency and governa
 
 ---
 
-## Storage accounts
+## Backup
 
-### Query: Storage account v1
+### Query: Idle backups
 
-This Azure Resource Graph (ARG) query identifies storage accounts that are still using the legacy v1 kind, which may not provide the same features and efficiencies as newer storage account types.
+This Azure Resource Graph (ARG) query analyzes backup items within Azure Recovery Services Vaults and identifies those that have not had a backup for over 90 days.
+
+#### Category
+
+Optimization
+
+
+#### Query
+
+
+<details>
+  <summary>Click to view the code</summary>
+  <div class="code-block">
+    <pre><code> recoveryservicesresources
+| where type =~ 'microsoft.recoveryservices/vaults/backupfabrics/protectioncontainers/protecteditems'
+    | extend vaultId = tostring(properties.vaultId)
+    | extend resourceId = tostring(properties.sourceResourceId)
+    | extend idleBackup= datetime_diff('day', now(), todatetime(properties.lastBackupTime)) > 90
+    | extend  resourceType=tostring(properties.workloadType)
+    | extend protectionState=tostring(properties.protectionState)
+    | extend lastBackupTime=tostring(properties.lastBackupTime)
+    | extend resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)
+    | extend lastBackupDate=todatetime(properties.lastBackupTime)
+| where idleBackup != 0
+| project resourceId,vaultId,idleBackup,lastBackupDate,resourceType,protectionState,lastBackupTime,location,resourceGroup,subscriptionId
+</code></pre>
+  </div>
+</details>
+
+
+### Query: List Recovery Services Vaults
+
+This Azure Resource Graph (ARG) query retrieves details of Azure Recovery Services Vaults. The query also includes information on the SKU tier, redundancy settings, and other relevant metadata.
 
 #### Category
 
@@ -45,12 +77,16 @@ Optimization
 <details>
   <summary>Click to view the code</summary>
   <div class="code-block">
-    <pre><code> resources 
-| where type =~ 'Microsoft.Storage/StorageAccounts' and kind !='StorageV2' and kind !='FileStorage'
+    <pre><code> Resources
+| where type == 'microsoft.recoveryservices/vaults'
 | where resourceGroup in ({ResourceGroup})
-| extend StorageAccountName=name, SAKind=kind,AccessTier=tostring(properties.accessTier),SKUName=sku.name, SKUTier=sku.tier, Location=location
+    | extend skuTier = tostring(sku['tier'])
+    | extend skuName = tostring(sku['name'])
+    | extend resourceGroup = strcat('/subscriptions/', subscriptionId, '/resourceGroups/', resourceGroup)
+    | extend redundancySettings = tostring(properties.redundancySettings['standardTierStorageRedundancy'])
 | order by id asc
-| project id,StorageAccountName, SKUName, SKUTier, SAKind,AccessTier, resourceGroup, Location, subscriptionId</code></pre>
+| project id, redundancySettings, resourceGroup, location, subscriptionId, skuTier, skuName
+</code></pre>
   </div>
 </details>
 
@@ -140,43 +176,12 @@ Optimization
 
 <br>
 
-## Backup
 
-### Query: Idle backups
+## Storage accounts
 
-This Azure Resource Graph (ARG) query analyzes backup items within Azure Recovery Services Vaults and identifies those that have not had a backup for over 90 days.
+### Query: Storage account v1
 
-#### Category
-
-Optimization
-
-
-#### Query
-
-
-<details>
-  <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code> recoveryservicesresources
-| where type =~ 'microsoft.recoveryservices/vaults/backupfabrics/protectioncontainers/protecteditems'
-    | extend vaultId = tostring(properties.vaultId)
-    | extend resourceId = tostring(properties.sourceResourceId)
-    | extend idleBackup= datetime_diff('day', now(), todatetime(properties.lastBackupTime)) > 90
-    | extend  resourceType=tostring(properties.workloadType)
-    | extend protectionState=tostring(properties.protectionState)
-    | extend lastBackupTime=tostring(properties.lastBackupTime)
-    | extend resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)
-    | extend lastBackupDate=todatetime(properties.lastBackupTime)
-| where idleBackup != 0
-| project resourceId,vaultId,idleBackup,lastBackupDate,resourceType,protectionState,lastBackupTime,location,resourceGroup,subscriptionId
-</code></pre>
-  </div>
-</details>
-
-
-### Query: List Recovery Services Vaults
-
-This Azure Resource Graph (ARG) query retrieves details of Azure Recovery Services Vaults. The query also includes information on the SKU tier, redundancy settings, and other relevant metadata.
+This Azure Resource Graph (ARG) query identifies storage accounts that are still using the legacy v1 kind, which may not provide the same features and efficiencies as newer storage account types.
 
 #### Category
 
@@ -187,20 +192,17 @@ Optimization
 <details>
   <summary>Click to view the code</summary>
   <div class="code-block">
-    <pre><code> Resources
-| where type == 'microsoft.recoveryservices/vaults'
+    <pre><code> resources 
+| where type =~ 'Microsoft.Storage/StorageAccounts' and kind !='StorageV2' and kind !='FileStorage'
 | where resourceGroup in ({ResourceGroup})
-    | extend skuTier = tostring(sku['tier'])
-    | extend skuName = tostring(sku['name'])
-    | extend resourceGroup = strcat('/subscriptions/', subscriptionId, '/resourceGroups/', resourceGroup)
-    | extend redundancySettings = tostring(properties.redundancySettings['standardTierStorageRedundancy'])
+| extend StorageAccountName=name, SAKind=kind,AccessTier=tostring(properties.accessTier),SKUName=sku.name, SKUTier=sku.tier, Location=location
 | order by id asc
-| project id, redundancySettings, resourceGroup, location, subscriptionId, skuTier, skuName
-</code></pre>
+| project id,StorageAccountName, SKUName, SKUTier, SAKind,AccessTier, resourceGroup, Location, subscriptionId</code></pre>
   </div>
 </details>
 
 <br>
+
 
 ## 🙋‍♀️ Looking for more?
 
