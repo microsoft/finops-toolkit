@@ -28,9 +28,9 @@ Gather cost, utilization, performance, and other business data from cloud provid
 
 Understand how data gets reported and plan for data standardization requirements to support reporting on similar data from multiple sources. 
 
-Consider how to handle cost data from multiple clouds or account types. Prefer open standards, like the FinOps Open Cost & Usage Specification ([FOCUS project](../../../focus/README.md)), which delivers consistency and standardization to cloud cost data, and interoperability with and across providers, vendors, and internal tools.
+Consider how to handle cost data from multiple clouds or account types. Prefer open standards, like the FinOps Open Cost & Usage Specification [FOCUS project](https://azure.microsoft.com/updates/export-cost-using-focus/), which delivers consistency and standardization to cloud cost data, and interoperability with and across providers, vendors, and internal tools.
 
-It may also require restructuring data in a logical and meaningful way by categorizing or tagging data so it can be easily accessed, analyzed, and understood.
+You might need to organize data logically and meaningfully by categorizing or tagging it. Doing so makes it easier to access, analyze, and understand.
 
 When armed with a comprehensive collection of cost and usage information tied to business value, organizations can empower stakeholders and accelerate the goals of other FinOps capabilities. Stakeholders are able to make more informed decisions, leading to more efficient use of resources and potentially significant cost savings.
 
@@ -40,7 +40,7 @@ When armed with a comprehensive collection of cost and usage information tied to
 
 While data ingestion is critical to long-term efficiency and effectiveness of any FinOps practice, it isn't a blocking requirement for your initial set of FinOps investments. If it is your first iteration through the FinOps lifecycle, consider lighter-weight capabilities that can deliver quicker return on investment, like [Reporting and analytics](./reporting.md). Data ingestion can require significant time and effort depending on account size and complexity. We recommend focusing on this process once you have the right level of understanding of the effort and commitment from key stakeholders to support that effort.
 
-During the first iteration to start adopting this capability, consider using FOCUS as the standard billing data format for all of your data sources. To learn why organizations needs it and why Microsoft believes in FOCUS, you can review the [FOCUS documentation](../../../focus/README.md) available on FinOps toolkit provided by Microsoft.
+During the first iteration to start adopting this capability, consider using FOCUS as the standard billing data format for all of your data sources. To learn why organizations need it and why Microsoft believes in FOCUS, you can review the [FOCUS documentation](https://azure.microsoft.com/updates/export-cost-using-focus/) available on FinOps toolkit provided by Microsoft.
 
 <br>
 
@@ -51,7 +51,7 @@ When you first start managing cost in the cloud, you use the native tools availa
 - Before you ingest cost data, think about your reporting needs.
   - Talk to your stakeholders to ensure you have a firm understanding of what they need. Try to understand their motivations and goals to ensure the data or reporting helps them.
   - Determine whether to adopt FOCUS as the standard billing schema for any new solution. Converting existing dashboards to utilize a different dataset could pose challenges.
-    - Microsoft Cost Management supports cost and usage data exports aligned to the FOCUS schema which can save you significant time and effort.
+    - Microsoft Cost Management supports cost and usage data exports aligned to the FOCUS schema, which can save you significant time and effort.
   - Identify the data you need, where you can get the data from, and who can give you access. Make note of any common datasets that might require normalization.
   - Determine the level of granularity required and how often the data needs to be refreshed. Daily cost data can be a challenge to manage for a large account. Consider monthly aggregates to reduce costs and increase query performance and reliability if that meets your reporting needs.
 - Consider using a third-party FinOps platform.
@@ -59,14 +59,14 @@ When you first start managing cost in the cloud, you use the native tools availa
   - If you decide to build your own solution, consider starting with [FinOps hubs](https://aka.ms/finops/hubs), part of the open source FinOps toolkit provided by Microsoft.
     - FinOps hubs accelerate your development and help you focus on building the features you need rather than infrastructure.
 - Complement cloud cost data with organizational hierarchies and budgets.    
-- Select the [cost details solution](https://learn.microsoft.com/azure/cost-management-billing/automate/usage-details-best-practices) that is right for you. We recommend scheduled exports, which push cost data to a storage account on a daily or monthly basis.
+- Select the [cost details solution](/azure/cost-management-billing/automate/usage-details-best-practices) that is right for you. We recommend scheduled exports, which push cost data to a storage account on a daily or monthly basis.
   - If you use daily exports, notice that data is pushed into a new file each day. Ensure that you only select the latest day when reporting on costs.
 - Determine if you need a data integration or workflow technology to process data.
   - In an early phase, you might be able to keep data in the exported storage account without other processing. We recommend that you keep the data there for small accounts with lightweight requirements and minimal customization.
-  - If you need to ingest data into a more advanced data store or perform data cleanup or normalization, you might need to implement a data pipeline. [Choose a data pipeline orchestration technology](/azure/architecture/data-guide/technology-choices/pipeline-orchestration-data-movement.md).
+  - If you need to ingest data into a more advanced data store or perform data cleanup or normalization, you might need to implement a data pipeline. [Choose a data pipeline orchestration technology](/azure/architecture/data-guide/technology-choices/pipeline-orchestration-data-movement).
 - Determine what your data storage requirements are.
   - In an early phase, we recommend using the exported storage account for simplicity and lower cost.
-  - If you need an advanced query engine or expect to hit data size limitations within your reporting tools, you should consider ingesting data into an analytical data store. [Choose an analytical data store](/azure/architecture/data-guide/technology-choices/analytical-data-stores.md).
+  - If you need an advanced query engine or expect to hit data size limitations within your reporting tools, you should consider ingesting data into an analytical data store. [Choose an analytical data store](/azure/architecture/data-guide/technology-choices/analytical-data-stores).
 
 <br>
 

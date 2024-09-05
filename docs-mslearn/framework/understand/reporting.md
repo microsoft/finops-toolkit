@@ -39,11 +39,10 @@ Reporting and analytics are a common part of your iterative process. Some exampl
 
 - New datasets become available, which need to be prepared for stakeholders.
 - New requirements are raised to add or update reports.
-- Adoption of a multi-cloud environment and the need of having a single report to access cross-cloud information.
+- Adoption of a multicloud environment and the need of having a single report to access cross-cloud information.
 - Implementing more cost visibility measures to drive awareness.
 
 If you're new to FinOps, we recommend starting with reporting and analytics using native cloud tools as you learn more about the data and the specific needs of your stakeholders. You revisit this capability again as you adopt new tools and datasets. Data could be ingested into a custom data store or used by a third-party solution from the Marketplace.
-
 
 <br>
 
@@ -54,11 +53,11 @@ Before you can effectively analyze usage and costs, you need to familiarize your
 > [!NOTE]
 > _For example, many people understand "VMs are not billed when they're not running." However, this is only partially true. There's a slight nuance for VMs where a "stopped" VM _will_ continue to charge you, because the cloud provider is still reserving that capacity for you. To stop billing, you must "deallocate" the VM. But you also need to remember that compute time isn't the only charge for a VM – you're also charged for network bandwidth, disk storage, and other connected resources. In the simplest example, a deallocated VM will always charge you for disk storage, even if the VM is not running. Depending on what other services you have connected, there could be other charges as well. This is why it's important to understand how the services and features you use will charge you._
 
-We also recommend learning about [how cost data is tracked, stored, and refreshed in Microsoft Cost Management](/azure/cost-management-billing/costs/understand-cost-mgt-data.md). Some examples include:
+We also recommend learning about [how cost data is tracked, stored, and refreshed in Microsoft Cost Management](/azure/cost-management-billing/costs/understand-cost-mgt-data). Some examples include:
 
 - Which subscription types (or offers) are supported. For instance, data for classic CSP and sponsorship subscriptions isn't available in Cost Management and must be obtained from other data sources.
 - Which charges are included. For instance, taxes aren't included.
-- How tags get used and tracked. For instance, some resources don't support tags and [tag inheritance](/azure/cost-management-billing/costs/enable-tag-inheritance.md) must be enabled manually to inherit tags from subscriptions and resource groups.
+- How tags get used and tracked. For instance, some resources don't support tags and [tag inheritance](/azure/cost-management-billing/costs/enable-tag-inheritance) must be enabled manually to inherit tags from subscriptions and resource groups.
 - When to use "actual" and "amortized" cost.
   - "Actual" cost shows charges as they were or as they're shown on the invoice. Use actual costs for invoice reconciliation.
   - "Amortized" cost shows the effective cost of resources that used a commitment-based discount (reservation or savings plan). Use amortized costs for cost allocation, to "smooth out" large purchases that might look like usage spikes, and numerous commitment-based discount scenarios.
@@ -66,7 +65,11 @@ We also recommend learning about [how cost data is tracked, stored, and refreshe
 
 Understanding your cost data is critical to enable accurate and meaningful showback to all stakeholders.
 
-If there is the need to report from multiple sources, for example multiple cloud providers, configuration management database (CMDB), or  IT asset management (ITAM) systems, consider using the FinOps Open Cost & Usage Specification ([FOCUS project](../../../focus/README.md)) as the standard billing schema for this report.
+Consider using the FinOps Open Cost & Usage Specification [FOCUS project](https://azure.microsoft.com/updates/export-cost-using-focus/) as the standard billing schema for your report if you need to report from multiple sources, such as:
+
+- Various cloud providers
+- Configuration management databases (CMDB)
+- IT asset management (ITAM) systems
 
 <br>
 
@@ -74,22 +77,22 @@ If there is the need to report from multiple sources, for example multiple cloud
 
 When you first start managing cost in the cloud, you use the native tools:
 
-- [Cost analysis](/azure/cost-management-billing/costs/quick-acm-cost-analysis.md) helps you explore and get quick answers about your costs.
+- [Cost analysis](/azure/cost-management-billing/costs/quick-acm-cost-analysis) helps you explore and get quick answers about your costs.
 - [Power BI](/power-bi/connect-data/desktop-connect-azure-cost-management) helps you build advanced reports merged with other cloud or business data.
 - [Billing](/azure/cost-management-billing/manage/) helps you review invoices and manage credits.
-- [Azure Monitor](/azure/azure-monitor/overview.md) helps you analyze resource usage metrics, logs, and traces.
-- [Azure Resource Graph](/azure/governance/resource-graph/overview.md) helps you explore resource configuration, changes, and relationships.
+- [Azure Monitor](/azure/azure-monitor/overview) helps you analyze resource usage metrics, logs, and traces.
+- [Azure Resource Graph](/azure/governance/resource-graph/overview) helps you explore resource configuration, changes, and relationships.
 
 As a starting point, we focus on tools available in the Azure portal and Microsoft 365 admin center.
 
-- Familiarize yourself with the [built-in views in Cost analysis](/azure/cost-management-billing/costs/cost-analysis-built-in-views.md), concentrate on your top cost contributors, and drill in to understand what factors are contributing to that cost.
+- Familiarize yourself with the [built-in views in Cost analysis](/azure/cost-management-billing/costs/cost-analysis-built-in-views), concentrate on your top cost contributors, and drill in to understand what factors are contributing to that cost.
   - Use the Services view to understand the larger services (not individual cloud resources) that were purchased or are being used within your environment. This view provides stakeholders with a broad overview of resource usage, even if they aren't familiar with the technical specifics of how each resource supports business objectives.
   - Use the Subscriptions and Resource groups views to identify which departments, teams, or projects are incurring the highest cost, based on how you organized your resources.
   - Use the Resources view to identify which deployed resources are incurring the highest cost.
   - Use the Reservations view to review utilization for a billing account or billing profile or to break down usage to the individual resources that received the reservation discount.
   - Always use the view designed to answer your question. Avoid using the most detailed view to answer all questions, as it's slower and requires more work to find the answer you need.
   - Use drilldown, filtering, and grouping to narrow down to the data you need, including the cost meters of an individual resource.
-- [Save and share customized views](/azure/cost-management-billing/costs/save-share-views.md) to revisit them later, collaborate with stakeholders, and drive awareness of current costs.
+- [Save and share customized views](/azure/cost-management-billing/costs/save-share-views) to revisit them later, collaborate with stakeholders, and drive awareness of current costs.
   - Use private views for yourself and shared views for others to see and manage.
   - Pin views to the Azure portal dashboard to create a heads-up display when you sign into the portal.
   - To provide quick access from external emails, documents, and other information, download an image of the chart and copy a link to the view. Note recipients are required to sign in and have access to the cost data.
@@ -97,8 +100,8 @@ As a starting point, we focus on tools available in the Azure portal and Microso
   - Subscribe to scheduled alerts to send emails with a chart and/or data to stakeholders on a daily, weekly, or monthly basis.
 - As you review costs, make note of questions that you can't answer with the raw cloud usage and cost data. To ensure more metadata is added via tags and labels, feed this back into your cost allocation strategy.
 - Use the different tools optimized to provide the details you need to understand the holistic picture of your resource cost and usage.
-  - [Analyze resource usage metrics in Azure Monitor](/azure/azure-monitor/essentials/tutorial-metrics.md).
-  - [Review resource configuration changes in Azure Resource Graph](/azure/governance/resource-graph/how-to/get-resource-changes.md).
+  - [Analyze resource usage metrics in Azure Monitor](/azure/azure-monitor/essentials/tutorial-metrics).
+  - [Review resource configuration changes in Azure Resource Graph](/azure/governance/resource-graph/how-to/get-resource-changes).
 - If you need to build more advanced reports or merge cost data with other cloud or business data, [use the FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi).
 
 <br>

@@ -27,7 +27,7 @@ This capability encompasses the architectural decisions and best practices aimed
 
 ## Before you begin
 
-Integrating the [Cloud Adoption Framework (CAF)](https://learn.microsoft.com/azure/cloud-adoption-framework) and the [Well-Architected Framework (WAF)](https://learn.microsoft.com/azure/well-architected/pillars) with the FinOps approach is crucial for a comprehensive and effective cloud governance strategy, especially when leveraging Microsoft Azure. Here's a refined list of prerequisites considering these frameworks:
+Integrating the [Cloud Adoption Framework (CAF)](/azure/cloud-adoption-framework) and the [Well-Architected Framework (WAF)](/azure/well-architected/pillars) with the FinOps approach is crucial for a comprehensive and effective cloud governance strategy, especially when using Microsoft Azure. Here's a refined list of prerequisites considering these frameworks:
 
 - **Microsoft Azure fundamentals:** Gain familiarity with Azure services and features, including compute, storage, networking, databases, and security, aligning with the CAF's guidelines for Azure adoption.
 - **Architectural principles and WAF pillars:** Familiarize yourself with architectural best practices outlined in the Well-Architected Framework's pillars: operational excellence, security, reliability, performance efficiency, and cost optimization.
@@ -37,17 +37,17 @@ Integrating the [Cloud Adoption Framework (CAF)](https://learn.microsoft.com/azu
 
 ## Getting started
 
-Starting with the "Architecting for Cloud" capability within the FinOps Framework, especially for customers at lower maturity levels, involves a step-by-step approach to gradually build foundational knowledge, establish processes, and implement best practices for designing cloud architectures that optimize cost, performance, and reliability. 
+The "Architecting for Cloud" capability within the FinOps Framework helps customers, especially people at lower maturity levels, build foundational knowledge, establish processes, and implement best practices for designing cloud architectures that optimize cost, performance, and reliability.
 
 - **Educate stakeholders:** Conduct training sessions or workshops to educate stakeholders about the benefits and principles of cloud architecture, emphasizing cost optimization, scalability, and resilience.
 
-- **Implement architectural principles:** Establish architectural principles and design guidelines based on [WAF pillars](https://learn.microsoft.com/azure/well-architected/workloads): operational excellence, security, reliability, performance efficiency, and cost optimization.
+- **Implement architectural principles:** Establish architectural principles and design guidelines based on [WAF pillars](/azure/well-architected/workloads): operational excellence, security, reliability, performance efficiency, and cost optimization.
 
-- **Utilize Azure Well-Architected Review:** Conduct Azure [Well-Architected Reviews](https://learn.microsoft.com/assessments/azure-architecture-review/) for workloads deployed in Azure. Evaluate workloads against the five pillars of WAF to identify areas for improvement.
+- **Utilize Azure Well-Architected Review:** Conduct Azure [Well-Architected Reviews](/assessments/azure-architecture-review/) for workloads deployed in Azure. To identify areas for improvement, evaluate workloads against the five pillars of WAF.
 
-- **Implement cost management practices:** Review and incorporate CAF's [cost management practices](https://learn.microsoft.com/azure/cloud-adoption-framework/get-started/manage-costs) into architectural designs, such as right-sizing resources, [leveraging reserved instances](docs/_docs/framework/capabilities/optimize/rates.md), and implementing cost allocation mechanisms. Use Azure Cost Management + Billing to monitor and optimize costs.
+- **Implement cost management practices:** Incorporate the Cloud Adoption Framework's [cost management practices](/azure/cloud-adoption-framework/get-started/manage-costs) into your architectural designs. This effort includes right-sizing resources, using reserved instances, and implementing cost allocation mechanisms.
 
-- **Establish governance and compliance:** Establish [governance mechanisms](https://learn.microsoft.com/azure/cloud-adoption-framework/govern/monitor-cloud-governance) and compliance controls to ensure adherence to organizational policies, regulatory requirements, and industry standards. Use Azure Governance and Azure Blueprints for policy enforcement and compliance automation.
+- **Establish governance and compliance:** Establish [governance mechanisms](/azure/cloud-adoption-framework/govern/monitor-cloud-governance) and compliance controls to ensure adherence to organizational policies, regulatory requirements, and industry standards. Use Azure Governance and Azure Blueprints for policy enforcement and compliance automation.
 
 <br>
 
@@ -55,14 +55,14 @@ Starting with the "Architecting for Cloud" capability within the FinOps Framewor
 
 At this point, you should have a clear architectural guidance. As you move beyond the basics, consider the following points:
 
-- **Advanced Architectural Patterns:** Review and explore the [Azure Architecture Center](https://learn.microsoft.com/azure/architecture/browse/) for advanced architectural patterns and design principles specific to Azure, such as microservices, serverless computing, event-driven architectures, and distributed systems.
-- **Cloud-native Technologies:** Leverage managed services to simplify architecture, improve scalability, and reduce operational overhead. Embrace cloud-native technologies and services offered by Azure, such as [Azure Kubernetes Service (AKS)](https://learn.microsoft.com/azure/well-architected/service-guides/azure-kubernetes-service), [Azure Functions](https://learn.microsoft.com/azure/well-architected/service-guides/azure-functions-security), Azure Logic Apps, and Azure Event Grid. 
-- **Multi-Cloud and Hybrid Architectures:** Extend cloud architectures to embrace multi-cloud and hybrid cloud scenarios, leveraging [Azure Arc](https://learn.microsoft.com/azure/azure-arc/overview) for managing resources across on-premises, multi-cloud, and edge environments. Implement cloud bursting and disaster recovery strategies for resilience and flexibility.
-- **Security and Compliance Automation:** Automate security and compliance practices using Azure Policy, Azure Security Center, and Azure Sentinel for threat detection, incident response, and compliance reporting. Implement DevSecOps practices to embed security throughout the development lifecycle.
-- **Data Management and Analytics:** Enhance data management and analytics capabilities by leveraging Azure Data Services, such as Azure Synapse Analytics, Azure Databricks, and Azure Data Lake Storage. Implement advanced analytics, machine learning, and AI solutions for data-driven insights.
-- **DevOps and CI/CD Automation:** Improve DevOps practices by automating CI/CD pipelines, infrastructure provisioning, and testing using Azure DevOps, GitHub Actions, or Azure Automation. Implement Infrastructure as Code (IaC) with Azure Resource Manager (ARM) templates or Azure Bicep for consistency and repeatability.
+- **Advanced Architectural Patterns:** Review and explore the [Azure Architecture Center](/azure/architecture/browse/) for advanced architectural patterns and design principles specific to Azure. They include microservices, serverless computing, event-driven architectures, and distributed systems.
+- **Cloud-native Technologies:** Use managed services to simplify architecture, improve scalability, and reduce operational overhead. Embrace cloud-native technologies and services offered by Azure, such as [Azure Kubernetes Service (AKS)](/azure/well-architected/service-guides/azure-kubernetes-service), [Azure Functions](/azure/well-architected/service-guides/azure-functions-security), Azure Logic Apps, and Azure Event Grid. 
+- **Multi-Cloud and Hybrid Architectures:** Extend cloud architectures to embrace multicloud and hybrid cloud scenarios, using [Azure Arc](/azure/azure-arc/overview) for managing resources across on-premises, multicloud, and edge environments. Implement cloud bursting and disaster recovery strategies for resilience and flexibility.
+- **Security and Compliance Automation:**  Use Azure Policy, Azure Security Center, and Azure Sentinel to automate security and compliance practices, including threat detection, incident response, and compliance reporting. Implement DevSecOps practices to embed security throughout the development lifecycle.
+- **Data Management and Analytics:** Enhance data management and analytics capabilities by using Azure Data Services, such as Azure Synapse Analytics, Azure Databricks, and Azure Data Lake Storage. Implement advanced analytics, machine learning, and AI solutions for data-driven insights.
+- **DevOps and CI/CD Automation:** Improve DevOps practices by automating CI/CD pipelines, infrastructure provisioning, and testing using Azure DevOps services, GitHub Actions, or Azure Automation. Implement Infrastructure as Code (IaC) with Azure Resource Manager (ARM) templates or Azure Bicep for consistency and repeatability.
 - **Advanced Monitoring and Observability:** Implement advanced monitoring and observability solutions using tools such as the [Azure Monitor Baseline Alerts (AMBA)](https://azure.github.io/azure-monitor-baseline-alerts/welcome/).
-- **Azure Verified Modules:** Take advantage of [Azure Verified Modules](https://azure.github.io/Azure-Verified-Modules/) to accelerate cloud architecture design and implementation. These verified modules provide pre-validated configurations and best practices, according to Microsoft guidance (WAF), for deploying infrastructure, applications, and services on Azure.
+- **Azure Verified Modules:** Take advantage of [Azure Verified Modules](https://azure.github.io/Azure-Verified-Modules/) to accelerate cloud architecture design and implementation. These verified modules provide prevalidated configurations and best practices, according to Microsoft guidance (WAF), for deploying infrastructure, applications, and services on Azure.
 - **Continuous Learning and Improvement:** Invest in ongoing training and certification programs for teams to stay updated with the latest Azure technologies and best practices. Encourage knowledge sharing, cross-functional collaboration, and participation in community forums and events.
 
 <br>

@@ -21,9 +21,9 @@ This article helps you understand the FinOps assessment capability within the Fi
 
 **FinOps assessment refers to the process of measuring the effectiveness of a FinOps practice, aligning activities with organizational goals, and identifying areas for improvement to drive FinOps maturity.**
 
-Assess organizational practices early. Don't wait for new teams, reorgs, or process changes. Understanding where your FinOps journey starts is just as important as knowing where you're going.
+Assess organizational practices early. Don't wait for new teams, reorgs, or process changes. Understanding where your FinOps journey starts is as important as knowing where you're going.
 
-Define the organizational objectives and quantifiable metrics associated with those objectives. Capture the maturity of a set of activities related to those objectives and outline the path to achieve those goals. Automate metrics to quantify progress that will help the FinOps team identify objectives being met and areas that need attention.
+Define the organizational objectives and quantifiable metrics associated with those objectives. To achieve those goals, capture the maturity of a set of activities related to those objectives and outline the path. Automate metrics to quantify progress that help the FinOps team identify objectives being met and areas that need attention.
 
 Review metrics and reassess teams on a recurring basis. Adjust focus areas as organizational needs change over time. Focus on impact and maximizing cloud value.
 
@@ -31,9 +31,9 @@ Review metrics and reassess teams on a recurring basis. Adjust focus areas as or
 
 ## Getting started
 
-When you first start managing cost in the cloud, leverage the native assessment tools.
+When you first start managing cost in the cloud, use the native assessment tools.
 
-- Review the [How to conduct a FinOps iteration tutorial](../../../conduct-an-iteration.md) to identify the best capabilities to start with.
+- Review the [How to conduct a FinOps iteration tutorial](../../conduct-iteration.md) to identify the best capabilities to start with.
 - Complete the [Microsoft FinOps Review](/assessments/ad1c0f6b-396b-44a4-924b-7a4c778a13d3) for a lightweight, self-guided assessment.
   - Start small and focus on the capabilities identified in the previous step.
   - Document assessment results and plan to reassess progress in 1-3 months.
@@ -46,9 +46,9 @@ When you first start managing cost in the cloud, leverage the native assessment 
 ## Building on the basics
 
 - Review KPIs periodically in cross-functional meetings or dashboards.
-- Automate KPIs, dashboards, and alerts to make adoption and measurement easier.
+- To make adoption and measurement easier, automate KPIs, dashboards, and alerts.
 - Scale the assessment out across divisions and deeper into each division for breadth and completeness.
-- Automate the assessment process and leverage telemetry to establish a streamlined process.
+- Automate the assessment process and use telemetry to establish a streamlined process.
 
 <br>
 
@@ -67,7 +67,7 @@ Related FinOps capabilities:
 
 Other resources:
 
-- [How to conduct a FinOps iteration tutorial](../../../conduct-an-iteration.md)
+- [How to conduct a FinOps iteration tutorial](../../conduct-iteration.md)
 - [FinOps review assessment](/assessments/ad1c0f6b-396b-44a4-924b-7a4c778a13d3)
 
 <br>

@@ -17,11 +17,11 @@ This article helps you understand the cloud sustainability capability within the
 
 <br>
 
-Definition
+## Definition
 
 **Cloud sustainability balances environmental and financial efficiency in cloud optimization, ensuring alignment with strategic objectives.**
 
-Establish policies, guidelines, and strategies to optimize cloud sustainability while balancing cost. Identify opportunities to improve and foster stakeholder engagement for effective evaluation.
+To optimize cloud sustainability while balancing cost, establish policies, guidelines, and strategies. Identify opportunities to improve and foster stakeholder engagement for effective evaluation.
 
 <br>
 
@@ -29,17 +29,17 @@ Establish policies, guidelines, and strategies to optimize cloud sustainability 
 
 When you first start with cloud sustainability, you use the native tools to drive efficiency and optimize carbon in the portal.
 
-- Leverage [Azure Carbon Optimization](https://learn.microsoft.com/azure/carbon-optimization/overview) to find opportunities to lower carbon emissions.
-- Consider using the [Cost optimization workbook](../../../../_optimize/optimization-workbook/README.md) to view carbon optimization recommendations alongside other usage and cost efficiency recommendations. 
+- Use [Azure Carbon Optimization](/azure/carbon-optimization/overview) to find opportunities to lower carbon emissions.
+- Consider using the [Cost optimization workbook](../../toolkit/optimization-workbook/cost-optimization-workbook.md) to view carbon optimization recommendations alongside other usage and cost efficiency recommendations. 
 <br>
 
 ## Building on the basics
 
-At this point, you've implemented all the basic carbon optimization recommendations and tuned applications to meet the most fundamental best practices. As you move beyond the basics, consider the following points:
+At this point, you implemented all the basic carbon optimization recommendations and tuned applications to meet the most fundamental best practices. As you move beyond the basics, consider the following points:
 
-- Expand visibility to business and finance stakeholders by using the [Emissions Impact Dashboard for Azure](https://learn.microsoft.com/power-bi/connect-data/service-connect-to-emissions-impact-dashboard) or the [Emissions Impact Dashboard for Microsoft 365](https://learn.microsoft.com/power-bi/connect-data/service-connect-to-emissions-impact-dashboard).
-- Explore additional tools available in Microsoft's environmental, social, and governance (ESG) capabilities available from the [Microsoft Cloud for Sustainability](https://learn.microsoft.com/industry/sustainability/overview).
-  - For a more prescriptive approach, refer to the [Well-Architected guide for sustainability](https://learn.microsoft.com/industry/well-architected/sustainability).
+- Expand visibility to business and finance stakeholders by using the [Emissions Impact Dashboard for Azure](/power-bi/connect-data/service-connect-to-emissions-impact-dashboard) or the [Emissions Impact Dashboard for Microsoft 365](/power-bi/connect-data/service-connect-to-emissions-impact-dashboard).
+- Explore other tools available in Microsoft's environmental, social, and governance (ESG) capabilities available from the [Microsoft Cloud for Sustainability](/industry/sustainability/overview).
+  - For a more prescriptive approach, refer to the [Well-Architected guide for sustainability](/industry/well-architected/sustainability).
 
 <br>
 
@@ -54,7 +54,6 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 Related FinOps capabilities:
 
-- [Managing commitment discounts](./commitment-discounts.md)
 - [Workload management and automation](./workloads.md)
 - [Measuring unit cost](../quantify/unit-economics.md)
 
@@ -64,7 +63,7 @@ Related products:
 
 Related solutions:
 
-- [Microsoft Cloud for Sustainability](industry/sustainability)
+- [Microsoft Cloud for Sustainability](https://www.microsoft.com/sustainability/cloud)
 - [Cost optimization workbook](../../toolkit/optimization-workbook/cost-optimization-workbook.md)
 
 <br>

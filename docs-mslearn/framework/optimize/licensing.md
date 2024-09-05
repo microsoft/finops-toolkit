@@ -27,7 +27,7 @@ This capability involves optimizing the procurement, deployment, and utilization
 
 ## Before you begin
 
-Having an understanding of Microsoft's various licensing models, such as per-user licensing, per-device licensing, subscription-based licensing (e.g., Microsoft 365), and perpetual licensing (e.g., Microsoft Office), is crucial for optimizing licensing agreements and ensuring compliance with vendor terms, while familiarity with Microsoft's diverse portfolio of cloud services, including Azure, Microsoft 365 (formerly Office 365), Dynamics 365, and other SaaS offerings, is essential for making informed decisions regarding subscription management and cost optimization, understanding their features, pricing structures, and usage patterns.
+Understanding Microsoft's licensing models—such as per-user, per-device, subscription-based (like Microsoft 365), and perpetual (like Microsoft Office) is crucial for optimizing agreements and ensuring compliance. Familiarity with Microsoft's cloud services, including Azure, Microsoft 365, Dynamics 365, and other SaaS offerings, is essential for informed subscription management and cost optimization. This understanding includes knowing their features, pricing structures, and usage patterns.
 
 <br>
 
@@ -35,14 +35,14 @@ Having an understanding of Microsoft's various licensing models, such as per-use
 
 Microsoft offers several tools to help you identify when you should consider purchasing reservations or savings plans. You can choose whether you want to start by analyzing usage or by reviewing the system-generated recommendations based on your historical usage and cost. We recommend starting with the recommendations to focus your initial efforts:
 
-- **Understand Azure licensing models:** Gain an understanding of Azure's licensing models, including pay-as-you-go, reservations, hybrid benefits, and enterprise agreements. Determine which licensing options align best with the organization's needs and budget. Review the rules for [Azure Hybrid Benefit for Windows Server](https://learn.microsoft.com/windows-server/get-started/azure-hybrid-benefit?tabs=azure) and [Azure Hybrid Benefit for SQL database.](https://learn.microsoft.com/azure/azure-sql/azure-hybrid-benefit?view=azuresql&tabs=azure-portal)
-- **Review Advisor's cost optimization workbook** to [identify existing licensing benefits](https://learn.microsoft.com/azure/advisor/advisor-cost-optimization-workbook#azure-hybrid-benefit) and ensure they are applied to the resources that will have the biggest return in savings. 
+- **Understand Azure licensing models:** Gain an understanding of Azure's licensing models, including pay-as-you-go, reservations, hybrid benefits, and enterprise agreements. Determine which licensing options align best with the organization's needs and budget. Review the rules for [Azure Hybrid Benefit for Windows Server](/windows-server/get-started/azure-hybrid-benefit?tabs=azure&preserve-view=true) and [Azure Hybrid Benefit for SQL database.](/azure/azure-sql/azure-hybrid-benefit?view=azuresql&tabs=azure-portal&preserve-view=true)
+- **Review Advisor's cost optimization workbook** to [identify existing licensing benefits](/azure/advisor/advisor-cost-optimization-workbook#azure-hybrid-benefit) and ensure they're applied to the resources that have the biggest return in savings. 
 
 <br>
 
 ## Building on the basics
 
-At this point, you have defined a strategy for Licensing and SaaS optimization. As you move beyond the basics, consider the following points:
+At this point, you defined a strategy for Licensing and SaaS optimization. As you move beyond the basics, consider the following points:
 
 - **Enhance compliance governance:** Establish processes and controls to ensure compliance with licensing agreements, regulatory requirements, and internal policies within Microsoft Cloud. Implement software asset management practices, conduct regular audits, and enforce license usage policies.
 - **Monitor and review:** Continuously monitor usage, costs, and compliance metrics for software licenses and SaaS subscriptions within Microsoft Cloud. Review reports, analyze trends, and identify areas for further optimization or cost savings.
@@ -69,6 +69,6 @@ Related solutions:
 - [Cost Management connector for Power BI](/power-bi/connect-data/desktop-connect-azure-cost-management)
 - [FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi)
 - [FinOps hubs](https://aka.ms/finops/hubs)
-- [Cost optimization workbook](../../../toolkit/optimization-workbook/cost-optimization-workbook.md)
+- [Cost optimization workbook](../../toolkit/optimization-workbook/cost-optimization-workbook.md)
 
 <br>

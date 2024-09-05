@@ -11,7 +11,7 @@ ms.reviewer: micflan
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
-# FinOps practice operations
+# FinOps benchmarking
 
 This article helps you understand the benchmarking capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 
@@ -23,26 +23,26 @@ This article helps you understand the benchmarking capability within the FinOps 
 
 Identify and automate key performance indicators (KPIs) based on organizational priorities. Compare across internal teams and divisions or other companies, when possible, to identify areas to improve and possibly learn from others. Remember that cloud usage is unique to each organization, and there isn't a single "correct" approach when comparing KPIs across teams and organizations.
 
-Leverage benchmarking as a tool to measure performance and progress against organizational goals. Encourage teams to mature and make informed decisions based on available data rather than deferring in anticipation of "better" data. Establish well-defined metrics, maintain transparent communication regarding goals and objectives, ensure precise data collection and effective dashboards, and garner management support to maximize your return on investment from benchmarking efforts.
+Use benchmarking as a tool to measure performance and progress against organizational goals. Encourage teams to mature and make informed decisions based on available data rather than deferring in anticipation of "better" data. To maximize your return on investment from benchmarking efforts, establish well-defined metrics, maintain transparent communication regarding goals and objectives, ensure precise data collection and effective dashboards, and garner management support.
 
 <br>
 
 ## Getting started
 
-When you first start managing cost in the cloud, leverage the existing guidance and recommendations which are based on benchmarks established across all Microsoft Cloud customers:
+When you first start managing cost in the cloud, use the existing guidance and recommendations that are based on benchmarks established across all Microsoft Cloud customers:
 
-- Review the [Azure Advisor score](/azure/advisor/azure-advisor-score.md) at the primary scope you manage, whether that's a subscription, resource group, or based on tags.
+- Review the [Azure Advisor score](/azure/advisor/azure-advisor-score) at the primary scope you manage, whether that's a subscription, resource group, or based on tags.
   - The Advisor score consists of an overall score, which can be further broken down into five category scores. One score for each category of Advisor represents the five pillars of the Well-Architected Framework.
-  - Leverage the [Workload optimization](../optimize/workloads.md] capability to prioritize and implement recommendations with the highest priority.
-  - Leverage the [Rate optimization](../optimize/rates.md) capability to maximize savings with commitment discounts, like reservations and savings plans.
-- Complete the [Azure Well-Architected Review self-assessment](/azure/well-architected/cross-cutting-guides/implementing-recommendations.md) to identify areas your existing workloads can be improved based on the Azure Well-Architected Framework.
+  - Use the [Workload optimization](../optimize/workloads.md] capability to prioritize and implement recommendations with the highest priority.
+  - Use the [Rate optimization](../optimize/rates.md) capability to maximize savings with commitment discounts, like reservations and savings plans.
+- Complete the [Azure Well-Architected Review self-assessment](/azure/well-architected/cross-cutting-guides/implementing-recommendations) to identify areas your existing workloads can be improved based on the Azure Well-Architected Framework.
   - Link your subscription to include Azure Advisor recommendations in the assessment.
 
 <br>
 
 ## Building on the basics
 
-At this point, you have implemented best practices based on cross-company benchmarks integrated into the Well-Architected Framework. As you move beyond the basics, consider the following:
+At this point, you implemented best practices based on cross-company benchmarks integrated into the Well-Architected Framework. As you move beyond the basics, consider the following points:
 
 - Establish and automate KPIs, such as:
   - Number of anomalies each month or quarter.

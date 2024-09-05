@@ -33,14 +33,14 @@ Effective budgeting helps ensure organizations operate within their means and ar
 
 When you first start managing cost in the cloud, you might not have your financial budgets mapped to every subscription and resource group. You might not even have the budget mapped to your billing account yet. It's okay. Start by configuring cost alerts. The exact amount you use isn't as important as having _something_ to let you know when costs are escalating.
 
-- Start by [creating a monthly budget in Cost Management](/azure/cost-management-billing/costs/tutorial-acm-create-budgets.md) at the primary scope you manage, whether that's a billing account, management group, subscription, or resource group.
+- Start by [creating a monthly budget in Cost Management](/azure/cost-management-billing/costs/tutorial-acm-create-budgets) at the primary scope you manage, whether that's a billing account, management group, subscription, or resource group.
   - If you're not sure where to start, set your budget amount based on the cost of the previous months. You can also set it to be explicitly higher than what you intend, to catch an exceedingly high jump in costs, if you're not concerned with smaller moves. No matter what you set, you can always change it later.
-  - If you do want to provide a more realistic alert threshold, see [Estimate the initial cost of your cloud project](/azure/well-architected/cost/design-initial-estimate.md).
+  - If you do want to provide a more realistic alert threshold, see [Estimate the initial cost of your cloud project](/azure/well-architected/cost/design-initial-estimate).
   - Configure one or more alerts on actual or forecast cost to be sent to stakeholders.
-  - If you need to proactively stop billing before costs exceed a certain threshold on a subscription or resource group, [execute an automated action when alerts are triggered](/azure/cost-management-billing/manage/cost-management-budget-scenario.md).
+  - If you need to proactively stop billing before costs exceed a certain threshold on a subscription or resource group, [execute an automated action when alerts are triggered](/azure/cost-management-billing/manage/cost-management-budget-scenario).
 - If you have concerns about rollover costs from one month to the next as they accumulate for the quarter or year, create quarterly and yearly budgets.
-- If you're not concerned about "overage," but would still like to stay informed about costs, [save a view in Cost analysis](/azure/cost-management-billing/costs/save-share-views.md), and [subscribe to scheduled alerts](/azure/cost-management-billing/costs/save-share-views#subscribe-to-scheduled-alerts.md). Then share a chart of the cost trends to stakeholders. It can help you drive accountability and awareness as costs change over time before you go over budget.
-- Consider [subscribing to anomaly alerts](/azure/cost-management-billing/understand/analyze-unexpected-charges#create-an-anomaly-alert.md) for each subscription to ensure everyone is aware of anomalies as they're identified.
+- If you're not concerned about "overage," but would still like to stay informed about costs, [save a view in Cost analysis](/azure/cost-management-billing/costs/save-share-views), and [subscribe to scheduled alerts](/azure/cost-management-billing/costs/save-share-views#subscribe-to-scheduled-alerts). Then share a chart of the cost trends to stakeholders. It can help you drive accountability and awareness as costs change over time before you go over budget.
+- Consider [subscribing to anomaly alerts](/azure/cost-management-billing/understand/analyze-unexpected-charges#create-an-anomaly-alert) for each subscription to ensure everyone is aware of anomalies as they're identified.
 - Repeat these steps to configure alerts for the stakeholders of each scope and application you want to be monitored for maximum visibility and accountability.
 - Consider reviewing costs against your budget periodically to ensure costs remain on track with your expectations.
 
@@ -54,8 +54,8 @@ So far, you defined granular and targeted cost alerts for each scope and applica
 - Encourage all teams to take ownership of their budget allocations and expenses.
   - Educate them about the consequence of their actions on the overall budget and empower them to make informed decisions.
 - Streamline the process for making budget adjustments, ensuring teams easily understand and follow it.
-- [Automate budget creation](/azure/cost-management-billing/automate/automate-budget-creation.md) with new subscriptions and resource groups.
-- If not done earlier, use automation tools like Azure Logic Apps or Alerts to [execute automated actions when budget alerts are triggered](/azure/cost-management-billing/manage/cost-management-budget-scenario.md). Tools can be especially helpful on test subscriptions.
+- [Automate budget creation](/azure/cost-management-billing/automate/automate-budget-creation) with new subscriptions and resource groups.
+- If not done earlier, use automation tools like Azure Logic Apps or Alerts to [execute automated actions when budget alerts are triggered](/azure/cost-management-billing/manage/cost-management-budget-scenario). Tools can be especially helpful on test subscriptions.
 
 <br>
 

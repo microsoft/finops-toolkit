@@ -32,11 +32,11 @@ In the next few sections, we cover the basic concepts of the FinOps Framework:
 
 <br>
 
-## ⚖️ Principles
+## Principles
 
 Before digging into FinOps, it's important to understand the core principles that should guide your FinOps efforts. The FinOps community developed the principles by applying their collective experience, and helps you create a culture of shared accountability and transparency.
 
-- **Teams need to collaborate** – Build a common focus on cost efficiency, processes and cost decisions across teams that might not typically work closely together.
+- **Teams need to collaborate** – Build a common focus on cost efficiency, processes, and cost decisions across teams that might not typically work closely together.
 - **Decisions are driven by the business value of cloud** – Balance cost decisions with business benefits including quality, speed, and business capability.
 - **Everyone takes ownership for their cloud usage** – Decentralize decisions about cloud resource usage and optimization, and drive technical teams to consider cost as well as uptime and performance.
 - **FinOps data should be accessible and timely** – Provide clear usage and cost data quickly, to the right people, to enable prompt decisions and forecasting.
@@ -47,12 +47,12 @@ For more information about FinOps principles, including tips from the experts, s
 
 <br>
 
-## 👥 Stakeholders
+## Stakeholders
 
 FinOps requires a holistic and cross-functional approach that involves various stakeholders (or personas). They have different roles, responsibilities, and perspectives that influence how they use and optimize cloud resources and costs. Familiarize yourself with each role and identify the stakeholders within your organization. An effective FinOps program requires collaboration across all stakeholders:
 
 - Core stakeholders:
-  - **Procurement** – Source and purchase necessary resources, negotiate contracts, and managing vendor relationships..
+  - **Procurement** – Source and purchase necessary resources, negotiate contracts, and managing vendor relationships.
   - **Finance** – Accurately budget, forecast, and report on cloud costs.
   - **Leadership** – Apply the strengths of the cloud to maximize business value.
   - **Business owners** – Drives strategic decision-making, budgeting, and understanding the financial impact of operational decisions.
@@ -73,7 +73,7 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 <br>
 
-## ♻️ Lifecycle
+## Lifecycle
 
 FinOps is an iterative, hierarchical process. Every team iterates through the FinOps lifecycle at their own pace, partnering with teams mentioned throughout all areas of the organization.
 
@@ -85,7 +85,7 @@ The FinOps Framework defines a simple lifecycle with three phases:
 
 <br>
 
-## 📝 Capabilities
+## Capabilities
 
 The FinOps Framework includes capabilities that cover everything you need to perform FinOps tasks and manage a FinOps practice. Capabilities are organized into a set of related domains based on the goals of the capabilities. Each capability defines a functional area of activity and a set of tasks to support your FinOps practice.
 
@@ -120,12 +120,12 @@ The FinOps Framework includes capabilities that cover everything you need to per
   - [Cloud policy and governance](./manage/governance.md)
   - [Invoicing and chargeback](./manage/invoicing-chargeback.md)
   - [FinOps assessment](./manage/assessment.md)
-  - [FinOps tools and services](./manage/tools-and-services.md)
+  - [FinOps tools and services](./manage/tools-services.md)
   - [Intersecting frameworks](./manage/intersecting-disciplines.md)
 
 <br>
 
-## 📏 Maturity model
+## Maturity model
 
 As teams progress through the FinOps lifecycle, they naturally learn and grow, developing more mature practices with each iteration. Like the FinOps lifecycle, each team is at different levels of maturity based on their experience and focus areas.
 
@@ -149,6 +149,6 @@ FinOps Foundation offers many resources to help you learn and implement FinOps. 
 
 Start your first or plan your next iteration:
 
-- [Conduct a FinOps iteration](../conduct-an-iteration.md)
+- [Conduct a FinOps iteration](../conduct-iteration.md)
 
 <br>

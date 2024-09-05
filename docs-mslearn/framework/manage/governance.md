@@ -34,7 +34,7 @@ Implementing a policy and governance strategy enables organizations to sustainab
 When you first start managing cost in the cloud, you use the native compliance tracking and enforcement tools.
 
 - Review your existing FinOps processes to identify opportunities for policy to automate enforcement. Some examples:
-  - [Enforce your tagging strategy](/azure/governance/policy/tutorials/govern-tags.md) to support different capabilities, like:
+  - [Enforce your tagging strategy](/azure/governance/policy/tutorials/govern-tags) to support different capabilities, like:
     - Organizational reporting hierarchy tags for [allocation](../understand/allocation.md).
     - Financial reporting tags for [chargeback](./invoicing-chargeback.md).
     - Environment and application tags for [workload management](../optimize/workloads.md).
@@ -44,8 +44,8 @@ When you first start managing cost in the cloud, you use the native compliance t
   - Implementation of cost recommendations and unused resources for [utilization and efficiency](../optimize/workloads.md).
   - Application of Azure Hybrid Benefit for [utilization and efficiency](../optimize/workloads.md).
   - Monitor [commitment discounts](../optimize/rates.md) coverage.
-- Identify what policies can be automated through [Azure Policy](/azure/governance/policy/overview.md) and which need other tooling.
-- Review and [implement built-in policies](/azure/governance/policy/assign-policy-portal.md) that align with your needs and goals.
+- Identify what policies can be automated through [Azure Policy](/azure/governance/policy/overview) and which need other tooling.
+- Review and [implement built-in policies](/azure/governance/policy/assign-policy-portal) that align with your needs and goals.
 - Start small with audit policies and expand slowly (and safely) to ensure engineering efforts aren't negatively impacted.
   - Test rules before you roll them out and consider a staged rollout where each stage has enough time to get used and garner feedback. Start small.
 
@@ -60,7 +60,7 @@ At this point, you have a basic set of policies in place that are being managed 
 - Expand coverage of more scenarios.
   - Consider evaluating ways to quantify the impact of each rule in cost and/or business value.
 - Integrate policy and governance into every conversation to establish a plan for how you want to automate the tracking and application of new policies.
-- Consider advanced governance scenarios outside of Azure Policy. Build monitoring solutions using systems like [Power Automate](/power-automate/getting-started) or [Logic Apps](/azure/logic-apps/logic-apps-overview.md).
+- Consider advanced governance scenarios outside of Azure Policy. Build monitoring solutions using systems like [Power Automate](/power-automate/getting-started) or [Logic Apps](/azure/logic-apps/logic-apps-overview).
 
 <br>
 
