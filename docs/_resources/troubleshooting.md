@@ -39,7 +39,6 @@ Here are a few simple solutions to issues others have reported:
 - [Power BI: Exception of type 'Microsoft.Mashup.Engine.Interface.ResourceAccessForbiddenException' was thrown](#power-bi-exception-of-type-microsoftmashupengineinterfaceresourceaccessforbiddenexception-was-thrown)
 - [Power BI: The remote name could not be resolved: '\<storage-account\>.dfs.core.windows.net'](#power-bi-the-remote-name-could-not-be-resolved-storage-accountdfscorewindowsnet)
 - [Power BI: We cannot convert the value null to type Logical](#power-bi-we-cannot-convert-the-value-null-to-type-logical)
-- [Power BI: Reports are not showing data outside of RangeStart/RangeEnd](#power-bi-reports-are-not-showing-data-outside-of-rangestartrangeend)
 - [FinOps hubs: RoleAssignmentUpdateNotPermitted](#finops-hubs-roleassignmentupdatenotpermitted)
 - [FinOps hubs: We cannot convert the value null to type Table](#finops-hubs-we-cannot-convert-the-value-null-to-type-table)
 - [FinOps hubs: Deployment failed with RoleAssignmentUpdateNotPermitted error](#finops-hubs-deployment-failed-with-roleassignmentupdatenotpermitted-error)
@@ -297,6 +296,10 @@ Once you know, verify the **FileType** parameter is set to `.parquet` or `.gz` i
 
 If you're using another tool, ensure it supports the file type you're using.
 
+### Power BI: Reports are not showing data
+
+If the report does not include any data outside of the RangeStart/RangeEnd parameter, you will need to return to the transform data page of the Power BI report, and change RangeStart and RangeEnd to the desired start/end dates for your report. See [Set up your first report](../_reporting/power-bi/setup.md) for details.
+
 ---
 
 ## Power BI: Exception of type 'Microsoft.Mashup.Engine.Interface.ResourceAccessForbiddenException' was thrown
@@ -316,12 +319,6 @@ Indicates that the storage account name is incorrect. If using FinOps hubs, veri
 Indicates that the **Billing Account ID** parameter is empty. If using FinOps hubs, set the value to the desired billing account ID. If you do not have access to the billing account or do not want to include commitment purchases and refunds, set the value to `0` and open the **CostDetails** query in the advanced editor and change the `2` to a `1`. This will inform the report to not load actual/billed cost data from the Cost Management connector. See [Connect to your data](../_reporting/power-bi/README.md#-connect-to-your-data) for details.
 
 Applicable versions: **0.1 - 0.1.1** (fixed in **0.2**)
-
----
-
-## Power BI: Reports are not showing data outside of RangeStart/RangeEnd
-
-If the report does not include any data outside of the RangeStart/RangeEnd parameter, you will need to go to the transform data page of the Power Bi report, and change RangeStart and RangeEnd to the desired start/end dates for your report. See [Set up your first report](../_reporting/power-bi/setup.md) for details.
 
 ---
 
