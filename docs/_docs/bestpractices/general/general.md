@@ -1,9 +1,9 @@
 ---
 layout: default
 parent: Best practices
-permalink: /best-practices/Sustainability
+permalink: /best-practices/General
 nav_order: 2
-title: Sustainability
+title: General
 author: arclares
 ms.date: 08/16/2024
 ms.service: finops
@@ -12,7 +12,7 @@ description: 'Discover essential FinOps best practices to optimize cost efficien
 
 ---
 
-<span class="fs-9 d-block mb-4">Sustainability</span>
+<span class="fs-9 d-block mb-4">General</span>
 Discover essential FinOps best practices to optimize cost efficiency and governance for your Azure resources.
 {: .fs-6 .fw-300 }
 
