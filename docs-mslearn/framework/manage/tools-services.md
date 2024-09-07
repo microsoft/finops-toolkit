@@ -35,7 +35,7 @@ To clarify terminology, a FinOps "tool" is a software solution that facilitates 
 
 ## Getting started
 
-When you first start managing cost in the cloud, you use the native tools available in the portal, including but no limited to:
+When you first start managing cost in the cloud, you use the native tools available in the portal, including but not limited to:
 
 - **Microsoft Cost Management**: A suite of tools designed to help organizations monitor, allocate, and optimize their cloud costs within the Microsoft Cloud.
 - **Azure Advisor**: Follow best practices to optimize your Microsoft Cloud deployments.  
@@ -67,7 +67,7 @@ Once you have a consolidated list of the Microsoft, third-party, and homegrown t
 
 At this point, you defined your organizational objectives, identified how current tools and services meet them, and hopefully identified any limitations and gaps. As you move beyond the basics, you focus on establishing a plan to address limitations and gaps or opportunities to go beyond your basic requirements to further maximize cloud ROI through new opportunities made available via new or existing tools and services.
 
-- Evaluate limitations and gaps in existing tools and services and establish a plan to address.
+- Evaluate existing tools and services and establish a plan to address any limitations and gaps.
   - Automate tasks with [PowerShell commands](https://aka.ms/ftk/ps) and [Bicep modules](https://aka.ms/ftk/bicep).
   - Consider lightweight tools for engineers, like the [Cost optimization](../../toolkit/optimization-workbook/cost-optimization-workbook.md) or [Governance](https://microsoft.github.io/finops-toolkit/governance-workbook) workbooks.
   - If you're looking for an extensible platform for reporting and analytics, check out [FinOps hubs](https://aka.ms/finops/hubs) and connect to your hub from Microsoft Fabric to go even further.

@@ -28,7 +28,7 @@ Gather cost, utilization, performance, and other business data from cloud provid
 
 Understand how data gets reported and plan for data standardization requirements to support reporting on similar data from multiple sources. 
 
-Consider how to handle cost data from multiple clouds or account types. Prefer open standards, like the FinOps Open Cost & Usage Specification [FOCUS project](https://azure.microsoft.com/updates/export-cost-using-focus/), which delivers consistency and standardization to cloud cost data, and interoperability with and across providers, vendors, and internal tools.
+Consider how to handle cost data from multiple clouds or account types. Prefer open standards, like the [FinOps Open Cost & Usage Specification (FOCUS) project](https://aka.ms/ftk/focus), which delivers consistency and standardization to cloud cost data, and interoperability with and across providers, vendors, and internal tools.
 
 You might need to organize data logically and meaningfully by categorizing or tagging it. Doing so makes it easier to access, analyze, and understand.
 
@@ -40,7 +40,7 @@ When armed with a comprehensive collection of cost and usage information tied to
 
 While data ingestion is critical to long-term efficiency and effectiveness of any FinOps practice, it isn't a blocking requirement for your initial set of FinOps investments. If it is your first iteration through the FinOps lifecycle, consider lighter-weight capabilities that can deliver quicker return on investment, like [Reporting and analytics](./reporting.md). Data ingestion can require significant time and effort depending on account size and complexity. We recommend focusing on this process once you have the right level of understanding of the effort and commitment from key stakeholders to support that effort.
 
-During the first iteration to start adopting this capability, consider using FOCUS as the standard billing data format for all of your data sources. To learn why organizations need it and why Microsoft believes in FOCUS, you can review the [FOCUS documentation](https://azure.microsoft.com/updates/export-cost-using-focus/) available on FinOps toolkit provided by Microsoft.
+During the first iteration to start adopting this capability, consider using FOCUS as the standard billing data format for all of your data sources. To learn why organizations need it and why Microsoft believes in FOCUS, you can review the [FOCUS documentation](https://aka.ms/ftk/focus) available on FinOps toolkit provided by Microsoft.
 
 <br>
 

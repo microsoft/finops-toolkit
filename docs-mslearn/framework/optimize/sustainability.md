@@ -54,7 +54,8 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 Related FinOps capabilities:
 
-- [Workload management and automation](./workloads.md)
+- [Workload optimization](./workloads.md)
+- [Rate optimization](./rates.md)
 - [Measuring unit cost](../quantify/unit-economics.md)
 
 Related products:

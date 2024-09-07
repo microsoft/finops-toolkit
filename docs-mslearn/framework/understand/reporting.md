@@ -65,7 +65,7 @@ We also recommend learning about [how cost data is tracked, stored, and refreshe
 
 Understanding your cost data is critical to enable accurate and meaningful showback to all stakeholders.
 
-Consider using the FinOps Open Cost & Usage Specification [FOCUS project](https://azure.microsoft.com/updates/export-cost-using-focus/) as the standard billing schema for your report if you need to report from multiple sources, such as:
+Consider using the [FinOps Open Cost & Usage Specification (FOCUS) project](https://aka.ms/ftk/focus) as the standard billing schema for your report if you need to report from multiple sources, such as:
 
 - Various cloud providers
 - Configuration management databases (CMDB)
