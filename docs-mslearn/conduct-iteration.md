@@ -56,11 +56,9 @@ Use the information following as a guide to select the right FinOps capabilities
     2. Invoicing and chargeback
     3. Rate optimization
 4. If your team is well-versed in the fundamentals of Microsoft Cloud's FinOps tools and is tasked with managing costs across a large organization with distributed and occasionally shared ownership, you might want to consider the following:
-    1. Cost allocation
-    2. Managing shared costs
-    3. Showback
-    4. Chargeback
-    5. Commitment-based discounts
+    1. Allocation
+    2. Invoicing and chargeback
+    3. Rate optimization
 5. If your team needs to build more advanced reporting, like managing costs across clouds or merging with business data, consider:
     1. Tools and services
     2. Data ingestion
