@@ -41,11 +41,11 @@ Unit economics isn't a simple task. Unit economics requires a deep understanding
 
 - Start with application telemetry.
   - The more comprehensive your application telemetry is, the simpler unit economics can be to generate. Log when critical functions are executed and how long they run. You can use that to deduce the run time of each unit or relative to a function that correlates back to the unit.
-  - When application telemetry isn't directly possible, consider workarounds that can log telemetry, like [API Management](/azure/api-management/api-management-key-concepts.md) or even [configuring alert rules in Azure Monitor](/azure/azure-monitor/alerts/alerts-create-new-alert-rule.md) that trigger [action groups](/azure/azure-monitor/alerts/action-groups.md) that log the telemetry. The goal is to get all usage telemetry into a single, consistent data store.
-  - If you don't have telemetry in place, consider setting up [Application Insights](/azure/azure-monitor/app/app-insights-overview.md), which is an extension of Azure Monitor.
-- Use [Azure Monitor metrics](/azure/azure-monitor/essentials/data-platform-metrics.md) to pull resource utilization data.
+  - When application telemetry isn't directly possible, consider workarounds that can log telemetry, like [API Management](/azure/api-management/api-management-key-concepts) or even [configuring alert rules in Azure Monitor](/azure/azure-monitor/alerts/alerts-create-new-alert-rule) that trigger [action groups](/azure/azure-monitor/alerts/action-groups) that log the telemetry. The goal is to get all usage telemetry into a single, consistent data store.
+  - If you don't have telemetry in place, consider setting up [Application Insights](/azure/azure-monitor/app/app-insights-overview), which is an extension of Azure Monitor.
+- Use [Azure Monitor metrics](/azure/azure-monitor/essentials/data-platform-metrics) to pull resource utilization data.
   - If you don't have telemetry, see what metrics are available in Azure Monitor that can map your application usage to the costs. You need anything that can break down the usage of your resources to give you an idea of what percentage of the billed usage was from one unit vs. another.
-  - If you don't see the data you need in metrics, also check [logs and traces in Azure Monitor](/azure/azure-monitor/overview#data-platform.md). It might not be a direct correlation to usage but might be able to give you some indication of usage.
+  - If you don't see the data you need in metrics, also check [logs and traces in Azure Monitor](/azure/azure-monitor/overview#data-platform). It might not be a direct correlation to usage but might be able to give you some indication of usage.
 - Use service-specific APIs to get detailed usage telemetry.
   - Every service uses Azure Monitor for a core set of logs and metrics. Some services also provide more detailed monitoring and utilization APIs to get more details than are available in Azure Monitor. Explore [Azure service documentation](/azure) to find the right API for the services you use.
 - Using the data you collected, quantify the percentage of usage coming from each unit.
@@ -82,7 +82,7 @@ Related FinOps capabilities:
 Related products:
 
 - [Cost Management](/azure/cost-management-billing/costs/)
-- [Application Insights](/azure/azure-monitor/app/)
+- [Application Insights](/azure/azure-monitor/app/app-insights-overview)
 - [Azure pricing calculator](https://azure.microsoft.com/pricing/calculator)
 - [Azure Resource Graph](/azure/governance/resource-graph/)
 - [Azure Monitor](/azure/azure-monitor/)

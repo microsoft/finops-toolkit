@@ -50,7 +50,7 @@ For the following example, we used the following Data Lake Gen 2 storage account
 
 ## Export cost data
 
-Since we're creating a workspace optimized for FinOps, we'll export cost data using the FinOps Open Cost and Usage Specification (FOCUS), a provider-agnostic data format for cost details. All our examples will use FOCUS but you can also use existing actual or amortized cost exports that have file overwriting enabled.
+Since we're creating a workspace optimized for FinOps, we export cost data using the FinOps Open Cost and Usage Specification (FOCUS), a provider-agnostic data format for cost details. All our examples use FOCUS but you can also use existing actual or amortized cost exports that have file overwriting enabled.
 
 To learn more about FOCUS and its benefits, see [About FOCUS](https://microsoft.github.io/finops-toolkit/focus). The FinOps Foundation also offers a free [Introduction to FOCUS course](https://learn.finops.org/introduction-to-focus). Microsoft’s Power BI solutions for FinOps are aligned to FOCUS.
 
@@ -159,9 +159,6 @@ Here’s an example screenshot showing the Data Lake Storage URL on the **Endpoi
 
 After you create the shortcut, you can view the FOCUS cost data inside **Files**. You can load the data directly into a Fabric with one of the following methods, based on your requirements. The following tabs provide two options:
 
-- [Manual data ingestion](#manual-data-ingestion) as a one-time process
-- [Automate data ingestion](#automate-data-ingestion) for reuse
-
 ### [Manual data ingestion](#tab/manual-data-ingestion)
 
 After the shortcut gets created, you can view the FOCUS cost data inside **Files**. You can load the data directly into a Fabric table by using the following steps.
@@ -180,7 +177,7 @@ After the shortcut gets created, you can view the FOCUS cost data inside **Files
 
 For more information, see [Lakehouse Load to Delta Lake tables](/fabric/data-engineering/load-to-tables).
 
-This process creates a table based on the CSV/Parquet file. For an automated process to ingest data using notebooks, see [Automate data ingestion](#automate-data-ingestion) later in this article.
+This process creates a table based on the CSV/Parquet file. For an automated process to ingest data using notebooks, see the Automate data ingestion tab.
 
 Here’s an example screenshot showing data in the Lakehouse table.
 
@@ -196,7 +193,7 @@ Here are the high-level steps:
 2. Select **Open notebook** > **New notebook**. New notebook might be hidden behind an ellipsis (...) menu overflow symbol.
 3. Select **PySpark (Python)** notebook and paste the following example Python script.
 4. Replace `read_path` with &lt;abs-folder-path&gt;. You can find the Azure Blob Filesystem driver (ABFS) path by navigating to the desired path. Select the ellipsis (**...**), and then select **Copy ABFS path** as shown in the following screenshot.  
-   :::image type="content" source="./media/create-fabric-workspace-finops/fabric-lakehouse-copy-path-load-table.png" border="true" alt-text="Screenshot an example of copying ABFS path to load table." lightbox="./media/create-fabric-workspace-finops/fabric-lakehouse-copy-path-load-table.png" :::
+   :::image type="content" source="./media/create-fabric-workspace-finops/fabric-lakehouse-copy-path-load-table.png" border="true" alt-text="Screenshot showing an example of copying ABFS path to load table." lightbox="./media/create-fabric-workspace-finops/fabric-lakehouse-copy-path-load-table.png" :::
 5. Replace `export_table` with the name for the table that you want to create.
 6. Running the script ingests the data into Fabric.
 7. You can create a schedule to automate running the script that results in automating the data ingestion pipeline.

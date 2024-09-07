@@ -18,7 +18,7 @@ The FinOps Framework includes capabilities that cover everything you need to per
 
 ## Understand cloud usage and cost
 
-The **Understand cloud usage and cost** domain is focused on data acquisition, reporting, analysis, and alerting on top of your cost, usage, and carbon consumption. This domain is all about observability and business intelligence, bringing the data stakeholders need together (ingestion) into a meaningful breakdown for the organization (allocation) that can be reported on (reporting) and monitored to proactively identify and react to issues (anomalies).
+The **Understand cloud usage and cost** domain is focused on data acquisition, reporting, analysis, and alerting on top of your cost, usage, and carbon consumption. This domain is all about observability and business intelligence. It brings the data that stakeholders need together (ingestion) into a meaningful breakdown for the organization (allocation). Then it can be reported on (reporting) and monitored to proactively identify and react to issues (anomalies).
 
 - [Data ingestion](./understand/ingestion.md)
 - [Allocation](./understand/allocation.md)
@@ -29,7 +29,7 @@ The **Understand cloud usage and cost** domain is focused on data acquisition, r
 
 ## Quantify business value
 
-The **Quantify business value** domain is focused on identifying and breaking down cost, usage, and carbon emissions to establish and stay aligned with organizational plans and measure the return on investment from cloud computing efforts. This domain is all about measuring and maximizing the business value each team and workload gets from the cloud in an effort to maximize future potential.
+The **Quantify business value** domain is focused on identifying and breaking down cost, usage, and carbon emissions to establish and stay aligned with organizational plans and measure the return on investment from cloud computing efforts. This domain is all about measuring and maximizing the business value each team and workload gets from the cloud to maximize future potential.
 
 - [Planning and estimating](./quantify/planning.md)
 - [Forecasting](./quantify/forecasting.md)
@@ -53,7 +53,7 @@ The **Optimize cloud usage and cost** domain is focused on designing and optimiz
 
 ## Manage the FinOps practice
 
-The **Manage the FinOps practice** domain is focused on establishing a clear and consistent vision of FinOps and driving cultural adoption across your organization. While other domains are focused on the FinOps tasks you perform to drive efficiency and maximize value, this domain is focused more on how you run your FinOps practice and supporting those efforts.
+The **Manage the FinOps practice** domain is focused on establishing a clear and consistent vision of FinOps and driving cultural adoption across your organization. Unlike other domains that focus on FinOps tasks to drive efficiency and maximize value, this domain emphasizes managing and supporting your FinOps practice.
 
 - [FinOps education and enablement](./manage/education.md)
 - [FinOps practice operations](./manage/operations.md)
@@ -61,7 +61,7 @@ The **Manage the FinOps practice** domain is focused on establishing a clear and
 - [Cloud policy and governance](./manage/governance.md)
 - [Invoicing and chargeback](./manage/invoicing-chargeback.md)
 - [FinOps assessment](./manage/assessment.md)
-- [FinOps tools and services](./manage/tools-and-services.md)
+- [FinOps tools and services](./manage/tools-services.md)
 - [Intersecting frameworks](./manage/intersecting-disciplines.md)
 
 <br>
@@ -70,7 +70,7 @@ The **Manage the FinOps practice** domain is focused on establishing a clear and
 
 Once you understand which capabilities are most critical, start your first or plan your next iteration:
 
-- [Conduct a FinOps iteration](../conduct-an-iteration.md)
+- [Conduct a FinOps iteration](../conduct-iteration.md)
 
 Related products:
 

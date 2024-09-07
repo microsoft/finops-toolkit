@@ -35,7 +35,7 @@ When you first start managing cost in the cloud, you might not need a dedicated 
   - If you have a central team responsible for cost management, consider having them chair the committee.
 - Discuss and document the roles and responsibilities of each committee member.
   - FinOps Foundation proposes one potential responsibility assignment matrix ([RACI model](https://www.finops.org/wg/adopting-finops/#accountability-and-expectations-by-team-raci--daci-modeling)).
-- Collaborate on [planning your first FinOps iteration](../../../conduct-an-iteration.md).
+- Collaborate on [planning your first FinOps iteration](../../conduct-iteration.md).
   - Make notes where there are differing perspectives and opinions. Discuss those subjects for alignment in the future.
   - Start small and find common ground to enable the committee to execute a successful iteration. It's OK if you don't solve every problem.
   - Document decisions and outline processes, key contacts, and required activities. Documentation can be a small checklist in early stages. Focus on winning as one rather than documenting everything and executing perfectly.
@@ -68,7 +68,7 @@ At this point, you have a regular cadence of meetings with a steering committee 
 - Leverage the [FinOps assessment capability](./assessment.md) to build a flesh out a complete plan, incorporating knowledge sharing, automated metrics and processes, and organizational adoption.
   - Utilize [FinOps Foundation resources](https://www.finops.org/resources) to build your pitch, strategy, and more.
   - Use the [FinOps community](https://www.finops.org/community/getting-started/) to share their knowledge and experience. They've been where you are.
-- Review the Cloud Adoption Framework guidance for tips on how to [drive organizational alignment](https://learn.microsoft.com/azure/cloud-adoption-framework/organize) on a larger scale. You might find opportunities to align with other governance initiatives.
+- Review the Cloud Adoption Framework guidance for tips on how to [drive organizational alignment](/azure/cloud-adoption-framework/organize) on a larger scale. You might find opportunities to align with other governance initiatives.
 - Define and document your operating model and evolve your strategy as a collaborative community.
 - Brainstorm metrics and tactics that can demonstrate value and inspire different stakeholders through effective communication.
 - Consider tools that can help self-promote your successes, like reports and dashboards.
@@ -92,7 +92,7 @@ This capability is part of the FinOps Framework by the FinOps Foundation, a non-
 Related FinOps capabilities:
 
 - [FinOps assessment](./assessment.md)
-- [Benchmarking](../optimize/benchmarking.md)
+- [Benchmarking](../quantify/benchmarking.md)
 - [FinOps education and enablement](./education.md)
 
 <br>

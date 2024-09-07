@@ -31,8 +31,8 @@ Implementation of this capability is highly dependent on how your organization a
 
 - [IT Asset Management (ITAM)](https://www.finops.org/framework/capabilities/finops-itam/) by FinOps Foundation
 - IT Service Management
-  - [Azure Monitor integration](/azure/azure-monitor/alerts/itsmc-overview.md)
-  - [Azure DevOps and ServiceNow](/azure/devops/pipelines/release/approvals/servicenow.md)
+  - [Azure Monitor integration](/azure/azure-monitor/alerts/itsmc-overview)
+  - [Azure DevOps and ServiceNow](/azure/devops/pipelines/release/approvals/servicenow)
 
 <br>
 
