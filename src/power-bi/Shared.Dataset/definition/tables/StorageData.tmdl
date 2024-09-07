@@ -169,9 +169,9 @@ table StorageData
 		queryGroup: 'FinOps toolkit'
 		source = ```
 				let
-				    hubUrl = if #"Hub Storage URL" = "" or #"Hub Storage URL" = null then null else "https://" & Text.Split(Text.Replace(#"Hub Storage URL", "https://", ""), "/"){0},
-				    expUrl = if #"Export Storage URL" = "" or #"Export Storage URL" = null then null else "https://" & Text.Split(Text.Replace(#"Export Storage URL", "https://", ""), "/"){0},
-				    ADLS = AzureStorage.DataLake(if hubUrl = null then expUrl else hubUrl),
+		            hubStore = if #"Hub Storage URL" = "" or #"Hub Storage URL" = null then null else AzureStorage.DataLake(#"Hub Storage URL" & "/.."),
+		            expStore = if #"Export Storage URL" = "" or #"Export Storage URL" = null then null else AzureStorage.DataLake(#"Export Storage URL"),
+		            ADLS = if hubStore <> null then hubStore else expStore,
 				
 				    // 
 				    Files = Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(ADLS,
