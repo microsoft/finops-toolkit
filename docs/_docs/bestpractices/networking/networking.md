@@ -50,8 +50,8 @@ Optimization
 
 <details>
   <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code> resources 
+```kql
+resources 
   | where type =~ 'Microsoft.Network/azureFirewalls' and properties.sku.tier=="Premium"
   | project FWID=id, firewallName=name, SkuTier=tostring(properties.sku.tier), resourceGroup, location
   | join kind=inner (
@@ -62,8 +62,8 @@ Optimization
       | extend FWID=tostring(properties_firewalls.id)
       | where intrusionDetection == "False" and transportSecurity == "False"
       | project PolicyName=name, PolicySKU=tostring(properties.sku.tier), intrusionDetection, transportSecurity, FWID
-  ) on FWID</code></pre>
-  </div>
+  ) on FWID
+```
 </details>
 
 
@@ -80,8 +80,8 @@ Optimization
 
 <details>
   <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code> resources 
+```kql
+resources 
   | where type =~ 'Microsoft.Network/azureFirewalls' and properties.sku.tier=="Premium"
   | project FWID=id, firewallName=name, SkuTier=tostring(properties.sku.tier), resourceGroup, location
   | join kind=inner (
@@ -92,8 +92,8 @@ Optimization
       | extend FWID=tostring(properties_firewalls.id)
       | where intrusionDetection == "False" and transportSecurity == "False"
       | project PolicyName=name, PolicySKU=tostring(properties.sku.tier), intrusionDetection, transportSecurity, FWID
-  ) on FWID</code></pre>
-  </div>
+  ) on FWID
+```
 </details>
 
 <br>
@@ -113,8 +113,8 @@ Optimization
 
 <details>
   <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code> resources
+```kql
+resources
 | where type =~ 'Microsoft.Network/applicationGateways'
 | extend backendPoolsCount = array_length(properties.backendAddressPools),SKUName= tostring(properties.sku.name), SKUTier= tostring(properties.sku.tier),SKUCapacity=properties.sku.capacity,backendPools=properties.backendAddressPools,resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)
 | project id, name, SKUName, SKUTier, SKUCapacity,resourceGroup,subscriptionId
@@ -130,8 +130,7 @@ Optimization
 | project-away id1
 | where  (backendIPCount == 0 or isempty(backendIPCount)) and (backendAddressesCount==0 or isempty(backendAddressesCount))
 | order by id asc
-</code></pre>
-  </div>
+```
 </details>
 
 <br>
@@ -151,14 +150,12 @@ Optimization
 
 <details>
   <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code> resources
-| where type =~ 'Microsoft.Network/expressRouteCircuits' and properties.serviceProviderProvisioningState == "NotProvisioned"
-| extend ServiceLocation=tostring(properties.serviceProviderProperties.peeringLocation), ServiceProvider=tostring(properties.serviceProviderProperties.serviceProviderName), BandwidthInMbps=tostring(properties.serviceProviderProperties.bandwidthInMbps)
-| project   ERId=id,ERName = name, ERRG = resourceGroup, SKUName=tostring(sku.name), SKUTier=tostring(sku.tier), SKUFamily=tostring(sku.family), ERLocation = location, ServiceLocation, ServiceProvider, BandwidthInMbps
-
-</code></pre>
-  </div>
+```kql
+resources
+    | where type =~ 'Microsoft.Network/expressRouteCircuits' and properties.serviceProviderProvisioningState == "NotProvisioned"
+    | extend ServiceLocation=tostring(properties.serviceProviderProperties.peeringLocation), ServiceProvider=tostring(properties.serviceProviderProperties.serviceProviderName), BandwidthInMbps=tostring(properties.serviceProviderProperties.bandwidthInMbps)
+    | project   ERId=id,ERName = name, ERRG = resourceGroup, SKUName=tostring(sku.name), SKUTier=tostring(sku.tier), SKUFamily=tostring(sku.family), ERLocation = location, ServiceLocation, ServiceProvider, BandwidthInMbps
+```
 </details>
 
 <br>
@@ -178,8 +175,8 @@ Optimization
 
 <details>
   <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code> resources 
+```kql
+resources 
     | extend resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)
     | extend SKUName=tostring(sku.name)
     | extend SKUTier=tostring(sku.tier)
@@ -207,12 +204,11 @@ Optimization
 
 <details>
   <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code> resources
-| where type == "microsoft.network/privatednszones" and properties.numberOfVirtualNetworkLinks == 0
-| project id, PrivateDNSName=name, NumberOfRecordSets=tostring(properties.numberOfRecordSets),resourceGroup=tostring(strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)),vNets=tostring(properties.properties.numberOfVirtualNetworkLinks), subscriptionId
-</code></pre>
-  </div>
+```kql
+ resources
+    | where type == "microsoft.network/privatednszones" and properties.numberOfVirtualNetworkLinks == 0
+    | project id, PrivateDNSName=name, NumberOfRecordSets=tostring(properties.numberOfRecordSets),resourceGroup=tostring(strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)),vNets=tostring(properties.properties.numberOfVirtualNetworkLinks), subscriptionId
+```
 </details>
 
 <br>
@@ -232,27 +228,26 @@ Optimization
 
 <details>
   <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code> resources 
-| where type =~ 'Microsoft.Network/publicIPAddresses' and isempty(properties.ipConfiguration) and isempty(properties.natGateway) and properties.publicIPAllocationMethod =~ 'Static'
-| extend PublicIpId=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, Location=location ,resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)
-| project PublicIpId,IPName, SKUName, resourceGroup, Location, AllocationMethod, subscriptionId
-| union (
-    Resources 
-    | where type =~ 'microsoft.network/networkinterfaces' and isempty(properties.virtualMachine) and isnull(properties.privateEndpoint) and isnotempty(properties.ipConfigurations) 
-    | extend IPconfig = properties.ipConfigurations 
-    | mv-expand IPconfig 
-    | extend PublicIpId= tostring(IPconfig.properties.publicIPAddress.id)
-    | project PublicIpId
-        | join ( 
-            resources 
-            | where type =~ 'Microsoft.Network/publicIPAddresses'
-            | extend PublicIpId=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, resourceGroup, Location=location 
-        ) on PublicIpId
- | project PublicIpId,IPName, SKUName, resourceGroup, Location, AllocationMethod, subscriptionId
+```kql
+resources 
+    | where type =~ 'Microsoft.Network/publicIPAddresses' and isempty(properties.ipConfiguration) and isempty(properties.natGateway) and properties.publicIPAllocationMethod =~ 'Static'
+    | extend PublicIpId=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, Location=location ,resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)
+    | project PublicIpId,IPName, SKUName, resourceGroup, Location, AllocationMethod, subscriptionId
+    | union (
+        Resources 
+        | where type =~ 'microsoft.network/networkinterfaces' and isempty(properties.virtualMachine) and isnull(properties.privateEndpoint) and isnotempty(properties.ipConfigurations) 
+        | extend IPconfig = properties.ipConfigurations 
+        | mv-expand IPconfig 
+        | extend PublicIpId= tostring(IPconfig.properties.publicIPAddress.id)
+        | project PublicIpId
+            | join ( 
+                resources 
+                | where type =~ 'Microsoft.Network/publicIPAddresses'
+                | extend PublicIpId=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, resourceGroup, Location=location 
+            ) on PublicIpId
+    | project PublicIpId,IPName, SKUName, resourceGroup, Location, AllocationMethod, subscriptionId
 )
-</code></pre>
-  </div>
+```
 </details>
 
 
@@ -268,14 +263,13 @@ Optimization
 
 <details>
   <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code> resources
-| where type =~ 'Microsoft.Network/publicIPAddresses' and isnotempty(properties.ipConfiguration)
-| where tostring(properties.ipTags)== "[]"
-| extend PublicIpId=id, RoutingMethod=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, Location=location ,resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)
-| project PublicIpId,IPName, RoutingMethod,SKUName, resourceGroup, Location, AllocationMethod, subscriptionId
-</code></pre>
-  </div>
+```kql
+ resources
+    | where type =~ 'Microsoft.Network/publicIPAddresses' and isnotempty(properties.ipConfiguration)
+    | where tostring(properties.ipTags)== "[]"
+    | extend PublicIpId=id, RoutingMethod=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, Location=location ,resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)
+    | project PublicIpId,IPName, RoutingMethod,SKUName, resourceGroup, Location, AllocationMethod, subscriptionId
+```
 </details>
 
 ### Query: Check public IP addresses' DDoS protection policy
@@ -291,16 +285,15 @@ Optimization
 
 <details>
   <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code> resources
-| where type == "microsoft.network/publicipaddresses"
-| project ddosProtection=tostring(properties.ddosSettings), name
-| where ddosProtection has "Enabled"
-| count
-| project TotalIpsProtected = Count
-| extend CheckIpsProtected = iff(TotalIpsProtected >= 15,"Enable Network Protection tier", "Enable PIP DDoS Protection")
-</code></pre>
-  </div>
+```kql
+ resources
+    | where type == "microsoft.network/publicipaddresses"
+    | project ddosProtection=tostring(properties.ddosSettings), name
+    | where ddosProtection has "Enabled"
+    | count
+    | project TotalIpsProtected = Count
+    | extend CheckIpsProtected = iff(TotalIpsProtected >= 15,"Enable Network Protection tier", "Enable PIP DDoS Protection")
+```
 </details>
 
 <br>
@@ -320,21 +313,20 @@ Optimization
 
 <details>
   <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code> resources
-| where type == "microsoft.network/virtualnetworkgateways"
-| extend resourceGroup =strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)
-| project id, GWName=name,resourceGroup,location,subscriptionId
-| join kind = leftouter(
-    resources
-    | where type == "microsoft.network/connections"
-    | extend id = tostring(properties.virtualNetworkGateway1.id)
-    | project id
-) on id
-| where isempty(id1)
-| project id, GWName,resourceGroup,location,subscriptionId,status=id
-</code></pre>
-  </div>
+```kql
+resources
+    | where type == "microsoft.network/virtualnetworkgateways"
+    | extend resourceGroup =strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)
+    | project id, GWName=name,resourceGroup,location,subscriptionId
+    | join kind = leftouter(
+        resources
+        | where type == "microsoft.network/connections"
+        | extend id = tostring(properties.virtualNetworkGateway1.id)
+        | project id
+    ) on id
+    | where isempty(id1)
+    | project id, GWName,resourceGroup,location,subscriptionId,status=id
+```
 </details>
 
 
@@ -350,12 +342,11 @@ Optimization
 
 <details>
   <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code> resources
-| where type == "microsoft.network/natgateways" and isnull(properties.subnets)
-| project id, GWName=name, SKUName=tostring(sku.name), SKUTier=tostring(sku.tier), Location=location ,resourceGroup=tostring(strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)),subnet=tostring(properties.subnet), subscriptionId
-</code></pre>
-  </div>
+```kql
+ resources
+    | where type == "microsoft.network/natgateways" and isnull(properties.subnets)
+    | project id, GWName=name, SKUName=tostring(sku.name), SKUTier=tostring(sku.tier), Location=location ,resourceGroup=tostring(strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)),subnet=tostring(properties.subnet), subscriptionId
+```
 </details>
 
 <br>

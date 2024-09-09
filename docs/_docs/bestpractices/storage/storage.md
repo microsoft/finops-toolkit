@@ -76,18 +76,17 @@ Optimization
 
 <details>
   <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code> Resources
-| where type == 'microsoft.recoveryservices/vaults'
-| where resourceGroup in ({ResourceGroup})
+```kql
+Resources
+    | where type == 'microsoft.recoveryservices/vaults'
+    | where resourceGroup in ({ResourceGroup})
     | extend skuTier = tostring(sku['tier'])
     | extend skuName = tostring(sku['name'])
     | extend resourceGroup = strcat('/subscriptions/', subscriptionId, '/resourceGroups/', resourceGroup)
     | extend redundancySettings = tostring(properties.redundancySettings['standardTierStorageRedundancy'])
-| order by id asc
-| project id, redundancySettings, resourceGroup, location, subscriptionId, skuTier, skuName
-</code></pre>
-  </div>
+    | order by id asc
+    | project id, redundancySettings, resourceGroup, location, subscriptionId, skuTier, skuName
+```
 </details>
 
 <br>
@@ -107,18 +106,17 @@ Optimization
 
 <details>
   <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code> resources 
-| where type =~ 'microsoft.compute/disks' and managedBy == ""
-| extend diskState = tostring(properties.diskState)
-| where managedBy == "" and diskState != 'ActiveSAS'
-or diskState == 'Unattached' and diskState != 'ActiveSAS'  
-and tags !contains 'ASR-ReplicaDisk' and tags !contains 'asrseeddisk'
-| extend DiskId=id, DiskIDfull=id, DiskName=name, SKUName=sku.name, SKUTier=sku.tier, DiskSizeGB=tostring(properties.diskSizeGB), Location=location, TimeCreated=tostring(properties.timeCreated), SubId=subscriptionId
-| order by DiskId asc 
-| project DiskId, DiskIDfull, DiskName, DiskSizeGB, SKUName, SKUTier, resourceGroup, Location, TimeCreated, subscriptionId
-</code></pre>
-  </div>
+```kql
+resources 
+    | where type =~ 'microsoft.compute/disks' and managedBy == ""
+    | extend diskState = tostring(properties.diskState)
+    | where managedBy == "" and diskState != 'ActiveSAS'
+    or diskState == 'Unattached' and diskState != 'ActiveSAS'  
+    and tags !contains 'ASR-ReplicaDisk' and tags !contains 'asrseeddisk'
+    | extend DiskId=id, DiskIDfull=id, DiskName=name, SKUName=sku.name, SKUTier=sku.tier, DiskSizeGB=tostring(properties.diskSizeGB), Location=location, TimeCreated=tostring(properties.timeCreated), SubId=subscriptionId
+    | order by DiskId asc 
+    | project DiskId, DiskIDfull, DiskName, DiskSizeGB, SKUName, SKUTier, resourceGroup, Location, TimeCreated, subscriptionId
+```
 </details>
 
 
@@ -136,16 +134,15 @@ Optimization
 
 <details>
   <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code> resources
-| where type == 'microsoft.compute/snapshots'
-| extend TimeCreated = properties.timeCreated
-| extend resourceGroup=strcat("/subscriptions/",subscriptionId,"/resourceGroups/",resourceGroup)
-| where TimeCreated < ago(30d)
-| order by id asc 
-| project id, resourceGroup, location, TimeCreated ,subscriptionId
-</code></pre>
-  </div>
+```kql
+resources
+    | where type == 'microsoft.compute/snapshots'
+    | extend TimeCreated = properties.timeCreated
+    | extend resourceGroup=strcat("/subscriptions/",subscriptionId,"/resourceGroups/",resourceGroup)
+    | where TimeCreated < ago(30d)
+    | order by id asc 
+    | project id, resourceGroup, location, TimeCreated ,subscriptionId
+```
 </details>
 
 
@@ -164,14 +161,13 @@ Optimization
 
 <details>
   <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code> resources
-| where type == 'microsoft.compute/snapshots'
-| extend StorageSku = tostring(sku.tier), resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup),diskSize=tostring(properties.diskSizeGB)
-| where StorageSku == "Premium"
-| project id,name,StorageSku,diskSize,location,resourceGroup,subscriptionId
-</code></pre>
-  </div>
+```kql
+resources
+    | where type == 'microsoft.compute/snapshots'
+    | extend StorageSku = tostring(sku.tier), resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup),diskSize=tostring(properties.diskSizeGB)
+    | where StorageSku == "Premium"
+    | project id,name,StorageSku,diskSize,location,resourceGroup,subscriptionId
+```
 </details>
 
 <br>
@@ -191,14 +187,14 @@ Optimization
 
 <details>
   <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code> resources 
-| where type =~ 'Microsoft.Storage/StorageAccounts' and kind !='StorageV2' and kind !='FileStorage'
-| where resourceGroup in ({ResourceGroup})
-| extend StorageAccountName=name, SAKind=kind,AccessTier=tostring(properties.accessTier),SKUName=sku.name, SKUTier=sku.tier, Location=location
-| order by id asc
-| project id,StorageAccountName, SKUName, SKUTier, SAKind,AccessTier, resourceGroup, Location, subscriptionId</code></pre>
-  </div>
+```kql
+resources 
+    | where type =~ 'Microsoft.Storage/StorageAccounts' and kind !='StorageV2' and kind !='FileStorage'
+    | where resourceGroup in ({ResourceGroup})
+    | extend StorageAccountName=name, SAKind=kind,AccessTier=tostring(properties.accessTier),SKUName=sku.name, SKUTier=sku.tier, Location=location
+    | order by id asc
+    | project id,StorageAccountName, SKUName, SKUTier, SAKind,AccessTier, resourceGroup, Location, subscriptionId</code></pre>
+```
 </details>
 
 <br>

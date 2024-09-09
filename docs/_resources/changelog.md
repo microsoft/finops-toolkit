@@ -18,6 +18,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
 
 - [🔄️ Unreleased](#️-unreleased)
 - [🚚 v0.6](#-v06)
+- [🪛 v0.5 Update 1](#-v05-update-1)
 - [🚚 v0.5](#-v05)
 - [🚚 v0.4](#-v04)
 - [🚚 v0.3](#-v03)
@@ -82,9 +83,27 @@ Legend:
 >
 > 1. Published initial guidance for FinOps best practices. For the initial commit, this page contains the Azure Resource Graph (ARG) queries used by the Cost Optimization workbook.
 
+<br>
+
+## 🪛 v0.5 Update 1
+
+<sup>Released September 7, 2024</sup>
+
+This release is a minor patch to Power BI files. These files were updated in the existing 0.5 release. We are documenting this as a new patch release for transparency.
+
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> 🛠️ Fixed:
+>
+> 1. Corrected a bug where ADLS data sources could not be refreshed from the Power BI service ([#964](https://github.com/microsoft/finops-toolkit/issues/964)).
+>    > _This updated all PBIX/PBIT files downloaded between September 1-6, 2024. If you are using one of these files and plan to publish it to the Power BI service, please update to the latest version of the PBIX or PBIT files._
+
+<br>
+
 ## 🚚 v0.5
 
-<sup>Released August 2024</sup>
+<sup>Released September 1, 2024</sup>
 
 📗 FinOps guide
 {: .fs-5 .fw-500 .mt-4 mb-0 }

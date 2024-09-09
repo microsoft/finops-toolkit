@@ -42,21 +42,20 @@ Monitoring
 
 <details>
   <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code>  resources
-	  | where type =~ 'Microsoft.Web/sites'
-	  | project
-	      id,
-	      WebAppName=name,
-	      Type=kind,
-	      Status=tostring(properties.state),
-	      WebAppLocation=location,
-	      AppServicePlan=tostring(properties.serverFarmId),
-	      WebAppRG=resourceGroup,
-	      SubscriptionId=subscriptionId
-	  | order by id asc
-</code></pre>
-  </div>
+```kql
+resources
+    | where type =~ 'Microsoft.Web/sites'
+	| project
+	    id,
+	    WebAppName=name,
+	    Type=kind,
+	    Status=tostring(properties.state),
+	    WebAppLocation=location,
+	    AppServicePlan=tostring(properties.serverFarmId),
+	    WebAppRG=resourceGroup,
+	    SubscriptionId=subscriptionId
+	| order by id asc
+```
 </details>
 
 ### Query: App Service plan details
@@ -72,8 +71,8 @@ Resource management
 
 <details>
   <summary>Click to view the code</summary>
-  <div class="code-block">
-    <pre><code>   resources
+```kql
+resources
   | where type == "microsoft.web/serverfarms"  and sku.tier !~ 'Free'
   | project
       planId = tolower(tostring(id)),
@@ -94,8 +93,7 @@ Resource management
           AutoScaleProfiles = properties.profiles,
           resourceGroup
   ) on planId
-</code></pre>
-  </div>
+```
 </details>
 
 <br>
