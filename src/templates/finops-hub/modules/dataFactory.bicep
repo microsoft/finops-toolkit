@@ -385,7 +385,7 @@ resource dataset_msexports_parquet 'Microsoft.DataFactory/factories/datasets@201
       blobPath: {
         type: 'String'
       }
-      }
+    }
     type: 'Parquet'
     typeProperties: {
       location: {
@@ -1383,7 +1383,7 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                 }
                 method: 'PUT'
                 body: {
-                  value: getExportBody(exportContainerName, 'FocusCost', focusSchemaVersion, false, 'Parquet', 'Snappy', 'true', 'CreateNewReport')
+                  value: getExportBody(exportContainerName, 'FocusCost', focusSchemaVersion, true, 'Parquet', 'Snappy', 'true', 'CreateNewReport')
                   type: 'Expression'
                 }
                 authentication: {
