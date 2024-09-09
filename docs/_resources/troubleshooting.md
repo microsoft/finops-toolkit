@@ -110,6 +110,10 @@ Decide whether you will connect to storage using a user or service principal acc
 ### Step 2: Troubleshoot connection errors
 
 1. If you try to connect to your storage account and receive an error: "Access to the resource is forbidden", it is very likely you are missing a few permissions. Refer back to [Connect Power BI to storage](#step-1-connect-power-bi-to-storage) to ensure you have the correct permissions.
-2. If you ssee an error about access being forbidden, review if the billing account that you are connecting to is correct. Power BI reports are provided with a sample billing account, and if you don't change that to your own ID, you won't be able to connect.
+2. If you see an error about access being forbidden, review if the billing account that you are connecting to is correct. Power BI reports are provided with a sample billing account, and if you don't change that to your own ID, you won't be able to connect.
+
+### Step 3: Verify RangeStart and RangeEnd dates
+
+1. If the report does not include any data that was exported to your storage account in the PowerBI report then you will need to check the RangeStart/RangeEnd parameter. Navigate to the transform data page of the Power BI report and change RangeStart and RangeEnd to the desired start/end dates for your report. See [Set up your first report](../_reporting/power-bi/setup.md) for details.
 
 <br>
