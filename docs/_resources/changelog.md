@@ -61,6 +61,12 @@ Legend:
 > 1. Analytics engine – Ingest cost data into an Azure Data Explorer cluster.
 > 2. Auto-backfill – Backfill historical data from Microsoft Cost Management.
 > 3. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
+> 4. ETL pipelile – Add support for parquet files created by Cost Management exports.
+>
+> ✏️ Changed:
+>
+> 1. Managed Exports - Use parquet format when creating Cost Management exports.
+>
 
 🦾 Bicep modules
 {: .fs-5 .fw-500 .mt-4 mb-0 }
