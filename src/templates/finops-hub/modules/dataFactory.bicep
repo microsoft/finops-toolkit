@@ -385,7 +385,7 @@ resource dataset_msexports_parquet 'Microsoft.DataFactory/factories/datasets@201
       blobPath: {
         type: 'String'
       }
-      }
+    }
     type: 'Parquet'
     typeProperties: {
       location: {
