@@ -3,7 +3,7 @@
   "artifacts": [
     {
       "report": {
-        "path": "CloudPolicyAndGovernance.Report"
+        "path": "Governance.Report"
       }
     }
   ],
