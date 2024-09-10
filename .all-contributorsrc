@@ -512,6 +512,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "Zeo-shark",
+      "name": "Sourav Bera",
+      "avatar_url": "https://avatars.githubusercontent.com/u/53810519?v=4",
+      "profile": "https://bento.me/souravbera",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "commitType": "docs",

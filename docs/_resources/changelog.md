@@ -17,7 +17,6 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
-- [🚚 v0.6](#-v06)
 - [🚚 v0.5](#-v05)
 - [🚚 v0.4](#-v04)
 - [🚚 v0.3](#-v03)
@@ -62,7 +61,6 @@ Legend:
 > 1. Analytics engine – Ingest cost data into an Azure Data Explorer cluster.
 > 2. Auto-backfill – Backfill historical data from Microsoft Cost Management.
 > 3. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
-> 4. Added documentation to use a SAS token to configuring Power BI reports.
 
 🦾 Bicep modules
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -73,22 +71,9 @@ Legend:
 
 <br><a name="latest"></a>
 
-## 🚚 v0.6
-
-<sup>Released September 2024</sup>
-
-📊 Power BI reports
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. Add instructions to configure reports using SAS tokens.
-
-<br>
-
 ## 🚚 v0.5
 
-<sup>Released August 2024</sup>
+<sup>Released September 1, 2024</sup>
 
 📗 FinOps guide
 {: .fs-5 .fw-500 .mt-4 mb-0 }
