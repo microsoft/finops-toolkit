@@ -330,6 +330,7 @@ table PolicyStates
 
 	partition PolicyStates = m
 		mode: import
+		queryGroup: 'Resource Graph'
 		source =
 				let
 				  Source = AzureResourceGraph.Query("policyResources | where type =~'Microsoft.PolicyInsights/PolicyStates'", "Tenant", null, null, [resultTruncated = false]),
@@ -337,4 +338,8 @@ table PolicyStates
 				    #"Extracted Text After Delimiter" = Table.TransformColumns(#"Expanded properties", {{"properties.policyAssignmentScope", each Text.AfterDelimiter(_, "/", {0, RelativePosition.FromEnd}), type text}})
 				in
 				  #"Extracted Text After Delimiter"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
 

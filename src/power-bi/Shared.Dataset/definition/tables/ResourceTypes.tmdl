@@ -1,4 +1,4 @@
-table 'Resource types'
+table ResourceTypes
 	lineageTag: ac01cf9d-360d-46af-b370-4093c135f5fa
 
 	column ResourceType
@@ -74,8 +74,9 @@ table 'Resource types'
 
 		annotation SummarizationSetBy = Automatic
 
-	partition 'Resource types' = m
+	partition ResourceTypes = m
 		mode: import
+		queryGroup: 'Resource Graph'
 		source =
 				let
 				  Source = Csv.Document(Web.Contents("https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv"), [Delimiter = ",", Columns = 9, Encoding = 65001, QuoteStyle = QuoteStyle.None]),
@@ -83,4 +84,8 @@ table 'Resource types'
 				  #"Changed column type" = Table.TransformColumnTypes(#"Promoted headers", {{"ResourceType", type text}, {"SingularDisplayName", type text}, {"PluralDisplayName", type text}, {"LowerSingularDisplayName", type text}, {"LowerPluralDisplayName", type text}, {"IsPreview", type logical}, {"Description", type text}, {"Icon", type text}, {"Links", type text}}, "en-US")
 				in
 				  #"Changed column type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
 

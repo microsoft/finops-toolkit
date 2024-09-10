@@ -105,7 +105,7 @@ table LocalDateTable_9f5d917b-c335-474f-836b-65f614e8aa8a
 
 	partition LocalDateTable_9f5d917b-c335-474f-836b-65f614e8aa8a = calculated
 		mode: import
-		source = Calendar(Date(Year(MIN('Reservation recommendations'[properties.lastUpdated])), 1, 1), Date(Year(MAX('Reservation recommendations'[properties.lastUpdated])), 12, 31))
+		source = Calendar(Date(Year(MIN('AdvisorReservationRecommendations'[properties.lastUpdated])), 1, 1), Date(Year(MAX('AdvisorReservationRecommendations'[properties.lastUpdated])), 12, 31))
 
 	annotation __PBI_LocalDateTable = true
 

@@ -291,9 +291,13 @@ table Disks
 
 	partition Disks = m
 		mode: import
+		queryGroup: 'Resource Graph'
 		source =
 				let
-				  Source = AzureResourceGraph.Query("Resources | where type =~ 'microsoft.compute/disks'", "Tenant", null, null, [resultTruncated = false]),
+				  Source = AzureResourceGraph.Query("
+				    Resources
+				    | where type =~ 'microsoft.compute/disks'
+				  ", "Tenant", null, null, [resultTruncated = false]),
 				  #"Expanded properties" = Table.ExpandRecordColumn(Source, "properties", {"provisioningState", "publicNetworkAccess", "encryption", "networkAccessPolicy", "timeCreated", "diskSizeGB", "hyperVGeneration", "diskSizeBytes", "creationData", "osType", "LastOwnershipUpdateTime", "diskState", "uniqueId", "diskMBpsReadWrite", "diskIOPSReadWrite", "tier"}, {"properties.provisioningState", "properties.publicNetworkAccess", "properties.encryption", "properties.networkAccessPolicy", "properties.timeCreated", "properties.diskSizeGB", "properties.hyperVGeneration", "properties.diskSizeBytes", "properties.creationData", "properties.osType", "properties.LastOwnershipUpdateTime", "properties.diskState", "properties.uniqueId", "properties.diskMBpsReadWrite", "properties.diskIOPSReadWrite", "properties.tier"}),
 				  #"Expanded sku" = Table.ExpandRecordColumn(#"Expanded properties", "sku", {"name", "tier"}, {"sku.name", "sku.tier"}),
 				  #"Expanded properties.creationData" = Table.ExpandRecordColumn(#"Expanded sku", "properties.creationData", {"createOption", "imageReference"}, {"properties.creationData.createOption", "properties.creationData.imageReference"}),
@@ -306,4 +310,8 @@ table Disks
 				  #"Renamed columns" = Table.RenameColumns(#"Extracted text after delimiter", {{"managedBy - Copy", "parentVM"}})
 				in
 				  #"Renamed columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
 

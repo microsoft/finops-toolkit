@@ -1,4 +1,4 @@
-table 'Management Groups'
+table ManagementGroups
 	lineageTag: 0e04ab5f-9838-4180-a7f3-dc1cbcb6f296
 
 	column id
@@ -193,8 +193,9 @@ table 'Management Groups'
 
 		annotation SummarizationSetBy = Automatic
 
-	partition 'Management Groups' = m
+	partition ManagementGroups = m
 		mode: import
+		queryGroup: 'Resource Graph'
 		source =
 				let
 				  Source = AzureResourceGraph.Query("resourcecontainers | where type == 'microsoft.management/managementgroups'", "Tenant", null, null, [resultTruncated = false]),
@@ -205,4 +206,8 @@ table 'Management Groups'
 				  #"Expanded managementGroupAncestorsChain 1" = Table.ExpandRecordColumn(#"Expanded managementGroupAncestorsChain", "managementGroupAncestorsChain", {"displayName", "name"}, {"managementGroupAncestorsChain.displayName", "managementGroupAncestorsChain.name"})
 				in
 				  #"Expanded managementGroupAncestorsChain 1"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
 

@@ -1,4 +1,4 @@
-table 'Network interfaces'
+table NetworkInterfaces
 	lineageTag: 471a2007-5388-404a-97e6-1b2292878a8c
 
 	column id
@@ -345,8 +345,9 @@ table 'Network interfaces'
 
 		annotation SummarizationSetBy = Automatic
 
-	partition 'Network interfaces' = m
+	partition NetworkInterfaces = m
 		mode: import
+		queryGroup: 'Resource Graph'
 		source =
 				let
 				  Source = AzureResourceGraph.Query("Resources | where type =~ 'microsoft.network/networkinterfaces'", "Tenant", null, null, [resultTruncated = false]),
@@ -359,4 +360,8 @@ table 'Network interfaces'
 				  #"Expanded properties.networkSecurityGroup" = Table.ExpandRecordColumn(#"Expanded properties.ipConfigurations.properties.publicIPAddress", "properties.networkSecurityGroup", {"id"}, {"properties.networkSecurityGroup.id"})
 				in
 				  #"Expanded properties.networkSecurityGroup"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
 

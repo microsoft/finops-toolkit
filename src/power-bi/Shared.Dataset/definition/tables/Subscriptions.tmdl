@@ -139,10 +139,15 @@ table Subscriptions
 
 	partition Subscriptions = m
 		mode: import
+		queryGroup: 'Resource Graph'
 		source =
 				let
 				  Source = AzureResourceGraph.Query("resourcecontainers | where type == 'microsoft.resources/subscriptions'", "Tenant", null, null, [resultTruncated = false]),
 				  #"Expanded properties" = Table.ExpandRecordColumn(Source, "properties", {"managementGroupAncestorsChain", "state"}, {"managementGroupAncestorsChain", "state"})
 				in
 				  #"Expanded properties"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
 

@@ -1,4 +1,4 @@
-table 'Network Security Groups'
+table NetworkSecurityGroups
 	lineageTag: 7d98f967-9180-4a4f-958a-89256520af0f
 
 	column id
@@ -426,9 +426,9 @@ table 'Network Security Groups'
 		annotation SummarizationSetBy = Automatic
 
 	column isWarning = ```
-			IF('Network Security Groups'[properties.securityRules.properties.access]="Allow",
+			IF('NetworkSecurityGroups'[properties.securityRules.properties.access]="Allow",
 			        SWITCH(
-			            'Network Security Groups'[properties.securityRules.properties.destinationPortRange],
+			            'NetworkSecurityGroups'[properties.securityRules.properties.destinationPortRange],
 			            "80", "True",
 			            "22", "True",
 			            "3389", "True",
@@ -443,8 +443,9 @@ table 'Network Security Groups'
 
 		annotation SummarizationSetBy = Automatic
 
-	partition 'Network Security Groups' = m
+	partition NetworkSecurityGroups = m
 		mode: import
+		queryGroup: 'Resource Graph'
 		source =
 				let
 				  Source = AzureResourceGraph.Query("Resources | where type =~ 'microsoft.network/networksecuritygroups'", "Tenant", null, null, [resultTruncated = false]),
@@ -467,4 +468,8 @@ table 'Network Security Groups'
 				  #"Expanded properties.securityRules.properties.sourcePortRanges" = Table.ExpandListColumn(#"Expanded properties.securityRules.properties.sourceAddressPrefixes", "properties.securityRules.properties.sourcePortRanges")
 				in
 				  #"Expanded properties.securityRules.properties.sourcePortRanges"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
 

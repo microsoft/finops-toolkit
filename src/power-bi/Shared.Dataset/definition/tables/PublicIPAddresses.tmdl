@@ -1,4 +1,4 @@
-table 'Public ip addresses'
+table PublicIPAddresses
 	lineageTag: 5c35f59e-97dc-424c-b1ae-0526c2c708ed
 
 	column id
@@ -185,12 +185,17 @@ table 'Public ip addresses'
 
 		annotation SummarizationSetBy = Automatic
 
-	partition 'Public ip addresses' = m
+	partition PublicIPAddresses = m
 		mode: import
+		queryGroup: 'Resource Graph'
 		source =
 				let
 				  Source = AzureResourceGraph.Query("Resources | where type =~ 'microsoft.network/publicipaddresses'", "Tenant", null, null, [resultTruncated = false]),
 				  #"Expanded properties" = Table.ExpandRecordColumn(Source, "properties", {"provisioningState", "resourceGuid", "idleTimeoutInMinutes", "publicIPAllocationMethod", "publicIPAddressVersion", "ipAddress", "ipConfiguration", "ipTags"}, {"properties.provisioningState", "properties.resourceGuid", "properties.idleTimeoutInMinutes", "properties.publicIPAllocationMethod", "properties.publicIPAddressVersion", "properties.ipAddress", "properties.ipConfiguration", "properties.ipTags"})
 				in
 				  #"Expanded properties"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
 

@@ -105,7 +105,7 @@ table LocalDateTable_d8279185-d2c7-4455-9003-fc92a34f3607
 
 	partition LocalDateTable_d8279185-d2c7-4455-9003-fc92a34f3607 = calculated
 		mode: import
-		source = Calendar(Date(Year(MIN('Advisor'[properties.extendedProperties.ObservationPeriodStartDate])), 1, 1), Date(Year(MAX('Advisor'[properties.extendedProperties.ObservationPeriodStartDate])), 12, 31))
+		source = Calendar(Date(Year(MIN('AdvisorRecommendations'[properties.extendedProperties.ObservationPeriodStartDate])), 1, 1), Date(Year(MAX('AdvisorRecommendations'[properties.extendedProperties.ObservationPeriodStartDate])), 12, 31))
 
 	annotation __PBI_LocalDateTable = true
 

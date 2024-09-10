@@ -1,4 +1,4 @@
-table Region
+table Regions
 	lineageTag: 4d14c13f-1a1f-4d48-831d-3d1aa829bc80
 
 	column OriginalValue
@@ -25,12 +25,17 @@ table Region
 
 		annotation SummarizationSetBy = Automatic
 
-	partition Region = m
+	partition Regions = m
 		mode: import
+		queryGroup: 'Resource Graph'
 		source =
 				let
 				  Source = Csv.Document(Web.Contents("https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv"), [Delimiter = ",", Columns = 3, QuoteStyle = QuoteStyle.None]),
 				  #"Promoted headers" = Table.PromoteHeaders(Source, [PromoteAllScalars = true])
 				in
 				  #"Promoted headers"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
 

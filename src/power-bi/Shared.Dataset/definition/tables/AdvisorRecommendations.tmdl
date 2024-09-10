@@ -1,4 +1,4 @@
-table Advisor
+table AdvisorRecommendations
 	lineageTag: a76a7ba9-b6b5-4140-9739-344b958bfc9f
 
 	column id
@@ -459,11 +459,16 @@ table Advisor
 
 		annotation SummarizationSetBy = Automatic
 
-	partition Advisor = m
+	partition AdvisorRecommendations = m
 		mode: import
-		source =
+		queryGroup: 'Resource Graph'
+		source = ```
 				let
-				  Source = AzureResourceGraph.Query("advisorresources | where type == ""microsoft.advisor/recommendations"" | where properties['category'] == 'Cost'", "Tenant", null, null, [resultTruncated = true]),
+				  Source = AzureResourceGraph.Query("
+				    advisorresources 
+				    | where type == 'microsoft.advisor/recommendations'
+				    | where properties['category'] == 'Cost'
+				  ", "Tenant", null, null, [resultTruncated = true]),
 				  #"Expanded properties" = Table.ExpandRecordColumn(Source, "properties", {"recommendationTypeId", "extendedProperties", "shortDescription", "resourceMetadata", "suppressionIds", "impactedField", "impactedValue", "lastUpdated", "category", "metadata", "impact"}, {"properties.recommendationTypeId", "properties.extendedProperties", "properties.shortDescription", "properties.resourceMetadata", "properties.suppressionIds", "properties.impactedField", "properties.impactedValue", "properties.lastUpdated", "properties.category", "properties.metadata", "properties.impact"}),
 				  #"Expanded properties.extendedProperties" = Table.ExpandRecordColumn(#"Expanded properties", "properties.extendedProperties", {"ObservationPeriodStartDate", "ObservationPeriodEndDate", "annualSavingsAmount", "HasRecommendation", "savingsCurrency", "IsInReplication", "Recommended_DTU", "Recommended_SKU", "ResourceGroup", "savingsAmount", "DatabaseSize", "DatabaseName", "ServerName", "Region", "lookbackPeriod", "subId", "scope", "term", "sku", "commitment", "currentSku", "targetSku", "recommendationMessage"}, {"properties.extendedProperties.ObservationPeriodStartDate", "properties.extendedProperties.ObservationPeriodEndDate", "properties.extendedProperties.annualSavingsAmount", "properties.extendedProperties.HasRecommendation", "properties.extendedProperties.savingsCurrency", "properties.extendedProperties.IsInReplication", "properties.extendedProperties.Recommended_DTU", "properties.extendedProperties.Recommended_SKU", "properties.extendedProperties.ResourceGroup", "properties.extendedProperties.savingsAmount", "properties.extendedProperties.DatabaseSize", "properties.extendedProperties.DatabaseName", "properties.extendedProperties.ServerName", "properties.extendedProperties.Region", "properties.extendedProperties.lookbackPeriod", "properties.extendedProperties.subId", "properties.extendedProperties.scope", "properties.extendedProperties.term", "properties.extendedProperties.sku", "properties.extendedProperties.commitment", "properties.extendedProperties.currentSku", "properties.extendedProperties.targetSku", "properties.extendedProperties.recommendationMessage"}),
 				  #"Changed column type 2" = Table.TransformColumnTypes(#"Expanded properties.extendedProperties", {{"properties.extendedProperties.annualSavingsAmount", type number}}, "en-US"),
@@ -479,8 +484,9 @@ table Advisor
 				  #"Changed column type 3" = Table.TransformColumnTypes(#"Inserted conditional column", {{"SortOrder", Int64.Type}})
 				in
 				  #"Changed column type 3"
+				```
 
 	annotation PBI_NavigationStepName = Navigation
 
-	annotation PBI_ResultType = Exception
+	annotation PBI_ResultType = Table
 

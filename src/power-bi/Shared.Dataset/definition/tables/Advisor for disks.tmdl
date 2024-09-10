@@ -7,7 +7,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[id]
+		sourceColumn: AdvisorRecommendations[id]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -17,7 +17,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[name]
+		sourceColumn: AdvisorRecommendations[name]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -27,7 +27,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[type]
+		sourceColumn: AdvisorRecommendations[type]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -37,7 +37,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[tenantId]
+		sourceColumn: AdvisorRecommendations[tenantId]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -47,7 +47,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[kind]
+		sourceColumn: AdvisorRecommendations[kind]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -57,7 +57,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[location]
+		sourceColumn: AdvisorRecommendations[location]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -67,7 +67,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[resourceGroup]
+		sourceColumn: AdvisorRecommendations[resourceGroup]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -77,7 +77,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[subscriptionId]
+		sourceColumn: AdvisorRecommendations[subscriptionId]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -87,7 +87,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[managedBy]
+		sourceColumn: AdvisorRecommendations[managedBy]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -97,7 +97,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[sku]
+		sourceColumn: AdvisorRecommendations[sku]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -107,7 +107,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[plan]
+		sourceColumn: AdvisorRecommendations[plan]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -117,7 +117,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.recommendationTypeId]
+		sourceColumn: AdvisorRecommendations[properties.recommendationTypeId]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -128,7 +128,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.extendedProperties.ObservationPeriodStartDate]
+		sourceColumn: AdvisorRecommendations[properties.extendedProperties.ObservationPeriodStartDate]
 
 		variation Variation
 			isDefault
@@ -144,7 +144,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.extendedProperties.ObservationPeriodEndDate]
+		sourceColumn: AdvisorRecommendations[properties.extendedProperties.ObservationPeriodEndDate]
 
 		variation Variation
 			isDefault
@@ -159,7 +159,7 @@ table 'Advisor for disks'
 		summarizeBy: sum
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.extendedProperties.annualSavingsAmount]
+		sourceColumn: AdvisorRecommendations[properties.extendedProperties.annualSavingsAmount]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -171,7 +171,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.extendedProperties.HasRecommendation]
+		sourceColumn: AdvisorRecommendations[properties.extendedProperties.HasRecommendation]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -181,7 +181,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.extendedProperties.savingsCurrency]
+		sourceColumn: AdvisorRecommendations[properties.extendedProperties.savingsCurrency]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -191,7 +191,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.extendedProperties.IsInReplication]
+		sourceColumn: AdvisorRecommendations[properties.extendedProperties.IsInReplication]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -201,7 +201,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.extendedProperties.Recommended_DTU]
+		sourceColumn: AdvisorRecommendations[properties.extendedProperties.Recommended_DTU]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -211,7 +211,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.extendedProperties.Recommended_SKU]
+		sourceColumn: AdvisorRecommendations[properties.extendedProperties.Recommended_SKU]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -221,7 +221,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.extendedProperties.ResourceGroup]
+		sourceColumn: AdvisorRecommendations[properties.extendedProperties.ResourceGroup]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -231,7 +231,7 @@ table 'Advisor for disks'
 		summarizeBy: sum
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.extendedProperties.savingsAmount]
+		sourceColumn: AdvisorRecommendations[properties.extendedProperties.savingsAmount]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -243,7 +243,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.extendedProperties.DatabaseSize]
+		sourceColumn: AdvisorRecommendations[properties.extendedProperties.DatabaseSize]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -253,7 +253,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.extendedProperties.DatabaseName]
+		sourceColumn: AdvisorRecommendations[properties.extendedProperties.DatabaseName]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -263,7 +263,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.extendedProperties.ServerName]
+		sourceColumn: AdvisorRecommendations[properties.extendedProperties.ServerName]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -273,7 +273,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.extendedProperties.Region]
+		sourceColumn: AdvisorRecommendations[properties.extendedProperties.Region]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -283,7 +283,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.extendedProperties.lookbackPeriod]
+		sourceColumn: AdvisorRecommendations[properties.extendedProperties.lookbackPeriod]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -293,7 +293,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.extendedProperties.subId]
+		sourceColumn: AdvisorRecommendations[properties.extendedProperties.subId]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -303,7 +303,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.extendedProperties.scope]
+		sourceColumn: AdvisorRecommendations[properties.extendedProperties.scope]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -313,7 +313,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.extendedProperties.term]
+		sourceColumn: AdvisorRecommendations[properties.extendedProperties.term]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -323,7 +323,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.extendedProperties.sku]
+		sourceColumn: AdvisorRecommendations[properties.extendedProperties.sku]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -333,7 +333,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.extendedProperties.commitment]
+		sourceColumn: AdvisorRecommendations[properties.extendedProperties.commitment]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -343,7 +343,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.extendedProperties.currentSku]
+		sourceColumn: AdvisorRecommendations[properties.extendedProperties.currentSku]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -353,7 +353,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.extendedProperties.targetSku]
+		sourceColumn: AdvisorRecommendations[properties.extendedProperties.targetSku]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -363,7 +363,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.extendedProperties.recommendationMessage]
+		sourceColumn: AdvisorRecommendations[properties.extendedProperties.recommendationMessage]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -373,7 +373,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.shortDescription.solution]
+		sourceColumn: AdvisorRecommendations[properties.shortDescription.solution]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -383,7 +383,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.shortDescription.problem]
+		sourceColumn: AdvisorRecommendations[properties.shortDescription.problem]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -393,7 +393,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.resourceMetadata.resourceId]
+		sourceColumn: AdvisorRecommendations[properties.resourceMetadata.resourceId]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -403,7 +403,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.resourceMetadata.singular]
+		sourceColumn: AdvisorRecommendations[properties.resourceMetadata.singular]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -413,7 +413,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.resourceMetadata.plural]
+		sourceColumn: AdvisorRecommendations[properties.resourceMetadata.plural]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -423,7 +423,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.resourceMetadata.action]
+		sourceColumn: AdvisorRecommendations[properties.resourceMetadata.action]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -433,7 +433,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.resourceMetadata.source]
+		sourceColumn: AdvisorRecommendations[properties.resourceMetadata.source]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -443,7 +443,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.suppressionIds]
+		sourceColumn: AdvisorRecommendations[properties.suppressionIds]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -453,7 +453,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.impactedField]
+		sourceColumn: AdvisorRecommendations[properties.impactedField]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -463,7 +463,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.impactedValue]
+		sourceColumn: AdvisorRecommendations[properties.impactedValue]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -474,7 +474,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.lastUpdated]
+		sourceColumn: AdvisorRecommendations[properties.lastUpdated]
 
 		variation Variation
 			isDefault
@@ -489,7 +489,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.category]
+		sourceColumn: AdvisorRecommendations[properties.category]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -499,7 +499,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.metadata]
+		sourceColumn: AdvisorRecommendations[properties.metadata]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -509,7 +509,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[properties.impact]
+		sourceColumn: AdvisorRecommendations[properties.impact]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -519,7 +519,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[tags]
+		sourceColumn: AdvisorRecommendations[tags]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -529,7 +529,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[identity]
+		sourceColumn: AdvisorRecommendations[identity]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -539,7 +539,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[zones]
+		sourceColumn: AdvisorRecommendations[zones]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -549,7 +549,7 @@ table 'Advisor for disks'
 		summarizeBy: none
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[extendedLocation]
+		sourceColumn: AdvisorRecommendations[extendedLocation]
 
 		annotation SummarizationSetBy = Automatic
 
@@ -560,13 +560,13 @@ table 'Advisor for disks'
 		summarizeBy: sum
 		isNameInferred
 		isDataTypeInferred
-		sourceColumn: Advisor[SortOrder]
+		sourceColumn: AdvisorRecommendations[SortOrder]
 
 		annotation SummarizationSetBy = Automatic
 
 	partition 'Advisor for disks' = calculated
 		mode: import
-		source = Advisor
+		source = AdvisorRecommendations
 
 	annotation PBI_Id = b761687b4cc445b08bb7aaa6f6701243
 

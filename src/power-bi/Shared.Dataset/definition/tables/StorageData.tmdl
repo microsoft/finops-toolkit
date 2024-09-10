@@ -92,6 +92,20 @@ table StorageData
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
+	column Updated
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 98d0aa5f-eb22-4c87-ac5a-4b87bfa46c9c
+		summarizeBy: none
+		sourceColumn: Updated
+
+		variation Variation
+			isDefault
+			relationship: 61063fb0-0ac4-420c-89e2-9240625a4b80
+			defaultHierarchy: LocalDateTable_501171be-aa02-401b-9e82-2bf6f16d7de3.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
 	column AllFiles
 		dataType: int64
 		formatString: 0
@@ -150,23 +164,9 @@ table StorageData
 
 		annotation SummarizationSetBy = Automatic
 
-	column Updated
-		dataType: dateTime
-		formatString: General Date
-		lineageTag: 98d0aa5f-eb22-4c87-ac5a-4b87bfa46c9c
-		summarizeBy: none
-		sourceColumn: Updated
-
-		variation Variation
-			isDefault
-			relationship: 61063fb0-0ac4-420c-89e2-9240625a4b80
-			defaultHierarchy: LocalDateTable_501171be-aa02-401b-9e82-2bf6f16d7de3.'Date Hierarchy'
-
-		annotation SummarizationSetBy = Automatic
-
 	partition StorageData = m
 		mode: import
-		queryGroup: 'FinOps toolkit'
+		queryGroup: Storage
 		source = ```
 				let
 				    hubUrl = if #"Hub Storage URL" = "" or #"Hub Storage URL" = null then null else "https://" & Text.Split(Text.Replace(#"Hub Storage URL", "https://", ""), "/"){0},
@@ -367,7 +367,7 @@ table StorageData
 				    Finalize
 				```
 
-	annotation PBI_ResultType = Table
+	annotation PBI_ResultType = Exception
 
 	annotation PBI_NavigationStepName = Navigation
 

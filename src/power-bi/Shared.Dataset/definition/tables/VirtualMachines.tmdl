@@ -1,4 +1,4 @@
-table 'Virtual Machines'
+table VirtualMachines
 	lineageTag: bc3b3e64-3016-4758-897f-eeae6043bd77
 
 	column id
@@ -409,8 +409,9 @@ table 'Virtual Machines'
 
 		annotation SummarizationSetBy = Automatic
 
-	partition 'Virtual Machines' = m
+	partition VirtualMachines = m
 		mode: import
+		queryGroup: 'Resource Graph'
 		source =
 				let
 				  Source = AzureResourceGraph.Query("Resources | where type =~ 'Microsoft.Compute/virtualMachines'", "Tenant", null, null, [resultTruncated = false]),
@@ -436,4 +437,8 @@ table 'Virtual Machines'
 				  #"Expanded zones" = Table.ExpandListColumn(#"Expanded powerState", "zones")
 				in
 				  #"Expanded zones"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
 

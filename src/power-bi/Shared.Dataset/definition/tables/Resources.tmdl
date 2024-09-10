@@ -267,6 +267,7 @@ table Resources
 
 	partition Resources = m
 		mode: import
+		queryGroup: 'Resource Graph'
 		source =
 				let
 				  Source = AzureResourceGraph.Query("Resources", "Tenant", null, null, [resultTruncated = false]),
@@ -274,4 +275,8 @@ table Resources
 				  #"Expanded sku" = Table.ExpandRecordColumn(#"Expanded properties", "sku", {"name", "tier"}, {"sku.name", "sku.tier"})
 				in
 				  #"Expanded sku"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
 

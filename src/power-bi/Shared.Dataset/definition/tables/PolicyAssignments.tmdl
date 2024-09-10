@@ -339,6 +339,7 @@ table PolicyAssignments
 
 	partition PolicyAssignments = m
 		mode: import
+		queryGroup: 'Resource Graph'
 		source =
 				let
 				  Source = AzureResourceGraph.Query("policyResources | where type =~'Microsoft.Authorization/PolicyAssignments'", "Tenant", null, null, [resultTruncated = false]),
@@ -348,4 +349,8 @@ table PolicyAssignments
 				    #"Expanded properties.notScopes" = Table.ExpandListColumn(#"Expanded identity", "properties.notScopes")
 				in
 				    #"Expanded properties.notScopes"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
 

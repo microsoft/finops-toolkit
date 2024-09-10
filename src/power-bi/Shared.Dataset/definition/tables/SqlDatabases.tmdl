@@ -1,4 +1,4 @@
-table 'SQL DB'
+table SqlDatabases
 	lineageTag: 28ccb046-cb49-4d65-8bef-6c25b4e6d9bd
 
 	column id
@@ -319,8 +319,9 @@ table 'SQL DB'
 
 		annotation SummarizationSetBy = Automatic
 
-	partition 'SQL DB' = m
+	partition SqlDatabases = m
 		mode: import
+		queryGroup: 'Resource Graph'
 		source =
 				let
 				  Source = AzureResourceGraph.Query("resources | where type == 'microsoft.sql/servers/databases'", "Tenant", null, null, [resultTruncated = false]),
@@ -332,5 +333,5 @@ table 'SQL DB'
 
 	annotation PBI_NavigationStepName = Navigation
 
-	annotation PBI_ResultType = Exception
+	annotation PBI_ResultType = Table
 

@@ -1,4 +1,4 @@
-table 'Reservation recommendations'
+table AdvisorReservationRecommendations
 	lineageTag: e2be3b74-1430-4a74-bf1a-18576064c803
 
 	column id
@@ -390,8 +390,9 @@ table 'Reservation recommendations'
 
 		annotation SummarizationSetBy = Automatic
 
-	partition 'Reservation recommendations' = m
+	partition AdvisorReservationRecommendations = m
 		mode: import
+		queryGroup: 'Resource Graph'
 		source =
 				let
 				  Source = AzureResourceGraph.Query("advisorresources | where type == ""microsoft.advisor/recommendations"" | where properties['category'] == 'Cost' | where properties['shortDescription']['solution'] == 'Consider virtual machine reserved instance to save over your on-demand costs'", "Tenant", null, null, [resultTruncated = true]),
@@ -410,4 +411,8 @@ table 'Reservation recommendations'
 				  #"Changed column type 3" = Table.TransformColumnTypes(#"Added custom", {{"properties.extendedProperties.targetResourceCount", Int64.Type}, {"properties.extendedProperties.displayQty", Int64.Type}, {"properties.extendedProperties.qty", Int64.Type}})
 				in
 				  #"Changed column type 3"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
 

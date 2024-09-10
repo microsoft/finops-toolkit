@@ -137,19 +137,6 @@
         },
         {
           "location": {
-            "x": 452.09858346487061,
-            "y": 122.28758704815868
-          },
-          "nodeIndex": "Advisor",
-          "nodeLineageTag": "a76a7ba9-b6b5-4140-9739-344b958bfc9f",
-          "size": {
-            "height": 300,
-            "width": 394.91111684209659
-          },
-          "zIndex": 10
-        },
-        {
-          "location": {
             "x": 1297.2967846706038,
             "y": 923.2059954758945
           },
@@ -160,45 +147,6 @@
             "width": 234
           },
           "zIndex": 11
-        },
-        {
-          "location": {
-            "x": 2245.26492519873,
-            "y": 133.93081939513354
-          },
-          "nodeIndex": "Management Groups",
-          "nodeLineageTag": "0e04ab5f-9838-4180-a7f3-dc1cbcb6f296",
-          "size": {
-            "height": 300,
-            "width": 234
-          },
-          "zIndex": 12
-        },
-        {
-          "location": {
-            "x": 812.19847543619926,
-            "y": 1364.6063702218914
-          },
-          "nodeIndex": "Network interfaces",
-          "nodeLineageTag": "471a2007-5388-404a-97e6-1b2292878a8c",
-          "size": {
-            "height": 300,
-            "width": 373.9795894480028
-          },
-          "zIndex": 23
-        },
-        {
-          "location": {
-            "x": 1067.2472475500674,
-            "y": 33.5287866683784
-          },
-          "nodeIndex": "Network Security Groups",
-          "nodeLineageTag": "7d98f967-9180-4a4f-958a-89256520af0f",
-          "size": {
-            "height": 300,
-            "width": 234
-          },
-          "zIndex": 13
         },
         {
           "location": {
@@ -241,58 +189,6 @@
         },
         {
           "location": {
-            "x": 1315.6059368352826,
-            "y": 1366.4474166201212
-          },
-          "nodeIndex": "Public ip addresses",
-          "nodeLineageTag": "5c35f59e-97dc-424c-b1ae-0526c2c708ed",
-          "size": {
-            "height": 300,
-            "width": 234
-          },
-          "zIndex": 16
-        },
-        {
-          "location": {
-            "x": 1562.5104142360167,
-            "y": 288.841561295017
-          },
-          "nodeIndex": "Region",
-          "nodeLineageTag": "4d14c13f-1a1f-4d48-831d-3d1aa829bc80",
-          "size": {
-            "height": 152,
-            "width": 234
-          },
-          "zIndex": 17
-        },
-        {
-          "location": {
-            "x": 68.334578983958409,
-            "y": 12.862761144476167
-          },
-          "nodeIndex": "Reservation recommendations",
-          "nodeLineageTag": "e2be3b74-1430-4a74-bf1a-18576064c803",
-          "size": {
-            "height": 300,
-            "width": 234
-          },
-          "zIndex": 25
-        },
-        {
-          "location": {
-            "x": 520.00195472390942,
-            "y": 561.72558904852167
-          },
-          "nodeIndex": "Resource types",
-          "nodeLineageTag": "ac01cf9d-360d-46af-b370-4093c135f5fa",
-          "size": {
-            "height": 296,
-            "width": 234
-          },
-          "zIndex": 18
-        },
-        {
-          "location": {
             "x": 881.15829311934226,
             "y": 467.3820938791809
           },
@@ -306,19 +202,6 @@
         },
         {
           "location": {
-            "x": 1259.109862664134,
-            "y": 512.21267290281253
-          },
-          "nodeIndex": "SQL DB",
-          "nodeLineageTag": "28ccb046-cb49-4d65-8bef-6c25b4e6d9bd",
-          "size": {
-            "height": 300,
-            "width": 234
-          },
-          "zIndex": 20
-        },
-        {
-          "location": {
             "x": 79.440121008531719,
             "y": 391.11633441561219
           },
@@ -329,19 +212,6 @@
             "width": 234
           },
           "zIndex": 21
-        },
-        {
-          "location": {
-            "x": 903.4866840237313,
-            "y": 914.4452440392688
-          },
-          "nodeIndex": "Virtual Machines",
-          "nodeLineageTag": "bc3b3e64-3016-4758-897f-eeae6043bd77",
-          "size": {
-            "height": 300,
-            "width": 234
-          },
-          "zIndex": 22
         },
         {
           "location": {
@@ -365,6 +235,126 @@
           "nodeLineageTag": "9b45030f-f270-4b9c-8264-bde9e0fd5fea",
           "size": {
             "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 452.09858346487061,
+            "y": 122.28758704815868
+          },
+          "nodeIndex": "AdvisorRecommendations",
+          "size": {
+            "height": 300,
+            "width": 394.91111684209659
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 68.334578983958409,
+            "y": 12.862761144476167
+          },
+          "nodeIndex": "AdvisorReservationRecommendations",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2245.26492519873,
+            "y": 133.93081939513354
+          },
+          "nodeIndex": "ManagementGroups",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 812.19847543619926,
+            "y": 1364.6063702218914
+          },
+          "nodeIndex": "NetworkInterfaces",
+          "size": {
+            "height": 300,
+            "width": 373.9795894480028
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1067.2472475500674,
+            "y": 33.5287866683784
+          },
+          "nodeIndex": "NetworkSecurityGroups",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1315.6059368352826,
+            "y": 1366.4474166201212
+          },
+          "nodeIndex": "PublicIPAddresses",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1562.5104142360167,
+            "y": 288.841561295017
+          },
+          "nodeIndex": "Regions",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 520.00195472390942,
+            "y": 561.72558904852167
+          },
+          "nodeIndex": "ResourceTypes",
+          "size": {
+            "height": 296,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1259.109862664134,
+            "y": 512.21267290281253
+          },
+          "nodeIndex": "SqlDatabases",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 903.4866840237313,
+            "y": 914.4452440392688
+          },
+          "nodeIndex": "VirtualMachines",
+          "size": {
+            "height": 300,
             "width": 234
           },
           "zIndex": 0

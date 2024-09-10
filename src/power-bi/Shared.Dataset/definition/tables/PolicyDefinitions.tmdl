@@ -203,10 +203,15 @@ table PolicyDefinitions
 
 	partition PolicyDefinitions = m
 		mode: import
+		queryGroup: 'Resource Graph'
 		source =
 				let
 				  Source = AzureResourceGraph.Query("policyResources | where type =~'Microsoft.Authorization/PolicySetDefinitions' or type =~'Microsoft.Authorization/PolicyDefinitions'", "Tenant", null, null, [resultTruncated = false]),
 				    #"Expanded properties" = Table.ExpandRecordColumn(Source, "properties", {"displayName", "policyType", "description", "metadata", "version", "parameters", "policyDefinitions", "policyDefinitionGroups", "versions", "oldVersions"}, {"properties.displayName", "properties.policyType", "properties.description", "properties.metadata", "properties.version", "properties.parameters", "properties.policyDefinitions", "properties.policyDefinitionGroups", "properties.versions", "properties.oldVersions"})
 				in
 				  #"Expanded properties"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
 
