@@ -17,6 +17,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
+- [🚚 v0.6](#-v06)
 - [🚚 v0.5](#-v05)
 - [🚚 v0.4](#-v04)
 - [🚚 v0.3](#-v03)
@@ -70,6 +71,26 @@ Legend:
 > 1. Cost Management export modules for subscriptions and resource groups.
 
 <br><a name="latest"></a>
+
+## 🚚 v0.6
+
+<sup>Released October 1, 2024</sup>
+
+📗 FinOps guide
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Documented how to visualize/demonstrate the Power BI reports without any setup required.
+>
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Added steps to setup the reports using storage account SAS tokens.
+
+<br>
 
 ## 🚚 v0.5
 
