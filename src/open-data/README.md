@@ -177,7 +177,7 @@ Use the following query to update the data:
 
 ```kql
 let oldValues = externaldata(ConsumedService:string, ResourceType:string, ServiceName:string, ServiceCategory:string, PublisherName:string, PublisherType:string, Environment:string, ServiceModel:string) [@"https://raw.githubusercontent.com/microsoft/finops-toolkit/dev/src/open-data/Services.csv"] with (format="csv", ignoreFirstRecord=true);
-union cluster('ccmeasharddebug.centralus.kusto.windows.net').database('EAShard*').EAUCDD_Cold
+union cluster('<cluster>.kusto.windows.net').database('<shard>*').<table>
 | where UsageDateDt > ago(120d)
 | where isnotempty(ConsumedService) and isnotempty(InstanceName)
 | where ConsumedService !startswith '/subscriptions/'
