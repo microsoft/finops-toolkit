@@ -80340,7 +80340,7 @@ cultureInfo en-US
 			          }
 			        },
 			        {
-			          "SQL Database": {
+			          "SQL database": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
