@@ -17,6 +17,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
+- [🚚 v0.6](#-v06)
 - [🚚 v0.5](#-v05)
 - [🚚 v0.4](#-v04)
 - [🚚 v0.3](#-v03)
@@ -70,6 +71,25 @@ Legend:
 > 1. Cost Management export modules for subscriptions and resource groups.
 
 <br><a name="latest"></a>
+
+## 🚚 v0.6
+
+<sup>Released September 2024</sup>
+
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> - [Governance](../_reporting/power-bi/governance.md)
+> - [Workload optimization](../_reporting/power-bi/workload-optimization.md)
+>   1. Added Azure Advisor cost recommendations.
+>   2. Added Unattached disks.
+
+[Download v0.6](https://github.com/microsoft/finops-toolkit/releases/tag/v0.6){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.5...v0.6){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+
+<br>
 
 ## 🚚 v0.5
 
