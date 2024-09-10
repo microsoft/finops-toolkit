@@ -18,6 +18,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
 
 - [🔄️ Unreleased](#️-unreleased)
 - [🚚 v0.6](#-v06)
+- [🪛 v0.5 Update 1](#-v05-update-1)
 - [🚚 v0.5](#-v05)
 - [🚚 v0.4](#-v04)
 - [🚚 v0.3](#-v03)
@@ -62,6 +63,12 @@ Legend:
 > 1. Analytics engine – Ingest cost data into an Azure Data Explorer cluster.
 > 2. Auto-backfill – Backfill historical data from Microsoft Cost Management.
 > 3. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
+> 4. ETL pipelile – Add support for parquet files created by Cost Management exports.
+>
+> ✏️ Changed:
+>
+> 1. Managed Exports - Use parquet format when creating Cost Management exports.
+>
 
 🦾 Bicep modules
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -95,9 +102,22 @@ Legend:
 
 <br>
 
+## 🪛 v0.5 Update 1
+
+<sup>Released September 7, 2024</sup>
+
+This release is a minor patch to Power BI files. These files were updated in the existing 0.5 release. We are documenting this as a new patch release for transparency.
+
+> 🛠️ Fixed:
+>
+> 1. Corrected a bug where ADLS data sources could not be refreshed from the Power BI service ([#964](https://github.com/microsoft/finops-toolkit/issues/964)).
+>    > _This updated all PBIX/PBIT files downloaded between September 1-6, 2024. If you are using one of these files and plan to publish it to the Power BI service, please update to the latest version of the PBIX or PBIT files._
+
+<br>
+
 ## 🚚 v0.5
 
-<sup>Released August 2024</sup>
+<sup>Released September 1, 2024</sup>
 
 📗 FinOps guide
 {: .fs-5 .fw-500 .mt-4 mb-0 }

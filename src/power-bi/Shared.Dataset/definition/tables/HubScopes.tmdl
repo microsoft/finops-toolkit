@@ -14,8 +14,7 @@ table HubScopes
 		queryGroup: Storage
 		source =
 				let
-				    hubUrl = if #"Hub Storage URL" = "" or #"Hub Storage URL" = null then null else "https://" & Text.Split(Text.Replace(#"Hub Storage URL", "https://", ""), "/"){0},
-				    ADLS = if hubUrl = null then null else AzureStorage.DataLake(hubUrl & "/config"),
+                    ADLS = if #"Hub Storage URL" = "" or #"Hub Storage URL" = null then null else AzureStorage.DataLake(#"Hub Storage URL" & "/../config"),
 				
 				    Settings = if ADLS = null then null else Json.Document(ADLS{[Name="settings.json"]}[Content], 1252),
 				    Scopes = if ADLS = null then null else Settings[scopes],

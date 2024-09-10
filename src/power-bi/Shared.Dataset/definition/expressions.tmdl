@@ -39,8 +39,8 @@ expression ftk_Storage = ```
 		(optional datasetType as text) =>
 		let
 		    // Config
-		    hubUrl = Text.Trim(#"Hub Storage URL", "/"),
-		    expUrl = Text.Trim(#"Export Storage URL", "/"),
+		    hubUrl = #"Hub Storage URL",
+		    expUrl = #"Export Storage URL",
 		    end    = if RangeEnd <> null then RangeEnd else null,
 		    start  = 
 		        if RangeStart <> null then RangeStart 
@@ -49,19 +49,20 @@ expression ftk_Storage = ```
 		    data   = if datasetType <> null and datasetType <> "" then Text.Lower(datasetType) else "focuscost",
 		
 		    // Connect to ADLS
-		    _loadStorage = (url) => try Table.SelectRows(AzureStorage.DataLake(url), each [Attributes]?[Hidden]? <> true) otherwise null,
 		    HubStorage = if hubUrl = null or hubUrl = "" then null else (
 		        try let
-		            FilterHub = Table.SelectRows(_loadStorage(hubUrl), each [Extension] = ".parquet" and data = Text.Lower(List.Last(List.RemoveLastN(Text.Split([Folder Path],"/"), 1)))),
+		            DataStore = AzureStorage.DataLake(hubUrl),
+		            FilterHub = Table.SelectRows(DataStore, each [Attributes]?[Hidden]? <> true and [Extension] = ".parquet" and data = Text.Lower(List.Last(List.RemoveLastN(Text.Split([Folder Path],"/"), 1)))),
 		            HubMonth  = Table.AddColumn(FilterHub, "StartDate", each _toMonth(List.Last(List.RemoveLastN(List.RemoveLastN(Text.Split([Folder Path],"/"), 1), 1))), type date)
-		        in HubMonth
-		        otherwise null
+		        in HubMonth otherwise null
 		    ),
 		    IsHub = (HubStorage = null or Table.RowCount(HubStorage) = 0) = false,
 		    ExpStorage = if IsHub or expUrl = null or expUrl = "" then null else (
 		        try let
 		            // Filter out anything that doesn't look like a CM export
-		            Segments  = Table.AddColumn(Table.AddColumn(_loadStorage(expUrl),
+		            DataStore = AzureStorage.DataLake(expUrl),
+		            DataStoreRows = Table.SelectRows(DataStore, each [Attributes]?[Hidden]? <> true),
+		            Segments  = Table.AddColumn(Table.AddColumn(DataStoreRows,
 		                "Segments",     each Text.Split(Text.Replace(Text.Trim([Folder Path], "/"), "https://", ""), "/")),
 		                "SegmentCount", each List.Count([Segments])),
 		            FilterExports = Table.SelectRows(Segments,
@@ -241,7 +242,7 @@ expression '▶️  START HERE' = ```
 		let
 		    // Hub storage
 		    HubUrl = #"Hub Storage URL",
-		    HubSegments = if HubUrl <> null then Text.Split(Text.Trim(HubUrl, "/"), "/") else {},
+		    HubSegments = if HubUrl <> null then Text.Split(HubUrl, "/") else {},
 		    HubSegmentCount = List.Count(HubSegments),
 		    HubCheck = 
 		        if HubUrl = "" or HubUrl = null then {"➖ Ignored", "Hub storage URL not specified. Will use exports."}
