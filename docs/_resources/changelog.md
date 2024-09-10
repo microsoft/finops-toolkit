@@ -82,6 +82,10 @@ Legend:
 > ➕ Added:
 >
 > - [Governance](../_reporting/power-bi/governance.md)
+>   1. Added Policy compliance.
+>   2. Added Virtual machines and managed disks.
+>   3. Added SQL databases.
+>   4. Added Network security groups.
 > - [Workload optimization](../_reporting/power-bi/workload-optimization.md)
 >   1. Added Azure Advisor cost recommendations.
 >   2. Added Unattached disks.
