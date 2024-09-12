@@ -9,7 +9,6 @@ ms.date: 08/16/2024
 ms.service: finops
 description: 'Discover essential FinOps best practices to optimize cost efficiency and governance for your Azure resources.'
 
-
 ---
 
 <span class="fs-9 d-block mb-4">General</span>
@@ -48,21 +47,21 @@ Sustainability
 
 <details>
   <summary>Click to view the code</summary>
-```kql
- advisorresources
-    | where tolower(type) == "microsoft.advisor/recommendations"
-        | extend RecommendationTypeId = tostring(properties.recommendationTypeId)
-    | where RecommendationTypeId in ("94aea435-ef39-493f-a547-8408092c22a7", "e10b1381-5f0a-47ff-8c7b-37bd13d7c974")
-        | extend properties = parse_json(properties)
-        | extend monthlyCarbonSavingsKg = toreal(properties.extendedProperties.PotentialMonthlyCarbonSavings)
-        | extend shortDescription=properties.shortDescription.problem
-        | extend recommendationType=properties.extendedProperties.recommendationType
-        | extend recommendationMessage=properties.extendedProperties.recommendationMessage
-        | extend PotentialMonthlyCarbonEmissions=properties.extendedProperties.PotentialMonthlyCarbonEmissions
-        | extend PotentialMonthlyCarbonSavings=properties.extendedProperties.PotentialMonthlyCarbonSavings
-        | extend ResourceId=properties.resourceMetadata.resourceId, ResourceType=tostring(properties.impactedField)
-    | project subscriptionId, resourceGroup,ResourceId,ResourceType, shortDescription,recommendationType, recommendationMessage, PotentialMonthlyCarbonEmissions, PotentialMonthlyCarbonSavings, monthlyCarbonSavingsKg, properties
-```
+  ```kql
+  advisorresources
+  | where tolower(type) == "microsoft.advisor/recommendations"
+  | extend RecommendationTypeId = tostring(properties.recommendationTypeId)
+  | where RecommendationTypeId in ("94aea435-ef39-493f-a547-8408092c22a7", "e10b1381-5f0a-47ff-8c7b-37bd13d7c974")
+  | extend properties = parse_json(properties)
+  | extend monthlyCarbonSavingsKg = toreal(properties.extendedProperties.PotentialMonthlyCarbonSavings)
+  | extend shortDescription=properties.shortDescription.problem
+  | extend recommendationType=properties.extendedProperties.recommendationType
+  | extend recommendationMessage=properties.extendedProperties.recommendationMessage
+  | extend PotentialMonthlyCarbonEmissions=properties.extendedProperties.PotentialMonthlyCarbonEmissions
+  | extend PotentialMonthlyCarbonSavings=properties.extendedProperties.PotentialMonthlyCarbonSavings
+  | extend ResourceId=properties.resourceMetadata.resourceId, ResourceType=tostring(properties.impactedField)
+  | project subscriptionId, resourceGroup, ResourceId, ResourceType, shortDescription, recommendationType, recommendationMessage, PotentialMonthlyCarbonEmissions, PotentialMonthlyCarbonSavings, monthlyCarbonSavingsKg, properties
+  ```
 </details>
 
 <br>
