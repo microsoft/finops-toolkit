@@ -28,9 +28,9 @@ Discover essential proven practices to manage and optimize cost, usage, and carb
 
 <!-- Sort list alphabetically for findability -->
 
+- [General](general/general.md)
 - [Compute](compute/compute.md)
 - [Databases](databases/databases.md)
-- [General](general/general.md)
 - [Networking](networking/networking.md)
 - [Storage](storage/storage.md)
 - [Web](web/web.md)
