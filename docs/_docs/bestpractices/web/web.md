@@ -42,9 +42,9 @@ Monitoring
 
 <details>
   <summary>Click to view the code</summary>
-```kql
-resources
-    | where type =~ 'Microsoft.Web/sites'
+  ```kql
+  resources
+  | where type =~ 'Microsoft.Web/sites'
 	| project
 	    id,
 	    WebAppName=name,
@@ -55,7 +55,7 @@ resources
 	    WebAppRG=resourceGroup,
 	    SubscriptionId=subscriptionId
 	| order by id asc
-```
+  ```
 </details>
 
 ### Query: App Service plan details
@@ -66,13 +66,12 @@ This Azure Resource Graph (ARG) query retrieves detailed information about Azure
 
 Resource management
 
-
 #### Query
 
 <details>
   <summary>Click to view the code</summary>
-```kql
-resources
+  ```kql
+  resources
   | where type == "microsoft.web/serverfarms"  and sku.tier !~ 'Free'
   | project
       planId = tolower(tostring(id)),
@@ -93,7 +92,7 @@ resources
           AutoScaleProfiles = properties.profiles,
           resourceGroup
   ) on planId
-```
+  ```
 </details>
 
 <br>
