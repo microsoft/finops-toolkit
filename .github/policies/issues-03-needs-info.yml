@@ -14,7 +14,7 @@ configuration:
           When an issue has been triaged with `#needs-info` in a comment:
           - Assign to author
           - Remove the `Needs: Triage 🔍` label
-          - Label with `Needs: Information`
+          - Label with `Needs: Attention`
         if:
           - payloadType: Issue_Comment
           - isOpen
@@ -27,7 +27,7 @@ configuration:
                   permission: Write
         then:
           - addLabel:
-              label: 'Needs: Information'
+              label: 'Needs: Attention 👋'
           - removeLabel:
               label: 'Needs: Triage 🔍'
           - assignTo:
@@ -39,10 +39,10 @@ configuration:
           - Remove the `Needs: Attention 👋` label
           - Label with `Needs: Triage 🔍`
         if:
-          - or
+          - or:
               - payloadType: Issues
               - payloadType: Issue_Comment
-          - or
+          - or:
               - labelAdded:
                   label: 'Needs: Information'
               - labelAdded:
@@ -62,10 +62,10 @@ configuration:
           - Remove the `Needs: Attention 👋` label
           - Label with `Needs: Triage 🔍`
         if:
-          - or
+          - or:
               - payloadType: Issues
               - payloadType: Issue_Comment
-          - or
+          - or:
               - hasLabel:
                   label: 'Needs: Information'
               - hasLabel:

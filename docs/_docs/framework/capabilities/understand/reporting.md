@@ -152,8 +152,8 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
-<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.html title="Reporting and analytics videos" id="CVTJLdcozj1eEpxT" list="PLUSCToibAswlDSQdehKhi7ysP2hmetigl" %}
+<!--[!VIDEO https://www.youtube.com/embed/pD9NeBOvspU?list=PLUSCToibAswlDSQdehKhi7ysP2hmetigl&pp=iAQB]-->
+{% include video.html title="Reporting and analytics videos" id="pD9NeBOvspU" list="PLUSCToibAswlDSQdehKhi7ysP2hmetigl" %}
 
 <br>
 

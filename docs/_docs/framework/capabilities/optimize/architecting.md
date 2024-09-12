@@ -60,7 +60,7 @@ Starting with the "Architecting for Cloud" capability within the FinOps Framewor
 
 - **Utilize Azure Well-Architected Review:** Conduct Azure [Well-Architected Reviews](https://learn.microsoft.com/assessments/azure-architecture-review/) for workloads deployed in Azure. Evaluate workloads against the five pillars of WAF to identify areas for improvement.
 
-- **Implement cost management practices:** Review and incorporate CAF's [cost management practices](https://learn.microsoft.com/azure/cloud-adoption-framework/get-started/manage-costs) into architectural designs, such as right-sizing resources, [leveraging reserved instances](docs/_docs/framework/capabilities/optimize/rates.md), and implementing cost allocation mechanisms. Use Azure Cost Management + Billing to monitor and optimize costs.
+- **Implement cost management practices:** Review and incorporate CAF's [cost management practices](https://learn.microsoft.com/azure/cloud-adoption-framework/get-started/manage-costs) into architectural designs, such as right-sizing resources, [leveraging reserved instances](./rates.md), and implementing cost allocation mechanisms. Use Azure Cost Management + Billing to monitor and optimize costs.
 
 - **Establish governance and compliance:** Establish [governance mechanisms](https://learn.microsoft.com/azure/cloud-adoption-framework/govern/monitor-cloud-governance) and compliance controls to ensure adherence to organizational policies, regulatory requirements, and industry standards. Use Azure Governance and Azure Blueprints for policy enforcement and compliance automation.
 
@@ -86,6 +86,13 @@ At this point, you should have a clear architectural guidance. As you move beyon
 ## 🍎 Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Architecting for cloud](https://www.finops.org/framework/capabilities/architecting-for-cloud/) article in the FinOps Framework documentation.
+
+<!--
+You can also find related videos on the FinOps Foundation YouTube channel:
+
+<!- -[!VIDEO https://www.youtube.com/embed/zMonuvmZE1g&list=PLUSCToibAswm62kf2eILBPaRHobvxNy35&pp=iAQB]- ->
+{% include video.html title="Architecting for cloud videos" id="zMonuvmZE1g" list="PLUSCToibAswm62kf2eILBPaRHobvxNy35" %}
+-->
 
 <br>
 

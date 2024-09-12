@@ -60,7 +60,7 @@ Learn the products you need to be successful:
 - [Interactive product guides](https://aka.ms/finops/guides) – Hands on experience with Microsoft products.
 - [Intro for cloud migration](https://info.microsoft.com/ww-ondemand-implement-finops-for-azure.html) – Great context when migrating from on-premises.
 - [FinOps Foundation YouTube channel](https://www.youtube.com/channel/UCyl26lvnoySlGWlF5oNHvYA) – All topics from the FinOps community.
-- [FinOps certification and training](https://learn.finops.org) – Advance your knowledge
+- [FinOps certification and training](https://learn.finops.org) – Advance your knowledge and get certified.
 
 Stay up to date on the latest news:
 
@@ -170,6 +170,14 @@ All the main changes are tracked in the changelog. For additional details, refer
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/KevDLR"><img src="https://avatars.githubusercontent.com/u/86437159?v=4?s=100" width="100px;" alt="Kevin De La Rosa"/><br /><sub><b>Kevin De La Rosa</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=KevDLR" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/ro100e"><img src="https://avatars.githubusercontent.com/u/59753782?v=4?s=100" width="100px;" alt="Robel"/><br /><sub><b>Robel</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=ro100e" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/jojohpm"><img src="https://avatars.githubusercontent.com/u/103460544?v=4?s=100" width="100px;" alt="Joseph John"/><br /><sub><b>Joseph John</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=jojohpm" title="Documentation">📖</a> <a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3Ajojohpm" title="Reviewed Pull Requests">👀</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/Misba-Yousuf"><img src="https://avatars.githubusercontent.com/u/139533426?v=4?s=100" width="100px;" alt="Misba Yousuf"/><br /><sub><b>Misba Yousuf</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=misba-yousuf" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/simonarbel"><img src="https://avatars.githubusercontent.com/u/100203391?v=4?s=100" width="100px;" alt="simonarbel"/><br /><sub><b>simonarbel</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Asimonarbel" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="http://www.acuitybrands.com"><img src="https://avatars.githubusercontent.com/u/18669260?v=4?s=100" width="100px;" alt="Will Murphy"/><br /><sub><b>Will Murphy</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3AwwmurphyAB" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/DUeffing"><img src="https://avatars.githubusercontent.com/u/94981829?v=4?s=100" width="100px;" alt="Daniel Ueffing"/><br /><sub><b>Daniel Ueffing</b></sub></a><br /><a href="#ideas-DUeffing" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3ADUeffing" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://www.da5is.com"><img src="https://avatars.githubusercontent.com/u/5679212?v=4?s=100" width="100px;" alt="Matt Davis"/><br /><sub><b>Matt Davis</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Ada5is" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://bento.me/souravbera"><img src="https://avatars.githubusercontent.com/u/53810519?v=4?s=100" width="100px;" alt="Sourav Bera"/><br /><sub><b>Sourav Bera</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=Zeo-shark" title="Documentation">📖</a></td>
     </tr>
   </tbody>
 </table>
