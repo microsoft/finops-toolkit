@@ -1,28 +1,16 @@
 ---
-layout: default
-parent: FOCUS
 title: Validate FOCUS data
-nav_order: 3
-description: 'Validate FOCUS data with existing Cost Management datasets.'
-permalink: /focus/validate
+description: Compare FOCUS data with existing Cost Management datasets.
+author: bandersmsft
+ms.author: banders
+ms.date: 09/12/2024
+ms.topic: reference
+ms.service: finops
+ms.reviewer: micflan
 ---
 
-<span class="fs-9 d-block mb-4">Validate FOCUS data</span>
-Compare and validate FOCUS cost and usage data with existing Cost Management actual and amortized datasets.
-{: .fs-6 .fw-300 }
-
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [📋 Comparing FOCUS with actual cost](#-comparing-focus-with-actual-cost)
-- [📋 Comparing FOCUS with amortized cost](#-comparing-focus-with-amortized-cost)
-- [🙋‍♀️ Feedback about FOCUS columns](#️-feedback-about-focus-columns)
-- [🧐 See also](#-see-also)
-- [🧰 Related tools](#-related-tools)
-
-</details>
-
----
+<!-- markdownlint-disable-next-line MD025 -->
+# Validate FOCUS data
 
 This document helps you validate FOCUS data by comparing it to actual and amortized cost data from Cost Management. The goal of this article is to help you familiarize yourself with and transition to FOCUS data with confidence. To learn more about FOCUS, refer to the [FOCUS overview](./README.md).
 
@@ -32,7 +20,7 @@ Note that FOCUS includes both actual and amortized data in a single dataset so t
 
 <br>
 
-## 📋 Comparing FOCUS with actual cost
+## Comparing FOCUS with actual cost
 
 The following mapping can be used to compare FOCUS with an actual cost data in Cost analysis or other cost API or export.
 
@@ -64,7 +52,7 @@ The following mapping can be used to compare FOCUS with an actual cost data in C
 
 <br>
 
-## 📋 Comparing FOCUS with amortized cost
+## Comparing FOCUS with amortized cost
 
 The following mapping can be used to compare FOCUS with an amortized cost data in Cost analysis or other cost API or export.
 
@@ -100,27 +88,37 @@ The following mapping can be used to compare FOCUS with an amortized cost data i
 
 <br>
 
-## 🙋‍♀️ Feedback about FOCUS columns
+## Feedback about FOCUS columns
 
-<!-- markdownlint-disable-line --> {% include focus_feedback.md %}
+[!INCLUDE _focus_feedback.md]
 
 <br>
 
-## 🧐 See also
+## Related content
+
+Related resources:
 
 - [How to update existing reports to FOCUS](./mapping.md)
 - [How to convert Cost Management data to FOCUS](./convert.md)
+- [Microsoft Cost Management FOCUS dataset](/azure/cost-management-billing/dataset-schema/cost-usage-details-focus.md)
+
+<!--
+TODO: Add these after we bring in the rest of the toolkit content
 - [Data dictionary](../../_resources/data-dictionary.md)
 - [Generating a unique ID](../../_resources/data-dictionary.md#-generating-a-unique-id)
 - [Known issues](../../_resources/data-dictionary.md#-known-issues)
 - [Common terms](../../_resources/terms.md)
+-->
 
-<br>
+Related products:
 
----
+- [Cost Management](/azure/cost-management-billing/costs)
 
-## 🧰 Related tools
+Related solutions:
 
-{% include tools.md bicep="0" data="1" gov="0" hubs="1" opt="0" pbi="1" ps="1" %}
+- [FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi)
+- [FinOps hubs](https://aka.ms/finops/hubs)
+- [FinOps toolkit PowerShell module](https://aka.ms/ftk/ps)
+- [FinOps toolkit open data](https://aka.ms/ftk/data)
 
 <br>

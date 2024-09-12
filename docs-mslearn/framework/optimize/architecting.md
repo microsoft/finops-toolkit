@@ -45,7 +45,7 @@ The "Architecting for Cloud" capability within the FinOps Framework helps custom
 
 - **Utilize Azure Well-Architected Review:** Conduct Azure [Well-Architected Reviews](/assessments/azure-architecture-review/) for workloads deployed in Azure. To identify areas for improvement, evaluate workloads against the five pillars of WAF.
 
-- **Implement cost management practices:** Incorporate the Cloud Adoption Framework's [cost management practices](/azure/cloud-adoption-framework/get-started/manage-costs) into your architectural designs. This effort includes right-sizing resources, using [commitment discounts](./rates.md), and implementing cost allocation mechanisms.
+- **Implement cost management practices:** Incorporate the Cloud Adoption Framework's [cost management practices](/azure/cloud-adoption-framework/get-started/manage-costs) into your architectural designs. This effort includes right-sizing resources, using [commitment discounts](./rates.md), and implementing [cost allocation mechanisms](../understand/allocation.md).
 
 - **Establish governance and compliance:** Establish [governance mechanisms](/azure/cloud-adoption-framework/govern/monitor-cloud-governance) and compliance controls to ensure adherence to organizational policies, regulatory requirements, and industry standards. Use Azure Governance and Azure Blueprints for policy enforcement and compliance automation.
 
@@ -70,6 +70,10 @@ At this point, you should have a clear architectural guidance. As you move beyon
 ## Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Architecting for cloud](https://www.finops.org/framework/capabilities/architecting-for-cloud/) article in the FinOps Framework documentation.
+
+You can also find related videos on the FinOps Foundation YouTube channel:
+
+[!VIDEO https://www.youtube.com/embed/zMonuvmZE1g?list=PLUSCToibAswm62kf2eILBPaRHobvxNy35]
 
 <br>
 

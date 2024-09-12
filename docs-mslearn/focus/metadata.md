@@ -1,9 +1,9 @@
 ---
-title: Metadata
+title: FOCUS metadata
 description: General information about the FOCUS dataset including the data generator, schema version, and columns included in the dataset.
 author: bandersmsft
 ms.author: banders
-ms.date: 07/15/2024
+ms.date: 09/12/2024
 ms.topic: reference
 ms.service: finops
 ms.reviewer: micflan
@@ -23,7 +23,7 @@ This document describes what's included in the FOCUS cost and usage details data
 - Data generator: Microsoft
 - Schema ID: `1.0`
 - FOCUS version: `1.0`
-- Creation date: June 20, 2023
+- Creation date: June 20, 2024
 - String encoding: UTF-8
 
 Columns include:
