@@ -44,27 +44,27 @@ Resource management
 <details>
   <summary>Click to view the code</summary>
   ```kql
-resources
-    | where type == "microsoft.containerservice/managedclusters"
-    | extend AgentPoolProfiles = properties.agentPoolProfiles
-    | mvexpand AgentPoolProfiles
-    | project
-          id,
-          ProfileName = tostring(AgentPoolProfiles.name),
-          Sku = tostring(sku.name),
-          Tier = tostring(sku.tier),
-          mode = AgentPoolProfiles.mode,
-          AutoScaleEnabled = AgentPoolProfiles.enableAutoScaling,
-          SpotVM = AgentPoolProfiles.scaleSetPriority,
-          VMSize = tostring(AgentPoolProfiles.vmSize),
-          nodeCount = tostring(AgentPoolProfiles.['count']),
-          minCount = tostring(AgentPoolProfiles.minCount),
-        maxCount = tostring(AgentPoolProfiles.maxCount),
-        location,
-        resourceGroup,
-        subscriptionId,
-        AKSname = name
-```
+  resources
+  | where type == "microsoft.containerservice/managedclusters"
+  | extend AgentPoolProfiles = properties.agentPoolProfiles
+  | mvexpand AgentPoolProfiles
+  | project
+      id,
+      ProfileName = tostring(AgentPoolProfiles.name),
+      Sku = tostring(sku.name),
+      Tier = tostring(sku.tier),
+      mode = AgentPoolProfiles.mode,
+      AutoScaleEnabled = AgentPoolProfiles.enableAutoScaling,
+      SpotVM = AgentPoolProfiles.scaleSetPriority,
+      VMSize = tostring(AgentPoolProfiles.vmSize),
+      nodeCount = tostring(AgentPoolProfiles.['count']),
+      minCount = tostring(AgentPoolProfiles.minCount),
+      maxCount = tostring(AgentPoolProfiles.maxCount),
+      location,
+      resourceGroup,
+      subscriptionId,
+      AKSname = name
+  ```
 </details>
 
 <br>
@@ -83,17 +83,17 @@ Waste reduction
 
 <details>
   <summary>Click to view the code</summary>
-```kql
-resources 
-    | where type =~ 'microsoft.compute/virtualmachines' 
-        and tostring(properties.extended.instanceView.powerState.displayStatus) != 'VM deallocated' 
-        and tostring(properties.extended.instanceView.powerState.displayStatus) != 'VM running'
-    | extend PowerState=tostring(properties.extended.instanceView.powerState.displayStatus)
-    | extend VMLocation=location
-    | extend resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)
-    | order by id asc
-    | project id, PowerState, VMLocation, resourceGroup, subscriptionId
-```
+  ```kql
+  resources 
+  | where type =~ 'microsoft.compute/virtualmachines' 
+      and tostring(properties.extended.instanceView.powerState.displayStatus) != 'VM deallocated' 
+      and tostring(properties.extended.instanceView.powerState.displayStatus) != 'VM running'
+  | extend PowerState=tostring(properties.extended.instanceView.powerState.displayStatus)
+  | extend VMLocation=location
+  | extend resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)
+  | order by id asc
+  | project id, PowerState, VMLocation, resourceGroup, subscriptionId
+  ```
 </details>
 
 ### Query: Virtual machine scale set details
@@ -108,17 +108,16 @@ Resource management
 
 <details>
   <summary>Click to view the code</summary>
-```kql
-resources
-    | where type =~ 'microsoft.compute/virtualmachinescalesets'
-    | extend SpotVMs=tostring(properties.virtualMachineProfile.priority)
-    | extend SpotPriorityMix=tostring(properties.priorityMixPolicy)
-    | extend SKU=tostring(sku.name)
-    | extend resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)
-    | project id, SKU, SpotVMs, SpotPriorityMix, subscriptionId, resourceGroup, location
-```
+  ```kql
+  resources
+  | where type =~ 'microsoft.compute/virtualmachinescalesets'
+  | extend SpotVMs=tostring(properties.virtualMachineProfile.priority)
+  | extend SpotPriorityMix=tostring(properties.priorityMixPolicy)
+  | extend SKU=tostring(sku.name)
+  | extend resourceGroup=strcat('/subscriptions/', subscriptionId, '/resourceGroups/', resourceGroup)
+  | project id, SKU, SpotVMs, SpotPriorityMix, subscriptionId, resourceGroup, location
+  ```
 </details>
-
 
 ### Query: Virtual Machine processor type analysis
 
@@ -132,20 +131,34 @@ Resource management
 
 <details>
   <summary>Click to view the code</summary>
-```kql
-resources
-    | where type == 'microsoft.compute/virtualmachines'
-    | extend vmSize = properties.hardwareProfile.vmSize
-    | extend processorType = case(
-        // ARM Processors
-        vmSize has "Epsv5" or vmSize has "Epdsv5" or vmSize has "Dpsv5" or vmSize has "Dpdsv", "ARM",
-        // AMD Processors
-        vmSize has "Standard_D2a" or vmSize has "Standard_D4a" or vmSize has "Standard_D8a" or vmSize has "Standard_D16a" or vmSize has "Standard_D32a" or vmSize has "Standard_D48a" or vmSize has "Standard_D64a" or vmSize has "Standard_D96a" or vmSize has "Standard_D2as" or vmSize has "Standard_D4as" or vmSize has "Standard_D8as" or vmSize has "Standard_D16as" or vmSize has "Standard_D32as" or vmSize has "Standard_D48as" or vmSize has "Standard_D64as" or vmSize has "Standard_D96as", "AMD",
-        "Intel"
-     )
+  ```kql
+  resources
+  | where type == 'microsoft.compute/virtualmachines'
+  | extend vmSize = properties.hardwareProfile.vmSize
+  | extend processorType = case(
+      // ARM Processors
+      vmSize has "Epsv5" or vmSize has "Epdsv5" or vmSize has "Dpsv5" or vmSize has "Dpdsv", "ARM",
+      // AMD Processors
+      vmSize has "Standard_D2a"
+          or vmSize has "Standard_D4a"
+          or vmSize has "Standard_D8a"
+          or vmSize has "Standard_D16a"
+          or vmSize has "Standard_D32a"
+          or vmSize has "Standard_D48a"
+          or vmSize has "Standard_D64a"
+          or vmSize has "Standard_D96a"
+          or vmSize has "Standard_D2as"
+          or vmSize has "Standard_D4as"
+          or vmSize has "Standard_D8as"
+          or vmSize has "Standard_D16as"
+          or vmSize has "Standard_D32as"
+          or vmSize has "Standard_D48as"
+          or vmSize has "Standard_D64as"
+          or vmSize has "Standard_D96as", "AMD",
+      "Intel"
+  )
   | project vmName = name, processorType, vmSize, resourceGroup
-```
-
+  ```
 </details>
 
 <br>
