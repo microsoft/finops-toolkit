@@ -42,7 +42,7 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
-> [!VIDEO https://www.youtube.com/embed/iJyz8N55l8WZbzCH?list=PLUSCToibAswnAZASwN31liSpOf0vb6rXM]
+[!VIDEO https://www.youtube.com/embed/ https://www.youtube.com/embed/t3pKnbtatBA?list=PLUSCToibAswnAZASwN31liSpOf0vb6rXM]
 
 <!-- sustainability id="WlKJQ_cCR0OXH7qF" list="PLUSCToibAswlnq7LsdHR9ntm06KCtdAPg" -->
 

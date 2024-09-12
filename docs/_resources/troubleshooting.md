@@ -23,8 +23,7 @@ Sorry to hear you're having a problem. We're here to help!
 
 ## ⏩ Do you have a specific error code?
 
-⚡ [Find common errors](./troubleshooting-errocode.md) ▶
-{: .fs-6 .fw-300 }
+⚡ [Find common errors](./errors.md) ▶
 
 <br>
 
@@ -70,7 +69,7 @@ This guide helps you troubleshoot issues with the FinOps Hubs, focusing on two m
 3. Open the Data Factory instance in Data Factory Studio and select Manage > Author > Triggers. Verify the `msexports_FileAdded` trigger is started. If not, start it.
 4. If the trigger fails to start with a “resource provider is not registered” error, open the subscription in the Azure portal, then select Settings > Resource providers, select the Microsoft.EventGrid row, then select Register. Registration may take a few minutes.
 5. After registration completes, start the `msexports_FileAdded` trigger again.
-6.  After the trigger is started, re-run all connected Cost Management exports. Data should be fully ingested within 10-20 minutes.
+6. After the trigger is started, re-run all connected Cost Management exports. Data should be fully ingested within 10-20 minutes.
 7. If the ingestion pipeline is not running and it is showing a `MappingColumnNameNotFoundInSourceFile` error message, verify the export is configured for FOCUS `1.0-preview(v1)` and not `1.0`.
 
 ### Step 3: Verify storage account – msexports container

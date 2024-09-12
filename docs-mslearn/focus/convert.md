@@ -84,6 +84,7 @@ _<sup>3. While RegionName is a direct mapping of ResourceLocation, Cost Manageme
 Related resources:
 
 - [How to update existing reports to FOCUS](./mapping.md)
+- [How to compare FOCUS with actual/amortized cost](./validate.md)
 
 <!--
 TODO: Add these after we bring in the rest of the toolkit content

@@ -45,7 +45,7 @@ The "Architecting for Cloud" capability within the FinOps Framework helps custom
 
 - **Utilize Azure Well-Architected Review:** Conduct Azure [Well-Architected Reviews](/assessments/azure-architecture-review/) for workloads deployed in Azure. To identify areas for improvement, evaluate workloads against the five pillars of WAF.
 
-- **Implement cost management practices:** Incorporate the Cloud Adoption Framework's [cost management practices](/azure/cloud-adoption-framework/get-started/manage-costs) into your architectural designs. This effort includes right-sizing resources, using reserved instances, and implementing cost allocation mechanisms.
+- **Implement cost management practices:** Incorporate the Cloud Adoption Framework's [cost management practices](/azure/cloud-adoption-framework/get-started/manage-costs) into your architectural designs. This effort includes right-sizing resources, using [commitment discounts](./rates.md), and implementing cost allocation mechanisms.
 
 - **Establish governance and compliance:** Establish [governance mechanisms](/azure/cloud-adoption-framework/govern/monitor-cloud-governance) and compliance controls to ensure adherence to organizational policies, regulatory requirements, and industry standards. Use Azure Governance and Azure Blueprints for policy enforcement and compliance automation.
 

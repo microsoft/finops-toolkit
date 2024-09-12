@@ -47,6 +47,9 @@ At this point, you implemented all the basic carbon optimization recommendations
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Cloud sustainability](https://www.finops.org/framework/capabilities/cloud-sustainability/) article in the FinOps Framework documentation.
 
+You can also find related videos on the FinOps Foundation YouTube channel:
+
+[!VIDEO https://www.youtube.com/embed/9CuwDB6XnPg?list=PLUSCToibAswnePI6MuWJpqbW7yxWKfDST]
 
 <br>
 
@@ -56,7 +59,7 @@ Related FinOps capabilities:
 
 - [Workload optimization](./workloads.md)
 - [Rate optimization](./rates.md)
-- [Measuring unit cost](../quantify/unit-economics.md)
+- [Unit economics](../quantify/unit-economics.md)
 
 Related products:
 

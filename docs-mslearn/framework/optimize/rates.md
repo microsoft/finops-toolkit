@@ -79,7 +79,7 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
-> [!VIDEO https://www.youtube.com/embed/CR6D5DlPwtm7Bbdr?list=PLUSCToibAswm37b7-VLl3nJ7A4wuGSpCI]
+> [!VIDEO https://www.youtube.com/embed/jO2WlOHmbN8?list=PLUSCToibAswm37b7-VLl3nJ7A4wuGSpCI]
 
 <br>
 

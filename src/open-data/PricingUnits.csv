@@ -3,6 +3,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "1 ",EA,1,Units
 "1 /Day",EA,1,Units/Day
 "1 /Hour",EA,1,Units/Hour
+"1 /Minute",EA,1,Units/Minute
 "1 /Month",EA,1,Units/Month
 "1 /Year",EA,1,Units/Year
 "1 1 Hour",EA,1,Hours
@@ -144,6 +145,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "10 PB Seconds",EA,10,PB Seconds
 "10 PB/Hour",EA,10,PB/Hour
 "10 PiB Seconds",EA,10,PiB Seconds
+"10 PiB/Hour",EA,10,PiB/Hour
 "10 Pipelines",EA,10,Pipelines
 "10 Rotations",EA,10,Rotations
 "10 Service Endpoints",EA,10,Endpoints
@@ -252,6 +254,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "100000 ",EA,100000,Units
 "100000 /Day",EA,100000,Units/Day
 "100000 /Hour",EA,100000,Units/Hour
+"100000 /Month",EA,100000,Units/Month
 "100000 Executions",EA,100000,Executions
 "100000 GB",EA,100000,GB
 "100000 GB Seconds",EA,100000,GB Seconds
@@ -296,7 +299,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "10000000000 ",EA,10000000000,Units
 "100000000000",EA,100000000000,Units
 "100000000000 ",EA,100000000000,Units
-"10000s",MCA,1,Units
+"10000s",MCA,1,Transactions
 "100K",MCA,100000,Units
 "1024 GB",EA,1024,GB
 "102400 TiB/Hour",EA,102400,TiB/Hour
@@ -369,6 +372,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "Minute(s)","MCA, EA",1,Minutes
 "Per Call","MCA, EA",1,Calls
 "Per Request",MCA,1,Requests
+"Text",MCA,1,Messages
 "Unassigned",EA,1,Units
 "Unit",MCA,1,Units
 "Units",MCA,1,Units

@@ -170,11 +170,14 @@ Describe 'CostExports' {
     It 'Should create an export starting under 7 years ago' {
         # Arrange
         $historicalExportName = $exportName
-        # Exports tracks 7 years in days, not months, so we can only use 7y-1mo to get a full month
-        $startDate = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0).AddYears(-7).AddMonths(1)
+        # Exports tracks 7 years in days, not months, so we can only use 7y-2mo to get a full month accounting for time zones
+        $startDate = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0).AddYears(-7).AddMonths(2)
 
         Monitor "Export tests..." -Indent '  ' {
             Monitor "Creating $historicalExportName export..." {
+                # Arrange
+                Report "Start: $startDate"
+
                 # Act -- create
                 $newResult = New-FinOpsCostExport `
                     -Name $historicalExportName `
@@ -301,9 +304,11 @@ Describe 'CostExports' {
             # Arrange
             $waited = $false
             $testStartTime = Get-Date
-            function CheckDate($date) {
+            function CheckDate($date)
+            {
                 $monthToThrottle = (Get-Date -Day 1 -Hour 0 -Minute 0 -Second 0 -Millisecond 0 -AsUTC).AddMonths(-3).ToUniversalTime().Date.ToString("yyyy-MM-dd'T'HH:mm:ss'Z'")
-                if ($date -eq $monthToThrottle -and -not $waited) {
+                if ($date -eq $monthToThrottle -and -not $waited)
+                {
                     $waited = $true
                     return $true
                 }

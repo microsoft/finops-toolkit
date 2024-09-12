@@ -111,6 +111,7 @@ Use the following table to update existing automation and reporting solutions to
 Related resources:
 
 - [How to convert Cost Management data to FOCUS](./convert.md)
+- [How to compare FOCUS with actual/amortized cost](./validate.md)
 
 <!--
 TODO: Add these after we bring in the rest of the toolkit content

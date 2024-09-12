@@ -50,18 +50,8 @@ For details about the parameters for each module, see the module details below.
 
 ## 🦾 Modules
 
+- [Exports](exports.md) – Publish Cost Management datasets to a storage account ad-hoc or on a recurring schedule.
 - [Scheduled actions](scheduled-actions.md) – Send an email on a schedule or when an anomaly is detected.
-
-<!--
-## Exports
-<small>Version: **Unreleased**</small>
-{: .label .label-yellow .pt-0 .pl-3 .pr-3 .m-0 }
-<small>Scopes: **Resource group, Subscription**</small>
-{: .label .pt-0 .pl-3 .pr-3 .m-0 }
-<small>[Issue: **#221**](https://github.com/microsoft/finops-toolkit/issues/221)</small>
-{: .label .label-yellow .pt-0 .pl-3 .pr-3 .m-0 }
-Creates an [export](https://learn.microsoft.com/rest/api/cost-management/exports) to push cost data to a storage account on a daily or monthly schedule.
--->
 
 <br>
 
