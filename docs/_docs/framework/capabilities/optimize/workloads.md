@@ -2,7 +2,7 @@
 layout: default
 grand_parent: FinOps Framework
 parent: Optimize
-title: Workloads
+title: Workload optimization
 permalink: /framework/capabilities/optimize/workloads
 nav_order: 2
 description: This article helps you understand the Workload optimization capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
@@ -78,7 +78,7 @@ When you first start working with a service or managing costs in the cloud, prio
   - If you choose to autostart, be aware of vacations and holidays where resources may get started automatically but not be used.
   - Consider tagging manually stopped resources. [Save a query in Azure Resource Graph](https://learn.microsoft.com/azure/governance/resource-graph/first-query-portal) or a view in the All resources list and pin it to the Azure portal dashboard to ensure all resources are stopped.
 - Consider architectural models such as containers and serverless to only use resources when they're needed, and to drive maximum efficiency in key services.
-- Levarage the [Cost optimization workbook](../../../../_workbooks/optimization-workbook/cost-optimization-workbook.md) to evaluate resource utilization, like idle and unused resources.
+- Leverage the [Cost optimization workbook](../../../../_optimize/optimization-workbook/cost-optimization-workbook.md) to evaluate resource utilization, like idle and unused resources.
 
 <br>
 
@@ -108,8 +108,8 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
-<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.html title="Workload optimization videos" id="DIcO8EulN8PuXuWL" list="PLUSCToibAswlL6Ms76cl9GDmcpM85nlWA" %}
+<!--[!VIDEO https://www.youtube.com/embed/w2tDf_PMnZY?list=PLUSCToibAswnEoBY6zl_1bpIAqbdIDxUW&pp=iAQB]-->
+{% include video.html title="Workload optimization videos" id="w2tDf_PMnZY" list="PLUSCToibAswnEoBY6zl_1bpIAqbdIDxUW" %}
 
 <br>
 

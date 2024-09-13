@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Optimization Engine
+title: Optimization engine
 has_children: true
 nav_order: 40
 description: 'The Azure Optimization Engine (AOE) is an extensible solution designed to generate optimization recommendations for your Azure environment.'
@@ -105,7 +105,7 @@ Once deployed and after all the initial ingestion and recommendations generation
 
 * A supported Azure subscription (see the [FAQ](./faq.md))
 * A user account with Owner permissions over the chosen subscription, so that the Automation Managed Identity is granted the required privileges over the subscription (Reader) and deployment resource group (Contributor)
-* Azure Powershell 6.6.0+
+* Azure Powershell 9.0.0+
 * (Optional, for Identity and RBAC governance) Microsoft.Graph.Authentication and Microsoft.Graph.Identity.DirectoryManagement PowerShell modules (version 2.4.0+)
 * (Optional, for Identity and RBAC governance) A user account with at least Privileged Role Administrator permissions over the Microsoft Entra tenant, so that the Managed Identity is granted the required privileges over Microsoft Entra ID (Global Reader)
 * (Optional, for Azure commitments insights) A user account with administrative privileges over the Enterprise Agreement (Enterprise Enrollment Administrator) or the Microsoft Customer Agreement (Billing Profile Owner), so that the Managed Identity is granted the required privileges over your consumption agreement

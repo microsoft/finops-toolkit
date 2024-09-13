@@ -9,6 +9,9 @@ to suppress the recommendation.
 .PARAMETER RecommendationId
 The recommendation Id to suppress.
 
+.PARAMETER AzureEnvironment
+The Azure environment to connect to. Default is AzureCloud.
+
 .EXAMPLE
 .\Suppress-Recommendation.ps1 -RecommendationId "00000000-0000-0000-0000-000000000001"
 
@@ -17,7 +20,10 @@ https://aka.ms/AzureOptimizationEngine/suppressrecs
 #>
 param(
     [Parameter(Mandatory = $true)] 
-    [String] $RecommendationId
+    [String] $RecommendationId,
+
+    [Parameter(Mandatory = $false)]
+    [string] $AzureEnvironment = "AzureCloud"
 )
 
 $ErrorActionPreference = "Stop"
@@ -43,6 +49,22 @@ if (-not(Test-IsGuid -ObjectGuid $RecommendationId))
     Write-Host "The provided recommendation Id is invalid. Must be a valid GUID." -ForegroundColor Red
     Exit
 }
+
+$ctx = Get-AzContext
+if (-not($ctx)) {
+    Connect-AzAccount -Environment $AzureEnvironment
+    $ctx = Get-AzContext
+}
+else {
+    if ($ctx.Environment.Name -ne $AzureEnvironment) {
+        Disconnect-AzAccount -ContextName $ctx.Name
+        Connect-AzAccount -Environment $AzureEnvironment
+        $ctx = Get-AzContext
+    }
+}
+
+$cloudDetails = Get-AzEnvironment -Name $AzureEnvironment
+$azureSqlDomain = $cloudDetails.SqlDatabaseDnsSuffix.Substring(1)
 
 $databaseConnectionSettingsPath = ".\database-connection-settings.json"
 $dbConnectionSettings = @{}
@@ -81,20 +103,6 @@ else
     $databaseName = $dbConnectionSettings["DatabaseName"]
 }
 
-if (-not($dbConnectionSettings["DatabaseUser"]))
-{
-    $databaseUser = Read-Host "Please, enter the AOE database user name"
-    $dbConnectionSettings["DatabaseUser"] = $databaseUser
-}
-else
-{
-    $databaseUser = $dbConnectionSettings["DatabaseUser"]
-}
-
-$sqlPass = Read-Host "Please, input the password for the $databaseUser SQL user" -AsSecureString
-$sqlPassPlain = (New-Object PSCredential "user", $sqlPass).GetNetworkCredential().Password
-$sqlPassPlain = $sqlPassPlain.Replace("'", "''")
-
 $SqlTimeout = 120
 $recommendationsTable = "Recommendations"
 $suppressionsTable = "Filters"
@@ -106,7 +114,9 @@ $connectionSuccess = $false
 do {
     $tries++
     try {
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$databaseServer,1433;Database=$databaseName;User ID=$databaseUser;Password='$sqlPassPlain';Trusted_Connection=False;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
+        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$databaseServer,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $Conn.AccessToken = $dbToken.Token
         $Conn.Open() 
         $Cmd=new-object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
@@ -251,13 +261,15 @@ if ("Y", "y" -contains $continueInput)
 
     $sqlStatement = "INSERT INTO [$suppressionsTable] VALUES (NEWID(), '$($controlRows.RecommendationSubTypeId)', '$suppressionType', $scope, GETDATE(), $endDate, '$author', '$notes', 1)"
 
-    $Conn2 = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$databaseServer,1433;Database=$databaseName;User ID=$databaseUser;Password='$sqlPassPlain';Trusted_Connection=False;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+    $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
+    $Conn2 = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$databaseServer,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+    $Conn2.AccessToken = $dbToken.Token
     $Conn2.Open() 
     
     $Cmd=new-object system.Data.SqlClient.SqlCommand
     $Cmd.Connection = $Conn2
     $Cmd.CommandText = $sqlStatement
-    $Cmd.CommandTimeout=120 
+    $Cmd.CommandTimeout = $SqlTimeout
     try
     {
         $Cmd.ExecuteReader()

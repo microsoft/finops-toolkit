@@ -1,6 +1,6 @@
 ---
 layout: default
-parent: Optimization Engine
+parent: Optimization engine
 title: Suppressing recommendations
 nav_order: 40
 description: 'Adjust the recommendations results to your environment characteristics.'

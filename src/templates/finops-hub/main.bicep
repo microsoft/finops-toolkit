@@ -14,7 +14,7 @@ param hubName string
 param location string = resourceGroup().location
 
 @description('Optional. Azure location to use for a temporary Event Grid namespace to register the Microsoft.EventGrid resource provider if the primary location is not supported. The namespace will be deleted and is not used for hub operation. Default: "" (same as location).')
-param fallbackEventGridLocation string = ''
+param eventGridLocation string = ''
 
 @allowed([
   'Premium_LRS'
@@ -54,7 +54,7 @@ module hub 'modules/hub.bicep' = {
   params: {
     hubName: hubName
     location: location
-    fallbackEventGridLocation: fallbackEventGridLocation
+    eventGridLocation: eventGridLocation
     storageSku: storageSku
     tags: tags
     tagsByResource: tagsByResource

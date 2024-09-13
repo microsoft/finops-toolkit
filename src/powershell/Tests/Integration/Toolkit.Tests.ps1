@@ -7,7 +7,7 @@ Describe 'Get-FinOpsToolkitVersion' {
     It 'Should return all known releases' {
         # Arrange
         $plannedRelease = '0.5'
-        $expected = @('0.4', '0.3', '0.2', '0.1.1', '0.1', '0.0.1')
+        $expected = @('0.5', '0.4', '0.3', '0.2', '0.1.1', '0.1', '0.0.1')
 
         # Act
         $result = Get-FinOpsToolkitVersion

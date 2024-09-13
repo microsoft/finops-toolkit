@@ -17,9 +17,9 @@ Connect FinOps hubs to your billing accounts and subscriptions by configuring Co
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
+- [🛠️ Configure exports manually](#️-configure-exports-manually)
 - [🔐 Configure managed exports](#-configure-managed-exports)
 - [🖥️ Configure exports via PowerShell](#️-configure-exports-via-powershell)
-- [🛠️ Configure exports manually](#️-configure-exports-manually)
 - [⏭️ Next steps](#️-next-steps)
 
 </details>
@@ -32,7 +32,42 @@ FinOps hubs uses Cost Management exports to import cost data for the billing acc
   _Microsoft Cost Management does not support managed exports for Microsoft Customer Agreement billing accounts. Please [configure Cost Management exports manually](#️-configure-exports-manually)._
 </blockquote>
 
-For the most seamless experience, we recommend allowing FinOps hubs to manage exports for you when possible. This is the simplest to setup and requires the least effort to maintain over time. We only recommend configuring Cost Management exports manually if you cannot grant FinOps hubs access to manage exports for you.
+For the most seamless experience, we recommend allowing FinOps hubs to manage exports for you when possible. This option requires the least effort to maintain over time.
+
+<br>
+
+## 🛠️ Configure exports manually
+
+If you cannot grant permissions for your scope, you can create Cost Management exports manually to accomplish the same goal.
+
+1. [Create a new FOCUS cost export](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data?tabs=azure-portal) using the following settings:
+
+   - **Type of data** = `Cost and usage details (FOCUS)`<sup>1</sup>
+   - **Dataset version** = `1.0`<sup>2</sup>
+   - **Frequency** = `Daily export of month-to-date costs`<sup>3</sup>
+   - **File partitioning** = On
+   - **Overwrite data** = Off<sup>4</sup>
+   - **Storage account** = (Use subscription/resource deployed with your hub)
+   - **Container** = `msexports`
+   - **Directory** = (Specify a unique path for this scope<sup>5</sup>)
+     - _**EA billing account:** `billingAccounts/{enrollment-number}`_
+     - _**MCA billing profile:** `billingProfiles/{billing-profile-id}`_
+     - _**Subscription:** `subscriptions/{subscription-id}`_
+     - _**Resource group:** `subscriptions/{subscription-id}/resourceGroups/{rg-name}`_
+  
+2. Create another export with the same settings except set **Frequency** to `Monthly export of last month's costs`.
+3. Run your exports to initialize the dataset.
+   - Exports can take up to a day to show up after first created.
+   - Use the **Run now** command at the top of the Cost Management Exports page.
+   - Your data should be available within 15 minutes or so, depending on how big your account is.
+   - If you want to backfill data, open the export details and select the **Export selected dates** command to export one month at a time or use the [Start-FinOpsCostExport PowerShell command](../../_automation/powershell/cost/Start-FinOpsCostExport.md) to export a larger date range.
+4. Repeat steps 1-3 for each scope you want to monitor.
+
+_<sup>1) FinOps hubs 0.2 and beyond requires FOCUS cost data. As of July 2024, the option to export FOCUS cost data is only accessible from the central Cost Management experience in the Azure portal. If you do not see this option, please search for or navigate to [Cost Management Exports](https://portal.azure.com/#blade/Microsoft_Azure_CostManagement/Menu/open/exports).</sup>_
+_<sup>2) FinOps hubs 0.4 supports both FOCUS 1.0 and FOCUS 1.0 preview. Power BI reports in 0.4 are aligned to FOCUS 1.0 regardless of whether data was ingested as FOCUS 1.0 preview. If you need 1.0 preview data and reports, please use FinOps hubs 0.3.</sup>_
+_<sup>3) Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range.</sup>_
+_<sup>4) While most settings are required, overwriting is optional. We recommend **not** overwriting files so you can monitor your ingestion pipeline using the [Data ingestion](../power-bi/data-ingestion.md) report. If you do not plan to use that report, please enable overwriting.</sup>_
+_<sup>5) Export paths can be any value but must be unique per scope. We recommended using a path that identifies the source scope (e.g., subscription or billing account). If 2 scopes share the same path, there could be ingestion errors.</sup>_
 
 <br>
 
@@ -40,22 +75,13 @@ For the most seamless experience, we recommend allowing FinOps hubs to manage ex
 
 Managed exports allow FinOps hubs to setup and maintain Cost Management exports for you. To enable managed exports, you must grant Azure Data Factory access to read data across each scope you want to monitor.
 
-| Scope type            | Minimum required permissions |
-| --------------------- | ---------------------------- |
-| EA enrollment         | Enterprise Reader            |
-| EA department         | Department Reader            |
-| EA enrollment account | Not supported<sup>1</sup>    |
-| MPA billing account   | Not supported<sup>1</sup>    |
-| MPA customer          | Not supported<sup>1</sup>    |
-| MCA billing account   | Not supported<sup>1</sup>    |
-| MCA billing profile   | Not supported<sup>1</sup>    |
-| MCA invoice section   | Not supported<sup>1</sup>    |
-| Management group      | Not supported<sup>2</sup>    |
-| Subscription          | Cost Management Contributor  |
-| Resource group        | Cost Management Contributor  |
+![Screenshot of the hubs supported scopes](https://raw.githubusercontent.com/microsoft/finops-toolkit/11b24a372b9bd57e7829c4224e2569647908b261/src/images/hubs-scopes.jpg)
 
-<sup>1) Scope does not support managed exports. Please [configure exports manually](#️-configure-exports-manually).</sup><br>
-<sup>2) Scope not supported by FinOps hubs. Please enable each subscription separately.</sup><br>
+<blockquote class="note" markdown="1">
+  _Managed exports are only available in FinOps hubs 0.4 and beyond._
+</blockquote>
+
+Managed exports use a managed identity (MI) to configure the exports automatically. Follow these steps to set it up:
 
 1. **Grant access to Azure Data Factory.**
 
@@ -65,28 +91,28 @@ Managed exports allow FinOps hubs to setup and maintain Cost Management exports 
      - EA departments – [Assign department reader role permission](https://learn.microsoft.com/azure/cost-management-billing/manage/assign-roles-azure-service-principals#assign-enrollment-account-role-permission-to-the-spn).
      - Subscriptions and resource groups – [Assign Azure roles using the Azure portal](https://learn.microsoft.com/azure/role-based-access-control/role-assignments-portal).
 
-    <!--
-    ### Enterprise agreement billing accounts and departments
+   <!--
+   ### Enterprise agreement billing accounts and departments
    
-    1. [Find your enrollment (and department) Id](https://learn.microsoft.com/azure/cost-management-billing/manage/view-all-accounts#switch-billing-scope-in-the-azure-portal).
-    2. Load the FinOps Toolkit PowerShell module.
-    3. Grant reader permissions to the data factory
+   1. [Find your enrollment (and department) Id](https://learn.microsoft.com/azure/cost-management-billing/manage/view-all-accounts#switch-billing-scope-in-the-azure-portal).
+   2. Load the FinOps Toolkit PowerShell module.
+   3. Grant reader permissions to the data factory
    
-       ```powershell
-       # Grants enrollment reader permissions to the specified service principal or managed identity
-       Add-FinOpsServicePrincipal `
+      ```powershell
+      # Grants enrollment reader permissions to the specified service principal or managed identity
+      Add-FinOpsServicePrincipal `
          -ObjectId 00000000-0000-0000-0000-000000000000 ` # Object Id of data factory managed identity
          -TenantId 00000000-0000-0000-0000-000000000000 ` # Azure Active Directory tenant Id
          -BillingAccountId 12345                          # Enrollment ID
    
-       # Grants department reader permissions to the specified service principal or managed identity
-       Add-FinOpsServicePrincipal `
+      # Grants department reader permissions to the specified service principal or managed identity
+      Add-FinOpsServicePrincipal `
          -ObjectId 00000000-0000-0000-0000-000000000000 ` # Object Id of data factory managed identity
          -TenantId 00000000-0000-0000-0000-000000000000 ` # Azure Active Directory tenant Id
          -BillingAccountId 12345 `                        # Enrollment Id
          -DepartmentId 67890                              # Department Id
-        ```
-    -->
+   ```
+   -->
 
 2. **Add the desired scopes.**
 
@@ -101,11 +127,11 @@ Managed exports allow FinOps hubs to setup and maintain Cost Management exports 
 
 3. **Backfill historical data.**
 
-   As soon as you configure a new scope, FinOps hubs will start to monitor current and future costs. To backfill historical data, you must run the **msexports_backfill** pipeline.
+   As soon as you configure a new scope, FinOps hubs will start to monitor current and future costs. To backfill historical data, you must run the **config_RunBackfill** pipeline.
 
    To run the pipeline from the Azure portal:
 
-   1. From the FinOps hub resource group, open the Data Factory instance, select **Launch Studio**, and navigate to **Author** > **Pipelines** > **msexports_backfill**.
+   1. From the FinOps hub resource group, open the Data Factory instance, select **Launch Studio**, and navigate to **Author** > **Pipelines** > **config_RunBackfill**.
    2. Select **Debug** in the command bar to run the pipeline. The total run time will vary depending on the retention period and number of scopes you're monitoring.
 
    To run the pipeline from PowerShell:
@@ -118,7 +144,7 @@ Managed exports allow FinOps hubs to setup and maintain Cost Management exports 
        Invoke-AzDataFactoryV2Pipeline `
          -ResourceGroupName $_.ResourceGroupName `
          -DataFactoryName $_.DataFactoryName `
-         -PipelineName 'msexports_backfill'
+         -PipelineName 'config_RunBackfill'
    }
    ```
 
@@ -154,6 +180,19 @@ Managed exports allow FinOps hubs to setup and maintain Cost Management exports 
   ]
   ```
 
+- Multiple subscriptions
+
+  ```json
+  "scopes": [
+    {
+      "scope": "/subscriptions/00000000-0000-0000-0000-000000000000"
+    },
+    {
+      "scope": "subscriptions/00000000-0000-0000-0000-000000000001"
+    }
+  ]
+  ```
+
 - Resource group
 
   ```json
@@ -167,6 +206,8 @@ Managed exports allow FinOps hubs to setup and maintain Cost Management exports 
 <br>
 
 ## 🖥️ Configure exports via PowerShell
+
+If this is the first time you are using the FinOps toolkit PowerShell module, refer to the [PowerShell](../../_automation/powershell/README.md) deployment guide to install the module.
 
 1. Install the FinOps toolkit PowerShell module.
 
@@ -186,49 +227,11 @@ Managed exports allow FinOps hubs to setup and maintain Cost Management exports 
 
 <br>
 
-## 🛠️ Configure exports manually
-
-If you cannot grant permissions for your scope, you can create Cost Management exports manually to accomplish the same goal.
-
-1. [Create a new FOCUS cost export](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data?tabs=azure-portal) using the following settings:
-
-   <!-- TODO: Replace the portal link with the docs link when exports v2 docs are available. -->
-
-   - **Type of data** = `Cost and usage details (FOCUS)`<sup>1</sup>
-   - **Dataset version** = `1.0`<sup>2</sup>
-   - **Frequency** = `Daily export of month-to-date costs`<sup>3</sup>
-   - **File partitioning** = On
-   - **Overwrite data** = Off<sup>4</sup>
-   - **Storage account** = (Use subscription/resource deployed with your hub)
-   - **Container** = `msexports`
-   - **Directory** = (Use the resource ID of the scope<sup>5</sup> you're exporting without the first "/")
-     - _**Billing account:** `providers/Microsoft.Billing/billingAccounts/{billingAccountId}`_
-     - _**Billing profile:** `providers/Microsoft.Billing/billingAccounts/{billingAccountId}/billingProfiles/{billingProfileId}`_
-     - _**Department:** `providers/Microsoft.Billing/billingAccounts/{billingAccountId}/departments/{departmentId}`_
-
-    <blockquote class="tip" markdown="1">
-      _If you get an error about invalid characters for a billing scope, replace the unsupported characters (e.g., `:`) in the billing account ID with a dash (`-`)._
-    </blockquote>
-
-2. Create another export with the same settings except set **Frequency** to `Monthly export of last month's costs`.
-3. Run your exports to initialize the dataset.
-   - Exports can take up to a day to show up after first created.
-   - Use the **Run now** command at the top of the Cost Management Exports page.
-   - Your data should be available within 15 minutes or so, depending on how big your account is.
-   - If you want to backfill data, open the export details and select the **Export selected dates** command to export one month at a time or use the [Start-FinOpsCostExport PowerShell command](../../_automation/powershell/cost/Start-FinOpsCostExport.md) to export a larger date range.
-4. Repeat steps 1-3 for each scope you want to monitor.
-
-_<sup>1) FinOps hubs 0.2 and beyond requires FOCUS cost data. As of July 2024, the option to export FOCUS cost data is only accessible from the central Cost Management experience in the Azure portal. If you do not see this option, please search for or navigate to [Cost Management Exports](https://portal.azure.com/#blade/Microsoft_Azure_CostManagement/Menu/open/exports).</sup>_
-_<sup>2) FinOps hubs 0.4 supports both FOCUS 1.0 and FOCUS 1.0 preview. Power BI reports in 0.4 are aligned to FOCUS 1.0 regardless of whether data was ingested as FOCUS 1.0 preview. If you need 1.0 preview data and reports, please use FinOps hubs 0.3.</sup>_
-_<sup>3) Configuring a daily export starts in the current month. If you want to backfill historical data, create a one-time export and set the start/end dates to the desired date range.</sup>_
-_<sup>4) While most settings are required, overwriting is optional. We recommend **not** overwriting files so you can monitor your ingestion pipeline using the [Data ingestion](../power-bi/data-ingestion.md) report. If you do not plan to use that report, please enable overwriting.</sup>_
-_<sup>5) A "scope" is an Azure construct that contains resources or enables purchasing services, like a resource group, subscription, management group, or billing account. The resource ID for a scope will be the Azure Resource Manager URI that identifies the scope (e.g., "/subscriptions/###" for a subscription or "/providers/Microsoft.Billing/billingAccounts/###" for a billing account). To learn more, see [Understand and work with scopes](https://aka.ms/costmgmt/scopes).</sup>_
-
 ---
 
 ## ⏭️ Next steps
 
-[Connect to Power BI](./reports/README.md){: .btn .btn-primary .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Connect to Power BI](../power-bi/setup.md){: .btn .btn-primary .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [Learn more](./README.md#-why-finops-hubs){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>

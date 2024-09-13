@@ -22,7 +22,7 @@ Commitment discount chargeback, savings, and coverage.
 - [Commitments](#commitments)
 - [Savings](#savings)
 - [Chargeback](#chargeback)
-- [Coverage](#coverage)
+- [Reservation recommendations](#reservation-recommendations)
 - [Purchases](#purchases)
 - [Hybrid Benefit](#hybrid-benefit)
 - [Prices](#prices)
@@ -126,30 +126,31 @@ The chart shows the amortized cost for each subscription that used a commitment.
 
 <br>
 
-## Coverage
+## Reservation recommendations
 
-There are two **Coverage** pages that help you identify any places where you could potentially save even more based on your historical usage patterns with virtual machine reservations within a single subscription or shared across all subscriptions.
+The **Reservation recommendations** page helps you identify any places where you could potentially save even more based on your historical usage patterns with virtual machine reservations within a single subscription or shared across all subscriptions.
 
 These pages use the following filters for reservation recommendations:
 
 - **Term** – Length of time for a reservation.
-- **Lookback** – Period of historical time to use when recommending future reservations (e.g., 7-day, 30-day).
-- **Subscription** – Indicates which subscription you want to see recommendations for on the subscription coverage page. All are shown by default.
+- **Lookback** – Period of historical time to use when recommending future reservations (e.g., 7-day, 30-day). Options are based on data you export.
+- **Scope** – Indicates whether to view shared or single scope recommendations. Options are based on data you export.
+- **Subscription** – Indicates which subscription you want to see recommendations for. All are shown by default.
 
 The KPIs on this page cover:
 
 - **Potential savings** shows what you could save if you purchase the recommended VM reservations.
-- **On-demand cost** shows the cost that would be covered by the recommended reservations.
+- **Contracted cost** shows the cost that would be covered by the recommended reservations.
 
-There are 2 charts on the page that offer a breakdown of location, instance size flexibility group, and size; and, CPU hours over time. Your goal is to increase the committed usage in green and spend in blue in order to decrease the on-demand cost in red, which costs you more.
+There are 2 charts on the page that offer a breakdown of location, instance size flexibility group, and size; and, CPU hours over time. Your goal is to increase the committed usage in green and spend in blue in order to decrease the contracted cost in red, which costs you more.
 
 The table below the charts shows the recommended reservations based on the specified lookback period.
 
 <blockquote class="important" markdown="1">
-  _Potential savings and on-demand cost estimations are only available for VM reservation recommendations. You can view savings plan and reservation recommendations for other services in the Azure portal._
+  _Potential savings and contracted cost estimations are only available for VM reservation recommendations. This page has not been tested for non-VM recommendations. You can view savings plan and reservation recommendations for other services in the Azure portal._
 </blockquote>
 
-> ![Screenshot of the VM shared reservation coverage page](https://github.com/microsoft/finops-toolkit/assets/399533/5123b47d-cea2-4961-9237-6cbcae5a58e1)
+> ![Screenshot of the Reservation recommendations page](https://github.com/user-attachments/assets/e3be3bbe-1a24-48e9-90ff-b9b209dbfd56)
 
 <br>
 

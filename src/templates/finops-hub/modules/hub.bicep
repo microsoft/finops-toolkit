@@ -11,8 +11,11 @@ param hubName string
 @description('Optional. Azure location where all resources should be created. See https://aka.ms/azureregions. Default: (resource group location).')
 param location string = resourceGroup().location
 
+@description('Optional. Indicates whether the Event Grid resource provider has already been registered (e.g., in a previous hub deployment). Event Grid RP registration is required. If not set, a temporary Event Grid namespace will be created to auto-register the resource provider. Default: false (register RP).')
+param skipEventGridRegistration bool = false
+
 @description('Optional. Azure location to use for a temporary Event Grid namespace to register the Microsoft.EventGrid resource provider if the primary location is not supported. The namespace will be deleted and is not used for hub operation. Default: "" (same as location).')
-param fallbackEventGridLocation string = ''
+param eventGridLocation string = ''
 
 @allowed([
   'Premium_LRS'
@@ -79,8 +82,15 @@ var eventGridName = replace(
 var eventGridContributorRoleId = '1e241071-0855-49ea-94dc-649edcd759de'
 
 // Find a fallback region for EventGrid
-var eventGridAllowedLocations = ['eastus2','westus3','northeurope','westeurope','southeastasia','eastasia','southcentralus','uaenorth','eastus','centralus','westus2','uksouth','italynorth','australiasoutheast','brazilsouth','ukwest','northcentralus','centralindia','japaneast','francecentral','canadacentral','australiaeast','japanwest','canadaeast','southindia','koreacentral','koreasouth','switzerlandnorth','germanywestcentral','norwayeast','swedencentral','polandcentral','israelcentral']
-var eventGridLocation = contains(eventGridAllowedLocations, location) ? location : (contains(eventGridAllowedLocations, fallbackEventGridLocation) ? fallbackEventGridLocation : eventGridAllowedLocations[0])
+var eventGridLocationFallback = {
+  israelcentral: 'uaenorth'
+  italynorth: 'switzerlandnorth'
+  mexicocentral: 'southcentralus'
+  polandcentral: 'swedencentral'
+  spaincentral: 'francecentral'
+  usdodeast: 'usdodcentral'
+}
+var finalEventGridLocation = eventGridLocation != null && !empty(eventGridLocation) ? eventGridLocation : (eventGridLocationFallback[?location] ?? location)
 
 // The last segment of the telemetryId is used to identify this module
 var telemetryId = '00f120b5-2007-6120-0000-40b000000000'
@@ -122,9 +132,9 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (ena
 //------------------------------------------------------------------------------
 
 // Temporary resource
-resource tempEventGridNamespace 'Microsoft.EventGrid/namespaces@2023-12-15-preview' = {
+resource tempEventGridNamespace 'Microsoft.EventGrid/namespaces@2023-12-15-preview' = if (!skipEventGridRegistration) {
   name: eventGridName
-  location: eventGridLocation
+  location: finalEventGridLocation
   sku: {
     capacity: 1
     name: 'Standard'
@@ -135,13 +145,13 @@ resource tempEventGridNamespace 'Microsoft.EventGrid/namespaces@2023-12-15-previ
 }
 
 // Managed identity to run script
-resource cleanupIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+resource cleanupIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if (!skipEventGridRegistration) {
   name: '${uniqueSuffix}_cleanup'
-  location: eventGridLocation
+  location: finalEventGridLocation
 }
 
 // Assign access to the identity
-resource cleanupIdentityRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+resource cleanupIdentityRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!skipEventGridRegistration) {
   name: guid(eventGridContributorRoleId, cleanupIdentity.id)
   scope: tempEventGridNamespace
   properties: {
@@ -152,12 +162,13 @@ resource cleanupIdentityRole 'Microsoft.Authorization/roleAssignments@2022-04-01
 }
 
 // Cleanup script
-resource cleanupTempEventGridNamespace 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+resource cleanupTempEventGridNamespace 'Microsoft.Resources/deploymentScripts@2020-10-01' = if (!skipEventGridRegistration) {
   name: '${uniqueSuffix}_deleteEventGrid'
   dependsOn: [
     cleanupIdentityRole
   ]
-  location: location
+  // chinaeast2 is the only region in China that supports deployment scripts
+  location: startsWith(location, 'china') ? 'chinaeast2' : location
   kind: 'AzurePowerShell'
   identity: {
     type: 'UserAssigned'
