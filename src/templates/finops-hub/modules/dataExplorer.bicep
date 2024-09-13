@@ -204,7 +204,8 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
         ignoreFirstRecord: false
         managedIdentityResourceId: cluster.id
         storageAccountResourceId: storage.id
-        tableName: 'Focus'
+        // TODO: How can we make this dynamic based on the dataset version?
+        tableName: 'FocusCost_1_0'
       }
     }
   }
