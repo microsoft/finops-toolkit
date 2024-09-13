@@ -118,9 +118,8 @@ As a starting point, we focus on tools available in the Azure portal and Microso
 - Use the different tools optimized to provide the details you need to understand the holistic picture of your resource cost and usage.
   - [Analyze resource usage metrics in Azure Monitor](https://learn.microsoft.com/azure/azure-monitor/essentials/tutorial-metrics).
   - [Review resource configuration changes in Azure Resource Graph](https://learn.microsoft.com/azure/governance/resource-graph/how-to/get-resource-changes).
-- If you need to build more advanced reports or merge cost data with other cloud or business data, [leverage the FinOps toolkit Power BI reports](../../../../_reporting/power-bi/README.md) part of the open source FinOps toolkit provided by Microsoft.
-    - FinOps hubs will accelerate your development and help you focus on building the features you need rather than infrastructure.
-    - FinOps hubs includes a [Power BI report](../../../../reporting/power-bi) that normalizes data to the FOCUS schema, which can be a good starting point.
+- If you need to build more advanced reports or merge cost data with other cloud or business data, [leverage the FinOps toolkit Power BI reports](../../../../_reporting/power-bi/README.md) provided by Microsoft.
+  - FinOps toolkit reports use [FOCUS](../../../focus/README.md) and can accelerate your development and help you focus on building the features you need rather than infrastructure.
 
 <br>
 
@@ -153,8 +152,8 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
-<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.html title="Reporting and analytics videos" id="CVTJLdcozj1eEpxT" list="PLUSCToibAswlDSQdehKhi7ysP2hmetigl" %}
+<!--[!VIDEO https://www.youtube.com/embed/pD9NeBOvspU?list=PLUSCToibAswlDSQdehKhi7ysP2hmetigl&pp=iAQB]-->
+{% include video.html title="Reporting and analytics videos" id="pD9NeBOvspU" list="PLUSCToibAswlDSQdehKhi7ysP2hmetigl" %}
 
 <br>
 

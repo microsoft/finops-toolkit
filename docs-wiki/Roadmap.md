@@ -43,7 +43,7 @@ While our community is growing, we don't have dedicated staff and cannot commit 
 
 ## 🛠️ General
 
-🔜 FOCUS 1.0 (June) – Add support for FOCUS 1.0 GA across tools and services.<br>
+✅ FOCUS 1.0 (June, [Issue #778](https://github.com/microsoft/finops-toolkit/issues/778)) – Add support for FOCUS 1.0 GA across tools and services.<br>
 🔜 Office hours – Monthly call to get real-time help and support for FinOps toolkit solutions.<br>
 🔜 Official toolkit support – Get help from Microsoft Support.<br>
 🔜 Demo environment – Publicly available demo environment.<br>
@@ -56,8 +56,8 @@ While our community is growing, we don't have dedicated staff and cannot commit 
 
 ✅ Learning resources – Add learning resources to documentation.<br>
 ✅ FinOps documentation – Add documentation for how to implement FinOps.<br>
-🔄️ Microsoft Learn training modules – Self-paced FinOps training on Microsoft Learn.<br>
-🔄️ FinOps Framework updates – Update FinOps capability guides for FinOps Framework 2024 updates.<br>
+✅ Microsoft Learn training modules – Self-paced FinOps training on Microsoft Learn.<br>
+✅ FinOps Framework updates ([Milestone #21](https://github.com/microsoft/finops-toolkit/milestone/21)) – Update FinOps capability guides for FinOps Framework 2024 updates.<br>
 🔄️ FinOps toolkit on Microsoft Learn – Publish toolkit docs into Microsoft Learn.<br>
 🔜 FinOps toolkit overview deck – Slide deck to summarize FinOps toolkit solutions.<br>
 
@@ -65,12 +65,12 @@ While our community is growing, we don't have dedicated staff and cannot commit 
 
 ## 🏦 FinOps hubs
 
-🔄️ Remote hubs – Ingest cost data from other tenants.<br>
-🔄️ Managed exports – Let FinOps hubs manage exports for you.<br>
-🔄️ Analytics engine – Ingest cost data into an Azure Data Explorer cluster.<br>
-🔄️ Private endpoints – Add support for private endpoints.<br>
-🔄️ Bring your own KeyVault – Add support for referencing an existing KeyVault instance.<br>
-🔜 Troubleshooting guide – Detailed walkthrough of how to resolve and get support for common issues.<br>
+✅ Remote hubs ([Milestone #19](https://github.com/microsoft/finops-toolkit/milestone/19)) – Ingest cost data from other tenants.<br>
+✅ Managed exports ([Milestone #19](https://github.com/microsoft/finops-toolkit/milestone/19)) – Let FinOps hubs manage exports for you.<br>
+🔄️ Analytics engine ([Issue #57](https://github.com/microsoft/finops-toolkit/issues/57)) – Ingest cost data into an Azure Data Explorer cluster.<br>
+🔄️ Private endpoints ([Milestone #22](https://github.com/microsoft/finops-toolkit/milestone/22)) – Add support for private endpoints.<br>
+🔄️ Bring your own KeyVault ([PR #573](https://github.com/microsoft/finops-toolkit/pull/573)) – Add support for referencing an existing KeyVault instance.<br>
+🔜 Troubleshooting guide ([Issue #734](https://github.com/microsoft/finops-toolkit/issues/734)) – Detailed walkthrough of how to resolve and get support for common issues.<br>
 🔜 Auto-backfill – Backfill historical data from Microsoft Cost Management.<br>
 🔜 Retention – Configure how long you want to keep data in storage.<br>
 🔜 More export types – Add support for all Cost Management export types.<br>
@@ -97,6 +97,13 @@ While our community is growing, we don't have dedicated staff and cannot commit 
 
 <br>
 
+## 🔍 Optimization engine
+
+✅ **New tool**: Azure Optimization Engine – Custom recommendation engine.<br>
+🔄️ SQL database Entra ID authentication – Replace SQL Server authentication with Entra ID-only authentication.<br>
+
+<br>
+
 ## 🖥️ PowerShell
 
 🔜 Deploy-FinOpsWorkbook – Deploy toolkit workbooks.<br>
@@ -106,13 +113,12 @@ While our community is growing, we don't have dedicated staff and cannot commit 
 ## 🌐 Open data
 
 ✅ Service model – Add ServiceModel to the services open data file.<br>
-🔜 Update all data – Update all open data file.<br>
+🔄️ Update all data – Ongoing updates all open data file with each release.<br>
 
 <br>
 
 ## 🆕 New tools
 
-🔄️ **New**: Azure Optimization Engine – Custom recommendation engine.<br>
-🔄️ **New**: Cost optimization notifications – Email notifications when optimization opportunities are identified.<br>
+🔄️ **New tool**: Cost optimization notifications ([Milestone #24](https://github.com/microsoft/finops-toolkit/milestone/24)) – Email notifications when optimization opportunities are identified.<br>
 
 <br>

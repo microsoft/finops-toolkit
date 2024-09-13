@@ -14,7 +14,7 @@ configuration:
           When an issue has been triaged with `#needs-info` in a comment:
           - Assign to author
           - Remove the `Needs: Triage 🔍` label
-          - Label with `Needs: Information`
+          - Label with `Needs: Attention`
         if:
           - payloadType: Issue_Comment
           - isOpen
@@ -27,10 +27,60 @@ configuration:
                   permission: Write
         then:
           - addLabel:
-              label: 'Needs: Information'
+              label: 'Needs: Attention 👋'
           - removeLabel:
               label: 'Needs: Triage 🔍'
           - assignTo:
               author: True
+      - description: >-
+          When an issue needs info/attn, remove triage label:
+          - Assign to author
+          - Remove the `Needs: Information` label
+          - Remove the `Needs: Attention 👋` label
+          - Label with `Needs: Triage 🔍`
+        if:
+          - or:
+              - payloadType: Issues
+              - payloadType: Issue_Comment
+          - or:
+              - labelAdded:
+                  label: 'Needs: Information'
+              - labelAdded:
+                  label: 'Needs: Attention 👋'
+          - hasLabel:
+              label: 'Needs: Triage 🔍'
+          - isOpen
+        then:
+          - removeLabel:
+              label: 'Needs: Triage 🔍'
+          - assignTo:
+              author: True
+      - description: >-
+          When an issue that needs info/attn has been responded to:
+          - Remove author assignee
+          - Remove the `Needs: Information` label
+          - Remove the `Needs: Attention 👋` label
+          - Label with `Needs: Triage 🔍`
+        if:
+          - or:
+              - payloadType: Issues
+              - payloadType: Issue_Comment
+          - or:
+              - hasLabel:
+                  label: 'Needs: Information'
+              - hasLabel:
+                  label: 'Needs: Attention 👋'
+          - isOpen
+          - isActivitySender:
+              issueAuthor: True
+        then:
+          - removeLabel:
+              label: 'Needs: Attention 👋'
+          - removeLabel:
+              label: 'Needs: Information'
+          - addLabel:
+              label: 'Needs: Triage 🔍'
+          - assignTo:
+              author: False
 onFailure:
 onSuccess:

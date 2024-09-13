@@ -182,9 +182,7 @@
                 "type": 9,
                 "content": {
                   "version": "KqlParameterItem/1.0",
-                  "crossComponentResources": [
-                    "value::tenant"
-                  ],
+                  "crossComponentResources": ["value::tenant"],
                   "parameters": [
                     {
                       "id": "5704765e-092d-41cb-b856-e5d1d5337ac5",
@@ -193,9 +191,7 @@
                       "label": "Management group",
                       "type": 2,
                       "query": "resourcecontainers\r\n| where type == \"microsoft.management/managementgroups\"\r\n| extend name = properties.displayName\r\n| project name",
-                      "crossComponentResources": [
-                        "value::tenant"
-                      ],
+                      "crossComponentResources": ["value::tenant"],
                       "typeSettings": {
                         "additionalResourceOptions": [],
                         "showDefault": false
@@ -217,13 +213,9 @@
                       "quote": "'",
                       "delimiter": ",",
                       "query": "resourcecontainers\r\n| where type == \"microsoft.resources/subscriptions\"\r\n| where properties['managementGroupAncestorsChain'] contains '{ManagementGroup:label}'",
-                      "crossComponentResources": [
-                        "value::tenant"
-                      ],
+                      "crossComponentResources": ["value::tenant"],
                       "typeSettings": {
-                        "additionalResourceOptions": [
-                          "value::all"
-                        ],
+                        "additionalResourceOptions": ["value::all"],
                         "showDefault": false
                       },
                       "timeContext": {
@@ -290,7 +282,7 @@
                     {
                       "type": 1,
                       "content": {
-                        "json": "The objective of this workbook is to provide a comprehensive overview of the governance posture of your Azure environment. It offers the standard metrics aligned with the Cloud Adoption Framework for all the disciplines and has the capability to identify and apply recommendations to identify non compliance.\r\n\r\n## Overview of the Cloud Adoption Framework\r\n\r\n* With any cloud platform, there are common governance disciplines that help inform policies and align toolchains. These disciplines guide decisions about the proper level of automation and enforcement of corporate policy across cloud platforms.\r\n\r\n|Discipline|Description|\r\n|---|---|\r\n| [Cost Management](https://learn.microsoft.com/azure/cloud-adoption-framework/govern/cost-management/)  | Cost is a primary concern for cloud users. Develop policies for cost control for all cloud platforms.\r\n| [Security Baseline](https://learn.microsoft.com/azure/cloud-adoption-framework/govern/security-baseline/) | Security is a complex subject, unique to each company. Once security requirements are established, cloud governance policies and enforcement apply those requirements across network, data, and asset configurations.\r\n| [Identity Baseline](https://learn.microsoft.com/azure/cloud-adoption-framework/govern/identity-baseline/) | Inconsistencies in the application of identity requirements can increase the risk of breach. The Identity Baseline discipline focuses on ensuring that identity is consistently applied across cloud adoption efforts.\r\n| [Resource Consistency](https://learn.microsoft.com/azure/cloud-adoption-framework/govern/resource-consistency/) | Cloud operations depend on consistent resource configuration. Through governance tooling, resources can be configured consistently to manage risks related to onboarding, drift, discoverability, and recovery.\r\n| [Deployment Acceleration](https://learn.microsoft.com/azure/cloud-adoption-framework/govern/deployment-acceleration/) | Centralization, standardization, and consistency in approaches to deployment and configuration improve governance practices. When provided through cloud-based governance tooling, they create a cloud factor that can accelerate deployment activities.\r\n\r\n* To assess your transformation journey, try the [governance benchmark tool](https://learn.microsoft.com/en-us/assessments/b1891add-7646-4d60-a875-32a4ab26327e).\r\n\r\n\r\n\r\n\r\n"
+                        "json": "The objective of this workbook is to provide a comprehensive overview of the governance posture of your Azure environment. It offers the standard metrics aligned with the Cloud Adoption Framework for all the disciplines and has the capability to identify and apply recommendations to identify non compliance.\r\n\r\n## Overview of the Cloud Adoption Framework\r\n\r\n* With any cloud platform, there are common governance disciplines that help inform policies and align toolchains. These disciplines guide decisions about the proper level of automation and enforcement of corporate policy across cloud platforms.\r\n\r\n|Discipline|Description|\r\n|---|---|\r\n| [Cost Management](https://learn.microsoft.com/azure/cloud-adoption-framework/govern/cost-management/)  | Cost is a primary concern for cloud users. Develop policies for cost control for all cloud platforms.\r\n| [Security Baseline](https://learn.microsoft.com/azure/cloud-adoption-framework/govern/security-baseline/) | Security is a complex subject, unique to each company. Once security requirements are established, cloud governance policies and enforcement apply those requirements across network, data, and asset configurations.\r\n| [Identity Baseline](https://learn.microsoft.com/azure/cloud-adoption-framework/govern/identity-baseline/) | Inconsistencies in the application of identity requirements can increase the risk of breach. The Identity Baseline discipline focuses on ensuring that identity is consistently applied across cloud adoption efforts.\r\n| [Resource Consistency](https://learn.microsoft.com/azure/cloud-adoption-framework/govern/resource-consistency/) | Cloud operations depend on consistent resource configuration. Through governance tooling, resources can be configured consistently to manage risks related to onboarding, drift, discoverability, and recovery.\r\n| [Deployment Acceleration](https://learn.microsoft.com/azure/cloud-adoption-framework/govern/deployment-acceleration/) | Centralization, standardization, and consistency in approaches to deployment and configuration improve governance practices. When provided through cloud-based governance tooling, they create a cloud factor that can accelerate deployment activities.\r\n\r\n* To assess your transformation journey, try the [governance benchmark tool](https://learn.microsoft.com/assessments/b1891add-7646-4d60-a875-32a4ab26327e).\r\n\r\n\r\n\r\n\r\n"
                       },
                       "name": "text - Overview"
                     },
@@ -316,9 +308,7 @@
                               "title": "Count of all resources",
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "visualization": "tiles",
                               "tileSettings": {
                                 "titleContent": {
@@ -344,9 +334,7 @@
                               "showExportToExcel": true,
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "visualization": "tiles",
                               "gridSettings": {
                                 "formatters": [
@@ -366,9 +354,7 @@
                                 "rowLimit": 10,
                                 "hierarchySettings": {
                                   "treeType": 1,
-                                  "groupBy": [
-                                    "subscriptionId"
-                                  ],
+                                  "groupBy": ["subscriptionId"],
                                   "expandTopLevel": true
                                 },
                                 "labelSettings": [
@@ -428,9 +414,7 @@
                               },
                               "chartSettings": {
                                 "xAxis": "subscriptionId",
-                                "yAxis": [
-                                  "Count"
-                                ],
+                                "yAxis": ["Count"],
                                 "showLegend": true,
                                 "seriesLabelSettings": [
                                   {
@@ -465,9 +449,7 @@
                               "showExportToExcel": true,
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "visualization": "tiles",
                               "tileSettings": {
                                 "showBorder": false,
@@ -503,9 +485,7 @@
                               "title": "Resource number by location",
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "visualization": "map",
                               "mapSettings": {
                                 "locInfo": "AzureLoc",
@@ -571,9 +551,7 @@
                               "showRefreshButton": true,
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "visualization": "tiles",
                               "tileSettings": {
                                 "showBorder": false,
@@ -610,9 +588,7 @@
                               "showExportToExcel": true,
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "visualization": "barchart",
                               "tileSettings": {
                                 "showBorder": false,
@@ -669,9 +645,7 @@
                               "showExportToExcel": true,
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ]
+                              "crossComponentResources": ["{Subscription}"]
                             },
                             "name": "query - virtual machine scale set capacity and size"
                           },
@@ -686,9 +660,7 @@
                               "showExportToExcel": true,
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "visualization": "table",
                               "gridSettings": {
                                 "formatters": [
@@ -751,9 +723,7 @@
                               "showExportToExcel": true,
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "visualization": "table",
                               "gridSettings": {
                                 "formatters": [
@@ -821,9 +791,7 @@
                               "showExportToExcel": true,
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ]
+                              "crossComponentResources": ["{Subscription}"]
                             },
                             "customWidth": "100",
                             "name": "Underused assets"
@@ -841,9 +809,7 @@
                               "showExportToExcel": true,
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "gridSettings": {
                                 "formatters": [
                                   {
@@ -898,9 +864,7 @@
                               "showExportToExcel": true,
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "gridSettings": {
                                 "formatters": [
                                   {
@@ -963,9 +927,7 @@
                             "type": 9,
                             "content": {
                               "version": "KqlParameterItem/1.0",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "parameters": [
                                 {
                                   "id": "98d786aa-8835-493f-9fe4-fe5da150392b",
@@ -974,9 +936,7 @@
                                   "label": "Virtual machine state",
                                   "type": 2,
                                   "query": "resources\r\n| where type == \"microsoft.compute/virtualmachines\"\r\n| extend state = properties['extended']['instanceView']['powerState']['displayStatus']\r\n| summarize by tostring(state)",
-                                  "crossComponentResources": [
-                                    "{Subscription}"
-                                  ],
+                                  "crossComponentResources": ["{Subscription}"],
                                   "typeSettings": {
                                     "additionalResourceOptions": [],
                                     "showDefault": false
@@ -1016,9 +976,7 @@
                               "showRefreshButton": true,
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "visualization": "tiles",
                               "tileSettings": {
                                 "titleContent": {
@@ -1074,9 +1032,7 @@
                               "showExportToExcel": true,
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "gridSettings": {
                                 "formatters": [
                                   {
@@ -1209,9 +1165,7 @@
                               "showExportToExcel": true,
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "visualization": "tiles",
                               "gridSettings": {
                                 "formatters": [
@@ -1234,9 +1188,7 @@
                                 ],
                                 "hierarchySettings": {
                                   "treeType": 1,
-                                  "groupBy": [
-                                    "subscriptionId"
-                                  ],
+                                  "groupBy": ["subscriptionId"],
                                   "expandTopLevel": true,
                                   "finalBy": "Resource"
                                 }
@@ -1279,9 +1231,7 @@
                               "showExportToExcel": true,
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "gridSettings": {
                                 "formatters": [
                                   {
@@ -1314,9 +1264,7 @@
                                 "filter": true,
                                 "hierarchySettings": {
                                   "treeType": 1,
-                                  "groupBy": [
-                                    "subscriptionId"
-                                  ],
+                                  "groupBy": ["subscriptionId"],
                                   "expandTopLevel": true,
                                   "finalBy": "Resource"
                                 }
@@ -1340,23 +1288,17 @@
                                   "quote": "'",
                                   "delimiter": ",",
                                   "query": "where type =~ 'microsoft.storage/storageaccounts'\n| order by name asc\n| extend Rank = row_number()\n| project value = id, label = id, selected = Rank <= 5",
-                                  "crossComponentResources": [
-                                    "{Subscription}"
-                                  ],
+                                  "crossComponentResources": ["{Subscription}"],
                                   "typeSettings": {
                                     "resourceTypeFilter": {
                                       "microsoft.storage/storageaccounts": true
                                     },
-                                    "additionalResourceOptions": [
-                                      "value::all"
-                                    ],
+                                    "additionalResourceOptions": ["value::all"],
                                     "showDefault": false
                                   },
                                   "queryType": 1,
                                   "resourceType": "microsoft.resourcegraph/resources",
-                                  "value": [
-                                    "value::all"
-                                  ]
+                                  "value": ["value::all"]
                                 },
                                 {
                                   "id": "c4b69c01-2263-4ada-8d9c-43433b739ff3",
@@ -1450,9 +1392,7 @@
                                   "name": "Message",
                                   "type": 1,
                                   "query": "where type == 'microsoft.storage/storageaccounts' \n| summarize Selected = countif(id in ({Resources:value})), Total = count()\n| extend Selected = iff(Selected > 200, 200, Selected)\n| project Message = strcat('# ', Selected, ' / ', Total)",
-                                  "crossComponentResources": [
-                                    "{Subscription}"
-                                  ],
+                                  "crossComponentResources": ["{Subscription}"],
                                   "isHiddenWhenLocked": true,
                                   "queryType": 1,
                                   "resourceType": "microsoft.resourcegraph/resources"
@@ -1550,9 +1490,7 @@
                               "resourceType": "microsoft.storage/storageaccounts",
                               "metricScope": 0,
                               "resourceParameter": "Resources",
-                              "resourceIds": [
-                                "{Resources}"
-                              ],
+                              "resourceIds": ["{Resources}"],
                               "timeContextFromParameter": "TimeRange",
                               "timeContext": {
                                 "durationMs": 172800000
@@ -1733,9 +1671,7 @@
                                 "filter": true,
                                 "hierarchySettings": {
                                   "treeType": 1,
-                                  "groupBy": [
-                                    "Subscription"
-                                  ],
+                                  "groupBy": ["Subscription"],
                                   "expandTopLevel": true,
                                   "finalBy": "Name"
                                 },
@@ -1817,9 +1753,7 @@
                               "resourceType": "microsoft.storage/storageaccounts",
                               "metricScope": 0,
                               "resourceParameter": "Resources",
-                              "resourceIds": [
-                                "{Resources}"
-                              ],
+                              "resourceIds": ["{Resources}"],
                               "timeContextFromParameter": "TimeRange",
                               "timeContext": {
                                 "durationMs": 172800000
@@ -1947,9 +1881,7 @@
                                 "filter": true,
                                 "hierarchySettings": {
                                   "treeType": 1,
-                                  "groupBy": [
-                                    "Subscription"
-                                  ],
+                                  "groupBy": ["Subscription"],
                                   "expandTopLevel": true,
                                   "finalBy": "Name"
                                 },
@@ -2059,9 +1991,7 @@
                             "type": 9,
                             "content": {
                               "version": "KqlParameterItem/1.0",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "parameters": [
                                 {
                                   "id": "2373a24f-ad32-4909-a7f6-59b373dcde6c",
@@ -2075,9 +2005,7 @@
                                   "quote": "'",
                                   "delimiter": ",",
                                   "query": "where type =~ 'microsoft.operationalinsights/workspaces' | project id",
-                                  "crossComponentResources": [
-                                    "{Subscription}"
-                                  ],
+                                  "crossComponentResources": ["{Subscription}"],
                                   "typeSettings": {
                                     "additionalResourceOptions": [],
                                     "showDefault": false
@@ -2099,9 +2027,7 @@
                             "type": 9,
                             "content": {
                               "version": "KqlParameterItem/1.0",
-                              "crossComponentResources": [
-                                "{Workspaces}"
-                              ],
+                              "crossComponentResources": ["{Workspaces}"],
                               "parameters": [
                                 {
                                   "id": "2965ad33-1401-47c9-8f4b-9b7126f87014",
@@ -2153,13 +2079,9 @@
                                   "quote": "",
                                   "delimiter": ",",
                                   "query": "let RangeStart = startofday({TimeRange:start});\r\nlet RangeEnd = iff(startofday({TimeRange:end}) == startofday(now()) ,startofday({TimeRange:end}) - 1d , startofday({TimeRange:end}));\r\nlet VaultSubscriptionList = \"*\";\r\nlet VaultLocationList = \"*\";\r\nlet VaultList = \"*\";\r\nlet VaultTypeList = \"*\";\r\nlet ExcludeLegacyEvent = true;\r\nlet BackupSolutionList = \"*\";\r\nlet ProtectionInfoList = \"*\";\r\nlet Item_search =  \"*;*\";\r\nlet ItemArray = split(Item_search, \";\");\r\nlet ItemArray_length = array_length(ItemArray);\r\nlet BackupInstanceName = iff(ItemArray_length == 2, ItemArray[1], ItemArray[0] );\r\nlet DatasourceSetName = iff(ItemArray_length == 2, ItemArray[0], \"\");\r\nlet DisplayAllFields = false;\r\n_AzureBackup_GetBackupInstances(RangeStart, RangeEnd, VaultSubscriptionList, VaultLocationList, VaultList, VaultTypeList, ExcludeLegacyEvent, BackupSolutionList, ProtectionInfoList, DatasourceSetName, BackupInstanceName, DisplayAllFields)\r\n| distinct tostring(split(tostring(todynamic(DatasourceResourceId)),\"/\")[2])",
-                                  "crossComponentResources": [
-                                    "{Workspaces}"
-                                  ],
+                                  "crossComponentResources": ["{Workspaces}"],
                                   "typeSettings": {
-                                    "additionalResourceOptions": [
-                                      "value::all"
-                                    ],
+                                    "additionalResourceOptions": ["value::all"],
                                     "selectAllValue": "*",
                                     "showDefault": false
                                   },
@@ -2179,21 +2101,15 @@
                                   "quote": "",
                                   "delimiter": ",",
                                   "query": "let RangeStart = startofday({TimeRange:start});\r\nlet RangeEnd = iff(startofday({TimeRange:end}) == startofday(now()) ,startofday({TimeRange:end}) - 1d , startofday({TimeRange:end}));\r\nlet VaultSubscriptionList = todynamic( replace(\"/subscriptions/\", \"\", @\"{DataSourceSubscription}\"));\r\nlet VaultLocationList = \"*\";\r\nlet VaultList = \"*\";\r\nlet VaultTypeList = \"*\";\r\nlet ExcludeLegacyEvent = true;\r\nlet BackupSolutionList = \"*\";\r\nlet ProtectionInfoList = \"*\";\r\nlet Item_search =  \"*;*\";\r\nlet ItemArray = split(Item_search, \";\");\r\nlet ItemArray_length = array_length(ItemArray);\r\nlet BackupInstanceName = iff(ItemArray_length == 2, ItemArray[1], ItemArray[0] );\r\nlet DatasourceSetName = iff(ItemArray_length == 2, ItemArray[0], \"\");\r\nlet DisplayAllFields = false;\r\n_AzureBackup_GetBackupInstances(RangeStart, RangeEnd, VaultSubscriptionList, VaultLocationList, VaultList, VaultTypeList, ExcludeLegacyEvent, BackupSolutionList, ProtectionInfoList, DatasourceSetName, BackupInstanceName, DisplayAllFields)\r\n| distinct VaultLocation",
-                                  "crossComponentResources": [
-                                    "{Workspaces}"
-                                  ],
+                                  "crossComponentResources": ["{Workspaces}"],
                                   "typeSettings": {
-                                    "additionalResourceOptions": [
-                                      "value::all"
-                                    ],
+                                    "additionalResourceOptions": ["value::all"],
                                     "selectAllValue": "*",
                                     "showDefault": false
                                   },
                                   "queryType": 0,
                                   "resourceType": "microsoft.operationalinsights/workspaces",
-                                  "value": [
-                                    "value::all"
-                                  ]
+                                  "value": ["value::all"]
                                 },
                                 {
                                   "id": "16ad110f-4ea3-44d6-826b-4ea3bbd68c93",
@@ -2207,16 +2123,12 @@
                                   "quote": "",
                                   "delimiter": ",",
                                   "typeSettings": {
-                                    "additionalResourceOptions": [
-                                      "value::all"
-                                    ],
+                                    "additionalResourceOptions": ["value::all"],
                                     "selectAllValue": "*",
                                     "showDefault": false
                                   },
                                   "jsonData": "\r\n[    \r\n{ \"value\": \"Backup\", \t\t\t\t\t\t\"label\": \"Backup\" },\r\n{ \"value\": \"Restore\", \t\t\t\t\t\t\"label\": \"Restore\" }\r\n]",
-                                  "value": [
-                                    "value::all"
-                                  ]
+                                  "value": ["value::all"]
                                 },
                                 {
                                   "id": "6a6222bf-a28a-4c98-9d74-838e74497167",
@@ -2230,16 +2142,12 @@
                                   "quote": "",
                                   "delimiter": ",",
                                   "typeSettings": {
-                                    "additionalResourceOptions": [
-                                      "value::all"
-                                    ],
+                                    "additionalResourceOptions": ["value::all"],
                                     "selectAllValue": "*",
                                     "showDefault": false
                                   },
                                   "jsonData": "\r\n[    \r\n{ \"value\": \"Completed\", \t\t\t\t\t\t\"label\": \"Completed\" },\r\n{ \"value\": \"Failed\", \t\t\t\"label\": \"Failed\" },\r\n\r\n{ \"value\": \"CompletedWithWarnings\", \t\t\t\t\t\t\"label\": \"CompletedWithWarnings\" },\r\n{ \"value\": \"Cancelled\", \"label\": \"Cancelled\" }\r\n]",
-                                  "value": [
-                                    "value::all"
-                                  ]
+                                  "value": ["value::all"]
                                 },
                                 {
                                   "id": "849a6401-cbaf-44b9-a733-0819f8923791",
@@ -2284,9 +2192,7 @@
                               "showRefreshButton": true,
                               "queryType": 0,
                               "resourceType": "microsoft.operationalinsights/workspaces",
-                              "crossComponentResources": [
-                                "{Workspaces}"
-                              ],
+                              "crossComponentResources": ["{Workspaces}"],
                               "visualization": "piechart",
                               "tileSettings": {
                                 "showBorder": false,
@@ -2324,9 +2230,7 @@
                             "type": 9,
                             "content": {
                               "version": "KqlParameterItem/1.0",
-                              "crossComponentResources": [
-                                "{Workspaces}"
-                              ],
+                              "crossComponentResources": ["{Workspaces}"],
                               "parameters": [
                                 {
                                   "id": "7a64467f-eec7-495b-9099-233fb7bceb08",
@@ -2349,9 +2253,7 @@
                                   "description": "Page number",
                                   "isRequired": true,
                                   "query": "\r\nlet RangeStart = startofday({TimeRange:start});\r\nlet RangeEnd = iff(startofday({TimeRange:end}) == startofday(now()) ,startofday({TimeRange:end}) - 1d , startofday({TimeRange:end}));\r\nlet DataSourceSubscriptionList = todynamic( replace(\"/subscriptions/\", \"\", @\"{DataSourceSubscription}\"));\r\nlet DataSourceLocationList = todynamic( @\"{DataSourceLocation}\"); \r\nlet VaultTypeList = \"*\";\r\nlet VaultList = \"*\";\r\nlet ExcludeLegacyEvent = true;\r\nlet BackupSolutionList = \"*\";\r\nlet ProtectionInfoList = \"*\";\r\nlet Item_search =  \"*;*\";\r\nlet ItemArray = split(Item_search, \";\");\r\nlet ItemArray_length = array_length(ItemArray);\r\nlet BackupInstanceName = iff(ItemArray_length == 2, ItemArray[1], ItemArray[0] );\r\nlet DatasourceSetName = iff(ItemArray_length == 2, ItemArray[0], \"\");\r\nlet JobOperationList = todynamic( @\"{JobOperation}\"); \r\nlet JobStatusList = todynamic( @\"{JobStatus}\");\r\nlet JobFailureCodeList = \"*\";\r\nlet ExcludeLog = true; \r\nlet backupItem = '{SearchItem}';\r\n_AzureBackup_GetJobs(RangeStart, RangeEnd, DataSourceSubscriptionList, DataSourceLocationList, VaultList, VaultTypeList, ExcludeLegacyEvent, BackupSolutionList, JobOperationList, JobStatusList, JobFailureCodeList, DatasourceSetName, BackupInstanceName, ExcludeLog)\r\n| where BackupInstanceFriendlyName contains backupItem\r\n| summarize c=count()\r\n| project num = (c-1)/toint('{RowsPerPage}') + 1\r\n| project nums = range(1,num,1), num\r\n| mvexpand nums\r\n| project nums = tostring(nums), num = strcat(tostring(nums),\" of \",tostring(num))\r\n\r\n",
-                                  "crossComponentResources": [
-                                    "{Workspaces}"
-                                  ],
+                                  "crossComponentResources": ["{Workspaces}"],
                                   "typeSettings": {
                                     "additionalResourceOptions": [],
                                     "showDefault": false
@@ -2385,9 +2287,7 @@
                               "showExportToExcel": true,
                               "queryType": 0,
                               "resourceType": "microsoft.operationalinsights/workspaces",
-                              "crossComponentResources": [
-                                "{Workspaces}"
-                              ],
+                              "crossComponentResources": ["{Workspaces}"],
                               "visualization": "table",
                               "gridSettings": {
                                 "formatters": [
@@ -2586,9 +2486,7 @@
                         "showExportToExcel": true,
                         "queryType": 1,
                         "resourceType": "microsoft.resourcegraph/resources",
-                        "crossComponentResources": [
-                          "{Subscription}"
-                        ],
+                        "crossComponentResources": ["{Subscription}"],
                         "visualization": "tiles",
                         "tileSettings": {
                           "showBorder": false,
@@ -2669,9 +2567,7 @@
                         "showExportToExcel": true,
                         "queryType": 1,
                         "resourceType": "microsoft.resourcegraph/resources",
-                        "crossComponentResources": [
-                          "{Subscription}"
-                        ],
+                        "crossComponentResources": ["{Subscription}"],
                         "gridSettings": {
                           "filter": true
                         },
@@ -2689,9 +2585,7 @@
                         "showExportToExcel": true,
                         "queryType": 1,
                         "resourceType": "microsoft.resourcegraph/resources",
-                        "crossComponentResources": [
-                          "{Subscription}"
-                        ],
+                        "crossComponentResources": ["{Subscription}"],
                         "gridSettings": {
                           "formatters": [
                             {
@@ -2765,9 +2659,7 @@
                         "showExportToExcel": true,
                         "queryType": 1,
                         "resourceType": "microsoft.resourcegraph/resources",
-                        "crossComponentResources": [
-                          "{Subscription}"
-                        ],
+                        "crossComponentResources": ["{Subscription}"],
                         "visualization": "table",
                         "gridSettings": {
                           "formatters": [
@@ -2801,9 +2693,7 @@
                           "filter": true,
                           "hierarchySettings": {
                             "treeType": 1,
-                            "groupBy": [
-                              "subscriptionId"
-                            ],
+                            "groupBy": ["subscriptionId"],
                             "expandTopLevel": true,
                             "finalBy": "Resource"
                           }
@@ -2858,9 +2748,7 @@
                         "showExportToExcel": true,
                         "queryType": 1,
                         "resourceType": "microsoft.resourcegraph/resources",
-                        "crossComponentResources": [
-                          "{Subscription}"
-                        ]
+                        "crossComponentResources": ["{Subscription}"]
                       },
                       "name": "query - Application Gateways"
                     },
@@ -2911,9 +2799,7 @@
                         "showExportToExcel": true,
                         "queryType": 1,
                         "resourceType": "microsoft.resourcegraph/resources",
-                        "crossComponentResources": [
-                          "{Subscription}"
-                        ],
+                        "crossComponentResources": ["{Subscription}"],
                         "gridSettings": {
                           "formatters": [
                             {
@@ -3002,9 +2888,7 @@
                         "showExportToExcel": true,
                         "queryType": 1,
                         "resourceType": "microsoft.resourcegraph/resources",
-                        "crossComponentResources": [
-                          "{Subscription}"
-                        ],
+                        "crossComponentResources": ["{Subscription}"],
                         "gridSettings": {
                           "formatters": [
                             {
@@ -3065,9 +2949,7 @@
                         "showExportToExcel": true,
                         "queryType": 1,
                         "resourceType": "microsoft.resourcegraph/resources",
-                        "crossComponentResources": [
-                          "{Subscription}"
-                        ],
+                        "crossComponentResources": ["{Subscription}"],
                         "gridSettings": {
                           "formatters": [
                             {
@@ -3108,9 +2990,7 @@
                         "showExportToExcel": true,
                         "queryType": 1,
                         "resourceType": "microsoft.resourcegraph/resources",
-                        "crossComponentResources": [
-                          "{Subscription}"
-                        ],
+                        "crossComponentResources": ["{Subscription}"],
                         "gridSettings": {
                           "formatters": [
                             {
@@ -3168,9 +3048,7 @@
                             "type": 9,
                             "content": {
                               "version": "KqlParameterItem/1.0",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "parameters": [
                                 {
                                   "id": "bae67738-90ef-4698-9020-5e1f91d67f82",
@@ -3180,9 +3058,7 @@
                                   "type": 2,
                                   "isRequired": true,
                                   "query": "Resources\r\n| where tags != '' and tags != '[]'\r\n| mvexpand tags\r\n| extend tagName = tostring(bag_keys(tags)[0])\r\n| distinct tagName\r\n| sort by tagName asc",
-                                  "crossComponentResources": [
-                                    "{Subscription}"
-                                  ],
+                                  "crossComponentResources": ["{Subscription}"],
                                   "typeSettings": {
                                     "additionalResourceOptions": [],
                                     "showDefault": false
@@ -3206,9 +3082,7 @@
                             "type": 9,
                             "content": {
                               "version": "KqlParameterItem/1.0",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "parameters": [
                                 {
                                   "id": "cb0ae78d-a49b-457b-baed-d83c97a2c934",
@@ -3217,9 +3091,7 @@
                                   "label": "Tag value",
                                   "type": 2,
                                   "query": "Resources\r\n| extend TagValue = tostring(tags.{TagName})\r\n| project TagValue\r\n| distinct TagValue",
-                                  "crossComponentResources": [
-                                    "{Subscription}"
-                                  ],
+                                  "crossComponentResources": ["{Subscription}"],
                                   "typeSettings": {
                                     "additionalResourceOptions": [],
                                     "showDefault": false
@@ -3285,9 +3157,7 @@
                               "showExportToExcel": true,
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "gridSettings": {
                                 "filter": true,
                                 "labelSettings": [
@@ -3321,9 +3191,7 @@
                               "showExportToExcel": true,
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "visualization": "table",
                               "gridSettings": {
                                 "filter": true,
@@ -3358,9 +3226,7 @@
                               "showExportToExcel": true,
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "gridSettings": {
                                 "formatters": [
                                   {
@@ -3393,9 +3259,7 @@
                               "title": "Subscription list",
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "gridSettings": {
                                 "formatters": [
                                   {
@@ -3430,9 +3294,7 @@
                               "title": "Resource groups list",
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "gridSettings": {
                                 "formatters": [
                                   {
@@ -3490,9 +3352,7 @@
                         "title": "Security Scores by Subscription",
                         "queryType": 1,
                         "resourceType": "microsoft.resourcegraph/resources",
-                        "crossComponentResources": [
-                          "{Subscription}"
-                        ],
+                        "crossComponentResources": ["{Subscription}"],
                         "gridSettings": {
                           "formatters": [
                             {
@@ -3545,9 +3405,7 @@
                         "title": "Security Scores by Control",
                         "queryType": 1,
                         "resourceType": "microsoft.resourcegraph/resources",
-                        "crossComponentResources": [
-                          "{Subscription}"
-                        ],
+                        "crossComponentResources": ["{Subscription}"],
                         "gridSettings": {
                           "formatters": [
                             {
@@ -3643,9 +3501,7 @@
                           ],
                           "hierarchySettings": {
                             "treeType": 1,
-                            "groupBy": [
-                              "subscriptionId"
-                            ],
+                            "groupBy": ["subscriptionId"],
                             "expandTopLevel": true,
                             "finalBy": "SecureControl"
                           },
@@ -3737,9 +3593,7 @@
                               ],
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "visualization": "piechart",
                               "gridSettings": {
                                 "formatters": [
@@ -3750,9 +3604,7 @@
                                 ]
                               },
                               "chartSettings": {
-                                "yAxis": [
-                                  "Count"
-                                ],
+                                "yAxis": ["Count"],
                                 "seriesLabelSettings": [
                                   {
                                     "seriesName": "Medium",
@@ -3783,9 +3635,7 @@
                               "exportParameterName": "resourceGroupFilter",
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "visualization": "piechart"
                             },
                             "customWidth": "33",
@@ -3800,9 +3650,7 @@
                               "title": "Tag",
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "visualization": "piechart"
                             },
                             "customWidth": "30",
@@ -3833,9 +3681,7 @@
                               ],
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "visualization": "table",
                               "gridSettings": {
                                 "formatters": [
@@ -3892,9 +3738,7 @@
                               ],
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "visualization": "table",
                               "gridSettings": {
                                 "sortBy": [
@@ -3943,9 +3787,7 @@
                               ],
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "gridSettings": {
                                 "formatters": [
                                   {
@@ -4022,9 +3864,7 @@
                               ],
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "gridSettings": {
                                 "formatters": [
                                   {
@@ -4354,9 +4194,7 @@
                               "size": 0,
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "visualization": "barchart",
                               "tileSettings": {
                                 "showBorder": false,
@@ -4445,9 +4283,7 @@
                             "type": 9,
                             "content": {
                               "version": "KqlParameterItem/1.0",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "parameters": [
                                 {
                                   "id": "1ffc8fe9-a919-4c9e-8489-a92f0a7d79e1",
@@ -4459,13 +4295,9 @@
                                   "quote": "'",
                                   "delimiter": ",",
                                   "query": "securityresources\r\n  | where type =~ 'microsoft.security/locations/alerts'\r\n  | extend Prop = parse_json(properties)\r\n  | extend ResourceIdentifiers = Prop.[\"ResourceIdentifiers\"]\r\n    | project ResourceIdentifiers\r\n  | mv-expand ResourceIdentifiers\r\n  | extend ResourceId = parse_json(ResourceIdentifiers).[\"AzureResourceId\"]\r\n  //| where isnotempty(ResourceId )\r\n  | extend Resource = tolower(tostring(ResourceId))\r\n  | summarize count() by Resource\r\n  | project Resource\r\n  //| order by Resource asc\r\n",
-                                  "crossComponentResources": [
-                                    "{Subscription}"
-                                  ],
+                                  "crossComponentResources": ["{Subscription}"],
                                   "typeSettings": {
-                                    "additionalResourceOptions": [
-                                      "value::all"
-                                    ],
+                                    "additionalResourceOptions": ["value::all"],
                                     "showDefault": false
                                   },
                                   "timeContext": {
@@ -4474,9 +4306,7 @@
                                   "defaultValue": "value::all",
                                   "queryType": 1,
                                   "resourceType": "microsoft.resourcegraph/resources",
-                                  "value": [
-                                    "value::all"
-                                  ]
+                                  "value": ["value::all"]
                                 },
                                 {
                                   "id": "e9522d87-143f-408b-93ea-b8f07223995e",
@@ -4487,13 +4317,9 @@
                                   "multiSelect": true,
                                   "quote": "'",
                                   "delimiter": ",",
-                                  "value": [
-                                    "value::all"
-                                  ],
+                                  "value": ["value::all"],
                                   "typeSettings": {
-                                    "additionalResourceOptions": [
-                                      "value::all"
-                                    ],
+                                    "additionalResourceOptions": ["value::all"],
                                     "showDefault": false
                                   },
                                   "jsonData": "[\r\n\r\n{\"value\": \"High\", \"label\":\"High\"},\r\n{\"value\": \"Medium\", \"label\":\"Medium\"},\r\n{\"value\": \"Low\", \"label\":\"Low\"},\r\n{\"value\": \"Informational\", \"label\":\"Informational\"}\r\n]\r\n    \r\n ",
@@ -4512,13 +4338,9 @@
                                   "quote": "'",
                                   "delimiter": ",",
                                   "query": "  securityresources\r\n  | where type =~ 'microsoft.security/locations/alerts'\r\n  | extend resourceGroup = iif(isempty(resourceGroup),\" \",resourceGroup)\r\n| summarize Count =count() by resourceGroup\r\n  | project resourceGroup",
-                                  "crossComponentResources": [
-                                    "{Subscription}"
-                                  ],
+                                  "crossComponentResources": ["{Subscription}"],
                                   "typeSettings": {
-                                    "additionalResourceOptions": [
-                                      "value::all"
-                                    ],
+                                    "additionalResourceOptions": ["value::all"],
                                     "showDefault": false
                                   },
                                   "timeContext": {
@@ -4527,9 +4349,7 @@
                                   "defaultValue": "value::all",
                                   "queryType": 1,
                                   "resourceType": "microsoft.resourcegraph/resources",
-                                  "value": [
-                                    "value::all"
-                                  ]
+                                  "value": ["value::all"]
                                 },
                                 {
                                   "id": "48a8dd7e-43ab-413e-88f8-a433100d92ce",
@@ -4541,13 +4361,9 @@
                                   "quote": "'",
                                   "delimiter": ",",
                                   "query": "  securityresources\r\n  | where type =~ 'microsoft.security/locations/alerts'\r\n    | extend Prop = parse_json(properties)\r\n  | extend AlertDisplayName = Prop.[\"AlertDisplayName\"]\r\n  | distinct tostring(AlertDisplayName)\r\n  | order by AlertDisplayName asc\r\n ",
-                                  "crossComponentResources": [
-                                    "{Subscription}"
-                                  ],
+                                  "crossComponentResources": ["{Subscription}"],
                                   "typeSettings": {
-                                    "additionalResourceOptions": [
-                                      "value::all"
-                                    ],
+                                    "additionalResourceOptions": ["value::all"],
                                     "showDefault": false
                                   },
                                   "defaultValue": "value::all",
@@ -4564,13 +4380,9 @@
                                   "quote": "'",
                                   "delimiter": ",",
                                   "query": "securityresources\r\n  | where type =~ \"microsoft.security/locations/alerts\"\r\n    | extend isAzure = tostring(properties.ResourceIdentifiers) matches regex '\"Type\"\\\\s*:\\\\s*\"AzureResource\"'\r\n  | extend Details = parse_json(properties)\r\n| extend IsIncident = Details.[\"IsIncident\"]\r\n| extend AlertDisplayName = Details.[\"AlertDisplayName\"]\r\n| extend SystemAlertId = Details.[\"SystemAlertId\"]\r\n| extend Severity = Details.[\"Severity\"]\r\n| extend AlertUri = Details.[\"AlertUri\"]\r\n| extend Status = Details.[\"Status\"]\r\n| extend Tactics = Details.[\"Intent\"]\r\n| parse AlertUri with * '/subscriptionId/'  SubscriptionId  '/' *\r\n| parse AlertUri with * '/resourceGroup/'  ResourceGroup  '/' *\r\n| parse AlertUri with * '/location/'  Location  \r\n  | extend affectedResourceId = extract('\"AzureResourceId\"\\\\s*:\\\\s*\"([^\"]*)\"', 1, tostring(properties.ResourceIdentifiers))\r\n  | extend hostName = iff(isAzure, \"\", extract('\"HostName\"\\\\s*:\\\\s*\"([^\"]*)\"', 1, tostring(properties.Entities)))\r\n  | extend splitAffectedResourceId = split(affectedResourceId, \"/\")\r\n  | extend resourceNameIndex = iff(array_length(splitAffectedResourceId) > 1, array_length(splitAffectedResourceId) - 1, 0)\r\n  | extend affectedResourceName = iff(isAzure, splitAffectedResourceId[resourceNameIndex], iff(isempty(hostName), \"Non-Azure\", hostName))| project-away resourceNameIndex, splitAffectedResourceId, hostName\r\n  | extend ResourceIdentifiers = Details.[\"ResourceIdentifiers\"]\r\n    | mv-expand ResourceIdentifiers\r\n  | extend ResourceId = parse_json(ResourceIdentifiers).[\"AzureResourceId\"]\r\n  | extend Resource = tolower(tostring(ResourceId))\r\n  | project alertId = id, subscriptionId, alertProperties = properties, affectedResourceId = tolower(affectedResourceId),tostring(Severity), SystemAlertId, AlertDisplayName,IsIncident = iif(IsIncident==\"true\",\"Incident\",\"Alert\"),AlertUri,Status,Tactics,SubscriptionId,ResourceGroup,Location, ResourceIdentifier=Details.[\"ResourceIdentifiers\"],Resource\r\n  | join kind=leftouter (\r\n  resources\r\n  | project id = tolower(id), tags\r\n  ) on $left.affectedResourceId == $right.id\r\n | extend Tag = parse_json(tags)\r\n  | mv-expand Tag\r\n | parse Tag with * ':\"' TagValue '\"}'\r\n | extend TagValue = iif(isempty(TagValue),\" \",TagValue)\r\n  | project TagValue, alertId\r\n | distinct TagValue\r\n ",
-                                  "crossComponentResources": [
-                                    "{Subscription}"
-                                  ],
+                                  "crossComponentResources": ["{Subscription}"],
                                   "typeSettings": {
-                                    "additionalResourceOptions": [
-                                      "value::all"
-                                    ],
+                                    "additionalResourceOptions": ["value::all"],
                                     "showDefault": false
                                   },
                                   "defaultValue": "value::all",
@@ -4630,9 +4442,7 @@
                               ],
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "gridSettings": {
                                 "formatters": [
                                   {
@@ -4943,7 +4753,7 @@
                           {
                             "type": 1,
                             "content": {
-                              "json": "<span style=\"font-family: Open Sans; font-weight: 620; font-size: 16px;font-style: bold;margin:-10px 0px 0px 0px;position: relative;top:-3px;left:-4px;\"> To see more information about the alerts in the map view: <br><br> &nbsp; 1. Configure continuous export to export your security alerts to a Log Analytics workspace by following the instructions described \r\n</span>[<span style=\"font-family: Open Sans; font-weight: 620; font-size: 16px;font-style: bold;margin:-10px 0px 0px 0px;position: relative;top:-3px;left:-4px;\"> here. </span>](https://docs.microsoft.com/en-us/azure/defender-for-cloud/continuous-export?tabs=azure-portal)\r\n<span style=\"font-family: Open Sans; font-weight: 620; font-size: 16px;font-style: bold;margin:-10px 0px 0px 0px;position: relative;top:-3px;left:-4px;\"><br> &nbsp;  2. In the \"Workspace\" filter below, choose the Log Analytics workspace your security alerts are exported to.\r\n\r\n"
+                              "json": "<span style=\"font-family: Open Sans; font-weight: 620; font-size: 16px;font-style: bold;margin:-10px 0px 0px 0px;position: relative;top:-3px;left:-4px;\"> To see more information about the alerts in the map view: <br><br> &nbsp; 1. Configure continuous export to export your security alerts to a Log Analytics workspace by following the instructions described \r\n</span>[<span style=\"font-family: Open Sans; font-weight: 620; font-size: 16px;font-style: bold;margin:-10px 0px 0px 0px;position: relative;top:-3px;left:-4px;\"> here. </span>](https://docs.microsoft.com/azure/defender-for-cloud/continuous-export?tabs=azure-portal)\r\n<span style=\"font-family: Open Sans; font-weight: 620; font-size: 16px;font-style: bold;margin:-10px 0px 0px 0px;position: relative;top:-3px;left:-4px;\"><br> &nbsp;  2. In the \"Workspace\" filter below, choose the Log Analytics workspace your security alerts are exported to.\r\n\r\n"
                             },
                             "conditionalVisibility": {
                               "parameterName": "View",
@@ -4956,9 +4766,7 @@
                             "type": 9,
                             "content": {
                               "version": "KqlParameterItem/1.0",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "parameters": [
                                 {
                                   "id": "8724f927-b766-4814-a895-8c55565fb7f8",
@@ -4969,13 +4777,9 @@
                                   "quote": "'",
                                   "delimiter": ",",
                                   "query": "resources\r\n| where type contains \"solution\"\r\n| where name contains \"security\"\r\n| project id = tostring(properties.workspaceResourceId)\r\n| distinct id",
-                                  "crossComponentResources": [
-                                    "{Subscription}"
-                                  ],
+                                  "crossComponentResources": ["{Subscription}"],
                                   "typeSettings": {
-                                    "additionalResourceOptions": [
-                                      "value::all"
-                                    ],
+                                    "additionalResourceOptions": ["value::all"],
                                     "showDefault": false
                                   },
                                   "timeContext": {
@@ -5025,9 +4829,7 @@
                               "exportToExcelOptions": "all",
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "visualization": "map",
                               "mapSettings": {
                                 "locInfo": "AzureResource",
@@ -5085,9 +4887,7 @@
                               ],
                               "queryType": 0,
                               "resourceType": "microsoft.operationalinsights/workspaces",
-                              "crossComponentResources": [
-                                "{Workspace}"
-                              ],
+                              "crossComponentResources": ["{Workspace}"],
                               "visualization": "table",
                               "gridSettings": {
                                 "formatters": [
@@ -5518,9 +5318,7 @@
                       "type": 9,
                       "content": {
                         "version": "KqlParameterItem/1.0",
-                        "crossComponentResources": [
-                          "{Subscription}"
-                        ],
+                        "crossComponentResources": ["{Subscription}"],
                         "parameters": [
                           {
                             "id": "6cc7fc26-1a56-41cb-ad43-301e0f9f8903",
@@ -5530,9 +5328,7 @@
                             "type": 2,
                             "isRequired": true,
                             "query": "Resources\r\n| where tags != '' and tags != '[]'\r\n| mvexpand tags\r\n| extend tagName = tostring(bag_keys(tags)[0])\r\n| distinct tagName\r\n| sort by tagName asc",
-                            "crossComponentResources": [
-                              "{Subscription}"
-                            ],
+                            "crossComponentResources": ["{Subscription}"],
                             "typeSettings": {
                               "additionalResourceOptions": [],
                               "showDefault": false
@@ -5552,9 +5348,7 @@
                             "type": 2,
                             "isRequired": true,
                             "query": "Resources\r\n| extend TagValue = tostring(tags.{TagName})\r\n| project TagValue\r\n| distinct TagValue",
-                            "crossComponentResources": [
-                              "{Subscription}"
-                            ],
+                            "crossComponentResources": ["{Subscription}"],
                             "typeSettings": {
                               "additionalResourceOptions": [],
                               "showDefault": false
@@ -5665,9 +5459,7 @@
                       "type": 9,
                       "content": {
                         "version": "KqlParameterItem/1.0",
-                        "crossComponentResources": [
-                          "value::tenant"
-                        ],
+                        "crossComponentResources": ["value::tenant"],
                         "parameters": [
                           {
                             "id": "f967854d-c31e-46a6-b8b0-6b9fff7ce582",
@@ -5676,9 +5468,7 @@
                             "label": "Management group",
                             "type": 2,
                             "query": "resourcecontainers\r\n| where type == \"microsoft.management/managementgroups\"\r\n| extend name = properties.displayName\r\n| project name",
-                            "crossComponentResources": [
-                              "value::tenant"
-                            ],
+                            "crossComponentResources": ["value::tenant"],
                             "typeSettings": {
                               "additionalResourceOptions": [],
                               "showDefault": false
@@ -5697,9 +5487,7 @@
                             "type": 6,
                             "isRequired": true,
                             "query": "resourcecontainers\r\n| where type == \"microsoft.resources/subscriptions\"\r\n| where properties['managementGroupAncestorsChain'] contains '{ManagementGroup:label}'",
-                            "crossComponentResources": [
-                              "value::tenant"
-                            ],
+                            "crossComponentResources": ["value::tenant"],
                             "typeSettings": {
                               "additionalResourceOptions": [],
                               "showDefault": false
@@ -5747,9 +5535,7 @@
                               "showExportToExcel": true,
                               "queryType": 1,
                               "resourceType": "microsoft.resources/tenants",
-                              "crossComponentResources": [
-                                "value::tenant"
-                              ],
+                              "crossComponentResources": ["value::tenant"],
                               "visualization": "table",
                               "gridSettings": {
                                 "formatters": [
@@ -5891,9 +5677,7 @@
                               },
                               "queryType": 0,
                               "resourceType": "microsoft.resources/subscriptions",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "visualization": "piechart",
                               "tileSettings": {
                                 "showBorder": false,
@@ -5951,9 +5735,7 @@
                               },
                               "queryType": 0,
                               "resourceType": "microsoft.resources/subscriptions",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "visualization": "piechart",
                               "tileSettings": {
                                 "showBorder": false,
@@ -6011,9 +5793,7 @@
                               },
                               "queryType": 0,
                               "resourceType": "microsoft.resources/subscriptions",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "visualization": "piechart",
                               "tileSettings": {
                                 "showBorder": false,
@@ -6071,9 +5851,7 @@
                               "showExportToExcel": true,
                               "queryType": 0,
                               "resourceType": "microsoft.resources/subscriptions",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "gridSettings": {
                                 "formatters": [
                                   {
@@ -6133,9 +5911,7 @@
                       "type": 9,
                       "content": {
                         "version": "KqlParameterItem/1.0",
-                        "crossComponentResources": [
-                          "{Subscription}"
-                        ],
+                        "crossComponentResources": ["{Subscription}"],
                         "parameters": [
                           {
                             "id": "4168a8b2-a522-4f0d-9575-893d70d9239d",
@@ -6144,9 +5920,7 @@
                             "type": 1,
                             "description": "Count of the governance rule, when there is no rules, empty state will be shown",
                             "query": "securityresources\r\n| where type == \"microsoft.security/governancerules\"\r\n| where tostring(properties.isDisabled) == \"false\"\r\n| count",
-                            "crossComponentResources": [
-                              "{Subscription}"
-                            ],
+                            "crossComponentResources": ["{Subscription}"],
                             "isHiddenWhenLocked": true,
                             "queryType": 1,
                             "resourceType": "microsoft.resourcegraph/resources"
@@ -6193,9 +5967,7 @@
                               "noDataMessage": "No unhealthy resources found",
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "visualization": "piechart",
                               "tileSettings": {
                                 "titleContent": {
@@ -6294,9 +6066,7 @@
                               "showExportToExcel": true,
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "gridSettings": {
                                 "formatters": [
                                   {
@@ -6508,9 +6278,7 @@
                         "noDataMessage": "No unhealthy resources found",
                         "queryType": 1,
                         "resourceType": "microsoft.resourcegraph/resources",
-                        "crossComponentResources": [
-                          "{Subscription}"
-                        ],
+                        "crossComponentResources": ["{Subscription}"],
                         "visualization": "piechart",
                         "gridSettings": {
                           "rowLimit": 10000
@@ -6601,9 +6369,7 @@
                         ],
                         "queryType": 1,
                         "resourceType": "microsoft.resourcegraph/resources",
-                        "crossComponentResources": [
-                          "{Subscription}"
-                        ],
+                        "crossComponentResources": ["{Subscription}"],
                         "gridSettings": {
                           "formatters": [
                             {
@@ -6693,9 +6459,7 @@
                         "showExportToExcel": true,
                         "queryType": 1,
                         "resourceType": "microsoft.resourcegraph/resources",
-                        "crossComponentResources": [
-                          "{Subscription}"
-                        ],
+                        "crossComponentResources": ["{Subscription}"],
                         "gridSettings": {
                           "formatters": [
                             {
@@ -6991,9 +6755,7 @@
                                     "showExportToExcel": true,
                                     "queryType": 1,
                                     "resourceType": "microsoft.resourcegraph/resources",
-                                    "crossComponentResources": [
-                                      "{Subscription}"
-                                    ],
+                                    "crossComponentResources": ["{Subscription}"],
                                     "gridSettings": {
                                       "formatters": [
                                         {
@@ -7322,9 +7084,7 @@
                             "type": 2,
                             "isRequired": true,
                             "query": "resources\r\n| summarize by location\r\n| where location != \"global\"",
-                            "crossComponentResources": [
-                              "{Subscription}"
-                            ],
+                            "crossComponentResources": ["{Subscription}"],
                             "typeSettings": {
                               "additionalResourceOptions": [],
                               "showDefault": false
@@ -7346,7 +7106,7 @@
                     {
                       "type": 1,
                       "content": {
-                        "json": "## Azure subscription and service limits, quotas, and constraints<br>\r\nTo know more about Azure service limits & quotas, see [Azure subscription and service limits, quotas, and constraints](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/azure-subscription-service-limits?toc=%2Fazure%2Fnetworking%2Ftoc.json#networking-limits)."
+                        "json": "## Azure subscription and service limits, quotas, and constraints<br>\r\nTo know more about Azure service limits & quotas, see [Azure subscription and service limits, quotas, and constraints](https://learn.microsoft.com/azure/azure-resource-manager/management/azure-subscription-service-limits?toc=%2Fazure%2Fnetworking%2Ftoc.json#networking-limits)."
                       },
                       "name": "text - Limits"
                     },
@@ -7505,9 +7265,7 @@
                               "showRefreshButton": true,
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "visualization": "tiles",
                               "tileSettings": {
                                 "showBorder": false,
@@ -7545,9 +7303,7 @@
                               "showExportToExcel": true,
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "gridSettings": {
                                 "formatters": [
                                   {
@@ -7580,9 +7336,7 @@
                                 "filter": true,
                                 "hierarchySettings": {
                                   "treeType": 1,
-                                  "groupBy": [
-                                    "subscriptionId"
-                                  ],
+                                  "groupBy": ["subscriptionId"],
                                   "expandTopLevel": true,
                                   "finalBy": "Resource"
                                 }
@@ -7640,9 +7394,7 @@
                               "showRefreshButton": true,
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "visualization": "tiles",
                               "gridSettings": {
                                 "formatters": [
@@ -7665,9 +7417,7 @@
                                 ],
                                 "hierarchySettings": {
                                   "treeType": 1,
-                                  "groupBy": [
-                                    "subscriptionId"
-                                  ],
+                                  "groupBy": ["subscriptionId"],
                                   "expandTopLevel": true,
                                   "finalBy": "Resource"
                                 }
@@ -7709,9 +7459,7 @@
                               "showExportToExcel": true,
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "gridSettings": {
                                 "formatters": [
                                   {
@@ -7744,9 +7492,7 @@
                                 "filter": true,
                                 "hierarchySettings": {
                                   "treeType": 1,
-                                  "groupBy": [
-                                    "subscriptionId"
-                                  ],
+                                  "groupBy": ["subscriptionId"],
                                   "expandTopLevel": true,
                                   "finalBy": "Resource"
                                 }
@@ -7804,9 +7550,7 @@
                               "showRefreshButton": true,
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "visualization": "tiles",
                               "gridSettings": {
                                 "formatters": [
@@ -7829,9 +7573,7 @@
                                 ],
                                 "hierarchySettings": {
                                   "treeType": 1,
-                                  "groupBy": [
-                                    "subscriptionId"
-                                  ],
+                                  "groupBy": ["subscriptionId"],
                                   "expandTopLevel": true,
                                   "finalBy": "Resource"
                                 }
@@ -7874,9 +7616,7 @@
                               "showExportToExcel": true,
                               "queryType": 1,
                               "resourceType": "microsoft.resourcegraph/resources",
-                              "crossComponentResources": [
-                                "{Subscription}"
-                              ],
+                              "crossComponentResources": ["{Subscription}"],
                               "gridSettings": {
                                 "formatters": [
                                   {
@@ -7919,9 +7659,7 @@
                                 "rowLimit": 1000,
                                 "hierarchySettings": {
                                   "treeType": 1,
-                                  "groupBy": [
-                                    "subscriptionId"
-                                  ],
+                                  "groupBy": ["subscriptionId"],
                                   "expandTopLevel": true,
                                   "finalBy": "Resource"
                                 }
@@ -8026,9 +7764,7 @@
           "name": "Azure Governance Workbook"
         }
       ],
-      "fallbackResourceIds": [
-        "Azure Monitor"
-      ],
+      "fallbackResourceIds": ["Azure Monitor"],
       "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
     },
     "version": "",

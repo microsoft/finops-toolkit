@@ -102,9 +102,15 @@ At this point, you have a data pipeline and are ingesting data into a central da
     - [Price sheets](https://learn.microsoft.com/rest/api/cost-management/price-sheet) for organizational pricing for Microsoft Customer Agreement accounts.
     - [Price sheets](https://learn.microsoft.com/rest/api/consumption/price-sheet/get) for organizational pricing for Enterprise Agreement accounts.
     - [Balance summary](https://learn.microsoft.com/rest/api/consumption/balances/get-by-billing-account) for Enterprise Agreement monetary commitment balance.
-  - commitment discounts
+  - Commitment discounts
     - [Reservation details](https://learn.microsoft.com/rest/api/cost-management/generate-reservation-details-report) for recommendation details.
     - [Benefit utilization summaries](https://learn.microsoft.com/rest/api/cost-management/generate-benefit-utilization-summaries-report) for savings plans.
+    <!-- TODO: Add Savings plan details -->
+    <!-- TODO: Add Savings plan transactions -->
+    <!-- TODO: Add Savings plan recommendations -->
+    <!-- TODO: Add Reservation transactions -->
+    <!-- TODO: Add Reservation recommendations -->
+    <!-- TODO: Add Reservation utilization summaries -->
   - Utilization and efficiency
     - [Resource Graph](https://learn.microsoft.com/rest/api/azureresourcegraph/resourcegraph(2020-04-01-preview)/resources/resources) for Azure Advisor recommendations.
     - [Monitor metrics](https://learn.microsoft.com/cli/azure/monitor/metrics) for resource usage.
@@ -123,8 +129,8 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
-<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.html title="Data ingestionvideos" id="qd4e8_6KFFh0vNaL" list="PLUSCToibAswkNY0BoImEsOxwuYA_nd_gu" %}
+<!--[!VIDEO https://www.youtube.com/embed/RIU7srzbBVE?list=PLUSCToibAswkNY0BoImEsOxwuYA_nd_gu&pp=iAQB]-->
+{% include video.html title="Data ingestion videos" id="RIU7srzbBVE" list="PLUSCToibAswkNY0BoImEsOxwuYA_nd_gu" %}
 
 <br>
 

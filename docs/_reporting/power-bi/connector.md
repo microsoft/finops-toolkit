@@ -45,7 +45,7 @@ You can download the Cost Management connector report from the [latest release](
 </blockquote>
 
 <blockquote class="important" markdown="1">
-   _The Cost Management connector is in maintenance mode and no longer being updated. Cost Management support for Power BI is moving to utilize exports instead of the connector. With native support for FOCUS and the deprecation of the connector, the Cost Management connector report is a copy of the [Cost summary](./cost-summary.md) and [Commitment discounts](./commitment-discounts.md) reports in the FinOps toolkit 0.2 release for backwards compatibility, but will not be maintained over time._
+   _The Cost Management connector is in maintenance mode and no longer being updated. Cost Management support for Power BI is moving to utilize exports instead of the connector. With native support for FOCUS and the deprecation of the connector, the Cost Management connector report is a copy of the [Cost summary](./cost-summary.md) and [Commitment discounts](./rate-optimization.md) reports from the FinOps toolkit 0.2 release for backwards compatibility, but will not be maintained over time._
 </blockquote>
 
 <br>

@@ -1,0 +1,58 @@
+name: AOE Continuous Deployment (TEST)
+on: 
+  workflow_dispatch:
+  push:
+    branches:
+      - features/aoe
+    paths:
+      - 'docs/deploy/optimization-engine/**'
+      - 'src/optimization-engine/**'       
+permissions:
+      id-token: write
+      contents: read      
+jobs:
+  AOE-CD:
+    environment: aoe-test
+    runs-on: ubuntu-latest
+    env:
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AOE_LOCATION: ${{ secrets.AOE_LOCATION }}
+      AOE_NAMEPREFIX: ${{ secrets.AOE_NAMEPREFIX }}
+    steps:
+      - run: echo "This job is now running on a ${{ runner.os }} server hosted by GitHub for the ${{ github.ref_name }} branch of the ${{ github.repository }} repository!"
+      - name: Installing modules
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module -Name Az.Accounts -RequiredVersion 2.19.0 -Force
+          Install-Module -Name Az.Resources -RequiredVersion 6.16.2 -Force
+          Install-Module -Name Az.Storage -RequiredVersion 6.2.0 -Force
+          Install-Module -Name Az.OperationalInsights -RequiredVersion 3.2.0 -Force
+          Install-Module -Name Az.Sql -RequiredVersion 4.14.1 -Force
+          Install-Module -Name Az.Automation -RequiredVersion 1.10.0 -Force
+          Install-Module -Name Microsoft.Graph.Authentication,Microsoft.Graph.Identity.DirectoryManagement -Force
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Login via Az module
+        uses: azure/login@hf_447_release
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true 
+      - name: Create Deployment Settings JSON file
+        run: |
+          echo '{
+            "SubscriptionId": "'"$AZURE_SUBSCRIPTION_ID"'",
+            "NamePrefix": "'"$AOE_NAMEPREFIX"'",
+            "WorkspaceReuse": "n",
+            "DeployWorkbooks": "y",
+            "TargetLocation": "'"$AOE_LOCATION"'",
+            "DeployBenefitsUsageDependencies": "n"
+          }' > ./src/optimization-engine/deploymentSettings.json          
+      - name: Testing PowerShell script call
+        shell: pwsh
+        run: |
+          Set-Location ./src/optimization-engine
+          ./Deploy-AzureOptimizationEngine.ps1 -SilentDeploymentSettingsPath ./deploymentSettings.json -TemplateUri "https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/src/optimization-engine/azuredeploy.bicep" -SqlAdminPrincipalType "Group" -SqlAdminPrincipalName ${{ secrets.AOE_SQL_ADMIN_PRINCIPAL_NAME }} -SqlAdminPrincipalObjectId ${{ secrets.AOE_SQL_ADMIN_PRINCIPAL_ID }}
+      - run: echo "🍏 This job's status is ${{ job.status }}."

@@ -5,7 +5,7 @@ parent: Understand
 title: Allocation
 permalink: /framework/capabilities/understand/allocation
 nav_order: 2
-description: This article helps you understand the allocation capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
+description: This article helps you understand the Allocation capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
 ms.date: 06/22/2023
@@ -33,7 +33,7 @@ This article helps you understand the Allocation capability within the FinOps Fr
 ---
 
 <a name="definition"></a>
-**Allocation refers to the process of attributing, assigning, and sharing cloud cost and usage using accounts, tags, and other metadata to establish accountability among teams and projects within an organization.**
+**Allocation refers to the process of attributing, assigning, and redistributing shared cost and usage using accounts, tags, and other metadata to establish accountability among teams and projects within an organization.**
 {: .fs-6 .fw-300 }
 
 Identify the most critical attributes to report against based on stakeholder needs. Consider the different reporting structures within the organization and how you'll handle change over time. Consider engineering practices that may introduce different types of cost that need to be analyzed independently.
@@ -67,7 +67,9 @@ Allocation is usually an afterthought and requires some level of cleanup when in
     - [Management groups](https://learn.microsoft.com/azure/governance/management-groups/overview) are used to organize costs for resource management. You can optimize management groups for policy assignment or organizational reporting.
     - Subscriptions provide engineers with the most flexibility to build the solutions they need but can also come with more management and governance requirements due to this freedom.
     - Resource groups enable engineers to deploy some solutions but may require more support when solutions require multiple resource groups or options to be enabled at the subscription level.
-- Identify your shared costs and they should be handled.
+- Identify shared costs and how they should be handled.
+  - Notify stakeholders that you're evaluating shared costs and request details about any known scenarios. Self-identification can save you significant time and effort.
+- Review the services that have been purchased and are being used with the [Services view in Cost analysis](https://learn.microsoft.com/azure/cost-management-billing/costs/cost-analysis-built-in-views#break-down-product-and-service-costs).
 - Familiarize yourself with each service to determine if they're designed for and/or could be used for shared resources. A few examples of commonly shared services are:
   - Application hosting services, like Azure Kubernetes Service, Azure App Service, and Azure Virtual Desktop.
   - Observability tools, like Azure Monitor and Log Analytics.
@@ -148,8 +150,8 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
-<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.html title="Allocation videos" id="n1TZmZG562F4_VSy" list="PLUSCToibAswmQicVCOwicTWHGjB3ykikr" %}
+<!--[!VIDEO https://www.youtube.com/embed/IwVBmcaiY0M?list=PLUSCToibAswmQicVCOwicTWHGjB3ykikr&pp=iAQB]-->
+{% include video.html title="Allocation videos" id="IwVBmcaiY0M" list="PLUSCToibAswmQicVCOwicTWHGjB3ykikr" %}
 
 <br>
 

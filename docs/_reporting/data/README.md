@@ -192,7 +192,8 @@ Sample data:
 Metadata is available for the following datasets:
 
 - Cost and usage
-  - FOCUS (`1.0-preview(v1)`) – [Learn more](../../_docs/focus/metadata.md)
+  - FOCUS 1.0 – [Learn more](../../_docs/focus/metadata.md#focuscost-10)
+  - FOCUS 1.0-preview(v1) – [Learn more](../../_docs/focus/metadata.md#focuscost-10-previewv1)
 
 [Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-metadata.zip){: .btn .mb-4 .mb-md-0 .mr-4 }
 

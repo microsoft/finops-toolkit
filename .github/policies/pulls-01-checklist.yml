@@ -1,0 +1,215 @@
+id: pulls-01-checklist
+name: GitOps.PullRequestIssueManagement
+description: Handles when a PR is opened with specific notes from the checklist
+owner:
+resource: repository
+disabled: false
+where:
+
+# spell-checker:disable
+configuration:
+  resourceManagementConfiguration:
+    eventResponderTasks:
+      - description: When a PR is opened, add labels based on the checklist
+        if:
+          - payloadType: Pull_Request
+          - not:
+              targetsBranch:
+                branch: main
+        then:
+          # spaces in markdown checkbox
+          - if:
+              - bodyContains:
+                  pattern: '^\s*- \[(\s*x\s+|\s+x\s*)\] '
+                  isRegex: true
+            then:
+              - addReply:
+                  # spell-checker:enable
+                  reply: '@${issueAuthor}, thanks for the PR. Looks like you included an extra space in your markdown checkbox. Please edit your PR description to use `[ ]` (1 space) for unchecked and `[x]` (no spaces) for checked tasks.'
+                  # spell-checker:disable
+          # no space in markdown checkbox
+          - if:
+              - bodyContains:
+                  pattern: '^\s*- \[\] '
+                  isRegex: true
+            then:
+              - addReply:
+                  # spell-checker:enable
+                  reply: '@${issueAuthor}, thanks for the PR. Looks like you forgot a space in your markdown checkbox. Please edit your PR description to use `[ ]` (1 space) for unchecked and `[x]` (no spaces) for checked tasks.'
+                  # spell-checker:disable
+          # breaking change
+          - if:
+              - bodyContains:
+                  pattern: '[x] 🚨 This is a breaking change'
+            then:
+              - addLabel:
+                  label: 'Breaking change 🚨'
+          - if:
+              - hasLabel:
+                  label: 'Breaking change 🚨'
+              - bodyContains:
+                  pattern: '[ ] 🚨 This is a breaking change'
+            then:
+              - removeLabel:
+                  label: 'Breaking change 🚨'
+              - addReply:
+                  # spell-checker:enable
+                  reply: '@${issueAuthor}, thanks for the PR. You marked this as not being a breaking change, but the breaking change label was set. I took the liberty of removing the label. If you meant to keep that applied, please "check" the "This is a breaking change" task.'
+                  # spell-checker:disable
+          # micro PR
+          - if:
+              - bodyContains:
+                  pattern: '[x] 🤏 The change is less than 20 lines'
+            then:
+              - addLabel:
+                  label: 'Micro PR 🔬'
+          - if:
+              - bodyContains:
+                  pattern: '[ ] 🤏 The change is less than 20 lines'
+            then:
+              - removeLabel:
+                  label: 'Micro PR 🔬'
+          # changelog
+          - if:
+              - bodyContains:
+                  pattern: '[ ] ✅ Updated changelog'
+              - not:
+                  bodyContains:
+                    pattern: '[ ] ➡️ Will add log in a future PR'
+              - not:
+                  bodyContains:
+                    pattern: '[ ] ❎ Log not needed'
+              - not:
+                  filesMatchPattern:
+                    pattern: ^docs\/_resources\/changelog.md$
+            then:
+              - addLabel:
+                  label: 'Needs: Documentation'
+              - addReply:
+                  # spell-checker:enable
+                  reply: '@${issueAuthor}, thanks for the PR. It looks like you forgot to indicate whether the changelog was updated as part of the PR. Please edit the PR to select (x) the appropriate items in the checklist. This PR will be blocked until one of the values is selected.'
+                  # spell-checker:disable
+          - if:
+              - filesMatchPattern:
+                  pattern: ^docs\/_resources\/changelog.md$
+              - bodyContains:
+                  pattern: '[ ] ✅ Updated changelog'
+              - not:
+                  bodyContains:
+                    pattern: '[ ] ➡️ Will add log in a future PR'
+              - not:
+                  bodyContains:
+                    pattern: '[ ] ❎ Log not needed'
+            then:
+              - addLabel:
+                  label: 'Needs: Documentation'
+              - addReply:
+                  # spell-checker:enable
+                  reply: '@${issueAuthor}, I noticed you updated the changelog, but did not mark it off in the PR checklist. Please update the checklist to confirm if the changelog was updated for this PR.'
+                  # spell-checker:disable
+          - if:
+              - targetsBranch:
+                  branch: dev
+              - bodyContains:
+                  pattern: '[x] ➡️ Will add log in a future PR'
+            then:
+              - addLabel:
+                  label: 'Needs: Documentation'
+              - addReply:
+                  # spell-checker:enable
+                  reply: '@${issueAuthor}, I noticed you said you would update the changelog in a future PR, but this PR is going into the dev branch. All dev branch PRs must have changelog entries to be ready for the next release. Either update the PR to target a feature branch or add a changelog entry to this PR.'
+                  # spell-checker:disable
+          - if:
+              - not:
+                  targetsBranch:
+                    branch: dev
+              - bodyContains:
+                  pattern: '[x] ➡️ Will add log in a future PR'
+            then:
+              - removeLabel:
+                  label: 'Needs: Documentation'
+          - if:
+              - or:
+                  - bodyContains:
+                      pattern: '[x] ✅ Updated changelog'
+                  - bodyContains:
+                      pattern: '[x] ❎ Log not needed'
+            then:
+              - removeLabel:
+                  label: 'Needs: Documentation'
+          # docs
+          - if:
+              - bodyContains:
+                  pattern: '[ ] ✅ Public docs'
+              - bodyContains:
+                  pattern: '[ ] ✅ Internal dev docs'
+              - not:
+                  bodyContains:
+                    pattern: '[ ] ➡️ Will add docs in a future PR'
+              - not:
+                  bodyContains:
+                    pattern: '[ ] ❎ Docs not needed'
+              - not:
+                  filesMatchPattern:
+                    pattern: .*\.md$
+            then:
+              - addLabel:
+                  label: 'Needs: Documentation'
+              - addReply:
+                  # spell-checker:enable
+                  reply: '@${issueAuthor}, thanks for the PR. It looks like you forgot to indicate whether the documentation was updated as part of the PR. Please edit the PR to select (x) the appropriate items in the checklist. This PR will be blocked until one of the values is selected.'
+                  # spell-checker:disable
+          - if:
+              - filesMatchPattern:
+                  pattern: .*\.md$
+              - bodyContains:
+                  pattern: '[ ] ✅ Public docs'
+              - bodyContains:
+                  pattern: '[ ] ✅ Internal dev docs'
+              - not:
+                  bodyContains:
+                    pattern: '[ ] ➡️ Will add docs in a future PR'
+              - not:
+                  bodyContains:
+                    pattern: '[ ] ❎ Docs not needed'
+            then:
+              - addLabel:
+                  label: 'Needs: Documentation'
+              - addReply:
+                  # spell-checker:enable
+                  reply: '@${issueAuthor}, I noticed you updated markdown files, but did not indicate that documentation was updated in the PR checklist. Please update the checklist to confirm if documentation was updated for this PR.'
+                  # spell-checker:disable
+          - if:
+              - targetsBranch:
+                  branch: dev
+              - bodyContains:
+                  pattern: '[x] ➡️ Will add docs in a future PR'
+            then:
+              - addLabel:
+                  label: 'Needs: Documentation'
+              - addReply:
+                  # spell-checker:enable
+                  reply: '@${issueAuthor}, I noticed you said you would update documentation in a future PR, but this PR is going into the dev branch. All dev branch PRs must have applicable documentation updated to be ready for the next release. Either update the PR to target a feature branch or update the documentation in this PR.'
+                  # spell-checker:disable
+          - if:
+              - not:
+                  targetsBranch:
+                    branch: dev
+              - bodyContains:
+                  pattern: '[x] ➡️ Will add docs in a future PR'
+            then:
+              - removeLabel:
+                  label: 'Needs: Documentation'
+          - if:
+              - or:
+                  - bodyContains:
+                      pattern: '[x] ✅ Public docs'
+                  - bodyContains:
+                      pattern: '[x] ✅ Internal dev docs'
+                  - bodyContains:
+                      pattern: '[x] ❎ Docs not needed'
+            then:
+              - removeLabel:
+                  label: 'Needs: Documentation'
+onFailure:
+onSuccess:
