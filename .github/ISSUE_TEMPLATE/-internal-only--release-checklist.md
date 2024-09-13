@@ -16,8 +16,6 @@ Status icons:
 ✅ Completed
 -->
 
-Complete the following tasks to publish a monthly release.
-
 ## 🔄️ Monthly updates
 
 - [ ] Update open data files ([learn more](https://github.com/microsoft/finops-toolkit/tree/dev/src/open-data)).
