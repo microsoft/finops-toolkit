@@ -36,14 +36,11 @@ For the most seamless experience, we recommend allowing FinOps hubs to manage ex
 
 <br>
 
-
 ## 🛠️ Configure exports manually
 
 If you cannot grant permissions for your scope, you can create Cost Management exports manually to accomplish the same goal.
 
 1. [Create a new FOCUS cost export](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-export-acm-data?tabs=azure-portal) using the following settings:
-
-   <!-- TODO: Replace the portal link with the docs link when exports v2 docs are available. -->
 
    - **Type of data** = `Cost and usage details (FOCUS)`<sup>1</sup>
    - **Dataset version** = `1.0`<sup>2</sup>
@@ -72,6 +69,7 @@ _<sup>3) Configuring a daily export starts in the current month. If you want to 
 _<sup>4) While most settings are required, overwriting is optional. We recommend **not** overwriting files so you can monitor your ingestion pipeline using the [Data ingestion](../power-bi/data-ingestion.md) report. If you do not plan to use that report, please enable overwriting.</sup>_
 _<sup>5) Export paths can be any value but must be unique per scope. We recommended using a path that identifies the source scope (e.g., subscription or billing account). If 2 scopes share the same path, there could be ingestion errors.</sup>_
 
+<br>
 
 ## 🔐 Configure managed exports
 
@@ -79,13 +77,11 @@ Managed exports allow FinOps hubs to setup and maintain Cost Management exports 
 
 ![Screenshot of the hubs supported scopes](https://raw.githubusercontent.com/microsoft/finops-toolkit/11b24a372b9bd57e7829c4224e2569647908b261/src/images/hubs-scopes.jpg)
 
-
 <blockquote class="note" markdown="1">
   _Managed exports are only available in FinOps hubs 0.4 and beyond._
 </blockquote>
 
 Managed exports use a managed identity (MI) to configure the exports automatically. Follow these steps to set it up:
-
 
 1. **Grant access to Azure Data Factory.**
 
@@ -95,28 +91,28 @@ Managed exports use a managed identity (MI) to configure the exports automatical
      - EA departments – [Assign department reader role permission](https://learn.microsoft.com/azure/cost-management-billing/manage/assign-roles-azure-service-principals#assign-enrollment-account-role-permission-to-the-spn).
      - Subscriptions and resource groups – [Assign Azure roles using the Azure portal](https://learn.microsoft.com/azure/role-based-access-control/role-assignments-portal).
 
-<!--
-    ### Enterprise agreement billing accounts and departments
+   <!--
+   ### Enterprise agreement billing accounts and departments
    
-    1. [Find your enrollment (and department) Id](https://learn.microsoft.com/azure/cost-management-billing/manage/view-all-accounts#switch-billing-scope-in-the-azure-portal).
-    2. Load the FinOps Toolkit PowerShell module.
-    3. Grant reader permissions to the data factory
+   1. [Find your enrollment (and department) Id](https://learn.microsoft.com/azure/cost-management-billing/manage/view-all-accounts#switch-billing-scope-in-the-azure-portal).
+   2. Load the FinOps Toolkit PowerShell module.
+   3. Grant reader permissions to the data factory
    
-       ```powershell
-       # Grants enrollment reader permissions to the specified service principal or managed identity
-       Add-FinOpsServicePrincipal `
+      ```powershell
+      # Grants enrollment reader permissions to the specified service principal or managed identity
+      Add-FinOpsServicePrincipal `
          -ObjectId 00000000-0000-0000-0000-000000000000 ` # Object Id of data factory managed identity
          -TenantId 00000000-0000-0000-0000-000000000000 ` # Azure Active Directory tenant Id
          -BillingAccountId 12345                          # Enrollment ID
    
-       # Grants department reader permissions to the specified service principal or managed identity
-       Add-FinOpsServicePrincipal `
+      # Grants department reader permissions to the specified service principal or managed identity
+      Add-FinOpsServicePrincipal `
          -ObjectId 00000000-0000-0000-0000-000000000000 ` # Object Id of data factory managed identity
          -TenantId 00000000-0000-0000-0000-000000000000 ` # Azure Active Directory tenant Id
          -BillingAccountId 12345 `                        # Enrollment Id
          -DepartmentId 67890                              # Department Id
-        ```
--->
+   ```
+   -->
 
 2. **Add the desired scopes.**
 
@@ -235,7 +231,7 @@ If this is the first time you are using the FinOps toolkit PowerShell module, re
 
 ## ⏭️ Next steps
 
-[Connect to Power BI](./reports/README.md){: .btn .btn-primary .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Connect to Power BI](../power-bi/setup.md){: .btn .btn-primary .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [Learn more](./README.md#-why-finops-hubs){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>

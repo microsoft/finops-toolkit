@@ -22,6 +22,8 @@ The [PricingUnits.csv](./PricingUnits.csv) file contains the list of all unique 
 
 Use the following query to update the data:
 
+<!-- TODO: Merge with existing units -->
+
 ```kql
 let unabbrev = (regex: string, uom: string) { tolong(replace_string(replace_string(replace_string(replace_string(extract(regex, 1, uom), 'K', '000'), 'M', '000000'), 'B', '000000000'), 'T', '000000000000')) };
 Meters
@@ -99,7 +101,7 @@ Meters
 ## 🗺️ Regions
 
 <sup>
-    📅 Updated: Aug 22, 2024<br>
+    📅 Updated: Aug 23, 2024<br>
     ➡️ Source: Commerce Platform Data Model team<br>
 </sup>
 
@@ -110,7 +112,7 @@ The [Regions.csv](./Regions.csv) file contains the list of all unique `ResourceL
 Use the following query to update the data:
 
 ```kql
-let oldValues = externaldata(OriginalValue:string, RegionId:string, RegionName:string,) [@"https://raw.githubusercontent.com/microsoft/finops-toolkit/dev/src/open-data/Regions.csv"] with (format="csv", ignoreFirstRecord=true);
+let oldValues = externaldata(OriginalValue:string, RegionId:string, RegionName:string) [@"https://raw.githubusercontent.com/microsoft/finops-toolkit/dev/src/open-data/Regions.csv"] with (format="csv", ignoreFirstRecord=true);
 let newValues = union cluster('<cluster>.kusto.windows.net').database('<shard>*').<table> | where ResourceType != 'Microsoft.Security/securityConnectors' | distinct ResourceLocation, ResourceLocationNormalized;
 newValues | project OriginalValue = tolower(ResourceLocation)
 | union (newValues | project OriginalValue = tolower(ResourceLocationNormalized))
@@ -146,13 +148,13 @@ After updating the list of available original values, other columns must be manu
 ## 🗺️ Resource types
 
 <sup>
-    📅 Updated: Jun 1, 2024<br>
+    📅 Updated: Aug 24, 2024<br>
     ➡️ Source: Azure portal / Azure mobile app<br>
 </sup>
 
 <br>
 
-The [ResourceTypes.csv](./ResourceTypes.csv) file contains data from the Azure portal. The Build-OpenData script generates the fie without any additional work.
+The [ResourceTypes.csv](./ResourceTypes.csv) file contains data from the Azure portal. The Build-OpenData script generates the fie. After the file is generated, review the updates to ensure values are not removed.
 
 If you find a resource type is missing, add it to [ResourceTypes.Overrides.csv](./ResourceTypes.Overrides.json). The override file supports overriding names and icons.
 
@@ -163,7 +165,7 @@ If you run into any issues with the script that gets the data, you can look at e
 ## 🎛️ Services
 
 <sup>
-    📅 Updated: Jun 1, 2024<br>
+    📅 Updated: Aug 23, 2024<br>
     ➡️ Source: Cost Management team<br>
 </sup>
 
@@ -174,14 +176,19 @@ The [Services.csv](./Services.csv) file contains the list of all unique `Consume
 Use the following query to update the data:
 
 ```kql
-union cluster('<shard-cluster>').database('<shard>*').UCDD
-| where UsageDate > ago(365d)
-| where isnotempty(ConsumedService)
+let oldValues = externaldata(ConsumedService:string, ResourceType:string, ServiceName:string, ServiceCategory:string, PublisherName:string, PublisherType:string, Environment:string, ServiceModel:string) [@"https://raw.githubusercontent.com/microsoft/finops-toolkit/dev/src/open-data/Services.csv"] with (format="csv", ignoreFirstRecord=true);
+union cluster('<cluster>.kusto.windows.net').database('<shard>*').<table>
+| where UsageDateDt > ago(120d)
+| where isnotempty(ConsumedService) and isnotempty(InstanceName)
 | where ConsumedService !startswith '/subscriptions/'
+// TODO: Parse full resource type
 | extend ParsedResourceType = tostring(extract(@'/providers/([^/]+/[^/]+)', 1, tolower(InstanceName)))
+| extend ConsumedService = tolower(ConsumedService)
 | extend ResourceType = iff(isempty(ParsedResourceType), tolower(ResourceType), ParsedResourceType)
-| summarize by ConsumedServiceId, ConsumedService, ResourceType
-| order by ConsumedServiceId asc, ResourceType asc
+| distinct ConsumedService, ResourceType
+| where strcat(ConsumedService, ResourceType) !in ((oldValues | project CSRT = strcat(ConsumedService, ResourceType)))
+| union (oldValues)
+| order by ConsumedService asc, ResourceType asc
 ```
 
 The **ServiceModel** column is manually applied using the following logic:
