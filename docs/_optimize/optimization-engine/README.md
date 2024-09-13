@@ -104,7 +104,7 @@ Once deployed and after all the initial ingestion and recommendations generation
 ## 📋 Requirements
 
 * A supported Azure subscription (see the [FAQ](./faq.md))
-* A user account with Owner permissions over the chosen subscription, so that the Automation Managed Identity is granted the required privileges over the subscription (Reader) and deployment resource group (Contributor)
+* A user account with Owner permissions over the chosen subscription, so that the Automation Managed Identity is granted the required privileges over the subscription (Reader) and deployment resource group (Storage Blob Data Contributor)
 * Azure Powershell 9.0.0+
 * (Optional, for Identity and RBAC governance) Microsoft.Graph.Authentication and Microsoft.Graph.Identity.DirectoryManagement PowerShell modules (version 2.4.0+)
 * (Optional, for Identity and RBAC governance) A user account with at least Privileged Role Administrator permissions over the Microsoft Entra tenant, so that the Managed Identity is granted the required privileges over Microsoft Entra ID (Global Reader)

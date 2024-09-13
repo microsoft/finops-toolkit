@@ -76,6 +76,14 @@ Legend:
 >
 > 1. Cost Management export modules for subscriptions and resource groups.
 
+🔍 Optimization engine
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed:
+>
+> 1. Improved Storage Account access security, replacing key-based authentication by Entra ID authentication.
+>
+
 <br><a name="latest"></a>
 
 ## 🪛 v0.5 Update 1
