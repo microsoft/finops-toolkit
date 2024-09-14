@@ -27,7 +27,7 @@
 
     Deletes a FinOps Hub named MyHub and deletes all associated resources except the storage account.
 #>
-. "..\Private\Get-HubIdentifier.ps1"
+
 function Remove-FinOpsHub {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
     param (
