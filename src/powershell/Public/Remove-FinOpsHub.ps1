@@ -8,7 +8,7 @@
     .DESCRIPTION
     The Remove-FinOpsHub command deletes a FinOps Hub instance and optionally deletes the storage account hosting cost data.
 
-    The comamnd returns a boolean value indicating whether all resources were successfully deleted.
+    The command returns a boolean value indicating whether all resources were successfully deleted.
 
     .PARAMETER Name
     Required when specifying Name. Name of the FinOps Hub.
@@ -25,84 +25,91 @@
     .EXAMPLE
     Remove-FinOpsHub -Name MyHub -ResourceGroupName MyRG -KeepStorageAccount
 
-    Deletes a FinOps Hub named MyHub and deletes all associated resource except the storagea ccount.
+    Deletes a FinOps Hub named MyHub and deletes all associated resources except the storage account.
 #>
-
-function Remove-FinOpsHub
-{
+. "..\Private\Get-HubIdentifier.ps1"
+function Remove-FinOpsHub {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
-    param
-    (
+    param (
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
-        [ValidateNotNullOrEmpty ()]
-        [string]
-        $Name,
+        [ValidateNotNullOrEmpty()]
+        [string]$Name,
 
         [Parameter(ParameterSetName = 'Name')]
-        [string]
-        $ResourceGroupName,
+        [string]$ResourceGroupName,
 
         [Parameter(Mandatory = $true, ParameterSetName = 'Object')]
-        [ValidateNotNullOrEmpty ()]
-        [psobject]
-        $InputObject,
+        [ValidateNotNullOrEmpty()]
+        [psobject]$InputObject,
 
         [Parameter(ParameterSetName = 'Name')]
         [Parameter(ParameterSetName = 'Object')]
-        [switch]
-        $KeepStorageAccount,
+        [switch]$KeepStorageAccount,
 
         [Parameter(ParameterSetName = 'Name')]
         [Parameter(ParameterSetName = 'Object')]
-        [switch]
-        $Force
+        [switch]$Force
     )
 
     $context = Get-AzContext
-    if (-not $context)
-    {
+    if (-not $context) {
         throw $script:LocalizedData.Common_ContextNotFound
     }
 
-    try
-    {
-
-        if ($PSCmdlet.ParameterSetName -eq 'Name')
-        {
-            if (-not [string]::IsNullOrEmpty($ResourceGroupName))
-            {
+    try {
+        if ($PSCmdlet.ParameterSetName -eq 'Name') {
+            if (-not [string]::IsNullOrEmpty($ResourceGroupName)) {
                 $hub = Get-FinOpsHub -Name $Name -ResourceGroupName $ResourceGroupName
-            }
-            else
-            {
+            } else {
                 $hub = Get-FinOpsHub -Name $Name
                 $ResourceGroupName = $hub.Resources[0].ResourceGroupName
             }
-        }
-        else
-        {
+        } else {
             $hub = $InputObject
             $Name = $hub.Name
             $ResourceGroupName = $hub.Resources[0].ResourceGroupName
         }
 
-        if (-not $hub)
-        {
+        if (-not $hub) {
             throw $script:LocalizedData.Hub_Remove_NotFound -f $Name
         }
 
+        Write-Verbose -Message "Found FinOps Hub: $Name in resource group $ResourceGroupName"
+
         $uniqueId = Get-HubIdentifier -Collection $hub.Resources.Name
-        Write-Verbose -Message "Unique identifier: $uniqueId"
+        
+        $resources = Get-AzResource -ResourceGroupName $ResourceGroupName |
+            Where-Object -FilterScript { $_.Name -like "*$uniqueId*" -and ((-not $KeepStorageAccount) -or $_.ResourceType -ne "Microsoft.Storage/storageAccounts") }
+            Write-Verbose -Message "Filtered Resources: $($resources | ForEach-Object { $_.Name })"
 
-        $resources = Get-AzResource -ResourceGroupName $ResourceGroupName | Where-Object -FilterScript { $_.Name -like "*$uniqueId*" -and ((-not $KeepStorageAccount) -or $_.ResourceType -ne "Microsoft.Storage/storageAccounts") }
+        if ($null -eq $resources) {
+            Write-Warning "No resources found to delete."
+            return $false
+        }
 
-        if ($PSCmdlet.ShouldProcess($Name, 'DeleteFinOpsHub'))
-        {
-            return ($resources | Remove-AzResource -Force:$Force).Reduce({ $args[0] -and $args[1] }, $true)            
+        Write-Verbose -Message "Resources to be deleted: $($resources | ForEach-Object { $_.Name })"
+
+        if ($PSCmdlet.ShouldProcess($Name, 'DeleteFinOpsHub')) {
+            $success = $true
+            foreach ($resource in $resources) {
+                try {
+                    Write-Verbose -Message "Deleting resource: $($resource.Name)"
+                    Remove-AzResource -ResourceId $resource.ResourceId -Force:$Force -ErrorAction Stop
+                } catch {
+                    Write-Error -Message "Failed to delete resource: $($resource.Name). Error: $_"
+                    $success = $false
+                }
+            }
+
+            return $success
+        }
+    } catch {
+        Write-Error -Message "Failed to remove FinOps hub. Error: $_"
+        if ($_.Exception.InnerException) {
+            throw "Detailed Error: $($_.Exception.InnerException.Message)"
+        } else {
+            throw "Detailed Error: $($_.Exception.Message)"
         }
     }
-    catch
-    {
-        throw ($script:LocalizedData.Hub_Remove_Failed -f $_)
-    }
+    
 }
