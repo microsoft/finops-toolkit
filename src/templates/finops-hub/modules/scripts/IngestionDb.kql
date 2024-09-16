@@ -3,6 +3,7 @@
 // - Azure: 1.0, 1.0-preview(v1)
 // - AWS: 1.0 -- See https://docs.aws.amazon.com/cur/latest/userguide/table-dictionary-focus-1-0-aws-columns.html
 // - GCP: Jan-Jun 2024 -- See https://cloud.google.com/resources/google-cloud-focus?e=48754805&hl=en
+// - OCI: 1.0 -- See https://docs.oracle.com/en-us/iaas/Content/Billing/Concepts/costusagereportsoverview.htm#costreports__focus-cost-report-schema
 .create-merge table FocusCost_raw (
     AvailabilityZone:           string,
     BilledCost:                 decimal,
