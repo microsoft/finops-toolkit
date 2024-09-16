@@ -1,0 +1,147 @@
+// Table to ingest raw FOCUS cost data into
+// Supported versions:
+// - Azure: 1.0, 1.0-preview(v1)
+// - AWS: 1.0 -- See https://docs.aws.amazon.com/cur/latest/userguide/table-dictionary-focus-1-0-aws-columns.html
+// - GCP: Jan-Jun 2024 -- See https://cloud.google.com/resources/google-cloud-focus?e=48754805&hl=en
+.create-merge table FocusCost_raw (
+    AvailabilityZone:           string,
+    BilledCost:                 decimal,
+    BillingAccountId:           string,
+    BillingAccountName:         string,
+    BillingAccountType:         string,    // Azure 1.0-preview(v1)+
+    BillingCurrency:            string,
+    BillingPeriodEnd:           datetime,
+    BillingPeriodStart:         datetime,
+    ChargeCategory:             string,
+    ChargeClass:                string,
+    ChargeDescription:          string,
+    ChargeFrequency:            string,
+    ChargePeriodEnd:            datetime,
+    ChargePeriodStart:          datetime,
+    CommitmentDiscountCategory: string,
+    CommitmentDiscountId:       string,
+    CommitmentDiscountName:     string,
+    CommitmentDiscountStatus:   string,
+    CommitmentDiscountType:     string,
+    ConsumedQuantity:           decimal,
+    ConsumedUnit:               string,
+    ContractedCost:             decimal,
+    ContractedUnitPrice:        decimal,
+    EffectiveCost:              decimal,
+    InvoiceIssuerName:          string,
+    ListCost:                   decimal,
+    ListUnitPrice:              decimal,
+    PricingCategory:            string,
+    PricingQuantity:            decimal,
+    PricingUnit:                string,
+    ProviderName:               string,
+    PublisherName:              string,
+    Region:                     string,    // FOCUS 1.0-preview only
+    RegionId:                   string,
+    RegionName:                 string,
+    ResourceId:                 string,
+    ResourceName:               string,
+    ResourceType:               string,
+    ServiceCategory:            string,
+    ServiceName:                string,
+    SkuId:                      string,
+    SkuPriceId:                 string,
+    SubAccountId:               string,
+    SubAccountName:             string,
+    SubAccountType:             string,
+    Tags:                       string,
+    UsageAmount:                decimal,   // GCP Jan 2024 -- Removed Mar 2024 (UsageQuantity)
+    UsageQuantity:              decimal,   // FOCUS 1.0-preview only
+    UsageUnit:                  string,    // FOCUS 1.0-preview only
+    x_AccountId:                string,    // Azure 1.0-preview(v1)+
+    x_AccountName:              string,    // Azure 1.0-preview(v1)+
+    x_AccountOwnerId:           string,    // Azure 1.0-preview(v1)+
+    x_BilledCostInUsd:          decimal,   // Azure 1.0-preview(v1)+
+    x_BilledUnitPrice:          decimal,   // Azure 1.0-preview(v1)+
+    x_BillingAccountId:         string,    // Azure 1.0-preview(v1)+
+    x_BillingAccountName:       string,    // Azure 1.0-preview(v1)+
+    x_BillingExchangeRate:      decimal,   // Azure 1.0-preview(v1)+
+    x_BillingExchangeRateDate:  datetime,  // Azure 1.0-preview(v1)+
+    x_BillingProfileId:         string,    // Azure 1.0-preview(v1)+
+    x_BillingProfileName:       string,    // Azure 1.0-preview(v1)+
+    x_ChargeId:                 string,    // Azure 1.0-preview(v1) only
+    x_ContractedCostInUsd:      decimal,   // Azure 1.0+
+    x_Cost:                     decimal,   // GCP Jan 2024 -- Removed Jun 2024 (ContractedCost)
+    x_CostAllocationRuleName:   string,    // Azure 1.0-preview(v1)+
+    x_CostCategories:           string,    // AWS 1.0 (JSON)
+    x_CostCenter:               string,    // Azure 1.0-preview(v1)+
+    x_Credits:                  string,    // GCP Jan 2024
+    x_CostType:                 string,    // GCP Jan 2024
+    x_CurrencyConversionRate:   decimal,   // GCP Jun 2024
+    x_CustomerId:               string,    // Azure 1.0-preview(v1)+
+    x_CustomerName:             string,    // Azure 1.0-preview(v1)+
+    x_Discount:                 string,    // AWS 1.0 (JSON)
+    x_EffectiveCostInUsd:       decimal,   // Azure 1.0-preview(v1)+
+    x_EffectiveUnitPrice:       decimal,   // Azure 1.0-preview(v1)+
+    x_ExportTime:               datetime,  // GCP Jan 2024
+    x_InvoiceId:                string,    // Azure 1.0-preview(v1)+
+    x_InvoiceIssuerId:          string,    // Azure 1.0-preview(v1)+
+    x_InvoiceSectionId:         string,    // Azure 1.0-preview(v1)+
+    x_InvoiceSectionName:       string,    // Azure 1.0-preview(v1)+
+    x_ListCostInUsd:            decimal,   // Azure 1.0-preview(v1)+
+    x_Location:                 string,    // GCP Jan 2024
+    x_OnDemandCost:             decimal,   // Azure 1.0-preview(v1) only
+    x_OnDemandCostInUsd:        decimal,   // Azure 1.0-preview(v1) only
+    x_OnDemandUnitPrice:        decimal,   // Azure 1.0-preview(v1) only
+    x_Operation:                string,    // AWS 1.0
+    x_PartnerCreditApplied:     string,    // Azure 1.0-preview(v1)+
+    x_PartnerCreditRate:        string,    // Azure 1.0-preview(v1)+
+    x_PricingBlockSize:         decimal,   // Azure 1.0-preview(v1)+
+    x_PricingCurrency:          string,    // Azure 1.0-preview(v1)+
+    x_PricingSubcategory:       string,    // Azure 1.0-preview(v1)+
+    x_PricingUnitDescription:   string,    // Azure 1.0-preview(v1)+
+    x_Project:                  string,    // GCP Jan 2024
+    x_PublisherCategory:        string,    // Azure 1.0-preview(v1)+
+    x_PublisherId:              string,    // Azure 1.0-preview(v1)+
+    x_ResellerId:               string,    // Azure 1.0-preview(v1)+
+    x_ResellerName:             string,    // Azure 1.0-preview(v1)+
+    x_ResourceGroupName:        string,    // Azure 1.0-preview(v1)+
+    x_ResourceType:             string,    // Azure 1.0-preview(v1)+
+    x_ServiceCode:              string,    // AWS 1.0
+    x_ServiceId:                string,    // GCP Jan 2024
+    x_ServicePeriodEnd:         datetime,  // Azure 1.0-preview(v1)+
+    x_ServicePeriodStart:       datetime,  // Azure 1.0-preview(v1)+
+    x_SkuDescription:           string,    // Azure 1.0-preview(v1)+
+    x_SkuDetails:               string,    // Azure 1.0-preview(v1)+
+    x_SkuIsCreditEligible:      bool,      // Azure 1.0-preview(v1)+ 
+    x_SkuMeterCategory:         string,    // Azure 1.0-preview(v1)+
+    x_SkuMeterId:               string,    // Azure 1.0-preview(v1)+
+    x_SkuMeterName:             string,    // Azure 1.0-preview(v1)+
+    x_SkuMeterSubcategory:      string,    // Azure 1.0-preview(v1)+
+    x_SkuOfferId:               string,    // Azure 1.0-preview(v1)+
+    x_SkuOrderId:               string,    // Azure 1.0-preview(v1)+
+    x_SkuOrderName:             string,    // Azure 1.0-preview(v1)+
+    x_SkuPartNumber:            string,    // Azure 1.0-preview(v1)+
+    x_SkuRegion:                string,    // Azure 1.0-preview(v1)+
+    x_SkuServiceFamily:         string,    // Azure 1.0-preview(v1)+
+    x_SkuTerm:                  string,    // Azure 1.0-preview(v1)+
+    x_SkuTier:                  string,    // Azure 1.0-preview(v1)+ 
+    x_UsageType:                string     // AWS 1.0
+)
+
+// View to dedupe data for FocusCost 1.0
+.create-or-alter materialized-view Costs_1_0 on table FocusCost_raw
+{
+    // TODO: Normalize columns to FOCUS 1.0 schema
+    FocusCost_raw
+    | extend IngestionTime = ingestion_time()
+    | summarize arg_max(IngestionTime , *) by
+        BillingAccountId, ChargePeriodStart, CommitmentDiscountId, RegionId, ResourceId, SkuPriceId, SubAccountId,
+        x_AccountOwnerId, x_CostCenter, x_InvoiceSectionId, x_SkuDetails, x_SkuMeterId, x_SkuOfferId
+}
+
+// View to dedupe data for FocusCost 1.0-preview(v1)
+.create-or-alter materialized-view Costs_1_0_preview on table FocusCost_raw
+{
+    // TODO: Normalize columns to FOCUS 1.0 preview schema
+    FocusCost_raw
+    | extend IngestionTime = ingestion_time()
+    | summarize arg_max(IngestionTime , *) by
+        BillingAccountId, ChargePeriodStart, CommitmentDiscountId, Region, ResourceId, SkuPriceId, SubAccountId, 
+        x_AccountOwnerId, x_CostCenter, x_InvoiceSectionId, x_SkuDetails, x_SkuMeterId, x_SkuOfferId
+}

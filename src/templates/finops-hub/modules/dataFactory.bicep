@@ -32,7 +32,7 @@ param location string = resourceGroup().location
 @description('Optional. Remote storage account for ingestion dataset.')
 param remoteHubStorageUri string
 
-@description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
+@description('Optional. Tags to apply to all resources.')
 param tags object = {}
 
 @description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')

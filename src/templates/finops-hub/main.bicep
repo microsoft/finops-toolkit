@@ -23,6 +23,21 @@ param eventGridLocation string = ''
 @description('Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: Premium_LRS, Premium_ZRS. Default: Premium_LRS.')
 param storageSku string = 'Premium_LRS'
 
+@description('Optional. Name of the Azure Data Explorer cluster to use for advanced analytics. If empty, Azure Data Explorer will not be deployed. Required to use with Power BI if you have more than $2-5M/mo in costs being monitored. Default: "" (do not use).')
+param dataExplorerName string = ''
+
+@description('Optional. Name of the Azure Data Explorer SKU. Default: "Standard_E2ads_v5".')
+param dataExplorerSkuName string = 'Standard_E2ads_v5'
+
+@description('Optional. SKU tier for the Azure Data Explorer cluster. Allowed values: Basic, Standard. Default: "Standard".')
+@allowed(['Basic', 'Standard'])
+param dataExplorerSkuTier string = 'Standard'
+
+@description('Optional. Number of nodes to use in the cluster. Allowed values: 2-1000. Default: 2.')
+@minValue(2)
+@maxValue(1000)
+param dataExplorerSkuCapacity int = 2
+
 @description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
 param tags object = {}
 
@@ -37,9 +52,6 @@ param exportRetentionInDays int = 0
 
 @description('Optional. Number of months of cost data to retain in the ingestion container. Default: 13.')
 param ingestionRetentionInMonths int = 13
-
-@description('Optional. Deploy Azure Data Explorer cluster for analytics. Default: false.')
-param deployDataExplorer bool = true //TODO: DEFAULT to False once ready.
 
 @description('Optional. Storage account to push data to for ingestion into a remote hub.')
 param remoteHubStorageUri string = ''
@@ -59,6 +71,10 @@ module hub 'modules/hub.bicep' = {
     location: location
     eventGridLocation: eventGridLocation
     storageSku: storageSku
+    dataExplorerName: dataExplorerName
+    dataExplorerSkuName: dataExplorerSkuName
+    dataExplorerSkuTier: dataExplorerSkuTier
+    dataExplorerSkuCapacity: dataExplorerSkuCapacity
     tags: tags
     tagsByResource: tagsByResource
     scopesToMonitor: scopesToMonitor
@@ -66,7 +82,6 @@ module hub 'modules/hub.bicep' = {
     ingestionRetentionInMonths: ingestionRetentionInMonths
     remoteHubStorageUri: remoteHubStorageUri
     remoteHubStorageKey: remoteHubStorageKey
-    deployDataExplorer: deployDataExplorer
   }
 }
 
@@ -92,17 +107,20 @@ output storageAccountName string = hub.outputs.storageAccountName
 @description('URL to use when connecting custom Power BI reports to your data.')
 output storageUrlForPowerBI string = hub.outputs.storageUrlForPowerBI
 
-@description('Object ID of the Data Factory managed identity. This will be needed when configuring managed exports.')
-output managedIdentityId string = hub.outputs.managedIdentityId
-
-@description('Azure AD tenant ID. This will be needed when configuring managed exports.')
-output managedIdentityTenantId string = hub.outputs.managedIdentityTenantId
-
 @description('The resource ID of the Data Explorer cluster.')
 output clusterId string = hub.outputs.clusterId
 
 @description('The URI of the Data Explorer cluster.')
 output clusterUri string = hub.outputs.clusterUri
 
-@description('The name of the Data Explorer database.')
-output databaseName string = hub.outputs.clusterDatabaseName
+@description('The name of the Data Explorer ingestion database.')
+output ingestionDbName string = hub.outputs.ingestionDbName
+
+@description('The name of the Data Explorer hub database.')
+output hubDbName string = hub.outputs.hubDbName
+
+@description('Object ID of the Data Factory managed identity. This will be needed when configuring managed exports.')
+output managedIdentityId string = hub.outputs.managedIdentityId
+
+@description('Azure AD tenant ID. This will be needed when configuring managed exports.')
+output managedIdentityTenantId string = hub.outputs.managedIdentityTenantId

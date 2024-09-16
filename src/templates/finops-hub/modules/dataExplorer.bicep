@@ -2,93 +2,109 @@
 // Parameters
 //==============================================================================
 
-@description('Optional. Location for all resources.')
-param location string = resourceGroup().location
+@description('Required. Name of the FinOps hub instance. Used to ensure unique resource names.')
+param hubName string
 
-@description('Optional. Resource tags.')
-param tags object = {}
+@description('Required. Suffix to add to the storage account name to ensure uniqueness.')
+param uniqueSuffix string
 
+@description('Required. Name to use for the Azure Data Explorer cluster. This name must be unique within the region.')
+param clusterName string
+
+@description('Optional. Name of the Azure Data Explorer SKU. Default: "Standard_E2ads_v5".')
+param clusterSkuName string = 'Standard_E2ads_v5'
+
+@description('Optional. SKU tier for the Azure Data Explorer cluster. Allowed values: Basic, Standard. Default: "Standard".')
+@allowed(['Basic', 'Standard'])
+param clusterSkuTier string = 'Standard'
+
+@description('Optional. Number of nodes to use in the cluster. Allowed values: 2-1000. Default: 2.')
+@minValue(2)
+@maxValue(1000)
+param clusterSkuCapacity int = 2
+
+// TODO: Is this needed?
 @description('Optional. Forces the table to be updated if different from the last time it was deployed.')
 param forceUpdateTag string = utcNow()
 
-@description('Optional. If true, ingestion will continue even if some rows fail to ingest.')
+@description('Optional. If true, ingestion will continue even if some rows fail to ingest. Default: false.')
 param continueOnErrors bool = false
 
-@description('Required. Name of the storage account to use for the cluster data ingestion.')
+@description('Optional. Azure location to use for the managed identity and deployment script to auto-start triggers. Default: (resource group location).')
+param location string = resourceGroup().location
+
+@description('Optional. Azure location to use for Event Grid topics used for Azure Data Explorer ingestion if the primary location is not supported. Default: "" (same as location).')
+param eventGridLocation string = resourceGroup().location
+
+@description('Optional. Tags to apply to all resources.')
+param tags object = {}
+
+@description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
+param tagsByResource object = {}
+
+@description('Required. Name of the storage account to use for data ingestion.')
 param storageAccountName string
 
-@description('Name of the cluster')
-param clusterName string = 'kusto${uniqueString(resourceGroup().id)}'
+@description('Required. Name of storage container to monitor for data ingestion.')
+param storageContainerName string
 
-@description('Optional. Name of the SKU. Default = "Standard_E2ads_v5".')
-param skuName string = 'Standard_E2ads_v5'
+@description('Optional. SKU to use for the Event Hubs instance used to trigger data ingestion in Azure Data Explorer. Allowed values: Standard, Premium. Default: Standard.')
+@allowed(['Standard', 'Premium'])
+param eventHubSku string = 'Standard'
 
-@description('Optional. Number of nodes to use in the cluster. Default = 2.')
-@minValue(2)
-@maxValue(1000)
-param skuCapacity int = 2
+//------------------------------------------------------------------------------
+// Variables
+//------------------------------------------------------------------------------
 
-@description('Optional. Name of the database. Default = "finopsdb".')
-param databaseName string = 'finopsdb'
+// Generate event grid topic name: 3-50 chars; letters/numbers/hyphens only -- https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsofteventgrid
+var eventGridTopicName = replace('${take('${replace(hubName, '_', '-')}-storage-adx', 49 - length(uniqueSuffix))}-${uniqueSuffix}', '--', '-')
 
-@description('Optional. Name of storage account. Default = "ingestion".')
-param storageContainerName string = 'ingestion'
-
-// TODO: Revisit name
-@description('Optional. Name of the Event Grid topic used to monitor for ingestion changes. Default = "adxingest-topic".')
-param eventGridTopicName string = 'adxingest-topic'
-
-// TODO: Align name to the hub
-@description('Optional. Name of the Event Hub namespace. Default = "eventHub{rg-name}".')
-param eventHubNamespaceName string = 'eventHub${uniqueString(resourceGroup().id)}'
-
-// TODO: Align name to the hub
-@description('Optional. Name of the Event Hub instance. Default = "storageHub".')
-param eventHubName string = 'storageHub'
-
-// TODO: Revisit name
-@description('Optional. Name of the Event Grid subscription. Default = "toEventHub".')
-param eventGridSubscriptionName string = 'toEventHub'
+// Generate event hub namespace name: 6-50 chars; letters/numbers/hyphens only -- https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsofteventhub
+var eventHubNamespaceName = '${take(replace(hubName, '_', ''), 50 - length(uniqueSuffix))}${uniqueSuffix}'
 
 //==============================================================================
 // Resources
 //==============================================================================
 
+//------------------------------------------------------------------------------
+// Dependencies
+//------------------------------------------------------------------------------
+
 resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
   name: storageAccountName
-
   resource blobServices 'blobServices' = {
     name: 'default'
-
-    resource landingContainer 'containers' = {
+    resource ingestionContainer 'containers' = {
       name: storageContainerName
     }
   }
 }
 
+//------------------------------------------------------------------------------
+// Event Hub for ingestion
+//------------------------------------------------------------------------------
+
 //  Event hub receiving event grid notifications
 resource eventHubNamespace 'Microsoft.EventHub/namespaces@2021-11-01' = {
   name: eventHubNamespaceName
   location: location
-  tags: tags
+  tags: union(tags, contains(tagsByResource, 'Microsoft.EventHub/namespaces') ? tagsByResource['Microsoft.EventHub/namespaces'] : {})
   sku: {
     capacity: 1
-    // TODO: Move to a parameter
-    name: 'Standard'
-    tier: 'Standard'
+    name: eventHubSku
+    tier: eventHubSku
   }
   properties: {}
 
-  resource eventHub 'eventhubs' = {
-    name: eventHubName
+  resource storageIngestionEventHub 'eventhubs' = {
+    name: 'StorageIngestion'
     properties: {
       messageRetentionInDays: 2
       partitionCount: 2
     }
 
-    resource kustoConsumerGroup 'consumergroups' = {
-      // TODO: Revisit name
-      name: 'kustoConsumerGroup'
+    resource adxConsumerGroup 'consumergroups' = {
+      name: 'ADX'
       properties: {}
     }
   }
@@ -97,10 +113,10 @@ resource eventHubNamespace 'Microsoft.EventHub/namespaces@2021-11-01' = {
 //  Here we setup an event grid topic and a subscription sending events to event hub
 
 //  Event grid topic on storage account
-resource blobTopic 'Microsoft.EventGrid/systemTopics@2023-12-15-preview' = {
+resource ingestionTopic 'Microsoft.EventGrid/systemTopics@2023-12-15-preview' = {
   name: eventGridTopicName
-  location: location
-  tags: tags
+  location: eventGridLocation
+  tags: union(tags, contains(tagsByResource, 'Microsoft.EventGrid/systemTopics') ? tagsByResource['Microsoft.EventGrid/systemTopics'] : {})
   identity: {
     //  We give an identity to the Event Grid so we can give it permission to write into Event Hub
     type: 'SystemAssigned'
@@ -111,14 +127,14 @@ resource blobTopic 'Microsoft.EventGrid/systemTopics@2023-12-15-preview' = {
   }
 
   //  Event Grid subscription, pushing events to event hub
-  resource newBlobSubscription 'eventSubscriptions' = {
-    name: eventGridSubscriptionName
+  resource ingestionEventHubTrigger 'eventSubscriptions' = {
+    name: 'toEventHub'
     properties: {
       deliveryWithResourceIdentity: {
         destination: {
           endpointType: 'EventHub'
           properties: {
-            resourceId: eventHubNamespace::eventHub.id
+            resourceId: eventHubNamespace::storageIngestionEventHub.id
           }
         }
         identity: {
@@ -127,7 +143,7 @@ resource blobTopic 'Microsoft.EventGrid/systemTopics@2023-12-15-preview' = {
       }
       eventDeliverySchema: 'EventGridSchema'
       filter: {
-        subjectBeginsWith: '/blobServices/default/containers/${storage::blobServices::landingContainer.name}'
+        subjectBeginsWith: '/blobServices/default/containers/${storage::blobServices::ingestionContainer.name}'
         includedEventTypes: [
           'Microsoft.Storage.BlobCreated'
         ]
@@ -142,29 +158,29 @@ resource blobTopic 'Microsoft.EventGrid/systemTopics@2023-12-15-preview' = {
 }
 
 //  Authorize topic to send to Event Hub
-resource topicEventHubRbacAuthorization 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(blobTopic.id, eventHubNamespace::eventHub.id, 'rbac')
-  scope: eventHubNamespace::eventHub
-
+resource ingestionTopicAccess 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(ingestionTopic.id, eventHubNamespace::storageIngestionEventHub.id, 'rbac')
+  scope: eventHubNamespace::storageIngestionEventHub
   properties: {
-    description: 'Azure Event Hubs Data Sender'
-    principalId: blobTopic.identity.principalId
+    description: 'Azure Event Hubs data sender'
+    principalId: ingestionTopic.identity.principalId
     principalType: 'ServicePrincipal'
-    //  See https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#analytics for built-in roles
-    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '2b629674-e913-4c01-ae53-ef4638d8f975')
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '2b629674-e913-4c01-ae53-ef4638d8f975') // Event Hubs Data Sender role -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#analytics
   }
 }
 
-//  Kusto cluster
+//------------------------------------------------------------------------------
+// Cluster + databases
+//------------------------------------------------------------------------------
+
 resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
   name: clusterName
   location: location
-  // TODO: Do we need to merge tagsByResource or is that handled before this bicep file?
-  tags: tags
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Kusto/clusters') ? tagsByResource['Microsoft.Kusto/clusters'] : {})
   sku: {
-    name: skuName
-    tier: 'Standard'
-    capacity: skuCapacity
+    name: clusterSkuName
+    tier: clusterSkuTier
+    capacity: clusterSkuCapacity
   }
   identity: {
     type: 'SystemAssigned'
@@ -173,78 +189,94 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
     enableStreamingIngest: true
   }
 
-  resource kustoDb 'databases' = {
-    name: databaseName
+  resource ingestionDb 'databases' = {
+    name: 'ingestion'
     location: location
     kind: 'ReadWrite'
 
-    resource kustoScript 'scripts' = {
-      name: 'db-script'
+    resource ingestionSetupScript 'scripts' = {
+      name: 'SetupScript'
       properties: {
-        scriptContent: loadTextContent('adxTableSchema.kql')
+        scriptContent: loadTextContent('scripts/IngestionDb.kql')
         continueOnErrors: continueOnErrors
         forceUpdateTag: forceUpdateTag
       }
     }
 
-    resource eventConnection 'dataConnections' = {
-      name: 'eventConnection'
+    resource ingestionEventHubConnection 'dataConnections' = {
+      name: 'eventHubConnection'
       location: location
       dependsOn: [
-        kustoScript
-        clusterEventHubAuthorization
+        ingestionSetupScript
+        clusterEventHubAccess
       ]
       kind: 'EventGrid'
       properties: {
         blobStorageEventType: 'Microsoft.Storage.BlobCreated'
-        consumerGroup: eventHubNamespace::eventHub::kustoConsumerGroup.name
+        consumerGroup: eventHubNamespace::storageIngestionEventHub::adxConsumerGroup.name
         dataFormat: 'parquet'
-        eventGridResourceId: blobTopic::newBlobSubscription.id
-        eventHubResourceId: eventHubNamespace::eventHub.id
+        eventGridResourceId: ingestionTopic::ingestionEventHubTrigger.id
+        eventHubResourceId: eventHubNamespace::storageIngestionEventHub.id
         ignoreFirstRecord: false
         managedIdentityResourceId: cluster.id
         storageAccountResourceId: storage.id
-        // TODO: How can we make this dynamic based on the dataset version?
-        tableName: 'FocusCost_1_0'
+        tableName: 'FocusCost_raw'
+      }
+    }
+  }
+
+  resource hubDb 'databases' = {
+    name: 'hub'
+    location: location
+    kind: 'ReadWrite'
+    dependsOn: [
+      ingestionDb
+    ]
+
+    resource hubSetupScript 'scripts' = {
+      name: 'SetupScript'
+      dependsOn: [
+        ingestionDb::ingestionSetupScript
+      ]
+      properties: {
+        scriptContent: loadTextContent('scripts/HubDb.kql')
+        continueOnErrors: continueOnErrors
+        forceUpdateTag: forceUpdateTag
       }
     }
   }
 }
 
 //  Authorize Kusto Cluster to receive event from Event Hub
-resource clusterEventHubAuthorization 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(cluster.name, eventHubName, 'Azure Event Hubs Data Receiver')
-  //  See https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/scope-extension-resources
-  //  for scope for extension
-  scope: eventHubNamespace::eventHub
+resource clusterEventHubAccess 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(cluster.name, eventHubNamespaceName, 'Azure Event Hubs Data Receiver')
+  //  See https://docs.microsoft.com/azure/azure-resource-manager/bicep/scope-extension-resources for scope for extension
+  scope: eventHubNamespace::storageIngestionEventHub
   properties: {
     description: 'Give "Azure Event Hubs Data Receiver" to the cluster'
     principalId: cluster.identity.principalId
     //  Required in case principal not ready when deploying the assignment
     principalType: 'ServicePrincipal'
-    //  See https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#analytics for built-in roles
     roleDefinitionId: subscriptionResourceId(
       'Microsoft.Authorization/roleDefinitions',
-      'a638d3c7-ab3a-418d-83e6-5f17a39d4fde'
+      'a638d3c7-ab3a-418d-83e6-5f17a39d4fde' // Event Hubs Data Receiver role -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#analytics
     )
   }
 }
 
 //  Authorize Kusto Cluster to read storage
-resource clusterStorageAuthorization 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+resource clusterStorageAccess 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(cluster.name, storageContainerName, 'Storage Blob Data Contributor')
-  //  See https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/scope-extension-resources
-  //  for scope for extension
+  //  See https://docs.microsoft.com/azure/azure-resource-manager/bicep/scope-extension-resources for scope for extension
   scope: storage::blobServices
   properties: {
     description: 'Give "Storage Blob Data Contributor" to the cluster'
     principalId: cluster.identity.principalId
     //  Required in case principal not ready when deploying the assignment
     principalType: 'ServicePrincipal'
-    //  See https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage for built-in roles
     roleDefinitionId: subscriptionResourceId(
       'Microsoft.Authorization/roleDefinitions',
-      'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
+      'ba92f5b4-2d11-453d-a403-e96b0029c9fe' // Storage Blob Data Contributor -- https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage
     )
   }
 }
@@ -262,5 +294,8 @@ output clusterName string = cluster.name
 @description('The URI of the cluster.')
 output clusterUri string = cluster.properties.uri
 
-@description('The name of the cluster database.')
-output clusterDbName string = databaseName
+@description('The name of the ingestion database.')
+output ingestionDbName string = cluster::ingestionDb.name
+
+@description('The name of the hub database.')
+output hubDbName string = cluster::hubDb.name

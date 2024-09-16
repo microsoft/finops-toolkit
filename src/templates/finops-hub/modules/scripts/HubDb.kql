@@ -1,0 +1,7 @@
+// View to dedupe data for FocusCost 1.0
+.create-or-alter function
+with (docstring = 'Gets all cost and usage records with the latest supported version of the FOCUS schema.', folder = 'Ingestion')
+Costs()
+{
+    database('ingestion').Costs_1_0
+}
