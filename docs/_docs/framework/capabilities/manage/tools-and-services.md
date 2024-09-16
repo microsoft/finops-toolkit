@@ -4,7 +4,7 @@ grand_parent: FinOps Framework
 parent: Manage
 title: FinOps tools and services
 permalink: /framework/capabilities/manage/tools
-nav_order: 6
+nav_order: 7
 description: This article helps you understand the FinOps tools and services capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 ---
 
@@ -99,6 +99,11 @@ At this point, you've defined your organizational objectives, identified how cur
 ## 🍎 Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [FinOps tools and services](https://www.finops.org/framework/capabilities/finops-tools-services/) article in the FinOps Framework documentation.
+
+You can also find related videos on the FinOps Foundation YouTube channel:
+
+<!--[!VIDEO https://www.youtube.com/embed/I4nRDraHaJc?list=PLUSCToibAswnrMcPgpshJr-10XDwD0E0i&pp=iAQB]-->
+{% include video.html title="Tools and services videos" id="I4nRDraHaJc" list="PLUSCToibAswnrMcPgpshJr-10XDwD0E0i" %}
 
 <br>
 

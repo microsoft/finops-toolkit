@@ -4,7 +4,7 @@ grand_parent: FinOps Framework
 parent: Manage
 title: Policy + governance
 permalink: /framework/capabilities/manage/policy
-nav_order: 5
+nav_order: 4
 description: This article helps you understand the cloud policy and governance capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
@@ -84,8 +84,8 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
-<!--[!VIDEO https://www.youtube.com/embed/{id}?list={list}]-->
-{% include video.html title="Cloud policy and governance videos" id="wxYMbhhA51dZNrky" list="PLUSCToibAswk2tx4PuWlztgSK9DZpL04b" %}
+<!--[!VIDEO https://www.youtube.com/embed/wiqCovCttOc?list=PLUSCToibAswnr2q_J-kn7Yii1CO2-PU35&pp=iAQB]-->
+{% include video.html title="Cloud policy and governance videos" id="wiqCovCttOc" list="PLUSCToibAswnr2q_J-kn7Yii1CO2-PU35" %}
 
 <br>
 

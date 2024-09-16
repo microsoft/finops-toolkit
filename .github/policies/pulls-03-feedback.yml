@@ -32,6 +32,8 @@ configuration:
         then:
           - addLabel:
               label: 'Needs: Attention 👋'
+          - removeLabel:
+              label: 'Needs: Review 👀'
           - assignTo:
               author: True
           - addReply:

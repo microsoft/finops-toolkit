@@ -14,21 +14,41 @@ configuration:
         if:
           - payloadType: Issues
         then:
-          # bicep
+          # aoe
           - if:
               - or:
                   - titleContains:
-                      pattern: '^\[Bicep Registry\]'
-                      isRegex: true
-                  - titleContains:
-                      pattern: '^\[Bicep\]'
+                      pattern: /(aoe|optimization engine)/i
                       isRegex: true
                   - bodyContains:
-                      pattern: /bicep/i
+                      pattern: /(aoe|optimization engine)/i
                       isRegex: true
             then:
               - addLabel:
-                  label: 'Skill: DevOps'
+                  label: 'Tool: Optimization Engine'
+          # bicep / terraform
+          - if:
+              - or:
+                  - titleContains:
+                      pattern: /(bicep|terraform)/i
+                      isRegex: true
+                  - bodyContains:
+                      pattern: /(bicep|terraform)/i
+                      isRegex: true
+            then:
+              - addLabel:
+                  label: 'Skill: Deployment'
+          - if:
+              - or:
+                  - titleContains:
+                      pattern: /bicep registry/i
+                      isRegex: true
+                  - bodyContains:
+                      pattern: /bicep registry/i
+                      isRegex: true
+            then:
+              - addLabel:
+                  label: 'Tool: Bicep Registry'
           # devops
           - if:
               - or:
@@ -36,7 +56,7 @@ configuration:
                       pattern: '^\[DevOps\]'
                       isRegex: true
                   - bodyContains:
-                      pattern: /DevOps/i
+                      pattern: /devops/i
                       isRegex: true
             then:
               - addLabel:
@@ -45,10 +65,10 @@ configuration:
           - if:
               - or:
                   - titleContains:
-                      pattern: '^\[Hubs\]'
+                      pattern: /hubs/i
                       isRegex: true
                   - bodyContains:
-                      pattern: /Hubs/i
+                      pattern: /hubs/i
                       isRegex: true
             then:
               - addLabel:
@@ -69,7 +89,7 @@ configuration:
           - if:
               - or:
                   - titleContains:
-                      pattern: '^\[PowerShell\]'
+                      pattern: /PowerShell/i
                       isRegex: true
                   - bodyContains:
                       pattern: /PowerShell/i

@@ -47,6 +47,13 @@ var storageAccountName = '${take(safeHubName, 24 - length(storageAccountSuffix))
 var schemaFiles = {
   'focuscost_1.0': loadTextContent('../schemas/focuscost_1.0.json')
   'focuscost_1.0-preview(v1)': loadTextContent('../schemas/focuscost_1.0-preview(v1).json')
+  'pricesheet_2023-05-01_ea': loadTextContent('../schemas/pricesheet_2023-05-01_ea.json')
+  'pricesheet_2023-05-01_mca': loadTextContent('../schemas/pricesheet_2023-05-01_mca.json')
+  'reservationdetails_2023-05-01': loadTextContent('../schemas/reservationdetails_2023-05-01.json')
+  'reservationrecommendations_2023-05-01_ea': loadTextContent('../schemas/reservationrecommendations_2023-05-01_ea.json')
+  'reservationrecommendations_2023-05-01_mca': loadTextContent('../schemas/reservationrecommendations_2023-05-01_mca.json')
+  'reservationtransactions_2023-05-01_ea': loadTextContent('../schemas/reservationtransactions_2023-05-01_ea.json')
+  'reservationtransactions_2023-05-01_mca': loadTextContent('../schemas/reservationtransactions_2023-05-01_mca.json')
 }
 
 // Roles needed to auto-start triggers

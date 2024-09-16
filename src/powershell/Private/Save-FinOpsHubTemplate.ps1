@@ -66,11 +66,11 @@ function Save-FinOpsHubTemplate
         $releases = Get-FinOpsToolkitVersion -Latest:$($Version -eq 'Latest') -Preview:$Preview `
         | Where-Object { $_.Version -ne '0.2' -and ($azEnv -eq 'AzureCloud' -or $_.Version.StartsWith('0.0') -or $_.Version.StartsWith('0.1')) }  # 0.2 not supported in Azure Gov/China (as of Feb 2024)
 
-        # Redirect 0.2 to 0.2.1 due to bug
+        # Redirect 0.2 to 0.3 due to bug
         if ($Version -eq '0.2')
         {
             Write-Information $LocalizedData.Hub_Deploy_02to021
-            $Version = '0.2.1'
+            $Version = '0.3'
         }
         
         # TODO: Remove 0.2+ redirect for Azure Gov/China when FOCUS exports are supported

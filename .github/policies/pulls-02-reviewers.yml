@@ -10,7 +10,7 @@ where:
 configuration:
   resourceManagementConfiguration:
     eventResponderTasks:
-      - description: When a PR is opened, add labels based on file paths
+      - description: When a PR is opened, add reviewers and labels based on file paths
         if:
           - payloadType: Pull_Request
           - not:
@@ -41,7 +41,7 @@ configuration:
           - if:
               - or:
                   - filesMatchPattern:
-                      pattern: ^(.build|.github|.vscode|src\/scripts)\/.*
+                      pattern: ^(\.build|\.github|\.vscode|src\/scripts)\/.*
                   - filesMatchPattern:
                       pattern: ^src\/([^\/]+\/)?[^\/]+.md$
                   - filesMatchPattern:
@@ -78,7 +78,7 @@ configuration:
                   pattern: ^src\/.*\.bicep
             then:
               - addLabel:
-                  label: 'Skill: ARM'
+                  label: 'Skill: Deployment'
           - if:
               - filesMatchPattern:
                   pattern: ^(docs\/_automation|docs-mslearn\/toolkit|src)\/bicep-registry\/.*
@@ -107,15 +107,27 @@ configuration:
                       user: msbrett
           # open data
           - if:
-              - filesMatchPattern:
-                  pattern: ^(docs\/_reporting\/data|(docs-mslearn\/toolkit|src)\/open-data)\/.*
+              - or:
+                  - filesMatchPattern:
+                      pattern: ^docs\/_reporting\/data\/.*
+                  - filesMatchPattern:
+                      pattern: ^docs-mslearn\/toolkit\/open-data\/.*
+                  - filesMatchPattern:
+                      pattern: ^src\/open-data\/.*
             then:
               - addLabel:
                   label: 'Tool: Open data'
+          # power-bi
+          - if:
+              - filesMatchPattern:
+                  pattern: ^(docs\/_reporting|src)\/power-bi\/.*
+            then:
+              - addLabel:
+                  label: 'Tool: Power BI'
           # powershell
           - if:
               - filesMatchPattern:
-                  pattern: ^(docs\/_automation|docs-mslearn\/toolkit+|src)\/powershell\/.*
+                  pattern: ^(docs\/_automation|docs-mslearn\/toolkit|src)\/powershell\/.*
             then:
               - addLabel:
                   label: 'Tool: PowerShell'
@@ -176,9 +188,18 @@ configuration:
                       reviewer: helderpinto
                   - assignTo:
                       user: helderpinto
+          # terraform
+          - if:
+              - filesMatchPattern:
+                  pattern: ^src\/.*\.tf
+            then:
+              - addLabel:
+                  label: 'Skill: Deployment'
           # workbooks
           - if:
               - or:
+                  - filesMatchPattern:
+                      pattern: ^docs\/_optimize\/workbooks\/.*
                   - filesMatchPattern:
                       pattern: ^docs\/_optimize\/[^-]+-workbook\/.*
                   - filesMatchPattern:
@@ -187,7 +208,7 @@ configuration:
                       pattern: ^src\/workbooks\/.*
             then:
               - addLabel:
-                  label: 'Skill: Workbooks'
+                  label: 'Tool: Workbooks'
               - if:
                   - filesMatchPattern:
                       pattern: ^(docs\/_optimize\/optimization-workbook|src\/workbooks\/optimization)\/.*
@@ -196,7 +217,7 @@ configuration:
                       label: 'Tool: Optimization workbook'
               - if:
                   - filesMatchPattern:
-                      pattern: ^(docs\/governance-workbook|src\/workbooks\/governance)\/.*
+                      pattern: ^(docs\/_optimize\/governance-workbook|docs-mslearn\/toolkit\/governance-workbook|src\/workbooks\/governance)\/.*
                 then:
                   - addLabel:
                       label: 'Tool: Governance workbook'
@@ -204,7 +225,7 @@ configuration:
               - if:
                   - or:
                       - filesMatchPattern:
-                          pattern: ^docs\/_optimize\/governance-workbook\/.*
+                          pattern: ^(docs\/_optimize|docs-mslearn\/toolkit)\/governance-workbook\/.*
                       - filesMatchPattern:
                           pattern: ^src\/scripts\/Build-Workbook.ps1$
                       - filesMatchPattern:
@@ -221,7 +242,7 @@ configuration:
               - if:
                   - or:
                       - filesMatchPattern:
-                          pattern: ^docs\/_optimize\/optimization-workbook\/.*
+                          pattern: ^(docs\/_optimize|docs-mslearn\/toolkit)\/optimization-workbook\/.*
                       - filesMatchPattern:
                           pattern: ^src\/scripts\/Build-Workbook.ps1$
                       - filesMatchPattern:

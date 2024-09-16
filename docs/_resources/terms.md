@@ -3,7 +3,7 @@ layout: default
 title: Common terms
 nav_order: 30
 description: 'Common terms and definitions used throughout FinOps hubs.'
-permalink: /resources/terms
+permalink: /help/terms
 ---
 
 <span class="fs-9 d-block mb-4">Common terms</span>

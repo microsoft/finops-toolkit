@@ -1,3 +1,6 @@
+/// FinOps hub settings.
+/// 
+/// To learn more, see https://aka.ms/finops/hubs
 table HubSettings
 	lineageTag: b391a865-7a16-491c-a9f4-8bc826285b97
 
@@ -6,14 +9,6 @@ table HubSettings
 		lineageTag: a419c4ca-d949-4420-a845-8976869a7232
 		summarizeBy: none
 		sourceColumn: StorageAccount
-
-		annotation SummarizationSetBy = Automatic
-
-	column Version
-		dataType: string
-		lineageTag: fdea84c2-5bb2-40f3-9e9c-0b3ca4f07667
-		summarizeBy: none
-		sourceColumn: Version
 
 		annotation SummarizationSetBy = Automatic
 
@@ -47,25 +42,35 @@ table HubSettings
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
+	column Version
+		dataType: string
+		lineageTag: 20ddbb32-4fc2-4fa9-bcb0-7c5382ed04b0
+		summarizeBy: none
+		sourceColumn: Version
+
+		annotation SummarizationSetBy = Automatic
+
 	partition HubSettings = m
 		mode: import
 		queryGroup: 'FinOps toolkit'
 		source =
 				let
-				    _config = #"Storage URL" & "/../config/",
-				    ADLS = AzureStorage.DataLake(_config),
-				    Settings = Json.Document(ADLS{[Name="settings.json"]}[Content], 1252),
-				    ToTable = Table.FromRecords({Settings}),
-				    Retention = if Table.HasColumns(ToTable, "retention") then Table.ExpandRecordColumn(ToTable, "retention", {"msexports", "ingestion"}, {"retention.msexports", "retention.ingestion"}) else ToTable,
-				    ExportRetention = if Table.HasColumns(ToTable, "retention") then Table.ExpandRecordColumn(Retention, "retention.msexports", {"days"}, {"ExportRetentionInDays"}) else Table.AddColumn(Retention, "ExportRetentionInDays", each null),
-				    IngestRetention = if Table.HasColumns(ToTable, "retention") then Table.ExpandRecordColumn(ExportRetention, "retention.ingestion", {"months"}, {"IngestionRetentionInMonths"}) else Table.AddColumn(ExportRetention, "IngestionRetentionInMonths", each null),
-				    ScopeCount = Table.AddColumn(IngestRetention, "Scopes", each try List.Count(List.RemoveMatchingItems([scopes], {"/foo", ""})) otherwise 0),
-				    Storage = Table.AddColumn(ScopeCount, "StorageAccount", each Text.SplitAny(#"Storage URL", "/."){2}),
-				    SelectColumns = Table.SelectColumns(Storage, {"StorageAccount", "version", "ExportRetentionInDays", "IngestionRetentionInMonths", "Scopes"}),
-				    FixTypes = Table.TransformColumnTypes(SelectColumns, {{"version", type text}, {"ExportRetentionInDays", type number}, {"IngestionRetentionInMonths", type number}, {"Scopes", type number}}),
-				    Version = Table.RenameColumns(FixTypes, {{"version", "Version"}})
+                    ADLS = if #"Hub Storage URL" = "" or #"Hub Storage URL" = null then null else AzureStorage.DataLake(#"Hub Storage URL" & "/../config"),
+				
+				    Settings = if ADLS = null then null else Json.Document(ADLS{[Name="settings.json"]}[Content], 1252),
+				    ToTable = if ADLS = null then null else Table.FromRecords({Settings}),
+				    Retention = if ADLS = null then null else if Table.HasColumns(ToTable, "retention") then Table.ExpandRecordColumn(ToTable, "retention", {"msexports", "ingestion"}, {"retention.msexports", "retention.ingestion"}) else ToTable,
+				    ExportRetention = if ADLS = null then null else if Table.HasColumns(ToTable, "retention") then Table.ExpandRecordColumn(Retention, "retention.msexports", {"days"}, {"ExportRetentionInDays"}) else Table.AddColumn(Retention, "ExportRetentionInDays", each null),
+				    IngestRetention = if ADLS = null then null else if Table.HasColumns(ToTable, "retention") then Table.ExpandRecordColumn(ExportRetention, "retention.ingestion", {"months"}, {"IngestionRetentionInMonths"}) else Table.AddColumn(ExportRetention, "IngestionRetentionInMonths", each null),
+				    ScopeCount = if ADLS = null then null else Table.AddColumn(IngestRetention, "Scopes", each try List.Count(List.RemoveMatchingItems([scopes], {"/foo", ""})) otherwise 0),
+				    Storage = if ADLS = null then null else Table.AddColumn(ScopeCount, "StorageAccount", each Text.SplitAny(#"Hub Storage URL", "/."){2}),
+				    SelectColumns = if ADLS = null then null else Table.SelectColumns(Storage, {"StorageAccount", "version", "ExportRetentionInDays", "IngestionRetentionInMonths", "Scopes"}),
+				    FixTypes = if ADLS = null then null else Table.TransformColumnTypes(SelectColumns, {{"version", type text}, {"ExportRetentionInDays", type number}, {"IngestionRetentionInMonths", type number}, {"Scopes", type number}}),
+				    Version = if ADLS = null then null else Table.RenameColumns(FixTypes, {{"version", "Version"}})
 				in
 				    Version
 
-	annotation PBI_ResultType = Table
+	annotation PBI_ResultType = Null
+
+	annotation PBI_NavigationStepName = Navigation
 

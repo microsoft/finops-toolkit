@@ -4,8 +4,7 @@ grand_parent: FinOps Framework
 parent: Optimize
 title: Licensing and SaaS
 permalink: /framework/capabilities/optimize/licensing
-
-nav_order: 3
+nav_order: 4
 description: This article helps you understand the licensing and SaaS capability within the FinOps Framework and how to implement that in the Microsoft Cloud.
 author: bandersmsft
 ms.author: banders
@@ -71,6 +70,9 @@ At this point, you have definied a strategy for Licensing and SaaS optimization.
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Licensing and SaaS](https://www.finops.org/framework/capabilities/licensing-saas//) article in the FinOps Framework documentation.
 
 You can also find related videos on the FinOps Foundation YouTube channel:
+
+<!--[!VIDEO https://www.youtube.com/embed/E0apggxoBbc?list=PLUSCToibAswlWejHPVjbCqa3fJQvogzB9&pp=iAQB]-->
+{% include video.html title="Licensing and SaaS videos" id="E0apggxoBbc" list="PLUSCToibAswlWejHPVjbCqa3fJQvogzB9" %}
 
 <br>
 

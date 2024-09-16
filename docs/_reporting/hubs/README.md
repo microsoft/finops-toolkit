@@ -38,9 +38,9 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 We are very early in our journey. Today, FinOps hubs extend Cost Management by exporting cost details to a consolidated storage account and addressing a few of the inherent limitations that make exports more difficult to use. In their most basic form, FinOps hubs enable more Power BI reporting options. On the more advanced end, FinOps hubs are a foundation for you to build your own cost management and optimization solution.
 
 <blockquote class="highlight-green-title" markdown="1">
-  💵 Estimated cost: $25 per $1M in cost
+  💵 Estimated cost: $25/mo per $1M in cost being monitored
   
-  Estimated cost is based on list prices and does not include negotiated discounts. Exact cost of the solution may vary. Cost is primarily for data storage and number of times data is ingested. Pipelines will run once a day per export. Use the [Data ingestion report](../power-bi/data-ingestion.md) to monitor hub cost.
+  _Estimated cost includes $5 for Azure storage and data processing plus up to $20 per user for [Power BI licenses](https://www.microsoft.com/power-platform/products/power-bi/pricing). Exact cost will vary based on discounts, data size per $1M (~20GB of data), and Power BI license requirements. Pipelines will run once a day per export, plus one additional monthly run per export. Pipeline run time depends on data size. For details, refer to the [FinOps hub cost estimate](https://azure.com/e/c3d98263bec048b6af52acb180c42b7e) in the Azure Pricing Calculator or monitor hub cost using the [Data ingestion report](../power-bi/data-ingestion.md)._
 </blockquote>
 
 <blockquote class="note" markdown="1">
@@ -101,34 +101,28 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
 ## ➕ Create a new hub
 
 <blockquote class="note" markdown="1">
-  _FinOps hubs 0.2 is a breaking change. To upgrade an existing hub instance, please refer to the [Upgrade guide](./upgrade.md)._
+  _FinOps hubs 0.4 introduces support for FOCUS 1.0. This is **not** a breaking change and is completely backwards compatible with v0.3. To learn more, please refer to the [Upgrade guide](./upgrade.md)._
 </blockquote>
 
-1. **Register resource providers.**
-
-   FinOps hubs use Event Grid and Cost Management behind the scenes. Before you deploy your template, register the `Microsoft.EventGrid` and `Microsoft.CostManagementExports` resource providers.
-
-   [Learn more](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider)
-
-2. **Deploy your FinOps hub.**
+1. **Deploy your FinOps hub.**
 
    {% include deploy.html template="finops-hub" public="1" gov="0" china="0" %}
 
    [Learn more](../../_resources/deploy.md)
 
-3. **Configure scopes to monitor.**
+2. **Configure scopes to monitor.**
 
    FinOps hubs use Cost Management exports to load the data you want to monitor. You can configure exports manually or grant access to your hub to manage exports for you.
 
    [Learn more](./configure-scopes.md)
 
-4. **Connect to your data.**
+3. **Connect to your data.**
 
    You can connect to your data from any system that supports Azure storage. For ideas, see [get started with hubs](#-get-started-with-hubs) below. We recommend using pre-built Power BI starter templates to get started quickly.
 
    [Learn more](../power-bi/README.md#-connect-to-your-data)
 
-If you run into any issues, see [Troubleshooting Power BI reports](../resources/troubleshooting.md).
+If you run into any issues, see [Troubleshooting Power BI reports](../../_resources/troubleshooting.md).
 
 <blockquote class="note" markdown="1">
   _If you need to deploy to Azure Gov or Azure China, please use [FinOps hubs 0.1.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1). Instructions are the same except you will create an amortized cost export instead of a FOCUS export._
@@ -188,7 +182,7 @@ Required permissions for deploying or updating hub instances are covered in the 
 
 You will need one or more of the following to export your cost data:
 
-| Scope                             | Permission                                                                                                                            |
+| Scope                                                 | Permission                                                                                                                             |
 | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | Subscriptions and resource groups (all account types) | [Cost Management Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cost-management-contributor). |
 | EA billing scopes                                     | Enterprise Reader, Department Reader, or Account Owner (aka enrollment account).                                                       |

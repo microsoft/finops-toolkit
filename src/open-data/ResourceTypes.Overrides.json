@@ -13,6 +13,32 @@
     "singular": "Analysis Services server"
   },
   {
+    "type": "microsoft.apimanagement/gateways",
+    "originalPlural": "Gateways",
+    "originalSingular": "Gateways",
+    "plural": "API Management gateways",
+    "singular": "API Management gateway"
+  },
+  {
+    "type": "microsoft.apimanagement/gateways/configconnections",
+    "plural": "API Management gateway connections",
+    "singular": "API Management gateway connection"
+  },
+  {
+    "type": "microsoft.app/logicapps",
+    "plural": "Logic apps",
+    "singular": "Logic app",
+    "lowerPlural": "logic apps",
+    "lowerSingular": "logic app"
+  },
+  {
+    "type": "microsoft.app/logicapps/workflows",
+    "plural": "Logic app workflows",
+    "singular": "Logic app workflow",
+    "lowerPlural": "logic app workflows",
+    "lowerSingular": "logic app workflow"
+  },
+  {
     "type": "microsoft.appservice/apiapps",
     "plural": "API apps",
     "singular": "API app"
@@ -96,6 +122,22 @@
     "type": "microsoft.classicnetwork/ipv4vip",
     "plural": "IPv4 virtual IPs",
     "singular": "IPv4 virtual IP"
+  },
+  {
+    "type": "microsoft.compute/capacityreservationgroups/capacityreservations",
+    "singular": "Capacity reservation",
+    "plural": "Capacity reservations",
+    "lowerSingular": "capacity reservation",
+    "lowerPlural": "capacity reservations",
+    "icon": "<svg viewBox='0 0 18 18' xmlns='http://www.w3.org/2000/svg'><g><path fill='#a33a85' d='m15.434 9.798-1.71 1.01-1.72 1-3.01 1.77-3-1.77-1.71-1-1.72-1.01 1.35-.79 5.08 2.98 5.09-2.98 1.35.79z'/><path fill='#59285f' d='M15.434 9.798v1.72l-6.44 3.78-6.43-3.78v-1.72l1.72 1.01 1.71 1 3 1.77 3.01-1.77 1.72-1 1.71-1.01z'/><path fill='#a33a85' d='m15.434 6.488-1.71 1-1.11.65-.61.36-3.01 1.76-3-1.76-.61-.36-1.1-.65-1.72-1 6.43-3.79 6.44 3.79z'/><path fill='#59285f' d='M15.434 6.488v1.72l-1.35.8-5.09 2.98-5.08-2.98-1.35-.8v-1.72l1.72 1 1.1.65.61.36 3 1.76 3.01-1.76.61-.36 1.11-.65 1.71-1z'/><path d='M16.755 4.794v8.416a.565.565 0 0 1-.281.49l-7.186 4.222A.566.566 0 0 1 9 18V9.022l7.679-4.51a.569.569 0 0 1 .076.282Z' fill='#a33a85' fill-opacity='.6'/><path d='M16.68 4.512 9 9.011v.011L1.32 4.511a.551.551 0 0 1 .206-.211L8.718.075a.569.569 0 0 1 .57 0l7.189 4.227a.567.567 0 0 1 .203.21Z' fill='#dc92bf' fill-opacity='.6'/><path d='M9 9.022V18a.547.547 0 0 1-.284-.077L1.526 13.7a.565.565 0 0 1-.281-.49V4.791a.564.564 0 0 1 .075-.28Z' fill='#ce74b6' fill-opacity='.6'/></g></svg>"
+  },
+  {
+    "type": "microsoft.compute/virtualmachinescalesets/virtualmachines",
+    "singular": "Virtual machine scale set instance",
+    "plural": "Virtual machine scale set instances",
+    "lowerSingular": "virtual machine scale set instance",
+    "lowerPlural": "virtual machine scale set instances",
+    "icon": "<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'><defs><linearGradient id='1d03f79a-96a0-4d61-a23a-1ddcc58a51d4' x1='8.88' x2='8.88' y1='12.21' y2='.21' gradientUnits='userSpaceOnUse'><stop offset='0' stop-color='#0078d4'/><stop offset='.82' stop-color='#5ea0ef'/></linearGradient><linearGradient id='d58a7efe-239c-4678-aeab-4c0c6e658145' x1='8.88' x2='8.88' y1='16.84' y2='12.21' gradientUnits='userSpaceOnUse'><stop offset='.15' stop-color='#ccc'/><stop offset='1' stop-color='#707070'/></linearGradient></defs><rect width='18' height='12' x='-.12' y='.21' fill='url(#1d03f79a-96a0-4d61-a23a-1ddcc58a51d4)' rx='.6'/><path fill='#50e6ff' d='M11.88 4.46v3.49l-3 1.76v-3.5l3-1.75z'/><path fill='#c3f1ff' d='M11.88 4.46l-3 1.76-3-1.76 3-1.75 3 1.75z'/><path fill='#9cebff' d='M8.88 6.22v3.49l-3-1.76V4.46l3 1.76z'/><path fill='#c3f1ff' d='M5.88 7.95l3-1.74v3.5l-3-1.76z'/><path fill='#9cebff' d='M11.88 7.95l-3-1.74v3.5l3-1.76z'/><path fill='url(#d58a7efe-239c-4678-aeab-4c0c6e658145)' d='M12.49 15.84c-1.78-.28-1.85-1.56-1.85-3.63H7.11c0 2.07-.06 3.35-1.84 3.63a1 1 0 00-.89 1h9a1 1 0 00-.89-1z'/></svg>"
   },
   {
     "type": "microsoft.cloud/hubs",
