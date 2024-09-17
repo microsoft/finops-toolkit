@@ -5,7 +5,7 @@
     "mappings": [
       {
         "source": { "name": "SKU", "type": "String" },
-        "sink": { "name": "SKU" }
+        "sink": { "name": "SkuName" }
       },
       {
         "source": { "name": "Location", "type": "String" },
