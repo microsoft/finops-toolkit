@@ -7,19 +7,19 @@ expression 'Hub Storage URL' = "https://ftkmicfland5pd7gdo37oozc.dfs.core.window
 
 	annotation PBI_NavigationStepName = Navigation
 
-expression RangeStart = null meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=false]
+expression RangeStart = #datetime(2024, 9, 1, 0, 0, 0) meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=false]
 	lineageTag: 90085870-f708-4bc2-90c1-3a343e88a26b
 	queryGroup: '🛠️ Setup'
 
-	annotation PBI_ResultType = Null
+	annotation PBI_ResultType = DateTime
 
 	annotation PBI_NavigationStepName = Navigation
 
-expression RangeEnd = null meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=false]
+expression RangeEnd = #datetime(2024, 9, 2, 0, 0, 0) meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=false]
 	lineageTag: 695f1d3b-7b1a-49fa-8d83-f2c25dc787de
 	queryGroup: '🛠️ Setup'
 
-	annotation PBI_ResultType = Null
+	annotation PBI_ResultType = DateTime
 
 	annotation PBI_NavigationStepName = Navigation
 
@@ -27,15 +27,15 @@ expression RangeEnd = null meta [IsParameterQuery=true, Type="DateTime", IsParam
 /// 
 /// Learn more about FinOps hubs @ https://aka.ms/finops/hubs
 expression ftk_Storage = ```
-		(optional datasetType as text) =>
+		(optional datasetType as text, optional startDate as datetime, optional endDate as datetime) =>
 		let
 		    // Config
 		    hubUrl = #"Hub Storage URL",
 		    expUrl = #"Export Storage URL",
-		    end    = if RangeEnd <> null then RangeEnd else null,
+		    end    = if endDate <> null then endDate else null,
 		    start  = 
-		        if RangeStart <> null then RangeStart 
-		        else if #"Number of Months" <> null and #"Number of Months" > 0 then Date.AddMonths(if RangeEnd <> null then RangeEnd else Date.StartOfMonth(Date.From(DateTime.LocalNow())), -#"Number of Months"+1)
+		        if startDate <> null then startDate 
+		        else if #"Number of Months" <> null and #"Number of Months" > 0 then Date.AddMonths(if endDate <> null then endDate else Date.StartOfMonth(Date.From(DateTime.LocalNow())), -#"Number of Months"+1)
 		        else null,
 		    data   = if datasetType <> null and datasetType <> "" then Text.Lower(datasetType) else "focuscost",
 		

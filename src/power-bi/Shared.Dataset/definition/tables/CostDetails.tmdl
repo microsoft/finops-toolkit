@@ -1307,7 +1307,7 @@ table CostDetails
 		source = ```
 				let
 				    // Get the data
-				    RawData = ftk_Storage("focuscost"),
+				    RawData = ftk_Storage("focuscost", RangeStart, RangeEnd),
 				
 				    // Helper functions
 				    _exists     = (col) => Table.HasColumns(rawData, col),
