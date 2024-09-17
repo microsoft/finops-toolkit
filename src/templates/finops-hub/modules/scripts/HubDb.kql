@@ -5,3 +5,10 @@ Costs()
 {
     database('ingestion').Costs_1_0
 }
+
+// View to get the latest recommendations
+.create-or-alter function with (docstring = "Gets all RI recommendations.",folder = "Ingestion") 
+Recommendations()
+{
+    database('ingestion').Recommendations_1_0
+}
