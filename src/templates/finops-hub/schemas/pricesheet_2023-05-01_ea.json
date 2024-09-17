@@ -9,7 +9,7 @@
       },
       {
         "source": { "name": "MeterID", "type": "String" },
-        "sink": { "name": "MeterID" }
+        "sink": { "name": "MeterId" }
       },
       {
         "source": { "name": "MeterName", "type": "String" },
@@ -33,15 +33,15 @@
       },
       {
         "source": { "name": "Product", "type": "String" },
-        "sink": { "name": "Product" }
+        "sink": { "name": "ProductName" }
       },
       {
         "source": { "name": "SkuID", "type": "String" },
-        "sink": { "name": "SkuID" }
+        "sink": { "name": "SkuId" }
       },
       {
         "source": { "name": "ProductID", "type": "String" },
-        "sink": { "name": "ProductID" }
+        "sink": { "name": "ProductId" }
       },
       {
         "source": { "name": "MeterRegion", "type": "String" },
@@ -77,7 +77,7 @@
       },
       {
         "source": { "name": "CurrencyCode", "type": "String" },
-        "sink": { "name": "CurrencyCode" }
+        "sink": { "name": "BillingCurrency" }
       },
       {
         "source": { "name": "IncludedQuantity", "type": "Decimal" },
@@ -85,7 +85,7 @@
       },
       {
         "source": { "name": "OfferID", "type": "String" },
-        "sink": { "name": "OfferID" }
+        "sink": { "name": "OfferId" }
       },
       {
         "source": { "name": "Term", "type": "String" },

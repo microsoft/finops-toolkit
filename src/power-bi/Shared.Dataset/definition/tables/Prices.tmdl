@@ -342,23 +342,36 @@ table Prices
 				                    Table.TransformColumnTypes(FixTypes, {{"IncludedQuantity",   type number}}),
 				                    {
 				                        {"EnrollmentNumber", "BillingAccountId"},
+				                        {"Currency",         "PricingCurrency"},
 				                        {"CurrencyCode",     "BillingCurrency"},
 				                        {"MeterID",          "MeterId"},
+				                        {"OfferID",          "OfferId"},
 				                        {"ProductID",        "ProductId"},
+				                        {"Product",          "ProductName"},
 				                        {"SkuID",            "SkuID"}
 				                    },
 				                    MissingField.Ignore
 				                ),
 				                "BillingProfileId", each [BillingAccountId]),
-				                "Currency",         each [BillingCurrency])
+				                "PricingCurrency",  each [BillingCurrency])
 				        )
 				        // If both EA and MCA, move EA values to MCA columns
 				        else if HasEA and HasMCA then (
-				            Table.RemoveColumns(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(FixTypes,
+				            Table.RemoveColumns(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(
+                                Table.RenameColumns(
+				                    FixTypes,
+				                    {
+				                        {"Currency",         "PricingCurrency"},
+				                        {"CurrencyCode",     "BillingCurrency"},
+				                        {"OfferID",          "OfferId"},
+				                        {"Product",          "ProductName"}
+				                    },
+				                    MissingField.Ignore
+				                ),
 				                each [BillingAccountId], each if [EnrollmentNumber] <> null then [EnrollmentNumber] else [BillingAccountId], Replacer.ReplaceValue, {"BillingAccountId"}),
 				                each [BillingProfileId], each if [EnrollmentNumber] <> null then [EnrollmentNumber] else [BillingProfileId], Replacer.ReplaceValue, {"BillingProfileId"}),
 				                each [BillingCurrency],  each if [CurrencyCode]     <> null then [CurrencyCode]     else [BillingCurrency],  Replacer.ReplaceValue, {"BillingCurrency"}),
-				                each [Currency],         each if [CurrencyCode]     <> null then [CurrencyCode]     else [Currency],         Replacer.ReplaceValue, {"Currency"}),
+				                each [PricingCurrency],  each if [CurrencyCode]     <> null then [CurrencyCode]     else [PricingCurrency],  Replacer.ReplaceValue, {"Currency"}),
 				                each [MeterId],          each if [MeterID]          <> null then [MeterID]          else [MeterId],          Replacer.ReplaceValue, {"MeterId"}),
 				                each [ProductId],        each if [ProductID]        <> null then [ProductID]        else [ProductId],        Replacer.ReplaceValue, {"ProductId"}),
 				                each [SkuId],            each if [SkuID]            <> null then [SkuID]            else [SkuId],            Replacer.ReplaceValue, {"SkuId"}),
@@ -386,7 +399,7 @@ table Prices
 				            {"MeterSubCategory",   "x_SkuMeterSubcategory"},
 				            {"MeterType",          "x_SkuMeterType"},
 				            {"PriceType",          "x_SkuPriceType"},
-				            {"Product",            "x_SkuDescription"},
+				            {"ProductName",        "x_SkuDescription"},
 				            {"ProductId",          "x_SkuProductId"},
 				            {"ServiceFamily",      "x_SkuServiceFamily"},
 				            {"SkuId",              "x_SkuId"},
@@ -396,7 +409,7 @@ table Prices
 				            {"UnitPrice",          "ContractedUnitPrice"},
 				            // EA only
 				            {"IncludedQuantity",   "x_SkuIncludedQuantity"},
-				            {"OfferID",            "x_SkuOfferId"},
+				            {"OfferId",            "x_SkuOfferId"},
 				            {"PartNumber",         "x_SkuPartNumber"}
 				        },
 				        MissingField.Ignore

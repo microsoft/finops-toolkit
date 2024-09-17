@@ -25,7 +25,7 @@
       },
       {
         "source": { "name": "Product", "type": "String" },
-        "sink": { "name": "Product" }
+        "sink": { "name": "ProductName" }
       },
       {
         "source": { "name": "ProductId", "type": "String" },
@@ -89,7 +89,7 @@
       },
       {
         "source": { "name": "Currency", "type": "String" },
-        "sink": { "name": "Currency" }
+        "sink": { "name": "PricingCurrency" }
       },
       {
         "source": { "name": "BillingCurrency", "type": "String" },
