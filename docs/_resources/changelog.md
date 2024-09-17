@@ -17,6 +17,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
+- [🚚 v0.6](#-v06)
 - [🪛 v0.5 Update 1](#-v05-update-1)
 - [🚚 v0.5](#-v05)
 - [🚚 v0.4](#-v04)
@@ -76,6 +77,19 @@ Legend:
 >
 > 1. Cost Management export modules for subscriptions and resource groups.
 
+<br><a name="latest"></a>
+
+
+## 🚚 v0.6
+<sup>Released September 2024</sup>
+
+📗 FinOps guide
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Published initial guidance for FinOps best practices. For the initial commit, this page contains the Azure Resource Graph (ARG) queries used by the Cost Optimization workbook.
+
 🔍 Optimization engine
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
@@ -84,7 +98,7 @@ Legend:
 > 1. Improved Storage Account access security, replacing key-based authentication by Entra ID authentication.
 >
 
-<br><a name="latest"></a>
+<br>
 
 ## 🪛 v0.5 Update 1
 
