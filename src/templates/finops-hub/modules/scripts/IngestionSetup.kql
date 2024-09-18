@@ -212,7 +212,7 @@
     x_ResourceGroupName:                 string
 )
 
-.create materialized-view Recommendations_1_0 on table Recommendations_raw
+.create-or-alter materialized-view Recommendations_1_0 on table Recommendations_raw
 {
     Recommendations_raw
     | extend IngestionTime = ingestion_time()
