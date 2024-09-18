@@ -1,9 +1,13 @@
-// Table to ingest raw FOCUS cost data into
+//======================================================================================================================
+// Cost and usage data
+//
 // Supported versions:
-// - Azure: 1.0, 1.0-preview(v1)
-// - AWS: 1.0 -- See https://docs.aws.amazon.com/cur/latest/userguide/table-dictionary-focus-1-0-aws-columns.html
-// - GCP: Jan-Jun 2024 -- See https://cloud.google.com/resources/google-cloud-focus?e=48754805&hl=en
-// - OCI: 1.0 -- See https://docs.oracle.com/en-us/iaas/Content/Billing/Concepts/costusagereportsoverview.htm#costreports__focus-cost-report-schema
+// - Azure: 1.0, 1.0-preview(v1) -- See https://aka.ms/costmgmt/exports/focus
+// - AWS: 1.0                    -- See https://docs.aws.amazon.com/cur/latest/userguide/table-dictionary-focus-1-0-aws-columns.html
+// - GCP: Jan-Jun 2024           -- See https://cloud.google.com/resources/google-cloud-focus?e=48754805&hl=en
+// - OCI: 1.0                    -- See https://docs.oracle.com/en-us/iaas/Content/Billing/Concepts/costusagereportsoverview.htm#costreports__focus-cost-report-schema
+//======================================================================================================================
+
 .create-merge table FocusCost_raw (
     AvailabilityZone:           string,
     BilledCost:                 decimal,
@@ -125,54 +129,175 @@
     x_UsageType:                string     // AWS 1.0
 )
 
-// View to dedupe data for FocusCost 1.0
+// Costs as FOCUS 1.0
 .create-or-alter materialized-view Costs_1_0 on table FocusCost_raw
 {
-    // TODO: Normalize columns to FOCUS 1.0 schema
     FocusCost_raw
     | extend IngestionTime = ingestion_time()
+    // TODO: Transform 1.0-preview(v1) to 1.0
     | summarize arg_max(IngestionTime , *) by
         BillingAccountId, ChargePeriodStart, CommitmentDiscountId, RegionId, ResourceId, SkuPriceId, SubAccountId,
         x_AccountOwnerId, x_CostCenter, x_InvoiceSectionId, x_SkuDetails, x_SkuMeterId, x_SkuOfferId
 }
 
-// View to dedupe data for FocusCost 1.0-preview(v1)
+// Costs as FOCUS 1.0 preview
 .create-or-alter materialized-view Costs_1_0_preview on table FocusCost_raw
 {
-    // TODO: Normalize columns to FOCUS 1.0 preview schema
     FocusCost_raw
     | extend IngestionTime = ingestion_time()
+    // TODO: Transform 1.0 to 1.0-preview(v1)
     | summarize arg_max(IngestionTime , *) by
         BillingAccountId, ChargePeriodStart, CommitmentDiscountId, Region, ResourceId, SkuPriceId, SubAccountId, 
         x_AccountOwnerId, x_CostCenter, x_InvoiceSectionId, x_SkuDetails, x_SkuMeterId, x_SkuOfferId
 }
 
-// Recommendations table
-.create-merge table Recommendations_raw (
-    RecommendationId: string, 
-    RecommendationProvider: string,
-    SubAccountId: string, 
-    SubAccountName: string, 
-    x_ResourceGroupName: string, 
-    ResourceId: string, 
-    ResourceName: string, 
-    ResourceType: string, 
-    RecommendationCategory: string, 
-    RecommendationTypeId: string, 
-    RecommendationProblem: string, 
-    RecommendationSolution: string, 
-    x_RecommendationImpact: string, 
-    x_RecommendationControl: string, 
-    x_RecommendationMaturityLevel: string, 
-    x_RecommendationaExtendedProperties: dynamic, 
-    x_RecommendationLastUpdated: datetime
-) 
 
-// View to get the latest recommendations
-.create materialized-view Recommendations_1_0 on table Recommendations
+//======================================================================================================================
+// Prices
+//======================================================================================================================
+
+.create-merge table PriceSheet_raw (
+    BasePrice:          decimal,
+    BillingAccountId:   string,
+    BillingAccountName: string,
+    BillingCurrency:    string,
+    BillingProfileId:   string,
+    BillingProfileName: string,
+    EffectiveEndDate:   datetime,
+    EffectiveStartDate: datetime,
+    EnrollmentNumber:   string,
+    IncludedQuantity:   decimal,
+    MarketPrice:        decimal,
+    MeterCategory:      string,
+    MeterId:            string,
+    MeterName:          string,
+    MeterRegion:        string,
+    MeterSubCategory:   string,
+    MeterType:          string,
+    OfferId:            string,
+    PartNumber:         string,
+    PriceType:          string,
+    PricingCurrency:    string,
+    ProductName:        string,
+    ProductId:          string,
+    ServiceFamily:      string,
+    SkuId:              string,
+    Term:               string,
+    TierMinimumUnits:   string,
+    UnitOfMeasure:      string,
+    UnitPrice:          decimal
+)
+
+
+//======================================================================================================================
+// Recommendations
+//======================================================================================================================
+
+.create-merge table Recommendations_raw (
+    ResourceId:                          string,
+    ResourceName:                        string,
+    ResourceType:                        string,
+    RecommendationCategory:              string,
+    RecommendationId:                    string,
+    RecommendationProblem:               string,
+    RecommendationSolution:              string,
+    RecommendationTypeId:                string,
+    SubAccountId:                        string,
+    SubAccountName:                      string,
+    x_RecommendationImpact:              string,
+    x_RecommendationControl:             string,
+    x_RecommendationMaturityLevel:       string,
+    x_RecommendationaExtendedProperties: dynamic,
+    x_RecommendationLastUpdated:         datetime,
+    x_ResourceGroupName:                 string
+)
+
+.create materialized-view Recommendations_1_0 on table Recommendations_raw
 {
     Recommendations_raw
     | extend IngestionTime = ingestion_time()
     | summarize arg_max(IngestionTime , *) by
         RecommendationId, SubAccountId, SubAccountName, x_ResourceGroupName, ResourceId, ResourceName, ResourceType, RecommendationCategory, RecommendationTypeId
 }
+
+
+//======================================================================================================================
+// Reservation details
+//======================================================================================================================
+
+.create-merge table ReservationDetails_raw (
+    InstanceFlexibilityGroup: string,
+    InstanceFlexibilityRatio: decimal,
+    InstanceId:               string,
+    Kind:                     string,
+    ReservationId:            string,
+    ReservationOrderId:       string,
+    ReservedHours:            decimal,
+    SkuName:                  string,
+    TotalReservedQuantity:    decimal,
+    UsageDate:                datetime,
+    UsedHours:                decimal
+)
+
+
+//======================================================================================================================
+// Reservation recommendations
+//======================================================================================================================
+
+.create-merge table ReservationRecommendations_raw (
+    CostWithNoReservedInstances:    string,
+    FirstUsageDate:                 datetime,
+    InstanceFlexibilityGroup:       string,
+    InstanceFlexibilityRatio:       decimal,
+    Location:                       string,
+    LookBackPeriod:                 string,
+    MeterId:                        string,
+    NetSavings:                     decimal,
+    NormalizedSize:                 string,
+    RecommendedQuantity:            decimal,
+    RecommendedQuantityNormalized:  decimal,
+    ResourceType:                   string,
+    Scope:                          string,
+    SkuName:                        string,
+    SkuProperties:                  string,
+    Term:                           string,
+    TotalCostWithReservedInstances: string
+)
+
+
+//======================================================================================================================
+// Reservation transactions
+//======================================================================================================================
+
+.create-merge table ReservationTransactions_raw (
+    AccountName:                    string,
+    AccountOwnerEmail:              string,
+    Amount:                         decimal,
+    ArmSkuName:                     string,
+    BillingFrequency:               string,
+    BillingMonth:                   string,
+    BillingProfileId:               string,
+    BillingProfileName:             string,
+    CostCenter:                     string,
+    Currency:                       string,
+    CurrentEnrollmentId:            string,
+    DepartmentName:                 string,
+    Description:                    string,
+    EventDate:                      datetime,
+    EventType:                      string,
+    Invoice:                        string,
+    InvoiceId:                      string,
+    InvoiceSectionId:               string,
+    InvoiceSectionName:             string,
+    MonetaryCommitment:             decimal,
+    Overage:                        decimal,
+    PurchasingEnrollment:           string,
+    PurchasingSubscriptionGuid:     string,
+    PurchasingSubscriptionName:     string,
+    Quantity:                       decimal,
+    Region:                         string,
+    ReservationOrderId:             string,
+    ReservationOrderName:           string,
+    Term:                           string
+)
+

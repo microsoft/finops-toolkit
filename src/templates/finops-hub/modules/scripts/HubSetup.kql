@@ -1,4 +1,3 @@
-// View to dedupe data for FocusCost 1.0
 .create-or-alter function
 with (docstring = 'Gets all cost and usage records with the latest supported version of the FOCUS schema.', folder = 'Ingestion')
 Costs()
@@ -6,8 +5,8 @@ Costs()
     database('ingestion').Costs_1_0
 }
 
-// View to get the latest recommendations
-.create-or-alter function with (docstring = "Gets all RI recommendations.",folder = "Ingestion") 
+.create-or-alter function
+with (docstring = 'Gets all recommendations aligned with the latest supported version of the FOCUS schema.', folder = 'Ingestion')
 Recommendations()
 {
     database('ingestion').Recommendations_1_0

@@ -57,10 +57,10 @@ param eventHubSku string = 'Standard'
 //------------------------------------------------------------------------------
 
 // Generate event grid topic name: 3-50 chars; letters/numbers/hyphens only -- https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsofteventgrid
-var eventGridTopicName = replace('${take('${replace(hubName, '_', '-')}-storage-adx', 49 - length(uniqueSuffix))}-${uniqueSuffix}', '--', '-')
+var eventGridTopicName = replace('${take('${replace(hubName, '_', '-')}-storage-events', 49 - length(uniqueSuffix))}-${uniqueSuffix}', '--', '-')
 
 // Generate event hub namespace name: 6-50 chars; letters/numbers/hyphens only -- https://learn.microsoft.com/azure/azure-resource-manager/management/resource-name-rules#microsofteventhub
-var eventHubNamespaceName = '${take(replace(hubName, '_', ''), 50 - length(uniqueSuffix))}${uniqueSuffix}'
+var eventHubNamespaceName = '${take('${replace(hubName, '_', '')}-adx-ingestion', 49 - length(uniqueSuffix))}-${uniqueSuffix}'
 
 //==============================================================================
 // Resources
@@ -84,7 +84,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
 // Event Hub for ingestion
 //------------------------------------------------------------------------------
 
-//  Event hub receiving event grid notifications
+// Event hub receiving event grid notifications
 resource eventHubNamespace 'Microsoft.EventHub/namespaces@2021-11-01' = {
   name: eventHubNamespaceName
   location: location
@@ -103,22 +103,42 @@ resource eventHubNamespace 'Microsoft.EventHub/namespaces@2021-11-01' = {
       partitionCount: 2
     }
 
-    resource adxConsumerGroup 'consumergroups' = {
-      name: 'ADX'
+    resource costConsumerGroup 'consumergroups' = {
+      name: 'FocusCost'
+      properties: {}
+    }
+    resource pricesConsumerGroup 'consumergroups' = {
+      name: 'PriceSheet'
+      properties: {}
+    }
+    resource recommendationsConsumerGroup 'consumergroups' = {
+      name: 'Recommendations'
+      properties: {}
+    }
+    resource resvDetailsConsumerGroup 'consumergroups' = {
+      name: 'ReservationDetails'
+      properties: {}
+    }
+    resource resvRecommendationsConsumerGroup 'consumergroups' = {
+      name: 'ReservationRecommendations'
+      properties: {}
+    }
+    resource resvTransactionsConsumerGroup 'consumergroups' = {
+      name: 'ReservationTransactions'
       properties: {}
     }
   }
 }
 
-//  Here we setup an event grid topic and a subscription sending events to event hub
+// Here we setup an event grid topic and a subscription sending events to event hub
 
-//  Event grid topic on storage account
+// Event grid topic on storage account
 resource ingestionTopic 'Microsoft.EventGrid/systemTopics@2023-12-15-preview' = {
   name: eventGridTopicName
   location: eventGridLocation
   tags: union(tags, contains(tagsByResource, 'Microsoft.EventGrid/systemTopics') ? tagsByResource['Microsoft.EventGrid/systemTopics'] : {})
   identity: {
-    //  We give an identity to the Event Grid so we can give it permission to write into Event Hub
+    // We give an identity to the Event Grid so we can give it permission to write into Event Hub
     type: 'SystemAssigned'
   }
   properties: {
@@ -126,9 +146,8 @@ resource ingestionTopic 'Microsoft.EventGrid/systemTopics@2023-12-15-preview' = 
     topicType: 'Microsoft.Storage.StorageAccounts'
   }
 
-  //  Event Grid subscription, pushing events to event hub
-  resource ingestionEventHubTrigger 'eventSubscriptions' = {
-    name: 'toEventHub'
+  resource ingestFocusCostEvent 'eventSubscriptions' = {
+    name: 'IngestFocusCost'
     properties: {
       deliveryWithResourceIdentity: {
         destination: {
@@ -143,7 +162,152 @@ resource ingestionTopic 'Microsoft.EventGrid/systemTopics@2023-12-15-preview' = 
       }
       eventDeliverySchema: 'EventGridSchema'
       filter: {
-        subjectBeginsWith: '/blobServices/default/containers/${storage::blobServices::ingestionContainer.name}'
+        subjectBeginsWith: '/blobServices/default/containers/${storage::blobServices::ingestionContainer.name}/focuscost'
+        includedEventTypes: [
+          'Microsoft.Storage.BlobCreated'
+        ]
+        enableAdvancedFilteringOnArrays: true
+      }
+      retryPolicy: {
+        maxDeliveryAttempts: 30
+        eventTimeToLiveInMinutes: 1440
+      }
+    }
+  }
+
+  resource ingestPriceSheetEvent 'eventSubscriptions' = {
+    name: 'IngestPriceSheet'
+    properties: {
+      deliveryWithResourceIdentity: {
+        destination: {
+          endpointType: 'EventHub'
+          properties: {
+            resourceId: eventHubNamespace::storageIngestionEventHub.id
+          }
+        }
+        identity: {
+          type: 'SystemAssigned'
+        }
+      }
+      eventDeliverySchema: 'EventGridSchema'
+      filter: {
+        subjectBeginsWith: '/blobServices/default/containers/${storage::blobServices::ingestionContainer.name}/pricesheet'
+        includedEventTypes: [
+          'Microsoft.Storage.BlobCreated'
+        ]
+        enableAdvancedFilteringOnArrays: true
+      }
+      retryPolicy: {
+        maxDeliveryAttempts: 30
+        eventTimeToLiveInMinutes: 1440
+      }
+    }
+  }
+
+  resource ingestRecommendationsEvent 'eventSubscriptions' = {
+    name: 'IngestRecommendations'
+    properties: {
+      deliveryWithResourceIdentity: {
+        destination: {
+          endpointType: 'EventHub'
+          properties: {
+            resourceId: eventHubNamespace::storageIngestionEventHub.id
+          }
+        }
+        identity: {
+          type: 'SystemAssigned'
+        }
+      }
+      eventDeliverySchema: 'EventGridSchema'
+      filter: {
+        subjectBeginsWith: '/blobServices/default/containers/${storage::blobServices::ingestionContainer.name}/recommendations'
+        includedEventTypes: [
+          'Microsoft.Storage.BlobCreated'
+        ]
+        enableAdvancedFilteringOnArrays: true
+      }
+      retryPolicy: {
+        maxDeliveryAttempts: 30
+        eventTimeToLiveInMinutes: 1440
+      }
+    }
+  }
+
+  resource ingestReservationDetailsEvent 'eventSubscriptions' = {
+    name: 'IngestReservationDetails'
+    properties: {
+      deliveryWithResourceIdentity: {
+        destination: {
+          endpointType: 'EventHub'
+          properties: {
+            resourceId: eventHubNamespace::storageIngestionEventHub.id
+          }
+        }
+        identity: {
+          type: 'SystemAssigned'
+        }
+      }
+      eventDeliverySchema: 'EventGridSchema'
+      filter: {
+        subjectBeginsWith: '/blobServices/default/containers/${storage::blobServices::ingestionContainer.name}/reservationdetails'
+        includedEventTypes: [
+          'Microsoft.Storage.BlobCreated'
+        ]
+        enableAdvancedFilteringOnArrays: true
+      }
+      retryPolicy: {
+        maxDeliveryAttempts: 30
+        eventTimeToLiveInMinutes: 1440
+      }
+    }
+  }
+
+  resource ingestReservationRecommendationsEvent 'eventSubscriptions' = {
+    name: 'IngestReservationRecommendations'
+    properties: {
+      deliveryWithResourceIdentity: {
+        destination: {
+          endpointType: 'EventHub'
+          properties: {
+            resourceId: eventHubNamespace::storageIngestionEventHub.id
+          }
+        }
+        identity: {
+          type: 'SystemAssigned'
+        }
+      }
+      eventDeliverySchema: 'EventGridSchema'
+      filter: {
+        subjectBeginsWith: '/blobServices/default/containers/${storage::blobServices::ingestionContainer.name}/reservationrecommendations'
+        includedEventTypes: [
+          'Microsoft.Storage.BlobCreated'
+        ]
+        enableAdvancedFilteringOnArrays: true
+      }
+      retryPolicy: {
+        maxDeliveryAttempts: 30
+        eventTimeToLiveInMinutes: 1440
+      }
+    }
+  }
+
+  resource ingestReservationTransactionsEvent 'eventSubscriptions' = {
+    name: 'IngestReservationTransactions'
+    properties: {
+      deliveryWithResourceIdentity: {
+        destination: {
+          endpointType: 'EventHub'
+          properties: {
+            resourceId: eventHubNamespace::storageIngestionEventHub.id
+          }
+        }
+        identity: {
+          type: 'SystemAssigned'
+        }
+      }
+      eventDeliverySchema: 'EventGridSchema'
+      filter: {
+        subjectBeginsWith: '/blobServices/default/containers/${storage::blobServices::ingestionContainer.name}/reservationtransactions'
         includedEventTypes: [
           'Microsoft.Storage.BlobCreated'
         ]
@@ -157,7 +321,7 @@ resource ingestionTopic 'Microsoft.EventGrid/systemTopics@2023-12-15-preview' = 
   }
 }
 
-//  Authorize topic to send to Event Hub
+// Authorize topic to send to Event Hub
 resource ingestionTopicAccess 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(ingestionTopic.id, eventHubNamespace::storageIngestionEventHub.id, 'rbac')
   scope: eventHubNamespace::storageIngestionEventHub
@@ -197,14 +361,14 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
     resource ingestionSetupScript 'scripts' = {
       name: 'SetupScript'
       properties: {
-        scriptContent: loadTextContent('scripts/IngestionDb.kql')
+        scriptContent: loadTextContent('scripts/IngestionSetup.kql')
         continueOnErrors: continueOnErrors
         forceUpdateTag: forceUpdateTag
       }
     }
 
-    resource ingestionEventHubConnection 'dataConnections' = {
-      name: 'eventHubConnection'
+    resource ingestFocusCostConnection 'dataConnections' = {
+      name: 'FocusCostIngestion'
       location: location
       dependsOn: [
         ingestionSetupScript
@@ -213,14 +377,119 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
       kind: 'EventGrid'
       properties: {
         blobStorageEventType: 'Microsoft.Storage.BlobCreated'
-        consumerGroup: eventHubNamespace::storageIngestionEventHub::adxConsumerGroup.name
+        consumerGroup: eventHubNamespace::storageIngestionEventHub::costConsumerGroup.name
         dataFormat: 'parquet'
-        eventGridResourceId: ingestionTopic::ingestionEventHubTrigger.id
+        eventGridResourceId: ingestionTopic::ingestFocusCostEvent.id
         eventHubResourceId: eventHubNamespace::storageIngestionEventHub.id
         ignoreFirstRecord: false
         managedIdentityResourceId: cluster.id
         storageAccountResourceId: storage.id
         tableName: 'FocusCost_raw'
+      }
+    }
+
+    resource ingestPriceSheetConnection 'dataConnections' = {
+      name: 'PriceSheetIngestion'
+      location: location
+      dependsOn: [
+        ingestionSetupScript
+        clusterEventHubAccess
+      ]
+      kind: 'EventGrid'
+      properties: {
+        blobStorageEventType: 'Microsoft.Storage.BlobCreated'
+        consumerGroup: eventHubNamespace::storageIngestionEventHub::pricesConsumerGroup.name
+        dataFormat: 'parquet'
+        eventGridResourceId: ingestionTopic::ingestPriceSheetEvent.id
+        eventHubResourceId: eventHubNamespace::storageIngestionEventHub.id
+        ignoreFirstRecord: false
+        managedIdentityResourceId: cluster.id
+        storageAccountResourceId: storage.id
+        tableName: 'PriceSheet_raw'
+      }
+    }
+
+    resource ingestRecommendationsConnection 'dataConnections' = {
+      name: 'RecommendationsIngestion'
+      location: location
+      dependsOn: [
+        ingestionSetupScript
+        clusterEventHubAccess
+      ]
+      kind: 'EventGrid'
+      properties: {
+        blobStorageEventType: 'Microsoft.Storage.BlobCreated'
+        consumerGroup: eventHubNamespace::storageIngestionEventHub::recommendationsConsumerGroup.name
+        dataFormat: 'parquet'
+        eventGridResourceId: ingestionTopic::ingestRecommendationsEvent.id
+        eventHubResourceId: eventHubNamespace::storageIngestionEventHub.id
+        ignoreFirstRecord: false
+        managedIdentityResourceId: cluster.id
+        storageAccountResourceId: storage.id
+        tableName: 'Recommendations_raw'
+      }
+    }
+
+    resource ingestReservationDetailsConnection 'dataConnections' = {
+      name: 'ReservationDetailsIngestion'
+      location: location
+      dependsOn: [
+        ingestionSetupScript
+        clusterEventHubAccess
+      ]
+      kind: 'EventGrid'
+      properties: {
+        blobStorageEventType: 'Microsoft.Storage.BlobCreated'
+        consumerGroup: eventHubNamespace::storageIngestionEventHub::resvDetailsConsumerGroup.name
+        dataFormat: 'parquet'
+        eventGridResourceId: ingestionTopic::ingestReservationDetailsEvent.id
+        eventHubResourceId: eventHubNamespace::storageIngestionEventHub.id
+        ignoreFirstRecord: false
+        managedIdentityResourceId: cluster.id
+        storageAccountResourceId: storage.id
+        tableName: 'ReservationDetails_raw'
+      }
+    }
+
+    resource ingestReservationRecommendationsConnection 'dataConnections' = {
+      name: 'ReservationRecommendationsIngestion'
+      location: location
+      dependsOn: [
+        ingestionSetupScript
+        clusterEventHubAccess
+      ]
+      kind: 'EventGrid'
+      properties: {
+        blobStorageEventType: 'Microsoft.Storage.BlobCreated'
+        consumerGroup: eventHubNamespace::storageIngestionEventHub::resvRecommendationsConsumerGroup.name
+        dataFormat: 'parquet'
+        eventGridResourceId: ingestionTopic::ingestReservationRecommendationsEvent.id
+        eventHubResourceId: eventHubNamespace::storageIngestionEventHub.id
+        ignoreFirstRecord: false
+        managedIdentityResourceId: cluster.id
+        storageAccountResourceId: storage.id
+        tableName: 'ReservationRecommendations_raw'
+      }
+    }
+
+    resource ingestReservationTransactionsConnection 'dataConnections' = {
+      name: 'ReservationTransactionsIngestion'
+      location: location
+      dependsOn: [
+        ingestionSetupScript
+        clusterEventHubAccess
+      ]
+      kind: 'EventGrid'
+      properties: {
+        blobStorageEventType: 'Microsoft.Storage.BlobCreated'
+        consumerGroup: eventHubNamespace::storageIngestionEventHub::resvTransactionsConsumerGroup.name
+        dataFormat: 'parquet'
+        eventGridResourceId: ingestionTopic::ingestReservationTransactionsEvent.id
+        eventHubResourceId: eventHubNamespace::storageIngestionEventHub.id
+        ignoreFirstRecord: false
+        managedIdentityResourceId: cluster.id
+        storageAccountResourceId: storage.id
+        tableName: 'ReservationTransactions_raw'
       }
     }
   }
@@ -239,7 +508,7 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
         ingestionDb::ingestionSetupScript
       ]
       properties: {
-        scriptContent: loadTextContent('scripts/HubDb.kql')
+        scriptContent: loadTextContent('scripts/HubSetup.kql')
         continueOnErrors: continueOnErrors
         forceUpdateTag: forceUpdateTag
       }
@@ -247,15 +516,15 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
   }
 }
 
-//  Authorize Kusto Cluster to receive event from Event Hub
+// Authorize Kusto Cluster to receive event from Event Hub
 resource clusterEventHubAccess 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(cluster.name, eventHubNamespaceName, 'Azure Event Hubs Data Receiver')
-  //  See https://docs.microsoft.com/azure/azure-resource-manager/bicep/scope-extension-resources for scope for extension
+  // See https://docs.microsoft.com/azure/azure-resource-manager/bicep/scope-extension-resources for scope for extension
   scope: eventHubNamespace::storageIngestionEventHub
   properties: {
     description: 'Give "Azure Event Hubs Data Receiver" to the cluster'
     principalId: cluster.identity.principalId
-    //  Required in case principal not ready when deploying the assignment
+    // Required in case principal not ready when deploying the assignment
     principalType: 'ServicePrincipal'
     roleDefinitionId: subscriptionResourceId(
       'Microsoft.Authorization/roleDefinitions',
@@ -264,15 +533,15 @@ resource clusterEventHubAccess 'Microsoft.Authorization/roleAssignments@2022-04-
   }
 }
 
-//  Authorize Kusto Cluster to read storage
+// Authorize Kusto Cluster to read storage
 resource clusterStorageAccess 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(cluster.name, storageContainerName, 'Storage Blob Data Contributor')
-  //  See https://docs.microsoft.com/azure/azure-resource-manager/bicep/scope-extension-resources for scope for extension
+  // See https://docs.microsoft.com/azure/azure-resource-manager/bicep/scope-extension-resources for scope for extension
   scope: storage::blobServices
   properties: {
     description: 'Give "Storage Blob Data Contributor" to the cluster'
     principalId: cluster.identity.principalId
-    //  Required in case principal not ready when deploying the assignment
+    // Required in case principal not ready when deploying the assignment
     principalType: 'ServicePrincipal'
     roleDefinitionId: subscriptionResourceId(
       'Microsoft.Authorization/roleDefinitions',

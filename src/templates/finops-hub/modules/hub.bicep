@@ -146,6 +146,28 @@ module storage 'storage.bicep' = {
 }
 
 //------------------------------------------------------------------------------
+// Data Explorer for analytics
+//------------------------------------------------------------------------------
+
+module dataExplorer 'dataExplorer.bicep' = if (!empty(dataExplorerName)) {
+  name: 'dataExplorer'
+  params: {
+    hubName: hubName
+    uniqueSuffix: uniqueSuffix
+    clusterName: dataExplorerName
+    location: location
+    clusterSkuName: dataExplorerSkuName
+    clusterSkuTier: dataExplorerSkuTier
+    clusterSkuCapacity: dataExplorerSkuCapacity
+    eventGridLocation: finalEventGridLocation
+    storageAccountName: storage.outputs.name
+    storageContainerName: storage.outputs.ingestionContainer
+    tags: resourceTags
+    tagsByResource: tagsByResource
+  }
+}
+
+//------------------------------------------------------------------------------
 // Data Factory and pipelines
 //------------------------------------------------------------------------------
 
@@ -167,17 +189,19 @@ resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' = {
 module dataFactoryResources 'dataFactory.bicep' = {
   name: 'dataFactoryResources'
   params: {
+    hubName: hubName
     dataFactoryName: dataFactory.name
+    location: location
+    tags: resourceTags
+    tagsByResource: tagsByResource
     storageAccountName: storage.outputs.name
     exportContainerName: storage.outputs.exportContainer
     configContainerName: storage.outputs.configContainer
     ingestionContainerName: storage.outputs.ingestionContainer
+    dataExplorerCluster: dataExplorer.outputs.clusterName
+    dataExplorerIngestionDatabase: dataExplorer.outputs.ingestionDbName
     keyVaultName: keyVault.outputs.name
-    location: location
-    hubName: hubName
     remoteHubStorageUri: remoteHubStorageUri
-    tags: resourceTags
-    tagsByResource: tagsByResource
   }
 }
 
@@ -205,28 +229,6 @@ module keyVault 'keyVault.bicep' = {
         }
       }
     ]
-  }
-}
-
-//------------------------------------------------------------------------------
-// Data Explorer for analytics
-//------------------------------------------------------------------------------
-
-module dataExplorer 'dataExplorer.bicep' = if (!empty(dataExplorerName)) {
-  name: 'dataExplorer'
-  params: {
-    hubName: hubName
-    uniqueSuffix: uniqueSuffix
-    clusterName: dataExplorerName
-    clusterSkuName: dataExplorerSkuName
-    clusterSkuTier: dataExplorerSkuTier
-    clusterSkuCapacity: dataExplorerSkuCapacity
-    location: location
-    eventGridLocation: finalEventGridLocation
-    storageAccountName: storage.outputs.name
-    storageContainerName: storage.outputs.ingestionContainer
-    tags: resourceTags
-    tagsByResource: tagsByResource
   }
 }
 
