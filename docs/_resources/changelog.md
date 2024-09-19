@@ -17,6 +17,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
+- [🚚 2024 Hackathon](#-2024-hackathon)
 - [🚚 v0.6](#-v06)
 - [🪛 v0.5 Update 1](#-v05-update-1)
 - [🚚 v0.5](#-v05)
@@ -60,10 +61,9 @@ Legend:
 
 > ➕ Added:
 >
-> 1. Analytics engine – Ingest cost data into an Azure Data Explorer cluster.
-> 2. Auto-backfill – Backfill historical data from Microsoft Cost Management.
-> 3. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
-> 4. ETL pipelile – Add support for parquet files created by Cost Management exports.
+> 1. Auto-backfill – Backfill historical data from Microsoft Cost Management.
+> 2. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
+> 3. ETL pipeline – Add support for parquet files created by Cost Management exports.
 >
 > ✏️ Changed:
 >
@@ -86,8 +86,21 @@ Legend:
 
 <br><a name="latest"></a>
 
+## 🚚 2024 Hackathon
+
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Add option to ingest data into an Azure Data Explorer cluster.
+> 2. Added support for ingesting reservation details from Cost Management.
+> 3. Add a new UnsupportedExportFileType error when the exported file type is not supported.
+
+<br>
 
 ## 🚚 v0.6
+
 <sup>Released September 2024</sup>
 
 📗 FinOps guide
