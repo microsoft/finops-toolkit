@@ -130,7 +130,10 @@
 )
 
 // Costs as FOCUS 1.0
-.create-or-alter materialized-view with (backfill=true) Costs_1_0 on table FocusCost_raw
+.create-or-alter materialized-view
+// TODO: Add backfill=true
+with (docstring = 'All costs transformed to FOCUS 1.0.', folder = 'Costs')
+Costs_1_0 on table FocusCost_raw
 {
     FocusCost_raw
     | extend IngestionTime = ingestion_time()
@@ -141,7 +144,10 @@
 }
 
 // Costs as FOCUS 1.0 preview
-.create-or-alter materialized-view with (backfill=true) Costs_1_0_preview on table FocusCost_raw
+.create-or-alter materialized-view
+// TODO: Add backfill=true
+with (docstring = 'All costs transformed to FOCUS 1.0 preview.', folder = 'Costs')
+Costs_1_0_preview on table FocusCost_raw
 {
     FocusCost_raw
     | extend IngestionTime = ingestion_time()
@@ -213,7 +219,10 @@
     x_ResourceGroupName:                 string
 )
 
-.create-or-alter materialized-view with (backfill=true) Recommendations_1_0 on table Recommendations_raw
+.create-or-alter materialized-view
+// TODO: Add backfill=true
+with (docstring = 'All recommendations transformed to FOCUS 1.0.', folder = 'Recommendations')
+Recommendations_1_0 on table Recommendations_raw
 {
     Recommendations
     | union (Recommendations_raw)
@@ -241,6 +250,20 @@
     UsedHours:                decimal
 )
 
+.create-or-alter materialized-view
+// TODO: Add backfill=true
+with (docstring = 'All reservation details transformed to FOCUS 1.0.', folder = 'CommitmentDiscounts')
+ReservationDetails_1_0 on table ReservationDetails_raw
+{
+    // TODO: Transform to FOCUS 1.0
+    ReservationDetails_raw
+    | extend IngestionTime = ingestion_time()
+    | summarize arg_max(IngestionTime , *) by
+        ResourceId = InstanceId,
+        CommitmentDiscountId = ReservationId,
+        x_SkuOrderId = ReservationOrderId,
+        x_SkuType = SkuName
+}
 
 //======================================================================================================================
 // Reservation recommendations
@@ -302,4 +325,3 @@
     ReservationOrderName:           string,
     Term:                           string
 )
-
