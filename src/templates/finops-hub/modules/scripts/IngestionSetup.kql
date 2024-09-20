@@ -130,7 +130,7 @@
 )
 
 // Costs as FOCUS 1.0
-.create-or-alter materialized-view Costs_1_0 on table FocusCost_raw
+.create-or-alter materialized-view with (backfill=true) Costs_1_0 on table FocusCost_raw
 {
     FocusCost_raw
     | extend IngestionTime = ingestion_time()
@@ -141,7 +141,7 @@
 }
 
 // Costs as FOCUS 1.0 preview
-.create-or-alter materialized-view Costs_1_0_preview on table FocusCost_raw
+.create-or-alter materialized-view with (backfill=true) Costs_1_0_preview on table FocusCost_raw
 {
     FocusCost_raw
     | extend IngestionTime = ingestion_time()
@@ -198,6 +198,7 @@
     ResourceName:                        string,
     ResourceType:                        string,
     RecommendationCategory:              string,
+    RecommendationProvider:              string,
     RecommendationId:                    string,
     RecommendationProblem:               string,
     RecommendationSolution:              string,
@@ -207,17 +208,17 @@
     x_RecommendationImpact:              string,
     x_RecommendationControl:             string,
     x_RecommendationMaturityLevel:       string,
-    x_RecommendationaExtendedProperties: dynamic,
+    x_RecommendationExtendedProperties:  dynamic,
     x_RecommendationLastUpdated:         datetime,
     x_ResourceGroupName:                 string
 )
 
-.create-or-alter materialized-view Recommendations_1_0 on table Recommendations_raw
+.create-or-alter materialized-view with (backfill=true) Recommendations_1_0 on table Recommendations_raw
 {
     Recommendations_raw
     | extend IngestionTime = ingestion_time()
     | summarize arg_max(IngestionTime , *) by
-        RecommendationId, SubAccountId, SubAccountName, x_ResourceGroupName, ResourceId, ResourceName, ResourceType, RecommendationCategory, RecommendationTypeId
+        RecommendationId, SubAccountId, SubAccountName, x_ResourceGroupName, ResourceId, ResourceName, ResourceType, RecommendationCategory, RecommendationProvider, RecommendationTypeId
 }
 
 
