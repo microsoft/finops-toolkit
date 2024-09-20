@@ -1,7 +1,7 @@
 {
     "$schema": "https://dataexplorer.azure.com/static/d/schema/54/dashboard.json",
     "id": "436e0673-ec86-4a76-b6c4-63d2d8ce0bbb",
-    "eTag": "d5d0a910-79c8-42be-8960-f2b4ffb829f1",
+    "eTag": "25be242c-9043-468f-9a30-4102d5f3fa0b",
     "schema_version": "54",
     "title": "2024 Hackathon",
     "tiles": [
@@ -2007,7 +2007,7 @@
             "layout": {
                 "x": 6,
                 "y": 0,
-                "width": 18,
+                "width": 13,
                 "height": 5
             },
             "queryRef": {
@@ -2040,6 +2040,29 @@
                 "drillthroughDisabled": false,
                 "crossFilter": [],
                 "drillthrough": []
+            }
+        },
+        {
+            "id": "a01a0543-fc8c-4ae9-bbf7-ffb497835931",
+            "title": "Potential annual savings",
+            "visualType": "card",
+            "pageId": "8d01958c-c35c-4241-bd74-0b2b073873ff",
+            "layout": {
+                "x": 19,
+                "y": 0,
+                "width": 5,
+                "height": 3
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "08a9ea9e-91e8-44b0-a154-fad310d993a6"
+            },
+            "visualOptions": {
+                "multiStat__textSize": "large",
+                "multiStat__valueColumn": null,
+                "colorRulesDisabled": false,
+                "colorStyle": "light",
+                "colorRules": []
             }
         }
     ],
@@ -2687,6 +2710,15 @@
             },
             "text": "Recommendations\n| where RecommendationCategory == 'Cost'\n| where RecommendationProvider startswith \"Microsoft\"\n| extend x_RecommendationaExtendedPropertiesJson=parse_json(x_RecommendationaExtendedProperties)\n| extend annualSavingsAmount=toint(x_RecommendationaExtendedPropertiesJson.annualSavingsAmount)\n| where annualSavingsAmount > 0\n| summarize ['Annual savings']=sum(annualSavingsAmount) by RecommendationProblem\n| order by ['Annual savings']",
             "id": "af6b7c6d-2174-4efa-a251-abda4850d203",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "Recommendations\n| where RecommendationCategory == 'Cost'\n| where RecommendationProvider startswith \"Microsoft\"\n| extend x_RecommendationaExtendedPropertiesJson=parse_json(x_RecommendationaExtendedProperties)\n| extend annualSavingsAmount=toint(x_RecommendationaExtendedPropertiesJson.annualSavingsAmount)\n| summarize sum(annualSavingsAmount)",
+            "id": "08a9ea9e-91e8-44b0-a154-fad310d993a6",
             "usedVariables": []
         },
         {
