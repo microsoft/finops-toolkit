@@ -1,0 +1,2600 @@
+{
+    "$schema": "https://dataexplorer.azure.com/static/d/schema/54/dashboard.json",
+    "id": "436e0673-ec86-4a76-b6c4-63d2d8ce0bbb",
+    "eTag": "d5d0a910-79c8-42be-8960-f2b4ffb829f1",
+    "schema_version": "54",
+    "title": "2024 Hackathon",
+    "tiles": [
+        {
+            "id": "262fbdad-7591-4359-9b8b-075ce3fc3fe5",
+            "title": "Effective cost",
+            "visualType": "column",
+            "pageId": "af72fc24-fa8b-47ce-bbba-1d01ff6e42e0",
+            "layout": {
+                "x": 0,
+                "y": 17,
+                "width": 9,
+                "height": 7
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "0f1fe238-8a8b-4d23-b73f-41825cf5b7bf"
+            },
+            "visualOptions": {
+                "multipleYAxes": {
+                    "base": {
+                        "id": "-1",
+                        "label": "Effective cost",
+                        "columns": [],
+                        "yAxisMaximumValue": null,
+                        "yAxisMinimumValue": null,
+                        "yAxisScale": "linear",
+                        "horizontalLines": []
+                    },
+                    "additional": [],
+                    "showMultiplePanels": false
+                },
+                "hideLegend": false,
+                "legendLocation": "bottom",
+                "xColumnTitle": "Month",
+                "xColumn": null,
+                "yColumns": null,
+                "seriesColumns": null,
+                "xAxisScale": "linear",
+                "verticalLine": "",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "ab5a9755-230a-46ff-a28f-02d97d22d143",
+            "title": "Savings this month",
+            "visualType": "card",
+            "pageId": "4e314634-66c8-4e4b-a13f-c7fb0a9da0ac",
+            "layout": {
+                "x": 0,
+                "y": 0,
+                "width": 5,
+                "height": 3
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "7cdf2c48-95c8-4e93-baa2-f9d6eabb87a8"
+            },
+            "visualOptions": {
+                "multiStat__textSize": "auto",
+                "multiStat__valueColumn": "TotalSavings",
+                "colorRulesDisabled": false,
+                "colorStyle": "light",
+                "colorRules": []
+            }
+        },
+        {
+            "id": "04a31e81-36f8-4783-a0b8-ecf6f1b979df",
+            "title": "MTD Savings by pricing model and service",
+            "visualType": "bar",
+            "pageId": "4e314634-66c8-4e4b-a13f-c7fb0a9da0ac",
+            "layout": {
+                "x": 5,
+                "y": 0,
+                "width": 9,
+                "height": 6
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "5c2eb16e-e7ed-4e21-86fa-a2f7347fcfab"
+            },
+            "visualOptions": {
+                "multipleYAxes": {
+                    "base": {
+                        "id": "-1",
+                        "label": "",
+                        "columns": [],
+                        "yAxisMaximumValue": null,
+                        "yAxisMinimumValue": null,
+                        "yAxisScale": "linear",
+                        "horizontalLines": []
+                    },
+                    "additional": [],
+                    "showMultiplePanels": false
+                },
+                "hideLegend": true,
+                "legendLocation": "bottom",
+                "xColumnTitle": "",
+                "xColumn": "CommitmentDiscountKey",
+                "yColumns": null,
+                "seriesColumns": null,
+                "xAxisScale": "linear",
+                "verticalLine": "",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "4a71f839-174d-4ecb-8e3b-db9ba6fde6ff",
+            "title": "Savings last month",
+            "visualType": "card",
+            "pageId": "4e314634-66c8-4e4b-a13f-c7fb0a9da0ac",
+            "layout": {
+                "x": 0,
+                "y": 6,
+                "width": 5,
+                "height": 3
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "33da8bfb-ab30-48fd-8a5d-fc7c4a778f49"
+            },
+            "visualOptions": {
+                "multiStat__textSize": "auto",
+                "multiStat__valueColumn": null,
+                "colorRulesDisabled": false,
+                "colorStyle": "light",
+                "colorRules": []
+            }
+        },
+        {
+            "id": "bf375994-9d41-4644-91cd-689ffde1bd97",
+            "title": "Unused commitments this month",
+            "visualType": "card",
+            "pageId": "4e314634-66c8-4e4b-a13f-c7fb0a9da0ac",
+            "layout": {
+                "x": 0,
+                "y": 3,
+                "width": 5,
+                "height": 3
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "4fbaba17-3082-4f90-b915-f44a2c30fbfe"
+            },
+            "visualOptions": {
+                "multiStat__textSize": "auto",
+                "multiStat__valueColumn": "TotalEffectiveCost",
+                "colorRulesDisabled": false,
+                "colorStyle": "light",
+                "colorRules": []
+            }
+        },
+        {
+            "id": "96322c50-97ba-43ed-8935-9f31c34860fb",
+            "title": "Unused commitments last month",
+            "visualType": "card",
+            "pageId": "4e314634-66c8-4e4b-a13f-c7fb0a9da0ac",
+            "layout": {
+                "x": 0,
+                "y": 9,
+                "width": 5,
+                "height": 3
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "8a570208-d202-4565-b0d9-e2346880974b"
+            },
+            "visualOptions": {
+                "multiStat__textSize": "auto",
+                "multiStat__valueColumn": null,
+                "colorRulesDisabled": false,
+                "colorStyle": "light",
+                "colorRules": []
+            }
+        },
+        {
+            "id": "2ab58633-d30d-46f2-aaca-18ee314ea247",
+            "title": "MTD savings by pricing model and service",
+            "visualType": "table",
+            "pageId": "4e314634-66c8-4e4b-a13f-c7fb0a9da0ac",
+            "layout": {
+                "x": 14,
+                "y": 0,
+                "width": 10,
+                "height": 6
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "ae6ea3cf-9483-42cc-9ccf-da6511ad1a62"
+            },
+            "visualOptions": {
+                "table__enableRenderLinks": false,
+                "colorRulesDisabled": true,
+                "colorStyle": "light",
+                "crossFilterDisabled": true,
+                "drillthroughDisabled": true,
+                "crossFilter": [],
+                "drillthrough": [],
+                "table__renderLinks": [],
+                "colorRules": []
+            }
+        },
+        {
+            "id": "b41c6f1c-74de-421d-875c-5919926f6614",
+            "title": "Monthly spend by purchase option",
+            "visualType": "stackedcolumn",
+            "pageId": "4e314634-66c8-4e4b-a13f-c7fb0a9da0ac",
+            "layout": {
+                "x": 5,
+                "y": 6,
+                "width": 19,
+                "height": 6
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "15b22a48-503a-4e72-9136-dea4fbb2a084"
+            },
+            "visualOptions": {
+                "multipleYAxes": {
+                    "base": {
+                        "id": "-1",
+                        "label": "",
+                        "columns": [],
+                        "yAxisMaximumValue": null,
+                        "yAxisMinimumValue": null,
+                        "yAxisScale": "linear",
+                        "horizontalLines": []
+                    },
+                    "additional": [],
+                    "showMultiplePanels": false
+                },
+                "hideLegend": false,
+                "legendLocation": "bottom",
+                "xColumnTitle": "",
+                "xColumn": "Month",
+                "yColumns": [
+                    "EffectiveCost"
+                ],
+                "seriesColumns": [
+                    "Category",
+                    "Type"
+                ],
+                "xAxisScale": "linear",
+                "verticalLine": "",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "ff31e28f-dba4-4d2a-801a-2514a97a658d",
+            "title": "Monthly spend by purchase option",
+            "visualType": "stackedcolumn",
+            "pageId": "4e314634-66c8-4e4b-a13f-c7fb0a9da0ac",
+            "layout": {
+                "x": 0,
+                "y": 12,
+                "width": 11,
+                "height": 4
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "3282445c-0f66-4478-a85c-3b7a0b22eef4"
+            },
+            "visualOptions": {
+                "multipleYAxes": {
+                    "base": {
+                        "id": "-1",
+                        "label": "",
+                        "columns": [],
+                        "yAxisMaximumValue": null,
+                        "yAxisMinimumValue": null,
+                        "yAxisScale": "linear",
+                        "horizontalLines": []
+                    },
+                    "additional": [],
+                    "showMultiplePanels": false
+                },
+                "hideLegend": false,
+                "legendLocation": "right",
+                "xColumnTitle": "",
+                "xColumn": "ChargePeriodStart",
+                "yColumns": [
+                    "BilledCost"
+                ],
+                "seriesColumns": [
+                    "CommitmentDiscountType"
+                ],
+                "xAxisScale": "linear",
+                "verticalLine": "",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "2b202458-a2a0-4e64-8cc4-56a31e0a00b2",
+            "title": "Total amount of Subscriptions",
+            "description": "The total number of Subscriptions. ",
+            "visualType": "card",
+            "pageId": "5e02bc2c-ba72-40ce-a7b1-0154a037b34f",
+            "layout": {
+                "x": 12,
+                "y": 0,
+                "width": 7,
+                "height": 3
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "994ebf7a-d3c3-4d33-8e3e-779c7f0ddbac"
+            },
+            "visualOptions": {
+                "multiStat__textSize": "auto",
+                "multiStat__valueColumn": null,
+                "colorRulesDisabled": false,
+                "colorStyle": "light",
+                "colorRules": []
+            }
+        },
+        {
+            "id": "4d136532-8850-49c8-b5e3-8ccd8bab101e",
+            "title": "Last month's spend by region",
+            "description": "Provides item count and total effective cost by region sorted in descending order of total costs. ",
+            "visualType": "table",
+            "pageId": "5e02bc2c-ba72-40ce-a7b1-0154a037b34f",
+            "layout": {
+                "x": 8,
+                "y": 10,
+                "width": 11,
+                "height": 7
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "6c04edde-86f4-4c11-8d9f-dc9f160cc90b"
+            },
+            "visualOptions": {
+                "table__enableRenderLinks": true,
+                "colorRulesDisabled": true,
+                "colorStyle": "light",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": [],
+                "table__renderLinks": [],
+                "colorRules": []
+            }
+        },
+        {
+            "id": "41d27cbd-7ffa-44d7-8210-c7aaf1c2a74b",
+            "title": "Last month's spend by billing account",
+            "description": "Provides the effective cost spend by billing account. ",
+            "visualType": "column",
+            "pageId": "5e02bc2c-ba72-40ce-a7b1-0154a037b34f",
+            "layout": {
+                "x": 0,
+                "y": 10,
+                "width": 8,
+                "height": 7
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "1ee102fb-5832-43cf-8c26-df9d411447c3"
+            },
+            "visualOptions": {
+                "multipleYAxes": {
+                    "base": {
+                        "id": "-1",
+                        "label": "Total effective cost",
+                        "columns": [],
+                        "yAxisMaximumValue": null,
+                        "yAxisMinimumValue": null,
+                        "yAxisScale": "linear",
+                        "horizontalLines": []
+                    },
+                    "additional": [],
+                    "showMultiplePanels": false
+                },
+                "hideLegend": false,
+                "legendLocation": "bottom",
+                "xColumnTitle": "Billing account",
+                "xColumn": null,
+                "yColumns": null,
+                "seriesColumns": [
+                    "BillingAccountName"
+                ],
+                "xAxisScale": "linear",
+                "verticalLine": "",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "9f1da0e0-18cb-4540-8fce-0e381e0272e2",
+            "title": "Effective cost",
+            "description": "Effective cost by billing month",
+            "visualType": "column",
+            "pageId": "5e02bc2c-ba72-40ce-a7b1-0154a037b34f",
+            "layout": {
+                "x": 0,
+                "y": 0,
+                "width": 12,
+                "height": 7
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "8e7f6131-746c-4243-a52f-1128215370ec"
+            },
+            "visualOptions": {
+                "multipleYAxes": {
+                    "base": {
+                        "id": "-1",
+                        "label": "Effective cost",
+                        "columns": [],
+                        "yAxisMaximumValue": null,
+                        "yAxisMinimumValue": null,
+                        "yAxisScale": "linear",
+                        "horizontalLines": []
+                    },
+                    "additional": [],
+                    "showMultiplePanels": false
+                },
+                "hideLegend": false,
+                "legendLocation": "bottom",
+                "xColumnTitle": "Month",
+                "xColumn": null,
+                "yColumns": null,
+                "seriesColumns": null,
+                "xAxisScale": "linear",
+                "verticalLine": "",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "50ef63a0-859f-40cc-9345-4f591df27fdc",
+            "title": "Effective cost by month",
+            "description": "Effective cost by billing month",
+            "visualType": "column",
+            "pageId": "fb5fd34b-4875-4b70-911b-687d9ba5ae10",
+            "layout": {
+                "x": 0,
+                "y": 0,
+                "width": 12,
+                "height": 7
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "6b879e7e-d912-4fe4-b2ab-323d4ce1e391"
+            },
+            "visualOptions": {
+                "multipleYAxes": {
+                    "base": {
+                        "id": "-1",
+                        "label": "Effective cost",
+                        "columns": [],
+                        "yAxisMaximumValue": null,
+                        "yAxisMinimumValue": null,
+                        "yAxisScale": "linear",
+                        "horizontalLines": []
+                    },
+                    "additional": [],
+                    "showMultiplePanels": false
+                },
+                "hideLegend": false,
+                "legendLocation": "bottom",
+                "xColumnTitle": "Month",
+                "xColumn": null,
+                "yColumns": null,
+                "seriesColumns": null,
+                "xAxisScale": "linear",
+                "verticalLine": "",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "c2beaf81-0fa9-458f-a5bb-7e1c3b4f47a3",
+            "title": "Total cost by category",
+            "description": "Provides the effective cost spend by billing account. ",
+            "visualType": "stackedcolumn",
+            "pageId": "fb5fd34b-4875-4b70-911b-687d9ba5ae10",
+            "layout": {
+                "x": 0,
+                "y": 7,
+                "width": 12,
+                "height": 8
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "8ca81f12-e973-4010-b5b2-c48c0056dada"
+            },
+            "visualOptions": {
+                "multipleYAxes": {
+                    "base": {
+                        "id": "-1",
+                        "label": "Cost",
+                        "columns": [],
+                        "yAxisMaximumValue": null,
+                        "yAxisMinimumValue": null,
+                        "yAxisScale": "linear",
+                        "horizontalLines": []
+                    },
+                    "additional": [],
+                    "showMultiplePanels": false
+                },
+                "hideLegend": false,
+                "legendLocation": "bottom",
+                "xColumnTitle": "Month",
+                "xColumn": "month",
+                "yColumns": [
+                    "EffectiveCost"
+                ],
+                "seriesColumns": null,
+                "xAxisScale": "linear",
+                "verticalLine": "",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "13d374d2-ffc1-4343-91c6-15adb0d06d37",
+            "title": "Total cost by product",
+            "visualType": "stackedcolumn",
+            "pageId": "fb5fd34b-4875-4b70-911b-687d9ba5ae10",
+            "layout": {
+                "x": 12,
+                "y": 0,
+                "width": 12,
+                "height": 7
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "ab8cf002-a2b5-4ba3-bf49-e39b6ede25e0"
+            },
+            "visualOptions": {
+                "multipleYAxes": {
+                    "base": {
+                        "id": "-1",
+                        "label": "Cost",
+                        "columns": [],
+                        "yAxisMaximumValue": null,
+                        "yAxisMinimumValue": null,
+                        "yAxisScale": "linear",
+                        "horizontalLines": []
+                    },
+                    "additional": [],
+                    "showMultiplePanels": false
+                },
+                "hideLegend": false,
+                "legendLocation": "bottom",
+                "xColumnTitle": "Month",
+                "xColumn": "month",
+                "yColumns": [
+                    "EffectiveCost"
+                ],
+                "seriesColumns": [
+                    "ServiceName"
+                ],
+                "xAxisScale": "linear",
+                "verticalLine": "",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "c3a55c84-867d-469e-b478-c753101e6be1",
+            "title": "View daily cost - 30 day forecast",
+            "visualType": "timechart",
+            "pageId": "af72fc24-fa8b-47ce-bbba-1d01ff6e42e0",
+            "layout": {
+                "x": 0,
+                "y": 0,
+                "width": 9,
+                "height": 10
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "d6d76f13-a830-4401-856c-84539b54135b"
+            },
+            "visualOptions": {
+                "multipleYAxes": {
+                    "base": {
+                        "id": "-1",
+                        "label": "",
+                        "columns": [],
+                        "yAxisMaximumValue": null,
+                        "yAxisMinimumValue": null,
+                        "yAxisScale": "linear",
+                        "horizontalLines": []
+                    },
+                    "additional": [],
+                    "showMultiplePanels": false
+                },
+                "hideLegend": false,
+                "legendLocation": "bottom",
+                "xColumnTitle": "",
+                "xColumn": null,
+                "yColumns": null,
+                "seriesColumns": null,
+                "xAxisScale": "linear",
+                "verticalLine": "",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "b61028da-36dd-4cdc-b9af-21af15aae902",
+            "title": "View daily cost - Anomoly (this month)",
+            "visualType": "timechart",
+            "pageId": "af72fc24-fa8b-47ce-bbba-1d01ff6e42e0",
+            "layout": {
+                "x": 9,
+                "y": 0,
+                "width": 9,
+                "height": 10
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "c6850d81-18e6-421f-9e32-d49deedbb3e6"
+            },
+            "visualOptions": {
+                "multipleYAxes": {
+                    "base": {
+                        "id": "-1",
+                        "label": "",
+                        "columns": [],
+                        "yAxisMaximumValue": null,
+                        "yAxisMinimumValue": null,
+                        "yAxisScale": "linear",
+                        "horizontalLines": []
+                    },
+                    "additional": [],
+                    "showMultiplePanels": false
+                },
+                "hideLegend": false,
+                "legendLocation": "bottom",
+                "xColumnTitle": "",
+                "xColumn": null,
+                "yColumns": null,
+                "seriesColumns": null,
+                "xAxisScale": "linear",
+                "verticalLine": "",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "7f0bd67c-ff0b-4943-86b0-ca4d2cfcdcaf",
+            "title": "View top 10 services this month",
+            "visualType": "bar",
+            "pageId": "af72fc24-fa8b-47ce-bbba-1d01ff6e42e0",
+            "layout": {
+                "x": 0,
+                "y": 10,
+                "width": 9,
+                "height": 7
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "6e7eb6fe-aae1-400a-b6d0-05eb994e7549"
+            },
+            "visualOptions": {
+                "multipleYAxes": {
+                    "base": {
+                        "id": "-1",
+                        "label": "",
+                        "columns": [],
+                        "yAxisMaximumValue": null,
+                        "yAxisMinimumValue": null,
+                        "yAxisScale": "linear",
+                        "horizontalLines": []
+                    },
+                    "additional": [],
+                    "showMultiplePanels": false
+                },
+                "hideLegend": false,
+                "legendLocation": "bottom",
+                "xColumnTitle": "",
+                "xColumn": null,
+                "yColumns": null,
+                "seriesColumns": null,
+                "xAxisScale": "linear",
+                "verticalLine": "",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "9fa72473-30df-4394-9264-c2244ec48905",
+            "title": "View top resource types by cost this month",
+            "visualType": "pie",
+            "pageId": "af72fc24-fa8b-47ce-bbba-1d01ff6e42e0",
+            "layout": {
+                "x": 9,
+                "y": 10,
+                "width": 9,
+                "height": 7
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "20edd956-f33b-4c01-bda8-f68fd4eea753"
+            },
+            "visualOptions": {
+                "hideLegend": true,
+                "legendLocation": "bottom",
+                "xColumn": null,
+                "yColumns": null,
+                "seriesColumns": null,
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "labelDisabled": false,
+                "pie__label": [
+                    "name",
+                    "percentage"
+                ],
+                "tooltipDisabled": false,
+                "pie__tooltip": [
+                    "name",
+                    "percentage",
+                    "value"
+                ],
+                "pie__orderBy": "size",
+                "pie__kind": "pie",
+                "pie__topNSlices": null,
+                "crossFilter": [],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "7cfe856e-0394-4e62-883f-8f5295c5efa0",
+            "title": "Total cost by region",
+            "description": "Provides the effective cost spend by billing account. ",
+            "visualType": "stackedcolumn",
+            "pageId": "fb5fd34b-4875-4b70-911b-687d9ba5ae10",
+            "layout": {
+                "x": 12,
+                "y": 7,
+                "width": 12,
+                "height": 8
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "37af1063-0cc9-47fb-a5e2-0e34be12692f"
+            },
+            "visualOptions": {
+                "multipleYAxes": {
+                    "base": {
+                        "id": "-1",
+                        "label": "Cost",
+                        "columns": [],
+                        "yAxisMaximumValue": null,
+                        "yAxisMinimumValue": null,
+                        "yAxisScale": "linear",
+                        "horizontalLines": []
+                    },
+                    "additional": [],
+                    "showMultiplePanels": false
+                },
+                "hideLegend": false,
+                "legendLocation": "bottom",
+                "xColumnTitle": "Month",
+                "xColumn": "month",
+                "yColumns": [
+                    "EffectiveCost"
+                ],
+                "seriesColumns": null,
+                "xAxisScale": "linear",
+                "verticalLine": "",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "f0904033-abcc-48bd-9246-a7c5e16d6967",
+            "title": "Top resource consumption by month",
+            "description": "Provides the effective cost spend by billing account. ",
+            "visualType": "column",
+            "pageId": "fb5fd34b-4875-4b70-911b-687d9ba5ae10",
+            "layout": {
+                "x": 0,
+                "y": 15,
+                "width": 12,
+                "height": 8
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "9d08a60c-e96c-4a25-b7ef-faf4f9b01275"
+            },
+            "visualOptions": {
+                "multipleYAxes": {
+                    "base": {
+                        "id": "-1",
+                        "label": "Cost",
+                        "columns": [],
+                        "yAxisMaximumValue": null,
+                        "yAxisMinimumValue": null,
+                        "yAxisScale": "linear",
+                        "horizontalLines": []
+                    },
+                    "additional": [],
+                    "showMultiplePanels": false
+                },
+                "hideLegend": false,
+                "legendLocation": "bottom",
+                "xColumnTitle": "Month",
+                "xColumn": "month",
+                "yColumns": [
+                    "EffectiveCost"
+                ],
+                "seriesColumns": null,
+                "xAxisScale": "linear",
+                "verticalLine": "",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "17398426-8986-4493-a87a-1504e10c1c6a",
+            "title": "Distribution of services",
+            "description": "Provides ServiceCount amount per ServiceName. ",
+            "visualType": "pie",
+            "pageId": "5e02bc2c-ba72-40ce-a7b1-0154a037b34f",
+            "layout": {
+                "x": 0,
+                "y": 17,
+                "width": 19,
+                "height": 7
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "83549749-4329-49bc-a975-eb4d343b4d22"
+            },
+            "visualOptions": {
+                "hideLegend": false,
+                "legendLocation": "left",
+                "xColumn": null,
+                "yColumns": null,
+                "seriesColumns": null,
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "labelDisabled": false,
+                "pie__label": [
+                    "name",
+                    "percentage"
+                ],
+                "tooltipDisabled": false,
+                "pie__tooltip": [
+                    "name",
+                    "percentage",
+                    "value"
+                ],
+                "pie__orderBy": "size",
+                "pie__kind": "donut",
+                "pie__topNSlices": null,
+                "crossFilter": [],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "f17e7cb8-ea67-44b8-a01b-72df4214a0ab",
+            "title": "Total amount of services",
+            "description": "Provides the total number of ServiceCount by ServiceName. ",
+            "visualType": "card",
+            "pageId": "5e02bc2c-ba72-40ce-a7b1-0154a037b34f",
+            "layout": {
+                "x": 12,
+                "y": 3,
+                "width": 7,
+                "height": 3
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "020d655f-c701-4725-8a6d-81debe9ba859"
+            },
+            "visualOptions": {
+                "multiStat__textSize": "auto",
+                "multiStat__valueColumn": null,
+                "colorRulesDisabled": false,
+                "colorStyle": "light",
+                "colorRules": []
+            }
+        },
+        {
+            "id": "e7128893-437c-4ef8-9de7-a31b75ec5252",
+            "title": "Resource trend over month",
+            "description": "Provides the effective cost spend by billing account. ",
+            "visualType": "column",
+            "pageId": "fb5fd34b-4875-4b70-911b-687d9ba5ae10",
+            "layout": {
+                "x": 12,
+                "y": 15,
+                "width": 12,
+                "height": 8
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "248c0b29-a1dc-45d5-b061-a63fc67f1ed0"
+            },
+            "visualOptions": {
+                "multipleYAxes": {
+                    "base": {
+                        "id": "-1",
+                        "label": "Cost",
+                        "columns": [],
+                        "yAxisMaximumValue": null,
+                        "yAxisMinimumValue": null,
+                        "yAxisScale": "linear",
+                        "horizontalLines": []
+                    },
+                    "additional": [],
+                    "showMultiplePanels": false
+                },
+                "hideLegend": false,
+                "legendLocation": "bottom",
+                "xColumnTitle": "Month",
+                "xColumn": "month",
+                "yColumns": [
+                    "MoMChange"
+                ],
+                "seriesColumns": null,
+                "xAxisScale": "linear",
+                "verticalLine": "",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "9159f725-5e10-4ed4-be51-0af2aaf04fcb",
+            "title": "Effective cost trend percentage",
+            "description": "Provides the percentage change of the previous billing month, for the last three months.",
+            "visualType": "multistat",
+            "pageId": "5e02bc2c-ba72-40ce-a7b1-0154a037b34f",
+            "layout": {
+                "x": 0,
+                "y": 7,
+                "width": 12,
+                "height": 3
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "5b824eca-1fca-4d53-bf10-63c8efb7c647"
+            },
+            "visualOptions": {
+                "multiStat__textSize": "auto",
+                "multiStat__valueColumn": "PercentageChange",
+                "colorRulesDisabled": false,
+                "colorStyle": "light",
+                "multiStat__displayOrientation": "horizontal",
+                "multiStat__labelColumn": "BillingMonth",
+                "multiStat__slot": {
+                    "width": 3,
+                    "height": 1
+                },
+                "colorRules": []
+            }
+        },
+        {
+            "id": "6e392734-c4f8-4ed6-93a1-c095eb609206",
+            "title": "Cost by Tag",
+            "visualType": "stackedbar",
+            "pageId": "f23713ac-9a36-4a3e-acb7-21018a8c8d23",
+            "layout": {
+                "x": 0,
+                "y": 0,
+                "width": 9,
+                "height": 14
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "23de78d8-efbe-4bc1-a77f-fd1930ab7cab"
+            },
+            "visualOptions": {
+                "multipleYAxes": {
+                    "base": {
+                        "id": "-1",
+                        "label": "",
+                        "columns": [],
+                        "yAxisMaximumValue": null,
+                        "yAxisMinimumValue": null,
+                        "yAxisScale": "linear",
+                        "horizontalLines": []
+                    },
+                    "additional": [],
+                    "showMultiplePanels": false
+                },
+                "hideLegend": true,
+                "legendLocation": "right",
+                "xColumnTitle": "",
+                "xColumn": "TagString",
+                "yColumns": [
+                    "Cost"
+                ],
+                "seriesColumns": [
+                    "TagName",
+                    "TagValue"
+                ],
+                "xAxisScale": "linear",
+                "verticalLine": "",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [
+                    {
+                        "interaction": "column",
+                        "property": "TagName",
+                        "parameterId": "f44ab092-f969-4aaf-8201-463922f7f6f1",
+                        "disabled": false
+                    },
+                    {
+                        "interaction": "column",
+                        "property": "TagValue",
+                        "parameterId": "51cbe7c3-511d-4cc8-b4d5-42f2e22623a2",
+                        "disabled": false
+                    }
+                ],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "01bf3ebf-ed5a-4459-9af1-6e00d88837e6",
+            "title": "Cost by service",
+            "visualType": "stackedbar",
+            "pageId": "f23713ac-9a36-4a3e-acb7-21018a8c8d23",
+            "layout": {
+                "x": 9,
+                "y": 0,
+                "width": 9,
+                "height": 14
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "678b6e26-edf2-4c59-99ee-7ee88c4f2f99"
+            },
+            "visualOptions": {
+                "multipleYAxes": {
+                    "base": {
+                        "id": "-1",
+                        "label": "",
+                        "columns": [],
+                        "yAxisMaximumValue": null,
+                        "yAxisMinimumValue": null,
+                        "yAxisScale": "linear",
+                        "horizontalLines": []
+                    },
+                    "additional": [],
+                    "showMultiplePanels": false
+                },
+                "hideLegend": true,
+                "legendLocation": "right",
+                "xColumnTitle": "",
+                "xColumn": "ServiceCategory",
+                "yColumns": [
+                    "Cost"
+                ],
+                "seriesColumns": [
+                    "ServiceName"
+                ],
+                "xAxisScale": "linear",
+                "verticalLine": "",
+                "crossFilterDisabled": true,
+                "drillthroughDisabled": true,
+                "crossFilter": [
+                    {
+                        "interaction": "column",
+                        "property": "TagValue",
+                        "parameterId": "51cbe7c3-511d-4cc8-b4d5-42f2e22623a2",
+                        "disabled": false
+                    }
+                ],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "744ef68d-5a0a-4a64-9890-83d1af47326e",
+            "title": "Monthly spend by purchase option",
+            "visualType": "table",
+            "pageId": "4e314634-66c8-4e4b-a13f-c7fb0a9da0ac",
+            "layout": {
+                "x": 11,
+                "y": 12,
+                "width": 13,
+                "height": 10
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "963ab088-4934-4535-ac0d-20ab9464d066"
+            },
+            "visualOptions": {
+                "table__enableRenderLinks": true,
+                "colorRulesDisabled": true,
+                "colorStyle": "lighvit",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": [],
+                "table__renderLinks": [],
+                "colorRules": []
+            }
+        },
+        {
+            "id": "8101269a-f4df-4884-8322-0274821d6f74",
+            "title": "Commitment recommendations details",
+            "visualType": "table",
+            "pageId": "4e314634-66c8-4e4b-a13f-c7fb0a9da0ac",
+            "layout": {
+                "x": 0,
+                "y": 22,
+                "width": 24,
+                "height": 8
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "5bc625f7-3120-4538-b1a9-2bb17bc06a46"
+            },
+            "visualOptions": {
+                "table__enableRenderLinks": false,
+                "colorRulesDisabled": true,
+                "colorStyle": "light",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": [],
+                "table__renderLinks": [],
+                "colorRules": []
+            }
+        },
+        {
+            "id": "60b41b6c-9539-445d-8c11-f372edb6c3a1",
+            "title": "Commitment recommendations",
+            "visualType": "table",
+            "pageId": "4e314634-66c8-4e4b-a13f-c7fb0a9da0ac",
+            "layout": {
+                "x": 0,
+                "y": 16,
+                "width": 11,
+                "height": 6
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "dd5f59cd-74b7-45a1-8bb6-90fae460220d"
+            },
+            "visualOptions": {
+                "table__enableRenderLinks": true,
+                "colorRulesDisabled": true,
+                "colorStyle": "light",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": [],
+                "table__renderLinks": [],
+                "colorRules": []
+            }
+        },
+        {
+            "id": "11679a35-5577-4813-b44e-b860757ffab4",
+            "title": "Savings per month",
+            "visualType": "stackedcolumn",
+            "pageId": "af72fc24-fa8b-47ce-bbba-1d01ff6e42e0",
+            "layout": {
+                "x": 9,
+                "y": 17,
+                "width": 9,
+                "height": 7
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "1ac08ad1-6340-40ce-a105-ac82c588cb1d"
+            },
+            "visualOptions": {
+                "multipleYAxes": {
+                    "base": {
+                        "id": "-1",
+                        "label": "",
+                        "columns": [],
+                        "yAxisMaximumValue": null,
+                        "yAxisMinimumValue": null,
+                        "yAxisScale": "linear",
+                        "horizontalLines": []
+                    },
+                    "additional": [],
+                    "showMultiplePanels": false
+                },
+                "hideLegend": false,
+                "legendLocation": "bottom",
+                "xColumnTitle": "",
+                "xColumn": null,
+                "yColumns": null,
+                "seriesColumns": null,
+                "xAxisScale": "linear",
+                "verticalLine": "",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "d3e596cd-c2c7-4d79-afbc-63198dbe3640",
+            "title": "Resource trend over month",
+            "description": "Provides the effective cost spend by billing account. ",
+            "visualType": "table",
+            "pageId": "fb5fd34b-4875-4b70-911b-687d9ba5ae10",
+            "layout": {
+                "x": 6,
+                "y": 23,
+                "width": 14,
+                "height": 8
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "ebf9ed7b-a6c6-4062-9fc6-085df2ec0283"
+            },
+            "visualOptions": {
+                "table__enableRenderLinks": true,
+                "colorRulesDisabled": false,
+                "colorStyle": "light",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": [],
+                "table__renderLinks": [],
+                "colorRules": [
+                    {
+                        "id": "ff8c1710-a06c-4806-b624-7c08274e78b9",
+                        "ruleType": "colorByCondition",
+                        "applyToColumn": null,
+                        "hideText": false,
+                        "applyTo": "cells",
+                        "conditions": [
+                            {
+                                "operator": ">",
+                                "column": "MoMChange",
+                                "values": [
+                                    "0"
+                                ]
+                            }
+                        ],
+                        "chainingOperator": "and",
+                        "colorStyle": "bold",
+                        "color": "red",
+                        "tag": "",
+                        "icon": null,
+                        "ruleName": "",
+                        "visualType": "table"
+                    },
+                    {
+                        "id": "baa1c194-1b31-45dc-9ae4-32aea5483ae8",
+                        "ruleType": "colorByCondition",
+                        "applyToColumn": null,
+                        "hideText": false,
+                        "applyTo": "cells",
+                        "conditions": [
+                            {
+                                "operator": "<=",
+                                "column": "MoMChange",
+                                "values": [
+                                    "0"
+                                ]
+                            }
+                        ],
+                        "chainingOperator": "and",
+                        "colorStyle": "bold",
+                        "color": "green",
+                        "tag": "",
+                        "icon": null,
+                        "ruleName": "",
+                        "visualType": "table"
+                    },
+                    {
+                        "id": "6a876dab-9493-485c-a90b-bce3a44ca11b",
+                        "ruleType": "colorByCondition",
+                        "applyToColumn": null,
+                        "hideText": false,
+                        "applyTo": "cells",
+                        "conditions": [
+                            {
+                                "values": [
+                                    "0"
+                                ],
+                                "operator": ">=",
+                                "column": "MoMChange_Percent"
+                            }
+                        ],
+                        "chainingOperator": "and",
+                        "colorStyle": "bold",
+                        "color": "red",
+                        "tag": "",
+                        "icon": null,
+                        "ruleName": "",
+                        "visualType": "table"
+                    },
+                    {
+                        "id": "7031b5be-5209-4a01-9480-3bf79f02052b",
+                        "ruleType": "colorByCondition",
+                        "applyToColumn": null,
+                        "hideText": false,
+                        "applyTo": "cells",
+                        "conditions": [
+                            {
+                                "values": [
+                                    "0"
+                                ],
+                                "operator": "<",
+                                "column": "MoMChange_Percent"
+                            }
+                        ],
+                        "chainingOperator": "and",
+                        "colorStyle": "bold",
+                        "color": "green",
+                        "tag": "",
+                        "icon": null,
+                        "ruleName": "",
+                        "visualType": "table"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "1a73ca5d-6911-48b8-ad09-3d978e9d9c14",
+            "title": "Amortized spend by billing account",
+            "description": "Provides the total EffectiveCost for each BillingAccountName over the past 12 billing periods. ",
+            "visualType": "column",
+            "pageId": "5e02bc2c-ba72-40ce-a7b1-0154a037b34f",
+            "layout": {
+                "x": 0,
+                "y": 24,
+                "width": 9,
+                "height": 7
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "dbcd72db-0af6-45fd-a953-fb2a6ff139ae"
+            },
+            "visualOptions": {
+                "multipleYAxes": {
+                    "base": {
+                        "id": "-1",
+                        "label": "Amortized spend",
+                        "columns": [],
+                        "yAxisMaximumValue": null,
+                        "yAxisMinimumValue": null,
+                        "yAxisScale": "linear",
+                        "horizontalLines": []
+                    },
+                    "additional": [],
+                    "showMultiplePanels": false
+                },
+                "hideLegend": false,
+                "legendLocation": "bottom",
+                "xColumnTitle": "Month",
+                "xColumn": "BillingMonth",
+                "yColumns": [
+                    "TotalSpend"
+                ],
+                "seriesColumns": [
+                    "BillingAccountName"
+                ],
+                "xAxisScale": "linear",
+                "verticalLine": "",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "ec013609-203b-4e30-8ddb-6fcb61e2db00",
+            "title": "Spend (actual cost) by billing account",
+            "description": "Provides the total ActualCost for each BillingAccountName over the past 12 BillingPeriods. ",
+            "visualType": "column",
+            "pageId": "5e02bc2c-ba72-40ce-a7b1-0154a037b34f",
+            "layout": {
+                "x": 9,
+                "y": 24,
+                "width": 9,
+                "height": 7
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "9a596f95-dfb1-47d8-a70f-f0267083284f"
+            },
+            "visualOptions": {
+                "multipleYAxes": {
+                    "base": {
+                        "id": "-1",
+                        "label": "Spend",
+                        "columns": [],
+                        "yAxisMaximumValue": null,
+                        "yAxisMinimumValue": null,
+                        "yAxisScale": "linear",
+                        "horizontalLines": []
+                    },
+                    "additional": [],
+                    "showMultiplePanels": false
+                },
+                "hideLegend": false,
+                "legendLocation": "bottom",
+                "xColumnTitle": "Month",
+                "xColumn": "BillingMonth",
+                "yColumns": [
+                    "TotalSpend"
+                ],
+                "seriesColumns": [
+                    "BillingAccountName"
+                ],
+                "xAxisScale": "linear",
+                "verticalLine": "",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "85fa2108-aa4b-4704-8f1d-58577bfa19b5",
+            "title": "Cost recommendations",
+            "visualType": "table",
+            "pageId": "8d01958c-c35c-4241-bd74-0b2b073873ff",
+            "layout": {
+                "x": 0,
+                "y": 0,
+                "width": 11,
+                "height": 6
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "6eb1a81d-9530-4ae8-9d82-72f7fc81c9c5"
+            },
+            "visualOptions": {
+                "table__enableRenderLinks": true,
+                "colorRulesDisabled": true,
+                "colorStyle": "light",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": [],
+                "table__renderLinks": [],
+                "colorRules": []
+            }
+        },
+        {
+            "id": "863aff1e-4ef3-4c7f-8fd6-946160d11215",
+            "title": "Commitment recommendations details",
+            "visualType": "table",
+            "pageId": "8d01958c-c35c-4241-bd74-0b2b073873ff",
+            "layout": {
+                "x": 0,
+                "y": 6,
+                "width": 24,
+                "height": 8
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "8be80df2-4d6a-4616-b4fe-0f8d524a6fac"
+            },
+            "visualOptions": {
+                "table__enableRenderLinks": false,
+                "colorRulesDisabled": true,
+                "colorStyle": "light",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": [],
+                "table__renderLinks": [],
+                "colorRules": []
+            }
+        },
+        {
+            "id": "46c8356f-f7e4-43f8-bc65-38714ea9380a",
+            "title": "",
+            "visualType": "markdownCard",
+            "pageId": "d45bf738-c38f-4d2b-ba67-4a90665a251b",
+            "layout": {
+                "x": 0,
+                "y": 0,
+                "width": 18,
+                "height": 2
+            },
+            "markdownText": "# Savings Dashboard (Previous 3 months)",
+            "visualOptions": {}
+        },
+        {
+            "id": "38f0e464-281f-4533-aeaa-407c1c154015",
+            "title": "KPI",
+            "visualType": "table",
+            "pageId": "d45bf738-c38f-4d2b-ba67-4a90665a251b",
+            "layout": {
+                "x": 0,
+                "y": 2,
+                "width": 18,
+                "height": 4
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "3695ab63-c862-447f-86e1-5d60cd8a422a"
+            },
+            "visualOptions": {
+                "table__enableRenderLinks": true,
+                "colorRulesDisabled": true,
+                "colorStyle": "light",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": [],
+                "table__renderLinks": [],
+                "colorRules": []
+            }
+        },
+        {
+            "id": "05f0dbaa-2572-49a5-b740-211e5226dbf3",
+            "title": "Savings by type",
+            "visualType": "timechart",
+            "pageId": "d45bf738-c38f-4d2b-ba67-4a90665a251b",
+            "layout": {
+                "x": 0,
+                "y": 6,
+                "width": 18,
+                "height": 8
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "e5005cc3-9313-404c-b611-e994cca4a663"
+            },
+            "visualOptions": {
+                "multipleYAxes": {
+                    "base": {
+                        "id": "-1",
+                        "label": "Savings (USD)",
+                        "columns": [],
+                        "yAxisMaximumValue": null,
+                        "yAxisMinimumValue": null,
+                        "yAxisScale": "linear",
+                        "horizontalLines": []
+                    },
+                    "additional": [],
+                    "showMultiplePanels": false
+                },
+                "hideLegend": false,
+                "legendLocation": "bottom",
+                "xColumnTitle": "",
+                "xColumn": null,
+                "yColumns": null,
+                "seriesColumns": null,
+                "xAxisScale": "linear",
+                "verticalLine": "",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "d5c8cdac-9357-4ea3-bdc0-8a6ebab7a170",
+            "title": "Overview of savings",
+            "visualType": "table",
+            "pageId": "d45bf738-c38f-4d2b-ba67-4a90665a251b",
+            "layout": {
+                "x": 0,
+                "y": 14,
+                "width": 18,
+                "height": 14
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "b29686a9-6e63-43e4-acfd-8494b9b67e06"
+            },
+            "visualOptions": {
+                "table__enableRenderLinks": true,
+                "colorRulesDisabled": true,
+                "colorStyle": "light",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": [],
+                "table__renderLinks": [],
+                "colorRules": []
+            }
+        },
+        {
+            "id": "38af7a63-9943-4566-a252-8557ffffc1ac",
+            "title": "Compute usage by product",
+            "visualType": "stackedbar",
+            "pageId": "4de39e0d-bb74-4be6-97c6-35ee5b0d7495",
+            "layout": {
+                "x": 11,
+                "y": 7,
+                "width": 10,
+                "height": 11
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "6263503e-34f5-4a63-8d6b-9dc7b7381d9f"
+            },
+            "visualOptions": {
+                "multipleYAxes": {
+                    "base": {
+                        "id": "-1",
+                        "label": "",
+                        "columns": [],
+                        "yAxisMaximumValue": null,
+                        "yAxisMinimumValue": null,
+                        "yAxisScale": "linear",
+                        "horizontalLines": []
+                    },
+                    "additional": [],
+                    "showMultiplePanels": false
+                },
+                "hideLegend": true,
+                "legendLocation": "bottom",
+                "xColumnTitle": "",
+                "xColumn": "Family",
+                "yColumns": null,
+                "seriesColumns": [
+                    "RegionName",
+                    "PricingModel"
+                ],
+                "xAxisScale": "linear",
+                "verticalLine": "",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [
+                    {
+                        "interaction": "column",
+                        "property": "Family",
+                        "parameterId": "39b2e5ab-0e45-42a5-ae2b-f9db5f23a967",
+                        "disabled": false
+                    }
+                ],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "05491ef3-1573-4518-9a71-0a1966cc770d",
+            "title": "Compute coverage by location",
+            "visualType": "stackedbar",
+            "pageId": "4de39e0d-bb74-4be6-97c6-35ee5b0d7495",
+            "layout": {
+                "x": 0,
+                "y": 7,
+                "width": 11,
+                "height": 11
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "189f7a57-09bb-4762-8cdc-317654b2e5dc"
+            },
+            "visualOptions": {
+                "multipleYAxes": {
+                    "base": {
+                        "id": "-1",
+                        "label": "",
+                        "columns": [],
+                        "yAxisMaximumValue": null,
+                        "yAxisMinimumValue": null,
+                        "yAxisScale": "linear",
+                        "horizontalLines": []
+                    },
+                    "additional": [],
+                    "showMultiplePanels": false
+                },
+                "hideLegend": false,
+                "legendLocation": "bottom",
+                "xColumnTitle": "",
+                "xColumn": "RegionName",
+                "yColumns": [
+                    "CPUHours"
+                ],
+                "seriesColumns": [
+                    "PricingModel"
+                ],
+                "xAxisScale": "linear",
+                "verticalLine": "",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [
+                    {
+                        "interaction": "column",
+                        "property": "RegionName",
+                        "parameterId": "d4393699-1f7e-47f3-9162-d8b320569a4f",
+                        "disabled": false
+                    }
+                ],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "1baa97e4-a69e-43a8-804d-4a1bed058c7c",
+            "title": "Compute usage by family",
+            "visualType": "pie",
+            "pageId": "4de39e0d-bb74-4be6-97c6-35ee5b0d7495",
+            "layout": {
+                "x": 7,
+                "y": 0,
+                "width": 7,
+                "height": 7
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "35fccc07-3f40-49bb-a8d0-a2c74ca90f99"
+            },
+            "visualOptions": {
+                "hideLegend": true,
+                "legendLocation": "bottom",
+                "xColumn": "x_SkuMeterSubcategory",
+                "yColumns": [
+                    "CPUHours"
+                ],
+                "seriesColumns": [
+                    "UsageType"
+                ],
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "labelDisabled": false,
+                "pie__label": [
+                    "name",
+                    "percentage"
+                ],
+                "tooltipDisabled": false,
+                "pie__tooltip": [
+                    "name",
+                    "percentage",
+                    "value"
+                ],
+                "pie__orderBy": "size",
+                "pie__kind": "pie",
+                "pie__topNSlices": null,
+                "crossFilter": [
+                    {
+                        "interaction": "column",
+                        "property": "x_SkuMeterSubcategory",
+                        "parameterId": "39b2e5ab-0e45-42a5-ae2b-f9db5f23a967",
+                        "disabled": false
+                    }
+                ],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "38184e7d-5e08-4088-893b-b4d94cd144a6",
+            "title": "New tile",
+            "visualType": "timechart",
+            "pageId": "e509aa25-8803-474c-9b4d-78fc04960009",
+            "layout": {
+                "x": 0,
+                "y": 0,
+                "width": 14,
+                "height": 12
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "ece6bc58-3e1e-4ee5-99ff-31958641d24e"
+            },
+            "visualOptions": {
+                "multipleYAxes": {
+                    "base": {
+                        "id": "-1",
+                        "label": "",
+                        "columns": [],
+                        "yAxisMaximumValue": null,
+                        "yAxisMinimumValue": null,
+                        "yAxisScale": "linear",
+                        "horizontalLines": []
+                    },
+                    "additional": [],
+                    "showMultiplePanels": false
+                },
+                "hideLegend": false,
+                "legendLocation": "bottom",
+                "xColumnTitle": "",
+                "xColumn": null,
+                "yColumns": null,
+                "seriesColumns": null,
+                "xAxisScale": "linear",
+                "verticalLine": "",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "9c33cd99-7e31-40b0-be39-8cd7b933df93",
+            "title": "New tile",
+            "visualType": "table",
+            "pageId": "e509aa25-8803-474c-9b4d-78fc04960009",
+            "layout": {
+                "x": 0,
+                "y": 12,
+                "width": 14,
+                "height": 17
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "cd25a76c-bc11-40a8-925b-d8a1adf60e4c"
+            },
+            "visualOptions": {
+                "table__enableRenderLinks": true,
+                "colorRulesDisabled": true,
+                "colorStyle": "light",
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "crossFilter": [],
+                "drillthrough": [],
+                "table__renderLinks": [],
+                "colorRules": []
+            }
+        },
+        {
+            "id": "07187df7-ebab-468e-8f5b-560521bf257b",
+            "title": "Compute usage by location",
+            "visualType": "pie",
+            "pageId": "4de39e0d-bb74-4be6-97c6-35ee5b0d7495",
+            "layout": {
+                "x": 0,
+                "y": 0,
+                "width": 7,
+                "height": 7
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "e98d9eea-2145-49f2-be52-d2dcc2b12b7d"
+            },
+            "visualOptions": {
+                "hideLegend": true,
+                "legendLocation": "bottom",
+                "xColumn": "RegionName",
+                "yColumns": [
+                    "CPUHours"
+                ],
+                "seriesColumns": [
+                    "UsageType"
+                ],
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "labelDisabled": false,
+                "pie__label": [
+                    "name",
+                    "percentage"
+                ],
+                "tooltipDisabled": false,
+                "pie__tooltip": [
+                    "name",
+                    "percentage",
+                    "value"
+                ],
+                "pie__orderBy": "size",
+                "pie__kind": "pie",
+                "pie__topNSlices": null,
+                "crossFilter": [
+                    {
+                        "interaction": "column",
+                        "property": "RegionName",
+                        "parameterId": "d4393699-1f7e-47f3-9162-d8b320569a4f",
+                        "disabled": false
+                    }
+                ],
+                "drillthrough": []
+            }
+        },
+        {
+            "id": "e5f55e37-b6f9-47f1-89ac-dfae2eca9aa7",
+            "title": "Compute coverage by pricing model",
+            "visualType": "pie",
+            "pageId": "4de39e0d-bb74-4be6-97c6-35ee5b0d7495",
+            "layout": {
+                "x": 14,
+                "y": 0,
+                "width": 7,
+                "height": 7
+            },
+            "queryRef": {
+                "kind": "query",
+                "queryId": "54da0a8a-46fa-4120-9dfc-4171aa25620f"
+            },
+            "visualOptions": {
+                "hideLegend": false,
+                "legendLocation": "bottom",
+                "xColumn": "PricingModel",
+                "yColumns": [
+                    "CPUHours"
+                ],
+                "seriesColumns": [
+                    "UsageType"
+                ],
+                "crossFilterDisabled": false,
+                "drillthroughDisabled": false,
+                "labelDisabled": false,
+                "pie__label": [
+                    "name",
+                    "percentage"
+                ],
+                "tooltipDisabled": false,
+                "pie__tooltip": [
+                    "name",
+                    "percentage",
+                    "value"
+                ],
+                "pie__orderBy": "size",
+                "pie__kind": "pie",
+                "pie__topNSlices": null,
+                "crossFilter": [
+                    {
+                        "interaction": "column",
+                        "property": "PricingModel",
+                        "parameterId": "ba997e81-3dda-453e-a4e6-99dd79d2fe4e",
+                        "disabled": false
+                    }
+                ],
+                "drillthrough": []
+            }
+        }
+    ],
+    "baseQueries": [],
+    "parameters": [
+        {
+            "kind": "duration",
+            "id": "a15d7d7c-a284-481d-92f9-886bd2d589a2",
+            "displayName": "Time range",
+            "description": "",
+            "beginVariableName": "_startTime",
+            "endVariableName": "_endTime",
+            "defaultValue": {
+                "kind": "dynamic",
+                "count": 1,
+                "unit": "hours"
+            },
+            "showOnPages": {
+                "kind": "all"
+            }
+        },
+        {
+            "kind": "string",
+            "id": "f44ab092-f969-4aaf-8201-463922f7f6f1",
+            "displayName": "Selected tag",
+            "description": "",
+            "variableName": "selectedTag",
+            "selectionType": "scalar",
+            "includeAllOption": true,
+            "defaultValue": {
+                "kind": "all"
+            },
+            "dataSource": {
+                "kind": "query",
+                "columns": {
+                    "value": "tag"
+                },
+                "queryRef": {
+                    "kind": "query",
+                    "queryId": "80a6f7ab-6512-484c-9a65-29120e6fa6bd"
+                },
+                "autoReset": true
+            },
+            "showOnPages": {
+                "kind": "selection",
+                "pageIds": []
+            }
+        },
+        {
+            "kind": "string",
+            "id": "51cbe7c3-511d-4cc8-b4d5-42f2e22623a2",
+            "displayName": "Selected value",
+            "description": "",
+            "variableName": "selectedValue",
+            "selectionType": "scalar",
+            "includeAllOption": false,
+            "defaultValue": {
+                "kind": "value",
+                "value": ""
+            },
+            "dataSource": {
+                "kind": "static",
+                "values": [
+                    {
+                        "value": ""
+                    }
+                ]
+            },
+            "showOnPages": {
+                "kind": "selection",
+                "pageIds": []
+            }
+        },
+        {
+            "kind": "string",
+            "id": "d4393699-1f7e-47f3-9162-d8b320569a4f",
+            "displayName": "Selected region",
+            "description": "",
+            "variableName": "selectedRegion",
+            "selectionType": "scalar",
+            "includeAllOption": false,
+            "defaultValue": {
+                "kind": "value",
+                "value": ""
+            },
+            "dataSource": {
+                "kind": "static",
+                "values": [
+                    {
+                        "value": ""
+                    }
+                ]
+            },
+            "showOnPages": {
+                "kind": "selection",
+                "pageIds": []
+            }
+        },
+        {
+            "kind": "string",
+            "id": "39b2e5ab-0e45-42a5-ae2b-f9db5f23a967",
+            "displayName": "Selected Meter Subcategory",
+            "description": "",
+            "variableName": "selectedMeterSubCategory",
+            "selectionType": "scalar",
+            "includeAllOption": false,
+            "defaultValue": {
+                "kind": "value",
+                "value": ""
+            },
+            "dataSource": {
+                "kind": "static",
+                "values": [
+                    {
+                        "value": ""
+                    }
+                ]
+            },
+            "showOnPages": {
+                "kind": "selection",
+                "pageIds": []
+            }
+        },
+        {
+            "kind": "string",
+            "id": "ba997e81-3dda-453e-a4e6-99dd79d2fe4e",
+            "displayName": "Selected pricing model",
+            "description": "",
+            "variableName": "selectedPricingModel",
+            "selectionType": "scalar",
+            "includeAllOption": false,
+            "defaultValue": {
+                "kind": "value",
+                "value": ""
+            },
+            "dataSource": {
+                "kind": "static",
+                "values": [
+                    {
+                        "value": ""
+                    }
+                ]
+            },
+            "showOnPages": {
+                "kind": "selection",
+                "pageIds": []
+            }
+        }
+    ],
+    "dataSources": [
+        {
+            "id": "0f936f88-9c18-4592-8c1f-03333a19359c",
+            "kind": "manual-kusto",
+            "scopeId": "kusto",
+            "name": "2024 Hackathon",
+            "clusterUri": "https://ftk-hack24.eastus.kusto.windows.net/",
+            "database": "hub"
+        }
+    ],
+    "pages": [
+        {
+            "name": "Overview",
+            "id": "af72fc24-fa8b-47ce-bbba-1d01ff6e42e0"
+        },
+        {
+            "name": "Commitment discounts",
+            "id": "4e314634-66c8-4e4b-a13f-c7fb0a9da0ac"
+        },
+        {
+            "name": "Executive Billing Summary",
+            "id": "5e02bc2c-ba72-40ce-a7b1-0154a037b34f"
+        },
+        {
+            "id": "fb5fd34b-4875-4b70-911b-687d9ba5ae10",
+            "name": "MoM Trend"
+        },
+        {
+            "name": "Tag Explorer",
+            "id": "f23713ac-9a36-4a3e-acb7-21018a8c8d23"
+        },
+        {
+            "name": "Recommendations",
+            "id": "8d01958c-c35c-4241-bd74-0b2b073873ff"
+        },
+        {
+            "name": "Savings",
+            "id": "d45bf738-c38f-4d2b-ba67-4a90665a251b"
+        },
+        {
+            "name": "Compute Coverage",
+            "id": "4de39e0d-bb74-4be6-97c6-35ee5b0d7495"
+        },
+        {
+            "name": "Anomalies",
+            "id": "e509aa25-8803-474c-9b4d-78fc04960009"
+        }
+    ],
+    "queries": [
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "Costs \n| summarize EffectiveCost = round(sum(EffectiveCost), 2) by Currency = BillingCurrency, BillingMonth = format_datetime(BillingPeriodStart, 'MM yyyy')",
+            "id": "0f1fe238-8a8b-4d23-b73f-41825cf5b7bf",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "let CommitmentSavings = (start:datetime, end:datetime) \n{ \n    Costs()\n    | where ChargePeriodStart >= start and ChargePeriodStart < end and CommitmentDiscountCategory <> \"\"\n    | extend Savings=iff(\n        ListCost <> \"\" and ListCost > 0 and EffectiveCost <> \"\" and EffectiveCost > 0, \n        ListCost - EffectiveCost, \n        iff(\n            ContractedCost <> \"\" and ContractedCost > 0 and EffectiveCost <> \"\" and EffectiveCost > 0, \n            ContractedCost - EffectiveCost,\n            todecimal(0)\n            )\n        )\n    | summarize round(TotalSavings=sum(Savings),2)\n};\nCommitmentSavings(startofmonth(now()), endofmonth(now()));",
+            "id": "7cdf2c48-95c8-4e93-baa2-f9d6eabb87a8",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "let CommitmentSavings = (start:datetime, end:datetime) \n{ \n    Costs()\n    | where ChargePeriodStart >= start and ChargePeriodStart < end and CommitmentDiscountCategory <> \"\"\n    | extend Savings=iff(\n        ListCost <> \"\" and ListCost > 0 and EffectiveCost <> \"\" and EffectiveCost > 0, \n        ListCost - EffectiveCost, \n        iff(\n            ContractedCost <> \"\" and ContractedCost > 0 and EffectiveCost <> \"\" and EffectiveCost > 0, \n            ContractedCost - EffectiveCost,\n            todecimal(0)\n            )\n        )\n    | extend CommitmentDiscountKey = strcat(CommitmentDiscountType, \" - \", ServiceName)\n    | summarize round(TotalSavings=sum(Savings),2) by CommitmentDiscountKey\n    | sort by CommitmentDiscountKey asc\n};\nCommitmentSavings(startofmonth(now()), endofmonth(now()));",
+            "id": "5c2eb16e-e7ed-4e21-86fa-a2f7347fcfab",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "let CommitmentSavings = (start:datetime, end:datetime) \n{ \n    Costs()\n    | where ChargePeriodStart >= start and ChargePeriodStart < end and CommitmentDiscountCategory <> \"\"\n    | extend Savings=iff(\n        ListCost <> \"\" and ListCost > 0 and EffectiveCost <> \"\" and EffectiveCost > 0, \n        ListCost - EffectiveCost, \n        iff(\n            ContractedCost <> \"\" and ContractedCost > 0 and EffectiveCost <> \"\" and EffectiveCost > 0, \n            ContractedCost - EffectiveCost,\n            todecimal(0)\n            )\n        )\n    | summarize round(TotalSavings=sum(Savings),2)\n};\nCommitmentSavings(datetime_add('month', -1, startofmonth(now())), endofmonth(datetime_add('month', -1, startofmonth(now()))));",
+            "id": "33da8bfb-ab30-48fd-8a5d-fc7c4a778f49",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "let CommitmentSavings = (start:datetime, end:datetime) \n{ \n    Costs()\n    | where ChargePeriodStart >= start and ChargePeriodStart < end and CommitmentDiscountType <> \"\" and tolower(CommitmentDiscountStatus) == \"unused\" \n    | summarize TotalEffectiveCost=sum(EffectiveCost)\n};\nCommitmentSavings(startofmonth(now()), endofmonth(now()));",
+            "id": "4fbaba17-3082-4f90-b915-f44a2c30fbfe",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "let CommitmentSavings = (start:datetime, end:datetime) \n{ \n    Costs()\n    | where ChargePeriodStart >= start and ChargePeriodStart < end and CommitmentDiscountType <> \"\" and tolower(CommitmentDiscountStatus) == \"unused\" \n    | summarize TotalEffectiveCost=sum(EffectiveCost)\n};\nCommitmentSavings(datetime_add('month', -1, startofmonth(now())), endofmonth(datetime_add('month', -1, startofmonth(now()))));",
+            "id": "8a570208-d202-4565-b0d9-e2346880974b",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "let CommitmentSavings = (start:datetime, end:datetime) \n{ \n    Costs()\n    | where ChargePeriodStart >= start and ChargePeriodStart < end and CommitmentDiscountCategory <> \"\"\n    | extend Cost=iff(\n        ListCost <> \"\" and ListCost > 0, \n        ListCost, \n        iff(\n            ContractedCost <> \"\" and ContractedCost > 0, \n            ContractedCost,\n            EffectiveCost\n            )\n        )\n    | extend Savings = Cost - EffectiveCost\n    | extend ['Discount Type'] = strcat(CommitmentDiscountType, \" - \", ServiceName)\n    //| summarize round(Savings=sum(Savings),2), round(Effective=sum(EffectiveCost),2), round(List=sum(Cost),2) by CommitmentDiscountKey\n    | summarize ['List Cost']=round(sum(Cost), 2), ['Effective Cost']=round(sum(EffectiveCost), 2), ['Savings']=round(sum(Savings), 2) by ['Discount Type']\n    | sort by ['Discount Type'] asc\n};\nCommitmentSavings(startofmonth(now()), endofmonth(now()));",
+            "id": "ae6ea3cf-9483-42cc-9ccf-da6511ad1a62",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "let CommitmentSavings = (start:datetime, end:datetime) \n{ \n    Costs()\n    | where ChargePeriodStart >= start and ChargePeriodStart < end\n    | extend Cost=iff(\n        ListCost <> \"\" and ListCost > 0, \n        ListCost, \n        iff(\n            ContractedCost <> \"\" and ContractedCost > 0, \n            ContractedCost,\n            EffectiveCost\n            )\n        )\n    | extend Savings = Cost - EffectiveCost\n    | summarize EffectiveCost=round(sum(EffectiveCost), 2) by Month=BillingPeriodStart, Category=iif(CommitmentDiscountCategory <> \"\", CommitmentDiscountCategory, \"Usage\"), Type=iif(CommitmentDiscountType <> \"\", CommitmentDiscountType, \"On Demand\")\n};\nCommitmentSavings(startofmonth(datetime_add(\"month\", -12, now())), endofmonth(now()));",
+            "id": "15b22a48-503a-4e72-9136-dea4fbb2a084",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "let CommitmentSavings = (start:datetime, end:datetime) \n{ \n    Costs()\n    | where ChargePeriodStart >= start and ChargePeriodStart < end and tolower(ChargeCategory) == \"purchase\"\n    | project ChargePeriodStart, CommitmentDiscountName, CommitmentDiscountType, BilledCost, ChargeFrequency\n};\nCommitmentSavings(startofmonth(datetime_add(\"month\", -12, now())), endofmonth(now()));",
+            "id": "3282445c-0f66-4478-a85c-3b7a0b22eef4",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "\nCosts\n| summarize count_distinct(SubAccountId)",
+            "id": "994ebf7a-d3c3-4d33-8e3e-779c7f0ddbac",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "\nCosts\n| where BillingPeriodStart >= startofmonth(now(), -1) and BillingPeriodStart < startofmonth(now())\n| summarize TotalCount = count(), TotalCost = sum(EffectiveCost) by RegionName, BillingCurrency\n| order by TotalCost desc \n| project RegionName, TotalCost = tostring(round(TotalCost, 2)), BillingCurrency, TotalCount",
+            "id": "6c04edde-86f4-4c11-8d9f-dc9f160cc90b",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "\n\nCosts\n| where BillingPeriodStart >= startofmonth(now(), -1) and BillingPeriodStart < startofmonth(now())\n| summarize TotalSpend = sum(EffectiveCost) by BillingAccountName, BillingCurrency\n| order by TotalSpend desc\n| project BillingAccountName, TotalSpend = round(TotalSpend, 2), BillingCurrency",
+            "id": "1ee102fb-5832-43cf-8c26-df9d411447c3",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "Costs \n| summarize EffectiveCost = sum(EffectiveCost) by Currency = BillingCurrency, BillingMonth = format_datetime(BillingPeriodStart, 'MM yyyy')\n| order by BillingMonth desc\n| top 3 by BillingMonth\n| order by BillingMonth asc",
+            "id": "8e7f6131-746c-4243-a52f-1128215370ec",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "Costs \n| summarize EffectiveCost = sum(EffectiveCost) by Currency = BillingCurrency, BillingMonth = format_datetime(BillingPeriodStart, 'MM yyyy')\n| order by BillingMonth asc",
+            "id": "6b879e7e-d912-4fe4-b2ab-323d4ce1e391",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "Costs \n| summarize EffectiveCost = sum(EffectiveCost) by ServiceCategory, bin(month=BillingPeriodStart, 1m)\n\n",
+            "id": "8ca81f12-e973-4010-b5b2-c48c0056dada",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "Costs \n| summarize EffectiveCost = sum(EffectiveCost) by ServiceName, bin(month=BillingPeriodStart, 1m)\n",
+            "id": "ab8cf002-a2b5-4ba3-bf49-e39b6ede25e0",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "let startOfLastMonth = startofmonth(now(), -1);\nlet endOfLastMonth = endofmonth(now(), -0);\nlet dt = 1d;\nlet horizon=30d;\nCosts\n| make-series cost=sum(EffectiveCost) on ChargePeriodStart from startOfLastMonth to endOfLastMonth+horizon step dt //by SubAccountId\n| extend forecast = series_decompose_forecast(cost, toint(horizon/dt))\n| render timechart",
+            "id": "d6d76f13-a830-4401-856c-84539b54135b",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "let startOfLastMonth = startofmonth(now(), -1);\nlet endOfLastMonth = now();\nlet dt = 1d;\nCosts\n| make-series cost=sum(EffectiveCost) on ChargePeriodStart from startOfLastMonth to endOfLastMonth step dt //by sid \n| extend (anomalies, score, baseline) = series_decompose_anomalies(cost, 1.5, -1, 'linefit')\n| render anomalychart with(anomalycolumns=anomalies, title='Costs last month - anomalies')",
+            "id": "c6850d81-18e6-421f-9e32-d49deedbb3e6",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "let startOfMonth = startofmonth(now());\nlet endOfMonth = now();\nlet dt = 1d;\nCosts\n| where ChargePeriodStart between (startOfMonth .. endOfMonth)\n| summarize CostByResource=sum(BilledCost) by ResourceType\n| sort by CostByResource\n| top 10 by CostByResource",
+            "id": "6e7eb6fe-aae1-400a-b6d0-05eb994e7549",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "let ToFormattedCurrency = (value:decimal ) \n{\n    let DecimalString = tostring( round( value, 2 ) );\n    let Sign = iff( DecimalString startswith \"-\", \"-\",\"\");\n    let DollarsString = substring( DecimalString, 0, indexof(DecimalString, \".\" ) );\n    let CentsString = strcat(substring(DecimalString, indexof(DecimalString, \".\" )), \"00\"); //pad with extra 00 to force 2 digits, will remove later\n    let AbsDollarsString = iff( DollarsString startswith \"-\", substring(DollarsString,1),DollarsString);\n    let AbsDollarsReversedString = reverse(AbsDollarsString);\n    let AbsDollarsReversedStringLen = strlen(AbsDollarsReversedString);\n    let _hundreds = substring( AbsDollarsReversedString, 0, 3 );\n    let _thoundsands = iff( AbsDollarsReversedStringLen > 3,  strcat( _hundreds, \",\", substring( AbsDollarsReversedString, 3, 3 ) ), _hundreds );\n    let _millions = iff( AbsDollarsReversedStringLen > 6,  strcat( _thoundsands, \",\", substring( AbsDollarsReversedString, 6, 3 ) ), _thoundsands ); \n    let _billions = iff( AbsDollarsReversedStringLen > 9,  strcat( _millions, \",\", substring( AbsDollarsReversedString, 9, 3 ) ), _millions );\n    let FormattedDollarReverse = iff( AbsDollarsReversedStringLen > 12,  strcat( _billions, \",\", substring( AbsDollarsReversedString, 12, 3 ) ), _billions );\n    strcat(\"$\",Sign,reverse(FormattedDollarReverse), substring( CentsString, indexof( CentsString,\".\", 0), 3) )\n};\nlet startOfMonth = startofmonth(now());\nlet endOfMonth = now();\nCosts\n| where ChargePeriodStart between (startOfMonth .. endOfMonth)\n| summarize CostByResource=sum(BilledCost) by ResourceType\n| project ResourceType, Cost = ToFormattedCurrency(CostByResource), CostByResource\n| sort by CostByResource\n",
+            "id": "20edd956-f33b-4c01-bda8-f68fd4eea753",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "Costs \n| summarize EffectiveCost = sum(EffectiveCost) by RegionName, bin(month=BillingPeriodStart, 1m)\n\n",
+            "id": "37af1063-0cc9-47fb-a5e2-0e34be12692f",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "Costs \n| summarize EffectiveCost = sum(EffectiveCost) by ResourceName, bin(month=BillingPeriodStart, 1m)\n| order  by EffectiveCost desc  \n| top 10 by EffectiveCost\n",
+            "id": "9d08a60c-e96c-4a25-b7ef-faf4f9b01275",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "// Distribution of Services\nCosts\n| summarize ServiceCount = count() by ServiceName",
+            "id": "83549749-4329-49bc-a975-eb4d343b4d22",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "// Total number of Services\n\nCosts\n| summarize ServiceCount = count() by ServiceName\n| summarize TotalServiceCount = sum(ServiceCount)\n",
+            "id": "020d655f-c701-4725-8a6d-81debe9ba859",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "Costs \n| summarize TotalCost = sum(EffectiveCost) by ServiceCategory, bin(month=BillingPeriodStart, 1m)\n| order by  ServiceCategory asc, month asc \n| project ServiceCategory, month, TotalCost\n//| serialize PreviousMonthCost = prev(TotalCost,1)\n| extend PreviousMonthCost = prev(TotalCost, 1)\n//| extend PreviousMonthCost = prev(TotalCost, 1, ServiceCategory)\n//| extend MoMChange = iff(isnull(PreviousMonthCost), 0, ((TotalCost - PreviousMonthCost) / PreviousMonthCost) * 100)\n| extend MoMChange = (TotalCost - PreviousMonthCost)\n| extend MoMChange_Percent = iff(isnull(PreviousMonthCost), 0, tolong(((TotalCost - PreviousMonthCost) / PreviousMonthCost) * 100))\n| project ServiceCategory, month, TotalCost, PreviousMonthCost,MoMChange, MoMChange_Percent\n| order by ServiceCategory asc,month asc",
+            "id": "248c0b29-a1dc-45d5-b061-a63fc67f1ed0",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "Costs\n| where BillingPeriodStart >= startofmonth(now(), -4) and BillingPeriodStart < startofmonth(now())\n| summarize EffectiveCost = sum(EffectiveCost) by BillingCurrency, BillingMonth = format_datetime(BillingPeriodStart, 'MM yyyy')\n| order by BillingMonth asc\n| extend PreviousMonthCost = prev(EffectiveCost, 1)\n| extend PercentageChange = (EffectiveCost - PreviousMonthCost) * 100.0 / todouble(PreviousMonthCost)\n| extend PercentageChange = strcat(tostring(round(PercentageChange, 2)), \"%\")\n| project BillingMonth, BillingCurrency, EffectiveCost, PreviousMonthCost, PercentageChange\n| where BillingMonth != format_datetime(startofmonth(now(), -4), 'MM yyyy')",
+            "id": "5b824eca-1fca-4d53-bf10-63c8efb7c647",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "let FocusCosts = (start:datetime, end:datetime) \n{ \n    Costs()\n    | where ChargePeriodStart >= start and ChargePeriodStart < end\n    | project todecimal(EffectiveCost), TagBag=parse_json(Tags)\n    | mv-expand tag = bag_keys(TagBag)\n    | where iif(tostring(selectedTag) <> \"\", tag == tostring(selectedTag), tag <> tostring(selectedTag))\n    | extend tagValue = tostring(TagBag[tostring(tag)])\n    | where iif(tostring(selectedValue) <> \"\", tagValue == tostring(selectedValue), tagValue <> \"\")\n    | summarize Cost = round(sum(EffectiveCost), 2) by TagName=tostring(tag), TagValue=tagValue, TagString=strcat(tag, \" : \", tagValue)\n    | order by Cost desc \n    | top 100 by Cost desc\n};\nFocusCosts(startofmonth(now()), endofmonth(now()));",
+            "id": "23de78d8-efbe-4bc1-a77f-fd1930ab7cab",
+            "usedVariables": [
+                "selectedTag",
+                "selectedValue"
+            ]
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "let FocusCosts = (start:datetime, end:datetime) \n{ \n    Costs()\n    | where ChargePeriodStart >= start and ChargePeriodStart < end\n    | project todecimal(EffectiveCost), TagBag=parse_json(Tags), ServiceCategory, ServiceName\n    | mv-expand tag = bag_keys(TagBag)\n    | where iif(tostring(selectedTag) <> \"\", tag == tostring(selectedTag), tag <> tostring(selectedTag))\n    | extend tagValue = tostring(TagBag[tostring(tag)])\n    | where iif(tostring(selectedValue) <> \"\", tagValue == tostring(selectedValue), tagValue <> \"\")\n    | summarize Cost = round(sum(EffectiveCost), 2) by ServiceCategory, ServiceName\n    | top 100 by Cost desc \n};\nFocusCosts(startofmonth(now()), endofmonth(now()));",
+            "id": "678b6e26-edf2-4c59-99ee-7ee88c4f2f99",
+            "usedVariables": [
+                "selectedTag",
+                "selectedValue"
+            ]
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "let CommitmentSavings = (start:datetime, end:datetime) \n{ \n    Costs()\n    | where ChargePeriodStart >= start and ChargePeriodStart < end and tolower(ChargeCategory) == \"purchase\"\n    | project Date=format_datetime(ChargePeriodStart, \"yyyy-MM-dd\"), ['Commitment Name']=CommitmentDiscountName, ['Commitment Type']=CommitmentDiscountType, ['Billing Frequency']=ChargeFrequency, ['Billed Cost']=BilledCost\n    | top 100 by Date desc \n};\nCommitmentSavings(startofmonth(datetime_add(\"month\", -12, now())), endofmonth(now()));",
+            "id": "963ab088-4934-4535-ac0d-20ab9464d066",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "Recommendations\n| extend x_RecommendationaExtendedPropertiesJson=parse_json(x_RecommendationaExtendedProperties)\n| extend monthlySavingsAmount=x_RecommendationaExtendedPropertiesJson.savingsAmount\n| extend annualSavingsAmount=x_RecommendationaExtendedPropertiesJson.annualSavingsAmount\n| extend savingsCurrency=x_RecommendationaExtendedPropertiesJson.savingsCurrency\n| extend lookbackPeriod=x_RecommendationaExtendedPropertiesJson.lookbackPeriod\n| extend scope=x_RecommendationaExtendedPropertiesJson.scope\n| extend term=x_RecommendationaExtendedPropertiesJson.term\n| extend commitment=x_RecommendationaExtendedPropertiesJson.commitment\n| where RecommendationProblem contains \"reserved\" or RecommendationProblem contains \"savings plan\"\n| project ['Subscription name']=SubAccountName, ['Subscription ID']=SubAccountId, ['Recommendation description']=RecommendationProblem, ['Scope']=scope, ['Monthly savings']=monthlySavingsAmount, ['Annual savings']=annualSavingsAmount, ['Currency']=savingsCurrency, ['Lookback period']=lookbackPeriod, ['Term']=term, ['Commitment amount']=commitment",
+            "id": "5bc625f7-3120-4538-b1a9-2bb17bc06a46",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "Recommendations\n| where RecommendationProblem contains \"reserved\" or RecommendationProblem contains \"savings plan\"\n| summarize count() by tostring(RecommendationProblem)\n| project ['Recommendation description']=RecommendationProblem, ['Quantity']=count_",
+            "id": "dd5f59cd-74b7-45a1-8bb6-90fae460220d",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "// TODO: Should Adjustment costs be on List/ContractedCost?\nCosts\n| where not(BilledCost != 0 and EffectiveCost == 0 and ChargeCategory == 'Purchase')\n| summarize \n    NegotiatedSavings = round(sum(ListCost) - sum(ContractedCost), 2),\n    CommitmentSavings = round(sum(ContractedCost) - sum(EffectiveCost), 2),\n    TotalDiscountSavings = round(sum(ListCost) - sum(EffectiveCost), 2)\n    by BillingPeriodStart",
+            "id": "1ac08ad1-6340-40ce-a105-ac82c588cb1d",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "Costs \n| summarize TotalCost = sum(EffectiveCost) by ServiceCategory, bin(Month=BillingPeriodStart, 1m)\n| order by  ServiceCategory asc, Month asc \n| project ServiceCategory, Month, TotalCost\n//| serialize PreviousMonthCost = prev(TotalCost,1)\n| extend PreviousMonthCost = prev(TotalCost, 1)\n| extend PreviousMonthCost = iff(isnull(PreviousMonthCost), 0, tolong(PreviousMonthCost))\n//| extend PreviousMonthCost = prev(TotalCost, 1, ServiceCategory)\n//| extend MoMChange = iff(isnull(PreviousMonthCost), 0, ((TotalCost - PreviousMonthCost) / PreviousMonthCost) * 100)\n//| extend MoMChange = (TotalCost - PreviousMonthCost)\n| extend MoMChange = iff(isnull(PreviousMonthCost), 0, tolong((TotalCost - PreviousMonthCost)))\n| extend MoMChange_Percent = iff(isnull(PreviousMonthCost), 0, tolong(((TotalCost - PreviousMonthCost) / PreviousMonthCost) * 100))\n| extend MoMChange_Percent = iff(isnull(MoMChange_Percent), 0, tolong(MoMChange_Percent))\n| project ServiceCategory, Month, tolong(TotalCost), PreviousMonthCost,MoMChange, MoMChange_Percent\n| order by ServiceCategory asc,Month asc",
+            "id": "ebf9ed7b-a6c6-4062-9fc6-085df2ec0283",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "Costs\n| where BillingPeriodStart >= startofmonth(now(), -12) and BillingPeriodStart < startofmonth(now())\n| summarize TotalSpend = sum(EffectiveCost) by BillingAccountName, BillingCurrency, BillingMonth = format_datetime(BillingPeriodStart, 'MM yyyy')\n| order by BillingAccountName, BillingMonth asc\n| project BillingAccountName, BillingMonth, TotalSpend = round(TotalSpend, 2), BillingCurrency",
+            "id": "dbcd72db-0af6-45fd-a953-fb2a6ff139ae",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "Costs\n| where BillingPeriodStart >= startofmonth(now(), -12) and BillingPeriodStart < startofmonth(now())\n| summarize TotalSpend = sum(BilledCost) by BillingAccountName, BillingCurrency, BillingMonth = format_datetime(BillingPeriodStart, 'MM yyyy')\n| order by BillingAccountName, BillingMonth asc\n| project BillingAccountName, BillingMonth, TotalSpend = round(TotalSpend, 2), BillingCurrency",
+            "id": "9a596f95-dfb1-47d8-a70f-f0267083284f",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "Recommendations\n| where RecommendationCategory == 'Cost'\n| summarize Quantity = count() by Recommendation = tostring(RecommendationProblem)",
+            "id": "6eb1a81d-9530-4ae8-9d82-72f7fc81c9c5",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "Recommendations\n| extend x_RecommendationaExtendedPropertiesJson=parse_json(x_RecommendationaExtendedProperties)\n| extend monthlySavingsAmount=x_RecommendationaExtendedPropertiesJson.savingsAmount\n| extend annualSavingsAmount=x_RecommendationaExtendedPropertiesJson.annualSavingsAmount\n| extend savingsCurrency=x_RecommendationaExtendedPropertiesJson.savingsCurrency\n| extend lookbackPeriod=x_RecommendationaExtendedPropertiesJson.lookbackPeriod\n| extend scope=x_RecommendationaExtendedPropertiesJson.scope\n| extend term=x_RecommendationaExtendedPropertiesJson.term\n| extend commitment=x_RecommendationaExtendedPropertiesJson.commitment\n| where RecommendationProblem contains \"reserved\" or RecommendationProblem contains \"savings plan\"\n| project ['Subscription name']=SubAccountName, ['Subscription ID']=SubAccountId, ['Recommendation description']=RecommendationProblem, ['Scope']=scope, ['Monthly savings']=monthlySavingsAmount, ['Annual savings']=annualSavingsAmount, ['Currency']=savingsCurrency, ['Lookback period']=lookbackPeriod, ['Term']=term, ['Commitment amount']=commitment",
+            "id": "8be80df2-4d6a-4616-b4fe-0f8d524a6fac",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "let ToFormattedCurrency = (value:decimal ) \n{\n    let DecimalString = tostring( round( value, 2 ) );\n    let Sign = iff( DecimalString startswith \"-\", \"-\",\"\");\n    let DollarsString = substring( DecimalString, 0, indexof(DecimalString, \".\" ) );\n    let CentsString = strcat(substring(DecimalString, indexof(DecimalString, \".\" )), \"00\"); //pad with extra 00 to force 2 digits, will remove later\n    let AbsDollarsString = iff( DollarsString startswith \"-\", substring(DollarsString,1),DollarsString);\n    let AbsDollarsReversedString = reverse(AbsDollarsString);\n    let AbsDollarsReversedStringLen = strlen(AbsDollarsReversedString);\n    let _hundreds = substring( AbsDollarsReversedString, 0, 3 );\n    let _thoundsands = iff( AbsDollarsReversedStringLen > 3,  strcat( _hundreds, \",\", substring( AbsDollarsReversedString, 3, 3 ) ), _hundreds );\n    let _millions = iff( AbsDollarsReversedStringLen > 6,  strcat( _thoundsands, \",\", substring( AbsDollarsReversedString, 6, 3 ) ), _thoundsands ); \n    let _billions = iff( AbsDollarsReversedStringLen > 9,  strcat( _millions, \",\", substring( AbsDollarsReversedString, 9, 3 ) ), _millions );\n    let FormattedDollarReverse = iff( AbsDollarsReversedStringLen > 12,  strcat( _billions, \",\", substring( AbsDollarsReversedString, 12, 3 ) ), _billions );\n    strcat(\"$\",Sign,reverse(FormattedDollarReverse), substring( CentsString, indexof( CentsString,\".\", 0), 3) )\n};\nlet startOfDate = startofmonth(now(), -3);\nlet endOfDate = endofmonth(now(), -1);\nCosts\n| where ChargePeriodStart between (startOfDate..endOfDate)\n| summarize ContractedCost = ToFormattedCurrency(sum(ContractedCost)), YourCost = ToFormattedCurrency(sum(EffectiveCost)), YourSavings = ToFormattedCurrency(sum(ContractedCost) - sum(EffectiveCost))",
+            "id": "3695ab63-c862-447f-86e1-5d60cd8a422a",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "let startOfDate = startofmonth(now(), -3);\nlet endOfDate = endofmonth(now(), -1);\nCosts\n| where ChargePeriodStart between (startOfDate..endOfDate)\n| summarize YourSavings = round(sum(ContractedCost) - sum(EffectiveCost), 2) by CommitmentDiscountType, BillingPeriodStart\n",
+            "id": "e5005cc3-9313-404c-b611-e994cca4a663",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "let startOfDate = startofmonth(now(), -3);\nlet endOfDate = endofmonth(now(), -1);\nCosts\n| where ChargePeriodStart between (startOfDate..endOfDate)\n| summarize ContractedCost = round(sum(ContractedCost), 2), YourCost = round(sum(EffectiveCost), 2), YourSavings = round(sum(ContractedCost) - sum(EffectiveCost), 2) by CommitmentDiscountName, CommitmentDiscountType, ProductType = iff(CommitmentDiscountType == 'Savings Plan', 'Compute', ServiceName)\n| where YourSavings > 0 and ProductType != 'RoundingAdjustment'\n| order by ProductType asc",
+            "id": "b29686a9-6e63-43e4-acfd-8494b9b67e06",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "Costs()\n| where tolower(x_SkuMeterCategory) == \"virtual machines\" and iif(selectedRegion <> \"\", RegionName == selectedRegion, ResourceName <> \"\") and iif(selectedMeterSubCategory <> \"\", x_SkuMeterSubcategory == selectedMeterSubCategory, x_SkuMeterSubcategory <> \"\")\n| extend PricingModel = iif(CommitmentDiscountType <> \"\", CommitmentDiscountType, x_PricingSubcategory)\n| extend vCPUs=iif(todecimal(parse_json(x_SkuDetails).VCPUs) <> \"\", todecimal(parse_json(x_SkuDetails).VCPUs), todecimal(1))\n| where iif(selectedPricingModel <> \"\", PricingModel == selectedPricingModel, PricingModel <> \"\")\n| summarize CPUHours=sum(ConsumedQuantity*vCPUs) by PricingModel, Family=x_SkuMeterSubcategory, RegionName\n| order by CPUHours desc ",
+            "id": "6263503e-34f5-4a63-8d6b-9dc7b7381d9f",
+            "usedVariables": [
+                "selectedMeterSubCategory",
+                "selectedPricingModel",
+                "selectedRegion"
+            ]
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "Costs()\n| where tolower(x_SkuMeterCategory) == \"virtual machines\" and iif(selectedRegion <> \"\", RegionName == selectedRegion, ResourceName <> \"\") and iif(selectedMeterSubCategory <> \"\", x_SkuMeterSubcategory == selectedMeterSubCategory, x_SkuMeterSubcategory <> \"\")\n| extend PricingModel = iif(CommitmentDiscountType <> \"\", CommitmentDiscountType, x_PricingSubcategory)\n| extend vCPUs=iif(todecimal(parse_json(x_SkuDetails).VCPUs) <> \"\", todecimal(parse_json(x_SkuDetails).VCPUs), todecimal(1))\n| where iif(selectedPricingModel <> \"\", PricingModel == selectedPricingModel, PricingModel <> \"\")\n| summarize CPUHours=sum(ConsumedQuantity*vCPUs) by PricingModel, RegionName\n| order by CPUHours desc ",
+            "id": "189f7a57-09bb-4762-8cdc-317654b2e5dc",
+            "usedVariables": [
+                "selectedMeterSubCategory",
+                "selectedPricingModel",
+                "selectedRegion"
+            ]
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "Costs()\n| where tolower(x_SkuMeterCategory) == \"virtual machines\" and iif(selectedRegion <> \"\", RegionName == selectedRegion, ResourceName <> \"\") and iif(selectedMeterSubCategory <> \"\", x_SkuMeterSubcategory == selectedMeterSubCategory, x_SkuMeterSubcategory <> \"\")\n| extend PricingModel = iif(CommitmentDiscountType <> \"\", CommitmentDiscountType, x_PricingSubcategory)\n| extend vCPUs=iif(todecimal(parse_json(x_SkuDetails).VCPUs) <> \"\", todecimal(parse_json(x_SkuDetails).VCPUs), todecimal(1))\n| where iif(selectedPricingModel <> \"\", PricingModel == selectedPricingModel, PricingModel <> \"\")\n| summarize CPUHours=sum(ConsumedQuantity*vCPUs) by x_SkuMeterSubcategory\n| order by CPUHours desc ",
+            "id": "35fccc07-3f40-49bb-a8d0-a2c74ca90f99",
+            "usedVariables": [
+                "selectedMeterSubCategory",
+                "selectedPricingModel",
+                "selectedRegion"
+            ]
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "let startOfDate = startofmonth(now(), -1);\nlet endOfDate = now();\nlet dt = 1d;\nCosts\n| make-series cost=sum(EffectiveCost) default = 0 on ChargePeriodStart from startOfDate to endOfDate step dt // by SubAccountId \n| extend (Anomalies, AnomolyScore, ExpectedCost) = series_decompose_anomalies(cost, 1.5, -1, 'linefit')\n| render anomalychart with(anomalycolumns=Anomalies, title='Costs last month - Anomalies')",
+            "id": "ece6bc58-3e1e-4ee5-99ff-31958641d24e",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "let startOfDate = startofmonth(now(), -1);\nlet endOfDate = now();\nlet dt = 1d;\nCosts\n| where ChargePeriodStart between (startOfDate..endOfDate)\n| make-series cost=sum(EffectiveCost) on ChargePeriodStart from startOfDate to endOfDate step dt by SubAccountId, ResourceType, ResourceId\n| extend (Anomalies, AnomolyScore, ExpectedCost) = series_decompose_anomalies(cost, 1.5, -1, 'linefit')\n| mv-expand cost to typeof(decimal), AnomolyScore to typeof(double), ChargePeriodStart to typeof(datetime), Anomalies to typeof(double), ExpectedCost to typeof(long)\n| where Anomalies != 0 and (cost !=0 and ExpectedCost != 0)\n| project-away SubAccountId\n| sort by abs(AnomolyScore) desc",
+            "id": "cd25a76c-bc11-40a8-925b-d8a1adf60e4c",
+            "usedVariables": []
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "Costs()\n| where tolower(x_SkuMeterCategory) == \"virtual machines\" and iif(selectedRegion <> \"\", RegionName == selectedRegion, ResourceName <> \"\") and iif(selectedMeterSubCategory <> \"\", x_SkuMeterSubcategory == selectedMeterSubCategory, x_SkuMeterSubcategory <> \"\")\n| extend PricingModel = iif(CommitmentDiscountType <> \"\", CommitmentDiscountType, x_PricingSubcategory)\n| extend vCPUs=iif(todecimal(parse_json(x_SkuDetails).VCPUs) <> \"\", todecimal(parse_json(x_SkuDetails).VCPUs), todecimal(1))\n| where iif(selectedPricingModel <> \"\", PricingModel == selectedPricingModel, PricingModel <> \"\")\n| summarize CPUHours=sum(ConsumedQuantity*vCPUs) by RegionName\n| order by CPUHours desc ",
+            "id": "e98d9eea-2145-49f2-be52-d2dcc2b12b7d",
+            "usedVariables": [
+                "selectedMeterSubCategory",
+                "selectedPricingModel",
+                "selectedRegion"
+            ]
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "Costs()\n| where tolower(x_SkuMeterCategory) == \"virtual machines\" and iif(selectedRegion <> \"\", RegionName == selectedRegion, ResourceName <> \"\") and iif(selectedMeterSubCategory <> \"\", x_SkuMeterSubcategory == selectedMeterSubCategory, x_SkuMeterSubcategory <> \"\")\n| extend PricingModel = iif(CommitmentDiscountType <> \"\", CommitmentDiscountType, x_PricingSubcategory)\n| extend vCPUs=iif(todecimal(parse_json(x_SkuDetails).VCPUs) <> \"\", todecimal(parse_json(x_SkuDetails).VCPUs), todecimal(1))\n| where iif(selectedPricingModel <> \"\", PricingModel == selectedPricingModel, PricingModel <> \"\")\n| summarize CPUHours=sum(ConsumedQuantity*vCPUs) by PricingModel\n| order by CPUHours desc ",
+            "id": "54da0a8a-46fa-4120-9dfc-4171aa25620f",
+            "usedVariables": [
+                "selectedMeterSubCategory",
+                "selectedPricingModel",
+                "selectedRegion"
+            ]
+        },
+        {
+            "dataSource": {
+                "kind": "inline",
+                "dataSourceId": "0f936f88-9c18-4592-8c1f-03333a19359c"
+            },
+            "text": "let FocusCosts = (start:datetime, end:datetime) \n{ \n    Costs()\n    | where ChargePeriodStart >= start and ChargePeriodStart < end\n    | project TagBag=parse_json(Tags)\n    | mv-expand tag = bag_keys(TagBag)\n    | where tag notcontains(\"aks-managed\") and tag notcontains(\"kubernetes.io\") and tag notcontains(\"k8s-azure\") and tag <> \"\"\n    | distinct tostring(tag)\n};\nFocusCosts(startofmonth(now()), endofmonth(now()));",
+            "id": "80a6f7ab-6512-484c-9a65-29120e6fa6bd",
+            "usedVariables": []
+        }
+    ]
+}
