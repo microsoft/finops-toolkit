@@ -73,7 +73,7 @@
         },
         {
             "id": "04a31e81-36f8-4783-a0b8-ecf6f1b979df",
-            "title": "MTD Savings by pricing model and service",
+            "title": "MTD savings by pricing model and service",
             "visualType": "bar",
             "pageId": "4e314634-66c8-4e4b-a13f-c7fb0a9da0ac",
             "layout": {
@@ -307,8 +307,8 @@
         },
         {
             "id": "2b202458-a2a0-4e64-8cc4-56a31e0a00b2",
-            "title": "Total amount of Subscriptions",
-            "description": "The total number of Subscriptions. ",
+            "title": "Total amount of subscriptions",
+            "description": "The total number of subscriptions. ",
             "visualType": "card",
             "pageId": "5e02bc2c-ba72-40ce-a7b1-0154a037b34f",
             "layout": {
@@ -629,7 +629,7 @@
         },
         {
             "id": "b61028da-36dd-4cdc-b9af-21af15aae902",
-            "title": "View daily cost - Anomoly (this month)",
+            "title": "View daily cost - anomaly (this month)",
             "visualType": "timechart",
             "pageId": "af72fc24-fa8b-47ce-bbba-1d01ff6e42e0",
             "layout": {
@@ -990,7 +990,7 @@
         },
         {
             "id": "6e392734-c4f8-4ed6-93a1-c095eb609206",
-            "title": "Cost by Tag",
+            "title": "Cost by tag",
             "visualType": "stackedbar",
             "pageId": "f23713ac-9a36-4a3e-acb7-21018a8c8d23",
             "layout": {
@@ -1525,7 +1525,7 @@
                 "width": 18,
                 "height": 2
             },
-            "markdownText": "# Savings Dashboard (Previous 3 months)",
+            "markdownText": "# Savings dashboard (previous 3 months)",
             "visualOptions": {}
         },
         {
@@ -2193,15 +2193,15 @@
             "id": "4e314634-66c8-4e4b-a13f-c7fb0a9da0ac"
         },
         {
-            "name": "Executive Billing Summary",
+            "name": "Executive billing summary",
             "id": "5e02bc2c-ba72-40ce-a7b1-0154a037b34f"
         },
         {
             "id": "fb5fd34b-4875-4b70-911b-687d9ba5ae10",
-            "name": "MoM Trend"
+            "name": "MoM trend"
         },
         {
-            "name": "Tag Explorer",
+            "name": "Tag explorer",
             "id": "f23713ac-9a36-4a3e-acb7-21018a8c8d23"
         },
         {
@@ -2213,7 +2213,7 @@
             "id": "d45bf738-c38f-4d2b-ba67-4a90665a251b"
         },
         {
-            "name": "Compute Coverage",
+            "name": "Compute coverage",
             "id": "4de39e0d-bb74-4be6-97c6-35ee5b0d7495"
         },
         {
