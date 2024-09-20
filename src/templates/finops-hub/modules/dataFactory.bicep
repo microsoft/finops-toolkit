@@ -992,7 +992,7 @@ resource pipeline_RunBackfill 'Microsoft.DataFactory/factories/pipelines@2018-06
   parent: dataFactory
   properties: {
     activities: [
-      {
+      { // Load config file to get scopes
         name: 'Get Config'
         type: 'Lookup'
         dependsOn: []
@@ -1032,19 +1032,92 @@ resource pipeline_RunBackfill 'Microsoft.DataFactory/factories/pipelines@2018-06
           }
         }
       }
-      {
+      { // Save scopes to test if it's an array
+        name: 'Set Scopes'
+        description: ''
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Get Config'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'scopesArray'
+          value: {
+            value: '@activity(\'Get Config\').output.firstRow.scopes'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Set scopes as array to work around PowerShell bug
+        name: 'Set Scopes as Array'
+        description: 'Wraps a single scope object into an array to work around the PowerShell bug where single-item arrays are sometimes written as a single object instead of an array.'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Set Scopes'
+            dependencyConditions: [
+              'Failed'
+            ]
+          }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'scopesArray'
+          value: {
+            value: '@createArray(activity(\'Get Config\').output.firstRow.scopes)'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Filter out invalid scopes
+        name: 'Filter Invalid Scopes'
+        type: 'Filter'
+        dependsOn: [
+          {
+            activity: 'Filter Invalid Scopes'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@variables(\'scopesArray\')'
+            type: 'Expression'
+          }
+          condition: {
+            value: '@and(not(empty(item().scope)), not(equals(item().scope, \'/\')))'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Loop thru scopes
         name: 'ForEach Export Scope'
         type: 'ForEach'
         dependsOn: [
           {
-            activity: 'Get Config'
+            activity: 'Filter Invalid Scopes'
             dependencyConditions: ['Succeeded']
           }
         ]
         userProperties: []
         typeProperties: {
           items: {
-            value: '@activity(\'Get Config\').output.firstRow.scopes'
+            value: '@activity(\'Filter Invalid Scopes\').output.Value'
             type: 'Expression'
           }
           isSequential: true
@@ -1139,6 +1212,9 @@ resource pipeline_RunBackfill 'Microsoft.DataFactory/factories/pipelines@2018-06
         type: 'String'
         defaultValue: configContainerName
       }
+      scopesArray: {
+        type: 'Array'
+      }
     }
   }
 }
@@ -1193,7 +1269,80 @@ resource pipeline_ExportData 'Microsoft.DataFactory/factories/pipelines@2018-06-
           }
         }
       }
-      {
+      { // Save scopes to test if it's an array
+        name: 'Set Scopes'
+        description: ''
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Get Config'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'scopesArray'
+          value: {
+            value: '@activity(\'Get Config\').output.firstRow.scopes'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Set scopes as array to work around PowerShell bug
+        name: 'Set Scopes as Array'
+        description: 'Wraps a single scope object into an array to work around the PowerShell bug where single-item arrays are sometimes written as a single object instead of an array.'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Set Scopes'
+            dependencyConditions: [
+              'Failed'
+            ]
+          }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'scopesArray'
+          value: {
+            value: '@createArray(activity(\'Get Config\').output.firstRow.scopes)'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Filter out invalid scopes
+        name: 'Filter Invalid Scopes'
+        type: 'Filter'
+        dependsOn: [
+          {
+            activity: 'Filter Invalid Scopes'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@variables(\'scopesArray\')'
+            type: 'Expression'
+          }
+          condition: {
+            value: '@and(not(empty(item().scope)), not(equals(item().scope, \'/\')))'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Loop thru scopes
         name: 'ForEach Export Scope'
         type: 'ForEach'
         dependsOn: [
@@ -1201,11 +1350,19 @@ resource pipeline_ExportData 'Microsoft.DataFactory/factories/pipelines@2018-06-
             activity: 'Get Config'
             dependencyConditions: ['Succeeded']
           }
+          {
+            activity: 'Set Scopes'
+            dependencyConditions: ['Completed']
+          }
+          {
+            activity: 'Set Scopes as Array'
+            dependencyConditions: ['Succeeded', 'Skipped']
+          }
         ]
         userProperties: []
         typeProperties: {
           items: {
-            value: '@activity(\'Get Config\').output.firstRow.scopes'
+            value: '@activity(\'Filter Invalid Scopes\').output.Value'
             type: 'Expression'
           }
           isSequential: true
@@ -1284,6 +1441,9 @@ resource pipeline_ExportData 'Microsoft.DataFactory/factories/pipelines@2018-06-
       folderPath: {
         type: 'String'
         defaultValue: configContainerName
+      }
+      scopesArray: {
+        type: 'Array'
       }
       finOpsHub: {
         type: 'String'

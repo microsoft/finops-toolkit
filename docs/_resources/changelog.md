@@ -96,6 +96,10 @@ Legend:
 > 1. Add option to ingest data into an Azure Data Explorer cluster.
 > 2. Added support for ingesting reservation details from Cost Management.
 > 3. Add a new UnsupportedExportFileType error when the exported file type is not supported.
+>
+> 🛠️ Fixed:
+>
+> 1. Updated the `config_RunBackfill` and `config_ExportData` pipelines to handle when there's a single scope defined in config instead of an array.
 
 <br>
 
