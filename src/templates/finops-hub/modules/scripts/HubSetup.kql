@@ -2,7 +2,14 @@
 with (docstring = 'Gets all cost and usage records with the latest supported version of the FOCUS schema.', folder = 'Ingestion')
 Costs()
 {
+    // TODO: Should Adjustment costs be on List/ContractedCost?
+    // TODO: File a bug on CM for ContractedCost being off by the x_PricingBlockSize
+    // TODO: Confirm PricingQuantity and PricingUnit for reservation purchases
+    // TODO: Reservation usage has List/ContractedCost but Effective/BilledCost == 0
+    // TODO: Create a pattern for identifying (and filtering out) commitment discount purchases (so they aren't dobule-counted)
     database('ingestion').Costs_1_0
+    | extend ContractedCost = iff(isempty(x_PricingBlockSize) or isempty(ContractedCost), ContractedCost, ContractedCost * x_PricingBlockSize)
+    | extend ListCost = iff(ListCost == 0, ContractedCost, ListCost)
 }
 
 .create-or-alter function
