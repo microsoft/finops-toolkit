@@ -162,7 +162,7 @@ resource ingestionTopic 'Microsoft.EventGrid/systemTopics@2023-12-15-preview' = 
       }
       eventDeliverySchema: 'EventGridSchema'
       filter: {
-        subjectBeginsWith: '/blobServices/default/containers/${storage::blobServices::ingestionContainer.name}/blobs/focuscost'
+        subjectBeginsWith: '/blobServices/default/containers/${storage::blobServices::ingestionContainer.name}/blobs/focuscost/'
         includedEventTypes: [
           'Microsoft.Storage.BlobCreated'
         ]
@@ -191,7 +191,7 @@ resource ingestionTopic 'Microsoft.EventGrid/systemTopics@2023-12-15-preview' = 
       }
       eventDeliverySchema: 'EventGridSchema'
       filter: {
-        subjectBeginsWith: '/blobServices/default/containers/${storage::blobServices::ingestionContainer.name}/blobs/pricesheet'
+        subjectBeginsWith: '/blobServices/default/containers/${storage::blobServices::ingestionContainer.name}/blobs/pricesheet/'
         includedEventTypes: [
           'Microsoft.Storage.BlobCreated'
         ]
@@ -220,7 +220,7 @@ resource ingestionTopic 'Microsoft.EventGrid/systemTopics@2023-12-15-preview' = 
       }
       eventDeliverySchema: 'EventGridSchema'
       filter: {
-        subjectBeginsWith: '/blobServices/default/containers/${storage::blobServices::ingestionContainer.name}/blobs/recommendations'
+        subjectBeginsWith: '/blobServices/default/containers/${storage::blobServices::ingestionContainer.name}/blobs/recommendations/'
         includedEventTypes: [
           'Microsoft.Storage.BlobCreated'
         ]
@@ -249,7 +249,7 @@ resource ingestionTopic 'Microsoft.EventGrid/systemTopics@2023-12-15-preview' = 
       }
       eventDeliverySchema: 'EventGridSchema'
       filter: {
-        subjectBeginsWith: '/blobServices/default/containers/${storage::blobServices::ingestionContainer.name}/blobs/reservationdetails'
+        subjectBeginsWith: '/blobServices/default/containers/${storage::blobServices::ingestionContainer.name}/blobs/reservationdetails/'
         includedEventTypes: [
           'Microsoft.Storage.BlobCreated'
         ]
@@ -278,7 +278,7 @@ resource ingestionTopic 'Microsoft.EventGrid/systemTopics@2023-12-15-preview' = 
       }
       eventDeliverySchema: 'EventGridSchema'
       filter: {
-        subjectBeginsWith: '/blobServices/default/containers/${storage::blobServices::ingestionContainer.name}/blobs/reservationrecommendations'
+        subjectBeginsWith: '/blobServices/default/containers/${storage::blobServices::ingestionContainer.name}/blobs/reservationrecommendations/'
         includedEventTypes: [
           'Microsoft.Storage.BlobCreated'
         ]
@@ -307,7 +307,7 @@ resource ingestionTopic 'Microsoft.EventGrid/systemTopics@2023-12-15-preview' = 
       }
       eventDeliverySchema: 'EventGridSchema'
       filter: {
-        subjectBeginsWith: '/blobServices/default/containers/${storage::blobServices::ingestionContainer.name}/blobs/reservationtransactions'
+        subjectBeginsWith: '/blobServices/default/containers/${storage::blobServices::ingestionContainer.name}/blobs/reservationtransactions/'
         includedEventTypes: [
           'Microsoft.Storage.BlobCreated'
         ]

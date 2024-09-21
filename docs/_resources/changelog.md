@@ -94,7 +94,7 @@ Legend:
 > ➕ Added:
 >
 > 1. Add option to ingest data into an Azure Data Explorer cluster.
-> 2. Added support for ingesting reservation details from Cost Management.
+> 2. Added support for ingesting pricesheet, reservation recommendation, reservation detail, and reservation transaction datasets via Cost Management exports.
 > 3. Add a new UnsupportedExportFileType error when the exported file type is not supported.
 >
 > 🛠️ Fixed:
