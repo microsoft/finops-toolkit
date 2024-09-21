@@ -196,20 +196,20 @@
 .create-merge table Recommendations_raw (
     ResourceId:                          string,
     ResourceName:                        string,
-    ResourceType:                        string,
-    RecommendationCategory:              string,
-    RecommendationProvider:              string,
-    RecommendationId:                    string,
-    RecommendationProblem:               string,
-    RecommendationSolution:              string,
-    RecommendationTypeId:                string,
+    _ResourceType:                       string,
+    _RecommendationCategory:             string,
+    _RecommendationProvider:             string,
+    _RecommendationId:                   string,
+    _RecommendationDescription:          string,
+    _RecommendationSolution:             string,
+    _RecommendationTypeId:               string,
     SubAccountId:                        string,
     SubAccountName:                      string,
     x_RecommendationImpact:              string,
     x_RecommendationControl:             string,
     x_RecommendationMaturityLevel:       string,
-    x_RecommendationExtendedProperties:  dynamic,
-    x_RecommendationLastUpdated:         datetime,
+    x_RecommendationDetails:             dynamic,
+    x_RecommendationDate:                datetime,
     x_ResourceGroupName:                 string
 )
 
@@ -218,7 +218,7 @@
     Recommendations_raw
     | extend IngestionTime = ingestion_time()
     | summarize arg_max(IngestionTime , *) by
-        RecommendationId, SubAccountId, SubAccountName, x_ResourceGroupName, ResourceId, ResourceName, ResourceType, RecommendationCategory, RecommendationProvider, RecommendationTypeId
+        _RecommendationId, SubAccountId, SubAccountName, x_ResourceGroupName, ResourceId, ResourceName, _ResourceType, _RecommendationCategory, _RecommendationProvider, _RecommendationTypeId
 }
 
 
