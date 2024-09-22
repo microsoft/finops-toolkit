@@ -2931,7 +2931,7 @@ resource pipeline_ExportRecommendationsAdvisor 'Microsoft.DataFactory/factories/
             }
           }
           enableStaging: false
-          translator:
+          translator: {
             type: 'TabularTranslator'
             mappings: [
               {
@@ -3072,6 +3072,7 @@ resource pipeline_ExportRecommendationsAdvisor 'Microsoft.DataFactory/factories/
               }            
             ]
             collectionReference: '$[\'data\']'
+          }
         }
         inputs: [
           {
