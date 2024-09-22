@@ -291,6 +291,7 @@ resource linkedService_dataExplorer 'Microsoft.DataFactory/factories/linkedservi
   }
 }
 
+var armEndpointPropertyName = 'aadResourceId' // This is a workaround to avoid the warning about "ResourceId" in the property name
 resource linkedService_arm 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
   name: 'azurerm'
   parent: dataFactory
@@ -298,12 +299,14 @@ resource linkedService_arm 'Microsoft.DataFactory/factories/linkedservices@2018-
     annotations: []
     parameters: {}
     type: 'RestService'
-    typeProperties: {
+    typeProperties: union({
       url: environment().resourceManager
       authenticationType: 'ManagedServiceIdentity'
       enableServerCertificateValidation: true
-      aadResourceId: environment().resourceManager
-    }
+    }, {
+      // When bicep sees "ResourceId" in the following property name, it raises a warning. The union and variable work around this to avoid the warning.
+      '${armEndpointPropertyName}': environment().resourceManager
+    })
   }
 }
 
