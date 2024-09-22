@@ -302,7 +302,7 @@ resource linkedService_arm 'Microsoft.DataFactory/factories/linkedservices@2018-
       url: environment().resourceManager
       authenticationType: 'ManagedServiceIdentity'
       enableServerCertificateValidation: true
-      // TODO: What should this be set to? -- aadResourceId: 
+      aadResourceId: environment().resourceManager
     }
   }
 }
