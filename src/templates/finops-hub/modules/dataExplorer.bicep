@@ -6,6 +6,7 @@
 param hubName string
 
 @description('Required. Suffix to add to the storage account name to ensure uniqueness.')
+@minLength(6) // Min length requirement is to avoid a false positive warning
 param uniqueSuffix string
 
 @description('Required. Name to use for the Azure Data Explorer cluster. This name must be unique within the region.')
