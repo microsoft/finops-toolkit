@@ -130,10 +130,9 @@
 )
 
 // Costs as FOCUS 1.0
-.create-or-alter materialized-view
-// TODO: Add backfill=true
+.create-or-alter function
 with (docstring = 'All costs transformed to FOCUS 1.0.', folder = 'Costs')
-Costs_1_0 on table FocusCost_raw
+Costs_1_0()
 {
     FocusCost_raw
     | extend IngestionTime = ingestion_time()
@@ -144,10 +143,9 @@ Costs_1_0 on table FocusCost_raw
 }
 
 // Costs as FOCUS 1.0 preview
-.create-or-alter materialized-view
-// TODO: Add backfill=true
+.create-or-alter function
 with (docstring = 'All costs transformed to FOCUS 1.0 preview.', folder = 'Costs')
-Costs_1_0_preview on table FocusCost_raw
+Costs_1_0_preview()
 {
     FocusCost_raw
     | extend IngestionTime = ingestion_time()
@@ -395,10 +393,9 @@ Prices_1_0()
     x_ResourceGroupName:                 string
 )
 
-.create-or-alter materialized-view
-// TODO: Add backfill=true
+.create-or-alter function
 with (docstring = 'All recommendations transformed to FOCUS 1.0.', folder = 'Recommendations')
-Recommendations_1_0 on table Recommendations_raw
+Recommendations_1_0()
 {
     Recommendations_raw
     | extend IngestionTime = ingestion_time()
@@ -425,10 +422,9 @@ Recommendations_1_0 on table Recommendations_raw
     UsedHours:                decimal
 )
 
-.create-or-alter materialized-view
-// TODO: Add backfill=true
+.create-or-alter function
 with (docstring = 'All reservation details transformed to FOCUS 1.0.', folder = 'CommitmentDiscounts')
-ReservationDetails_1_0 on table ReservationDetails_raw
+ReservationDetails_1_0()
 {
     // TODO: Transform to FOCUS 1.0
     ReservationDetails_raw
