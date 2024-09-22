@@ -7,10 +7,20 @@ Costs()
     // TODO: Confirm PricingQuantity and PricingUnit for reservation purchases
     // TODO: Reservation usage has List/ContractedCost but Effective/BilledCost == 0
     // TODO: Create a pattern for identifying (and filtering out) commitment discount purchases (so they aren't dobule-counted)
+    // TODO: PricingUnit is "Units" when it should be "Operations"
     database('ingestion').Costs_1_0
     | extend ContractedCost = iff(isempty(x_PricingBlockSize) or isempty(ContractedCost), ContractedCost, ContractedCost * x_PricingBlockSize)
     | extend ListCost = iff(ListCost == 0, ContractedCost, ListCost)
 }
+
+
+.create-or-alter function
+with (docstring = 'Gets all prices with the latest supported version of the FOCUS schema.', folder = 'Ingestion')
+Prices()
+{
+    database('ingestion').Prices_1_0
+}
+
 
 .create-or-alter function
 with (docstring = 'Gets all recommendations aligned with the latest supported version of the FOCUS schema.', folder = 'Ingestion')

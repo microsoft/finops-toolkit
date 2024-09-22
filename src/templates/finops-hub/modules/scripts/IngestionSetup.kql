@@ -5,7 +5,7 @@
 // - Azure: 1.0, 1.0-preview(v1) -- See https://aka.ms/costmgmt/exports/focus
 // - AWS: 1.0                    -- See https://docs.aws.amazon.com/cur/latest/userguide/table-dictionary-focus-1-0-aws-columns.html
 // - GCP: Jan-Jun 2024           -- See https://cloud.google.com/resources/google-cloud-focus?e=48754805&hl=en
-// - OCI: 1.0                    -- See https://docs.oracle.com/en-us/iaas/Content/Billing/Concepts/costusagereportsoverview.htm#costreports__focus-cost-report-schema
+// - OCI: 1.0                    -- See https://docs.oracle.com/iaas/Content/Billing/Concepts/costusagereportsoverview.htm#costreports__focus-cost-report-schema
 //======================================================================================================================
 
 .create-merge table FocusCost_raw (
@@ -162,6 +162,8 @@ Costs_1_0_preview on table FocusCost_raw
 // Prices
 //======================================================================================================================
 
+// Azure EA -- https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/price-sheet-ea
+// Azure MCA -- https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/price-sheet-mca
 .create-merge table PriceSheet_raw (
     BasePrice:          decimal,
     BillingAccountId:   string,
@@ -169,6 +171,8 @@ Costs_1_0_preview on table FocusCost_raw
     BillingCurrency:    string,
     BillingProfileId:   string,
     BillingProfileName: string,
+    Currency:           string,
+    CurrencyCode:       string,
     EffectiveEndDate:   datetime,
     EffectiveStartDate: datetime,
     EnrollmentNumber:   string,
@@ -176,23 +180,195 @@ Costs_1_0_preview on table FocusCost_raw
     MarketPrice:        decimal,
     MeterCategory:      string,
     MeterId:            string,
+    MeterID:            string,
     MeterName:          string,
     MeterRegion:        string,
     MeterSubCategory:   string,
     MeterType:          string,
-    OfferId:            string,
+    OfferID:            string,
     PartNumber:         string,
     PriceType:          string,
     PricingCurrency:    string,
+    Product:            string,
     ProductName:        string,
     ProductId:          string,
+    ProductID:          string,
     ServiceFamily:      string,
     SkuId:              string,
+    SkuID:              string,
     Term:               string,
-    TierMinimumUnits:   string,
+    TierMinimumUnits:   decimal,
     UnitOfMeasure:      string,
     UnitPrice:          decimal
 )
+
+// Prices as FOCUS 1.0
+.create-or-alter function
+with (docstring='All prices transformed to FOCUS 1.0.', folder='Prices')
+Prices_1_0()
+{
+    // TODO: Handle null MeterId
+    // TODO: Add PricingUnit and x_PricingBlockSize
+    // TODO: Add x_CommitmentDiscountMinimum (as in the minimum commitment amount; e.g., 100TB, 1PB, 10PB for storage)
+    // TODO: Consider cleaning up x_SkuRegion
+    // TODO: Create new rows for reservation usage rows?
+    // TODO: Why is MeterName missing for some records (e.g., reservations)?
+    // TODO: Why is MarketPrice not the on-demand list price for savings plan prices?
+    // TODO: Why is MarketPrice ~= UnitPrice (but not ==) for savings plan prices?
+    // TODO: Does ListUnitPrice/x_EffectiveUnitPrice match usage data for savings plans?
+    // TODO: Does x_SkuMeterName match usage data?
+    // TODO: Does the effective start date for reservation prices change based on the export date?
+    let isoMonths = (duration: string) {
+        let number = toint(replace_regex(duration, @'[PMY]', ''));
+        case(
+            duration == '', toint(''),
+            duration endswith "Y", number * 12,
+            duration endswith "M", number,
+            -1
+        )
+    };
+    let prices = PriceSheet_raw
+    | extend x_SkuMeterId = coalesce(MeterId, MeterID)
+    | project-rename
+        x_BaseUnitPrice = BasePrice,
+        x_SkuIncludedQuantity = IncludedQuantity,
+        x_SkuMeterName = MeterName,
+        x_SkuMeterSubcategory = MeterSubCategory,
+        x_SkuMeterType = MeterType,
+        x_SkuOfferId = OfferID,
+        x_SkuPartNumber = PartNumber,
+        x_SkuPriceType = PriceType,
+        x_SkuRegion = MeterRegion,
+        x_SkuServiceFamily = ServiceFamily,
+        x_SkuTier = TierMinimumUnits
+    | extend ContractedUnitPrice = iff(x_SkuPriceType != 'SavingsPlan', UnitPrice, todecimal(''))  // UnitPrice for savings plan is not the on-demand unit price
+    | extend ListUnitPrice = iff(x_SkuPriceType != 'SavingsPlan', MarketPrice, todecimal(''))  // MarketPrice for savings plan is not the list price
+    | extend SkuPriceIdv2 = strcat(x_SkuMeterId, '_', case(x_SkuPriceType == 'Consumption', 'OD', x_SkuPriceType == 'ReservedInstance', 'RI', x_SkuPriceType == 'SavingsPlan', 'SP', 'XX'), '_', coalesce(ProductId, ProductID), '_', coalesce(SkuId, SkuID), '_', Term, '_', x_SkuTier, '_', x_SkuOfferId) //MeterType, '_',
+    | extend x_BillingAccountId = iff(BillingAccountId startswith '/', split(BillingAccountId, '/')[-1], coalesce(BillingAccountId, EnrollmentNumber))
+    | extend x_BillingProfileId = iff(BillingProfileId startswith '/', split(BillingProfileId, '/')[-1], coalesce(BillingProfileId, EnrollmentNumber))
+    | extend x_IngestionTime = ingestion_time()
+    | extend x_SkuSavingsPlanKey = strcat(coalesce(MeterId, MeterID), '_', coalesce(ProductId, ProductID), '_', coalesce(SkuId, SkuID), '_', x_SkuTier, '_', x_SkuOfferId);  //MeterType, '_';
+    //
+    // Prices by type
+    let ri = prices | where x_SkuPriceType == 'ReservedInstance';
+    let sp = prices | where x_SkuPriceType == 'SavingsPlan';
+    let od = prices | where x_SkuPriceType == 'Consumption';
+    //
+    // Meters for reservations and savings plans to identify commitment eligibility
+    let riMeters = ri | distinct x_SkuMeterId;
+    let spMeters = sp | distinct x_SkuMeterId;
+    //
+    // On-demand prices for savings plan meters only to streamline the join
+    let odForSP = od | where x_SkuMeterId in (sp) | distinct x_SkuSavingsPlanKey, ListUnitPrice, ContractedUnitPrice, x_BaseUnitPrice;
+    od
+    | union (ri)
+    | union ((
+        // Copy list/base/contracted prices from on-demand SKUs
+        sp
+        | join kind=leftouter (odForSP) on x_SkuSavingsPlanKey
+        | extend ListUnitPrice = coalesce(ListUnitPrice, ListUnitPrice1)
+        | extend ContractedUnitPrice = coalesce(ContractedUnitPrice, ContractedUnitPrice1)
+        | extend x_BaseUnitPrice = coalesce(x_BaseUnitPrice, x_BaseUnitPrice1)
+        | project-away ListUnitPrice1, ContractedUnitPrice1, x_BaseUnitPrice1
+    ))
+    // 
+    // Calculate commitment discount elgibility
+    | extend usage = x_SkuMeterId in (riMeters)
+    | extend spend = x_SkuMeterId in (spMeters)
+    | extend x_CommitmentDiscountEligibility = case(usage and spend, 'Usage or Spend', usage, 'Usage', spend, 'Spend', 'Not Eligible')
+    //
+    // Get latest ingested row based on the unique ID
+    | summarize arg_max(x_IngestionTime , *) by SkuPriceIdv2
+    | extend x_EffectiveUnitPrice = iff(x_SkuPriceType == 'SavingsPlan', UnitPrice, todecimal(''))  // Savings plan prices are for the effective price, not the contracted price
+    | extend x_CommitmentUnitPriceSavings = ContractedUnitPrice - x_EffectiveUnitPrice
+    | extend x_NegotiatedUnitPriceSavings = ListUnitPrice - ContractedUnitPrice
+    | extend x_TotalUnitPriceSavings = ListUnitPrice - x_EffectiveUnitPrice
+    | project
+        BillingAccountId = case(
+            BillingProfileId startswith '/', BillingProfileId,
+            BillingAccountId startswith '/', BillingAccountId,
+            strcat('/providers/Microsoft.Billing/billingAccounts/', x_BillingAccountId, iff(x_BillingProfileId != x_BillingAccountId, '', strcat('/billingProfiles/', x_BillingProfileId)))
+        ),
+        BillingAccountName = coalesce(BillingProfileName, BillingAccountName, x_BillingProfileId),
+        BillingCurrency = coalesce(BillingCurrency, CurrencyCode, Currency),  // Currency last as a fallback only
+        ChargeCategory = case(
+            x_SkuPriceType == 'Consumption', 'Usage',
+            x_SkuPriceType == 'ReservedInstance', 'Purchase',
+            x_SkuPriceType == 'SavingsPlan', 'Usage',  // Savings plan prices are for committed usage, not the purchase
+            ''
+        ),
+        CommitmentDiscountCategory = case(
+            x_SkuPriceType == 'ReservedInstance', 'Usage',
+            x_SkuPriceType == 'SavingsPlan', 'Spend',
+            ''
+        ),
+        CommitmentDiscountType = case(
+            x_SkuPriceType == 'ReservedInstance', 'Reservation',
+            x_SkuPriceType == 'SavingsPlan', 'Savings plan',
+            ''
+        ),
+        ContractedUnitPrice,
+        ListUnitPrice,
+        PricingCategory = case(
+            x_SkuPriceType == 'Consumption', 'Standard',
+            x_SkuPriceType == 'ReservedInstance', 'Standard',  // Reservation purchases are tracked as "Standard"
+            x_SkuPriceType == 'SavingsPlan', 'Committed',
+            ''
+        ),
+        SkuId = coalesce(ProductId, ProductID),
+        SkuIdv2 = x_SkuMeterId,
+        SkuPriceId = strcat(coalesce(ProductId, ProductID), '_', coalesce(SkuId, SkuID), '_', x_SkuMeterType),
+        SkuPriceIdv2, 
+        x_AccountType = case(
+            strlen(x_BillingAccountId) > 32, 'MCA',
+            strlen(x_BillingAccountId) < 32, 'EA',
+            'Unknown'
+        ),
+        x_BaseUnitPrice,
+        x_BillingAccountId,
+        x_BillingProfileId,
+        x_CommitmentDiscountEligibility,
+        x_CommitmentUnitPriceSavings,
+        x_CommitmentUnitPriceSavingsPercent = 1.0 * x_CommitmentUnitPriceSavings / ContractedUnitPrice * 100,
+        x_DatasetType = 'PriceSheet',
+        x_DatasetVersion = '2023-05-01',
+        x_EffectivePeriodEnd = EffectiveEndDate,
+        x_EffectivePeriodStart = EffectiveStartDate,
+        x_EffectiveUnitPrice,
+        x_IngestionTime,
+        x_NegotiatedUnitPriceSavings,
+        x_NegotiatedUnitPriceSavingsPercent = 1.0 * x_NegotiatedUnitPriceSavings / ListUnitPrice * 100,
+        x_PricingCurrency = coalesce(PricingCurrency, Currency, CurrencyCode),  // CurrencyCode last as a fallback only
+        x_PricingSubcategory = case(
+            // TODO: Change to TierMinimumUnits > 0
+            x_SkuPriceType == 'Consumption' and (x_SkuIncludedQuantity > 0 or isnotempty(x_SkuTier)), 'Tiered',
+            x_SkuPriceType == 'Consumption', 'Standard',
+            x_SkuPriceType == 'ReservedInstance', 'Standard', // Reservation purchases are tracked as "Standard"
+            x_SkuPriceType == 'SavingsPlan', 'Committed Spend',
+            ''
+        ),
+        x_PricingUnitDescription = UnitOfMeasure,
+        x_SkuDescription = coalesce(Product, ProductName),
+        x_SkuId = coalesce(SkuId, SkuID),
+        x_SkuIncludedQuantity,
+        x_SkuMeterCategory = MeterCategory,
+        x_SkuMeterId,
+        x_SkuMeterName,
+        x_SkuMeterSubcategory,
+        x_SkuMeterType,
+        x_SkuPriceType,
+        x_SkuProductId = coalesce(ProductId, ProductID),
+        x_SkuRegion,
+        x_SkuSavingsPlanKey, 
+        x_SkuServiceFamily,
+        x_SkuOfferId,
+        x_SkuPartNumber,
+        x_SkuTerm = isoMonths(Term),
+        x_SkuTier,
+        x_TotalUnitPriceSavings,
+        x_TotalUnitPriceSavingsPercent = 1.0 * x_TotalUnitPriceSavings / ListUnitPrice * 100
+    | order by SkuPriceIdv2 asc
+}
 
 
 //======================================================================================================================
@@ -224,8 +400,7 @@ Costs_1_0_preview on table FocusCost_raw
 with (docstring = 'All recommendations transformed to FOCUS 1.0.', folder = 'Recommendations')
 Recommendations_1_0 on table Recommendations_raw
 {
-    Recommendations
-    | union (Recommendations_raw)
+    Recommendations_raw
     | extend IngestionTime = ingestion_time()
     | summarize arg_max(IngestionTime , *) by
         _RecommendationId, SubAccountId, SubAccountName, x_ResourceGroupName, ResourceId, ResourceName, _ResourceType, _RecommendationCategory, _RecommendationProvider, _RecommendationTypeId
