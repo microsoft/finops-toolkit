@@ -23,7 +23,8 @@
     ChargeFrequency:            string,
     ChargePeriodEnd:            datetime,
     ChargePeriodStart:          datetime,
-    CommitmentDiscountCategory: string,
+    ChargeSubcategory:          string,
+    CommitmentDiscountCategory: string,    // FOCUS 1.0-preview only
     CommitmentDiscountId:       string,
     CommitmentDiscountName:     string,
     CommitmentDiscountStatus:   string,
@@ -134,12 +135,291 @@
 with (docstring = 'All costs transformed to FOCUS 1.0.', folder = 'Costs')
 Costs_1_0()
 {
+    // TODO: Should Adjustment costs be on List/ContractedCost?
+    // TODO: File a bug on CM for ContractedCost being off by the x_PricingBlockSize
+    // TODO: Confirm PricingQuantity and PricingUnit for reservation purchases
+    // TODO: Reservation usage has List/ContractedCost but Effective/BilledCost == 0
+    // TODO: Create a pattern for identifying (and filtering out) commitment discount purchases (so they aren't dobule-counted)
+    // TODO: PricingUnit is "Units" when it should be "Operations"
+    // TODO: Consider setting BillingAccountType/SubAccountType for non-Azure datasets
+    // TODO: Add SkuIdv2/SkuPriceIdv2 for Microsoft rows
     FocusCost_raw
-    | extend IngestionTime = ingestion_time()
-    // TODO: Transform 1.0-preview(v1) to 1.0
-    | summarize arg_max(IngestionTime , *) by
-        BillingAccountId, ChargePeriodStart, CommitmentDiscountId, RegionId, ResourceId, SkuPriceId, SubAccountId,
-        x_AccountOwnerId, x_CostCenter, x_InvoiceSectionId, x_SkuDetails, x_SkuMeterId, x_SkuOfferId
+    //
+    // Generate unique row ID
+    // | extend x_ChargeId = strcat(
+    //     split(BillingAccountId, '/')[-1], '_',
+    //     substring(ChargePeriodStart, 0, 10), '_',
+    //     iff(isempty(CommitmentDiscountId), '', split(CommitmentDiscountId, '/')[-1]), '_',
+    //     RegionId, '_',
+    //     ResourceId, '_',
+    //     SkuPriceId, '_',
+    //     iff(ResourceId startswith '/subscriptions/', '', split(SubAccountId, '/')[-1]), '_',
+    //     Tags, '_',
+    //     x_AccountOwnerId, '_',
+    //     x_CostCenter, '_',
+    //     x_InvoiceSectionId, '_',
+    //     x_SkuDetails, '_',
+    //     x_SkuMeterId, '_',
+    //     x_SkuOfferId, '_',
+    //     x_SkuPartNumber
+    // )
+    //
+    // Identify datasets
+    | extend x_DatasetType = 'FocusCost'
+    | extend x_DatasetVersion = case(
+        isnotempty(coalesce(ChargeClass, CommitmentDiscountStatus, tostring(ConsumedQuantity), ConsumedUnit, tostring(ContractedCost), tostring(ContractedUnitPrice), RegionId, RegionName)), '1.0',
+        isnotempty(coalesce(ChargeSubcategory, Region, tostring(UsageQuantity), UsageUnit)), '1.0-preview',
+        'Unknown'
+    )
+    //
+    // Fix cost/price columns
+    | extend ContractedCost = iff(ProviderName == 'Microsoft' and isnotempty(ContractedCost) and isnotempty(x_PricingBlockSize), ContractedCost * x_PricingBlockSize, ContractedCost)
+    | extend ListCost = iff(ListCost == 0, ContractedCost, ListCost)
+    //
+    // Ingestion time needed to dedupe rows
+    | extend x_IngestionTime = ingestion_time()
+    //
+    // Normalize datasets
+    | project
+        AvailabilityZone,
+        BilledCost,
+        BillingAccountId,
+        BillingAccountName,
+        BillingAccountType,  // Azure 1.0-preview(v1)+
+        BillingCurrency,
+        BillingPeriodEnd,
+        BillingPeriodStart,
+        ChargeCategory = case(
+            ChargeSubcategory == 'Credit', 'Credit',
+            ChargeSubcategory == 'Refund', 'Purchase',  // We are assuming purchase refunds since we don't have data to indicate usage refunds
+            ChargeCategory
+        ),
+        ChargeClass = case(ChargeSubcategory == 'Refund', 'Correction', ChargeClass),
+        ChargeDescription,
+        ChargeFrequency,
+        ChargePeriodEnd,
+        ChargePeriodStart,
+        CommitmentDiscountCategory,
+        CommitmentDiscountId,
+        CommitmentDiscountName,
+        CommitmentDiscountStatus = case(ChargeSubcategory in ('Used', 'Unused'), ChargeSubcategory, CommitmentDiscountStatus),
+        CommitmentDiscountType,
+        ConsumedQuantity = iff(ChargeCategory == 'Usage', coalesce(ConsumedQuantity, UsageQuantity, UsageAmount), todecimal('')),
+        ConsumedUnit = iff(ChargeCategory == 'Usage' and isnotempty(ConsumedQuantity), coalesce(ConsumedUnit, UsageUnit, 'Units'), ''),
+        ContractedCost = coalesce(ContractedCost, x_OnDemandCost, x_Cost),
+        ContractedUnitPrice = coalesce(ContractedUnitPrice, x_OnDemandUnitPrice),
+        EffectiveCost,
+        InvoiceIssuerName,
+        ListCost,
+        ListUnitPrice,
+        PricingCategory = case(
+            PricingCategory == 'On-Demand', 'Standard',
+            PricingCategory == 'Commitment-Based', 'Committed',
+            PricingCategory
+        ),
+        PricingQuantity,
+        PricingUnit,
+        ProviderName,
+        PublisherName = case(
+            isnotempty(PublisherName), PublisherName,
+            isnotempty(coalesce(x_CostCategories, x_Discount, x_Operation, x_ServiceCode, x_UsageType)), 'AWS',
+            isnotempty(coalesce(tostring(UsageAmount), tostring(x_Cost), x_Credits, x_CostType, tostring(x_CurrencyConversionRate), tostring(x_ExportTime), x_Project, x_ServiceId)), 'GCP',
+            isnotempty(coalesce(x_BillingProfileId, x_InvoiceSectionId)), 'Microsoft',
+            ''
+        ),
+        RegionId = coalesce(RegionId, Region),
+        RegionName = coalesce(RegionName, Region),
+        ResourceId,
+        ResourceName = tolower(ResourceName),
+        ResourceType,
+        ServiceCategory,
+        ServiceName,
+        SkuId,
+        SkuPriceId,
+        SubAccountId,
+        SubAccountName,
+        SubAccountType,
+        Tags,
+        x_AccountId,                 // Azure 1.0-preview(v1)+
+        x_AccountName,               // Azure 1.0-preview(v1)+
+        x_AccountOwnerId,            // Azure 1.0-preview(v1)+
+        x_BilledCostInUsd,           // Azure 1.0-preview(v1)+
+        x_BilledUnitPrice,           // Azure 1.0-preview(v1)+
+        x_BillingAccountId,          // Azure 1.0-preview(v1)+
+        x_BillingAccountName,        // Azure 1.0-preview(v1)+
+        x_BillingExchangeRate,       // Azure 1.0-preview(v1)+
+        x_BillingExchangeRateDate,   // Azure 1.0-preview(v1)+
+        x_BillingProfileId,          // Azure 1.0-preview(v1)+
+        x_BillingProfileName,        // Azure 1.0-preview(v1)+
+        x_ChargeId,                  // Azure 1.0-preview(v1) only
+        x_ContractedCostInUsd = coalesce(x_ContractedCostInUsd, x_OnDemandCostInUsd), // Azure 1.0+
+        x_CostAllocationRuleName,    // Azure 1.0-preview(v1)+
+        x_CostCategories,            // AWS 1.0 (JSON)
+        x_CostCenter,                // Azure 1.0-preview(v1)+
+        x_Credits,                   // GCP Jan 2024
+        x_CostType,                  // GCP Jan 2024
+        x_CurrencyConversionRate,    // GCP Jun 2024
+        x_CustomerId,                // Azure 1.0-preview(v1)+
+        x_CustomerName,              // Azure 1.0-preview(v1)+
+        x_Discount,                  // AWS 1.0 (JSON)
+        x_EffectiveCostInUsd,        // Azure 1.0-preview(v1)+
+        x_EffectiveUnitPrice,        // Azure 1.0-preview(v1)+
+        x_ExportTime,                // GCP Jan 2024
+        x_IngestionTime,
+        x_InvoiceId,                 // Azure 1.0-preview(v1)+
+        x_InvoiceIssuerId,           // Azure 1.0-preview(v1)+
+        x_InvoiceSectionId,          // Azure 1.0-preview(v1)+
+        x_InvoiceSectionName,        // Azure 1.0-preview(v1)+
+        x_ListCostInUsd,             // Azure 1.0-preview(v1)+
+        x_Location,                  // GCP Jan 2024
+        x_Operation,                 // AWS 1.0
+        x_PartnerCreditApplied,      // Azure 1.0-preview(v1)+
+        x_PartnerCreditRate,         // Azure 1.0-preview(v1)+
+        x_PricingBlockSize,          // Azure 1.0-preview(v1)+
+        x_PricingCurrency,           // Azure 1.0-preview(v1)+
+        x_PricingSubcategory,        // Azure 1.0-preview(v1)+
+        x_PricingUnitDescription,    // Azure 1.0-preview(v1)+
+        x_Project,                   // GCP Jan 2024
+        x_PublisherCategory,         // Azure 1.0-preview(v1)+
+        x_PublisherId,               // Azure 1.0-preview(v1)+
+        x_ResellerId,                // Azure 1.0-preview(v1)+
+        x_ResellerName,              // Azure 1.0-preview(v1)+
+        x_ResourceGroupName = tolower(x_ResourceGroupName),  // Azure 1.0-preview(v1)+
+        x_ResourceType,              // Azure 1.0-preview(v1)+
+        x_ServiceCode,               // AWS 1.0
+        x_ServiceId,                 // GCP Jan 2024
+        x_ServicePeriodEnd,          // Azure 1.0-preview(v1)+
+        x_ServicePeriodStart,        // Azure 1.0-preview(v1)+
+        x_SkuDescription,            // Azure 1.0-preview(v1)+
+        x_SkuDetails,                // Azure 1.0-preview(v1)+
+        x_SkuIsCreditEligible,       // Azure 1.0-preview(v1)+ 
+        x_SkuMeterCategory,          // Azure 1.0-preview(v1)+
+        x_SkuMeterId,                // Azure 1.0-preview(v1)+
+        x_SkuMeterName,              // Azure 1.0-preview(v1)+
+        x_SkuMeterSubcategory,       // Azure 1.0-preview(v1)+
+        x_SkuOfferId,                // Azure 1.0-preview(v1)+
+        x_SkuOrderId,                // Azure 1.0-preview(v1)+
+        x_SkuOrderName,              // Azure 1.0-preview(v1)+
+        x_SkuPartNumber,             // Azure 1.0-preview(v1)+
+        x_SkuRegion,                 // Azure 1.0-preview(v1)+
+        x_SkuServiceFamily,          // Azure 1.0-preview(v1)+
+        x_SkuTerm,                   // Azure 1.0-preview(v1)+
+        x_SkuTier,                   // Azure 1.0-preview(v1)+ 
+        x_UsageType                  // AWS 1.0
+    //
+    // Dedupe rows
+    | summarize
+        BilledCost = sum(BilledCost),
+        ConsumedQuantity = sum(ConsumedQuantity),
+        ContractedCost = sum(ContractedCost),
+        EffectiveCost = sum(EffectiveCost),
+        ListCost = sum(ListCost),
+        PricingQuantity = sum(PricingQuantity),
+        x_BilledCostInUsd = sum(x_BilledCostInUsd),
+        x_ContractedCostInUsd = sum(x_ContractedCostInUsd),
+        x_EffectiveCostInUsd = sum(x_EffectiveCostInUsd),
+        x_ListCostInUsd = sum(x_ListCostInUsd)
+        by 
+        AvailabilityZone,
+        BillingAccountId,
+        BillingAccountName,
+        BillingAccountType,  // Azure 1.0-preview(v1)+
+        BillingCurrency,
+        BillingPeriodEnd,
+        BillingPeriodStart,
+        ChargeCategory,
+        ChargeClass,
+        ChargeDescription,
+        ChargeFrequency,
+        ChargePeriodEnd,
+        ChargePeriodStart,
+        CommitmentDiscountCategory,
+        CommitmentDiscountId,
+        CommitmentDiscountName,
+        CommitmentDiscountStatus,
+        CommitmentDiscountType,
+        ConsumedUnit,
+        ContractedUnitPrice,
+        InvoiceIssuerName,
+        ListUnitPrice,
+        PricingCategory,
+        PricingUnit,
+        ProviderName,
+        PublisherName,
+        RegionId,
+        RegionName,
+        ResourceId,
+        ResourceName,
+        ResourceType,
+        ServiceCategory,
+        ServiceName,
+        SkuId,
+        SkuPriceId,
+        SubAccountId,
+        SubAccountName,
+        SubAccountType,
+        Tags,
+        x_AccountId,
+        x_AccountName,
+        x_AccountOwnerId,
+        x_BilledUnitPrice,
+        x_BillingAccountId,
+        x_BillingAccountName,
+        x_BillingExchangeRate,
+        x_BillingExchangeRateDate,
+        x_BillingProfileId,
+        x_BillingProfileName,
+        x_CostAllocationRuleName,
+        x_CostCategories,
+        x_CostCenter,
+        x_Credits,
+        x_CostType,
+        x_CurrencyConversionRate,
+        x_CustomerId,
+        x_CustomerName,
+        x_Discount,
+        x_EffectiveUnitPrice,
+        x_ExportTime,
+        x_IngestionTime,
+        x_InvoiceId,
+        x_InvoiceIssuerId,
+        x_InvoiceSectionId,
+        x_InvoiceSectionName,
+        x_Location,
+        x_Operation,
+        x_PartnerCreditApplied,
+        x_PartnerCreditRate,
+        x_PricingBlockSize,
+        x_PricingCurrency,
+        x_PricingSubcategory,
+        x_PricingUnitDescription,
+        x_Project,
+        x_PublisherCategory,
+        x_PublisherId,
+        x_ResellerId,
+        x_ResellerName,
+        x_ResourceGroupName,
+        x_ResourceType,
+        x_ServiceCode,
+        x_ServiceId,
+        x_ServicePeriodEnd,
+        x_ServicePeriodStart,
+        x_SkuDescription,
+        x_SkuDetails,
+        x_SkuIsCreditEligible,
+        x_SkuMeterCategory,
+        x_SkuMeterId,
+        x_SkuMeterName,
+        x_SkuMeterSubcategory,
+        x_SkuOfferId,
+        x_SkuOrderId,
+        x_SkuOrderName,
+        x_SkuPartNumber,
+        x_SkuRegion,
+        x_SkuServiceFamily,
+        x_SkuTerm,
+        x_SkuTier,
+        x_UsageType
 }
 
 // Costs as FOCUS 1.0 preview
