@@ -44,9 +44,6 @@ param tags object = {}
 @description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
 param tagsByResource object = {}
 
-@description('Optional. Azure Resource Manager base URL.')
-param azureResourceManagerUri string = 'https://management.azure.com'
-
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
@@ -302,10 +299,10 @@ resource linkedService_arm 'Microsoft.DataFactory/factories/linkedservices@2018-
     parameters: {}
     type: 'RestService'
     typeProperties: {
-      url: azureResourceManagerUri
+      url: environment().resourceManager
       authenticationType: 'ManagedServiceIdentity'
       enableServerCertificateValidation: true
-      aadResourceId: azureResourceManagerUri
+      // TODO: What should this be set to? -- aadResourceId: 
     }
   }
 }
