@@ -166,6 +166,10 @@ Costs_1_0()
     // TODO: PricingUnit is "Units" when it should be "Operations"
     // TODO: Consider setting BillingAccountType/SubAccountType for non-Azure datasets
     // TODO: Add SkuIdv2/SkuPriceIdv2 for Microsoft rows
+    // TODO: Add warnings for any changes applied to the data
+    // TODO: Add warnings (errors?) when there's a difference between meter metadata in cost and price datasets
+    // TODO: Create alerts when there are differences between cost/price data (???)
+    // TODO: Confirm the ProviderName value for AWS and GCP data and update it in the ProviderName backfill
     FocusCost_raw
     //
     // Dedupe rows
@@ -196,17 +200,67 @@ Costs_1_0()
     ))
     | summarize arg_max(x_IngestionTime, *) by x_ChargeId
     //
+    // Fix columns needed in other changes
+    | extend ProviderName = case(
+            isnotempty(ProviderName), ProviderName,
+            isnotempty(coalesce(x_CostCategories, x_Discount, x_Operation, x_ServiceCode, x_UsageType)), 'AWS',
+            isnotempty(coalesce(tostring(UsageAmount), tostring(x_Cost), x_Credits, x_CostType, tostring(x_CurrencyConversionRate), tostring(x_ExportTime), x_Project, x_ServiceId)), 'GCP',
+            isnotempty(coalesce(x_BillingProfileId, x_InvoiceSectionId)), 'Microsoft',
+            ''
+        )
+    //
+    // Backfill missing prices -- mapping to on-demand prices requires meter ID and offer ID
+    | extend tmp_MissingPrices = ProviderName == 'Microsoft' and (ListUnitPrice == 0 or ContractedUnitPrice == 0) and x_EffectiveUnitPrice != 0
+    | as allCosts
+    | where tmp_MissingPrices
+    | as costsWithMissingPrices
+    | join kind=leftouter (
+        Prices_1_0
+        | where x_SkuPriceType == 'Consumption' and strcat(x_SkuMeterId, x_SkuOfferId) in ((costsWithMissingPrices | summarize by strcat(x_SkuMeterId, x_SkuOfferId)))
+        | project x_SkuMeterId, x_SkuOfferId, x_PricingBlockSize, PricingUnit, ListUnitPrice, ContractedUnitPrice
+    ) on x_SkuMeterId, x_SkuOfferId
+    // Select the best price to use for each row
+    | extend ContractedUnitPrice = case(
+        // If price is already correct, keep that
+        ContractedUnitPrice != 0 or x_EffectiveUnitPrice == 0, ContractedUnitPrice,
+        // If both prices use the same scale, use the new one
+        PricingUnit == PricingUnit1 and x_PricingBlockSize == x_PricingBlockSize1, ContractedUnitPrice1,
+        // If prices are the same unit but not the same scale, use the new one but correct the scale
+        PricingUnit == PricingUnit1 and x_PricingBlockSize != x_PricingBlockSize1 and isnotempty(x_PricingBlockSize) and isnotempty(x_PricingBlockSize1), ContractedUnitPrice1 / x_PricingBlockSize1 * x_PricingBlockSize,
+        // If prices use different units, assume the effective price is the same as contracted price to support aggregations
+        PricingUnit != PricingUnit1, x_EffectiveUnitPrice,
+        // Otherwise (should never get here)
+        ContractedUnitPrice
+    )
+    | extend ListUnitPrice = case(
+        // If price is already correct, keep that
+        ListUnitPrice != 0 or x_EffectiveUnitPrice == 0, ListUnitPrice,
+        // If both prices use the same scale, use the new one
+        PricingUnit == PricingUnit1 and x_PricingBlockSize == x_PricingBlockSize1, ListUnitPrice1,
+        // If prices are the same unit but not the same scale, use the new one but correct the scale
+        PricingUnit == PricingUnit1 and x_PricingBlockSize != x_PricingBlockSize1 and isnotempty(x_PricingBlockSize) and isnotempty(x_PricingBlockSize1), ListUnitPrice1 / x_PricingBlockSize1 * x_PricingBlockSize,
+        // If prices use different units, assume the contracted price is the same as list price to support aggregations
+        PricingUnit != PricingUnit1, ContractedUnitPrice,
+        // Otherwise (should never get here)
+        ListUnitPrice
+    )
+    // Calculate missing costs based on new prices -- If cost is already correct, keep that; if not and price is available, recalculate the cost; otherwise, keep the existing cost
+    | extend ListCost = case(ListCost != 0 or EffectiveCost == 0, ListCost, ListUnitPrice != 0, ListUnitPrice * PricingQuantity, ListCost)
+    | extend ContractedCost = case(ContractedCost != 0 or EffectiveCost == 0, ContractedCost, ContractedUnitPrice != 0, ContractedUnitPrice * PricingQuantity, ContractedCost)
+    // Merge the rest of the unmodified cost records and remove excess columns
+    | union (allCosts | where not(tmp_MissingPrices))
+    | project-away x_PricingBlockSize1, PricingUnit1, ListUnitPrice1, ContractedUnitPrice1, tmp_MissingPrices
+    //
     // Identify datasets
     | extend x_DatasetType = 'FocusCost'
     | extend x_DatasetVersion = case(
         isnotempty(coalesce(ChargeClass, CommitmentDiscountStatus, tostring(ConsumedQuantity), ConsumedUnit, tostring(ContractedCost), tostring(ContractedUnitPrice), RegionId, RegionName)), '1.0',
-        isnotempty(coalesce(ChargeSubcategory, Region, tostring(UsageQuantity), UsageUnit)), '1.0-preview',
+        isnotempty(coalesce(ChargeSubcategory, Region, tostring(UsageQuantity), UsageUnit)), iff(ProviderName == 'Microsoft', '1.0-preview(v1)', '1.0-preview'),
         'Unknown'
     )
     //
-    // Fix cost/price columns
-    | extend ContractedCost = iff(ProviderName == 'Microsoft' and isnotempty(ContractedCost) and isnotempty(x_PricingBlockSize), ContractedCost * x_PricingBlockSize, ContractedCost)
-    | extend ListCost = iff(ListCost == 0, ContractedCost, ListCost)
+    // BUG: Fix ContractedCost that has bad values
+    | extend ContractedCost = iff(ProviderName == 'Microsoft' and isnotempty(PricingQuantity) and isnotempty(x_PricingBlockSize) and ContractedCost != ContractedUnitPrice * PricingQuantity, ContractedUnitPrice * PricingQuantity, ContractedCost)
     //
     // Normalize datasets
     | project
@@ -249,13 +303,7 @@ Costs_1_0()
         PricingQuantity,
         PricingUnit,
         ProviderName,
-        PublisherName = case(
-            isnotempty(PublisherName), PublisherName,
-            isnotempty(coalesce(x_CostCategories, x_Discount, x_Operation, x_ServiceCode, x_UsageType)), 'AWS',
-            isnotempty(coalesce(tostring(UsageAmount), tostring(x_Cost), x_Credits, x_CostType, tostring(x_CurrencyConversionRate), tostring(x_ExportTime), x_Project, x_ServiceId)), 'GCP',
-            isnotempty(coalesce(x_BillingProfileId, x_InvoiceSectionId)), 'Microsoft',
-            ''
-        ),
+        PublisherName,
         RegionId = coalesce(RegionId, Region),
         RegionName = coalesce(RegionName, Region),
         ResourceId,
