@@ -1,4 +1,27 @@
 //======================================================================================================================
+// FTK open data
+//======================================================================================================================
+
+.set-or-replace PricingUnits <| externaldata(x_PricingUnitDescription:string, AccountTypes:string, x_PricingBlockSize:decimal, PricingUnit:string)
+[@"https://raw.githubusercontent.com/microsoft/finops-toolkit/main/src/open-data/PricingUnits.csv"]
+with (format="csv", ignoreFirstRecord=true)
+| project-away AccountTypes
+
+.set-or-replace Regions <| externaldata(OriginalValue:string, RegionId:string, RegionName:string)
+[@"https://raw.githubusercontent.com/microsoft/finops-toolkit/main/src/open-data/Regions.csv"]
+with (format="csv", ignoreFirstRecord=true)
+
+.set-or-replace ResourceTypes <| externaldata(x_ResourceType:string, SingularDisplayName:string, PluralDisplayName:string, LowerSingularDisplayName:string, LowerPluralDisplayName:string, IsPreview:bool, Description:string, IconUri:string, Links:string)
+[@"https://raw.githubusercontent.com/microsoft/finops-toolkit/main/src/open-data/ResourceTypes.csv"]
+with (format="csv", ignoreFirstRecord=true)
+| project-away Links
+
+.set-or-replace Services <| externaldata(x_ConsumedService:string, x_ResourceType:string, ServiceName:string, ServiceCategory:string, PublisherName:string, x_PublisherCategory:string, x_Environment:string, x_ServiceModel:string)
+[@"https://raw.githubusercontent.com/microsoft/finops-toolkit/main/src/open-data/Services.csv"]
+with (format="csv", ignoreFirstRecord=true)
+
+
+//======================================================================================================================
 // Cost and usage data
 //
 // Supported versions:
