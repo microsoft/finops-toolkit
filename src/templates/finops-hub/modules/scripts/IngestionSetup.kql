@@ -145,24 +145,33 @@ Costs_1_0()
     // TODO: Add SkuIdv2/SkuPriceIdv2 for Microsoft rows
     FocusCost_raw
     //
-    // Generate unique row ID
-    // | extend x_ChargeId = strcat(
-    //     split(BillingAccountId, '/')[-1], '_',
-    //     substring(ChargePeriodStart, 0, 10), '_',
-    //     iff(isempty(CommitmentDiscountId), '', split(CommitmentDiscountId, '/')[-1]), '_',
-    //     RegionId, '_',
-    //     ResourceId, '_',
-    //     SkuPriceId, '_',
-    //     iff(ResourceId startswith '/subscriptions/', '', split(SubAccountId, '/')[-1]), '_',
-    //     Tags, '_',
-    //     x_AccountOwnerId, '_',
-    //     x_CostCenter, '_',
-    //     x_InvoiceSectionId, '_',
-    //     x_SkuDetails, '_',
-    //     x_SkuMeterId, '_',
-    //     x_SkuOfferId, '_',
-    //     x_SkuPartNumber
-    // )
+    // Dedupe rows
+    | extend x_IngestionTime = ingestion_time()
+    | extend x_ChargeId = hash_sha256(strcat(
+        // DO NOT CHANGE COLUMNS OR COLUMN ORDER
+        // 1. Resource hierarchy (including resource name), highest to lowest
+        BillingAccountId,
+        x_InvoiceSectionId,
+        x_AccountOwnerId,
+        SubAccountId,
+        x_ResourceGroupName,
+        ResourceName,
+        // 2. Resource details
+        ResourceId,
+        RegionId,
+        Tags,
+        CommitmentDiscountId,
+        x_CostCenter,
+        // 4. Meter details
+        SkuPriceId,
+        x_SkuMeterId,
+        x_SkuPartNumber,
+        x_SkuOfferId,
+        x_SkuDetails,
+        // 5. Date
+        ChargePeriodStart
+    ))
+    | summarize arg_max(x_IngestionTime, *) by x_ChargeId
     //
     // Identify datasets
     | extend x_DatasetType = 'FocusCost'
@@ -175,9 +184,6 @@ Costs_1_0()
     // Fix cost/price columns
     | extend ContractedCost = iff(ProviderName == 'Microsoft' and isnotempty(ContractedCost) and isnotempty(x_PricingBlockSize), ContractedCost * x_PricingBlockSize, ContractedCost)
     | extend ListCost = iff(ListCost == 0, ContractedCost, ListCost)
-    //
-    // Ingestion time needed to dedupe rows
-    | extend x_IngestionTime = ingestion_time()
     //
     // Normalize datasets
     | project
@@ -306,120 +312,6 @@ Costs_1_0()
         x_SkuTerm,                   // Azure 1.0-preview(v1)+
         x_SkuTier,                   // Azure 1.0-preview(v1)+ 
         x_UsageType                  // AWS 1.0
-    //
-    // Dedupe rows
-    | summarize
-        BilledCost = sum(BilledCost),
-        ConsumedQuantity = sum(ConsumedQuantity),
-        ContractedCost = sum(ContractedCost),
-        EffectiveCost = sum(EffectiveCost),
-        ListCost = sum(ListCost),
-        PricingQuantity = sum(PricingQuantity),
-        x_BilledCostInUsd = sum(x_BilledCostInUsd),
-        x_ContractedCostInUsd = sum(x_ContractedCostInUsd),
-        x_EffectiveCostInUsd = sum(x_EffectiveCostInUsd),
-        x_ListCostInUsd = sum(x_ListCostInUsd)
-        by 
-        AvailabilityZone,
-        BillingAccountId,
-        BillingAccountName,
-        BillingAccountType,  // Azure 1.0-preview(v1)+
-        BillingCurrency,
-        BillingPeriodEnd,
-        BillingPeriodStart,
-        ChargeCategory,
-        ChargeClass,
-        ChargeDescription,
-        ChargeFrequency,
-        ChargePeriodEnd,
-        ChargePeriodStart,
-        CommitmentDiscountCategory,
-        CommitmentDiscountId,
-        CommitmentDiscountName,
-        CommitmentDiscountStatus,
-        CommitmentDiscountType,
-        ConsumedUnit,
-        ContractedUnitPrice,
-        InvoiceIssuerName,
-        ListUnitPrice,
-        PricingCategory,
-        PricingUnit,
-        ProviderName,
-        PublisherName,
-        RegionId,
-        RegionName,
-        ResourceId,
-        ResourceName,
-        ResourceType,
-        ServiceCategory,
-        ServiceName,
-        SkuId,
-        SkuPriceId,
-        SubAccountId,
-        SubAccountName,
-        SubAccountType,
-        Tags,
-        x_AccountId,
-        x_AccountName,
-        x_AccountOwnerId,
-        x_BilledUnitPrice,
-        x_BillingAccountId,
-        x_BillingAccountName,
-        x_BillingExchangeRate,
-        x_BillingExchangeRateDate,
-        x_BillingProfileId,
-        x_BillingProfileName,
-        x_CostAllocationRuleName,
-        x_CostCategories,
-        x_CostCenter,
-        x_Credits,
-        x_CostType,
-        x_CurrencyConversionRate,
-        x_CustomerId,
-        x_CustomerName,
-        x_Discount,
-        x_EffectiveUnitPrice,
-        x_ExportTime,
-        x_IngestionTime,
-        x_InvoiceId,
-        x_InvoiceIssuerId,
-        x_InvoiceSectionId,
-        x_InvoiceSectionName,
-        x_Location,
-        x_Operation,
-        x_PartnerCreditApplied,
-        x_PartnerCreditRate,
-        x_PricingBlockSize,
-        x_PricingCurrency,
-        x_PricingSubcategory,
-        x_PricingUnitDescription,
-        x_Project,
-        x_PublisherCategory,
-        x_PublisherId,
-        x_ResellerId,
-        x_ResellerName,
-        x_ResourceGroupName,
-        x_ResourceType,
-        x_ServiceCode,
-        x_ServiceId,
-        x_ServicePeriodEnd,
-        x_ServicePeriodStart,
-        x_SkuDescription,
-        x_SkuDetails,
-        x_SkuIsCreditEligible,
-        x_SkuMeterCategory,
-        x_SkuMeterId,
-        x_SkuMeterName,
-        x_SkuMeterSubcategory,
-        x_SkuOfferId,
-        x_SkuOrderId,
-        x_SkuOrderName,
-        x_SkuPartNumber,
-        x_SkuRegion,
-        x_SkuServiceFamily,
-        x_SkuTerm,
-        x_SkuTier,
-        x_UsageType
 }
 
 // Costs as FOCUS 1.0 preview
