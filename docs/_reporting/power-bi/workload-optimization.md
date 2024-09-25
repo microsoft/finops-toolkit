@@ -48,7 +48,7 @@ _The Workload optimization report is new and still being fleshed out. We will co
 
 The **Get started** page includes a basic introduction to the report with additional links to learn more.
 
-> ![Screenshot of the Get started page](https://github.com/user-attachments/assets/68ded074-aa0f-4785-b08d-b072239db903)
+> ![Screenshot of the Get started page](https://github.com/user-attachments/assets/c467d8e2-dd49-4dcf-b5b6-2643a59d57fd)
 
 <br>
 
