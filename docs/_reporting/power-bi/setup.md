@@ -77,19 +77,30 @@ If you run into any issues syncing your data, see [Troubleshooting Power BI repo
 
  ## 🔑 Use a SAS token to connect data to a report
 
-Use the Shared Access Signature (SAS) token of your FinOps deployment's storage account to setup permissions for the power BI reports. Follow the following steps to setup the power BI dashboards:
+Shared Access Signature (SAS) tokens allow you to connect to a storage account without end user credentials or setting up a service principal. To connect Power BI reports to your data via SAS tokens:
 
-1. Generate the Shared Access Signature (SAS) token for storage account to provide required permissions for the power BI dashboards. Follow the steps below:
-   - Navigate the FinOps deployment storage account, within the storage account blade under security + networking tab on the left, select **Shared access signature**. 
-   - On the Shared Accesss Signature blade. On the Allowed resource types select `Container` and `Object`, in the allowed permissions field select the **Read, List**, provide the start and expiry date and time range, keep the rest as default. Select `Generate SAS token and URL` button. Copy the generated token.
-  ![Image representing the SAS token configuration](../../assets/images/aoe/azure-storage-account-SAS.png)
-
-2. Connect the Power BI report using generated SAS token:
-   - On the opened power BI report, within **Transform data** window, select the `Data Source Settings`, within the windows select the `Edit permissions` button, in the edit permissions windows, click on `'Edit'` button below credentials. 
-  ![data source settings within Transform Data](../../assets/images/aoe/powerbi-dashboard-SAS-setup.png)
-
-   -  Select the Shared access signature tab and paste the copied Blob SAS token from Azure Portal. Click `Save` and 'Close' and then `Apply and Close' on the top ribbon of the transform window to apply the permissions and fetch the data.  
-  ![provide the SAS token of your Storage Account to connect to the reports](../../assets/images/aoe/powerbi-dashboard-SAS-token.png)
+1. Generate the SAS token with required permissions:
+   - Navigate the FinOps hub storage account in the Azure portal.
+   - Select **Security + Networking** > **Shared access signature** in the menu on the left.
+   - Under **Allowed resource types**, select `Container` and `Object`.
+   - Under **Allowed permissions**, select **Read, List**.
+   - Provide the start and expiration date range as desired.
+   - Keep the remaining default values or update as desired.
+   - Select the **Generate SAS token and URL** button.
+   - Copy the generated token.
+  ![Screenshot of the SAS token configuration in the Azure portal](../../assets/images/aoe/azure-storage-account-SAS.png)
+2. Configure SAS token access in Power BI:
+   - Open the report in Power BI Desktop.
+   - Select **Transform data** > **Data Source Settings** in the ribbon.
+   - Select **Edit permissions** at the bottom of the dialog.
+   - Select **Edit** below the credentials.
+  ![Screenshot of the data source settings within Transform data](../../assets/images/aoe/powerbi-dashboard-SAS-setup.png)
+   - Select the **Shared access signature** tab.
+   - Paste the copied SAS token from the Azure portal.
+   - Select **Save**.
+   - Select **Close**.
+   - Select **Apply and Close** in the ribbon.
+  ![Screenshot of the SAS token dialog](../../assets/images/aoe/powerbi-dashboard-SAS-token.png)
 
 ## 📋 Copy queries from a toolkit report
 

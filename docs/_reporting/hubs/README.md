@@ -101,14 +101,11 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
 
 ## 📚 Explore the FinOps reports
 
-The reports can be visualized for its views and features, even without the setup required. The reports already have test data prefilled which you can use to demonstrate/visualize the report's features as previews to the stakeholders.
+Each report in the FinOps toolkit is available as a PBIX or PBIT file. The PBIX file contains sample data that can be viewed in Power BI desktop without connecting to your account.
 
-To visualize the reports available, simply download the power BI reports '.pbix' file from [releases](https://github.com/microsoft/finops-toolkit/releases). 
-<!-- ![download the '.pbix' files from the releases](../../assets/images/aoe/releases-folder.png) --> 
+To visualize the reports available, simply download the PBIX Power BI report file from the desired [release](https://github.com/microsoft/finops-toolkit/releases) and open the report in Power BI Desktop. From there, you can navigate through the different pages of the report, which have been pre-filled with test data.
 
-Open the power BI reports in the Power BI desktop application of a Windows machine. You should be able to navigate through the different pages of the report, which have been pre-filled with test data.
-
-![rate-optimization report with test data](../../assets/images/aoe/rate-optimization-report.png)
+![Screenshot of the Rate optimization report with test data](../../assets/images/aoe/rate-optimization-report.png)
 
 <br>
 

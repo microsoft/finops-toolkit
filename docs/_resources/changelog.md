@@ -89,7 +89,7 @@ Legend:
 > ➕ Added:
 >
 > 1. Documented [how to use storage account SAS tokens to setup the reports](../docs/_reporting/power-bi/setup.md).
-> 2. Documented how to [visualize/demonstrate the reports using Power BI](../docs/_reporting/hubs/README.md) desktop even without setup required.
+> 2. Documented how to [preview reports with sample data using Power BI Desktop](../docs/_reporting/hubs/README.md).
 >
 
 <br>
