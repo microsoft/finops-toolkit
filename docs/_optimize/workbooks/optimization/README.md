@@ -4,7 +4,7 @@ title: Cost optimization workbook
 has_children: true
 nav_order: 1
 description: 'Azure Monitor workbook focused on cost optimization.'
-permalink: /optimization-workbook
+permalink: /workbooks/optimization
 ---
 
 <span class="fs-9 d-block mb-4">Cost optimization workbook</span>
@@ -33,7 +33,7 @@ The cost optimization workbook is an Azure Monitor workbook that provides a sing
      _If you only have read access, you can still import your workbook directly into Azure Monitor. You will not be able to save it, but you can view all tabs._
    </blockquote>
 
-2. Deploy the **optimization-workbook** template. [Learn more](../../_resources/deploy.md).
+2. Deploy the **optimization-workbook** template. [Learn more](../../../_resources/deploy.md).
 
    {% include deploy.html template="optimization-workbook" public="1" gov="1" china="0" %}
 

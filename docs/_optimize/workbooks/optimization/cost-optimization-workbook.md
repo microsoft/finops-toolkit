@@ -4,7 +4,7 @@ parent: Cost optimization workbook
 title: Customize
 nav_order: 1
 description: How to install and edit the Cost optimization workbook.
-permalink: /optimization-workbook/customize
+permalink: /workbooks/optimization/customize
 author: bandersmsft
 ms.author: banders
 ms.date: 11/02/2023

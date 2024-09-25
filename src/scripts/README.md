@@ -334,7 +334,7 @@ Examples:
 - Builds the latest version of a specific template and updates the deployment files for the website.
 
   ```powershell
-  ./Package-Toolkit governance-workbook -Build -Preview
+  ./Package-Toolkit finops-workbooks -Build -Preview
   ```
 
 <br>

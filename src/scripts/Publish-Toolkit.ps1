@@ -95,14 +95,23 @@ function Find-Repo($config, [string]$templateName)
 $ver = & "$PSScriptRoot/Get-Version.ps1"
 
 # Loop thru templates
-# TODO remove the optimization-engine exclusion once we determine how we are going to publish it to other repos
-Get-ChildItem "$relDir/$Template*" -Directory -Exclude "optimization-engine" `
+Write-Verbose "Checking release directory: $relDir/$Template*"
+Get-ChildItem "$relDir/$Template*" -Directory `
 | ForEach-Object {
     $templateDir = $_
     $templateName = $templateDir.Name
     $repo = $null # Placeholder for later
+    
+    # Ignore AOE
+    # TODO: Remove the optimization-engine exclusion once we determine how we are going to publish it to other repos
+    if ($templateName -eq "optimization-engine")
+    {
+        Write-Verbose "Ignoring AOE"
+        return
+    }
 
     Write-Host "Publishing template $templateName..."
+    Write-Verbose "Directory: $templateDir"
 
     # Confirm metadata.json exists
     if (-not (Test-Path "$templateDir/metadata.json"))
