@@ -11,7 +11,7 @@ expression RangeStart = null meta [IsParameterQuery=true, Type="DateTime", IsPar
 	lineageTag: 90085870-f708-4bc2-90c1-3a343e88a26b
 	queryGroup: '🛠️ Setup'
 
-	annotation PBI_ResultType = Null
+	annotation PBI_ResultType = Exception
 
 	annotation PBI_NavigationStepName = Navigation
 
@@ -19,7 +19,16 @@ expression RangeEnd = null meta [IsParameterQuery=true, Type="DateTime", IsParam
 	lineageTag: 695f1d3b-7b1a-49fa-8d83-f2c25dc787de
 	queryGroup: '🛠️ Setup'
 
-	annotation PBI_ResultType = Null
+	annotation PBI_ResultType = Exception
+
+	annotation PBI_NavigationStepName = Navigation
+
+/// Optional. Number of months to include in the report before the RangeEnd date. Ignored if RangeStart is specified. Default: (all available data).
+expression 'Number of Months' = null meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=false]
+	lineageTag: 1d47668d-4de6-404c-8e53-f89a35081e8b
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_ResultType = Exception
 
 	annotation PBI_NavigationStepName = Navigation
 
@@ -393,14 +402,5 @@ expression 'Export Storage URL' = "https://ftkmicfland5pd7gdo37oozc.dfs.core.win
 
 	annotation PBI_NavigationStepName = Navigation
 
-	annotation PBI_ResultType = Text
-
-/// Optional. Number of months to include in the report before the RangeEnd date. Ignored if RangeStart is specified. Default: (all available data).
-expression 'Number of Months' = null meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=false]
-	lineageTag: 1d47668d-4de6-404c-8e53-f89a35081e8b
-	queryGroup: '🛠️ Setup'
-
-	annotation PBI_NavigationStepName = Navigation
-
-	annotation PBI_ResultType = Null
+	annotation PBI_ResultType = Exception
 
