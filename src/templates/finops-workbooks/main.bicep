@@ -7,17 +7,23 @@ targetScope = 'resourceGroup'
 // Parameters
 //==============================================================================
 
-@sys.description('Optional. Display name for the workbook used in the Gallery. Must be unique in the resource group.')
-param displayName string = ''
+@sys.description('Optional. Display name prefix to use for all workbooks. Default: "FinOps".')
+param displayNamePrefix string = 'FinOps'
+
+@sys.description('Optional. Indicates whether to deploy the optimization workbook. Default: true.')
+param includeOptimization bool = true
+
+@sys.description('Optional. Indicates whether to deploy the governance workbook. Default: true.')
+param includeGovernance bool = true
 
 @sys.description('Optional. Location of the resources. Default: Same as deployment. See https://aka.ms/azureregions.')
 param location string = resourceGroup().location
 
-@sys.description('Optional. Workbook description.')
-param description string = ''
-
 @sys.description('Optional. Tags for all resources.')
 param tags object = {}
+
+@description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
+param tagsByResource object = {}
 
 @sys.description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
@@ -26,19 +32,19 @@ param enableDefaultTelemetry bool = true
 // Variables
 //------------------------------------------------------------------------------
 
-var version = ''
-var workbookJson = string(loadJsonContent('workbook.json'))
-
 // The last segment of the telemetryId is used to identify this module
-var workbookId = '000'
-var telemetryId = '00f120b5-2007-6120-0000-${workbookId}30126b006'
+var telemetryId = '00f120b5-2007-6120-0000-a7730126b006'
 var finOpsToolkitVersion = loadTextContent('ftkver.txt')
 
 // Add tags to all resources
-var resourceTags = contains(tags, 'ftk-tool') ? tags : union(tags, {
+var resourceTags = union(
+  tags,
+  tagsByResource[?'Microsoft.Insights/workbooks'] ?? {},
+  {
     'ftk-version': finOpsToolkitVersion
-    'ftk-tool': '${displayName} workbook'
-  })
+    'ftk-tool': 'FinOps workbooks'
+  }
+)
 
 //==============================================================================
 // Resources
@@ -70,21 +76,26 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (ena
 }
 
 //------------------------------------------------------------------------------
-// Workbook
+// Workbooks
 //------------------------------------------------------------------------------
 
-resource workbook 'Microsoft.Insights/workbooks@2022-04-01' = {
-  name: guid(resourceGroup().id, 'Microsoft.Insights/workbooks', displayName)
-  location: location
-  tags: resourceTags
-  kind: 'shared'
-  properties: {
-    category: 'workbook'
-    description: description
-    displayName: displayName
-    serializedData: workbookJson
-    sourceId: 'Azure Monitor'
-    version: version
+module optimization 'workbooks/optimization/main.bicep' = if (includeOptimization) {
+  name: '${displayNamePrefix}-Optimization'
+  params: {
+    displayName: '${displayNamePrefix} - Optimization'
+    location: location
+    tags: resourceTags
+    enableDefaultTelemetry: false
+  }
+}
+
+module governance 'workbooks/governance/main.bicep' = if (includeGovernance) {
+  name: '${displayNamePrefix}-Governance'
+  params: {
+    displayName: '${displayNamePrefix} - Governance'
+    location: location
+    tags: resourceTags
+    enableDefaultTelemetry: false
   }
 }
 
@@ -92,8 +103,14 @@ resource workbook 'Microsoft.Insights/workbooks@2022-04-01' = {
 // Outputs
 //==============================================================================
 
-@sys.description('The resource ID of the workbook.')
-output workbookId string = workbook.id
+@sys.description('Optimization workbook resource ID.')
+output optimizationId string = optimization.outputs.workbookId
 
-@sys.description('Link to the workbook in the Azure portal.')
-output workbookUrl string = '${environment().portal}/#view/AppInsightsExtension/UsageNotebookBlade/ComponentId/Azure%20Monitor/ConfigurationId/${uriComponent(workbook.id)}/Type/${workbook.properties.category}/WorkbookTemplateName/${uriComponent(workbook.properties.displayName)}'
+@sys.description('Optimization workbook Azure portal link.')
+output optimizationUrl string = optimization.outputs.workbookUrl
+
+@sys.description('Governance workbook resource ID.')
+output governanceId string = governance.outputs.workbookId
+
+@sys.description('Governance workbook Azure portal link.')
+output governanceUrl string = governance.outputs.workbookUrl

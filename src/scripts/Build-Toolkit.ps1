@@ -72,8 +72,8 @@ function Build-MainBicep($dir)
 }
 
 # Generate workbook templates
-Get-ChildItem "$PSScriptRoot/../workbooks/$($Template -replace '-workbook$','')*" -Directory `
-| Where-Object { $_.Name -ne '.scaffold' }
+Get-ChildItem "$PSScriptRoot/../workbooks/*" -Directory `
+| Where-Object { $_.Name -ne '.scaffold' -and ($Template -eq "*" -or $Template -eq $_.Name -or $Template -eq "$($_.Name)-workbook" -or $Template -eq "finops-workbooks") }
 | ForEach-Object {
     $workbook = $_.Name
     Write-Host "Building workbook $workbook..."
@@ -85,10 +85,16 @@ Get-ChildItem "$PSScriptRoot/../workbooks/$($Template -replace '-workbook$','')*
 | ForEach-Object { Build-QuickstartTemplate $_ }
 
 # Package templates
-Get-ChildItem "$PSScriptRoot/../templates/$Template*" -Directory -ErrorAction SilentlyContinue `
+Get-ChildItem -Path "$PSScriptRoot/../templates/*", "$PSScriptRoot/../optimization-engine*" -Directory -ErrorAction SilentlyContinue `
 | ForEach-Object {
     $srcDir = $_
     $templateName = $srcDir.Name
+
+    # Skip if not the specified template
+    if ($Template -ne "*" -and $Template -ne $templateName)
+    {
+        return
+    }
 
     Write-Host "Building template $templateName..."
 
@@ -111,36 +117,27 @@ Get-ChildItem "$PSScriptRoot/../templates/$Template*" -Directory -ErrorAction Si
         }
     }
 
-    Build-MainBicep $destDir
+    # TODO: Create a way to define required dependencies
+    if ($templateName -eq "finops-workbooks")
+    {
+        Write-Host "  Copying dependencies..."
+        & "$PSScriptRoot/New-Directory" "$destDir/workbooks"
+        Get-ChildItem "$destDir/../*-workbook" -Directory `
+        | ForEach-Object {
+            $workbookDir = "$destDir/workbooks/$($_.Name -replace '-workbook', '')"
+            Copy-Item -Path $_ -Destination $workbookDir -Recurse
+            Remove-Item -Path "$workbookDir/*" -Include azuredeploy*.json, createUiDefinition.json, metadata.json, README.md
+        }
+    }
 
-    # Copy version file last to override placeholder
-    $ver | Out-File "$destDir/modules/ftkver.txt" -NoNewline
+    # Build main.bicep, if applicable
+    if (Test-Path "$srcDir/main.bicep")
+    {
+        Build-MainBicep $destDir
+    }
+
+    # Update version in ftkver.txt files
+    Get-ChildItem $destDir -Include ftkver.txt -Recurse | ForEach-Object { $ver | Out-File $_ -NoNewline }
 
     Write-Host ''
 }
-
-# TODO: review build logic to make it more generic across all toolkit components
-# Package optimization engine
-$srcDir = "$PSScriptRoot/../optimization-engine"
-Write-Host "Building optimization engine..."
-
-# Create target directory
-$destDir = "$outdir/optimization-engine"
-Remove-Item $destDir -Recurse -ErrorAction SilentlyContinue
-& "$PSScriptRoot/New-Directory" $destDir
-
-# Copy required files
-Write-Host "  Copying files..."
-Get-ChildItem $srcDir | Copy-Item -Destination $destDir -Recurse -Exclude ".buildignore"
-
-# Remove ignored files
-Get-Content "$srcDir/.buildignore" `
-| ForEach-Object {
-    $file = $_
-    if (Test-Path "$destDir/$file")
-    {
-        Remove-Item "$destDir/$file" -Recurse -Force
-    }
-}
-
-$ver | Out-File "$destDir/ftkver.txt" -NoNewline
