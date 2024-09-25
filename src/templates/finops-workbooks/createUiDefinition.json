@@ -53,19 +53,6 @@
             "defaultValue": true
           }
         ]
-      },
-      {
-        "name": "tags",
-        "label": "Tags",
-        "elements": [
-          {
-            "name": "tagsByResource",
-            "label": "Tags",
-            "toolTip": "Tags to apply.",
-            "type": "Microsoft.Common.TagsByResource",
-            "resources": ["Microsoft.Insights/workbooks"]
-          }
-        ]
       }
     ],
     "outputs": {
