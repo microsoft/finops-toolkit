@@ -285,7 +285,7 @@ table ReservationTransactions
 
 	partition ReservationTransactions = m
 		mode: import
-		queryGroup: 'FinOps toolkit'
+		queryGroup: Storage
 		source = ```
 				let
 				    // Get the data

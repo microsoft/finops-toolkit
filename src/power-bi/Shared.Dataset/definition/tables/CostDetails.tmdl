@@ -1303,7 +1303,7 @@ table CostDetails
 
 	partition CostDetails-9a19f60d-0b5b-47c3-9fdf-8f57811d24d2 = m
 		mode: import
-		queryGroup: 'FinOps toolkit'
+		queryGroup: Storage
 		source = ```
 				let
 				    // Get the data

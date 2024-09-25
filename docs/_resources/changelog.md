@@ -86,8 +86,8 @@ Legend:
 
 <br><a name="latest"></a>
 
-
 ## 🚚 v0.6
+
 <sup>Released September 2024</sup>
 
 📗 FinOps guide
@@ -97,6 +97,21 @@ Legend:
 >
 > 1. Published initial guidance for FinOps best practices. For the initial commit, this page contains the Azure Resource Graph (ARG) queries used by the Cost Optimization workbook.
 
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> - [Governance](../_reporting/power-bi/governance.md)
+>   1. Added Policy compliance.
+>   2. Added Virtual machines and managed disks.
+>   3. Added SQL databases.
+>   4. Added Network security groups.
+> - [Workload optimization](../_reporting/power-bi/workload-optimization.md)
+>   1. Added Azure Advisor cost recommendations.
+>   2. Added Unattached disks.
+
+[Download v0.6](https://github.com/microsoft/finops-toolkit/releases/tag/v0.6){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.5...v0.6){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+
 <br>
 
 ## 🪛 v0.5 Update 1
@@ -104,9 +119,6 @@ Legend:
 <sup>Released September 7, 2024</sup>
 
 This release is a minor patch to Power BI files. These files were updated in the existing 0.5 release. We are documenting this as a new patch release for transparency.
-
-📊 Power BI reports
-{: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > 🛠️ Fixed:
 >

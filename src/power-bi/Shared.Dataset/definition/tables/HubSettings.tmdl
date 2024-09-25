@@ -12,6 +12,14 @@ table HubSettings
 
 		annotation SummarizationSetBy = Automatic
 
+	column Version
+		dataType: string
+		lineageTag: 20ddbb32-4fc2-4fa9-bcb0-7c5382ed04b0
+		summarizeBy: none
+		sourceColumn: Version
+
+		annotation SummarizationSetBy = Automatic
+
 	column ExportRetentionInDays
 		dataType: double
 		lineageTag: 4ad6b376-dba2-4fb8-a20e-629499590b64
@@ -42,17 +50,9 @@ table HubSettings
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
-	column Version
-		dataType: string
-		lineageTag: 20ddbb32-4fc2-4fa9-bcb0-7c5382ed04b0
-		summarizeBy: none
-		sourceColumn: Version
-
-		annotation SummarizationSetBy = Automatic
-
 	partition HubSettings = m
 		mode: import
-		queryGroup: 'FinOps toolkit'
+		queryGroup: Storage
 		source =
 				let
                     ADLS = if #"Hub Storage URL" = "" or #"Hub Storage URL" = null then null else AzureStorage.DataLake(#"Hub Storage URL" & "/../config"),
@@ -70,7 +70,7 @@ table HubSettings
 				in
 				    Version
 
-	annotation PBI_ResultType = Null
+	annotation PBI_ResultType = Table
 
 	annotation PBI_NavigationStepName = Navigation
 
