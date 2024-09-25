@@ -70,20 +70,6 @@ Legend:
 > 1. Managed Exports - Use parquet format when creating Cost Management exports.
 >
 
-🦾 Bicep modules
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. Cost Management export modules for subscriptions and resource groups.
-
-🦾 Bicep modules
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. Cost Management export modules for subscriptions and resource groups.
-
 <br><a name="latest"></a>
 
 ## 🚚 v0.6
@@ -108,6 +94,28 @@ Legend:
 > - [Workload optimization](../_reporting/power-bi/workload-optimization.md)
 >   1. Added Azure Advisor cost recommendations.
 >   2. Added Unattached disks.
+
+🖥️ PowerShell
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed:
+>
+> 1. Added a -ServiceSubcategory filter option to the Get-FinOpsService command.
+
+🦾 Bicep modules
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Cost Management export modules for subscriptions and resource groups.
+
+🌐 Open data
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> - [Services](../_reporting/data/README.md#-services)
+>   1. Added a new ServiceSubcategory column to support FOCUS 1.1 ServiceSubcategory mapping.
 
 [Download v0.6](https://github.com/microsoft/finops-toolkit/releases/tag/v0.6){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.5...v0.6){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
