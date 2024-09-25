@@ -3,8 +3,8 @@ layout: default
 grand_parent: PowerShell
 parent: FinOps hubs
 title: Initialize-FinOpsHubDeployment
-nav_order: 1
-description: 'Initialize a FinOps hub deployment.'
+nav_order: 10
+description: Initialize a FinOps hub deployment in order to enable resource group owners to deployment hubs via the portal.
 permalink: /powershell/hubs/Initialize-FinOpsHubDeployment
 ---
 
@@ -35,18 +35,16 @@ The **Initialize-FinOpsHubDeployment** command performs any initialization tasks
 
 ```powershell
 Initialize-FinOpsHubDeployment `
-    [-WhatIf <string>]
+    [‑WhatIf]
 ```
 
 <br>
 
 ## 📥 Parameters
 
-| Name      | Description                                                                        |
-| --------- | ---------------------------------------------------------------------------------- |
-| '‑WhatIf' | Optional. Shows what would happen if the command runs without actually running it. |
-
-|
+| Name | Description |
+| ---- | ----------- |
+| `‑WhatIf` | Optional. Shows what would happen if the command runs without actually running the command. Default = false. |
 
 <br>
 
@@ -55,8 +53,7 @@ Initialize-FinOpsHubDeployment `
 ### Test initialize FinOps hub deployment
 
 ```powershell
-Initialize-FinOpsHubDeployment `
-    -WhatIf
+Initialize-FinOpsHubDeployment -WhatIf
 ```
 
 Shows what would happen if the command runs without actually running it.
@@ -67,6 +64,7 @@ Shows what would happen if the command runs without actually running it.
 
 ## 🧰 Related tools
 
-{% include tools.md hubs="1" %}
+{% include tools.md aoe="1" bicep="0" data="0" hubs="1" pbi="1" ps="0" %}
 
 <br>
+

@@ -3,8 +3,8 @@ layout: default
 grand_parent: PowerShell
 parent: Cost Management
 title: Get-FinOpsCostExport
-nav_order: 1
-description: 'Get a list of Cost Management exports.'
+nav_order: 10
+description: Get a list of Cost Management exports.
 permalink: /powershell/cost/Get-FinOpsCostExport
 ---
 
@@ -42,28 +42,30 @@ This command has been tested with the following API versions:
 
 ```powershell
 Get-FinOpsCostExport `
-    [-Name <string>] `
-    [-Scope <string>] `
-    [-DataSet <string>] `
-    [-StorageAccountId <string>] `
-    [-StorageContainer <string>] `
-    [-RunHistory] `
-    [-ApiVersion <string>]
+    [[‑Name] <String>] `
+    [‑Scope <String>] `
+    [‑Dataset <String>] `
+    [‑DatasetVersion <String>] `
+    [‑StorageAccountId <String>] `
+    [‑StorageContainer <String>] `
+    [‑RunHistory] `
+    [‑ApiVersion <String>]
 ```
 
 <br>
 
 ## 📥 Parameters
 
-| Name                | Description                                                                                                         |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `‑Name`             | Optional. Name of the export. Supports wildcards.                                                                   |
-| `‑Scope`            | Optional. Resource ID of the scope the export was created for. If empty, defaults to current subscription context.  |
-| `‑DataSet`          | Optional. Dataset to get exports for. Allowed values = "ActualCost", "AmortizedCost". Default = null (all exports). |
-| `‑StorageAccountId` | Optional. Resource ID of the storage account to get exports for. Default = null (all exports).                      |
-| `‑StorageContainer` | Optional. Name of the container to get exports for. Supports wildcards. Default = null (all exports).               |
-| `‑RunHistory`       | Optional. Indicates whether the run history should be expanded. Default = false.                                    |
-| `‑ApiVersion`       | Optional. API version to use when calling the Cost Management exports API. Default = 2023-07-01-preview.            |
+| Name | Description |
+| ---- | ----------- |
+| `‑Name` | Optional. Name of the export. Supports wildcards. |
+| `‑Scope` | Optional. Resource ID of the scope the export was created for. If empty, defaults to current subscription context. |
+| `‑Dataset` | Optional. Dataset to export. Allowed values = "ActualCost", "AmortizedCost", "FocusCost", "PriceSheet", "ReservationDetails", "ReservationTransactions", "ReservationRecommendations". Default = null (all exports). |
+| `‑DatasetVersion` | Optional. Schema version of the dataset to export. Default = null (all exports). |
+| `‑StorageAccountId` | Optional. Resource ID of the storage account to get exports for. Default = null (all exports). |
+| `‑StorageContainer` | Optional. Name of the container to get exports for. Supports wildcards. Default = null (all exports). |
+| `‑RunHistory` | Optional. Indicates whether the run history should be expanded. Default = false. |
+| `‑ApiVersion` | Optional. API version to use when calling the Cost Management exports API. Default = 2023-07-01-preview. |
 
 <br>
 
@@ -71,35 +73,35 @@ Get-FinOpsCostExport `
 
 ### FinOpsCostExport object
 
-| Property              | Type                         | JSON path                                                                    |
-| --------------------- | ---------------------------- | ---------------------------------------------------------------------------- |
-| `Name`                | String                       | `name`                                                                       |
-| `Id`                  | String                       | `id`                                                                         |
-| `Type`                | String                       | `type`                                                                       |
-| `eTag`                | String                       | `eTag`                                                                       |
-| `Description`         | String                       | `properties.exportDescription`                                               |
-| `Dataset`             | String                       | `properties.definition.type`                                                 |
-| `DatasetVersion`      | String                       | `properties.definition.configuration.dataVersion`                            |
-| `DatasetFilters`      | String                       | `properties.definition.configuration.filter`                                 |
-| `DatasetTimeFrame`    | String                       | `properties.definition.timeframe`                                            |
-| `DatasetStartDate`    | DateTime                     | `properties.definition.timePeriod.from`                                      |
-| `DatasetEndDate`      | DateTime                     | `properties.definition.timePeriod.to`                                        |
-| `DatasetGranularity`  | String                       | `properties.definition.dataset.granularity`                                  |
-| `ScheduleStatus`      | String                       | `properties.schedule.status`                                                 |
-| `ScheduleRecurrence`  | String                       | `properties.schedule.recurrence`                                             |
-| `ScheduleStartDate`   | DateTime                     | `properties.schedule.recurrencePeriod.from`                                  |
-| `ScheduleEndDate`     | DateTime                     | `properties.schedule.recurrencePeriod.to`                                    |
-| `NextRuntimeEstimate` | DateTime                     | `properties.nextRunTimeEstimate`                                             |
-| `Format`              | String                       | `properties.format`                                                          |
-| `StorageAccountId`    | String                       | `properties.deliveryInfo.destination.resourceId`                             |
-| `StorageContainer`    | String                       | `properties.deliveryInfo.destination.container`                              |
-| `StoragePath`         | String                       | `properties.deliveryInfo.destination.rootfolderpath`                         |
-| `OverwriteData`       | Boolean                      | `properties.deliveryInfo.dataOverwriteBehavior` == "OverwritePreviousReport" |
-| `PartitionData`       | Boolean                      | `properties.deliveryInfo.partitionData`                                      |
-| `CompressionMode`     | String                       | `properties.deliveryInfo.compressionMode`                                    |
-| `RunHistory`          | FinOpsCostExportRunHistory[] | `properties.runHistory.value`                                                |
+| Property              | Type                  | JSON path                                                                    |
+| --------------------- | --------------------- | ---------------------------------------------------------------------------- |
+| `Name`                | String                | `name`                                                                       |
+| `Id`                  | String                | `id`                                                                         |
+| `Type`                | String                | `type`                                                                       |
+| `eTag`                | String                | `eTag`                                                                       |
+| `Description`         | String                | `properties.exportDescription`                                               |
+| `Dataset`             | String                | `properties.definition.type`                                                 |
+| `DatasetVersion`      | String                | `properties.definition.configuration.dataVersion`                            |
+| `DatasetFilters`      | String                | `properties.definition.configuration.filter`                                 |
+| `DatasetTimeFrame`    | String                | `properties.definition.timeframe`                                            |
+| `DatasetStartDate`    | DateTime              | `properties.definition.timePeriod.from`                                      |
+| `DatasetEndDate`      | DateTime              | `properties.definition.timePeriod.to`                                        |
+| `DatasetGranularity`  | String                | `properties.definition.dataset.granularity`                                  |
+| `ScheduleStatus`      | String                | `properties.schedule.status`                                                 |
+| `ScheduleRecurrence`  | String                | `properties.schedule.recurrence`                                             |
+| `ScheduleStartDate`   | DateTime              | `properties.schedule.recurrencePeriod.from`                                  |
+| `ScheduleEndDate`     | DateTime              | `properties.schedule.recurrencePeriod.to`                                    |
+| `NextRuntimeEstimate` | DateTime              | `properties.nextRunTimeEstimate`                                             |
+| `Format`              | String                | `properties.format`                                                          |
+| `StorageAccountId`    | String                | `properties.deliveryInfo.destination.resourceId`                             |
+| `StorageContainer`    | String                | `properties.deliveryInfo.destination.container`                              |
+| `StoragePath`         | String                | `properties.deliveryInfo.destination.rootfolderpath`                         |
+| `OverwriteData`       | Boolean               | `properties.deliveryInfo.dataOverwriteBehavior` == "OverwritePreviousReport" |
+| `PartitionData`       | Boolean               | `properties.deliveryInfo.partitionData`                                      |
+| `CompressionMode`     | String                | `properties.deliveryInfo.compressionMode`                                    |
+| `RunHistory`          | FinOpsCostExportRun[] | `properties.runHistory.value`                                                |
 
-### FinOpsCostExportRunHistory object
+### FinOpsCostExportRun object
 
 | Property        | Type     | JSON path                                                |
 | --------------- | -------- | -------------------------------------------------------- |
@@ -116,7 +118,7 @@ Get-FinOpsCostExport `
 
 ## 🌟 Examples
 
-### Get all cost exports for a subscription
+### Get cost exports for a subscription
 
 ```powershell
 Get-FinOpsCostExport `
@@ -133,28 +135,28 @@ Get-FinOpsCostExport `
     -Scope "providers/Microsoft.Billing/billingAccounts/00000000"
 ```
 
-Gets export with name matching wildcard mtd\* within the specified billing account scope. Does not include exports in nested resource groups.
+Gets export with name matching wildcard mtd* within the specified billing account scope. Does not include exports in nested resource groups.
 
-### Get all amortized cost exports
+### Get amortized cost exports
 
 ```powershell
 Get-FinOpsCostExport `
-    -DataSet "AmortizedCost"
+    -Dataset "AmortizedCost"
 ```
 
 Gets all exports within the current context subscription scope and filtered by dataset AmortizedCost.
 
-### Get exports using a specific storage account
+### Get exports using a storage account
 
 ```powershell
 Get-FinOpsCostExport `
-    -Scope "/subscriptions/00000000-0000-0000-0000-000000000000"`
+    -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" `
     -StorageAccountId "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/MyResourceGroup/providers/Microsoft.Storage/storageAccounts/MyStorageAccount"
 ```
 
 Gets all exports within the subscription scope filtered by a specific storage account.
 
-### Get exports using a specific container
+### Get exports using a storage container
 
 ```powershell
 Get-FinOpsCostExport `
@@ -164,23 +166,24 @@ Get-FinOpsCostExport `
 
 Gets all exports within the subscription scope for a specific container. Supports wildcard.
 
-### Get exports using a specific API version
+### Get exports using an API version
 
 ```powershell
 Get-FinOpsCostExport `
-    -Scope "/subscriptions/00000000-0000-0000-0000-000000000000"
-    -StorageContainer "mtd*"
-    -ApiVersion "2023-08-01"
-    -StorageContainer "MyContainer*"
+    -Scope "/subscriptions/00000000-0000-0000-0000-000000000000" `
+    -StorageContainer "mtd*" `
+    -ApiVersion "2023-07-01-preview"
 ```
 
 Gets all exports within the subscription scope for a container matching wildcard pattern and using a specific API version.
+
 <br>
 
 ---
 
 ## 🧰 Related tools
 
-{% include tools.md hubs="1" pbi="1" %}
+{% include tools.md aoe="1" bicep="0" data="0" hubs="1" pbi="1" ps="0" %}
 
 <br>
+

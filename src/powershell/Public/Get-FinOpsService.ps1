@@ -5,6 +5,11 @@
     .SYNOPSIS
     Gets the name and category for a service, publisher, and cloud provider.
 
+    .DESCRIPTION
+    The Get-FinOpsService command returns service details based on the specified filters. This command is designed to help map Cost Management cost data to the FinOps Open Cost and Usage Specification (FOCUS) schema but can also be useful for general data cleansing.
+
+    Please note that both ConsumedService and ResourceType are required to find a unique service in many cases.
+
     .PARAMETER ConsumedService
     Optional. ConsumedService value from a Cost Management cost/usage details dataset. Accepts wildcards. Default = * (all).
 
@@ -32,14 +37,10 @@
     .PARAMETER PublisherCategory
     Optional. The publisher category to find services for. Default = null (all).
 
-    .DESCRIPTION
-    The Get-FinOpsService command returns service details based on the specified filters. This command is designed to help map Cost Management cost data to the FinOps Open Cost and Usage Specification (FOCUS) schema but can also be useful for general data cleansing.
-
-    Please note that both ConsumedService and ResourceType are required to find a unique service in many cases.
-
     .EXAMPLE
-    Get-FinOpsService -ConsumedService "Microsoft.C*" -ResourceType "Microsoft.Compute/virtualMachines"
+    Get-FinOpsService -ConsumedService "Microsoft.C*"
 
+    ### Get services based on filter
     Returns all services with a resource provider that starts with "Microsoft.C".
 
     .LINK

@@ -3,8 +3,8 @@ layout: default
 grand_parent: PowerShell
 parent: FinOps hubs
 title: Register-FinOpsHubProviders
-nav_order: 1
-description: 'Register Azure resource providers required for FinOps hub.'
+nav_order: 10
+description: Register Azure resource providers required for FinOps hub.
 permalink: /powershell/hubs/Register-FinOpsHubProviders
 ---
 
@@ -37,28 +37,25 @@ To register a resource provider, you must have Contributor access (or the /regis
 
 ```powershell
 Register-FinOpsHubProviders `
-    [-WhatIf <string>] `
+    [‑WhatIf]
 ```
 
 <br>
 
 ## 📥 Parameters
 
-| Name      | Description                                                                        |
-| --------- | ---------------------------------------------------------------------------------- |
+| Name | Description |
+| ---- | ----------- |
 | `‑WhatIf` | Optional. Shows what would happen if the command runs without actually running it. |
-
-|
 
 <br>
 
 ## 🌟 Examples
 
-### Test register FinOps hub providers
+### Example 1
 
 ```powershell
-Register-FinOpsHubProviders `
-    -WhatIf
+Register-FinOpsHubProviders -WhatIf
 ```
 
 Shows what would happen if the command runs without actually running it.
@@ -69,6 +66,7 @@ Shows what would happen if the command runs without actually running it.
 
 ## 🧰 Related tools
 
-{% include tools.md hubs="1" %}
+{% include tools.md aoe="1" bicep="0" data="0" hubs="1" pbi="1" ps="0" %}
 
 <br>
+

@@ -11,21 +11,28 @@
     The comamnd returns a boolean value indicating whether all resources were successfully deleted.
 
     .PARAMETER Name
-    Required when specifying Name. Name of the FinOps Hub.
+    Required if not specifying InputObject. Name of the FinOps hub instance.
 
     .PARAMETER ResourceGroupName
-    Optional when specifying Name. Resource Group Name for the FinOps Hub.
+    Optional when specifying Name. Resource group name for the FinOps Hub.
 
     .PARAMETER InputObject
-    Required when specifying InputObject. Expected object is the output of Get-FinOpsHub.
+    Required if not specifying Name. Expected object is the output of Get-FinOpsHub.
 
     .PARAMETER KeepStorageAccount
-    Optional. Indicates that the storage account associated with the FinOps Hub should be retained.
+    Optional. Indicates that the storage account associated with the FinOps Hub should be retained. Default = false.
+
+    .PARAMETER Force
+    Optional. Indicates that the hub instance should be deleted without an additional confirmation. Default = false.
 
     .EXAMPLE
-    Remove-FinOpsHub -Name MyHub -ResourceGroupName MyRG -KeepStorageAccount
+    Remove-FinOpsHub `
+        -Name MyHub `
+        -ResourceGroupName MyRG `
+        -KeepStorageAccount
 
-    Deletes a FinOps Hub named MyHub and deletes all associated resource except the storagea ccount.
+    ### Remove a FinOps hub instance
+    Deletes a FinOps Hub named MyHub and deletes all associated resource except the storage account.
 #>
 
 function Remove-FinOpsHub
@@ -38,10 +45,12 @@ function Remove-FinOpsHub
         [string]
         $Name,
 
+        # .PARAMETERSET Delete by name
         [Parameter(ParameterSetName = 'Name')]
         [string]
         $ResourceGroupName,
-
+        
+        # .PARAMETERSET Delete by reference
         [Parameter(Mandatory = $true, ParameterSetName = 'Object')]
         [ValidateNotNullOrEmpty ()]
         [psobject]

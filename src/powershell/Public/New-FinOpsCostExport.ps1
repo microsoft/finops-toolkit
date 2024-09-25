@@ -16,13 +16,13 @@
     Required. Name of the export.
 
     .PARAMETER Scope
-    Required. Resource ID of the scope to export data for.
+    Optional. Resource ID of the scope to export data for. If empty, defaults to current subscription context.
 
     .PARAMETER Dataset
     Optional. Dataset to export. Allowed values = "ActualCost", "AmortizedCost", "FocusCost", "PriceSheet", "ReservationDetails", "ReservationTransactions", "ReservationRecommendations". Default = "FocusCost".
     
     .PARAMETER DatasetVersion
-    Optional. Schema version of the dataset to export. Default = "1.0" (applies to FocusCost only).
+    Optional. Schema version of the dataset to export. Default = (latest version as of June 2024; e.g., "1.0" for FocusCost).
 
     .PARAMETER DatasetFilters
     Optional. Dictionary of key/value pairs to filter the dataset with. Only applies to ReservationRecommendations dataset in 2023-07-01-preview. Valid filters are reservationScope (Shared or Single), resourceType (e.g., VirtualMachines), lookBackPeriod (Last7Days, Last30Days, Last60Days).
@@ -67,15 +67,16 @@
     Optional. API version to use when calling the Cost Management Exports API. Default = 2023-07-01-preview.
 
     .EXAMPLE
-    New-FinopsCostExport -Name 'July2023OneTime' `
+    New-FinopsCostExport -Name 'July2024OneTime' `
         -Scope "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" `
         -StorageAccountId "/subscriptions/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/resourceGroups/SharedStorage/providers/Microsoft.Storage/storageAccounts/ddsharedstorage" `
         -DataSet ActualCost `
         -OneTime `
-        -StartDate "2023-07-01" `
-        -EndDate "2023-07-31"
+        -StartDate "2024-07-01" `
+        -EndDate "2024-07-31"
 
-    Creates a new one time export called 'July2023OneTime from 2023-07-01 to 2023-07-31 with Dataset = Actual and execute it once.
+    ### Create one time export
+    Creates a new one time export called 'July2024OneTime' from 2024-07-01 to 2024-07-31 with Dataset = Actual and execute it once.
 
     .EXAMPLE
     New-FinopsCostExport -Name 'DailyMTD' `
@@ -85,6 +86,7 @@
         -EndDate "2024-12-31" `
         -Execute
 
+    ### Create and run a daily export
     Creates a new scheduled export called Daily-MTD with StartDate = DateTime.Now and EndDate = 2024-12-31. Export is run immediately after creation.
 
     .EXAMPLE
@@ -97,6 +99,7 @@
         -Monthly `
         -Execute
 
+    ### Creates monthly export
     Creates a new monthly export called Monthly-Report with StartDate = 1 day from DateTime.Now and EndDate 2024-08-15. Export is run immediately after creation.
 
     .EXAMPLE
@@ -108,6 +111,7 @@
         -Backfill 4 `
         -Execute
 
+    ### Create daily export and backfill 4 months
     Creates a new daily export called Daily-MTD with StartDate = DateTime.Now and EndDate 5 years from StartDate. Additiionally, export cost data for the previous 4 months and save all results in costreports container of the specified storage account.
 
     .LINK
@@ -119,11 +123,11 @@ function New-FinOpsCostExport
     [CmdletBinding(DefaultParameterSetName = "Scheduled")]
     param
     (
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, Position = 0)]
         [string]
         $Name,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter(Position = 1)]
         [string]
         $Scope,
 
@@ -140,10 +144,12 @@ function New-FinOpsCostExport
         [hashtable]
         $DatasetFilters,
 
+        # .PARAMETERSET Create a new daily/monthly export
         [Parameter(ParameterSetName = "Scheduled")]
         [switch]
         $Monthly,
-
+        
+        # .PARAMETERSET Create a new one-time export
         [Parameter(ParameterSetName = "OneTime")]
         [switch]
         $OneTime,
@@ -194,6 +200,13 @@ function New-FinOpsCostExport
         [string]
         $ApiVersion = '2023-07-01-preview'
     )
+
+    # if Scope is not passed, use current subscription scope
+    if ([string]::IsNullOrEmpty($Scope))
+    {
+        $Scope = "/subscriptions/$($context.Subscription.Id)"
+        Write-Verbose -Message "Scope parameter was not passed. Setting to subscription scope from current context"
+    }
 
     function getProperties()
     {

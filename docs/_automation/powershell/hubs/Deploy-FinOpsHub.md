@@ -3,8 +3,8 @@ layout: default
 grand_parent: PowerShell
 parent: FinOps hubs
 title: Deploy-FinOpsHub
-nav_order: 1
-description: 'Deploys a FinOps hub instance.'
+nav_order: 10
+description: Deploys a FinOps hub instance.
 permalink: /powershell/hubs/Deploy-FinOpsHub
 ---
 
@@ -27,7 +27,7 @@ Deploys a FinOps hub instance.
 
 ---
 
-The **Deploy-FinOpsHub** command either creates a new or updates an existing FinOps hub instance by deploying an Azure Resource Manager deployment template. The FinOps hub template is downloaded from GitHub. To learn more about the template, see the [FinOps hub template](../../../_reporting/hubs/template.md).
+The **Deploy-FinOpsHub** command either creates a new or updates an existing FinOps hub instance by deploying an Azure Resource Manager deployment template. The FinOps hub template is downloaded from GitHub.
 
 Deploy-FinOpsHub calls [Initialize-FinOpsHubDeployment](Initialize-FinOpsHubDeployment.md) before deploying the template.
 
@@ -37,29 +37,30 @@ Deploy-FinOpsHub calls [Initialize-FinOpsHubDeployment](Initialize-FinOpsHubDepl
 
 ```powershell
 Deploy-FinOpsHub `
-    -Name <string> `
-    -ResourceGroup <string> `
-    -Location <string> `
-    [-Version <string>] `
-    [-Preview] `
-    [-StorageSku <string>] `
-    [-Tags <object>] `
-    [<CommonParameters>]
+    [‑Name] <String> `
+    [‑ResourceGroupName] <String> `
+    [‑Location] <String> `
+    [[‑Version] <String>] `
+    [‑Preview] `
+    [[‑StorageSku] <String>] `
+    [[‑Tags] <Hashtable>] `
+    [‑WhatIf]
 ```
 
 <br>
 
 ## 📥 Parameters
 
-| Name             | Description                                                                                                                                                                          |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `‑Name`          | Required. Name of the FinOps hub instance.                                                                                                                                           |
-| `‑ResourceGroup` | Required. Name of the resource group to deploy to. Will be created if it doesn't exist.                                                                                              |
-| `‑Location`      | Required. Azure location to execute the deployment from.                                                                                                                             |
-| `‑Version`       | Optional. Version of the FinOps hub template to use. Default = "latest".                                                                                                             |
-| `‑Preview`       | Optional. Indicates that preview releases should also be included. Default = false.                                                                                                  |
-| `‑StorageSku`    | Optional. Storage account SKU. Premium_LRS = Lowest cost, Premium_ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Default = "Premium_LRS". |
-| `‑Tags`          | Optional. Tags for all resources.                                                                                                                                                    |
+| Name | Description |
+| ---- | ----------- |
+| `‑Name` | Required. Name of the FinOps hub instance. |
+| `‑ResourceGroupName` | Required. Name of the resource group to deploy to. Will be created if it doesn't exist. |
+| `‑Location` | Required. Azure location to execute the deployment from. |
+| `‑Version` | Optional. Version of the FinOps hub template to use. Default = "latest". |
+| `‑Preview` | Optional. Indicates that preview releases should also be included. Default = false. |
+| `‑StorageSku` | Optional. Storage account SKU. Premium_LRS = Lowest cost, Premium_ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Default = "Premium_LRS". |
+| `‑Tags` | Optional. Tags for all resources. |
+| `‑WhatIf` | Optional. Shows what would happen if the command runs without actually running the command. Default = false. |
 
 <br>
 
@@ -70,7 +71,7 @@ Deploy-FinOpsHub `
 ```powershell
 Deploy-FinOpsHub `
     -Name MyHub `
-    -ResourceGroup MyNewResourceGroup `
+    -ResourceGroupName MyNewResourceGroup `
     -Location westus
 ```
 
@@ -81,7 +82,7 @@ Deploys a FinOps hub instance named MyHub to the MyNewResourceGroup resource gro
 ```powershell
 Deploy-FinOpsHub `
     -Name MyHub `
-    -ResourceGroup MyExistingResourceGroup `
+    -ResourceGroupName MyExistingResourceGroup `
     -Location westus `
     -Version 0.1.1
 ```
@@ -94,6 +95,7 @@ Deploys a FinOps hub instance named MyHub to the MyExistingResourceGroup resourc
 
 ## 🧰 Related tools
 
-{% include tools.md hubs="1" %}
+{% include tools.md aoe="1" bicep="0" data="0" hubs="1" pbi="1" ps="0" %}
 
 <br>
+

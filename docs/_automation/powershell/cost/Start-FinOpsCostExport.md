@@ -3,8 +3,8 @@ layout: default
 grand_parent: PowerShell
 parent: Cost Management
 title: Start-FinOpsCostExport
-nav_order: 1
-description: 'Initiates a Cost Management export run for the most recent period.'
+nav_order: 10
+description: Initiates a Cost Management export run for the most recent period.
 permalink: /powershell/cost/Start-FinOpsCostExport
 ---
 
@@ -30,9 +30,9 @@ Initiates a Cost Management export run for the most recent period.
 The **Start-FinOpsCostExport** command runs a Cost Management export for the most recent period using the Run API.
 
 This command has been tested with the following API versions:
-
 - 2023-07-01-preview (default) – Enables FocusCost and other datasets.
 - 2023-08-01
+- 2023-03-01
 
 <br>
 
@@ -40,26 +40,26 @@ This command has been tested with the following API versions:
 
 ```powershell
 Start-FinOpsCostExport `
-    [-Name] <string> `
-    [-Scope <string>] `
-    [-StartDate <datetime>] `
-    [-EndDate <datetime>] `
-    [-Backfill <number>] `
-    [-ApiVersion <string>]
+    [‑Name] <String> `
+    [[‑Scope] <String>] `
+    [‑StartDate <DateTime>] `
+    [‑EndDate <DateTime>] `
+    [‑Backfill <Int32>] `
+    [‑ApiVersion <String>]
 ```
 
 <br>
 
 ## 📥 Parameters
 
-| Name          | Description                                                                                                                                                                                                                  |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `‑Name`       | Required. Name of the export.                                                                                                                                                                                                |
-| `‑Scope`      | Optional. Resource ID of the scope to export data for. If empty, defaults to current subscription context.                                                                                                                   |
-| `‑StartDate`  | Optional. Day to start pulling the data for. If not set, the export will use the dates defined in the export configuration.                                                                                                  |
-| `‑EndDate`    | Optional. Last day to pull data for. If not set and -StartDate is set, -EndDate will use the last day of the month. If not set and -StartDate is not set, the export will use the dates defined in the export configuration. |
-| `‑Backfill`   | Optional. Number of months to export the data for. Make note of throttling (429) errors. This is only run once. Failed exports are not re-attempted. Default = 0.                                                            |
-| `‑ApiVersion` | Optional. API version to use when calling the Cost Management Exports API. Default = 2023-07-01-preview.                                                                                                                     |
+| Name | Description |
+| ---- | ----------- |
+| `‑Name` | Required. Name of the export. |
+| `‑Scope` | Optional. Resource ID of the scope to export data for. If empty, defaults to current subscription context. |
+| `‑StartDate` | Optional. Day to start pulling the data for. If not set, the export will use the dates defined in the export configuration. |
+| `‑EndDate` | Optional. Last day to pull data for. If not set and -StartDate is set, -EndDate will use the last day of the month. If not set and -StartDate is not set, the export will use the dates defined in the export configuration. |
+| `‑Backfill` | Optional. Number of months to export the data for. Make note of throttling (429) errors. This is only run once. Failed exports are not re-attempted. Default = 0. |
+| `‑ApiVersion` | Optional. API version to use when calling the Cost Management Exports API. Default = 2023-07-01-preview. |
 
 <br>
 
@@ -95,6 +95,7 @@ Runs an export called 'CostExport' for the previous 12 months.
 
 ## 🧰 Related tools
 
-{% include tools.md hubs="1" pbi="1" %}
+{% include tools.md aoe="1" bicep="0" data="0" hubs="1" pbi="1" ps="0" %}
 
 <br>
+

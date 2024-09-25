@@ -17,11 +17,13 @@
     .EXAMPLE
     Get-FinOpsResourceType -ResourceType "microsoft.compute/virtualmachines"
 
+    ### Get resource type details
     Returns the resource type details for virtual machines.
 
     .EXAMPLE
     Get-FinOpsResourceType -Preview $false
 
+    ### Get non-preview resource types
     Returns all resource types that are not in preview.
 
     .LINK

@@ -3,8 +3,8 @@ layout: default
 grand_parent: PowerShell
 parent: FinOps hubs
 title: Get-FinOpsHub
-nav_order: 2
-description: 'Gets details about a FinOps hub instance.'
+nav_order: 10
+description: Gets details about a FinOps hub instance.
 permalink: /powershell/hubs/Get-FinOpsHub
 ---
 
@@ -27,7 +27,7 @@ Gets details about a FinOps hub instance.
 
 ---
 
-The Get-FinOpsHubs command calls GitHub to retrieve all toolkit releases, then filters the list based on the specified options.
+The **Get-FinOpsHub** command gets details about a FinOps hub instance using the cm-resource-parent tag to identify hub resources.
 
 <br>
 
@@ -35,19 +35,18 @@ The Get-FinOpsHubs command calls GitHub to retrieve all toolkit releases, then f
 
 ```powershell
 Get-FinOpsHub `
-    [[-Name] <string>] `
-    [-ResourceGroupName <string>] `
-    [<CommonParameters>]
+    [[‑Name] <String>] `
+    [‑ResourceGroupName <String>]
 ```
 
 <br>
 
 ## 📥 Parameters
 
-| Name                 | Description                                                                              |
-| -------------------- | ---------------------------------------------------------------------------------------- |
-| '‑Name'              | Optional. Name of the FinOps hub instance. Supports wildcards.                           |
-| '‑ResourceGroupName' | Optional. Name of the resource group the FinOps hub was deployed to. Supports wildcards. |
+| Name | Description |
+| ---- | ----------- |
+| `‑Name` | Optional. Name of the FinOps hub instance. Supports wildcards. |
+| `‑ResourceGroupName` | Optional. Name of the resource group the FinOps hub was deployed to. Supports wildcards. |
 
 <br>
 
@@ -75,7 +74,7 @@ Returns all FinOps hubs that start with 'foo'.
 Get-FinOpsHub -ResourceGroupName foo
 ```
 
-Returns all hubs in the 'foo' resource group.
+Returns all resources associated with a FinOps hub in the 'foo' resource group.
 
 ### Get named hubs in a resource group
 
@@ -91,6 +90,7 @@ Returns all FinOps hubs named 'foo' in the 'bar' resource group.
 
 ## 🧰 Related tools
 
-{% include tools.md hubs="1" %}
+{% include tools.md aoe="1" bicep="0" data="0" hubs="1" pbi="1" ps="0" %}
 
 <br>
+

@@ -3,7 +3,10 @@
 
 <#
     .SYNOPSIS
-    Gets an Azure region ID and name.
+    Gets an Azure region ID and name to clean up Cost Management cost data during ingestion.
+
+    .DESCRIPTION
+    The Get-FinOpsRegion command returns an Azure region ID and name based on the specified resource location.
 
     .PARAMETER ResourceLocation
     Optional. Resource location value from a Cost Management cost/usage details dataset. Accepts wildcards. Default = * (all).
@@ -17,17 +20,16 @@
     .PARAMETER IncludeResourceLocation
     Optional. Indicates whether to include the ResourceLocation property in the output. Default = false.
 
-    .DESCRIPTION
-    The Get-FinOpsRegion command returns an Azure region ID and name based on the specified resource location.
-
     .EXAMPLE
     Get-FinOpsRegion -ResourceLocation "US East"
 
+    ### Get a specific region
     Returns the region ID and name for the East US region.
 
     .EXAMPLE
     Get-FinOpsRegion -RegionId "*asia*" -IncludeResourceLocation
 
+    ### Get many regions with the original Cost Management value
     Returns all Asia regions with the original Cost Management ResourceLocation value.
 
     .LINK
