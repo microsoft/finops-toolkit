@@ -88,13 +88,17 @@ Shared Access Signature (SAS) tokens allow you to connect to a storage account w
    - Keep the remaining default values or update as desired.
    - Select the **Generate SAS token and URL** button.
    - Copy the generated token.
+
   ![Screenshot of the SAS token configuration in the Azure portal](../../assets/images/aoe/azure-storage-account-SAS.png)
+
 2. Configure SAS token access in Power BI:
    - Open the report in Power BI Desktop.
    - Select **Transform data** > **Data Source Settings** in the ribbon.
    - Select **Edit permissions** at the bottom of the dialog.
    - Select **Edit** below the credentials.
+
   ![Screenshot of the data source settings within Transform data](../../assets/images/aoe/powerbi-dashboard-SAS-setup.png)
+
    - Select the **Shared access signature** tab.
    - Paste the copied SAS token from the Azure portal.
    - Select **Save**.
