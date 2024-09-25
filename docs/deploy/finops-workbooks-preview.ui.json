@@ -59,8 +59,7 @@
       "displayNamePrefix": "[basics('displayNamePrefix')]",
       "includeOptimization": "[steps('workbooks').includeOptimization]",
       "includeGovernance": "[steps('workbooks').includeGovernance]",
-      "location": "[location()]",
-      "tags": "[steps('tags').tagsByResource]"
+      "location": "[location()]"
     }
   }
 }
