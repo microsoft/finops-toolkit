@@ -95,6 +95,14 @@ Legend:
 >   1. Added Azure Advisor cost recommendations.
 >   2. Added Unattached disks.
 
+🔍 Optimization engine
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed:
+>
+> 1. Replaced storage account key-based authentication with Entra ID authentication for improved security.
+>
+
 🖥️ PowerShell
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 

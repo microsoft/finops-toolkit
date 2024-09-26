@@ -100,7 +100,7 @@ param recommendationsLogAnalyticsIngestJobId string = newGuid()
 param suppressionsLogAnalyticsIngestJobId string = newGuid()
 param recommendationsCleanUpJobId string = newGuid()
 
-param roleContributor string = '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
+param roleContributor string = '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 
 @description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
@@ -907,294 +907,294 @@ var psModules = [
 var runbooks = [
   {
     name: advisorExportsRunbookName
-    version: '1.4.2.1'
+    version: '1.4.3.0'
     description: 'Exports Azure Advisor recommendations to Blob Storage using the Advisor API'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${advisorExportsRunbookName}.ps1')
   }
   {
     name: argDisksExportsRunbookName
-    version: '1.3.4.1'
+    version: '1.3.5.0'
     description: 'Exports Managed Disks properties to Blob Storage using Azure Resource Graph'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${argDisksExportsRunbookName}.ps1')
   }
   {
     name: argVhdExportsRunbookName
-    version: '1.1.4.1'
+    version: '1.1.5.0'
     description: 'Exports Unmanaged Disks (owned by a VM) properties to Blob Storage using Azure Resource Graph'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${argVhdExportsRunbookName}.ps1')
   }
   {
     name: argVmExportsRunbookName
-    version: '1.4.4.1'
+    version: '1.4.5.0'
     description: 'Exports Virtual Machine properties to Blob Storage using Azure Resource Graph'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${argVmExportsRunbookName}.ps1')
   }
   {
     name: argVmssExportsRunbookName
-    version: '1.0.2.1'
+    version: '1.0.3.0'
     description: 'Exports VMSS properties to Blob Storage using Azure Resource Graph'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${argVmssExportsRunbookName}.ps1')
   }
   {
     name: argAvailSetExportsRunbookName
-    version: '1.1.4.1'
+    version: '1.1.5.0'
     description: 'Exports Availability Set properties to Blob Storage using Azure Resource Graph'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${argAvailSetExportsRunbookName}.ps1')
   }
   {
     name: consumptionExportsRunbookName
-    version: '2.1.0.0'
+    version: '2.1.1.0'
     description: 'Exports Azure Consumption events to Blob Storage using Azure Consumption API'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${consumptionExportsRunbookName}.ps1')
   }
   {
     name: aadObjectsExportsRunbookName
-    version: '1.3.0.0'
+    version: '1.3.1.0'
     description: 'Exports Azure AAD Objects to Blob Storage using Azure ARM API'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${aadObjectsExportsRunbookName}.ps1')
   }
   {
     name: argLoadBalancersExportsRunbookName
-    version: '1.1.4.1'
+    version: '1.1.5.0'
     description: 'Exports Load Balancer properties to Blob Storage using Azure Resource Graph'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${argLoadBalancersExportsRunbookName}.ps1')
   }
   {
     name: argAppGWsExportsRunbookName
-    version: '1.1.4.1'
+    version: '1.1.5.0'
     description: 'Exports Application Gateway properties to Blob Storage using Azure Resource Graph'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${argAppGWsExportsRunbookName}.ps1')
   }
   {
     name: argResContainersExportsRunbookName
-    version: '1.0.5.1'
+    version: '1.0.6.0'
     description: 'Exports Resource Containers properties to Blob Storage using Azure Resource Graph'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${argResContainersExportsRunbookName}.ps1')
   }
   {
     name: rbacExportsRunbookName
-    version: '1.1.0.0'
+    version: '1.1.1.0'
     description: 'Exports RBAC assignments to Blob Storage using ARM and Microsoft Entra'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${rbacExportsRunbookName}.ps1')
   }
   {
     name: argNICExportsRunbookName
-    version: '1.0.2.1'
+    version: '1.0.3.0'
     description: 'Exports NIC properties to Blob Storage using Azure Resource Graph'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${argNICExportsRunbookName}.ps1')
   }
   {
     name: argNSGExportsRunbookName
-    version: '1.0.2.1'
+    version: '1.0.3.0'
     description: 'Exports NSG properties to Blob Storage using Azure Resource Graph'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${argNSGExportsRunbookName}.ps1')
   }
   {
     name: argPublicIpExportsRunbookName
-    version: '1.0.2.1'
+    version: '1.0.3.0'
     description: 'Exports Public IP properties to Blob Storage using Azure Resource Graph'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${argPublicIpExportsRunbookName}.ps1')
   }
   {
     name: argVNetExportsRunbookName
-    version: '1.0.2.1'
+    version: '1.0.3.0'
     description: 'Exports VNet properties to Blob Storage using Azure Resource Graph'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${argVNetExportsRunbookName}.ps1')
   }
   {
     name: argSqlDbExportsRunbookName
-    version: '1.0.2.1'
+    version: '1.0.3.0'
     description: 'Exports SQL DB properties to Blob Storage using Azure Resource Graph'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${argSqlDbExportsRunbookName}.ps1')
   }
   {
     name: policyStateExportsRunbookName
-    version: '1.0.3.1'
+    version: '1.0.4.0'
     description: 'Exports Azure Policy State to Blob Storage'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${policyStateExportsRunbookName}.ps1')
   }
   {
     name: monitorExportsRunbookName
-    version: '1.0.2.1'
+    version: '1.0.3.0'
     description: 'Exports Azure Monitor metrics to Blob Storage'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${monitorExportsRunbookName}.ps1')
   }
   {
     name: argAppServicePlanExportsRunbookName
-    version: '1.0.1.1'
+    version: '1.0.2.0'
     description: 'Exports App Service Plan properties to Blob Storage using Azure Resource Graph'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${argAppServicePlanExportsRunbookName}.ps1')
   }
   {
     name: reservationsExportsRunbookName
-    version: '1.1.2.1'
+    version: '1.1.3.0'
     description: 'Exports Reservations Usage to Blob Storage using the EA or MCA APIs'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${reservationsExportsRunbookName}.ps1')
   }
   {
     name: reservationsPriceExportsRunbookName
-    version: '1.0.1.1'
+    version: '1.0.2.0'
     description: 'Exports Reservations Prices to Blob Storage using the Retail Prices API'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${reservationsPriceExportsRunbookName}.ps1')
   }
   {
     name: priceSheetExportsRunbookName
-    version: '1.1.1.1'
+    version: '1.1.2.0'
     description: 'Exports Price Sheet to Blob Storage using the EA or MCA APIs'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${priceSheetExportsRunbookName}.ps1')
   }
   {
     name: savingsPlansExportsRunbookName
-    version: '1.0.0.0'
+    version: '1.0.1.0'
     description: 'Exports Savings Plans Usage to Blob Storage using the EA or MCA APIs'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${savingsPlansExportsRunbookName}.ps1')
   }
   {
     name: csvIngestRunbookName
-    version: '1.6.0.0'
+    version: '1.6.1.0'
     description: 'Ingests CSV blobs as custom logs to Log Analytics'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${csvIngestRunbookName}.ps1')
   }
   {
     name: unattachedDisksRecommendationsRunbookName
-    version: '2.5.0.0'
+    version: '2.5.1.0'
     description: 'Generates unattached disks recommendations'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${unattachedDisksRecommendationsRunbookName}.ps1')
   }
   {
     name: advisorCostAugmentedRecommendationsRunbookName
-    version: '2.10.0.0'
+    version: '2.10.1.0'
     description: 'Generates augmented Advisor Cost recommendations'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${advisorCostAugmentedRecommendationsRunbookName}.ps1')
   }
   {
     name: advisorAsIsRecommendationsRunbookName
-    version: '1.6.0.0'
+    version: '1.6.1.0'
     description: 'Generates all types of Advisor recommendations'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${advisorAsIsRecommendationsRunbookName}.ps1')
   }
   {
     name: vmsHARecommendationsRunbookName
-    version: '1.1.0.0'
+    version: '1.1.1.0'
     description: 'Generates VMs High Availability recommendations'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${vmsHARecommendationsRunbookName}.ps1')
   }
   {
     name: vmOptimizationsRecommendationsRunbookName
-    version: '1.1.0.0'
+    version: '1.1.1.0'
     description: 'Generates VM optimizations recommendations'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${vmOptimizationsRecommendationsRunbookName}.ps1')
   }
   {
     name: aadExpiringCredsRecommendationsRunbookName
-    version: '1.2.0.0'
+    version: '1.2.1.0'
     description: 'Generates AAD Objects with expiring credentials recommendations'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${aadExpiringCredsRecommendationsRunbookName}.ps1')
   }
   {
     name: unusedLBsRecommendationsRunbookName
-    version: '1.3.0.0'
+    version: '1.3.1.0'
     description: 'Generates unused Load Balancers recommendations'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${unusedLBsRecommendationsRunbookName}.ps1')
   }
   {
     name: unusedAppGWsRecommendationsRunbookName
-    version: '1.3.0.0'
+    version: '1.3.1.0'
     description: 'Generates unused Application Gateways recommendations'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${unusedAppGWsRecommendationsRunbookName}.ps1')
   }
   {
     name: armOptimizationsRecommendationsRunbookName
-    version: '1.1.0.0'
+    version: '1.1.1.0'
     description: 'Generates ARM optimizations recommendations'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${armOptimizationsRecommendationsRunbookName}.ps1')
   }
   {
     name: vnetOptimizationsRecommendationsRunbookName
-    version: '1.1.0.0'
+    version: '1.1.1.0'
     description: 'Generates Virtual Network optimizations recommendations'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${vnetOptimizationsRecommendationsRunbookName}.ps1')
   }
   {
     name: vmssOptimizationsRecommendationsRunbookName
-    version: '1.2.0.0'
+    version: '1.2.1.0'
     description: 'Generates VM Scale Set optimizations recommendations'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${vmssOptimizationsRecommendationsRunbookName}.ps1')
   }
   {
     name: sqldbOptimizationsRecommendationsRunbookName
-    version: '1.2.0.0'
+    version: '1.2.1.0'
     description: 'Generates SQL DB optimizations recommendations'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${sqldbOptimizationsRecommendationsRunbookName}.ps1')
   }
   {
     name: storageOptimizationsRecommendationsRunbookName
-    version: '1.1.0.0'
+    version: '1.1.1.0'
     description: 'Generates Storage Account optimizations recommendations'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${storageOptimizationsRecommendationsRunbookName}.ps1')
   }
   {
     name: appServiceOptimizationsRecommendationsRunbookName
-    version: '1.1.0.0'
+    version: '1.1.1.0'
     description: 'Generates App Service optimizations recommendations'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${appServiceOptimizationsRecommendationsRunbookName}.ps1')
   }
   {
     name: diskOptimizationsRecommendationsRunbookName
-    version: '1.2.0.0'
+    version: '1.2.1.0'
     description: 'Generates Disk optimizations recommendations'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${diskOptimizationsRecommendationsRunbookName}.ps1')
   }
   {
     name: recommendationsIngestRunbookName
-    version: '1.7.0.0'
+    version: '1.7.1.0'
     description: 'Ingests JSON-based recommendations into an Azure SQL Database'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${recommendationsIngestRunbookName}.ps1')
   }
   {
     name: recommendationsLogAnalyticsIngestRunbookName
-    version: '1.1.0.0'
+    version: '1.1.1.0'
     description: 'Ingests JSON-based recommendations into Log Analytics'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/recommendations/${recommendationsLogAnalyticsIngestRunbookName}.ps1')
@@ -1208,21 +1208,21 @@ var runbooks = [
   }
   {
     name: advisorRightSizeFilteredRemediationRunbookName
-    version: '1.3.0.0'
+    version: '1.3.1.0'
     description: 'Remediates Azure Advisor right-size recommendations given fit and tag filters'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/remediations/${advisorRightSizeFilteredRemediationRunbookName}.ps1')
   }
   {
     name: longDeallocatedVMsFilteredRemediationRunbookName
-    version: '1.1.0.0'
+    version: '1.1.1.0'
     description: 'Remediates long-deallocated VMs recommendations given fit and tag filters'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/remediations/${longDeallocatedVMsFilteredRemediationRunbookName}.ps1')
   }
   {
     name: unattachedDisksFilteredRemediationRunbookName
-    version: '1.1.0.0'
+    version: '1.1.1.0'
     description: 'Remediates unattached disks recommendations given fit and tag filters'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/remediations/${unattachedDisksFilteredRemediationRunbookName}.ps1')
@@ -1250,16 +1250,6 @@ var automationVariables = [
     name: 'AzureOptimization_StorageSink'
     description: 'The Azure Storage Account where data source exports are dumped to'
     value: '"${storageAccountName}"'
-  }
-  {
-    name: 'AzureOptimization_StorageSinkRG'
-    description: 'The resource group for the Azure Storage Account sink'
-    value: '"${resourceGroup().name}"'
-  }
-  {
-    name: 'AzureOptimization_StorageSinkSubId'
-    description: 'The subscription Id for the Azure Storage Account sink'
-    value: '"${subscription().subscriptionId}"'
   }
   {
     name: 'AzureOptimization_ConsumptionOffsetDays'
