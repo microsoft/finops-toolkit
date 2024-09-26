@@ -22,6 +22,9 @@
     .PARAMETER KeepStorageAccount
     Optional. Indicates that the storage account associated with the FinOps Hub should be retained.
 
+    .PARAMETER Force
+    Optional. Deletes specified resources without asking for a confirmation.
+
     .EXAMPLE
     Remove-FinOpsHub -Name MyHub -ResourceGroupName MyRG -KeepStorageAccount
 
@@ -100,6 +103,13 @@ function Remove-FinOpsHub
 
         Write-Verbose -Message "Resources to be deleted: $($resources | ForEach-Object { $_.Name })"
 
+        # Temporarily set $ConfirmPreference to None if -Force is specified
+        if ($Force)
+        {
+            $originalConfirmPreference = $ConfirmPreference
+            $ConfirmPreference = 'None'
+        }
+
         if ($PSCmdlet.ShouldProcess($Name, 'DeleteFinOpsHub'))
         {
             $success = $true
@@ -115,6 +125,12 @@ function Remove-FinOpsHub
                     Write-Error -Message "Failed to delete resource: $($resource.Name). Error: $_"
                     $success = $false
                 }
+            }
+
+            # Restore the original $ConfirmPreference
+            if ($Force)
+            {
+                $ConfirmPreference = $originalConfirmPreference
             }
 
             return $success

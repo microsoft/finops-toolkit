@@ -85,23 +85,25 @@ Describe 'Hubs' {
 
         Context 'Deploy and remove' {
             It 'Should deploy and remove a FinOps hubs instance' {
-                Monitor "Deploying..." {
-                    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '', Scope = 'Function', Target = '*')]
-                    $script:deployResult = Deploy-FinOpsHub `
-                        -Name $ftk_HubName `
-                        -Location $ftk_HubLocation `
-                        -ResourceGroupName $ftk_HubRG
-                    Report -Object ($script:deployResult ?? '(null)')
-                }
+                Monitor "Deploying latest" -Indent '   ' {
+                    Monitor "Deploying..." {
+                        [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', '', Scope = 'Function', Target = '*')]
+                        $script:deployResult = Deploy-FinOpsHub `
+                            -Name $ftk_HubName `
+                            -Location $ftk_HubLocation `
+                            -ResourceGroupName $ftk_HubRG
+                        Report -Object ($script:deployResult ?? '(null)')
+                    }
 
-                Monitor 'Getting instance...' {
-                    $script:getResult = Get-FinOpsHub -Name $ftk_HubName -ResourceGroupName $ftk_HubRG
-                    Report -Object ($script:getResult ?? '(null)')
-                }
+                    Monitor 'Getting instance...' {
+                        $script:getResult = Get-FinOpsHub -Name $ftk_HubName -ResourceGroupName $ftk_HubRG
+                        Report -Object ($script:getResult ?? '(null)')
+                    }
 
-                Monitor 'Removing instance...' {
-                    $script:removeaResult = Remove-FinOpsHub -Name $ftk_HubName -ResourceGroupName $ftk_HubRG -Force
-                    Report -Object ($script:removeResult ?? '(null)')
+                    Monitor 'Removing instance...' {
+                        $script:removeaResult = Remove-FinOpsHub -Name $ftk_HubName -ResourceGroupName $ftk_HubRG -Force
+                        Report -Object ($script:removeResult ?? '(null)')
+                    }
                 }
             }
         }
