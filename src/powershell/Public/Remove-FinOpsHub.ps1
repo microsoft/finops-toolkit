@@ -28,7 +28,8 @@
     Deletes a FinOps Hub named MyHub and deletes all associated resources except the storage account.
 #>
 
-function Remove-FinOpsHub {
+function Remove-FinOpsHub
+{
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
     param (
         [Parameter(Mandatory = $true, ParameterSetName = 'Name')]
@@ -52,25 +53,34 @@ function Remove-FinOpsHub {
     )
 
     $context = Get-AzContext
-    if (-not $context) {
+    if (-not $context)
+    {
         throw $script:LocalizedData.Common_ContextNotFound
     }
 
-    try {
-        if ($PSCmdlet.ParameterSetName -eq 'Name') {
-            if (-not [string]::IsNullOrEmpty($ResourceGroupName)) {
+    try
+    {
+        if ($PSCmdlet.ParameterSetName -eq 'Name')
+        {
+            if (-not [string]::IsNullOrEmpty($ResourceGroupName))
+            {
                 $hub = Get-FinOpsHub -Name $Name -ResourceGroupName $ResourceGroupName
-            } else {
+            }
+            else
+            {
                 $hub = Get-FinOpsHub -Name $Name
                 $ResourceGroupName = $hub.Resources[0].ResourceGroupName
             }
-        } else {
+        }
+        else
+        {
             $hub = $InputObject
             $Name = $hub.Name
             $ResourceGroupName = $hub.Resources[0].ResourceGroupName
         }
 
-        if (-not $hub) {
+        if (-not $hub)
+        {
             throw $script:LocalizedData.Hub_Remove_NotFound -f $Name
         }
 
@@ -79,23 +89,29 @@ function Remove-FinOpsHub {
         $uniqueId = Get-HubIdentifier -Collection $hub.Resources.Name
         
         $resources = Get-AzResource -ResourceGroupName $ResourceGroupName |
-            Where-Object -FilterScript { $_.Name -like "*$uniqueId*" -and ((-not $KeepStorageAccount) -or $_.ResourceType -ne "Microsoft.Storage/storageAccounts") }
-            Write-Verbose -Message "Filtered Resources: $($resources | ForEach-Object { $_.Name })"
+        Where-Object -FilterScript { $_.Name -like "*$uniqueId*" -and ((-not $KeepStorageAccount) -or $_.ResourceType -ne "Microsoft.Storage/storageAccounts") }
+        Write-Verbose -Message "Filtered Resources: $($resources | ForEach-Object { $_.Name })"
 
-        if ($null -eq $resources) {
+        if ($null -eq $resources)
+        {
             Write-Warning "No resources found to delete."
             return $false
         }
 
         Write-Verbose -Message "Resources to be deleted: $($resources | ForEach-Object { $_.Name })"
 
-        if ($PSCmdlet.ShouldProcess($Name, 'DeleteFinOpsHub')) {
+        if ($PSCmdlet.ShouldProcess($Name, 'DeleteFinOpsHub'))
+        {
             $success = $true
-            foreach ($resource in $resources) {
-                try {
+            foreach ($resource in $resources)
+            {
+                try
+                {
                     Write-Verbose -Message "Deleting resource: $($resource.Name)"
                     Remove-AzResource -ResourceId $resource.ResourceId -Force:$Force -ErrorAction Stop
-                } catch {
+                }
+                catch
+                {
                     Write-Error -Message "Failed to delete resource: $($resource.Name). Error: $_"
                     $success = $false
                 }
@@ -103,11 +119,16 @@ function Remove-FinOpsHub {
 
             return $success
         }
-    } catch {
+    }
+    catch
+    {
         Write-Error -Message "Failed to remove FinOps hub. Error: $_"
-        if ($_.Exception.InnerException) {
+        if ($_.Exception.InnerException)
+        {
             throw "Detailed Error: $($_.Exception.InnerException.Message)"
-        } else {
+        }
+        else
+        {
             throw "Detailed Error: $($_.Exception.Message)"
         }
     }

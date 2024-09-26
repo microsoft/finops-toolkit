@@ -24,16 +24,20 @@ function Get-HubIdentifier
     $idPattern = '[a-z0-9]{13}'  # Matches exactly 13 alphanumeric characters
     $substrings = @()
 
-    foreach ($string in $Collection) {
+    foreach ($string in $Collection)
+    {
         # Use regex to find valid 13-character matches
         $match = [regex]::Matches($string, $idPattern)
-        if ($match.Count -gt 0) {
+        if ($match.Count -gt 0)
+        {
             $substrings += $match | ForEach-Object { $_.Value }
         }
 
         # Generate all possible substrings
-        for ($startIndex = 0; $startIndex -lt $string.Length; $startIndex++) {
-            for ($endIndex = 1; $endIndex -le ($string.Length - $startIndex); $endIndex++) {
+        for ($startIndex = 0; $startIndex -lt $string.Length; $startIndex++)
+        {
+            for ($endIndex = 1; $endIndex -le ($string.Length - $startIndex); $endIndex++)
+            {
                 $substrings += $string.Substring($startIndex, $endIndex).ToLower()
             }
         }
