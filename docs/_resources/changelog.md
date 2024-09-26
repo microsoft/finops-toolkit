@@ -100,7 +100,7 @@ Legend:
 
 > ✏️ Changed:
 >
-> 1. Improved Storage Account access security, replacing key-based authentication by Entra ID authentication.
+> 1. Replaced storage account key-based authentication with Entra ID authentication for improved security.
 >
 
 🖥️ PowerShell
