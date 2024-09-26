@@ -6,6 +6,7 @@
     "ms-azuretools.vscode-bicep",
     "yzhang.markdown-all-in-one",
     "bierner.markdown-mermaid",
-    "powerquery.vscode-powerquery"
+    "powerquery.vscode-powerquery",
+    "ms-vscode.powershell"
   ]
 }
