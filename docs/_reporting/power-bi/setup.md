@@ -67,7 +67,7 @@ The FinOps toolkit Power BI reports include pre-configured visuals, but are not 
    4. Append the container and export path, if applicable.
 3. Change **RangeStart** and **RangeEnd** to the desired start/end dates for your report. The default is the current calendar year. Consider using your fiscal year.
      <blockquote class="warning" markdown="1">
-       _[Enable incremental refresh](https://learn.microsoft.com/power-bi/connect-data/incremental-refresh-configure#define-policy) to load more than $5M of raw cost details. Power BI reports can only support $2-5M of data when incremental refresh is not enabled. After incremental refresh is enabled, they can support $2-5M/month for a total of ~$65M in raw cost details._
+       <a href="https://learn.microsoft.com/power-bi/connect-data/incremental-refresh-configure#define-policy">Enable incremental refresh</a> to load more than $5M of raw cost details. Power BI reports can only support $2-5M of data when incremental refresh is not enabled. After incremental refresh is enabled, they can support $2-5M/month for a total of ~$65M in raw cost details.
      </blockquote>
 4. Select **Close & Apply** to save your settings.
 
