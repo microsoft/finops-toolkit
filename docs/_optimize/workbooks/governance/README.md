@@ -4,7 +4,7 @@ title: Governance workbook
 has_children: true
 nav_order: 2
 description: 'Azure Monitor workbook focused on governance.'
-permalink: /governance-workbook
+permalink: /workbooks/governance
 ---
 
 <span class="fs-9 d-block mb-4">Governance workbook</span>

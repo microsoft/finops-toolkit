@@ -309,7 +309,7 @@ table Prices
 
 	partition Prices = m
 		mode: import
-		queryGroup: 'FinOps toolkit'
+		queryGroup: Storage
 		source = ```
 				let
 				    // Get the data
