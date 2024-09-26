@@ -98,6 +98,10 @@ Legend:
 🔍 Optimization engine
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
+> ➕ Added:
+>
+> 1. Troubleshooting documentation page with the most common deployment and runtime issues and respective solutions or troubleshooting steps.
+>
 > ✏️ Changed:
 >
 > 1. Replaced storage account key-based authentication with Entra ID authentication for improved security.
