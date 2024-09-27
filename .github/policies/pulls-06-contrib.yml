@@ -38,6 +38,8 @@ configuration:
                 - isActivitySender:
                     user: helderpinto
                 - isActivitySender:
+                    user: ivanmtta
+                - isActivitySender:
                     user: msbrett
                 - isActivitySender:
                     user: springstone
