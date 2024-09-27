@@ -96,6 +96,9 @@ There are many ways to participate. From reporting bugs and requesting features 
       <td align="center" valign="top" width="16.66%"><a href="https://www.da5is.com"><img src="https://avatars.githubusercontent.com/u/5679212?v=4?s=100" width="100px;" alt="Matt Davis"/><br /><sub><b>Matt Davis</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/issues?q=author%3Ada5is" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://bento.me/souravbera"><img src="https://avatars.githubusercontent.com/u/53810519?v=4?s=100" width="100px;" alt="Sourav Bera"/><br /><sub><b>Sourav Bera</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=Zeo-shark" title="Documentation">📖</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://ivanmota.dev/"><img src="https://avatars.githubusercontent.com/u/39202628?v=4?s=100" width="100px;" alt="Ivan Mota"/><br /><sub><b>Ivan Mota</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/pulls?q=is%3Apr+reviewed-by%3AIvanmtta" title="Reviewed Pull Requests">👀</a></td>
+    </tr>
   </tbody>
 </table>
 
