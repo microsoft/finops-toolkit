@@ -1,5 +1,5 @@
 /// Name of the Azure DataLake Gen2 storage account to pull data from.
-expression 'Hub Storage URL' = "https://ftkmicfland5pd7gdo37oozc.dfs.core.windows.net/ingestion" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
+expression 'Hub Storage URL' = "https://hubbuiqpjajexjme.dfs.core.windows.net/ingestion" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
 	lineageTag: 421c1232-0e40-45a4-bc59-257ce648478c
 	queryGroup: '🛠️ Setup'
 
@@ -17,15 +17,6 @@ expression RangeStart = null meta [IsParameterQuery=true, Type="DateTime", IsPar
 
 expression RangeEnd = null meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=false]
 	lineageTag: 695f1d3b-7b1a-49fa-8d83-f2c25dc787de
-	queryGroup: '🛠️ Setup'
-
-	annotation PBI_ResultType = Exception
-
-	annotation PBI_NavigationStepName = Navigation
-
-/// Optional. Number of months to include in the report before the RangeEnd date. Ignored if RangeStart is specified. Default: (all available data).
-expression 'Number of Months' = null meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=false]
-	lineageTag: 1d47668d-4de6-404c-8e53-f89a35081e8b
 	queryGroup: '🛠️ Setup'
 
 	annotation PBI_ResultType = Exception
@@ -52,8 +43,27 @@ expression ftk_Storage = ```
 		    HubStorage = if hubUrl = null or hubUrl = "" then null else (
 		        try let
 		            DataStore = AzureStorage.DataLake(hubUrl),
-		            FilterHub = Table.SelectRows(DataStore, each [Attributes]?[Hidden]? <> true and [Extension] = ".parquet" and data = Text.Lower(List.Last(List.RemoveLastN(Text.Split([Folder Path],"/"), 1)))),
-		            HubMonth  = Table.AddColumn(FilterHub, "StartDate", each _toMonth(List.Last(List.RemoveLastN(List.RemoveLastN(Text.Split([Folder Path],"/"), 1), 1))), type date)
+		            FilterHub = Table.SelectRows(
+		                DataStore, 
+		                each [Attributes]?[Hidden]? <> true
+		                    and [Extension] = ".parquet"
+		                    and (
+		                        data = Text.Lower(List.Last(List.RemoveLastN(Text.Split([Folder Path],"/"), 1))) // Supports 0.2-0.5 folder structure: {scope}/{yyyyMM}/{dataset}
+		                        or data = Text.Lower(Text.Split([Folder Path],"/"){4}) // Supports 0.6+ folder structure: {dataset}/{yyyy}/{MM}/{scope}
+		                    )
+		            ),
+		            HubMonth  = Table.AddColumn(
+		                FilterHub,
+		                "StartDate",
+		                each try
+		                    // Supports 0.6+ folder structure: {dataset}/{yyyy}/{MM}/{scope}
+		                    if Text.Length(Text.Split([Folder Path],"/"){5}) = 4 and Text.Length(Text.Split([Folder Path],"/"){6}) = 2 then
+		                        _toMonth(Text.Split([Folder Path],"/"){5} & Text.Split([Folder Path],"/"){6})
+		                    // Supports 0.2-0.5 folder structure: {scope}/{yyyyMM}/{dataset}
+		                    else  _toMonth(List.Last(List.RemoveLastN(List.RemoveLastN(Text.Split([Folder Path],"/"), 1), 1)))
+		                otherwise _toMonth(List.Last(List.RemoveLastN(List.RemoveLastN(Text.Split([Folder Path],"/"), 1), 1))),
+		                type date
+		            )
 		        in HubMonth otherwise null
 		    ),
 		    IsHub = (HubStorage = null or Table.RowCount(HubStorage) = 0) = false,
@@ -90,7 +100,7 @@ expression ftk_Storage = ```
 		    Source = if IsHub then HubStorage else ExpStorage,
 		
 		    // NOTE: Do not convert to UTC - UTC dates can show as the previous month based on the local timezone
-		    _toMonth    = (s) => Date.FromText(Text.Range(s, 0, 4) & "-" & Text.Range(s, 4, 2) & "-01"),
+		    _toMonth = (s) => Date.FromText(Text.Range(s, 0, 4) & "-" & Text.Range(s, 4, 2) & "-01"),
 		
 		    // Only process files for months within the date range
 		    FilterFilesByDate =
@@ -114,7 +124,7 @@ expression ftk_Storage = ```
 		        in
 		            columnRenames
 		    ,
-		    ReadContent = Table.SelectRows(
+		    ReadContent = if FilterFilesByDate = null then null else Table.SelectRows(
 		        Table.SelectColumns(
 		            Table.AddColumn(FilterFilesByDate, "Data",
 		                each if [Extension] = ".parquet" then Parquet.Document([Content]) 
@@ -127,7 +137,7 @@ expression ftk_Storage = ```
 		        each Table.RowCount([Data]) > 0
 		    ),
 		    ExtractColumns =
-		        if Table.RowCount(ReadContent) > 0 then
+		        if ReadContent <> null and Table.RowCount(ReadContent) > 0 then
 		            Table.ExpandTableColumn(ReadContent, "Data", List.Distinct(List.Combine(List.Transform(ReadContent[Data], each Table.ColumnNames(_)))))
 		        else if data = "focuscost" then
 		            #table(
@@ -396,8 +406,17 @@ expression ftk_ParseResourceType = (id) => ftk_ParseResourceId(id, false)
 	annotation PBI_ResultType = Function
 
 /// Name of the Azure DataLake Gen2 storage account to pull data from.
-expression 'Export Storage URL' = "https://ftkmicfland5pd7gdo37oozc.dfs.core.windows.net/raw-exports" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
+expression 'Export Storage URL' = null meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
 	lineageTag: 2d38b78a-1e1f-4446-b513-d842ba0bdfef
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Text
+
+/// Optional. Number of months to include in the report before the RangeEnd date. Ignored if RangeStart is specified. Default: (all available data).
+expression 'Number of Months' = null meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=false]
+	lineageTag: 1d47668d-4de6-404c-8e53-f89a35081e8b
 	queryGroup: '🛠️ Setup'
 
 	annotation PBI_NavigationStepName = Navigation
