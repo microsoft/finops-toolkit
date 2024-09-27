@@ -100,7 +100,7 @@ Legend:
 
 > ➕ Added:
 >
-> 1. Troubleshooting documentation page with the most common deployment and runtime issues and respective solutions or troubleshooting steps.
+> 1. [Troubleshooting documentation page](../_optimize/optimization-engine/troubleshooting.md) with the most common deployment and runtime issues and respective solutions or troubleshooting steps.
 >
 > ✏️ Changed:
 >
