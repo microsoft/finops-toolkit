@@ -67,8 +67,13 @@ Legend:
 > ✏️ Changed:
 >
 > 1. Managed Exports - Use parquet format when creating Cost Management exports.
-> 2. Power BI - Improve import performance by use parquet metadata to filter files by date (if configured)
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> 🛠️ Fixed:
 >
+> - General
+>   1. Improved import performance by using parquet metadata to filter files by date (if configured)
 
 🦾 Bicep modules
 {: .fs-5 .fw-500 .mt-4 mb-0 }
