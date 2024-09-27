@@ -44,7 +44,7 @@ The Azure Optimization Engine (AOE) was initially developed to augment Virtual M
 Besides collecting **all Azure Advisor recommendations**, AOE includes other custom recommendations that you can tailor to your needs, such as:
 
 * 💰 Cost
-    * Augmented Advisor VM right-sizing cost recommendations, with fit score based on virtual machine guest OS metrics (collected by Log Analytics or Azure Monitor agents) and Azure properties
+    * Augmented Advisor VM right-sizing cost recommendations, with fit score based on virtual machine guest OS metrics (collected by Azure Monitor agents) and Azure properties
     * Underutilized VM scale sets, premium SSD disks, App Service plans, and Azure SQL databases (DTU-based SKUs only)
     * Orphaned disks and public IPs
     * Standard load balancers or application gateways without backend pool

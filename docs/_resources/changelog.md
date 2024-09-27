@@ -98,10 +98,19 @@ Legend:
 🔍 Optimization engine
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
+> ➕ Added:
+>
+> 1. [Troubleshooting documentation page](../_optimize/optimization-engine/troubleshooting.md) with the most common deployment and runtime issues and respective solutions or troubleshooting steps.
+>
 > ✏️ Changed:
 >
 > 1. Replaced storage account key-based authentication with Entra ID authentication for improved security.
 >
+> 🚫 Deprecated:
+>
+> 1. With the deprecation of the legacy Log Analytics agent in August 31, the `Setup-LogAnalyticsWorkspaces` script is no longer being maintained and will be removed in a future update.
+>    - The script was used to setup performance counters collection for machines connected to Log Analytics workspaces with the legacy agent. 
+>    - We recommend migrating to the [Azure Monitor Agent](https://learn.microsoft.com/azure/azure-monitor/agents/azure-monitor-agent-migration) and use the `Setup-DataCollectionRules` script to [setup performance counters collection with Data Collection Rules](https://aka.ms/AzureOptimizationEngine/workspaces).
 
 🖥️ PowerShell
 {: .fs-5 .fw-500 .mt-4 mb-0 }
