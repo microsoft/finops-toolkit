@@ -114,6 +114,6 @@ Decide whether you will connect to storage using a user or service principal acc
 
 ### Step 3: Confirm RangeStart/RangeEnd dates
 
-1. If the Power BI report does not include data in specific date ranges then it is very likely the data is being filtered. To check the RangeStart/RangeEnd parameter navigate to the transform data page of the Power BI report and change RangeStart and RangeEnd to the desired start/end dates for your report. See [Set up your first report](../_reporting/power-bi/setup.md) for details.
+1. If the Power BI report does not include data outside of RangeStart/RangeEnd date ranges then it is very likely the data is being filtered. To check the RangeStart/RangeEnd parameter navigate to the transform data page of the Power BI report and change RangeStart and RangeEnd to the desired start/end dates for your report. See [Set up your first report](../_reporting/power-bi/setup.md) for details.
 
 <br>
