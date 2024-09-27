@@ -377,6 +377,10 @@ Once you know, verify the **FileType** parameter is set to `.parquet` or `.gz` i
 
 If you're using another tool, ensure it supports the file type you're using.
 
+### Power BI: Reports are not showing data in desired dates
+
+If the Power BI report does not discover data that was exported to your storage account you should to check the RangeStart/RangeEnd parameters to ensure the data is not being filtered Navigate to the transform data page of the Power BI report and change RangeStart and RangeEnd to the desired start/end dates for your report. See [Set up your first report](../_reporting/power-bi/setup.md) for details.
+
 <br>
 
 ## Power BI: The remote name could not be resolved: '\<storage-account>.dfs.core.windows.net'
