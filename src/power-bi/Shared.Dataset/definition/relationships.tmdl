@@ -77,6 +77,54 @@ relationship AutoDetected_60477dee-0609-4d6d-84a1-ba0cb2c9aec2
 	fromColumn: StorageErrors.Scope
 	toColumn: HubScopes.Scope
 
+relationship 25c21746-645d-4738-8523-f62a1880d490
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Prices.ChargePeriodEnd
+	toColumn: LocalDateTable_f74f3434-c614-4ef8-9110-25376bc17725.Date
+
+relationship 867fc478-e9a8-4e2e-93b5-1be69284a7f6
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Prices.ChargePeriodStart
+	toColumn: LocalDateTable_da3df616-7d6a-4fe9-b564-c8f691e0b780.Date
+
+relationship 2e118938-22b8-40ee-84f3-819272e3bfa5
+	joinOnDateBehavior: datePartOnly
+	fromColumn: ReservationDetails.ChargePeriodStart
+	toColumn: LocalDateTable_8cbc1d31-9ec3-4e02-882c-cfa406c8e78e.Date
+
+relationship 9d6fc6d4-2fc9-4af9-a5e5-089dabed3a55
+	joinOnDateBehavior: datePartOnly
+	fromColumn: ReservationTransactions.BillingPeriodStart
+	toColumn: LocalDateTable_d40b7430-e260-4066-92b8-6bd87adf1ac2.Date
+
+relationship c758d0e0-0e27-427c-af49-d85470ffe0b8
+	joinOnDateBehavior: datePartOnly
+	fromColumn: ReservationTransactions.ChargePeriodStart
+	toColumn: LocalDateTable_eb23340c-7bc4-423a-8368-7d88e0455c14.Date
+
+relationship 3a2e37de-fb8c-4cd9-a96b-690afad3d70f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: ReservationRecomendations.ChargePeriodStart
+	toColumn: LocalDateTable_5399b385-fafe-40a7-b043-5cbb2b2bf725.Date
+
+relationship 16f8655d-027a-3c5b-5b0c-afe528c03d59
+	isActive: false
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: ReservationRecomendations.x_CommitmentDiscountKeyNormalized
+	toColumn: InstanceSizeFlexibility.x_CommitmentDiscountKeyNormalized
+
+relationship 59d51fbf-fd6f-a956-d7cb-3f19e7e25394
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: ReservationRecomendations.x_CommitmentDiscountKey
+	toColumn: InstanceSizeFlexibility.x_CommitmentDiscountKeyNormalized
+
+relationship 61063fb0-0ac4-420c-89e2-9240625a4b80
+	joinOnDateBehavior: datePartOnly
+	fromColumn: StorageData.Updated
+	toColumn: LocalDateTable_501171be-aa02-401b-9e82-2bf6f16d7de3.Date
+
 relationship 7a16ece6-1879-4888-ae90-4c8821eb8dd3
 	joinOnDateBehavior: datePartOnly
 	fromColumn: AdvisorRecommendations.'properties.extendedProperties.ObservationPeriodStartDate'
@@ -206,54 +254,6 @@ relationship 923fe473-f344-7b97-3b8a-c6b009d13973
 	crossFilteringBehavior: bothDirections
 	fromColumn: PolicyStates.'properties.policyAssignmentId'
 	toColumn: 'Compliance calculation'.id
-
-relationship 25c21746-645d-4738-8523-f62a1880d490
-	joinOnDateBehavior: datePartOnly
-	fromColumn: Prices.ChargePeriodEnd
-	toColumn: LocalDateTable_f74f3434-c614-4ef8-9110-25376bc17725.Date
-
-relationship 867fc478-e9a8-4e2e-93b5-1be69284a7f6
-	joinOnDateBehavior: datePartOnly
-	fromColumn: Prices.ChargePeriodStart
-	toColumn: LocalDateTable_da3df616-7d6a-4fe9-b564-c8f691e0b780.Date
-
-relationship 2e118938-22b8-40ee-84f3-819272e3bfa5
-	joinOnDateBehavior: datePartOnly
-	fromColumn: ReservationDetails.ChargePeriodStart
-	toColumn: LocalDateTable_8cbc1d31-9ec3-4e02-882c-cfa406c8e78e.Date
-
-relationship 9d6fc6d4-2fc9-4af9-a5e5-089dabed3a55
-	joinOnDateBehavior: datePartOnly
-	fromColumn: ReservationTransactions.BillingPeriodStart
-	toColumn: LocalDateTable_d40b7430-e260-4066-92b8-6bd87adf1ac2.Date
-
-relationship c758d0e0-0e27-427c-af49-d85470ffe0b8
-	joinOnDateBehavior: datePartOnly
-	fromColumn: ReservationTransactions.ChargePeriodStart
-	toColumn: LocalDateTable_eb23340c-7bc4-423a-8368-7d88e0455c14.Date
-
-relationship 3a2e37de-fb8c-4cd9-a96b-690afad3d70f
-	joinOnDateBehavior: datePartOnly
-	fromColumn: ReservationRecomendations.ChargePeriodStart
-	toColumn: LocalDateTable_5399b385-fafe-40a7-b043-5cbb2b2bf725.Date
-
-relationship 16f8655d-027a-3c5b-5b0c-afe528c03d59
-	isActive: false
-	crossFilteringBehavior: bothDirections
-	toCardinality: many
-	fromColumn: ReservationRecomendations.x_CommitmentDiscountKeyNormalized
-	toColumn: InstanceSizeFlexibility.x_CommitmentDiscountKeyNormalized
-
-relationship 59d51fbf-fd6f-a956-d7cb-3f19e7e25394
-	crossFilteringBehavior: bothDirections
-	toCardinality: many
-	fromColumn: ReservationRecomendations.x_CommitmentDiscountKey
-	toColumn: InstanceSizeFlexibility.x_CommitmentDiscountKeyNormalized
-
-relationship 61063fb0-0ac4-420c-89e2-9240625a4b80
-	joinOnDateBehavior: datePartOnly
-	fromColumn: StorageData.Updated
-	toColumn: LocalDateTable_501171be-aa02-401b-9e82-2bf6f16d7de3.Date
 
 relationship 615d9a08-4782-4725-fe93-913b691cb2f3
 	fromColumn: CostDetails.ResourceId
