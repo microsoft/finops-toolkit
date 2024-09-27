@@ -7,7 +7,7 @@ expression 'Hub Storage URL' = "https://ftkmicfland5pd7gdo37oozc.dfs.core.window
 
 	annotation PBI_NavigationStepName = Navigation
 
-expression RangeStart = #datetime(2024, 9, 1, 0, 0, 0) meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=false]
+expression RangeStart = null meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=false]
 	lineageTag: 90085870-f708-4bc2-90c1-3a343e88a26b
 	queryGroup: '🛠️ Setup'
 
