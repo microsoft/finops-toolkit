@@ -164,6 +164,21 @@ Legend:
 
 <br>
 
+## 🚚 v0.6
+
+<sup>To be released October 1, 2024</sup>
+
+📗 FinOps guide
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Documented [how to use storage account SAS tokens to setup the reports](../docs/_reporting/power-bi/setup.md).
+> 2. Documented how to [preview reports with sample data using Power BI Desktop](../docs/_reporting/hubs/README.md).
+>
+
+<br>
+
 ## 🪛 v0.5 Update 1
 
 <sup>Released September 7, 2024</sup>

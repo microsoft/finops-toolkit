@@ -18,6 +18,7 @@ Publish new Power BI reports based on FinOps toolkit starter kits, extend them t
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [➕ Setup your first report](#-setup-your-first-report)
+- [🔑 Use a SAS token to connect data to a report](#-use-a-sas-token-to-connect-data-to-a-report)
 - [📋 Copy queries from a toolkit report](#-copy-queries-from-a-toolkit-report)
 - [🛠️ Connect manually](#️-connect-manually)
 - [🚚 Migrate from the Cost Management template app](#-migrate-from-the-cost-management-template-app)
@@ -70,13 +71,44 @@ The FinOps toolkit Power BI reports include pre-configured visuals, but are not 
    - Set **RangeStart** and **RangeEnd** to specific start/end dates if you do not want the dates to move (e.g., fiscal year reporting).
    - Do not set any date parameters to report on all data in storage.
    <blockquote class="warning" markdown="1">
-      _[Enable incremental refresh](https://learn.microsoft.com/power-bi/connect-data/incremental-refresh-configure#define-policy) to load more than $5M of raw cost details. Power BI reports can only support $2-5M of data when incremental refresh is not enabled. After incremental refresh is enabled, they can support $2-5M/month for a total of ~$65M in raw cost details._
+      _<a href="https://learn.microsoft.com/power-bi/connect-data/incremental-refresh-configure#define-policy">Enable incremental refresh</a> to load more than $5M of raw cost details. Power BI reports can only support $2-5M of data when incremental refresh is not enabled. After incremental refresh is enabled, they can support $2-5M/month for a total of ~$65M in raw cost details._
    </blockquote>
-7. Select the **Close & Apply** to save your settings.
+7. Select **Close & Apply** to save your settings.
 
 If you run into any issues syncing your data, see [Troubleshooting Power BI reports](../../_resources/troubleshooting.md).
 
 <br>
+
+ ## 🔑 Use a SAS token to connect data to a report
+
+Shared Access Signature (SAS) tokens allow you to connect to a storage account without end user credentials or setting up a service principal. To connect Power BI reports to your data via SAS tokens:
+
+1. Generate the SAS token with required permissions:
+   - Navigate the FinOps hub storage account in the Azure portal.
+   - Select **Security + Networking** > **Shared access signature** in the menu on the left.
+   - Under **Allowed resource types**, select `Container` and `Object`.
+   - Under **Allowed permissions**, select **Read, List**.
+   - Provide the start and expiration date range as desired.
+   - Keep the remaining default values or update as desired.
+   - Select the **Generate SAS token and URL** button.
+   - Copy the generated token.
+
+  ![Screenshot of the SAS token configuration in the Azure portal](../../assets/images/hubs/azure-storage-account-SAS.png)
+
+2. Configure SAS token access in Power BI:
+   - Open the report in Power BI Desktop.
+   - Select **Transform data** > **Data Source Settings** in the ribbon.
+   - Select **Edit permissions** at the bottom of the dialog.
+   - Select **Edit** below the credentials.
+
+  ![Screenshot of the data source settings within Transform data](../../assets/images/hubs/powerbi-dashboard-SAS-setup.png)
+
+   - Select the **Shared access signature** tab.
+   - Paste the copied SAS token from the Azure portal.
+   - Select **Save**.
+   - Select **Close**.
+   - Select **Apply and Close** in the ribbon.
+  ![Screenshot of the SAS token dialog](../../assets/images/hubs/powerbi-dashboard-SAS-token.png)
 
 ## 📋 Copy queries from a toolkit report
 

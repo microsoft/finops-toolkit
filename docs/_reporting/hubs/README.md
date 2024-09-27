@@ -20,6 +20,7 @@ Open, extensible, and scalable cost governance for the enterprise.
 - [🙋‍♀️ Why FinOps hubs?](#️-why-finops-hubs)
 - [🌟 Benefits](#-benefits)
 - [📦 What's included](#-whats-included)
+- [📚 Explore the FinOps reports](#-explore-the-finops-reports)
 - [➕ Create a new hub](#-create-a-new-hub)
 - [🛫 Get started with hubs](#-get-started-with-hubs)
 - [🔐 Required permissions](#-required-permissions)
@@ -95,6 +96,16 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
 
 [Browse reports](../power-bi/README.md){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [See the template](./template.md){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+
+<br>
+
+## 📚 Explore the FinOps reports
+
+Each report in the FinOps toolkit is available as a PBIX or PBIT file. The PBIX file contains sample data that can be viewed in Power BI desktop without connecting to your account.
+
+To visualize the reports available, simply download the PBIX Power BI report file from the desired [release](https://github.com/microsoft/finops-toolkit/releases) and open the report in Power BI Desktop. From there, you can navigate through the different pages of the report, which have been pre-filled with test data.
+
+![Screenshot of the Rate optimization report with test data](../../assets/images/hubs/rate-optimization-report.png)
 
 <br>
 
