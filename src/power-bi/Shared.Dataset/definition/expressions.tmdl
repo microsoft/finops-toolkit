@@ -27,15 +27,15 @@ expression RangeEnd = null meta [IsParameterQuery=true, Type="DateTime", IsParam
 /// 
 /// Learn more about FinOps hubs @ https://aka.ms/finops/hubs
 expression ftk_Storage = ```
-		(optional datasetType as text, optional startDate as datetime, optional endDate as datetime) =>
+		(optional datasetType as text) =>
 		let
 		    // Config
 		    hubUrl = #"Hub Storage URL",
 		    expUrl = #"Export Storage URL",
-		    end    = if endDate <> null then endDate else null,
+		    end    = if RangeEnd <> null then RangeEnd else null,
 		    start  = 
-		        if startDate <> null then startDate 
-		        else if #"Number of Months" <> null and #"Number of Months" > 0 then Date.AddMonths(if endDate <> null then endDate else Date.StartOfMonth(Date.From(DateTime.LocalNow())), -#"Number of Months"+1)
+		        if RangeStart <> null then RangeStart 
+		        else if #"Number of Months" <> null and #"Number of Months" > 0 then Date.AddMonths(if RangeEnd <> null then RangeEnd else Date.StartOfMonth(Date.From(DateTime.LocalNow())), -#"Number of Months"+1)
 		        else null,
 		    data   = if datasetType <> null and datasetType <> "" then Text.Lower(datasetType) else "focuscost",
 		
@@ -90,7 +90,9 @@ expression ftk_Storage = ```
 		            Table.AddColumn(Source, "EndDate", each if [StartDate] = null then null else Date.EndOfMonth([StartDate]), type datetime), 
 		            each (start = null or [StartDate] = null or [StartDate] >= Date.StartOfMonth(Date.From(start))) and (end = null or [EndDate] = null or [EndDate] <= Date.EndOfMonth(Date.From(end)))
 		        ),
-		    AddMetadata = Table.AddColumn(FilterFilesByDate, "Metadata", each if Text.Lower([Extension]) = ".parquet" then ftk_Metadata([Content]) else null ),
+		    AddMetadata = Table.AddColumn(FilterFilesByDate, "Metadata", each 
+		        if Text.Lower([Extension]) = ".parquet" and datasetType = "focuscost" then ftk_Metadata([Content], "ChargePeriodStart")
+		        else null ),
 		    ExpandMetadata = Table.ExpandTableColumn(AddMetadata, "Metadata", {"Min"}, {"ChargePeriodStart"}),
 		    FilterMetadata = Table.SelectRows(ExpandMetadata, each (start = null or [ChargePeriodStart] = null or [ChargePeriodStart] >= ftk_DatetimeToJulianDate(start)) and (end = null or [ChargePeriodStart] = null or [ChargePeriodStart] < ftk_DatetimeToJulianDate(end))),
 		    // Extract
@@ -445,14 +447,14 @@ expression ftk_ImpalaToJulianDate =
 	annotation PBI_ResultType = Function
 
 expression ftk_Metadata =
-		(fileContents) =>
+		(fileContents, dateColumn as text) =>
 		let
 		  m = Parquet.Metadata(fileContents) as any,
 		  Navigation = m[RowGroups],
 		  #"Expanded Columns" = Table.ExpandTableColumn(Navigation, "Columns", {"MetaData"}, {"MetaData"}),
 		  #"Expanded MetaData" = Table.ExpandRecordColumn(#"Expanded Columns", "MetaData", {"PathInSchema", "Statistics"}, {"PathInSchema", "Statistics"}),
 		  #"Expanded PathInSchema" = Table.ExpandListColumn(#"Expanded MetaData", "PathInSchema"),
-		  #"Filtered rows" = Table.SelectRows(#"Expanded PathInSchema", each ([PathInSchema] = "ChargePeriodStart")),
+		  #"Filtered rows" = Table.SelectRows(#"Expanded PathInSchema", each ([PathInSchema] = dateColumn)),
 		  #"Expanded Statistics" = Table.ExpandRecordColumn(#"Filtered rows", "Statistics", {"MaxValue", "MinValue"}, {"MaxValue", "MinValue"}),
 		  #"Added min" = Table.AddColumn(#"Expanded Statistics", "Min", each if [MinValue] = null then null else ftk_ImpalaToJulianDate([MinValue])),
 		  #"Added max" = Table.AddColumn(#"Added min", "Max", each if [MaxValue] = null then null else ftk_ImpalaToJulianDate([MaxValue])),
