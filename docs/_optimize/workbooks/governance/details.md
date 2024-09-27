@@ -4,7 +4,7 @@ parent: Governance workbook
 title: Details
 nav_order: 2
 description: "Details about what's included in the governance workbook."
-permalink: /governance-workbook/details
+permalink: /workbooks/governance/details
 ---
 
 <span class="fs-9 d-block mb-4">Governance workbook details</span>

@@ -6,10 +6,6 @@ model Model
 		legacyRedirects
 		returnErrorValuesAsNull
 
-queryGroup 'FinOps toolkit'
-
-	annotation PBI_QueryGroupOrder = 2
-
 queryGroup '🛠️ Setup'
 
 	annotation PBI_QueryGroupOrder = 0
@@ -18,11 +14,19 @@ queryGroup Functions
 
 	annotation PBI_QueryGroupOrder = 1
 
+queryGroup Storage
+
+	annotation PBI_QueryGroupOrder = 2
+
+queryGroup 'Resource Graph'
+
+	annotation PBI_QueryGroupOrder = 3
+
 annotation __PBI_TimeIntelligenceEnabled = 1
 
-annotation PBIDesktopVersion = 2.132.905.0 (24.08)
+annotation PBIDesktopVersion = 2.133.601.0 (24.09)
 
-annotation PBI_QueryOrder = ["▶️  START HERE","Hub Storage URL","Export Storage URL","RangeStart","RangeEnd","CostDetails","ftk_Storage","InstanceSizeFlexibility","StorageData","StorageErrors","HubSettings","HubScopes","Prices","ReservationDetails","ReservationTransactions","ReservationRecomendations","ftk_ParseResourceId","ftk_ParseResourceName","ftk_ParseResourceType","Number of Months"]
+annotation PBI_QueryOrder = ["▶️  START HERE","Hub Storage URL","Export Storage URL","RangeStart","RangeEnd","Number of Months","ftk_Storage","ftk_ParseResourceId","ftk_ParseResourceName","ftk_ParseResourceType","CostDetails","StorageData","StorageErrors","HubSettings","HubScopes","Prices","ReservationDetails","ReservationTransactions","ReservationRecomendations","InstanceSizeFlexibility","AdvisorRecommendations","AdvisorReservationRecommendations","Disks","ManagementGroups","NetworkInterfaces","NetworkSecurityGroups","PolicyAssignments","PolicyDefinitions","PolicyStates","PublicIPAddresses","Regions","Resources","ResourceTypes","SqlDatabases","Subscriptions","VirtualMachines"]
 
 annotation PBI_ProTooling = ["DevMode"]
 
@@ -46,6 +50,32 @@ ref table StorageErrors
 ref table LocalDateTable_c3c47274-cc2f-4ba2-a257-6f5d529787d5
 ref table LocalDateTable_c4ce9464-15a6-4444-a0af-08644805dec6
 ref table LocalDateTable_c351bfa8-dbcf-4886-9895-35cf730d7efe
+ref table AdvisorRecommendations
+ref table LocalDateTable_d8279185-d2c7-4455-9003-fc92a34f3607
+ref table LocalDateTable_e11d803c-f7bd-4c0e-96a9-6ab80f35b745
+ref table LocalDateTable_eb7ae8b8-9958-4816-bd33-f17b80df8c35
+ref table Resources
+ref table ManagementGroups
+ref table Subscriptions
+ref table ResourceTypes
+ref table Regions
+ref table VirtualMachines
+ref table Disks
+ref table NetworkInterfaces
+ref table PublicIPAddresses
+ref table AdvisorReservationRecommendations
+ref table LocalDateTable_9f5d917b-c335-474f-836b-65f614e8aa8a
+ref table NetworkSecurityGroups
+ref table PolicyAssignments
+ref table PolicyDefinitions
+ref table PolicyStates
+ref table SqlDatabases
+ref table LocalDateTable_570af09c-3ee5-48ee-9425-a2c2ee8808fb
+ref table 'Advisor for disks'
+ref table LocalDateTable_280f8620-a4b4-45b1-9e75-cf567b880a2c
+ref table LocalDateTable_8b74c4d3-e548-41c6-ba9b-0bb1b5b72e71
+ref table LocalDateTable_0951c383-0e48-4ca2-869d-e5e5c1551be6
+ref table 'Compliance calculation'
 ref table Prices
 ref table LocalDateTable_f74f3434-c614-4ef8-9110-25376bc17725
 ref table LocalDateTable_da3df616-7d6a-4fe9-b564-c8f691e0b780

@@ -186,7 +186,7 @@ table StorageErrors
 
 	partition StorageErrors = m
 		mode: import
-		queryGroup: 'FinOps toolkit'
+		queryGroup: Storage
 		source =
 				let
 				    CommonErrors = #table(
