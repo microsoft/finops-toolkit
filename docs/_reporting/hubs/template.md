@@ -117,16 +117,16 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
     - `msexports_ExecuteETL` – Queues the `msexports_ETL_ingestion` pipeline to account for Data Factory pipeline trigger limits.
     - `msexports_ETL_transform` – Converts Cost Management exports into parquet and removes historical data duplicated in each day's export.
     - `config_ConfigureExports` – Creates Cost Management exports for all scopes.
-    - `config_BackfillData` – Runs the backfill job for each month based on retention settings.
-    - `config_RunBackfill` – Creates and triggers exports for all defined scopes for the specified date range.
-    - `config_ExportData` – Gets a list of all Cost Management exports configured for this hub based on the scopes defined in settings.json, then runs each export using the config_RunExports pipeline.
-    - `config_RunExports` – Runs the specified Cost Management exports.
+    - `config_StartBackfillProcess` – Runs the backfill job for each month based on retention settings.
+    - `config_RunBackfillJob` – Creates and triggers exports for all defined scopes for the specified date range.
+    - `config_StartExportProcess` – Gets a list of all Cost Management exports configured for this hub based on the scopes defined in settings.json, then runs each export using the config_RunExportJobs pipeline.
+    - `config_RunExportJobs` – Runs the specified Cost Management exports.
     - `msexports_ExecuteETL` – Triggers the ingestion process for Cost Management exports to account for Data Factory pipeline trigger limits.
     - `msexports_ETL_transform` – Converts Cost Management exports into parquet and removes historical data duplicated in each day's export.
   - Triggers:
     - `config_SettingsUpdated` – Triggers the `config_ConfigureExports` pipeline when settings.json is updated.
-    - `config_DailySchedule` – Triggers the `config_RunExports` pipeline daily for the current month's cost data.
-    - `config_MonthlySchedule` – Triggers the `config_RunExports` pipeline monthly for the previous month's cost data.
+    - `config_DailySchedule` – Triggers the `config_RunExportJobs` pipeline daily for the current month's cost data.
+    - `config_MonthlySchedule` – Triggers the `config_RunExportJobs` pipeline monthly for the previous month's cost data.
     - `msexports_FileAdded` – Triggers the `msexports_ExecuteETL` pipeline when Cost Management exports complete.
 - `<hubName>-vault-<unique-suffix>` Key Vault instance
   - Secrets:

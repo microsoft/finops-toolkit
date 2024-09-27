@@ -64,17 +64,6 @@ Legend:
 > 2. Auto-backfill – Backfill historical data from Microsoft Cost Management.
 > 3. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
 > 4. ETL pipelile – Add support for parquet files created by Cost Management exports.
->
-> ✏️ Changed:
->
-> 1. Managed Exports - Use parquet format when creating Cost Management exports.
-📊 Power BI reports
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> 🛠️ Fixed:
->
-> - General
->   1. Improved import performance by using parquet metadata to filter files by date (if configured)
 
 <br><a name="latest"></a>
 
@@ -92,6 +81,8 @@ Legend:
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
+> ➕ Added:
+>
 > - [Governance](../_reporting/power-bi/governance.md)
 >   1. Added Policy compliance.
 >   2. Added Virtual machines and managed disks.
@@ -100,6 +91,34 @@ Legend:
 > - [Workload optimization](../_reporting/power-bi/workload-optimization.md)
 >   1. Added Azure Advisor cost recommendations.
 >   2. Added Unattached disks.
+>
+> 🛠️ Fixed:
+>
+> - General
+>   1. Improved import performance by using parquet metadata to filter files by date (if configured)
+
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Support for Cost Management parquet exports (compressed and uncompressed).
+> 2. Support for ingesting price, reservation recommendation, reservation detail, and reservation transaction datasets via Cost Management exports.
+> 3. New UnsupportedExportFileType error when the exported file type is not supported.
+>
+> ✏️ Changed:
+>
+> 1. Renamed the following pipelines to be clearer about their intent:
+>    - `config_BackfillData` to `config_StartBackfillProcess`.
+>    - `config_ExportData` to `config_StartExportProcess`.
+>    - `config_RunBackfill` to `config_RunBackfillJob`.
+>    - `config_RunExports` to `config_RunExportJobs`.
+> 2. Changed the storage ingestion path from "{scope}/{yyyyMM}/{dataset}" to "{dataset}/{yyyy}/{MM}/{dataset}"
+>
+> 🛠️ Fixed:
+>
+> 1. Updated the `config_RunBackfillJob` and `config_StartExportProcess` pipelines to handle when there's a single scope defined in config instead of an array.
+> 2. Corrected the reservation details version in the schema file name in storage.
 
 🔍 Optimization engine
 {: .fs-5 .fw-500 .mt-4 mb-0 }
