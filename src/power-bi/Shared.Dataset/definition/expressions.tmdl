@@ -23,6 +23,15 @@ expression RangeEnd = null meta [IsParameterQuery=true, Type="DateTime", IsParam
 
 	annotation PBI_NavigationStepName = Navigation
 
+/// Optional. Number of months to include in the report before the RangeEnd date. Ignored if RangeStart is specified. Default: (all available data).
+expression 'Number of Months' = null meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=false]
+	lineageTag: 1d47668d-4de6-404c-8e53-f89a35081e8b
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_ResultType = Null
+
+	annotation PBI_NavigationStepName = Navigation
+
 /// Loads data from the configured storage account for FinOps hubs or with Cost Management exports.
 /// 
 /// Learn more about FinOps hubs @ https://aka.ms/finops/hubs
@@ -398,15 +407,6 @@ expression 'Export Storage URL' = "https://ftkmicfland5pd7gdo37oozc.dfs.core.win
 	annotation PBI_NavigationStepName = Navigation
 
 	annotation PBI_ResultType = Text
-
-/// Optional. Number of months to include in the report before the RangeEnd date. Ignored if RangeStart is specified. Default: (all available data).
-expression 'Number of Months' = null meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=false]
-	lineageTag: 1d47668d-4de6-404c-8e53-f89a35081e8b
-	queryGroup: '🛠️ Setup'
-
-	annotation PBI_NavigationStepName = Navigation
-
-	annotation PBI_ResultType = Null
 
 expression ftk_DatetimeToJulianDate = ```
 		(InputDate) =>
