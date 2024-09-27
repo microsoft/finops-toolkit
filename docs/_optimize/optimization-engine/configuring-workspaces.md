@@ -50,7 +50,7 @@ Install-Module -Name Az.OperationalInsights
 ./Setup-DataCollectionRules.ps1 -DestinationWorkspaceResourceId "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myResourceGroup/providers/Microsoft.OperationalInsights/workspaces/myWorkspace" -IntervalSeconds 30 -ResourceTags @{"tagName"="tagValue";"otherTagName"="otherTagValue"}
 ```
 
-### Log Analytics agent (legacy Microsoft Monitoring Agent, deprecated on August 31st, 2024)
+### Log Analytics agent (legacy Microsoft Monitoring Agent, deprecated on August 31, 2024)
 
 If you are still using the legacy Log Analytics agent, please migrate to the [Azure Monitor Agent](https://learn.microsoft.com/azure/azure-monitor/agents/azure-monitor-agent-migration).
 
