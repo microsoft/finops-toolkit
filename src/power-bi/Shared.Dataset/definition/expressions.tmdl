@@ -15,7 +15,7 @@ expression RangeStart = null meta [IsParameterQuery=true, Type="DateTime", IsPar
 
 	annotation PBI_NavigationStepName = Navigation
 
-expression RangeEnd = #datetime(2024, 9, 2, 0, 0, 0) meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=false]
+expression RangeEnd = null meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=false]
 	lineageTag: 695f1d3b-7b1a-49fa-8d83-f2c25dc787de
 	queryGroup: '🛠️ Setup'
 
