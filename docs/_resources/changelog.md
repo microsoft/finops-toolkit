@@ -81,6 +81,8 @@ Legend:
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
+> ➕ Added:
+>
 > - [Governance](../_reporting/power-bi/governance.md)
 >   1. Added Policy compliance.
 >   2. Added Virtual machines and managed disks.
@@ -89,6 +91,11 @@ Legend:
 > - [Workload optimization](../_reporting/power-bi/workload-optimization.md)
 >   1. Added Azure Advisor cost recommendations.
 >   2. Added Unattached disks.
+>
+> 🛠️ Fixed:
+>
+> - General
+>   1. Improved import performance by using parquet metadata to filter files by date (if configured)
 
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
