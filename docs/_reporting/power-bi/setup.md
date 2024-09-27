@@ -38,37 +38,41 @@ Use the guides below to connect and customize FinOps toolkit and other Power BI 
 
 The FinOps toolkit Power BI reports include pre-configured visuals, but are not connected to your data. Use the following steps to connect them to your data:
 
-1. Download and open the desired report in Power BI Desktop.
-2. Select the **Transform data** button in the toolbar.
+1. Configure Cost Management exports for any data you would like to include in reports, including:
+
+   - Cost and usage (FOCUS) &ndash; Required for all storage-based reports.
+   - Price sheet
+   - Reservation details
+   - Reservation recommendations &ndash; Required to see reservation recommendations in the Rate optimization report.
+   - Reservation transactions
+
+2. Download and open the desired report in Power BI Desktop.
+3. Select the **Transform data** button in the toolbar.
 
    ![Screenshot of the Transform data button in the Power BI Desktop toolbar.](https://user-images.githubusercontent.com/399533/216573265-fa76828f-c9a2-497d-ae1e-19b55fef412c.png)
 
    ![Screenshot of instructions to connect to a storage account](https://github.com/user-attachments/assets/3723c94b-d853-420e-9101-98d1ca518fa0)
 
-<!--
-1. In the **Queries** pane on the left, set the **🛠️ Setup** > **Data source** property.
-
-   - `Cost Management exports` requires read access to an EA or MCA billing account or billing profile.
-   - `FinOps hubs` requires [Storage Blob Data Reader](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-reader) access to the storage account deployed with your hub.
--->
-
-1. If connecting to a FinOps hub instance, set the **Hub Storage URL**.
+4. If connecting to a FinOps hub instance, set the **Hub Storage URL**.
    1. Open the [list of resource groups](https://portal.azure.com/#view/HubsExtension/BrowseResourceGroups) in the Azure portal.
    2. Select the hub resource group.
    3. Select **Deployments** in the menu.
    4. Select the **hub** deployment.
    5. Select **Outputs**.
    6. Copy the value for `storageUrlForPowerBI`.
-2. If connecting directly to Cost Management exports, set the **Export Storage URL**.
+5. If connecting directly to Cost Management exports, set the **Export Storage URL**.
    1. Open the desired storage account in the Azure portal.
    2. Select **Settings** > **Endpoints** in the menu.
    3. Copy the **Data Lake Storage** URL.
    4. Append the container and export path, if applicable.
-3. Change **RangeStart** and **RangeEnd** to the desired start/end dates for your report. The default is the current calendar year. Consider using your fiscal year.
-     <blockquote class="warning" markdown="1">
-       _[Enable incremental refresh](https://learn.microsoft.com/power-bi/connect-data/incremental-refresh-configure#define-policy) to load more than $5M of raw cost details. Power BI reports can only support $2-5M of data when incremental refresh is not enabled. After incremental refresh is enabled, they can support $2-5M/month for a total of ~$65M in raw cost details._
-     </blockquote>
-4. Select the **Close & Apply** to save your settings.
+6. Specify how much data you would like to include from storage using one of the following:
+   - Set **Number of Months** to the number of closed months you would like to report on if you want to always show a specific number of recent months.
+   - Set **RangeStart** and **RangeEnd** to specific start/end dates if you do not want the dates to move (e.g., fiscal year reporting).
+   - Do not set any date parameters to report on all data in storage.
+   <blockquote class="warning" markdown="1">
+      _[Enable incremental refresh](https://learn.microsoft.com/power-bi/connect-data/incremental-refresh-configure#define-policy) to load more than $5M of raw cost details. Power BI reports can only support $2-5M of data when incremental refresh is not enabled. After incremental refresh is enabled, they can support $2-5M/month for a total of ~$65M in raw cost details._
+   </blockquote>
+7. Select the **Close & Apply** to save your settings.
 
 If you run into any issues syncing your data, see [Troubleshooting Power BI reports](../../_resources/troubleshooting.md).
 

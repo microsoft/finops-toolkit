@@ -106,6 +106,7 @@ Legend:
 >    - `config_ExportData` to `config_StartExportProcess`.
 >    - `config_RunBackfill` to `config_RunBackfillJob`.
 >    - `config_RunExports` to `config_RunExportJobs`.
+> 2. Changed the storage ingestion path from "{scope}/{yyyyMM}/{dataset}" to "{dataset}/{yyyy}/{MM}/{dataset}"
 >
 > 🛠️ Fixed:
 >
