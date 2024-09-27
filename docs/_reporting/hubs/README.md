@@ -111,10 +111,6 @@ To visualize the reports available, simply download the PBIX Power BI report fil
 
 ## ➕ Create a new hub
 
-<blockquote class="note" markdown="1">
-  _FinOps hubs 0.4 introduces support for FOCUS 1.0. This is **not** a breaking change and is completely backwards compatible with v0.3. To learn more, please refer to the [Upgrade guide](./upgrade.md)._
-</blockquote>
-
 1. **Deploy your FinOps hub.**
 
    {% include deploy.html template="finops-hub" public="1" gov="0" china="0" %}
