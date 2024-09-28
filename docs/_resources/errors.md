@@ -379,7 +379,15 @@ If you're using another tool, ensure it supports the file type you're using.
 
 ### Power BI: Reports are not showing data in desired dates
 
-If the Power BI report does not discover data that was exported to your storage account you should to check the RangeStart/RangeEnd parameters to ensure the data is not being filtered Navigate to the transform data page of the Power BI report and change RangeStart and RangeEnd to the desired start/end dates for your report. See [Set up your first report](../_reporting/power-bi/setup.md) for details.
+If your report is missing all data for one or more months, check the **Number of Months**, **RangeStart**, and **RangeEnd** parameters to ensure the data is not being filtered out. 
+
+To check parameters, you can select **Transform data** > **Edit parameters** in the ribbon or select the individual parameters in the **🛠️ Setup** folder from the query editor window. 
+
+- If you want to always show a specific number of recent months, set **Number of Months** to the number of closed (completed) months. The current month will be an extra month in addition to the closed number of months.
+- If you want a fixed date range that does not change over time (e.g., fiscal year reporting), set **RangeStart** and **RangeEnd**.
+- If you want to report on all data available, confirm that all 3 date parameters are empty.
+
+See [Set up your first report](../_reporting/power-bi/setup.md) for additional details.
 
 <br>
 
