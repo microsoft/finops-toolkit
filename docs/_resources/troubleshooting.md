@@ -114,6 +114,11 @@ Decide whether you will connect to storage using a user or service principal acc
 
 ### Step 3: Confirm RangeStart/RangeEnd dates
 
-1. If the Power BI report does not include data outside of RangeStart/RangeEnd date ranges then it is likely the data is being filtered. To check the RangeStart/RangeEnd parameter navigate to the transform data page of the Power BI report and change RangeStart and RangeEnd to the desired start/end dates for your report. See [Set up your first report](../_reporting/power-bi/setup.md) for details.
+1. If the Power BI report does not include entire months of data, confirm the date parameters in the Power BI report by checking **Transform data** > **Edit parameters** in the ribbon. See [Set up your first report](../_reporting/power-bi/setup.md) for details.
+   - **Number of Months** defines how many closed months (before the current month) will be shown in reports. Even if data is exported, data outside this range will not be shown. If defined, this parameter overrides others.
+   - **RangeStart** and **RangeEnd define an explicit date range of data to show in the reports. Anything before or after these dates will not be shown.
+   - If **RangeStart** is empty, all historical data before **RangeEnd** will be included.
+   - If **RangeEnd** is empty, all new data after **RangeStart** will be included.
+   - If all date parameters are empty, all available data will be included.
 
 <br>
