@@ -125,11 +125,12 @@ During deployment, you'll be asked several questions. You must plan for the foll
 The simplest, quickest and recommended method for installing AOE is by using the **Azure Cloud Shell** (PowerShell). You just have to follow these steps:
 
 1. Open Azure Cloud Shell (PowerShell)
-2. Run `git clone https://github.com/microsoft/finops-toolkit.git finops-toolkit`
-3. Run `cd finops-toolkit/src/optimization-engine`
-4. (optional) Run `Install-Module Microsoft.Graph.Authentication,Microsoft.Graph.Identity.DirectoryManagement` - this is required to grant the Global Reader role to the Automation Managed Identity in Microsoft Entra ID, used by Identity and RBAC governance features.
-5. Run `./Deploy-AzureOptimizationEngine.ps1`
-6. Input your deployment options and let the deployment finish (it will take less than 5 minutes)
+1. Run `git clone https://github.com/microsoft/finops-toolkit.git`
+1. Run `git checkout main`
+1. Run `cd finops-toolkit/src/optimization-engine`
+1. (optional) Run `Install-Module Microsoft.Graph.Authentication,Microsoft.Graph.Identity.DirectoryManagement` - this is required to grant the Global Reader role to the Automation Managed Identity in Microsoft Entra ID, used by Identity and RBAC governance features.
+1. Run `./Deploy-AzureOptimizationEngine.ps1`
+1. Input your deployment options and let the deployment finish (it will take less than 5 minutes)
 
 If the deployment fails for some reason, you can simply repeat it, as it is idempotent. The same if you want to upgrade a previous deployment with the latest version of the repo. You just have to keep the same deployment options. _Cool feature_: the deployment script persists your previous deployment options and lets you reuse it! 
 
