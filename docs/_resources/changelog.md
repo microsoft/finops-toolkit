@@ -77,6 +77,8 @@ Legend:
 > ➕ Added:
 >
 > 1. Published initial guidance for FinOps best practices. For the initial commit, this page contains the Azure Resource Graph (ARG) queries used by the Cost Optimization workbook.
+> 2. Documented [how to use storage account SAS tokens to setup the reports](../docs/_reporting/power-bi/setup.md).
+> 3. Documented how to [preview reports with sample data using Power BI Desktop](../docs/_reporting/hubs/README.md).
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -156,26 +158,26 @@ Legend:
 
 > ➕ Added:
 >
+> - [Resource types](../_reporting/data/README.md#-resource-types)
+>   1. Added 13 new Microsoft.Billing resource types.
+>   2. Added 17 new Microsoft.ComputeHub resource types.
+>   3. Added 2 new Microsoft.DeviceOnboarding resource types.
+>   4. Added 8 new Microsoft.Edge resource types.
+>   5. Added 8 other new resource types: "microsoft.agricultureplatform/agriservices", "microsoft.azurefleet/fleetscomputehub", "microsoft.cloudtest/buildcaches", "microsoft.contoso/employees/desks", "microsoft.databasefleetmanager/fleets", "microsoft.resources/databoundaries", "microsoft.subscription/changetenantrequest", "microsoft.sustainabilityservices/calculations".
 > - [Services](../_reporting/data/README.md#-services)
 >   1. Added a new ServiceSubcategory column to support FOCUS 1.1 ServiceSubcategory mapping.
+>   2. Added the following resource types to existing services:  "microsoft.apimanagement/gateways", "microsoft.sql/longtermretentionmanagedinstances", "microsoft.sql/longtermretentionservers", "microsoft.verifiedid/authorities".
+>
+> ✏️ Changed:
+>
+> - [Resource types](../_reporting/data/README.md#-resource-types)
+>   1. Updated 2 Microsoft.DurableTask resource types.
+>   2. Updated 4 Microsoft.SignalRService resource types.
+>   3. Updated 4 Microsoft.TimeSeriesInsights resource types.
+>   4. Updated 4 other resource type: "microsoft.network/dnsresolvers", "microsoft.search/searchservices", "microsoft.storagepool/diskpools/iscsitargets", "oracle.database/oraclesubscriptions".
 
 [Download v0.6](https://github.com/microsoft/finops-toolkit/releases/tag/v0.6){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.5...v0.6){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-
-<br>
-
-## 🚚 v0.6
-
-<sup>To be released October 1, 2024</sup>
-
-📗 FinOps guide
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. Documented [how to use storage account SAS tokens to setup the reports](../docs/_reporting/power-bi/setup.md).
-> 2. Documented how to [preview reports with sample data using Power BI Desktop](../docs/_reporting/hubs/README.md).
->
 
 <br>
 
