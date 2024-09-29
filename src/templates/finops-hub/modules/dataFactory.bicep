@@ -2394,225 +2394,13 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           errorCode: 'SchemaLoadFailed'
         }
       }
-      { // Get Existing Parquet Files
-        name: 'Get Existing Parquet Files'
-        description: 'Get the previously ingested files so we can remove any older data. This is necessary to avoid data duplication in reports.'
-        type: 'GetMetadata'
-        dependsOn: []
-        policy: {
-          timeout: '0.12:00:00'
-          retry: 0
-          retryIntervalInSeconds: 30
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          dataset: {
-            referenceName: 'ingestion_files'
-            type: 'DatasetReference'
-            parameters: {
-              folderPath: '@pipeline().parameters.destinationFolder'
-            }
-          }
-          fieldList: [
-            'childItems'
-          ]
-          storeSettings: {
-            type: 'AzureBlobFSReadSettings'
-            enablePartitionDiscovery: false
-          }
-          formatSettings: {
-            type: 'ParquetReadSettings'
-          }
-        }
-      }
-      { // Filter Out Current Exports
-        name: 'Filter Out Current Exports'
-        description: 'Remove existing files from the current export so those files do not get deleted.'
-        type: 'Filter'
-        dependsOn: [
-          {
-            activity: 'Get Existing Parquet Files'
-            dependencyConditions: [
-              'Completed'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          items: {
-            value: '@if(contains(activity(\'Get Existing Parquet Files\').output, \'childItems\'), activity(\'Get Existing Parquet Files\').output.childItems, json(\'[]\'))'
-            type: 'Expression'
-          }
-          condition: {
-            value: '@and(endswith(item().name, \'.parquet\'), not(startswith(item().name, pipeline().parameters.keepFilePrefix)))'
-            type: 'Expression'
-          }
-        }
-      }
-      { // For Each Old File
-        name: 'For Each Old File'
-        description: 'Loop thru each of the existing files from previous exports.'
-        type: 'ForEach'
-        dependsOn: [
-          {
-            activity: 'Load Schema Mappings'
-            dependencyConditions: [
-              'Succeeded'
-            ]
-          }
-          {
-            activity: 'Filter Out Current Exports'
-            dependencyConditions: [
-              'Succeeded'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          items: {
-            value: '@activity(\'Filter Out Current Exports\').output.Value'
-            type: 'Expression'
-          }
-          activities: [
-            { // Delete Old Ingested File
-              name: 'Delete Old Ingested File'
-              description: 'Delete the previously ingested files from older exports.'
-              type: 'Delete'
-              dependsOn: []
-              policy: {
-                timeout: '0.12:00:00'
-                retry: 0
-                retryIntervalInSeconds: 30
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                dataset: {
-                  referenceName: dataset_ingestion.name
-                  type: 'DatasetReference'
-                  parameters: {
-                    blobPath: {
-                      value: '@item()'
-                      type: 'Expression'
-                    }
-                  }
-                }
-                enableLogging: false
-                storeSettings: {
-                  type: 'AzureBlobFSReadSettings'
-                  recursive: false
-                  enablePartitionDiscovery: false
-                }
-              }
-            }
-          ]
-        }
-      }
-      { // Read Hub Config
-        name: 'Read Hub Config'
-        description: 'Read the hub config to determine if the export should be retained.'
-        type: 'Lookup'
-        dependsOn: []
-        policy: {
-          timeout: '0.12:00:00'
-          retry: 0
-          retryIntervalInSeconds: 30
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          source: {
-            type: 'JsonSource'
-            storeSettings: {
-              type: 'AzureBlobFSReadSettings'
-              recursive: false
-              enablePartitionDiscovery: false
-            }
-            formatSettings: {
-              type: 'JsonReadSettings'
-            }
-          }
-          dataset: {
-            referenceName: dataset_config.name
-            type: 'DatasetReference'
-            parameters: {
-              fileName: 'settings.json'
-              folderPath: configContainerName
-            }
-          }
-        }
-      }
-      { // If Not Retaining Exports
-        name: 'If Not Retaining Exports'
-        description: 'If the msexports retention period <= 0, delete the source file. The main reason to keep the source file is to allow for troubleshooting and reprocessing in the future.'
-        type: 'IfCondition'
-        dependsOn: [
-          {
-            activity: 'Convert to Parquet'
-            dependencyConditions: [
-              'Succeeded'
-            ]
-          }
-          {
-            activity: 'Read Hub Config'
-            dependencyConditions: [
-              'Completed'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          expression: {
-            value: '@lessOrEquals(coalesce(activity(\'Read Hub Config\').output.firstRow.retention.msexports.days, 0), 0)'
-            type: 'Expression'
-          }
-          ifTrueActivities: [
-            { // Delete Source File
-              name: 'Delete Source File'
-              description: 'Delete the exported data file to keep storage costs down. This file is not referenced by any reporting systems.'
-              type: 'Delete'
-              dependsOn: []
-              policy: {
-                timeout: '0.12:00:00'
-                retry: 0
-                retryIntervalInSeconds: 30
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                dataset: {
-                  referenceName: dataset_msexports_parquet.name
-                  type: 'DatasetReference'
-                  parameters: {
-                    blobPath: {
-                      value: '@pipeline().parameters.blobPath'
-                      type: 'Expression'
-                    }
-                  }
-                }
-                enableLogging: false
-                storeSettings: {
-                  type: 'AzureBlobFSReadSettings'
-                  recursive: true
-                  enablePartitionDiscovery: false
-                }
-              }
-            }
-          ]
-        }
-      }
       { // Convert to Parquet
         name: 'Convert to Parquet'
         description: 'Convert CSV to parquet and move the file to the ${ingestionContainerName} container.'
         type: 'Switch'
         dependsOn: [
           {
-            activity: 'For Each Old File'
+            activity: 'Load Schema Mappings'
             dependencyConditions: [
               'Succeeded'
             ]
@@ -2633,7 +2421,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
                   type: 'Copy'
                   dependsOn: []
                   policy: {
-                    timeout: '0.00:05:00'
+                    timeout: '0.00:10:00'
                     retry: 0
                     retryIntervalInSeconds: 30
                     secureOutput: false
@@ -2782,6 +2570,218 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
                   type: 'Expression'
                 }
                 errorCode: 'UnsupportedExportFileType'
+              }
+            }
+          ]
+        }
+      }
+      { // Get Existing Parquet Files
+        name: 'Get Existing Parquet Files'
+        description: 'Get the previously ingested files so we can remove any older data. This is necessary to avoid data duplication in reports.'
+        type: 'GetMetadata'
+        dependsOn: []
+        policy: {
+          timeout: '0.12:00:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          dataset: {
+            referenceName: 'ingestion_files'
+            type: 'DatasetReference'
+            parameters: {
+              folderPath: '@pipeline().parameters.destinationFolder'
+            }
+          }
+          fieldList: [
+            'childItems'
+          ]
+          storeSettings: {
+            type: 'AzureBlobFSReadSettings'
+            enablePartitionDiscovery: false
+          }
+          formatSettings: {
+            type: 'ParquetReadSettings'
+          }
+        }
+      }
+      { // Filter Out Current Exports
+        name: 'Filter Out Current Exports'
+        description: 'Remove existing files from the current export so those files do not get deleted.'
+        type: 'Filter'
+        dependsOn: [
+          {
+            activity: 'Get Existing Parquet Files'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@if(contains(activity(\'Get Existing Parquet Files\').output, \'childItems\'), activity(\'Get Existing Parquet Files\').output.childItems, json(\'[]\'))'
+            type: 'Expression'
+          }
+          condition: {
+            value: '@and(endswith(item().name, \'.parquet\'), not(startswith(item().name, pipeline().parameters.keepFilePrefix)))'
+            type: 'Expression'
+          }
+        }
+      }
+      { // For Each Old File
+        name: 'For Each Old File'
+        description: 'Loop thru each of the existing files from previous exports.'
+        type: 'ForEach'
+        dependsOn: [
+          {
+            activity: 'Convert to Parquet'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+          {
+            activity: 'Filter Out Current Exports'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@activity(\'Filter Out Current Exports\').output.Value'
+            type: 'Expression'
+          }
+          activities: [
+            { // Delete Old Ingested File
+              name: 'Delete Old Ingested File'
+              description: 'Delete the previously ingested files from older exports.'
+              type: 'Delete'
+              dependsOn: []
+              policy: {
+                timeout: '0.12:00:00'
+                retry: 0
+                retryIntervalInSeconds: 30
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                dataset: {
+                  referenceName: dataset_ingestion.name
+                  type: 'DatasetReference'
+                  parameters: {
+                    blobPath: {
+                      value: '@concat(pipeline().parameters.destinationFolder, \'/\', item().name)'
+                      type: 'Expression'
+                    }
+                  }
+                }
+                enableLogging: false
+                storeSettings: {
+                  type: 'AzureBlobFSReadSettings'
+                  recursive: false
+                  enablePartitionDiscovery: false
+                }
+              }
+            }
+          ]
+        }
+      }
+      { // Read Hub Config
+        name: 'Read Hub Config'
+        description: 'Read the hub config to determine if the export should be retained.'
+        type: 'Lookup'
+        dependsOn: []
+        policy: {
+          timeout: '0.12:00:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          source: {
+            type: 'JsonSource'
+            storeSettings: {
+              type: 'AzureBlobFSReadSettings'
+              recursive: false
+              enablePartitionDiscovery: false
+            }
+            formatSettings: {
+              type: 'JsonReadSettings'
+            }
+          }
+          dataset: {
+            referenceName: dataset_config.name
+            type: 'DatasetReference'
+            parameters: {
+              fileName: 'settings.json'
+              folderPath: configContainerName
+            }
+          }
+        }
+      }
+      { // If Not Retaining Exports
+        name: 'If Not Retaining Exports'
+        description: 'If the msexports retention period <= 0, delete the source file. The main reason to keep the source file is to allow for troubleshooting and reprocessing in the future.'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Convert to Parquet'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+          {
+            activity: 'Read Hub Config'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@lessOrEquals(coalesce(activity(\'Read Hub Config\').output.firstRow.retention.msexports.days, 0), 0)'
+            type: 'Expression'
+          }
+          ifTrueActivities: [
+            { // Delete Source File
+              name: 'Delete Source File'
+              description: 'Delete the exported data file to keep storage costs down. This file is not referenced by any reporting systems.'
+              type: 'Delete'
+              dependsOn: []
+              policy: {
+                timeout: '0.12:00:00'
+                retry: 0
+                retryIntervalInSeconds: 30
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                dataset: {
+                  referenceName: dataset_msexports_parquet.name
+                  type: 'DatasetReference'
+                  parameters: {
+                    blobPath: {
+                      value: '@pipeline().parameters.blobPath'
+                      type: 'Expression'
+                    }
+                  }
+                }
+                enableLogging: false
+                storeSettings: {
+                  type: 'AzureBlobFSReadSettings'
+                  recursive: true
+                  enablePartitionDiscovery: false
+                }
               }
             }
           ]
