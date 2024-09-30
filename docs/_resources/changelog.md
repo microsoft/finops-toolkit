@@ -121,6 +121,10 @@ Legend:
 >
 > 1. Updated the `config_RunBackfillJob` and `config_StartExportProcess` pipelines to handle when there's a single scope defined in config instead of an array.
 > 2. Corrected the reservation details version in the schema file name in storage.
+>
+> 🗑️ Removed
+>
+> 1. Removed the temporary Event Grid resource from the template.
 
 🔍 Optimization engine
 {: .fs-5 .fw-500 .mt-4 mb-0 }
