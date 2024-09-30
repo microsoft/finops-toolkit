@@ -150,7 +150,7 @@ microsoft.eventgrid,microsoft.eventgrid/partnertopics,Event Grid,Integration,Mes
 microsoft.eventgrid,microsoft.eventgrid/systemtopics,Event Grid,Integration,Messaging,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.eventgrid,microsoft.eventgrid/topics,Event Grid,Integration,Messaging,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.eventgrid,microsoft.eventhub/namespaces,Event Hubs,Integration,Messaging,Microsoft,Cloud Provider,Cloud,PaaS
-microsoft.eventgrid,microsoft.healthcareapis/workspaces,Azure Health Data Services,Analytics,Analytics Platform,Microsoft,Cloud Provider,Cloud,SaaS
+microsoft.eventgrid,microsoft.healthcareapis/workspaces,Azure Health Data Services,Analytics,Analytics Platforms,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.eventgrid,microsoft.keyvault/vaults,Key Vault,Security,Secret Management,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.eventgrid,microsoft.machinelearningservices/workspaces,Azure Machine Learning,AI and Machine Learning,Machine Learning,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.eventgrid,microsoft.maintenance/maintenanceconfigurations,Virtual Machines,Compute,Virtual Machines,Microsoft,Cloud Provider,Cloud,IaaS
@@ -163,7 +163,7 @@ microsoft.eventgrid,microsoft.web/serverfarms,Azure App Service,Web,Application 
 microsoft.eventgrid,microsoft.web/sites,Azure App Service,Web,Application Platforms,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.eventhub,microsoft.eventhub/clusters,Event Hubs,Integration,Messaging,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.eventhub,microsoft.eventhub/namespaces,Event Hubs,Integration,Messaging,Microsoft,Cloud Provider,Cloud,PaaS
-microsoft.fabric,microsoft.fabric/capacities,Microsoft.Fabric,Analytics,Analytics Platform,Microsoft,Cloud Provider,Cloud,SaaS
+microsoft.fabric,microsoft.fabric/capacities,Microsoft.Fabric,Analytics,Analytics Platforms,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.fluidrelay,microsoft.fluidrelay/fluidrelayservers,Azure Fluid Relay,Web,Other (Web),Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.genomics,microsoft.genomics/accounts,Microsoft Genomics,Analytics,Data Processing,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.graph,microsoft.graph/accounts,Microsoft Graph,Integration,API Management,Microsoft,Cloud Provider,Cloud,PaaS
@@ -175,8 +175,8 @@ microsoft.hdinsight,microsoft.hdinsight/clusterpools,HDInsight,Analytics,Data Pr
 microsoft.hdinsight,microsoft.hdinsight/clusters,HDInsight,Analytics,Data Processing,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.hdinsightfairfax,microsoft.hdinsightfairfax/clusters,HDInsight,Analytics,Data Processing,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.healthbot,microsoft.healthbot/healthbots,Health Bot,AI and Machine Learning,Bots,Microsoft,Cloud Provider,Cloud,SaaS
-microsoft.healthcareapis,microsoft.healthcareapis/services,Azure Health Data Services,Analytics,Analytics Platform,Microsoft,Cloud Provider,Cloud,SaaS
-microsoft.healthcareapis,microsoft.healthcareapis/workspaces,Azure Health Data Services,Analytics,Analytics Platform,Microsoft,Cloud Provider,Cloud,SaaS
+microsoft.healthcareapis,microsoft.healthcareapis/services,Azure Health Data Services,Analytics,Analytics Platforms,Microsoft,Cloud Provider,Cloud,SaaS
+microsoft.healthcareapis,microsoft.healthcareapis/workspaces,Azure Health Data Services,Analytics,Analytics Platforms,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.hybridcompute,microsoft.hybridcompute/licenses,Azure Arc,Multicloud,Multicloud Integration,Microsoft,Cloud Provider,Hybrid,IaaS
 microsoft.hybridcompute,microsoft.hybridcompute/machines,Azure Arc,Multicloud,Multicloud Integration,Microsoft,Cloud Provider,Hybrid,SaaS
 microsoft.hybridcontainerservice,microsoft.kubernetes/connectedclusters,Azure Arc,Multicloud,Multicloud Integration,Microsoft,Cloud Provider,Hybrid,SaaS
@@ -193,7 +193,7 @@ microsoft.keyvault,microsoft.keyvault/managedhsms,Key Vault,Security,Secret Mana
 microsoft.keyvault,microsoft.keyvault/vaults,Key Vault,Security,Secret Management,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.kubernetes,microsoft.kubernetes/connectedclusters,Azure Arc,Multicloud,Multicloud Integration,Microsoft,Cloud Provider,Hybrid,SaaS
 microsoft.kubernetesconfiguration,microsoft.containerservice/managedclusters,Azure Kubernetes Service,Compute,Containers,Microsoft,Cloud Provider,Cloud,PaaS
-microsoft.kusto,microsoft.kusto/clusters,Azure Data Explorer,Analytics,Analytics Platform,Microsoft,Cloud Provider,Cloud,PaaS
+microsoft.kusto,microsoft.kusto/clusters,Azure Data Explorer,Analytics,Analytics Platforms,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.labservices,microsoft.labservices/labaccounts,Azure Lab Services,Compute,End User Computing,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.labservices,microsoft.labservices/labs,Azure Lab Services,Compute,End User Computing,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.loadtestservice,microsoft.loadtestservice/loadtests,Azure Load Testing,Developer Tools,Quality Assurance,Microsoft,Cloud Provider,Cloud,PaaS
@@ -213,7 +213,7 @@ microsoft.mixedreality,microsoft.mixedreality/remoterenderingaccounts,Remote Ren
 microsoft.mixedreality,microsoft.mixedreality/spatialanchorsaccounts,Spatial Anchors,Media,Mixed Reality,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.mobilenetwork,microsoft.mobilenetwork/mobilenetworks,Azure Private 5G Core,Networking,Network Connectivity,Microsoft,Cloud Provider,Cloud,IaaS
 microsoft.mobilenetwork,microsoft.mobilenetwork/packetcorecontrolplanes,Azure Private 5G Core,Networking,Network Connectivity,Microsoft,Cloud Provider,Cloud,IaaS
-microsoft.modsimworkbench,microsoft.modsimworkbench/workbenches,Azure Modeling and Simulation Workbench,Analytics,Analytics Platform,Microsoft,Cloud Provider,Cloud,PaaS
+microsoft.modsimworkbench,microsoft.modsimworkbench/workbenches,Azure Modeling and Simulation Workbench,Analytics,Analytics Platforms,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.monitor,microsoft.monitor/accounts,Azure Monitor,Management and Governance,Observability,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.netapp,microsoft.netapp/netappaccounts,Azure NetApp Files,Storage,File Storage,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.network,microsoft.network/applicationgateways,Application Gateway,Networking,Application Networking,Microsoft,Cloud Provider,Cloud,IaaS
@@ -253,7 +253,7 @@ microsoft.networkanalytics,microsoft.networkanalytics/dataproducts,Azure Monitor
 microsoft.networkfunction,microsoft.networkfunction/azuretrafficcollectors,Azure ExpressRoute,Networking,Network Routing,Microsoft,Cloud Provider,Cloud,IaaS
 microsoft.notificationhubs,microsoft.notificationhubs/namespaces,Notification Hubs,Integration,Messaging,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.nutanix,microsoft.nutanix/nodes,Azure VMWare Solution,Compute,Virtual Machines,Microsoft,Cloud Provider,Cloud,IaaS
-microsoft.openenergyplatform,microsoft.openenergyplatform/energyservices,Azure Data Manager for Energy,Analytics,Analytics Platform,Microsoft,Cloud Provider,Cloud,PaaS
+microsoft.openenergyplatform,microsoft.openenergyplatform/energyservices,Azure Data Manager for Energy,Analytics,Analytics Platforms,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.operationalinsights,microsoft.operationalinsights/azurefirewall,Azure Monitor,Management and Governance,Observability,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.operationalinsights,microsoft.operationalinsights/clusters,Azure Monitor,Management and Governance,Observability,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.operationalinsights,microsoft.operationalinsights/networksecuritygroups,Azure Monitor,Management and Governance,Observability,Microsoft,Cloud Provider,Cloud,PaaS
@@ -266,7 +266,7 @@ microsoft.orbital,microsoft.orbital/terminals,Azure Orbital,Networking,Network C
 microsoft.peering,microsoft.peering/peerings,Azure Peering Service,Networking,Network Connectivity,Microsoft,Cloud Provider,Cloud,IaaS
 microsoft.powerbidedicated,microsoft.powerbidedicated/autoscalevcores,Power BI Embedded,Analytics,Business Intelligence,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.powerbidedicated,microsoft.powerbidedicated/capacities,Power BI Embedded,Analytics,Business Intelligence,Microsoft,Cloud Provider,Cloud,PaaS
-microsoft.powerplatform,microsoft.powerplatform/accounts,Power Platform,Business Applications,Productivity and Collaboration,Microsoft,Cloud Provider,Cloud,SaaS
+microsoft.powerplatform,microsoft.powerplatform/accounts,Power Platforms,Business Applications,Productivity and Collaboration,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.purview,microsoft.purview/accounts,Microsoft Purview,Management and Governance,Data Governance,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.quantum,microsoft.quantum/workspaces,Azure Quantum,Compute,Quantum,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.recommendationsservice,microsoft.recommendationsservice/accounts,Intelligent Recommendations,AI and Machine Learning,AI Platforms,Microsoft,Cloud Provider,Cloud,PaaS
@@ -299,7 +299,7 @@ microsoft.storagesync,microsoft.storagesync/storagesyncservices,Azure File Sync,
 microsoft.storsimple,microsoft.storsimple/managers,Azure StorSimple,Storage,Storage Platforms,Microsoft,Cloud Provider,Hybrid,IaaS
 microsoft.streamanalytics,microsoft.streamanalytics/clusters,Azure Stream Analytics,Analytics,Streaming Analytics,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.streamanalytics,microsoft.streamanalytics/streamingjobs,Azure Stream Analytics,Analytics,Streaming Analytics,Microsoft,Cloud Provider,Cloud,PaaS
-microsoft.synapse,microsoft.synapse/workspaces,Azure Synapse Analytics,Analytics,Analytics Platform,Microsoft,Cloud Provider,Cloud,PaaS
+microsoft.synapse,microsoft.synapse/workspaces,Azure Synapse Analytics,Analytics,Analytics Platforms,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.syntex,microsoft.syntex/accounts,Microsoft Syntex,AI and Machine Learning,AI Platforms,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.syntex,microsoft.syntex/documentprocessors,Microsoft Syntex,AI and Machine Learning,AI Platforms,Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.teams,microsoft.teams/telephonyservices,Microsoft Teams,Business Applications,Productivity and Collaboration,Microsoft,Cloud Provider,Cloud,SaaS
