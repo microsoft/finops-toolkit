@@ -1,5 +1,6 @@
 ---
 layout: default
+parent: FinOps workbooks
 title: Governance workbook
 has_children: true
 nav_order: 2
@@ -36,7 +37,7 @@ The governance workbook is an Azure Monitor workbook that provides a comprehensi
      _If you only have read access, you can still import your workbook directly into Azure Monitor. You will not be able to save it, but you can view all tabs._
    </blockquote>
 
-2. Deploy the **governance-workbook** template. [Learn more](../../_resources/deploy.md).
+2. Deploy the **governance-workbook** template. [Learn more](../../../_resources/deploy.md).
 
    {% include deploy.html template="governance-workbook" public="1" gov="1" china="0" %}
 

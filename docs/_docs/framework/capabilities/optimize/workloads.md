@@ -78,7 +78,7 @@ When you first start working with a service or managing costs in the cloud, prio
   - If you choose to autostart, be aware of vacations and holidays where resources may get started automatically but not be used.
   - Consider tagging manually stopped resources. [Save a query in Azure Resource Graph](https://learn.microsoft.com/azure/governance/resource-graph/first-query-portal) or a view in the All resources list and pin it to the Azure portal dashboard to ensure all resources are stopped.
 - Consider architectural models such as containers and serverless to only use resources when they're needed, and to drive maximum efficiency in key services.
-- Leverage the [Cost optimization workbook](../../../../_optimize/optimization-workbook/cost-optimization-workbook.md) to evaluate resource utilization, like idle and unused resources.
+- Leverage the [Cost optimization workbook](../../../_optimize/optimization-workbook/cost-optimization-workbook.md) to evaluate resource utilization, like idle and unused resources.
 
 <br>
 

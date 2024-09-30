@@ -5,6 +5,7 @@ title: Virtual machines
 nav_order: 0
 description: 'Create Linux and Windows virtual machines (VMs) in seconds and reduce costs.'
 permalink: /services/compute/virtual-machines
+nav_exclude: true
 ---
 
 <span class="fs-9 d-block mb-4">{service}</span>

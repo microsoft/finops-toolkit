@@ -18,7 +18,6 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
 
 - [🔄️ Unreleased](#️-unreleased)
 - [🚚 v0.6](#-v06)
-- [🚚 v0.6](#-v06-1)
 - [🪛 v0.5 Update 1](#-v05-update-1)
 - [🚚 v0.5](#-v05)
 - [🚚 v0.4](#-v04)
@@ -85,8 +84,8 @@ Legend:
 > ➕ Added:
 >
 > 1. Started a FinOps best practices library using Azure Resource Graph (ARG) queries from the Cost optimization workbook.
-> 2. Documented [how to use storage account SAS tokens to setup the reports](../docs/_reporting/power-bi/setup.md).
-> 3. Documented how to [preview reports with sample data using Power BI Desktop](../docs/_reporting/hubs/README.md).
+> 2. Documented [how to use storage account SAS tokens to setup the reports](../_reporting/power-bi/setup.md).
+> 3. Documented how to [preview reports with sample data using Power BI Desktop](../_reporting/hubs/README.md).
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
