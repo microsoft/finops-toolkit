@@ -18,6 +18,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
 
 - [🔄️ Unreleased](#️-unreleased)
 - [🚚 v0.6](#-v06)
+- [🚚 v0.6](#-v06-1)
 - [🪛 v0.5 Update 1](#-v05-update-1)
 - [🚚 v0.5](#-v05)
 - [🚚 v0.4](#-v04)
@@ -65,6 +66,13 @@ Legend:
 > 3. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
 > 4. ETL pipelile – Add support for parquet files created by Cost Management exports.
 
+🦾 Bicep modules
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Cost Management export modules for subscriptions and resource groups.
+
 <br><a name="latest"></a>
 
 ## 🚚 v0.6
@@ -76,7 +84,7 @@ Legend:
 
 > ➕ Added:
 >
-> 1. Published initial guidance for FinOps best practices. For the initial commit, this page contains the Azure Resource Graph (ARG) queries used by the Cost Optimization workbook.
+> 1. Started a FinOps best practices library using Azure Resource Graph (ARG) queries from the Cost optimization workbook.
 > 2. Documented [how to use storage account SAS tokens to setup the reports](../docs/_reporting/power-bi/setup.md).
 > 3. Documented how to [preview reports with sample data using Power BI Desktop](../docs/_reporting/hubs/README.md).
 
@@ -153,13 +161,6 @@ Legend:
 > ✏️ Changed:
 >
 > 1. Added a -ServiceSubcategory filter option to the Get-FinOpsService command.
-
-🦾 Bicep modules
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. Cost Management export modules for subscriptions and resource groups.
 
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
