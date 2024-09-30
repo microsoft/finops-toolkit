@@ -91,16 +91,7 @@
     "isPreview": false,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/informatica.datamanagement/organizations.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.aad/domainservices",
@@ -213,16 +204,7 @@
     "isPreview": false,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.agfoodplatform/farmbeats.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.agfoodplatform/farmbeatsextensiondefinitions",
@@ -244,6 +226,17 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.agfoodplatform/farmbeatssolutiondefinitions.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.agricultureplatform/agriservices",
+    "singularDisplayName": "Microsoft.AgriculturePlatform agri service",
+    "pluralDisplayName": "Microsoft.AgriculturePlatform agri services",
+    "lowerSingularDisplayName": "microsoft.agricultureplatform agri service",
+    "lowerPluralDisplayName": "microsoft.agricultureplatform agri services",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.agricultureplatform/agriservices.svg",
     "links": null
   },
   {
@@ -442,7 +435,8 @@
         "title": "AnyBuild README.md",
         "uri": "https://aka.ms/AnyBuild/Config"
       }
-    ]
+    ],
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.apicenter/deletedservices",
@@ -2550,16 +2544,7 @@
     "isPreview": false,
     "description": "Utilize Azure Data Transfer to securely transfer data between various environments.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azuredatatransfer/connections.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.azuredatatransfer/connections/flows",
@@ -2570,16 +2555,7 @@
     "isPreview": false,
     "description": "Utilize Azure Data Transfer to securely transfer data between various environments.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azuredatatransfer/connections/flows.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.azuredatatransfer/pipelines",
@@ -2590,16 +2566,7 @@
     "isPreview": false,
     "description": "Utilize Azure Data Transfer to securely transfer data between various environments.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azuredatatransfer/pipelines.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.azurefleet/fleets",
@@ -2610,6 +2577,30 @@
     "isPreview": false,
     "description": "Deploy a fleet of mixed-size virtual machines up to 10,000 instances across multiple availability zones. With flexible VM types and sizes, fleet switches seamlessly between VMs based on capacity and cost.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurefleet/fleets.svg",
+    "links": [
+      {
+        "title": "Learn more about Compute Fleet",
+        "uri": "http://go.microsoft.com/fwlink/?LinkId=2271880"
+      },
+      {
+        "title": "Frequently asked questions",
+        "uri": "http://go.microsoft.com/fwlink/?LinkId=2272097"
+      },
+      {
+        "title": "Quick create",
+        "uri": "http://go.microsoft.com/fwlink/?LinkId=2272098"
+      }
+    ]
+  },
+  {
+    "resourceType": "microsoft.azurefleet/fleetscomputehub",
+    "singularDisplayName": "Compute Fleet",
+    "pluralDisplayName": "Compute Fleet",
+    "lowerSingularDisplayName": "Compute Fleet",
+    "lowerPluralDisplayName": "Compute Fleet",
+    "isPreview": false,
+    "description": "Deploy a fleet of mixed-size virtual machines up to 10,000 instances across multiple availability zones. With flexible VM types and sizes, fleet switches seamlessly between VMs based on capacity and cost.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurefleet/fleetscomputehub.svg",
     "links": [
       {
         "title": "Learn more about Compute Fleet",
@@ -2755,16 +2746,7 @@
     "isPreview": false,
     "description": "Use Microsoft Playwright testing to run tests faster across browsers and OS platforms, and gain actionable insights from a unified reporting dashboard.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azureplaywrightservice/accounts.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.azurescan/scanningaccounts",
@@ -2775,16 +2757,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.azurescan/scanningaccounts.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.azuresphere/catalogs",
@@ -3206,16 +3179,7 @@
     "isPreview": false,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.baremetal/crayservers.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.baremetal/monitoringservers",
@@ -3226,16 +3190,7 @@
     "isPreview": false,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.baremetal/monitoringservers.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.baremetalinfrastructure/baremetalinstances",
@@ -3279,8 +3234,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/agreements",
@@ -3291,8 +3245,29 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/agreements.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.billing/billingaccounts/associatedtenants",
+    "singularDisplayName": "Microsoft.Billing billing accounts associated tenant",
+    "pluralDisplayName": "Microsoft.Billing billing accounts associated tenants",
+    "lowerSingularDisplayName": "microsoft.billing billing accounts associated tenant",
+    "lowerPluralDisplayName": "microsoft.billing billing accounts associated tenants",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/associatedtenants.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.billing/billingaccounts/availablebalance",
+    "singularDisplayName": "Microsoft.Billing billing accounts available balance",
+    "pluralDisplayName": "Microsoft.Billing billing accounts available balance",
+    "lowerSingularDisplayName": "microsoft.billing billing accounts available balance",
+    "lowerPluralDisplayName": "microsoft.billing billing accounts available balance",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/availablebalance.svg",
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/billingprofiles",
@@ -3303,8 +3278,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/billingprofiles.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/billingprofiles/availablebalance",
@@ -3315,8 +3289,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/billingprofiles/availablebalance.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/billingprofiles/billingroleassignments",
@@ -3327,8 +3300,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/billingprofiles/billingroleassignments.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/billingprofiles/billingroledefinitions",
@@ -3339,8 +3311,62 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/billingprofiles/billingroledefinitions.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.billing/billingaccounts/billingprofiles/billingsubscriptions",
+    "singularDisplayName": "Microsoft.Billing billing accounts billing profiles billing subscription",
+    "pluralDisplayName": "Microsoft.Billing billing accounts billing profiles billing subscriptions",
+    "lowerSingularDisplayName": "microsoft.billing billing accounts billing profiles billing subscription",
+    "lowerPluralDisplayName": "microsoft.billing billing accounts billing profiles billing subscriptions",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/billingprofiles/billingsubscriptions.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.billing/billingaccounts/billingprofiles/customers",
+    "singularDisplayName": "Microsoft.Billing billing accounts billing profiles customer",
+    "pluralDisplayName": "Microsoft.Billing billing accounts billing profiles customers",
+    "lowerSingularDisplayName": "microsoft.billing billing accounts billing profiles customer",
+    "lowerPluralDisplayName": "microsoft.billing billing accounts billing profiles customers",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/billingprofiles/customers.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.billing/billingaccounts/billingprofiles/customers/billingroleassignments",
+    "singularDisplayName": "Microsoft.Billing billing accounts billing profiles customers billing role assignment",
+    "pluralDisplayName": "Microsoft.Billing billing accounts billing profiles customers billing role assignments",
+    "lowerSingularDisplayName": "microsoft.billing billing accounts billing profiles customers billing role assignment",
+    "lowerPluralDisplayName": "microsoft.billing billing accounts billing profiles customers billing role assignments",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/billingprofiles/customers/billingroleassignments.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.billing/billingaccounts/billingprofiles/customers/billingroledefinitions",
+    "singularDisplayName": "Microsoft.Billing billing accounts billing profiles customers billing role definition",
+    "pluralDisplayName": "Microsoft.Billing billing accounts billing profiles customers billing role definitions",
+    "lowerSingularDisplayName": "microsoft.billing billing accounts billing profiles customers billing role definition",
+    "lowerPluralDisplayName": "microsoft.billing billing accounts billing profiles customers billing role definitions",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/billingprofiles/customers/billingroledefinitions.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.billing/billingaccounts/billingprofiles/customers/transfers",
+    "singularDisplayName": "Microsoft.Billing billing accounts billing profiles customers transfer",
+    "pluralDisplayName": "Microsoft.Billing billing accounts billing profiles customers transfers",
+    "lowerSingularDisplayName": "microsoft.billing billing accounts billing profiles customers transfer",
+    "lowerPluralDisplayName": "microsoft.billing billing accounts billing profiles customers transfers",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/billingprofiles/customers/transfers.svg",
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/billingprofiles/instructions",
@@ -3351,8 +3377,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/billingprofiles/instructions.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/billingprofiles/invoices",
@@ -3363,8 +3388,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/billingprofiles/invoices.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/billingprofiles/invoicesections",
@@ -3375,8 +3399,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/billingprofiles/invoicesections.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/billingprofiles/invoicesections/billingroleassignments",
@@ -3387,8 +3410,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/billingprofiles/invoicesections/billingroleassignments.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/billingprofiles/invoicesections/billingroledefinitions",
@@ -3399,8 +3421,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/billingprofiles/invoicesections/billingroledefinitions.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/billingprofiles/invoicesections/billingsubscriptions",
@@ -3411,8 +3432,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/billingprofiles/invoicesections/billingsubscriptions.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/billingprofiles/invoicesections/products",
@@ -3423,8 +3443,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/billingprofiles/invoicesections/products.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/billingprofiles/invoicesections/transfers",
@@ -3435,8 +3454,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/billingprofiles/invoicesections/transfers.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/billingprofiles/paymentmethodlinks",
@@ -3447,8 +3465,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/billingprofiles/paymentmethodlinks.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/billingprofiles/policies",
@@ -3459,8 +3476,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/billingprofiles/policies.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/billingprofiles/transactions",
@@ -3471,8 +3487,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/billingprofiles/transactions.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/billingroleassignments",
@@ -3483,8 +3498,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/billingroleassignments.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/billingroledefinitions",
@@ -3495,8 +3509,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/billingroledefinitions.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/billingsubscriptionaliases",
@@ -3507,8 +3520,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/billingsubscriptionaliases.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/billingsubscriptions",
@@ -3519,8 +3531,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/billingsubscriptions.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/billingsubscriptions/invoices",
@@ -3531,8 +3542,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/billingsubscriptions/invoices.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/customers",
@@ -3543,8 +3553,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/customers.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/customers/billingsubscriptions",
@@ -3555,8 +3564,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/customers/billingsubscriptions.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/customers/policies",
@@ -3567,8 +3575,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/customers/policies.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/customers/products",
@@ -3579,8 +3586,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/customers/products.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/departments",
@@ -3591,8 +3597,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/departments.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/departments/billingroleassignments",
@@ -3603,8 +3608,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/departments/billingroleassignments.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/departments/billingroledefinitions",
@@ -3615,8 +3619,18 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/departments/billingroledefinitions.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.billing/billingaccounts/departments/enrollmentaccounts",
+    "singularDisplayName": "Microsoft.Billing billing accounts departments enrollment account",
+    "pluralDisplayName": "Microsoft.Billing billing accounts departments enrollment accounts",
+    "lowerSingularDisplayName": "microsoft.billing billing accounts departments enrollment account",
+    "lowerPluralDisplayName": "microsoft.billing billing accounts departments enrollment accounts",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/departments/enrollmentaccounts.svg",
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/enrollmentaccounts",
@@ -3627,8 +3641,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/enrollmentaccounts.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/enrollmentaccounts/billingroleassignments",
@@ -3639,8 +3652,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/enrollmentaccounts/billingroleassignments.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/enrollmentaccounts/billingroledefinitions",
@@ -3651,8 +3663,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/enrollmentaccounts/billingroledefinitions.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/incentiveschedules",
@@ -3685,8 +3696,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/invoices.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/invoicesections",
@@ -3697,8 +3707,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/invoicesections.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/invoicesections/billingsubscriptions",
@@ -3709,8 +3718,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/invoicesections/billingsubscriptions.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/invoicesections/products",
@@ -3721,8 +3729,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/invoicesections/products.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/invoicesections/transfers",
@@ -3733,8 +3740,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/invoicesections/transfers.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/lineofcredit",
@@ -3745,8 +3751,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/lineofcredit.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/paymentmethods",
@@ -3757,8 +3762,18 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/paymentmethods.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.billing/billingaccounts/policies",
+    "singularDisplayName": "Microsoft.Billing billing accounts policy",
+    "pluralDisplayName": "Microsoft.Billing billing accounts policies",
+    "lowerSingularDisplayName": "microsoft.billing billing accounts policy",
+    "lowerPluralDisplayName": "microsoft.billing billing accounts policies",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/policies.svg",
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/products",
@@ -3769,8 +3784,29 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/products.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.billing/billingaccounts/reservationorders",
+    "singularDisplayName": "Microsoft.Billing billing accounts reservation order",
+    "pluralDisplayName": "Microsoft.Billing billing accounts reservation orders",
+    "lowerSingularDisplayName": "microsoft.billing billing accounts reservation order",
+    "lowerPluralDisplayName": "microsoft.billing billing accounts reservation orders",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/reservationorders.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.billing/billingaccounts/reservationorders/reservations",
+    "singularDisplayName": "Microsoft.Billing billing accounts reservation orders reservation",
+    "pluralDisplayName": "Microsoft.Billing billing accounts reservation orders reservations",
+    "lowerSingularDisplayName": "microsoft.billing billing accounts reservation orders reservation",
+    "lowerPluralDisplayName": "microsoft.billing billing accounts reservation orders reservations",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingaccounts/reservationorders/reservations.svg",
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingaccounts/savingsplanorders",
@@ -3815,8 +3851,18 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingproperty.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.billing/billingrequests",
+    "singularDisplayName": "Microsoft.Billing billing request",
+    "pluralDisplayName": "Microsoft.Billing billing requests",
+    "lowerSingularDisplayName": "microsoft.billing billing request",
+    "lowerPluralDisplayName": "microsoft.billing billing requests",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/billingrequests.svg",
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/billingroleassignments",
@@ -3851,8 +3897,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/enrollmentaccounts.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/paymentmethods",
@@ -3863,8 +3908,18 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/paymentmethods.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.billing/policies",
+    "singularDisplayName": "Microsoft.Billing policy",
+    "pluralDisplayName": "Microsoft.Billing policies",
+    "lowerSingularDisplayName": "microsoft.billing policy",
+    "lowerPluralDisplayName": "microsoft.billing policies",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/policies.svg",
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/promotions",
@@ -3875,8 +3930,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/promotions.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billing/transfers",
@@ -3887,8 +3941,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.billing/transfers.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.billingbenefits/incentiveschedules",
@@ -4623,16 +4676,7 @@
     "isPreview": false,
     "description": "A health model augments metric and logs with critical business context of a workload, enabling the automated evaluation of quantified health states.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.cloudhealth/healthmodels.svg",
-    "links": [
-      {
-        "title": "Build health models",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.cloudtest/accounts",
@@ -4643,6 +4687,17 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.cloudtest/accounts.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.cloudtest/buildcaches",
+    "singularDisplayName": "1ES Build Cache",
+    "pluralDisplayName": "1ES Build Caches",
+    "lowerSingularDisplayName": "1ES Build Cache",
+    "lowerPluralDisplayName": "1ES Build Caches",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.cloudtest/buildcaches.svg",
     "links": null
   },
   {
@@ -4687,16 +4742,7 @@
     "isPreview": false,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.clusterstor/nodes.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.codesigning/codesigningaccounts",
@@ -4707,16 +4753,7 @@
     "isPreview": false,
     "description": "Trusted Signing is a fully managed end-to-end service for signing. It manages all the keys and certificates through the Certification Authorities that are part of the Microsoft Trusted Root Program and meet WebTrust Certification and the latest industry compliance guidelines.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.codesigning/codesigningaccounts.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.codespaces/plans",
@@ -5459,6 +5496,86 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.computehub/advisorcost",
+    "singularDisplayName": "Recommendations",
+    "pluralDisplayName": "Recommendations",
+    "lowerSingularDisplayName": "Recommendations",
+    "lowerPluralDisplayName": "Recommendations",
+    "isPreview": false,
+    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/advisorcost.svg",
+    "links": [
+      {
+        "title": "Get consistent",
+        "uri": "https://aka.ms/portalfx/designpatterns"
+      }
+    ]
+  },
+  {
+    "resourceType": "microsoft.computehub/advisoroperationalexcellence",
+    "singularDisplayName": "Recommendations",
+    "pluralDisplayName": "Recommendations",
+    "lowerSingularDisplayName": "Recommendations",
+    "lowerPluralDisplayName": "Recommendations",
+    "isPreview": false,
+    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/advisoroperationalexcellence.svg",
+    "links": [
+      {
+        "title": "Get consistent",
+        "uri": "https://aka.ms/portalfx/designpatterns"
+      }
+    ]
+  },
+  {
+    "resourceType": "microsoft.computehub/advisorperformance",
+    "singularDisplayName": "Recommendations",
+    "pluralDisplayName": "Recommendations",
+    "lowerSingularDisplayName": "Recommendations",
+    "lowerPluralDisplayName": "Recommendations",
+    "isPreview": false,
+    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/advisorperformance.svg",
+    "links": [
+      {
+        "title": "Get consistent",
+        "uri": "https://aka.ms/portalfx/designpatterns"
+      }
+    ]
+  },
+  {
+    "resourceType": "microsoft.computehub/advisorreliability",
+    "singularDisplayName": "Recommendations",
+    "pluralDisplayName": "Recommendations",
+    "lowerSingularDisplayName": "Recommendations",
+    "lowerPluralDisplayName": "Recommendations",
+    "isPreview": false,
+    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/advisorreliability.svg",
+    "links": [
+      {
+        "title": "Get consistent",
+        "uri": "https://aka.ms/portalfx/designpatterns"
+      }
+    ]
+  },
+  {
+    "resourceType": "microsoft.computehub/advisorsecurity",
+    "singularDisplayName": "Recommendations",
+    "pluralDisplayName": "Recommendations",
+    "lowerSingularDisplayName": "Recommendations",
+    "lowerPluralDisplayName": "Recommendations",
+    "isPreview": false,
+    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/advisorsecurity.svg",
+    "links": [
+      {
+        "title": "Get consistent",
+        "uri": "https://aka.ms/portalfx/designpatterns"
+      }
+    ]
+  },
+  {
     "resourceType": "microsoft.computehub/all",
     "singularDisplayName": "All resources",
     "pluralDisplayName": "All resources",
@@ -5467,6 +5584,193 @@
     "isPreview": false,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/all.svg",
+    "links": [
+      {
+        "title": "Get consistent",
+        "uri": "https://aka.ms/portalfx/designpatterns"
+      }
+    ]
+  },
+  {
+    "resourceType": "microsoft.computehub/backup",
+    "singularDisplayName": "Backup job",
+    "pluralDisplayName": "Backup job",
+    "lowerSingularDisplayName": "Backup job",
+    "lowerPluralDisplayName": "Backup job",
+    "isPreview": false,
+    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/backup.svg",
+    "links": [
+      {
+        "title": "Get consistent",
+        "uri": "https://aka.ms/portalfx/designpatterns"
+      }
+    ]
+  },
+  {
+    "resourceType": "microsoft.computehub/healthevents",
+    "singularDisplayName": "Health events",
+    "pluralDisplayName": "Health events",
+    "lowerSingularDisplayName": "Health events",
+    "lowerPluralDisplayName": "Health events",
+    "isPreview": false,
+    "description": "No resource has availability related health events.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/healthevents.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.computehub/linuxostype",
+    "singularDisplayName": "Linux OS",
+    "pluralDisplayName": "Linux OS",
+    "lowerSingularDisplayName": "Linux OS",
+    "lowerPluralDisplayName": "Linux OS",
+    "isPreview": false,
+    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/linuxostype.svg",
+    "links": [
+      {
+        "title": "Get consistent",
+        "uri": "https://aka.ms/portalfx/designpatterns"
+      }
+    ]
+  },
+  {
+    "resourceType": "microsoft.computehub/microsoftdefenderfreetrialsubscription",
+    "singularDisplayName": "Microsoft defender",
+    "pluralDisplayName": "Microsoft defender",
+    "lowerSingularDisplayName": "Microsoft defender",
+    "lowerPluralDisplayName": "Microsoft defender",
+    "isPreview": false,
+    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/microsoftdefenderfreetrialsubscription.svg",
+    "links": [
+      {
+        "title": "Get consistent",
+        "uri": "https://aka.ms/portalfx/designpatterns"
+      }
+    ]
+  },
+  {
+    "resourceType": "microsoft.computehub/microsoftdefenderstandardsubscription",
+    "singularDisplayName": "Microsoft defender",
+    "pluralDisplayName": "Microsoft defender",
+    "lowerSingularDisplayName": "Microsoft defender",
+    "lowerPluralDisplayName": "Microsoft defender",
+    "isPreview": false,
+    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/microsoftdefenderstandardsubscription.svg",
+    "links": [
+      {
+        "title": "Get consistent",
+        "uri": "https://aka.ms/portalfx/designpatterns"
+      }
+    ]
+  },
+  {
+    "resourceType": "microsoft.computehub/outages",
+    "singularDisplayName": "Outages",
+    "pluralDisplayName": "Outages",
+    "lowerSingularDisplayName": "Outages",
+    "lowerPluralDisplayName": "Outages",
+    "isPreview": false,
+    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/outages.svg",
+    "links": [
+      {
+        "title": "Get consistent",
+        "uri": "https://aka.ms/portalfx/designpatterns"
+      }
+    ]
+  },
+  {
+    "resourceType": "microsoft.computehub/powerstatedeallocated",
+    "singularDisplayName": "Power states",
+    "pluralDisplayName": "Power states",
+    "lowerSingularDisplayName": "Power states",
+    "lowerPluralDisplayName": "Power states",
+    "isPreview": false,
+    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/powerstatedeallocated.svg",
+    "links": [
+      {
+        "title": "Get consistent",
+        "uri": "https://aka.ms/portalfx/designpatterns"
+      }
+    ]
+  },
+  {
+    "resourceType": "microsoft.computehub/powerstaterunning",
+    "singularDisplayName": "Power states",
+    "pluralDisplayName": "Power states",
+    "lowerSingularDisplayName": "Power states",
+    "lowerPluralDisplayName": "Power states",
+    "isPreview": false,
+    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/powerstaterunning.svg",
+    "links": [
+      {
+        "title": "Get consistent",
+        "uri": "https://aka.ms/portalfx/designpatterns"
+      }
+    ]
+  },
+  {
+    "resourceType": "microsoft.computehub/powerstatestopped",
+    "singularDisplayName": "Power states",
+    "pluralDisplayName": "Power states",
+    "lowerSingularDisplayName": "Power states",
+    "lowerPluralDisplayName": "Power states",
+    "isPreview": false,
+    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/powerstatestopped.svg",
+    "links": [
+      {
+        "title": "Get consistent",
+        "uri": "https://aka.ms/portalfx/designpatterns"
+      }
+    ]
+  },
+  {
+    "resourceType": "microsoft.computehub/provisioningstatefailedresources",
+    "singularDisplayName": "Provisioning states",
+    "pluralDisplayName": "Provisioning states",
+    "lowerSingularDisplayName": "Provisioning states",
+    "lowerPluralDisplayName": "Provisioning states",
+    "isPreview": false,
+    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/provisioningstatefailedresources.svg",
+    "links": [
+      {
+        "title": "Get consistent",
+        "uri": "https://aka.ms/portalfx/designpatterns"
+      }
+    ]
+  },
+  {
+    "resourceType": "microsoft.computehub/provisioningstatesucceededresources",
+    "singularDisplayName": "Provisioning states",
+    "pluralDisplayName": "Provisioning states",
+    "lowerSingularDisplayName": "Provisioning states",
+    "lowerPluralDisplayName": "Provisioning states",
+    "isPreview": false,
+    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/provisioningstatesucceededresources.svg",
+    "links": [
+      {
+        "title": "Get consistent",
+        "uri": "https://aka.ms/portalfx/designpatterns"
+      }
+    ]
+  },
+  {
+    "resourceType": "microsoft.computehub/windowsostype",
+    "singularDisplayName": "Windows OS",
+    "pluralDisplayName": "Windows OS",
+    "lowerSingularDisplayName": "Windows OS",
+    "lowerPluralDisplayName": "Windows OS",
+    "isPreview": false,
+    "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.computehub/windowsostype.svg",
     "links": [
       {
         "title": "Get consistent",
@@ -5995,6 +6299,17 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.contoso/employees/desks",
+    "singularDisplayName": "Microsoft.Contoso employees desk",
+    "pluralDisplayName": "Microsoft.Contoso employees desks",
+    "lowerSingularDisplayName": "microsoft.contoso employees desk",
+    "lowerPluralDisplayName": "microsoft.contoso employees desks",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.contoso/employees/desks.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.contoso/employees/nestedresourcetype",
     "singularDisplayName": "Microsoft.Contoso employees nested resource type",
     "pluralDisplayName": "Microsoft.Contoso employees nested resource type",
@@ -6296,6 +6611,17 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.databasefleetmanager/fleets",
+    "singularDisplayName": "Database fleet manager",
+    "pluralDisplayName": "Database fleets managers",
+    "lowerSingularDisplayName": "Database fleet manager",
+    "lowerPluralDisplayName": "Database fleets managers",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.databasefleetmanager/fleets.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.databasewatcher/watchers",
     "singularDisplayName": "Database watcher",
     "pluralDisplayName": "Database watchers",
@@ -6304,16 +6630,7 @@
     "isPreview": false,
     "description": "Database watcher is a managed monitoring solution for database services in the Azure SQL family. Create a watcher to monitor your Azure SQL estate in depth and with low latency.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.databasewatcher/watchers.svg",
-    "links": [
-      {
-        "title": "Overview",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Get started",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.databox/jobs",
@@ -6373,7 +6690,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.datacatalog/catalogs.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.datacollaboration/workspaces",
@@ -7248,6 +7566,28 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.deviceonboarding/onboardingservices",
+    "singularDisplayName": "Microsoft.DeviceOnboarding onboarding service",
+    "pluralDisplayName": "Microsoft.DeviceOnboarding onboarding services",
+    "lowerSingularDisplayName": "microsoft.deviceonboarding onboarding service",
+    "lowerPluralDisplayName": "microsoft.deviceonboarding onboarding services",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.deviceonboarding/onboardingservices.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.deviceonboarding/onboardingservices/policies",
+    "singularDisplayName": "Microsoft.DeviceOnboarding onboarding services policy",
+    "pluralDisplayName": "Microsoft.DeviceOnboarding onboarding services policies",
+    "lowerSingularDisplayName": "microsoft.deviceonboarding onboarding services policy",
+    "lowerPluralDisplayName": "microsoft.deviceonboarding onboarding services policies",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.deviceonboarding/onboardingservices/policies.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.deviceregistry/assetendpointprofiles",
     "singularDisplayName": "Microsoft.DeviceRegistry asset endpoint profile",
     "pluralDisplayName": "Microsoft.DeviceRegistry asset endpoint profiles",
@@ -7610,16 +7950,7 @@
     "isPreview": false,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.digitaltwins/digitaltwinsinstances.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.documentdb/cassandraclusters",
@@ -7715,7 +8046,7 @@
     "lowerSingularDisplayName": "microsoft.durabletask namespace",
     "lowerPluralDisplayName": "microsoft.durabletask namespaces",
     "isPreview": false,
-    "description": "A DurableTaskService resource",
+    "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.durabletask/namespaces.svg",
     "links": null
   },
@@ -7756,6 +8087,94 @@
         "uri": "https://learn.microsoft.com/azure/external-attack-surface-management/deploying-the-defender-easm-azure-resource#create-resources-in-a-resource-group"
       }
     ]
+  },
+  {
+    "resourceType": "microsoft.edge/configurations",
+    "singularDisplayName": "Microsoft.Edge configuration",
+    "pluralDisplayName": "Microsoft.Edge configurations",
+    "lowerSingularDisplayName": "microsoft.edge configuration",
+    "lowerPluralDisplayName": "microsoft.edge configurations",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.edge/configurations.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.edge/configurations/arcgatewayconfigurations",
+    "singularDisplayName": "Microsoft.Edge configurations arc gateway configuration",
+    "pluralDisplayName": "Microsoft.Edge configurations arc gateway configurations",
+    "lowerSingularDisplayName": "microsoft.edge configurations arc gateway configuration",
+    "lowerPluralDisplayName": "microsoft.edge configurations arc gateway configurations",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.edge/configurations/arcgatewayconfigurations.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.edge/configurations/connectivityconfigurations",
+    "singularDisplayName": "Microsoft.Edge configurations connectivity configuration",
+    "pluralDisplayName": "Microsoft.Edge configurations connectivity configurations",
+    "lowerSingularDisplayName": "microsoft.edge configurations connectivity configuration",
+    "lowerPluralDisplayName": "microsoft.edge configurations connectivity configurations",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.edge/configurations/connectivityconfigurations.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.edge/configurations/dynamicconfigurations",
+    "singularDisplayName": "Microsoft.Edge configurations dynamic configuration",
+    "pluralDisplayName": "Microsoft.Edge configurations dynamic configurations",
+    "lowerSingularDisplayName": "microsoft.edge configurations dynamic configuration",
+    "lowerPluralDisplayName": "microsoft.edge configurations dynamic configurations",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.edge/configurations/dynamicconfigurations.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.edge/configurations/dynamicconfigurations/versions",
+    "singularDisplayName": "Microsoft.Edge configurations dynamic configurations version",
+    "pluralDisplayName": "Microsoft.Edge configurations dynamic configurations versions",
+    "lowerSingularDisplayName": "microsoft.edge configurations dynamic configurations version",
+    "lowerPluralDisplayName": "microsoft.edge configurations dynamic configurations versions",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.edge/configurations/dynamicconfigurations/versions.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.edge/configurations/networkconfigurations",
+    "singularDisplayName": "Microsoft.Edge configurations network configuration",
+    "pluralDisplayName": "Microsoft.Edge configurations network configurations",
+    "lowerSingularDisplayName": "microsoft.edge configurations network configuration",
+    "lowerPluralDisplayName": "microsoft.edge configurations network configurations",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.edge/configurations/networkconfigurations.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.edge/configurations/securityconfigurations",
+    "singularDisplayName": "Microsoft.Edge configurations security configuration",
+    "pluralDisplayName": "Microsoft.Edge configurations security configurations",
+    "lowerSingularDisplayName": "microsoft.edge configurations security configuration",
+    "lowerPluralDisplayName": "microsoft.edge configurations security configurations",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.edge/configurations/securityconfigurations.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.edge/configurations/timeserverconfigurations",
+    "singularDisplayName": "Microsoft.Edge configurations time server configuration",
+    "pluralDisplayName": "Microsoft.Edge configurations time server configurations",
+    "lowerSingularDisplayName": "microsoft.edge configurations time server configuration",
+    "lowerPluralDisplayName": "microsoft.edge configurations time server configurations",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.edge/configurations/timeserverconfigurations.svg",
+    "links": null
   },
   {
     "resourceType": "microsoft.edge/connectivitystatuses",
@@ -8323,16 +8742,7 @@
     "isPreview": false,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.experimentation/experimentworkspaces.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.extendedlocation/customlocations",
@@ -8748,8 +9158,7 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.graphservices/accounts.svg",
-    "links": null,
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.guestconfiguration/guestconfigurationassignments",
@@ -8952,16 +9361,7 @@
     "isPreview": true,
     "description": "A health model augments metric and logs with critical business context of a workload, enabling the automated evaluation of quantified health states.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.healthmodel/healthmodels.svg",
-    "links": [
-      {
-        "title": "Build health models",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.help/diagnostics",
@@ -9936,7 +10336,7 @@
     "lowerSingularDisplayName": "microsoft.impact workload impacts insight",
     "lowerPluralDisplayName": "microsoft.impact workload impacts insights",
     "isPreview": false,
-    "description": "",
+    "description": "Insight resource",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.impact/workloadimpacts/insights.svg",
     "links": null
   },
@@ -10517,16 +10917,7 @@
     "isPreview": false,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.iotoperationsmq/mq.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.iotoperationsorchestrator/instances",
@@ -10660,16 +11051,7 @@
     "isPreview": false,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.kubernetes/connectedclusters.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.kubernetes/connectedclusters/microsoft.kubernetesconfiguration/extensions",
@@ -10827,16 +11209,7 @@
     "isPreview": false,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.kubernetesruntime/loadbalancers.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.kubernetesruntime/services",
@@ -11123,7 +11496,8 @@
         "title": "Learn more about Azure Machine Learning",
         "uri": "https://azure.microsoft.com/services/machine-learning/"
       }
-    ]
+    ],
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.machinelearning/webservices",
@@ -11139,7 +11513,8 @@
         "title": "Learn more about Azure Machine Learning",
         "uri": "https://azure.microsoft.com/services/machine-learning/"
       }
-    ]
+    ],
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.machinelearning/workspaces",
@@ -11155,7 +11530,8 @@
         "title": "Learn more about Azure Machine Learning",
         "uri": "https://docs.microsoft.com/azure/machine-learning/compare-azure-ml-to-studio-classic"
       }
-    ]
+    ],
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.machinelearningexperimentation/accounts",
@@ -11525,7 +11901,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.managednetworkfabric/networkfabricskus.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.managednetworkfabric/networkpacketbrokers",
@@ -11702,16 +12079,7 @@
     "isPreview": false,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.manufacturingplatform/manufacturingdataservices.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.maps/accounts",
@@ -12818,8 +13186,7 @@
         "title": "Learn more",
         "uri": "https://azure.microsoft.com/"
       }
-    ],
-    "missingMetadata": true
+    ]
   },
   {
     "resourceType": "microsoft.mission/internalconnections",
@@ -12835,8 +13202,7 @@
         "title": "Learn more",
         "uri": "https://azure.microsoft.com/"
       }
-    ],
-    "missingMetadata": true
+    ]
   },
   {
     "resourceType": "microsoft.mission/virtualenclaves",
@@ -12987,7 +13353,8 @@
     "isPreview": false,
     "description": "Azure for Operators 5G Core Access and Mobility Function (AMF) Deployment Resource",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilenetwork/amfdeployments.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.mobilenetwork/clusterservices",
@@ -12998,7 +13365,8 @@
     "isPreview": false,
     "description": "Azure for Operators 5G Core Cluster Service Resource",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilenetwork/clusterservices.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.mobilenetwork/mobilenetworks",
@@ -13080,7 +13448,8 @@
     "isPreview": false,
     "description": "Azure for Operators 5G Core Network Repository Function (NRF) Deployment Resource",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilenetwork/nrfdeployments.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.mobilenetwork/nssfdeployments",
@@ -13091,7 +13460,8 @@
     "isPreview": false,
     "description": "Azure for Operators 5G Core Network Slice Selection Function (NSSF) Deployment Resource",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilenetwork/nssfdeployments.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.mobilenetwork/observabilityservices",
@@ -13102,7 +13472,8 @@
     "isPreview": false,
     "description": "Azure for Operators 5G Core Observability Service Resource",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilenetwork/observabilityservices.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.mobilenetwork/packetcorecontrolplanes",
@@ -13168,7 +13539,8 @@
     "isPreview": false,
     "description": "Azure for Operators 5G Core Subscriber Data Management Function (SDM) Deployment Resource",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilenetwork/sdmdeployments.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.mobilenetwork/simgroups",
@@ -13212,7 +13584,8 @@
     "isPreview": false,
     "description": "Azure for Operators 5G Core Session Management Function (SMF) Deployment Resource",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilenetwork/smfdeployments.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.mobilenetwork/upfdeployments",
@@ -13223,7 +13596,8 @@
     "isPreview": false,
     "description": "Azure for Operators 5G Core User Plane Function (UPF) Deployment Resource",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilenetwork/upfdeployments.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.mobilenetwork/virtualizedmmedeployments",
@@ -13234,7 +13608,8 @@
     "isPreview": false,
     "description": "Azure for Operators 5G Core virtual Mobility Management Entity (MME) Deployment Resource",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilenetwork/virtualizedmmedeployments.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.mobilenetwork/vnfagentdeployments",
@@ -13245,7 +13620,8 @@
     "isPreview": false,
     "description": "Azure for Operators Virtual Network Function (VNF) Agent Deployment Resource",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.mobilenetwork/vnfagentdeployments.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.mobilepacketcore/amfdeployments",
@@ -13808,16 +14184,7 @@
     "isPreview": false,
     "description": "Azure DNS Domain List along with Dns Security policy allows you to monitor outgoing dns requests from a virtual network.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.network/dnsresolverdomainlists.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.network/dnsresolverpolicies",
@@ -13828,16 +14195,7 @@
     "isPreview": false,
     "description": "Azure DNS Security Policy provides a set of controls to prevent unintended access to customer data from bad actors. This is done by creating custom DNS traffic rules which can permit or deny traffic and also alerts customers of queries.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.network/dnsresolverpolicies.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.network/dnsresolvers",
@@ -13846,7 +14204,7 @@
     "lowerSingularDisplayName": "DNS private resolver",
     "lowerPluralDisplayName": "DNS private resolvers",
     "isPreview": false,
-    "description": "Azure DNS private resolver bridges on-premesis DNS namespaces with private DNS zones hosted on Azure DNS without the burden of deploying VM-based custom DNS servers. You can resolve DNS queries from on-premises networks and do conditional forwarding to on-premises DNS zones.",
+    "description": "Azure DNS private resolver bridges on-premises DNS namespaces with private DNS zones hosted on Azure DNS without the burden of deploying VM-based custom DNS servers. You can resolve DNS queries from on-premises networks and do conditional forwarding to on-premises DNS zones.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.network/dnsresolvers.svg",
     "links": [
       {
@@ -14619,7 +14977,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.network/vpngateways/vpnconnections.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.network/vpngateways/vpnconnections/vpnlinkconnections",
@@ -14630,7 +14989,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.network/vpngateways/vpnconnections/vpnlinkconnections.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.network/vpnserverconfigurations",
@@ -14674,7 +15034,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.networkanalytics/dataconnectors.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.networkanalytics/datalakehouses",
@@ -14685,7 +15046,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.networkanalytics/datalakehouses.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.networkanalytics/dataproducts",
@@ -14696,7 +15058,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.networkanalytics/dataproducts.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.networkanalytics/dataproducts/datatypes",
@@ -14707,7 +15070,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.networkanalytics/dataproducts/datatypes.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.networkanalytics/dataproductscatalogs",
@@ -14718,7 +15082,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.networkanalytics/dataproductscatalogs.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.networkanalytics/metricsingestionendpoints",
@@ -14741,7 +15106,8 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.networkanalytics/networkanalyticsproducts.svg",
-    "links": null
+    "links": null,
+    "missingMetadata": true
   },
   {
     "resourceType": "microsoft.networkcloud/baremetalmachines",
@@ -15714,16 +16080,7 @@
     "isPreview": false,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.openenergyplatform/energyservices.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.openlogisticsplatform/workspaces",
@@ -16911,6 +17268,17 @@
     "missingMetadata": true
   },
   {
+    "resourceType": "microsoft.resources/databoundaries",
+    "singularDisplayName": "Microsoft.Resources data boundary",
+    "pluralDisplayName": "Microsoft.Resources data boundaries",
+    "lowerSingularDisplayName": "microsoft.resources data boundary",
+    "lowerPluralDisplayName": "microsoft.resources data boundaries",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.resources/databoundaries.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.resources/deployments",
     "singularDisplayName": "Microsoft.Resources deployment",
     "pluralDisplayName": "Microsoft.Resources deployments",
@@ -17124,16 +17492,7 @@
     "isPreview": true,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.saashub/cloudservices/hidden.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.salescopilot/conversationintelligencerecordingaccounts",
@@ -17155,16 +17514,7 @@
     "isPreview": false,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.samplepartner/organizations.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.scheduler/jobcollections",
@@ -17306,7 +17656,7 @@
     "lowerSingularDisplayName": "search service",
     "lowerPluralDisplayName": "search services",
     "isPreview": false,
-    "description": "",
+    "description": "Information retrieval at scale for generative AI (RAG) and classic search over user-owned content.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.search/searchservices.svg",
     "links": null
   },
@@ -17900,16 +18250,7 @@
     "isPreview": false,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.securitydetonation/chambers.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.securityinsightsarg/sentinel",
@@ -18159,16 +18500,7 @@
     "isPreview": false,
     "description": "Interact with your Services Hub workspace and associated resources directly from the Azure Portal",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.serviceshub/connectors.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "microsoft.signalrservice/signalr",
@@ -18177,7 +18509,7 @@
     "lowerSingularDisplayName": "signalr",
     "lowerPluralDisplayName": "signalr",
     "isPreview": false,
-    "description": "",
+    "description": "Use Azure SignalR Service to simplify the development, deployment and management of real time web application using SignalR.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.signalrservice/signalr.svg",
     "links": null
   },
@@ -18188,7 +18520,7 @@
     "lowerSingularDisplayName": "signalr replica",
     "lowerPluralDisplayName": "signalr replicas",
     "isPreview": false,
-    "description": "",
+    "description": "Use Azure SignalR Replica to enable geo-replication for Azure SignalR service.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.signalrservice/signalr/replicas.svg",
     "links": null
   },
@@ -18199,7 +18531,7 @@
     "lowerSingularDisplayName": "Web PubSub Service",
     "lowerPluralDisplayName": "Web PubSub Service",
     "isPreview": false,
-    "description": "Azure Web PubSub Service is an Azure managed PaaS service to simplify the development, deployment and management of real time web application using WebSocket, with Azure supported SLA, scaling, performance and security. The service provides API/SDK/CLI/UI, and rich set of code samples, templates, and demo applications.",
+    "description": "Use Azure Web PubSub to simplify the development, deployment and management of real time web application using WebSocket, including MQTT over WebSocket.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.signalrservice/webpubsub.svg",
     "links": null
   },
@@ -18210,7 +18542,7 @@
     "lowerSingularDisplayName": "web pubSub service replica",
     "lowerPluralDisplayName": "web pubSub service replicas",
     "isPreview": false,
-    "description": "",
+    "description": "Use Azure Web PubSub Replica to enable geo-replication for Azure Web PubSub.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.signalrservice/webpubsub/replicas.svg",
     "links": null
   },
@@ -18975,6 +19307,17 @@
     "links": null
   },
   {
+    "resourceType": "microsoft.subscription/changetenantrequest",
+    "singularDisplayName": "Microsoft.Subscription change tenant request",
+    "pluralDisplayName": "Microsoft.Subscription change tenant request",
+    "lowerSingularDisplayName": "microsoft.subscription change tenant request",
+    "lowerPluralDisplayName": "microsoft.subscription change tenant request",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.subscription/changetenantrequest.svg",
+    "links": null
+  },
+  {
     "resourceType": "microsoft.subscription/policies",
     "singularDisplayName": "Microsoft.Subscription policy",
     "pluralDisplayName": "Microsoft.Subscription policies",
@@ -19061,6 +19404,17 @@
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.support/supporttickets.svg",
+    "links": null
+  },
+  {
+    "resourceType": "microsoft.sustainabilityservices/calculations",
+    "singularDisplayName": "Microsoft.SustainabilityServices calculation",
+    "pluralDisplayName": "Microsoft.SustainabilityServices calculations",
+    "lowerSingularDisplayName": "microsoft.sustainabilityservices calculation",
+    "lowerPluralDisplayName": "microsoft.sustainabilityservices calculations",
+    "isPreview": false,
+    "description": "",
+    "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.sustainabilityservices/calculations.svg",
     "links": null
   },
   {
@@ -19959,17 +20313,7 @@
     "isPreview": false,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/microsoft.windowspushnotificationservices/registrations.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ],
-    "missingMetadata": true
+    "links": null
   },
   {
     "resourceType": "microsoft.workloadmonitor/monitors",
@@ -20265,9 +20609,9 @@
   {
     "resourceType": "oracle.database/oraclesubscriptions",
     "singularDisplayName": "OracleSubscription",
-    "pluralDisplayName": "OracleSubscription",
-    "lowerSingularDisplayName": "oracleSubscription",
-    "lowerPluralDisplayName": "oracleSubscription",
+    "pluralDisplayName": "OracleSubscriptions",
+    "lowerSingularDisplayName": "OracleSubscription",
+    "lowerPluralDisplayName": "OracleSubscriptions",
     "isPreview": false,
     "description": "",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/oracle.database/oraclesubscriptions.svg",
@@ -20375,16 +20719,7 @@
     "isPreview": false,
     "description": "Consistent experiences across Azure enable users to leverage a few well-known and researched design patterns throughout Azure.",
     "icon": "https://microsoft.github.io/finops-toolkit/svg/solarwinds.observability/organizations.svg",
-    "links": [
-      {
-        "title": "Get consistent",
-        "uri": "https://aka.ms/portalfx/designpatterns"
-      },
-      {
-        "title": "Learn more",
-        "uri": "https://aka.ms/portalfx/browse"
-      }
-    ]
+    "links": null
   },
   {
     "resourceType": "splitio.experimentation/experimentationworkspaces",
