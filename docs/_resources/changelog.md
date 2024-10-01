@@ -137,6 +137,10 @@ Legend:
 >
 > 1. Replaced storage account key-based authentication with Entra ID authentication for improved security.
 >
+> 🛠️ Fixed:
+>
+> 1. Added expiring savings plans and reservations to usage workbooks ([#1014](https://github.com/microsoft/finops-toolkit/issues/1014))
+>
 > 🚫 Deprecated:
 >
 > 1. With the deprecation of the legacy Log Analytics agent in August 31, the `Setup-LogAnalyticsWorkspaces` script is no longer being maintained and will be removed in a future update.
