@@ -5,6 +5,7 @@ title: Exports
 nav_order: 10
 description: 'Publish Cost Management datasets to a storage account ad-hoc or on a recurring schedule'
 permalink: /bicep/exports
+nav_exclude: true
 ---
 
 <span class="fs-9 d-block mb-4">Exports</span>

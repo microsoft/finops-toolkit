@@ -521,6 +521,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "akiskips",
+      "name": "Orthodoxos Kipouridis",
+      "avatar_url": "https://avatars.githubusercontent.com/u/56831775?v=4",
+      "profile": "https://github.com/akiskips",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "commitType": "docs",

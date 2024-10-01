@@ -50,32 +50,9 @@ Install-Module -Name Az.OperationalInsights
 ./Setup-DataCollectionRules.ps1 -DestinationWorkspaceResourceId "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myResourceGroup/providers/Microsoft.OperationalInsights/workspaces/myWorkspace" -IntervalSeconds 30 -ResourceTags @{"tagName"="tagValue";"otherTagName"="otherTagValue"}
 ```
 
-### Log Analytics agent (legacy Microsoft Monitoring Agent)
+### Log Analytics agent (legacy Microsoft Monitoring Agent, deprecated on August 31, 2024)
 
-With the help of the `Setup-LogAnalyticsWorkspaces.ps1` script, you can validate and fix the configured Log Analytics performance counters on the workspaces of your choice. In its simplest form of usage, it looks at all the Log Analytics workspaces you have access to and, for each workspace with Azure VMs onboarded, it validates performance counters configuration and tells you which counters are missing. But you can target a specific workspace and, if required, automatically fix the missing counters. See usage details below.
-
-#### Requirements
-
-```powershell
-Install-Module -Name Az.Accounts
-Install-Module -Name Az.ResourceGraph
-Install-Module -Name Az.OperationalInsights
-```
-
-#### Usage
-
-```powershell
-./Setup-LogAnalyticsWorkspaces.ps1 [-AzureEnvironment <AzureChinaCloud|AzureUSGovernment|AzureGermanCloud|AzureCloud>] [-WorkspaceIds <comma-separated list of Log Analytics workspace IDs to validate>] [-IntervalSeconds <performance counter collection frequency - default 60>] [-AutoFix]
-
-# Example 1 - just check all the workspaces configuration
-./Setup-LogAnalyticsWorkspaces.ps1
-
-# Example 2 - fix all workspaces configuration (using default counter collection frequency)
-./Setup-LogAnalyticsWorkspaces.ps1 -AutoFix
-
-# Example 3 - fix specific workspaces configuration, using a custom counter collection frequency
-./Setup-LogAnalyticsWorkspaces.ps1 -AutoFix -WorkspaceIds "d69e840a-2890-4451-b63c-bcfc5580b90f","961550b2-2c4a-481a-9559-ddf53de4b455" -IntervalSeconds 30
-```
+If you are still using the legacy Log Analytics agent, please migrate to the [Azure Monitor Agent](https://learn.microsoft.com/azure/azure-monitor/agents/azure-monitor-agent-migration).
 
 <br>
 

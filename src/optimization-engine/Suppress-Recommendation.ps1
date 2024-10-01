@@ -114,9 +114,9 @@ $connectionSuccess = $false
 do {
     $tries++
     try {
-        $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
+        $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/" -AsSecureString
         $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$databaseServer,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
-        $Conn.AccessToken = $dbToken.Token
+        $Conn.AccessToken = $dbToken.Token | ConvertFrom-SecureString -AsPlainText
         $Conn.Open() 
         $Cmd=new-object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
@@ -261,9 +261,9 @@ if ("Y", "y" -contains $continueInput)
 
     $sqlStatement = "INSERT INTO [$suppressionsTable] VALUES (NEWID(), '$($controlRows.RecommendationSubTypeId)', '$suppressionType', $scope, GETDATE(), $endDate, '$author', '$notes', 1)"
 
-    $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
+    $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/" -AsSecureString
     $Conn2 = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$databaseServer,1433;Database=$databaseName;Encrypt=True;Connection Timeout=$SqlTimeout;") 
-    $Conn2.AccessToken = $dbToken.Token
+    $Conn2.AccessToken = $dbToken.Token | ConvertFrom-SecureString -AsPlainText
     $Conn2.Open() 
     
     $Cmd=new-object system.Data.SqlClient.SqlCommand

@@ -87,7 +87,7 @@ At this point, you've defined your organizational objectives, identified how cur
 
 - Evaluate limitations and gaps in existing tools and services and establish a plan to address them.
   - Automate tasks with [PowerShell commands](../../../../_automation/powershell/README.md) and [Bicep modules](../../../../_automation/bicep-registry/README.md).
-  - Consider lightweight tools for engineers, like the [Cost optimization](../../../../_optimize/optimization-workbook/README.md) or [Governance](../../../../_optimize/governance-workbook/README.md) workbooks.
+  - Consider lightweight tools for engineers, like the [Cost optimization](../../../../_optimize/workbooks/optimization/README.md) or [Governance](../../../../_optimize/workbooks/governance/README.md) workbooks.
   - If you're looking for an extensible platform for reporting and analytics, check out [FinOps hubs](../../../../_reporting/hubs/README.md) and connect to your hub from Microsoft Fabric to go even further.
 - Document the key processes around the tools and services available to teams.
   - Include when to use and how to get started with each.

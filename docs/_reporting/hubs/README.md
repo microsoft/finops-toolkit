@@ -20,6 +20,7 @@ Open, extensible, and scalable cost governance for the enterprise.
 - [🙋‍♀️ Why FinOps hubs?](#️-why-finops-hubs)
 - [🌟 Benefits](#-benefits)
 - [📦 What's included](#-whats-included)
+- [📚 Explore the FinOps reports](#-explore-the-finops-reports)
 - [➕ Create a new hub](#-create-a-new-hub)
 - [🛫 Get started with hubs](#-get-started-with-hubs)
 - [🔐 Required permissions](#-required-permissions)
@@ -98,11 +99,17 @@ Once deployed, you can report on the data in Power BI or by connecting to the st
 
 <br>
 
-## ➕ Create a new hub
+## 📚 Explore the FinOps reports
 
-<blockquote class="note" markdown="1">
-  _FinOps hubs 0.4 introduces support for FOCUS 1.0. This is **not** a breaking change and is completely backwards compatible with v0.3. To learn more, please refer to the [Upgrade guide](./upgrade.md)._
-</blockquote>
+Each report in the FinOps toolkit is available as a PBIX or PBIT file. The PBIX file contains sample data that can be viewed in Power BI desktop without connecting to your account.
+
+To visualize the reports available, simply download the PBIX Power BI report file from the desired [release](https://github.com/microsoft/finops-toolkit/releases) and open the report in Power BI Desktop. From there, you can navigate through the different pages of the report, which have been pre-filled with test data.
+
+![Screenshot of the Rate optimization report with test data](../../assets/images/hubs/rate-optimization-report.png)
+
+<br>
+
+## ➕ Create a new hub
 
 1. **Deploy your FinOps hub.**
 

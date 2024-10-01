@@ -42,7 +42,7 @@ The **Rate optimization report** summarizes existing and potential savings from 
 - Determine which resources used commitment discounts (aka chargeback).
 - Summarize cost savings from commitment discounts.
 
-You can download the Commitment discount report from the [latest release](https://github.com/microsoft/finops-toolkit/releases).
+You can download the Rate optimization report from the [latest release](https://github.com/microsoft/finops-toolkit/releases).
 
 <blockquote class="note" markdown="1">
 _The "Commitment discounts" report was renamed to "Rate optimization" in FinOps toolkit 0.4. The purpose and intent of the report remains the same._

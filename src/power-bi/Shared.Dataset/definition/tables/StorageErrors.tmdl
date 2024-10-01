@@ -33,11 +33,6 @@ table StorageErrors
 		summarizeBy: none
 		sourceColumn: Month
 
-		variation Variation
-			isDefault
-			relationship: d6cc07ff-8e76-48f9-be13-b2fd6cd79dcb
-			defaultHierarchy: LocalDateTable_c3c47274-cc2f-4ba2-a257-6f5d529787d5.'Date Hierarchy'
-
 		annotation SummarizationSetBy = Automatic
 
 		annotation UnderlyingDateTimeDataType = Date
@@ -137,11 +132,6 @@ table StorageErrors
 		summarizeBy: none
 		sourceColumn: Created
 
-		variation Variation
-			isDefault
-			relationship: df266e34-1a2c-4dad-8bc0-7d50597b1af4
-			defaultHierarchy: LocalDateTable_c4ce9464-15a6-4444-a0af-08644805dec6.'Date Hierarchy'
-
 		annotation SummarizationSetBy = Automatic
 
 	column Updated
@@ -150,11 +140,6 @@ table StorageErrors
 		lineageTag: 609cdadb-ad18-4292-9d1d-129a6c2bbaaf
 		summarizeBy: none
 		sourceColumn: Updated
-
-		variation Variation
-			isDefault
-			relationship: ca9ea6c6-eeee-430a-a936-bb09914ffa49
-			defaultHierarchy: LocalDateTable_c351bfa8-dbcf-4886-9895-35cf730d7efe.'Date Hierarchy'
 
 		annotation SummarizationSetBy = Automatic
 
@@ -186,7 +171,7 @@ table StorageErrors
 
 	partition StorageErrors = m
 		mode: import
-		queryGroup: 'FinOps toolkit'
+		queryGroup: Storage
 		source =
 				let
 				    CommonErrors = #table(
