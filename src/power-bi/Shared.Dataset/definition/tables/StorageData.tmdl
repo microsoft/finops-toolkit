@@ -31,11 +31,6 @@ table StorageData
 		summarizeBy: none
 		sourceColumn: Month
 
-		variation Variation
-			isDefault
-			relationship: 0bdee9e9-a59b-4464-9b13-1b4bc9238893
-			defaultHierarchy: LocalDateTable_f8c522a9-514b-435e-9c83-a31fe0c99a22.'Date Hierarchy'
-
 		annotation SummarizationSetBy = Automatic
 
 		annotation UnderlyingDateTimeDataType = Date
@@ -135,11 +130,6 @@ table StorageData
 		summarizeBy: none
 		sourceColumn: Created
 
-		variation Variation
-			isDefault
-			relationship: 3e5b5a82-1615-455a-b7fd-22bdfa92857a
-			defaultHierarchy: LocalDateTable_1be86c8b-1d56-4c92-b0c1-2de21a6b4e4d.'Date Hierarchy'
-
 		annotation SummarizationSetBy = Automatic
 
 	column Errors
@@ -157,214 +147,209 @@ table StorageData
 		summarizeBy: none
 		sourceColumn: Updated
 
-		variation Variation
-			isDefault
-			relationship: 61063fb0-0ac4-420c-89e2-9240625a4b80
-			defaultHierarchy: LocalDateTable_501171be-aa02-401b-9e82-2bf6f16d7de3.'Date Hierarchy'
-
 		annotation SummarizationSetBy = Automatic
 
 	partition StorageData = m
 		mode: import
-		queryGroup: 'FinOps toolkit'
+		queryGroup: Storage
 		source = ```
 				let
-		            hubStore = if #"Hub Storage URL" = "" or #"Hub Storage URL" = null then null else AzureStorage.DataLake(#"Hub Storage URL" & "/.."),
-		            expStore = if #"Export Storage URL" = "" or #"Export Storage URL" = null then null else AzureStorage.DataLake(#"Export Storage URL"),
-		            ADLS = if hubStore <> null then hubStore else expStore,
-				
-				    // 
-				    Files = Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(ADLS,
-				        "Segments",         each Text.Split(Text.Replace(Text.Trim([Folder Path], "/"), "https://", ""), "/")),
-				        "SegmentCount",     each List.Count([Segments])),
-				        "StorageAccount",   each Text.Split([Segments]{0}, "."){0}),
-				        "StorageContainer", each [Segments]{1}),
-				        "SizeInGB",     each 1.0 * [Attributes][Size] / 1000000000.0, type number),
-				        // "FileType", 
-				        //     each if [StorageContainer] <> "config" and [StorageContainer] <> "msexports" and [StorageContainer] <> "ingestion" then "Custom Content"
-				        //     else if [StorageContainer] = "config" and [Name] = "settings.json" then "Hub Settings"
-				        //     else if [StorageContainer] = "msexports" and [Name] = "manifest.json" then "Export Manifest"
-				        //     else if [StorageContainer] = "msexports" and [Name] = "_manifest.json" then "Legacy Export Manifest"
-				        //     else if [StorageContainer] = "msexports" and [Extension] = ".csv" then "Export CSV"
-				        //     else if [StorageContainer] <> "msexports" and [Extension] = ".csv" then "Unknown CSV"
-				        //     else if [StorageContainer] = "ingestion" and [Extension] = ".parquet" then "Ingested Parquet"
-				        //     else if [StorageContainer] <> "ingestion" and [Extension] = ".parquet" then "Unknown Parquet"
-				        //     else "Unsupported File"
-				        // ),
-				        // Identify intent
-				        // TODO: Need to update to account for legacy exports which have an extra level
-				        "IsExport",
-				            each ([Name] = "manifest.json" or [Name] = "_manifest.json" or [Extension] = ".csv") and (
-				                ([SegmentCount] > 7 and Text.Length([Segments]{[SegmentCount]-1}) = 36 and Text.Length([Segments]{[SegmentCount]-2}) = 12 and Text.Length([Segments]{[SegmentCount]-3}) = 17)
-				                or ([SegmentCount] > 6 and Text.Length([Segments]{[SegmentCount]-1}) = 36 and Text.Length([Segments]{[SegmentCount]-2}) = 17) // Exports v2 preview bug had a missing folder (remove after June 2025)
-				            )
-				        ),
-				
-				    // NOTE: Do not convert to UTC - UTC dates can show as the previous month based on the local timezone
-				    _toMonth   = (s) => Date.FromText(Text.Range(s, 0, 4) & "-" & Text.Range(s, 4, 2) & "-01"),
-				
-				    // Update segments to handle differences
-				    _swapCol     = (tbl, oldCol, newCol, newValFunc, optional newType) => let add = Table.AddColumn(tbl, newCol, newValFunc, newType), del = if Table.HasColumns(add, oldCol) then Table.RemoveColumns(add, {oldCol}) else add in del,
-				    _updateCol   = (tbl, col, newValFunc, optional newType) => let tmpCol = Text.Combine({"tmp_", col}), tmp = _swapCol(tbl, col, tmpCol, newValFunc, newType), ren = Table.RenameColumns(tmp, {{tmpCol, col}}) in ren,
-				    FixSegments  = _updateCol(_updateCol(Files,
-				        "Segments", each
-				            let
-				                count = List.Count([Segments]),
-				                output = 
-				                    if count > 6 and Text.Length([Segments]{count-1}) = 36 and Text.Length([Segments]{count-2}) = 17 
-				                    then List.InsertRange([Segments], count-2, {Text.Range([Segments]{count-2}, 0, 8) & "0000"}) 
-				                    else [Segments]
-				            in
-				                output
-				        ),
-				        "SegmentCount", each List.Count([Segments])),
-				
-				    Details = Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(FixSegments,
-				        "IsConfig",         each [StorageContainer] = "config" and [Name] = "settings.json"),
-				        "IsManifest",       each [IsExport] and [Name] = "manifest.json" or [Name] = "_manifest.json"),
-				        "IsLegacyManifest", each [IsManifest] and [Name] = "_manifest.json"),
-				        "IsData",           each [Extension] = ".csv" or [Extension] = ".parquet"),
-				        "IsIngestion",      each [Extension] = ".parquet" and [SegmentCount] > 5 and Text.Lower([Segments]{[SegmentCount]-1}) = "focuscost" and Text.Length([Segments]{[SegmentCount]-2}) = 6),
-				        "ContentType",
-				            each if [IsConfig]                                                      then "Hub Settings"
-				            else if [StorageContainer] = "config" and Text.StartsWith([Name], "focuscost_") and [Extension] = ".json" then "Dataset Schema"
-				            else if [IsManifest]                                                    then "Exported Manifest"
-				            else if [IsExport] and [IsData]                                         then "Exported Data"
-				            else if [StorageContainer] =  "msexports" and [IsExport] = false        then "Unsupported Content"
-				            else if [StorageContainer] <> "msexports" and [IsExport]                then "Orphaned Export"
-				            else if [IsIngestion] and [IsData]                                      then "Ingested Data"
-				            else if [StorageContainer] = "ingestion" and [IsIngestion] = false      then "Unsupported Content"
-				            else "Unsupported Content"
-				        ),
-				        // IngestionParquet = Table.AddColumn(ContentType,      "IngestionParquet", each if [FileType] = "Ingestion Parquet" then 1 else 0),
-				        // ExportManifest   = Table.AddColumn(IngestionParquet, "ExportManifest",   each if [FileType] = "Export Manifest" then 1 else 0),
-				        // ExportedCsv      = Table.AddColumn(ExportManifest,   "ExportedCsv",      each if [FileType] = "Export CSV" then 1 else 0),
-				        "StoragePath", each 
-				            let
-				                path = try (
-				                        if [IsExport] then Text.Combine(List.Range([Segments], 2, [SegmentCount] - 6), "/") // Segments to remove: storage account + container + export name + date range + export timestamp + export run id
-				                    else if [IsIngestion] and [Segments]{2} = "subscriptions" or [Segments]{2} = "providers" then Text.Combine(List.Range([Segments], 2, [SegmentCount] - 4), "/") // Segments to remove: storage account + container + month + dataset
-				                    else null
-				                )
-				                otherwise null,
-				                out = "/" & (if path <> null then path else Text.Combine(List.Range([Segments], 2, [SegmentCount] - 2), "/"))
-				            in
-				                out
-				        ),
-				        "IsScope",    each [StoragePath] <> null and (Text.StartsWith(Text.Lower([StoragePath]), "/subscriptions/") or Text.StartsWith(Text.Lower([StoragePath]), "/providers/"))),
-				        "Scope",      each if [IsScope] then [StoragePath] else null),
-				        "Month",
-				            each if [IsExport]    then _toMonth([Segments]{[SegmentCount]-3}) 
-				            else if [IsIngestion] then _toMonth([Segments]{[SegmentCount]-2})
-				            else null,
-				            type date
-				        ),
-				        "Json",       each if [IsConfig] or ([IsExport] and [IsManifest]) then try Json.Document([Content]) otherwise null else null),
-				        "HubVersion", each if [IsConfig] and [Json] <> null then Record.FieldOrDefault([Json], "version", null) else null),
-				        // TODO: If checking retention
-				        // Retention       = Table.ExpandRecordColumn(ToTable, "retention", {"msexports", "ingestion"}, {"retention.msexports", "retention.ingestion"}),
-				        // ExportRetention = Table.ExpandRecordColumn(Retention, "retention.msexports", {"days"}, {"ExportRetentionInDays"}),
-				        // IngestRetention = Table.ExpandRecordColumn(ExportRetention, "retention.ingestion", {"months"}, {"IngestionRetentionInMonths"}),
-				        // TODO: If checking configured scopes -- ScopeCount = Table.AddColumn(IngestRetention, "Scopes", each List.Count(List.RemoveMatchingItems([scopes], {"/foo", ""}))),
-				        // TODO: Need to update to account for legacy exports which have an extra level
-				        "ExportName",
-				            each if [Json] <> null and [IsExport] and [IsManifest] and [IsLegacyManifest] = false then [Json][exportConfig][exportName]
-				            else if [IsExport] then [Segments]{[SegmentCount]-4}
-				            else null
-				        ),
-				        "ApiVersion", 
-				            each if [Json] <> null and [IsExport] and [IsManifest] then (
-				                if [IsLegacyManifest] then [Json][manifestVersion] 
-				                else [Json][exportConfig][apiVersion] 
-				            )
-				            else null
-				        ),
-				        // RowCount    = Table.AddColumn(ApiVersion, "DatasetRows", each if [Name] = "manifest.json" then [Manifest][dataRowCount] else null, type number),
-				        // TimeFrame   = Table.AddColumn(ApiVersion, "TimeFrame", each if [Name] = "manifest.json" then [Json][exportConfig][timeFrame] else null),
-				        // Granularity = Table.AddColumn(TimeFrame, "Granularity", each if [Name] = "manifest.json" then [Json][exportConfig][granularity] else null),
-				        "Dataset", 
-				            each try
-				                if [Json] <> null and [IsExport] and [IsManifest] then (
-				                    if [IsLegacyManifest] then "Actual/AmortizedCost"
-				                    else [Json][exportConfig][type] 
-				                )
-				                else if [IsIngestion] then Text.Lower([Segments]{[SegmentCount]-1})
-				                else null
-				            otherwise null
-				        ),
-				        "DatasetVersion", each if [Json] <> null and [IsExport] and [IsManifest] and [IsLegacyManifest] = false then [Json][exportConfig][dataVersion] else null),
-				        // Partitioning  = Table.AddColumn(DataVersion,  "Partitioning", each if [Name] = "manifest.json" then [Json][deliveryConfig][partitionData] else null),
-				        // ExportFormat  = Table.AddColumn(Partitioning, "ExportFormat", each if [Name] = "manifest.json" then [Json][deliveryConfig][fileFormat] else null),
-				        // StoragePath    = Table.AddColumn(ExportFormat, "StoragePath", each if [Name] = "manifest.json" then [Json][deliveryConfig][rootFolderPath] else null),
-				        // ExportedBytes = Table.AddColumn(ExportPath,   "ExportedBytes", 
-				        //     each if [Name] = "manifest.json" then List.Sum(List.Transform([Json][blobs], each _[byteCount]))
-				        //     else if [Name] = "_manifest.json" then [Json][byteCount]
-				        //     else null
-				        // ),
-				        // ExportedRows = Table.AddColumn(ExportedBytes, "ExportedRows", each if [Name] = "manifest.json" then null else if [Name] = "_manifest.json" then [Json][dataRowCount] else null),
-				
-				        // ExportedRows = Table.AddColumn(ExportedBytes, "ExportedRows", each if [Name] = "manifest.json" then null else if [Name] = "_manifest.json" then [Json][dataRowCount] else null),
-				
-				        // Identify problems
-				        // TODO: Add handling for data ingestion scenarios: No exports/ingestion, Export in wrong container, Export not ingested, Exported for wrong month
-				        // Pipeline = if Table.RowCount(Table.SelectRows(PreCheck, each ([IsExport] or [IsIngestion]) and 1 = 2)) = 0 then Table.Combine({ PreCheck, #table({"StorageContainer", "Name"}, ({"msexports", "manifest.json"})) })
-				        //     //if Table.RowCount(Table.SelectRows(PreCheck, each ([StorageContainer] = "msexports" and [Name] = "manifest.json")) or ([StorageContainer] = "ingestion" and [Extension] = ".parquet")) = 0 then Table.Combine(PreCheck, Table.FromRecords({[FileCategory = "Export", FileType = "Export Manifest"]}))
-				        //     // else if Table.RowCount(Table.SelectRows(PreCheck, each [Extension] = ".parquet")) = 0 then _getError("NoDataIngested")
-				        //     else PreCheck,
-				        "Error",
-				            each try if [StorageContainer] = "config" and [Name] = "settings.json" then (
-				                try  if (Text.StartsWith([HubVersion], "0.0") or Text.StartsWith([HubVersion], "0.1")) then "InvalidHubVersion"
-				                else if [HubVersion] = "0.2"                                                           then "BadHubVersion"
-				                else null
-				                otherwise "UnknownHubVersion"
-				            )
-				            else if [StorageContainer] = "msexports" then (
-				                if [Name] = "manifest.json" and [Folder Path] = null then "ExportNotFound"
-				                else if [Name] = "_manifest.json"                    then "InvalidExportVersion"
-				                else if [IsExport] = false                           then "UnknownExportFile"
-				                else if [IsExport] and [Dataset] <> null and [Dataset] <> "" and Text.Lower([Dataset]) <> "focuscost" then "UnsupportedExportType"
-				                else null
-				            )
-				            else if [StorageContainer] <> "msexports" and [IsExport]               then "InvalidExportContainer"
-				            else if ([IsExport] or [IsIngestion]) and [IsScope] = false            then "InvalidScopeId"
-				            // TODO: Check for data exported before ??? when there were known issues in FocusCost preview
-				            // TODO: Check for export data type from the manifest (InvalidExportType)
-				            // TODO: Add a dynamic row if there is no ingested data
-				            // TODO: Add a dynamic row if there is no exported data
-				            // TODO: Add a dynamic row if the configured start/end dates are outside the dates where exports are available
-				            // TODO: Add a dynamic row if the config/settings.json is not found (wrong storage account)
-				            else null
-				            otherwise "ErrorCheckFailed"
-				        ),
-				
-				    // Cleanup
-				    _columns = {"Scope", "Dataset", "DatasetVersion", "Month", "Errors", "AllFiles", "ConfigFiles", "DataFiles", "UnsupportedFiles", "SizeInGB", "StorageAccount", "StorageContainer", "StoragePath", "ExportName", "Created", "Updated"},
-				    Finalize   = Table.ReorderColumns(
-				        Table.SelectColumns(
-				            Table.Group(
-				                Table.RenameColumns(Details, {{"Date modified", "Updated"}, {"Name", "FileName"}}), {
-				                    "Scope", "Month", "StorageAccount", "StorageContainer", "StoragePath", "ExportName"// "ApiVersion"
-				                }, {
-				                    {"Dataset", each List.First(List.Distinct(List.RemoveNulls([Dataset]))), type text},
-				                    {"DatasetVersion", each List.SingleOrDefault(List.Distinct(List.RemoveNulls([DatasetVersion]))), type text},
-				                    // "ApiVersion", "HubVersion", "IsConfig", "IsManifest", "IsLegacyManifest", "IsData", "IsExport", "IsIngestion", "Error", 
-				                    {"AllFiles", each Table.RowCount(_), Int64.Type},
-				                    {"ConfigFiles", each Table.RowCount(Table.SelectRows(_, each [Extension] = ".json")), Int64.Type},
-				                    {"DataFiles", each Table.RowCount(Table.SelectRows(_, each [IsData])), Int64.Type},
-				                    {"UnsupportedFiles", each Table.RowCount(Table.SelectRows(_, each [ContentType] = "Unsupported Content" or [ContentType] = "Orphaned Export")), Int64.Type},
-				                    {"Errors", each List.Distinct(List.RemoveNulls([Error]))},
-				                    // {"Content", each [ContentType]},
-				                    {"SizeInGB", each List.Sum([SizeInGB]), type number},
-				                    {"Created", each List.Min([Updated]), type nullable datetime}, 
-				                    {"Updated", each List.Max([Updated]), type nullable datetime}
-				                }
-				            ),
-				            _columns
-				        ),
-				        _columns
-				    )
-				in
-				    Finalize
+				            hubStore = if #"Hub Storage URL" = "" or #"Hub Storage URL" = null then null else AzureStorage.DataLake(#"Hub Storage URL" & "/.."),
+				            expStore = if #"Export Storage URL" = "" or #"Export Storage URL" = null then null else AzureStorage.DataLake(#"Export Storage URL"),
+				            ADLS = if hubStore <> null then hubStore else expStore,
+						
+						    // 
+						    Files = Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(ADLS,
+						        "Segments",         each Text.Split(Text.Replace(Text.Trim([Folder Path], "/"), "https://", ""), "/")),
+						        "SegmentCount",     each List.Count([Segments])),
+						        "StorageAccount",   each Text.Split([Segments]{0}, "."){0}),
+						        "StorageContainer", each [Segments]{1}),
+						        "SizeInGB",     each 1.0 * [Attributes][Size] / 1000000000.0, type number),
+						        // "FileType", 
+						        //     each if [StorageContainer] <> "config" and [StorageContainer] <> "msexports" and [StorageContainer] <> "ingestion" then "Custom Content"
+						        //     else if [StorageContainer] = "config" and [Name] = "settings.json" then "Hub Settings"
+						        //     else if [StorageContainer] = "msexports" and [Name] = "manifest.json" then "Export Manifest"
+						        //     else if [StorageContainer] = "msexports" and [Name] = "_manifest.json" then "Legacy Export Manifest"
+						        //     else if [StorageContainer] = "msexports" and [Extension] = ".csv" then "Export CSV"
+						        //     else if [StorageContainer] <> "msexports" and [Extension] = ".csv" then "Unknown CSV"
+						        //     else if [StorageContainer] = "ingestion" and [Extension] = ".parquet" then "Ingested Parquet"
+						        //     else if [StorageContainer] <> "ingestion" and [Extension] = ".parquet" then "Unknown Parquet"
+						        //     else "Unsupported File"
+						        // ),
+						        // Identify intent
+						        // TODO: Need to update to account for legacy exports which have an extra level
+						        "IsExport",
+						            each ([Name] = "manifest.json" or [Name] = "_manifest.json" or [Extension] = ".csv") and (
+						                ([SegmentCount] > 7 and Text.Length([Segments]{[SegmentCount]-1}) = 36 and Text.Length([Segments]{[SegmentCount]-2}) = 12 and Text.Length([Segments]{[SegmentCount]-3}) = 17)
+						                or ([SegmentCount] > 6 and Text.Length([Segments]{[SegmentCount]-1}) = 36 and Text.Length([Segments]{[SegmentCount]-2}) = 17) // Exports v2 preview bug had a missing folder (remove after June 2025)
+						            )
+						        ),
+						
+						    // NOTE: Do not convert to UTC - UTC dates can show as the previous month based on the local timezone
+						    _toMonth   = (s) => Date.FromText(Text.Range(s, 0, 4) & "-" & Text.Range(s, 4, 2) & "-01"),
+						
+						    // Update segments to handle differences
+						    _swapCol     = (tbl, oldCol, newCol, newValFunc, optional newType) => let add = Table.AddColumn(tbl, newCol, newValFunc, newType), del = if Table.HasColumns(add, oldCol) then Table.RemoveColumns(add, {oldCol}) else add in del,
+						    _updateCol   = (tbl, col, newValFunc, optional newType) => let tmpCol = Text.Combine({"tmp_", col}), tmp = _swapCol(tbl, col, tmpCol, newValFunc, newType), ren = Table.RenameColumns(tmp, {{tmpCol, col}}) in ren,
+						    FixSegments  = _updateCol(_updateCol(Files,
+						        "Segments", each
+						            let
+						                count = List.Count([Segments]),
+						                output = 
+						                    if count > 6 and Text.Length([Segments]{count-1}) = 36 and Text.Length([Segments]{count-2}) = 17 
+						                    then List.InsertRange([Segments], count-2, {Text.Range([Segments]{count-2}, 0, 8) & "0000"}) 
+						                    else [Segments]
+						            in
+						                output
+						        ),
+						        "SegmentCount", each List.Count([Segments])),
+						
+						    Details = Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(FixSegments,
+						        "IsConfig",         each [StorageContainer] = "config" and [Name] = "settings.json"),
+						        "IsManifest",       each [IsExport] and [Name] = "manifest.json" or [Name] = "_manifest.json"),
+						        "IsLegacyManifest", each [IsManifest] and [Name] = "_manifest.json"),
+						        "IsData",           each [Extension] = ".csv" or [Extension] = ".parquet"),
+						        "IsIngestion",      each [Extension] = ".parquet" and [SegmentCount] > 5 and Text.Lower([Segments]{[SegmentCount]-1}) = "focuscost" and Text.Length([Segments]{[SegmentCount]-2}) = 6),
+						        "ContentType",
+						            each if [IsConfig]                                                      then "Hub Settings"
+						            else if [StorageContainer] = "config" and Text.StartsWith([Name], "focuscost_") and [Extension] = ".json" then "Dataset Schema"
+						            else if [IsManifest]                                                    then "Exported Manifest"
+						            else if [IsExport] and [IsData]                                         then "Exported Data"
+						            else if [StorageContainer] =  "msexports" and [IsExport] = false        then "Unsupported Content"
+						            else if [StorageContainer] <> "msexports" and [IsExport]                then "Orphaned Export"
+						            else if [IsIngestion] and [IsData]                                      then "Ingested Data"
+						            else if [StorageContainer] = "ingestion" and [IsIngestion] = false      then "Unsupported Content"
+						            else "Unsupported Content"
+						        ),
+						        // IngestionParquet = Table.AddColumn(ContentType,      "IngestionParquet", each if [FileType] = "Ingestion Parquet" then 1 else 0),
+						        // ExportManifest   = Table.AddColumn(IngestionParquet, "ExportManifest",   each if [FileType] = "Export Manifest" then 1 else 0),
+						        // ExportedCsv      = Table.AddColumn(ExportManifest,   "ExportedCsv",      each if [FileType] = "Export CSV" then 1 else 0),
+						        "StoragePath", each 
+						            let
+						                path = try (
+						                        if [IsExport] then Text.Combine(List.Range([Segments], 2, [SegmentCount] - 6), "/") // Segments to remove: storage account + container + export name + date range + export timestamp + export run id
+						                    else if [IsIngestion] and [Segments]{2} = "subscriptions" or [Segments]{2} = "providers" then Text.Combine(List.Range([Segments], 2, [SegmentCount] - 4), "/") // Segments to remove: storage account + container + month + dataset
+						                    else null
+						                )
+						                otherwise null,
+						                out = "/" & (if path <> null then path else Text.Combine(List.Range([Segments], 2, [SegmentCount] - 2), "/"))
+						            in
+						                out
+						        ),
+						        "IsScope",    each [StoragePath] <> null and (Text.StartsWith(Text.Lower([StoragePath]), "/subscriptions/") or Text.StartsWith(Text.Lower([StoragePath]), "/providers/"))),
+						        "Scope",      each if [IsScope] then [StoragePath] else null),
+						        "Month",
+						            each if [IsExport]    then _toMonth([Segments]{[SegmentCount]-3}) 
+						            else if [IsIngestion] then _toMonth([Segments]{[SegmentCount]-2})
+						            else null,
+						            type date
+						        ),
+						        "Json",       each if [IsConfig] or ([IsExport] and [IsManifest]) then try Json.Document([Content]) otherwise null else null),
+						        "HubVersion", each if [IsConfig] and [Json] <> null then Record.FieldOrDefault([Json], "version", null) else null),
+						        // TODO: If checking retention
+						        // Retention       = Table.ExpandRecordColumn(ToTable, "retention", {"msexports", "ingestion"}, {"retention.msexports", "retention.ingestion"}),
+						        // ExportRetention = Table.ExpandRecordColumn(Retention, "retention.msexports", {"days"}, {"ExportRetentionInDays"}),
+						        // IngestRetention = Table.ExpandRecordColumn(ExportRetention, "retention.ingestion", {"months"}, {"IngestionRetentionInMonths"}),
+						        // TODO: If checking configured scopes -- ScopeCount = Table.AddColumn(IngestRetention, "Scopes", each List.Count(List.RemoveMatchingItems([scopes], {"/foo", ""}))),
+						        // TODO: Need to update to account for legacy exports which have an extra level
+						        "ExportName",
+						            each if [Json] <> null and [IsExport] and [IsManifest] and [IsLegacyManifest] = false then [Json][exportConfig][exportName]
+						            else if [IsExport] then [Segments]{[SegmentCount]-4}
+						            else null
+						        ),
+						        "ApiVersion", 
+						            each if [Json] <> null and [IsExport] and [IsManifest] then (
+						                if [IsLegacyManifest] then [Json][manifestVersion] 
+						                else [Json][exportConfig][apiVersion] 
+						            )
+						            else null
+						        ),
+						        // RowCount    = Table.AddColumn(ApiVersion, "DatasetRows", each if [Name] = "manifest.json" then [Manifest][dataRowCount] else null, type number),
+						        // TimeFrame   = Table.AddColumn(ApiVersion, "TimeFrame", each if [Name] = "manifest.json" then [Json][exportConfig][timeFrame] else null),
+						        // Granularity = Table.AddColumn(TimeFrame, "Granularity", each if [Name] = "manifest.json" then [Json][exportConfig][granularity] else null),
+						        "Dataset", 
+						            each try
+						                if [Json] <> null and [IsExport] and [IsManifest] then (
+						                    if [IsLegacyManifest] then "Actual/AmortizedCost"
+						                    else [Json][exportConfig][type] 
+						                )
+						                else if [IsIngestion] then Text.Lower([Segments]{[SegmentCount]-1})
+						                else null
+						            otherwise null
+						        ),
+						        "DatasetVersion", each if [Json] <> null and [IsExport] and [IsManifest] and [IsLegacyManifest] = false then [Json][exportConfig][dataVersion] else null),
+						        // Partitioning  = Table.AddColumn(DataVersion,  "Partitioning", each if [Name] = "manifest.json" then [Json][deliveryConfig][partitionData] else null),
+						        // ExportFormat  = Table.AddColumn(Partitioning, "ExportFormat", each if [Name] = "manifest.json" then [Json][deliveryConfig][fileFormat] else null),
+						        // StoragePath    = Table.AddColumn(ExportFormat, "StoragePath", each if [Name] = "manifest.json" then [Json][deliveryConfig][rootFolderPath] else null),
+						        // ExportedBytes = Table.AddColumn(ExportPath,   "ExportedBytes", 
+						        //     each if [Name] = "manifest.json" then List.Sum(List.Transform([Json][blobs], each _[byteCount]))
+						        //     else if [Name] = "_manifest.json" then [Json][byteCount]
+						        //     else null
+						        // ),
+						        // ExportedRows = Table.AddColumn(ExportedBytes, "ExportedRows", each if [Name] = "manifest.json" then null else if [Name] = "_manifest.json" then [Json][dataRowCount] else null),
+						
+						        // ExportedRows = Table.AddColumn(ExportedBytes, "ExportedRows", each if [Name] = "manifest.json" then null else if [Name] = "_manifest.json" then [Json][dataRowCount] else null),
+						
+						        // Identify problems
+						        // TODO: Add handling for data ingestion scenarios: No exports/ingestion, Export in wrong container, Export not ingested, Exported for wrong month
+						        // Pipeline = if Table.RowCount(Table.SelectRows(PreCheck, each ([IsExport] or [IsIngestion]) and 1 = 2)) = 0 then Table.Combine({ PreCheck, #table({"StorageContainer", "Name"}, ({"msexports", "manifest.json"})) })
+						        //     //if Table.RowCount(Table.SelectRows(PreCheck, each ([StorageContainer] = "msexports" and [Name] = "manifest.json")) or ([StorageContainer] = "ingestion" and [Extension] = ".parquet")) = 0 then Table.Combine(PreCheck, Table.FromRecords({[FileCategory = "Export", FileType = "Export Manifest"]}))
+						        //     // else if Table.RowCount(Table.SelectRows(PreCheck, each [Extension] = ".parquet")) = 0 then _getError("NoDataIngested")
+						        //     else PreCheck,
+						        "Error",
+						            each try if [StorageContainer] = "config" and [Name] = "settings.json" then (
+						                try  if (Text.StartsWith([HubVersion], "0.0") or Text.StartsWith([HubVersion], "0.1")) then "InvalidHubVersion"
+						                else if [HubVersion] = "0.2"                                                           then "BadHubVersion"
+						                else null
+						                otherwise "UnknownHubVersion"
+						            )
+						            else if [StorageContainer] = "msexports" then (
+						                if [Name] = "manifest.json" and [Folder Path] = null then "ExportNotFound"
+						                else if [Name] = "_manifest.json"                    then "InvalidExportVersion"
+						                else if [IsExport] = false                           then "UnknownExportFile"
+						                else if [IsExport] and [Dataset] <> null and [Dataset] <> "" and Text.Lower([Dataset]) <> "focuscost" then "UnsupportedExportType"
+						                else null
+						            )
+						            else if [StorageContainer] <> "msexports" and [IsExport]               then "InvalidExportContainer"
+						            else if ([IsExport] or [IsIngestion]) and [IsScope] = false            then "InvalidScopeId"
+						            // TODO: Check for data exported before ??? when there were known issues in FocusCost preview
+						            // TODO: Check for export data type from the manifest (InvalidExportType)
+						            // TODO: Add a dynamic row if there is no ingested data
+						            // TODO: Add a dynamic row if there is no exported data
+						            // TODO: Add a dynamic row if the configured start/end dates are outside the dates where exports are available
+						            // TODO: Add a dynamic row if the config/settings.json is not found (wrong storage account)
+						            else null
+						            otherwise "ErrorCheckFailed"
+						        ),
+						
+						    // Cleanup
+						    _columns = {"Scope", "Dataset", "DatasetVersion", "Month", "Errors", "AllFiles", "ConfigFiles", "DataFiles", "UnsupportedFiles", "SizeInGB", "StorageAccount", "StorageContainer", "StoragePath", "ExportName", "Created", "Updated"},
+						    Finalize   = Table.ReorderColumns(
+						        Table.SelectColumns(
+						            Table.Group(
+						                Table.RenameColumns(Details, {{"Date modified", "Updated"}, {"Name", "FileName"}}), {
+						                    "Scope", "Month", "StorageAccount", "StorageContainer", "StoragePath", "ExportName"// "ApiVersion"
+						                }, {
+						                    {"Dataset", each List.First(List.Distinct(List.RemoveNulls([Dataset]))), type text},
+						                    {"DatasetVersion", each List.SingleOrDefault(List.Distinct(List.RemoveNulls([DatasetVersion]))), type text},
+						                    // "ApiVersion", "HubVersion", "IsConfig", "IsManifest", "IsLegacyManifest", "IsData", "IsExport", "IsIngestion", "Error", 
+						                    {"AllFiles", each Table.RowCount(_), Int64.Type},
+						                    {"ConfigFiles", each Table.RowCount(Table.SelectRows(_, each [Extension] = ".json")), Int64.Type},
+						                    {"DataFiles", each Table.RowCount(Table.SelectRows(_, each [IsData])), Int64.Type},
+						                    {"UnsupportedFiles", each Table.RowCount(Table.SelectRows(_, each [ContentType] = "Unsupported Content" or [ContentType] = "Orphaned Export")), Int64.Type},
+						                    {"Errors", each List.Distinct(List.RemoveNulls([Error]))},
+						                    // {"Content", each [ContentType]},
+						                    {"SizeInGB", each List.Sum([SizeInGB]), type number},
+						                    {"Created", each List.Min([Updated]), type nullable datetime}, 
+						                    {"Updated", each List.Max([Updated]), type nullable datetime}
+						                }
+						            ),
+						            _columns
+						        ),
+						        _columns
+						    )
+						in
+						    Finalize
 				```
 
 	annotation PBI_ResultType = Table

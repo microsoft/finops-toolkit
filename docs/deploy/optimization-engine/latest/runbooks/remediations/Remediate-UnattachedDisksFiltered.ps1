@@ -27,8 +27,8 @@ if ([string]::IsNullOrEmpty($sqldatabase))
     $sqldatabase = "azureoptimization"
 }
 $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSink"
-$storageAccountSinkRG = Get-AutomationVariable -Name  "AzureOptimization_StorageSinkRG"
-$storageAccountSinkSubscriptionId = Get-AutomationVariable -Name  "AzureOptimization_StorageSinkSubId"
+
+
 $storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RemediationLogsContainer" -ErrorAction SilentlyContinue 
 if ([string]::IsNullOrEmpty($storageAccountSinkContainer)) {
     $storageAccountSinkContainer = "remediationlogs"
@@ -81,8 +81,8 @@ $cloudDetails = Get-AzEnvironment -Name $CloudEnvironment
 $azureSqlDomain = $cloudDetails.SqlDatabaseDnsSuffix.Substring(1)
 
 # get reference to storage sink
-Select-AzSubscription -SubscriptionId $storageAccountSinkSubscriptionId
-$saCtx = (Get-AzStorageAccount -ResourceGroupName $storageAccountSinkRG -Name $storageAccountSink).Context
+
+$saCtx = New-AzStorageContext -StorageAccountName $storageAccountSink -UseConnectedAccount -Environment $cloudEnvironment
 
 Write-Output "Querying for unattached disks recommendations with fit score >= $minFitScore made consecutively for the last $minWeeksInARow weeks."
 

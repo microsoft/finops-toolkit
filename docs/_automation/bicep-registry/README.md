@@ -50,7 +50,10 @@ For details about the parameters for each module, see the module details below.
 
 ## 🦾 Modules
 
+<!--
 - [Exports](exports.md) – Publish Cost Management datasets to a storage account ad-hoc or on a recurring schedule.
+-->
+
 - [Scheduled actions](scheduled-actions.md) – Send an email on a schedule or when an anomaly is detected.
 
 <br>

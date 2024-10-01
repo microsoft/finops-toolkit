@@ -45,23 +45,38 @@ If you cannot grant permissions for your scope, you can create Cost Management e
    - **Type of data** = `Cost and usage details (FOCUS)`<sup>1</sup>
    - **Dataset version** = `1.0`<sup>2</sup>
    - **Frequency** = `Daily export of month-to-date costs`<sup>3</sup>
-   - **File partitioning** = On
-   - **Overwrite data** = Off<sup>4</sup>
    - **Storage account** = (Use subscription/resource deployed with your hub)
    - **Container** = `msexports`
+   - **Format** = `CSV`
+   - **Compression Type** = `none`
    - **Directory** = (Specify a unique path for this scope<sup>5</sup>)
      - _**EA billing account:** `billingAccounts/{enrollment-number}`_
      - _**MCA billing profile:** `billingProfiles/{billing-profile-id}`_
      - _**Subscription:** `subscriptions/{subscription-id}`_
      - _**Resource group:** `subscriptions/{subscription-id}/resourceGroups/{rg-name}`_
+   - **Format** = Parquet
+   - **Compression** = Snappy
+   - **File partitioning** = On
+   - **Overwrite data** = Off<sup>4</sup>
   
 2. Create another export with the same settings except set **Frequency** to `Monthly export of last month's costs`.
-3. Run your exports to initialize the dataset.
+3. Create exports for any additional data you would like to include in your reports.
+   - Supported datasets and versions:
+     - Price sheet (2023-05-01)
+     - Reservation details (2023-03-01)
+     - Reservation recommendations (2023-05-01)
+        <blockquote class="note" markdown="1">
+          _Virtual machine reservation recommendations exports are required on the Reservation recommendations page of the Rate optimization report. If you do not create an export, the page will be empty._
+        </blockquote>
+     - Reservation transactions (2023-05-01)
+   - Supported formats: Parquet (preferred) or CSV
+   - Supported compression: Snappy (preferred), GZip, or uncompressed
+4. Run your exports to initialize the dataset.
    - Exports can take up to a day to show up after first created.
    - Use the **Run now** command at the top of the Cost Management Exports page.
    - Your data should be available within 15 minutes or so, depending on how big your account is.
    - If you want to backfill data, open the export details and select the **Export selected dates** command to export one month at a time or use the [Start-FinOpsCostExport PowerShell command](../../_automation/powershell/cost/Start-FinOpsCostExport.md) to export a larger date range.
-4. Repeat steps 1-3 for each scope you want to monitor.
+5. Repeat steps 1-4 for each scope you want to monitor.
 
 _<sup>1) FinOps hubs 0.2 and beyond requires FOCUS cost data. As of July 2024, the option to export FOCUS cost data is only accessible from the central Cost Management experience in the Azure portal. If you do not see this option, please search for or navigate to [Cost Management Exports](https://portal.azure.com/#blade/Microsoft_Azure_CostManagement/Menu/open/exports).</sup>_
 _<sup>2) FinOps hubs 0.4 supports both FOCUS 1.0 and FOCUS 1.0 preview. Power BI reports in 0.4 are aligned to FOCUS 1.0 regardless of whether data was ingested as FOCUS 1.0 preview. If you need 1.0 preview data and reports, please use FinOps hubs 0.3.</sup>_
@@ -127,11 +142,11 @@ Managed exports use a managed identity (MI) to configure the exports automatical
 
 3. **Backfill historical data.**
 
-   As soon as you configure a new scope, FinOps hubs will start to monitor current and future costs. To backfill historical data, you must run the **config_RunBackfill** pipeline.
+   As soon as you configure a new scope, FinOps hubs will start to monitor current and future costs. To backfill historical data, you must run the **config_RunBackfillJob** pipeline for each month.
 
    To run the pipeline from the Azure portal:
 
-   1. From the FinOps hub resource group, open the Data Factory instance, select **Launch Studio**, and navigate to **Author** > **Pipelines** > **config_RunBackfill**.
+   1. From the FinOps hub resource group, open the Data Factory instance, select **Launch Studio**, and navigate to **Author** > **Pipelines** > **config_RunBackfillJob**.
    2. Select **Debug** in the command bar to run the pipeline. The total run time will vary depending on the retention period and number of scopes you're monitoring.
 
    To run the pipeline from PowerShell:
@@ -144,7 +159,7 @@ Managed exports use a managed identity (MI) to configure the exports automatical
        Invoke-AzDataFactoryV2Pipeline `
          -ResourceGroupName $_.ResourceGroupName `
          -DataFactoryName $_.DataFactoryName `
-         -PipelineName 'config_RunBackfill'
+         -PipelineName 'config_RunBackfillJob'
    }
    ```
 
@@ -218,7 +233,7 @@ If this is the first time you are using the FinOps toolkit PowerShell module, re
 2. Create the export and run it now to backfill up to 12 months of data.
 
    ```powershell
-   New-FinopsCostExport -Name 'ftk-FinOpsHub-costs' `
+   New-FinOpsCostExport -Name 'ftk-FinOpsHub-costs' `
      -Scope "{scope-id}" `
      -StorageAccountId "{storage-resource-id}" `
      -Backfill 12 `

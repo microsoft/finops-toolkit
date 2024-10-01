@@ -1,111 +1,16 @@
-relationship 1e7240a9-35aa-44e6-85fa-0adeb590b43d
-	joinOnDateBehavior: datePartOnly
-	fromColumn: CostDetails.ChargePeriodStart
-	toColumn: LocalDateTable_f404d4da-597d-4db3-8c17-e985f68c9dc4.Date
-
-relationship ff450739-8c10-4307-ba1a-cbf5e026dc6e
-	joinOnDateBehavior: datePartOnly
-	fromColumn: CostDetails.x_BillingExchangeRateDate
-	toColumn: LocalDateTable_5b617bbf-90ab-4847-9cab-7068fda94084.Date
-
-relationship 5583e9d2-4cda-498f-a46a-0cdd1a06e18b
-	joinOnDateBehavior: datePartOnly
-	fromColumn: CostDetails.x_ServicePeriodEnd
-	toColumn: LocalDateTable_0195151c-8910-45c4-8c88-2946b3f9ffe8.Date
-
-relationship 673a9dca-ff35-4c75-b009-02a98630632d
-	joinOnDateBehavior: datePartOnly
-	fromColumn: CostDetails.x_ServicePeriodStart
-	toColumn: LocalDateTable_dcfea72a-52cc-4e5b-bb91-472ff21b7b25.Date
-
-relationship 369e7501-4fe1-40b9-bc22-924c50f896e0
-	joinOnDateBehavior: datePartOnly
-	fromColumn: CostDetails.BillingPeriodEnd
-	toColumn: LocalDateTable_506735ba-eb3a-4e77-a52f-70c407778c05.Date
-
-relationship 21bb000c-4aaa-46ea-a891-45fd722e7aea
-	joinOnDateBehavior: datePartOnly
-	fromColumn: CostDetails.BillingPeriodStart
-	toColumn: LocalDateTable_41a1933b-26d3-4c56-aecf-605bc04c1fe7.Date
-
-relationship 074e98ca-4ace-4197-8baa-3dc62649257f
-	joinOnDateBehavior: datePartOnly
-	fromColumn: CostDetails.ChargePeriodEnd
-	toColumn: LocalDateTable_f581f9e4-7dfc-448d-a6d1-fb4cc5c95f27.Date
-
 relationship b0066f28-aca7-4267-9118-bbf5c3242f58
 	crossFilteringBehavior: bothDirections
 	toCardinality: many
 	fromColumn: InstanceSizeFlexibility.x_CommitmentDiscountKey
 	toColumn: CostDetails.x_CommitmentDiscountKey
 
-relationship 84724950-127c-4859-9cbe-611fa2abf14f
-	joinOnDateBehavior: datePartOnly
-	fromColumn: CostDetails.x_Month
-	toColumn: LocalDateTable_fef26e24-a208-4f98-9587-9e837520485d.Date
-
-relationship 0bdee9e9-a59b-4464-9b13-1b4bc9238893
-	joinOnDateBehavior: datePartOnly
-	fromColumn: StorageData.Month
-	toColumn: LocalDateTable_f8c522a9-514b-435e-9c83-a31fe0c99a22.Date
-
 relationship AutoDetected_72a70a3e-749a-435a-a8f3-71251d2cd609
 	fromColumn: StorageData.Scope
 	toColumn: HubScopes.Scope
 
-relationship 3e5b5a82-1615-455a-b7fd-22bdfa92857a
-	joinOnDateBehavior: datePartOnly
-	fromColumn: StorageData.Created
-	toColumn: LocalDateTable_1be86c8b-1d56-4c92-b0c1-2de21a6b4e4d.Date
-
-relationship d6cc07ff-8e76-48f9-be13-b2fd6cd79dcb
-	joinOnDateBehavior: datePartOnly
-	fromColumn: StorageErrors.Month
-	toColumn: LocalDateTable_c3c47274-cc2f-4ba2-a257-6f5d529787d5.Date
-
-relationship df266e34-1a2c-4dad-8bc0-7d50597b1af4
-	joinOnDateBehavior: datePartOnly
-	fromColumn: StorageErrors.Created
-	toColumn: LocalDateTable_c4ce9464-15a6-4444-a0af-08644805dec6.Date
-
-relationship ca9ea6c6-eeee-430a-a936-bb09914ffa49
-	joinOnDateBehavior: datePartOnly
-	fromColumn: StorageErrors.Updated
-	toColumn: LocalDateTable_c351bfa8-dbcf-4886-9895-35cf730d7efe.Date
-
 relationship AutoDetected_60477dee-0609-4d6d-84a1-ba0cb2c9aec2
 	fromColumn: StorageErrors.Scope
 	toColumn: HubScopes.Scope
-
-relationship 25c21746-645d-4738-8523-f62a1880d490
-	joinOnDateBehavior: datePartOnly
-	fromColumn: Prices.ChargePeriodEnd
-	toColumn: LocalDateTable_f74f3434-c614-4ef8-9110-25376bc17725.Date
-
-relationship 867fc478-e9a8-4e2e-93b5-1be69284a7f6
-	joinOnDateBehavior: datePartOnly
-	fromColumn: Prices.ChargePeriodStart
-	toColumn: LocalDateTable_da3df616-7d6a-4fe9-b564-c8f691e0b780.Date
-
-relationship 2e118938-22b8-40ee-84f3-819272e3bfa5
-	joinOnDateBehavior: datePartOnly
-	fromColumn: ReservationDetails.ChargePeriodStart
-	toColumn: LocalDateTable_8cbc1d31-9ec3-4e02-882c-cfa406c8e78e.Date
-
-relationship 9d6fc6d4-2fc9-4af9-a5e5-089dabed3a55
-	joinOnDateBehavior: datePartOnly
-	fromColumn: ReservationTransactions.BillingPeriodStart
-	toColumn: LocalDateTable_d40b7430-e260-4066-92b8-6bd87adf1ac2.Date
-
-relationship c758d0e0-0e27-427c-af49-d85470ffe0b8
-	joinOnDateBehavior: datePartOnly
-	fromColumn: ReservationTransactions.ChargePeriodStart
-	toColumn: LocalDateTable_eb23340c-7bc4-423a-8368-7d88e0455c14.Date
-
-relationship 3a2e37de-fb8c-4cd9-a96b-690afad3d70f
-	joinOnDateBehavior: datePartOnly
-	fromColumn: ReservationRecomendations.ChargePeriodStart
-	toColumn: LocalDateTable_5399b385-fafe-40a7-b043-5cbb2b2bf725.Date
 
 relationship 16f8655d-027a-3c5b-5b0c-afe528c03d59
 	isActive: false
@@ -120,8 +25,97 @@ relationship 59d51fbf-fd6f-a956-d7cb-3f19e7e25394
 	fromColumn: ReservationRecomendations.x_CommitmentDiscountKey
 	toColumn: InstanceSizeFlexibility.x_CommitmentDiscountKeyNormalized
 
-relationship 61063fb0-0ac4-420c-89e2-9240625a4b80
-	joinOnDateBehavior: datePartOnly
-	fromColumn: StorageData.Updated
-	toColumn: LocalDateTable_501171be-aa02-401b-9e82-2bf6f16d7de3.Date
+relationship 825aa0af-00ee-1186-a33b-6f4fa0067d40
+	crossFilteringBehavior: bothDirections
+	fromColumn: Resources.subscriptionId
+	toColumn: Subscriptions.subscriptionId
+
+relationship 52ab9bad-3b48-18fa-4f79-7737ba7d2ffa
+	crossFilteringBehavior: bothDirections
+	fromColumn: AdvisorRecommendations.'properties.resourceMetadata.resourceId'
+	toColumn: Resources.id
+
+relationship 568a17db-5207-5401-71ea-a593da6df3e2
+	crossFilteringBehavior: bothDirections
+	fromColumn: VirtualMachines.id
+	toColumn: Resources.id
+
+relationship a313a385-5db3-6a9e-10fb-7cf139d19495
+	crossFilteringBehavior: bothDirections
+	fromColumn: NetworkSecurityGroups.id
+	toColumn: Resources.id
+
+relationship 5965b9fa-242d-9e13-5d8f-c50b05c3e4fb
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: Resources.id
+	toColumn: SqlDatabases.id
+
+relationship 08186977-78ba-21f7-a248-b57ef953aedd
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: Resources.location
+	toColumn: Regions.RegionId
+
+relationship 6d712dbc-9af3-fda3-1038-e362f5e56ab5
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: NetworkInterfaces.'properties.virtualMachine.id'
+	toColumn: VirtualMachines.id
+
+relationship 52d8acfd-e4eb-fdfe-9d4f-9eae3f716ab4
+	crossFilteringBehavior: bothDirections
+	fromColumn: NetworkInterfaces.'properties.ipConfigurations.properties.publicIPAddress.id'
+	toColumn: PublicIPAddresses.id
+
+relationship f2289f99-f546-f6c2-3c36-724c25d99e09
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: Disks.managedBy
+	toColumn: VirtualMachines.id
+
+relationship bdf6c03b-4982-e859-788c-8a358b10259a
+	crossFilteringBehavior: bothDirections
+	fromColumn: 'Advisor for disks'.'properties.resourceMetadata.resourceId'
+	toColumn: Disks.id
+
+relationship 26e1c802-749f-5e32-3d1c-82aba5427b7e
+	crossFilteringBehavior: bothDirections
+	fromColumn: Resources.type
+	toColumn: ResourceTypes.ResourceType
+
+relationship bee35174-8d46-db97-50df-02670026ee71
+	crossFilteringBehavior: bothDirections
+	fromColumn: AdvisorReservationRecommendations.subscriptionId
+	toColumn: Subscriptions.subscriptionId
+
+relationship c8a2b782-448d-e933-0cee-5a6387245222
+	crossFilteringBehavior: bothDirections
+	fromColumn: PolicyStates.subscriptionId
+	toColumn: Subscriptions.subscriptionId
+
+relationship f911264e-d0a5-4e69-9664-3342aaea0c57
+	crossFilteringBehavior: bothDirections
+	fromColumn: PolicyStates.'properties.policyDefinitionId'
+	toColumn: PolicyDefinitions.id
+
+relationship 7b0b80a6-3f04-a143-b6c2-07f0b38e2d2a
+	crossFilteringBehavior: bothDirections
+	fromColumn: PolicyAssignments.'properties.policyDefinitionId'
+	toColumn: PolicyDefinitions.id
+
+relationship ff6ac972-2c35-c20d-b9d4-84c273cc9b5f
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: PolicyStates.'properties.policyAssignmentId'
+	toColumn: PolicyAssignments.id
+
+relationship 923fe473-f344-7b97-3b8a-c6b009d13973
+	crossFilteringBehavior: bothDirections
+	fromColumn: PolicyStates.'properties.policyAssignmentId'
+	toColumn: 'Compliance calculation'.id
+
+relationship 615d9a08-4782-4725-fe93-913b691cb2f3
+	fromColumn: CostDetails.ResourceId
+	toColumn: Disks.id
 
