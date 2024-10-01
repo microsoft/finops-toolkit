@@ -104,7 +104,7 @@ Legend:
 
 > ➕ Added:
 >
-> 1. Support for Cost Management parquet exports (compressed and uncompressed).
+> 1. Support for Cost Management parquet and GZip CSV exports.
 > 2. Support for ingesting price, reservation recommendation, reservation detail, and reservation transaction datasets via Cost Management exports.
 > 3. New UnsupportedExportFileType error when the exported file type is not supported.
 >
