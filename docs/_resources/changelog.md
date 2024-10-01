@@ -64,18 +64,14 @@ Legend:
 > 2. Auto-backfill – Backfill historical data from Microsoft Cost Management.
 > 3. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
 > 4. ETL pipelile – Add support for parquet files created by Cost Management exports.
->
-> ✏️ Changed:
->
-> 1. Managed Exports - Use parquet format when creating Cost Management exports.
->
 
-🦾 Bicep modules
+📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > ➕ Added:
 >
-> 1. Cost Management export modules for subscriptions and resource groups.
+> - General
+>   1. Populate missing prices.
 
 🦾 Bicep modules
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -86,8 +82,8 @@ Legend:
 
 <br><a name="latest"></a>
 
-
 ## 🚚 v0.6
+
 <sup>Released September 2024</sup>
 
 📗 FinOps guide
@@ -95,7 +91,119 @@ Legend:
 
 > ➕ Added:
 >
-> 1. Published initial guidance for FinOps best practices. For the initial commit, this page contains the Azure Resource Graph (ARG) queries used by the Cost Optimization workbook.
+> 1. Started a FinOps best practices library using Azure Resource Graph (ARG) queries from the Cost optimization workbook.
+> 2. Documented [how to use storage account SAS tokens to setup the reports](../_reporting/power-bi/setup.md).
+> 3. Documented how to [preview reports with sample data using Power BI Desktop](../_reporting/hubs/README.md).
+
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> - General
+>   1. Add sample tags to promote to separate `tag_*` columns
+> - [Governance](../_reporting/power-bi/governance.md)
+>   1. Added Policy compliance.
+>   2. Added Virtual machines and managed disks.
+>   3. Added SQL databases.
+>   4. Added Network security groups.
+> - [Workload optimization](../_reporting/power-bi/workload-optimization.md)
+>   1. Added Azure Advisor cost recommendations.
+>   2. Added Unattached disks.
+>
+> ✏️ Changed:
+>
+> - General
+>   1. Renamed Prices ChargePeriodStart/End to x_EffectivePeriodStart/End.
+>   2. Removed auto-created date tables.
+>
+> 🛠️ Fixed:
+>
+> - General
+>   1. Improved import performance by using parquet metadata to filter files by date (if configured).
+>   2. Improved performance of column updates in CostDetails and Prices queries.
+>   3. Fixed bug where SkuID was not merged into x_SkuId.
+
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Support for Cost Management parquet and GZip CSV exports.
+> 2. Support for ingesting price, reservation recommendation, reservation detail, and reservation transaction datasets via Cost Management exports.
+> 3. New UnsupportedExportFileType error when the exported file type is not supported.
+>
+> ✏️ Changed:
+>
+> 1. Renamed the following pipelines to be clearer about their intent:
+>    - `config_BackfillData` to `config_StartBackfillProcess`.
+>    - `config_ExportData` to `config_StartExportProcess`.
+>    - `config_RunBackfill` to `config_RunBackfillJob`.
+>    - `config_RunExports` to `config_RunExportJobs`.
+> 2. Changed the storage ingestion path from "{scope}/{yyyyMM}/{dataset}" to "{dataset}/{yyyy}/{MM}/{dataset}"
+>
+> 🛠️ Fixed:
+>
+> 1. Updated the `config_RunBackfillJob` and `config_StartExportProcess` pipelines to handle when there's a single scope defined in config instead of an array.
+> 2. Corrected the reservation details version in the schema file name in storage.
+>
+> 🗑️ Removed
+>
+> 1. Removed the temporary Event Grid resource from the template.
+
+🔍 Optimization engine
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. [Troubleshooting documentation page](../_optimize/optimization-engine/troubleshooting.md) with the most common deployment and runtime issues and respective solutions or troubleshooting steps.
+>
+> ✏️ Changed:
+>
+> 1. Replaced storage account key-based authentication with Entra ID authentication for improved security.
+>
+> 🛠️ Fixed:
+>
+> 1. Added expiring savings plans and reservations to usage workbooks ([#1014](https://github.com/microsoft/finops-toolkit/issues/1014))
+>
+> 🚫 Deprecated:
+>
+> 1. With the deprecation of the legacy Log Analytics agent in August 31, the `Setup-LogAnalyticsWorkspaces` script is no longer being maintained and will be removed in a future update.
+>    - The script was used to setup performance counters collection for machines connected to Log Analytics workspaces with the legacy agent. 
+>    - We recommend migrating to the [Azure Monitor Agent](https://learn.microsoft.com/azure/azure-monitor/agents/azure-monitor-agent-migration) and use the `Setup-DataCollectionRules` script to [setup performance counters collection with Data Collection Rules](https://aka.ms/AzureOptimizationEngine/workspaces).
+
+🖥️ PowerShell
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed:
+>
+> 1. Added a -ServiceSubcategory filter option to the Get-FinOpsService command.
+
+🌐 Open data
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> - [Resource types](../_reporting/data/README.md#-resource-types)
+>   1. Added 13 new Microsoft.Billing resource types.
+>   2. Added 17 new Microsoft.ComputeHub resource types.
+>   3. Added 2 new Microsoft.DeviceOnboarding resource types.
+>   4. Added 8 new Microsoft.Edge resource types.
+>   5. Added 8 other new resource types: "microsoft.agricultureplatform/agriservices", "microsoft.azurefleet/fleetscomputehub", "microsoft.cloudtest/buildcaches", "microsoft.contoso/employees/desks", "microsoft.databasefleetmanager/fleets", "microsoft.resources/databoundaries", "microsoft.subscription/changetenantrequest", "microsoft.sustainabilityservices/calculations".
+> - [Services](../_reporting/data/README.md#-services)
+>   1. Added a new ServiceSubcategory column to support FOCUS 1.1 ServiceSubcategory mapping.
+>   2. Added the following resource types to existing services:  "microsoft.apimanagement/gateways", "microsoft.sql/longtermretentionmanagedinstances", "microsoft.sql/longtermretentionservers", "microsoft.verifiedid/authorities".
+>
+> ✏️ Changed:
+>
+> - [Resource types](../_reporting/data/README.md#-resource-types)
+>   1. Updated 2 Microsoft.DurableTask resource types.
+>   2. Updated 4 Microsoft.SignalRService resource types.
+>   3. Updated 4 Microsoft.TimeSeriesInsights resource types.
+>   4. Updated 4 other resource type: "microsoft.network/dnsresolvers", "microsoft.search/searchservices", "microsoft.storagepool/diskpools/iscsitargets", "oracle.database/oraclesubscriptions".
+
+[Download v0.6](https://github.com/microsoft/finops-toolkit/releases/tag/v0.6){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Full changelog](https://github.com/microsoft/finops-toolkit/compare/v0.5...v0.6){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 
 <br>
 
@@ -104,9 +212,6 @@ Legend:
 <sup>Released September 7, 2024</sup>
 
 This release is a minor patch to Power BI files. These files were updated in the existing 0.5 release. We are documenting this as a new patch release for transparency.
-
-📊 Power BI reports
-{: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > 🛠️ Fixed:
 >
@@ -176,20 +281,23 @@ This release is a minor patch to Power BI files. These files were updated in the
 
 > ➕ Added:
 >
-> - [Optimization workbook](../_optimize/optimization-workbook/README.md):
+> - [FinOps workbooks](../_optimize/workbooks/README.md):
+>   1. Created an option to deploy all general-purpose FinOps toolkit workbooks together.
+>      - Does not include workbooks specific to Optimization Engine.
+> - [Optimization workbook](../_optimize/workbooks/optimization/README.md):
 >   1. New compute query to identify VMs per processor architecture type
 >   2. New database query to identify SQL Pool instances with 0 databases
 >   3. New storage query to identify Powered Off VMs with Premium Disks
 >
 > ✏️ Changed:
 >
-> - [Optimization workbook](../_optimize/optimization-workbook/README.md):
+> - [Optimization workbook](../_optimize/workbooks/optimization/README.md):
 >   1. Redesign of the Rate Optimization tab for easier identification of the break-even point for reservations
 >   2. Fixed the AHB VMSS query to count the total cores consumed per the entire scale set
 >   3. Improved storage idle disks query to ignore disks used by AKS pods
 >   4. Updated Storage not v2 query to exclude blockBlobStorage accounts from the list
 >   5. Added export option for the list of idle backups to streamline data extraction
-> - [Governance workbook](../_optimize/governance-workbook/README.md):
+> - [Governance workbook](../_optimize/workbooks/governance/README.md):
 >   1. Removed the management group filter to simplify filtering by subscription.
 
 🔍 Optimization engine
@@ -352,7 +460,7 @@ This release is a minor patch to Power BI files. These files were updated in the
 
 > ➕ Added:
 >
-> - [Optimization workbook](../_optimize/optimization-workbook/README.md):
+> - [Optimization workbook](../_optimize/workbooks/optimization/README.md):
 >   1. Added reservation recommendations with the break-even point to identify when savings would be achieved.
 >   2. Identify idle ExpressRoute circuits to streamline costs.
 >   3. Gain insights into the routing preferences for public IP addresses to optimize network performance.
@@ -360,17 +468,17 @@ This release is a minor patch to Power BI files. These files were updated in the
 >   5. Quickly view public IP addresses with DDoS protection enabled and compare if it would be cheaper to enable DDoS to the vNet instead.
 >   6. Identify Azure Hybrid Benefit usage for SQL Database elastic pools to maximize cost efficiency.
 >    
-> - [Governance workbook](../_optimize/governance-workbook/README.md):
+> - [Governance workbook](../_optimize/workbooks/governance/README.md):
 >   1. Added managed disk usage monitoring.
 
 > ✏️ Changed:
 >
-> - [Optimization workbook](../_optimize/optimization-workbook/README.md):
+> - [Optimization workbook](../_optimize/workbooks/optimization/README.md):
 >   1. Redesigned the Sustainability tab to clarify recommendations.
 >   2. Ignore dynamic IPs in the public IP addresses list to ensure more accurate results.
 >   3. Ignore free tier web apps to provide a clearer picture of your top services.
 >
-> - [Governance workbook](../_optimize/governance-workbook/README.md):
+> - [Governance workbook](../_optimize/workbooks/governance/README.md):
 >   1. Overview has been revised to align with the latest governance principles of the cloud adoption framework.
 
 🔍 Optimization engine
@@ -574,7 +682,7 @@ This release is a minor patch to Power BI files. These files were updated in the
 
 > ➕ Added:
 >
-> - [Optimization workbook](../_optimize/optimization-workbook/README.md):
+> - [Optimization workbook](../_optimize/workbooks/optimization/README.md):
 >   1. Storage: Identify Idle Backups: Review protected items' backup activity to spot items not backed up in the last 90 days.
 >   2. Storage: Review Replication Settings: Evaluate and improve your backup strategy by identifying resources with default geo-redundant storage (GRS) replication.
 >   3. Networking: Azure Firewall Premium Features: Identify Azure Firewalls with Premium SKU and ensure associated policies leverage premium-only features.
@@ -582,12 +690,12 @@ This release is a minor patch to Power BI files. These files were updated in the
 >
 > ✏️ Changed:
 >
-> - [Optimization workbook](../_optimize/optimization-workbook/README.md):
+> - [Optimization workbook](../_optimize/workbooks/optimization/README.md):
 >   1. Top 10 services: Improved Monitoring tabs: Enhance your monitoring experience with updated Azure Advisor recommendations for Log Analytics.
 >
 > 🛠️ Fixed:
 >
-> - [Optimization workbook](../_optimize/optimization-workbook/README.md):
+> - [Optimization workbook](../_optimize/workbooks/optimization/README.md):
 >   1. AHB: Fixed AHB to support Windows 10/Windows 11
 
 🖥️ PowerShell
@@ -722,11 +830,11 @@ This release is a minor patch to Power BI files. These files were updated in the
 
 > ➕ Added:
 >
-> 1. [Governance workbook](../_optimize/governance-workbook/README.md) to centralize governance.
+> 1. [Governance workbook](../_optimize/workbooks/governance/README.md) to centralize governance.
 >
 > ✏️ Changed:
 >
-> 1. [Optimization workbook](../_optimize/optimization-workbook/README.md) updated to cover more scenarios.
+> 1. [Optimization workbook](../_optimize/workbooks/optimization/README.md) updated to cover more scenarios.
 
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -767,7 +875,7 @@ This release is a minor patch to Power BI files. These files were updated in the
 
 > ➕ Added:
 >
-> 1. [Cost optimization workbook](../_optimize/optimization-workbook/README.md) to centralize cost optimization.
+> 1. [Cost optimization workbook](../_optimize/workbooks/optimization/README.md) to centralize cost optimization.
 
 [Download v0.0.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.0.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
 [Full changelog](https://github.com/microsoft/finops-toolkit/compare/878e4864ca785db4fc13bdd2ec3a6a00058688c3...v0.0.1){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }

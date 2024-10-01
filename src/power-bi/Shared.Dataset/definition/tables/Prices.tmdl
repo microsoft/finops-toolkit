@@ -29,34 +29,6 @@ table Prices
 
 		annotation SummarizationSetBy = Automatic
 
-	column ChargePeriodEnd
-		dataType: dateTime
-		formatString: General Date
-		lineageTag: 1ad5f7a4-7603-40f8-94a6-ca2d87353ed2
-		summarizeBy: none
-		sourceColumn: ChargePeriodEnd
-
-		variation Variation
-			isDefault
-			relationship: 25c21746-645d-4738-8523-f62a1880d490
-			defaultHierarchy: LocalDateTable_f74f3434-c614-4ef8-9110-25376bc17725.'Date Hierarchy'
-
-		annotation SummarizationSetBy = Automatic
-
-	column ChargePeriodStart
-		dataType: dateTime
-		formatString: General Date
-		lineageTag: f9106829-7ffd-4aa5-a218-2301cea20c87
-		summarizeBy: none
-		sourceColumn: ChargePeriodStart
-
-		variation Variation
-			isDefault
-			relationship: 867fc478-e9a8-4e2e-93b5-1be69284a7f6
-			defaultHierarchy: LocalDateTable_da3df616-7d6a-4fe9-b564-c8f691e0b780.'Date Hierarchy'
-
-		annotation SummarizationSetBy = Automatic
-
 	column CommitmentDiscountCategory
 		dataType: string
 		lineageTag: dea2c3e5-f256-4a3a-b030-f017401329b3
@@ -299,24 +271,43 @@ table Prices
 
 		annotation SummarizationSetBy = Automatic
 
-	column 'SkuID 2'
-		dataType: string
-		lineageTag: ac6585ce-79ef-45e1-a13d-5fc4a7639517
+	column x_EffectivePeriodEnd
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 5376743d-614c-455a-8ef0-d48a35c0b536
 		summarizeBy: none
-		sourceColumn: SkuID
+		sourceColumn: x_EffectivePeriodEnd
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_EffectivePeriodStart
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 866f03fb-5b29-406a-828b-8af3dc012311
+		summarizeBy: none
+		sourceColumn: x_EffectivePeriodStart
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuId
+		dataType: string
+		lineageTag: 091ca856-451e-4b7e-a2c1-6a779530c80d
+		summarizeBy: none
+		sourceColumn: x_SkuId
 
 		annotation SummarizationSetBy = Automatic
 
 	partition Prices = m
 		mode: import
-		queryGroup: 'FinOps toolkit'
+		queryGroup: Storage
 		source = ```
 				let
 				    // Get the data
 				    RawData = ftk_Storage("pricesheet"),
+				    HackToWorkAroundDateParsingBug = Table.Sort(RawData,{{"EffectiveStartDate", Order.Ascending}}),
 				
 				    FixTypes = Table.TransformColumnTypes(
-				        Table.ReplaceValue(RawData, 
+				        Table.ReplaceValue(HackToWorkAroundDateParsingBug, 
 				            // Fix inconsistent Microsoft term values
 				            each [Term], each if [Term] = "P1M" then 1 else if [Term] = "P1Y" then 12 else if [Term] = "P3Y" then 36 else if [Term] = "P5Y" then 60 else [Term], Replacer.ReplaceValue, {"Term"}),
 				        {
@@ -345,7 +336,7 @@ table Prices
 				                        {"CurrencyCode",     "BillingCurrency"},
 				                        {"MeterID",          "MeterId"},
 				                        {"ProductID",        "ProductId"},
-				                        {"SkuID",            "SkuID"}
+				                        {"SkuID",            "SkuId"}
 				                    },
 				                    MissingField.Ignore
 				                ),
@@ -355,13 +346,13 @@ table Prices
 				        // If both EA and MCA, move EA values to MCA columns
 				        else if HasEA and HasMCA then (
 				            Table.RemoveColumns(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(FixTypes,
-				                each [BillingAccountId], each if [EnrollmentNumber] <> null then [EnrollmentNumber] else [BillingAccountId], Replacer.ReplaceValue, {"BillingAccountId"}),
-				                each [BillingProfileId], each if [EnrollmentNumber] <> null then [EnrollmentNumber] else [BillingProfileId], Replacer.ReplaceValue, {"BillingProfileId"}),
-				                each [BillingCurrency],  each if [CurrencyCode]     <> null then [CurrencyCode]     else [BillingCurrency],  Replacer.ReplaceValue, {"BillingCurrency"}),
-				                each [Currency],         each if [CurrencyCode]     <> null then [CurrencyCode]     else [Currency],         Replacer.ReplaceValue, {"Currency"}),
-				                each [MeterId],          each if [MeterID]          <> null then [MeterID]          else [MeterId],          Replacer.ReplaceValue, {"MeterId"}),
-				                each [ProductId],        each if [ProductID]        <> null then [ProductID]        else [ProductId],        Replacer.ReplaceValue, {"ProductId"}),
-				                each [SkuId],            each if [SkuID]            <> null then [SkuID]            else [SkuId],            Replacer.ReplaceValue, {"SkuId"}),
+				                null, each [EnrollmentNumber], Replacer.ReplaceValue, {"BillingAccountId"}),
+				                null, each [EnrollmentNumber], Replacer.ReplaceValue, {"BillingProfileId"}),
+				                null, each [CurrencyCode],     Replacer.ReplaceValue, {"BillingCurrency"}),
+				                null, each [CurrencyCode],     Replacer.ReplaceValue, {"Currency"}),
+				                null, each [MeterID],          Replacer.ReplaceValue, {"MeterId"}),
+				                null, each [ProductID],        Replacer.ReplaceValue, {"ProductId"}),
+				                null, each [SkuID],            Replacer.ReplaceValue, {"SkuId"}),
 				                {"EnrollmentNumber", "CurrencyCode", "MeterID", "ProductID", "SkuID"}
 				            )
 				        )
@@ -376,8 +367,8 @@ table Prices
 				            {"BillingProfileId",   "x_BillingProfileId"},
 				            {"BillingProfileName", "x_BillingProfileName"},
 				            {"Currency",           "x_PricingCurrency"},
-				            {"EffectiveEndDate",   "ChargePeriodEnd"},
-				            {"EffectiveStartDate", "ChargePeriodStart"},
+				            {"EffectiveEndDate",   "x_EffectivePeriodEnd"},
+				            {"EffectiveStartDate", "x_EffectivePeriodStart"},
 				            {"MarketPrice",        "ListUnitPrice"},
 				            {"MeterCategory",      "x_SkuMeterCategory"},
 				            {"MeterId",            "x_SkuMeterId"},

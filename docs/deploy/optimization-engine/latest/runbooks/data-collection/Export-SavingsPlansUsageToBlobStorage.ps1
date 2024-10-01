@@ -36,8 +36,8 @@ if ($authenticationOption -eq "UserAssignedManagedIdentity")
 }
 
 $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSink"
-$storageAccountSinkRG = Get-AutomationVariable -Name  "AzureOptimization_StorageSinkRG"
-$storageAccountSinkSubscriptionId = Get-AutomationVariable -Name  "AzureOptimization_StorageSinkSubId"
+
+
 $storageAccountSinkEnv = Get-AutomationVariable -Name "AzureOptimization_StorageSinkEnvironment" -ErrorAction SilentlyContinue
 if (-not($storageAccountSinkEnv))
 {
@@ -94,8 +94,8 @@ switch ($authenticationOption) {
 if (-not($storageAccountSinkKey))
 {
     Write-Output "Getting Storage Account context with login"
-    Select-AzSubscription -SubscriptionId $storageAccountSinkSubscriptionId
-    $saCtx = (Get-AzStorageAccount -ResourceGroupName $storageAccountSinkRG -Name $storageAccountSink).Context
+    
+    $saCtx = New-AzStorageContext -StorageAccountName $storageAccountSink -UseConnectedAccount -Environment $cloudEnvironment
 }
 else
 {
