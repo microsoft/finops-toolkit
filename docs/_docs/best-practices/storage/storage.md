@@ -43,6 +43,7 @@ Optimization
 
 <details markdown="1">
     <summary>Click to view the code</summary>
+
     ```kql
     recoveryservicesresources
     | where type =~ 'microsoft.recoveryservices/vaults/backupfabrics/protectioncontainers/protecteditems'
@@ -57,6 +58,7 @@ Optimization
     | where idleBackup != 0
     | project resourceId,vaultId,idleBackup,lastBackupDate,resourceType,protectionState,lastBackupTime,location,resourceGroup,subscriptionId
     ```
+
 </details>
 
 ### Query: List Recovery Services Vaults
@@ -71,6 +73,7 @@ Optimization
 
 <details markdown="1">
     <summary>Click to view the code</summary>
+
     ```kql
     resources
     | where type == 'microsoft.recoveryservices/vaults'
@@ -82,6 +85,7 @@ Optimization
     | order by id asc
     | project id, redundancySettings, resourceGroup, location, subscriptionId, skuTier, skuName
     ```
+
 </details>
 
 <br>
@@ -100,6 +104,7 @@ Optimization
 
 <details markdown="1">
     <summary>Click to view the code</summary>
+
     ```kql
     resources
     | where type =~ 'microsoft.compute/disks' and managedBy == ""
@@ -112,6 +117,7 @@ Optimization
     | order by DiskId asc 
     | project DiskId, DiskIDfull, DiskName, DiskSizeGB, SKUName, SKUTier, resourceGroup, Location, TimeCreated, subscriptionId
     ```
+
 </details>
 
 ### Query: Disk snapshot older than 30 days
@@ -126,6 +132,7 @@ Optimization
 
 <details markdown="1">
     <summary>Click to view the code</summary>
+
     ```kql
     resources
     | where type == 'microsoft.compute/snapshots'
@@ -135,6 +142,7 @@ Optimization
     | order by id asc 
     | project id, resourceGroup, location, TimeCreated, subscriptionId
     ```
+
 </details>
 
 ### Query: Snapshot using premium storage
@@ -149,13 +157,18 @@ Optimization
 
 <details markdown="1">
     <summary>Click to view the code</summary>
+
     ```kql
     resources
     | where type == 'microsoft.compute/snapshots'
-    | extend StorageSku = tostring(sku.tier), resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup),diskSize=tostring(properties.diskSizeGB)
+    | extend
+        StorageSku = tostring(sku.tier),
+        resourceGroup = strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup),
+        diskSize = tostring(properties.diskSizeGB)
     | where StorageSku == "Premium"
     | project id, name, StorageSku, diskSize, location, resourceGroup, subscriptionId
     ```
+
 </details>
 
 <br>
@@ -174,6 +187,7 @@ Optimization
 
 <details markdown="1">
     <summary>Click to view the code</summary>
+
     ```kql
     resources
     | where type =~ 'Microsoft.Storage/StorageAccounts'
@@ -190,6 +204,7 @@ Optimization
     | order by id asc
     | project id, StorageAccountName, SKUName, SKUTier, SAKind,AccessTier, resourceGroup, Location, subscriptionId
     ```
+
 </details>
 
 <br>

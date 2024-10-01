@@ -47,6 +47,7 @@ Optimization
 
 <details markdown="1">
     <summary>Click to view the code</summary>
+
     ```kql
     resources 
     | where type =~ 'Microsoft.Network/azureFirewalls' and properties.sku.tier=="Premium"
@@ -62,6 +63,7 @@ Optimization
         | project PolicyName = name, PolicySKU = tostring(properties.sku.tier), intrusionDetection, transportSecurity, FWID
     ) on FWID
     ```
+
 </details>
 
 ### Query: Azure Firewall and associated subnets analysis
@@ -76,8 +78,9 @@ Optimization
 
 <details markdown="1">
     <summary>Click to view the code</summary>
+
     ```kql
-    resources 
+    resources
     | where type =~ 'Microsoft.Network/azureFirewalls' and properties.sku.tier=="Premium"
     | project FWID=id, firewallName=name, SkuTier=tostring(properties.sku.tier), resourceGroup, location
     | join kind=inner (
@@ -91,6 +94,7 @@ Optimization
         | project PolicyName = name, PolicySKU = tostring(properties.sku.tier), intrusionDetection, transportSecurity, FWID
     ) on FWID
     ```
+
 </details>
 
 <br>
@@ -109,10 +113,11 @@ Optimization
 
 <details markdown="1">
     <summary>Click to view the code</summary>
+
     ```kql
     resources
     | where type =~ 'Microsoft.Network/applicationGateways'
-    | extend 
+    | extend
         backendPoolsCount = array_length(properties.backendAddressPools),
         SKUName = tostring(properties.sku.name),
         SKUTier = tostring(properties.sku.tier),
@@ -133,6 +138,7 @@ Optimization
     | where (backendIPCount == 0 or isempty(backendIPCount)) and (backendAddressesCount==0 or isempty(backendAddressesCount))
     | order by id asc
     ```
+
 </details>
 
 <br>
@@ -151,6 +157,7 @@ Optimization
 
 <details markdown="1">
     <summary>Click to view the code</summary>
+
     ```kql
     resources
     | where type =~ 'Microsoft.Network/expressRouteCircuits' and properties.serviceProviderProvisioningState == "NotProvisioned"
@@ -170,6 +177,7 @@ Optimization
         ServiceProvider,
         BandwidthInMbps
     ```
+
 </details>
 
 <br>
@@ -188,6 +196,7 @@ Optimization
 
 <details markdown="1">
     <summary>Click to view the code</summary>
+
     ```kql
     resources
     | extend resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)
@@ -198,6 +207,7 @@ Optimization
     | order by id asc
     | project id,name, SKUName,SKUTier,backendAddressPools, location,resourceGroup, subscriptionId
     ```
+
 </details>
 
 <br>
@@ -216,6 +226,7 @@ Optimization
 
 <details markdown="1">
     <summary>Click to view the code</summary>
+
     ```kql
     resources
     | where type == "microsoft.network/privatednszones" and properties.numberOfVirtualNetworkLinks == 0
@@ -225,6 +236,7 @@ Optimization
         vNets = tostring(properties.properties.numberOfVirtualNetworkLinks),
         subscriptionId
     ```
+
 </details>
 
 <br>
@@ -243,8 +255,9 @@ Optimization
 
 <details markdown="1">
     <summary>Click to view the code</summary>
+
     ```kql
-    resources 
+    resources
     | where type =~ 'Microsoft.Network/publicIPAddresses'
         and isempty(properties.ipConfiguration)
         and isempty(properties.natGateway)
@@ -267,7 +280,7 @@ Optimization
         | mv-expand IPconfig
         | extend PublicIpId= tostring(IPconfig.properties.publicIPAddress.id)
         | project PublicIpId
-        | join ( 
+        | join (
             resource
             | where type =~ 'Microsoft.Network/publicIPAddresses'
             | extend
@@ -281,6 +294,7 @@ Optimization
         | project PublicIpId,IPName, SKUName, resourceGroup, Location, AllocationMethod, subscriptionId
     )
     ```
+
 </details>
 
 ### Query: Identify public IP addresses routing method 
@@ -294,14 +308,24 @@ Optimization
 <h4>Query</h4>
 
 <details markdown="1">
-  <summary>Click to view the code</summary>
-  ```kql
-  resources
-  | where type =~ 'Microsoft.Network/publicIPAddresses' and isnotempty(properties.ipConfiguration)
-  | where tostring(properties.ipTags) == "[]"
-  | extend PublicIpId=id, RoutingMethod=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, Location=location, resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)
-  | project PublicIpId, IPName, RoutingMethod,SKUName, resourceGroup, Location, AllocationMethod, subscriptionId
-```
+    <summary>Click to view the code</summary>
+
+    ```kql
+    resources
+    | where type =~ 'Microsoft.Network/publicIPAddresses'
+        and isnotempty(properties.ipConfiguration)
+    | where tostring(properties.ipTags) == "[]"
+    | extend
+        PublicIpId = id,
+        RoutingMethod = id,
+        IPName = name,
+        AllocationMethod = tostring(properties.publicIPAllocationMethod),
+        SKUName = sku.name,
+        Location = location,
+        resourceGroup = strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)
+    | project PublicIpId, IPName, RoutingMethod,SKUName, resourceGroup, Location, AllocationMethod, subscriptionId
+    ```
+
 </details>
 
 ### Query: Check public IP addresses' DDoS protection policy
@@ -315,16 +339,18 @@ Optimization
 <h4>Query</h4>
 
 <details markdown="1">
-  <summary>Click to view the code</summary>
-  ```kql
-  resources
-  | where type == "microsoft.network/publicipaddresses"
-  | project ddosProtection=tostring(properties.ddosSettings), name
-  | where ddosProtection has "Enabled"
-  | count
-  | project TotalIpsProtected = Count
-  | extend CheckIpsProtected = iff(TotalIpsProtected >= 15,"Enable Network Protection tier", "Enable PIP DDoS Protection")
-  ```
+    <summary>Click to view the code</summary>
+
+    ```kql
+    resources
+    | where type == "microsoft.network/publicipaddresses"
+    | project ddosProtection=tostring(properties.ddosSettings), name
+    | where ddosProtection has "Enabled"
+    | count
+    | project TotalIpsProtected = Count
+    | extend CheckIpsProtected = iff(TotalIpsProtected >= 15,"Enable Network Protection tier", "Enable PIP DDoS Protection")
+    ```
+
 </details>
 
 <br>
@@ -342,21 +368,23 @@ Optimization
 <h4>Query</h4>
 
 <details markdown="1">
-  <summary>Click to view the code</summary>
-  ```kql
-  resources
-  | where type == "microsoft.network/virtualnetworkgateways"
-  | extend resourceGroup =strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)
-  | project id, GWName=name,resourceGroup,location,subscriptionId
-  | join kind = leftouter(
-      resources
-      | where type == "microsoft.network/connections"
-      | extend id = tostring(properties.virtualNetworkGateway1.id)
-      | project id
-  ) on id
-  | where isempty(id1)
-  | project id, GWName,resourceGroup,location,subscriptionId,status=id
-  ```
+    <summary>Click to view the code</summary>
+
+    ```kql
+    resources
+    | where type == "microsoft.network/virtualnetworkgateways"
+    | extend resourceGroup =strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)
+    | project id, GWName=name,resourceGroup,location,subscriptionId
+    | join kind = leftouter(
+        resources
+        | where type == "microsoft.network/connections"
+        | extend id = tostring(properties.virtualNetworkGateway1.id)
+        | project id
+    ) on id
+    | where isempty(id1)
+    | project id, GWName,resourceGroup,location,subscriptionId,status=id
+    ```
+
 </details>
 
 ### Query: Check for idle NAT gateway
@@ -370,20 +398,22 @@ Optimization
 <h4>Query</h4>
 
 <details markdown="1">
-  <summary>Click to view the code</summary>
-  ```kql
-  resources
-  | where type == "microsoft.network/natgateways" and isnull(properties.subnets)
-  | project
-      id,
-      GWName = name,
-      SKUName = tostring(sku.name),
-      SKUTier = tostring(sku.tier),
-      Location = location,
-      resourceGroup = tostring(strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)),
-      subnet = tostring(properties.subnet),
-      subscriptionId
-  ```
+    <summary>Click to view the code</summary>
+
+    ```kql
+    resources
+    | where type == "microsoft.network/natgateways" and isnull(properties.subnets)
+    | project
+        id,
+        GWName = name,
+        SKUName = tostring(sku.name),
+        SKUTier = tostring(sku.tier),
+        Location = location,
+        resourceGroup = tostring(strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)),
+        subnet = tostring(properties.subnet),
+        subscriptionId
+    ```
+
 </details>
 
 <br>

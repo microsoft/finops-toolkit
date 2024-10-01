@@ -1,12 +1,12 @@
 ---
 layout: default
 parent: Best practices
-permalink: /best-practices/compute
 title: Compute
+description: 'Discover essential FinOps best practices to optimize cost efficiency and governance for your Azure resources.'
+permalink: /best-practices/compute
 author: arclares
 ms.date: 08/16/2024
 ms.service: finops
-description: 'Discover essential FinOps best practices to optimize cost efficiency and governance for your Azure resources.'
 ---
 
 <span class="fs-9 d-block mb-4">Compute best practices</span>
@@ -40,29 +40,31 @@ Resource management
 <h4>Query</h4>
 
 <details markdown="1">
-  <summary>Click to view the code</summary>
-  ```kql
-  resources
-  | where type == "microsoft.containerservice/managedclusters"
-  | extend AgentPoolProfiles = properties.agentPoolProfiles
-  | mvexpand AgentPoolProfiles
-  | project
-      id,
-      ProfileName = tostring(AgentPoolProfiles.name),
-      Sku = tostring(sku.name),
-      Tier = tostring(sku.tier),
-      mode = AgentPoolProfiles.mode,
-      AutoScaleEnabled = AgentPoolProfiles.enableAutoScaling,
-      SpotVM = AgentPoolProfiles.scaleSetPriority,
-      VMSize = tostring(AgentPoolProfiles.vmSize),
-      nodeCount = tostring(AgentPoolProfiles.['count']),
-      minCount = tostring(AgentPoolProfiles.minCount),
-      maxCount = tostring(AgentPoolProfiles.maxCount),
-      location,
-      resourceGroup,
-      subscriptionId,
-      AKSname = name
-  ```
+    <summary>Click to view the code</summary>
+
+    ```kql
+    resources
+    | where type == "microsoft.containerservice/managedclusters"
+    | extend AgentPoolProfiles = properties.agentPoolProfiles
+    | mvexpand AgentPoolProfiles
+    | project
+        id,
+        ProfileName = tostring(AgentPoolProfiles.name),
+        Sku = tostring(sku.name),
+        Tier = tostring(sku.tier),
+        mode = AgentPoolProfiles.mode,
+        AutoScaleEnabled = AgentPoolProfiles.enableAutoScaling,
+        SpotVM = AgentPoolProfiles.scaleSetPriority,
+        VMSize = tostring(AgentPoolProfiles.vmSize),
+        nodeCount = tostring(AgentPoolProfiles.['count']),
+        minCount = tostring(AgentPoolProfiles.minCount),
+        maxCount = tostring(AgentPoolProfiles.maxCount),
+        location,
+        resourceGroup,
+        subscriptionId,
+        AKSname = name
+    ```
+
 </details>
 
 <br>
@@ -81,6 +83,7 @@ Waste reduction
 
 <details markdown="1">
     <summary>Click to view the code</summary>
+
     ```kql
     resources
     | where type =~ 'microsoft.compute/virtualmachines' 
@@ -92,6 +95,7 @@ Waste reduction
     | order by id asc
     | project id, PowerState, VMLocation, resourceGroup, subscriptionId
     ```
+
 </details>
 
 ### Query: Virtual machine scale set details
@@ -106,6 +110,7 @@ Resource management
 
 <details markdown="1">
     <summary>Click to view the code</summary>
+
     ```kql
     resources
     | where type =~ 'microsoft.compute/virtualmachinescalesets'
@@ -115,6 +120,7 @@ Resource management
     | extend resourceGroup=strcat('/subscriptions/', subscriptionId, '/resourceGroups/', resourceGroup)
     | project id, SKU, SpotVMs, SpotPriorityMix, subscriptionId, resourceGroup, location
     ```
+
 </details>
 
 ### Query: Virtual Machine processor type analysis
@@ -129,6 +135,7 @@ Resource management
 
 <details markdown="1">
     <summary>Click to view the code</summary>
+
     ```kql
     resources
     | where type == 'microsoft.compute/virtualmachines'
@@ -157,6 +164,7 @@ Resource management
     )
     | project vmName = name, processorType, vmSize, resourceGroup
     ```
+
 </details>
 
 <br>

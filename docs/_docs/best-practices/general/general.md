@@ -46,6 +46,7 @@ Sustainability
 
 <details markdown="1">
     <summary>Click to view the code</summary>
+
     ```kql
     advisorresources
     | where tolower(type) == "microsoft.advisor/recommendations"
@@ -61,6 +62,7 @@ Sustainability
     | extend ResourceId=properties.resourceMetadata.resourceId, ResourceType=tostring(properties.impactedField)
     | project subscriptionId, resourceGroup, ResourceId, ResourceType, shortDescription, recommendationType, recommendationMessage, PotentialMonthlyCarbonEmissions, PotentialMonthlyCarbonSavings, monthlyCarbonSavingsKg, properties
     ```
+
 </details>
 
 <br>

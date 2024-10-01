@@ -41,6 +41,7 @@ Monitoring
 
 <details markdown="1">
     <summary>Click to view the code</summary>
+
     ```kql
     resources
     | where type =~ 'Microsoft.Web/sites'
@@ -55,6 +56,7 @@ Monitoring
         SubscriptionId=subscriptionId
     | order by id asc
     ```
+
 </details>
 
 ### Query: App Service plan details
@@ -69,6 +71,7 @@ Resource management
 
 <details markdown="1">
     <summary>Click to view the code</summary>
+
     ```kql
     resources
     | where type == "microsoft.web/serverfarms"  and sku.tier !~ 'Free'
@@ -92,6 +95,7 @@ Resource management
             resourceGroup
     ) on planId
     ```
+
 </details>
 
 <br>
