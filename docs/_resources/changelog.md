@@ -65,6 +65,14 @@ Legend:
 > 3. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
 > 4. ETL pipelile – Add support for parquet files created by Cost Management exports.
 
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> - General
+>   1. Populate missing prices.
+
 🦾 Bicep modules
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
@@ -92,6 +100,8 @@ Legend:
 
 > ➕ Added:
 >
+> - General
+>   1. Add sample tags to promote to separate `tag_*` columns
 > - [Governance](../_reporting/power-bi/governance.md)
 >   1. Added Policy compliance.
 >   2. Added Virtual machines and managed disks.
@@ -101,10 +111,18 @@ Legend:
 >   1. Added Azure Advisor cost recommendations.
 >   2. Added Unattached disks.
 >
+> ✏️ Changed:
+>
+> - General
+>   1. Renamed Prices ChargePeriodStart/End to x_EffectivePeriodStart/End.
+>   2. Removed auto-created date tables.
+>
 > 🛠️ Fixed:
 >
 > - General
->   1. Improved import performance by using parquet metadata to filter files by date (if configured)
+>   1. Improved import performance by using parquet metadata to filter files by date (if configured).
+>   2. Improved performance of column updates in CostDetails and Prices queries.
+>   3. Fixed bug where SkuID was not merged into x_SkuId.
 
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }

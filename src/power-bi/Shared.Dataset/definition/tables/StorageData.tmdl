@@ -31,11 +31,6 @@ table StorageData
 		summarizeBy: none
 		sourceColumn: Month
 
-		variation Variation
-			isDefault
-			relationship: 0bdee9e9-a59b-4464-9b13-1b4bc9238893
-			defaultHierarchy: LocalDateTable_f8c522a9-514b-435e-9c83-a31fe0c99a22.'Date Hierarchy'
-
 		annotation SummarizationSetBy = Automatic
 
 		annotation UnderlyingDateTimeDataType = Date
@@ -135,11 +130,6 @@ table StorageData
 		summarizeBy: none
 		sourceColumn: Created
 
-		variation Variation
-			isDefault
-			relationship: 3e5b5a82-1615-455a-b7fd-22bdfa92857a
-			defaultHierarchy: LocalDateTable_1be86c8b-1d56-4c92-b0c1-2de21a6b4e4d.'Date Hierarchy'
-
 		annotation SummarizationSetBy = Automatic
 
 	column Errors
@@ -156,11 +146,6 @@ table StorageData
 		lineageTag: 98d0aa5f-eb22-4c87-ac5a-4b87bfa46c9c
 		summarizeBy: none
 		sourceColumn: Updated
-
-		variation Variation
-			isDefault
-			relationship: 61063fb0-0ac4-420c-89e2-9240625a4b80
-			defaultHierarchy: LocalDateTable_501171be-aa02-401b-9e82-2bf6f16d7de3.'Date Hierarchy'
 
 		annotation SummarizationSetBy = Automatic
 
@@ -367,7 +352,7 @@ table StorageData
 						    Finalize
 				```
 
-	annotation PBI_ResultType = Exception
+	annotation PBI_ResultType = Table
 
 	annotation PBI_NavigationStepName = Navigation
 

@@ -104,11 +104,6 @@ table AdvisorRecommendations
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.ObservationPeriodStartDate
 
-		variation Variation
-			isDefault
-			relationship: 7a16ece6-1879-4888-ae90-4c8821eb8dd3
-			defaultHierarchy: LocalDateTable_d8279185-d2c7-4455-9003-fc92a34f3607.'Date Hierarchy'
-
 		annotation SummarizationSetBy = Automatic
 
 	column 'properties.extendedProperties.ObservationPeriodEndDate'
@@ -117,11 +112,6 @@ table AdvisorRecommendations
 		lineageTag: 56c63f3b-8ddd-4c48-a1d4-ebd95bb7c077
 		summarizeBy: none
 		sourceColumn: properties.extendedProperties.ObservationPeriodEndDate
-
-		variation Variation
-			isDefault
-			relationship: bcbb91b3-1002-43bc-9142-2d8714b521fb
-			defaultHierarchy: LocalDateTable_e11d803c-f7bd-4c0e-96a9-6ab80f35b745.'Date Hierarchy'
 
 		annotation SummarizationSetBy = Automatic
 
@@ -383,11 +373,6 @@ table AdvisorRecommendations
 		lineageTag: d3bf7cce-83bc-4589-a2da-ece0e146e1d3
 		summarizeBy: none
 		sourceColumn: properties.lastUpdated
-
-		variation Variation
-			isDefault
-			relationship: 1cb5e0b6-d6d4-4e8a-947d-dcaccd6b06f2
-			defaultHierarchy: LocalDateTable_eb7ae8b8-9958-4816-bd33-f17b80df8c35.'Date Hierarchy'
 
 		annotation SummarizationSetBy = Automatic
 

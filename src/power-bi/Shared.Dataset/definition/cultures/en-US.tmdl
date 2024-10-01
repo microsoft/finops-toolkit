@@ -3445,6 +3445,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.5
 			          }
+			        },
+			        {
+			          "Commitment": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -3573,6 +3583,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.739
+			          }
+			        },
+			        {
+			          "Type": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -4260,6 +4280,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.727
 			          }
+			        },
+			        {
+			          "Resource": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -4722,6 +4752,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.6
 			          }
+			        },
+			        {
+			          "Subscription": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -5103,6 +5143,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.75
+			          }
+			        },
+			        {
+			          "Month": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ],
@@ -5660,153 +5710,6 @@ cultureInfo en-US
 			        }
 			      ]
 			    },
-			    "costdetails.x_resourceparentname": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "x_ResourceParentName"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "x resource parent name": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "x_ResourceParentName": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "parent": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "resource parent": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "x resource parent": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "resource parent name": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "x resource parent nickname": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.748
-			          }
-			        },
-			        {
-			          "x resource parent title": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.748
-			          }
-			        },
-			        {
-			          "x resource parent label": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.748
-			          }
-			        },
-			        {
-			          "x resource parent tag": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.748
-			          }
-			        },
-			        {
-			          "resource parent nickname": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.739
-			          }
-			        },
-			        {
-			          "resource parent title": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.739
-			          }
-			        },
-			        {
-			          "resource parent label": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.739
-			          }
-			        },
-			        {
-			          "resource parent tag": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.739
-			          }
-			        },
-			        {
-			          "x resource father": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.468
-			          }
-			        },
-			        {
-			          "x resource mother": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.468
-			          }
-			        }
-			      ]
-			    },
 			    "costdetails.x_skucpus": {
 			      "Definition": {
 			        "Binding": {
@@ -6249,6 +6152,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.739
+			          }
+			        },
+			        {
+			          "Service": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -18577,552 +18490,6 @@ cultureInfo en-US
 			        }
 			      ]
 			    },
-			    "cost_detail.x_resource_parent_id": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "x_ResourceParentId"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "x resource parent id": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "x_ResourceParentId": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "parent": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "resource parent": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "x resource parent": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "resource parent id": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "x resource parent identification": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.771
-			          }
-			        },
-			        {
-			          "x resource parent identity": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.771
-			          }
-			        },
-			        {
-			          "x resource parent identifier": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.771
-			          }
-			        },
-			        {
-			          "resource parent identification": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.762
-			          }
-			        },
-			        {
-			          "resource parent identity": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.762
-			          }
-			        },
-			        {
-			          "resource parent identifier": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.762
-			          }
-			        },
-			        {
-			          "x resource parent credential": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.748
-			          }
-			        },
-			        {
-			          "resource parent credential": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.739
-			          }
-			        },
-			        {
-			          "x resource father": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.468
-			          }
-			        },
-			        {
-			          "x resource mother": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.468
-			          }
-			        }
-			      ]
-			    },
-			    "cost_detail.x_resource_parent_type": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "x_ResourceParentType"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "x resource parent type": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "x_ResourceParentType": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "parent type": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "resource parent type": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "x resource parent category": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.771
-			          }
-			        },
-			        {
-			          "x resource parent genre": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.771
-			          }
-			        },
-			        {
-			          "x resource parent manner": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.771
-			          }
-			        },
-			        {
-			          "x resource parent variety": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.771
-			          }
-			        },
-			        {
-			          "resource parent category": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.762
-			          }
-			        },
-			        {
-			          "resource parent genre": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.762
-			          }
-			        },
-			        {
-			          "resource parent manner": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.762
-			          }
-			        },
-			        {
-			          "resource parent variety": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.762
-			          }
-			        },
-			        {
-			          "parent category": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "parent genre": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        }
-			      ]
-			    },
-			    "cost_detail.x_toolkit_tool": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "x_ToolkitTool"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "x toolkit tool": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "x_ToolkitTool": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "tool": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "toolkit tool": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "x toolkit device": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.508
-			          }
-			        },
-			        {
-			          "x toolkit utensil": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.508
-			          }
-			        },
-			        {
-			          "x toolkit apparatus": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.508
-			          }
-			        },
-			        {
-			          "x toolkit contrivance": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.508
-			          }
-			        },
-			        {
-			          "x toolkit gizmo": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.508
-			          }
-			        },
-			        {
-			          "x toolkit gismo": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.508
-			          }
-			        },
-			        {
-			          "toolkit device": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.5
-			          }
-			        },
-			        {
-			          "toolkit utensil": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.5
-			          }
-			        },
-			        {
-			          "toolkit apparatus": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.5
-			          }
-			        },
-			        {
-			          "toolkit contrivance": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.5
-			          }
-			        }
-			      ]
-			    },
-			    "cost_detail.x_toolkit_version": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "CostDetails",
-			          "ConceptualProperty": "x_ToolkitVersion"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "x toolkit version": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "x_ToolkitVersion": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "toolkit version": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "x toolkit variety": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.508
-			          }
-			        },
-			        {
-			          "toolkit variety": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.5
-			          }
-			        },
-			        {
-			          "x toolkit form": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.492
-			          }
-			        },
-			        {
-			          "x toolkit type": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.492
-			          }
-			        },
-			        {
-			          "x toolkit kind": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.492
-			          }
-			        },
-			        {
-			          "x toolkit sort": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.492
-			          }
-			        },
-			        {
-			          "x toolkit style": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.492
-			          }
-			        },
-			        {
-			          "toolkit form": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.485
-			          }
-			        },
-			        {
-			          "toolkit type": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.485
-			          }
-			        },
-			        {
-			          "toolkit kind": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.485
-			          }
-			        }
-			      ]
-			    },
 			    "cost_detail.x_sku_details_dictionary": {
 			      "Definition": {
 			        "Binding": {
@@ -25234,6 +24601,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.485
 			          }
+			        },
+			        {
+			          "Months": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -25356,6 +24733,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.485
+			          }
+			        },
+			        {
+			          "Export runs": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -25853,6 +25240,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.461
 			          }
+			        },
+			        {
+			          "Version": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -26153,6 +25550,16 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.727
+			          }
+			        },
+			        {
+			          "Error": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -27540,6 +26947,26 @@ cultureInfo en-US
 			          "date": {
 			            "State": "Generated",
 			            "Weight": 0.7
+			          }
+			        },
+			        {
+			          "Last error": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        },
+			        {
+			          "Last": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ],
@@ -28997,6 +28424,16 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.582
 			          }
+			        },
+			        {
+			          "Region": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
 			        }
 			      ]
 			    },
@@ -30188,148 +29625,6 @@ cultureInfo en-US
 			        }
 			      ]
 			    },
-			    "price.charge_period_end": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Prices",
-			          "ConceptualProperty": "ChargePeriodEnd"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "charge period end": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "ChargePeriodEnd": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "date": {
-			            "State": "Generated",
-			            "Weight": 0.7
-			          }
-			        },
-			        {
-			          "end": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "period end": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "charge period completion": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.762
-			          }
-			        },
-			        {
-			          "charge period conclusion": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.762
-			          }
-			        },
-			        {
-			          "charge period expiration": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.762
-			          }
-			        },
-			        {
-			          "period completion": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "period conclusion": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "period expiration": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.75
-			          }
-			        },
-			        {
-			          "charge period close": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.739
-			          }
-			        },
-			        {
-			          "charge period finish": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.739
-			          }
-			        },
-			        {
-			          "charge period last": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.739
-			          }
-			        },
-			        {
-			          "charge period stop": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.739
-			          }
-			        }
-			      ],
-			      "SemanticType": "Time"
-			    },
 			    "price.charge_period_end.variation.date_hierarchy": {
 			      "Definition": {
 			        "Binding": {
@@ -30910,148 +30205,6 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.599
-			          }
-			        }
-			      ],
-			      "SemanticType": "Time"
-			    },
-			    "price.charge_period_start": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Prices",
-			          "ConceptualProperty": "ChargePeriodStart"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "charge period start": {
-			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "ChargePeriodStart": {
-			            "Type": "Noun",
-			            "State": "Generated",
-			            "Weight": 0.99
-			          }
-			        },
-			        {
-			          "date": {
-			            "State": "Generated",
-			            "Weight": 0.7
-			          }
-			        },
-			        {
-			          "start": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "period start": {
-			            "State": "Generated",
-			            "Weight": 0.97
-			          }
-			        },
-			        {
-			          "charge period twitch": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.492
-			          }
-			        },
-			        {
-			          "charge period jump": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.492
-			          }
-			        },
-			        {
-			          "charge period jerk": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.492
-			          }
-			        },
-			        {
-			          "charge period flinch": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.492
-			          }
-			        },
-			        {
-			          "charge period jolt": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.492
-			          }
-			        },
-			        {
-			          "period twitch": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.485
-			          }
-			        },
-			        {
-			          "period jump": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.485
-			          }
-			        },
-			        {
-			          "period jerk": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.485
-			          }
-			        },
-			        {
-			          "period flinch": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.485
-			          }
-			        },
-			        {
-			          "period jolt": {
-			            "Type": "Noun",
-			            "State": "Suggested",
-			            "Source": {
-			              "Agent": "Thesaurus"
-			            },
-			            "Weight": 0.485
 			          }
 			        }
 			      ],
@@ -45277,22 +44430,6 @@ cultureInfo en-US
 			        }
 			      ]
 			    },
-			    "price.SkuID_2": {
-			      "Definition": {
-			        "Binding": {
-			          "ConceptualEntity": "Prices",
-			          "ConceptualProperty": "SkuID 2"
-			        }
-			      },
-			      "State": "Generated",
-			      "Terms": [
-			        {
-			          "SkuID 2": {
-			            "State": "Generated"
-			          }
-			        }
-			      ]
-			    },
 			    "cost_detail.x_dataset_change": {
 			      "Definition": {
 			        "Binding": {
@@ -48032,16 +47169,6 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
-			        },
-			        {
-			          "Current SKU": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -48064,16 +47191,6 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
-			          }
-			        },
-			        {
-			          "Target SKU": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -48730,16 +47847,6 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
-			          }
-			        },
-			        {
-			          "Resource name": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -49896,16 +49003,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
-			        },
-			        {
-			          "Resource": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ],
 			      "NameType": "Name"
@@ -49995,16 +49092,6 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.714
-			          }
-			        },
-			        {
-			          "Unformatted type": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -50349,16 +49436,6 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.714
-			          }
-			        },
-			        {
-			          "Region": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -54709,26 +53786,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
-			        },
-			        {
-			          "Subscription": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
-			        {
-			          "Subscription name": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ],
 			      "NameType": "Name"
@@ -56412,26 +55469,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.5
 			          }
-			        },
-			        {
-			          "Type": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
-			        {
-			          "Resource type": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -57678,16 +56715,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.582
 			          }
-			        },
-			        {
-			          "Region": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -57880,26 +56907,6 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.714
-			          }
-			        },
-			        {
-			          "Virtual machine": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
-			        {
-			          "Virtual machine name": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ],
@@ -60086,26 +59093,6 @@ cultureInfo en-US
 			          "storageProfile.osDisk.osType": {
 			            "State": "Generated"
 			          }
-			        },
-			        {
-			          "OS": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
-			        {
-			          "OS type": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -60176,16 +59163,6 @@ cultureInfo en-US
 			        {
 			          "hardwareProfile.vmSize": {
 			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "Size": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -60311,26 +59288,6 @@ cultureInfo en-US
 			        {
 			          "powerState.displayStatus": {
 			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "State": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
-			        {
-			          "Power state": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -60974,16 +59931,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
-			        },
-			        {
-			          "Disk name": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ],
 			      "NameType": "Name"
@@ -61412,16 +60359,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
-			        },
-			        {
-			          "Region": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -61656,16 +60593,6 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.727
-			          }
-			        },
-			        {
-			          "SKU": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -62007,16 +60934,6 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
-			        },
-			        {
-			          "Disk size GB": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -62345,26 +61262,6 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
-			          }
-			        },
-			        {
-			          "State": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
-			        {
-			          "Disk state": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -63021,16 +61918,6 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.97
 			          }
-			        },
-			        {
-			          "Attached to": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -63191,16 +62078,6 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.714
-			          }
-			        },
-			        {
-			          "Network interface": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ],
@@ -63629,16 +62506,6 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.714
-			          }
-			        },
-			        {
-			          "Region": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -64645,16 +63512,6 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
-			          }
-			        },
-			        {
-			          "Private IP address": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -65955,16 +64812,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
-			        },
-			        {
-			          "Public IP name": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ],
 			      "NameType": "Name"
@@ -66831,16 +65678,6 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
-			          }
-			        },
-			        {
-			          "Public IP address": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -70783,16 +69620,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
-			        },
-			        {
-			          "Resource name": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -71219,16 +70046,6 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.714
-			          }
-			        },
-			        {
-			          "Region": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -72821,16 +71638,6 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
-			        },
-			        {
-			          "Destination address prefix": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -72900,16 +71707,6 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
-			        },
-			        {
-			          "Source address prefix": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -72932,16 +71729,6 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
-			          }
-			        },
-			        {
-			          "Destination port range": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -72989,16 +71776,6 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
-			        },
-			        {
-			          "Source port range": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -73045,16 +71822,6 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
-			        },
-			        {
-			          "Direction": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -73078,16 +71845,6 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
-			        },
-			        {
-			          "Priority": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -73110,16 +71867,6 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
-			          }
-			        },
-			        {
-			          "Access": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -75204,26 +73951,6 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
-			          }
-			        },
-			        {
-			          "Policy": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
-			        {
-			          "Policy name": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -79043,16 +77770,6 @@ cultureInfo en-US
 			            "State": "Generated",
 			            "Weight": 0.78
 			          }
-			        },
-			        {
-			          "Scope": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -80338,16 +79055,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
-			        },
-			        {
-			          "SQL database": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -80775,16 +79482,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.714
 			          }
-			        },
-			        {
-			          "Region": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -81017,16 +79714,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.727
 			          }
-			        },
-			        {
-			          "SKU": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -81112,16 +79799,6 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.492
-			          }
-			        },
-			        {
-			          "Tier": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -81238,16 +79915,6 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.468
-			          }
-			        },
-			        {
-			          "Capacity": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -81554,16 +80221,6 @@ cultureInfo en-US
 			            },
 			            "Weight": 0.739
 			          }
-			        },
-			        {
-			          "Status": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -81586,16 +80243,6 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
-			          }
-			        },
-			        {
-			          "Backup storage redundancy": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -82200,16 +80847,6 @@ cultureInfo en-US
 			            "Type": "Noun",
 			            "State": "Generated",
 			            "Weight": 0.78
-			          }
-			        },
-			        {
-			          "License type": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -87346,6 +85983,27 @@ cultureInfo en-US
 			              "Agent": "Thesaurus"
 			            },
 			            "Weight": 0.452
+			          }
+			        }
+			      ]
+			    },
+			    "costdetails.x_resourceparentname": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "CostDetails",
+			          "ConceptualProperty": "x_ResourceParentName"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Hub": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
 			          }
 			        }
 			      ]
