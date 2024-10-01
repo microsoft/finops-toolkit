@@ -70,10 +70,7 @@ If you cannot grant permissions for your scope, you can create Cost Management e
         </blockquote>
      - Reservation transactions (2023-05-01)
    - Supported formats: Parquet (preferred) or CSV
-   - Supported compression: Snappy or uncompressed
-        <blockquote class="important" markdown="1">
-          _GZip compression is not supported as of FinOps hubs 0.6. Please use uncompressed CSV if snappy parquet is not supported for the desired dataset._
-        </blockquote>
+   - Supported compression: Snappy (preferred), GZip, or uncompressed
 4. Run your exports to initialize the dataset.
    - Exports can take up to a day to show up after first created.
    - Use the **Run now** command at the top of the Cost Management Exports page.

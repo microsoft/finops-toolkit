@@ -73,6 +73,13 @@ Legend:
 > - General
 >   1. Populate missing prices.
 
+🦾 Bicep modules
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Cost Management export modules for subscriptions and resource groups.
+
 <br><a name="latest"></a>
 
 ## 🚚 v0.6
@@ -84,9 +91,9 @@ Legend:
 
 > ➕ Added:
 >
-> 1. Published initial guidance for FinOps best practices. For the initial commit, this page contains the Azure Resource Graph (ARG) queries used by the Cost Optimization workbook.
-> 2. Documented [how to use storage account SAS tokens to setup the reports](../docs/_reporting/power-bi/setup.md).
-> 3. Documented how to [preview reports with sample data using Power BI Desktop](../docs/_reporting/hubs/README.md).
+> 1. Started a FinOps best practices library using Azure Resource Graph (ARG) queries from the Cost optimization workbook.
+> 2. Documented [how to use storage account SAS tokens to setup the reports](../_reporting/power-bi/setup.md).
+> 3. Documented how to [preview reports with sample data using Power BI Desktop](../_reporting/hubs/README.md).
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -171,13 +178,6 @@ Legend:
 > ✏️ Changed:
 >
 > 1. Added a -ServiceSubcategory filter option to the Get-FinOpsService command.
-
-🦾 Bicep modules
-{: .fs-5 .fw-500 .mt-4 mb-0 }
-
-> ➕ Added:
->
-> 1. Cost Management export modules for subscriptions and resource groups.
 
 🌐 Open data
 {: .fs-5 .fw-500 .mt-4 mb-0 }

@@ -1,5 +1,6 @@
 ---
 layout: default
+grand_parent: FinOps workbooks
 parent: Cost optimization workbook
 title: Customize
 nav_order: 1
