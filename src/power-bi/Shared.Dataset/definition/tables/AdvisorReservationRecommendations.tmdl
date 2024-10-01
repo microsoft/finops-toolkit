@@ -319,11 +319,6 @@ table AdvisorReservationRecommendations
 		summarizeBy: none
 		sourceColumn: properties.lastUpdated
 
-		variation Variation
-			isDefault
-			relationship: 5871408c-e989-41b5-bdef-53235108756a
-			defaultHierarchy: LocalDateTable_9f5d917b-c335-474f-836b-65f614e8aa8a.'Date Hierarchy'
-
 		annotation SummarizationSetBy = Automatic
 
 	column 'properties.metadata'

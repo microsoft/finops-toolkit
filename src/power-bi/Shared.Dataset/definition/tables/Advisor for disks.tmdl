@@ -130,11 +130,6 @@ table 'Advisor for disks'
 		isDataTypeInferred
 		sourceColumn: AdvisorRecommendations[properties.extendedProperties.ObservationPeriodStartDate]
 
-		variation Variation
-			isDefault
-			relationship: 5605790b-1824-4d7e-a834-897e21c36ce0
-			defaultHierarchy: LocalDateTable_280f8620-a4b4-45b1-9e75-cf567b880a2c.'Date Hierarchy'
-
 		annotation SummarizationSetBy = Automatic
 
 	column 'properties.extendedProperties.ObservationPeriodEndDate'
@@ -145,11 +140,6 @@ table 'Advisor for disks'
 		isNameInferred
 		isDataTypeInferred
 		sourceColumn: AdvisorRecommendations[properties.extendedProperties.ObservationPeriodEndDate]
-
-		variation Variation
-			isDefault
-			relationship: 35494b45-bfc3-4ed7-9fa6-0b92bca6da91
-			defaultHierarchy: LocalDateTable_8b74c4d3-e548-41c6-ba9b-0bb1b5b72e71.'Date Hierarchy'
 
 		annotation SummarizationSetBy = Automatic
 
@@ -475,11 +465,6 @@ table 'Advisor for disks'
 		isNameInferred
 		isDataTypeInferred
 		sourceColumn: AdvisorRecommendations[properties.lastUpdated]
-
-		variation Variation
-			isDefault
-			relationship: b3a968fd-a344-4370-96a9-c78b35bf6654
-			defaultHierarchy: LocalDateTable_0951c383-0e48-4ca2-869d-e5e5c1551be6.'Date Hierarchy'
 
 		annotation SummarizationSetBy = Automatic
 

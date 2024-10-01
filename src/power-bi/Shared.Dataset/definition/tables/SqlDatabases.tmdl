@@ -216,11 +216,6 @@ table SqlDatabases
 		summarizeBy: none
 		sourceColumn: properties.creationDate
 
-		variation Variation
-			isDefault
-			relationship: b70ce75b-f8c9-4b07-85ef-0a6bd3d27f32
-			defaultHierarchy: LocalDateTable_570af09c-3ee5-48ee-9425-a2c2ee8808fb.'Date Hierarchy'
-
 		annotation SummarizationSetBy = Automatic
 
 	column 'properties.collation'
