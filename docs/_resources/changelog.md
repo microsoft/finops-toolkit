@@ -133,8 +133,7 @@ Legend:
 >
 > 🛠️ Fixed:
 >
-> - Workbooks
->   1. Added expiring savings plans and reservations to usage workbooks ([#1014](https://github.com/microsoft/finops-toolkit/issues/1014))
+> 1. Added expiring savings plans and reservations to usage workbooks ([#1014](https://github.com/microsoft/finops-toolkit/issues/1014))
 >
 > 🚫 Deprecated:
 >
