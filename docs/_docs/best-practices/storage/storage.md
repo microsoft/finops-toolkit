@@ -174,7 +174,16 @@ resources
     SKUTier = sku.tier,
     Location = location
 | order by id asc
-| project id, StorageAccountName, SKUName, SKUTier, SAKind,AccessTier, resourceGroup, Location, subscriptionId
+| project
+    id,
+    StorageAccountName,
+    SKUName,
+    SKUTier,
+    SAKind,
+    AccessTier,
+    resourceGroup,
+    Location,
+    subscriptionId
 ```
 
 <br>

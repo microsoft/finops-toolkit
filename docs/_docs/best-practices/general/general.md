@@ -50,14 +50,17 @@ advisorresources
 | extend RecommendationTypeId = tostring(properties.recommendationTypeId)
 | where RecommendationTypeId in ("94aea435-ef39-493f-a547-8408092c22a7", "e10b1381-5f0a-47ff-8c7b-37bd13d7c974")
 | extend properties = parse_json(properties)
-| extend monthlyCarbonSavingsKg = toreal(properties.extendedProperties.PotentialMonthlyCarbonSavings)
-| extend shortDescription=properties.shortDescription.problem
-| extend recommendationType=properties.extendedProperties.recommendationType
-| extend recommendationMessage=properties.extendedProperties.recommendationMessage
-| extend PotentialMonthlyCarbonEmissions=properties.extendedProperties.PotentialMonthlyCarbonEmissions
-| extend PotentialMonthlyCarbonSavings=properties.extendedProperties.PotentialMonthlyCarbonSavings
-| extend ResourceId=properties.resourceMetadata.resourceId, ResourceType=tostring(properties.impactedField)
-| project subscriptionId, resourceGroup, ResourceId, ResourceType, shortDescription, recommendationType, recommendationMessage, PotentialMonthlyCarbonEmissions, PotentialMonthlyCarbonSavings, monthlyCarbonSavingsKg, properties
+| project
+    subscriptionId,
+    resourceGroup,
+    ResourceId = properties.resourceMetadata.resourceId,
+    ResourceType = tostring(properties.impactedField),
+    shortDescription = properties.shortDescription.problem,
+    recommendationType = properties.extendedProperties.recommendationType,
+    recommendationMessage = properties.extendedProperties.recommendationMessage,
+    PotentialMonthlyCarbonEmissions = properties.extendedProperties.PotentialMonthlyCarbonEmissions,
+    PotentialMonthlyCarbonSavings = toreal(properties.extendedProperties.PotentialMonthlyCarbonSavings),
+    properties
 ```
 
 <br>

@@ -82,7 +82,10 @@ Optimization
 advisorresources
 | where type =~ 'microsoft.advisor/recommendations'
 | where properties.impactedField == 'microsoft.documentdb/databaseaccounts'
-    and properties.recommendationTypeId in (' cdf51428-a41b-4735-ba23-39f3b7cde20c', ' 6aa7a0df-192f-4dfa-bd61-f43db4843e7d')
+    and properties.recommendationTypeId in (
+        ' cdf51428-a41b-4735-ba23-39f3b7cde20c',
+        ' 6aa7a0df-192f-4dfa-bd61-f43db4843e7d'
+    )
 | order by id asc
 | project 
     id, subscriptionId, resourceGroup,
@@ -109,9 +112,11 @@ resources
 | where resourceGroup in ({ResourceGroup})
 | where properties.backupPolicy.type == 'Periodic'
     and tobool(properties.enableMultipleWriteLocations) == false
-| extend BackupCopies = toreal(properties.backupPolicy.periodicModeProperties.backupRetentionIntervalInHours) / (toreal(properties.backupPolicy.periodicModeProperties.backupIntervalInMinutes) / real(60))
+| extend BackupCopies = toreal(properties.backupPolicy.periodicModeProperties.backupRetentionIntervalInHours)
+    / (toreal(properties.backupPolicy.periodicModeProperties.backupIntervalInMinutes) / real(60))
 | where BackupCopies >= 10
-    or (BackupCopies > 2 and toint(properties.backupPolicy.periodicModeProperties.backupRetentionIntervalInHours) <= 168)
+    or (BackupCopies > 2
+        and toint(properties.backupPolicy.periodicModeProperties.backupRetentionIntervalInHours) <= 168)
 | order by id asc
 | project id, CosmosDBAccountName=name, resourceGroup, subscriptionId, BackupCopies
 ```
@@ -135,7 +140,7 @@ resources
 | where type == "microsoft.sql/servers/databases"
 | where name contains "old" or name contains "Dev"or  name contains "test"
 | where resourceGroup in ({ResourceGroup})
-| extend SQLDBName=name, Type=sku.name, Tier=sku.tier, Location=location
+| extend SQLDBName = name, Type = sku.name, Tier = sku.tier, Location = location
 | order by id asc
 | project id, SQLDBName, Type, Tier, resourceGroup, Location, subscriptionId
 ```
@@ -153,15 +158,34 @@ Optimization
 ```kql
 resources
 | where type == "microsoft.sql/servers/elasticpools"
-| extend elasticPoolId = tolower(tostring(id)), elasticPoolName = name, elasticPoolRG = resourceGroup,skuName=tostring(sku.name),skuTier=tostring(sku.tier),skuCapacity=tostring(sku.capacity)
+| extend elasticPoolId = tolower(tostring(id))
+| extend elasticPoolName = name
+| extend elasticPoolRG = resourceGroup
+| extend skuName = tostring(sku.name)
+| extend skuTier = tostring(sku.tier)
+| extend skuCapacity = tostring(sku.capacity)
 | join kind=leftouter (
     resources
     | where type == "microsoft.sql/servers/databases"
     | extend elasticPoolId = tolower(tostring(properties.elasticPoolId))
 ) on elasticPoolId
-| summarize databaseCount = countif(isnotempty(elasticPoolId1)) by elasticPoolId, elasticPoolName,serverResourceGroup=resourceGroup,name,skuName,skuTier,skuCapacity,elasticPoolRG
+| summarize databaseCount = countif(isnotempty(elasticPoolId1)) by 
+    elasticPoolId,
+    elasticPoolName,
+    serverResourceGroup = resourceGroup,
+    name,
+    skuName,
+    skuTier,
+    skuCapacity,
+    elasticPoolRG
 | where databaseCount == 0
-| project elasticPoolId, elasticPoolName, databaseCount, elasticPoolRG ,skuName,skuTier ,skuCapacity
+| project elasticPoolId,
+    elasticPoolName,
+    databaseCount,
+    elasticPoolRG,
+    skuName,
+    skuTier,
+    skuCapacity
 ```
 
 <br>

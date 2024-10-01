@@ -81,9 +81,9 @@ resources
 | where type =~ 'microsoft.compute/virtualmachines' 
     and tostring(properties.extended.instanceView.powerState.displayStatus) != 'VM deallocated' 
     and tostring(properties.extended.instanceView.powerState.displayStatus) != 'VM running'
-| extend PowerState=tostring(properties.extended.instanceView.powerState.displayStatus)
-| extend VMLocation=location
-| extend resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)
+| extend PowerState = tostring(properties.extended.instanceView.powerState.displayStatus)
+| extend VMLocation = location
+| extend resourceGroup = strcat('/subscriptions/', subscriptionId, '/resourceGroups/', resourceGroup)
 | order by id asc
 | project id, PowerState, VMLocation, resourceGroup, subscriptionId
 ```
@@ -101,10 +101,10 @@ Resource management
 ```kql
 resources
 | where type =~ 'microsoft.compute/virtualmachinescalesets'
-| extend SpotVMs=tostring(properties.virtualMachineProfile.priority)
-| extend SpotPriorityMix=tostring(properties.priorityMixPolicy)
-| extend SKU=tostring(sku.name)
-| extend resourceGroup=strcat('/subscriptions/', subscriptionId, '/resourceGroups/', resourceGroup)
+| extend SpotVMs = tostring(properties.virtualMachineProfile.priority)
+| extend SpotPriorityMix = tostring(properties.priorityMixPolicy)
+| extend SKU = tostring(sku.name)
+| extend resourceGroup = strcat('/subscriptions/', subscriptionId, '/resourceGroups/', resourceGroup)
 | project id, SKU, SpotVMs, SpotPriorityMix, subscriptionId, resourceGroup, location
 ```
 
@@ -124,7 +124,10 @@ resources
 | extend vmSize = properties.hardwareProfile.vmSize
 | extend processorType = case(
     // ARM Processors
-    vmSize has "Epsv5" or vmSize has "Epdsv5" or vmSize has "Dpsv5" or vmSize has "Dpdsv", "ARM",
+    vmSize has "Epsv5"
+        or vmSize has "Epdsv5"
+        or vmSize has "Dpsv5"
+        or vmSize has "Dpdsv", "ARM",
     // AMD Processors
     vmSize has "Standard_D2a"
         or vmSize has "Standard_D4a"

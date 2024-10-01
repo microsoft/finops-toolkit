@@ -44,13 +44,13 @@ resources
 | where type =~ 'Microsoft.Web/sites'
 | project
     id,
-    WebAppName=name,
-    Type=kind,
-    Status=tostring(properties.state),
-    WebAppLocation=location,
-    AppServicePlan=tostring(properties.serverFarmId),
-    WebAppRG=resourceGroup,
-    SubscriptionId=subscriptionId
+    WebAppName = name,
+    Type = kind,
+    Status = tostring(properties.state),
+    WebAppLocation = location,
+    AppServicePlan = tostring(properties.serverFarmId),
+    WebAppRG = resourceGroup,
+    SubscriptionId = subscriptionId
 | order by id asc
 ```
 
@@ -79,7 +79,7 @@ resources
     SubscriptionId = subscriptionId
 | join kind=leftouter (
     resources
-    | where type =="microsoft.insights/autoscalesettings"
+    | where type == "microsoft.insights/autoscalesettings"
     | project
         planId = tolower(tostring(properties.targetResourceUri)),
         PredictiveAutoscale = properties.predictiveAutoscalePolicy.scaleMode,
