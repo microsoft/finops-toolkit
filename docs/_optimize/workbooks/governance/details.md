@@ -1,5 +1,6 @@
 ---
 layout: default
+grand_parent: FinOps workbooks
 parent: Governance workbook
 title: Details
 nav_order: 2

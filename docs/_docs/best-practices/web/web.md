@@ -39,25 +39,20 @@ Monitoring
 
 <h4>Query</h4>
 
-<details markdown="1">
-    <summary>Click to view the code</summary>
-
-    ```kql
-    resources
-    | where type =~ 'Microsoft.Web/sites'
-    | project
-        id,
-        WebAppName=name,
-        Type=kind,
-        Status=tostring(properties.state),
-        WebAppLocation=location,
-        AppServicePlan=tostring(properties.serverFarmId),
-        WebAppRG=resourceGroup,
-        SubscriptionId=subscriptionId
-    | order by id asc
-    ```
-
-</details>
+```kql
+resources
+| where type =~ 'Microsoft.Web/sites'
+| project
+    id,
+    WebAppName=name,
+    Type=kind,
+    Status=tostring(properties.state),
+    WebAppLocation=location,
+    AppServicePlan=tostring(properties.serverFarmId),
+    WebAppRG=resourceGroup,
+    SubscriptionId=subscriptionId
+| order by id asc
+```
 
 ### Query: App Service plan details
 
@@ -69,34 +64,29 @@ Resource management
 
 <h4>Query</h4>
 
-<details markdown="1">
-    <summary>Click to view the code</summary>
-
-    ```kql
+```kql
+resources
+| where type == "microsoft.web/serverfarms"  and sku.tier !~ 'Free'
+| project
+    planId = tolower(tostring(id)),
+    name,
+    skuname = tostring(sku.name),
+    skutier = tostring(sku.tier),
+    workers = tostring(properties.numberOfWorkers),
+    maxworkers = tostring(properties.maximumNumberOfWorkers),
+    webRG = resourceGroup,
+    Sites = tostring(properties.numberOfSites),
+    SubscriptionId = subscriptionId
+| join kind=leftouter (
     resources
-    | where type == "microsoft.web/serverfarms"  and sku.tier !~ 'Free'
+    | where type =="microsoft.insights/autoscalesettings"
     | project
-        planId = tolower(tostring(id)),
-        name,
-        skuname = tostring(sku.name),
-        skutier = tostring(sku.tier),
-        workers = tostring(properties.numberOfWorkers),
-        maxworkers = tostring(properties.maximumNumberOfWorkers),
-        webRG = resourceGroup,
-        Sites = tostring(properties.numberOfSites),
-        SubscriptionId = subscriptionId
-    | join kind=leftouter (
-        resources
-        | where type =="microsoft.insights/autoscalesettings"
-        | project
-            planId = tolower(tostring(properties.targetResourceUri)),
-            PredictiveAutoscale = properties.predictiveAutoscalePolicy.scaleMode,
-            AutoScaleProfiles = properties.profiles,
-            resourceGroup
-    ) on planId
-    ```
-
-</details>
+        planId = tolower(tostring(properties.targetResourceUri)),
+        PredictiveAutoscale = properties.predictiveAutoscalePolicy.scaleMode,
+        AutoScaleProfiles = properties.profiles,
+        resourceGroup
+) on planId
+```
 
 <br>
 

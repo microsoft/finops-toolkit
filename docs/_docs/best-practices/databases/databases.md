@@ -44,25 +44,20 @@ Optimization
 
 <h4>Query</h4>
 
-<details markdown="1">
-    <summary>Click to view the code</summary>
-
-    ```kql
-    advisorresources
-    | where type =~ 'microsoft.advisor/recommendations'
-    | where properties.impactedField == 'microsoft.documentdb/databaseaccounts'
-        and properties.recommendationTypeId == '8b993855-1b3f-4392-8860-6ed4f5afd8a7'
-    | order by id asc
-    | project 
-        id, subscriptionId, resourceGroup,
-        CosmosDBAccountName = properties.extendedProperties.GlobalDatabaseAccountName,
-        DatabaseName = properties.extendedProperties.DatabaseName,
-        CollectionName = properties.extendedProperties.CollectionName,
-        EstimatedAnnualSavings = bin(toreal(properties.extendedProperties.annualSavingsAmount), 1),
-        SavingsCurrency = properties.extendedProperties.savingsCurrency
-    ```
-
-</details>
+```kql
+advisorresources
+| where type =~ 'microsoft.advisor/recommendations'
+| where properties.impactedField == 'microsoft.documentdb/databaseaccounts'
+    and properties.recommendationTypeId == '8b993855-1b3f-4392-8860-6ed4f5afd8a7'
+| order by id asc
+| project 
+    id, subscriptionId, resourceGroup,
+    CosmosDBAccountName = properties.extendedProperties.GlobalDatabaseAccountName,
+    DatabaseName = properties.extendedProperties.DatabaseName,
+    CollectionName = properties.extendedProperties.CollectionName,
+    EstimatedAnnualSavings = bin(toreal(properties.extendedProperties.annualSavingsAmount), 1),
+    SavingsCurrency = properties.extendedProperties.savingsCurrency
+```
 
 ### Query: Cosmos DB collections that would benefit from switching to another throughput mode
 
@@ -83,25 +78,20 @@ Optimization
 
 <h4>Query</h4>
 
-<details markdown="1">
-    <summary>Click to view the code</summary>
-
-    ```kql
-    advisorresources
-    | where type =~ 'microsoft.advisor/recommendations'
-    | where properties.impactedField == 'microsoft.documentdb/databaseaccounts'
-        and properties.recommendationTypeId in (' cdf51428-a41b-4735-ba23-39f3b7cde20c', ' 6aa7a0df-192f-4dfa-bd61-f43db4843e7d')
-    | order by id asc
-    | project 
-        id, subscriptionId, resourceGroup,
-        CosmosDBAccountName = properties.extendedProperties.GlobalDatabaseAccountName,
-        DatabaseName = properties.extendedProperties.DatabaseName,
-        CollectionName = properties.extendedProperties.CollectionName,
-        EstimatedAnnualSavings = bin(toreal(properties.extendedProperties.annualSavingsAmount), 1),
-        SavingsCurrency = properties.extendedProperties.savingsCurrency
-    ```
-
-</details>
+```kql
+advisorresources
+| where type =~ 'microsoft.advisor/recommendations'
+| where properties.impactedField == 'microsoft.documentdb/databaseaccounts'
+    and properties.recommendationTypeId in (' cdf51428-a41b-4735-ba23-39f3b7cde20c', ' 6aa7a0df-192f-4dfa-bd61-f43db4843e7d')
+| order by id asc
+| project 
+    id, subscriptionId, resourceGroup,
+    CosmosDBAccountName = properties.extendedProperties.GlobalDatabaseAccountName,
+    DatabaseName = properties.extendedProperties.DatabaseName,
+    CollectionName = properties.extendedProperties.CollectionName,
+    EstimatedAnnualSavings = bin(toreal(properties.extendedProperties.annualSavingsAmount), 1),
+    SavingsCurrency = properties.extendedProperties.savingsCurrency
+```
 
 ### Query: Cosmos DB backup mode details
 
@@ -113,23 +103,18 @@ Optimization
 
 <h4>Query</h4>
 
-<details markdown="1">
-    <summary>Click to view the code</summary>
-
-    ```kql
-    resources
-    | where type == "microsoft.documentdb/databaseaccounts"
-    | where resourceGroup in ({ResourceGroup})
-    | where properties.backupPolicy.type == 'Periodic'
-        and tobool(properties.enableMultipleWriteLocations) == false
-    | extend BackupCopies = toreal(properties.backupPolicy.periodicModeProperties.backupRetentionIntervalInHours) / (toreal(properties.backupPolicy.periodicModeProperties.backupIntervalInMinutes) / real(60))
-    | where BackupCopies >= 10
-        or (BackupCopies > 2 and toint(properties.backupPolicy.periodicModeProperties.backupRetentionIntervalInHours) <= 168)
-    | order by id asc
-    | project id, CosmosDBAccountName=name, resourceGroup, subscriptionId, BackupCopies
-    ```
-
-</details>
+```kql
+resources
+| where type == "microsoft.documentdb/databaseaccounts"
+| where resourceGroup in ({ResourceGroup})
+| where properties.backupPolicy.type == 'Periodic'
+    and tobool(properties.enableMultipleWriteLocations) == false
+| extend BackupCopies = toreal(properties.backupPolicy.periodicModeProperties.backupRetentionIntervalInHours) / (toreal(properties.backupPolicy.periodicModeProperties.backupIntervalInMinutes) / real(60))
+| where BackupCopies >= 10
+    or (BackupCopies > 2 and toint(properties.backupPolicy.periodicModeProperties.backupRetentionIntervalInHours) <= 168)
+| order by id asc
+| project id, CosmosDBAccountName=name, resourceGroup, subscriptionId, BackupCopies
+```
 
 <br>
 
@@ -145,20 +130,15 @@ Optimization
 
 <h4>Query</h4>
 
-<details markdown="1">
-    <summary>Click to view the code</summary>
-
-    ```kql
-    resources
-    | where type == "microsoft.sql/servers/databases"
-    | where name contains "old" or name contains "Dev"or  name contains "test"
-    | where resourceGroup in ({ResourceGroup})
-    | extend SQLDBName=name, Type=sku.name, Tier=sku.tier, Location=location
-    | order by id asc
-    | project id, SQLDBName, Type, Tier, resourceGroup, Location, subscriptionId
-    ```
-
-</details>
+```kql
+resources
+| where type == "microsoft.sql/servers/databases"
+| where name contains "old" or name contains "Dev"or  name contains "test"
+| where resourceGroup in ({ResourceGroup})
+| extend SQLDBName=name, Type=sku.name, Tier=sku.tier, Location=location
+| order by id asc
+| project id, SQLDBName, Type, Tier, resourceGroup, Location, subscriptionId
+```
 
 ### Query: Unused Elastic Pools analysis
 
@@ -170,24 +150,19 @@ Optimization
 
 <h4>Query</h4>
 
-<details markdown="1">
-    <summary>Click to view the code</summary>
-
-    ```kql
+```kql
+resources
+| where type == "microsoft.sql/servers/elasticpools"
+| extend elasticPoolId = tolower(tostring(id)), elasticPoolName = name, elasticPoolRG = resourceGroup,skuName=tostring(sku.name),skuTier=tostring(sku.tier),skuCapacity=tostring(sku.capacity)
+| join kind=leftouter (
     resources
-    | where type == "microsoft.sql/servers/elasticpools"
-    | extend elasticPoolId = tolower(tostring(id)), elasticPoolName = name, elasticPoolRG = resourceGroup,skuName=tostring(sku.name),skuTier=tostring(sku.tier),skuCapacity=tostring(sku.capacity)
-    | join kind=leftouter (
-        resources
-        | where type == "microsoft.sql/servers/databases"
-        | extend elasticPoolId = tolower(tostring(properties.elasticPoolId))
-    ) on elasticPoolId
-    | summarize databaseCount = countif(isnotempty(elasticPoolId1)) by elasticPoolId, elasticPoolName,serverResourceGroup=resourceGroup,name,skuName,skuTier,skuCapacity,elasticPoolRG
-    | where databaseCount == 0
-    | project elasticPoolId, elasticPoolName, databaseCount, elasticPoolRG ,skuName,skuTier ,skuCapacity
-    ```
-
-</details>
+    | where type == "microsoft.sql/servers/databases"
+    | extend elasticPoolId = tolower(tostring(properties.elasticPoolId))
+) on elasticPoolId
+| summarize databaseCount = countif(isnotempty(elasticPoolId1)) by elasticPoolId, elasticPoolName,serverResourceGroup=resourceGroup,name,skuName,skuTier,skuCapacity,elasticPoolRG
+| where databaseCount == 0
+| project elasticPoolId, elasticPoolName, databaseCount, elasticPoolRG ,skuName,skuTier ,skuCapacity
+```
 
 <br>
 
