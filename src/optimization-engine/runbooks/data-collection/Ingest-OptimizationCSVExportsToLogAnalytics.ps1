@@ -224,7 +224,7 @@ Write-Output "Found $($unprocessedBlobs.Count) new blobs to process..."
 
 foreach ($blob in $unprocessedBlobs) {
     $newProcessedTime = $blob.LastModified.UtcDateTime.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
-    Write-Output "About to process $($blob.Name)..."
+    Write-Output "About to process $($blob.Name) ($($blob.Length) bytes)..."
     $blobFilePath = "$env:TEMP\$($blob.Name)"
     Get-AzStorageBlobContent -CloudBlob $blob.ICloudBlob -Context $saCtx -Force -Destination $blobFilePath | Out-Null
 
