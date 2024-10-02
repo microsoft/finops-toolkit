@@ -152,6 +152,14 @@ Legend:
 >
 > 1. Removed the temporary Event Grid resource from the template.
 
+📒 Azure Monitor workbooks
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Created an option to deploy all [general-purpose FinOps toolkit workbooks](../_optimize/workbooks/README.md) together.
+>    - Does not include workbooks specific to Optimization Engine.
+
 🔍 Optimization engine
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
@@ -282,9 +290,6 @@ This release is a minor patch to Power BI files. These files were updated in the
 
 > ➕ Added:
 >
-> - [FinOps workbooks](../_optimize/workbooks/README.md):
->   1. Created an option to deploy all general-purpose FinOps toolkit workbooks together.
->      - Does not include workbooks specific to Optimization Engine.
 > - [Optimization workbook](../_optimize/workbooks/optimization/README.md):
 >   1. New compute query to identify VMs per processor architecture type
 >   2. New database query to identify SQL Pool instances with 0 databases
