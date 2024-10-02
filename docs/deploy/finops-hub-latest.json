@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "6086027768135226924"
+      "templateHash": "2663349633229182576"
     }
   },
   "parameters": {
@@ -132,7 +132,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "8283603935740018840"
+              "templateHash": "6613119753589229935"
             }
           },
           "parameters": {
@@ -639,7 +639,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "4613582767835961191"
+                      "templateHash": "1110313222495299332"
                     }
                   },
                   "functions": [
@@ -2653,7 +2653,7 @@
                             "userProperties": [],
                             "typeProperties": {
                               "on": {
-                                "value": "@if(empty(variables('mcaColumnToCheck')), 'ignore', last(array(activity('Read Manifest').output.firstRow.blobs[0].blobName)))",
+                                "value": "@if(empty(variables('mcaColumnToCheck')), 'ignore', last(array(split(activity('Read Manifest').output.firstRow.blobs[0].blobName, '.'))))",
                                 "type": "Expression"
                               },
                               "cases": [
