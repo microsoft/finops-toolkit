@@ -20,7 +20,7 @@ The **Rate optimization report** summarizes existing and potential savings from 
 - Determine which resources used commitment discounts (aka chargeback).
 - Summarize cost savings from commitment discounts.
 
-You can download the Commitment discount report from the [latest release](https://github.com/microsoft/finops-toolkit/releases).
+You can download the Rate optimization report from the [latest release](https://github.com/microsoft/finops-toolkit/releases).
 
 > [!NOTE]
 > The "Commitment discounts" report was renamed to "Rate optimization" in FinOps toolkit 0.4. The purpose and intent of the report remains the same.
@@ -119,6 +119,11 @@ The KPIs on this page cover:
 There are 2 charts on the page that offer a breakdown of location, instance size flexibility group, and size; and, CPU hours over time. Your goal is to increase the committed usage in green and spend in blue in order to decrease the contracted cost in red, which costs you more.
 
 The table below the charts shows the recommended reservations based on the specified lookback period.
+
+> [!IMPORTANT]
+> The reservation recommendations page utilizes Cost Management exports either directly in storage (via the **Export Storage URL** parameter) or as part of FinOps hubs. If you do not see recommendations, confirm that you have configured exports and the filters at the top of the page align to the recommendations you exported (e.g., term, lookback, scope).
+
+<br>
 
 > [!IMPORTANT]
 > Potential savings and contracted cost estimations are only available for VM reservation recommendations. This page has not been tested for non-VM recommendations. You can view savings plan and reservation recommendations for other services in the Azure portal.

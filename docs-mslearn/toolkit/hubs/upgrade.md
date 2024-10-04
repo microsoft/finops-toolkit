@@ -94,7 +94,7 @@ Based on the above, use the following steps to upgrade your hub instance from `0
 
 ## Upgrading 0.2
 
-Upgrading FinOps hubs 0.2 to 0.4 is as simple as re-deploying the template and optionally update to the v0.3 Power BI reports. There are no breaking changes, so Power BI reports from v0.2 should work with v0.3 and vice-versa.
+Upgrading FinOps hubs 0.2 to 0.4 is as simple as re-deploying the template and optionally update to the 0.3 Power BI reports. There are no breaking changes, so Power BI reports from 0.2 should work with v0.3 and vice-versa.
 
 [Download 0.3](https://github.com/microsoft/finops-toolkit/releases/tag/v0.3) &nbsp; [View changes](https://aka.ms/ftk/changes#-v03)
 
@@ -102,7 +102,7 @@ Upgrading FinOps hubs 0.2 to 0.4 is as simple as re-deploying the template and o
 
 ## Upgrading 0.3
 
-Upgrading FinOps hubs 0.3 to 0.4 is as simple as re-deploying the template and optionally update to the v0.4 Power BI reports. There are no breaking changes, so Power BI reports from v0.3 should work with v0.4 and vice-versa.
+Upgrading FinOps hubs 0.3 to 0.4 is as simple as re-deploying the template and optionally update to the 0.4 Power BI reports. There are no breaking changes, so Power BI reports from 0.3 should work with v0.4 and vice-versa.
 
 FinOps hubs 0.4 aligns with FOCUS 1.0, so you will notice changes to the following columns:
 
@@ -117,7 +117,22 @@ Reports work with both FOCUS 1.0 and FOCUS 1.0 preview exports, so there's no ne
 
 <br>
 
----
+## Upgrading 0.4
+
+Upgrading FinOps hubs 0.4 to 0.5 is as simple as re-deploying the template and optionally update to the 0.5 Power BI reports. There are no breaking changes, so Power BI reports from 0.3 should work with v0.4 and vice-versa.
+
+FinOps hubs 0.4 aligns with FOCUS 1.0, so you will notice changes to the following columns:
+
+- ChargeCategory is "Purchase" for refunds instead of "Adjustment".
+- ChargeClass (new) is "Correction" for refunds.
+- CommitmentDiscountStatus (new) replaces ChargeSubcategory for commitment discount usage.
+- Region is replaced by RegionId and RegionName.
+
+Reports work with both FOCUS 1.0 and FOCUS 1.0 preview exports, so there's no need to change exports in order to use the new reports. The reports themselves update the schema to meet FOCUS 1.0 requirements.
+
+[Download 0.5](https://github.com/microsoft/finops-toolkit/releases/tag/v0.5) &nbsp; [View changes](https://aka.ms/ftk/changes#-v04)
+
+<br>
 
 ## Next steps
 

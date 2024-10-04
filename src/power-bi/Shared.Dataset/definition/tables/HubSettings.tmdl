@@ -52,25 +52,25 @@ table HubSettings
 
 	partition HubSettings = m
 		mode: import
-		queryGroup: 'FinOps toolkit'
+		queryGroup: Storage
 		source =
 				let
-                    ADLS = if #"Hub Storage URL" = "" or #"Hub Storage URL" = null then null else AzureStorage.DataLake(#"Hub Storage URL" & "/../config"),
+				                    ADLS = if #"Hub Storage URL" = "" or #"Hub Storage URL" = null then null else AzureStorage.DataLake(#"Hub Storage URL" & "/../config"),
 				
-				    Settings = if ADLS = null then null else Json.Document(ADLS{[Name="settings.json"]}[Content], 1252),
-				    ToTable = if ADLS = null then null else Table.FromRecords({Settings}),
-				    Retention = if ADLS = null then null else if Table.HasColumns(ToTable, "retention") then Table.ExpandRecordColumn(ToTable, "retention", {"msexports", "ingestion"}, {"retention.msexports", "retention.ingestion"}) else ToTable,
-				    ExportRetention = if ADLS = null then null else if Table.HasColumns(ToTable, "retention") then Table.ExpandRecordColumn(Retention, "retention.msexports", {"days"}, {"ExportRetentionInDays"}) else Table.AddColumn(Retention, "ExportRetentionInDays", each null),
-				    IngestRetention = if ADLS = null then null else if Table.HasColumns(ToTable, "retention") then Table.ExpandRecordColumn(ExportRetention, "retention.ingestion", {"months"}, {"IngestionRetentionInMonths"}) else Table.AddColumn(ExportRetention, "IngestionRetentionInMonths", each null),
-				    ScopeCount = if ADLS = null then null else Table.AddColumn(IngestRetention, "Scopes", each try List.Count(List.RemoveMatchingItems([scopes], {"/foo", ""})) otherwise 0),
-				    Storage = if ADLS = null then null else Table.AddColumn(ScopeCount, "StorageAccount", each Text.SplitAny(#"Hub Storage URL", "/."){2}),
-				    SelectColumns = if ADLS = null then null else Table.SelectColumns(Storage, {"StorageAccount", "version", "ExportRetentionInDays", "IngestionRetentionInMonths", "Scopes"}),
-				    FixTypes = if ADLS = null then null else Table.TransformColumnTypes(SelectColumns, {{"version", type text}, {"ExportRetentionInDays", type number}, {"IngestionRetentionInMonths", type number}, {"Scopes", type number}}),
-				    Version = if ADLS = null then null else Table.RenameColumns(FixTypes, {{"version", "Version"}})
-				in
-				    Version
+								    Settings = if ADLS = null then null else Json.Document(ADLS{[Name="settings.json"]}[Content], 1252),
+								    ToTable = if ADLS = null then null else Table.FromRecords({Settings}),
+								    Retention = if ADLS = null then null else if Table.HasColumns(ToTable, "retention") then Table.ExpandRecordColumn(ToTable, "retention", {"msexports", "ingestion"}, {"retention.msexports", "retention.ingestion"}) else ToTable,
+								    ExportRetention = if ADLS = null then null else if Table.HasColumns(ToTable, "retention") then Table.ExpandRecordColumn(Retention, "retention.msexports", {"days"}, {"ExportRetentionInDays"}) else Table.AddColumn(Retention, "ExportRetentionInDays", each null),
+								    IngestRetention = if ADLS = null then null else if Table.HasColumns(ToTable, "retention") then Table.ExpandRecordColumn(ExportRetention, "retention.ingestion", {"months"}, {"IngestionRetentionInMonths"}) else Table.AddColumn(ExportRetention, "IngestionRetentionInMonths", each null),
+								    ScopeCount = if ADLS = null then null else Table.AddColumn(IngestRetention, "Scopes", each try List.Count(List.RemoveMatchingItems([scopes], {"/foo", ""})) otherwise 0),
+								    Storage = if ADLS = null then null else Table.AddColumn(ScopeCount, "StorageAccount", each Text.SplitAny(#"Hub Storage URL", "/."){2}),
+								    SelectColumns = if ADLS = null then null else Table.SelectColumns(Storage, {"StorageAccount", "version", "ExportRetentionInDays", "IngestionRetentionInMonths", "Scopes"}),
+								    FixTypes = if ADLS = null then null else Table.TransformColumnTypes(SelectColumns, {{"version", type text}, {"ExportRetentionInDays", type number}, {"IngestionRetentionInMonths", type number}, {"Scopes", type number}}),
+								    Version = if ADLS = null then null else Table.RenameColumns(FixTypes, {{"version", "Version"}})
+								in
+								    Version
 
-	annotation PBI_ResultType = Null
+	annotation PBI_ResultType = Table
 
 	annotation PBI_NavigationStepName = Navigation
 

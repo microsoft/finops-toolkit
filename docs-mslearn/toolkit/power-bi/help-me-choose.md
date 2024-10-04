@@ -49,12 +49,12 @@ In general, we recommend starting with the Cost Management connector when gettin
 | Enterprise Agreement                                |                ✅                 |                ✅                 |                ✅                 |               ✅                |
 | Microsoft Customer Agreement                        |                ✅                 |                ✅                 |                ✅                 |               ✅                |
 | Microsoft Partner Agreement                         |                ✅                 |                ✅                 |                ✅                 |               ✅                |
-| Microsoft Online Services Agreement                 |                ❌                 |         ❌ (if requested)         |         ❌ (if requested)         |               ❌                |
+| Microsoft Online Services Agreement                 |                ❌                 |                ❌                 |                ❌                 |              ❌               |
 | Billing accounts                                    |                ✅                 |                ✅                 |                ✅                 |               ✅                |
 | Billing profiles                                    |                ✅                 |                ✅                 |                ✅                 |               ✅                |
 | Invoice sections                                    |                ❌                 |                ✅                 |                ✅                 |               ✅                |
 | CSP customers (partner only)                        |                ❌                 |                ✅                 |                ✅                 |               ✅                |
-| Management groups                                   |                ❌                 |         ❌ (if requested)         |         ❌ (if requested)         |               ❌                |
+| Management groups                                   |                ❌                 |                ❌                 |                ❌                 |              ❌               |
 | Subscriptions                                       |                ❌                 |                ✅                 |                ✅                 |               ✅                |
 | Resource groups                                     |                ❌                 |                ✅                 |                ✅                 |               ✅                |
 | Supports savings plans<sup>4</sup>                  |                ❌                 |                ✅                 |                ✅                 |               ✅                |
@@ -62,8 +62,8 @@ In general, we recommend starting with the Cost Management connector when gettin
 | Supports multiple scopes                            |                ❌                 |                ✅                 |                ✅                 |               ✅                |
 | Supports scopes in different tenants<sup>5</sup>    |                ❌                 |          ❌<sup>5</sup>           |                ✅                 |          ✅ (via Hubs)          |
 | Faster data load times                              |                ❌                 |                🔜                 |                ✅                 |          ✅ (via Hubs)          |
-| Supports >$65M in cost details                      |                ❌                 |                ❌                 |             🔜 (0.6)              |               ✅                |
-| Analytical engine                                   |                ❌                 |                ❌                 |             🔜 (0.6)              |               ✅                |
+| Supports >$65M in cost details                      |                ❌                 |                ❌                 |             🔜 (0.7)              |              ✅               |
+| Analytical engine                                   |                ❌                 |                ❌                 |             🔜 (0.7)              |              ✅               |
 | Accessible outside of Power BI                      |                ❌                 |                ✅                 |                ✅                 |               ✅                |
 | Learn more                                          |  [Learn more][about-connector]   |                                  |     [Learn more][about-hubs]     | [Learn more][about-workspaces] |
 

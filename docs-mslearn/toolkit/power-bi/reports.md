@@ -25,8 +25,10 @@ Please note support for the [Cost Management connector for Power BI](/power-bi/c
 The FinOps toolkit includes two sets of reports that connect to different data sources. We recommend using the following reports which connect to Cost Management exports or [FinOps hubs](../hubs/finops-hubs-overview.md):
 
 - [Cost summary](./cost-summary.md) – Overview of amortized costs with common breakdowns.
-- [Data ingestion](./data-ingestion.md) – Provides insights into your data ingestion layer.
 - [Rate optimization](./rate-optimization.md) – Summarizes existing and potential savings from commitment discounts.
+- [Workload optimization](./workload-optimization.md) – Summarizes opportunities to achieve resource cost and usage efficiencies.
+- [Cloud policy and governance](./governance.md) – Summarize cloud governance posture including areas like compliance, security, operations, and resource management.
+- [Data ingestion](./data-ingestion.md) – Provides insights into your data ingestion layer.
 
 The following reports use the Cost Management connector for Power BI to connect to your data. While the connector is not recommended due to the reasons below, these reports will be available as long as the connector is supported by the Cost Management team.
 
@@ -41,17 +43,25 @@ The following reports use the Cost Management connector for Power BI to connect 
 
 All FinOps toolkit reports, come with sample data to explore without connecting to your account. Reports have a built-in tutorial to help you connect to your data.
 
-1. Select the **Transform data** button (table with a pencil icon) in the toolbar.
+1. Configure Cost Management exports for any data you would like to include in reports, including:
+
+   - Cost and usage (FOCUS) &ndash; Required for all reports.
+   - Price sheet
+   - Reservation details
+   - Reservation recommendations &ndash; Required to see reservation recommendations in the Rate optimization report.
+   - Reservation transactions
+
+2. Select the **Transform data** button (table with a pencil icon) in the toolbar.
 
    ![Screenshot of the Transform data button in the Power BI Desktop toolbar.](https://user-images.githubusercontent.com/399533/216573265-fa76828f-c9a2-497d-ae1e-19b55fef412c.png)
 
-2. Select **Queries** > **🛠️ Setup** > **▶ START HERE** and follow the instructions.
+3. Select **Queries** > **🛠️ Setup** > **▶ START HERE** and follow the instructions.
 
-   Make sure you have the [Storage Blob Data Reader role](/azure/role-based-access-control/built-in-roles#storage-blob-data-reader) on the storage account so you can access the data.
+   Make sure you have the [Storage Blob Data Reader role](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-reader) on the storage account so you can access the data.
 
    ![Screenshot of instructions to connect to a storage account](https://github.com/user-attachments/assets/3723c94b-d853-420e-9101-98d1ca518fa0)
 
-3. Select **Close & Apply** in the toolbar and allow Power BI to refresh to see your data.
+4. Select **Close & Apply** in the toolbar and allow Power BI to refresh to see your data.
 
 For more details, see [How to setup Power BI](./setup.md).
 

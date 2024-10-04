@@ -44,7 +44,7 @@ The Azure Optimization Engine (AOE) was initially developed to augment Virtual M
 Besides collecting **all Azure Advisor recommendations**, AOE includes other custom recommendations that you can tailor to your needs, such as:
 
 * 💰 Cost
-    * Augmented Advisor VM right-sizing cost recommendations, with fit score based on virtual machine guest OS metrics (collected by Log Analytics or Azure Monitor agents) and Azure properties
+    * Augmented Advisor VM right-sizing cost recommendations, with fit score based on virtual machine guest OS metrics (collected by Azure Monitor agents) and Azure properties
     * Underutilized VM scale sets, premium SSD disks, App Service plans, and Azure SQL databases (DTU-based SKUs only)
     * Orphaned disks and public IPs
     * Standard load balancers or application gateways without backend pool
@@ -104,7 +104,7 @@ Once deployed and after all the initial ingestion and recommendations generation
 ## 📋 Requirements
 
 * A supported Azure subscription (see the [FAQ](./faq.md))
-* A user account with Owner permissions over the chosen subscription, so that the Automation Managed Identity is granted the required privileges over the subscription (Reader) and deployment resource group (Contributor)
+* A user account with Owner permissions over the chosen subscription, so that the Automation Managed Identity is granted the required privileges over the subscription (Reader) and deployment resource group (Storage Blob Data Contributor)
 * Azure Powershell 9.0.0+
 * (Optional, for Identity and RBAC governance) Microsoft.Graph.Authentication and Microsoft.Graph.Identity.DirectoryManagement PowerShell modules (version 2.4.0+)
 * (Optional, for Identity and RBAC governance) A user account with at least Privileged Role Administrator permissions over the Microsoft Entra tenant, so that the Managed Identity is granted the required privileges over Microsoft Entra ID (Global Reader)
@@ -125,11 +125,12 @@ During deployment, you'll be asked several questions. You must plan for the foll
 The simplest, quickest and recommended method for installing AOE is by using the **Azure Cloud Shell** (PowerShell). You just have to follow these steps:
 
 1. Open Azure Cloud Shell (PowerShell)
-2. Run `git clone https://github.com/microsoft/finops-toolkit.git finops-toolkit`
-3. Run `cd finops-toolkit/src/optimization-engine`
-4. (optional) Run `Install-Module Microsoft.Graph.Authentication,Microsoft.Graph.Identity.DirectoryManagement` - this is required to grant the Global Reader role to the Automation Managed Identity in Microsoft Entra ID, used by Identity and RBAC governance features.
-5. Run `./Deploy-AzureOptimizationEngine.ps1`
-6. Input your deployment options and let the deployment finish (it will take less than 5 minutes)
+1. Run `git clone https://github.com/microsoft/finops-toolkit.git`
+1. Run `git checkout main`
+1. Run `cd finops-toolkit/src/optimization-engine`
+1. (optional) Run `Install-Module Microsoft.Graph.Authentication,Microsoft.Graph.Identity.DirectoryManagement` - this is required to grant the Global Reader role to the Automation Managed Identity in Microsoft Entra ID, used by Identity and RBAC governance features.
+1. Run `./Deploy-AzureOptimizationEngine.ps1`
+1. Input your deployment options and let the deployment finish (it will take less than 5 minutes)
 
 If the deployment fails for some reason, you can simply repeat it, as it is idempotent. The same if you want to upgrade a previous deployment with the latest version of the repo. You just have to keep the same deployment options. _Cool feature_: the deployment script persists your previous deployment options and lets you reuse it! 
 

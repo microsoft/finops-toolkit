@@ -12,11 +12,6 @@ table ReservationRecomendations
 		summarizeBy: none
 		sourceColumn: ChargePeriodStart
 
-		variation Variation
-			isDefault
-			relationship: 3a2e37de-fb8c-4cd9-a96b-690afad3d70f
-			defaultHierarchy: LocalDateTable_5399b385-fafe-40a7-b043-5cbb2b2bf725.'Date Hierarchy'
-
 		annotation SummarizationSetBy = Automatic
 
 	column ContractedCost
@@ -217,7 +212,7 @@ table ReservationRecomendations
 
 	partition ReservationRecomendations = m
 		mode: import
-		queryGroup: 'FinOps toolkit'
+		queryGroup: Storage
 		source = ```
 				let
 				    // Get the data

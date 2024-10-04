@@ -219,7 +219,7 @@
           "z": 1000.00
         },
         {
-          "config": "{\"name\":\"907968064288c59539c5\",\"layouts\":[{\"id\":0,\"position\":{\"x\":16,\"y\":16,\"z\":0,\"width\":1264,\"height\":96,\"tabOrder\":5000}}],\"singleVisual\":{\"visualType\":\"textbox\",\"drillFilterOtherVisuals\":true,\"objects\":{\"general\":[{\"properties\":{\"paragraphs\":[{\"textRuns\":[{\"value\":\"Data ingestion report\",\"textStyle\":{\"fontWeight\":\"bold\",\"fontSize\":\"42pt\"}},{\"value\":\"   v24.09.06\",\"textStyle\":{\"color\":\"#808080\"}}]}]}}]},\"vcObjects\":{\"visualHeader\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"background\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]}}}",
+          "config": "{\"name\":\"907968064288c59539c5\",\"layouts\":[{\"id\":0,\"position\":{\"x\":16,\"y\":16,\"z\":0,\"width\":1264,\"height\":96,\"tabOrder\":5000}}],\"singleVisual\":{\"visualType\":\"textbox\",\"drillFilterOtherVisuals\":true,\"objects\":{\"general\":[{\"properties\":{\"paragraphs\":[{\"textRuns\":[{\"value\":\"Data ingestion report\",\"textStyle\":{\"fontWeight\":\"bold\",\"fontSize\":\"42pt\"}},{\"value\":\"   v24.10.01\",\"textStyle\":{\"color\":\"#808080\"}}]}]}}]},\"vcObjects\":{\"visualHeader\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}],\"background\":[{\"properties\":{\"show\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]}}}",
           "filters": "[]",
           "height": 96.00,
           "width": 1264.00,
