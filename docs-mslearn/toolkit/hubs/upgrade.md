@@ -94,7 +94,7 @@ Based on the above, use the following steps to upgrade your hub instance from `0
 
 ## Upgrading 0.2
 
-Upgrading FinOps hubs 0.2 to 0.4 is as simple as re-deploying the template and optionally update to the 0.3 Power BI reports. There are no breaking changes, so Power BI reports from 0.2 should work with v0.3 and vice-versa.
+Upgrading FinOps hubs 0.2 to 0.3 is as simple as re-deploying the template and optionally update to the 0.3 Power BI reports. There are no breaking changes, so Power BI reports from 0.2 should work with 0.3 and vice-versa.
 
 [Download 0.3](https://github.com/microsoft/finops-toolkit/releases/tag/v0.3) &nbsp; [View changes](https://aka.ms/ftk/changes#-v03)
 
@@ -102,7 +102,7 @@ Upgrading FinOps hubs 0.2 to 0.4 is as simple as re-deploying the template and o
 
 ## Upgrading 0.3
 
-Upgrading FinOps hubs 0.3 to 0.4 is as simple as re-deploying the template and optionally update to the 0.4 Power BI reports. There are no breaking changes, so Power BI reports from 0.3 should work with v0.4 and vice-versa.
+Upgrading FinOps hubs 0.3 to 0.4 is as simple as re-deploying the template and optionally update to the 0.4 Power BI reports. There are no breaking changes, so Power BI reports from 0.3 should work with 0.4 and vice-versa.
 
 FinOps hubs 0.4 aligns with FOCUS 1.0, so you will notice changes to the following columns:
 
@@ -119,24 +119,30 @@ Reports work with both FOCUS 1.0 and FOCUS 1.0 preview exports, so there's no ne
 
 ## Upgrading 0.4
 
-Upgrading FinOps hubs 0.4 to 0.5 is as simple as re-deploying the template and optionally update to the 0.5 Power BI reports. There are no breaking changes, so Power BI reports from 0.3 should work with v0.4 and vice-versa.
+Upgrading FinOps hubs 0.4 to 0.5 is as simple as re-deploying the template and optionally update to the 0.5 Power BI reports. There are no breaking changes in FinOps hubs, so Power BI reports from 0.4 should work with 0.5 and vice-versa. There are however changes in Power BI reports that must be accounted for if updating to 0.5 reports.
 
-FinOps hubs 0.4 aligns with FOCUS 1.0, so you will notice changes to the following columns:
+FinOps toolkit 0.5 reports replaced the Cost Management connector with reservation recommendation exports. When you update to 0.5 reports, you will need to create new reservation recommendation exports in Cost Management and then configure 0.5 reports with both a **Hub Storage URL** pointing to the traditional FinOps hub URL and a separate **Export Storage URL** that points to where reservation recommendations were exported.
 
-- ChargeCategory is "Purchase" for refunds instead of "Adjustment".
-- ChargeClass (new) is "Correction" for refunds.
-- CommitmentDiscountStatus (new) replaces ChargeSubcategory for commitment discount usage.
-- Region is replaced by RegionId and RegionName.
+If you exported reservation recommendations to the **msexports** container of your hub storage account, use that. If you chose not to export reservation recommendations, set the **Export Storage URL** to the same FinOps hub URL. If you leave one of the URLs empty, the report will not refresh in the Power BI service and you will receive a "dynamic query" error. Placing the same URL in both parameters should work around this limitation.
 
-Reports work with both FOCUS 1.0 and FOCUS 1.0 preview exports, so there's no need to change exports in order to use the new reports. The reports themselves update the schema to meet FOCUS 1.0 requirements.
+[Download 0.5](https://github.com/microsoft/finops-toolkit/releases/tag/v0.5) &nbsp; [View changes](https://aka.ms/ftk/changes#-v05)
 
-[Download 0.5](https://github.com/microsoft/finops-toolkit/releases/tag/v0.5) &nbsp; [View changes](https://aka.ms/ftk/changes#-v04)
+<br>
+
+## Upgrading 0.5
+
+Upgrading FinOps hubs 0.5 to 0.6 involves re-deploying the template and updating Power BI reports. FinOps hubs 0.6 changed how data is stored in the **ingestion** container, which means older Power BI reports will not work with data exported with FinOps hubs 0.6. Conversely, 0.6 Power BI reports _will_ work with older FinOps hubs versions, so previously exported data will continue to work without re-exporting it.
+
+> [!IMPORTANT]
+> If you re-export any historical data in 0.6 that was previously exported in an earlier release, FinOps hubs will not clean up the old data, which will result in duplicated data. The simplest way to resolve this is to delete the older data in the **ingestion** container. FinOps hubs 0.6 moves all content into a folder based on the dataset type: **focuscost**, **pricesheet**, **reservationdetails**, **reservationrecommendations**, or **reservationtransactions**. Any other folders can be safely removed. Once removed, re-run your historical data backfill.
+
+[Download 0.6](https://github.com/microsoft/finops-toolkit/releases/tag/v0.6) &nbsp; [View changes](https://aka.ms/ftk/changes#-v06)
 
 <br>
 
 ## Next steps
 
 - [Deploy FinOps hubs](./finops-hubs-overview.md#create-a-new-hub)
-- [Learn more](./finops-hubs-overview.md#why-finops-hubs)
+- [Download Power BI reports](../power-bi/reports.md#available-reports)
 
 <br>
