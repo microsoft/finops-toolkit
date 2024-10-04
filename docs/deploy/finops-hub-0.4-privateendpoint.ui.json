@@ -63,8 +63,8 @@
         "toolTip": "Add a subnet resource id to deploy a private endpoint for the hub. If you don't provide a subnet resource id, the hub will be deployed without a private endpoint.)",
         "constraints": {
           "required": false,
-          "regex": "^[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9]$",
-          "validationMessage": "Name must be between 3 and 63 characters long and can contain only lowercase letters, numbers, and hyphens. The first and last characters in the name must be alphanumeric."
+          "regex": "^[a-zA-Z0-9][a-zA-Z0-9\\-]{0,253}[a-zA-Z0-9]$",
+          "validationMessage": "Name must be between 3 and 255 characters long and can contain only lowercase letters, numbers, and hyphens. The first and last characters in the name must be alphanumeric."
         },
         "visible": true
       }
