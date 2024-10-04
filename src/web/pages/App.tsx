@@ -1,29 +1,25 @@
-import { useState } from 'react';
-import reactLogo from '../assets/react.svg';
-import viteLogo from '/vite.svg';
 import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0);
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>count is {count}</button>
-        <p>
-          Edit <code>pages/App.tsx</code> and save to test HMR
+      <head>
+        <h1>Kick start your FinOps efforts</h1>
+        <h2>Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced solutions to accelerate your FinOps journey.</h2>
+      </head>
+      <p>
+          The Microsoft FinOps toolkit is an open-source collection of learning resources and customizable tools to help you adopt and implement FinOps capabilities that automate and extend the Microsoft Cloud. This includes:
         </p>
-      </div>
-      <p className="read-the-docs">Click on the Vite and React logos to learn more</p>
+      <ul>
+        <li>Starter kits that help you get up and running.</li>
+        <li>Automation scripts to streamline cost configuration and management at scale.</li>
+        <li>Advanced solutions to facilitate building custom capabilities.</li>
+        <li>Learning resources and best practices about how to implement FinOps.</li>
+      </ul>
+      <p>
+        Read on to learn about the tools and roadmap for the FinOps toolkit or how to get involved.
+      </p>
     </>
   );
 }
