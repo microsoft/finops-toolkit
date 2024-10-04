@@ -98,6 +98,7 @@ There are many ways to participate. From reporting bugs and requesting features 
     </tr>
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/akiskips"><img src="https://avatars.githubusercontent.com/u/56831775?v=4?s=100" width="100px;" alt="Orthodoxos Kipouridis"/><br /><sub><b>Orthodoxos Kipouridis</b></sub></a><br /><a href="https://github.com/microsoft/finops-toolkit/commits?author=akiskips" title="Code">💻</a> <a href="https://github.com/microsoft/finops-toolkit/commits?author=akiskips" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/grantxyzou"><img src="https://avatars.githubusercontent.com/u/110638253?v=4?s=100" width="100px;" alt="grantxyzou"/><br /><sub><b>grantxyzou</b></sub></a><br /><a href="#design-grantxyzou" title="Design">🎨</a></td>
     </tr>
   </tbody>
 </table>
