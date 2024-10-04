@@ -36,6 +36,44 @@ param msexportRetentionInDays int = 0
 @description('Optional. Number of months of cost data to retain in the ingestion container. Default: 13.')
 param ingestionRetentionInMonths int = 13
 
+@description('Optional. To use Private Endpoints, add target subnet resource Id.')
+param subnetResourceId string = ''
+
+@description('Optional. The user assigned managed identity to use for the storage account.')
+param userAssignedManagedIdentityResourceId string
+
+@description('Optional. The principal ID of the user assigned managed identity to use for the storage account.')
+param userAssignedManagedIdentityPrincipalId string
+
+@description('Optional. The resource ID of the storage account to use for deployment scripts.')
+param dsStorageAccountResourceId string
+
+@description('Optional. To use Private Endpoints, add target subnet resource Id for the deployment scripts')
+param scriptsSubnetResourceId string = ''
+
+@description('Optional. To create networking resources.')
+@allowed([
+  'Public'
+  'Private'
+  'PrivateWithExistingNetwork'
+])
+param networkingOption string = 'Public'
+
+@description('Optional. Id of the scripts created subnet.')
+param newScriptsSubnetResourceId string = ''
+
+@description('Optional. Id of the created subnet for private endpoints.')
+param newsubnetResourceId string = ''
+
+@description('Optional. Name of the virtual network.')
+param virtualNetworkName string = ''
+
+@description('Optional. To use Private Endpoints in an existing virtual network, add target blob storage account private DNS zone resource Id.')
+param blobPrivateDNSZoneName string = ''
+
+@description('Optional. To use Private Endpoints in an existing virtual network, add target private DNS zones resource group name.')
+param privateDNSZonesResourceGroupName string = ''
+
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
@@ -47,149 +85,159 @@ var storageAccountName = '${take(safeHubName, 24 - length(storageAccountSuffix))
 var schemaFiles = {
   'focuscost_1.0': loadTextContent('../schemas/focuscost_1.0.json')
   'focuscost_1.0-preview(v1)': loadTextContent('../schemas/focuscost_1.0-preview(v1).json')
-  'pricesheet_2023-05-01_ea': loadTextContent('../schemas/pricesheet_2023-05-01_ea.json')
-  'pricesheet_2023-05-01_mca': loadTextContent('../schemas/pricesheet_2023-05-01_mca.json')
-  'reservationdetails_2023-03-01': loadTextContent('../schemas/reservationdetails_2023-03-01.json')
-  'reservationrecommendations_2023-05-01_ea': loadTextContent('../schemas/reservationrecommendations_2023-05-01_ea.json')
-  'reservationrecommendations_2023-05-01_mca': loadTextContent('../schemas/reservationrecommendations_2023-05-01_mca.json')
-  'reservationtransactions_2023-05-01_ea': loadTextContent('../schemas/reservationtransactions_2023-05-01_ea.json')
-  'reservationtransactions_2023-05-01_mca': loadTextContent('../schemas/reservationtransactions_2023-05-01_mca.json')
 }
-
-// Roles needed to auto-start triggers
-var blobUploadRbacRoles = [
-  'ba92f5b4-2d11-453d-a403-e96b0029c9fe' // Storage Blob Data Contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor
-  'e40ec5ca-96e0-45a2-b4ff-59039f2c2b59' // Managed Identity Contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#managed-identity-contributor
-]
 
 //==============================================================================
 // Resources
 //==============================================================================
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+module storageAccount 'br/public:avm/res/storage/storage-account:0.11.0' = {
   name: storageAccountName
-  location: location
-  sku: {
-    name: sku
-  }
-  kind: 'BlockBlobStorage'
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Storage/storageAccounts') ? tagsByResource['Microsoft.Storage/storageAccounts'] : {})
-  properties: {
+  params: {
+    name: storageAccountName
+    skuName: sku
+    kind: 'BlockBlobStorage'
+    tags: union(tags, tagsByResource[?'Microsoft.Storage/storageAccounts'] ?? {})
     supportsHttpsTrafficOnly: true
-    isHnsEnabled: true
     minimumTlsVersion: 'TLS1_2'
     allowBlobPublicAccess: false
+    publicNetworkAccess: (networkingOption == 'Public') ? 'Enabled' : 'Disabled'
+    enableHierarchicalNamespace: true
+    blobServices: {
+      containers: [
+        {
+          name: 'config'
+          publicAccess: 'None'
+          metadata: {}
+        }
+        {
+          name: 'msexports'
+          publicAccess: 'None'
+          metadata: {}
+        }
+        {
+          name: 'ingestion'
+          publicAccess: 'None'
+          metadata: {}
+        }
+      ]
+    }
+    roleAssignments: [
+      {
+        roleDefinitionIdOrName: 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
+        principalId: userAssignedManagedIdentityPrincipalId
+        principalType: 'ServicePrincipal'
+      }
+      {
+        roleDefinitionIdOrName: 'e40ec5ca-96e0-45a2-b4ff-59039f2c2b59'
+        principalId: userAssignedManagedIdentityPrincipalId
+        principalType: 'ServicePrincipal'
+      }
+    ]
+    privateEndpoints: (networkingOption == 'Public') ? null : [
+      {
+        service: 'blob'
+        name: 'pve-blob'
+        subnetResourceId: (networkingOption == 'PrivateWithExistingNetwork') ? subnetResourceId : newsubnetResourceId
+        privateDnsZoneResourceIds: (networkingOption == 'Private') ? [
+          privateBlobDNSZone.outputs.resourceId
+        ]
+        : (networkingOption == 'PrivateWithExistingNetwork') ? [blobPrivateDNSZone.id]
+        :[]
+        privateDnsZoneGroupName: (networkingOption == 'Private') ? privateBlobDNSZone.name : (networkingOption == 'PrivateWithExistingNetwork') ? blobPrivateDNSZone.name : null
+      }
+    ]
+    networkAcls: (networkingOption == 'Public') ? {
+      bypass: 'AzureServices'
+      defaultAction: 'Allow'
+    } : {
+      bypass: 'AzureServices'
+      defaultAction: 'Deny'
+      virtualNetworkRules: [
+        {
+          id: (networkingOption == 'PrivateWithExistingNetwork') ? scriptsSubnetResourceId : newScriptsSubnetResourceId
+          action: 'Allow'
+          state: 'Succeeded'
+        }
+      ]
+    }
   }
 }
 
 //------------------------------------------------------------------------------
-// Containers
+// Private DNS zones
 //------------------------------------------------------------------------------
 
-resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01' = {
-  parent: storageAccount
-  name: 'default'
+resource blobPrivateDNSZone 'Microsoft.Network/privateDnsZones@2020-06-01' existing = if(networkingOption == 'PrivateWithExistingNetwork') {
+  name: blobPrivateDNSZoneName
+  scope: resourceGroup(privateDNSZonesResourceGroupName)
 }
-
-resource configContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
-  parent: blobService
-  name: 'config'
-  properties: {
-    publicAccess: 'None'
-    metadata: {}
-  }
-}
-
-resource exportContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
-  parent: blobService
-  name: 'msexports'
-  properties: {
-    publicAccess: 'None'
-    metadata: {}
-  }
-}
-
-resource ingestionContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2022-09-01' = {
-  parent: blobService
-  name: 'ingestion'
-  properties: {
-    publicAccess: 'None'
-    metadata: {}
+module privateBlobDNSZone 'br/public:avm/res/network/private-dns-zone:0.5.0' = if(networkingOption == 'Private'){
+  name: 'blobDnsZone'
+  params: {
+    name: 'privatelink.blob.${environment().suffixes.storage}'
+    location: 'global'
+    virtualNetworkLinks: [
+      {
+        virtualNetworkResourceId: resourceId('Microsoft.Network/virtualNetworks', virtualNetworkName)
+        registrationEnabled: false
+      }
+    ]
   }
 }
 
 //------------------------------------------------------------------------------
 // Settings.json
 //------------------------------------------------------------------------------
-
-// Create managed identity to upload files
-resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: '${storageAccountName}_blobManager'
-  tags: union(tags, contains(tagsByResource, 'Microsoft.ManagedIdentity/userAssignedIdentities') ? tagsByResource['Microsoft.ManagedIdentity/userAssignedIdentities'] : {})
-  location: location
-}
-
-// Assign access to the identity
-resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in blobUploadRbacRoles: {
-  name: guid(storageAccount.id, role, identity.id)
-  scope: resourceGroup()
-  properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
-    principalId: identity.properties.principalId
-    principalType: 'ServicePrincipal'
-  }
-}]
-
-resource uploadSettings 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: '${storageAccountName}_uploadSettings'
-  kind: 'AzurePowerShell'
-  // chinaeast2 is the only region in China that supports deployment scripts
-  location: startsWith(location, 'china') ? 'chinaeast2' : location
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${identity.id}': {}
+module uploadSettings 'br/public:avm/res/resources/deployment-script:0.2.4' = {
+  name: '${storageAccount.name}_uploadSettings'
+  params: {
+    name: '${storageAccount.name}_uploadSettings'
+    kind: 'AzurePowerShell'
+    location: startsWith(location, 'china') ? 'chinaeast2' : location
+    tags: union(tags, tagsByResource[?'Microsoft.Resources/deploymentScripts'] ?? {})
+    managedIdentities: {
+      userAssignedResourcesIds: [
+        userAssignedManagedIdentityResourceId
+      ]
     }
-  }
-  dependsOn: [
-    configContainer
-    identityRoleAssignments
-  ]
-  properties: {
-    azPowerShellVersion: '8.0'
+    azPowerShellVersion: '12.0'
     retentionInterval: 'PT1H'
-    environmentVariables: [
-      {
-        name: 'ftkVersion'
-        value: loadTextContent('./ftkver.txt')
-      }
-      {
-        name: 'scopes'
-        value: join(scopesToMonitor, '|')
-      }
-      {
-        name: 'msexportRetentionInDays'
-        value: string(msexportRetentionInDays)
-      }
-      {
-        name: 'ingestionRetentionInMonths'
-        value: string(ingestionRetentionInMonths)
-      }
-      {
-        name: 'storageAccountName'
-        value: storageAccountName
-      }
-      {
-        name: 'containerName'
-        value: 'config'
-      }
-      {
-        name: 'schemaFiles'
-        value: string(schemaFiles)
-      }
-    ]
+    environmentVariables: {
+      secureList: [
+        {
+          name: 'ftkVersion'
+          value: loadTextContent('./ftkver.txt')
+        }
+        {
+          name: 'scopes'
+          value: join(scopesToMonitor, '|')
+        }
+        {
+          name: 'msexportRetentionInDays'
+          value: string(msexportRetentionInDays)
+        }
+        {
+          name: 'ingestionRetentionInMonths'
+          value: string(ingestionRetentionInMonths)
+        }
+        {
+          name: 'storageAccountName'
+          value: storageAccount.name
+        }
+        {
+          name: 'containerName'
+          value: 'config'
+        }
+        {
+          name: 'schemaFiles'
+          value: string(schemaFiles)
+        }
+      ]
+    }
     scriptContent: loadTextContent('./scripts/Copy-FileToAzureBlob.ps1')
+    subnetResourceIds: (networkingOption == 'Public') ? [] : (networkingOption == 'Private') ? [newScriptsSubnetResourceId] : [scriptsSubnetResourceId]
+    storageAccountResourceId: (networkingOption == 'Public') ? null : dsStorageAccountResourceId
   }
 }
 
@@ -197,17 +245,17 @@ resource uploadSettings 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 // Outputs
 //==============================================================================
 
-@description('The resource ID of the storage account.')
-output resourceId string = storageAccount.id
+@description('Resource ID of the storage account created for the hub instance. This must be used when creating the Cost Management export.')
+output storageAccountId string = storageAccount.outputs.resourceId
 
 @description('The name of the storage account.')
 output name string = storageAccount.name
 
 @description('The name of the container used for configuration settings.')
-output configContainer string = configContainer.name
+output configContainer string = 'config'
 
 @description('The name of the container used for Cost Management exports.')
-output exportContainer string = exportContainer.name
+output exportContainer string = 'msexports'
 
 @description('The name of the container used for normalized data ingestion.')
-output ingestionContainer string = ingestionContainer.name
+output ingestionContainer string = 'ingestion'

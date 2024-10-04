@@ -11,6 +11,7 @@ $validateScopes = { $_.Length -gt 45 }
 $fileName = 'settings.json'
 $filePath = Join-Path -Path . -ChildPath $fileName
 $newScopes = $env:scopes.Split('|') | Where-Object $validateScopes | ForEach-Object { @{ scope = $_ } }
+$newScopes = $env:scopes.Split('|') | Where-Object $validateScopes | ForEach-Object { @{ scope = $_ } }
 
 # Get storage context
 $storageContext = @{
@@ -22,7 +23,7 @@ $storageContext = @{
 $blob = Get-AzStorageBlobContent @storageContext -Blob $fileName -Destination $filePath -Force
 if ($blob)
 {
-    
+
     $text = Get-Content $filePath -Raw
     Write-Output "---------"
     Write-Output $text

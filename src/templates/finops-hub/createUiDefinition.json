@@ -8,7 +8,7 @@
         "description": "FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, and optimization. Connect your hub to one or more billing accounts and subscriptions and build custom reports in Power BI or other tools. [Learn more](https://aka.ms/finops/hubs)",
         "location": {
           "label": "Location",
-          "resourceTypes": ["Microsoft.DataFactory/factories", "Microsoft.KeyVault/vaults", "Microsoft.Storage/storageAccounts"]
+          "resourceTypes": ["Microsoft.DataFactory/factories", "Microsoft.KeyVault/vaults", "Microsoft.Storage/storageAccounts,Microsoft.Network/privateEndpoints"]
         }
       }
     },
@@ -17,7 +17,8 @@
       "Microsoft.KeyVault/vaults",
       "Microsoft.Storage/storageAccounts",
       "Microsoft.ManagedIdentity/userAssignedIdentities",
-      "Microsoft.Resources/deploymentScripts"
+      "Microsoft.Resources/deploymentScripts",
+      "Microsoft.Network/privateEndpoints"
     ],
     "basics": [
       {
@@ -51,6 +52,19 @@
               "value": "Premium_ZRS"
             }
           ]
+        },
+        "visible": true
+      },
+      {
+        "name": "subnetResourceId",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Subnet Resource Id for Private Endpoint deployment (Optional)",
+        "defaultValue": "",
+        "toolTip": "Add a subnet resource id to deploy a private endpoint for the hub. If you don't provide a subnet resource id, the hub will be deployed without a private endpoint.)",
+        "constraints": {
+          "required": false,
+          "regex": "^[a-zA-Z0-9][a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9]$",
+          "validationMessage": "Name must be between 3 and 63 characters long and can contain only lowercase letters, numbers, and hyphens. The first and last characters in the name must be alphanumeric."
         },
         "visible": true
       }
@@ -108,7 +122,8 @@
               "Microsoft.KeyVault/vaults",
               "Microsoft.Storage/storageAccounts",
               "Microsoft.ManagedIdentity/userAssignedIdentities",
-              "Microsoft.Resources/deploymentScripts"
+              "Microsoft.Resources/deploymentScripts",
+              "Microsoft.Network/privateEndpoints"
             ]
           }
         ]

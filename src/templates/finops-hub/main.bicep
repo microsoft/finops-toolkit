@@ -13,9 +13,6 @@ param hubName string
 @description('Optional. Azure location where all resources should be created. See https://aka.ms/azureregions. Default: Same as deployment.')
 param location string = resourceGroup().location
 
-// @description('Optional. Azure location to use for a temporary Event Grid namespace to register the Microsoft.EventGrid resource provider if the primary location is not supported. The namespace will be deleted and is not used for hub operation. Default: "" (same as location).')
-// param eventGridLocation string = ''
-
 @allowed([
   'Premium_LRS'
   'Premium_ZRS'
@@ -41,9 +38,56 @@ param ingestionRetentionInMonths int = 13
 @description('Optional. Storage account to push data to for ingestion into a remote hub.')
 param remoteHubStorageUri string = ''
 
-@description('Optional. Storage account key to use when pushing data to a remote hub.')
-@secure()
-param remoteHubStorageKey string = ''
+
+@description('Optional. To use Private Endpoints in an existing virtual network, add target subnet resource Id.')
+param subnetResourceId string = ''
+
+@description('Optional. To use Private Endpoints  in an existing virtual network, add target subnet resource Id for the deployment scripts')
+param scriptsSubnetResourceId string = ''
+
+@description('Optional. To use Private Endpoints in an existing virtual network, add target blob storage account private DNS zone resource Id.')
+param blobPrivateDNSZoneName string = 'privatelink.blob.${environment().suffixes.storage}'
+
+@description('Optional. To use Private Endpoints in an existing virtual network, add target ADF private DNS zone resource Id.')
+param ADFprivateDNSZoneName string = 'privatelink.datafactory.azure.net'
+
+@description('Optional. To use Private Endpoints in an existing virtual network, add target ADF Poral private DNS zone resource Id.')
+param ADFPoralPrivateDNSZoneName string = 'privatelink.adf.azure.com'
+
+@description('Optional. To use Private Endpoints in an existing virtual network, add target KeyVault private DNS zone resource Id.')
+param keyVaultPrivateDNSZoneName string = 'privatelink.vaultcore.azure.net'
+
+
+@description('Optional. To use Private Endpoints in an existing virtual network, add target private DNS zones resource group name.')
+param privateDNSZonesResourceGroupName string = ''
+
+@description('Optional. To create networking resources.')
+@allowed([
+  'Public'
+  'Private'
+  'PrivateWithExistingNetwork'
+])
+param networkingOption string = 'Public'
+
+@description('Optional. Name of the FinOpsHub virtual network.')
+param networkName string = 'vnet-finops-hub'
+
+@description('Optional. Address prefix for the FinOpsHub virtual network.')
+param networkAddressPrefix string = '10.0.0.0/24'
+
+@description('Optional. Name of the FinOpsHub subnet.')
+param networkSubnetName string = 'subnet-finops-hub'
+
+@description('Optional. Address prefix for the FinOpsHub subnet.')
+param networkSubnetPrefix string = cidrSubnet(networkAddressPrefix,25,0)
+
+@description('Optional. Name of the FinOpsHub scripts subnet.')
+param scriptsSubnetName string = 'subnet-finops-hub-scripts'
+
+@description('Optional. Address prefix for the scripts subnet.')
+param scriptsSubnetPrefix string = cidrSubnet(networkAddressPrefix,25,1)
+
+
 
 //==============================================================================
 // Resources
@@ -54,7 +98,6 @@ module hub 'modules/hub.bicep' = {
   params: {
     hubName: hubName
     location: location
-    // eventGridLocation: eventGridLocation
     storageSku: storageSku
     tags: tags
     tagsByResource: tagsByResource
@@ -62,7 +105,20 @@ module hub 'modules/hub.bicep' = {
     exportRetentionInDays: exportRetentionInDays
     ingestionRetentionInMonths: ingestionRetentionInMonths
     remoteHubStorageUri: remoteHubStorageUri
-    remoteHubStorageKey: remoteHubStorageKey
+    subnetResourceId: (networkingOption == 'PrivateWithExistingNetwork') ? subnetResourceId : ''
+    scriptsSubnetResourceId: (networkingOption == 'PrivateWithExistingNetwork') ? scriptsSubnetResourceId : ''
+    networkingOption: networkingOption
+    networkAddressPrefix: networkAddressPrefix
+    networkName: networkName
+    networkSubnetName: networkSubnetName
+    scriptsSubnetName: scriptsSubnetName
+    networkSubnetPrefix: networkSubnetPrefix
+    scriptsSubnetPrefix: scriptsSubnetPrefix
+    blobPrivateDNSZoneName: blobPrivateDNSZoneName
+    ADFprivateDNSZoneName: ADFprivateDNSZoneName
+    ADFPoralPrivateDNSZoneName: ADFPoralPrivateDNSZoneName
+    keyVaultPrivateDNSZoneName: keyVaultPrivateDNSZoneName
+    privateDNSZonesResourceGroupName: privateDNSZonesResourceGroupName
   }
 }
 

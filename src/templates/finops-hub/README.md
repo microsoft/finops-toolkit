@@ -60,6 +60,8 @@ If you run into any issues, see [Troubleshooting FinOps hubs](https://aka.ms/fin
 
 ## 📗 How to use this template
 
+### Azure Portal Deployment
+
 1. Register the Microsoft.EventGrid and Microsoft.CostManagementExports resource providers
    > See [Register a resource provider](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) for details.
 2. Deploy the template
@@ -85,6 +87,7 @@ If you run into any issues, see [Troubleshooting FinOps hubs](https://aka.ms/fin
 _<sup>1) A "scope" is an Azure construct that contains resources or enables purchasing services, like a resource group, subscription, management group, or billing account. The resource ID for a scope will be the Azure Resource Manager URI that identifies the scope (e.g., "/subscriptions/###" for a subscription or "/providers/Microsoft.Billing/billingAccounts/###" for a billing account). To learn more, see [Understand and work with scopes](https://aka.ms/costmgmt/scopes).</sup>_
 
 <br>
+
 
 ## 🧰 About the FinOps toolkit
 
