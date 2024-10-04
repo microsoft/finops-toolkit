@@ -1,32 +1,16 @@
 ---
-layout: default
-parent: Power BI
-title: Data ingestion
-nav_order: 40
-description: 'Get insights into your data ingestion layer.'
-permalink: /power-bi/data-ingestion
+title: Data ingestion report
+description: Get insights into your data ingestion layer.
+author: bandersmsft
+ms.author: banders
+ms.date: 10/03/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
 ---
 
-<span class="fs-9 d-block mb-4">Data ingestion report</span>
-Get insights into your data ingestion layer.
-{: .fs-6 .fw-300 }
-
-[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/DataIngestion.pbix){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Connect your data](./README.md#-connect-to-your-data){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [Get started](#get-started)
-- [Hubs](#hubs)
-- [Exports](#exports)
-- [Ingestion](#ingestion)
-- [Ingestion errors](#ingestion-errors)
-- [🙋‍♀️ Looking for more?](#️-looking-for-more)
-
-</details>
-
----
+<!-- markdownlint-disable-next-line MD025 -->
+# Data ingestion report
 
 The **Data ingestion report** provides details about the data you've ingested into your FinOps hub storage account.
 
@@ -87,10 +71,26 @@ The **Ingestion errors** page summarizes potential issues that have been identif
 
 <br>
 
-## 🙋‍♀️ Looking for more?
+## Related content
+
+Related FinOps capabilities:
+
+- [Data ingestion](../../framework/understand/ingestion.md)
+
+Related products:
+
+- [Cost Management](/azure/cost-management-billing/costs/)
+
+Related solutions:
+
+- [FinOps hubs](../hubs/finops-hubs-overview.md)
+
+<br>
+
+## Looking for more?
 
 We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
 
-[Share feedback](https://aka.ms/ftk/idea){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Share feedback](https://aka.ms/ftk/idea)
 
 <br>

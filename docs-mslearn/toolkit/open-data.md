@@ -1,39 +1,22 @@
 ---
-layout: default
 title: Open data
-nav_order: 60
-description: 'Leverage open data to normalize and enhance your FinOps reporting.'
-permalink: /data
+description: Leverage open data to normalize and enhance your FinOps reporting.
+author: bandersmsft
+ms.author: banders
+ms.date: 10/03/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
 ---
 
-<span class="fs-9 d-block mb-4">Open data</span>
-Leverage open data to normalize and enhance your FinOps reporting.
-{: .fs-6 .fw-300 }
+<!-- markdownlint-disable-next-line MD025 -->
+# Open data for FinOps
 
-[Download](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Share feedback](#️-looking-for-more){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [📏 Pricing units](#-pricing-units)
-- [🗺️ Regions](#️-regions)
-- [📚 Resource types](#-resource-types)
-- [🎛️ Services](#️-services)
-- [⬇️ Dataset examples](#️-dataset-examples)
-- [📃 Dataset metadata](#-dataset-metadata)
-- [🙋‍♀️ Looking for more?](#️-looking-for-more)
-- [🧰 Related tools](#-related-tools)
-
-</details>
-
----
-
-Reporting is the life-blood of any FinOps initiative. And your reports are only as good as your data. This is why [data ingestion and normalization](../../_docs/framework/capabilities/understand/ingestion.md) is such an important part of FinOps (and any big data effort). The following datasets can be used to clean and normalize your data as part of data ingestion, reporting, or other solutions.
+Reporting is the life-blood of any FinOps initiative. And your reports are only as good as your data. This is why [data ingestion](../../framework/understand/ingestion.md) is such an important part of FinOps (and any big data effort). The following datasets can be used to clean and normalize your data as part of data ingestion, reporting, or other solutions.
 
 <br>
 
-## 📏 Pricing units
+## Pricing units
 
 Microsoft Cost Management uses the `UnitOfMeasure` column to indicate how each charge is measured. This can be in singular or distinct units or can be grouped into chunks based on applicable block pricing rules. As a string, the `UnitOfMeasure` column can be challenging to parse and handle all the different permutations and inconsistencies. The Pricing units file provides a list of values you may find within common cost-related datasets (e.g., Cost Management exports and price sheets) along with their related distinct unit and block size or scaling factor to compare pricing to usage units.
 
@@ -56,16 +39,14 @@ A few important notes about the data:
 3. Some default units may include a more specific unit in the meter name, which is not accounted here since meter names aren't included.
 4. Marketplace meters are not included due to inconsistencies that would impact data size.
 
-<blockquote class="note" markdown="1">
-   _In the Cost Management FOCUS dataset, `UnitOfMeasure` is renamed to `x_PricingUnitDescription`. Both `PricingUnit` and `UsageUnit` in FOCUS are set to the `DistictUnits` column._
-</blockquote>
+> [!NOTE]
+> In the Cost Management FOCUS dataset, `UnitOfMeasure` is renamed to `x_PricingUnitDescription`. Both `PricingUnit` and `UsageUnit` in FOCUS are set to the `DistictUnits` column.
 
-[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/PricingUnits.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
-[See PowerShell](../../_automation/powershell/data/Get-FinOpsPricingUnit.md){: .btn .mb-4 .mb-md-0 .mr-4 }
+[Download PricingUnits.csv](https://github.com/microsoft/finops-toolkit/releases/latest/download/PricingUnits.csv) &nbsp; [See PowerShell](https://aka.ms/ftk/Get-FinOpsPricingUnit)
 
 <br>
 
-## 🗺️ Regions
+## Regions
 
 Microsoft Cost Management provides various values for resource locations that are occasionally inconsistent due to different underlying systems providing the data. The Regions file provides a list of values you may find within common cost-related datasets (e.g., Cost Management exports and price sheets) along with their related Azure region IDs and names.
 
@@ -83,16 +64,14 @@ Sample data:
 
 <!-- cSpell:enable -->
 
-[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
-[See PowerShell](../../_automation/powershell/data/Get-FinOpsRegion.md){: .btn .mb-4 .mb-md-0 .mr-4 }
+[Download Regions.csv](https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv) &nbsp; [See PowerShell](https://aka.ms/ftk/Get-FinOpsRegion)
 
-<blockquote class="important" markdown="1">
-  _Convert region values to lowercase before mapping. This helps reduce duplication and speed up the mapping process._
-</blockquote>
+> [!IMPORTANT]
+> Convert region values to lowercase before mapping. This helps reduce duplication and speed up the mapping process.
 
 <br>
 
-## 📚 Resource types
+## Resource types
 
 Azure resource types are a semi-readable code that represents what kind of resource it is. Currently, there's no mapping of the resource type to a user-friendly string, description, or its icon. The ResourceTypes file provides a list of resource type values you'll find in the Azure portal along with their display names, description, and a link to the icon, when available.
 
@@ -114,19 +93,16 @@ Sample data:
 
 <!-- cSpell:enable -->
 
-<blockquote class="important" markdown="1">
-  _Convert resource type values to lowercase before mapping. This helps reduce duplication and speed up the mapping process._
-</blockquote>
+> [!IMPORTANT]
+> Convert resource type values to lowercase before mapping. This helps reduce duplication and speed up the mapping process.
 
-[Download CSV](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Download JSON](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.json){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[See PowerShell](../../_automation/powershell/data/Get-FinOpsResourceType.md){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+[Download ResourceTypes.csv](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv) &nbsp; [Download ResourceTypes.json](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.json) &nbsp; [See PowerShell](https://aka.ms/ftk/Get-FinOpsResourceType)
 
 <br>
 
-## 🎛️ Services
+## Services
 
-In Microsoft Cost Management, `ConsumedService` represents the primary service or resource provider of the resource you used. This is roughly the same as `ServiceName` in [FOCUS](../../_docs/focus/README.md). In some cases, multiple services share the same resource provider, so we're using the `ConsumedService` and `ResourceType` columns to map to `ServiceName` and `ServiceCategory` values for use within FOCUS.
+In Microsoft Cost Management, `ConsumedService` represents the primary service or resource provider of the resource you used. This is roughly the same as `ServiceName` in [FOCUS](../../focus/README.md). In some cases, multiple services share the same resource provider, so we're using the `ConsumedService` and `ResourceType` columns to map to `ServiceName` and `ServiceCategory` values for use within FOCUS.
 
 Sample data:
 
@@ -148,33 +124,32 @@ A few important notes about the data:
 2. `ServiceName` values should match the product marketing name for the closest possible service. Some services reuse resource types and cannot be distinguished from the resource type alone (e.g., Azure functions will show as App Service).
 3. `ServiceCategory` values are aligned with the allowed values in FOCUS.
 
-<blockquote class="note" markdown="1">
-  _Most mappings can rely on resource type alone. In a future update, we will merge this list with [Resource types](#-resource-types) to provide only a single dataset. Currently, the only known case where resource type is shared that ConsumedService can help identify is for Microsoft Defender for Cloud. To simplify your mapping, you can only map those 5 rows and rely on a resource type mapping for everything else._
-</blockquote>
+> [!NOTE]
+> Most mappings can rely on resource type alone. In a future update, we will merge this list with [Resource types](#resource-types) to provide only a single dataset. Currently, the only known case where resource type is shared that ConsumedService can help identify is for Microsoft Defender for Cloud. To simplify your mapping, you can only map those 5 rows and rely on a resource type mapping for everything else.
 
-[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/Services.csv){: .btn .mb-4 .mb-md-0 .mr-4 }
-[See PowerShell](../../_automation/powershell/data/Get-FinOpsService.md){: .btn .mb-4 .mb-md-0 .mr-4 }
+[Download Services.csv](https://github.com/microsoft/finops-toolkit/releases/latest/download/Services.csv) &nbsp; [See PowerShell](https://aka.ms/ftk/Get-FinOpsService)
 
 <br>
 
-## ⬇️ Dataset examples
+## Dataset examples
 
 The following files are examples of what you will find when you export data from Microsoft Cost Management. These files are provided to help you understand the data structure and format. They are from an Enterprise Agreement (EA) demo account and are not intended to be used for ingestion or reporting.
 
 - Cost and usage
   - Actual (billed) (`2021-10-01`)
   - Amortized (`2021-10-01`)
+  - FOCUS (`1.0`)
   - FOCUS (`1.0-preview(v1)`)
 - Prices (`2023-05-01`)
 - Reservation details (`2023-03-01`)
 - Reservation transactions (`2023-05-01`)
 - Reservation recommendations (`2023-05-01`)
 
-[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-examples.zip){: .btn .mb-4 .mb-md-0 .mr-4 }
+[Download all examples](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-examples.zip)
 
 <br>
 
-## 📃 Dataset metadata
+## Dataset metadata
 
 Given each dataset uses different columns and data types, FOCUS has defined metadata schema to describe the dataset. Dataset metadata includes general information about the data like the data generator, schema version, and columns included in the dataset.
 
@@ -192,25 +167,35 @@ Sample data:
 Metadata is available for the following datasets:
 
 - Cost and usage
-  - FOCUS 1.0 – [Learn more](../../_docs/focus/metadata.md#focuscost-10)
-  - FOCUS 1.0-preview(v1) – [Learn more](../../_docs/focus/metadata.md#focuscost-10-previewv1)
+  - FOCUS 1.0 – [Learn more](../../focus/metadata.md#focuscost-10)
+  - FOCUS 1.0-preview(v1) – [Learn more](../../focus/metadata.md#focuscost-10-previewv1)
 
-[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-metadata.zip){: .btn .mb-4 .mb-md-0 .mr-4 }
+[Download all metadata](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-metadata.zip)
 
 <br>
 
-## 🙋‍♀️ Looking for more?
+## Looking for more?
 
 We'd love to hear about any datasets you're looking for. Create a new issue with the details that you'd like to see either included in existing or new datasets.
 
-[Share feedback](https://aka.ms/ftk/idea){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Share feedback](https://aka.ms/ftk/idea)
 
 <br>
 
----
+## Related content
 
-## 🧰 Related tools
+Related FinOps capabilities:
 
-{% include tools.md pbi="1" ps="1" %}
+- [Data ingestion](../../framework/understand/ingestion.md)
+
+Related products:
+
+- [Cost Management](/azure/cost-management-billing/costs/)
+
+Related solutions:
+
+- [FinOps hubs](../hubs/finops-hubs-overview.md)
+- [FinOps toolkit Power BI reports](../power-bi/reports.md)
+- [FinOps toolkit PowerShell module](https://aka.ms/ftk/ps)
 
 <br>

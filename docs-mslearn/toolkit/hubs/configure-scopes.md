@@ -1,42 +1,29 @@
 ---
-layout: default
-parent: FinOps hubs
 title: Configure scopes
-nav_order: 1
-description: 'Reliable, trustworthy platform for cost analytics, insights, and optimization.'
-permalink: /hubs/configure
+description: Reliable, trustworthy platform for cost analytics, insights, and optimization.
+author: bandersmsft
+ms.author: banders
+ms.date: 10/03/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
 ---
 
-<span class="fs-9 d-block mb-4">Configure scopes</span>
+<!-- markdownlint-disable-next-line MD025 -->
+# Configure scopes
+
 Connect FinOps hubs to your billing accounts and subscriptions by configuring Cost Management exports manually or granting FinOps hubs access to manage exports for you.
-{: .fs-6 .fw-300 }
-
-[Grant access](#-configure-managed-exports){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Configure exports](#️-configure-exports-manually){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [🛠️ Configure exports manually](#️-configure-exports-manually)
-- [🔐 Configure managed exports](#-configure-managed-exports)
-- [🖥️ Configure exports via PowerShell](#️-configure-exports-via-powershell)
-- [⏭️ Next steps](#️-next-steps)
-
-</details>
-
----
 
 FinOps hubs uses Cost Management exports to import cost data for the billing accounts and subscriptions you want to monitor. You can either configure Cost Management exports manually or grant FinOps hubs access to manage exports for you.
 
-<blockquote class="important" markdown="1">
-  _Microsoft Cost Management does not support managed exports for Microsoft Customer Agreement billing accounts. Please [configure Cost Management exports manually](#️-configure-exports-manually)._
-</blockquote>
+> [!IMPORTANT]
+> Microsoft Cost Management does not support managed exports for Microsoft Customer Agreement billing accounts. Please [configure Cost Management exports manually](#configure-exports-manually).
 
 For the most seamless experience, we recommend allowing FinOps hubs to manage exports for you when possible. This option requires the least effort to maintain over time.
 
 <br>
 
-## 🛠️ Configure exports manually
+## Configure exports manually
 
 If you cannot grant permissions for your scope, you can create Cost Management exports manually to accomplish the same goal.
 
@@ -60,7 +47,7 @@ If you cannot grant permissions for your scope, you can create Cost Management e
    - Exports can take up to a day to show up after first created.
    - Use the **Run now** command at the top of the Cost Management Exports page.
    - Your data should be available within 15 minutes or so, depending on how big your account is.
-   - If you want to backfill data, open the export details and select the **Export selected dates** command to export one month at a time or use the [Start-FinOpsCostExport PowerShell command](../../_automation/powershell/cost/Start-FinOpsCostExport.md) to export a larger date range.
+   - If you want to backfill data, open the export details and select the **Export selected dates** command to export one month at a time or use the [Start-FinOpsCostExport PowerShell command](https://aka.ms/ftk/Start-FinOpsCostExport) to export a larger date range.
 4. Repeat steps 1-3 for each scope you want to monitor.
 
 _<sup>1) FinOps hubs 0.2 and beyond requires FOCUS cost data. As of July 2024, the option to export FOCUS cost data is only accessible from the central Cost Management experience in the Azure portal. If you do not see this option, please search for or navigate to [Cost Management Exports](https://portal.azure.com/#blade/Microsoft_Azure_CostManagement/Menu/open/exports).</sup>_
@@ -71,15 +58,14 @@ _<sup>5) Export paths can be any value but must be unique per scope. We recommen
 
 <br>
 
-## 🔐 Configure managed exports
+## Configure managed exports
 
 Managed exports allow FinOps hubs to setup and maintain Cost Management exports for you. To enable managed exports, you must grant Azure Data Factory access to read data across each scope you want to monitor.
 
 ![Screenshot of the hubs supported scopes](https://raw.githubusercontent.com/microsoft/finops-toolkit/11b24a372b9bd57e7829c4224e2569647908b261/src/images/hubs-scopes.jpg)
 
-<blockquote class="note" markdown="1">
-  _Managed exports are only available in FinOps hubs 0.4 and beyond._
-</blockquote>
+> [!NOTE]
+> Managed exports are only available in FinOps hubs 0.4 and beyond.
 
 Managed exports use a managed identity (MI) to configure the exports automatically. Follow these steps to set it up:
 
@@ -121,9 +107,8 @@ Managed exports use a managed identity (MI) to configure the exports automatical
    3. Update the **scopes** property to include the scopes you want to monitor. See [Settings.json scope examples](#settingsjson-scope-examples) for details.
    4. Select the **Save** command to save your changes. FinOps hubs should process the change within a few minutes and data should be available within 30 minutes or so, depending on the size of your account.
 
-   <blockquote class="important" markdown="1">
-     _Do not add duplicate or overlapping scopes as this will lead to duplication of data._
-   </blockquote>
+   > [!IMPORTANT]
+   > Do not add duplicate or overlapping scopes as this will lead to duplication of data.
 
 3. **Backfill historical data.**
 
@@ -205,9 +190,9 @@ Managed exports use a managed identity (MI) to configure the exports automatical
 
 <br>
 
-## 🖥️ Configure exports via PowerShell
+## Configure exports via PowerShell
 
-If this is the first time you are using the FinOps toolkit PowerShell module, refer to the [PowerShell](../../_automation/powershell/README.md) deployment guide to install the module.
+If this is the first time you are using the FinOps toolkit PowerShell module, refer to the [PowerShell](https://aka.ms/ftk/ps) deployment guide to install the module.
 
 1. Install the FinOps toolkit PowerShell module.
 
@@ -227,11 +212,9 @@ If this is the first time you are using the FinOps toolkit PowerShell module, re
 
 <br>
 
----
+## Next steps
 
-## ⏭️ Next steps
-
-[Connect to Power BI](../power-bi/setup.md){: .btn .btn-primary .mt-2 .mb-4 .mb-md-0 .mr-4 }
-[Learn more](./README.md#-why-finops-hubs){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+- [Connect to Power BI](../power-bi/setup.md)
+- [Learn more](./finops-hubs-overview.md#-why-finops-hubs)
 
 <br>

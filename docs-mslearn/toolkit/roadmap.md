@@ -1,6 +1,19 @@
-<!-- markdownlint-disable MD041 -->
+---
+title: FinOps toolkit roadmap
+description: This article outlines the key themes and directional initiatives for the FinOps toolkit.
+author: bandersmsft
+ms.author: banders
+ms.date: 10/03/2024
+ms.topic: reference
+ms.service: finops
+ms.reviewer: micflan
+# customer intent: As a FinOps practitioner, I want to understand the anomaly management capability so that I can implement it in the Microsoft Cloud.
+---
 
-The Microsoft FinOps toolkit is an open-source collection of tools and resources that help you learn, adopt, and implement FinOps capabilities in the Microsoft Cloud. This document outlines the key themes and directional initiatives identified by the [[Governing board]] based on direct feedback and inputs from the [[Advisory council]] on behalf of toolkit contributors and consumers. As of May 2024, the FinOps toolkit will target publishing new releases at the end of every month, which includes updates to this roadmap and the [changelog](https://aka.ms/ftk/changes).
+<!-- markdownlint-disable-next-line MD025 -->
+# FinOps toolkit roadmap
+
+The Microsoft FinOps toolkit is an open-source collection of tools and resources that help you learn, adopt, and implement FinOps capabilities in the Microsoft Cloud. This document outlines the key themes and directional initiatives identified by the [Governing board](https://github.com/microsoft/finops-toolkit/wiki/Governing-board) based on direct feedback and inputs from the [Advisory council](https://github.com/microsoft/finops-toolkit/wiki/Advisory-council) on behalf of toolkit contributors and consumers. As of May 2024, the FinOps toolkit will target publishing new releases at the end of every month, which includes updates to this roadmap and the [changelog](https://aka.ms/ftk/changes).
 
 📅 Roadmap term: **January - December 2024**
 
@@ -8,15 +21,16 @@ The Microsoft FinOps toolkit is an open-source collection of tools and resources
 
 On this page:
 
-- [🎯 Key themes for 2024](#-key-themes-for-2024)
-- [🛠️ General](#️-general)
-- [🍎 Learning resources](#-learning-resources)
-- [🏦 FinOps hubs](#-finops-hubs)
-- [📊 Power BI reports](#-power-bi-reports)
-- [📒 Cost optimization workbook](#-cost-optimization-workbook)
-- [🖥️ PowerShell](#️-powershell)
-- [🌐 Open data](#-open-data)
-- [🆕 New tools](#-new-tools)
+- [Key themes for 2024](#key-themes-for-2024)
+- [General](#general)
+- [Learning resources](#learning-resources)
+- [FinOps hubs](#finops-hubs)
+- [Power BI reports](#power-bi-reports)
+- [Cost optimization workbook](#cost-optimization-workbook)
+- [Optimization engine](#optimization-engine)
+- [PowerShell](#powershell)
+- [Open data](#open-data)
+- [New tools](#new-tools)
 
 ---
 
@@ -26,7 +40,7 @@ While our community is growing, we don't have dedicated staff and cannot commit 
 
 <br>
 
-## 🎯 Key themes for 2024
+## Key themes for 2024
 
 2023 was focused on establishing a baseline for a few of the core tools included in the toolkit. As we look forward to 2024, the [[Governing board]] has identified the following high-level themes:
 
@@ -41,18 +55,18 @@ While our community is growing, we don't have dedicated staff and cannot commit 
 
 <br>
 
-## 🛠️ General
+## General
 
 ✅ FOCUS 1.0 (June, [Issue #778](https://github.com/microsoft/finops-toolkit/issues/778)) – Add support for FOCUS 1.0 GA across tools and services.<br>
 🔜 Office hours – Monthly call to get real-time help and support for FinOps toolkit solutions.<br>
-🔜 Official toolkit support – Get help from Microsoft Support.<br>
+🔄️ Official toolkit support – Get help from Microsoft Support.<br>
 🔜 Demo environment – Publicly available demo environment.<br>
 🔜 Release automation – Automate the end-to-end CI/CD release process.<br>
 🔜 FOCUS 1.1 (November) – Add support for FOCUS 1.1 across tools and services.<br>
 
 <br>
 
-## 🍎 Learning resources
+## Learning resources
 
 ✅ Learning resources – Add learning resources to documentation.<br>
 ✅ FinOps documentation – Add documentation for how to implement FinOps.<br>
@@ -63,61 +77,61 @@ While our community is growing, we don't have dedicated staff and cannot commit 
 
 <br>
 
-## 🏦 FinOps hubs
+## FinOps hubs
 
 ✅ Remote hubs ([Milestone #19](https://github.com/microsoft/finops-toolkit/milestone/19)) – Ingest cost data from other tenants.<br>
 ✅ Managed exports ([Milestone #19](https://github.com/microsoft/finops-toolkit/milestone/19)) – Let FinOps hubs manage exports for you.<br>
+✅ More export types – Add support for all Cost Management export types.<br>
 🔄️ Analytics engine ([Issue #57](https://github.com/microsoft/finops-toolkit/issues/57)) – Ingest cost data into an Azure Data Explorer cluster.<br>
 🔄️ Private endpoints ([Milestone #22](https://github.com/microsoft/finops-toolkit/milestone/22)) – Add support for private endpoints.<br>
 🔄️ Bring your own KeyVault ([PR #573](https://github.com/microsoft/finops-toolkit/pull/573)) – Add support for referencing an existing KeyVault instance.<br>
 🔜 Troubleshooting guide ([Issue #734](https://github.com/microsoft/finops-toolkit/issues/734)) – Detailed walkthrough of how to resolve and get support for common issues.<br>
 🔜 Auto-backfill – Backfill historical data from Microsoft Cost Management.<br>
 🔜 Retention – Configure how long you want to keep data in storage.<br>
-🔜 More export types – Add support for all Cost Management export types.<br>
 🔜 Extensibility – App model to support optional components.<br>
 🔜 Management UX – Website to create and manage resources.<br>
 
 <br>
 
-## 📊 Power BI reports
+## Power BI reports
 
 ✅ Data ingestion report – New report to monitor FinOps hubs data ingestion.<br>
+✅ Raw exports – Add support for raw exports without FinOps hubs.<br>
+✅ Tags demo – Include example of how to use tags.<br>
 🔜 Warnings – Show warnings to raise awareness about known issues.<br>
-🔜 Tags demo – Include example of how to use tags.<br>
-🔜 Raw exports – Add support for raw exports without FinOps hubs.<br>
 🔜 Microsoft Fabric – Add support for data hosted in Microsoft Fabric.<br>
 🔜 Update notification – Show an update notification when new releases are available.<br>
 
 <br>
 
-## 📒 Cost optimization workbook
+## Cost optimization workbook
 
 🔄️ General updates – Ongoing updates based on the latest feedback.<br>
 🔜 FinOps hubs support – Merge cost from FinOps hubs with recommendations.<br>
 
 <br>
 
-## 🔍 Optimization engine
+## Optimization engine
 
 ✅ **New tool**: Azure Optimization Engine – Custom recommendation engine.<br>
-🔄️ SQL database Entra ID authentication – Replace SQL Server authentication with Entra ID-only authentication.<br>
+✅ SQL database Entra ID authentication – Replace SQL Server authentication with Entra ID-only authentication.<br>
 
 <br>
 
-## 🖥️ PowerShell
+## PowerShell
 
 🔜 Deploy-FinOpsWorkbook – Deploy toolkit workbooks.<br>
 
 <br>
 
-## 🌐 Open data
+## Open data
 
 ✅ Service model – Add ServiceModel to the services open data file.<br>
 🔄️ Update all data – Ongoing updates all open data file with each release.<br>
 
 <br>
 
-## 🆕 New tools
+## New tools
 
 🔄️ **New tool**: Cost optimization notifications ([Milestone #24](https://github.com/microsoft/finops-toolkit/milestone/24)) – Email notifications when optimization opportunities are identified.<br>
 

@@ -1,44 +1,16 @@
 ---
-layout: default
-parent: Power BI
-title: Cost summary
-nav_order: 20
-description: 'Identify top contributors, review changes over time, build a chargeback report, and summarize savings in Power BI.'
-permalink: /power-bi/cost-summary
+title: Cost summary report
+description: Identify top contributors, review changes over time, build a chargeback report, and summarize savings in Power BI.
+author: bandersmsft
+ms.author: banders
+ms.date: 10/03/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
 ---
 
-<span class="fs-9 d-block mb-4">Cost summary report</span>
-Common breakdowns of your cost to identify top contributors, review changes over time, build a chargeback report, and summarize savings.
-{: .fs-6 .fw-300 }
-
-[Download](https://github.com/microsoft/finops-toolkit/releases/latest/download/CostSummary.pbix){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Connect your data](./README.md#-connect-to-your-data){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [Working with this report](#working-with-this-report)
-- [Get started](#get-started)
-- [Summary](#summary)
-- [Services](#services)
-- [Subscriptions](#subscriptions)
-- [Resource groups](#resource-groups)
-- [Resources](#resources)
-- [Regions](#regions)
-- [Inventory](#inventory)
-- [Commitments](#commitments)
-- [Hybrid Benefit](#hybrid-benefit)
-- [Prices](#prices)
-- [Purchases](#purchases)
-- [Charge breakdown](#charge-breakdown)
-- [Raw data](#raw-data)
-- [DQ](#dq)
-- [See also](#see-also)
-- [🙋‍♀️ Looking for more?](#️-looking-for-more)
-
-</details>
-
----
+<!-- markdownlint-disable-next-line MD025 -->
+# Cost summary report
 
 The **Cost summary report** provides a general overview of cost and savings with a few common breakdowns that enable you to:
 
@@ -248,18 +220,36 @@ The **Data quality** page is for data validation purposes only; however, it can 
 
 <br>
 
-## See also
+## Related content
 
-- [About FOCUS](../../_docs/focus/README.md)
+Related resources:
+
+- [What is FOCUS?](../../focus/what-is-focus.md)
+
+<!-- TODO: Uncomment when files are added
 - [Common terms](../../_resources/terms.md)
 - [Data dictionary](../../_resources/data-dictionary.md)
+-->
+
+Related FinOps capabilities:
+
+- [Reporting and analytics](../../framework/understand/reporting.md)
+
+Related products:
+
+- [Cost Management](/azure/cost-management-billing/costs/)
+
+Related solutions:
+
+- [FinOps hubs](../hubs/finops-hubs-overview.md)
+- [FinOps toolkit open data](../open-data.md)
 
 <br>
 
-## 🙋‍♀️ Looking for more?
+## Looking for more?
 
 We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
 
-[Share feedback](https://aka.ms/ftk/idea){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+[Share feedback](https://aka.ms/ftk/idea)
 
 <br>

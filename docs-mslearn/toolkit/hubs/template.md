@@ -1,31 +1,18 @@
 ---
-layout: default
-parent: FinOps hubs
 title: Template
-nav_order: 10
-description: "Details about what's included in the FinOps hub template."
-permalink: /hubs/template
+description: Details about what's included in the FinOps hub template.
+author: bandersmsft
+ms.author: banders
+ms.date: 10/03/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
 ---
 
-<span class="fs-9 d-block mb-4">FinOps hub template</span>
+<!-- markdownlint-disable-next-line MD025 -->
+# FinOps hub template
+
 Behind the scenes peek at what makes up the FinOps hub template, including inputs and outputs.
-{: .fs-6 .fw-300 }
-
-[Deploy](./README.md#-create-a-new-hub){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Prerequisites](#-prerequisites){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-
-<details open markdown="1">
-  <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [📋 Prerequisites](#-prerequisites)
-- [📥 Parameters](#-parameters)
-- [🎛️ Resources](#️-resources)
-- [📤 Outputs](#-outputs)
-- [⏭️ Next steps](#️-next-steps)
-
-</details>
-
----
 
 This template creates a new **FinOps hub** instance.
 
@@ -35,17 +22,16 @@ FinOps hubs include:
 - Data Factory for data processing and orchestration.
 - Key Vault for storing secrets.
 
-<blockquote class="important" markdown="1">
-  _To use this template, you will need to create a Cost Management export that publishes cost data to the `msexports` container in the included storage account. See [Create a new hub](README.md#-create-a-new-hub) for details._
-</blockquote>
+> [!IMPORTANT]
+> To use this template, you will need to create a Cost Management export that publishes cost data to the `msexports` container in the included storage account. See [Create a new hub](./finops-hubs-overview.md#create-a-new-hub) for details.
 
 <br>
 
-## 📋 Prerequisites
+## Prerequisites
 
 Please ensure the following prerequisites are met before deploying this template:
 
-1. You must have the following permissions to create the [deployed resources](#️-resources).
+1. You must have the following permissions to create the [deployed resources](#resources).
 
    | Resource                                                        | Minimum RBAC                                                                                                                                                                                                                                                                                                                                            |
    | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -70,13 +56,12 @@ Please ensure the following prerequisites are met before deploying this template
 
 2. The Microsoft.EventGrid resource provider must be registered in your subscription. See [Register a resource provider](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) for details.
 
-   <blockquote class="important" markdown="1">
-     _If you forget this step, the deployment will succeed, but the pipeline trigger will not be started and data will not be ready. See [Troubleshooting Power BI reports](../../_resources/troubleshooting.md) for details._
-   </blockquote>
+   > [!IMPORTANT]
+   > If you forget this step, the deployment will succeed, but the pipeline trigger will not be started and data will not be ready. See [Troubleshooting Power BI reports](https://aka.ms/ftk/trouble) for details.
 
 <br>
 
-## 📥 Parameters
+## Parameters
 
 | Parameter                      | Type   | Description                                                                                                                                                                                                                                                       | Default value       |
 | ------------------------------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
@@ -95,7 +80,7 @@ Please ensure the following prerequisites are met before deploying this template
 
 <br>
 
-## 🎛️ Resources
+## Resources
 
 The following resources are created in the target resource group during deployment.
 
@@ -105,10 +90,9 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
   - Blob containers:
     - `msexports` – Temporarily stores Cost Management exports.
     - `ingestion` – Stores ingested data.
-      <blockquote class="note" markdown="1">
-        _In the future, we will use this container to stage external data outside of Cost Management._
-      </blockquote>
-    - `config` – Stores hub metadata and configuration settings. Files:
+      > [!NOTE]
+      > In the future, we will use this container to stage external data outside of Cost Management.
+          - `config` – Stores hub metadata and configuration settings. Files:
       - `settings.json` – Hub settings.
       - `schemas/focuscost_1.0.json` – FOCUS 1.0 schema definition for parquet conversion.
       - `schemas/focuscost_1.0-preview(v1).json` – FOCUS 1.0-preview schema definition for parquet conversion.
@@ -147,7 +131,7 @@ In addition to the above, the following resources are created to automate the de
 
 <br>
 
-## 📤 Outputs
+## Outputs
 
 | Output                      | Type   | Description                                                                                                                               |
 | --------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
@@ -162,11 +146,9 @@ In addition to the above, the following resources are created to automate the de
 
 ---
 
-## ⏭️ Next steps
+## Next steps
 
-<br>
-
-[Deploy](./README.md#-create-a-new-hub){: .btn .btn-primary .mt-2 .mb-4 .mb-md-0 .mr-4 }
-[Learn more](./README.md#-why-finops-hubs){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+- [Deploy FinOps hubs](./finops-hubs-overview.md#create-a-new-hub)
+- [Learn more](./finops-hubs-overview.md#why-finops-hubs)
 
 <br>

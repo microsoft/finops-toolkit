@@ -1,40 +1,28 @@
 ---
-layout: default
-parent: Power BI
 title: How to setup
-nav_order: 10
-description: 'Publish your next FinOps reporting with Power BI starter kits.'
-permalink: /power-bi/setup
+description: Publish your next FinOps reporting with Power BI starter kits.
+author: bandersmsft
+ms.author: banders
+ms.date: 10/03/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
 ---
 
-<span class="fs-9 d-block mb-4">How to setup Power BI</span>
-Publish new Power BI reports based on FinOps toolkit starter kits, extend them to include business context, integrate cost data into your existing reports, or migrate from older Cost Management solutions.
-{: .fs-6 .fw-300 }
+<!-- markdownlint-disable-next-line MD025 -->
+# How to setup Power BI
 
-[Download](https://github.com/microsoft/finops-toolkit/releases/latest){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[How to setup](#-setup-your-first-report){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+The FinOps toolkit Power BI reports provide a great starting point for your FinOps reporting. We recommend customizing them to keep what works, edit and augment reports with your own data, and remove anything that isn't needed. You can also copy and paste visuals between reports to create your own custom reports.
 
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
+FinOps toolkit reports support several ways to connect to your cost data. We generally recommend starting with Cost Management exports, which supports up to $2-5 million in monthly spend. If you experience data refresh timeouts or need to report on data across multiple directories or tenants, please use [FinOps hubs](../hubs), a data pipeline solution that optimizes data and offers additional functionality. For additional details and help choosing the right backend, see [Help me choose](./help-me-choose.md).
 
-- [➕ Setup your first report](#-setup-your-first-report)
-- [📋 Copy queries from a toolkit report](#-copy-queries-from-a-toolkit-report)
-- [🛠️ Connect manually](#️-connect-manually)
-- [🚚 Migrate from the Cost Management template app](#-migrate-from-the-cost-management-template-app)
-- [🏗️ Migrate from the Cost Management connector](#️-migrate-from-the-cost-management-connector)
-- [🧰 Related tools](#-related-tools)
-
-</details>
-
----
-
-<!-- markdownlint-disable-line --> {% include_relative _intro.md %}
+Please note support for the [Cost Management connector for Power BI](/power-bi/connect-data/desktop-connect-azure-cost-management) is available for backwards compatibility, but is not recommended. The Microsoft Cost Management team is no longer updating the Cost Management connector and instead recommends exporting data.
 
 Use the guides below to connect and customize FinOps toolkit and other Power BI reports.
 
 <br>
 
-## ➕ Setup your first report
+## Setup your first report
 
 The FinOps toolkit Power BI reports include pre-configured visuals, but are not connected to your data. Use the following steps to connect them to your data:
 
@@ -49,7 +37,7 @@ The FinOps toolkit Power BI reports include pre-configured visuals, but are not 
 1. In the **Queries** pane on the left, set the **🛠️ Setup** > **Data source** property.
 
    - `Cost Management exports` requires read access to an EA or MCA billing account or billing profile.
-   - `FinOps hubs` requires [Storage Blob Data Reader](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-reader) access to the storage account deployed with your hub.
+   - `FinOps hubs` requires [Storage Blob Data Reader](/azure/role-based-access-control/built-in-roles#storage-blob-data-reader) access to the storage account deployed with your hub.
 -->
 
 1. If connecting to a FinOps hub instance, set the **Hub Storage URL**.
@@ -66,15 +54,15 @@ The FinOps toolkit Power BI reports include pre-configured visuals, but are not 
    4. Append the container and export path, if applicable.
 3. Change **RangeStart** and **RangeEnd** to the desired start/end dates for your report. The default is the current calendar year. Consider using your fiscal year.
      <blockquote class="warning" markdown="1">
-       _[Enable incremental refresh](https://learn.microsoft.com/power-bi/connect-data/incremental-refresh-configure#define-policy) to load more than $5M of raw cost details. Power BI reports can only support $2-5M of data when incremental refresh is not enabled. After incremental refresh is enabled, they can support $2-5M/month for a total of ~$65M in raw cost details._
+       _[Enable incremental refresh](/power-bi/connect-data/incremental-refresh-configure#define-policy) to load more than $5M of raw cost details. Power BI reports can only support $2-5M of data when incremental refresh is not enabled. After incremental refresh is enabled, they can support $2-5M/month for a total of ~$65M in raw cost details._
      </blockquote>
 4. Select the **Close & Apply** to save your settings.
 
-If you run into any issues syncing your data, see [Troubleshooting Power BI reports](../../_resources/troubleshooting.md).
+If you run into any issues syncing your data, see [Troubleshooting Power BI reports](https://aka.ms/ftk/trouble).
 
 <br>
 
-## 📋 Copy queries from a toolkit report
+## Copy queries from a toolkit report
 
 FinOps toolkit reports manipulate the raw data to facilitate specific types of reports. If you need to connect your data to a new or existing Power BI report that doesn't currently use FinOps toolkit or Cost Management data source, the best option is to copy queries, columns, and measures from a FinOps toolkit report.
 
@@ -93,24 +81,27 @@ At this point, you have the core data from the FinOps toolkit reports, extended 
 
 1. In the FinOps toolkit report, expand the **CostDetails** (or other table) table in the **Data** pane on the right.
 2. Select a custom column or measure, then copy the formula from the editor at the top of the window, under the toolbar.
-   <blockquote class="note" markdown="1">
-     _Be sure to make note if this is a column or a measure. Columns have a table icon with a "Σ" or "fx" symbol and measures have a calculator icon._<br>![Screenshot of the calculated column and measure icons in Power BI](https://user-images.githubusercontent.com/399533/216805396-96abae2d-473a-4136-8943-cac4ddd74dce.png)
-   </blockquote>
+   > [!NOTE]
+   > Be sure to make note if this is a column or a measure. Columns have a table icon with a "Σ" or "fx" symbol and measures have a calculator icon.
+   >
+   > ![Screenshot of the calculated column and measure icons in Power BI](https://user-images.githubusercontent.com/399533/216805396-96abae2d-473a-4136-8943-cac4ddd74dce.png)
 3. In your report, right click the **CostDetails** table and select **New measure** or **New column** based on what you just copied.
 4. When the formula editor is shown, paste the formula using <kbd>Ctrl+V</kbd> or <kbd>Cmd+V</kbd>.
 5. Repeat steps 2-4 for each desired column and measure.
 
 Note that some columns and measures depend on one another. You can ignore these errors as you copy each formula. Each will resolve itself when the dependent column or measure is added.
 
+<!-- TODO: Uncomment when files are added
 For details about the columns available in Power BI, refer to the [data dictionary](../../_resources/data-dictionary.md).
+-->
 
 <br>
 
-## 🛠️ Connect manually
+## Connect manually
 
 If you don't need any of the custom columns and measures provided by the FinOps toolkit reports, you can also connect directly to your data using one of the built-in Power BI connectors.
 
-If using the Cost Management connector, refer to [Create visuals and reports with the Cost Management connector](https://learn.microsoft.com/power-bi/connect-data/desktop-connect-azure-cost-management).
+If using the Cost Management connector, refer to [Create visuals and reports with the Cost Management connector](/power-bi/connect-data/desktop-connect-azure-cost-management).
 
 If using exports or FinOps hubs, you'll use the Azure Data Lake Storage Gen2 connector:
 
@@ -132,22 +123,26 @@ If using exports or FinOps hubs, you'll use the Azure Data Lake Storage Gen2 con
      4. Append the container and export path, if applicable.
 5. Select the **OK** button.
    <blockquote class="warning" markdown="1">
-      _If you receive an "Access to the resource is forbidden" error, grant the account loading data in Power BI the [Storage Blob Data Reader role](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-reader)._
+      _If you receive an "Access to the resource is forbidden" error, grant the account loading data in Power BI the [Storage Blob Data Reader role](/azure/role-based-access-control/built-in-roles#storage-blob-data-reader)._
    </blockquote>
 6. Select the **Combine** button.
 7. Select the **OK** button.
 
-For more details about connecting to Azure Data Lake Storage Gen2, see [Connect to ADLS Gen2](https://learn.microsoft.com/power-query/connectors/data-lake-storage#connect-to-azure-data-lake-storage-gen2-from-power-query-desktop). For details about the columns available in storage, refer to the [data dictionary](../../_resources/data-dictionary.md).
+For more details about connecting to Azure Data Lake Storage Gen2, see [Connect to ADLS Gen2](/power-query/connectors/data-lake-storage#connect-to-azure-data-lake-storage-gen2-from-power-query-desktop).
+
+<!-- TODO: Uncomment when files are added
+For details about the columns available in storage, refer to the [data dictionary](../../_resources/data-dictionary.md).
+-->
 
 <br>
 
-## 🚚 Migrate from the Cost Management template app
+## Migrate from the Cost Management template app
 
 The Cost Management template app does not support customization in Power BI Desktop and is only supported for Enterprise Agreement (EA) accounts. We recommend starting from one of the FinOps toolkit reports that work across account types rather than customizing the template app. If would like to customize or copy something from the template, see [Cost Management template app](./template-app.md).
 
 <br>
 
-## 🏗️ Migrate from the Cost Management connector
+## Migrate from the Cost Management connector
 
 The Cost Management connector provides separate queries for actual (billed) and amortized costs. In an effort to minimize data size and improve performance, the FinOps toolkit reports combine these into a single query. The best way to migrate from the Cost Management connector is to copy the queries from a FinOps toolkit report and then update your visuals to use the **CostDetails** table.
 
@@ -177,11 +172,11 @@ The Cost Management connector provides separate queries for actual (billed) and 
     - Then check each visual on each page:
       - In the **Filters** pane, check **Filters on this visual**.
       - In the **Visualizations** pane, check **Fields**.
-        <blockquote class="note" markdown="1">
+        > [!NOTE]
           _If the column name was customized and you aren't sure what the original name was, right-click the field and select **Rename for this visual**, then delete the name, and press <kbd>Enter</kbd> to reset the name back to the original column name._
         </blockquote>
 
-If interested in custom columns and measures, see [Copy queries from a toolkit report](#-copy-queries-from-a-toolkit-report) for required steps.
+If interested in custom columns and measures, see [Copy queries from a toolkit report](#copy-queries-from-a-toolkit-report) for required steps.
 
 <!--
 See [Queries and datasets](#️-queries-and-datasets) below for additional details.
@@ -190,7 +185,7 @@ See [Queries and datasets](#️-queries-and-datasets) below for additional detai
 <br>
 
 <!--
-## 🗃️ Queries and datasets
+## Queries and datasets
 
 FinOps toolkit reports offer multiple versions of cost details to align to different schemas for backwards compatibility. These schemas are only provided to assist in migrating from older versions. We recommend updating visuals to use CostDetails or the newest underlying dataset. If you do not need legacy datasets, you can remove them from the Power Query Editor (Transform data) window.
 
@@ -246,8 +241,22 @@ Note the following columns are new in this release. These columns were not previ
 
 ---
 
-## 🧰 Related tools
+## Related content
 
-{% include tools.md hubs="1" %}
+Related FinOps capabilities:
+
+- [Reporting and analytics](../../framework/understand/reporting.md)
+
+Related products:
+
+- [Cost Management](/azure/cost-management-billing/costs/)
+- [Azure Resource Graph](/azure/governance/resource-graph/)
+- [Azure Monitor](/azure/azure-monitor/)
+
+Related solutions:
+
+- [FinOps hubs](../hubs/finops-hubs-overview.md)
+- [FinOps workbooks](https://aka.ms/finops/workbooks)
+- [FinOps toolkit open data](../open-data.md)
 
 <br>
