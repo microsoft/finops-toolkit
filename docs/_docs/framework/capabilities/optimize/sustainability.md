@@ -44,7 +44,7 @@ Establish policies, guidelines, and strategies to optimize cloud sustainability 
 When you first start with cloud sustainability, you use the native tools to drive efficiency and optimize carbon in the portal.
 
 - Leverage [Azure Carbon Optimization](https://learn.microsoft.com/azure/carbon-optimization/overview) to find opportunities to lower carbon emissions.
-- Consider using the [Cost optimization workbook](../../../../_optimize/optimization-workbook/README.md) to view carbon optimization recommendations alongside other usage and cost efficiency recommendations. 
+- Consider using the [Cost optimization workbook](../../../../_optimize/workbooks/optimization/README.md) to view carbon optimization recommendations alongside other usage and cost efficiency recommendations. 
 <br>
 
 ## 🏗️ Building on the basics
@@ -72,9 +72,9 @@ You can also find related videos on the FinOps Foundation YouTube channel:
 
 Related FinOps capabilities:
 
-- [Managing commitment discounts](./commitment-discounts.md)
-- [Workload management and automation](./workloads.md)
-- [Measuring unit cost](../quantify/unit-economics.md)
+- [Rate optimization](./rates.md)
+- [Workload optimization](./workloads.md)
+- [Unit economics](../quantify/unit-economics.md)
 
 <br>
 

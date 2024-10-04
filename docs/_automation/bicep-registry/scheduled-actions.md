@@ -38,13 +38,13 @@ You can also use scheduled actions to configure anomaly detection alerts for sub
 
 ## 🧮 Syntax
 
-<small>Version: **1.0.2**</small>
+<small>Version: **1.1**</small>
 {: .label .label-green .pt-0 .pl-3 .pr-3 .m-0 }
 <small>Scopes: **Subscription, Resource group**</small>
 {: .label .pt-0 .pl-3 .pr-3 .m-0 }
 
 ```bicep
-module <string> 'br/public:cost/<scope>-scheduled-action:1.0.2' = {
+module <string> 'br/public:cost/<scope>-scheduled-action:1.1' = {
   name: <string>
   params: {
     name: <string>

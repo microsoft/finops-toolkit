@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "name": "Cost Management export for {scopeLowerPlural}",
+  "text": [
+    {
+      "summary": "Creates a Cost Management export that pushes data to a storage account on a recurring schedule.",
+      "scopes": ["resourceGroup", "subscription"]
+    }
+  ]
+}

@@ -108,7 +108,7 @@ This capability is part of the FinOps Framework by the FinOps Foundation, a non-
 Related FinOps capabilities:
 
 - [FinOps assessment](./assessment.md)
-- [Benchmarking](../optimize/benchmarking.md)
+- [Benchmarking](../quantify/benchmarking.md)
 - [FinOps education and enablement](./education.md)
 
 

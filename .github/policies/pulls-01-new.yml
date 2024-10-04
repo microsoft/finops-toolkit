@@ -13,8 +13,6 @@ configuration:
       - description: >-
           When a PR is opened (not against main):
           - Label with `Needs: Review 👀`
-          - TODO: Assign to reviewers
-          - TODO: Label with `Solution: *`
         if:
           - payloadType: Pull_Request
           - isAction:

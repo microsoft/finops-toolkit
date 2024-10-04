@@ -1,0 +1,3 @@
+Cost Mangaement exports publish cost-related datasets to a storage account on a recurring basis. Cost details are available in native actual or amortized cost datasets or in a FOCUS dataset, which includes both actual and amortized cost in a single, smaller dataset that is aligned to the FinOps Open Cost and Usage Specification (FOCUS). To learn more about FOCUS, see [About FOCUS](https://aka.ms/ftk/focus). To learn more about exports, see [Improved exports experience](https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-improved-exports).
+
+Additional datasets are available for billing account and billing profile scopes directly via API, including prices, reservation details, reservation transactions, and reservation recommendations.

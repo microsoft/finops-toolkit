@@ -54,19 +54,21 @@ Please ensure the following prerequisites are met before deploying this template
    | Configure Key Vault secrets<sup>1</sup>                         | [Key Vault Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#key-vault-administrator)                                                                                                                                                                                                                           |
    | Create managed identity<sup>1</sup>                             | [Managed Identity Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#managed-identity-contributor)                                                                                                                                                                                                                 |
    | Deploy and configure storage<sup>1</sup>                        | [Storage Account Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-account-contributor)                                                                                                                                                                                                                   |
-   | Optional: Deploy temporary Event Grid namespace<sup>2</sup>     | [Event Grid Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#event-grid-contributor)                                                                                                                                                                                                                             |
    | Assign managed identity to resources<sup>1</sup>                | [Managed Identity Operator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#managed-identity-operator)                                                                                                                                                                                                                       |
    | Create deployment scripts<sup>1</sup>                           | Custom role containing only the `Microsoft.Resources/deploymentScripts/write` and `Microsoft.ContainerInstance/containerGroups/write` permissions as allowed actions or, alternatively, [Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#contributor), which includes these permissions and all the above roles |
    | Assign permissions to managed identities<sup>1</sup>            | [Role Based Access Control Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator) or, alternatively, [Owner](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner), which includes this and all the above roles                                 |
-   | Create a subscription or resource group cost export<sup>3</sup> | [Cost Management Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cost-management-contributor)                                                                                                                                                                                                                   |
-   | Create an EA billing cost export<sup>3</sup>                    | Enterprise Reader, Department Reader, or Enrollment Account Owner ([Learn more](https://learn.microsoft.com/azure/cost-management-billing/manage/understand-ea-roles))                                                                                                                                                                                  |
-   | Create an MCA billing cost export<sup>3</sup>                   | [Contributor](https://learn.microsoft.com/azure/cost-management-billing/manage/understand-mca-roles)                                                                                                                                                                                                                                                    |
-   | Read blob data in storage<sup>4</sup>                           | [Storage Blob Data Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)                                                                                                                                                                                                               |
+   | Create a subscription or resource group cost export<sup>2</sup> | [Cost Management Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cost-management-contributor)                                                                                                                                                                                                                   |
+   | Create an EA billing cost export<sup>2</sup>                    | Enterprise Reader, Department Reader, or Enrollment Account Owner ([Learn more](https://learn.microsoft.com/azure/cost-management-billing/manage/understand-ea-roles))                                                                                                                                                                                  |
+   | Create an MCA billing cost export<sup>2</sup>                   | [Contributor](https://learn.microsoft.com/azure/cost-management-billing/manage/understand-mca-roles)                                                                                                                                                                                                                                                    |
+   | Read blob data in storage<sup>3</sup>                           | [Storage Blob Data Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)                                                                                                                                                                                                               |
+
+   <!--
+   | Optional: Deploy temporary Event Grid namespace                 | [Event Grid Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#event-grid-contributor)                                                                                                                                                                                                                             |
+   -->
 
    _<sup>1. It is sufficient to assign hubs resources deployment permissions on the resource group scope.</sup>_<br/>
-   _<sup>2. Creating a temporary Event Grid namespace is optional if the Event Grid resource provider is already registered for the subscription. If not, the template will create and delete a temporary Event Grid namespace, which will trigger automatic RP registration.</sup>_<br/>
-   _<sup>3. Cost Management permissions must be assigned on the scope where you want to export your costs from.</sup>_<br/>
-   _<sup>4. Blob data permissions are required to access exported cost data from Power BI or other client tools.</sup>_<br/>
+   _<sup>2. Cost Management permissions must be assigned on the scope where you want to export your costs from.</sup>_<br/>
+   _<sup>3. Blob data permissions are required to access exported cost data from Power BI or other client tools.</sup>_<br/>
 
 2. The Microsoft.EventGrid resource provider must be registered in your subscription. See [Register a resource provider](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) for details.
 
@@ -117,16 +119,16 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
     - `msexports_ExecuteETL` – Queues the `msexports_ETL_ingestion` pipeline to account for Data Factory pipeline trigger limits.
     - `msexports_ETL_transform` – Converts Cost Management exports into parquet and removes historical data duplicated in each day's export.
     - `config_ConfigureExports` – Creates Cost Management exports for all scopes.
-    - `config_BackfillData` – Runs the backfill job for each month based on retention settings.
-    - `config_RunBackfill` – Creates and triggers exports for all defined scopes for the specified date range.
-    - `config_ExportData` – Gets a list of all Cost Management exports configured for this hub based on the scopes defined in settings.json, then runs each export using the config_RunExports pipeline.
-    - `config_RunExports` – Runs the specified Cost Management exports.
+    - `config_StartBackfillProcess` – Runs the backfill job for each month based on retention settings.
+    - `config_RunBackfillJob` – Creates and triggers exports for all defined scopes for the specified date range.
+    - `config_StartExportProcess` – Gets a list of all Cost Management exports configured for this hub based on the scopes defined in settings.json, then runs each export using the config_RunExportJobs pipeline.
+    - `config_RunExportJobs` – Runs the specified Cost Management exports.
     - `msexports_ExecuteETL` – Triggers the ingestion process for Cost Management exports to account for Data Factory pipeline trigger limits.
     - `msexports_ETL_transform` – Converts Cost Management exports into parquet and removes historical data duplicated in each day's export.
   - Triggers:
     - `config_SettingsUpdated` – Triggers the `config_ConfigureExports` pipeline when settings.json is updated.
-    - `config_DailySchedule` – Triggers the `config_RunExports` pipeline daily for the current month's cost data.
-    - `config_MonthlySchedule` – Triggers the `config_RunExports` pipeline monthly for the previous month's cost data.
+    - `config_DailySchedule` – Triggers the `config_RunExportJobs` pipeline daily for the current month's cost data.
+    - `config_MonthlySchedule` – Triggers the `config_RunExportJobs` pipeline monthly for the previous month's cost data.
     - `msexports_FileAdded` – Triggers the `msexports_ExecuteETL` pipeline when Cost Management exports complete.
 - `<hubName>-vault-<unique-suffix>` Key Vault instance
   - Secrets:
@@ -137,9 +139,7 @@ In addition to the above, the following resources are created to automate the de
 - Managed identities:
   - `<storage>_blobManager` ([Storage Blob Data Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)) – Uploads the settings.json file.
   - `<datafactory>_triggerManager` ([Data Factory Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#data-factory-contributor)) – Stops triggers before deployment and starts them after deployment.
-  - `<unique-suffix>_cleanup` ([EventGrid Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#eventgrid-contributor)) – Deletes temporary EventGrid namespace used to register the EventGrid RP.
 - Deployment scripts (automatically deleted after a successful deployment):
-  - `<unique-suffix>_deleteEventGrid` – Deletes temporary EventGrid namespace used to register the EventGrid RP.
   - `<datafactory>_deleteOldResources` – Deletes unused resources from previous FinOps hubs deployments.
   - `<datafactory>_stopTriggers` – Stops all triggers in the hub using the triggerManager identity.
   - `<datafactory>_startTriggers` – Starts all triggers in the hub using the triggerManager identity.

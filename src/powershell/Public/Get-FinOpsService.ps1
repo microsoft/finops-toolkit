@@ -19,6 +19,9 @@
 
     .PARAMETER ServiceCategory
     Optional. The service category to find services for. Default = null (all).
+
+    .PARAMETER ServiceCategory
+    Optional. The service subcategory to find services for. Default = null (all).
     
     .PARAMETER Servicemodel
     Optional. The service model the service aligns to. Expected values: IaaS, PaaS, SaaS. Default = null (all).
@@ -68,6 +71,9 @@ function Get-FinOpsService()
 
         [string]
         $ServiceCategory = "*",
+
+        [string]
+        $ServiceSubcategory = "*",
         
         [string]
         $ServiceModel = "*",
@@ -100,6 +106,7 @@ function Get-FinOpsService()
             -and $_.ResourceType -like $type `
             -and $_.ServiceName -like $ServiceName `
             -and $_.ServiceCategory -like $ServiceCategory `
+            -and $_.ServiceSubcategory -like $ServiceSubcategory `
             -and $_.ServiceModel -like $ServiceModel `
             -and $_.Environment -like $Environment `
             -and $_.PublisherName -like $PublisherName `
@@ -107,14 +114,15 @@ function Get-FinOpsService()
     } `
     | ForEach-Object {
         [PSCustomObject]@{
-            Environment       = $_.Environment
-            ServiceModel      = $_.ServiceModel
-            ServiceCategory   = $_.ServiceCategory
-            ServiceName       = $_.ServiceName
-            PublisherName     = $_.PublisherName
-            PublisherCategory = $_.PublisherType
-            ProviderName      = 'Microsoft'
-            ProviderCategory  = 'Cloud Provider'
+            Environment        = $_.Environment
+            ServiceModel       = $_.ServiceModel
+            ServiceCategory    = $_.ServiceCategory
+            ServiceSubcategory = $_.ServiceSubcategory
+            ServiceName        = $_.ServiceName
+            PublisherName      = $_.PublisherName
+            PublisherCategory  = $_.PublisherType
+            ProviderName       = 'Microsoft'
+            ProviderCategory   = 'Cloud Provider'
         }
     } `
     | Select-Object -Property * -Unique

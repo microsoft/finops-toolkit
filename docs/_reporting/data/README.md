@@ -132,13 +132,13 @@ Sample data:
 
 <!-- cSpell:disable -->
 
-| ConsumedService      | ResourceType                          | ServiceName         | ServiceCategory | PublisherName | PublisherType  |
-| -------------------- | ------------------------------------- | ------------------- | --------------- | ------------- | -------------- |
-| microsoft.compute    | microsoft.compute/virtualmachines     | Virtual Machines    | Compute         | Microsoft     | Cloud Provider |
-| microsoft.documentdb | microsoft.documentdb/databaseaccounts | Cosmos DB           | Databases       | Microsoft     | Cloud Provider |
-| microsoft.kusto      | microsoft.kusto/clusters              | Azure Data Explorer | Analytics       | Microsoft     | Cloud Provider |
-| microsoft.network    | microsoft.network/virtualnetworks     | Virtual Network     | Networking      | Microsoft     | Cloud Provider |
-| microsoft.storage    | microsoft.storage/storageaccounts     | Storage Accounts    | Storage         | Microsoft     | Cloud Provider |
+| ConsumedService      | ResourceType                          | ServiceName         | ServiceCategory | ServiceSubcategory        | PublisherName | PublisherType  |
+| -------------------- | ------------------------------------- | ------------------- | --------------- | ------------------------- | ------------- | -------------- |
+| microsoft.compute    | microsoft.compute/virtualmachines     | Virtual Machines    | Compute         | Virtual Machines          | Microsoft     | Cloud Provider |
+| microsoft.documentdb | microsoft.documentdb/databaseaccounts | Cosmos DB           | Databases       | NoSQL Databases           | Microsoft     | Cloud Provider |
+| microsoft.kusto      | microsoft.kusto/clusters              | Azure Data Explorer | Analytics       | Analytics Platforms       | Microsoft     | Cloud Provider |
+| microsoft.network    | microsoft.network/virtualnetworks     | Virtual Network     | Networking      | Networking Infrastructure | Microsoft     | Cloud Provider |
+| microsoft.storage    | microsoft.storage/storageaccounts     | Storage Accounts    | Storage         | Storage Platforms         | Microsoft     | Cloud Provider |
 
 <!-- cSpell:enable -->
 

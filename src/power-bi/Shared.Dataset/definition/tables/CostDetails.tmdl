@@ -1,6 +1,5 @@
 /// Cost and usage (FOCUS) data from Cost Management exports.
 /// 
-/// Data version = 1.0-preview(v1)
 /// Learn more @ https://aka.ms/finops/hubs
 table CostDetails
 	lineageTag: 4b9830c4-e7c7-43ee-823c-d6b15359c25f
@@ -130,12 +129,13 @@ table CostDetails
 
 	column ListCost
 		dataType: double
-		formatString: #,0.00
 		lineageTag: 93c7a3c3-4c49-48ba-aa44-1f71b6059922
 		summarizeBy: sum
 		sourceColumn: ListCost
 
 		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column CommitmentDiscountId
 		dataType: string
@@ -209,11 +209,6 @@ table CostDetails
 		summarizeBy: none
 		sourceColumn: ChargePeriodStart
 
-		variation Variation
-			isDefault
-			relationship: 1e7240a9-35aa-44e6-85fa-0adeb590b43d
-			defaultHierarchy: LocalDateTable_f404d4da-597d-4db3-8c17-e985f68c9dc4.'Date Hierarchy'
-
 		annotation SummarizationSetBy = Automatic
 
 		annotation PBI_FormatHint = {"isCustom":true}
@@ -245,12 +240,13 @@ table CostDetails
 
 	column ListUnitPrice
 		dataType: double
-		formatString: 0.000
 		lineageTag: db17aa29-c7bf-4038-b91d-716d3f8bc4de
-		summarizeBy: none
+		summarizeBy: sum
 		sourceColumn: ListUnitPrice
 
-		annotation SummarizationSetBy = User
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column PricingCategory
 		dataType: string
@@ -389,11 +385,6 @@ table CostDetails
 		lineageTag: 7b0c8a90-630d-4437-9b63-92360a394650
 		summarizeBy: none
 		sourceColumn: x_BillingExchangeRateDate
-
-		variation Variation
-			isDefault
-			relationship: ff450739-8c10-4307-ba1a-cbf5e026dc6e
-			defaultHierarchy: LocalDateTable_5b617bbf-90ab-4847-9cab-7068fda94084.'Date Hierarchy'
 
 		annotation SummarizationSetBy = Automatic
 
@@ -584,11 +575,6 @@ table CostDetails
 		summarizeBy: none
 		sourceColumn: x_ServicePeriodEnd
 
-		variation Variation
-			isDefault
-			relationship: 5583e9d2-4cda-498f-a46a-0cdd1a06e18b
-			defaultHierarchy: LocalDateTable_0195151c-8910-45c4-8c88-2946b3f9ffe8.'Date Hierarchy'
-
 		annotation SummarizationSetBy = Automatic
 
 	column x_ServicePeriodStart
@@ -597,11 +583,6 @@ table CostDetails
 		lineageTag: 813988da-21b6-4c56-bcce-03b5128e4401
 		summarizeBy: none
 		sourceColumn: x_ServicePeriodStart
-
-		variation Variation
-			isDefault
-			relationship: 673a9dca-ff35-4c75-b009-02a98630632d
-			defaultHierarchy: LocalDateTable_dcfea72a-52cc-4e5b-bb91-472ff21b7b25.'Date Hierarchy'
 
 		annotation SummarizationSetBy = Automatic
 
@@ -829,11 +810,6 @@ table CostDetails
 		summarizeBy: none
 		sourceColumn: BillingPeriodEnd
 
-		variation Variation
-			isDefault
-			relationship: 369e7501-4fe1-40b9-bc22-924c50f896e0
-			defaultHierarchy: LocalDateTable_506735ba-eb3a-4e77-a52f-70c407778c05.'Date Hierarchy'
-
 		annotation SummarizationSetBy = Automatic
 
 	column BillingPeriodStart
@@ -842,11 +818,6 @@ table CostDetails
 		lineageTag: 5bd5447d-f0e4-4db7-9154-768c589aacc3
 		summarizeBy: none
 		sourceColumn: BillingPeriodStart
-
-		variation Variation
-			isDefault
-			relationship: 21bb000c-4aaa-46ea-a891-45fd722e7aea
-			defaultHierarchy: LocalDateTable_41a1933b-26d3-4c56-aecf-605bc04c1fe7.'Date Hierarchy'
 
 		annotation SummarizationSetBy = Automatic
 
@@ -874,11 +845,6 @@ table CostDetails
 		lineageTag: d3c22e34-9351-4df5-8c12-51b9b72c3ec0
 		summarizeBy: none
 		sourceColumn: ChargePeriodEnd
-
-		variation Variation
-			isDefault
-			relationship: 074e98ca-4ace-4197-8baa-3dc62649257f
-			defaultHierarchy: LocalDateTable_f581f9e4-7dfc-448d-a6d1-fb4cc5c95f27.'Date Hierarchy'
 
 		annotation SummarizationSetBy = Automatic
 
@@ -913,11 +879,6 @@ table CostDetails
 		lineageTag: 953d0444-58c5-4ce4-a516-8b9a38d60cc1
 		summarizeBy: none
 		sourceColumn: x_Month
-
-		variation Variation
-			isDefault
-			relationship: 84724950-127c-4859-9cbe-611fa2abf14f
-			defaultHierarchy: LocalDateTable_fef26e24-a208-4f98-9587-9e837520485d.'Date Hierarchy'
 
 		annotation SummarizationSetBy = Automatic
 
@@ -1035,46 +996,6 @@ table CostDetails
 		lineageTag: a58ffae4-b0d9-4711-a0e0-b117334cbc81
 		summarizeBy: none
 		sourceColumn: x_SkuTier
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_ResourceParentId
-		dataType: string
-		lineageTag: 02ce6f3a-a25e-4b7f-8eed-9970bbbdb5ee
-		summarizeBy: none
-		sourceColumn: x_ResourceParentId
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_ResourceParentName
-		dataType: string
-		lineageTag: 827e50d8-10d5-4432-b687-bec0fa809275
-		summarizeBy: none
-		sourceColumn: x_ResourceParentName
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_ResourceParentType
-		dataType: string
-		lineageTag: 39a9ddd2-38c4-413d-a426-6dbd760311a3
-		summarizeBy: none
-		sourceColumn: x_ResourceParentType
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_ToolkitTool
-		dataType: string
-		lineageTag: ea3773fb-f6e3-4b94-ada9-dd5a28663bce
-		summarizeBy: none
-		sourceColumn: x_ToolkitTool
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_ToolkitVersion
-		dataType: string
-		lineageTag: 1fd294c1-fff7-40d6-ada6-1eda729a5090
-		summarizeBy: none
-		sourceColumn: x_ToolkitVersion
 
 		annotation SummarizationSetBy = Automatic
 
@@ -1229,58 +1150,194 @@ table CostDetails
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	column x_IncrementalRefreshDate
-		dataType: double
+		dataType: string
 		lineageTag: 73487d4f-b0dd-4d41-8d9e-739636dabab8
-		summarizeBy: sum
+		summarizeBy: none
 		sourceColumn: x_IncrementalRefreshDate
 
 		annotation SummarizationSetBy = Automatic
 
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
+	column RegionId
+		dataType: string
+		lineageTag: d2ac0fa0-e284-4c48-888d-bea8ffbfb4f0
+		summarizeBy: none
+		sourceColumn: RegionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_AccountId
+		dataType: string
+		lineageTag: dee15a89-6158-424c-80c9-c3683f92223e
+		summarizeBy: none
+		sourceColumn: x_AccountId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ListCostInUsd
+		dataType: string
+		lineageTag: 0ae49ca5-1a12-4e33-8d20-f6adae5d4757
+		summarizeBy: none
+		sourceColumn: x_ListCostInUsd
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_DatasetChanges
+		dataType: string
+		lineageTag: 7162fa87-5d0f-45cd-b887-eadfe2748190
+		summarizeBy: none
+		sourceColumn: x_DatasetChanges
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Application
+		dataType: string
+		lineageTag: fd4de6d8-dcc7-4095-a8d4-091d0d08ab9a
+		summarizeBy: none
+		sourceColumn: tag_Application
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_BusinessUnit
+		dataType: string
+		lineageTag: c9965d41-eb70-48a5-ba3d-8f7b47b40b35
+		summarizeBy: none
+		sourceColumn: tag_BusinessUnit
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_CostCenter
+		dataType: string
+		lineageTag: 172b9a2c-e7d7-4226-b674-5ac1f3c3d8e5
+		summarizeBy: none
+		sourceColumn: tag_CostCenter
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Department
+		dataType: string
+		lineageTag: bdf8534f-136d-4c49-8e20-ee0147697816
+		summarizeBy: none
+		sourceColumn: tag_Department
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Division
+		dataType: string
+		lineageTag: 1a71a266-f4dd-4965-8195-8e5e62eb8c3e
+		summarizeBy: none
+		sourceColumn: tag_Division
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Env
+		dataType: string
+		lineageTag: b0926ea8-afac-4f17-a82e-6f15447d50a1
+		summarizeBy: none
+		sourceColumn: tag_Env
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Owner
+		dataType: string
+		lineageTag: 6483dacb-0cd9-4a30-b193-56ffd07a65d4
+		summarizeBy: none
+		sourceColumn: tag_Owner
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Product
+		dataType: string
+		lineageTag: 39afa398-8d9f-45d1-a7c9-18a396408da2
+		summarizeBy: none
+		sourceColumn: tag_Product
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Project
+		dataType: string
+		lineageTag: 0c6fe63a-9cb6-45c2-bdf5-9498ae13b3e4
+		summarizeBy: none
+		sourceColumn: tag_Project
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Purpose
+		dataType: string
+		lineageTag: 0f18a438-44af-4800-8f19-4480118a3ca6
+		summarizeBy: none
+		sourceColumn: tag_Purpose
+
+		annotation SummarizationSetBy = Automatic
+
+	column tag_Service
+		dataType: string
+		lineageTag: 538b0bf9-9ac5-45a9-941b-e67b79354869
+		summarizeBy: none
+		sourceColumn: tag_Service
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ResourceParentId
+		dataType: string
+		lineageTag: b6210f90-e80d-4933-8140-07d293888b93
+		summarizeBy: none
+		sourceColumn: x_ResourceParentId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ResourceParentName
+		dataType: string
+		lineageTag: 79861087-74b6-42e7-86bf-221702a4ba8a
+		summarizeBy: none
+		sourceColumn: x_ResourceParentName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ResourceParentType
+		dataType: string
+		lineageTag: 561677fb-42fd-4325-a6a2-278d78cb1346
+		summarizeBy: none
+		sourceColumn: x_ResourceParentType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ToolkitTool
+		dataType: string
+		lineageTag: 1911b67b-0305-4079-bac7-3e0a0cc27149
+		summarizeBy: none
+		sourceColumn: x_ToolkitTool
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_ToolkitVersion
+		dataType: string
+		lineageTag: c0817ef1-b8fa-4060-98b3-8e68d1578fd8
+		summarizeBy: none
+		sourceColumn: x_ToolkitVersion
+
+		annotation SummarizationSetBy = Automatic
 
 	partition CostDetails-9a19f60d-0b5b-47c3-9fdf-8f57811d24d2 = m
 		mode: import
-		queryGroup: 'FinOps toolkit'
+		queryGroup: Storage
 		source = ```
-				// let
-				//   Source = ftk_CostDetails(RangeStart, RangeEnd)
-				// in
-				//   Source
-				
 				let
+				    // Tags to promote to explicit columns -- Tag names are case-sensitive and column names will be "tag_{TagName}"
+				    // Add any tags you need promoted to this list
+				    // For recommended tags, see https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-tagging#minimum-suggested-tags
+				    PromotedTags = {"Application", "BusinessUnit", "CostCenter", "Department", "Division", "Env", "Owner", "Product", "Project", "Purpose", "Service"},
+				
 				    // Get the data
-				    RawData = ftk_Hub("focuscost", RangeStart, RangeEnd),
+				    RawData = ftk_Storage("focuscost"),
 				
 				    // Helper functions
-				    _exists     = (col) => Table.HasColumns(rawData, col),
+				    _exists     = (col) => Table.HasColumns(RawData, col),
 				    _isMissing  = (col) => _exists(col) = false,
-				    _isBlank    = (val) => val = null or val = "",
+				    _isBlank    = (val) => val = null or val = "" or Text.Replace(val, " ", "") = "",
 				    _isNotBlank = (val) => _isBlank(val) = false,
+				    _stringValue = (val) => if _isBlank(val) then null else val,
 				    _swapCol    = (tbl, oldCol, newCol, newVal, optional newType) => let add = Table.AddColumn(tbl, newCol, newVal, newType), del = if Table.HasColumns(add, oldCol) then Table.RemoveColumns(add, {oldCol}) else add in del,
 				    _resetCol   = (tbl, col, newVal, optional newType) => let tmpCol = Text.Combine({"tmp_", col}), tmp = _swapCol(tbl, col, tmpCol, newVal, newType), ren = Table.RenameColumns(tmp, {{tmpCol, col}}) in ren,
-				    _parseResourceId = (id, getName) => if _isBlank(id) then null else 
-				        let
-				            // Handle implicit Microsoft.Resources RP names
-				            updatedId = if Text.StartsWith(id, "/subscriptions/") or Text.StartsWith(id, "/tenants/") then "/providers/Microsoft.Resources" & id else id,
-				
-				            // Parse resource ID segments separately
-				            allSegments = Text.Split(List.Last(Text.Split(updatedId, "/providers/")), "/"),
-				            provider = allSegments{0},
-				            _parseId = (evenOrOdd) => List.RemoveNulls(List.Transform({1..List.Count(allSegments)-1}, each if Number.Mod(_, 2) = evenOrOdd then allSegments{_} else null)),
-				            nameSegments = _parseId(0),
-				            typeSegments = _parseId(1),
-				            
-				            // Remove the sub ID if it's a child resource of the subscription
-				            isChildOfSubscription = provider = "Microsoft.Resources" and Text.Lower(typeSegments{0}) = "subscriptions" and List.Count(typeSegments) > 1,
-				            fullName = Text.Combine((if isChildOfSubscription then List.RemoveFirstN(nameSegments, 1) else nameSegments), "/"),
-				
-				            fullType = provider & "/" & Text.Combine(typeSegments, "/"),
-				            result = if getName then fullName else fullType
-				        in
-				            result
-				    ,
-				    _parseResourceName = (id) => _parseResourceId(id, true),
-				    _parseResourceType = (id) => _parseResourceId(id, false),
 				    
 				    // Update previous FOCUS versions
 				    HasPreview = Table.HasColumns(RawData, {"ChargeSubcategory"}),
@@ -1288,157 +1345,242 @@ table CostDetails
 				    LatestSchema = if HasPreview 
 				        then (
 				            let
-				                ChargeClass         = if Has10 
-				                    then Table.ReplaceValue(RawData,          each [ChargeClass],              each if [ChargeClass] <> null then [ChargeClass] else if [ChargeSubcategory] = "Refund" then "Correction" else null)
-				                    else Table.AddColumn(   RawData,               "ChargeClass",                                                               each if [ChargeSubcategory] = "Refund" then "Correction" else null),
-				                CDStatus            = if Has10 
-				                    then Table.ReplaceValue(ChargeClass,      each [CommitmentDiscountStatus], each if [CommitmentDiscountStatus] <> null then [CommitmentDiscountStatus] else if [ChargeSubcategory] = "Used Commitment" or [ChargeSubcategory] = "Unused Commitment" then Text.Replace([ChargeSubcategory], " Commitment", "") else null)
-				                    else Table.AddColumn(   ChargeClass,           "CommitmentDiscountStatus",                                                                            each if [ChargeSubcategory] = "Used Commitment" or [ChargeSubcategory] = "Unused Commitment" then Text.Replace([ChargeSubcategory], " Commitment", "") else null),
-				                ConsumedQuantity    = if Has10 
-				                    then Table.ReplaceValue(CDStatus,         each [ConsumedQuantity],         each if [ConsumedQuantity] <> null then [ConsumedQuantity] else if [ChargeCategory] = "Usage" then [UsageQuantity] else null)
-				                    else Table.AddColumn(   CDStatus,              "ConsumedQuantity",                                                                    each if [ChargeCategory] = "Usage" then [UsageQuantity] else null),
-				                ConsumedUnit        = if Has10 
-				                    then Table.ReplaceValue(ConsumedQuantity, each [ConsumedUnit],             each if [ConsumedUnit] <> null then [ConsumedUnit] else if [ChargeCategory] = "Usage" then [UsageUnit] else null)
-				                    else Table.AddColumn(   ConsumedQuantity,      "ConsumedUnit",                                                                each if [ChargeCategory] = "Usage" then [UsageUnit] else null),
+				                ChargeClass         = if Has10
+				                    then Table.ReplaceValue(RawData,          null,                       each if [ChargeSubcategory] = "Refund" then "Correction" else null, Replacer.ReplaceValue, {"ChargeClass"})
+				                    else Table.AddColumn(   RawData,          "ChargeClass",              each if [ChargeSubcategory] = "Refund" then "Correction" else null),
+				                CDStatus            = if Has10
+				                    then Table.ReplaceValue(ChargeClass,      null,                       each if [ChargeSubcategory] = "Used Commitment" or [ChargeSubcategory] = "Unused Commitment" then Text.Replace([ChargeSubcategory], " Commitment", "") else null, Replacer.ReplaceValue, {"CommitmentDiscountStatus"})
+				                    else Table.AddColumn(   ChargeClass,      "CommitmentDiscountStatus", each if [ChargeSubcategory] = "Used Commitment" or [ChargeSubcategory] = "Unused Commitment" then Text.Replace([ChargeSubcategory], " Commitment", "") else null),
+				                ConsumedQuantity    = if Has10
+				                    then Table.ReplaceValue(CDStatus,         null,                       each if [ChargeCategory] = "Usage" then [UsageQuantity] else null, Replacer.ReplaceValue, {"ConsumedQuantity"})
+				                    else Table.AddColumn(   CDStatus,         "ConsumedQuantity",         each if [ChargeCategory] = "Usage" then [UsageQuantity] else null),
+				                ConsumedUnit        = if Has10
+				                    then Table.ReplaceValue(ConsumedQuantity, null,                       each if [ChargeCategory] = "Usage" then [UsageUnit] else null, Replacer.ReplaceValue, {"ConsumedUnit"})
+				                    else Table.AddColumn(   ConsumedQuantity, "ConsumedUnit",             each if [ChargeCategory] = "Usage" then [UsageUnit] else null),
 				                ChargeCategory      = Table.ReplaceValue(ConsumedUnit,   each [ChargeCategory],  each if [ChargeCategory] = "Adjustment" and [ChargeSubcategory] = "Refund" then "Purchase" else [ChargeCategory], Replacer.ReplaceValue, {"ChargeCategory"}),
 				                PricingCategory     = Table.ReplaceValue(ChargeCategory, each [PricingCategory], each if [PricingCategory] = "On-Demand" then "Standard" else if [PricingCategory] = "Commitment-Based" then "Committed" else [PricingCategory], Replacer.ReplaceValue, {"PricingCategory"}),
-				                RenamePreviewCols   = if Has10 
+				                RenamePreviewCols   = if Has10
 				                    then Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(PricingCategory, 
-				                        each [ContractedCost],      each if [ContractedCost] <> null      then [ContractedCost]      else [x_OnDemandCost]),
-				                        each [ContractedCostInUsd], each if [ContractedCostInUsd] <> null then [ContractedCostInUsd] else [x_OnDemandCostInUsd]),
-				                        each [ContractedUnitPrice], each if [ContractedUnitPrice] <> null then [ContractedUnitPrice] else [x_OnDemandUnitPrice]),
-				                        each [RegionName],          each if [RegionName] <> null          then [RegionName]          else [Region])
+				                        each [ContractedCost],        each if [ContractedCost] <> null        then [ContractedCost]        else [x_OnDemandCost],      Replacer.ReplaceValue, {"ContractedCost"}),
+				                        each [x_ContractedCostInUsd], each if [x_ContractedCostInUsd] <> null then [x_ContractedCostInUsd] else [x_OnDemandCostInUsd], Replacer.ReplaceValue, {"x_ContractedCostInUsd"}),
+				                        each [ContractedUnitPrice],   each if [ContractedUnitPrice] <> null   then [ContractedUnitPrice]   else [x_OnDemandUnitPrice], Replacer.ReplaceValue, {"ContractedUnitPrice"}),
+				                        each [RegionName],            each if [RegionName] <> null            then [RegionName]            else [Region],              Replacer.ReplaceValue, {"RegionName"})
 				                    else Table.RenameColumns(PricingCategory, {{"x_OnDemandCost", "ContractedCost"}, {"x_OnDemandCostInUsd", "x_ContractedCostInUsd"}, {"x_OnDemandUnitPrice", "ContractedUnitPrice"}, {"Region", "RegionName"}}),
 				                RemovePreviewCols   = Table.RemoveColumns(RenamePreviewCols, {"ChargeSubcategory", "UsageQuantity", "UsageUnit", "x_ChargeId"})
 				            in
 				                RemovePreviewCols
 				        ) else RawData,
 				
-				    // Fix types
-				    FixTypes = Table.TransformColumnTypes(LatestSchema, {
-				        // Date columns
-				        {"BillingPeriodEnd",          type datetimezone},
-				        {"BillingPeriodStart",        type datetimezone},
-				        {"ChargePeriodEnd",           type datetimezone},
-				        {"ChargePeriodStart",         type datetimezone},
-				        {"x_BillingExchangeRateDate", type datetimezone},
-				        {"x_ServicePeriodStart",      type datetimezone},
-				        {"x_ServicePeriodEnd",        type datetimezone},
-				        // Cost/price columns
-				        {"BilledCost",                type number},
-				        {"ContractedCost",            type number},
-				        {"ContractedUnitPrice",       type number},
-				        {"EffectiveCost",             type number},
-				        {"ListCost",                  type number},
-				        {"ListUnitPrice",             type number},
-				        {"x_BilledCostInUsd",         type number},
-				        {"x_BilledUnitPrice",         type number},
-				        {"x_ContractedCostInUsd",     type number},
-				        {"x_EffectiveCostInUsd",      type number},
-				        {"x_EffectiveUnitPrice",      type number},
-				        // Other columns
-				        {"ConsumedQuantity",          type number},
-				        {"PricingQuantity",           type number},
-				        {"x_BillingExchangeRate",     type number},
-				        {"x_PartnerCreditRate",       type number},
-				        {"x_PricingBlockSize",        type number},
-				        {"x_SkuTerm",                 type text}  // Text due to a bug in CM data; converted to a number below
-				        // TODO: {"x_SkuIsCreditEligible",   type logical}
-				        // TODO: {"x_PartnerCreditApplied",  type logical}
-				    }),
+				    // Fix known bugs and set datatyps
+				    Fixes = Table.TransformColumnTypes(
+				        // Data fixes
+				        Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(
+				            // Track all the changes we're about to make before we make them for transparency
+				            Table.AddColumn(
+				                // Create AvailabilityZone column if missing to support non-Microsoft clouds
+				                if Table.HasColumns(LatestSchema, {"AvailabilityZone"}) then LatestSchema else Table.AddColumn(LatestSchema, "AvailabilityZone", each null),
+				                "x_DatasetChanges",
+				                each let
+				                    value = Text.Combine(List.RemoveNulls({
+				                        if ([ContractedCost] = null      or [ContractedCost] = 0)      and [EffectiveCost] <> 0                                        then "MissingContractedCost"            else null,
+				                        if ([ContractedUnitPrice] = null or [ContractedUnitPrice] = 0) and [x_EffectiveUnitPrice] <> 0                                 then "MissingContractedUnitPrice"       else null,
+				                        if ([ListCost] = null            or [ListCost] = 0)            and ([ContractedCost] <> 0      or [EffectiveCost] <> 0)        then "MissingListCost"                  else null,
+				                        if ([ListUnitPrice] = null       or [ListUnitPrice] = 0)       and ([ContractedUnitPrice] <> 0 or [x_EffectiveUnitPrice] <> 0) then "MissingListUnitPrice"             else null,
+				                        if [PricingCategory] = "Standard" and [CommitmentDiscountId] <> null and [ChargeCategory] = "Usage"                            then "PricingCategoryShouldBeCommitted" else null,
+				                        if [x_SkuTerm] = "1Year" or [x_SkuTerm] = "3Years" or [x_SkuTerm] = "5Years"                                                   then "SkuTermShouldBeAnInteger"         else null
+				                    }), ","),
+				                    output = if _isBlank(value) then null else value
+				                in
+				                    output
+				            ),
+				            // Reset missing cost/prices
+				            0.0, each if Text.Contains([x_DatasetChanges], "MissingContractedCost")      then null else [ContractedCost],      Replacer.ReplaceValue, {"ContractedCost"}),
+				            0.0, each if Text.Contains([x_DatasetChanges], "MissingContractedUnitPrice") then null else [ContractedUnitPrice], Replacer.ReplaceValue, {"ContractedUnitPrice"}),
+				            0.0, each if Text.Contains([x_DatasetChanges], "MissingListCost")            then null else [ListCost],            Replacer.ReplaceValue, {"ListCost"}),
+				            0.0, each if Text.Contains([x_DatasetChanges], "MissingListUnitPrice")       then null else [ListUnitPrice],       Replacer.ReplaceValue, {"ListUnitPrice"}),
+				            // Fix inconsistent Microsoft x_SkuTerm values
+				            "1Year",  12, Replacer.ReplaceValue, {"x_SkuTerm"}),
+				            "3Years", 36, Replacer.ReplaceValue, {"x_SkuTerm"}),
+				            "5Years", 60, Replacer.ReplaceValue, {"x_SkuTerm"}),
+				            // Fix PricingCategory values
+				            "Standard", each if [CommitmentDiscountId] <> null and [ChargeCategory] = "Usage" then "Committed" else [PricingCategory], Replacer.ReplaceValue, {"PricingCategory"}),
+				        {
+				            // Date columns
+				            {"BillingPeriodEnd",          type datetimezone},
+				            {"BillingPeriodStart",        type datetimezone},
+				            {"ChargePeriodEnd",           type datetimezone},
+				            {"ChargePeriodStart",         type datetimezone},
+				            {"x_BillingExchangeRateDate", type datetimezone},
+				            {"x_ServicePeriodStart",      type datetimezone},
+				            {"x_ServicePeriodEnd",        type datetimezone},
+				            // Cost/price columns
+				            {"BilledCost",                type number},
+				            {"ContractedCost",            type number},
+				            {"ContractedUnitPrice",       type number},
+				            {"EffectiveCost",             type number},
+				            {"ListCost",                  type number},
+				            {"ListUnitPrice",             type number},
+				            {"x_BilledCostInUsd",         type number},
+				            {"x_BilledUnitPrice",         type number},
+				            {"x_ContractedCostInUsd",     type number},
+				            {"x_EffectiveCostInUsd",      type number},
+				            {"x_EffectiveUnitPrice",      type number},
+				            // Other columns
+				            {"ConsumedQuantity",          type number},
+				            {"PricingQuantity",           type number},
+				            {"x_BillingExchangeRate",     type number},
+				            {"x_PartnerCreditRate",       type number},
+				            {"x_PricingBlockSize",        type number},
+				            {"x_SkuTerm",                 type number}
+				            // TODO: {"x_SkuIsCreditEligible",   type logical}
+				            // TODO: {"x_PartnerCreditApplied",  type logical}
+				        }
+				    ),
 				
-				    // Data fixes
-				    // Create AvailabilityZone column if missing to support non-Microsoft clouds
-				    AvailabilityZone = if Table.HasColumns(FixTypes, {"AvailabilityZone"}) then FixTypes else Table.AddColumn(FixTypes, "AvailabilityZone", each null),
-				    // Fix inconsistent Microsoft x_SkuTerm values
-				    SkuTerm = _resetCol(AvailabilityZone, "x_SkuTerm", each if [x_SkuTerm] = "1Year" then 12 else if [x_SkuTerm] = "3Years" then 36 else if [x_SkuTerm] = "5Years" then 60 else Number.FromText([x_SkuTerm]), type number),
+				    // Split CostDetails by what needs prices and what doesn't
+				    PopulateMissingPrices = 
+				        Table.TransformColumnTypes(
+				            if #"Experimental: Add Missing Prices" = false then
+				                // Copy prices/costs from related columns
+				                Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Fixes,
+				                    null, each [x_EffectiveUnitPrice], Replacer.ReplaceValue, {"ContractedUnitPrice"}),
+				                    null, each [ContractedUnitPrice],  Replacer.ReplaceValue, {"ListUnitPrice"}),
+				                    null, each [EffectiveCost],        Replacer.ReplaceValue, {"ContractedCost"}),
+				                    null, each [ContractedCost],       Replacer.ReplaceValue, {"ListCost"})
+				            else
+				                Table.RemoveColumns(
+				                    Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(
+				                        // Join only the rows/columns that need to be joined
+				                        Table.ExpandTableColumn(
+				                            Table.NestedJoin(
+				                                Table.AddColumn(Fixes, "tmp_MeterOfferStart", each [x_SkuMeterId] & [x_SkuOfferId] & DateTimeZone.ToText([BillingPeriodStart], [Format="yyyy-MM-dd"])), {"x_SkuMeterId", "x_SkuOfferId", "BillingPeriodStart"},
+				                                Table.AddColumn(
+				                                    // Join missing prices with the cost rows that are missing tose prices
+				                                    Table.SelectColumns(
+				                                        Table.SelectRows(Prices, each [x_SkuPriceType] = "Consumption" and [x_SkuMeterId] <> "" and [x_SkuMeterId] <> null),
+				                                        {"x_SkuMeterId", "x_SkuOfferId", "x_EffectivePeriodStart", "ListUnitPrice", "ContractedUnitPrice"}
+				                                    ),
+				                                    "tmp_MeterOfferStart",
+				                                    each [x_SkuMeterId] & [x_SkuOfferId] & DateTime.ToText([x_EffectivePeriodStart], [Format="yyyy-MM-dd"])
+				                                ),
+				                                {"x_SkuMeterId", "x_SkuOfferId", "x_EffectivePeriodStart"},
+				                                "Prices",
+				                                JoinKind.LeftOuter
+				                            ),
+				                            "Prices",
+				                            {"ListUnitPrice", "ContractedUnitPrice"},
+				                            {"NewListUnitPrice", "NewContractedUnitPrice"}
+				                        ),
+				                        // Update missing prices
+				                        null, each [NewContractedUnitPrice], Replacer.ReplaceValue, {"ContractedUnitPrice"}),
+				                        null, each [NewListUnitPrice],       Replacer.ReplaceValue, {"ListUnitPrice"}),
+				                        // Update missing costs
+				                        null, each [PricingQuantity] * [ContractedUnitPrice], Replacer.ReplaceValue, {"ContractedCost"}),
+				                        null, each [PricingQuantity] * [ListUnitPrice],       Replacer.ReplaceValue, {"ListCost"}),
+				                    {"NewListUnitPrice", "NewContractedUnitPrice"}
+				                ),
+				            {{"ContractedCost", type number}, {"ContractedUnitPrice", type number}, {"ListCost", type number}, {"ListUnitPrice", type number}}
+				        ),
 				
-				    // Parse arrays
-				    SkuDetailsDict        = Table.AddColumn(SkuTerm,        "x_SkuDetailsDictionary", each if _isNotBlank([x_SkuDetails]) then Json.Document([x_SkuDetails]) else null),
-				    SkuDetailsDict_copy   = Table.AddColumn(SkuDetailsDict, "tmp_SkuDetails",         each [x_SkuDetailsDictionary]),
-				    SkuDetailsDict_errors = Table.ReplaceErrorValues(SkuDetailsDict_copy, {{"tmp_SkuDetails", null}}),
-				    Tags_backfill         = _resetCol(SkuDetailsDict_errors, "Tags", each if _isBlank([Tags]) then "{}" else [Tags]),
-				    TagsDictionary        = Table.AddColumn(Tags_backfill,  "x_TagsDictionary", each if _isNotBlank([Tags]) then Json.Document([Tags]) else null),
-				    TagsDictionary_copy   = Table.AddColumn(TagsDictionary, "tmp_Tags",         each [x_TagsDictionary]),
-				    TagsDictionary_errors = Table.ReplaceErrorValues(TagsDictionary_copy, {{"tmp_Tags", null}}),
+				    Add = Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
+				        PopulateMissingPrices,
+				        // Parse arrays
+				        "x_SkuDetailsDictionary", each if _isBlank([x_SkuDetails]) then [] else try Json.Document([x_SkuDetails]) otherwise []),
+				        "x_TagsDictionary",       each if _isBlank([Tags])         then [] else try Json.Document([Tags])         otherwise []),
+				        // Commitment metadata
+				        "x_CommitmentUtilizationPotential", each if [CommitmentDiscountCategory] = "Usage" then [ConsumedQuantity] else if [CommitmentDiscountCategory] = "Spend" then [EffectiveCost] else 0, type number),
+				        "x_CommitmentUtilizationAmount",    each if [CommitmentDiscountStatus] = "Used" then [x_CommitmentUtilizationPotential] else 0, type number),
+				        // Savings calculations
+				        "x_CommitmentUnitPriceSavings", each if [ContractedUnitPrice] <> null and [ContractedUnitPrice] > 0 and [x_EffectiveUnitPrice] <> null and [x_EffectiveUnitPrice] > 0 and [ContractedUnitPrice] >= [x_EffectiveUnitPrice] then [ContractedUnitPrice] - [x_EffectiveUnitPrice] else null, type number),
+				        "x_NegotiatedUnitPriceSavings", each if [ContractedUnitPrice] <> null and [ContractedUnitPrice] > 0 and [ListUnitPrice]        <> null and [ListUnitPrice]        > 0 and [ListUnitPrice]       >= [ContractedUnitPrice]  then [ListUnitPrice]       - [ContractedUnitPrice]  else null, type number),
+				        "x_DiscountUnitPriceSavings",   each if [ListUnitPrice]       <> null and [ListUnitPrice]       > 0 and [x_EffectiveUnitPrice] <> null and [x_EffectiveUnitPrice] > 0 and [ListUnitPrice]       > 0 and [ListUnitPrice]       >= [x_EffectiveUnitPrice] then [ListUnitPrice]       - [x_EffectiveUnitPrice] else null, type number),
+				        "x_CommitmentCostSavings",      each if _isBlank([CommitmentDiscountCategory]) then 0 else if [ContractedCost] <> null and [ContractedCost] > 0 and [EffectiveCost] <> null and [EffectiveCost] > 0 and [ContractedCost] >= [EffectiveCost] then [ContractedCost] - [EffectiveCost] else null, type number),
+				        "x_NegotiatedCostSavings",      each if [ListCost]            <> null and [ListCost]            > 0 and [ContractedCost]       <> null and [ContractedCost]       > 0 and [ListCost]            >= [ContractedCost]       then [ListCost]            - [ContractedCost] else null, type number),
+				        "x_DiscountCostSavings",        
+				            each if [ListCost]            <> null and [ListCost]            > 0 and [EffectiveCost]        <> null and [EffectiveCost]        > 0 and [ListCost]       >= [EffectiveCost] then [ListCost]       - [EffectiveCost]  
+				            else if [ContractedCost]      <> null and [ContractedCost]      > 0 and [EffectiveCost]        <> null and [EffectiveCost]        > 0 and [ContractedCost] >= [EffectiveCost] then [ContractedCost] - [EffectiveCost] else null, type number),
+				        // Explain why cost is 0
+				        "x_FreeReason", 
+				            each if [BilledCost] <> 0.0 or [EffectiveCost] <> 0.0 then null
+				            else if [PricingCategory] = "Committed" then "Unknown " & [CommitmentDiscountStatus] & " Commitment"
+				            else if [x_BilledUnitPrice] = 0.0 and [x_EffectiveUnitPrice] = 0.0 and [ContractedUnitPrice] = 0.0 and [ListUnitPrice] = 0.0 and _isBlank([CommitmentDiscountType]) then (
+				                if _isNotBlank([x_SkuDescription]) and Text.Contains([x_SkuDescription], "Trial") then "Trial" else if _isNotBlank([x_SkuDescription]) and Text.Contains([x_SkuDescription], "Preview") then "Preview" else "Other"
+				            )
+				            else if [x_BilledUnitPrice] > 0.0 or [x_EffectiveUnitPrice] > 0.0 then (
+				                if [PricingQuantity] > 0.0 then "Low Usage" else if [PricingQuantity] = 0.0 then "No Usage" else "Unknown Negative Quantity"
+				            )
+				            else "Unknown"
+				        ),
+				        // Unique names -- Must be after ResourceName cleanup and Commitment columns
+				        // TODO: Only add differentiators when the name is not unique
+				        "CommitmentDiscountNameUnique", each if _isBlank([CommitmentDiscountId]) then null else [CommitmentDiscountName] & " (" & [CommitmentDiscountType] & ")"),
+				        "ResourceNameUnique",           each if _isBlank([ResourceId])           then null else [ResourceName] & " (" & [ResourceType] & ")"),
+				        "x_ResourceGroupNameUnique",    each if _isBlank([x_ResourceGroupName])  then null else [x_ResourceGroupName] & " (" & [SubAccountName] & ")"),
+				        "SubAccountNameUnique",         each if _isBlank([SubAccountId])         then null else [SubAccountName] & " (" & ftk_ParseResourceName([SubAccountId]) & ")"),
+				        // Month column
+				        "x_Month", each DateTime.Date(Date.StartOfMonth([ChargePeriodStart])), type date),
 				
 				    // FTK columns
-				    Tags_expand  = Table.ExpandRecordColumn(TagsDictionary_errors, "tmp_Tags",
-				        {"cm-resource-parent", "ms-resource-parent", "hidden-managedby", "costanalysis-parent", "ftk-version",      "ftk-tool"},
-				        {"tmp_cmParent",       "tmp_msParent",       "tmp_ManagedBy",    "tmp_caParent",        "x_ToolkitVersion", "tmp_ToolkitTool"}
+				    FTK = Table.RemoveColumns(
+				        Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
+				            Table.ExpandRecordColumn(
+				                Table.ReplaceErrorValues(Table.AddColumn(Add, "tmp_Tags", each [x_TagsDictionary]), {{"tmp_Tags", null}}),
+				                "tmp_Tags",
+				                {"cm-resource-parent", "ms-resource-parent", "hidden-managedby", "costanalysis-parent", "ftk-version",      "ftk-tool"},
+				                {"tmp_cmParent",       "tmp_msParent",       "tmp_ManagedBy",    "tmp_caParent",        "x_ToolkitVersion", "tmp_ToolkitTool"}
+				            ),
+				            "x_ResourceParentId",   
+				                each _stringValue(Text.Replace("/" & (
+				                    if _isNotBlank([tmp_cmParent])  then [tmp_cmParent] 
+				                    else if _isNotBlank([tmp_msParent])  then [tmp_msParent] 
+				                    else if _isNotBlank([tmp_ManagedBy]) then [tmp_ManagedBy] 
+				                    else if _isNotBlank([tmp_caParent])  then [tmp_caParent] 
+				                    else null
+				                ), "//", "/"))),
+				            "x_ResourceParentType", each ftk_ParseResourceType([x_ResourceParentId])),
+				            "x_ResourceParentName", each ftk_ParseResourceName([x_ResourceParentId])),
+				            "x_ToolkitTool", 
+				                each if _isNotBlank([tmp_ToolkitTool]) then [tmp_ToolkitTool] 
+				                else if _isBlank([x_ResourceParentId]) then null 
+				                else if Text.Contains(Text.Lower([x_ResourceParentId]), "/providers/microsoft.cloud/hubs/") then "FinOps hubs"
+				                else null
+				            ),
+				        { "tmp_cmParent", "tmp_msParent", "tmp_caParent", "tmp_ManagedBy", "tmp_ToolkitTool" }
 				    ),
-				    ResourceParentId   = Table.AddColumn(Tags_expand,        "x_ResourceParentId",   
-				        each Text.Replace("/" & (if _isNotBlank([tmp_cmParent])  then [tmp_cmParent] 
-				        else if _isNotBlank([tmp_msParent])  then [tmp_msParent] 
-				        else if _isNotBlank([tmp_ManagedBy]) then [tmp_ManagedBy] 
-				        else if _isNotBlank([tmp_caParent])  then [tmp_caParent] 
-				        else null), "//", "/")),
-				    ResourceParentId_backfill = _resetCol(ResourceParentId,         "x_ResourceParentId",   each if _isBlank([x_ResourceParentId]) then null else [x_ResourceParentId]),
-				    ResourceParentType = Table.AddColumn(ResourceParentId_backfill, "x_ResourceParentType", each _parseResourceType([x_ResourceParentId])),
-				    ResourceParentName = Table.AddColumn(ResourceParentType,        "x_ResourceParentName", each _parseResourceName([x_ResourceParentId])),
-				    Tool = _swapCol(ResourceParentName, "tmp_ToolkitTool", "x_ToolkitTool", 
-				        each if _isNotBlank([tmp_ToolkitTool]) then [tmp_ToolkitTool] 
-				        else if _isBlank([x_ResourceParentId]) then null 
-				        else if Text.Contains(Text.Lower([x_ResourceParentId]), "/providers/microsoft.cloud/hubs/") then "FinOps hubs"
-				        else null),
-				    ExpandedTags = Table.RemoveColumns(Tool, { "tmp_cmParent", "tmp_msParent", "tmp_caParent", "tmp_ManagedBy" }),
-				    IRDate = Table.AddColumn(ExpandedTags, "x_IncrementalRefreshDate", each Number.From([ChargePeriodStart]), type number),
+				
+				    // Extracted tags
+				    // TODO: Consider adding tag cleanup to this as well
+				    ExtractedTags = Table.ExpandRecordColumn(
+				        Table.ReplaceErrorValues(Table.AddColumn(FTK, "tmp_Tags", each [x_TagsDictionary]), {{"tmp_Tags", null}}),
+				        "tmp_Tags",
+				        PromotedTags,
+				        List.Transform(PromotedTags, each "tag_" & _)
+				    ),
 				
 				    // AHB columns
-				    SkuDetails_expand   = Table.ExpandRecordColumn(IRDate, "tmp_SkuDetails",
-				        {"UsageType",      "ImageType",      "ServiceType", "VMName",     "VMProperties",      "VCPUs",       "ReservationOrderId",         "ReservationId",         "VMCapacityReservationId", "AHB",        "vCores"},
-				        {"x_SkuUsageType", "x_SkuImageType", "x_SkuType",   "tmp_VMName", "x_SkuVMProperties", "tmp_VMvCPUs", "tmp_AddlReservationOrderId", "tmp_AddlReservationId", "x_CapacityCommitmentId",  "tmp_SQLAHB", "tmp_SQLvCores"}
-				    ),
-				    SkuDetails_types    = Table.TransformColumnTypes(SkuDetails_expand, {{"tmp_VMvCPUs", Int64.Type}, {"tmp_SQLvCores", Int64.Type}}),
-				    ResourceMachineName = _swapCol(SkuDetails_types,           "tmp_VMName",         "x_ResourceMachineName", each if _isNotBlank([tmp_VMName]) then [tmp_VMName] else null),
-				    ProductCPUs         = Table.AddColumn(ResourceMachineName, "x_SkuCPUs",          each if [tmp_VMvCPUs] <> null then [tmp_VMvCPUs] else if [tmp_SQLvCores] <> null then [tmp_SQLvCores] else null, Int64.Type),
-				    CPUHours            = Table.AddColumn(ProductCPUs,         "x_UsageCPUHours",    each if [x_SkuCPUs] <> null then [x_SkuCPUs] * [ConsumedQuantity] else null, type number),
-				    HybridBenefitStatus = Table.AddColumn(CPUHours,            "x_SkuLicenseStatus", each if _isNotBlank([x_SkuMeterSubcategory]) and Text.Contains([x_SkuMeterSubcategory], "Windows") or [tmp_SQLAHB] = "False" then "Not enabled" else if (_isNotBlank([x_SkuImageType]) and Text.Contains([x_SkuImageType], "Windows Server BYOL")) or [tmp_SQLAHB] = "True" or (_isNotBlank([x_SkuMeterSubcategory]) and Text.Contains([x_SkuMeterSubcategory], "Azure Hybrid Benefit")) then "Enabled" else "Not supported"),
-				    HybridBenefitCPUs   = Table.AddColumn(HybridBenefitStatus, "x_SkuLicenseCPUs",   each if [x_SkuCPUs] = null then 0 else if [x_SkuCPUs] <= 8 then 8 else if [x_SkuCPUs] <= 16 then 16 else if [x_SkuCPUs] = 20 then 24 else if [x_SkuCPUs] > 20 then [x_SkuCPUs] else 0, type number),
 				// TODO: Add SQL AHB handling
-				    AHB = Table.RemoveColumns(HybridBenefitCPUs, { "tmp_AddlReservationOrderId", "tmp_AddlReservationId", "tmp_SQLAHB", "tmp_SQLvCores", "tmp_VMvCPUs" }),
-				
-				    // Commitment metadata
-				    CommitmentDiscountKey          = Table.AddColumn(AHB,                            "x_CommitmentDiscountKey",          each [x_SkuType] & [x_SkuMeterId]),
-				    CommitmentUtilizationPotential = Table.AddColumn(CommitmentDiscountKey,          "x_CommitmentUtilizationPotential", each if [CommitmentDiscountCategory] = "Usage" then [ConsumedQuantity] else if [CommitmentDiscountCategory] = "Spend" then [EffectiveCost] else 0, type number),
-				    CommitmentUtilizationAmount    = Table.AddColumn(CommitmentUtilizationPotential, "x_CommitmentUtilizationAmount",    each if [CommitmentDiscountStatus] = "Used" then [x_CommitmentUtilizationPotential] else 0, type number),
-				
-				    // Savings calculations
-				    CommitmentUnitPriceSavings = Table.AddColumn(CommitmentUtilizationAmount, "x_CommitmentUnitPriceSavings", each if [ContractedUnitPrice] <> null and [ContractedUnitPrice] > 0 and [x_EffectiveUnitPrice] <> null and [x_EffectiveUnitPrice] > 0 and [ContractedUnitPrice] >= [x_EffectiveUnitPrice] then [ContractedUnitPrice] - [x_EffectiveUnitPrice] else null, type number),
-				    NegotiatedUnitPriceSavings = Table.AddColumn(CommitmentUnitPriceSavings,  "x_NegotiatedUnitPriceSavings", each if [ContractedUnitPrice] <> null and [ContractedUnitPrice] > 0 and [ListUnitPrice]        <> null and [ListUnitPrice]        > 0 and [ListUnitPrice]       >= [ContractedUnitPrice]  then [ListUnitPrice]       - [ContractedUnitPrice]  else null, type number),
-				    DiscountUnitPriceSavings   = Table.AddColumn(NegotiatedUnitPriceSavings,  "x_DiscountUnitPriceSavings",   each if [ListUnitPrice]       <> null and [ListUnitPrice]       > 0 and [x_EffectiveUnitPrice] <> null and [x_EffectiveUnitPrice] > 0 and [ListUnitPrice]       > 0 and [ListUnitPrice]       >= [x_EffectiveUnitPrice] then [ListUnitPrice]       - [x_EffectiveUnitPrice] else null, type number),
-				    CommitmentCostSavings      = Table.AddColumn(DiscountUnitPriceSavings,    "x_CommitmentCostSavings",      each if _isBlank([CommitmentDiscountCategory]) then 0 else if [ContractedCost] <> null and [ContractedCost] > 0 and [EffectiveCost] <> null and [EffectiveCost] > 0 and [ContractedCost] >= [EffectiveCost] then [ContractedCost] - [EffectiveCost] else null, type number),
-				    NegotiatedCostSavings      = Table.AddColumn(CommitmentCostSavings,       "x_NegotiatedCostSavings",      each if [ListCost]            <> null and [ListCost]            > 0 and [ContractedCost]       <> null and [ContractedCost]       > 0 and [ListCost]            >= [ContractedCost]       then [ListCost]            - [ContractedCost] else null, type number),
-				    DiscountCostSavings        = Table.AddColumn(NegotiatedCostSavings,       "x_DiscountCostSavings",        
-				        each if [ListCost]            <> null and [ListCost]            > 0 and [EffectiveCost]        <> null and [EffectiveCost]        > 0 and [ListCost]       >= [EffectiveCost] then [ListCost]       - [EffectiveCost]  
-				        else if [ContractedCost]      <> null and [ContractedCost]      > 0 and [EffectiveCost]        <> null and [EffectiveCost]        > 0 and [ContractedCost] >= [EffectiveCost] then [ContractedCost] - [EffectiveCost] else null, type number),
-				
-				    // Data cleansing
-				    FreeReason = Table.AddColumn(DiscountCostSavings, "x_FreeReason", 
-				        each if [BilledCost] <> 0.0 or [EffectiveCost] <> 0.0 then null
-				        else if [PricingCategory] = "Committed" then "Unknown " & [CommitmentDiscountStatus] & " Commitment"
-				        else if [x_BilledUnitPrice] = 0.0 and [x_EffectiveUnitPrice] = 0.0 and [ContractedUnitPrice] = 0.0 and [ListUnitPrice] = 0.0 and _isBlank([CommitmentDiscountType]) then (
-				            if _isNotBlank([x_SkuDescription]) and Text.Contains([x_SkuDescription], "Trial") then "Trial" else if _isNotBlank([x_SkuDescription]) and Text.Contains([x_SkuDescription], "Preview") then "Preview" else "Other"
-				        )
-				        else if [x_BilledUnitPrice] > 0.0 or [x_EffectiveUnitPrice] > 0.0 then (
-				            if [PricingQuantity] > 0.0 then "Low Usage" else if [PricingQuantity] = 0.0 then "No Usage" else "Unknown Negative Quantity"
-				        )
-				        else "Unknown"),
-				    // TODO: BUG: SkuId == SkuPriceId for EA???
-				
-				    // Unique names -- Must be after ResourceName cleanup and Commitment columns
-				// TODO: Only add differentiators when the name is not unique
-				    CommitmentDiscountNameUnique = Table.AddColumn(FreeReason,                   "CommitmentDiscountNameUnique", each if _isBlank([CommitmentDiscountId]) then null else [CommitmentDiscountName] & " (" & [CommitmentDiscountType] & ")"),
-				    ResourceNameUnique           = Table.AddColumn(CommitmentDiscountNameUnique, "ResourceNameUnique",           each if _isBlank([ResourceId])           then null else [ResourceName] & " (" & [ResourceType] & ")"),
-				    ResourceGroupNameUnique      = Table.AddColumn(ResourceNameUnique,           "x_ResourceGroupNameUnique",    each if _isBlank([x_ResourceGroupName])  then null else [x_ResourceGroupName] & " (" & [SubAccountName] & ")"),
-				    SubscriptionNameUnique       = Table.AddColumn(ResourceGroupNameUnique,      "SubAccountNameUnique",         each if _isBlank([SubAccountId])         then null else [SubAccountName] & " (" & _parseResourceName([SubAccountId]) & ")"),
-				
-				    // Month column
-				    Month = Table.AddColumn(SubscriptionNameUnique, "x_Month", each DateTime.Date(Date.StartOfMonth([ChargePeriodStart])), type date),
+				    AHB = Table.RemoveColumns(
+				        Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(
+				            Table.TransformColumnTypes(
+				                Table.ExpandRecordColumn(
+				                    Table.ReplaceErrorValues(Table.AddColumn(ExtractedTags, "tmp_SkuDetails", each [x_SkuDetailsDictionary]), {{"tmp_SkuDetails", null}}),
+				                    "tmp_SkuDetails",
+				                    {"UsageType",      "ImageType",      "ServiceType", "VMName",     "VMProperties",      "VCPUs",       "ReservationOrderId",         "ReservationId",         "VMCapacityReservationId", "AHB",        "vCores"},
+				                    {"x_SkuUsageType", "x_SkuImageType", "x_SkuType",   "tmp_VMName", "x_SkuVMProperties", "tmp_VMvCPUs", "tmp_AddlReservationOrderId", "tmp_AddlReservationId", "x_CapacityCommitmentId",  "tmp_SQLAHB", "tmp_SQLvCores"}
+				                ),
+				                {{"tmp_VMvCPUs", Int64.Type}, {"tmp_SQLvCores", Int64.Type}}
+				            ),
+				            "x_ResourceMachineName",   each if _isNotBlank([tmp_VMName]) then [tmp_VMName] else null),
+				            "x_SkuCPUs",               each if [tmp_VMvCPUs] <> null then [tmp_VMvCPUs] else if [tmp_SQLvCores] <> null then [tmp_SQLvCores] else null, Int64.Type),
+				            "x_UsageCPUHours",         each if [x_SkuCPUs] <> null then [x_SkuCPUs] * [ConsumedQuantity] else null, type number),
+				            "x_SkuLicenseStatus",      each if _isNotBlank([x_SkuMeterSubcategory]) and Text.Contains([x_SkuMeterSubcategory], "Windows") or [tmp_SQLAHB] = "False" then "Not enabled" else if (_isNotBlank([x_SkuImageType]) and Text.Contains([x_SkuImageType], "Windows Server BYOL")) or [tmp_SQLAHB] = "True" or (_isNotBlank([x_SkuMeterSubcategory]) and Text.Contains([x_SkuMeterSubcategory], "Azure Hybrid Benefit")) then "Enabled" else "Not supported"),
+				            "x_SkuLicenseCPUs",        each if [x_SkuCPUs] = null then 0 else if [x_SkuCPUs] <= 8 then 8 else if [x_SkuCPUs] <= 16 then 16 else if [x_SkuCPUs] = 20 then 24 else if [x_SkuCPUs] > 20 then [x_SkuCPUs] else 0, type number),
+				            "x_CommitmentDiscountKey", each [x_SkuType] & [x_SkuMeterId]),
+				        { "tmp_AddlReservationOrderId", "tmp_AddlReservationId", "tmp_SQLAHB", "tmp_SQLvCores", "tmp_VMName", "tmp_VMvCPUs" }
+				    ),
 				
 				    // Unique key for the record -- WARNING: This increases the data size significantly.
 				    /*
-				    _addIdSegment = (val) => (if _isNotBlank(val) then "-" & val else ""),
 				    ChargeId = Table.AddColumn(Month, "x_ChargeId", each Text.Combine(List.RemoveItems({
 				        Date.ToText([ChargePeriodStart]),
 				        [x_BillingAccountId],
@@ -1460,7 +1602,7 @@ table CostDetails
 				    */
 				
 				    // Sort columns alphabetically
-				    Output = Table.ReorderColumns(Month, List.Sort(Table.ColumnNames(Month)))
+				    Output = Table.ReorderColumns(AHB, List.Sort(Table.ColumnNames(AHB)))
 				in
 				    Output
 				```

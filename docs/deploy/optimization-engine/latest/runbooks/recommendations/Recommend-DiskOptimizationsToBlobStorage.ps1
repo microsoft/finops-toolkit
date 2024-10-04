@@ -6,7 +6,7 @@ function Find-DiskMonthlyPrice {
         [string] $DiskSizeTier
     )
 
-    $diskSkus = $SKUPriceSheet | Where-Object { $_.MeterName_s.Replace(" Disks","") -eq $DiskSizeTier }
+    $diskSkus = $SKUPriceSheet | Where-Object { $_.MeterName_s.Replace(" Disks","").Replace(" Disk","") -eq $DiskSizeTier }
     $targetMonthlyPrice = [double]::MaxValue
     if ($diskSkus)
     {
@@ -39,8 +39,8 @@ $workspaceSubscriptionId = Get-AutomationVariable -Name  "AzureOptimization_LogA
 $workspaceTenantId = Get-AutomationVariable -Name  "AzureOptimization_LogAnalyticsWorkspaceTenantId"
 
 $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSink"
-$storageAccountSinkRG = Get-AutomationVariable -Name  "AzureOptimization_StorageSinkRG"
-$storageAccountSinkSubscriptionId = Get-AutomationVariable -Name  "AzureOptimization_StorageSinkSubId"
+
+
 $storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RecommendationsContainer" -ErrorAction SilentlyContinue 
 if ([string]::IsNullOrEmpty($storageAccountSinkContainer)) {
     $storageAccountSinkContainer = "recommendationsexports"
@@ -56,9 +56,6 @@ if ([string]::IsNullOrEmpty($lognamePrefix))
 }
 
 $sqlserver = Get-AutomationVariable -Name  "AzureOptimization_SQLServerHostname"
-$sqlserverCredential = Get-AutomationPSCredential -Name "AzureOptimization_SQLServerCredential"
-$SqlUsername = $sqlserverCredential.UserName 
-$SqlPass = $sqlserverCredential.GetNetworkCredential().Password 
 $sqldatabase = Get-AutomationVariable -Name  "AzureOptimization_SQLServerDatabase" -ErrorAction SilentlyContinue
 if ([string]::IsNullOrEmpty($sqldatabase))
 {
@@ -108,6 +105,9 @@ switch ($authenticationOption) {
     }
 }
 
+$cloudDetails = Get-AzEnvironment -Name $CloudEnvironment
+$azureSqlDomain = $cloudDetails.SqlDatabaseDnsSuffix.Substring(1)
+
 Write-Output "Finding tables where recommendations will be generated from..."
 
 $tries = 0
@@ -115,7 +115,9 @@ $connectionSuccess = $false
 do {
     $tries++
     try {
-        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;User ID=$SqlUsername;Password=$SqlPass;Trusted_Connection=False;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $dbToken = Get-AzAccessToken -ResourceUrl "https://$azureSqlDomain/"
+        $Conn = New-Object System.Data.SqlClient.SqlConnection("Server=tcp:$sqlserver,1433;Database=$sqldatabase;Encrypt=True;Connection Timeout=$SqlTimeout;") 
+        $Conn.AccessToken = $dbToken.Token
         $Conn.Open() 
         $Cmd=new-object system.Data.SqlClient.SqlCommand
         $Cmd.Connection = $Conn
@@ -156,8 +158,8 @@ $recommendationSearchTimeSpan = 30 + $consumptionOffsetDaysStart
 
 # Grab a context reference to the Storage Account where the recommendations file will be stored
 
-Select-AzSubscription -SubscriptionId $storageAccountSinkSubscriptionId
-$sa = Get-AzStorageAccount -ResourceGroupName $storageAccountSinkRG -Name $storageAccountSink
+
+$saCtx = New-AzStorageContext -StorageAccountName $storageAccountSink -UseConnectedAccount -Environment $cloudEnvironment
 
 if ($workspaceSubscriptionId -ne $storageAccountSinkSubscriptionId)
 {
@@ -182,7 +184,7 @@ try
     $baseQuery = @"
     $pricesheetTableName
     | where TimeGenerated > ago(14d)
-    | where MeterCategory_s == 'Storage' and MeterSubCategory_s endswith "Managed Disks" and MeterName_s endswith "Disks" and MeterRegion_s == '$pricesheetRegion' and PriceType_s == 'Consumption'
+    | where MeterCategory_s == 'Storage' and MeterSubCategory_s contains "Managed Disk" and (MeterName_s endswith "Disk" or MeterName_s endswith "Disks") and MeterName_s !has 'Special' and MeterRegion_s == '$pricesheetRegion' and PriceType_s == 'Consumption'
     | distinct MeterName_s, MeterSubCategory_s, MeterCategory_s, MeterRegion_s, UnitPrice_s, UnitOfMeasure_s
 "@    
 
@@ -222,7 +224,8 @@ $baseQuery = @"
     | summarize MaxIOPSMetric = max(todouble(MetricValue_s)) by ResourceId
     | join kind=inner ( 
         $disksTableName
-        | where TimeGenerated > ago(1d) and DiskState_s != 'Unattached' and SKU_s startswith 'Premium'
+        | where TimeGenerated > ago(1d) and DiskState_s =~ 'Attached' and SKU_s startswith 'Premium'
+        | extend DiskTier_s = strcat(DiskTier_s, ' ', tostring(split(SKU_s, '_')[1]))
         | project ResourceId=InstanceId_s, DiskName_s, ResourceGroup = ResourceGroupName_s, SubscriptionId = SubscriptionGuid_g, Cloud_s, TenantGuid_g, Tags_s, MaxIOPSDisk=toint(DiskIOPS_s), DiskSizeGB_s, SKU_s, DiskTier_s, DiskType_s
     ) on ResourceId
     | project-away ResourceId1
@@ -234,7 +237,8 @@ $baseQuery = @"
         | summarize MaxMBsMetric = max(todouble(MetricValue_s)/1024/1024) by ResourceId
         | join kind=inner ( 
             $disksTableName
-            | where TimeGenerated > ago(1d) and DiskState_s != 'Unattached' and SKU_s startswith 'Premium'
+            | where TimeGenerated > ago(1d) and DiskState_s =~ 'Attached' and SKU_s startswith 'Premium'
+            | extend DiskTier_s = strcat(DiskTier_s, ' ', tostring(split(SKU_s, '_')[1]))
             | project ResourceId=InstanceId_s, DiskName_s, ResourceGroup = ResourceGroupName_s, SubscriptionId = SubscriptionGuid_g, Cloud_s, TenantGuid_g, Tags_s, MaxMBsDisk=toint(DiskThroughput_s), DiskSizeGB_s, SKU_s, DiskTier_s, DiskType_s
         ) on ResourceId
         | project-away ResourceId1
@@ -280,7 +284,7 @@ foreach ($result in $results)
     $targetSku = $null
     $currentDiskTier = $null
 
-    if ([string]::IsNullOrEmpty($result.DiskTier_s)) # older disks do not have Tier info in their properties
+    if ([string]::IsNullOrEmpty($result.DiskTier_s) -or $result.DiskTier_s.Trim().Length -le 3) # older disks do not have Tier info in their properties
     {
         $currentSkuCandidates = @()
         foreach ($sku in $skus)
@@ -294,13 +298,14 @@ foreach ($result in $results)
             if ($sku.Name -eq $result.SKU_s -and $skuMinSizeGB -lt [int]$result.DiskSizeGB_s -and $skuMaxSizeGB -ge [int]$result.DiskSizeGB_s `
             -and [int]$skuMaxIOps -eq [int]$result.MaxIOPSDisk -and [int]$skuMaxBandwidthMBps -eq [int]$result.MaxMBsDisk)
             {
-                if ($null -eq $skuPricesFound[$sku.Size])
+                $skuSize = $sku.Size + " " + $result.SKU_s.Split("_")[1]
+                if ($null -eq $skuPricesFound[$skuSize])
                 {
-                    $skuPricesFound[$sku.Size] = Find-DiskMonthlyPrice -DiskSizeTier $sku.Size -SKUPriceSheet $pricesheetEntries
+                    $skuPricesFound[$sku.Size] = Find-DiskMonthlyPrice -DiskSizeTier $skuSize -SKUPriceSheet $pricesheetEntries
                 }
     
                 $currentSkuCandidate = New-Object PSObject -Property @{
-                    Name = $sku.Size
+                    Name = $skuSize
                     MaxSizeGB = $skuMaxSizeGB
                 }    
 
@@ -334,16 +339,17 @@ foreach ($result in $results)
         if ($sku.Name -eq $targetSkuPerfTier -and $skuMinSizeGB -lt [int]$result.DiskSizeGB_s -and $skuMaxSizeGB -ge [int]$result.DiskSizeGB_s `
                 -and [double]$skuMaxIOps -ge [double]$result.MaxIOPSMetric -and [double]$skuMaxBandwidthMBps -ge [double]$result.MaxMBsMetric)
         {
+            $skuSize = $sku.Size + " " + $targetSkuPerfTier.Split("_")[1]
             if ($null -eq $skuPricesFound[$sku.Size])
             {
-                $skuPricesFound[$sku.Size] = Find-DiskMonthlyPrice -DiskSizeTier $sku.Size -SKUPriceSheet $pricesheetEntries
+                $skuPricesFound[$skuSize] = Find-DiskMonthlyPrice -DiskSizeTier $skuSize -SKUPriceSheet $pricesheetEntries
             }
 
-            if ($skuPricesFound[$sku.Size] -lt [double]::MaxValue -and $skuPricesFound[$sku.Size] -lt $skuPricesFound[$currentDiskTier])
+            if ($skuPricesFound[$skuSize] -lt [double]::MaxValue -and $skuPricesFound[$skuSize] -lt $skuPricesFound[$currentDiskTier])
             {
                 $targetSkuCandidate = New-Object PSObject -Property @{
-                    Name = $sku.Size
-                    MonthlyPrice = $skuPricesFound[$sku.Size]
+                    Name = $skuSize
+                    MonthlyPrice = $skuPricesFound[$skuSize]
                     MaxSizeGB = $skuMaxSizeGB
                     MaxIOPS = $skuMaxIOps
                     MaxMBps = $skuMaxBandwidthMBps
@@ -521,7 +527,7 @@ $recommendations | ConvertTo-Json | Out-File $jsonExportPath
 
 $jsonBlobName = $jsonExportPath
 $jsonProperties = @{"ContentType" = "application/json"};
-Set-AzStorageBlobContent -File $jsonExportPath -Container $storageAccountSinkContainer -Properties $jsonProperties -Blob $jsonBlobName -Context $sa.Context -Force
+Set-AzStorageBlobContent -File $jsonExportPath -Container $storageAccountSinkContainer -Properties $jsonProperties -Blob $jsonBlobName -Context $saCtx -Force
 
 $now = (Get-Date).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
 Write-Output "[$now] Uploaded $jsonBlobName to Blob Storage..."

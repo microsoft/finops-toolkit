@@ -18,8 +18,12 @@ Sorry to hear you're having a problem. We're here to help!
 - [InvalidExportVersion](#invalidexportversion)
 - [InvalidHubVersion](#invalidhubversion)
 - [InvalidScopeId](#invalidscopeid)
-- [ExportNotFound](#exportnotfound)
-- [NoDataIngested](#nodataingested)
+- [ExportDataNotFound](#exportdatanotfound)
+- [HubDataNotFound](#hubdatanotfound)
+- [MissingContractedCost](#missingcontractedcost)
+- [MissingContractedUnitPrice](#missingcontractedunitprice)
+- [MissingListCost](#missinglistcost)
+- [MissingListUnitPrice](#missinglistunitprice)
 - [ManifestReadFailed](#manifestreadfailed)
 - [ResourceAccessForbiddenException](#resourceaccessforbiddenexception)
 - [RoleAssignmentUpdateNotPermitted](#roleassignmentupdatenotpermitted)
@@ -96,23 +100,79 @@ The export path is not a valid scope ID. FinOps hubs expects the export path to 
 
 <br>
 
-## ExportNotFound
+## ExportDataNotFound
 
 <sup>Severity: Critical</sup>
 
-Cost Management data has not been exported.
+Exports were not found in the specified storage path.
 
-**Mitigation**: Create a new FOCUS export in [Cost Management](https://aka.ms/exportsv2). After created, select 'Run now' to start the export process.
+**Mitigation**: Confirm that a [Cost Management export](https://aka.ms/exportsv2) was created and configured with the correct storage account, container, and storage path. After created, select 'Run now' to start the export process. Exports can take 15-30 minutes to complete depending on the size of the account. If you intended to use FinOps hubs, please correct the storage URL to point to the 'ingestion' container. Refer to the `storageUrlForPowerBI` output from the FinOps hub deployment for the full URL.
 
 <br>
 
-## NoDataIngested
+## HubDataNotFound
 
 <sup>Severity: Critical</sup>
 
-The export path is not a valid scope ID. FinOps hubs expects the export path to be an Azure resource ID for the scope the export was created to simplify management. This shouldn't cause failures, but may result in confusing results for scope-related reports.
+FinOps hub data was not found in the specified storage account.
 
-**Mitigation**: Update the storage path for the Cost Management export to use the full Azure resource ID for the scope.
+**Mitigation**: This error assumes you are connecting to a FinOps hub deployment. If using raw exports, please correct the storage path to not reference the `ingestion` container. Confirm the following:
+
+1. The storage URL should match the `StorageUrlForPowerBI` output on the FinOps hub deployment.
+2. Cost Management exports should be configured to point to the same storage account using the `msexports` container.
+3. Cost Management exports should show a successful export in the run history.
+4. FinOps hub data factory triggers should all be started.
+5. FinOps hub data factory pipelines should be successful.
+
+For more details and debugging steps, see [Validate your FinOps hub deployment](./troubleshooting.md#-validate-your-finops-hub-deployment).
+
+<br>
+
+## MissingContractedCost
+
+<sup>Severity: Informational</sup>
+
+This error code is shown in the `x_DatasetChanges` column when `ContractedCost` is either null or 0 and `EffectiveCost` is greater than 0. The error indicates Microsoft Cost Management did not include `ContractedCost` for the specified rows, which means savings cannot be calculated.
+
+**Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `EffectiveCost` into the `ContractedCost` column for rows flagged with this error code. Savings will not be available for these records.
+
+To calculate complete savings, you can join cost and usage data with prices. For additional details, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
+
+<br>
+
+## MissingContractedUnitPrice
+
+<sup>Severity: Informational</sup>
+
+This error code is shown in the `x_DatasetChanges` column when `ContractedUnitPrice` is either null or 0 and `EffectiveUnitPrice` is greater than 0. The error indicates Microsoft Cost Management did not include `ContractedUnitPrice` for the specified rows, which means savings cannot be calculated.
+
+**Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `EffectiveUnitPrice` into the `ContractedUnitPrice` column for rows flagged with this error code. Savings will not be available for these records.
+
+To calculate complete savings, you can join cost and usage data with prices. For additional details, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
+
+<br>
+
+## MissingListCost
+
+<sup>Severity: Informational</sup>
+
+This error code is shown in the `x_DatasetChanges` column when `ListCost` is either null or 0 and `ContractedCost` is greater than 0. The error indicates Microsoft Cost Management did not include `ListCost` for the specified rows, which means savings cannot be calculated.
+
+**Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `ContractedCost` into the `ListCost` column for rows flagged with this error code. Savings will not be available for these records.
+
+To calculate complete savings, you can join cost and usage data with prices. For additional details, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
+
+<br>
+
+## MissingListUnitPrice
+
+<sup>Severity: Informational</sup>
+
+This error code is shown in the `x_DatasetChanges` column when `ListUnitPrice` is either null or 0 and `ContractedUnitPrice` is greater than 0. The error indicates Microsoft Cost Management did not include `ListUnitPrice` for the specified rows, which means savings cannot be calculated.
+
+**Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `ContractedUnitPrice` into the `ListUnitPrice` column for rows flagged with this error code. Savings will not be available for these records.
+
+To calculate complete savings, you can join cost and usage data with prices. For additional details, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
 
 <br>
 
@@ -285,6 +345,20 @@ Cost Management exports before Feb 28, 2024 had a bug where `x_PricingSubcategor
 - `Committed /providers/Microsoft.Capacity/reservationOrders/###/reservations/###`
 
 If you see these values, please re-export the cost data for that month. If you need to export data for an older month that is not available, please contact support to request the data be exported for you to resolve the data quality issue from the previous export runs.
+
+<br>
+
+## Power BI: Reports are missing data for specific dates
+
+If your report is missing all data for one or more months, check the **Number of Months**, **RangeStart**, and **RangeEnd** parameters to ensure the data is not being filtered out. 
+
+To check parameters, select **Transform data** > **Edit parameters** in the ribbon or select the individual parameters in the **🛠️ Setup** folder from the query editor window. 
+
+- If you want to always show a specific number of recent months, set **Number of Months** to the number of closed (completed) months. The current month will be an extra month in addition to the closed number of months.
+- If you want a fixed date range that does not change over time (e.g., fiscal year reporting), set **RangeStart** and **RangeEnd**.
+- If you want to report on all data available, confirm that all 3 date parameters are empty.
+
+See [Set up your first report](../_reporting/power-bi/setup.md) for additional details.
 
 <br>
 
