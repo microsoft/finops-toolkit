@@ -17,6 +17,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
+- [🪛 v0.6 Update 1](#-v06-update-1)
 - [🚚 v0.6](#-v06)
 - [🪛 v0.5 Update 1](#-v05-update-1)
 - [🚚 v0.5](#-v05)
@@ -82,9 +83,37 @@ Legend:
 
 <br><a name="latest"></a>
 
+## 🪛 v0.6 Update 1
+
+<sup>Released October 5, 2024</sup>
+
+This release is a minor patch to update documentation and fix Rate optimization and Data ingestion Power BI files. These files were updated in the existing 0.6 release. We are documenting this as a new patch release for transparency. If you downloaded these files between October 2-4, 2024, please update to the latest version.
+
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Documented the need to configure both **Hub Storage URL** and **Export Storage URL** when publishing reports to the Power BI service ([#1033](https://github.com/microsoft/finops-toolkit/issues/1033)).
+>
+> 🛠️ Fixed:
+>
+> 1. Updated the Data ingestion report to account for storage path changes ([#1043](https://github.com/microsoft/finops-toolkit/issues/1043)).
+> 2. Updated the Rate optimization report to remove the sensitivity level ([#1041](https://github.com/microsoft/finops-toolkit/issues/1041)).
+
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Added [compatibility guide](../_reporting/hubs/compatibility.md) to identify when changes are compatible with older Power BI reports.
+> 2. Updated the [upgrade guide](../_reporting/hubs/upgrade.md) to account for changes in 0.5 and 0.6.
+
+<br>
+
 ## 🚚 v0.6
 
-<sup>Released September 2024</sup>
+<sup>Released October 2, 2024</sup>
 
 📗 FinOps guide
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -173,7 +202,7 @@ Legend:
 >
 > 🛠️ Fixed:
 >
-> 1. Added expiring savings plans and reservations to usage workbooks ([#1014](https://github.com/microsoft/finops-toolkit/issues/1014))
+> 1. Added expiring savings plans and reservations to usage workbooks ([#1014](https://github.com/microsoft/finops-toolkit/issues/1014)).
 >
 > 🚫 Deprecated:
 >
@@ -221,6 +250,9 @@ Legend:
 <sup>Released September 7, 2024</sup>
 
 This release is a minor patch to Power BI files. These files were updated in the existing 0.5 release. We are documenting this as a new patch release for transparency.
+
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
 
 > 🛠️ Fixed:
 >
