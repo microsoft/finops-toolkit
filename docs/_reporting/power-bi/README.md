@@ -127,7 +127,7 @@ All FinOps toolkit reports, come with sample data to explore without connecting 
 
 1. Configure Cost Management exports for any data you would like to include in reports, including:
 
-   - Cost and usage (FOCUS) &ndash; Required for all storage-based reports.
+   - Cost and usage (FOCUS) &ndash; Required for all reports.
    - Price sheet
    - Reservation details
    - Reservation recommendations &ndash; Required to see reservation recommendations in the Rate optimization report.
