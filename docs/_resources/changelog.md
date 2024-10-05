@@ -92,8 +92,6 @@ Legend:
 > ➕ Added:
 >
 > 1. Started a FinOps best practices library using Azure Resource Graph (ARG) queries from the Cost optimization workbook.
-> 2. Documented [how to use storage account SAS tokens to setup the reports](../_reporting/power-bi/setup.md).
-> 3. Documented how to [preview reports with sample data using Power BI Desktop](../_reporting/hubs/README.md).
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -102,6 +100,8 @@ Legend:
 >
 > - General
 >   1. Add sample tags to promote to separate `tag_*` columns
+>   2. Documented [how to connect to Power BI reports using storage account SAS tokens](../_reporting/power-bi/setup.md).
+>   3. Documented [how to preview reports with sample data using Power BI Desktop](../_reporting/hubs/README.md).
 > - [Governance](../_reporting/power-bi/governance.md)
 >   1. Added Policy compliance.
 >   2. Added Virtual machines and managed disks.
@@ -114,7 +114,7 @@ Legend:
 > ✏️ Changed:
 >
 > - General
->   1. Renamed Prices ChargePeriodStart/End to x_EffectivePeriodStart/End.
+>   1. Renamed Prices `ChargePeriodStart`/`*End` to `x_EffectivePeriodStart`/`*End`.
 >   2. Removed auto-created date tables.
 >
 > 🛠️ Fixed:
@@ -122,7 +122,7 @@ Legend:
 > - General
 >   1. Improved import performance by using parquet metadata to filter files by date (if configured).
 >   2. Improved performance of column updates in CostDetails and Prices queries.
->   3. Fixed bug where SkuID was not merged into x_SkuId.
+>   3. In the Prices query, fixed bug where `SkuID` was not merged into `x_SkuId`.
 
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -131,7 +131,8 @@ Legend:
 >
 > 1. Support for Cost Management parquet and GZip CSV exports.
 > 2. Support for ingesting price, reservation recommendation, reservation detail, and reservation transaction datasets via Cost Management exports.
-> 3. New UnsupportedExportFileType error when the exported file type is not supported.
+> 3. Compatibility guide to explain what versions of hubs and Power BI reports work together.
+> 4. New UnsupportedExportFileType error when the exported file type is not supported.
 >
 > ✏️ Changed:
 >
@@ -150,6 +151,14 @@ Legend:
 > 🗑️ Removed
 >
 > 1. Removed the temporary Event Grid resource from the template.
+
+📒 Azure Monitor workbooks
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Created an option to deploy all [general-purpose FinOps toolkit workbooks](../_optimize/workbooks/README.md) together.
+>    - Does not include workbooks specific to Optimization Engine.
 
 🔍 Optimization engine
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -281,9 +290,6 @@ This release is a minor patch to Power BI files. These files were updated in the
 
 > ➕ Added:
 >
-> - [FinOps workbooks](../_optimize/workbooks/README.md):
->   1. Created an option to deploy all general-purpose FinOps toolkit workbooks together.
->      - Does not include workbooks specific to Optimization Engine.
 > - [Optimization workbook](../_optimize/workbooks/optimization/README.md):
 >   1. New compute query to identify VMs per processor architecture type
 >   2. New database query to identify SQL Pool instances with 0 databases
