@@ -147,6 +147,10 @@ There are 2 charts on the page that offer a breakdown of location, instance size
 The table below the charts shows the recommended reservations based on the specified lookback period.
 
 <blockquote class="important" markdown="1">
+  _The reservation recommendations page utilizes Cost Management exports either directly in storage (via the **Export Storage URL** parameter) or as part of FinOps hubs. If you do not see recommendations, confirm that you have configured exports and the filters at the top of the page align to the recommendations you exported (e.g., term, lookback, scope)._
+</blockquote>
+
+<blockquote class="note" markdown="1">
   _Potential savings and contracted cost estimations are only available for VM reservation recommendations. This page has not been tested for non-VM recommendations. You can view savings plan and reservation recommendations for other services in the Azure portal._
 </blockquote>
 
