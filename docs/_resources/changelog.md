@@ -107,7 +107,14 @@ This release is a minor patch to update documentation and fix Rate optimization 
 > ➕ Added:
 >
 > 1. Added [compatibility guide](../_reporting/hubs/compatibility.md) to identify when changes are compatible with older Power BI reports.
-> 2. Updated the [upgrade guide](../_reporting/hubs/upgrade.md) to account for changes in 0.5 and 0.6.
+>
+> ✏️ Changed:
+>
+> 1. Updated the [upgrade guide](../_reporting/hubs/upgrade.md) to account for changes in 0.5 and 0.6.
+>
+> 🛠️ Fixed:
+>
+> 1. Fixed the reservation details mapping file.
 
 <br>
 
