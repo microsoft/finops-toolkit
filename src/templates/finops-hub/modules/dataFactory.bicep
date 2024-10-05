@@ -1946,7 +1946,7 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
         userProperties: []
         typeProperties: {
           on: {
-            value: '@if(empty(variables(\'mcaColumnToCheck\')), \'ignore\', last(array(activity(\'Read Manifest\').output.firstRow.blobs[0].blobName)))'
+            value: '@if(empty(variables(\'mcaColumnToCheck\')), \'ignore\', last(array(split(activity(\'Read Manifest\').output.firstRow.blobs[0].blobName, \'.\'))))'
             type: 'Expression'
           }
           cases: [

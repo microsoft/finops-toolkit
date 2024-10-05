@@ -410,13 +410,13 @@ expression ftk_ParseResourceType = (id) => ftk_ParseResourceId(id, false)
 	annotation PBI_ResultType = Function
 
 /// Name of the Azure DataLake Gen2 storage account to pull data from.
-expression 'Export Storage URL' = null meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
+expression 'Export Storage URL' = "https://demohubupzaljui2bxfm.dfs.core.windows.net/ingestion" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
 	lineageTag: 2d38b78a-1e1f-4446-b513-d842ba0bdfef
 	queryGroup: '🛠️ Setup'
 
 	annotation PBI_NavigationStepName = Navigation
 
-	annotation PBI_ResultType = Null
+	annotation PBI_ResultType = Text
 
 /// Optional. Number of months to include in the report before the RangeEnd date. Ignored if RangeStart is specified. Default: (all available data).
 expression 'Number of Months' = null meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=false]

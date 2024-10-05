@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.24.24.22086",
-      "templateHash": "9715760903432004356"
+      "templateHash": "2663349633229182576"
     }
   },
   "parameters": {
@@ -132,7 +132,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.24.24.22086",
-              "templateHash": "6321230266613099846"
+              "templateHash": "6613119753589229935"
             }
           },
           "parameters": {
@@ -639,7 +639,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.24.24.22086",
-                      "templateHash": "8160448951700250982"
+                      "templateHash": "1110313222495299332"
                     }
                   },
                   "functions": [
@@ -1058,6 +1058,43 @@
                           "escapeChar": "\"",
                           "quoteChar": "\"",
                           "firstRowAsHeader": true
+                        },
+                        "linkedServiceName": {
+                          "parameters": {},
+                          "referenceName": "[parameters('storageAccountName')]",
+                          "type": "LinkedServiceReference"
+                        }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.DataFactory/factories/linkedservices', parameters('dataFactoryName'), parameters('storageAccountName'))]"
+                      ]
+                    },
+                    {
+                      "type": "Microsoft.DataFactory/factories/datasets",
+                      "apiVersion": "2018-06-01",
+                      "name": "[format('{0}/{1}', parameters('dataFactoryName'), format('{0}_gzip', variables('safeExportContainerName')))]",
+                      "properties": {
+                        "annotations": [],
+                        "parameters": {
+                          "blobPath": {
+                            "type": "String"
+                          }
+                        },
+                        "type": "DelimitedText",
+                        "typeProperties": {
+                          "location": {
+                            "type": "AzureBlobFSLocation",
+                            "fileName": {
+                              "value": "@{dataset().blobPath}",
+                              "type": "Expression"
+                            },
+                            "fileSystem": "[variables('safeExportContainerName')]"
+                          },
+                          "columnDelimiter": ",",
+                          "escapeChar": "\"",
+                          "quoteChar": "\"",
+                          "firstRowAsHeader": true,
+                          "compressionCodec": "Gzip"
                         },
                         "linkedServiceName": {
                           "parameters": {},
@@ -2616,7 +2653,7 @@
                             "userProperties": [],
                             "typeProperties": {
                               "on": {
-                                "value": "@if(empty(variables('mcaColumnToCheck')), 'ignore', last(array(split(replace(activity('Read Manifest').output.firstRow.blobs[0].blobName, '.csv.gz', '.csv'), '.'))))",
+                                "value": "@if(empty(variables('mcaColumnToCheck')), 'ignore', last(array(split(activity('Read Manifest').output.firstRow.blobs[0].blobName, '.'))))",
                                 "type": "Expression"
                               },
                               "cases": [
@@ -2649,7 +2686,7 @@
                                           }
                                         },
                                         "dataset": {
-                                          "referenceName": "msexports",
+                                          "referenceName": "[variables('safeExportContainerName')]",
                                           "type": "DatasetReference",
                                           "parameters": {
                                             "blobPath": {
@@ -2687,6 +2724,72 @@
                                   ]
                                 },
                                 {
+                                  "value": "gz",
+                                  "activities": [
+                                    {
+                                      "name": "Check for MCA Column in Gzip CSV",
+                                      "description": "Checks the dataset to determine if the applicable MCA-specific column exists.",
+                                      "type": "Lookup",
+                                      "dependsOn": [],
+                                      "policy": {
+                                        "timeout": "0.12:00:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                      },
+                                      "userProperties": [],
+                                      "typeProperties": {
+                                        "source": {
+                                          "type": "DelimitedTextSource",
+                                          "storeSettings": {
+                                            "type": "AzureBlobFSReadSettings",
+                                            "recursive": false,
+                                            "enablePartitionDiscovery": false
+                                          },
+                                          "formatSettings": {
+                                            "type": "DelimitedTextReadSettings"
+                                          }
+                                        },
+                                        "dataset": {
+                                          "referenceName": "[format('{0}_gzip', variables('safeExportContainerName'))]",
+                                          "type": "DatasetReference",
+                                          "parameters": {
+                                            "blobPath": {
+                                              "value": "@activity('Read Manifest').output.firstRow.blobs[0].blobName",
+                                              "type": "Expression"
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "name": "Set Schema File with Channel in Gzip CSV",
+                                      "type": "SetVariable",
+                                      "dependsOn": [
+                                        {
+                                          "activity": "Check for MCA Column in Gzip CSV",
+                                          "dependencyConditions": [
+                                            "Succeeded"
+                                          ]
+                                        }
+                                      ],
+                                      "policy": {
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                      },
+                                      "userProperties": [],
+                                      "typeProperties": {
+                                        "variableName": "schemaFile",
+                                        "value": {
+                                          "value": "@toLower(concat(variables('datasetType'), '_', variables('datasetVersion'), if(contains(activity('Check for MCA Column in Gzip CSV').output.firstRow, variables('mcaColumnToCheck')), '_mca', '_ea'), '.json'))",
+                                          "type": "Expression"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                },
+                                {
                                   "value": "parquet",
                                   "activities": [
                                     {
@@ -2715,7 +2818,7 @@
                                           }
                                         },
                                         "dataset": {
-                                          "referenceName": "msexports_parquet",
+                                          "referenceName": "[format('{0}_parquet', variables('safeExportContainerName'))]",
                                           "type": "DatasetReference",
                                           "parameters": {
                                             "blobPath": {
@@ -3047,6 +3150,9 @@
                       "dependsOn": [
                         "[resourceId('Microsoft.DataFactory/factories/datasets', parameters('dataFactoryName'), variables('safeConfigContainerName'))]",
                         "[resourceId('Microsoft.DataFactory/factories/datasets', parameters('dataFactoryName'), 'manifest')]",
+                        "[resourceId('Microsoft.DataFactory/factories/datasets', parameters('dataFactoryName'), variables('safeExportContainerName'))]",
+                        "[resourceId('Microsoft.DataFactory/factories/datasets', parameters('dataFactoryName'), format('{0}_gzip', variables('safeExportContainerName')))]",
+                        "[resourceId('Microsoft.DataFactory/factories/datasets', parameters('dataFactoryName'), format('{0}_parquet', variables('safeExportContainerName')))]",
                         "[resourceId('Microsoft.DataFactory/factories/pipelines', parameters('dataFactoryName'), format('{0}_ETL_{1}', variables('safeExportContainerName'), variables('safeIngestionContainerName')))]"
                       ],
                       "metadata": {
@@ -3132,7 +3238,7 @@
                             "userProperties": [],
                             "typeProperties": {
                               "on": {
-                                "value": "@last(array(split(replace(pipeline().parameters.blobPath, '.csv.gz', '.csv_gz'), '.')))",
+                                "value": "@last(array(split(pipeline().parameters.blobPath, '.')))",
                                 "type": "Expression"
                               },
                               "cases": [
@@ -3188,6 +3294,82 @@
                                       "inputs": [
                                         {
                                           "referenceName": "[variables('safeExportContainerName')]",
+                                          "type": "DatasetReference",
+                                          "parameters": {
+                                            "blobPath": {
+                                              "value": "@pipeline().parameters.blobPath",
+                                              "type": "Expression"
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "outputs": [
+                                        {
+                                          "referenceName": "[variables('safeIngestionContainerName')]",
+                                          "type": "DatasetReference",
+                                          "parameters": {
+                                            "blobPath": {
+                                              "value": "@concat(pipeline().parameters.destinationFolder, '/', pipeline().parameters.destinationFile)",
+                                              "type": "Expression"
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "value": "gz",
+                                  "activities": [
+                                    {
+                                      "name": "Convert GZip CSV File",
+                                      "type": "Copy",
+                                      "dependsOn": [],
+                                      "policy": {
+                                        "timeout": "0.00:10:00",
+                                        "retry": 0,
+                                        "retryIntervalInSeconds": 30,
+                                        "secureOutput": false,
+                                        "secureInput": false
+                                      },
+                                      "userProperties": [],
+                                      "typeProperties": {
+                                        "source": {
+                                          "type": "DelimitedTextSource",
+                                          "additionalColumns": {
+                                            "type": "Expression",
+                                            "value": "@activity('Load Schema Mappings').output.firstRow.additionalColumns"
+                                          },
+                                          "storeSettings": {
+                                            "type": "AzureBlobFSReadSettings",
+                                            "recursive": true,
+                                            "enablePartitionDiscovery": false
+                                          },
+                                          "formatSettings": {
+                                            "type": "DelimitedTextReadSettings"
+                                          }
+                                        },
+                                        "sink": {
+                                          "type": "ParquetSink",
+                                          "storeSettings": {
+                                            "type": "AzureBlobFSWriteSettings"
+                                          },
+                                          "formatSettings": {
+                                            "type": "ParquetWriteSettings",
+                                            "fileExtension": ".parquet"
+                                          }
+                                        },
+                                        "enableStaging": false,
+                                        "parallelCopies": 1,
+                                        "validateDataConsistency": false,
+                                        "translator": {
+                                          "value": "@activity('Load Schema Mappings').output.firstRow.translator",
+                                          "type": "Expression"
+                                        }
+                                      },
+                                      "inputs": [
+                                        {
+                                          "referenceName": "[format('{0}_gzip', variables('safeExportContainerName'))]",
                                           "type": "DatasetReference",
                                           "parameters": {
                                             "blobPath": {
@@ -3313,7 +3495,7 @@
                             "userProperties": [],
                             "typeProperties": {
                               "dataset": {
-                                "referenceName": "ingestion_files",
+                                "referenceName": "[format('{0}_files', variables('safeIngestionContainerName'))]",
                                 "type": "DatasetReference",
                                 "parameters": {
                                   "folderPath": "@pipeline().parameters.destinationFolder"
@@ -3538,7 +3720,9 @@
                       "dependsOn": [
                         "[resourceId('Microsoft.DataFactory/factories/datasets', parameters('dataFactoryName'), variables('safeConfigContainerName'))]",
                         "[resourceId('Microsoft.DataFactory/factories/datasets', parameters('dataFactoryName'), variables('safeIngestionContainerName'))]",
+                        "[resourceId('Microsoft.DataFactory/factories/datasets', parameters('dataFactoryName'), format('{0}_files', variables('safeIngestionContainerName')))]",
                         "[resourceId('Microsoft.DataFactory/factories/datasets', parameters('dataFactoryName'), variables('safeExportContainerName'))]",
+                        "[resourceId('Microsoft.DataFactory/factories/datasets', parameters('dataFactoryName'), format('{0}_gzip', variables('safeExportContainerName')))]",
                         "[resourceId('Microsoft.DataFactory/factories/datasets', parameters('dataFactoryName'), format('{0}_parquet', variables('safeExportContainerName')))]"
                       ],
                       "metadata": {
