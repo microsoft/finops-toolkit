@@ -17,6 +17,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
+- [🪛 v0.6 Update 1](#-v06-update-1)
 - [🚚 v0.6](#-v06)
 - [🪛 v0.5 Update 1](#-v05-update-1)
 - [🚚 v0.5](#-v05)
@@ -82,9 +83,22 @@ Legend:
 
 <br><a name="latest"></a>
 
+## 🪛 v0.6 Update 1
+
+<sup>Released October 2024</sup>
+
+This release is a minor patch to Power BI files. These files were updated in the existing 0.6 release. We are documenting this as a new patch release for transparency.
+
+> 🛠️ Fixed:
+>
+> 1. Updated the Data ingestion report to account for storage path changes.
+>    > _This updated DataIngestion.pbix and DataIngestion.pbit downloaded between October 1-6, 2024. If you are using one of these files, please update to the latest version of the file._
+
+<br>
+
 ## 🚚 v0.6
 
-<sup>Released September 2024</sup>
+<sup>Released October 2, 2024</sup>
 
 📗 FinOps guide
 {: .fs-5 .fw-500 .mt-4 mb-0 }
