@@ -31,9 +31,11 @@ Sorry to hear you're having a problem. We're here to help!
 - [SchemaNotFound](#schemanotfound)
 - [UnknownExportFile](#unknownexportfile)
 - [UnknownHubVersion](#unknownhubversion)
+- [UnsupportedExportFileType](#unsupportedexportfiletype)
 - [UnsupportedExportType](#unsupportedexporttype)
 - [The \<name\> resource provider is not registered in subscription \<guid\>](#the-name-resource-provider-is-not-registered-in-subscription-guid)
 - [x\_PricingSubcategory shows the commitment discount ID](#x_pricingsubcategory-shows-the-commitment-discount-id)
+- [Power BI: Reports are missing data for specific dates](#power-bi-reports-are-missing-data-for-specific-dates)
 - [Power BI: Reports are empty (no data)](#power-bi-reports-are-empty-no-data)
 - [Power BI: The remote name could not be resolved: '\<storage-account\>.dfs.core.windows.net'](#power-bi-the-remote-name-could-not-be-resolved-storage-accountdfscorewindowsnet)
 - [Power BI: We cannot convert the value null to type Logical](#power-bi-we-cannot-convert-the-value-null-to-type-logical)
@@ -318,6 +320,16 @@ The file in hub storage does not look like it was exported from Cost Management.
 Unable to identify the version of FinOps hubs from the settings file. Please verify settings are correct. FinOps hubs 0.1.1 and earlier does not work with this Power BI report.
 
 **Mitigation**: Upgrade to the latest version of [FinOps hubs](../_reporting/hubs/README.md) or download Power BI reports from https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1
+
+<br>
+
+## UnsupportedExportFileType
+
+<sup>Severity: Critical</sup>
+
+Unable to ingest the specified export file because the file type is not supported.
+
+**Mitigation**: Either convert the file to a supported file format before adding to the msexports container or add support for converting the new file type to the msexports_ETL_ingestion pipeline.
 
 <br>
 
