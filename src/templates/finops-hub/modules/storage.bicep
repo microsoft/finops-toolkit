@@ -5,7 +5,7 @@
 // Parameters
 //==============================================================================
 
-@description('Required. Name of the hub. Used to ensure unique resource names.')
+@description('Required. Name of the FinOps hub instance. Used to ensure unique resource names.')
 param hubName string
 
 @description('Required. Suffix to add to the storage account name to ensure uniqueness.')
@@ -21,7 +21,7 @@ param location string = resourceGroup().location
 @description('Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: Premium_LRS, Premium_ZRS. Default: Premium_LRS.')
 param sku string = 'Premium_LRS'
 
-@description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
+@description('Optional. Tags to apply to all resources.')
 param tags object = {}
 
 @description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')

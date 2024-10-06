@@ -1,0 +1,17 @@
+// Grant ADF identity access to the cluster
+.add database Hub admins ('aadapp=$$adfPrincipalId$$;$$adfTenantId$$')
+
+.create-or-alter function
+with (docstring = 'Gets all cost and usage records with the latest supported version of the FOCUS schema.', folder = 'Ingestion')
+Costs()
+{
+    database('Ingestion').Costs_1_0
+}
+
+
+.create-or-alter function
+with (docstring = 'Gets all prices with the latest supported version of the FOCUS schema.', folder = 'Ingestion')
+Prices()
+{
+    database('Ingestion').Prices_1_0
+}

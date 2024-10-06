@@ -26,6 +26,12 @@ param ingestionContainerName string
 @description('Required. The name of the container where normalized data is ingested.')
 param configContainerName string
 
+@description('Optional. URI of the Azure Data Explorer cluster to use for advanced analytics, if applicable.')
+param dataExplorerUri string = ''
+
+@description('Optional. Name of the Azure Data Explorer ingestion database. Default: "ingestion".')
+param dataExplorerIngestionDatabase string = 'Ingestion'
+
 @description('Optional. The location to use for the managed identity and deployment script to auto-start triggers. Default = (resource group location).')
 param location string = resourceGroup().location
 
@@ -48,6 +54,8 @@ var exportApiVersion = '2023-07-01-preview'
 
 // Function to generate the body for a Cost Management export
 func getExportBody(exportContainerName string, datasetType string, schemaVersion string, isMonthly bool, exportFormat string, compressionMode string, partitionData string, dataOverwriteBehavior string) string => '{ "properties": { "definition": { "dataSet": { "configuration": { "dataVersion": "${schemaVersion}", "filters": [] }, "granularity": "Daily" }, "timeframe": "${isMonthly ? 'TheLastMonth': 'MonthToDate' }", "type": "${datasetType}" }, "deliveryInfo": { "destination": { "container": "${exportContainerName}", "rootFolderPath": "@{if(startswith(item().scope, \'/\'), substring(item().scope, 1, sub(length(item().scope), 1)) ,item().scope)}", "type": "AzureBlob", "resourceId": "@{variables(\'storageAccountId\')}" } }, "schedule": { "recurrence": "${ isMonthly ? 'Monthly' : 'Daily'}", "recurrencePeriod": { "from": "2024-01-01T00:00:00.000Z", "to": "2050-02-01T00:00:00.000Z" }, "status": "Inactive" }, "format": "${exportFormat}", "partitionData": "${partitionData}", "dataOverwriteBehavior": "${dataOverwriteBehavior}", "compressionMode": "${compressionMode}" }, "id": "@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}", "name": "@{variables(\'exportName\')}", "type": "Microsoft.CostManagement/reports", "identity": { "type": "systemAssigned" }, "location": "global" }'
+
+var deployDataExplorer = !empty(dataExplorerUri)
 
 var datasetPropsDefault = {
     location: {
@@ -85,7 +93,7 @@ var autoStartRbacRoles = [
   'e40ec5ca-96e0-45a2-b4ff-59039f2c2b59' // Managed Identity Contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#managed-identity-contributor
 ]
 
-// Storage roles needed for ADF to create CM exports and process the output
+// Roles for ADF to manage data in storage
 // Does not include roles assignments needed against the export scope
 var storageRbacRoles = [
   '17d1049b-9a84-46fb-8f53-869881c3d3ab' // Storage Account Contributor https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-account-contributor
@@ -125,24 +133,23 @@ module azuretimezones 'azuretimezones.bicep' = {
 //------------------------------------------------------------------------------
 
 // Create managed identity to start/stop triggers
-resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+resource triggerManagerIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: '${dataFactory.name}_triggerManager'
   location: location
   tags: union(tags, contains(tagsByResource, 'Microsoft.ManagedIdentity/userAssignedIdentities') ? tagsByResource['Microsoft.ManagedIdentity/userAssignedIdentities'] : {})
 }
-
-resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in autoStartRbacRoles: {
-  name: guid(dataFactory.id, role, identity.id)
+resource triggerManagerRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in autoStartRbacRoles: {
+  name: guid(dataFactory.id, role, triggerManagerIdentity.id)
   scope: dataFactory
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
-    principalId: identity.properties.principalId
+    principalId: triggerManagerIdentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
 }]
 
-// Create managed identity to manage exports in cost management
-resource pipelineIdentityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in storageRbacRoles: {
+// Grant ADF identity access to manage data in storage
+resource factoryIdentityStorageRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in storageRbacRoles: {
   name: guid(storageAccount.id, role, dataFactory.id)
   scope: storageAccount
   properties: {
@@ -163,12 +170,12 @@ resource deleteOldResources 'Microsoft.Resources/deploymentScripts@2020-10-01' =
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
-      '${identity.id}': {}
+      '${triggerManagerIdentity.id}': {}
     }
   }
   kind: 'AzurePowerShell'
   dependsOn: [
-    identityRoleAssignments
+    triggerManagerRoleAssignments
   ]
   tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
   properties: {
@@ -203,12 +210,12 @@ resource stopTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
-      '${identity.id}': {}
+      '${triggerManagerIdentity.id}': {}
     }
   }
   kind: 'AzurePowerShell'
   dependsOn: [
-    identityRoleAssignments
+    triggerManagerRoleAssignments
   ]
   tags: tags
   properties: {
@@ -264,6 +271,26 @@ resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedser
     type: 'AzureBlobFS'
     typeProperties: {
       url: reference('Microsoft.Storage/storageAccounts/${storageAccount.name}', '2021-08-01').primaryEndpoints.dfs
+    }
+  }
+}
+
+resource linkedService_dataExplorer 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = if (deployDataExplorer) {
+  name: 'hubDataExplorer'
+  parent: dataFactory
+  properties: {
+    type: 'AzureDataExplorer'
+    parameters: {
+      database: {
+        type: 'String'
+        defaultValue: dataExplorerIngestionDatabase
+      }
+    }
+    typeProperties: {
+      endpoint: dataExplorerUri
+      database: '@{linkedService().database}'
+      tenant: dataFactory.identity.tenantId
+      servicePrincipalId: dataFactory.identity.principalId
     }
   }
 }
@@ -493,6 +520,34 @@ resource dataset_ingestion_files 'Microsoft.DataFactory/factories/datasets@2018-
       parameters: {}
       referenceName: empty(remoteHubStorageUri) ? linkedService_storageAccount.name : linkedService_remoteHubStorage.name
       type: 'LinkedServiceReference'
+    }
+  }
+}
+
+resource dataset_dataExplorer 'Microsoft.DataFactory/factories/datasets@2018-06-01' = if (deployDataExplorer) {
+  name: 'hubDataExplorer'
+  parent: dataFactory
+  properties: {
+    type: 'AzureDataExplorerTable'
+    linkedServiceName: {
+      parameters: {
+        database: '@dataset().database'
+      }
+      referenceName: linkedService_dataExplorer.name
+      type: 'LinkedServiceReference'
+    }
+    parameters: {
+      database: {
+        type: 'String'
+        defaultValue: 'ingestion'
+      }
+      table: { type: 'String' }
+    }
+    typeProperties: {
+      table: {
+        value: '@dataset().table'
+        type: 'Expression'
+      }
     }
   }
 }
@@ -1870,7 +1925,7 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
         typeProperties: {
           variableName: 'datasetType'
           value: {
-            value: '@toLower(activity(\'Read Manifest\').output.firstRow.exportConfig.type)'
+            value: '@activity(\'Read Manifest\').output.firstRow.exportConfig.type'
             type: 'Expression'
           }
         }
@@ -1895,7 +1950,7 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
         typeProperties: {
           variableName: 'mcaColumnToCheck'
           value: {
-            value: '@if(contains(createArray(\'pricesheet\', \'reservationtransactions\'), variables(\'datasetType\')), \'BillingProfileId\', if(equals(variables(\'datasetType\'), \'reservationrecommendations\'), \'Net Savings\', null))'
+            value: '@if(contains(createArray(\'pricesheet\', \'reservationtransactions\'), toLower(variables(\'datasetType\'))), \'BillingProfileId\', if(equals(toLower(variables(\'datasetType\')), \'reservationrecommendations\'), \'Net Savings\', null))'
             type: 'Expression'
           }
         }
@@ -2371,16 +2426,20 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
                     value: '@item().blobName'
                     type: 'Expression'
                   }
+                  dataset: {
+                    value: '@variables(\'datasetType\')'
+                    type: 'Expression'
+                  }
                   destinationFolder: {
                     value: '@toLower(replace(concat(variables(\'datasetType\'),\'/\',substring(variables(\'date\'), 0, 4),\'/\',substring(variables(\'date\'), 4, 2),\'/\',variables(\'scope\')),\'//\',\'/\'))'
                     type: 'Expression'
                   }
                   destinationFile: {
-                    value: '@concat(activity(\'Read Manifest\').output.firstRow.runInfo.runId, \'__\', last(array(split(replace(replace(item().blobName, \'.gz\', \'\'), \'.csv\', \'.parquet\'), \'/\'))))'
+                    value: '@last(array(split(replace(replace(item().blobName, \'.gz\', \'\'), \'.csv\', \'.parquet\'), \'/\')))'
                     type: 'Expression'
                   }
-                  keepFilePrefix: {
-                    value: '@concat(activity(\'Read Manifest\').output.firstRow.runInfo.runId, \'__\')'
+                  ingestionId: {
+                    value: '@activity(\'Read Manifest\').output.firstRow.runInfo.runId'
                     type: 'Expression'
                   }
                   schemaFile: {
@@ -2436,6 +2495,63 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
   parent: dataFactory
   properties: {
     activities: [
+      { // Get Existing Parquet Files
+        name: 'Get Existing Parquet Files'
+        description: 'Get the previously ingested files so we can remove any older data. This is necessary to avoid data duplication in reports.'
+        type: 'GetMetadata'
+        dependsOn: []
+        policy: {
+          timeout: '0.12:00:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          dataset: {
+            referenceName: dataset_ingestion_files.name
+            type: 'DatasetReference'
+            parameters: {
+              folderPath: '@pipeline().parameters.destinationFolder'
+            }
+          }
+          fieldList: [
+            'childItems'
+          ]
+          storeSettings: {
+            type: 'AzureBlobFSReadSettings'
+            enablePartitionDiscovery: false
+          }
+          formatSettings: {
+            type: 'ParquetReadSettings'
+          }
+        }
+      }
+      { // Filter Out Current Exports
+        name: 'Filter Out Current Exports'
+        description: 'Remove existing files from the current export so those files do not get deleted.'
+        type: 'Filter'
+        dependsOn: [
+          {
+            activity: 'Get Existing Parquet Files'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@if(contains(activity(\'Get Existing Parquet Files\').output, \'childItems\'), activity(\'Get Existing Parquet Files\').output.childItems, json(\'[]\'))'
+            type: 'Expression'
+          }
+          condition: {
+            value: '@and(endswith(item().name, \'.parquet\'), not(startswith(item().name, pipeline().parameters.ingestionId)))'
+            type: 'Expression'
+          }
+        }
+      }
       { // Load Schema Mappings
         name: 'Load Schema Mappings'
         description: 'Get schema mapping file to use for the CSV to parquet conversion.'
@@ -2494,11 +2610,94 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           errorCode: 'SchemaLoadFailed'
         }
       }
+      { // For Each Old File
+        name: 'For Each Old File'
+        description: 'Loop thru each of the existing files from previous exports.'
+        type: 'ForEach'
+        dependsOn: [
+          {
+            activity: 'Convert to Parquet'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+          {
+            activity: 'Filter Out Current Exports'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@activity(\'Filter Out Current Exports\').output.Value'
+            type: 'Expression'
+          }
+          activities: [
+            { // Delete Old Ingested File
+              name: 'Delete Old Ingested File'
+              description: 'Delete the previously ingested files from older exports.'
+              type: 'Delete'
+              dependsOn: []
+              policy: {
+                timeout: '0.12:00:00'
+                retry: 0
+                retryIntervalInSeconds: 30
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                dataset: {
+                  referenceName: dataset_ingestion.name
+                  type: 'DatasetReference'
+                  parameters: {
+                    blobPath: {
+                      value: '@concat(pipeline().parameters.destinationFolder, \'/\', item().name)'
+                      type: 'Expression'
+                    }
+                  }
+                }
+                enableLogging: false
+                storeSettings: {
+                  type: 'AzureBlobFSReadSettings'
+                  recursive: false
+                  enablePartitionDiscovery: false
+                }
+              }
+            }
+          ]
+        }
+      }
+      { // Set Destination Path
+        name: 'Set Destination Path'
+        type: 'SetVariable'
+        dependsOn: []
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'destinationPath'
+          value: {
+            value: '@concat(pipeline().parameters.destinationFolder, \'/\', pipeline().parameters.ingestionId, \'__\', pipeline().parameters.destinationFile)'
+            type: 'Expression'
+          }
+        }
+      }      
       { // Convert to Parquet
         name: 'Convert to Parquet'
         description: 'Convert CSV to parquet and move the file to the ${ingestionContainerName} container.'
         type: 'Switch'
         dependsOn: [
+          {
+            activity: 'Set Destination Path'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
           {
             activity: 'Load Schema Mappings'
             dependencyConditions: [
@@ -2580,7 +2779,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
                       type: 'DatasetReference'
                       parameters: {
                         blobPath: {
-                          value: '@concat(pipeline().parameters.destinationFolder, \'/\', pipeline().parameters.destinationFile)'
+                          value: '@variables(\'destinationPath\')'
                           type: 'Expression'
                         }
                       }
@@ -2656,7 +2855,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
                       type: 'DatasetReference'
                       parameters: {
                         blobPath: {
-                          value: '@concat(pipeline().parameters.destinationFolder, \'/\', pipeline().parameters.destinationFile)'
+                          value: '@variables(\'destinationPath\')'
                           type: 'Expression'
                         }
                       }
@@ -2724,7 +2923,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
                       type: 'DatasetReference'
                       parameters: {
                         blobPath: {
-                          value: '@concat(pipeline().parameters.destinationFolder, \'/\', pipeline().parameters.destinationFile)'
+                          value: '@variables(\'destinationPath\')'
                           type: 'Expression'
                         }
                       }
@@ -2751,122 +2950,86 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           ]
         }
       }
-      { // Get Existing Parquet Files
-        name: 'Get Existing Parquet Files'
-        description: 'Get the previously ingested files so we can remove any older data. This is necessary to avoid data duplication in reports.'
-        type: 'GetMetadata'
-        dependsOn: []
+      {
+        name: 'ADX Ingestion'
+        type: 'Copy'
+        state: deployDataExplorer ? 'Active' : 'Inactive'
+        dependsOn: [
+            {
+                activity: 'Convert to Parquet'
+                dependencyConditions: [
+                    'Succeeded'
+                ]
+            }
+        ]
         policy: {
-          timeout: '0.12:00:00'
-          retry: 0
-          retryIntervalInSeconds: 30
-          secureOutput: false
-          secureInput: false
+            timeout: '0.12:00:00'
+            retry: 0
+            retryIntervalInSeconds: 30
+            secureOutput: false
+            secureInput: false
         }
         userProperties: []
         typeProperties: {
-          dataset: {
-            referenceName: dataset_ingestion_files.name
+            source: {
+                type: 'ParquetSource'
+                storeSettings: {
+                    type: 'AzureBlobFSReadSettings'
+                    recursive: true
+                    enablePartitionDiscovery: false
+                }
+                formatSettings: {
+                    type: 'ParquetReadSettings'
+                }
+            }
+            sink: any({ // Using any() to hide the error that gets surfaced because additionalProperties is not in the ADF schema yet
+                type: 'AzureDataExplorerSink'
+                ingestionMappingName: ''
+                additionalProperties: {
+                    tags: {
+                      value: [
+                        '@pipeline().parameters.ingestionId'
+                        '@pipeline().parameters.destinationFile'
+                      ]
+                      type: 'Array'
+                    }
+                }
+            })
+            enableStaging: false
+            translator: {
+                type: 'TabularTranslator'
+                typeConversion: true
+                typeConversionSettings: {
+                    allowDataTruncation: true
+                    treatBooleanAsNumber: false
+                }
+            }
+        }
+        inputs: [
+            {
+                referenceName: dataset_ingestion.name
+                type: 'DatasetReference'
+                parameters: {
+                    blobPath: {
+                        value: '@variables(\'destinationPath\')'
+                        type: 'Expression'
+                    }
+                }
+            }
+        ]
+        outputs: !deployDataExplorer ? [] : [
+          {
+            referenceName: dataset_dataExplorer.name
             type: 'DatasetReference'
             parameters: {
-              folderPath: '@pipeline().parameters.destinationFolder'
-            }
-          }
-          fieldList: [
-            'childItems'
-          ]
-          storeSettings: {
-            type: 'AzureBlobFSReadSettings'
-            enablePartitionDiscovery: false
-          }
-          formatSettings: {
-            type: 'ParquetReadSettings'
-          }
-        }
-      }
-      { // Filter Out Current Exports
-        name: 'Filter Out Current Exports'
-        description: 'Remove existing files from the current export so those files do not get deleted.'
-        type: 'Filter'
-        dependsOn: [
-          {
-            activity: 'Get Existing Parquet Files'
-            dependencyConditions: [
-              'Completed'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          items: {
-            value: '@if(contains(activity(\'Get Existing Parquet Files\').output, \'childItems\'), activity(\'Get Existing Parquet Files\').output.childItems, json(\'[]\'))'
-            type: 'Expression'
-          }
-          condition: {
-            value: '@and(endswith(item().name, \'.parquet\'), not(startswith(item().name, pipeline().parameters.keepFilePrefix)))'
-            type: 'Expression'
-          }
-        }
-      }
-      { // For Each Old File
-        name: 'For Each Old File'
-        description: 'Loop thru each of the existing files from previous exports.'
-        type: 'ForEach'
-        dependsOn: [
-          {
-            activity: 'Convert to Parquet'
-            dependencyConditions: [
-              'Succeeded'
-            ]
-          }
-          {
-            activity: 'Filter Out Current Exports'
-            dependencyConditions: [
-              'Succeeded'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          items: {
-            value: '@activity(\'Filter Out Current Exports\').output.Value'
-            type: 'Expression'
-          }
-          activities: [
-            { // Delete Old Ingested File
-              name: 'Delete Old Ingested File'
-              description: 'Delete the previously ingested files from older exports.'
-              type: 'Delete'
-              dependsOn: []
-              policy: {
-                timeout: '0.12:00:00'
-                retry: 0
-                retryIntervalInSeconds: 30
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                dataset: {
-                  referenceName: dataset_ingestion.name
-                  type: 'DatasetReference'
-                  parameters: {
-                    blobPath: {
-                      value: '@concat(pipeline().parameters.destinationFolder, \'/\', item().name)'
-                      type: 'Expression'
-                    }
-                  }
-                }
-                enableLogging: false
-                storeSettings: {
-                  type: 'AzureBlobFSReadSettings'
-                  recursive: false
-                  enablePartitionDiscovery: false
-                }
+              database: dataExplorerIngestionDatabase
+              table: {
+                value: '@concat(pipeline().parameters.dataset, \'_raw\')'
+                type: 'Expression'
               }
             }
-          ]
-        }
+          }
+        ]
       }
       { // Read Hub Config
         name: 'Read Hub Config'
@@ -2968,13 +3131,16 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
       blobPath: {
         type: 'String'
       }
+      dataset: {
+        type: 'String'
+      }
       destinationFile: {
         type: 'string'
       }
       destinationFolder: {
         type: 'string'
       }
-      keepFilePrefix: {
+      ingestionId: {
         type: 'string'
       }
       schemaFile: {
@@ -2982,7 +3148,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
       }
     }
     variables: {
-      destinationFile: {
+      destinationPath: {
         type: 'String'
       }
     }
@@ -3002,12 +3168,12 @@ resource startTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
-      '${identity.id}': {}
+      '${triggerManagerIdentity.id}': {}
     }
   }
   kind: 'AzurePowerShell'
   dependsOn: [
-    identityRoleAssignments
+    triggerManagerRoleAssignments
     trigger_FileAdded
     trigger_SettingsUpdated
     trigger_DailySchedule
