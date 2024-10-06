@@ -4,7 +4,7 @@ parent: Power BI
 title: Governance
 nav_order: 21
 description: 'Summarize cloud governance posture including areas like compliance, security, operations, and resource management in Power BI.'
-permalink: /power-bi/workload-optimization
+permalink: /power-bi/governance
 ---
 
 <span class="fs-9 d-block mb-4">Governance report</span>
