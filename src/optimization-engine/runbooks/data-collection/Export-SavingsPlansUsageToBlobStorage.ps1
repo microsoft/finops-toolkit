@@ -179,14 +179,14 @@ $savingsPlans = @()
 foreach ($usage in $savingsPlansUsage)
 {
     $purchaseDate = $usage.properties.purchaseDateTime
-    if ([string]::IsNullOrEmpty($purchaseDate))
+    if ([string]::IsNullOrEmpty($purchaseDate) -and -not([string]::IsNullOrEmpty($usage.properties.purchaseDate)))
     {
-        $purchaseDate = $usage.properties.purchaseDate
+        $purchaseDate = (Get-Date -Date $usage.properties.purchaseDate).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
     }
     $expiryDate = $usage.properties.expiryDateTime
-    if ([string]::IsNullOrEmpty($expiryDate))
+    if ([string]::IsNullOrEmpty($expiryDate) -and -not([string]::IsNullOrEmpty($usage.properties.expiryDate)))
     {
-        $expiryDate = $usage.properties.expiryDate
+        $expiryDate = (Get-Date -Date $usage.properties.expiryDate).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
     }
 
     $savingsPlanEntry = New-Object PSObject -Property @{
