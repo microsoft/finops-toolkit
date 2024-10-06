@@ -31,17 +31,11 @@ Summarize cloud governance posture including areas like compliance, security, op
 
 ---
 
-The **Governance report** provides insights into resource utilization and efficiency opportunities based on historical usage patterns. This report enables you to:
-
-- Identify unattached disks.
-
-
-Overview of the Cloud Adoption Framework
+The **Governance report** summarizes your Microsoft Cloud governance posture. It offers standard metrics aligned with the Cloud Adoption Framework to facilitate identifying issues, applying recommendations, and resolving compliance gaps.
 
 The CAF Govern methodology provides a structured approach for establishing and optimizing cloud governance in Azure. The guidance is relevant for organizations across any industry. It covers essential categories of cloud governance, such as regulatory compliance, security, operations, cost, data, resource management, and artificial intelligence (AI).
 Cloud governance is how you control cloud use across your organization. Cloud governance sets up guardrails that regulate cloud interactions. These guardrails are a framework of policies, procedures, and tools you use to establish control. Policies define acceptable and unacceptable cloud activity, and the procedures and tools you use ensure all cloud usage aligns with those policies. Successful cloud governance prevents all unauthorized or unmanaged cloud usage.
 To assess your transformation journey, try the [governance benchmark tool](https://learn.microsoft.com/assessments/b1891add-7646-4d60-a875-32a4ab26327e/?WT.mc_id=FinOpsToolkit).
-
 
 This report pulls data from:
 
