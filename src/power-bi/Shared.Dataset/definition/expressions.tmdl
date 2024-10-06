@@ -1,5 +1,5 @@
 /// Name of the Azure DataLake Gen2 storage account to pull data from.
-expression 'Hub Storage URL' = "https://hubbuiqpjajexjme.dfs.core.windows.net/ingestion" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
+expression 'Hub Storage URL' = "https://demohubupzaljui2bxfm.dfs.core.windows.net/ingestion" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
 	lineageTag: 421c1232-0e40-45a4-bc59-257ce648478c
 	queryGroup: '🛠️ Setup'
 
@@ -11,21 +11,12 @@ expression RangeStart = null meta [IsParameterQuery=true, Type="DateTime", IsPar
 	lineageTag: 90085870-f708-4bc2-90c1-3a343e88a26b
 	queryGroup: '🛠️ Setup'
 
-	annotation PBI_ResultType = DateTime
+	annotation PBI_ResultType = Null
 
 	annotation PBI_NavigationStepName = Navigation
 
 expression RangeEnd = null meta [IsParameterQuery=true, Type="DateTime", IsParameterQueryRequired=false]
 	lineageTag: 695f1d3b-7b1a-49fa-8d83-f2c25dc787de
-	queryGroup: '🛠️ Setup'
-
-	annotation PBI_ResultType = DateTime
-
-	annotation PBI_NavigationStepName = Navigation
-
-/// Optional. Number of months to include in the report before the RangeEnd date. Ignored if RangeStart is specified. Default: (all available data).
-expression 'Number of Months' = null meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=false]
-	lineageTag: 1d47668d-4de6-404c-8e53-f89a35081e8b
 	queryGroup: '🛠️ Setup'
 
 	annotation PBI_ResultType = Null
@@ -419,13 +410,22 @@ expression ftk_ParseResourceType = (id) => ftk_ParseResourceId(id, false)
 	annotation PBI_ResultType = Function
 
 /// Name of the Azure DataLake Gen2 storage account to pull data from.
-expression 'Export Storage URL' = null meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
+expression 'Export Storage URL' = "https://demohubupzaljui2bxfm.dfs.core.windows.net/ingestion" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
 	lineageTag: 2d38b78a-1e1f-4446-b513-d842ba0bdfef
 	queryGroup: '🛠️ Setup'
 
 	annotation PBI_NavigationStepName = Navigation
 
 	annotation PBI_ResultType = Text
+
+/// Optional. Number of months to include in the report before the RangeEnd date. Ignored if RangeStart is specified. Default: (all available data).
+expression 'Number of Months' = null meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=false]
+	lineageTag: 1d47668d-4de6-404c-8e53-f89a35081e8b
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Null
 
 expression ftk_DatetimeToJulianDate = ```
 		(InputDate) =>
@@ -487,3 +487,15 @@ expression ftk_Metadata =
 	annotation PBI_NavigationStepName = Navigation
 
 	annotation PBI_ResultType = Function
+
+/// Optional. Experimental feature to join the prices with the cost to populate missing list and contracted unit price and calculate missing cost values. This enables calculating total savings. Allowed values = "TRUE", "FALSE".
+/// 
+/// This experimental feature is extremely slow to run and has not been fully tested. We are investigating alternative means to perform this join.
+expression 'Experimental: Add Missing Prices' = false meta [IsParameterQuery=true, Type="Logical", IsParameterQueryRequired=false]
+	lineageTag: 3664712f-0c0b-4565-8123-1161b5a8dba8
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Logical
+

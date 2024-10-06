@@ -56,7 +56,7 @@ Invoicing and chargeback is all about integrating with your own internal tools. 
 
 - Collaborate with stakeholders across finance, business, and technology to plan and prepare for chargeback.
 - Document how chargeback works and be prepared for questions.
-- Use the organizational [cost allocation](../understand/allocation.md) strategy that factors in how stakeholders agreed to account for [shared costs](../understand/shared-cost.md) and [commitment discounts](../optimize/rates.md).
+- Use the organizational [cost allocation](../understand/allocation.md) strategy that factors in how stakeholders agreed to account for shared costs and [commitment discounts](../optimize/rates.md).
   - If you haven't established one, consider simpler chargeback models that are fair and agreed upon by all stakeholders.
 - Use existing tools and processes to manage cloud costs as part of organizational finances.
 
@@ -69,7 +69,7 @@ At this point, you have a basic chargeback model that all stakeholders have agre
 - Consider implementing a one-way sync from your budget system to [Cost Management budgets](https://learn.microsoft.com/azure/cost-management-billing/automate/automate-budget-creation) to use automated alerts based on machine learning forecasts.
 - If you track manual forecasts, consider creating Cost Management budgets for your forecast values as well. It gives you separate tracking and alerting for budgets separate from your forecast.
 - Automate your [cost allocation](../understand/allocation.md) strategy through tagging.
-- Expand coverage of [shared costs](../understand/shared-cost.md) and [commitment discounts](../optimize/rates.md) if not already included.
+- Expand coverage of shared costs and [commitment discounts](../optimize/rates.md) if not already included.
 - Fully integrate chargeback and showback reporting with the organization's finance tools.
 
 <br>

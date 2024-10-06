@@ -41,7 +41,7 @@ The FinOps toolkit Power BI reports include pre-configured visuals, but are not 
 
 1. Configure Cost Management exports for any data you would like to include in reports, including:
 
-   - Cost and usage (FOCUS) &ndash; Required for all storage-based reports.
+   - Cost and usage (FOCUS) &ndash; Required for all reports.
    - Price sheet
    - Reservation details
    - Reservation recommendations &ndash; Required to see reservation recommendations in the Rate optimization report.
@@ -66,20 +66,26 @@ The FinOps toolkit Power BI reports include pre-configured visuals, but are not 
    2. Select **Settings** > **Endpoints** in the menu.
    3. Copy the **Data Lake Storage** URL.
    4. Append the container and export path, if applicable.
-6. Specify how much data you would like to include from storage using one of the following:
+6. If only using one storage URL (whether it's for hubs or exports), paste that same URL in both parameters.
+   - When only one URL is specified, the Power BI service thinks there is a problem and blocks configuring scheduled refresh.
+   - To work around this problem, simply copy the same URL into both parameters.
+   - If using hubs, the export storage URL is never used.
+   - If using exports, the hub URL will be ignored since exports don't meet the hub storage requirements.
+   - These parameters will be merged in a future update.
+7. Specify how much data you would like to include from storage using one of the following:
    - Set **Number of Months** to the number of closed months you would like to report on if you want to always show a specific number of recent months.
    - Set **RangeStart** and **RangeEnd** to specific start/end dates if you do not want the dates to move (e.g., fiscal year reporting).
    - Do not set any date parameters to report on all data in storage.
    <blockquote class="warning" markdown="1">
       _<a href="https://learn.microsoft.com/power-bi/connect-data/incremental-refresh-configure#define-policy">Enable incremental refresh</a> to load more than $5M of raw cost details. Power BI reports can only support $2-5M of data when incremental refresh is not enabled. After incremental refresh is enabled, they can support $2-5M/month for a total of ~$65M in raw cost details._
    </blockquote>
-7. Select **Close & Apply** to save your settings.
+8. Select **Close & Apply** to save your settings.
 
 If you run into any issues syncing your data, see [Troubleshooting Power BI reports](../../_resources/troubleshooting.md).
 
 <br>
 
- ## 🔑 Use a SAS token to connect data to a report
+## 🔑 Use a SAS token to connect data to a report
 
 Shared Access Signature (SAS) tokens allow you to connect to a storage account without end user credentials or setting up a service principal. To connect Power BI reports to your data via SAS tokens:
 
@@ -93,7 +99,7 @@ Shared Access Signature (SAS) tokens allow you to connect to a storage account w
    - Select the **Generate SAS token and URL** button.
    - Copy the generated token.
 
-  ![Screenshot of the SAS token configuration in the Azure portal](../../assets/images/hubs/azure-storage-account-SAS.png)
+   ![Screenshot of the SAS token configuration in the Azure portal](../../assets/images/hubs/azure-storage-account-SAS.png)
 
 2. Configure SAS token access in Power BI:
    - Open the report in Power BI Desktop.
@@ -101,14 +107,17 @@ Shared Access Signature (SAS) tokens allow you to connect to a storage account w
    - Select **Edit permissions** at the bottom of the dialog.
    - Select **Edit** below the credentials.
 
-  ![Screenshot of the data source settings within Transform data](../../assets/images/hubs/powerbi-dashboard-SAS-setup.png)
+   ![Screenshot of the data source settings within Transform data](../../assets/images/hubs/powerbi-dashboard-SAS-setup.png)
 
    - Select the **Shared access signature** tab.
    - Paste the copied SAS token from the Azure portal.
    - Select **Save**.
    - Select **Close**.
    - Select **Apply and Close** in the ribbon.
-  ![Screenshot of the SAS token dialog](../../assets/images/hubs/powerbi-dashboard-SAS-token.png)
+
+   ![Screenshot of the SAS token dialog](../../assets/images/hubs/powerbi-dashboard-SAS-token.png)
+
+<br>
 
 ## 📋 Copy queries from a toolkit report
 

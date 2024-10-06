@@ -528,7 +528,17 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/56831775?v=4",
       "profile": "https://github.com/akiskips",
       "contributions": [
+        "code",
         "doc"
+      ]
+    },
+    {
+      "login": "grantxyzou",
+      "name": "grantxyzou",
+      "avatar_url": "https://avatars.githubusercontent.com/u/110638253?v=4",
+      "profile": "https://github.com/grantxyzou",
+      "contributions": [
+        "design"
       ]
     }
   ],
