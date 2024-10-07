@@ -1075,7 +1075,7 @@ var runbooks = [
   }
   {
     name: csvIngestRunbookName
-    version: '1.6.1.0'
+    version: '1.6.2.0'
     description: 'Ingests CSV blobs as custom logs to Log Analytics'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${csvIngestRunbookName}.ps1')
