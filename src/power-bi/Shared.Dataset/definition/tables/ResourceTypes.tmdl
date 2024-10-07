@@ -76,7 +76,7 @@ table ResourceTypes
 
 	partition ResourceTypes = m
 		mode: import
-		queryGroup: 'Resource Graph'
+		queryGroup: 'Open data'
 		source =
 				let
 				  Source = Csv.Document(Web.Contents("https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv"), [Delimiter = ",", Columns = 9, Encoding = 65001, QuoteStyle = QuoteStyle.None]),
