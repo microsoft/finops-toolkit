@@ -85,7 +85,7 @@ table InstanceSizeFlexibility
 
 	partition InstanceSizeFlexibility = m
 		mode: import
-		queryGroup: Storage
+		queryGroup: 'Open data'
 		source =
 				let
 				    Source = Csv.Document(AzureStorage.BlobContents("https://ccmstorageprod.blob.core.windows.net/costmanagementconnector-data/AutofitComboMeterData.csv"),[Delimiter=",", Columns=9, Encoding=65001, QuoteStyle=QuoteStyle.None]),

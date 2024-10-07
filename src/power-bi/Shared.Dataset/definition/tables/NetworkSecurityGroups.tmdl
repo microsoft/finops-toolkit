@@ -449,7 +449,8 @@ table NetworkSecurityGroups
 		source =
 				let
 				  Source = AzureResourceGraph.Query("Resources | where type =~ 'microsoft.network/networksecuritygroups'", "Tenant", null, null, [resultTruncated = false]),
-				  #"Expanded properties" = Table.ExpandRecordColumn(Source, "properties", {"provisioningState", "networkInterfaces", "resourceGuid", "defaultSecurityRules", "securityRules"}, {"properties.provisioningState", "properties.networkInterfaces", "properties.resourceGuid", "properties.defaultSecurityRules", "properties.securityRules"}),
+				  DemoFilter = Table.SelectRows(Source, each #"Hub Storage URL" <> "https://demohubupzaljui2bxfm.dfs.core.windows.net/ingestion" or List.Contains({"51f73f67-1f29-4120-863e-dd315f743fc1", "586f1d47-9dd9-43d5-b196-6e28f8405ff8", "64e355d7-997c-491d-b0c1-8414dccfcf42", "736af2bf-9fcb-4145-a19b-5b30b2b8949d", "73c0021f-a37d-433f-8baa-7450cb54eea6", "9ec51cfd-5ca7-4d76-8101-dd0a4abc5674", "ed570627-0265-4620-bb42-bae06bcfa914"}, [subscriptionId])),
+				  #"Expanded properties" = Table.ExpandRecordColumn(DemoFilter, "properties", {"provisioningState", "networkInterfaces", "resourceGuid", "defaultSecurityRules", "securityRules"}, {"properties.provisioningState", "properties.networkInterfaces", "properties.resourceGuid", "properties.defaultSecurityRules", "properties.securityRules"}),
 				  #"Expanded properties.networkInterfaces" = Table.ExpandListColumn(#"Expanded properties", "properties.networkInterfaces"),
 				  #"Expanded properties.networkInterfaces 1" = Table.ExpandRecordColumn(#"Expanded properties.networkInterfaces", "properties.networkInterfaces", {"id"}, {"properties.networkInterfaces.id"}),
 				  #"Expanded properties.defaultSecurityRules" = Table.ExpandListColumn(#"Expanded properties.networkInterfaces 1", "properties.defaultSecurityRules"),
