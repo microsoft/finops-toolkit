@@ -86,12 +86,12 @@ FOCUS is the **best** version of cost and usage data you can get from Cost Manag
 
 FOCUS 1.0 covers:
 
-  - Billing details related to invoicing, like the provider you used, who generated the invoice (invoice issuer), and the billing period for the invoice.
-  - Resource details about what you deployed with the provider, like the service, resource type, region, and tags.
-  - SKU details about the product you used or purchased, like the publisher and SKU identifiers.
-  - Charge details that describe and categorize the charge, like the type, description, frequency, and amount used or purchased.
-  - Discount details that summarize the pricing model, like the pricing category and commitment discount details.
-  - Pricing and costs that include the raw details about how each charge is priced, like the pricing quantity, unit price, and cost.
+- **Billing details** related to invoicing, like the provider you used, who generated the invoice (invoice issuer), and the billing period for the invoice.
+- **Resource details** about what you deployed with the provider, like the service, resource type, region, and tags.
+- **SKU details** about the product you used or purchased, like the publisher and SKU identifiers.
+- **Charge details** that describe and categorize the charge, like the type, description, frequency, and amount used or purchased.
+- **Discount details** that summarize the pricing model, like the pricing category and commitment discount details.
+- **Pricing and costs** that include the raw details about how each charge is priced, like the pricing quantity, unit price, and cost.
 
 Resources are identified by a **ResourceId** and **ResourceName** and organized into their respective **ServiceName** and **ServiceCategory**. **ServiceCategory** enables you to organize your costs into a top-level set of categories consistent across cloud providers, which makes it especially interesting. You can also see other details, like a friendly **ResourceType** label, the **RegionId** and **RegionName** a resource was deployed to, and any **Tags** that were applied to the resource.
 
