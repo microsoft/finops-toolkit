@@ -27,7 +27,7 @@ table Regions
 
 	partition Regions = m
 		mode: import
-		queryGroup: 'Resource Graph'
+		queryGroup: 'Open data'
 		source =
 				let
 				  Source = Csv.Document(Web.Contents("https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv"), [Delimiter = ",", Columns = 3, QuoteStyle = QuoteStyle.None]),

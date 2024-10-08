@@ -65,7 +65,7 @@ The FinOps toolkit Power BI reports include pre-configured visuals, but are not 
    - Do not set any date parameters to report on all data in storage.
      > [!WARNING]
      > [Enable incremental refresh](/power-bi/connect-data/incremental-refresh-configure#define-policy) to load more than $5M of raw cost details. Power BI reports can only support $2-5M of data when incremental refresh is not enabled. After incremental refresh is enabled, they can support $2-5M/month for a total of ~$65M in raw cost details.
-4. Select the **Close & Apply** to save your settings.
+8. Select **Close & Apply** to save your settings.
 8. Select **Close & Apply** to save your settings.
 
 If you run into any issues syncing your data, see [Troubleshooting Power BI reports](https://aka.ms/ftk/trouble).

@@ -70,7 +70,7 @@ At this point, you defined your organizational objectives, identified how curren
 - Evaluate existing tools and services and establish a plan to address any limitations and gaps.
   - Automate tasks with [PowerShell commands](https://aka.ms/ftk/ps) and [Bicep modules](https://aka.ms/ftk/bicep).
   - Consider lightweight tools for engineers, like the [Cost optimization](../../toolkit/optimization-workbook/cost-optimization-workbook.md) or [Governance](https://microsoft.github.io/finops-toolkit/workbooks/governance) workbooks.
-  - If you're looking for an extensible platform for reporting and analytics, check out [FinOps hubs](https://aka.ms/finops/hubs) and connect to your hub from Microsoft Fabric to go even further.
+  - If you're looking for an extensible platform for reporting and analytics, check out [FinOps hubs](../../hubs/finops-hubs-overview.md) and connect to your hub from Microsoft Fabric to go even further.
 - Document the key processes around the tools and services available to teams.
   - Include when to use and how to get started with each.
   - Set expectations around any costs, if applicable.
