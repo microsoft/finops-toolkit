@@ -131,7 +131,7 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
-[!VIDEO https://www.youtube.com/embed/IwVBmcaiY0M?list=PLUSCToibAswmQicVCOwicTWHGjB3ykikr&pp=iAQB]
+> [!VIDEO https://www.youtube.com/embed/IwVBmcaiY0M?list=PLUSCToibAswmQicVCOwicTWHGjB3ykikr&pp=iAQB]
 
 <br>
 
