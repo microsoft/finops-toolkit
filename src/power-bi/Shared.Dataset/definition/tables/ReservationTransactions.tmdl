@@ -46,11 +46,6 @@ table ReservationTransactions
 		summarizeBy: none
 		sourceColumn: BillingPeriodStart
 
-		variation Variation
-			isDefault
-			relationship: 9d6fc6d4-2fc9-4af9-a5e5-089dabed3a55
-			defaultHierarchy: LocalDateTable_d40b7430-e260-4066-92b8-6bd87adf1ac2.'Date Hierarchy'
-
 		annotation SummarizationSetBy = Automatic
 
 	column ChargeCategory
@@ -83,11 +78,6 @@ table ReservationTransactions
 		lineageTag: 2131a5ab-1c86-4563-a411-68dbcf006e00
 		summarizeBy: none
 		sourceColumn: ChargePeriodStart
-
-		variation Variation
-			isDefault
-			relationship: c758d0e0-0e27-427c-af49-d85470ffe0b8
-			defaultHierarchy: LocalDateTable_eb23340c-7bc4-423a-8368-7d88e0455c14.'Date Hierarchy'
 
 		annotation SummarizationSetBy = Automatic
 
@@ -285,7 +275,7 @@ table ReservationTransactions
 
 	partition ReservationTransactions = m
 		mode: import
-		queryGroup: 'FinOps toolkit'
+		queryGroup: Storage
 		source = ```
 				let
 				    // Get the data

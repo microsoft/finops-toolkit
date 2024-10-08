@@ -348,6 +348,20 @@ If you see these values, please re-export the cost data for that month. If you n
 
 <br>
 
+## Power BI: Reports are missing data for specific dates
+
+If your report is missing all data for one or more months, check the **Number of Months**, **RangeStart**, and **RangeEnd** parameters to ensure the data is not being filtered out. 
+
+To check parameters, select **Transform data** > **Edit parameters** in the ribbon or select the individual parameters in the **🛠️ Setup** folder from the query editor window. 
+
+- If you want to always show a specific number of recent months, set **Number of Months** to the number of closed (completed) months. The current month will be an extra month in addition to the closed number of months.
+- If you want a fixed date range that does not change over time (e.g., fiscal year reporting), set **RangeStart** and **RangeEnd**.
+- If you want to report on all data available, confirm that all 3 date parameters are empty.
+
+See [Set up your first report](../_reporting/power-bi/setup.md) for additional details.
+
+<br>
+
 ## Power BI: Reports are empty (no data)
 
 If you don't see any data in your Power BI or other reports or tools, try the following based on your data source:

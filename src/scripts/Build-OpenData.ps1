@@ -460,3 +460,34 @@ if ($Test)
 {
     & "$PSScriptRoot/Test-PowerShell.ps1" -Unit -Integration -Data
 }
+
+<# TODO: Integrate the following script to revert SVG files with nonfunctional changes
+(git diff --name-only) `
+| Where-Object { $_ -match '^docs/svg/([^/]+/)+[^\.]+\.svg$' } `
+| ForEach-Object {
+    $file = $_
+    $diff = git diff -- $file
+    $changes = $diff -split "`n" `
+    | Where-Object { $_ -match '^\+|^\-' } ` # Remove lines that are not changes
+    | Where-Object { $_ -notmatch '^\+\+\+|^\-\-\-' } # Remove the diff metadata lines
+    # Check if all changes are GUID changes
+    $hasFunctionalChanges = $true
+    foreach ($line in $changes)
+    {
+        if (
+            $line -notmatch '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}' `
+            -and $line -notmatch '^\+\s*$' `
+            -and $line -notmatch '^\-\s*$' `
+        )
+        {
+            $hasFunctionalChanges = $true
+            break
+        }
+    }
+    if (-not $hasFunctionalChanges)
+    {
+        Write-Host "Reverting $file"
+        git checkout -- $file
+    }
+}
+#>

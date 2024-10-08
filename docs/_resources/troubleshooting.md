@@ -110,6 +110,15 @@ Decide whether you will connect to storage using a user or service principal acc
 ### Step 2: Troubleshoot connection errors
 
 1. If you try to connect to your storage account and receive an error: "Access to the resource is forbidden", it is very likely you are missing a few permissions. Refer back to [Connect Power BI to storage](#step-1-connect-power-bi-to-storage) to ensure you have the correct permissions.
-2. If you ssee an error about access being forbidden, review if the billing account that you are connecting to is correct. Power BI reports are provided with a sample billing account, and if you don't change that to your own ID, you won't be able to connect.
+2. If you see an error about access being forbidden, review if the billing account that you are connecting to is correct. Power BI reports are provided with a sample billing account, and if you don't change that to your own ID, you won't be able to connect.
+
+### Step 3: Troubleshoot missing months of data
+
+1. If the Power BI report does not include entire months of data, confirm the date parameters in the Power BI report by checking **Transform data** > **Edit parameters** in the ribbon. See [Set up your first report](../_reporting/power-bi/setup.md) for details.
+   - **Number of Months** defines how many closed months (before the current month) will be shown in reports. Even if data is exported, data outside this range will not be shown. If defined, this parameter overrides others.
+   - **RangeStart** and **RangeEnd define an explicit date range of data to show in the reports. Anything before or after these dates will not be shown.
+   - If **RangeStart** is empty, all historical data before **RangeEnd** will be included.
+   - If **RangeEnd** is empty, all new data after **RangeStart** will be included.
+   - If all date parameters are empty, all available data will be included.
 
 <br>

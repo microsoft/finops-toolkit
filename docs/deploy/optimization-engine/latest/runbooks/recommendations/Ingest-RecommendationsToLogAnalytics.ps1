@@ -38,8 +38,8 @@ $SqlTimeout = 120
 $LogAnalyticsIngestControlTable = "LogAnalyticsIngestControl"
 
 $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSink"
-$storageAccountSinkRG = Get-AutomationVariable -Name  "AzureOptimization_StorageSinkRG"
-$storageAccountSinkSubscriptionId = Get-AutomationVariable -Name  "AzureOptimization_StorageSinkSubId"
+
+
 $storageAccountSinkContainer = Get-AutomationVariable -Name  "AzureOptimization_RecommendationsContainer" -ErrorAction SilentlyContinue
 if ([string]::IsNullOrEmpty($storageAccountSinkContainer)) {
     $storageAccountSinkContainer = "recommendationsexports"
@@ -142,8 +142,8 @@ $azureSqlDomain = $cloudDetails.SqlDatabaseDnsSuffix.Substring(1)
 
 # get reference to storage sink
 Write-Output "Getting reference to $storageAccountSink storage account (recommendations exports sink)"
-Select-AzSubscription -SubscriptionId $storageAccountSinkSubscriptionId
-$saCtx = (Get-AzStorageAccount -ResourceGroupName $storageAccountSinkRG -Name $storageAccountSink).Context
+
+$saCtx = New-AzStorageContext -StorageAccountName $storageAccountSink -UseConnectedAccount -Environment $cloudEnvironment
 
 $allblobs = @()
 

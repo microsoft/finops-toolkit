@@ -56,7 +56,7 @@ param
     [AllowNull()]
     [ValidateSet($null, '', 'dev', 'alpha', 'rc', 'preview')]
     [string]
-    $Label = 'dev',
+    $Label,
 
     [string]
     $Version
@@ -74,20 +74,21 @@ elseif ($Version)
     Write-Verbose "Updating to version $update."
 }
 
-# Determine label
-$newLabel = if (-not $Label) { "dev" } else { $Label.ToLower() -replace '[^a-z]', '' }
-if ($update -eq "prerelease")
-{
-    Write-Verbose "Using label '$newLabel'."
-}
-
 # Only update version if requested
 if ($update -or $Version)
 {
     # Update version in NPM
     Write-Verbose "Updating NPM version..."
-    $null = npm --no-git-tag-version --preid $newLabel version $update
-}
+    $null = npm --no-git-tag-version version $update
+    
+    # Update label, if needed
+    if ($Label)
+    {
+        $newLabel = $Label.ToLower() -replace '[^a-z]', ''
+        Write-Verbose "Using label '$newLabel'."
+        $null = npm --no-git-tag-version --preid $newLabel version preminor
+    }
+}    
 
 $ver = & "$PSScriptRoot/Get-Version"
 

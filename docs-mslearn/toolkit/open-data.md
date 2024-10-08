@@ -11,9 +11,10 @@ ms.custom: references_regions
 # customer intent: As a FinOps practitioner, I want to understand FinOps reporting so that I can clean or normalize my data.
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Open data for FinOps
 
-Reporting is the life-blood of any FinOps initiative. And your reports are only as good as your data. It's why [data ingestion and normalization](../framework/understand/ingestion.md) is such an important part of FinOps (and any big data effort). The following datasets can be used to clean and normalize your data as part of data ingestion, reporting, or other solutions.
+Reporting is the life-blood of any FinOps initiative. And your reports are only as good as your data. It's why [data ingestion](../framework/understand/ingestion.md) is such an important part of FinOps (and any big data effort). The following datasets can be used to clean and normalize your data as part of data ingestion, reporting, or other solutions.
 
 <br>
 
@@ -25,11 +26,11 @@ Sample data:
 
 | UnitOfMeasure    | AccountTypes | PricingBlockSize | DistinctUnits |
 | ---------------- | ------------ | ---------------: | ------------- |
-| One Hour           | Microsoft Customer Agreement (MCA)<br><br> Enterprise Agreement (EA)      |                1 | Hours         |
-| 10,000 GB         | EA           |            10000 | GB            |
+| 1 Hour           | MCA, EA      |                1 | Hours         |
+| 10000 GB         | EA           |            10000 | GB            |
 | 150 Hours        | EA           |              150 | Hours         |
 | 200 /Hour        | EA           |              200 | Units/Hour    |
-| 5 GB             | MCA and EA      |                5 | GB            |
+| 5 GB             | MCA, EA      |                5 | GB            |
 | 5000000 Requests | EA           |          5000000 | Requests      |
 | 744 Connections  | EA           |              744 | Connections   |
 
@@ -41,13 +42,17 @@ A few important notes about the data:
 - Marketplace meters aren't included due to inconsistencies that would affect data size.
 
 > [!NOTE]
-> In the Cost Management FOCUS dataset, `UnitOfMeasure` is renamed to `x_PricingUnitDescription`. Both `PricingUnit` and `UsageUnit` in FOCUS are set to the `DistictUnits` column._
+> In the Cost Management FOCUS dataset, `UnitOfMeasure` is renamed to `x_PricingUnitDescription`. Both `PricingUnit` and `UsageUnit` in FOCUS are set to the `DistictUnits` column.
 
-## Regions
+[Download PricingUnits.csv](https://github.com/microsoft/finops-toolkit/releases/latest/download/PricingUnits.csv) &nbsp; [See PowerShell](https://aka.ms/ftk/Get-FinOpsPricingUnit)
+
+<br>
 
 Microsoft Cost Management provides various values for resource locations that are occasionally inconsistent due to different underlying systems providing the data. The Regions file provides a list of values you might find within common cost-related datasets (for example, Cost Management exports and price sheets) along with their related Azure region IDs and names.
 
 Sample data:
+
+<!-- cSpell:disable -->
 
 | OriginalValue | RegionId      | RegionName     |
 | ------------- | ------------- | -------------- |
@@ -56,6 +61,10 @@ Sample data:
 | de north      | germanynorth  | Germany North  |
 | no west       | norwaywest    | Norway West    |
 | tw north      | taiwannorth   | Taiwan North   |
+
+<!-- cSpell:enable -->
+
+[Download Regions.csv](https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv) &nbsp; [See PowerShell](https://aka.ms/ftk/Get-FinOpsRegion)
 
 > [!NOTE]
 > Convert region values to lowercase before mapping. This helps reduce duplication and speed up the mapping process.
@@ -67,6 +76,8 @@ Sample data:
 Azure resource types are a semi-readable code that represents what kind of resource it is. Currently, there's no mapping of the resource type to a user-friendly string, description, or its icon. The ResourceTypes file provides a list of resource type values you see in the Azure portal along with their display names, description, and a link to the icon, when available.
 
 Sample data:
+
+<!-- cSpell:disable -->
 
 | ResourceType                      | Singular Display Name   | Plural Display Name      | Lower Singular Display Name | Lower Plural Display Name |
 | --------------------------------- | ----------------------- | ------------------------ | --------------------------- | ------------------------- |
@@ -80,8 +91,12 @@ Sample data:
 | microsoft.sql/servers/databases   | SQL database            | SQL databases            | SQL database                | SQL databases             |
 | microsoft.web/sites               | App Service web app     | App Service web apps     | app service                 | app services              |
 
+<!-- cSpell:enable -->
+
 > [!NOTE]
 > Convert resource type values to lowercase before mapping. This helps reduce duplication and speed up the mapping process.
+
+[Download ResourceTypes.csv](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv) &nbsp; [Download ResourceTypes.json](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.json) &nbsp; [See PowerShell](https://aka.ms/ftk/Get-FinOpsResourceType)
 
 <br>
 
@@ -91,14 +106,17 @@ In Microsoft Cost Management, `ConsumedService` represents the primary service o
 
 Sample data:
 
-| ConsumedService      | ResourceType                          | ServiceName         | ServiceCategory | ServiceSubcategory        | PublisherName | PublisherType  |
-| -------------------- | ------------------------------------- | ------------------- | --------------- | ------------------------- | ------------- | -------------- |
-| microsoft.compute    | microsoft.compute/virtualmachines     | Virtual Machines    | Compute         | Virtual Machines          | Microsoft     | Cloud Provider |
-| microsoft.documentdb | microsoft.documentdb/databaseaccounts | Cosmos DB           | Databases       | NoSQL Databases           | Microsoft     | Cloud Provider |
-| microsoft.kusto      | microsoft.kusto/clusters              | Azure Data Explorer | Analytics       | Analytics Platforms       | Microsoft     | Cloud Provider |
-| microsoft.network    | microsoft.network/virtualnetworks     | Virtual Network     | Networking      | Networking Infrastructure | Microsoft     | Cloud Provider |
-| microsoft.storage    | microsoft.storage/storageaccounts     | Storage Accounts    | Storage         | Storage Platforms         | Microsoft     | Cloud Provider |
+<!-- cSpell:disable -->
 
+| ConsumedService      | ResourceType                          | ServiceName         | ServiceCategory | ServiceSubcategory        | PublisherName | PublisherType  | Environment | ServiceModel |
+| -------------------- | ------------------------------------- | ------------------- | --------------- | ------------------------- | ------------- | -------------- | ----------- | ------------ |
+| microsoft.compute    | microsoft.compute/virtualmachines     | Virtual Machines    | Compute         | Virtual Machines          | Microsoft     | Cloud Provider | Cloud       | IaaS         |
+| microsoft.documentdb | microsoft.documentdb/databaseaccounts | Cosmos DB           | Databases       | NoSQL Databases           | Microsoft     | Cloud Provider | Cloud       | PaaS         |
+| microsoft.kusto      | microsoft.kusto/clusters              | Azure Data Explorer | Analytics       | Analytics Platforms       | Microsoft     | Cloud Provider | Cloud       | PaaS         |
+| microsoft.network    | microsoft.network/virtualnetworks     | Virtual Network     | Networking      | Networking Infrastructure | Microsoft     | Cloud Provider | Cloud       | IaaS         |
+| microsoft.storage    | microsoft.storage/storageaccounts     | Storage Accounts    | Storage         | Storage Platforms         | Microsoft     | Cloud Provider | Cloud       | IaaS         |
+
+<!-- cSpell:enable -->
 
 A few important notes about the data:
 
@@ -111,7 +129,7 @@ A few important notes about the data:
 
 <br>
 
-##  Dataset examples
+## Dataset examples
 
 The following files are examples of what you see when you export data from Microsoft Cost Management. These files are provided to help you understand the data structure and format. They are from an Enterprise Agreement (EA) demo account and aren't intended to be used for ingestion or reporting.
 
@@ -124,6 +142,8 @@ The following files are examples of what you see when you export data from Micro
 - Reservation details (`2023-03-01`)
 - Reservation transactions (`2023-05-01`)
 - Reservation recommendations (`2023-05-01`)
+
+[Download all examples](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-examples.zip)
 
 <br>
 
@@ -148,6 +168,8 @@ Metadata is available for the following datasets:
   - [FOCUS 1.0](../focus/metadata.md#focuscost-10)
   - [FOCUS 1.0-preview(v1)](../focus/metadata.md#focuscost-10-previewv1)
 
+[Download all metadata](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-metadata.zip)
+
 <br>
 
 ## Looking for more?
@@ -160,6 +182,22 @@ We'd love to hear about any datasets you're looking for. Create a new issue with
 
 ## Related content
 
-<br>
+Related resources:
 
 - [FOCUS metadata](../focus/metadata.md)
+
+Related FinOps capabilities:
+
+- [Data ingestion](../../framework/understand/ingestion.md)
+
+Related products:
+
+- [Cost Management](/azure/cost-management-billing/costs/)
+
+Related solutions:
+
+- [FinOps hubs](../hubs/finops-hubs-overview.md)
+- [FinOps toolkit Power BI reports](../power-bi/reports.md)
+- [FinOps toolkit PowerShell module](https://aka.ms/ftk/ps)
+
+<br>

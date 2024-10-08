@@ -1,5 +1,5 @@
 /// Name of the Azure DataLake Gen2 storage account to pull data from.
-expression 'Hub Storage URL' = "https://ftkmicfland5pd7gdo37oozc.dfs.core.windows.net/ingestion" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
+expression 'Hub Storage URL' = "https://demohubupzaljui2bxfm.dfs.core.windows.net/ingestion" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
 	lineageTag: 421c1232-0e40-45a4-bc59-257ce648478c
 	queryGroup: '🛠️ Setup'
 
@@ -43,8 +43,27 @@ expression ftk_Storage = ```
 		    HubStorage = if hubUrl = null or hubUrl = "" then null else (
 		        try let
 		            DataStore = AzureStorage.DataLake(hubUrl),
-		            FilterHub = Table.SelectRows(DataStore, each [Attributes]?[Hidden]? <> true and [Extension] = ".parquet" and data = Text.Lower(List.Last(List.RemoveLastN(Text.Split([Folder Path],"/"), 1)))),
-		            HubMonth  = Table.AddColumn(FilterHub, "StartDate", each _toMonth(List.Last(List.RemoveLastN(List.RemoveLastN(Text.Split([Folder Path],"/"), 1), 1))), type date)
+		            FilterHub = Table.SelectRows(
+		                DataStore, 
+		                each [Attributes]?[Hidden]? <> true
+		                    and [Extension] = ".parquet"
+		                    and (
+		                        data = Text.Lower(List.Last(List.RemoveLastN(Text.Split([Folder Path],"/"), 1))) // Supports 0.2-0.5 folder structure: {scope}/{yyyyMM}/{dataset}
+		                        or data = Text.Lower(Text.Split([Folder Path],"/"){4}) // Supports 0.6+ folder structure: {dataset}/{yyyy}/{MM}/{scope}
+		                    )
+		            ),
+		            HubMonth  = Table.AddColumn(
+		                FilterHub,
+		                "StartDate",
+		                each try
+		                    // Supports 0.6+ folder structure: {dataset}/{yyyy}/{MM}/{scope}
+		                    if Text.Length(Text.Split([Folder Path],"/"){5}) = 4 and Text.Length(Text.Split([Folder Path],"/"){6}) = 2 then
+		                        _toMonth(Text.Split([Folder Path],"/"){5} & Text.Split([Folder Path],"/"){6})
+		                    // Supports 0.2-0.5 folder structure: {scope}/{yyyyMM}/{dataset}
+		                    else  _toMonth(List.Last(List.RemoveLastN(List.RemoveLastN(Text.Split([Folder Path],"/"), 1), 1)))
+		                otherwise _toMonth(List.Last(List.RemoveLastN(List.RemoveLastN(Text.Split([Folder Path],"/"), 1), 1))),
+		                type date
+		            )
 		        in HubMonth otherwise null
 		    ),
 		    IsHub = (HubStorage = null or Table.RowCount(HubStorage) = 0) = false,
@@ -81,7 +100,7 @@ expression ftk_Storage = ```
 		    Source = if IsHub then HubStorage else ExpStorage,
 		
 		    // NOTE: Do not convert to UTC - UTC dates can show as the previous month based on the local timezone
-		    _toMonth    = (s) => Date.FromText(Text.Range(s, 0, 4) & "-" & Text.Range(s, 4, 2) & "-01"),
+		    _toMonth = (s) => Date.FromText(Text.Range(s, 0, 4) & "-" & Text.Range(s, 4, 2) & "-01"),
 		
 		    // Only process files for months within the date range
 		    FilterFilesByDate =
@@ -90,7 +109,11 @@ expression ftk_Storage = ```
 		            Table.AddColumn(Source, "EndDate", each if [StartDate] = null then null else Date.EndOfMonth([StartDate]), type datetime), 
 		            each (start = null or [StartDate] = null or [StartDate] >= Date.StartOfMonth(Date.From(start))) and (end = null or [EndDate] = null or [EndDate] <= Date.EndOfMonth(Date.From(end)))
 		        ),
-		
+		    AddMetadata = Table.AddColumn(FilterFilesByDate, "Metadata", each 
+		        if Text.Lower([Extension]) = ".parquet" and datasetType = "focuscost" then ftk_Metadata([Content], "ChargePeriodStart")
+		        else null ),
+		    ExpandMetadata = Table.ExpandTableColumn(AddMetadata, "Metadata", {"Min"}, {"ChargePeriodStart"}),
+		    FilterMetadata = Table.SelectRows(ExpandMetadata, each (start = null or [ChargePeriodStart] = null or [ChargePeriodStart] >= ftk_DatetimeToJulianDate(start)) and (end = null or [ChargePeriodStart] = null or [ChargePeriodStart] < ftk_DatetimeToJulianDate(end))),
 		    // Extract
 		    _dataNotFound = () =>
 		        if IsHub then "HubDataNotFound: No " & data & " data found in the storage account (" & Text.SplitAny(hubUrl, "/."){2} & "). Please confirm data was exported and processed by hub ingestion pipelines. Refer to the troubleshooting guide for assistance: https://aka.ms/finops/hubs/troubleshoot."
@@ -105,9 +128,9 @@ expression ftk_Storage = ```
 		        in
 		            columnRenames
 		    ,
-		    ReadContent = Table.SelectRows(
+		    ReadContent = if FilterFilesByDate = null then null else Table.SelectRows(
 		        Table.SelectColumns(
-		            Table.AddColumn(FilterFilesByDate, "Data",
+		            Table.AddColumn(FilterMetadata, "Data",
 		                each if [Extension] = ".parquet" then Parquet.Document([Content]) 
 		                else if [Extension] = ".gz"      then _parseCsv(Binary.Decompress([Content], Compression.GZip)) 
 		                else if [Extension] = ".csv"     then _parseCsv([Content])
@@ -118,7 +141,7 @@ expression ftk_Storage = ```
 		        each Table.RowCount([Data]) > 0
 		    ),
 		    ExtractColumns =
-		        if Table.RowCount(ReadContent) > 0 then
+		        if ReadContent <> null and Table.RowCount(ReadContent) > 0 then
 		            Table.ExpandTableColumn(ReadContent, "Data", List.Distinct(List.Combine(List.Transform(ReadContent[Data], each Table.ColumnNames(_)))))
 		        else if data = "focuscost" then
 		            #table(
@@ -387,13 +410,13 @@ expression ftk_ParseResourceType = (id) => ftk_ParseResourceId(id, false)
 	annotation PBI_ResultType = Function
 
 /// Name of the Azure DataLake Gen2 storage account to pull data from.
-expression 'Export Storage URL' = "https://ftkmicfland5pd7gdo37oozc.dfs.core.windows.net/raw-exports" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
+expression 'Export Storage URL' = null meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
 	lineageTag: 2d38b78a-1e1f-4446-b513-d842ba0bdfef
 	queryGroup: '🛠️ Setup'
 
 	annotation PBI_NavigationStepName = Navigation
 
-	annotation PBI_ResultType = Text
+	annotation PBI_ResultType = Null
 
 /// Optional. Number of months to include in the report before the RangeEnd date. Ignored if RangeStart is specified. Default: (all available data).
 expression 'Number of Months' = null meta [IsParameterQuery=true, Type="Number", IsParameterQueryRequired=false]
@@ -403,4 +426,76 @@ expression 'Number of Months' = null meta [IsParameterQuery=true, Type="Number",
 	annotation PBI_NavigationStepName = Navigation
 
 	annotation PBI_ResultType = Null
+
+expression ftk_DatetimeToJulianDate = ```
+		(InputDate) =>
+		    let
+		        StartDate = #date(1899, 12, 30),
+		        NumberOfDays = Duration.Days(Date.From(InputDate) - StartDate),
+		        JulianDay = NumberOfDays + 2415018.5 // 2415019 or 2415018.5 
+		    in
+		        JulianDay
+		```
+	lineageTag: 4b2bc0fe-5c3d-4275-ad19-3b4ff0b720e9
+	queryGroup: Functions
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Function
+
+expression ftk_ImpalaToJulianDate =
+		(binaryData) =>
+		let
+		    // Your 12-byte binary data
+		    // binaryData = Binary.FromText("AAAAAAAAAADBiSUA", BinaryEncoding.Base64),
+		    // Get the last 4 bytes
+		    last4Bytes = Binary.Range(binaryData, 8, 4),
+		    // Convert the binary to a list of numbers
+		    listOfNumbers = Binary.ToList(last4Bytes),
+		    // Reverse the list of numbers
+		    reversedListOfNumbers = List.Reverse(listOfNumbers),
+		    // Convert the list of numbers to an integer
+		    number = List.Accumulate(reversedListOfNumbers, 0, (state, current) => state * 256 + current) - 0.5
+		in
+		    number
+	lineageTag: 89863516-9c1f-4f21-aaf1-b84e73909525
+	queryGroup: Functions
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Function
+
+expression ftk_Metadata =
+		(fileContents, dateColumn as text) =>
+		let
+		  m = Parquet.Metadata(fileContents) as any,
+		  Navigation = m[RowGroups],
+		  #"Expanded Columns" = Table.ExpandTableColumn(Navigation, "Columns", {"MetaData"}, {"MetaData"}),
+		  #"Expanded MetaData" = Table.ExpandRecordColumn(#"Expanded Columns", "MetaData", {"PathInSchema", "Statistics"}, {"PathInSchema", "Statistics"}),
+		  #"Expanded PathInSchema" = Table.ExpandListColumn(#"Expanded MetaData", "PathInSchema"),
+		  #"Filtered rows" = Table.SelectRows(#"Expanded PathInSchema", each ([PathInSchema] = dateColumn)),
+		  #"Expanded Statistics" = Table.ExpandRecordColumn(#"Filtered rows", "Statistics", {"MaxValue", "MinValue"}, {"MaxValue", "MinValue"}),
+		  #"Added min" = Table.AddColumn(#"Expanded Statistics", "Min", each if [MinValue] = null then null else ftk_ImpalaToJulianDate([MinValue])),
+		  #"Added max" = Table.AddColumn(#"Added min", "Max", each if [MaxValue] = null then null else ftk_ImpalaToJulianDate([MaxValue])),
+		  #"Removed other columns" = Table.SelectColumns(#"Added max", {"Min", "Max"}),
+		  #"Removed duplicates" = Table.Distinct(#"Removed other columns")
+		in
+		  #"Removed duplicates"
+	lineageTag: c697294c-e969-4248-8d51-2232bfbd8068
+	queryGroup: Functions
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Function
+
+/// Optional. Experimental feature to join the prices with the cost to populate missing list and contracted unit price and calculate missing cost values. This enables calculating total savings. Allowed values = "TRUE", "FALSE".
+/// 
+/// This experimental feature is extremely slow to run and has not been fully tested. We are investigating alternative means to perform this join.
+expression 'Experimental: Add Missing Prices' = false meta [IsParameterQuery=true, Type="Logical", IsParameterQueryRequired=false]
+	lineageTag: 3664712f-0c0b-4565-8123-1161b5a8dba8
+	queryGroup: '🛠️ Setup'
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Logical
 

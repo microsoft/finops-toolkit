@@ -39,8 +39,8 @@ if ([string]::IsNullOrEmpty($lognamePrefix))
     $lognamePrefix = "AzureOptimization"
 }
 $storageAccountSink = Get-AutomationVariable -Name  "AzureOptimization_StorageSink"
-$storageAccountSinkRG = Get-AutomationVariable -Name  "AzureOptimization_StorageSinkRG"
-$storageAccountSinkSubscriptionId = Get-AutomationVariable -Name  "AzureOptimization_StorageSinkSubId"
+
+
 $storageAccountSinkContainer = $StorageSinkContainer
 $StorageBlobsPageSize = [int] (Get-AutomationVariable -Name  "AzureOptimization_StorageBlobsPageSize" -ErrorAction SilentlyContinue)
 if (-not($StorageBlobsPageSize -gt 0))
@@ -142,15 +142,15 @@ $azureSqlDomain = $cloudDetails.SqlDatabaseDnsSuffix.Substring(1)
 
 # get reference to storage sink
 Write-Output "Getting blobs list from $storageAccountSink storage account ($storageAccountSinkContainer container)..."
-Select-AzSubscription -SubscriptionId $storageAccountSinkSubscriptionId
-$sa = Get-AzStorageAccount -ResourceGroupName $storageAccountSinkRG -Name $storageAccountSink
+
+$saCtx = New-AzStorageContext -StorageAccountName $storageAccountSink -UseConnectedAccount -Environment $cloudEnvironment
 
 $allblobs = @()
 
 $continuationToken = $null
 do
 {
-    $blobs = Get-AzStorageBlob -Container $storageAccountSinkContainer -MaxCount $StorageBlobsPageSize -ContinuationToken $continuationToken -Context $sa.Context | Sort-Object -Property LastModified
+    $blobs = Get-AzStorageBlob -Container $storageAccountSinkContainer -MaxCount $StorageBlobsPageSize -ContinuationToken $continuationToken -Context $saCtx | Sort-Object -Property LastModified
     if ($blobs.Count -le 0) { break }
     $allblobs += $blobs
     $continuationToken = $blobs[$blobs.Count -1].ContinuationToken;
@@ -226,7 +226,7 @@ foreach ($blob in $unprocessedBlobs) {
     $newProcessedTime = $blob.LastModified.UtcDateTime.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
     Write-Output "About to process $($blob.Name)..."
     $blobFilePath = "$env:TEMP\$($blob.Name)"
-    Get-AzStorageBlobContent -CloudBlob $blob.ICloudBlob -Context $sa.Context -Force -Destination $blobFilePath | Out-Null
+    Get-AzStorageBlobContent -CloudBlob $blob.ICloudBlob -Context $saCtx -Force -Destination $blobFilePath | Out-Null
 
     $r = [IO.File]::OpenText($blobFilePath)
 
