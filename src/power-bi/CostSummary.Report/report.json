@@ -1,5 +1,5 @@
 {
-  "config": "{\"version\":\"5.49\",\"themeCollection\":{\"baseTheme\":{\"name\":\"CY19SU06\",\"version\":\"5.5\",\"type\":2},\"customTheme\":{\"name\":\"Ibiza_Data_Visualization_Theme4744941034384995.json\",\"version\":\"5.6\",\"type\":1}},\"activeSectionIndex\":0,\"tags\":{\"serviceAppObjectId\":\"f24eab2c-a736-4aa1-af7c-2729d34249bc\"},\"defaultDrillFilterOtherVisuals\":true,\"slowDataSourceSettings\":{\"isCrossHighlightingDisabled\":false,\"isSlicerSelectionsButtonEnabled\":false,\"isFilterSelectionsButtonEnabled\":false,\"isFieldWellButtonEnabled\":false,\"isApplyAllButtonEnabled\":false},\"linguisticSchemaSyncVersion\":2,\"settings\":{\"useStylableVisualContainerHeader\":true,\"exportDataMode\":1,\"useNewFilterPaneExperience\":true,\"allowChangeFilterTypes\":true,\"allowDataPointLassoSelect\":true,\"useEnhancedTooltips\":true},\"objects\":{\"section\":[{\"properties\":{\"verticalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'Top'\"}}}}}],\"outspacePane\":[{\"properties\":{\"expanded\":{\"expr\":{\"Literal\":{\"Value\":\"true\"}}}}}]}}",
+  "config": "{\"version\":\"5.49\",\"themeCollection\":{\"baseTheme\":{\"name\":\"CY19SU06\",\"version\":\"5.5\",\"type\":2},\"customTheme\":{\"name\":\"Ibiza_Data_Visualization_Theme4744941034384995.json\",\"version\":\"5.6\",\"type\":1}},\"activeSectionIndex\":15,\"tags\":{\"serviceAppObjectId\":\"f24eab2c-a736-4aa1-af7c-2729d34249bc\"},\"defaultDrillFilterOtherVisuals\":true,\"slowDataSourceSettings\":{\"isCrossHighlightingDisabled\":false,\"isSlicerSelectionsButtonEnabled\":false,\"isFilterSelectionsButtonEnabled\":false,\"isFieldWellButtonEnabled\":false,\"isApplyAllButtonEnabled\":false},\"linguisticSchemaSyncVersion\":2,\"settings\":{\"useStylableVisualContainerHeader\":true,\"exportDataMode\":1,\"useNewFilterPaneExperience\":true,\"allowChangeFilterTypes\":true,\"allowDataPointLassoSelect\":true,\"useEnhancedTooltips\":true},\"objects\":{\"section\":[{\"properties\":{\"verticalAlignment\":{\"expr\":{\"Literal\":{\"Value\":\"'Top'\"}}}}}],\"outspacePane\":[{\"properties\":{\"expanded\":{\"expr\":{\"Literal\":{\"Value\":\"false\"}}}}}]}}",
   "filters": "[{\"name\":\"Filter077be543c5f39dd293aa\",\"expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Entity\":\"CostDetails\"}},\"Property\":\"x_CostAllocationRuleName\"}},\"filter\":{\"Version\":2,\"From\":[{\"Name\":\"c\",\"Entity\":\"CostDetails\",\"Type\":0}],\"Where\":[{\"Condition\":{\"In\":{\"Expressions\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"x_CostAllocationRuleName\"}}],\"Values\":[[{\"Literal\":{\"Value\":\"null\"}}]]}}}]},\"type\":\"Categorical\",\"howCreated\":1,\"objects\":{}}]",
   "layoutOptimization": 0,
   "pods": [
@@ -63,6 +63,63 @@
     }
   ],
   "sections": [
+    {
+      "config": "{\"visibility\":1}",
+      "displayName": "Tags example",
+      "displayOption": 1,
+      "filters": "[]",
+      "height": 720.00,
+      "name": "6244831b8b6043fa9620",
+      "ordinal": 15,
+      "visualContainers": [
+        {
+          "config": "{\"name\":\"3af36c2be7c02449e69a\",\"layouts\":[{\"id\":0,\"position\":{\"x\":566.4959765910754,\"y\":359.5610826627652,\"z\":3,\"width\":713.5040234089247,\"height\":360.49743964886613,\"tabOrder\":3}}],\"singleVisual\":{\"visualType\":\"columnChart\",\"projections\":{\"Category\":[{\"queryRef\":\"CostDetails.ChargePeriodStart\",\"active\":true}],\"Y\":[{\"queryRef\":\"Sum(CostDetails.EffectiveCost)\"}],\"Series\":[{\"queryRef\":\"CostDetails.tag_CostCenter\"}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"c\",\"Entity\":\"CostDetails\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"ChargePeriodStart\"},\"Name\":\"CostDetails.ChargePeriodStart\",\"NativeReferenceName\":\"ChargePeriodStart\"},{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"EffectiveCost\"}},\"Function\":0},\"Name\":\"Sum(CostDetails.EffectiveCost)\",\"NativeReferenceName\":\"EffectiveCost\"},{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"tag_CostCenter\"},\"Name\":\"CostDetails.tag_CostCenter\",\"NativeReferenceName\":\"tag_CostCenter\"}],\"OrderBy\":[{\"Direction\":1,\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"ChargePeriodStart\"}}}]},\"drillFilterOtherVisuals\":true,\"hasDefaultSort\":true}}",
+          "filters": "[]",
+          "height": 360.50,
+          "width": 713.50,
+          "x": 566.50,
+          "y": 359.56,
+          "z": 3.00
+        },
+        {
+          "config": "{\"name\":\"63ceced951f4ecd9afe9\",\"layouts\":[{\"id\":0,\"position\":{\"x\":0,\"y\":359.5610826627652,\"z\":0,\"width\":566.4959765910754,\"height\":360.49743964886613,\"tabOrder\":0}}],\"singleVisual\":{\"visualType\":\"treemap\",\"projections\":{\"Group\":[{\"queryRef\":\"CostDetails.tag_CostCenter\",\"active\":true}],\"Values\":[{\"queryRef\":\"Sum(CostDetails.EffectiveCost)\"}],\"Details\":[{\"queryRef\":\"CostDetails.tag_Project\"}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"c\",\"Entity\":\"CostDetails\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"tag_CostCenter\"},\"Name\":\"CostDetails.tag_CostCenter\",\"NativeReferenceName\":\"tag_CostCenter\"},{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"EffectiveCost\"}},\"Function\":0},\"Name\":\"Sum(CostDetails.EffectiveCost)\",\"NativeReferenceName\":\"EffectiveCost\"},{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"tag_Project\"},\"Name\":\"CostDetails.tag_Project\",\"NativeReferenceName\":\"tag_Project\"}]},\"drillFilterOtherVisuals\":true}}",
+          "filters": "[]",
+          "height": 360.50,
+          "width": 566.50,
+          "x": 0.00,
+          "y": 359.56,
+          "z": 0.00
+        },
+        {
+          "config": "{\"name\":\"6e45e073e6598c53f8f8\",\"layouts\":[{\"id\":0,\"position\":{\"x\":566.4959765910754,\"y\":0,\"z\":1,\"width\":328.66130212143383,\"height\":359.5610826627652,\"tabOrder\":1}}],\"singleVisual\":{\"visualType\":\"pieChart\",\"projections\":{\"Category\":[{\"queryRef\":\"CostDetails.tag_CostCenter\",\"active\":true}],\"Y\":[{\"queryRef\":\"Sum(CostDetails.EffectiveCost)\"}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"c\",\"Entity\":\"CostDetails\",\"Type\":0}],\"Select\":[{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"EffectiveCost\"}},\"Function\":0},\"Name\":\"Sum(CostDetails.EffectiveCost)\",\"NativeReferenceName\":\"EffectiveCost\"},{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"tag_CostCenter\"},\"Name\":\"CostDetails.tag_CostCenter\",\"NativeReferenceName\":\"tag_CostCenter\"}],\"OrderBy\":[{\"Direction\":2,\"Expression\":{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"EffectiveCost\"}},\"Function\":0}}}]},\"drillFilterOtherVisuals\":true,\"hasDefaultSort\":true,\"objects\":{\"legend\":[{\"properties\":{\"position\":{\"expr\":{\"Literal\":{\"Value\":\"'BottomCenter'\"}}}}}]}}}",
+          "filters": "[]",
+          "height": 359.56,
+          "width": 328.66,
+          "x": 566.50,
+          "y": 0.00,
+          "z": 1.00
+        },
+        {
+          "config": "{\"name\":\"9800856012e5e95c0ee3\",\"layouts\":[{\"id\":0,\"position\":{\"x\":0,\"y\":0,\"z\":2,\"width\":566.4959765910754,\"height\":359.5610826627652,\"tabOrder\":2}}],\"singleVisual\":{\"visualType\":\"pivotTable\",\"projections\":{\"Rows\":[{\"queryRef\":\"CostDetails.tag_CostCenter\",\"active\":true},{\"queryRef\":\"CostDetails.tag_Project\",\"active\":true},{\"queryRef\":\"CostDetails.tag_Department\"}],\"Values\":[{\"queryRef\":\"Sum(CostDetails.EffectiveCost)\"},{\"queryRef\":\"Divide(Sum(CostDetails.EffectiveCost), ScopedEval(Sum(CostDetails.EffectiveCost), [Role.Columns]))\"},{\"queryRef\":\"Sum(CostDetails.EffectiveCost)\"},{\"queryRef\":\"SparklineData(Sum(CostDetails.EffectiveCost)_[CostDetails.ChargePeriodStart])\"}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"c\",\"Entity\":\"CostDetails\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"tag_CostCenter\"},\"Name\":\"CostDetails.tag_CostCenter\",\"NativeReferenceName\":\"tag_CostCenter\"},{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"tag_Project\"},\"Name\":\"CostDetails.tag_Project\",\"NativeReferenceName\":\"tag_Project\"},{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"tag_Department\"},\"Name\":\"CostDetails.tag_Department\",\"NativeReferenceName\":\"tag_Department\"},{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"EffectiveCost\"}},\"Function\":0},\"Name\":\"Sum(CostDetails.EffectiveCost)\",\"NativeReferenceName\":\"EffectiveCost\"},{\"Arithmetic\":{\"Left\":{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"EffectiveCost\"}},\"Function\":0}},\"Right\":{\"ScopedEval\":{\"Expression\":{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"EffectiveCost\"}},\"Function\":0}},\"Scope\":[{\"RoleRef\":{\"Role\":\"Columns\"}}]}},\"Operator\":3},\"Name\":\"Divide(Sum(CostDetails.EffectiveCost), ScopedEval(Sum(CostDetails.EffectiveCost), [Role.Columns]))\",\"NativeReferenceName\":\"Percent\"},{\"SparklineData\":{\"Measure\":{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"EffectiveCost\"}},\"Function\":0}},\"Groupings\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"ChargePeriodStart\"}}]},\"Name\":\"SparklineData(Sum(CostDetails.EffectiveCost)_[CostDetails.ChargePeriodStart])\",\"NativeReferenceName\":\"EffectiveCost by ChargePeriodStart\"}]},\"expansionStates\":[{\"roles\":[\"Rows\"],\"levels\":[{\"queryRefs\":[\"CostDetails.tag_CostCenter\"],\"isCollapsed\":true,\"identityKeys\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Entity\":\"CostDetails\"}},\"Property\":\"tag_CostCenter\"}}],\"isPinned\":true},{\"queryRefs\":[\"CostDetails.tag_Project\"],\"isCollapsed\":true,\"isPinned\":true},{\"queryRefs\":[\"CostDetails.tag_Department\"],\"isCollapsed\":true}],\"root\":{\"identityValues\":null,\"children\":[{\"identityValues\":[{\"Literal\":{\"Value\":\"'SubACM'\"}}],\"isToggled\":true},{\"identityValues\":[{\"Literal\":{\"Value\":\"'ACM-PM'\"}}],\"isToggled\":true},{\"identityValues\":[{\"Literal\":{\"Value\":\"'1234'\"}}],\"isToggled\":true},{\"identityValues\":[{\"Literal\":{\"Value\":\"null\"}}],\"isToggled\":true}]}}],\"columnProperties\":{\"Divide(Sum(CostDetails.EffectiveCost), ScopedEval(Sum(CostDetails.EffectiveCost), [Role.Columns]))\":{\"displayName\":\"Percent\"}},\"drillFilterOtherVisuals\":true}}",
+          "filters": "[]",
+          "height": 359.56,
+          "width": 566.50,
+          "x": 0.00,
+          "y": 0.00,
+          "z": 2.00
+        },
+        {
+          "config": "{\"name\":\"e4eda33770c9fa5b76c2\",\"layouts\":[{\"id\":0,\"position\":{\"x\":895,\"y\":0,\"width\":385,\"height\":360,\"z\":4,\"tabOrder\":4}}],\"singleVisual\":{\"visualType\":\"map\",\"projections\":{\"Category\":[{\"queryRef\":\"CostDetails.RegionName\",\"active\":true}],\"Series\":[{\"queryRef\":\"CostDetails.tag_CostCenter\"}],\"Size\":[{\"queryRef\":\"Sum(CostDetails.EffectiveCost)\"}]},\"prototypeQuery\":{\"Version\":2,\"From\":[{\"Name\":\"c\",\"Entity\":\"CostDetails\",\"Type\":0}],\"Select\":[{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"RegionName\"},\"Name\":\"CostDetails.RegionName\",\"NativeReferenceName\":\"RegionName\"},{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"tag_CostCenter\"},\"Name\":\"CostDetails.tag_CostCenter\",\"NativeReferenceName\":\"First tag_CostCenter\"},{\"Aggregation\":{\"Expression\":{\"Column\":{\"Expression\":{\"SourceRef\":{\"Source\":\"c\"}},\"Property\":\"EffectiveCost\"}},\"Function\":0},\"Name\":\"Sum(CostDetails.EffectiveCost)\",\"NativeReferenceName\":\"EffectiveCost\"}]},\"drillFilterOtherVisuals\":true,\"hasDefaultSort\":true}}",
+          "filters": "[]",
+          "height": 360.00,
+          "width": 385.00,
+          "x": 895.00,
+          "y": 0.00,
+          "z": 4.00
+        }
+      ],
+      "width": 1280.00
+    },
     {
       "config": "{}",
       "displayName": "Get started",
