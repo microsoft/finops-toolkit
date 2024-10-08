@@ -8,7 +8,7 @@ metadata:
   title: FinOps documentation
   description: FinOps combines financial management principles with cloud engineering and operations to provide organizations with a better understanding of their cloud spending. It also helps you make informed decisions on how to allocate and manage your cloud costs.
   ms.topic: landing-page
-  ms.date: 09/05/2024
+  ms.date: 10/04/2024
   ms.custom: intro-landing-hub
 
 # highlightedContent section (optional)
@@ -48,23 +48,23 @@ conceptualContent:
   summary: The FinOps Framework is a comprehensive set of best practices and principles to help organizations drive greater business value from the cloud. # < 160 chars (Optional; Remove if not applicable.)
   items:
     # Card
-    - title: Understanding cloud usage + cost
+    - title: Understand cloud usage and cost
       links:
       - url: framework/understand/understand-cloud-usage-cost.md
         itemType: overview
         text: Overview
       - url: framework/understand/ingestion.md
         itemType: concept
-        text: Data ingestion and normalization
+        text: Data ingestion
       - url: framework/understand/allocation.md
         itemType: concept
-        text: Cost allocation
+        text: Allocation
       - url: framework/understand/reporting.md
         itemType: concept
-        text: Data analysis and showback
+        text: Reporting + analytics
       - url: framework/understand/anomalies.md
         itemType: concept
-        text: Managing anomalies
+        text: Anomaly management
     # Card
     - title: Quantify business value
       links:
@@ -79,13 +79,13 @@ conceptualContent:
         text: Forecasting
       - url: framework/quantify/budgeting.md
         itemType: concept
-        text: Budget management
+        text: Budgeting
       - url: framework/quantify/benchmarking.md
         itemType: concept
         text: Benchmarking
       - url: framework/quantify/unit-economics.md
         itemType: concept
-        text: Measuring unit costs
+        text: Unit economics
     # Card
     - title: Optimize cloud usage and cost
       links:
@@ -97,7 +97,7 @@ conceptualContent:
         text: Architecting for cloud
       - url: framework/optimize/workloads.md
         itemType: concept
-        text: Workload management and automation
+        text: Workload optimization
       - url: framework/optimize/licensing.md
         itemType: concept
         text: Licensing and SaaS
@@ -124,7 +124,7 @@ conceptualContent:
         text: Cloud policy and governance
       - url: framework/manage/invoicing-chargeback.md
         itemType: concept
-        text: Chargeback and finance integration
+        text: Invoicing + chargeback
       - url: framework/manage/assessment.md
         itemType: concept
         text: FinOps assessment
@@ -136,7 +136,7 @@ conceptualContent:
         text: FinOps tools and services
       - url: framework/manage/intersecting-disciplines.md
         itemType: concept
-        text: FinOps and intersecting frameworks
+        text: Intersecting disciplines
 
 
 tools:

@@ -37,7 +37,7 @@ Consider the stakeholders involved in your iteration. Since FinOps requires coll
 
 Before you start your next iteration, it's important to define the bounds for which you want to focus to ensure your iteration goals are achievable. If it is your first iteration, we recommend selecting three to five FinOps capabilities as a starting point. If you're defining the scope of a later iteration, you might want to keep the same capabilities or add one to two new ones.
 
-Use the information following as a guide to select the right FinOps capabilities based on your role, experience, and current priorities. It isn't an all-inclusive list of considerations. We encourage you to select all from one group or pick and choose across groups based on your current needs. It's merely an aid to help you get started.
+Use the following information as a guide to select the right FinOps capabilities based on your role, experience, and current priorities. It isn't an all-inclusive list of considerations. We encourage you to select all from one group or pick and choose across groups based on your current needs. The following order presented is a suggestion, not a requirement. It's merely an aid to help you get started.
 
 1. If your team is new to FinOps with little to moderate experience with cost management and optimization, we recommend starting with the basics:
     1. Reporting and analytics
@@ -51,11 +51,11 @@ Use the information following as a guide to select the right FinOps capabilities
     3. FinOps assessment
     4. FinOps education and enablement
     5. Forecasting
-3. If your team knows Microsoft Cloud's FinOps tools well and needs to manage costs in a big company where ownership is sometimes shared, consider the following:
+3. If your team knows Microsoft Cloud's FinOps tools well and needs to manage costs in a large company where ownership is sometimes shared, consider the following items:
     1. Allocation
     2. Invoicing and chargeback
     3. Rate optimization
-4. If your team is well-versed in the fundamentals of Microsoft Cloud's FinOps tools and is tasked with managing costs across a large organization with distributed and occasionally shared ownership, you might want to consider the following:
+4. If your team is experienced with Microsoft Cloud's FinOps tools and needs to manage costs in a large organization with distributed and shared ownership, consider the following items:
     1. Allocation
     2. Invoicing and chargeback
     3. Rate optimization
@@ -83,7 +83,7 @@ Note the capabilities you select for future use.
 
 ## Identify your goals
 
-Next, you identify specific, measurable goals based on your current experience with the capabilities you selected. Consider the following when you identify goals for this iteration:
+Next, you identify specific, measurable goals based on your current experience with the capabilities you selected. Consider the following points when you identify goals for this iteration:
 
 - **Knowledge** – How much do you know about the capability?
   - If you're new to the capability, focus on learning the purpose, intent, and how to implement the basics. Knowledge is often the first step of any capability.
@@ -91,17 +91,17 @@ Next, you identify specific, measurable goals based on your current experience w
   - If you know the basics, but don't have a predefined process, consider spending time documenting a repeatable process. Include how to implement the capability, roles and responsibilities for all stakeholders, and the metrics you use to measure success.
 - **Metrics** – Have success metrics been identified, baselined, and automated?
   - If you're new to the capability, think about success metrics as you learn the basics. For example, cost vs. budget, and commitment utilization. They help with future iterations.
-  - If you know the basics, but didn't identify success metrics, they're a must-have for your next step. Focus on identifying metrics that are relevant for your business and help you make trade-off decisions for this capability. To maximize efficiency, build these metrics and decisions into your process .
-  - If you've identified metrics, focus on getting a baseline for where you're at today. Seek to automate wherever possible, which will save you time in the future. Use tools like Power BI to generate reports you can share with stakeholders and celebrate your collective successes.
-- **Adoption** – How many teams have adopted the defined process and metrics?
-  - If you have a process that has only been tested on a small scale, share it with others. Experiment with the process and incorporate a feedback loop for continuous improvement.
-  - As your process matures, you notice less input from the feedback loop. Less input is a sign that your process is ready to be scaled out more and potentially be established as an official governance policy for new teams. If you're in a large organization that doesn't have a dedicated FinOps team, you may want to consider establishing one to drive this effort.  
+  - If you know the basics, but didn't identify success metrics, they're a must-have for your next step. Focus on identifying metrics that are relevant for your business and help you make trade-off decisions for this capability. To maximize efficiency, build these metrics and decisions into your process.
+  - If you have metrics identified, focus on getting a baseline for where you're at today. Seek to automate wherever possible, which will save you time in the future. Use tools like Power BI to generate reports you can share with stakeholders and celebrate your collective successes.
+- **Adoption** – How many teams adopted the defined process and metrics?
+  - If you have a process that was only tested on a small scale, share it with others. Experiment with the process and incorporate a feedback loop for continuous improvement.
+  - As your process matures, you notice less input from the feedback loop. Less input is a sign that your process is ready to be scaled out more and potentially be established as an official governance policy for new teams. If you're in a large organization that doesn't have a dedicated FinOps team, you might want to consider establishing one to drive this effort.  
 
     > [!IMPORTANT]
     > _Before establishing a dedicated FinOps team, consider how much time each individual team is spending on FinOps efforts, what the potential business value is with more savings and efficiency (or lost opportunity), and how much a dedicated team can accelerate those goals. A dedicated team is not for everyone. Ensure you have the right return on investment._
 
 - **Automation** – Has the capability been automated to minimize manual effort?
-  - If you're developing a process, we recommend identifying automation opportunities as you go. You may identify low-hanging fruit that could lead to large efficiency gains at scale or even find partner teams willing to contribute time in those areas and share resources.
+  - If you're developing a process, we recommend identifying automation opportunities as you go. You might identify low-hanging fruit that could lead to large efficiency gains at scale or even find partner teams willing to contribute time in those areas and share resources.
   - As you experiment with your process, keep your list of automation opportunities updated and share them with others as part of the feedback loop. Prioritize automating success metrics and look for opportunities to implement the most repeated tasks for maximum efficiency.
 
 In general, we recommend short iterations with targeted goals. Select one to three highly related goals listed previously. Avoid long iterations that cover a broad spectrum of work because they're harder to track, measure, and ultimately deliver.
@@ -110,7 +110,7 @@ In general, we recommend short iterations with targeted goals. Select one to thr
 
 ## Put your plan into action
 
-At this point, you have a rough plan of action. You may be new and plan on digging into the capability to learn and implement the basics. Or maybe you're planning to develop or experiment with a process being scaled out to other teams and stakeholders. Or maybe your process is already defined and you're driving full adoption or full automation. Whichever stage you're at, use the [FinOps Framework guidance](https://www.finops.org/framework/capabilities) to guide your efforts.
+At this point, you have a rough plan of action. You might be new and plan on digging into the capability to learn and implement the basics. Or maybe you're planning to develop or experiment with a process being scaled out to other teams and stakeholders. Or maybe your process is already defined and you're driving full adoption or full automation. Whichever stage you're at, use the [FinOps Framework guidance](https://www.finops.org/framework/capabilities) to guide your efforts.
 
 Check back later for more targeted guidance aligned with the FinOps Framework.
 
@@ -118,7 +118,7 @@ Check back later for more targeted guidance aligned with the FinOps Framework.
 
 ## Review progress
 
-When you started the iteration, you identified three to five capabilities, decided on the areas you wanted to focus on for those capabilities, and explored the capability guides. Were you able to achieve what you set out to do? What went well? What didn't go well? How could you improve the next iteration? Make note of your answers internally and review them at the end of each iteration to ensure you're addressing issues and maturing your process.
+When you started the iteration, you identified three to five capabilities, decided on the areas you wanted to focus on for those capabilities, and explored the capability guides. Were you able to achieve what you set out to do? What went well? What didn't go well? How could you improve the next iteration? To ensure you're addressing issues and maturing your process, make note of your answers internally and review them at the end of each iteration.
 
 After you close out on the iteration, remember that this tutorial can help guide you through each successive iteration through the FinOps lifecycle. Start the tutorial over to prepare for your next iteration. Feel free to leave feedback on this page after every iteration to let us know if you find this information helpful and how we can improve it.
 

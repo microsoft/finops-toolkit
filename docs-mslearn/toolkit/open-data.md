@@ -1,24 +1,26 @@
 ---
-title: Open data
-description: Leverage open data to normalize and enhance your FinOps reporting.
+title: Open data for FinOps
+description: Use open data to normalize and enhance your FinOps reporting.
+ms.topic: concept-article
 author: bandersmsft
 ms.author: banders
 ms.date: 10/03/2024
-ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
+ms.custom: references_regions
+# customer intent: As a FinOps practitioner, I want to understand FinOps reporting so that I can clean or normalize my data.
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
 # Open data for FinOps
 
-Reporting is the life-blood of any FinOps initiative. And your reports are only as good as your data. This is why [data ingestion](../../framework/understand/ingestion.md) is such an important part of FinOps (and any big data effort). The following datasets can be used to clean and normalize your data as part of data ingestion, reporting, or other solutions.
+Reporting is the life-blood of any FinOps initiative. And your reports are only as good as your data. It's why [data ingestion](../framework/understand/ingestion.md) is such an important part of FinOps (and any big data effort). The following datasets can be used to clean and normalize your data as part of data ingestion, reporting, or other solutions.
 
 <br>
 
 ## Pricing units
 
-Microsoft Cost Management uses the `UnitOfMeasure` column to indicate how each charge is measured. This can be in singular or distinct units or can be grouped into chunks based on applicable block pricing rules. As a string, the `UnitOfMeasure` column can be challenging to parse and handle all the different permutations and inconsistencies. The Pricing units file provides a list of values you may find within common cost-related datasets (e.g., Cost Management exports and price sheets) along with their related distinct unit and block size or scaling factor to compare pricing to usage units.
+Microsoft Cost Management uses the `UnitOfMeasure` column to indicate how each charge is measured. It can be in singular or distinct units or can be grouped into chunks based on applicable block pricing rules. As a string, the `UnitOfMeasure` column can be challenging to parse and handle all the different permutations and inconsistencies. The Pricing units file provides a list of values you might find within common cost-related datasets, for example, Cost Management exports and price sheets. It also has their related distinct unit and block size or scaling factor to compare pricing to usage units.
 
 Sample data:
 
@@ -34,10 +36,10 @@ Sample data:
 
 A few important notes about the data:
 
-1. Meter names are not included to keep the file size down.
-2. The default unit type is "Units".
-3. Some default units may include a more specific unit in the meter name, which is not accounted here since meter names aren't included.
-4. Marketplace meters are not included due to inconsistencies that would impact data size.
+- Meter names aren't included to keep the file size down.
+- The default unit type is `Units`.
+- Some default units might include a more specific unit in the meter name, which isn't accounted here since meter names aren't included.
+- Marketplace meters aren't included due to inconsistencies that would affect data size.
 
 > [!NOTE]
 > In the Cost Management FOCUS dataset, `UnitOfMeasure` is renamed to `x_PricingUnitDescription`. Both `PricingUnit` and `UsageUnit` in FOCUS are set to the `DistictUnits` column.
@@ -46,9 +48,7 @@ A few important notes about the data:
 
 <br>
 
-## Regions
-
-Microsoft Cost Management provides various values for resource locations that are occasionally inconsistent due to different underlying systems providing the data. The Regions file provides a list of values you may find within common cost-related datasets (e.g., Cost Management exports and price sheets) along with their related Azure region IDs and names.
+Microsoft Cost Management provides various values for resource locations that are occasionally inconsistent due to different underlying systems providing the data. The Regions file provides a list of values you might find within common cost-related datasets (for example, Cost Management exports and price sheets) along with their related Azure region IDs and names.
 
 Sample data:
 
@@ -66,14 +66,14 @@ Sample data:
 
 [Download Regions.csv](https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv) &nbsp; [See PowerShell](https://aka.ms/ftk/Get-FinOpsRegion)
 
-> [!IMPORTANT]
+> [!NOTE]
 > Convert region values to lowercase before mapping. This helps reduce duplication and speed up the mapping process.
 
 <br>
 
 ## Resource types
 
-Azure resource types are a semi-readable code that represents what kind of resource it is. Currently, there's no mapping of the resource type to a user-friendly string, description, or its icon. The ResourceTypes file provides a list of resource type values you'll find in the Azure portal along with their display names, description, and a link to the icon, when available.
+Azure resource types are a semi-readable code that represents what kind of resource it is. Currently, there's no mapping of the resource type to a user-friendly string, description, or its icon. The ResourceTypes file provides a list of resource type values you see in the Azure portal along with their display names, description, and a link to the icon, when available.
 
 Sample data:
 
@@ -82,7 +82,7 @@ Sample data:
 | ResourceType                      | Singular Display Name   | Plural Display Name      | Lower Singular Display Name | Lower Plural Display Name |
 | --------------------------------- | ----------------------- | ------------------------ | --------------------------- | ------------------------- |
 | microsoft.compute/virtualmachines | Virtual machine         | Virtual machines         | virtual machine             | virtual machines          |
-| microsoft.insights/workbooks      | Azure Workbook          | Azure Workbooks          | azure workbook              | azure workbooks           |
+| microsoft.insights/workbooks      | Azure Workbook          | Azure Workbooks          | Azure workbook              | Azure workbooks           |
 | microsoft.logic/workflows         | Logic app               | Logic apps               | logic app                   | logic apps                |
 | microsoft.network/virtualnetworks | Virtual network         | Virtual networks         | virtual network             | virtual networks          |
 | microsoft.recoveryservices/vaults | Recovery Services vault | Recovery Services vaults | recovery services vault     | recovery services         |
@@ -93,16 +93,16 @@ Sample data:
 
 <!-- cSpell:enable -->
 
-> [!IMPORTANT]
+> [!NOTE]
 > Convert resource type values to lowercase before mapping. This helps reduce duplication and speed up the mapping process.
 
 [Download ResourceTypes.csv](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv) &nbsp; [Download ResourceTypes.json](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.json) &nbsp; [See PowerShell](https://aka.ms/ftk/Get-FinOpsResourceType)
 
 <br>
 
-## Services
+##  Services
 
-In Microsoft Cost Management, `ConsumedService` represents the primary service or resource provider of the resource you used. This is roughly the same as `ServiceName` in [FOCUS](../../focus/README.md). In some cases, multiple services share the same resource provider, so we're using the `ConsumedService` and `ResourceType` columns to map to `ServiceName` and `ServiceCategory` values for use within FOCUS.
+In Microsoft Cost Management, `ConsumedService` represents the primary service or resource provider of the resource you used. It's roughly the same as `ServiceName` in [FOCUS](../focus/what-is-focus.md). In some cases, multiple services share the same resource provider, so we're using the `ConsumedService` and `ResourceType` columns to map to `ServiceName` and `ServiceCategory` values for use within FOCUS.
 
 Sample data:
 
@@ -120,20 +120,18 @@ Sample data:
 
 A few important notes about the data:
 
-1. `ConsumedService` and `ResourceType` values are all lowercased to avoid case sensitivity issues.
-2. `ServiceName` values should match the product marketing name for the closest possible service. Some services reuse resource types and cannot be distinguished from the resource type alone (e.g., Azure functions will show as App Service).
-3. `ServiceCategory` values are aligned with the allowed values in FOCUS.
+- `ConsumedService` and `ResourceType` values are all lowercased to avoid case sensitivity issues.
+- `ServiceName` values should match the product marketing name for the closest possible service. Some services reuse resource types and can't be distinguished from the resource type alone (for example, Azure functions show as App Service).
+- `ServiceCategory` values are aligned with the allowed values in FOCUS.
 
-> [!NOTE]
+>[!NOTE]
 > Most mappings can rely on resource type alone. In a future update, we will merge this list with [Resource types](#resource-types) to provide only a single dataset. Currently, the only known case where resource type is shared that ConsumedService can help identify is for Microsoft Defender for Cloud. To simplify your mapping, you can only map those 5 rows and rely on a resource type mapping for everything else.
-
-[Download Services.csv](https://github.com/microsoft/finops-toolkit/releases/latest/download/Services.csv) &nbsp; [See PowerShell](https://aka.ms/ftk/Get-FinOpsService)
 
 <br>
 
 ## Dataset examples
 
-The following files are examples of what you will find when you export data from Microsoft Cost Management. These files are provided to help you understand the data structure and format. They are from an Enterprise Agreement (EA) demo account and are not intended to be used for ingestion or reporting.
+The following files are examples of what you see when you export data from Microsoft Cost Management. These files are provided to help you understand the data structure and format. They are from an Enterprise Agreement (EA) demo account and aren't intended to be used for ingestion or reporting.
 
 - Cost and usage
   - Actual (billed) (`2021-10-01`)
@@ -151,24 +149,24 @@ The following files are examples of what you will find when you export data from
 
 ## Dataset metadata
 
-Given each dataset uses different columns and data types, FOCUS has defined metadata schema to describe the dataset. Dataset metadata includes general information about the data like the data generator, schema version, and columns included in the dataset.
+Given each dataset uses different columns and data types, FOCUS defines the metadata schema to describe the dataset. Dataset metadata includes general information about the data like the data generator, schema version, and columns included in the dataset.
 
 Sample data:
 
-| ColumnName           | DataType | Description                                                                                                                                                            |
-| -------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `BilledCost`         | Decimal  | A charge serving as the basis for invoicing, inclusive of all reduced rates and discounts while excluding the amortization of upfront charges (one-time or recurring). |
-| `BillingAccountId`   | String   | Unique identifier assigned to a billing account by the provider.                                                                                                       |
-| `BillingAccountName` | String   | Display name assigned to a billing account.                                                                                                                            |
-| `BillingCurrency`    | String   | Currency that a charge was billed in.                                                                                                                                  |
-| `BillingPeriodEnd`   | DateTime | End date and time of the billing period.                                                                                                                               |
-| `BillingPeriodStart` | DateTime | Beginning date and time of the billing period.                                                                                                                         |
+| ColumnName           | DataType | Description|
+| --- | --- | --- |
+| `BilledCost`| Decimal  | A charge serving as the basis for invoicing, inclusive of all reduced rates and discounts while excluding the amortization of upfront charges (one-time or recurring). |
+| `BillingAccountId`   | String   | Unique identifier assigned to a billing account by the provider.|
+| `BillingAccountName` | String   | Display name assigned to a billing account.|
+| `BillingCurrency`    | String   | Currency that a charge was billed in.|
+| `BillingPeriodEnd`   | DateTime | End date and time of the billing period.|
+| `BillingPeriodStart` | DateTime | Beginning date and time of the billing period.|
 
 Metadata is available for the following datasets:
 
 - Cost and usage
-  - FOCUS 1.0 – [Learn more](../../focus/metadata.md#focuscost-10)
-  - FOCUS 1.0-preview(v1) – [Learn more](../../focus/metadata.md#focuscost-10-previewv1)
+  - [FOCUS 1.0](../focus/metadata.md#focuscost-10)
+  - [FOCUS 1.0-preview(v1)](../focus/metadata.md#focuscost-10-previewv1)
 
 [Download all metadata](https://github.com/microsoft/finops-toolkit/releases/latest/download/dataset-metadata.zip)
 
@@ -183,6 +181,10 @@ We'd love to hear about any datasets you're looking for. Create a new issue with
 <br>
 
 ## Related content
+
+Related resources:
+
+- [FOCUS metadata](../focus/metadata.md)
 
 Related FinOps capabilities:
 
