@@ -5,7 +5,7 @@
 with (docstring = 'Gets all cost and usage records with the latest supported version of the FOCUS schema.', folder = 'Ingestion')
 Costs()
 {
-    database('Ingestion').Costs_1_0
+    database('Ingestion').Costs_v1_0
 }
 
 
@@ -13,5 +13,5 @@ Costs()
 with (docstring = 'Gets all prices with the latest supported version of the FOCUS schema.', folder = 'Ingestion')
 Prices()
 {
-    database('Ingestion').Prices_1_0
+    database('Ingestion').Prices_v1_0
 }

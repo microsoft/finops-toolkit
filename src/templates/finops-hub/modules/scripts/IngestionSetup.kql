@@ -1,6 +1,14 @@
 // Grant ADF identity access to the cluster
 .add database Ingestion admins ('aadapp=$$adfPrincipalId$$;$$adfTenantId$$')
 
+//----------------------------------------------------------------------------------------------------------------------
+// Naming conventions:
+// - All raw ingestion tables are named "*_raw"
+// - All transformed views/tables/functions are named after the FOCUS version (e.g., "1.0" = "_v1_0")
+// - New columns can be added to tables, but existing columns cannot be changed or removed
+// - If an external column needs to be changed/removed, add a new "release" (e.g., "1.0r2" = "_v1_0_r2")
+//----------------------------------------------------------------------------------------------------------------------
+
 //======================================================================================================================
 // FTK open data
 //======================================================================================================================
@@ -122,7 +130,7 @@ Services()
 // Prices as FOCUS 1.0
 .create-or-alter function
 with (docstring='All prices transformed to FOCUS 1.0.', folder='Prices')
-Prices_1_0()
+Prices_v1_0()
 {
     // TODO: Handle null MeterId
     // TODO: Add x_CommitmentDiscountMinimum (as in the minimum commitment amount; e.g., 100TB, 1PB, 10PB for storage)
@@ -426,8 +434,8 @@ Prices_1_0()
 
 // Costs as FOCUS 1.0
 .create-or-alter function
-with (docstring = 'All costs transformed to FOCUS 1.0.', folder = 'Costs')
-Costs_1_0()
+with (docstring='All costs transformed to FOCUS 1.0.', folder='Costs')
+Costs_v1_0()
 {
     // TODO: Should Adjustment costs be on List/ContractedCost?
     // TODO: File a bug on CM for ContractedCost being off by the x_PricingBlockSize
@@ -486,7 +494,7 @@ Costs_1_0()
     | where tmp_MissingPrices
     | as costsWithMissingPrices
     | join kind=leftouter (
-        Prices_1_0
+        Prices_v1_0
         | where x_SkuPriceType == 'Consumption' and strcat(x_SkuMeterId, x_SkuOfferId) in ((costsWithMissingPrices | summarize by strcat(x_SkuMeterId, x_SkuOfferId)))
         | project x_SkuMeterId, x_SkuOfferId, x_PricingBlockSize, PricingUnit, ListUnitPrice, ContractedUnitPrice
     ) on x_SkuMeterId, x_SkuOfferId
@@ -676,8 +684,8 @@ Costs_1_0()
 )
 
 .create-or-alter function
-with (docstring = 'All commitment discount usage transformed to FOCUS 1.0. This includes ReservationDeatils_raw.', folder = 'CommitmentDiscounts')
-CommitmentDiscountUsage_1_0()
+with (docstring='All commitment discount usage transformed to FOCUS 1.0. This includes ReservationDeatils_raw.', folder='Commitment discounts')
+CommitmentDiscountUsage_v1_0()
 {
     // TODO: Consider adding ResourceType, ServiceName, ServiceCategory, ServiceSubcategory (1.1)
     // TODO: Confirm the ReservedHours includes non-hour units

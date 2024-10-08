@@ -2950,7 +2950,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           ]
         }
       }
-      {
+      { // ADX Ingestion
         name: 'ADX Ingestion'
         type: 'Copy'
         state: deployDataExplorer ? 'Active' : 'Inactive'
@@ -2986,13 +2986,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
                 type: 'AzureDataExplorerSink'
                 ingestionMappingName: ''
                 additionalProperties: {
-                    tags: {
-                      value: [
-                        '@pipeline().parameters.ingestionId'
-                        '@pipeline().parameters.destinationFile'
-                      ]
-                      type: 'Array'
-                    }
+                  value: '@json(concat(\'{"tags":"[\\"run:\', pipeline().parameters.ingestionId, \'\\", \\"file:\', pipeline().parameters.destinationFile, \'\\"]"}\'))'
+                  type: 'Expression'
                 }
             })
             enableStaging: false
