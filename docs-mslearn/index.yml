@@ -61,7 +61,7 @@ conceptualContent:
         text: Allocation
       - url: framework/understand/reporting.md
         itemType: concept
-        text: Reporting and analytics
+        text: Reporting + analytics
       - url: framework/understand/anomalies.md
         itemType: concept
         text: Anomaly management
@@ -124,7 +124,7 @@ conceptualContent:
         text: Cloud policy and governance
       - url: framework/manage/invoicing-chargeback.md
         itemType: concept
-        text: Invoicing and chargeback
+        text: Invoicing + chargeback
       - url: framework/manage/assessment.md
         itemType: concept
         text: FinOps assessment

@@ -118,6 +118,7 @@ The following files are examples of what you see when you export data from Micro
 - Cost and usage
   - Actual (billed) (`2021-10-01`)
   - Amortized (`2021-10-01`)
+  - FOCUS (`1.0`)
   - FOCUS (`1.0-preview(v1)`)
 - Prices (`2023-05-01`)
 - Reservation details (`2023-03-01`)

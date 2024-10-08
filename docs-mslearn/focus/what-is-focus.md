@@ -32,11 +32,11 @@ FOCUS solves this problem by establishing a provider- and service-agnostic data 
 
 FOCUS can assist organizations that:
 
-- Use a single cloud provider along with complementary service providers
-- Have multiple accounts within one cloud provider
-- Have just one account with a single cloud provider
+- Use a single cloud provider along with complementary service providers.
+- Have multiple accounts within one cloud provider.
+- Have just one account with a single cloud provider.
 
- The benefits of using FOCUS are wide-reaching, from streamlined operations within an enterprise to making skills as a FinOps practitioner more portable.
+The benefits of using FOCUS are wide-reaching, from streamlined operations within an enterprise to making skills as a FinOps practitioner more portable.
 
 <br>
 
@@ -86,12 +86,6 @@ FOCUS is the **best** version of cost and usage data you can get from Cost Manag
 
 FOCUS 1.0 covers:
 
-- Resources you deployed
-- Internal SKUs each resource used
-- Type of charge
-- How much you used or purchased
-- How it was priced
-- And the specific:
   - Billing details related to invoicing, like the provider you used, who generated the invoice (invoice issuer), and the billing period for the invoice.
   - Resource details about what you deployed with the provider, like the service, resource type, region, and tags.
   - SKU details about the product you used or purchased, like the publisher and SKU identifiers.
@@ -111,13 +105,7 @@ Since prices are determined based on the billing relationship, you can also find
 
 Last but not least you also have the price and cost details. Each charge has a **BillingCurrency** that all prices and costs use, which might differ from how the provider prices charges. As an example, most MCA accounts are priced in USD and might get billed in another currency like Yen or Euros.
 
-> [!NOTE]
-> Because FOCUS relies on the billing currency, the prices shown in FOCUS datasets might not match native Cost Management schemas.
-
 Each charge includes the **PricingQuantity** and **PricingUnit** based on how the SKU was priced (which could be in chunks or "blocks" of units) and a set of unit prices for the cost of each individual pricing unit (based on the **SkuPriceId**) and the total cost based on the pricing quantity. FOCUS includes the **ListUnitPrice** and **ListCost** for the public retail or market prices without discounts, **ContractedUnitPrice**, and **ContractedCost** for prices after negotiated contractual discounts but without commitment discounts, **EffectiveCost** after commitment discount purchases were amortized, and **BilledCost** that was or will be invoiced.
-
-> [!NOTE]
-> Perhaps the biggest difference between FOCUS and native schemas is that FOCUS combines "actual" and "amortized" cost into a single dataset. This saves you time and money with a smaller dataset size compared to managing both datasets separately. Data size is on par with the amortized cost data except with less than 100 more rows for commitment discount purchases and refunds.
 
 Beyond these points, each provider can include more columns prefixed with **x\_** to denote them as extended columns that aren't part of the FOCUS schema but provide useful details about your cost and usage. Microsoft Cost Management provides the same details within its FOCUS dataset as the native schemas by utilizing this prefix. FinOps toolkit reports add to the columns with more details to facilitate reporting and optimization goals.
 
@@ -127,6 +115,8 @@ Beyond these points, each provider can include more columns prefixed with **x\_*
 
 Note the following points when working with FOCUS data:
 
+- FOCUS relies on the billing currency for all prices and costs while Cost Management uses the pricing currency. Prices in FOCUS might be in a different currency than native Cost Management schemas.
+- FOCUS combines "actual" and "amortized" cost into a single dataset. This produces a smaller dataset compared to managing both datasets separately. Data size is on par with the amortized cost data plus any commitment discount purchases and refunds.
 - `BillingAccountId` and `BillingAccountName` map to the billing profile ID and name for Microsoft Customer Agreement accounts.
    - We're looking for feedback about it to understand if it's a problem and determine the best way to address it.
 -  `BillingPeriodEnd` and `ChargePeriodEnd` are exclusive, which is helpful for filtering.

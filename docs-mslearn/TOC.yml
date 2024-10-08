@@ -30,7 +30,7 @@
           href: framework/understand/ingestion.md
         - name: Allocation
           href: framework/understand/allocation.md
-        - name: Reporting and analytics
+        - name: Reporting + analytics
           href: framework/understand/reporting.md
         - name: Anomalies
           href: framework/understand/anomalies.md
@@ -60,7 +60,7 @@
           href: framework/optimize/architecting.md
         - name: Workload management
           href: framework/optimize/workloads.md
-        - name: Licensing and SaaS
+        - name: Licensing + SaaS
           href: framework/optimize/licensing.md
         - name: Rate optimization
           href: framework/optimize/rates.md
@@ -90,14 +90,14 @@
     items:
     - name: Overview
       href: focus/what-is-focus.md
-    - name: Convert to FOCUS
-      href: focus/convert.md
     - name: Updating reports
       href: focus/mapping.md
-    - name: FOCUS dataset
-      href: focus/metadata.md
+    - name: Convert to FOCUS
+      href: focus/convert.md
     - name: Validate FOCUS data
       href: focus/validate.md
+    - name: FOCUS dataset
+      href: focus/metadata.md
 - name: Microsoft Fabric workspace for FinOps
   items:
   - name: Create a Fabric workspace for FinOps
