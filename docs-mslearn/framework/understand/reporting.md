@@ -135,7 +135,7 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 You can also find related videos on the FinOps Foundation YouTube channel:
 
-[!VIDEO https://www.youtube.com/embed/CVTJLdcozj1eEpxT?list=PLUSCToibAswlDSQdehKhi7ysP2hmetigl]
+> [!VIDEO https://www.youtube.com/embed/CVTJLdcozj1eEpxT?list=PLUSCToibAswlDSQdehKhi7ysP2hmetigl]
 
 <br>
 
@@ -160,7 +160,7 @@ Related solutions:
 - [FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi)
 - [FinOps hubs](https://aka.ms/finops/hubs)
 - [Cost optimization workbook](../../toolkit/optimization-workbook/cost-optimization-workbook.md)
-- [Governance workbook](https://microsoft.github.io/finops-toolkit/governance-workbook)
+- [Governance workbook](https://microsoft.github.io/finops-toolkit/workbooks/governance)
 - [FinOps toolkit Bicep Registry modules](https://aka.ms/ftk/bicep)
 
 Other resources:

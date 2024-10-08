@@ -22,12 +22,16 @@
     - name: FinOps capabilities
       href: framework/capabilities.md
       items:
-      - name: Understanding
+      - name: Understand
         items:
         - name: Understand cloud usage and cost
           href: framework/understand/understand-cloud-usage-cost.md
+        - name: Data ingestion
+          href: framework/understand/ingestion.md
         - name: Allocation
           href: framework/understand/allocation.md
+        - name: Reporting + analytics
+          href: framework/understand/reporting.md
         - name: Anomalies
           href: framework/understand/anomalies.md
         - name: Data analysis
@@ -38,15 +42,15 @@
         items:
         - name: Quantify business value
           href: framework/quantify/quantify-business-value.md
-        - name: Benchmarking
-          href: framework/quantify/benchmarking.md
-        - name: Budgeting
-          href: framework/quantify/budgeting.md
-        - name: Forecasting
-          href: framework/quantify/forecasting.md
         - name: Planning and estimating
           href: framework/quantify/planning.md
-        - name: Unit costs
+        - name: Forecasting
+          href: framework/quantify/forecasting.md
+        - name: Budgeting
+          href: framework/quantify/budgeting.md
+        - name: Benchmarking
+          href: framework/quantify/benchmarking.md
+        - name: Unit economics
           href: framework/quantify/unit-economics.md
       - name: Optimize
         items:
@@ -54,30 +58,46 @@
           href: framework/optimize/optimize-cloud-usage-cost.md
         - name: Architecting for cloud
           href: framework/optimize/architecting.md
-        - name: Cloud sustainability
-          href: framework/optimize/sustainability.md
-        - name: Licensing and SaaS
-          href: framework/optimize/licensing.md
         - name: Workload management
           href: framework/optimize/workloads.md
+        - name: Licensing + SaaS
+          href: framework/optimize/licensing.md
+        - name: Rate optimization
+          href: framework/optimize/rates.md
+        - name: Cloud sustainability
+          href: framework/optimize/sustainability.md
       - name: Manage
         items:
         - name: Manage the FinOps practice
           href: framework/manage/manage-finops.md
-        - name: Assessment
-          href: framework/manage/assessment.md
-        - name: Chargeback
-          href: framework/manage/invoicing-chargeback.md
-        - name: Education
-          href: framework/manage/education.md
         - name: FinOps practice operations
           href: framework/manage/operations.md
+        - name: Education + enablement
+          href: framework/manage/education.md
+        - name: Cloud policy + governance
+          href: framework/manage/governance.md
+        - name: Invoicing + chargeback
+          href: framework/manage/invoicing-chargeback.md
+        - name: FinOps assessment
+          href: framework/manage/assessment.md
+        - name: Onboarding workloads
+          href: framework/manage/onboarding.md
+        - name: Tools + services
+          href: framework/manage/tools-services.md
         - name: Intersecting frameworks
           href: framework/manage/intersecting-disciplines.md
-        - name: Onboarding
-          href: framework/manage/onboarding.md
-        - name: Tools and services
-          href: framework/manage/tools-services.md
+  - name: FOCUS
+    items:
+    - name: Overview
+      href: focus/what-is-focus.md
+    - name: Updating reports
+      href: focus/mapping.md
+    - name: Convert to FOCUS
+      href: focus/convert.md
+    - name: Validate FOCUS data
+      href: focus/validate.md
+    - name: FOCUS dataset
+      href: focus/metadata.md
 - name: Microsoft Fabric workspace for FinOps
   items:
   - name: Create a Fabric workspace for FinOps
@@ -88,6 +108,8 @@
     href: https://aka.ms/finops/toolkit
   - name: Cost optimization workbook
     href: toolkit/optimization-workbook/cost-optimization-workbook.md
+  - name: Open data
+    href: toolkit/open-data.md
 - name: Resources
   items:
   - name: FinOps discussions on Microsoft Tech Community

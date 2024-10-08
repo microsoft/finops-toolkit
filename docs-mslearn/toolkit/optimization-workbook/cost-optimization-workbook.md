@@ -19,7 +19,7 @@ This article explains how to install and edit the Cost optimization workbook. Th
 - Management of improperly deallocated virtual machines
 - Insights into using Azure Hybrid Benefit options for Windows, Linux, and SQL databases
 
-The workbook includes insights for compute, storage and networking. The workbook also has a quick fix option for some queries. The quick fix option allows you to apply the recommended optimization directly from the workbook page, streamlining the optimization process.
+The workbook includes insights for compute, storage, and networking. The workbook also has a quick fix option for some queries. The quick fix option allows you to apply the recommended optimization directly from the workbook page, streamlining the optimization process.
 
 The workbook has two main sections: Rate optimization and Usage optimization.
 
@@ -63,7 +63,7 @@ The Cost optimization workbook is in the Azure Advisor's workbook gallery, and i
 
 ### Deploy the workbook to Azure
 
-If you want to make modifications to the original workbook, its template is offered as part of the [FinOps toolkit](https://microsoft.github.io/finops-toolkit/optimization-workbook) and can be deployed in just a few steps.
+If you want to make modifications to the original workbook, its template is offered as part of the [FinOps toolkit](https://microsoft.github.io/finops-toolkit/workbooks/optimization) and can be deployed in just a few steps.
 
 Confirm that you have the following least-privileged roles to deploy and use the workbook.
 
