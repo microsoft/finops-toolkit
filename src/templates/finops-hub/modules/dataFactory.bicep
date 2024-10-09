@@ -53,10 +53,20 @@ var ftkVersion = loadTextContent('ftkver.txt')
 var exportApiVersion = '2023-07-01-preview'
 
 // Function to generate the body for a Cost Management export
-func getExportBody(exportContainerName string, datasetType string, schemaVersion string, isMonthly bool, exportFormat string, compressionMode string, partitionData string, dataOverwriteBehavior string) string => '{ "properties": { "definition": { "dataSet": { "configuration": { "dataVersion": "${schemaVersion}", "filters": [] }, "granularity": "Daily" }, "timeframe": "${isMonthly ? 'TheLastMonth': 'MonthToDate' }", "type": "${datasetType}" }, "deliveryInfo": { "destination": { "container": "${exportContainerName}", "rootFolderPath": "@{if(startswith(item().scope, \'/\'), substring(item().scope, 1, sub(length(item().scope), 1)) ,item().scope)}", "type": "AzureBlob", "resourceId": "@{variables(\'storageAccountId\')}" } }, "schedule": { "recurrence": "${ isMonthly ? 'Monthly' : 'Daily'}", "recurrencePeriod": { "from": "2024-01-01T00:00:00.000Z", "to": "2050-02-01T00:00:00.000Z" }, "status": "Inactive" }, "format": "${exportFormat}", "partitionData": "${partitionData}", "dataOverwriteBehavior": "${dataOverwriteBehavior}", "compressionMode": "${compressionMode}" }, "id": "@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}", "name": "@{variables(\'exportName\')}", "type": "Microsoft.CostManagement/reports", "identity": { "type": "systemAssigned" }, "location": "global" }'
+func getExportBody(
+  exportContainerName string,
+  datasetType string,
+  schemaVersion string,
+  isMonthly bool,
+  exportFormat string,
+  compressionMode string,
+  partitionData string,
+  dataOverwriteBehavior string
+) string =>
+  '{ "properties": { "definition": { "dataSet": { "configuration": { "dataVersion": "${schemaVersion}", "filters": [] }, "granularity": "Daily" }, "timeframe": "${isMonthly ? 'TheLastMonth': 'MonthToDate' }", "type": "${datasetType}" }, "deliveryInfo": { "destination": { "container": "${exportContainerName}", "rootFolderPath": "@{if(startswith(item().scope, \'/\'), substring(item().scope, 1, sub(length(item().scope), 1)) ,item().scope)}", "type": "AzureBlob", "resourceId": "@{variables(\'storageAccountId\')}" } }, "schedule": { "recurrence": "${isMonthly ? 'Monthly' : 'Daily'}", "recurrencePeriod": { "from": "2024-01-01T00:00:00.000Z", "to": "2050-02-01T00:00:00.000Z" }, "status": "Inactive" }, "format": "${exportFormat}", "partitionData": "${partitionData}", "dataOverwriteBehavior": "${dataOverwriteBehavior}", "compressionMode": "${compressionMode}" }, "id": "@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}", "name": "@{variables(\'exportName\')}", "type": "Microsoft.CostManagement/reports", "identity": { "type": "systemAssigned" }, "location": "global" }'
 
 var datasetPropsDefault = {
-    location: {
+  location: {
     type: 'AzureBlobFSLocation'
     fileName: {
       value: '@{dataset().fileName}'
@@ -137,29 +147,38 @@ module azuretimezones 'azuretimezones.bicep' = {
 resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: '${dataFactory.name}_triggerManager'
   location: location
-  tags: union(tags, contains(tagsByResource, 'Microsoft.ManagedIdentity/userAssignedIdentities') ? tagsByResource['Microsoft.ManagedIdentity/userAssignedIdentities'] : {})
+  tags: union(
+    tags,
+    contains(tagsByResource, 'Microsoft.ManagedIdentity/userAssignedIdentities')
+      ? tagsByResource['Microsoft.ManagedIdentity/userAssignedIdentities']
+      : {}
+  )
 }
 
-resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in autoStartRbacRoles: {
-  name: guid(dataFactory.id, role, identity.id)
-  scope: dataFactory
-  properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
-    principalId: identity.properties.principalId
-    principalType: 'ServicePrincipal'
+resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
+  for role in autoStartRbacRoles: {
+    name: guid(dataFactory.id, role, identity.id)
+    scope: dataFactory
+    properties: {
+      roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
+      principalId: identity.properties.principalId
+      principalType: 'ServicePrincipal'
+    }
   }
-}]
+]
 
 // Create managed identity to manage exports in cost management
-resource pipelineIdentityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in storageRbacRoles: {
-  name: guid(storageAccount.id, role, dataFactory.id)
-  scope: storageAccount
-  properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
-    principalId: dataFactory.identity.principalId
-    principalType: 'ServicePrincipal'
+resource pipelineIdentityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [
+  for role in storageRbacRoles: {
+    name: guid(storageAccount.id, role, dataFactory.id)
+    scope: storageAccount
+    properties: {
+      roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', role)
+      principalId: dataFactory.identity.principalId
+      principalType: 'ServicePrincipal'
+    }
   }
-}]
+]
 
 //------------------------------------------------------------------------------
 // Delete old triggers and pipelines
@@ -179,7 +198,12 @@ resource deleteOldResources 'Microsoft.Resources/deploymentScripts@2020-10-01' =
   dependsOn: [
     identityRoleAssignments
   ]
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
+  tags: union(
+    tags,
+    contains(tagsByResource, 'Microsoft.Resources/deploymentScripts')
+      ? tagsByResource['Microsoft.Resources/deploymentScripts']
+      : {}
+  )
   properties: {
     azPowerShellVersion: '8.0'
     retentionInterval: 'PT1H'
@@ -299,14 +323,17 @@ resource linkedService_arm 'Microsoft.DataFactory/factories/linkedservices@2018-
     annotations: []
     parameters: {}
     type: 'RestService'
-    typeProperties: union({
-      url: environment().resourceManager
-      authenticationType: 'ManagedServiceIdentity'
-      enableServerCertificateValidation: true
-    }, {
-      // When bicep sees "ResourceId" in the following property name, it raises a warning. The union and variable work around this to avoid the warning.
-      '${armEndpointPropertyName}': environment().resourceManager
-    })
+    typeProperties: union(
+      {
+        url: environment().resourceManager
+        authenticationType: 'ManagedServiceIdentity'
+        enableServerCertificateValidation: true
+      },
+      {
+        // When bicep sees "ResourceId" in the following property name, it raises a warning. The union and variable work around this to avoid the warning.
+        '${armEndpointPropertyName}': environment().resourceManager
+      }
+    )
   }
 }
 
@@ -368,7 +395,7 @@ resource dataset_manifest 'Microsoft.DataFactory/factories/datasets@2018-06-01' 
     parameters: {
       fileName: {
         type: 'String'
-      defaultValue: 'manifest.json'
+        defaultValue: 'manifest.json'
       }
       folderPath: {
         type: 'String'
@@ -470,7 +497,9 @@ resource dataset_ingestion 'Microsoft.DataFactory/factories/datasets@2018-06-01'
     }
     linkedServiceName: {
       parameters: {}
-      referenceName: empty(remoteHubStorageUri) ? linkedService_storageAccount.name : linkedService_remoteHubStorage.name
+      referenceName: empty(remoteHubStorageUri)
+        ? linkedService_storageAccount.name
+        : linkedService_remoteHubStorage.name
       type: 'LinkedServiceReference'
     }
   }
@@ -499,40 +528,9 @@ resource dataset_ingestion_files 'Microsoft.DataFactory/factories/datasets@2018-
     }
     linkedServiceName: {
       parameters: {}
-      referenceName: empty(remoteHubStorageUri) ? linkedService_storageAccount.name : linkedService_remoteHubStorage.name
-      type: 'LinkedServiceReference'
-    }
-  }
-}
-
-resource dataset_recommendations 'Microsoft.DataFactory/factories/datasets@2018-06-01' = {
-  name: recommendationsName
-  parent: dataFactory
-  properties: {
-    annotations: []
-    parameters: {
-      blobPrefix: {
-        type: 'String'
-      }
-      blobExportTimestamp: {
-        type: 'String'
-      }
-    }
-    type: 'Json'
-    typeProperties: {
-      location: {
-        type: 'AzureBlobFSLocation'
-        fileSystem: safeIngestionContainerName
-        fileName: {
-          value: '@concat(dataset().blobPrefix,\'-\', dataset().blobExportTimestamp, \'.json\')'
-          type: 'Expression'
-        }
-        folderPath: recommendationsName
-      }
-    }
-    linkedServiceName: {
-      parameters: {}
-      referenceName: empty(remoteHubStorageUri) ? linkedService_storageAccount.name : linkedService_remoteHubStorage.name
+      referenceName: empty(remoteHubStorageUri)
+        ? linkedService_storageAccount.name
+        : linkedService_remoteHubStorage.name
       type: 'LinkedServiceReference'
     }
   }
@@ -699,16 +697,7 @@ resource trigger_RecommendationsDailySchedule 'Microsoft.DataFactory/factories/t
     pipelines: [
       {
         pipelineReference: {
-          referenceName: pipeline_ExportRecommendationsAdvisor.name
-          type: 'PipelineReference'
-        }
-        parameters: {
-          Recurrence: 'Daily'
-        }
-      }
-      {
-        pipelineReference: {
-          referenceName: pipeline_ExportRecommendationsCustom.name
+          referenceName: pipeline_ExecuteRecommendations.name
           type: 'PipelineReference'
         }
         parameters: {
@@ -992,7 +981,8 @@ resource pipeline_RunBackfill 'Microsoft.DataFactory/factories/pipelines@2018-06
   parent: dataFactory
   properties: {
     activities: [
-      { // Load config file to get scopes
+      {
+        // Load config file to get scopes
         name: 'Get Config'
         type: 'Lookup'
         dependsOn: []
@@ -1032,7 +1022,8 @@ resource pipeline_RunBackfill 'Microsoft.DataFactory/factories/pipelines@2018-06
           }
         }
       }
-      { // Set Scopes
+      {
+        // Set Scopes
         name: 'Set Scopes'
         description: 'Save scopes to test if it is an array'
         type: 'SetVariable'
@@ -1055,7 +1046,8 @@ resource pipeline_RunBackfill 'Microsoft.DataFactory/factories/pipelines@2018-06
           }
         }
       }
-      { // Set scopes as array to work around PowerShell bug
+      {
+        // Set scopes as array to work around PowerShell bug
         name: 'Set Scopes as Array'
         description: 'Wraps a single scope object into an array to work around the PowerShell bug where single-item arrays are sometimes written as a single object instead of an array.'
         type: 'SetVariable'
@@ -1080,7 +1072,8 @@ resource pipeline_RunBackfill 'Microsoft.DataFactory/factories/pipelines@2018-06
           }
         }
       }
-      { // Filter Invalid Scopes
+      {
+        // Filter Invalid Scopes
         name: 'Filter Invalid Scopes'
         description: 'Remove any invalid scopes to avoid errors.'
         type: 'Filter'
@@ -1102,7 +1095,8 @@ resource pipeline_RunBackfill 'Microsoft.DataFactory/factories/pipelines@2018-06
           }
         }
       }
-      { // Loop thru scopes
+      {
+        // Loop thru scopes
         name: 'ForEach Export Scope'
         type: 'ForEach'
         dependsOn: [
@@ -1158,7 +1152,7 @@ resource pipeline_RunBackfill 'Microsoft.DataFactory/factories/pipelines@2018-06
                 }
                 method: 'POST'
                 headers: {
-                  'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunBackfill@${ftkVersion}'  
+                  'x-ms-command-name': 'FinOpsToolkit.Hubs.config_RunBackfill@${ftkVersion}'
                   'Content-Type': 'application/json'
                   ClientType: 'FinOpsToolkit.Hubs@${ftkVersion}'
                 }
@@ -1266,7 +1260,8 @@ resource pipeline_ExportData 'Microsoft.DataFactory/factories/pipelines@2018-06-
           }
         }
       }
-      { // Set Scopes
+      {
+        // Set Scopes
         name: 'Set Scopes'
         description: 'Save scopes to test if it is an array'
         type: 'SetVariable'
@@ -1289,7 +1284,8 @@ resource pipeline_ExportData 'Microsoft.DataFactory/factories/pipelines@2018-06-
           }
         }
       }
-      { // Set scopes as array to work around PowerShell bug
+      {
+        // Set scopes as array to work around PowerShell bug
         name: 'Set Scopes as Array'
         description: 'Wraps a single scope object into an array to work around the PowerShell bug where single-item arrays are sometimes written as a single object instead of an array.'
         type: 'SetVariable'
@@ -1314,7 +1310,8 @@ resource pipeline_ExportData 'Microsoft.DataFactory/factories/pipelines@2018-06-
           }
         }
       }
-      { // Filter Invalid Scopes
+      {
+        // Filter Invalid Scopes
         name: 'Filter Invalid Scopes'
         description: 'Remove any invalid scopes to avoid errors.'
         type: 'Filter'
@@ -1336,7 +1333,8 @@ resource pipeline_ExportData 'Microsoft.DataFactory/factories/pipelines@2018-06-
           }
         }
       }
-      { // Loop thru scopes
+      {
+        // Loop thru scopes
         name: 'ForEach Export Scope'
         type: 'ForEach'
         dependsOn: [
@@ -1540,7 +1538,7 @@ resource pipeline_RunExports 'Microsoft.DataFactory/factories/pipelines@2018-06-
         type: 'String'
         defaultValue: environment().resourceManager
       }
-    hubName: {
+      hubName: {
         type: 'String'
         defaultValue: hubName
       }
@@ -1558,7 +1556,8 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
   parent: dataFactory
   properties: {
     activities: [
-      { // 'Get Config'
+      {
+        // 'Get Config'
         name: 'Get Config'
         type: 'Lookup'
         dependsOn: []
@@ -1598,7 +1597,8 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
           }
         }
       }
-      { // 'ForEach Export Scope'
+      {
+        // 'ForEach Export Scope'
         name: 'ForEach Export Scope'
         type: 'ForEach'
         dependsOn: [
@@ -1615,7 +1615,8 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
           }
           isSequential: true
           activities: [
-            { // 'Create or update open month focus export'
+            {
+              // 'Create or update open month focus export'
               name: 'Create or update open month focus export'
               type: 'WebActivity'
               dependsOn: [
@@ -1639,7 +1640,16 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                 }
                 method: 'PUT'
                 body: {
-                  value: getExportBody(exportContainerName, 'FocusCost', focusSchemaVersion, false, 'Parquet', 'Snappy', 'true', 'CreateNewReport')
+                  value: getExportBody(
+                    exportContainerName,
+                    'FocusCost',
+                    focusSchemaVersion,
+                    false,
+                    'Parquet',
+                    'Snappy',
+                    'true',
+                    'CreateNewReport'
+                  )
                   type: 'Expression'
                 }
                 authentication: {
@@ -1651,7 +1661,8 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                 }
               }
             }
-            { // 'Set open month focus export name'
+            {
+              // 'Set open month focus export name'
               name: 'Set open month focus export name'
               type: 'SetVariable'
               dependsOn: []
@@ -1668,7 +1679,8 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                 }
               }
             }
-            { // 'Create or update closed month focus export'
+            {
+              // 'Create or update closed month focus export'
               name: 'Create or update closed month focus export'
               type: 'WebActivity'
               dependsOn: [
@@ -1692,7 +1704,16 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                 }
                 method: 'PUT'
                 body: {
-                  value: getExportBody(exportContainerName, 'FocusCost', focusSchemaVersion, true, 'Parquet', 'Snappy', 'true', 'CreateNewReport')
+                  value: getExportBody(
+                    exportContainerName,
+                    'FocusCost',
+                    focusSchemaVersion,
+                    true,
+                    'Parquet',
+                    'Snappy',
+                    'true',
+                    'CreateNewReport'
+                  )
                   type: 'Expression'
                 }
                 authentication: {
@@ -1704,7 +1725,8 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
                 }
               }
             }
-            { // 'Set closed month focus export name'
+            {
+              // 'Set closed month focus export name'
               name: 'Set closed month focus export name'
               type: 'SetVariable'
               dependsOn: [
@@ -1729,7 +1751,8 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
           ]
         }
       }
-      { // 'Save scopes as array'
+      {
+        // 'Save scopes as array'
         name: 'Save scopes as array'
         type: 'SetVariable'
         dependsOn: [
@@ -1751,7 +1774,8 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
           }
         }
       }
-      { // 'Save scopes'
+      {
+        // 'Save scopes'
         name: 'Save scopes'
         type: 'SetVariable'
         dependsOn: [
@@ -1773,7 +1797,8 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
           }
         }
       }
-      { // 'Remove empty scopes'
+      {
+        // 'Remove empty scopes'
         name: 'Remove empty scopes'
         type: 'Filter'
         dependsOn: [
@@ -1847,7 +1872,8 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
   parent: dataFactory
   properties: {
     activities: [
-      { // Wait
+      {
+        // Wait
         name: 'Wait'
         type: 'Wait'
         dependsOn: []
@@ -1856,7 +1882,8 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
           waitTimeInSeconds: 60
         }
       }
-      { // Read Manifest
+      {
+        // Read Manifest
         name: 'Read Manifest'
         description: 'Load the export manifest to determine the scope, dataset, and date range.'
         type: 'Lookup'
@@ -1902,7 +1929,8 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
           }
         }
       }
-      { // Set Dataset Type
+      {
+        // Set Dataset Type
         name: 'Set Dataset Type'
         description: 'Save the dataset type from the export manifest.'
         type: 'SetVariable'
@@ -1925,7 +1953,8 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
           }
         }
       }
-      { // Set MCA Column
+      {
+        // Set MCA Column
         name: 'Set MCA Column'
         description: 'Determines if the dataset schema has channel-specific columns and saves the column name that only exists in MCA to determine if it is an MCA dataset.'
         type: 'SetVariable'
@@ -1948,7 +1977,8 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
           }
         }
       }
-      { // Set Dataset Version
+      {
+        // Set Dataset Version
         name: 'Set Dataset Version'
         description: 'Save the dataset version from the export manifest.'
         type: 'SetVariable'
@@ -1971,7 +2001,8 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
           }
         }
       }
-      { // Detect Channel
+      {
+        // Detect Channel
         name: 'Detect Channel'
         description: 'Determines what channel this dataset is from. Switch statement handles the different file types if the mcaColumnToCheck variable is set.'
         type: 'Switch'
@@ -2144,7 +2175,8 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
           ]
         }
       }
-      { // Set Scope
+      {
+        // Set Scope
         name: 'Set Scope'
         description: 'Save the scope from the export manifest.'
         type: 'SetVariable'
@@ -2167,7 +2199,8 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
           }
         }
       }
-      { // Set Date
+      {
+        // Set Date
         name: 'Set Date'
         description: 'Save the exported month from the export manifest.'
         type: 'SetVariable'
@@ -2190,7 +2223,8 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
           }
         }
       }
-      { // Error: ManifestReadFailed
+      {
+        // Error: ManifestReadFailed
         name: 'Failed to Read Manifest'
         type: 'Fail'
         dependsOn: [
@@ -2228,7 +2262,8 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
           errorCode: 'ManifestReadFailed'
         }
       }
-      { // Check Schema
+      {
+        // Check Schema
         name: 'Check Schema'
         description: 'Verify that the schema file exists in storage.'
         type: 'GetMetadata'
@@ -2277,7 +2312,8 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
           }
         }
       }
-      { // Error: SchemaNotFound
+      {
+        // Error: SchemaNotFound
         name: 'Schema Not Found'
         type: 'Fail'
         dependsOn: [
@@ -2295,7 +2331,8 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
           errorCode: 'SchemaNotFound'
         }
       }
-      { // For Each Blob
+      {
+        // For Each Blob
         name: 'For Each Blob'
         description: 'Loop thru each exported file listed in the manifest.'
         type: 'ForEach'
@@ -2313,7 +2350,8 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
           }
           isSequential: false
           activities: [
-            { // Execute
+            {
+              // Execute
               name: 'Execute'
               description: 'Run the ETL pipeline.'
               type: 'ExecutePipeline'
@@ -2398,7 +2436,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
   parent: dataFactory
   properties: {
     activities: [
-      { // Load Schema Mappings
+      {
+        // Load Schema Mappings
         name: 'Load Schema Mappings'
         description: 'Get schema mapping file to use for the CSV to parquet conversion.'
         type: 'Lookup'
@@ -2436,7 +2475,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           }
         }
       }
-      { // Error: SchemaLoadFailed
+      {
+        // Error: SchemaLoadFailed
         name: 'Failed to Load Schema'
         type: 'Fail'
         dependsOn: [
@@ -2454,7 +2494,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           errorCode: 'SchemaLoadFailed'
         }
       }
-      { // Get Existing Parquet Files
+      {
+        // Get Existing Parquet Files
         name: 'Get Existing Parquet Files'
         description: 'Get the previously ingested files so we can remove any older data. This is necessary to avoid data duplication in reports.'
         type: 'GetMetadata'
@@ -2487,7 +2528,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           }
         }
       }
-      { // Filter Out Current Exports
+      {
+        // Filter Out Current Exports
         name: 'Filter Out Current Exports'
         description: 'Remove existing files from the current export so those files do not get deleted.'
         type: 'Filter'
@@ -2509,7 +2551,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           }
         }
       }
-      { // For Each Old File
+      {
+        // For Each Old File
         name: 'For Each Old File'
         description: 'Loop thru each of the existing files from previous exports.'
         type: 'ForEach'
@@ -2530,7 +2573,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
             type: 'Expression'
           }
           activities: [
-            { // Delete Old Ingested File
+            {
+              // Delete Old Ingested File
               name: 'Delete Old Ingested File'
               description: 'Delete the previously ingested files from older exports.'
               type: 'Delete'
@@ -2565,7 +2609,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           ]
         }
       }
-      { // Read Hub Config
+      {
+        // Read Hub Config
         name: 'Read Hub Config'
         description: 'Read the hub config to determine if the export should be retained.'
         type: 'Lookup'
@@ -2600,7 +2645,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           }
         }
       }
-      { // If Not Retaining Exports
+      {
+        // If Not Retaining Exports
         name: 'If Not Retaining Exports'
         description: 'If the msexports retention period <= 0, delete the source file. The main reason to keep the source file is to allow for troubleshooting and reprocessing in the future.'
         type: 'IfCondition'
@@ -2621,7 +2667,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
             type: 'Expression'
           }
           ifTrueActivities: [
-            { // Delete Source File
+            {
+              // Delete Source File
               name: 'Delete Source File'
               description: 'Delete the exported data file to keep storage costs down. This file is not referenced by any reporting systems.'
               type: 'Delete'
@@ -2656,7 +2703,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           ]
         }
       }
-      { // Convert to Parquet
+      {
+        // Convert to Parquet
         name: 'Convert to Parquet'
         description: 'Convert CSV to parquet and move the file to the ${ingestionContainerName} container.'
         type: 'Switch'
@@ -2863,12 +2911,12 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
 }
 
 //------------------------------------------------------------------------------
-// msexports_Recommendations_Advisor_ingestion pipeline
+// recommendations export pipeline
 // Triggered by dailyRecommendations trigger
 //------------------------------------------------------------------------------
-@description('Extracts Azure Advisor recommendations from the Resource Graph API.')
-resource pipeline_ExportRecommendationsAdvisor 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
-  name: '${safeExportContainerName}_Recommendations_Advisor'
+@description('Extracts Azure Advisor and custom recommendations from the Resource Graph API.')
+resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+  name: '${recommendationsName}_Execute'
   parent: dataFactory
   properties: {
     activities: [
@@ -2884,23 +2932,124 @@ resource pipeline_ExportRecommendationsAdvisor 'Microsoft.DataFactory/factories/
         typeProperties: {
           variableName: 'blobExportTimestamp'
           value: {
-            value: '@utcNow(\'yyyyMMddHHmmss\')'
+            value: '@concat(utcNow(\'yyyy\'),\'/\',utcNow(\'MM\'),\'/\',utcNow(\'dd\'),\'/\')'
             type: 'Expression'
           }
+        }
+      }
+      { // Set schema filename        
+        name: 'Set Schema Filename'
+        type: 'SetVariable'
+        dependsOn: []
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'schemaFile'
+          value: {
+            value: 'recommendations_1.0.json'
+          }
+        }
+      }
+      { // Set error counter
+        name: 'Set Error Counter'
+        type: 'SetVariable'
+        dependsOn: []
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'pipelineFailed'
+          value: {
+            value: '@bool(false)'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Load Schema Mappings
+        name: 'Load Schema Mappings'
+        type: 'Lookup'
+        dependsOn: [
+          {
+            activity: 'Set Schema Filename'
+            dependencyConditions: ['Succeeded']
+          }
+        ]
+        policy: {
+          timeout: '0.12:00:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          source: {
+            type: 'JsonSource'
+            storeSettings: {
+              type: 'AzureBlobFSReadSettings'
+              recursive: true
+              enablePartitionDiscovery: false
+            }
+            formatSettings: {
+              type: 'JsonReadSettings'
+            }
+          }
+          dataset: {
+            referenceName: dataset_config.name
+            type: 'DatasetReference'
+            parameters: {
+              fileName: {
+                value: '@variables(\'schemaFile\')'
+                type: 'Expression'
+              }
+              folderPath: '${configContainerName}/schemas'
+            }
+          }
+        }
+      }
+      { // Error: SchemaLoadFailed
+        name: 'Failed to Load Schema'
+        type: 'Fail'
+        dependsOn: [
+          {
+            activity: 'Load Schema Mappings'
+            dependencyConditions: ['Failed']
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          message: {
+            value: '@concat(\'Unable to load the \', variables(\'schemaFile\'), \' recommendations schema file. Please confirm the schema and version are supported for FinOps hubs ingestion. Unsupported files will remain in the ingestion container.\')'
+            type: 'Expression'
+          }
+          errorCode: 'SchemaLoadFailed'
         }
       }
       { // Get Advisor recommendations from ARG
-        name: 'get_ARGAdvisorRecommendations'
+        name: 'Export Advisor Cost Recommendations'
         type: 'Copy'
         dependsOn: [
           {
-            activity: 'set_BlobExportTimestamp'
-            dependencyConditions: ['Completed']
+            activity: 'Set Blob Timestamp'
+            dependencyConditions: ['Succeeded']
+          }
+          {
+            activity: 'Load Schema Mappings'
+            dependencyConditions: ['Succeeded']
+          }
+          {
+            activity: 'Set Error Counter'
+            dependencyConditions: ['Succeeded']
           }
         ]
         policy: {
           timeout: '0.00:10:00'
-          retry: 3
+          retry: 0
           retryIntervalInSeconds: 30
           secureOutput: false
           secureInput: false
@@ -2912,242 +3061,97 @@ resource pipeline_ExportRecommendationsAdvisor 'Microsoft.DataFactory/factories/
             httpRequestTimeout: '00:02:00'
             requestInterval: '00:00:01'
             requestMethod: 'POST'
-            requestBody: '{ "query": "advisorresources | where type == \'microsoft.advisor/recommendations\' | project id, resourceGroup=tolower(resourceGroup), subscriptionId, category = tostring(properties.category), provider=\'Microsoft.Advisor\', impact = tostring(properties.impact), recommendationTypeId = tostring(properties.recommendationTypeId), recommendationControl = tostring(properties.extendedProperties.recommendationControl), maturityLevel = tostring(properties.extendedProperties.maturityLevel), descriptionProblem = tostring(properties.shortDescription.problem), descriptionSolution = tostring(properties.shortDescription.solution), resourceId = tolower(properties.resourceMetadata.resourceId), resourceType = tolower(properties.impactedField), resourceName = tolower(properties.impactedValue), extendedProperties = properties.extendedProperties, lastUpdated = tostring(properties.lastUpdated) | where category in (\'Cost\') | join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project subscriptionName = name, subscriptionId ) on subscriptionId | project-away subscriptionId1" }'
+            requestBody: '{\n  "query": "advisorresources \n| where type == \'microsoft.advisor/recommendations\' \n| where properties.category == \'Cost\' \n| project \n    x_RecommendationId=id, \n    x_ResourceGroupName=tolower(resourceGroup), \n    SubAccountId=subscriptionId, \n    x_RecommendationCategory=tostring(properties.category), \n    x_RecommendationProvider=\'Microsoft.Advisor\', \n    x_RecommendationImpact=tostring(properties.impact), \n    x_RecommendationTypeId= tostring(properties.recommendationTypeId), \n    x_RecommendationControl=tostring(properties.extendedProperties.recommendationControl), \n    x_RecommendationMaturityLevel=tostring(properties.extendedProperties.maturityLevel), \n    x_RecommendationDescription=tostring(properties.shortDescription.problem), \n    x_RecommendationSolution=tostring(properties.shortDescription.solution), \n    ResourceId=tolower(properties.resourceMetadata.resourceId), \n    x_ResourceType=tolower(properties.impactedField), \n    ResourceName=tolower(properties.impactedValue), \n    x_RecommendationDetails=tostring(properties.extendedProperties), \n    x_RecommendationDate=tostring(properties.lastUpdated) \n| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project SubAccountName=name, SubAccountId=subscriptionId ) on SubAccountId \n| project-away SubAccountId1" \n}'
             additionalHeaders: {
               value: {
                 'Content-Type': 'application/json'
               }
-              type: 'Object'
             }
           }
           sink: {
-            type: 'JsonSink'
+            type: 'ParquetSink'
             storeSettings: {
               type: 'AzureBlobFSWriteSettings'
-              copyBehavior: 'FlattenHierarchy'
             }
             formatSettings: {
-              type: 'JsonWriteSettings'
+              type: 'ParquetWriteSettings'
+              fileExtension: '.parquet'
             }
           }
           enableStaging: false
           translator: {
-            type: 'TabularTranslator'
-            mappings: [
-              {
-                source: {
-                  path: '[\'id\']'
-                }
-                sink: {
-                  path: '_RecommendationId'
-                }
-              }  
-              {
-                source: {
-                  path: '[\'subscriptionId\']'
-                }
-                sink: {
-                  path: 'SubAccountId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'subscriptionName\']'
-                }
-                sink: {
-                  path: 'SubAccountName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceGroup\']'
-                }
-                sink: {
-                  path: 'x_ResourceGroupName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceId\']'
-                }
-                sink: {
-                  path: 'ResourceId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceName\']'
-                }
-                sink: {
-                  path: 'ResourceName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceType\']'
-                }
-                sink: {
-                  path: '_ResourceType'
-                }
-              }
-              {
-                source: {
-                  path: '[\'category\']'
-                }
-                sink: {
-                  path: '_RecommendationCategory'
-                }
-              }
-              {
-                source: {
-                  path: '[\'provider\']'
-                }
-                sink: {
-                  path: '_RecommendationProvider'
-                }
-              }
-              {
-                source: {
-                  path: '[\'recommendationTypeId\']'
-                }
-                sink: {
-                  path: '_RecommendationTypeId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'descriptionProblem\']'
-                }
-                sink: {
-                  path: '_RecommendationDescription'
-                }
-              }
-              {
-                source: {
-                  path: '[\'descriptionSolution\']'
-                }
-                sink: {
-                  path: '_RecommendationSolution'
-                }
-              }
-              {
-                source: {
-                  path: '[\'impact\']'
-                }
-                sink: {
-                  path: 'x_RecommendationImpact'
-                }
-              }
-              {
-                source: {
-                  path: '[\'recommendationControl\']'
-                }
-                sink: {
-                  path: 'x_RecommendationControl'
-                }
-              }
-              {
-                source: {
-                  path: '[\'maturityLevel\']'
-                }
-                sink: {
-                  path: 'x_RecommendationMaturityLevel'
-                }
-              }
-              {
-                source: {
-                  path: '[\'extendedProperties\']'
-                }
-                sink: {
-                  path: 'x_RecommendationDetails'
-                }
-              }
-              {
-                source: {
-                  path: '[\'lastUpdated\']'
-                }
-                sink: {
-                  path: 'x_RecommendationDate'
-                }
-              }            
-            ]
-            collectionReference: '$[\'data\']'
-          }
-        }
-        inputs: [
-          {
-            referenceName: dataset_resourcegraph.name
-            type: 'DatasetReference'
-            parameters: {}
-          }
-        ]
-        outputs: [
-          {
-            referenceName: dataset_recommendations.name
-            type: 'DatasetReference'
-            parameters: {
-              blobPrefix: 'cost-advisor'
-              blobExportTimestamp: {
-                value: '@variables(\'blobExportTimestamp\')'
-                type: 'Expression'
-              }
-            }
-          }
-        ]
-      }
-    ]
-    parameters: {}
-    policy: {
-      elapsedTimeMetric: {}
-    }
-    variables: {
-      blobExportTimestamp: {
-        type: 'String'
-      }
-    }
-    annotations: []
-  }
-}
-
-//------------------------------------------------------------------------------
-// msexports_Recommendations_Custom_ingestion pipeline
-// Triggered by dailyRecommendations trigger
-//------------------------------------------------------------------------------
-@description('Extracts custom recommendations from the Resource Graph API.')
-resource pipeline_ExportRecommendationsCustom 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
-  name: '${safeExportContainerName}_Recommendations_Custom'
-  parent: dataFactory
-  properties: {
-    activities: [
-      { // Set blob timestamp
-        name: 'set_BlobExportTimestamp'
-        type: 'SetVariable'
-        dependsOn: []
-        policy: {
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          variableName: 'blobExportTimestamp'
-          value: {
-            value: '@utcNow(\'yyyyMMddHHmmss\')'
+            value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
             type: 'Expression'
           }
         }
+        inputs: [
+          {
+            referenceName: dataset_resourcegraph.name
+            type: 'DatasetReference'
+            parameters: {}
+          }
+        ]
+        outputs: [
+          {
+            referenceName: dataset_ingestion.name
+            type: 'DatasetReference'
+            parameters: {
+              blobPath: {
+                value: '@concat(\'recommendations/azure/\', variables(\'blobExportTimestamp\'), \'cost-advisor.parquet\')'
+                type: 'Expression'
+              }
+            }
+          }
+        ]
       }
-      { // Get unattached disks
-        name: 'get_Storage_UnattachedDisks'
+      { // Error: Get Advisor recommendations
+        name: 'Catch Advisor Cost Failure'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Export Advisor Cost Recommendations'
+            dependencyConditions: ['Failed']
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@contains(activity(\'Export Advisor Cost Recommendations\').output.errors[0].Message, \'Sequence contains no elements\')'
+            type: 'Expression'
+          }
+          ifFalseActivities: [
+            {
+              name: 'Set Advisor Cost Error Counter'
+              type: 'SetVariable'
+              dependsOn: []
+              policy: {
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                variableName: 'pipelineFailed'
+                value: {
+                  value: '@bool(true)'
+                  type: 'Expression'
+                }
+              }
+            }
+          ]
+        }
+      }
+      { // Get Unattached Disks       
+        name: 'Export Unattached Disks'
         type: 'Copy'
         dependsOn: [
           {
-            activity: 'set_BlobExportTimestamp'
+            activity: 'Export Advisor Cost Recommendations'
             dependencyConditions: ['Completed']
           }
         ]
         policy: {
           timeout: '0.00:10:00'
-          retry: 3
+          retry: 0
           retryIntervalInSeconds: 30
           secureOutput: false
           secureInput: false
@@ -3159,166 +3163,27 @@ resource pipeline_ExportRecommendationsCustom 'Microsoft.DataFactory/factories/p
             httpRequestTimeout: '00:02:00'
             requestInterval: '00:00:01'
             requestMethod: 'POST'
-            requestBody: '{  "query": "resources | where type =~ \'microsoft.compute/disks\'  | extend diskState = tostring(properties.diskState)  | where isempty(managedBy) and diskState != \'ActiveSAS\' or diskState == \'Unattached\' and diskState != \'ActiveSAS\' and tags !contains \'ASR-ReplicaDisk\' and tags !contains \'asrseeddisk\'  | extend DiskId=id, DiskIDfull=id, DiskName=name, SKUName=sku.name, SKUTier=sku.tier, DiskSizeGB=tostring(properties.diskSizeGB), Location=location, TimeCreated=tostring(properties.timeCreated), SubId=subscriptionId | order by DiskId asc | project DiskId, DiskIDfull, DiskName, DiskSizeGB, SKUName, SKUTier, resourceGroup, Location, TimeCreated, subscriptionId, type | project id=strcat(tolower(DiskId),\'-unattached\'), resourceGroup, subscriptionId, category=\'Cost\', provider=\'Microsoft.FinOpsToolkit\', impact=\'High\', recommendationTypeId = \'e0c02939-ce02-4f9d-881f-8067ae7ec90f\', recommendationControl = \'UsageOptimization/OrphanedResources\', maturityLevel = \'Preview\', descriptionProblem = \'Unattached disk\', descriptionSolution = \'Remove or downgrade disk\', resourceId = tolower(DiskId), resourceType = type, resourceName = tolower(DiskName), extendedProperties = todynamic(strcat(\'{\\"DiskSizeGB\\": \', DiskSizeGB, \', \\"SKUName\\": \\"\', SKUName, \'\\", \\"SKUTier\\": \\"\', SKUTier, \'\\", \\"Location\\": \\"\', Location, \'\\", \\"TimeCreated\\": \\"\', TimeCreated, \'\\" }\')), lastUpdated = now(), recommendationProvider=\'Custom\'  | join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project subscriptionName = name, subscriptionId ) on subscriptionId | project-away subscriptionId1"}'
+            requestBody: '{\n  "query": "resources \n| where type =~ \'microsoft.compute/disks\' and isempty(managedBy) \n| extend diskState = tostring(properties.diskState) \n| where diskState != \'ActiveSAS\' and tags !contains \'ASR-ReplicaDisk\' and tags !contains \'asrseeddisk\' \n| extend DiskId=id, DiskIDfull=id, DiskName=name, SKUName=sku.name, SKUTier=sku.tier, DiskSizeGB=tostring(properties.diskSizeGB), Location=location, TimeCreated=tostring(properties.timeCreated), SubId=subscriptionId | order by DiskId asc | project DiskId, DiskIDfull, DiskName, DiskSizeGB, SKUName, SKUTier, resourceGroup, Location, TimeCreated, subscriptionId, type\n| project \n    x_RecommendationId=strcat(tolower(DiskId),\'-unattached\'), \n    x_ResourceGroupName=tolower(resourceGroup), \n    SubAccountId=subscriptionId, \n    x_RecommendationCategory=\'Cost\', \n    x_RecommendationProvider=\'Microsoft.FinOpsToolkit\', \n    x_RecommendationImpact=\'High\', \n    x_RecommendationTypeId=\'e0c02939-ce02-4f9d-881f-8067ae7ec90f\', \n    x_RecommendationControl=\'UsageOptimization/OrphanedResources\', \n    x_RecommendationMaturityLevel=\'Preview\', \n    x_RecommendationDescription=\'Unattached (orphaned) disk is incurring in storage costs\', \n    x_RecommendationSolution=\'Remove or downgrade the unattached disk\', \n    ResourceId = tolower(DiskId), \n    x_ResourceType=type, \n    ResourceName=tolower(DiskName), \n    x_RecommendationDetails= strcat(\'{\\"DiskSizeGB\\": \', DiskSizeGB, \', \\"SKUName\\": \\"\', SKUName, \'\\", \\"SKUTier\\": \\"\', SKUTier, \'\\", \\"Location\\": \\"\', Location, \'\\", \\"TimeCreated\\": \\"\', TimeCreated, \'\\" }\'), \n    x_RecommendationDate = now() \n| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project SubAccountName=name, SubAccountId=subscriptionId ) on SubAccountId \n| project-away SubAccountId1"\n}'
             additionalHeaders: {
               value: {
                 'Content-Type': 'application/json'
               }
-              type: 'Object'
             }
           }
           sink: {
-            type: 'JsonSink'
+            type: 'ParquetSink'
             storeSettings: {
               type: 'AzureBlobFSWriteSettings'
-              copyBehavior: 'FlattenHierarchy'
             }
             formatSettings: {
-              type: 'JsonWriteSettings'
+              type: 'ParquetWriteSettings'
+              fileExtension: '.parquet'
             }
           }
           enableStaging: false
           translator: {
-            type: 'TabularTranslator'
-            mappings: [
-              {
-                source: {
-                  path: '[\'id\']'
-                }
-                sink: {
-                  path: '_RecommendationId'
-                }
-              }  
-              {
-                source: {
-                  path: '[\'subscriptionId\']'
-                }
-                sink: {
-                  path: 'SubAccountId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'subscriptionName\']'
-                }
-                sink: {
-                  path: 'SubAccountName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceGroup\']'
-                }
-                sink: {
-                  path: 'x_ResourceGroupName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceId\']'
-                }
-                sink: {
-                  path: 'ResourceId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceName\']'
-                }
-                sink: {
-                  path: 'ResourceName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceType\']'
-                }
-                sink: {
-                  path: '_ResourceType'
-                }
-              }
-              {
-                source: {
-                  path: '[\'category\']'
-                }
-                sink: {
-                  path: '_RecommendationCategory'
-                }
-              }
-              {
-                source: {
-                  path: '[\'provider\']'
-                }
-                sink: {
-                  path: '_RecommendationProvider'
-                }
-              }
-              {
-                source: {
-                  path: '[\'recommendationTypeId\']'
-                }
-                sink: {
-                  path: '_RecommendationTypeId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'descriptionProblem\']'
-                }
-                sink: {
-                  path: '_RecommendationDescription'
-                }
-              }
-              {
-                source: {
-                  path: '[\'descriptionSolution\']'
-                }
-                sink: {
-                  path: '_RecommendationSolution'
-                }
-              }
-              {
-                source: {
-                  path: '[\'impact\']'
-                }
-                sink: {
-                  path: 'x_RecommendationImpact'
-                }
-              }
-              {
-                source: {
-                  path: '[\'recommendationControl\']'
-                }
-                sink: {
-                  path: 'x_RecommendationControl'
-                }
-              }
-              {
-                source: {
-                  path: '[\'maturityLevel\']'
-                }
-                sink: {
-                  path: 'x_RecommendationMaturityLevel'
-                }
-              }
-              {
-                source: {
-                  path: '[\'extendedProperties\']'
-                }
-                sink: {
-                  path: 'x_RecommendationDetails'
-                }
-              }
-              {
-                source: {
-                  path: '[\'lastUpdated\']'
-                }
-                sink: {
-                  path: 'x_RecommendationDate'
-                }
-              }            
-            ]
-            collectionReference: '$[\'data\']'
+            value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
+            type: 'Expression'
           }
         }
         inputs: [
@@ -3330,31 +3195,70 @@ resource pipeline_ExportRecommendationsCustom 'Microsoft.DataFactory/factories/p
         ]
         outputs: [
           {
-            referenceName: dataset_recommendations.name
+            referenceName: dataset_ingestion.name
             type: 'DatasetReference'
             parameters: {
-              blobPrefix: 'cost-custom-unattacheddisks'
-              blobExportTimestamp: {
-                value: '@variables(\'blobExportTimestamp\')'
+              blobPath: {
+                value: '@concat(\'recommendations/azure/\', variables(\'blobExportTimestamp\'), \'cost-custom-storage-unattacheddisks.parquet\')'
                 type: 'Expression'
               }
             }
           }
         ]
       }
-      { // Get AKS clusters without Spot pools
-        name: 'get_Compute_AKS'
+      { // Error: Get Unattached Disks
+        name: 'Catch Unattached Disks Failure'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Export Unattached Disks'
+            dependencyConditions: [
+              'Failed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@contains(activity(\'Export Unattached Disks\').output.errors[0].Message, \'Sequence contains no elements\')'
+            type: 'Expression'
+          }
+          ifFalseActivities: [
+            {
+              name: 'Set Unattached Disks Error Counter'
+              type: 'SetVariable'
+              dependsOn: []
+              policy: {
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                variableName: 'pipelineFailed'
+                value: {
+                  value: '@bool(true)'
+                  type: 'Expression'
+                }
+              }
+            }
+          ]
+        }
+      }
+      { // Get Non-Spot AKS Pools
+        name: 'Export Non-Spot AKS Pools'
         type: 'Copy'
         dependsOn: [
           {
-            activity: 'set_BlobExportTimestamp'
-            dependencyConditions: ['Completed']
+            activity: 'Export Unattached Disks'
+            dependencyConditions: [
+              'Completed'
+            ]
           }
         ]
         policy: {
           timeout: '0.00:10:00'
-          retry: 3
-          retryIntervalInSeconds: 30
+          retry: 0
+          retryIntervalInSeconds: 60
           secureOutput: false
           secureInput: false
         }
@@ -3363,204 +3267,102 @@ resource pipeline_ExportRecommendationsCustom 'Microsoft.DataFactory/factories/p
           source: {
             type: 'RestSource'
             httpRequestTimeout: '00:02:00'
-            requestInterval: '00:00:01'
+            requestInterval: '00.00:00:00.050'
             requestMethod: 'POST'
-            requestBody: '{"query": "resources | where type == \'microsoft.containerservice/managedclusters\' | extend AgentPoolProfiles = properties.agentPoolProfiles | mvexpand AgentPoolProfiles | project id, type, ProfileName = tostring(AgentPoolProfiles.name), Sku = tostring(sku.name), Tier = tostring(sku.tier), mode = AgentPoolProfiles.mode, AutoScaleEnabled = AgentPoolProfiles.enableAutoScaling, SpotVM = AgentPoolProfiles.scaleSetPriority, VMSize = tostring(AgentPoolProfiles.vmSize), NodeCount = tostring(AgentPoolProfiles.[\'count\']), minCount = tostring(AgentPoolProfiles.minCount), maxCount = tostring(AgentPoolProfiles.maxCount), Location=location, resourceGroup, subscriptionId, AKSname = name| where AutoScaleEnabled == \'true\' and isnull( SpotVM)| project  id=strcat(tolower(id),\'-notSpot\'), resourceGroup, subscriptionId, category=\'Cost\', provider=\'Microsoft.FinOpsToolkit\', impact=\'Medium\',recommendationTypeId=\'c26abcc2-d5e6-4654-be4a-7d338e5c1e5f\',recommendationControl = \'UsageOptimization/OptimizeResources\', maturityLevel = \'Preview\', descriptionProblem = \'The AKS cluster is configured with a scale set but is not utilizing Spot VMs.\', descriptionSolution = \'Consider enabling Spot VMs for this AKS cluster to optimize costs, as Spot VMs offer significantly lower pricing compared to regular virtual machines.\',resourceId = tolower(id), resourceType = type, resourceName = tolower(AKSname), extendedProperties = todynamic(strcat(\'{\\"AutoScaleEnabled\\": \', AutoScaleEnabled, \', \\"SpotVM\\": \\"\', SpotVM, \'\\", \\"VMSize\\": \\"\', VMSize, \'\\", \\"Location\\": \\"\', Location, \'\\", \\"NodeCount\\": \\"\', NodeCount, \'\\", \\"minCount\\": \\"\', minCount, \'\\", \\"maxCount\\": \\"\', maxCount, \'\\" }\')), lastUpdated = now(), recommendationProvider=\'Custom\'  | join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project subscriptionName = name, subscriptionId ) on subscriptionId | project-away subscriptionId1"}'
+            requestBody: '{\n  "query": "resources \n| where type == \'microsoft.containerservice/managedclusters\' \n| mvexpand AgentPoolProfiles = properties.agentPoolProfiles\n| project id, type, ProfileName = tostring(AgentPoolProfiles.name), Sku = tostring(sku.name), Tier = tostring(sku.tier), mode = AgentPoolProfiles.mode, AutoScaleEnabled = AgentPoolProfiles.enableAutoScaling, SpotVM = AgentPoolProfiles.scaleSetPriority, VMSize = tostring(AgentPoolProfiles.vmSize), NodeCount = tostring(AgentPoolProfiles.[\'count\']), minCount = tostring(AgentPoolProfiles.minCount), maxCount = tostring(AgentPoolProfiles.maxCount), Location=location, resourceGroup, subscriptionId, AKSname = name\n| where AutoScaleEnabled == \'true\' and isnull(SpotVM)\n| project \n    x_RecommendationId=strcat(tolower(id),\'-notSpot\'), \n    x_ResourceGroupName=tolower(resourceGroup), \n    SubAccountId=subscriptionId, \n    x_RecommendationCategory=\'Cost\', \n    x_RecommendationProvider=\'Microsoft.FinOpsToolkit\', \n    x_RecommendationImpact=\'Medium\', \n    x_RecommendationTypeId=\'c26abcc2-d5e6-4654-be4a-7d338e5c1e5f\', \n    x_RecommendationControl=\'UsageOptimization/OptimizeResources\', \n    x_RecommendationMaturityLevel=\'Preview\', \n    x_RecommendationDescription=\'The AKS cluster agent pool scale set is not utilizing Spot VMs\', \n    x_RecommendationSolution=\'Consider enabling Spot VMs for this AKS cluster to optimize costs, as Spot VMs offer significantly lower pricing compared to regular VMs\', \n    ResourceId = tolower(id), \n    x_ResourceType=type, \n    ResourceName=tolower(AKSname), \n    x_RecommendationDetails= strcat(\'{\\"AutoScaleEnabled\\": \', AutoScaleEnabled, \', \\"SpotVM\\": \\"\', SpotVM, \'\\", \\"VMSize\\": \\"\', VMSize, \'\\", \\"Location\\": \\"\', Location, \'\\", \\"NodeCount\\": \\"\', NodeCount, \'\\", \\"minCount\\": \\"\', minCount, \'\\", \\"maxCount\\": \\"\', maxCount, \'\\" }\'), \n    x_RecommendationDate = now() \n| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project SubAccountName=name, SubAccountId=subscriptionId ) on SubAccountId \n| project-away SubAccountId1"\n}'
             additionalHeaders: {
-              value: {
-                'Content-Type': 'application/json'
-              }
-              type: 'Object'
+              'Content-Type': 'application/json'
             }
           }
           sink: {
-            type: 'JsonSink'
+            type: 'ParquetSink'
             storeSettings: {
               type: 'AzureBlobFSWriteSettings'
-              copyBehavior: 'FlattenHierarchy'
             }
             formatSettings: {
-              type: 'JsonWriteSettings'
+              type: 'ParquetWriteSettings'
+              fileExtension: '.parquet'
             }
           }
           enableStaging: false
           translator: {
-            type: 'TabularTranslator'
-            mappings: [
-              {
-                source: {
-                  path: '[\'id\']'
-                }
-                sink: {
-                  path: '_RecommendationId'
-                }
-              }  
-              {
-                source: {
-                  path: '[\'subscriptionId\']'
-                }
-                sink: {
-                  path: 'SubAccountId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'subscriptionName\']'
-                }
-                sink: {
-                  path: 'SubAccountName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceGroup\']'
-                }
-                sink: {
-                  path: 'x_ResourceGroupName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceId\']'
-                }
-                sink: {
-                  path: 'ResourceId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceName\']'
-                }
-                sink: {
-                  path: 'ResourceName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceType\']'
-                }
-                sink: {
-                  path: '_ResourceType'
-                }
-              }
-              {
-                source: {
-                  path: '[\'category\']'
-                }
-                sink: {
-                  path: '_RecommendationCategory'
-                }
-              }
-              {
-                source: {
-                  path: '[\'provider\']'
-                }
-                sink: {
-                  path: '_RecommendationProvider'
-                }
-              }
-              {
-                source: {
-                  path: '[\'recommendationTypeId\']'
-                }
-                sink: {
-                  path: '_RecommendationTypeId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'descriptionProblem\']'
-                }
-                sink: {
-                  path: '_RecommendationDescription'
-                }
-              }
-              {
-                source: {
-                  path: '[\'descriptionSolution\']'
-                }
-                sink: {
-                  path: '_RecommendationSolution'
-                }
-              }
-              {
-                source: {
-                  path: '[\'impact\']'
-                }
-                sink: {
-                  path: 'x_RecommendationImpact'
-                }
-              }
-              {
-                source: {
-                  path: '[\'recommendationControl\']'
-                }
-                sink: {
-                  path: 'x_RecommendationControl'
-                }
-              }
-              {
-                source: {
-                  path: '[\'maturityLevel\']'
-                }
-                sink: {
-                  path: 'x_RecommendationMaturityLevel'
-                }
-              }
-              {
-                source: {
-                  path: '[\'extendedProperties\']'
-                }
-                sink: {
-                  path: 'x_RecommendationDetails'
-                }
-              }
-              {
-                source: {
-                  path: '[\'lastUpdated\']'
-                }
-                sink: {
-                  path: 'x_RecommendationDate'
-                }
-              }            
-            ]
-            collectionReference: '$[\'data\']'
+            value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
+            type: 'Expression'
           }
         }
         inputs: [
           {
-            referenceName: dataset_resourcegraph.name
+            referenceName: 'resourcegraph'
             type: 'DatasetReference'
             parameters: {}
           }
         ]
         outputs: [
           {
-            referenceName: dataset_recommendations.name
+            referenceName: 'ingestion'
             type: 'DatasetReference'
             parameters: {
-              blobPrefix: 'cost-custom-computeaks'
-              blobExportTimestamp: {
-                value: '@variables(\'blobExportTimestamp\')'
+              blobPath: {
+                value: '@concat(\'recommendations/azure/\', variables(\'blobExportTimestamp\'), \'cost-custom-compute-aksnonspot.parquet\')'
                 type: 'Expression'
               }
             }
           }
         ]
       }
-      { // Get deallocated VMs
-        name: 'get_Compute_VM_Deallocated'
+      { // Error: Get Non-Spot AKS Pools
+        name: 'Catch Non-Spot AKS Pools Failure'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Export Non-Spot AKS Pools'
+            dependencyConditions: [
+              'Failed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@contains(activity(\'Export Non-Spot AKS Pools\').output.errors[0].Message, \'Sequence contains no elements\')'
+            type: 'Expression'
+          }
+          ifFalseActivities: [
+            {
+              name: 'Set Non-Spot AKS Error Counter'
+              type: 'SetVariable'
+              dependsOn: []
+              policy: {
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                variableName: 'pipelineFailed'
+                value: {
+                  value: '@bool(true)'
+                  type: 'Expression'
+                }
+              }
+            }
+          ]
+        }
+      }
+      { // Get Non-Deallocated VMs
+        name: 'Export Non-Deallocated VMs'
         type: 'Copy'
         dependsOn: [
           {
-            activity: 'set_BlobExportTimestamp'
-            dependencyConditions: ['Completed']
+            activity: 'Export Non-Spot AKS Pools'
+            dependencyConditions: [
+              'Completed'
+            ]
           }
         ]
         policy: {
           timeout: '0.00:10:00'
-          retry: 3
-          retryIntervalInSeconds: 30
+          retry: 0
+          retryIntervalInSeconds: 60
           secureOutput: false
           secureInput: false
         }
@@ -3569,204 +3371,102 @@ resource pipeline_ExportRecommendationsCustom 'Microsoft.DataFactory/factories/p
           source: {
             type: 'RestSource'
             httpRequestTimeout: '00:02:00'
-            requestInterval: '00:00:01'
+            requestInterval: '00.00:00:00.050'
             requestMethod: 'POST'
-            requestBody: '{"query":"resources| where type =~ \'microsoft.compute/virtualmachines\' and tostring(properties.extended.instanceView.powerState.displayStatus) != \'VM deallocated\' and tostring(properties.extended.instanceView.powerState.displayStatus) != \'VM running\' | extend PowerState=tostring(properties.extended.instanceView.powerState.displayStatus) | extend Location=location, type| extend resourceGroup=strcat(\'/subscriptions/\',subscriptionId,\'/resourceGroups/\',resourceGroup)| project id, PowerState, Location, resourceGroup, subscriptionId, VMName=name, type| project  id=strcat(tolower(id),\'-notDeallocated\'), resourceGroup, subscriptionId, category=\'Cost\', provider=\'Microsoft.FinOpsToolkit\', impact=\'Medium\',recommendationTypeId=\'ab2ff882-e927-4093-9d11-631be0219975\',recommendationControl = \'UsageOptimization/OptimizeResources\', maturityLevel = \'Preview\', descriptionProblem = \'This VM is powered off but not deallocated\', descriptionSolution = \'Deallocate the VM through the Azure portal to ensure it is fully stopped.\',resourceId = tolower(id), resourceType = type, resourceName = tolower(VMName), extendedProperties = todynamic(strcat(\'{\\"PowerState\\": \', PowerState, \',\\"Location\\": \\"\', Location)), lastUpdated = now(), recommendationProvider=\'Custom\'  | join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project subscriptionName = name, subscriptionId ) on subscriptionId | project-away subscriptionId1"}'
+            requestBody: '{\n  "query": "resources\n| where type =~ \'microsoft.compute/virtualmachines\' and tostring(properties.extended.instanceView.powerState.displayStatus) != \'VM deallocated\' and tostring(properties.extended.instanceView.powerState.displayStatus) != \'VM running\' \n| extend PowerState=tostring(properties.extended.instanceView.powerState.displayStatus) \n| extend Location=location, type\n| project id, PowerState, Location, resourceGroup, subscriptionId, VMName=name, type\n| project \n    x_RecommendationId=strcat(tolower(id),\'-notDeallocated\'), \n    x_ResourceGroupName=tolower(resourceGroup), \n    SubAccountId=subscriptionId, \n    x_RecommendationCategory=\'Cost\', \n    x_RecommendationProvider=\'Microsoft.FinOpsToolkit\', \n    x_RecommendationImpact=\'Medium\', \n    x_RecommendationTypeId=\'ab2ff882-e927-4093-9d11-631be0219975\', \n    x_RecommendationControl=\'UsageOptimization/OptimizeResources\', \n    x_RecommendationMaturityLevel=\'Preview\', \n    x_RecommendationDescription=\'Virtual machine is powered off but not deallocated\', \n    x_RecommendationSolution=\'Deallocate the virtual machine to ensure it does not incur in compute costs\', \n    ResourceId = tolower(id), \n    x_ResourceType=type, \n    ResourceName=tolower(VMName), \n    x_RecommendationDetails= strcat(\'{\\"PowerState\\": \', PowerState, \',\\"Location\\": \\"\', Location),\n    x_RecommendationDate = now() \n| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project SubAccountName=name, SubAccountId=subscriptionId ) on SubAccountId \n| project-away SubAccountId1"\n}'
             additionalHeaders: {
-              value: {
-                'Content-Type': 'application/json'
-              }
-              type: 'Object'
+              'Content-Type': 'application/json'
             }
           }
           sink: {
-            type: 'JsonSink'
+            type: 'ParquetSink'
             storeSettings: {
               type: 'AzureBlobFSWriteSettings'
-              copyBehavior: 'FlattenHierarchy'
             }
             formatSettings: {
-              type: 'JsonWriteSettings'
+              type: 'ParquetWriteSettings'
+              fileExtension: '.parquet'
             }
           }
           enableStaging: false
           translator: {
-            type: 'TabularTranslator'
-            mappings: [
-              {
-                source: {
-                  path: '[\'id\']'
-                }
-                sink: {
-                  path: '_RecommendationId'
-                }
-              }  
-              {
-                source: {
-                  path: '[\'subscriptionId\']'
-                }
-                sink: {
-                  path: 'SubAccountId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'subscriptionName\']'
-                }
-                sink: {
-                  path: 'SubAccountName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceGroup\']'
-                }
-                sink: {
-                  path: 'x_ResourceGroupName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceId\']'
-                }
-                sink: {
-                  path: 'ResourceId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceName\']'
-                }
-                sink: {
-                  path: 'ResourceName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceType\']'
-                }
-                sink: {
-                  path: '_ResourceType'
-                }
-              }
-              {
-                source: {
-                  path: '[\'category\']'
-                }
-                sink: {
-                  path: '_RecommendationCategory'
-                }
-              }
-              {
-                source: {
-                  path: '[\'provider\']'
-                }
-                sink: {
-                  path: '_RecommendationProvider'
-                }
-              }
-              {
-                source: {
-                  path: '[\'recommendationTypeId\']'
-                }
-                sink: {
-                  path: '_RecommendationTypeId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'descriptionProblem\']'
-                }
-                sink: {
-                  path: '_RecommendationDescription'
-                }
-              }
-              {
-                source: {
-                  path: '[\'descriptionSolution\']'
-                }
-                sink: {
-                  path: '_RecommendationSolution'
-                }
-              }
-              {
-                source: {
-                  path: '[\'impact\']'
-                }
-                sink: {
-                  path: 'x_RecommendationImpact'
-                }
-              }
-              {
-                source: {
-                  path: '[\'recommendationControl\']'
-                }
-                sink: {
-                  path: 'x_RecommendationControl'
-                }
-              }
-              {
-                source: {
-                  path: '[\'maturityLevel\']'
-                }
-                sink: {
-                  path: 'x_RecommendationMaturityLevel'
-                }
-              }
-              {
-                source: {
-                  path: '[\'extendedProperties\']'
-                }
-                sink: {
-                  path: 'x_RecommendationDetails'
-                }
-              }
-              {
-                source: {
-                  path: '[\'lastUpdated\']'
-                }
-                sink: {
-                  path: 'x_RecommendationDate'
-                }
-              }            
-            ]
-            collectionReference: '$[\'data\']'
+            value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
+            type: 'Expression'
           }
         }
         inputs: [
           {
-            referenceName: dataset_resourcegraph.name
+            referenceName: 'resourcegraph'
             type: 'DatasetReference'
             parameters: {}
           }
         ]
         outputs: [
           {
-            referenceName: dataset_recommendations.name
+            referenceName: 'ingestion'
             type: 'DatasetReference'
             parameters: {
-              blobPrefix: 'cost-custom-computevmdeallocated'
-              blobExportTimestamp: {
-                value: '@variables(\'blobExportTimestamp\')'
+              blobPath: {
+                value: '@concat(\'recommendations/azure/\', variables(\'blobExportTimestamp\'), \'cost-custom-compute-vmsnotdeallocated.parquet\')'
                 type: 'Expression'
               }
             }
           }
         ]
       }
-      { // Get APP Gateways without backend pool
-        name: 'get_Network_AppGateway'
+      { // Error: Get Non-Deallocated VMs
+        name: 'Catch Non-Deallocated VMs Failure'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Export Non-Deallocated VMs'
+            dependencyConditions: [
+              'Failed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@contains(activity(\'Export Non-Deallocated VMs\').output.errors[0].Message, \'Sequence contains no elements\')'
+            type: 'Expression'
+          }
+          ifFalseActivities: [
+            {
+              name: 'Set Non-Deallocated VMs Error Counter'
+              type: 'SetVariable'
+              dependsOn: []
+              policy: {
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                variableName: 'pipelineFailed'
+                value: {
+                  value: '@bool(true)'
+                  type: 'Expression'
+                }
+              }
+            }
+          ]
+        }
+      }
+      { // Get AppGWs Without Backend
+        name: 'Export AppGWs Without Backend'
         type: 'Copy'
         dependsOn: [
           {
-            activity: 'set_BlobExportTimestamp'
-            dependencyConditions: ['Completed']
+            activity: 'Export Non-Deallocated VMs'
+            dependencyConditions: [
+              'Completed'
+            ]
           }
         ]
         policy: {
           timeout: '0.00:10:00'
-          retry: 3
-          retryIntervalInSeconds: 30
+          retry: 0
+          retryIntervalInSeconds: 60
           secureOutput: false
           secureInput: false
         }
@@ -3775,204 +3475,102 @@ resource pipeline_ExportRecommendationsCustom 'Microsoft.DataFactory/factories/p
           source: {
             type: 'RestSource'
             httpRequestTimeout: '00:02:00'
-            requestInterval: '00:00:01'
+            requestInterval: '00.00:00:00.050'
             requestMethod: 'POST'
-            requestBody: '{"query":"resources| where type =~ \'Microsoft.Network/applicationGateways\' | extend backendPoolsCount = array_length(properties.backendAddressPools),SKUName= tostring(properties.sku.name), SKUTier= tostring(properties.sku.tier),SKUCapacity=properties.sku.capacity,backendPools=properties.backendAddressPools,resourceGroup=strcat(\'/subscriptions/\',subscriptionId,\'/resourceGroups/\',resourceGroup)| project id, name, SKUName, SKUTier, SKUCapacity,resourceGroup,subscriptionId, AppGWName=name, type, Location=location| join (    resources    | where type =~ \'Microsoft.Network/applicationGateways\'    | mvexpand backendPools = properties.backendAddressPools    | extend backendIPCount = array_length(backendPools.properties.backendIPConfigurations)    | extend backendAddressesCount = array_length(backendPools.properties.backendAddresses)    | extend backendPoolName  = backendPools.properties.backendAddressPools.name    | summarize backendIPCount = sum(backendIPCount) ,backendAddressesCount=sum(backendAddressesCount) by id) on id| project-away id1| where  (backendIPCount == 0 or isempty(backendIPCount)) and (backendAddressesCount==0 or isempty(backendAddressesCount))| project  id=strcat(tolower(id),\'-idle\'), resourceGroup, subscriptionId, category=\'Cost\', provider=\'Microsoft.FinOpsToolkit\', impact=\'High\',recommendationTypeId=\'4f69df93-5972-44e0-97cf-4343c2bcf4b9\',recommendationControl = \'UsageOptimization/OrphanedResources\', maturityLevel = \'Preview\', descriptionProblem = \'Application Gateway without any backend pool.\', descriptionSolution = \'Review and remove this resource if not needed.\',resourceId = tolower(id), resourceType = type, resourceName = tolower(AppGWName), extendedProperties = todynamic(strcat(\'{\\"backendIPCount\\": \', backendIPCount, \',\\"Location\\": \\"\', Location)), lastUpdated = now(), recommendationProvider=\'Custom\'  | join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project subscriptionName = name, subscriptionId ) on subscriptionId | project-away subscriptionId1"}'
+            requestBody: '{\n  "query": "resources\n| where type =~ \'Microsoft.Network/applicationGateways\' \n| extend backendPoolsCount = array_length(properties.backendAddressPools),SKUName= tostring(properties.sku.name), SKUTier= tostring(properties.sku.tier),SKUCapacity=properties.sku.capacity,backendPools=properties.backendAddressPools,resourceGroup=strcat(\'/subscriptions/\',subscriptionId,\'/resourceGroups/\',resourceGroup)\n| project id, name, SKUName, SKUTier, SKUCapacity,resourceGroup,subscriptionId, AppGWName=name, type, Location=location\n| join (\n    resources\n    | where type =~ \'Microsoft.Network/applicationGateways\'\n    | mvexpand backendPools = properties.backendAddressPools\n    | extend backendIPCount = array_length(backendPools.properties.backendIPConfigurations)\n    | extend backendAddressesCount = array_length(backendPools.properties.backendAddresses)\n    | extend backendPoolName  = backendPools.properties.backendAddressPools.name\n    | summarize backendIPCount = sum(backendIPCount) ,backendAddressesCount=sum(backendAddressesCount) by id\n) on id\n| project-away id1\n| where  (backendIPCount == 0 or isempty(backendIPCount)) and (backendAddressesCount==0 or isempty(backendAddressesCount))\n| project \n    x_RecommendationId=strcat(tolower(id),\'-idle\'), \n    x_ResourceGroupName=tolower(resourceGroup), \n    SubAccountId=subscriptionId, \n    x_RecommendationCategory=\'Cost\', \n    x_RecommendationProvider=\'Microsoft.FinOpsToolkit\', \n    x_RecommendationImpact=\'High\', \n    x_RecommendationTypeId=\'4f69df93-5972-44e0-97cf-4343c2bcf4b8\', \n    x_RecommendationControl=\'UsageOptimization/OrphanedResources\', \n    x_RecommendationMaturityLevel=\'Preview\', \n    x_RecommendationDescription=\'Application Gateway without any backend pool\', \n    x_RecommendationSolution=\'Review and remove this resource if not needed\', \n    ResourceId = tolower(id), \n    x_ResourceType=type, \n    ResourceName=tolower(AppGWName), \n    x_RecommendationDetails= strcat(\'{\\"backendIPCount\\": \', backendIPCount, \',\\"Location\\": \\"\', Location), \n    x_RecommendationDate = now() \n| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project SubAccountName=name, SubAccountId=subscriptionId ) on SubAccountId \n| project-away SubAccountId1"\n}'
             additionalHeaders: {
-              value: {
-                'Content-Type': 'application/json'
-              }
-              type: 'Object'
+              'Content-Type': 'application/json'
             }
           }
           sink: {
-            type: 'JsonSink'
+            type: 'ParquetSink'
             storeSettings: {
               type: 'AzureBlobFSWriteSettings'
-              copyBehavior: 'FlattenHierarchy'
             }
             formatSettings: {
-              type: 'JsonWriteSettings'
+              type: 'ParquetWriteSettings'
+              fileExtension: '.parquet'
             }
           }
           enableStaging: false
           translator: {
-            type: 'TabularTranslator'
-            mappings: [
-              {
-                source: {
-                  path: '[\'id\']'
-                }
-                sink: {
-                  path: '_RecommendationId'
-                }
-              }  
-              {
-                source: {
-                  path: '[\'subscriptionId\']'
-                }
-                sink: {
-                  path: 'SubAccountId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'subscriptionName\']'
-                }
-                sink: {
-                  path: 'SubAccountName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceGroup\']'
-                }
-                sink: {
-                  path: 'x_ResourceGroupName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceId\']'
-                }
-                sink: {
-                  path: 'ResourceId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceName\']'
-                }
-                sink: {
-                  path: 'ResourceName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceType\']'
-                }
-                sink: {
-                  path: '_ResourceType'
-                }
-              }
-              {
-                source: {
-                  path: '[\'category\']'
-                }
-                sink: {
-                  path: '_RecommendationCategory'
-                }
-              }
-              {
-                source: {
-                  path: '[\'provider\']'
-                }
-                sink: {
-                  path: '_RecommendationProvider'
-                }
-              }
-              {
-                source: {
-                  path: '[\'recommendationTypeId\']'
-                }
-                sink: {
-                  path: '_RecommendationTypeId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'descriptionProblem\']'
-                }
-                sink: {
-                  path: '_RecommendationDescription'
-                }
-              }
-              {
-                source: {
-                  path: '[\'descriptionSolution\']'
-                }
-                sink: {
-                  path: '_RecommendationSolution'
-                }
-              }
-              {
-                source: {
-                  path: '[\'impact\']'
-                }
-                sink: {
-                  path: 'x_RecommendationImpact'
-                }
-              }
-              {
-                source: {
-                  path: '[\'recommendationControl\']'
-                }
-                sink: {
-                  path: 'x_RecommendationControl'
-                }
-              }
-              {
-                source: {
-                  path: '[\'maturityLevel\']'
-                }
-                sink: {
-                  path: 'x_RecommendationMaturityLevel'
-                }
-              }
-              {
-                source: {
-                  path: '[\'extendedProperties\']'
-                }
-                sink: {
-                  path: 'x_RecommendationDetails'
-                }
-              }
-              {
-                source: {
-                  path: '[\'lastUpdated\']'
-                }
-                sink: {
-                  path: 'x_RecommendationDate'
-                }
-              }            
-            ]
-            collectionReference: '$[\'data\']'
+            value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
+            type: 'Expression'
           }
         }
         inputs: [
           {
-            referenceName: dataset_resourcegraph.name
+            referenceName: 'resourcegraph'
             type: 'DatasetReference'
             parameters: {}
           }
         ]
         outputs: [
           {
-            referenceName: dataset_recommendations.name
+            referenceName: 'ingestion'
             type: 'DatasetReference'
             parameters: {
-              blobPrefix: 'cost-custom-networkappgw'
-              blobExportTimestamp: {
-                value: '@variables(\'blobExportTimestamp\')'
+              blobPath: {
+                value: '@concat(\'recommendations/azure/\', variables(\'blobExportTimestamp\'), \'cost-custom-network-appgwnobackend.parquet\')'
                 type: 'Expression'
               }
             }
           }
         ]
       }
-      { // Get Load Balancers without backend pool
-        name: 'get_Network_LoadBalancer'
+      { // Error: Get AppGWs Without Backend
+        name: 'Catch AppGWs Without Backend Failure'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Export AppGWs Without Backend'
+            dependencyConditions: [
+              'Failed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@contains(activity(\'Export AppGWs Without Backend\').output.errors[0].Message, \'Sequence contains no elements\')'
+            type: 'Expression'
+          }
+          ifFalseActivities: [
+            {
+              name: 'Set Idle AppGWs Error Counter'
+              type: 'SetVariable'
+              dependsOn: []
+              policy: {
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                variableName: 'pipelineFailed'
+                value: {
+                  value: '@bool(true)'
+                  type: 'Expression'
+                }
+              }
+            }
+          ]
+        }
+      }
+      { // Get LBs Without Backend
+        name: 'Export LBs Without Backend'
         type: 'Copy'
         dependsOn: [
           {
-            activity: 'set_BlobExportTimestamp'
-            dependencyConditions: ['Completed']
+            activity: 'Export AppGWs Without Backend'
+            dependencyConditions: [
+              'Completed'
+            ]
           }
         ]
         policy: {
           timeout: '0.00:10:00'
-          retry: 3
-          retryIntervalInSeconds: 30
+          retry: 0
+          retryIntervalInSeconds: 60
           secureOutput: false
           secureInput: false
         }
@@ -3981,204 +3579,102 @@ resource pipeline_ExportRecommendationsCustom 'Microsoft.DataFactory/factories/p
           source: {
             type: 'RestSource'
             httpRequestTimeout: '00:02:00'
-            requestInterval: '00:00:01'
+            requestInterval: '00.00:00:00.050'
             requestMethod: 'POST'
-            requestBody: '{  "query": "resources   | extend resourceGroup=strcat(\'/subscriptions/\',subscriptionId,\'/resourceGroups/\',resourceGroup)    | extend SKUName=tostring(sku.name)    | extend SKUTier=tostring(sku.tier), Location=location    | extend backendAddressPools = properties.backendAddressPools    | where type =~ \'microsoft.network/loadbalancers\' and array_length(backendAddressPools) == 0 and sku.name!=\'Basic\'     | order by id asc     | extend id,name, SKUName,SKUTier,backendAddressPools, location,resourceGroup, subscriptionId, type    | project  id=strcat(tolower(id),\'-idle\'), resourceGroup, subscriptionId, category=\'Cost\', provider=\'Microsoft.FinOpsToolkit\', impact=\'High\',recommendationTypeId=\'d7e71ff3-8db9-4a5d-b403-70642f6c6995\',recommendationControl = \'UsageOptimization/OrphanedResources\', maturityLevel = \'Preview\', descriptionProblem = \'Load balancer without a backend pool.\', descriptionSolution = \'Review and remove this resource if not needed.\',resourceId = tolower(id), resourceType = type, resourceName = tolower(name), extendedProperties = todynamic(strcat(\'{\\"SKUName\\": \', SKUName, \',\\"SKUTier\\": \\"\', SKUTier, \',\\"Location\\": \\"\', Location)), lastUpdated = now(), recommendationProvider=\'Custom\'| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project subscriptionName = name, subscriptionId ) on subscriptionId | project-away subscriptionId1"}'
+            requestBody: '{\n  "query": "resources\n| extend SKUName=tostring(sku.name) \n| extend SKUTier=tostring(sku.tier), Location=location \n| extend backendAddressPools = properties.backendAddressPools\n| where type =~ \'microsoft.network/loadbalancers\' and array_length(backendAddressPools) == 0 and sku.name!=\'Basic\' \n| extend id,name, SKUName,SKUTier,backendAddressPools, location,resourceGroup, subscriptionId, type\n| project \n    x_RecommendationId=strcat(tolower(id),\'-idle\'), \n    x_ResourceGroupName=tolower(resourceGroup), \n    SubAccountId=subscriptionId, \n    x_RecommendationCategory=\'Cost\', \n    x_RecommendationProvider=\'Microsoft.FinOpsToolkit\', \n    x_RecommendationImpact=\'High\', \n    x_RecommendationTypeId=\'ab703887-fa23-4915-abdc-3defbea89f7a\', \n    x_RecommendationControl=\'UsageOptimization/OrphanedResources\', \n    x_RecommendationMaturityLevel=\'Preview\', \n    x_RecommendationDescription=\'Load balancer without a backend pool\', \n    x_RecommendationSolution=\'Review and remove this resource if not needed\', \n    ResourceId = tolower(id), \n    x_ResourceType=type, \n    ResourceName=tolower(name), \n    x_RecommendationDetails= strcat(\'{\\"SKUName\\": \', SKUName, \',\\"SKUTier\\": \\"\', SKUTier, \',\\"Location\\": \\"\', Location), \n    x_RecommendationDate = now() \n| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project SubAccountName=name, SubAccountId=subscriptionId ) on SubAccountId \n| project-away SubAccountId1"\n}'
             additionalHeaders: {
-              value: {
-                'Content-Type': 'application/json'
-              }
-              type: 'Object'
+              'Content-Type': 'application/json'
             }
           }
           sink: {
-            type: 'JsonSink'
+            type: 'ParquetSink'
             storeSettings: {
               type: 'AzureBlobFSWriteSettings'
-              copyBehavior: 'FlattenHierarchy'
             }
             formatSettings: {
-              type: 'JsonWriteSettings'
+              type: 'ParquetWriteSettings'
+              fileExtension: '.parquet'
             }
           }
           enableStaging: false
           translator: {
-            type: 'TabularTranslator'
-            mappings: [
-              {
-                source: {
-                  path: '[\'id\']'
-                }
-                sink: {
-                  path: '_RecommendationId'
-                }
-              }  
-              {
-                source: {
-                  path: '[\'subscriptionId\']'
-                }
-                sink: {
-                  path: 'SubAccountId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'subscriptionName\']'
-                }
-                sink: {
-                  path: 'SubAccountName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceGroup\']'
-                }
-                sink: {
-                  path: 'x_ResourceGroupName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceId\']'
-                }
-                sink: {
-                  path: 'ResourceId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceName\']'
-                }
-                sink: {
-                  path: 'ResourceName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceType\']'
-                }
-                sink: {
-                  path: '_ResourceType'
-                }
-              }
-              {
-                source: {
-                  path: '[\'category\']'
-                }
-                sink: {
-                  path: '_RecommendationCategory'
-                }
-              }
-              {
-                source: {
-                  path: '[\'provider\']'
-                }
-                sink: {
-                  path: '_RecommendationProvider'
-                }
-              }
-              {
-                source: {
-                  path: '[\'recommendationTypeId\']'
-                }
-                sink: {
-                  path: '_RecommendationTypeId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'descriptionProblem\']'
-                }
-                sink: {
-                  path: '_RecommendationDescription'
-                }
-              }
-              {
-                source: {
-                  path: '[\'descriptionSolution\']'
-                }
-                sink: {
-                  path: '_RecommendationSolution'
-                }
-              }
-              {
-                source: {
-                  path: '[\'impact\']'
-                }
-                sink: {
-                  path: 'x_RecommendationImpact'
-                }
-              }
-              {
-                source: {
-                  path: '[\'recommendationControl\']'
-                }
-                sink: {
-                  path: 'x_RecommendationControl'
-                }
-              }
-              {
-                source: {
-                  path: '[\'maturityLevel\']'
-                }
-                sink: {
-                  path: 'x_RecommendationMaturityLevel'
-                }
-              }
-              {
-                source: {
-                  path: '[\'extendedProperties\']'
-                }
-                sink: {
-                  path: 'x_RecommendationDetails'
-                }
-              }
-              {
-                source: {
-                  path: '[\'lastUpdated\']'
-                }
-                sink: {
-                  path: 'x_RecommendationDate'
-                }
-              }            
-            ]
-            collectionReference: '$[\'data\']'
+            value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
+            type: 'Expression'
           }
         }
         inputs: [
           {
-            referenceName: dataset_resourcegraph.name
+            referenceName: 'resourcegraph'
             type: 'DatasetReference'
             parameters: {}
           }
         ]
         outputs: [
           {
-            referenceName: dataset_recommendations.name
+            referenceName: 'ingestion'
             type: 'DatasetReference'
             parameters: {
-              blobPrefix: 'cost-custom-networklb'
-              blobExportTimestamp: {
-                value: '@variables(\'blobExportTimestamp\')'
+              blobPath: {
+                value: '@concat(\'recommendations/azure/\', variables(\'blobExportTimestamp\'), \'cost-custom-network-lbnobackend.parquet\')'
                 type: 'Expression'
               }
             }
           }
         ]
       }
-      { // Get unattached Public IPs
-        name: 'get_Network_PublicIP'
+      { // Error: Get LBs Without Backend
+        name: 'Catch LBs Without Backend Failure'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Export LBs Without Backend'
+            dependencyConditions: [
+              'Failed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@contains(activity(\'Export LBs Without Backend\').output.errors[0].Message, \'Sequence contains no elements\')'
+            type: 'Expression'
+          }
+          ifFalseActivities: [
+            {
+              name: 'Set Idle LBs Error Counter'
+              type: 'SetVariable'
+              dependsOn: []
+              policy: {
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                variableName: 'pipelineFailed'
+                value: {
+                  value: '@bool(true)'
+                  type: 'Expression'
+                }
+              }
+            }
+          ]
+        }
+      }
+      { // Get Unattached Public IPs
+        name: 'Export Unattached Public IPs'
         type: 'Copy'
         dependsOn: [
           {
-            activity: 'set_BlobExportTimestamp'
-            dependencyConditions: ['Completed']
+            activity: 'Export LBs Without Backend'
+            dependencyConditions: [
+              'Completed'
+            ]
           }
         ]
         policy: {
           timeout: '0.00:10:00'
-          retry: 3
-          retryIntervalInSeconds: 30
+          retry: 0
+          retryIntervalInSeconds: 60
           secureOutput: false
           secureInput: false
         }
@@ -4187,204 +3683,102 @@ resource pipeline_ExportRecommendationsCustom 'Microsoft.DataFactory/factories/p
           source: {
             type: 'RestSource'
             httpRequestTimeout: '00:02:00'
-            requestInterval: '00:00:01'
+            requestInterval: '00.00:00:00.050'
             requestMethod: 'POST'
-            requestBody: '{  "query": "resources   | where type =~ \'Microsoft.Network/publicIPAddresses\' and isempty(properties.ipConfiguration) and isempty(properties.natGateway) and properties.publicIPAllocationMethod =~ \'Static\'   | extend PublicIpId=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, Location=location, resourceGroup=strcat(\'/subscriptions/\',subscriptionId,\'/resourceGroups/\',resourceGroup)   | project PublicIpId, IPName, SKUName, resourceGroup, Location, AllocationMethod, subscriptionId, type, name   | union ( resources | where type =~ \'microsoft.network/networkinterfaces\' and isempty(properties.virtualMachine) and isnull(properties.privateEndpoint) and isnotempty(properties.ipConfigurations)   | extend IPconfig = properties.ipConfigurations | mv-expand IPconfig | extend PublicIpId= tostring(IPconfig.properties.publicIPAddress.id)   | project PublicIpId, name | join ( resources | where type =~ \'Microsoft.Network/publicIPAddresses\'   | extend PublicIpId=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, resourceGroup, Location=location, name, id ) on PublicIpId    | extend PublicIpId,IPName, SKUName, resourceGroup, Location, AllocationMethod,name, subscriptionId )     | project  id=strcat(tolower(PublicIpId),\'-idle\'), resourceGroup, subscriptionId, category=\'Cost\', provider=\'Microsoft.FinOpsToolkit\', impact=\'High\',recommendationTypeId=\'3ecbf770-9404-4504-a450-cc198e8b2a7d\',recommendationControl = \'UsageOptimization/OrphanedResources\', maturityLevel = \'Preview\', descriptionProblem = \'Idle public ip adress\', descriptionSolution = \'Review and remove this resource if not needed.\',resourceId = tolower(PublicIpId), resourceType = type, resourceName = tolower(name), extendedProperties = todynamic(strcat(\'{\\"SKUName\\": \', SKUName, \',\\"AllocationMethod\\": \\"\', AllocationMethod,\',\\"Location\\": \\"\', Location)), lastUpdated = now(), recommendationProvider=\'Custom\'| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project subscriptionName = name, subscriptionId ) on subscriptionId | project-away subscriptionId1"}'
+            requestBody: '{\n  "query": "resources \n| where type =~ \'Microsoft.Network/publicIPAddresses\' and isempty(properties.ipConfiguration) and isempty(properties.natGateway) and properties.publicIPAllocationMethod =~ \'Static\' \n| extend PublicIpId=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, Location=location \n| project PublicIpId, IPName, SKUName, resourceGroup, Location, AllocationMethod, subscriptionId, type, name \n| union ( resources | where type =~ \'microsoft.network/networkinterfaces\' and isempty(properties.virtualMachine) and isnull(properties.privateEndpoint) and isnotempty(properties.ipConfigurations) \n| extend IPconfig = properties.ipConfigurations | mv-expand IPconfig | extend PublicIpId= tostring(IPconfig.properties.publicIPAddress.id) \n| project PublicIpId, name | join ( resources | where type =~ \'Microsoft.Network/publicIPAddresses\'\n| extend PublicIpId=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, resourceGroup, Location=location, name, id ) on PublicIpId \n| extend PublicIpId,IPName, SKUName, resourceGroup, Location, AllocationMethod,name, subscriptionId )\n| project \n    x_RecommendationId=strcat(tolower(PublicIpId),\'-idle\'), \n    x_ResourceGroupName=tolower(resourceGroup), \n    SubAccountId=subscriptionId, \n    x_RecommendationCategory=\'Cost\', \n    x_RecommendationProvider=\'Microsoft.FinOpsToolkit\', \n    x_RecommendationImpact=\'Low\', \n    x_RecommendationTypeId=\'3ecbf770-9404-4504-a450-cc198e8b2a7d\', \n    x_RecommendationControl=\'UsageOptimization/OrphanedResources\', \n    x_RecommendationMaturityLevel=\'Preview\', \n    x_RecommendationDescription=\'Unattached (orphaned) public IP is incurring in networking costs\', \n    x_RecommendationSolution=\'Review and remove this resource if not needed\', \n    ResourceId = tolower(PublicIpId), \n    x_ResourceType=type, \n    ResourceName=tolower(name), \n    x_RecommendationDetails= strcat(\'{\\"SKUName\\": \', SKUName, \',\\"AllocationMethod\\": \\"\', AllocationMethod,\',\\"Location\\": \\"\', Location), \n    x_RecommendationDate = now() \n| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project SubAccountName=name, SubAccountId=subscriptionId ) on SubAccountId \n| project-away SubAccountId1"\n}'
             additionalHeaders: {
-              value: {
-                'Content-Type': 'application/json'
-              }
-              type: 'Object'
+              'Content-Type': 'application/json'
             }
           }
           sink: {
-            type: 'JsonSink'
+            type: 'ParquetSink'
             storeSettings: {
               type: 'AzureBlobFSWriteSettings'
-              copyBehavior: 'FlattenHierarchy'
             }
             formatSettings: {
-              type: 'JsonWriteSettings'
+              type: 'ParquetWriteSettings'
+              fileExtension: '.parquet'
             }
           }
           enableStaging: false
           translator: {
-            type: 'TabularTranslator'
-            mappings: [
-              {
-                source: {
-                  path: '[\'id\']'
-                }
-                sink: {
-                  path: '_RecommendationId'
-                }
-              }  
-              {
-                source: {
-                  path: '[\'subscriptionId\']'
-                }
-                sink: {
-                  path: 'SubAccountId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'subscriptionName\']'
-                }
-                sink: {
-                  path: 'SubAccountName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceGroup\']'
-                }
-                sink: {
-                  path: 'x_ResourceGroupName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceId\']'
-                }
-                sink: {
-                  path: 'ResourceId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceName\']'
-                }
-                sink: {
-                  path: 'ResourceName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceType\']'
-                }
-                sink: {
-                  path: '_ResourceType'
-                }
-              }
-              {
-                source: {
-                  path: '[\'category\']'
-                }
-                sink: {
-                  path: '_RecommendationCategory'
-                }
-              }
-              {
-                source: {
-                  path: '[\'provider\']'
-                }
-                sink: {
-                  path: '_RecommendationProvider'
-                }
-              }
-              {
-                source: {
-                  path: '[\'recommendationTypeId\']'
-                }
-                sink: {
-                  path: '_RecommendationTypeId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'descriptionProblem\']'
-                }
-                sink: {
-                  path: '_RecommendationDescription'
-                }
-              }
-              {
-                source: {
-                  path: '[\'descriptionSolution\']'
-                }
-                sink: {
-                  path: '_RecommendationSolution'
-                }
-              }
-              {
-                source: {
-                  path: '[\'impact\']'
-                }
-                sink: {
-                  path: 'x_RecommendationImpact'
-                }
-              }
-              {
-                source: {
-                  path: '[\'recommendationControl\']'
-                }
-                sink: {
-                  path: 'x_RecommendationControl'
-                }
-              }
-              {
-                source: {
-                  path: '[\'maturityLevel\']'
-                }
-                sink: {
-                  path: 'x_RecommendationMaturityLevel'
-                }
-              }
-              {
-                source: {
-                  path: '[\'extendedProperties\']'
-                }
-                sink: {
-                  path: 'x_RecommendationDetails'
-                }
-              }
-              {
-                source: {
-                  path: '[\'lastUpdated\']'
-                }
-                sink: {
-                  path: 'x_RecommendationDate'
-                }
-              }            
-            ]
-            collectionReference: '$[\'data\']'
+            value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
+            type: 'Expression'
           }
         }
         inputs: [
           {
-            referenceName: dataset_resourcegraph.name
+            referenceName: 'resourcegraph'
             type: 'DatasetReference'
             parameters: {}
           }
         ]
         outputs: [
           {
-            referenceName: dataset_recommendations.name
+            referenceName: 'ingestion'
             type: 'DatasetReference'
             parameters: {
-              blobPrefix: 'cost-custom-networkpip'
-              blobExportTimestamp: {
-                value: '@variables(\'blobExportTimestamp\')'
+              blobPath: {
+                value: '@concat(\'recommendations/azure/\', variables(\'blobExportTimestamp\'), \'cost-custom-network-pipunattached.parquet\')'
                 type: 'Expression'
               }
             }
           }
         ]
       }
-      { // Get idle SQL Database elastic pools
-        name: 'get_Database_SQLServer'
+      { // Error: Get Unattached Public IPs
+        name: 'Catch Unattached Public IPs Failure'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Export Unattached Public IPs'
+            dependencyConditions: [
+              'Failed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@contains(activity(\'Export Unattached Public IPs\').output.errors[0].Message, \'Sequence contains no elements\')'
+            type: 'Expression'
+          }
+          ifFalseActivities: [
+            {
+              name: 'Set Orphan PIPs Error Counter'
+              type: 'SetVariable'
+              dependsOn: []
+              policy: {
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                variableName: 'pipelineFailed'
+                value: {
+                  value: '@bool(true)'
+                  type: 'Expression'
+                }
+              }
+            }
+          ]
+        }
+      }
+      { // Get Empty SQL Elastic Pools
+        name: 'Export Empty SQL Elastic Pools'
         type: 'Copy'
         dependsOn: [
           {
-            activity: 'set_BlobExportTimestamp'
-            dependencyConditions: ['Completed']
+            activity: 'Export Unattached Public IPs'
+            dependencyConditions: [
+              'Completed'
+            ]
           }
         ]
         policy: {
           timeout: '0.00:10:00'
-          retry: 3
-          retryIntervalInSeconds: 30
+          retry: 0
+          retryIntervalInSeconds: 60
           secureOutput: false
           secureInput: false
         }
@@ -4393,204 +3787,102 @@ resource pipeline_ExportRecommendationsCustom 'Microsoft.DataFactory/factories/p
           source: {
             type: 'RestSource'
             httpRequestTimeout: '00:02:00'
-            requestInterval: '00:00:01'
+            requestInterval: '00.00:00:00.050'
             requestMethod: 'POST'
-            requestBody: '{  "query": "resources   | where type == \'microsoft.sql/servers/elasticpools\'  | extend elasticPoolId = tolower(tostring(id)), elasticPoolName = name, elasticPoolRG = resourceGroup,skuName=tostring(sku.name),skuTier=tostring(sku.tier),skuCapacity=tostring(sku.capacity), Location=location, type  | join kind=leftouter ( resources | where type == \'microsoft.sql/servers/databases\'  | extend elasticPoolId = tolower(tostring(properties.elasticPoolId)) ) on elasticPoolId  | summarize databaseCount = countif(isnotempty(elasticPoolId1)) by elasticPoolId, elasticPoolName,serverResourceGroup=resourceGroup,name,skuName,skuTier,skuCapacity,elasticPoolRG,Location, type, subscriptionId  | where databaseCount == 0   | project elasticPoolId, elasticPoolName, databaseCount, elasticPoolRG ,skuName,skuTier ,skuCapacity, Location, type, subscriptionId    | project  id=strcat(tolower(elasticPoolId),\'-idle\'), resourceGroup=elasticPoolRG, subscriptionId, category=\'Cost\', provider=\'Microsoft.FinOpsToolkit\', impact=\'Medium\',recommendationTypeId=\'50987aae-a46d-49ae-bd41-a670a4dd18bd\',recommendationControl = \'UsageOptimization/OrphanedResources\', maturityLevel = \'Preview\', descriptionProblem = \'Idle Elastic Pools in Azure SQL database \', descriptionSolution = \'Review and remove this resource if not needed.\',resourceId = tolower(elasticPoolId), resourceType = type, resourceName = tolower(elasticPoolName), extendedProperties = todynamic(strcat(\'{\\"skuName\\": \', skuName, \',\\"skuTier\\": \\"\', skuTier,\',\\"skuCapacity\\": \\"\', skuCapacity,\',\\"Location\\": \\"\', Location)), lastUpdated = now(), recommendationProvider=\'Custom\'  | join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project subscriptionName = name, subscriptionId ) on subscriptionId | project-away subscriptionId1"}'
+            requestBody: '{\n  "query": "resources \n| where type == \'microsoft.sql/servers/elasticpools\'\n| extend elasticPoolId = tolower(tostring(id)), elasticPoolName = name, elasticPoolRG = resourceGroup,skuName=tostring(sku.name),skuTier=tostring(sku.tier),skuCapacity=tostring(sku.capacity), Location=location, type\n| join kind=leftouter ( resources | where type == \'microsoft.sql/servers/databases\'\n| extend elasticPoolId = tolower(tostring(properties.elasticPoolId)) ) on elasticPoolId\n| summarize databaseCount = countif(isnotempty(elasticPoolId1)) by elasticPoolId, elasticPoolName,serverResourceGroup=resourceGroup,name,skuName,skuTier,skuCapacity,elasticPoolRG,Location, type, subscriptionId\n| where databaseCount == 0 \n| project elasticPoolId, elasticPoolName, databaseCount, elasticPoolRG ,skuName,skuTier ,skuCapacity, Location, type, subscriptionId\n| project \n    x_RecommendationId=strcat(tolower(elasticPoolId),\'-idle\'), \n    x_ResourceGroupName=tolower(elasticPoolRG), \n    SubAccountId=subscriptionId, \n    x_RecommendationCategory=\'Cost\', \n    x_RecommendationProvider=\'Microsoft.FinOpsToolkit\', \n    x_RecommendationImpact=\'High\', \n    x_RecommendationTypeId=\'50987aae-a46d-49ae-bd41-a670a4dd18bd\', \n    x_RecommendationControl=\'UsageOptimization/OrphanedResources\', \n    x_RecommendationMaturityLevel=\'Preview\', \n    x_RecommendationDescription=\'SQL Database elastic pool has no associated databases\', \n    x_RecommendationSolution=\'Review and remove this resource if not needed\', \n    ResourceId = tolower(elasticPoolId), \n    x_ResourceType=type, \n    ResourceName=tolower(elasticPoolName), \n    x_RecommendationDetails= strcat(\'{\\"skuName\\": \', skuName, \',\\"skuTier\\": \\"\', skuTier,\',\\"skuCapacity\\": \\"\', skuCapacity,\',\\"Location\\": \\"\', Location), \n    x_RecommendationDate = now() \n| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project SubAccountName=name, SubAccountId=subscriptionId ) on SubAccountId \n| project-away SubAccountId1"\n}'
             additionalHeaders: {
-              value: {
-                'Content-Type': 'application/json'
-              }
-              type: 'Object'
+              'Content-Type': 'application/json'
             }
           }
           sink: {
-            type: 'JsonSink'
+            type: 'ParquetSink'
             storeSettings: {
               type: 'AzureBlobFSWriteSettings'
-              copyBehavior: 'FlattenHierarchy'
             }
             formatSettings: {
-              type: 'JsonWriteSettings'
+              type: 'ParquetWriteSettings'
+              fileExtension: '.parquet'
             }
           }
           enableStaging: false
           translator: {
-            type: 'TabularTranslator'
-            mappings: [
-              {
-                source: {
-                  path: '[\'id\']'
-                }
-                sink: {
-                  path: '_RecommendationId'
-                }
-              }  
-              {
-                source: {
-                  path: '[\'subscriptionId\']'
-                }
-                sink: {
-                  path: 'SubAccountId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'subscriptionName\']'
-                }
-                sink: {
-                  path: 'SubAccountName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceGroup\']'
-                }
-                sink: {
-                  path: 'x_ResourceGroupName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceId\']'
-                }
-                sink: {
-                  path: 'ResourceId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceName\']'
-                }
-                sink: {
-                  path: 'ResourceName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceType\']'
-                }
-                sink: {
-                  path: '_ResourceType'
-                }
-              }
-              {
-                source: {
-                  path: '[\'category\']'
-                }
-                sink: {
-                  path: '_RecommendationCategory'
-                }
-              }
-              {
-                source: {
-                  path: '[\'provider\']'
-                }
-                sink: {
-                  path: '_RecommendationProvider'
-                }
-              }
-              {
-                source: {
-                  path: '[\'recommendationTypeId\']'
-                }
-                sink: {
-                  path: '_RecommendationTypeId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'descriptionProblem\']'
-                }
-                sink: {
-                  path: '_RecommendationDescription'
-                }
-              }
-              {
-                source: {
-                  path: '[\'descriptionSolution\']'
-                }
-                sink: {
-                  path: '_RecommendationSolution'
-                }
-              }
-              {
-                source: {
-                  path: '[\'impact\']'
-                }
-                sink: {
-                  path: 'x_RecommendationImpact'
-                }
-              }
-              {
-                source: {
-                  path: '[\'recommendationControl\']'
-                }
-                sink: {
-                  path: 'x_RecommendationControl'
-                }
-              }
-              {
-                source: {
-                  path: '[\'maturityLevel\']'
-                }
-                sink: {
-                  path: 'x_RecommendationMaturityLevel'
-                }
-              }
-              {
-                source: {
-                  path: '[\'extendedProperties\']'
-                }
-                sink: {
-                  path: 'x_RecommendationDetails'
-                }
-              }
-              {
-                source: {
-                  path: '[\'lastUpdated\']'
-                }
-                sink: {
-                  path: 'x_RecommendationDate'
-                }
-              }            
-            ]
-            collectionReference: '$[\'data\']'
+            value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
+            type: 'Expression'
           }
         }
         inputs: [
           {
-            referenceName: dataset_resourcegraph.name
+            referenceName: 'resourcegraph'
             type: 'DatasetReference'
             parameters: {}
           }
         ]
         outputs: [
           {
-            referenceName: dataset_recommendations.name
+            referenceName: 'ingestion'
             type: 'DatasetReference'
             parameters: {
-              blobPrefix: 'cost-custom-databasesqlidlepool'
-              blobExportTimestamp: {
-                value: '@variables(\'blobExportTimestamp\')'
+              blobPath: {
+                value: '@concat(\'recommendations/azure/\', variables(\'blobExportTimestamp\'), \'cost-custom-database-emptyelasticpool.parquet\')'
                 type: 'Expression'
               }
             }
           }
         ]
       }
-      { // Get Windows VMs without AHB
-        name: 'get_AHB_Windows'
+      { // Error: Get Empty SQL Elastic Pools
+        name: 'Catch Empty SQL Elastic Pools Failure'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Export Empty SQL Elastic Pools'
+            dependencyConditions: [
+              'Failed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@contains(activity(\'Export Empty SQL Elastic Pools\').output.errors[0].Message, \'Sequence contains no elements\')'
+            type: 'Expression'
+          }
+          ifFalseActivities: [
+            {
+              name: 'Set Empty SQL Elastic Pools Error Counter'
+              type: 'SetVariable'
+              dependsOn: []
+              policy: {
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                variableName: 'pipelineFailed'
+                value: {
+                  value: '@bool(true)'
+                  type: 'Expression'
+                }
+              }
+            }
+          ]
+        }
+      }
+      { // Get Windows Without AHB
+        name: 'Export Windows Without AHB'
         type: 'Copy'
         dependsOn: [
           {
-            activity: 'set_BlobExportTimestamp'
-            dependencyConditions: ['Completed']
+            activity: 'Export Empty SQL Elastic Pools'
+            dependencyConditions: [
+              'Completed'
+            ]
           }
         ]
         policy: {
           timeout: '0.00:10:00'
-          retry: 3
-          retryIntervalInSeconds: 30
+          retry: 0
+          retryIntervalInSeconds: 60
           secureOutput: false
           secureInput: false
         }
@@ -4599,204 +3891,102 @@ resource pipeline_ExportRecommendationsCustom 'Microsoft.DataFactory/factories/p
           source: {
             type: 'RestSource'
             httpRequestTimeout: '00:02:00'
-            requestInterval: '00:00:01'
+            requestInterval: '00.00:00:00.050'
             requestMethod: 'POST'
-            requestBody: '{  "query": "ResourceContainers | where type =~ \'Microsoft.Resources/subscriptions\' | where tostring (properties.subscriptionPolicies.quotaId) !has \'MSDNDevTest_2014-09-01\'  | extend SubscriptionName=name | join (  resources | where type =~ \'microsoft.compute/virtualmachines\'| where tostring(properties.storageProfile.osDisk.osType) == \'Windows\'| extend WindowsId=id, VMSku=tostring(properties.hardwareProfile.vmSize), resourceGroup, type, Location=location,LicenseType = tostring(properties.[\'licenseType\'])| extend ActualCores = toint(extract(\'.[A-Z]([0-9]+)\', 1, tostring(properties.hardwareProfile.vmSize)))| extend CheckAHBWindows = case(     type == \'microsoft.compute/virtualmachines\' or type =~ \'microsoft.compute/virtualMachineScaleSets\', iif((properties.[\'licenseType\'])     !has \'Windows\' and (properties.virtualMachineProfile.[\'licenseType\']) !has \'Windows\' , \'AHB-disabled\', \'AHB-enabled\'),     \'Not Windows\'     )) on subscriptionId | project id = strcat(tolower(WindowsId), \'-\', CheckAHBWindows),resourceGroup, subscriptionId, category=\'Cost\', provider=\'Microsoft.FinOpsToolkit\', impact=\'Medium\',recommendationTypeId=\'f326c065-b9f7-4a0e-a0f1-5a1c060bc25d\',recommendationControl = \'RateOptimization/Licensing\', maturityLevel = \'Preview\', descriptionProblem = \'Check Windows AHB status\', descriptionSolution = \'Check Windows AHB status\',resourceId = tolower(WindowsId), resourceType = type, resourceName = tolower(name), extendedProperties = todynamic(strcat(\'{\\"VMSku\\": \', VMSku, \',\\"CheckAHBWindows\\": \\"\', CheckAHBWindows,\',\\"ActualCores\\": \\"\', ActualCores,\',\\"Location\\": \\"\', Location)), lastUpdated = now(), recommendationProvider=\'Custom\'| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project subscriptionName = name, subscriptionId ) on subscriptionId | project-away subscriptionId1"}'
+            requestBody: '{\n  "query": "resourcecontainers \n| where type =~ \'Microsoft.Resources/subscriptions\' \n| where tostring (properties.subscriptionPolicies.quotaId) !has \'MSDNDevTest_2014-09-01\' \n| extend SubscriptionName=name \n| join (\n    resources \n    | where type =~ \'microsoft.compute/virtualmachines\' or type =~ \'microsoft.compute/virtualMachineScaleSets\'\n    | where tostring(properties.storageProfile.imageReference.publisher ) == \'MicrosoftWindowsServer\' or tostring(properties.virtualMachineProfile.storageProfile.osDisk.osType) == \'Windows\' or tostring(properties.storageProfile.imageReference.publisher ) == \'microsoftsqlserver\'\n    | where tostring(properties.[\'licenseType\']) !has \'Windows\' and tostring(properties.virtualMachineProfile.[\'licenseType\']) == \'Windows_Server\'\n    | extend WindowsId=id, VMSku=tostring(properties.hardwareProfile.vmSize), vmResourceGroup=resourceGroup, vmType=type, Location=location,LicenseType = tostring(properties.[\'licenseType\'])\n    | extend ActualCores = toint(extract(\'.[A-Z]([0-9]+)\', 1, tostring(properties.hardwareProfile.vmSize)))\n    | extend CheckAHBWindows = case(\n        type == \'microsoft.compute/virtualmachines\' or type =~ \'microsoft.compute/virtualMachineScaleSets\', iif((properties.[\'licenseType\'])\n        !has \'Windows\' and (properties.virtualMachineProfile.[\'licenseType\']) !has \'Windows\' , \'AHB-disabled\', \'AHB-enabled\'),\n        \'Not Windows\'\n    )\n) on subscriptionId \n| project \n    x_RecommendationId=strcat(tolower(WindowsId),\'-CheckAHBWindows\'), \n    x_ResourceGroupName=tolower(vmResourceGroup), \n    SubAccountId=subscriptionId, \n    x_RecommendationCategory=\'Cost\', \n    x_RecommendationProvider=\'Microsoft.FinOpsToolkit\', \n    x_RecommendationImpact=\'Medium\', \n    x_RecommendationTypeId=\'f326c065-b9f7-4a0e-a0f1-5a1c060bc25d\', \n    x_RecommendationControl=\'RateOptimization/Licensing\', \n    x_RecommendationMaturityLevel=\'Preview\', \n    x_RecommendationDescription=\'Windows virtual machine is not leveraging Azure Hybrid Benefit\', \n    x_RecommendationSolution=\'Review the virtual machine licensing option\', \n    ResourceId = tolower(WindowsId), \n    x_ResourceType=vmType, \n    ResourceName=tolower(split(WindowsId,\'/\')[-1]), \n    x_RecommendationDetails= strcat(\'{\\"VMSku\\": \', VMSku, \',\\"CheckAHBWindows\\": \\"\', CheckAHBWindows,\',\\"ActualCores\\": \\"\', ActualCores,\',\\"Location\\": \\"\', Location), \n    x_RecommendationDate = now() \n| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project SubAccountName=name, SubAccountId=subscriptionId ) on SubAccountId \n| project-away SubAccountId1"\n}'
             additionalHeaders: {
-              value: {
-                'Content-Type': 'application/json'
-              }
-              type: 'Object'
+              'Content-Type': 'application/json'
             }
           }
           sink: {
-            type: 'JsonSink'
+            type: 'ParquetSink'
             storeSettings: {
               type: 'AzureBlobFSWriteSettings'
-              copyBehavior: 'FlattenHierarchy'
             }
             formatSettings: {
-              type: 'JsonWriteSettings'
+              type: 'ParquetWriteSettings'
+              fileExtension: '.parquet'
             }
           }
           enableStaging: false
           translator: {
-            type: 'TabularTranslator'
-            mappings: [
-              {
-                source: {
-                  path: '[\'id\']'
-                }
-                sink: {
-                  path: '_RecommendationId'
-                }
-              }  
-              {
-                source: {
-                  path: '[\'subscriptionId\']'
-                }
-                sink: {
-                  path: 'SubAccountId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'subscriptionName\']'
-                }
-                sink: {
-                  path: 'SubAccountName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceGroup\']'
-                }
-                sink: {
-                  path: 'x_ResourceGroupName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceId\']'
-                }
-                sink: {
-                  path: 'ResourceId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceName\']'
-                }
-                sink: {
-                  path: 'ResourceName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceType\']'
-                }
-                sink: {
-                  path: '_ResourceType'
-                }
-              }
-              {
-                source: {
-                  path: '[\'category\']'
-                }
-                sink: {
-                  path: '_RecommendationCategory'
-                }
-              }
-              {
-                source: {
-                  path: '[\'provider\']'
-                }
-                sink: {
-                  path: '_RecommendationProvider'
-                }
-              }
-              {
-                source: {
-                  path: '[\'recommendationTypeId\']'
-                }
-                sink: {
-                  path: '_RecommendationTypeId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'descriptionProblem\']'
-                }
-                sink: {
-                  path: '_RecommendationDescription'
-                }
-              }
-              {
-                source: {
-                  path: '[\'descriptionSolution\']'
-                }
-                sink: {
-                  path: '_RecommendationSolution'
-                }
-              }
-              {
-                source: {
-                  path: '[\'impact\']'
-                }
-                sink: {
-                  path: 'x_RecommendationImpact'
-                }
-              }
-              {
-                source: {
-                  path: '[\'recommendationControl\']'
-                }
-                sink: {
-                  path: 'x_RecommendationControl'
-                }
-              }
-              {
-                source: {
-                  path: '[\'maturityLevel\']'
-                }
-                sink: {
-                  path: 'x_RecommendationMaturityLevel'
-                }
-              }
-              {
-                source: {
-                  path: '[\'extendedProperties\']'
-                }
-                sink: {
-                  path: 'x_RecommendationDetails'
-                }
-              }
-              {
-                source: {
-                  path: '[\'lastUpdated\']'
-                }
-                sink: {
-                  path: 'x_RecommendationDate'
-                }
-              }            
-            ]
-            collectionReference: '$[\'data\']'
+            value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
+            type: 'Expression'
           }
         }
         inputs: [
           {
-            referenceName: dataset_resourcegraph.name
+            referenceName: 'resourcegraph'
             type: 'DatasetReference'
             parameters: {}
           }
         ]
         outputs: [
           {
-            referenceName: dataset_recommendations.name
+            referenceName: 'ingestion'
             type: 'DatasetReference'
             parameters: {
-              blobPrefix: 'cost-custom-ahbwindows'
-              blobExportTimestamp: {
-                value: '@variables(\'blobExportTimestamp\')'
+              blobPath: {
+                value: '@concat(\'recommendations/azure/\', variables(\'blobExportTimestamp\'), \'cost-custom-compute-windowsnoahb.parquet\')'
                 type: 'Expression'
               }
             }
           }
         ]
       }
-      { // Get SQL VMs without AHB
-        name: 'get_AHB_SQL'
+      { // Error: Get Windows Without AHB
+        name: 'Catch Windows Without AHB Failure'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Export Windows Without AHB'
+            dependencyConditions: [
+              'Failed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@contains(activity(\'Export Windows Without AHB\').output.errors[0].Message, \'Sequence contains no elements\')'
+            type: 'Expression'
+          }
+          ifFalseActivities: [
+            {
+              name: 'Set Windows No AHB Error Counter'
+              type: 'SetVariable'
+              dependsOn: []
+              policy: {
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                variableName: 'pipelineFailed'
+                value: {
+                  value: '@bool(true)'
+                  type: 'Expression'
+                }
+              }
+            }
+          ]
+        }
+      }
+      { // Get SQL VMs Without AHB
+        name: 'Export SQL VMs Without AHB'
         type: 'Copy'
         dependsOn: [
           {
-            activity: 'set_BlobExportTimestamp'
-            dependencyConditions: ['Completed']
+            activity: 'Export Windows Without AHB'
+            dependencyConditions: [
+              'Completed'
+            ]
           }
         ]
         policy: {
           timeout: '0.00:10:00'
-          retry: 3
-          retryIntervalInSeconds: 30
+          retry: 0
+          retryIntervalInSeconds: 60
           secureOutput: false
           secureInput: false
         }
@@ -4805,202 +3995,128 @@ resource pipeline_ExportRecommendationsCustom 'Microsoft.DataFactory/factories/p
           source: {
             type: 'RestSource'
             httpRequestTimeout: '00:02:00'
-            requestInterval: '00:00:01'
+            requestInterval: '00.00:00:00.050'
             requestMethod: 'POST'
-            requestBody: '{  "query": "resourcecontainers | where type =~ \'Microsoft.Resources/subscriptions\' | where tostring (properties.subscriptionPolicies.quotaId) !has \'MSDNDevTest_2014-09-01\' | extend SubscriptionName=name | join (     resources | where type =~ \'Microsoft.SqlVirtualMachine/SqlVirtualMachines\'    | extend SQLID=id, VMName = name, resourceGroup, Location = location, LicenseType = tostring(properties.[\'sqlServerLicenseType\']), OSType=tostring(properties.storageProfile.imageReference.offer), SQLAgentType = tostring(properties.[\'sqlManagement\']), SQLVersion = tostring(properties.[\'sqlImageOffer\']), SQLSKU=tostring(properties.[\'sqlImageSku\'])    ) on subscriptionId | join (    resources    | where type =~ \'Microsoft.Compute/virtualmachines\'    | extend ActualCores = toint(extract(\'.[A-Z]([0-9]+)\', 1, tostring(properties.hardwareProfile.vmSize)))    | project VMName = tolower(name), VMSize = tostring(properties.hardwareProfile.vmSize),ActualCores, subscriptionId    ) on VMName| order by id asc    | where SQLSKU != \'Developer\' and SQLSKU != \'Express\'    | extend CheckAHBSQLVM= case(     type == \'Microsoft.SqlVirtualMachine/SqlVirtualMachines\', iif((properties.[\'sqlServerLicenseType\']) != \'AHUB\', \'AHB-disabled\', \'AHB-enabled\'),     \'Not Windows\'     )| project SQLID,VMName,resourceGroup, Location, VMSize, SQLVersion, SQLSKU, SQLAgentType, LicenseType, SubscriptionName,type,CheckAHBSQLVM, subscriptionId,ActualCores| project id = strcat(tolower(SQLID), \'-\', CheckAHBSQLVM),resourceGroup, subscriptionId, category=\'Cost\', provider=\'Microsoft.FinOpsToolkit\', impact=\'High\',recommendationTypeId=\'01decd62-f91b-4434-abe5-9a09e13e018f\',recommendationControl = \'RateOptimization/Licensing\', maturityLevel = \'Preview\', descriptionProblem = \'Check SQL VM AHB status\', descriptionSolution = \'Check SQL VM AHB status.\',resourceId = tolower(SQLID), resourceType = type, resourceName = tolower(VMName), extendedProperties = todynamic(strcat(\'{\\"VMSize\\": \\"\', VMSize, \'\\", \\"CheckAHBSQLVM\\": \\"\', CheckAHBSQLVM, \'\\", \\"ActualCores\\": \\"\', ActualCores, \'\\", \\"SQLVersion\\": \\"\', SQLVersion, \'\\", \\"SQLSKU\\": \\"\', SQLSKU, \'\\", \\"SQLAgentType\\": \\"\', SQLAgentType, \'\\", \\"LicenseType\\": \\"\', LicenseType, \'\\", \\"Location\\": \\"\', Location, \'\\"}\')),lastUpdated = now(), recommendationProvider=\'Custom\'| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project subscriptionName = name, subscriptionId ) on subscriptionId | project-away subscriptionId1"}'
+            requestBody: '{\n  "query": "resourcecontainers \n| where type =~ \'Microsoft.Resources/subscriptions\' \n| where tostring (properties.subscriptionPolicies.quotaId) !has \'MSDNDevTest_2014-09-01\' \n| extend SubscriptionName=name \n| join (\n     resources | where type =~ \'Microsoft.SqlVirtualMachine/SqlVirtualMachines\' and tostring(properties.[\'sqlServerLicenseType\']) != \'AHUB\' \n    | extend SQLID=id, VMName = name, resourceGroup, Location = location, LicenseType = tostring(properties.[\'sqlServerLicenseType\']), OSType=tostring(properties.storageProfile.imageReference.offer), SQLAgentType = tostring(properties.[\'sqlManagement\']), SQLVersion = tostring(properties.[\'sqlImageOffer\']), SQLSKU=tostring(properties.[\'sqlImageSku\'])\n) on subscriptionId \n| join (\n    resources\n    | where type =~ \'Microsoft.Compute/virtualmachines\'\n    | extend ActualCores = toint(extract(\'.[A-Z]([0-9]+)\', 1, tostring(properties.hardwareProfile.vmSize)))\n    | project VMName = tolower(name), VMSize = tostring(properties.hardwareProfile.vmSize),ActualCores, subscriptionId, vmType=type, vmResourceGroup=resourceGroup\n) on VMName\n| order by id asc    \n| where SQLSKU != \'Developer\' and SQLSKU != \'Express\'\n| extend CheckAHBSQLVM= case(\n    type == \'Microsoft.SqlVirtualMachine/SqlVirtualMachines\', iif((properties.[\'sqlServerLicenseType\']) != \'AHUB\', \'AHB-disabled\', \'AHB-enabled\'),\n    \'Not Windows\'\n)\n| project SQLID,VMName,resourceGroup, Location, VMSize, SQLVersion, SQLSKU, SQLAgentType, LicenseType, SubscriptionName,type,CheckAHBSQLVM, subscriptionId,ActualCores, vmType, vmResourceGroup\n| project \n    x_RecommendationId=strcat(tolower(SQLID),\'-CheckAHBSQLVM\'), \n    x_ResourceGroupName=tolower(vmResourceGroup), \n    SubAccountId=subscriptionId, \n    x_RecommendationCategory=\'Cost\', \n    x_RecommendationProvider=\'Microsoft.FinOpsToolkit\', \n    x_RecommendationImpact=\'High\', \n    x_RecommendationTypeId=\'01decd62-f91b-4434-abe5-9a09e13e018f\', \n    x_RecommendationControl=\'RateOptimization/Licensing\', \n    x_RecommendationMaturityLevel=\'Preview\', \n    x_RecommendationDescription=\'SQL virtual machine is not leveraging Azure Hybrid Benefit\', \n    x_RecommendationSolution=\'Review the SQL licensing option\', \n    ResourceId = tolower(SQLID), \n    x_ResourceType=vmType, \n    ResourceName=tolower(VMName), \n    x_RecommendationDetails= strcat(\'{\\"VMSize\\": \\"\', VMSize, \'\\", \\"CheckAHBSQLVM\\": \\"\', CheckAHBSQLVM, \'\\", \\"ActualCores\\": \\"\', ActualCores, \'\\", \\"SQLVersion\\": \\"\', SQLVersion, \'\\", \\"SQLSKU\\": \\"\', SQLSKU, \'\\", \\"SQLAgentType\\": \\"\', SQLAgentType, \'\\", \\"LicenseType\\": \\"\', LicenseType, \'\\", \\"Location\\": \\"\', Location, \'\\"}\'), \n    x_RecommendationDate = now() \n| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project SubAccountName=name, SubAccountId=subscriptionId ) on SubAccountId \n| project-away SubAccountId1"\n}'
             additionalHeaders: {
-              value: {
-                'Content-Type': 'application/json'
-              }
-              type: 'Object'
+              'Content-Type': 'application/json'
             }
           }
           sink: {
-            type: 'JsonSink'
+            type: 'ParquetSink'
             storeSettings: {
               type: 'AzureBlobFSWriteSettings'
-              copyBehavior: 'FlattenHierarchy'
             }
             formatSettings: {
-              type: 'JsonWriteSettings'
+              type: 'ParquetWriteSettings'
+              fileExtension: '.parquet'
             }
           }
           enableStaging: false
           translator: {
-            type: 'TabularTranslator'
-            mappings: [
-              {
-                source: {
-                  path: '[\'id\']'
-                }
-                sink: {
-                  path: '_RecommendationId'
-                }
-              }  
-              {
-                source: {
-                  path: '[\'subscriptionId\']'
-                }
-                sink: {
-                  path: 'SubAccountId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'subscriptionName\']'
-                }
-                sink: {
-                  path: 'SubAccountName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceGroup\']'
-                }
-                sink: {
-                  path: 'x_ResourceGroupName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceId\']'
-                }
-                sink: {
-                  path: 'ResourceId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceName\']'
-                }
-                sink: {
-                  path: 'ResourceName'
-                }
-              }
-              {
-                source: {
-                  path: '[\'resourceType\']'
-                }
-                sink: {
-                  path: '_ResourceType'
-                }
-              }
-              {
-                source: {
-                  path: '[\'category\']'
-                }
-                sink: {
-                  path: '_RecommendationCategory'
-                }
-              }
-              {
-                source: {
-                  path: '[\'provider\']'
-                }
-                sink: {
-                  path: '_RecommendationProvider'
-                }
-              }
-              {
-                source: {
-                  path: '[\'recommendationTypeId\']'
-                }
-                sink: {
-                  path: '_RecommendationTypeId'
-                }
-              }
-              {
-                source: {
-                  path: '[\'descriptionProblem\']'
-                }
-                sink: {
-                  path: '_RecommendationDescription'
-                }
-              }
-              {
-                source: {
-                  path: '[\'descriptionSolution\']'
-                }
-                sink: {
-                  path: '_RecommendationSolution'
-                }
-              }
-              {
-                source: {
-                  path: '[\'impact\']'
-                }
-                sink: {
-                  path: 'x_RecommendationImpact'
-                }
-              }
-              {
-                source: {
-                  path: '[\'recommendationControl\']'
-                }
-                sink: {
-                  path: 'x_RecommendationControl'
-                }
-              }
-              {
-                source: {
-                  path: '[\'maturityLevel\']'
-                }
-                sink: {
-                  path: 'x_RecommendationMaturityLevel'
-                }
-              }
-              {
-                source: {
-                  path: '[\'extendedProperties\']'
-                }
-                sink: {
-                  path: 'x_RecommendationDetails'
-                }
-              }
-              {
-                source: {
-                  path: '[\'lastUpdated\']'
-                }
-                sink: {
-                  path: 'x_RecommendationDate'
-                }
-              }            
-            ]
-            collectionReference: '$[\'data\']'
+            value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
+            type: 'Expression'
           }
         }
         inputs: [
           {
-            referenceName: dataset_resourcegraph.name
+            referenceName: 'resourcegraph'
             type: 'DatasetReference'
             parameters: {}
           }
         ]
         outputs: [
           {
-            referenceName: dataset_recommendations.name
+            referenceName: 'ingestion'
             type: 'DatasetReference'
             parameters: {
-              blobPrefix: 'cost-custom-ahbsql'
-              blobExportTimestamp: {
-                value: '@variables(\'blobExportTimestamp\')'
+              blobPath: {
+                value: '@concat(\'recommendations/azure/\', variables(\'blobExportTimestamp\'), \'cost-custom-database-sqlnoahb.parquet\')'
                 type: 'Expression'
               }
             }
           }
         ]
+      }
+      { // Error: Get SQL VMs Without AHB
+        name: 'Catch SQL VMs Without AHB Failure'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Export SQL VMs Without AHB'
+            dependencyConditions: [
+              'Failed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@contains(activity(\'Export SQL VMs Without AHB\').output.errors[0].Message, \'Sequence contains no elements\')'
+            type: 'Expression'
+          }
+          ifFalseActivities: [
+            {
+              name: 'Set SQL VMs No AHB Error Counter'
+              type: 'SetVariable'
+              dependsOn: []
+              policy: {
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                variableName: 'pipelineFailed'
+                value: {
+                  value: '@bool(true)'
+                  type: 'Expression'
+                }
+              }
+            }
+          ]
+        }
+      }
+      { // Overall Exports Check
+        name: 'Overall Exports Check'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Export SQL VMs Without AHB'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+          {
+            activity: 'Catch SQL VMs Without AHB Failure'
+            dependencyConditions: [
+              'Completed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@equals(variables(\'pipelineFailed\'), true)'
+            type: 'Expression'
+          }
+          ifTrueActivities: [
+            {
+              name: 'Fail Pipeline'
+              type: 'Fail'
+              dependsOn: []
+              userProperties: []
+              typeProperties: {
+                message: {
+                  value: 'Pipeline failed'
+                  type: 'Expression'
+                }
+                errorCode: 'ARGQueriesFailed'
+              }
+            }
+          ]
+        }
       }
     ]
-    parameters: {}
-    policy: {
-      elapsedTimeMetric: {}
-    }
-    variables: {
-      blobExportTimestamp: {
-        type: 'String'
-      }
-    }
-    annotations: []
   }
 }
 
@@ -5012,7 +4128,12 @@ resource startTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: '${dataFactory.name}_startTriggers'
   // chinaeast2 is the only region in China that supports deployment scripts
   location: startsWith(location, 'china') ? 'chinaeast2' : location
-  tags: union(tags, contains(tagsByResource, 'Microsoft.Resources/deploymentScripts') ? tagsByResource['Microsoft.Resources/deploymentScripts'] : {})
+  tags: union(
+    tags,
+    contains(tagsByResource, 'Microsoft.Resources/deploymentScripts')
+      ? tagsByResource['Microsoft.Resources/deploymentScripts']
+      : {}
+  )
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -5026,6 +4147,7 @@ resource startTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     trigger_SettingsUpdated
     trigger_DailySchedule
     trigger_MonthlySchedule
+    trigger_RecommendationsDailySchedule
   ]
   properties: {
     azPowerShellVersion: '8.0'
