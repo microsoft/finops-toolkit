@@ -47,7 +47,7 @@ Note the currency must be single-select to ensure costs in different currencies 
 
 The **Get started** page includes a basic introduction to the report with additional links to learn more.
 
-![Screenshot of the Get started page](https://github.com/microsoft/finops-toolkit/assets/399533/653c4890-f723-4126-8927-3d5d7dd2c588)
+![Screenshot of the Get started page](../../media/power-bi/cost-summary_get-started.png)
 
 <br>
 
@@ -57,7 +57,7 @@ The **Summary** page shows the running total (or accumulated cost) for the selec
 
 The page uses the standard layout with cost, negotiated discount savings, and commitment discount savings in the chart and the subscription hierarchy with resource groups and resources in the table.
 
-![Screenshot of the Summary page](https://github.com/microsoft/finops-toolkit/assets/399533/68ed0586-0c68-4989-8d1e-65db618c4e71)
+![Screenshot of the Summary page](../../media/power-bi/cost-summary_summary.png)
 
 <br>
 
@@ -67,7 +67,7 @@ The **Services** page offers a breakdown of cost by service. This is useful for 
 
 The page uses the standard layout with a breakdown of services (meter category) in the chart and table. The table has a further breakdown by tier (meter subcategory), meter, and product.
 
-![Screenshot of the Services page](https://github.com/microsoft/finops-toolkit/assets/399533/424aa533-2601-4301-bc31-a94fc7cd6235)
+![Screenshot of the Services page](../../media/power-bi/cost-summary_services.png)
 
 <br>
 
@@ -77,7 +77,7 @@ The **Subscriptions** page includes a breakdown of cost by subscription. This is
 
 The page uses the standard layout with a breakdown of subscriptions in the chart and table. The table has a further breakdown by resource group and resource.
 
-![Screenshot of the Subscriptions page](https://github.com/microsoft/finops-toolkit/assets/399533/b7fb0e76-30e7-4717-a476-4af757056169)
+![Screenshot of the Subscriptions page](../../media/power-bi/cost-summary_subscriptions.png)
 
 <br>
 
@@ -87,7 +87,7 @@ The **Resource groups** page includes a breakdown of cost by resource group. Thi
 
 The page uses the standard layout with a breakdown of resource groups in the chart and table. The table has a further breakdown by resource.
 
-![Screenshot of the Resource groups page](https://github.com/microsoft/finops-toolkit/assets/399533/b857c11c-1652-4550-a709-e55ddc9f9ef0)
+![Screenshot of the Resource groups page](../../media/power-bi/cost-summary_resource-groups.png)
 
 <br>
 
@@ -97,7 +97,7 @@ The **Resources** page includes a breakdown of cost by resource. This is useful 
 
 The page uses the standard layout with a breakdown of resources in the chart and table. Instead of a hierarchy, The table includes columns about the resource location, resource group, subscription, and tags.
 
-![Screenshot of the Resources page](https://github.com/microsoft/finops-toolkit/assets/399533/5f789571-f940-463f-9931-3f191737c362)
+![Screenshot of the Resources page](../../media/power-bi/cost-summary_resources.png)
 
 <br>
 
@@ -109,7 +109,7 @@ The **Regions** page includes a breakdown of cost by region with a map showing t
    _Regions in the Cost Management FOCUS dataset include additional data cleansing for consistency with Azure regions and may not match the exact values in actual and amortized datasets._
 </blockquote>
 
-![Screenshot of the Regions page](https://github.com/microsoft/finops-toolkit/assets/399533/dd95301a-4227-46d5-8a62-e31b812dee2a)
+![Screenshot of the Regions page](../../media/power-bi/cost-summary_regions.png)
 
 <br>
 
@@ -117,7 +117,7 @@ The **Regions** page includes a breakdown of cost by region with a map showing t
 
 The **Inventory** page includes a list of resource types with the count, total cost, and cost per resource for each type.
 
-![Screenshot of the Inventory page](https://github.com/microsoft/finops-toolkit/assets/399533/a9a9b252-f306-49f9-842c-e3f196638ed6)
+![Screenshot of the Inventory page](../../media/power-bi/cost-summary_inventory.png)
 
 <br>
 
@@ -141,7 +141,7 @@ The table shows resource usage against commitment discounts with columns for res
 
 This page filters usage down to only show charges related to commitment discounts, which means the total cost on the Commitments page won't match other pages, which aren't filtered by default.
 
-![Screenshot of the Commitment discounts page](https://github.com/microsoft/finops-toolkit/assets/399533/ecd6b673-35ba-4b51-a633-efaf6fe7cc8c)
+![Screenshot of the Commitment discounts page](../../media/power-bi/cost-summary_commitment-discounts.png)
 
 <br>
 
@@ -159,7 +159,7 @@ There are 3 charts on the page:
 
 The table shows a list of VMs that are currently using or could be using AHB with their vCPU count, AHB vCPU count, resource group, subscription, cost and quantity.
 
-![Screenshot of the Hybrid Benefit page](https://github.com/microsoft/finops-toolkit/assets/399533/6b94a7af-6cfe-4310-babf-8e8d2fe331ac)
+![Screenshot of the Hybrid Benefit page](../../media/power-bi/cost-summary_hybrid-benefit.png)
 
 <br>
 
@@ -171,7 +171,7 @@ The **Prices** page shows the prices for all products that were used during the 
 
 The chart shows a summary of the meters that were used the most.
 
-![Screenshot of the Prices page](https://github.com/microsoft/finops-toolkit/assets/399533/5ef75a7c-43cc-4ac4-b977-982ab15ad55c)
+![Screenshot of the Prices page](../../media/power-bi/cost-summary_prices.png)
 
 <br>
 
@@ -179,7 +179,7 @@ The chart shows a summary of the meters that were used the most.
 
 The **Purchases** page shows a list of products that were purchased during the period.
 
-> ![Screenshot of the Purchases page](https://github.com/microsoft/finops-toolkit/assets/399533/5a3320cc-bb0d-498b-8edc-3d1a56c868dd)
+> ![Screenshot of the Purchases page](../../media/power-bi/cost-summary_purchases.png)
 
 <br>
 
@@ -200,7 +200,7 @@ The **Charge breakdown** page shows a breakdown of all charges using the followi
 11. x_ResourceGroupName
 12. ResourceName
 
-> ![Screenshot of the Charge breakdown page](https://github.com/microsoft/finops-toolkit/assets/399533/034e6684-37ed-405f-a64b-50084335982e)
+> ![Screenshot of the Charge breakdown page](../../media/power-bi/cost-summary_charge-breakdown.png)
 
 <br>
 
@@ -208,7 +208,7 @@ The **Charge breakdown** page shows a breakdown of all charges using the followi
 
 The **Raw data** page shows a table with most columns to help you explore FOCUS columns.
 
-> ![Screenshot of the Raw data page](https://github.com/microsoft/finops-toolkit/assets/399533/3c74bceb-202f-4830-99f6-f02d1e831340)
+> ![Screenshot of the Raw data page](../../media/power-bi/cost-summary_raw-data.png)
 
 <br>
 
@@ -216,7 +216,7 @@ The **Raw data** page shows a table with most columns to help you explore FOCUS 
 
 The **Data quality** page is for data validation purposes only; however, it can be used to explore charge categories, pricing categories, services, and regions.
 
-> ![Screenshot of the Data quality page](https://github.com/microsoft/finops-toolkit/assets/399533/e4d52402-5b3c-48ea-816c-934b29b8fdc6)
+> ![Screenshot of the Data quality page](../../media/power-bi/cost-summary_data-quality.png)
 
 <br>
 

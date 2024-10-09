@@ -53,13 +53,13 @@ All FinOps toolkit reports, come with sample data to explore without connecting 
 
 2. Select the **Transform data** button (table with a pencil icon) in the toolbar.
 
-   ![Screenshot of the Transform data button in the Power BI Desktop toolbar.](https://user-images.githubusercontent.com/399533/216573265-fa76828f-c9a2-497d-ae1e-19b55fef412c.png)
+   ![Screenshot of the Transform data button in the Power BI Desktop toolbar.](../../media/power-bi/setup_transform-data.png)
 
 3. Select **Queries** > **🛠️ Setup** > **▶ START HERE** and follow the instructions.
 
-   Make sure you have the [Storage Blob Data Reader role](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-reader) on the storage account so you can access the data.
+   Make sure you have the [Storage Blob Data Reader role](/azure/role-based-access-control/built-in-roles#storage-blob-data-reader) on the storage account so you can access the data.
 
-   ![Screenshot of instructions to connect to a storage account](https://github.com/user-attachments/assets/3723c94b-d853-420e-9101-98d1ca518fa0)
+   ![Screenshot of instructions to connect to a storage account](../../media/power-bi/setup_start-here.png)
 
 4. Select **Close & Apply** in the toolbar and allow Power BI to refresh to see your data.
 

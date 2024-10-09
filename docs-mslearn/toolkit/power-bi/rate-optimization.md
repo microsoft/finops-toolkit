@@ -52,7 +52,7 @@ A few common KPIs you fill find in this report are:
 
 The **Get started** page includes a basic introduction to the report with additional links to learn more.
 
-![Screenshot of the Get started page](https://github.com/microsoft/finops-toolkit/assets/399533/7afbbe2f-75b2-4cfd-b36c-bbbfff43406f)
+![Screenshot of the Get started page](../../media/power-bi/rate-optimization_get-started.png)
 
 <br>
 
@@ -62,7 +62,7 @@ The **Commitments** page provides a list of your commitment discounts and offers
 
 The chart breaks down the cost of used (utilized) vs. unused charges. Unused charges are split out by commitment type (e.g., reservation, savings plan).
 
-![Screenshot of the Commitments page](https://github.com/microsoft/finops-toolkit/assets/399533/14c76b3c-9837-4834-bdbc-5fa8f5197dd4)
+![Screenshot of the Commitments page](../../media/power-bi/rate-optimization_commitment-discounts.png)
 
 <br>
 
@@ -75,7 +75,7 @@ The chart shows total cost savings for the period split out by commitment type (
 > [!WARNING]
 > Microsoft Cost Management does not include the unit price for amortized charges with Microsoft Customer Agreement accounts, so commitment savings cannot be calculated. Please file a support request and speak to your field rep to escalate this.
 
-![Screenshot of the Savings page](https://github.com/microsoft/finops-toolkit/assets/399533/cb88d569-2d10-445a-973a-201c268bf535)
+![Screenshot of the Savings page](../../media/power-bi/rate-optimization_savings.png)
 
 <br>
 
@@ -90,7 +90,7 @@ The chart shows the amortized cost for each subscription that used a commitment.
 > [!NOTE]
 > This page is also available in the Cost summary report as "Commitments" to show how commitments impact resource costs.
 
-![Screenshot of the Chargeback page](https://github.com/microsoft/finops-toolkit/assets/399533/a91ca058-e03a-446c-9785-de33e4f6b276)
+![Screenshot of the Chargeback page](../../media/power-bi/rate-optimization_chargeback.png)
 
 ### Chargeback customization tips
 
@@ -128,7 +128,7 @@ The table below the charts shows the recommended reservations based on the speci
 > [!IMPORTANT]
 > Potential savings and contracted cost estimations are only available for VM reservation recommendations. This page has not been tested for non-VM recommendations. You can view savings plan and reservation recommendations for other services in the Azure portal.
 
-![Screenshot of the Reservation recommendations page](https://github.com/user-attachments/assets/e3be3bbe-1a24-48e9-90ff-b9b209dbfd56)
+![Screenshot of the Reservation recommendations page](../../media/power-bi/rate-optimization_reservation-recommendations.png)
 
 <br>
 
@@ -142,7 +142,7 @@ There is one, **Billed cost** KPI which shows the total cost of the purchases as
 
 The chart shows the purchases over time and the table shows a list of the commitments that were purchased, including the term, product, and payment frequency (**OneTime** is for upfront payments and **Recurring** is for monthly).
 
-![Screenshot of the Purchases page](https://github.com/microsoft/finops-toolkit/assets/399533/3d37fb02-ffcc-4a3e-bffa-04d5fb9d3b92)
+![Screenshot of the Purchases page](../../media/power-bi/rate-optimization_purchases.png)
 
 <br>
 
@@ -162,7 +162,7 @@ There are 3 charts on the page:
 
 The table shows a list of VMs that are currently using or could be using AHB with their vCPU count, AHB vCPU count, resource group, subscription, cost and quantity.
 
-![Screenshot of the Hybrid Benefit page](https://github.com/microsoft/finops-toolkit/assets/399533/d77d515a-313a-4070-9496-64857ef888c6)
+![Screenshot of the Hybrid Benefit page](../../media/power-bi/rate-optimization_hybrid-benefit.png)
 
 <br>
 
@@ -174,7 +174,7 @@ The **Prices** page shows the prices for all products that were used with commit
 
 The chart shows a summary of the meters that were used the most.
 
-![Screenshot of the Prices page](https://github.com/microsoft/finops-toolkit/assets/399533/acb81d62-7860-4368-9374-25814f599f15)
+![Screenshot of the Prices page](../../media/power-bi/rate-optimization_prices.png)
 
 <br>
 
@@ -182,7 +182,7 @@ The chart shows a summary of the meters that were used the most.
 
 The **Data quality** page shows some of the data used to calculate savings at a cost and unit price level. This can be helpful in understanding the data but also in identifying issues in Cost Management data that result in an incomplete picture of cost savings (e.g., missing price and cost values). If you are missing any data, please contact support to help raise the priority of these bugs in Cost Management.
 
-![Screenshot of the Data quality page](https://github.com/microsoft/finops-toolkit/assets/399533/5d43969e-6093-4f14-a535-6c4bc86659d2)
+![Screenshot of the Data quality page](../../media/power-bi/rate-optimization_data-quality.png)
 
 <br>
 

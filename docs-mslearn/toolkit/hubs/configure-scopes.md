@@ -77,7 +77,7 @@ _<sup>5) Export paths can be any value but must be unique per scope. We recommen
 
 Managed exports allow FinOps hubs to setup and maintain Cost Management exports for you. To enable managed exports, you must grant Azure Data Factory access to read data across each scope you want to monitor.
 
-![Screenshot of the hubs supported scopes](https://raw.githubusercontent.com/microsoft/finops-toolkit/11b24a372b9bd57e7829c4224e2569647908b261/src/images/hubs-scopes.jpg)
+![Screenshot of the hubs supported scopes](../../media/hubs/configure-scopes.jpg)
 
 > [!NOTE]
 > Managed exports are only available in FinOps hubs 0.4 and beyond.

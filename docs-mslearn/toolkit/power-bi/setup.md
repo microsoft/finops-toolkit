@@ -37,9 +37,9 @@ The FinOps toolkit Power BI reports include pre-configured visuals, but are not 
 2. Download and open the desired report in Power BI Desktop.
 3. Select the **Transform data** button in the toolbar.
 
-   ![Screenshot of the Transform data button in the Power BI Desktop toolbar.](https://user-images.githubusercontent.com/399533/216573265-fa76828f-c9a2-497d-ae1e-19b55fef412c.png)
+   ![Screenshot of the Transform data button in the Power BI Desktop toolbar.](../../media/power-bi/setup_transform-data.png)
 
-   ![Screenshot of instructions to connect to a storage account](https://github.com/user-attachments/assets/3723c94b-d853-420e-9101-98d1ca518fa0)
+   ![Screenshot of instructions to connect to a storage account](../../media/power-bi/setup_start-here.png)
 
 4. If connecting to a FinOps hub instance, set the **Hub Storage URL**.
    1. Open the [list of resource groups](https://portal.azure.com/#view/HubsExtension/BrowseResourceGroups) in the Azure portal.
@@ -86,7 +86,7 @@ Shared Access Signature (SAS) tokens allow you to connect to a storage account w
    - Select the **Generate SAS token and URL** button.
    - Copy the generated token.
 
-   ![Screenshot of the SAS token configuration in the Azure portal](../../media/hubs-azure-storage-account-SAS.png)
+   ![Screenshot of the SAS token configuration in the Azure portal](../../media/power-bi/setup_storage-account-sas.png)
 
 2. Configure SAS token access in Power BI:
    - Open the report in Power BI Desktop.
@@ -94,7 +94,7 @@ Shared Access Signature (SAS) tokens allow you to connect to a storage account w
    - Select **Edit permissions** at the bottom of the dialog.
    - Select **Edit** below the credentials.
 
-   ![Screenshot of the data source settings within Transform data](../../media/hubs-powerbi-dashboard-SAS-setup.png)
+   ![Screenshot of the data source settings within Transform data](../../media/power-bi/setup_data-source-permissions.png)
 
    - Select the **Shared access signature** tab.
    - Paste the copied SAS token from the Azure portal.
@@ -102,7 +102,7 @@ Shared Access Signature (SAS) tokens allow you to connect to a storage account w
    - Select **Close**.
    - Select **Apply and Close** in the ribbon.
 
-   ![Screenshot of the SAS token dialog](../../media/hubs-powerbi-dashboard-SAS-token.png)
+   ![Screenshot of the SAS token dialog](../../media/power-bi/setup_sas-token.png)
 
 <br>
 
@@ -128,7 +128,7 @@ At this point, you have the core data from the FinOps toolkit reports, extended 
    > [!NOTE]
    > Be sure to make note if this is a column or a measure. Columns have a table icon with a "Σ" or "fx" symbol and measures have a calculator icon.
    >
-   > ![Screenshot of the calculated column and measure icons in Power BI](https://user-images.githubusercontent.com/399533/216805396-96abae2d-473a-4136-8943-cac4ddd74dce.png)
+   > ![Screenshot of the calculated column and measure icons in Power BI](../../media/power-bi/setup_column-icons.png)
 3. In your report, right click the **CostDetails** table and select **New measure** or **New column** based on what you just copied.
 4. When the formula editor is shown, paste the formula using <kbd>Ctrl+V</kbd> or <kbd>Cmd+V</kbd>.
 5. Repeat steps 2-4 for each desired column and measure.

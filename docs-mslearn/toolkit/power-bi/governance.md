@@ -38,7 +38,7 @@ You can download the Governance report from the [latest release](https://aka.ms/
 
 The **Get started** page includes a basic introduction to the report with additional links to learn more.
 
-![Screenshot of the Get started page](https://github.com/user-attachments/assets/d4b699cd-72c8-453c-9d54-7c1b6dbb155c)
+![Screenshot of the Get started page](../../media/power-bi/governance_get-started.png)
 
 <br>
 
@@ -46,7 +46,7 @@ The **Get started** page includes a basic introduction to the report with additi
 
 The **Summary** page provides a summary of subscriptions, resource types, resources, and regions across your environment.
 
-![Screenshot of the Summary page](https://github.com/user-attachments/assets/4376b964-f1b7-4fee-819a-7a40e3e07e06)
+![Screenshot of the Summary page](../../media/power-bi/governance_summary.png)
 
 <br>
 
@@ -54,7 +54,7 @@ The **Summary** page provides a summary of subscriptions, resource types, resour
 
 The **Policy compliance** page lists policies configured in Azure Policy for the selected subscriptions.
 
-![Screenshot of the Policy compliance page](https://github.com/user-attachments/assets/3b91565f-f25e-474f-ad93-978df3d4937c)
+![Screenshot of the Policy compliance page](../../media/power-bi/governance_policy-compliance.png)
 
 <br>
 
@@ -62,7 +62,7 @@ The **Policy compliance** page lists policies configured in Azure Policy for the
 
 The **Virtual machines** page lists the virtual machines, disks, and public IP addresses with related right-sizing recommendations.
 
-![Screenshot of the Virtual machines page](https://github.com/user-attachments/assets/d951df9a-3f5b-4294-b48e-840cb4901add)
+![Screenshot of the Virtual machines page](../../media/power-bi/governance_virtual-machines.png)
 
 <br>
 
@@ -70,7 +70,7 @@ The **Virtual machines** page lists the virtual machines, disks, and public IP a
 
 The **Managed disks** page lists the managed disks.
 
-![Screenshot of the Managed disks page](https://github.com/user-attachments/assets/545fd571-5753-4705-881a-b27e65269f13)
+![Screenshot of the Managed disks page](../../media/power-bi/governance_managed-disks.png)
 
 <br>
 
@@ -80,7 +80,7 @@ The **SQL databases** page lists the SQL databases.
 
 The chart shows the cost of each disk over time. The table shows the disks with related properties, including billed and effective cost and the dates the disk was available during the selected date range in the Charge period filter at the top-left of the page.
 
-![Screenshot of the SQL databases page](https://github.com/user-attachments/assets/7da6e086-a6c1-44e2-a70b-b72df6bac346)
+![Screenshot of the SQL databases page](../../media/power-bi/governance_sql-databases.png)
 
 <br>
 
@@ -88,7 +88,7 @@ The chart shows the cost of each disk over time. The table shows the disks with 
 
 The **Network security groups** page lists network security groups and NSG rules.
 
-![Screenshot of the Network security groups page](https://github.com/user-attachments/assets/ac522ccc-4ab3-4819-b1c0-bf1252ff1cdd)
+![Screenshot of the Network security groups page](../../media/power-bi/governance_network-security-groups.png)
 
 <br>
 

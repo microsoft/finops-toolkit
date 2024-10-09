@@ -85,7 +85,7 @@ Each report in the FinOps toolkit is available as a PBIX or PBIT file. The PBIX 
 
 To visualize the reports available, simply download the PBIX Power BI report file from the desired [release](https://github.com/microsoft/finops-toolkit/releases) and open the report in Power BI Desktop. From there, you can navigate through the different pages of the report, which have been pre-filled with test data.
 
-![Screenshot of the Rate optimization report with test data](../../media/hubs-rate-optimization-report.png)
+![Screenshot of the Rate optimization report with test data](../../media/power-bi/rate-optimization_commitment-discounts.png)
 
 <br>
 
