@@ -82,13 +82,14 @@ var datasetPropsDefault = {
 var safeExportContainerName = replace('${exportContainerName}', '-', '_')
 var safeIngestionContainerName = replace('${ingestionContainerName}', '-', '_')
 var safeConfigContainerName = replace('${configContainerName}', '-', '_')
-var recommendationsName = 'recommendations'
+var recommendationsDataSet = 'recommendations'
+var recommendationsScope = 'azure'
 
 // All hub triggers (used to auto-start)
 var fileAddedExportTriggerName = '${safeExportContainerName}_FileAdded'
 var updateConfigTriggerName = '${safeConfigContainerName}_SettingsUpdated'
 var dailyTriggerName = '${safeConfigContainerName}_DailySchedule'
-var dailyRecommendationsTriggerName = '${recommendationsName}_DailySchedule'
+var dailyRecommendationsTriggerName = '${recommendationsDataSet}_DailySchedule'
 var monthlyTriggerName = '${safeConfigContainerName}_MonthlySchedule'
 var allHubTriggers = [
   fileAddedExportTriggerName
@@ -2916,7 +2917,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
 //------------------------------------------------------------------------------
 @description('Extracts Azure Advisor and custom recommendations from the Resource Graph API.')
 resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
-  name: '${recommendationsName}_Execute'
+  name: '${recommendationsDataSet}_Execute'
   parent: dataFactory
   properties: {
     activities: [
@@ -3097,7 +3098,7 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
             type: 'DatasetReference'
             parameters: {
               blobPath: {
-                value: '@concat(\'recommendations/azure/\', variables(\'blobExportTimestamp\'), \'cost-advisor.parquet\')'
+                value: '@concat(\'${recommendationsDataSet}/\', variables(\'blobExportTimestamp\'), \'${recommendationsScope}/\', \'cost-advisor.parquet\')'
                 type: 'Expression'
               }
             }
@@ -3199,7 +3200,7 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
             type: 'DatasetReference'
             parameters: {
               blobPath: {
-                value: '@concat(\'recommendations/azure/\', variables(\'blobExportTimestamp\'), \'cost-custom-storage-unattacheddisks.parquet\')'
+                value: '@concat(\'${recommendationsDataSet}/\', variables(\'blobExportTimestamp\'), \'${recommendationsScope}/\', \'cost-custom-storage-unattacheddisks.parquet\')'
                 type: 'Expression'
               }
             }
@@ -3303,7 +3304,7 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
             type: 'DatasetReference'
             parameters: {
               blobPath: {
-                value: '@concat(\'recommendations/azure/\', variables(\'blobExportTimestamp\'), \'cost-custom-compute-aksnonspot.parquet\')'
+                value: '@concat(\'${recommendationsDataSet}/\', variables(\'blobExportTimestamp\'), \'${recommendationsScope}/\', \'cost-custom-compute-aksnonspot.parquet\')'
                 type: 'Expression'
               }
             }
@@ -3407,7 +3408,7 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
             type: 'DatasetReference'
             parameters: {
               blobPath: {
-                value: '@concat(\'recommendations/azure/\', variables(\'blobExportTimestamp\'), \'cost-custom-compute-vmsnotdeallocated.parquet\')'
+                value: '@concat(\'${recommendationsDataSet}/\', variables(\'blobExportTimestamp\'), \'${recommendationsScope}/\', \'cost-custom-compute-vmsnotdeallocated.parquet\')'
                 type: 'Expression'
               }
             }
@@ -3511,7 +3512,7 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
             type: 'DatasetReference'
             parameters: {
               blobPath: {
-                value: '@concat(\'recommendations/azure/\', variables(\'blobExportTimestamp\'), \'cost-custom-network-appgwnobackend.parquet\')'
+                value: '@concat(\'${recommendationsDataSet}/\', variables(\'blobExportTimestamp\'), \'${recommendationsScope}/\', \'cost-custom-network-appgwnobackend.parquet\')'
                 type: 'Expression'
               }
             }
@@ -3615,7 +3616,7 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
             type: 'DatasetReference'
             parameters: {
               blobPath: {
-                value: '@concat(\'recommendations/azure/\', variables(\'blobExportTimestamp\'), \'cost-custom-network-lbnobackend.parquet\')'
+                value: '@concat(\'${recommendationsDataSet}/\', variables(\'blobExportTimestamp\'), \'${recommendationsScope}/\', \'cost-custom-network-lbnobackend.parquet\')'
                 type: 'Expression'
               }
             }
@@ -3719,7 +3720,7 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
             type: 'DatasetReference'
             parameters: {
               blobPath: {
-                value: '@concat(\'recommendations/azure/\', variables(\'blobExportTimestamp\'), \'cost-custom-network-pipunattached.parquet\')'
+                value: '@concat(\'${recommendationsDataSet}/\', variables(\'blobExportTimestamp\'), \'${recommendationsScope}/\', \'cost-custom-network-pipunattached.parquet\')'
                 type: 'Expression'
               }
             }
@@ -3823,7 +3824,7 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
             type: 'DatasetReference'
             parameters: {
               blobPath: {
-                value: '@concat(\'recommendations/azure/\', variables(\'blobExportTimestamp\'), \'cost-custom-database-emptyelasticpool.parquet\')'
+                value: '@concat(\'${recommendationsDataSet}/\', variables(\'blobExportTimestamp\'), \'${recommendationsScope}/\', \'cost-custom-database-emptyelasticpool.parquet\')'
                 type: 'Expression'
               }
             }
@@ -3927,7 +3928,7 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
             type: 'DatasetReference'
             parameters: {
               blobPath: {
-                value: '@concat(\'recommendations/azure/\', variables(\'blobExportTimestamp\'), \'cost-custom-compute-windowsnoahb.parquet\')'
+                value: '@concat(\'${recommendationsDataSet}/\', variables(\'blobExportTimestamp\'), \'${recommendationsScope}/\', \'cost-custom-compute-windowsnoahb.parquet\')'
                 type: 'Expression'
               }
             }
@@ -4031,7 +4032,7 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
             type: 'DatasetReference'
             parameters: {
               blobPath: {
-                value: '@concat(\'recommendations/azure/\', variables(\'blobExportTimestamp\'), \'cost-custom-database-sqlnoahb.parquet\')'
+                value: '@concat(\'${recommendationsDataSet}/\', variables(\'blobExportTimestamp\'), \'${recommendationsScope}/\', \'cost-custom-database-sqlnoahb.parquet\')'
                 type: 'Expression'
               }
             }
