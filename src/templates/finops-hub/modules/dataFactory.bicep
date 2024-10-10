@@ -76,12 +76,12 @@ var safeIngestionContainerName = replace('${ingestionContainerName}', '-', '_')
 var safeConfigContainerName = replace('${configContainerName}', '-', '_')
 
 // All hub triggers (used to auto-start)
-var fileAddedExportTriggerName = '${safeExportContainerName}_FileAdded'
+var exportManifestAddedTriggerName = '${safeExportContainerName}_ManifestAdded'
 var updateConfigTriggerName = '${safeConfigContainerName}_SettingsUpdated'
 var dailyTriggerName = '${safeConfigContainerName}_DailySchedule'
 var monthlyTriggerName = '${safeConfigContainerName}_MonthlySchedule'
 var allHubTriggers = [
-  fileAddedExportTriggerName
+  exportManifestAddedTriggerName
   updateConfigTriggerName
   dailyTriggerName
   monthlyTriggerName
@@ -556,9 +556,8 @@ resource dataset_dataExplorer 'Microsoft.DataFactory/factories/datasets@2018-06-
 // Triggers
 //------------------------------------------------------------------------------
 
-// Create trigger
-resource trigger_FileAdded 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
-  name: fileAddedExportTriggerName
+resource trigger_ExportManifestAdded 'Microsoft.DataFactory/factories/triggers@2018-06-01' = {
+  name: exportManifestAddedTriggerName
   parent: dataFactory
   dependsOn: [
     stopTriggers
@@ -1842,7 +1841,7 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
 
 //------------------------------------------------------------------------------
 // msexports_ExecuteETL pipeline
-// Triggered by msexports_FileAdded trigger
+// Triggered by msexports_ManifestAdded trigger
 //------------------------------------------------------------------------------
 @description('Queues the msexports_ETL_ingestion pipeline.')
 resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
@@ -3169,7 +3168,7 @@ resource startTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzurePowerShell'
   dependsOn: [
     triggerManagerRoleAssignments
-    trigger_FileAdded
+    trigger_ExportManifestAdded
     trigger_SettingsUpdated
     trigger_DailySchedule
     trigger_MonthlySchedule

@@ -17,6 +17,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
+- [🚚 v0.7](#-v07)
 - [🪛 v0.6 Update 1](#-v06-update-1)
 - [🚚 v0.6](#-v06)
 - [🪛 v0.5 Update 1](#-v05-update-1)
@@ -61,7 +62,6 @@ Legend:
 
 > ➕ Added:
 >
-> 1. Analytics engine – Ingest cost data into an Azure Data Explorer cluster.
 > 2. Auto-backfill – Backfill historical data from Microsoft Cost Management.
 > 3. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
 > 4. ETL pipelile – Add support for parquet files created by Cost Management exports.
@@ -82,6 +82,23 @@ Legend:
 > 1. Cost Management export modules for subscriptions and resource groups.
 
 <br><a name="latest"></a>
+
+## 🚚 v0.7
+
+<sup>Released October 2, 2024</sup>
+
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> 1. Option to ingest data into an Azure Data Explorer cluster.
+>
+> ✏️ Changed:
+>
+> 1. Renamed the `msexports_FileAdded` trigger to `msexports_ManifestAdded`.
+
+<br>
 
 ## 🪛 v0.6 Update 1
 
