@@ -49,6 +49,7 @@ var schemaFiles = {
   'focuscost_1.0-preview(v1)': loadTextContent('../schemas/focuscost_1.0-preview(v1).json')
   'pricesheet_2023-05-01_ea': loadTextContent('../schemas/pricesheet_2023-05-01_ea.json')
   'pricesheet_2023-05-01_mca': loadTextContent('../schemas/pricesheet_2023-05-01_mca.json')
+  'recommendations_1.0': loadTextContent('../schemas/recommendations_1.0.json')
   'reservationdetails_2023-05-01': loadTextContent('../schemas/reservationdetails_2023-03-01.json')
   'reservationrecommendations_2023-05-01_ea': loadTextContent('../schemas/reservationrecommendations_2023-05-01_ea.json')
   'reservationrecommendations_2023-05-01_mca': loadTextContent('../schemas/reservationrecommendations_2023-05-01_mca.json')
