@@ -4118,6 +4118,21 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
         }
       }
     ]
+    policy: {
+      elapsedTimeMetric: {}
+    }
+    variables: {
+      schemaFile: {
+        type: 'String'
+      }
+      blobExportTimestamp: {
+        type: 'String'
+      }
+      pipelineFailed: {
+        type: 'Boolean'
+      }
+    }
+    annotations: []
   }
 }
 
