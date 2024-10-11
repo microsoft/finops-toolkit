@@ -421,7 +421,7 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
       properties: {
         blobStorageEventType: 'Microsoft.Storage.BlobCreated'
         consumerGroup: eventHubNamespace::storageIngestionEventHub::recommendationsConsumerGroup.name
-        dataFormat: 'json'
+        dataFormat: 'parquet'
         eventGridResourceId: ingestionTopic::ingestRecommendationsEvent.id
         eventHubResourceId: eventHubNamespace::storageIngestionEventHub.id
         ignoreFirstRecord: false
