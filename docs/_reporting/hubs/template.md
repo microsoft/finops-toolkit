@@ -48,7 +48,7 @@ Please ensure the following prerequisites are met before deploying this template
 
 1. You must have the following permissions to create the [deployed resources](#️-resources).
 
-   | Resource                                                        | Minimum RBAC                                                                                                                                                           |
+   | Resource                                                        | Minimum RBAC                                                                                                                                                                                                                                                                                                                                            |
    | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
    | Deploy and configure Data Factory<sup>1</sup>                   | [Data Factory Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#data-factory-contributor)                                                                                                                                                                                                                         |
    | Deploy Key Vault<sup>1</sup>                                    | [Key Vault Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#key-vault-contributor)                                                                                                                                                                                                                               |
@@ -81,20 +81,24 @@ Please ensure the following prerequisites are met before deploying this template
 
 ## 📥 Parameters
 
-| Parameter                      | Type   | Description                                                                                                                                                                                                                                                       | Default value       |
-| ------------------------------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
-| **hubName**                    | string | Optional. Name of the hub. Used to ensure unique resource names.                                                                                                                                                                                                  | "finops-hub"        |
-| **location**                   | string | Optional. Azure location where all resources should be created. See https://aka.ms/azureregions.                                                                                                                                                                  | Same as deployment  |
-| **skipEventGridRegistration**  | bool   | Indicates whether the Event Grid resource provider has already been registered (e.g., in a previous hub deployment). Event Grid RP registration is required. If not set, a temporary Event Grid namespace will be created to auto-register the resource provider. | false (register RP) |
-| **EventGridLocation**          | string | Optional. Azure location to use for a temporary Event Grid namespace to register the Microsoft.EventGrid resource provider if the primary location is not supported. The namespace will be deleted and is not used for hub operation.                             | Same as `location`  |
-| **storageSku**                 | String | Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: `Premium_LRS`, `Premium_ZRS`.                                                                                 | "Premium_LRS"       |
-| **tags**                       | object | Optional. Tags to apply to all resources. We will also add the `cm-resource-parent` tag for improved cost roll-ups in Cost Management.                                                                                                                            |                     |
-| **tagsByResource**             | object | Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.                                                                                                                        |                     |
-| **scopesToMonitor**            | array  | Optional. List of scope IDs to monitor and ingest cost for.                                                                                                                                                                                                       |                     |
-| **exportRetentionInDays**      | int    | Optional. Number of days of cost data to retain in the ms-cm-exports container.                                                                                                                                                                                   | 0                   |
-| **ingestionRetentionInMonths** | int    | Optional. Number of months of cost data to retain in the ingestion container.                                                                                                                                                                                     | 13                  |
-| **remoteHubStorageUri**        | string | Optional. Storage account to push data to for ingestion into a remote hub.                                                                                                                                                                                        |                     |
-| **remoteHubStorageKey**        | string | Optional. Storage account key to use when pushing data to a remote hub.                                                                                                                                                                                           |                     |
+| Parameter                      | Type   | Description                                                                                                                                                                                                                                           | Default value      |
+| ------------------------------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| **hubName**                    | String | Optional. Name of the hub. Used to ensure unique resource names.                                                                                                                                                                                      | "finops-hub"       |
+| **location**                   | String | Optional. Azure location where all resources should be created. See https://aka.ms/azureregions.                                                                                                                                                      | Same as deployment |
+| **EventGridLocation**          | String | Optional. Azure location to use for a temporary Event Grid namespace to register the Microsoft.EventGrid resource provider if the primary location is not supported. The namespace will be deleted and is not used for hub operation.                 | Same as `location` |
+| **storageSku**                 | String | Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: `Premium_LRS`, `Premium_ZRS`.                                                                     | "Premium_LRS"      |
+| **storageSku**                 | String | Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: `Premium_LRS`, `Premium_ZRS`.                                                                     | "Premium_LRS"      |
+| **dataExplorerName**           | String | Optional. Name of the Azure Data Explorer cluster to use for advanced analytics. If empty, Azure Data Explorer will not be deployed. Required to use with Power BI if you have more than $2-5M/mo in costs being monitored. Default: "" (do not use). |
+| **dataExplorerSkuName**        | String | Optional. Name of the Azure Data Explorer SKU. Default: "Dev(No SLA)_Standard_E2a_v4".                                                                                                                                                                |
+| **dataExplorerSkuTier**        | String | Optional. SKU tier for the Azure Data Explorer cluster. Use Basic for the lowest cost with no SLA (due to a single node). Use Standard for high availability and improved performance. Allowed values: Basic, Standard. Default: "Basic".             |
+| **dataExplorerSkuCapacity**    | Int    | Optional. Number of nodes to use in the cluster. Allowed values: 1 for the Basic SKU tier and 2-1000 for Standard. Default: 1.                                                                                                                        |
+| **tags**                       | Object | Optional. Tags to apply to all resources. We will also add the `cm-resource-parent` tag for improved cost roll-ups in Cost Management.                                                                                                                |                    |
+| **tagsByResource**             | Object | Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.                                                                                                            |                    |
+| **scopesToMonitor**            | Array  | Optional. List of scope IDs to monitor and ingest cost for.                                                                                                                                                                                           |                    |
+| **exportRetentionInDays**      | Int    | Optional. Number of days of cost data to retain in the ms-cm-exports container.                                                                                                                                                                       | 0                  |
+| **ingestionRetentionInMonths** | Int    | Optional. Number of months of cost data to retain in the ingestion container.                                                                                                                                                                         | 13                 |
+| **remoteHubStorageUri**        | String | Optional. Storage account to push data to for ingestion into a remote hub.                                                                                                                                                                            |                    |
+| **remoteHubStorageKey**        | String | Optional. Storage account key to use when pushing data to a remote hub.                                                                                                                                                                               |                    |
 
 <br>
 
@@ -117,20 +121,22 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
       - `schemas/focuscost_1.0-preview(v1).json` – FOCUS 1.0-preview schema definition for parquet conversion.
 - `<hubName>-engine-<unique-suffix>` Data Factory instance
   - Pipelines:
-    - `msexports_ExecuteETL` – Queues the `msexports_ETL_ingestion` pipeline to account for Data Factory pipeline trigger limits.
-    - `msexports_ETL_transform` – Converts Cost Management exports into parquet and removes historical data duplicated in each day's export.
     - `config_ConfigureExports` – Creates Cost Management exports for all scopes.
     - `config_StartBackfillProcess` – Runs the backfill job for each month based on retention settings.
     - `config_RunBackfillJob` – Creates and triggers exports for all defined scopes for the specified date range.
     - `config_StartExportProcess` – Gets a list of all Cost Management exports configured for this hub based on the scopes defined in settings.json, then runs each export using the config_RunExportJobs pipeline.
     - `config_RunExportJobs` – Runs the specified Cost Management exports.
-    - `msexports_ExecuteETL` – Triggers the ingestion process for Cost Management exports to account for Data Factory pipeline trigger limits.
-    - `msexports_ETL_transform` – Converts Cost Management exports into parquet and removes historical data duplicated in each day's export.
+    - `msexports_ExecuteETL` – Queues the `msexports_ETL_ingestion` pipeline to account for Data Factory pipeline trigger limits.
+    - `msexports_ETL_ingestion` – Converts Cost Management exports into parquet and removes historical data duplicated in each day's export.
+    - `ingestion_ExecuteETL` – Queues the `ingestion_ETL_dataExplorer` pipeline to account for Data Factory pipeline trigger limits.
+    - `ingestion_RerunETL` – Safely reruns the `ingestion_ETL_dataExplorer` pipeline avoiding data duplication by.
+    - `ingestion_ETL_dataExplorer` – Ingests parquet data into an Azure Data Explorer cluster.
   - Triggers:
     - `config_SettingsUpdated` – Triggers the `config_ConfigureExports` pipeline when settings.json is updated.
     - `config_DailySchedule` – Triggers the `config_RunExportJobs` pipeline daily for the current month's cost data.
     - `config_MonthlySchedule` – Triggers the `config_RunExportJobs` pipeline monthly for the previous month's cost data.
-    - `msexports_FileAdded` – Triggers the `msexports_ExecuteETL` pipeline when Cost Management exports complete.
+    - `msexports_ManifestAdded` – Triggers the `msexports_ExecuteETL` pipeline when Cost Management exports complete.
+    - `ingestion_DataFileAdded` – Triggers the `ingestion_ExecuteETL` pipeline when files are ingested.
 - `<hubName>-vault-<unique-suffix>` Key Vault instance
   - Secrets:
     - Data Factory system managed identity
@@ -153,16 +159,21 @@ In addition to the above, the following resources are created to automate the de
 
 ## 📤 Outputs
 
-| Output                   | Type   | Description                                                                                                                               |
-| --------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| **name**                 | String | Name of the deployed hub instance.                                                                                                        |
-| **location**                | String | Azure resource location resources were deployed to.                                                                                       | `location`                                                                                                      |
-| **dataFactorytName**        | String | Name of the Data Factory.                                                                                                                 | `dataFactory.name`                                                                                              |
-| **storageAccountId**        | String | Resource ID of the storage account created for the hub instance. This must be used when creating the Cost Management export.              | `storage.outputs.resourceId`                                                                                    |
-| **storageAccountName**      | String | Name of the storage account created for the hub instance. This must be used when connecting FinOps toolkit Power BI reports to your data. | `storage.outputs.name`                                                                                          |
-| **storageUrlForPowerBI**    | String | URL to use when connecting custom Power BI reports to your data.                                                                          | `'https://${storage.outputs.name}.dfs.${environment().suffixes.storage}/${storage.outputs.ingestionContainer}'` |
-| **managedIdentityId**       | String | Object ID of the Data Factory managed identity. This will be needed when configuring managed exports.                                     | `dataFactory.identity.principalId`                                                                              |
-| **managedIdentityTenantId** | String | Azure AD tenant ID. This will be needed when configuring managed exports.                                                                 | `tenant().tenantId`                                                                                             |
+| Output | Type | Description |
+| ------ | ---- | ----------- ||
+| **name**                    | String | The name of the resource group.                                                                                                           |
+| **location**                | String | The location the resources wer deployed to.                                                                                               |
+| **dataFactorytName**        | String | Name of the Data Factory.                                                                                                                 |
+| **storageAccountId**        | String | The resource ID of the deployed storage account.                                                                                          |
+| **storageAccountName**      | String | Name of the storage account created for the hub instance. This must be used when connecting FinOps toolkit Power BI reports to your data. |
+| **storageUrlForPowerBI**    | String | URL to use when connecting custom Power BI reports to your data.                                                                          |
+| **clusterId**               | String | The resource ID of the Data Explorer cluster.                                                                                             |
+| **clusterUri**              | String | The URI of the Data Explorer cluster.                                                                                                     |
+| **ingestionDbName**         | String | The name of the Data Explorer database used for ingesting data.                                                                           |
+| **hubDbName**               | String | The name of the Data Explorer database used for querying data.                                                                            |
+| **managedIdentityId**       | String | Object ID of the Data Factory managed identity. This will be needed when configuring managed exports.                                     |
+| **managedIdentityTenantId** | String | Azure AD tenant ID. This will be needed when configuring managed exports.                                                                 |
+
 
 ---
 

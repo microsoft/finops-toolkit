@@ -25,6 +25,7 @@ Sorry to hear you're having a problem. We're here to help!
 - [MissingListCost](#missinglistcost)
 - [MissingListUnitPrice](#missinglistunitprice)
 - [ManifestReadFailed](#manifestreadfailed)
+- [RerunFilesNotFound](#rerunfilesnotfound)
 - [ResourceAccessForbiddenException](#resourceaccessforbiddenexception)
 - [RoleAssignmentUpdateNotPermitted](#roleassignmentupdatenotpermitted)
 - [SchemaLoadFailed](#schemaloadfailed)
@@ -34,6 +35,7 @@ Sorry to hear you're having a problem. We're here to help!
 - [UnsupportedExportType](#unsupportedexporttype)
 - [The \<name\> resource provider is not registered in subscription \<guid\>](#the-name-resource-provider-is-not-registered-in-subscription-guid)
 - [x\_PricingSubcategory shows the commitment discount ID](#x_pricingsubcategory-shows-the-commitment-discount-id)
+- [Power BI: Reports are missing data for specific dates](#power-bi-reports-are-missing-data-for-specific-dates)
 - [Power BI: Reports are empty (no data)](#power-bi-reports-are-empty-no-data)
 - [Power BI: The remote name could not be resolved: '\<storage-account\>.dfs.core.windows.net'](#power-bi-the-remote-name-could-not-be-resolved-storage-accountdfscorewindowsnet)
 - [Power BI: We cannot convert the value null to type Logical](#power-bi-we-cannot-convert-the-value-null-to-type-logical)
@@ -251,6 +253,16 @@ TODO: Consider the following ways to streamline this in the future:
 3. Create a hub configuration workbook to detect configuration issues.
 4. Consider renaming the main deployment file so it doesn't risk conflicting with other deployments.
 -->
+
+<br>
+
+## RerunFilesNotFound
+
+<sup>Severity: Critical</sup>
+
+Unable to locate previously ingested parquet files in the specified folder path.
+
+**Mitigation**: Confirm the folder path is the full path, including the **ingestion** container and not starting with or ending with a slash (**/**). Copy the path from the last successful **ingestion_ExecuteETL** pipeline run.
 
 <br>
 

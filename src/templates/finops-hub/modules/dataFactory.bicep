@@ -1889,6 +1889,7 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
     activities: [
       { // Wait
         name: 'Wait'
+        description: 'Files may not be available immediately after being created.'
         type: 'Wait'
         dependsOn: []
         userProperties: []
@@ -2584,7 +2585,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
             type: 'Expression'
           }
           condition: {
-            value: '@and(endswith(item().name, \'.parquet\'), not(startswith(item().name, pipeline().parameters.ingestionId)))'
+            value: '@and(endswith(item().name, \'.parquet\'), not(startswith(item().name, concat(pipeline().parameters.ingestionId, \'${ingestionIdFileNameSeparator}\'))))'
             type: 'Expression'
           }
         }
@@ -3114,19 +3115,36 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
 
 //------------------------------------------------------------------------------
 // ingestion_ETL_dataExplorer pipeline
-// Triggered by ingestion_ExecuteETL
+// Triggered by ingestion_DataFileAdded
 //------------------------------------------------------------------------------
-@description('Queues the ingestion_ETL_dataExplorer pipeline.')
+@description('Queues the ingestion_ETL_dataExplorer pipeline to account for Data Factory pipeline trigger limits.')
 resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer) {
-  name: '${safeIngestionContainerName}_ETL_dataExplorer'
+  name: '${safeIngestionContainerName}_ExecuteETL'
   parent: dataFactory
   properties: {
     activities: [
+      { // Wait
+        name: 'Wait'
+        description: 'Files may not be available immediately after being created.'
+        type: 'Wait'
+        dependsOn: []
+        userProperties: []
+        typeProperties: {
+          waitTimeInSeconds: 60
+        }
+      }
       { // Execute
         name: 'Execute'
         description: 'Run the ADX ETL pipeline.'
         type: 'ExecutePipeline'
-        dependsOn: []
+        dependsOn: [
+          {
+            activity: 'Wait'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
         policy: {
           secureInput: false
         }
@@ -3161,7 +3179,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
           }
         }
       }
-]
+    ]
     parameters: {
       folderPath: {
         type: 'string'
@@ -3184,9 +3202,9 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
 
 //------------------------------------------------------------------------------
 // ingestion_ETL_dataExplorer pipeline
-// Triggered by ingestion_DataFileAdded
+// Triggered by ingestion_ExecuteETL
 //------------------------------------------------------------------------------
-@description('Transforms CSV data to a standard schema and converts to Parquet.')
+@description('Ingests parquet data into an Azure Data Explorer cluster.')
 resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer) {
   name: '${safeIngestionContainerName}_ETL_dataExplorer'
   parent: dataFactory
@@ -3313,6 +3331,208 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
       }
     }
     variables: {}
+    annotations: []
+  }
+}
+
+//------------------------------------------------------------------------------
+// ingestion_RerunETL pipeline
+// Triggered manually
+//------------------------------------------------------------------------------
+@description('Safely reruns the ingestion_ETL_dataExplorer pipeline avoiding data duplication by.')
+resource pipeline_RerunETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer) {
+  name: '${safeIngestionContainerName}_RerunETL'
+  parent: dataFactory
+  properties: {
+    activities: [
+      { // Set Container Folder Path
+        name: 'Set Container Folder Path'
+        type: 'SetVariable'
+        dependsOn: []
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'containerFolderPath'
+          value: {
+            value: '@join(skip(array(split(pipeline().parameters.folderPath, \'/\')), 1), \'/\')'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Get Existing Parquet Files
+        name: 'Get Existing Parquet Files'
+        description: 'Get the previously ingested files so we can get file paths.'
+        type: 'GetMetadata'
+        dependsOn: [
+          {
+            activity: 'Set Container Folder Path'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        policy: {
+          timeout: '0.12:00:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          dataset: {
+            referenceName: dataset_ingestion_files.name
+            type: 'DatasetReference'
+            parameters: {
+              folderPath: '@variables(\'containerFolderPath\')'
+            }
+          }
+          fieldList: [
+            'childItems'
+          ]
+          storeSettings: {
+            type: 'AzureBlobFSReadSettings'
+            enablePartitionDiscovery: false
+          }
+          formatSettings: {
+            type: 'ParquetReadSettings'
+          }
+        }
+      }
+      { // Filter Out Folders
+        name: 'Filter Out Folders'
+        description: 'Remove any folders.'
+        type: 'Filter'
+        dependsOn: [
+          {
+            activity: 'Get Existing Parquet Files'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@if(contains(activity(\'Get Existing Parquet Files\').output, \'childItems\'), activity(\'Get Existing Parquet Files\').output.childItems, json(\'[]\'))'
+            type: 'Expression'
+          }
+          condition: {
+            value: '@equals(item().type, \'File\')'
+            type: 'Expression'
+          }
+        }
+      }
+      { // For Each Old File
+        name: 'For Each Old File'
+        description: 'Loop thru each of the existing files.'
+        type: 'ForEach'
+        dependsOn: [
+          {
+            activity: 'Filter Out Folders'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@activity(\'Filter Out Folders\').output.Value'
+            type: 'Expression'
+          }
+          activities: [
+            { // Execute
+              name: 'Execute'
+              description: 'Run the ADX ETL pipeline.'
+              type: 'ExecutePipeline'
+              dependsOn: []
+              policy: {
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                pipeline: {
+                  referenceName: pipeline_ToDataExplorer.name
+                  type: 'PipelineReference'
+                }
+                waitOnCompletion: false
+                parameters: {
+                  folderPath: {
+                    value: '@variables(\'containerFolderPath\')'
+                    type: 'Expression'
+                  }
+                  fileName: {
+                    value: '@item().name'
+                    type: 'Expression'
+                  }
+                  originalfileName: {
+                    value: '@last(split(item().name, \'${ingestionIdFileNameSeparator}\'))'
+                    type: 'Expression'
+                  }
+                  ingestionId: {
+                    value: '@concat(first(split(item().name, \'${ingestionIdFileNameSeparator}\')), \'_rerun\')'
+                    type: 'Expression'
+                  }
+                  table: {
+                    value: '@concat(first(split(variables(\'containerFolderPath\'), \'/\')), \'_raw\')'
+                    type: 'Expression'
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+      { // If No Files
+        name: 'If No Files'
+        description: 'If there are no files found, fail the pipeline.'
+        type: 'IfCondition'
+        dependsOn: [
+          {
+            activity: 'Filter Out Folders'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          expression: {
+            value: '@equals(length(activity(\'Filter Out Folders\').output.Value), 0)'
+            type: 'Expression'
+          }
+          ifTrueActivities: [
+            { // Error: RerunFilesNotFound
+              name: 'Files Not Found'
+              type: 'Fail'
+              dependsOn: []
+              userProperties: []
+              typeProperties: {
+                message: {
+                  value: '@concat(\'Unable to locate previously ingested parquet files in the \', pipeline().parameters.folderPath, \' path. Please confirm the folder path is the full path, including the "ingestion" container and not starting with or ending with a slash ("/").\')'
+                  type: 'Expression'
+                }
+                errorCode: 'RerunFilesNotFound'
+              }
+            }
+          ]
+        }
+      }
+    ]
+    parameters: {
+      folderPath: {
+        type: 'string'
+      }
+    }
+    variables: {
+      containerFolderPath: {
+        type: 'string'
+      }
+    }
     annotations: []
   }
 }

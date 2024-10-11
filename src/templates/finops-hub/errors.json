@@ -82,6 +82,12 @@
       "mitigation": "Update the storage path for the Cost Management export to use the full Azure resource ID for the scope."
     },
     {
+      "code": "RerunFilesNotFound",
+      "severity": "Critical",
+      "message": "Unable to locate previously ingested parquet files in the specified folder path.",
+      "mitigation": "Confirm the folder path is the full path, including the 'ingestion' container and not starting with or ending with a slash ('/'). Copy the path from the last successful ingestion_ExecuteETL pipeline run."
+    },
+    {
       "code": "SchemaLoadFailed",
       "severity": "Critical",
       "message": "FinOps hub msexports_ETL_ingestion pipeline failed to load the schema file.",
