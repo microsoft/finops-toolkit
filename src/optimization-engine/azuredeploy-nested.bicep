@@ -1068,7 +1068,7 @@ var runbooks = [
   }
   {
     name: savingsPlansExportsRunbookName
-    version: '1.0.1.0'
+    version: '1.0.2.0'
     description: 'Exports Savings Plans Usage to Blob Storage using the EA or MCA APIs'
     type: 'PowerShell'
     scriptUri: uri(templateLocation, 'runbooks/data-collection/${savingsPlansExportsRunbookName}.ps1')
