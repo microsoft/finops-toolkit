@@ -81,6 +81,14 @@ Legend:
 >
 > 1. Cost Management export modules for subscriptions and resource groups.
 
+🔍 Optimization engine
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> 🛠️ Fixed:
+>
+> 1. Exports ingestion issues in cases where exports come with empty lines ([#998](https://github.com/microsoft/finops-toolkit/issues/998))
+> 1. Missing columns in EA savings plans exports ([#1026](https://github.com/microsoft/finops-toolkit/issues/1026))
+
 <br><a name="latest"></a>
 
 ## 🪛 v0.6 Update 1
