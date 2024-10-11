@@ -75,13 +75,18 @@ var safeExportContainerName = replace('${exportContainerName}', '-', '_')
 var safeIngestionContainerName = replace('${ingestionContainerName}', '-', '_')
 var safeConfigContainerName = replace('${configContainerName}', '-', '_')
 
+// Separator used to separate ingestion ID from file name for ingested files
+var ingestionIdFileNameSeparator = '__'
+
 // All hub triggers (used to auto-start)
 var exportManifestAddedTriggerName = '${safeExportContainerName}_ManifestAdded'
+var ingesitonDataFileAddedTriggerName = '${safeIngestionContainerName}_DataFileAdded'
 var updateConfigTriggerName = '${safeConfigContainerName}_SettingsUpdated'
 var dailyTriggerName = '${safeConfigContainerName}_DailySchedule'
 var monthlyTriggerName = '${safeConfigContainerName}_MonthlySchedule'
 var allHubTriggers = [
   exportManifestAddedTriggerName
+  ingesitonDataFileAddedTriggerName
   updateConfigTriggerName
   dailyTriggerName
   monthlyTriggerName
@@ -567,7 +572,7 @@ resource trigger_ExportManifestAdded 'Microsoft.DataFactory/factories/triggers@2
     pipelines: [
       {
         pipelineReference: {
-          referenceName: pipeline_ExecuteETL.name
+          referenceName: pipeline_ExecuteExportsETL.name
           type: 'PipelineReference'
         }
         parameters: {
@@ -580,6 +585,39 @@ resource trigger_ExportManifestAdded 'Microsoft.DataFactory/factories/triggers@2
     typeProperties: {
       blobPathBeginsWith: '/${exportContainerName}/blobs/'
       blobPathEndsWith: 'manifest.json'
+      ignoreEmptyBlobs: true
+      scope: storageAccount.id
+      events: [
+        'Microsoft.Storage.BlobCreated'
+      ]
+    }
+  }
+}
+
+resource trigger_DataFileAdded 'Microsoft.DataFactory/factories/triggers@2018-06-01' = if (deployDataExplorer) {
+  name: ingesitonDataFileAddedTriggerName
+  parent: dataFactory
+  dependsOn: [
+    stopTriggers
+  ]
+  properties: {
+    annotations: []
+    pipelines: [
+      {
+        pipelineReference: {
+          referenceName: pipeline_ToDataExplorer.name
+          type: 'PipelineReference'
+        }
+        parameters: {
+          folderPath: '@triggerBody().folderPath'
+          fileName: '@triggerBody().fileName'
+        }
+      }
+    ]
+    type: 'BlobEventsTrigger'
+    typeProperties: {
+      blobPathBeginsWith: '/${ingestionContainerName}/blobs/'
+      blobPathEndsWith: '.parquet'
       ignoreEmptyBlobs: true
       scope: storageAccount.id
       events: [
@@ -1844,7 +1882,7 @@ resource pipeline_ConfigureExports 'Microsoft.DataFactory/factories/pipelines@20
 // Triggered by msexports_ManifestAdded trigger
 //------------------------------------------------------------------------------
 @description('Queues the msexports_ETL_ingestion pipeline.')
-resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
+resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = {
   name: '${safeExportContainerName}_ExecuteETL'
   parent: dataFactory
   properties: {
@@ -2407,7 +2445,7 @@ resource pipeline_ExecuteETL 'Microsoft.DataFactory/factories/pipelines@2018-06-
           activities: [
             { // Execute
               name: 'Execute'
-              description: 'Run the ETL pipeline.'
+              description: 'Run the ingestion ETL pipeline.'
               type: 'ExecutePipeline'
               dependsOn: []
               policy: {
@@ -2681,11 +2719,11 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         typeProperties: {
           variableName: 'destinationPath'
           value: {
-            value: '@concat(pipeline().parameters.destinationFolder, \'/\', pipeline().parameters.ingestionId, \'__\', pipeline().parameters.destinationFile)'
+            value: '@concat(pipeline().parameters.destinationFolder, \'/\', pipeline().parameters.ingestionId, \'${ingestionIdFileNameSeparator}\', pipeline().parameters.destinationFile)'
             type: 'Expression'
           }
         }
-      }      
+      }
       { // Convert to Parquet
         name: 'Convert to Parquet'
         description: 'Convert CSV to parquet and move the file to the ${ingestionContainerName} container.'
@@ -2949,82 +2987,6 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           ]
         }
       }
-      { // ADX Ingestion
-        name: 'ADX Ingestion'
-        type: 'Copy'
-        state: deployDataExplorer ? 'Active' : 'Inactive'
-        dependsOn: [
-            {
-                activity: 'Convert to Parquet'
-                dependencyConditions: [
-                    'Succeeded'
-                ]
-            }
-        ]
-        policy: {
-            timeout: '0.12:00:00'
-            retry: 0
-            retryIntervalInSeconds: 30
-            secureOutput: false
-            secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-            source: {
-                type: 'ParquetSource'
-                storeSettings: {
-                    type: 'AzureBlobFSReadSettings'
-                    recursive: true
-                    enablePartitionDiscovery: false
-                }
-                formatSettings: {
-                    type: 'ParquetReadSettings'
-                }
-            }
-            sink: any({ // Using any() to hide the error that gets surfaced because additionalProperties is not in the ADF schema yet
-                type: 'AzureDataExplorerSink'
-                ingestionMappingName: ''
-                additionalProperties: {
-                  value: '@json(concat(\'{"tags":"[\\"run:\', pipeline().parameters.ingestionId, \'\\", \\"file:\', pipeline().parameters.destinationFile, \'\\"]"}\'))'
-                  type: 'Expression'
-                }
-            })
-            enableStaging: false
-            translator: {
-                type: 'TabularTranslator'
-                typeConversion: true
-                typeConversionSettings: {
-                    allowDataTruncation: true
-                    treatBooleanAsNumber: false
-                }
-            }
-        }
-        inputs: [
-            {
-                referenceName: dataset_ingestion.name
-                type: 'DatasetReference'
-                parameters: {
-                    blobPath: {
-                        value: '@variables(\'destinationPath\')'
-                        type: 'Expression'
-                    }
-                }
-            }
-        ]
-        outputs: !deployDataExplorer ? [] : [
-          {
-            referenceName: dataset_dataExplorer.name
-            type: 'DatasetReference'
-            parameters: {
-              database: dataExplorerIngestionDatabase
-              table: {
-                value: '@concat(pipeline().parameters.dataset, \'_raw\')'
-                type: 'Expression'
-              }
-            }
-          }
-        ]
-      }
       { // Read Hub Config
         name: 'Read Hub Config'
         description: 'Read the hub config to determine if the export should be retained.'
@@ -3146,6 +3108,211 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
         type: 'String'
       }
     }
+    annotations: []
+  }
+}
+
+//------------------------------------------------------------------------------
+// ingestion_ETL_dataExplorer pipeline
+// Triggered by ingestion_ExecuteETL
+//------------------------------------------------------------------------------
+@description('Queues the ingestion_ETL_dataExplorer pipeline.')
+resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer) {
+  name: '${safeIngestionContainerName}_ETL_dataExplorer'
+  parent: dataFactory
+  properties: {
+    activities: [
+      { // Execute
+        name: 'Execute'
+        description: 'Run the ADX ETL pipeline.'
+        type: 'ExecutePipeline'
+        dependsOn: []
+        policy: {
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          pipeline: {
+            referenceName: pipeline_ToDataExplorer.name
+            type: 'PipelineReference'
+          }
+          waitOnCompletion: false
+          parameters: {
+            folderPath: {
+              value: '@pipeline().parameters.folderPath'
+              type: 'Expression'
+            }
+            fileName: {
+              value: '@pipeline().parameters.fileName'
+              type: 'Expression'
+            }
+            originalfileName: {
+              value: '@last(split(pipeline().parameters.fileName, \'${ingestionIdFileNameSeparator}\'))'
+              type: 'Expression'
+            }
+            ingestionId: {
+              value: '@first(split(pipeline().parameters.fileName, \'${ingestionIdFileNameSeparator}\'))'
+              type: 'Expression'
+            }
+            table: {
+              value: '@concat(first(split(pipeline().parameters.folderPath, \'/\')), \'_raw\')'
+              type: 'Expression'
+            }
+          }
+        }
+      }
+]
+    parameters: {
+      folderPath: {
+        type: 'string'
+      }
+      fileName: {
+        type: 'string'
+      }
+    }
+    variables: {
+      dataset: {
+        type: 'String'
+      }
+      ingestionId: {
+        type: 'String'
+      }
+    }
+    annotations: []
+  }
+}
+
+//------------------------------------------------------------------------------
+// ingestion_ETL_dataExplorer pipeline
+// Triggered by ingestion_DataFileAdded
+//------------------------------------------------------------------------------
+@description('Transforms CSV data to a standard schema and converts to Parquet.')
+resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer) {
+  name: '${safeIngestionContainerName}_ETL_dataExplorer'
+  parent: dataFactory
+  properties: {
+    activities: [
+      { // ADX Ingestion
+        name: 'ADX Ingestion'
+        type: 'Copy'
+        dependsOn: []
+        policy: {
+          timeout: '0.12:00:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          source: {
+            type: 'ParquetSource'
+            storeSettings: {
+              type: 'AzureBlobFSReadSettings'
+              recursive: true
+              enablePartitionDiscovery: false
+            }
+            formatSettings: {
+              type: 'ParquetReadSettings'
+            }
+          }
+          sink: any({ // Using any() to hide the error that gets surfaced because additionalProperties is not in the ADF schema yet
+            type: 'AzureDataExplorerSink'
+            ingestionMappingName: ''
+            additionalProperties: {
+              value: '@json(concat(\'{"tags":"[\\"drop-by:\', pipeline().parameters.ingestionId, \'\\", \\"drop-by:\', pipeline().parameters.folderPath, \'\\", \\"sourceFile:\', pipeline().parameters.originalFileName, \'\\"]"}\'))'
+              type: 'Expression'
+            }
+          })
+          enableStaging: false
+          translator: {
+            type: 'TabularTranslator'
+            typeConversion: true
+            typeConversionSettings: {
+              allowDataTruncation: false
+              treatBooleanAsNumber: false
+            }
+          }
+        }
+        inputs: [
+          {
+            referenceName: dataset_ingestion.name
+            type: 'DatasetReference'
+            parameters: {
+              blobPath: {
+                value: '@concat(pipeline().parameters.folderPath, \'/\', pipeline().parameters.fileName)'
+                type: 'Expression'
+              }
+            }
+          }
+        ]
+        outputs: [
+          {
+            referenceName: dataset_dataExplorer.name
+            type: 'DatasetReference'
+            parameters: {
+              database: dataExplorerIngestionDatabase
+              table: {
+                value: '@pipeline().parameters.table'
+                type: 'Expression'
+              }
+            }
+          }
+        ]
+      }
+      { // Drop Old Data
+        name: 'Drop Old Data'
+        description: 'Cost Management exports include all data from the previous export run. To ensure data is not double-reported, it must be dropped after ingestion completes.'
+        type: 'AzureDataExplorerCommand'
+        dependsOn: [
+          {
+            activity: 'ADX Ingestion'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        policy: {
+          timeout: '0.12:00:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        typeProperties: {
+          command: {
+            value: '@concat(\'.drop extents <| .show table \', pipeline().parameters.table, \' extents where tags !has "drop-by:\', pipeline().parameters.ingestionId, \'" and tags has "drop-by:\', pipeline().parameters.folderPath, \'"\')'
+            type: 'Expression'
+          }
+          commandTimeout: '00:20:00'
+        }
+        linkedServiceName: {
+          referenceName: 'hubDataExplorer'
+          type: 'LinkedServiceReference'
+          parameters: {
+            database: dataExplorerIngestionDatabase
+          }
+        }
+      }
+    ]
+    parameters: {
+      folderPath: {
+        type: 'string'
+      }
+      fileName: {
+        type: 'string'
+      }
+      originalfileName: {
+        type: 'string'
+      }
+      ingestionId: {
+        type: 'string'
+      }
+      table: {
+        type: 'string'
+      }
+    }
+    variables: {}
     annotations: []
   }
 }

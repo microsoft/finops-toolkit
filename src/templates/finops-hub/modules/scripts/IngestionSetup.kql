@@ -89,7 +89,7 @@ Services()
 
 // Azure EA -- https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/price-sheet-ea
 // Azure MCA -- https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/price-sheet-mca
-.create-merge table PriceSheet_raw (
+.create-merge table pricesheet_raw (
     BasePrice:          decimal,
     BillingAccountId:   string,
     BillingAccountName: string,
@@ -152,7 +152,7 @@ Prices_v1_0()
         )
     };
     let prices = materialize(
-        PriceSheet_raw
+        pricesheet_raw
         | extend x_SkuId = coalesce(SkuId, SkuID)
         | extend x_SkuMeterId = coalesce(MeterId, MeterID)
         | extend x_SkuProductId = coalesce(ProductId, ProductID)
@@ -310,7 +310,7 @@ Prices_v1_0()
 // - OCI: 1.0                    -- See https://docs.oracle.com/iaas/Content/Billing/Concepts/costusagereportsoverview.htm#costreports__focus-cost-report-schema
 //======================================================================================================================
 
-.create-merge table FocusCost_raw (
+.create-merge table focuscost_raw (
     AvailabilityZone:           string,
     BilledCost:                 decimal,
     BillingAccountId:           string,
@@ -449,7 +449,7 @@ Costs_v1_0()
     // TODO: Add warnings (errors?) when there's a difference between meter metadata in cost and price datasets
     // TODO: Create alerts when there are differences between cost/price data (???)
     // TODO: Confirm the ProviderName value for AWS and GCP data and update it in the ProviderName backfill
-    FocusCost_raw
+    focuscost_raw
     //
     // Dedupe rows
     | extend x_IngestionTime = ingestion_time()
@@ -669,7 +669,7 @@ Costs_v1_0()
 // Reservation details
 //======================================================================================================================
 
-.create-merge table ReservationDetails_raw (
+.create-merge table reservationdetails_raw (
     InstanceFlexibilityGroup: string,
     InstanceFlexibilityRatio: decimal,
     InstanceId:               string,
@@ -684,14 +684,14 @@ Costs_v1_0()
 )
 
 .create-or-alter function
-with (docstring='All commitment discount usage transformed to FOCUS 1.0. This includes ReservationDeatils_raw.', folder='Commitment discounts')
+with (docstring='All commitment discount usage transformed to FOCUS 1.0. This includes reservationdeatils_raw.', folder='Commitment discounts')
 CommitmentDiscountUsage_v1_0()
 {
     // TODO: Consider adding ResourceType, ServiceName, ServiceCategory, ServiceSubcategory (1.1)
     // TODO: Confirm the ReservedHours includes non-hour units
     // TODO: Is the SkuName the same as x_SkuDescription?
     // TODO: Is Kind the same as the product?
-    ReservationDetails_raw
+    reservationdetails_raw
     //
     // Transform existing columns to FOCUS (do not add any new columns until after deduping)
     | project
@@ -738,7 +738,7 @@ CommitmentDiscountUsage_v1_0()
 // Reservation recommendations
 //======================================================================================================================
 
-.create-merge table ReservationRecommendations_raw (
+.create-merge table reservationrecommendations_raw (
     CostWithNoReservedInstances:    string,
     FirstUsageDate:                 datetime,
     InstanceFlexibilityGroup:       string,
@@ -763,7 +763,7 @@ CommitmentDiscountUsage_v1_0()
 // Reservation transactions
 //======================================================================================================================
 
-.create-merge table ReservationTransactions_raw (
+.create-merge table reservationtransactions_raw (
     AccountName:                    string,
     AccountOwnerEmail:              string,
     Amount:                         decimal,
