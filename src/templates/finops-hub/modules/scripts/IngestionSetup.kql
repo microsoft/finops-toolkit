@@ -201,7 +201,7 @@ Prices_v1_0()
     // 
     // Calculate commitment discount elgibility
     // TODO: Would a join be faster?
-    | extend usage = x_SkuMeterId in (riMeters)
+    | extend usage = x_SkuMeterId in (riMeters) and x_SkuPriceType != 'ReservedInstance'
     | extend spend = x_SkuMeterId in (spMeters)
     | extend x_CommitmentDiscountEligibility = case(usage and spend, 'Usage or Spend', usage, 'Usage', spend, 'Spend', 'Not Eligible')
     //
