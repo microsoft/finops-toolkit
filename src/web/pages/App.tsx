@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import HomePage from './HomePage';
-import ToolsLanding from './ToolsLanding';
+import ToolsLandingPage from './ToolsLandingPage';
 import FinOpsHubsPage from './FinOpsHubsPage';
 import FinOpsWorkbooksPage from './FinOpsWorkbooksPage';
 import GovernanceWorkbookPage from './GovernanceWorkbookPage';
@@ -24,7 +24,7 @@ const App: React.FC = () => {
       <div>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/tools" element={<ToolsLanding />} />
+          <Route path="/tools" element={<ToolsLandingPage />} />
           <Route path="/tools/finops-hubs" element={<FinOpsHubsPage />} />
           <Route path="/tools/power-bi-reports" element={<PowerBIReportsPage />} />
           <Route path="/tools/cost-optimization-workbook" element={<CostOptimizationWorkbookPage />} />
