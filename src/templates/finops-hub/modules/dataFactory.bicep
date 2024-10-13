@@ -2949,9 +2949,7 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
         userProperties: []
         typeProperties: {
           variableName: 'schemaFile'
-          value: {
-            value: 'recommendations_1.0.json'
-          }
+          value: 'recommendations_1.0.json'
         }
       }
       { // Set error counter
