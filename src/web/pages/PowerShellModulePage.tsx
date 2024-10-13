@@ -1,6 +1,6 @@
 import React from 'react';
 
-const PowerShellPage = () => {
+const PowerShellPage: React.FC = () => {
   return (
     <div>
       <h1>PowerShell Module</h1>
