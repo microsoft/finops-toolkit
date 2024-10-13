@@ -1,136 +1,159 @@
+//======================================================================================================================
+// Ingestion database
+// Used for data ingestion, normalization, and cleansing.
+//
+// Data ingestion workflow:
+// - All data is ingested into tables named "*_raw". These tables have a union schema to support multiple sources and versions.
+// - All data is transformed to the latest FOCUS schema using an update policy into a table named after the version (e.g., "1.0" = "_v1_0").
+// - Data ingestion from previous version of hubs will remain in the versioned tables.
+// - Data is read from versioned functions in the Hub database. See HubSetup.kql for details.
+//
+// To add a new FOCUS versions:
+// 1. Add new columns to the *_raw tables per dataset
+// 2. Add new *_final_vX_Y tables per dataset
+// 3. Add new *_transform_vX_Y functions per dataset
+// 4. Change the update policy for the *_raw tables to use the new transform functions
+// 5. Update HubSetup.kql to read from the new *_final_vX_Y tables
+//======================================================================================================================
+
 // Grant ADF identity access to the cluster
 .add database Ingestion admins ('aadapp=$$adfPrincipalId$$;$$adfTenantId$$')
 
+//======================================================================================================================
+// HubSettings
+//======================================================================================================================
+
+.create-merge table HubSettingsLog (
+    version:   string,
+    scopes:    dynamic,
+    retention: dynamic
+)
+
 //----------------------------------------------------------------------------------------------------------------------
-// Naming conventions:
-// - All raw ingestion tables are named "*_raw"
-// - All transformed views/tables/functions are named after the FOCUS version (e.g., "1.0" = "_v1_0")
-// - New columns can be added to tables, but existing columns cannot be changed or removed
-// - If an external column needs to be changed/removed, add a new "release" (e.g., "1.0r2" = "_v1_0_r2")
+
+// HubSettings function
+.create-or-alter function
+with (docstring='Gets the latest version of hub settings.', folder='Settings')
+HubSettings()
+{
+    HubSettingsLog
+    | extend timestamp = ingestion_time()
+    | summarize arg_max(timestamp, *)
+}
+
 //----------------------------------------------------------------------------------------------------------------------
+
+// HubScopes function
+.create-or-alter function
+with (docstring='Gets the currently configured scopes.', folder='Settings')
+HubScopes()
+{
+    // TODO: Detect any scopes that are duplicated via the drop-by folder path
+    // TODO: Create an array of missing data based on the configured retention setting
+    // TODO: Add min/max data timestamps for each scope
+    HubSettings
+    | project scopes
+    | mv-expand scopes
+}
+
 
 //======================================================================================================================
 // FTK open data
 //======================================================================================================================
 
 // TODO: Ingest open data rather than accessing it dynamically at runtime
-.create-or-alter function
-with (docstring='Map Cost Management regions/locations to standard Azure region IDs and names.', folder='Open data')
-PricingUnits()
-{
-    externaldata(
-        x_PricingUnitDescription: string,
-        AccountTypes:             string,
-        x_PricingBlockSize:       decimal,
-        PricingUnit:              string
-    )
-    [@"$$ftkOpenDataFolder$$/PricingUnits.csv"]
-    with (format="csv", ignoreFirstRecord=true)
-    | project-away AccountTypes
-}
 
-.create-or-alter function
-with (docstring='Details about Azure resource type values.', folder='Open data')
-Regions()
-{
-    externaldata(
-        OriginalValue:            string,
-        RegionId:                 string,
-        RegionName:               string
-    )
-    [@"$$ftkOpenDataFolder$$/Regions.csv"]
-    with (format="csv", ignoreFirstRecord=true)
-}
+// PricingUnits
+.create-merge table PricingUnits (    
+    x_PricingUnitDescription: string,
+    x_PricingBlockSize:       decimal,
+    PricingUnit:              string
+)
 
-.create-or-alter function
-with (docstring='Map Cost Management ConsumedService and ResourceType values to their respective services.', folder='Open data')
-ResourceTypes()
-{
-    externaldata(
-        x_ResourceType:           string,
-        SingularDisplayName:      string,
-        PluralDisplayName:        string,
-        LowerSingularDisplayName: string,
-        LowerPluralDisplayName:   string,
-        IsPreview:                bool,
-        Description:              string,
-        IconUri:                  string,
-        Links:                    string
-    )
-    [@"$$ftkOpenDataFolder$$/ResourceTypes.csv"]
-    with (format="csv", ignoreFirstRecord=true)
-    | project-away Links
-}
+// Regions
+.create-merge table Regions(
+    ResourceLocation: string,
+    RegionId:         string,
+    RegionName:       string
+)
 
-.create-or-alter function
-with (docstring='All prices transformed to FOCUS 1.0.', folder='Open data')
-Services()
-{
-    externaldata(
-        x_ConsumedService:        string,
-        x_ResourceType:           string,
-        ServiceName:              string,
-        ServiceCategory:          string,
-        ServiceSubcategory:       string,
-        PublisherName:            string,
-        x_PublisherCategory:      string,
-        x_Environment:            string,
-        x_ServiceModel:           string
-    )
-    [@"$$ftkOpenDataFolder$$/Services.csv"]
-    with (format="csv", ignoreFirstRecord=true)
-}
+// ResourceTypes
+.create-merge table ResourceTypes(
+    x_ResourceType:           string,
+    SingularDisplayName:      string,
+    PluralDisplayName:        string,
+    LowerSingularDisplayName: string,
+    LowerPluralDisplayName:   string,
+    IsPreview:                bool,
+    Description:              string,
+    IconUri:                  string
+)
+
+// Services
+.create-merge table Services(
+    x_ConsumedService:        string,
+    x_ResourceType:           string,
+    ServiceName:              string,
+    ServiceCategory:          string,
+    ServiceSubcategory:       string,
+    PublisherName:            string,
+    x_PublisherCategory:      string,
+    x_Environment:            string,
+    x_ServiceModel:           string
+)
 
 
 //======================================================================================================================
 // Prices
 // NOTE: Must be before cost details.
+//
+// Supported versions:
+// - MS EA 2023-05-01  -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/price-sheet-ea
+// - MS MCA 2023-05-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/price-sheet-mca
 //======================================================================================================================
 
-// Azure EA -- https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/price-sheet-ea
-// Azure MCA -- https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/price-sheet-mca
-.create-merge table pricesheet_raw (
-    BasePrice:          decimal,
-    BillingAccountId:   string,
-    BillingAccountName: string,
-    BillingCurrency:    string,
-    BillingProfileId:   string,
-    BillingProfileName: string,
-    Currency:           string,
-    CurrencyCode:       string,
-    EffectiveEndDate:   datetime,
-    EffectiveStartDate: datetime,
-    EnrollmentNumber:   string,
-    IncludedQuantity:   decimal,
-    MarketPrice:        decimal,
-    MeterCategory:      string,
-    MeterId:            string,
-    MeterID:            string,
-    MeterName:          string,
-    MeterRegion:        string,
-    MeterSubCategory:   string,
-    MeterType:          string,
-    OfferID:            string,
-    PartNumber:         string,
-    PriceType:          string,
-    PricingCurrency:    string,
-    Product:            string,
-    ProductName:        string,
-    ProductId:          string,
-    ProductID:          string,
-    ServiceFamily:      string,
-    SkuId:              string,
-    SkuID:              string,
-    Term:               string,
-    TierMinimumUnits:   decimal,
-    UnitOfMeasure:      string,
-    UnitPrice:          decimal
+// Prices_raw table
+.create-merge table Prices_raw (
+    BasePrice:          decimal,  // Azure EA + MCA
+    BillingAccountId:   string,   // Azure MCA
+    BillingAccountName: string,   // Azure MCA
+    BillingCurrency:    string,   // Azure MCA
+    BillingProfileId:   string,   // Azure MCA
+    BillingProfileName: string,   // Azure MCA
+    Currency:           string,   // Azure MCA
+    CurrencyCode:       string,   // Azure EA 
+    EffectiveEndDate:   datetime, // Azure MCA
+    EffectiveStartDate: datetime, // Azure EA + MCA
+    EnrollmentNumber:   string,   // Azure EA 
+    IncludedQuantity:   decimal,  // Azure EA 
+    MarketPrice:        decimal,  // Azure EA + MCA
+    MeterCategory:      string,   // Azure EA + MCA
+    MeterId:            string,   // Azure MCA
+    MeterID:            string,   // Azure EA 
+    MeterName:          string,   // Azure EA + MCA
+    MeterRegion:        string,   // Azure EA + MCA
+    MeterSubCategory:   string,   // Azure EA + MCA
+    MeterType:          string,   // Azure EA + MCA
+    OfferID:            string,   // Azure EA 
+    PartNumber:         string,   // Azure EA
+    PriceType:          string,   // Azure EA + MCA
+    Product:            string,   // Azure EA + MCA
+    ProductId:          string,   // Azure MCA
+    ProductID:          string,   // Azure EA 
+    ServiceFamily:      string,   // Azure EA + MCA
+    SkuID:              string,   // Azure EA + MCA
+    Term:               string,   // Azure EA + MCA
+    TierMinimumUnits:   decimal,  // Azure MCA
+    UnitOfMeasure:      string,   // Azure EA + MCA
+    UnitPrice:          decimal   // Azure EA + MCA
 )
 
-// Prices as FOCUS 1.0
+//----------------------------------------------------------------------------------------------------------------------
+
+// Prices_transform_v1_0 function
 .create-or-alter function
-with (docstring='All prices transformed to FOCUS 1.0.', folder='Prices')
-Prices_v1_0()
+with (docstring='Transforms Prices_raw into FOCUS 1.0.', folder='Prices')
+Prices_transform_v1_0()
 {
     // TODO: Handle null MeterId
     // TODO: Add x_CommitmentDiscountMinimum (as in the minimum commitment amount; e.g., 100TB, 1PB, 10PB for storage)
@@ -139,6 +162,7 @@ Prices_v1_0()
     // TODO: Why is MeterName missing for some records (e.g., reservations)?
     // TODO: Why is MarketPrice not the on-demand list price for savings plan prices?
     // TODO: Why is MarketPrice ~= UnitPrice (but not ==) for savings plan prices?
+    // TODO: Why are there Az Stack and Az Comm Services meters with "Unassigned" ProductName, MeterCategory, MeterSubcategory, MeterName, MeterRegion?
     // TODO: Does ListUnitPrice/x_EffectiveUnitPrice match usage data for savings plans?
     // TODO: Does x_SkuMeterName match usage data?
     // TODO: Does the effective start date for reservation prices change based on the export date?
@@ -152,8 +176,7 @@ Prices_v1_0()
         )
     };
     let prices = materialize(
-        pricesheet_raw
-        | extend x_SkuId = coalesce(SkuId, SkuID)
+        Prices_raw
         | extend x_SkuMeterId = coalesce(MeterId, MeterID)
         | extend x_SkuProductId = coalesce(ProductId, ProductID)
         | extend x_SkuTerm = isoMonths(Term)
@@ -162,6 +185,7 @@ Prices_v1_0()
             x_EffectivePeriodEnd = EffectiveEndDate,
             x_EffectivePeriodStart = EffectiveStartDate,
             x_PricingUnitDescription = UnitOfMeasure,
+            x_SkuId = SkuID,
             x_SkuIncludedQuantity = IncludedQuantity,
             x_SkuMeterCategory = MeterCategory,
             x_SkuMeterName = MeterName,
@@ -182,23 +206,24 @@ Prices_v1_0()
         //
         // Get latest ingested row based on the unique ID
         | extend x_IngestionTime = ingestion_time()
-        | summarize arg_max(x_IngestionTime , *) by SkuPriceIdv2
     );
     //
     // Meters for reservations and savings plans to identify commitment eligibility
     let riMeters = prices | where x_SkuPriceType == 'ReservedInstance' | distinct x_SkuMeterId;
     let spMeters = prices | where x_SkuPriceType == 'SavingsPlan' | distinct x_SkuMeterId;
-    //
+    // 
     // Copy list/base/contracted prices from on-demand SKUs
     prices
     | where x_SkuPriceType == 'SavingsPlan'
-    | join kind=leftouter hint.strategy=shuffle (prices | where x_SkuPriceType == 'Consumption' | where x_SkuMeterId in (spMeters) | distinct tmp_SavingsPlanKey, ListUnitPrice, ContractedUnitPrice, x_BaseUnitPrice) on tmp_SavingsPlanKey
+    // If we use join, specify the shuffle key
+    // TODO: Compare join vs. lookup perf -- | join kind=leftouter hint.strategy=shuffle (prices | where x_SkuPriceType == 'Consumption' | where x_SkuMeterId in (spMeters) | distinct tmp_SavingsPlanKey, ListUnitPrice, ContractedUnitPrice, x_BaseUnitPrice) on tmp_SavingsPlanKey
+    | lookup kind=leftouter (prices | where x_SkuPriceType == 'Consumption' | where x_SkuMeterId in (spMeters) | distinct tmp_SavingsPlanKey, ListUnitPrice, ContractedUnitPrice, x_BaseUnitPrice) on tmp_SavingsPlanKey
     | extend ListUnitPrice = coalesce(ListUnitPrice, ListUnitPrice1)
     | extend ContractedUnitPrice = coalesce(ContractedUnitPrice, ContractedUnitPrice1)
     | extend x_BaseUnitPrice = coalesce(x_BaseUnitPrice, x_BaseUnitPrice1)
     | project-away ListUnitPrice1, ContractedUnitPrice1, x_BaseUnitPrice1, tmp_SavingsPlanKey
     | union ((prices | where x_SkuPriceType != 'SavingsPlan'))
-    // 
+    //
     // Calculate commitment discount elgibility
     // TODO: Would a join be faster?
     | extend usage = x_SkuMeterId in (riMeters) and x_SkuPriceType != 'ReservedInstance'
@@ -206,7 +231,8 @@ Prices_v1_0()
     | extend x_CommitmentDiscountEligibility = case(usage and spend, 'Usage or Spend', usage, 'Usage', spend, 'Spend', 'Not Eligible')
     //
     // Add PricingUnit and x_PricingBlockSize
-    | join kind=leftouter (PricingUnits) on x_PricingUnitDescription | project-away x_PricingUnitDescription1
+    // TODO: Compare join vs. lookup perf -- | join kind=leftouter (PricingUnits) on x_PricingUnitDescription | project-away x_PricingUnitDescription1
+    | lookup kind=leftouter (PricingUnits) on x_PricingUnitDescription
     //
     | extend x_EffectiveUnitPrice = iff(x_SkuPriceType == 'SavingsPlan', UnitPrice, todecimal(''))  // Savings plan prices are for the effective price, not the contracted price
     | extend x_CommitmentUnitPriceSavings = ContractedUnitPrice - x_EffectiveUnitPrice
@@ -247,7 +273,7 @@ Prices_v1_0()
         PricingUnit,
         SkuId = coalesce(ProductId, ProductID),
         SkuIdv2 = x_SkuMeterId,
-        SkuPriceId = strcat(coalesce(ProductId, ProductID), '_', coalesce(SkuId, SkuID), '_', x_SkuMeterType),
+        SkuPriceId = strcat(x_SkuProductId, '_', x_SkuId, '_', x_SkuMeterType),
         SkuPriceIdv2, 
         x_AccountType = case(
             strlen(x_BillingAccountId) > 32, 'MCA',
@@ -269,7 +295,7 @@ Prices_v1_0()
         x_NegotiatedUnitPriceSavings,
         x_NegotiatedUnitPriceSavingsPercent = 1.0 * x_NegotiatedUnitPriceSavings / ListUnitPrice * 100,
         x_PricingBlockSize,
-        x_PricingCurrency = coalesce(PricingCurrency, Currency, CurrencyCode),  // CurrencyCode last as a fallback only
+        x_PricingCurrency = coalesce(Currency, CurrencyCode),  // CurrencyCode last as a fallback only
         x_PricingSubcategory = case(
             x_SkuPriceType == 'Consumption' and (x_SkuIncludedQuantity > 0 or x_SkuTier > 0), 'Tiered',
             x_SkuPriceType == 'Consumption', 'Standard',
@@ -278,7 +304,7 @@ Prices_v1_0()
             ''
         ),
         x_PricingUnitDescription,
-        x_SkuDescription = coalesce(Product, ProductName),
+        x_SkuDescription = Product,
         x_SkuId,
         x_SkuIncludedQuantity,
         x_SkuMeterCategory,
@@ -296,21 +322,95 @@ Prices_v1_0()
         x_SkuTier,
         x_TotalUnitPriceSavings,
         x_TotalUnitPriceSavingsPercent = 1.0 * x_TotalUnitPriceSavings / ListUnitPrice * 100
-    | order by SkuPriceIdv2 asc
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+// Prices_final_v1_0 table
+// FOCUS 1.0 version of the price sheet that covers everything defined in Prices_raw.
+.create-merge table Prices_final_v1_0 (
+    BillingAccountId:                    string,
+    BillingAccountName:                  string,
+    BillingCurrency:                     string,
+    ChargeCategory:                      string,
+    CommitmentDiscountCategory:          string,
+    CommitmentDiscountType:              string,
+    ContractedUnitPrice:                 decimal,
+    ListUnitPrice:                       decimal,
+    PricingCategory:                     string,
+    PricingUnit:                         string,
+    SkuId:                               string,
+    SkuIdv2:                             string,    // Hubs add-on
+    SkuPriceId:                          string,
+    SkuPriceIdv2:                        string,    // Hubs add-on
+    x_AccountType:                       string,    // Hubs add-on
+    x_BaseUnitPrice:                     decimal,   // Azure
+    x_BillingAccountId:                  string,    // Azure MCA
+    x_BillingProfileId:                  string,    // Azure MCA
+    x_CommitmentDiscountEligibility:     string,    // Hubs add-on
+    x_CommitmentUnitPriceSavings:        decimal,   // Hubs add-on
+    x_CommitmentUnitPriceSavingsPercent: decimal,   // Hubs add-on
+    x_DatasetType:                       string,    // Hubs add-on
+    x_DatasetVersion:                    string,    // Hubs add-on
+    x_EffectivePeriodEnd:                datetime,  // Azure
+    x_EffectivePeriodStart:              datetime,  // Azure
+    x_EffectiveUnitPrice:                decimal,   // Azure
+    x_IngestionTime:                     datetime,  // Hubs add-on
+    x_NegotiatedUnitPriceSavings:        decimal,   // Hubs add-on
+    x_NegotiatedUnitPriceSavingsPercent: decimal,   // Hubs add-on
+    x_PricingBlockSize:                  decimal,   // Hubs add-on
+    x_PricingCurrency:                   string,    // Azure
+    x_PricingSubcategory:                string,    // Hubs add-on
+    x_PricingUnitDescription:            string,    // Azure
+    x_SkuDescription:                    string,    // Azure
+    x_SkuId:                             string,    // Azure
+    x_SkuIncludedQuantity:               decimal,   // Azure EA
+    x_SkuMeterCategory:                  string,    // Azure
+    x_SkuMeterId:                        string,    // Azure
+    x_SkuMeterName:                      string,    // Azure
+    x_SkuMeterSubcategory:               string,    // Azure
+    x_SkuMeterType:                      string,    // Azure
+    x_SkuPriceType:                      string,    // Azure
+    x_SkuProductId:                      string,    // Azure
+    x_SkuRegion:                         string,    // Azure
+    x_SkuServiceFamily:                  string,    // Azure
+    x_SkuOfferId:                        string,    // Azure EA
+    x_SkuPartNumber:                     string,    // Azure EA
+    x_SkuTerm:                           string,    // Azure
+    x_SkuTier:                           decimal,   // Azure MCA
+    x_TotalUnitPriceSavings:             decimal,   // Hub add-on
+    x_TotalUnitPriceSavingsPercent:      decimal    // Hubs add-on
+)
+
+//----------------------------------------------------------------------------------------------------------------------
+
+// Update policy for Prices_raw -> Prices_final_v1_0
+// NOTE: Must be after transform function is defined
+// .alter-merge table Prices_final_v1_0 policy update
+// ```
+// [{
+//     "IsEnabled": true,
+//     "Source": "Prices_raw",
+//     "Query": "Prices_transform_v1_0()",
+//     "IsTransactional": true,
+//     "PropagateIngestionProperties": true
+// }]
+// ```
 
 //======================================================================================================================
 // Cost and usage
 //
 // Supported versions:
-// - Azure: 1.0, 1.0-preview(v1) -- See https://aka.ms/costmgmt/exports/focus
-// - AWS: 1.0                    -- See https://docs.aws.amazon.com/cur/latest/userguide/table-dictionary-focus-1-0-aws-columns.html
-// - GCP: Jan-Jun 2024           -- See https://cloud.google.com/resources/google-cloud-focus?e=48754805&hl=en
-// - OCI: 1.0                    -- See https://docs.oracle.com/iaas/Content/Billing/Concepts/costusagereportsoverview.htm#costreports__focus-cost-report-schema
+// - MS: 1.0, 1.0-preview(v1) -- See https://aka.ms/costmgmt/exports/focus
+// - AWS: 1.0                 -- See https://docs.aws.amazon.com/cur/latest/userguide/table-dictionary-focus-1-0-aws-columns.html
+// - GCP: Jan-Jun 2024        -- See https://cloud.google.com/resources/google-cloud-focus?e=48754805&hl=en
+// - OCI: 1.0                 -- See https://docs.oracle.com/iaas/Content/Billing/Concepts/costusagereportsoverview.htm#costreports__focus-cost-report-schema
+//
+// Support for non-Azure data is limited to ingestion only. Data is not transformed across versions.
 //======================================================================================================================
 
-.create-merge table focuscost_raw (
+// Costs_raw table
+.create-merge table Costs_raw (
     AvailabilityZone:           string,
     BilledCost:                 decimal,
     BillingAccountId:           string,
@@ -432,10 +532,12 @@ Prices_v1_0()
     x_UsageType:                string     // AWS 1.0
 )
 
-// Costs as FOCUS 1.0
+//----------------------------------------------------------------------------------------------------------------------
+
+// Costs_transform_v1_0 function
 .create-or-alter function
 with (docstring='All costs transformed to FOCUS 1.0.', folder='Costs')
-Costs_v1_0()
+Costs_transform_v1_0()
 {
     // TODO: Should Adjustment costs be on List/ContractedCost?
     // TODO: File a bug on CM for ContractedCost being off by the x_PricingBlockSize
@@ -664,12 +766,157 @@ Costs_v1_0()
         x_UsageType                  // AWS 1.0
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+
+// Costs_final_v1_0 table
+.create-merge table Costs_final_v1_0 (
+    AvailabilityZone:           string,
+    BilledCost:                 decimal,
+    BillingAccountId:           string,
+    BillingAccountName:         string,
+    BillingAccountType:         string,    // Azure 1.0-preview(v1)+
+    BillingCurrency:            string,
+    BillingPeriodEnd:           datetime,
+    BillingPeriodStart:         datetime,
+    ChargeCategory:             string,
+    ChargeClass:                string,
+    ChargeDescription:          string,
+    ChargeFrequency:            string,
+    ChargePeriodEnd:            datetime,
+    ChargePeriodStart:          datetime,
+    ChargeSubcategory:          string,
+    CommitmentDiscountCategory: string,    // FOCUS 1.0-preview only
+    CommitmentDiscountId:       string,
+    CommitmentDiscountName:     string,
+    CommitmentDiscountStatus:   string,
+    CommitmentDiscountType:     string,
+    ConsumedQuantity:           decimal,
+    ConsumedUnit:               string,
+    ContractedCost:             decimal,
+    ContractedUnitPrice:        decimal,
+    EffectiveCost:              decimal,
+    InvoiceIssuerName:          string,
+    ListCost:                   decimal,
+    ListUnitPrice:              decimal,
+    PricingCategory:            string,
+    PricingQuantity:            decimal,
+    PricingUnit:                string,
+    ProviderName:               string,
+    PublisherName:              string,
+    Region:                     string,    // FOCUS 1.0-preview only
+    RegionId:                   string,
+    RegionName:                 string,
+    ResourceId:                 string,
+    ResourceName:               string,
+    ResourceType:               string,
+    ServiceCategory:            string,
+    ServiceName:                string,
+    SkuId:                      string,
+    SkuPriceId:                 string,
+    SubAccountId:               string,
+    SubAccountName:             string,
+    SubAccountType:             string,
+    Tags:                       string,
+    UsageAmount:                decimal,   // GCP Jan 2024 -- Removed Mar 2024 (UsageQuantity)
+    UsageQuantity:              decimal,   // FOCUS 1.0-preview only
+    UsageUnit:                  string,    // FOCUS 1.0-preview only
+    x_AccountId:                string,    // Azure 1.0-preview(v1)+
+    x_AccountName:              string,    // Azure 1.0-preview(v1)+
+    x_AccountOwnerId:           string,    // Azure 1.0-preview(v1)+
+    x_BilledCostInUsd:          decimal,   // Azure 1.0-preview(v1)+
+    x_BilledUnitPrice:          decimal,   // Azure 1.0-preview(v1)+
+    x_BillingAccountId:         string,    // Azure 1.0-preview(v1)+
+    x_BillingAccountName:       string,    // Azure 1.0-preview(v1)+
+    x_BillingExchangeRate:      decimal,   // Azure 1.0-preview(v1)+
+    x_BillingExchangeRateDate:  datetime,  // Azure 1.0-preview(v1)+
+    x_BillingProfileId:         string,    // Azure 1.0-preview(v1)+
+    x_BillingProfileName:       string,    // Azure 1.0-preview(v1)+
+    x_ChargeId:                 string,    // Azure 1.0-preview(v1) only
+    x_ContractedCostInUsd:      decimal,   // Azure 1.0+
+    x_Cost:                     decimal,   // GCP Jan 2024 -- Removed Jun 2024 (ContractedCost)
+    x_CostAllocationRuleName:   string,    // Azure 1.0-preview(v1)+
+    x_CostCategories:           string,    // AWS 1.0 (JSON)
+    x_CostCenter:               string,    // Azure 1.0-preview(v1)+
+    x_Credits:                  string,    // GCP Jan 2024
+    x_CostType:                 string,    // GCP Jan 2024
+    x_CurrencyConversionRate:   decimal,   // GCP Jun 2024
+    x_CustomerId:               string,    // Azure 1.0-preview(v1)+
+    x_CustomerName:             string,    // Azure 1.0-preview(v1)+
+    x_Discount:                 string,    // AWS 1.0 (JSON)
+    x_EffectiveCostInUsd:       decimal,   // Azure 1.0-preview(v1)+
+    x_EffectiveUnitPrice:       decimal,   // Azure 1.0-preview(v1)+
+    x_ExportTime:               datetime,  // GCP Jan 2024
+    x_InvoiceId:                string,    // Azure 1.0-preview(v1)+
+    x_InvoiceIssuerId:          string,    // Azure 1.0-preview(v1)+
+    x_InvoiceSectionId:         string,    // Azure 1.0-preview(v1)+
+    x_InvoiceSectionName:       string,    // Azure 1.0-preview(v1)+
+    x_ListCostInUsd:            decimal,   // Azure 1.0-preview(v1)+
+    x_Location:                 string,    // GCP Jan 2024
+    x_OnDemandCost:             decimal,   // Azure 1.0-preview(v1) only
+    x_OnDemandCostInUsd:        decimal,   // Azure 1.0-preview(v1) only
+    x_OnDemandUnitPrice:        decimal,   // Azure 1.0-preview(v1) only
+    x_Operation:                string,    // AWS 1.0
+    x_PartnerCreditApplied:     string,    // Azure 1.0-preview(v1)+
+    x_PartnerCreditRate:        string,    // Azure 1.0-preview(v1)+
+    x_PricingBlockSize:         decimal,   // Azure 1.0-preview(v1)+
+    x_PricingCurrency:          string,    // Azure 1.0-preview(v1)+
+    x_PricingSubcategory:       string,    // Azure 1.0-preview(v1)+
+    x_PricingUnitDescription:   string,    // Azure 1.0-preview(v1)+
+    x_Project:                  string,    // GCP Jan 2024
+    x_PublisherCategory:        string,    // Azure 1.0-preview(v1)+
+    x_PublisherId:              string,    // Azure 1.0-preview(v1)+
+    x_ResellerId:               string,    // Azure 1.0-preview(v1)+
+    x_ResellerName:             string,    // Azure 1.0-preview(v1)+
+    x_ResourceGroupName:        string,    // Azure 1.0-preview(v1)+
+    x_ResourceType:             string,    // Azure 1.0-preview(v1)+
+    x_ServiceCode:              string,    // AWS 1.0
+    x_ServiceId:                string,    // GCP Jan 2024
+    x_ServicePeriodEnd:         datetime,  // Azure 1.0-preview(v1)+
+    x_ServicePeriodStart:       datetime,  // Azure 1.0-preview(v1)+
+    x_SkuDescription:           string,    // Azure 1.0-preview(v1)+
+    x_SkuDetails:               string,    // Azure 1.0-preview(v1)+
+    x_SkuIsCreditEligible:      bool,      // Azure 1.0-preview(v1)+ 
+    x_SkuMeterCategory:         string,    // Azure 1.0-preview(v1)+
+    x_SkuMeterId:               string,    // Azure 1.0-preview(v1)+
+    x_SkuMeterName:             string,    // Azure 1.0-preview(v1)+
+    x_SkuMeterSubcategory:      string,    // Azure 1.0-preview(v1)+
+    x_SkuOfferId:               string,    // Azure 1.0-preview(v1)+
+    x_SkuOrderId:               string,    // Azure 1.0-preview(v1)+
+    x_SkuOrderName:             string,    // Azure 1.0-preview(v1)+
+    x_SkuPartNumber:            string,    // Azure 1.0-preview(v1)+
+    x_SkuRegion:                string,    // Azure 1.0-preview(v1)+
+    x_SkuServiceFamily:         string,    // Azure 1.0-preview(v1)+
+    x_SkuTerm:                  string,    // Azure 1.0-preview(v1)+
+    x_SkuTier:                  string,    // Azure 1.0-preview(v1)+ 
+    x_UsageType:                string     // AWS 1.0
+)
+
+//----------------------------------------------------------------------------------------------------------------------
+
+// Update policy for Costs_raw -> Costs_final_v1_0 table
+// NOTE: Must be after transform function is defined
+// .alter-merge table Costs_final_v1_0 policy update
+// ```
+// [{
+//     "IsEnabled": true,
+//     "Source": "Costs_raw",
+//     "Query": "Costs_transform_v1_0()",
+//     "IsTransactional": true,
+//     "PropagateIngestionProperties": true
+// }]
+// ```
+
 
 //======================================================================================================================
-// Reservation details
+// CommitmentDiscountUsage
+//
+// Supported versions:
+// - MS EA reservation details: 2023-03-01  -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-details-ea
+// - MS MCA reservation details: 2023-03-01 -- See https://learn.microsoft.com/azure/cost-management-billing/dataset-schema/reservation-details-mca
 //======================================================================================================================
 
-.create-merge table reservationdetails_raw (
+// CommitmentDiscountUsage_raw table
+.create-merge table CommitmentDiscountUsage_raw (
     InstanceFlexibilityGroup: string,
     InstanceFlexibilityRatio: decimal,
     InstanceId:               string,
@@ -683,15 +930,22 @@ Costs_v1_0()
     UsedHours:                decimal
 )
 
+//----------------------------------------------------------------------------------------------------------------------
+
+// TODO: Add CommitmentDiscountUsage_final_v1_0 table and update policy
+
+//----------------------------------------------------------------------------------------------------------------------
+
+// CommitmentDiscountUsage_transform_v1_0 function
 .create-or-alter function
 with (docstring='All commitment discount usage transformed to FOCUS 1.0. This includes reservationdeatils_raw.', folder='Commitment discounts')
-CommitmentDiscountUsage_v1_0()
+CommitmentDiscountUsage_transform_v1_0()
 {
     // TODO: Consider adding ResourceType, ServiceName, ServiceCategory, ServiceSubcategory (1.1)
     // TODO: Confirm the ReservedHours includes non-hour units
     // TODO: Is the SkuName the same as x_SkuDescription?
     // TODO: Is Kind the same as the product?
-    reservationdetails_raw
+    CommitmentDiscountUsage_raw
     //
     // Transform existing columns to FOCUS (do not add any new columns until after deduping)
     | project
@@ -735,10 +989,16 @@ CommitmentDiscountUsage_v1_0()
 
 
 //======================================================================================================================
-// Reservation recommendations
+// Recommendations
+//
+// Supported versions:
+// - MS CM EA reservation recommendations: 2023-05-01  -- See https://learn.microsoft.com/en-us/azure/cost-management-billing/dataset-schema/reservation-recommendations-ea
+// - MS CM MCA reservation recommendations: 2023-05-01 -- See https://learn.microsoft.com/en-us/azure/cost-management-billing/dataset-schema/reservation-recommendations-mca
 //======================================================================================================================
 
-.create-merge table reservationrecommendations_raw (
+// Recommendations_raw table
+// TODO: Add Advisor cost recommendation columns
+.create-merge table Recommendations_raw (
     CostWithNoReservedInstances:    string,
     FirstUsageDate:                 datetime,
     InstanceFlexibilityGroup:       string,
@@ -758,12 +1018,21 @@ CommitmentDiscountUsage_v1_0()
     TotalCostWithReservedInstances: string
 )
 
+//----------------------------------------------------------------------------------------------------------------------
+
+// TODO: Add Recommendations_final_v1_0 table and update policy
+// TODO: Add Recommendations_transform_v1_0 function
 
 //======================================================================================================================
-// Reservation transactions
+// Transactions
+//
+// Supported versions:
+// - MS CM EA reservation transactions: 2023-05-01  -- See https://learn.microsoft.com/en-us/azure/cost-management-billing/dataset-schema/reservation-transactions-ea
+// - MS CM MCA reservation transactions: 2023-05-01 -- See https://learn.microsoft.com/en-us/azure/cost-management-billing/dataset-schema/reservation-transactions-mca
 //======================================================================================================================
 
-.create-merge table reservationtransactions_raw (
+// Transactions_raw table
+.create-merge table Transactions_raw (
     AccountName:                    string,
     AccountOwnerEmail:              string,
     Amount:                         decimal,
@@ -794,3 +1063,9 @@ CommitmentDiscountUsage_v1_0()
     ReservationOrderName:           string,
     Term:                           string
 )
+
+//----------------------------------------------------------------------------------------------------------------------
+
+// TODO: Add Transactions_final_v1_0 table and update policy
+// TODO: Add Transactions_transform_v1_0 function
+
