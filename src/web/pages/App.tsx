@@ -9,13 +9,7 @@ import AzureOptimizationEnginePage from './AzureOptimizationEnginePage';
 import PowerShellModulePage from './PowerShellModulePage';
 import BicepRegistryModulesPage from './BicepRegistryModulesPage';
 import OpenDataPage from './OpenDataPage';
-// import AzureOptimizationEngine from './AzureOptimizationEnginePage';
 import PowerBIReportsPage from './PowerBIReportsPage';
-// import PricingUnitsPage from './PricingUnitsPage';
-// import RegionsPage from './RegionsPage';
-// import ResourceTypesPage from './pages/ResourceTypesPage';
-// import ServicesPage from './ServicesPage';
-// import SampleExportsPage from './SampleExportsPage';
 import CostOptimizationWorkbookPage from './CostOptimizationWorkbookPage';
 
 const App: React.FC = () => {
