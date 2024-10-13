@@ -2922,7 +2922,7 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
   properties: {
     activities: [
       { // Set blob timestamp
-        name: 'set_BlobExportTimestamp'
+        name: 'Set Blob Timestamp'
         type: 'SetVariable'
         dependsOn: []
         policy: {
