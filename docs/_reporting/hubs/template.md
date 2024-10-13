@@ -121,6 +121,7 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
       - `schemas/focuscost_1.0-preview(v1).json` – FOCUS 1.0-preview schema definition for parquet conversion.
 - `<hubName>-engine-<unique-suffix>` Data Factory instance
   - Pipelines:
+    - `config_InitializeHub` – Initializes (or updates) the FinOps hub instance after deployment.
     - `config_ConfigureExports` – Creates Cost Management exports for all scopes.
     - `config_StartBackfillProcess` – Runs the backfill job for each month based on retention settings.
     - `config_RunBackfillJob` – Creates and triggers exports for all defined scopes for the specified date range.
@@ -140,9 +141,27 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
 - `<hubName>-vault-<unique-suffix>` Key Vault instance
   - Secrets:
     - Data Factory system managed identity
-- `<hubName>` Data Explorer cluster
-  - Databases:
-    - `Hub` – Stores ingested data.
+- `<dataExplorerName>` Data Explorer cluster
+  - `Hub` database – Public-facing functions to abstract internals.
+    - Includes 2 sets of functions:
+      - Dataset-specific functions for the latest supported FOCUS version (e.g., `Costs`, `Prices`).
+      - Dataset-specific functions for each supported FOCUS version (e.g., `Costs_v1_0` for FOCUS 1.0). These functions are provided for backwards compatibility. All functions return all data aligned to the targeted FOCUS version.
+    - Datasets include: `Costs`, `Prices`.
+    - Supported FOCUS versions include: `v1_0`.
+  - `Ingestion` database – Stores ingested data.
+    - Settings:
+      - `HubSettingsLog` table – Stores a history of high-level configuration changes (e.g., versions, scopes).
+      - `HubSettings` function – Gets the latest version of the hub instance settings.
+      - `HubScopes` function – Gets the currently configured scopes for this hub instance.
+    - Open data:
+      - `PricingUnits` table – [PricingUnits mapping file](../data/README.md#pricing-units) from the FinOps toolkit. Used for data normalization and cleanup.
+      - `Regions` table – [Regions mapping file](../data/README.md#regions) from the FinOps toolkit. Used for data normalization and cleanup.
+      - `ResourceTypes` table – [ResourceTypes mapping file](../data/README.md#resource-types) from the FinOps toolkit. Used for data normalization and cleanup.
+      - `Services` table – [Services mapping file](../data/README.md#services) from the FinOps toolkit. Used for data normalization and cleanup.
+    - Datasets:
+      - `<dataset>_raw` table – Raw data directly from the ingestion source. Uses a union schema for data from multiple sources.
+      - `<dataset>_transform_vX_Y` function – Normalizes and cleans raw data to align to the targeted FOCUS version using open data tables as needed.
+      - `<dataset>_final_vX_Y` table – Clean version of the corresponding raw table aligned to the targeted FOCUS version. Populated via an update policy that uses the corresponding transform function when data is ingested into raw tables.
 
 In addition to the above, the following resources are created to automate the deployment process. The deployment scripts should be deleted automatically but please do not delete the managed identities as this may cause errors when upgrading to the next release.
 

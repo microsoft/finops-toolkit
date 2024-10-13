@@ -93,12 +93,13 @@ ingestion/{dataset}/{date-folder-path}/{scope-id-path}/{ingestion-id}__{original
 ```
 
 - `ingestion` is the container where the data pipeline saves data.
-- `{dataset}` is the exported dataset type. If ingesting into Azure Data Explorer, this must have a matching, case-sensitive "_raw" table (e.g., "focuscost_raw"). FinOps hubs supports the following datasets in this release:
-  - **focuscost** - FOCUS cost and usage data.
-  - **pricesheet** - Cost Management price sheet export.
-  - **reservationdetails** - Cost Management reservation details export.
-  - **reservationrecommendations** - Cost Management reservation recommendations export.
-  - **reservationtransactions** - Cost Management reservation transactions export.
+- `{dataset}` is the exported dataset type. If ingesting into Azure Data Explorer, this must have a matching, case-sensitive "_raw" table (e.g., "Costs_raw"). FinOps hubs supports the following datasets in this release:
+  - **CommitmentDiscountUsage** - Cost Management reservation details export.
+  - **Costs** - FOCUS cost and usage data.
+  - **Prices** - Cost Management price sheet export.
+  - **Recommendations** - Cost Management reservation recommendations export.
+  - **Transactions** - Cost Management reservation transactions export.
+  - To ingest custom datasets, create a matching `{dataset}_raw` table and parquet ingestion mapping in the **Ingestion** database.
 - `{date-folder-path}` can be one or more folders that indicate how many ingested datasets should be retained. Examples:
   - `all` (or any placeholder) to not track history for the dataset. Every ingestion will replace the previous data. Not supported in storage-based Power BI reports.
   - `{yyyy}` as a 4-digit year of the exported dataset to only retain the latest ingestion per year. Not supported in storage-based Power BI reports.
