@@ -3062,9 +3062,7 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
             requestMethod: 'POST'
             requestBody: '{\n  "query": "advisorresources \n| where type == \'microsoft.advisor/recommendations\' \n| where properties.category == \'Cost\' \n| project \n    x_RecommendationId=id, \n    x_ResourceGroupName=tolower(resourceGroup), \n    SubAccountId=subscriptionId, \n    x_RecommendationCategory=tostring(properties.category), \n    x_RecommendationProvider=\'Microsoft.Advisor\', \n    x_RecommendationImpact=tostring(properties.impact), \n    x_RecommendationTypeId= tostring(properties.recommendationTypeId), \n    x_RecommendationControl=tostring(properties.extendedProperties.recommendationControl), \n    x_RecommendationMaturityLevel=tostring(properties.extendedProperties.maturityLevel), \n    x_RecommendationDescription=tostring(properties.shortDescription.problem), \n    x_RecommendationSolution=tostring(properties.shortDescription.solution), \n    ResourceId=tolower(properties.resourceMetadata.resourceId), \n    x_ResourceType=tolower(properties.impactedField), \n    ResourceName=tolower(properties.impactedValue), \n    x_RecommendationDetails=tostring(properties.extendedProperties), \n    x_RecommendationDate=tostring(properties.lastUpdated) \n| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project SubAccountName=name, SubAccountId=subscriptionId ) on SubAccountId \n| project-away SubAccountId1" \n}'
             additionalHeaders: {
-              value: {
-                'Content-Type': 'application/json'
-              }
+              'Content-Type': 'application/json'
             }
           }
           sink: {
@@ -3164,9 +3162,7 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
             requestMethod: 'POST'
             requestBody: '{\n  "query": "resources \n| where type =~ \'microsoft.compute/disks\' and isempty(managedBy) \n| extend diskState = tostring(properties.diskState) \n| where diskState != \'ActiveSAS\' and tags !contains \'ASR-ReplicaDisk\' and tags !contains \'asrseeddisk\' \n| extend DiskId=id, DiskIDfull=id, DiskName=name, SKUName=sku.name, SKUTier=sku.tier, DiskSizeGB=tostring(properties.diskSizeGB), Location=location, TimeCreated=tostring(properties.timeCreated), SubId=subscriptionId | order by DiskId asc | project DiskId, DiskIDfull, DiskName, DiskSizeGB, SKUName, SKUTier, resourceGroup, Location, TimeCreated, subscriptionId, type\n| project \n    x_RecommendationId=strcat(tolower(DiskId),\'-unattached\'), \n    x_ResourceGroupName=tolower(resourceGroup), \n    SubAccountId=subscriptionId, \n    x_RecommendationCategory=\'Cost\', \n    x_RecommendationProvider=\'Microsoft.FinOpsToolkit\', \n    x_RecommendationImpact=\'High\', \n    x_RecommendationTypeId=\'e0c02939-ce02-4f9d-881f-8067ae7ec90f\', \n    x_RecommendationControl=\'UsageOptimization/OrphanedResources\', \n    x_RecommendationMaturityLevel=\'Preview\', \n    x_RecommendationDescription=\'Unattached (orphaned) disk is incurring in storage costs\', \n    x_RecommendationSolution=\'Remove or downgrade the unattached disk\', \n    ResourceId = tolower(DiskId), \n    x_ResourceType=type, \n    ResourceName=tolower(DiskName), \n    x_RecommendationDetails= strcat(\'{\\"DiskSizeGB\\": \', DiskSizeGB, \', \\"SKUName\\": \\"\', SKUName, \'\\", \\"SKUTier\\": \\"\', SKUTier, \'\\", \\"Location\\": \\"\', Location, \'\\", \\"TimeCreated\\": \\"\', TimeCreated, \'\\" }\'), \n    x_RecommendationDate = now() \n| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project SubAccountName=name, SubAccountId=subscriptionId ) on SubAccountId \n| project-away SubAccountId1"\n}'
             additionalHeaders: {
-              value: {
-                'Content-Type': 'application/json'
-              }
+              'Content-Type': 'application/json'
             }
           }
           sink: {
