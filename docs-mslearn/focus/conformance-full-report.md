@@ -91,7 +91,7 @@ The rest of this document lists the FOCUS requirements grouped by attribute and 
 | DTF2 | SHOULD | Custom date/time-related columns SHOULD also follow the same formatting requirements.                                                                                                              | Supports |       |
 | DTF3 | MUST   | Date/time values MUST be in UTC (Coordinated Universal Time) to avoid ambiguity and ensure consistency across different time zones.                                                                | Supports |       |
 | DTF4 | MUST   | Date/time values format MUST be aligned with ISO 8601 standard, which provides a globally recognized format for representing dates and times (see ISO 8601-1:2019 governing document for details). | Supports |       |
-| DTF5 | MUST   | Values providing information about a specific moment in time MUST be represented in the extended ISO 8601 format with UTC offset ('YYYY-MM-DDTHH:mm:ssZ') and conform to the following guidelines: | Partially Supports | Date columns all follow the ISO 8601 standard, but do not include seconds (e.g., "2024-01-01T00:00Z"). |
+| DTF5 | MUST   | Values providing information about a specific moment in time MUST be represented in the extended ISO 8601 format with UTC offset ('YYYY-MM-DDTHH:mm:ssZ') and conform to the following guidelines: Include the date and time components, separated with the letter 'T'; Use two-digit hours (HH), minutes (mm), and seconds (ss); End with the 'Z' indicator to denote UTC (Coordinated Universal Time). | Partially Supports | Date columns all follow the ISO 8601 standard, but do not include seconds (e.g., "2024-01-01T00:00Z"). |
 
 ### Discount handling
 
