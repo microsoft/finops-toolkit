@@ -1,6 +1,4 @@
-import React from 'react';
-
-const PowerBIReportsPage: React.FC = () => {
+function PowerBIReportsPage() {
   return (
     <div>
       <h1>Power BI Reports</h1>

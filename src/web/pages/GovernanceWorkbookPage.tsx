@@ -1,6 +1,4 @@
-import React from 'react';
-
-const GovernanceWorkbookPage: React.FC = () => {
+function GovernanceWorkbookPage() {
   return (
     <div>
       <h1>Governance Workbook</h1>

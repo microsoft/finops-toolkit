@@ -1,6 +1,4 @@
-import React from 'react';
-
-const BicepRegistryPage: React.FC = () => {
+function BicepRegistryPage() {
   return (
     <div>
       <h1>Bicep Registry Modules</h1>

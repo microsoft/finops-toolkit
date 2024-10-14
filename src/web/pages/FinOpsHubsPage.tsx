@@ -1,6 +1,4 @@
-import React from 'react';
-
-const FinOpsHubsPage: React.FC = () => {
+function FinOpsHubsPage() {
   return (
     <div>
       <h1>FinOps Hubs</h1>

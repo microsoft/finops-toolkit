@@ -1,8 +1,7 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { HashLink } from 'react-router-hash-link';
 
-const ToolsLanding: React.FC = () => {
+function ToolsLanding() {
   return (
     <div>
       <h1>FinOps Toolkit - Available Tools</h1>

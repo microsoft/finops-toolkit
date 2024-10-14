@@ -1,6 +1,4 @@
-import React from 'react';
-
-const OptimizationEnginePage: React.FC = () => {
+function OptimizationEnginePage() {
   return (
     <div>
       <h1>Azure Optimization Engine</h1>

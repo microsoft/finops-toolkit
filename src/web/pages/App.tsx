@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import HomePage from './HomePage';
 import ToolsLandingPage from './ToolsLandingPage';
@@ -12,7 +11,8 @@ import OpenDataPage from './OpenDataPage';
 import PowerBIReportsPage from './PowerBIReportsPage';
 import CostOptimizationWorkbookPage from './CostOptimizationWorkbookPage';
 
-const App: React.FC = () => {
+
+function App() {
   return (
     <Router>
       <div>

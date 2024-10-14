@@ -1,6 +1,4 @@
-import React from 'react';
-
-const HomePage: React.FC = () => {
+function HomePage() {
   return (
     <div>
       <h1>FinOps toolkit - Kick start your FinOps efforts</h1>

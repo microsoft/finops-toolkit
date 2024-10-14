@@ -1,6 +1,4 @@
-import React from 'react';
-
-const FinOpsWorkbooksPage: React.FC = () => {
+function FinOpsWorkbooksPage() {
   return (
     <div>
       <h1>FinOps Workbooks</h1>

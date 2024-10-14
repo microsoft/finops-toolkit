@@ -1,6 +1,4 @@
-import React from 'react';
-
-const CostOptimizationWorkbookPage: React.FC = () => {
+function CostOptimizationWorkbookPage() {
   return (
     <div>
       <h1>Cost Optimization Workbook</h1>

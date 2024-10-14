@@ -1,6 +1,4 @@
-import React from 'react';
-
-const PowerShellPage: React.FC = () => {
+function PowerShellPage() {
   return (
     <div>
       <h1>PowerShell Module</h1>

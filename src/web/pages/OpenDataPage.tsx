@@ -1,6 +1,4 @@
-import React from 'react';
-
-const OpenDataPage: React.FC = () => {
+function OpenDataPage() {
   return (
     <div>
       <h1>Open Data</h1>
