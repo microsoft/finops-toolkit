@@ -1,7 +1,24 @@
 {
+  "compilerOptions": {
+    "types": ["@testing-library/jest-dom"],
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "jsx": "react-jsx", // or "react" for older versions of React
+    "module": "esnext",
+    "moduleResolution": "node",
+
+  },
+  "include": ["src"],
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+    { "path": "./tsconfig.node.json" },
+    
+  ],
+  
 }

@@ -20,5 +20,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["pages"]
+  "include": ["pages", "pages/App.tsx"]
 }
