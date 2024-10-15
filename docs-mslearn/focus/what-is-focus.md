@@ -1,9 +1,9 @@
 ---
 title: What is FOCUS?
-description: Cloud agnostic format for cost and usage data.
+description: This article explains that FOCUS is a cloud agnostic format for cost and usage data.
 author: bandersmsft
 ms.author: banders
-ms.date: 07/15/2024
+ms.date: 10/08/2024
 ms.topic: overview
 ms.service: finops
 ms.reviewer: micflan
@@ -116,7 +116,7 @@ Beyond these points, each provider can include more columns prefixed with **x\_*
 Note the following points when working with FOCUS data:
 
 - FOCUS relies on the billing currency for all prices and costs while Cost Management uses the pricing currency. Prices in FOCUS might be in a different currency than native Cost Management schemas.
-- FOCUS combines "actual" and "amortized" cost into a single dataset. This produces a smaller dataset compared to managing both datasets separately. Data size is on par with the amortized cost data plus any commitment discount purchases and refunds.
+- FOCUS combines "actual" and "amortized" cost into a single dataset. It produces a smaller dataset compared to managing both datasets separately. Data size is on par with the amortized cost data plus any commitment discount purchases and refunds.
 - `BillingAccountId` and `BillingAccountName` map to the billing profile ID and name for Microsoft Customer Agreement accounts.
    - We're looking for feedback about it to understand if it's a problem and determine the best way to address it.
 -  `BillingPeriodEnd` and `ChargePeriodEnd` are exclusive, which is helpful for filtering.

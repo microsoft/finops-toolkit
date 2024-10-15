@@ -3,7 +3,7 @@ title: Validate FOCUS data
 description: This article explains how to compare FOCUS data with existing Cost Management datasets.
 author: bandersmsft
 ms.author: banders
-ms.date: 09/12/2024
+ms.date: 10/08/2024
 ms.topic: reference
 ms.service: finops
 ms.reviewer: micflan

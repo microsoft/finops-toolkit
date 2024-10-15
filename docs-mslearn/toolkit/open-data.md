@@ -48,6 +48,8 @@ A few important notes about the data:
 
 <br>
 
+## Regions
+
 Microsoft Cost Management provides various values for resource locations that are occasionally inconsistent due to different underlying systems providing the data. The Regions file provides a list of values you might find within common cost-related datasets (for example, Cost Management exports and price sheets) along with their related Azure region IDs and names.
 
 Sample data:
@@ -188,7 +190,7 @@ Related resources:
 
 Related FinOps capabilities:
 
-- [Data ingestion](../../framework/understand/ingestion.md)
+- [Data ingestion](../framework/understand/ingestion.md)
 
 Related products:
 
@@ -196,8 +198,8 @@ Related products:
 
 Related solutions:
 
-- [FinOps hubs](../hubs/finops-hubs-overview.md)
-- [FinOps toolkit Power BI reports](../power-bi/reports.md)
+- [FinOps hubs](hubs/finops-hubs-overview.md)
+- [FinOps toolkit Power BI reports](power-bi/reports.md)
 - [FinOps toolkit PowerShell module](https://aka.ms/ftk/ps)
 
 <br>

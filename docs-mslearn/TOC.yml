@@ -104,12 +104,51 @@
     href: fabric/create-fabric-workspace-finops.md
 - name: FinOps toolkit
   items:
-  - name: FinOps toolkit
-    href: https://aka.ms/finops/toolkit
+  - name: Overview
+    href: toolkit/finops-toolkit-overview.md
+    items:
+    - name: Hubs
+      items:
+      - name: Overview
+        href: toolkit/hubs/finops-hubs-overview.md
+      - name: Configure scopes
+        href: toolkit/hubs/configure-scopes.md
+      - name: Hub template
+        href: toolkit/hubs/template.md
+      - name: Data processing
+        href: toolkit/hubs/data-processing.md
+      - name: Upgrade guide
+        href: toolkit/hubs/upgrade.md
+      - name: Compatibility guide
+        href: toolkit/hubs/compatibility.md
+    - name: Power BI
+      items:
+      - name: Overview
+        href: toolkit/power-bi/reports.md
+      - name: Set up reports
+        href: toolkit/power-bi/setup.md
+      - name: Choose a Power BI data source
+        href: toolkit/power-bi/help-me-choose.md
+      - name: Cost summary
+        href: toolkit/power-bi/cost-summary.md
+      - name: Governance
+        href: toolkit/power-bi/governance.md
+      - name: Rate optimization
+        href: toolkit/power-bi/rate-optimization.md
+      - name: Workload optimization
+        href: toolkit/power-bi/workload-optimization.md
+      - name: Data ingestion
+        href: toolkit/power-bi/data-ingestion.md
+      - name: Cost Management connector
+        href: toolkit/power-bi/connector.md
+      - name: EA template app
+        href: toolkit/power-bi/template-app.md
   - name: Cost optimization workbook
     href: toolkit/optimization-workbook/cost-optimization-workbook.md
   - name: Open data
     href: toolkit/open-data.md
+  - name: Roadmap
+    href: toolkit/roadmap.md
 - name: Resources
   items:
   - name: FinOps discussions on Microsoft Tech Community

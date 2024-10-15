@@ -1,12 +1,13 @@
 ---
-title: Template
-description: Details about what's included in the FinOps hub template.
+title: FinOps hub template
+description: Learn about what's included in the FinOps hub template including parameters, resources, and outputs.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/03/2024
+ms.date: 10/10/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
+#customer intent: As a FinOps user, I want to understand what FinOps hubs are so that I can use them in my organization.
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -23,57 +24,59 @@ FinOps hubs include:
 - Key Vault for storing secrets.
 
 > [!IMPORTANT]
-> To use this template, you will need to create a Cost Management export that publishes cost data to the `msexports` container in the included storage account. See [Create a new hub](./finops-hubs-overview.md#create-a-new-hub) for details.
+> To use the template, you need to create a Cost Management export that publishes cost data to the `msexports` container in the included storage account. For more information, see [Create a new hub](finops-hubs-overview.md#create-a-new-hub).
 
 <br>
 
 ## Prerequisites
 
-Please ensure the following prerequisites are met before deploying this template:
+Ensure the following prerequisites are met before you deploy the template:
 
-1. You must have the following permissions to create the [deployed resources](#resources).
+- You must have the following permissions to create the [deployed resources](#resources).
 
-   | Resource                                                        | Minimum RBAC                                                                                                                                                                                                                                                                                                                                            |
+   | Resource                                                        | Minimum Azure RBAC                                                                                                                                                                                                                                                                                                                                            |
    | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-   | Deploy and configure Data Factory<sup>1</sup>                   | [Data Factory Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#data-factory-contributor)                                                                                                                                                                                                                         |
-   | Deploy Key Vault<sup>1</sup>                                    | [Key Vault Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#key-vault-contributor)                                                                                                                                                                                                                               |
-   | Configure Key Vault secrets<sup>1</sup>                         | [Key Vault Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#key-vault-administrator)                                                                                                                                                                                                                           |
-   | Create managed identity<sup>1</sup>                             | [Managed Identity Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#managed-identity-contributor)                                                                                                                                                                                                                 |
-   | Deploy and configure storage<sup>1</sup>                        | [Storage Account Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-account-contributor)                                                                                                                                                                                                                   |
-   | Assign managed identity to resources<sup>1</sup>                | [Managed Identity Operator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#managed-identity-operator)                                                                                                                                                                                                                       |
-   | Create deployment scripts<sup>1</sup>                           | Custom role containing only the `Microsoft.Resources/deploymentScripts/write` and `Microsoft.ContainerInstance/containerGroups/write` permissions as allowed actions or, alternatively, [Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#contributor), which includes these permissions and all the above roles |
-   | Assign permissions to managed identities<sup>1</sup>            | [Role Based Access Control Administrator](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator) or, alternatively, [Owner](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#owner), which includes this and all the above roles                                 |
-   | Create a subscription or resource group cost export<sup>2</sup> | [Cost Management Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#cost-management-contributor)                                                                                                                                                                                                                   |
-   | Create an EA billing cost export<sup>2</sup>                    | Enterprise Reader, Department Reader, or Enrollment Account Owner ([Learn more](https://learn.microsoft.com/azure/cost-management-billing/manage/understand-ea-roles))                                                                                                                                                                                  |
-   | Create an MCA billing cost export<sup>2</sup>                   | [Contributor](https://learn.microsoft.com/azure/cost-management-billing/manage/understand-mca-roles)                                                                                                                                                                                                                                                    |
-   | Read blob data in storage<sup>3</sup>                           | [Storage Blob Data Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)                                                                                                                                                                                                               |
+   | Deploy and configure Data Factory¹                   | [Data Factory Contributor](/azure/role-based-access-control/built-in-roles#data-factory-contributor)                                                                                                                                                                                                                         |
+   | Deploy Key Vault¹                                    | [Key Vault Contributor](/azure/role-based-access-control/built-in-roles#key-vault-contributor)                                                                                                                                                                                                                               |
+   | Configure Key Vault secrets¹                         | [Key Vault Administrator](/azure/role-based-access-control/built-in-roles#key-vault-administrator)                                                                                                                                                                                                                           |
+   | Create managed identity¹                             | [Managed Identity Contributor](/azure/role-based-access-control/built-in-roles#managed-identity-contributor)                                                                                                                                                                                                                 |
+   | Deploy and configure storage¹                        | [Storage Account Contributor](/azure/role-based-access-control/built-in-roles#storage-account-contributor)                                                                                                                                                                                                                   |
+   | Assign managed identity to resources¹                | [Managed Identity Operator](/azure/role-based-access-control/built-in-roles#managed-identity-operator)                                                                                                                                                                                                                       |
+   | Create deployment scripts¹                           | Custom role containing only the `Microsoft.Resources/deploymentScripts/write` and `Microsoft.ContainerInstance/containerGroups/write` permissions as allowed actions or, alternatively, [Contributor](/azure/role-based-access-control/built-in-roles#contributor), which includes these permissions and all the above roles |
+   | Assign permissions to managed identities¹            | [Role Based Access Control Administrator](/azure/role-based-access-control/built-in-roles#role-based-access-control-administrator) or, alternatively, [Owner](/azure/role-based-access-control/built-in-roles#owner), which includes this role and all the above roles                                 |
+   | Create a subscription or resource group cost export² | [Cost Management Contributor](/azure/role-based-access-control/built-in-roles#cost-management-contributor)                                                                                                                                                                                                                   |
+   | Create an EA billing cost export²                    | Enterprise Reader, Department Reader, or Enrollment Account Owner ([Learn more](/azure/cost-management-billing/manage/understand-ea-roles))                                                                                                                                                                                  |
+   | Create an MCA billing cost export²                   | [Contributor](/azure/cost-management-billing/manage/understand-mca-roles)                                                                                                                                                                                                                                                    |
+   | Read blob data in storage³                           | [Storage Blob Data Contributor](/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)                                                                                                                                                                                                               |
 
    <!--
-   | Optional: Deploy temporary Event Grid namespace                 | [Event Grid Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#event-grid-contributor)                                                                                                                                                                                                                             |
+   | Optional: Deploy temporary Event Grid namespace                 | [Event Grid Contributor](/azure/role-based-access-control/built-in-roles#event-grid-contributor)                                                                                                                                                                                                                             |
    -->
 
-   _<sup>1. It is sufficient to assign hubs resources deployment permissions on the resource group scope.</sup>_<br/>
-   _<sup>2. Cost Management permissions must be assigned on the scope where you want to export your costs from.</sup>_<br/>
-   _<sup>3. Blob data permissions are required to access exported cost data from Power BI or other client tools.</sup>_<br/>
+   _¹ It's sufficient to assign hubs resources deployment permissions on the resource group scope._<br/>
+   _² Cost Management permissions must be assigned on the scope where you want to export your costs from._<br/>
+   _³ Blob data permissions are required to access exported cost data from Power BI or other client tools._<br/>
 
-2. The Microsoft.EventGrid resource provider must be registered in your subscription. See [Register a resource provider](https://docs.microsoft.com/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider) for details.
+- The Microsoft.EventGrid resource provider must be registered in your subscription. For more information, see [Register a resource provider](/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider).
 
    > [!IMPORTANT]
-   > If you forget this step, the deployment will succeed, but the pipeline trigger will not be started and data will not be ready. See [Troubleshooting Power BI reports](https://aka.ms/ftk/trouble) for details.
+   > If you forget this step, the deployment will succeed, but the pipeline trigger will not be started and data will not be ready. For more information, see [Troubleshooting Power BI reports](https://aka.ms/ftk/trouble).
 
 <br>
 
 ## Parameters
 
+Here are the parameters you can use to customize the deployment:
+
 | Parameter                      | Type   | Description                                                                                                                                                                                                                                                       | Default value       |
 | ------------------------------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
 | **hubName**                    | string | Optional. Name of the hub. Used to ensure unique resource names.                                                                                                                                                                                                  | "finops-hub"        |
 | **location**                   | string | Optional. Azure location where all resources should be created. See https://aka.ms/azureregions.                                                                                                                                                                  | Same as deployment  |
-| **skipEventGridRegistration**  | bool   | Indicates whether the Event Grid resource provider has already been registered (e.g., in a previous hub deployment). Event Grid RP registration is required. If not set, a temporary Event Grid namespace will be created to auto-register the resource provider. | false (register RP) |
-| **EventGridLocation**          | string | Optional. Azure location to use for a temporary Event Grid namespace to register the Microsoft.EventGrid resource provider if the primary location is not supported. The namespace will be deleted and is not used for hub operation.                             | Same as `location`  |
-| **storageSku**                 | String | Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: `Premium_LRS`, `Premium_ZRS`.                                                                                 | "Premium_LRS"       |
-| **tags**                       | object | Optional. Tags to apply to all resources. We will also add the `cm-resource-parent` tag for improved cost roll-ups in Cost Management.                                                                                                                            |                     |
-| **tagsByResource**             | object | Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.                                                                                                                        |                     |
+| **skipEventGridRegistration**  | bool   | Indicates whether the Event Grid resource provider was already registered (for example, in a previous hub deployment). Event Grid RP registration is required. If not set, a temporary Event Grid namespace is created to autoregister the resource provider. | false (register RP) |
+| **EventGridLocation**          | string | Optional. Azure location to use for a temporary Event Grid namespace to register the Microsoft.EventGrid resource provider if the primary location isn't supported. The namespace is deleted and isn't used for hub operation.                             | Same as `location`  |
+| **storageSku**                 | String | Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Standard SKUs aren't available for Data Lake gen2 storage. Allowed: `Premium_LRS`, `Premium_ZRS`.                                                                                 | "Premium_LRS"       |
+| **tags**                       | object | Optional. Tags to apply to all resources. The `cm-resource-parent` tag is also added for improved cost roll-ups in Cost Management.                                                                                                                            |                     |
+| **tagsByResource**             | object | Optional. Tags to apply to resources based on their resource type. Resource type specific tags are merged with tags for all resources.                                                                                                                        |                     |
 | **scopesToMonitor**            | array  | Optional. List of scope IDs to monitor and ingest cost for.                                                                                                                                                                                                       |                     |
 | **exportRetentionInDays**      | int    | Optional. Number of days of cost data to retain in the ms-cm-exports container.                                                                                                                                                                                   | 0                   |
 | **ingestionRetentionInMonths** | int    | Optional. Number of months of cost data to retain in the ingestion container.                                                                                                                                                                                     | 13                  |
@@ -118,11 +121,11 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
   - Secrets:
     - Data Factory system managed identity
 
-In addition to the above, the following resources are created to automate the deployment process. The deployment scripts should be deleted automatically but please do not delete the managed identities as this may cause errors when upgrading to the next release.
+In addition to the preceding information, the following resources are created to automate the deployment process. The deployment scripts should be deleted automatically. However, don't delete the managed identities as it might cause errors when upgrading to the next release.
 
 - Managed identities:
-  - `<storage>_blobManager` ([Storage Blob Data Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)) – Uploads the settings.json file.
-  - `<datafactory>_triggerManager` ([Data Factory Contributor](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#data-factory-contributor)) – Stops triggers before deployment and starts them after deployment.
+  - `<storage>_blobManager` ([Storage Blob Data Contributor](/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor)) – Uploads the settings.json file.
+  - `<datafactory>_triggerManager` ([Data Factory Contributor](/azure/role-based-access-control/built-in-roles#data-factory-contributor)) – Stops triggers before deployment and starts them after deployment.
 - Deployment scripts (automatically deleted after a successful deployment):
   - `<datafactory>_deleteOldResources` – Deletes unused resources from previous FinOps hubs deployments.
   - `<datafactory>_stopTriggers` – Stops all triggers in the hub using the triggerManager identity.
@@ -133,22 +136,24 @@ In addition to the above, the following resources are created to automate the de
 
 ## Outputs
 
-| Output                      | Type   | Description                                                                                                                               |
+Here are the outputs generated by the deployment:
+
+| Output                      | Type   | Description                                                                                                                               | Value |
 | --------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | **name**                    | String | Name of the deployed hub instance.                                                                                                        |
 | **location**                | String | Azure resource location resources were deployed to.                                                                                       | `location`                                                                                                      |
 | **dataFactorytName**        | String | Name of the Data Factory.                                                                                                                 | `dataFactory.name`                                                                                              |
-| **storageAccountId**        | String | Resource ID of the storage account created for the hub instance. This must be used when creating the Cost Management export.              | `storage.outputs.resourceId`                                                                                    |
-| **storageAccountName**      | String | Name of the storage account created for the hub instance. This must be used when connecting FinOps toolkit Power BI reports to your data. | `storage.outputs.name`                                                                                          |
+| **storageAccountId**        | String | Resource ID of the storage account created for the hub instance. It must be used when creating the Cost Management export.              | `storage.outputs.resourceId`                                                                                    |
+| **storageAccountName**      | String | Name of the storage account created for the hub instance. It must be used when connecting FinOps toolkit Power BI reports to your data. | `storage.outputs.name`                                                                                          |
 | **storageUrlForPowerBI**    | String | URL to use when connecting custom Power BI reports to your data.                                                                          | `'https://${storage.outputs.name}.dfs.${environment().suffixes.storage}/${storage.outputs.ingestionContainer}'` |
-| **managedIdentityId**       | String | Object ID of the Data Factory managed identity. This will be needed when configuring managed exports.                                     | `dataFactory.identity.principalId`                                                                              |
-| **managedIdentityTenantId** | String | Azure AD tenant ID. This will be needed when configuring managed exports.                                                                 | `tenant().tenantId`                                                                                             |
+| **managedIdentityId**       | String | Object ID of the Data Factory managed identity. This output is needed when configuring managed exports.                                     | `dataFactory.identity.principalId`                                                                              |
+| **managedIdentityTenantId** | String | Microsoft Entra tenant ID. This output is needed when configuring managed exports.                                                                 | `tenant().tenantId`                                                                                             |
 
 ---
 
-## Next steps
+## Related content
 
-- [Deploy FinOps hubs](./finops-hubs-overview.md#create-a-new-hub)
-- [Learn more](./finops-hubs-overview.md#why-finops-hubs)
+- [Deploy FinOps hubs](finops-hubs-overview.md#create-a-new-hub)
+- [Learn more](finops-hubs-overview.md#why-finops-hubs)
 
 <br>

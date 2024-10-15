@@ -1,20 +1,21 @@
 ---
 title: Workload optimization report
-description: Summarize workload optimization opportunities like rightsizing and unused resources in Power BI.
+description: Learn about the Workload optimization report, which identifies opportunities for rightsizing and removing unused resources to enhance efficiency.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/03/2024
+ms.date: 10/10/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
+# customer intent: As a As a FinOps user, I want to learn about the Workload optimization report so that I can identify and eliminate inefficiencies in my cloud resource usage.
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
 # Workload optimization report
 
-The **Workload optimization report** provides insights into resource utilization and efficiency opportunities based on historical usage patterns. This report enables you to:
+The **Workload optimization report** provides insights into resource utilization and efficiency opportunities based on historical usage patterns. This report helps you:
 
-- Identify unattached disks.
+- Identify unattached disks
 
 This report pulls data from:
 
@@ -24,23 +25,23 @@ This report pulls data from:
 You can download the Workload optimization report from the [latest release](https://github.com/microsoft/finops-toolkit/releases).
 
 > [!NOTE]
-> The Workload optimization report is new and still being fleshed out. We will continue to expand capabilities in each release in alignment with the [Cost optimization workbook](../optimization-workbook/cost-optimization-workbook.md). To request additional capabilities, please [create a feature request](https://aka.ms/ftk/ideas) in GitHub.
+> The Workload optimization report is new and still in development. We will continue to expand capabilities in each release in alignment with the [Cost optimization workbook](../optimization-workbook/cost-optimization-workbook.md). To request other capabilities, [create a feature request](https://aka.ms/ftk/ideas) in GitHub.
 
 <br>
 
 ## Get started
 
-The **Get started** page includes a basic introduction to the report with additional links to learn more.
+The **Get started** page includes a basic introduction to the report with links to learn more.
 
-![Screenshot of the Get started page](../../media/power-bi/workload-optimization_get-started.png)
+:::image type="content" source="./media/workload-optimization/get-started.png" border="true" alt-text="Screenshot of the Get started page that shows basic information and links to learn more." lightbox="./media/workload-optimization/get-started.png" :::
 
 <br>
 
 ## Recommendations
 
-The **Recommendations** page provides a list of Azure Advisor cost recommendations, similar to what you will find in the Azure portal. There are currently no details available. Details will be added in a future release.
+The **Recommendations** page provides a list of Azure Advisor cost recommendations, similar to what you see in the Azure portal. There are currently no details available in the report. Details will be added in a future release.
 
-![Screenshot of the Recommendations page](../../media/power-bi/workload-optimization_advisor-recommendations.png)
+:::image type="content" source="./media/workload-optimization/advisor-recommendations.png" border="true" alt-text="Screenshot of the Recommendations page that shows a list of Azure Advisor cost recommendations." lightbox="./media/workload-optimization/advisor-recommendations.png" :::
 
 <br>
 
@@ -48,9 +49,9 @@ The **Recommendations** page provides a list of Azure Advisor cost recommendatio
 
 The **Unattached disks** page lists the unattached disks sorted by cost.
 
-The chart shows the cost of each disk over time. The table shows the disks with related properties, including billed and effective cost and the dates the disk was available during the selected date range in the Charge period filter at the top-left of the page.
+The chart shows the cost of each disk over time. The table shows the disks with related properties. It includes billed and effective cost and the dates the disk was available during the selected date range. The date range is shown in the Charge period filter at the top-left of the page.
 
-![Screenshot of the Unattached disks page](../../media/power-bi/workload-optimization_unattached-disks.png)
+:::image type="content" source="./media/workload-optimization/unattached-disks.png" border="true" alt-text="Screenshot of the Unattached disks page that shows unattached disks sorted by cost." lightbox="./media/workload-optimization/unattached-disks.png" :::
 
 <br>
 
@@ -70,3 +71,25 @@ We'd love to hear about any reports, charts, or general reporting questions you'
 [Share feedback](https://aka.ms/ftk/idea)
 
 <br>
+
+## Related content
+
+Related FinOps capabilities:
+
+- [Reporting and analytics](../../framework/understand/reporting.md)
+
+Related products:
+
+- [Cost Management](/azure/cost-management-billing/costs/)
+- [Azure Resource Graph](/azure/governance/resource-graph/)
+- [Azure Monitor](/azure/azure-monitor/)
+
+Related solutions:
+
+- [FinOps hubs](../hubs/finops-hubs-overview.md)
+- [FinOps workbooks](https://aka.ms/finops/workbooks)
+- [FinOps toolkit open data](../open-data.md)
+
+<br>
+
+
