@@ -4365,7 +4365,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
         type: 'Array'
       }
       ordinalIndex: {
-        type: 'Array'
+        type: 'Integer'
       }
       ordinalMappingName: {
         type: 'String'
