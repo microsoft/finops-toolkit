@@ -3862,7 +3862,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
         userProperties: []
         typeProperties: {
           items: {
-            value: '@json(concat(\'[\', replace(replace(replace(replace(replace(replace(string(activity(\'Read Column Names\').output.firstRow), \'"\', \'"name":"\'), \'"name":":"name":"\', \'","value":"\'), \'"name":":\', \'","value":\'), \'"name":",\', \'"},{\'), \',"name":\', \'},{"name":\'), \'"name":"}\', \'"}\'), \']\'))'
+            value: '@json(concat(\'[\', replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(string(activity(\'Read Column Names\').output.firstRow), \'"\', \'"name":"\'), \'"name":":"name":"\', \'","value":"\'), \'"name":":\', \'","value":\'), \'"name":",\', \'"},{\'), \',"name":\', \'},{"name":\'), \'"name":"}\', \'"}\'), \'"value":"{\\"name":"\', \'"value":"{\\"\'), \'\\","value": \\"name":"\', \'\\":\\"\'), \'\\","value":\\"name":"\', \'\\":\\"\'), \'\\"},{\\"name":"\', \'\\"},{\\"\'), \']\'))'
             type: 'Expression'
           }
           isSequential: true
