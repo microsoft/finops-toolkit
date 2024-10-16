@@ -1181,7 +1181,24 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
               }
             }
           ]
-          timeout: '0.12:00:00'
+          timeout: '0.02:00:00'
+        }
+      }
+      { // Timeout Error
+        name: 'Timeout Error'
+        type: 'Fail'
+        dependsOn: [
+          {
+            activity: 'Until Capacity Is Available'
+            dependencyConditions: [
+                'Failed'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          message: 'Data Explorer ingestion timed out after 2 hours while waiting for available capacity. Please re-run this pipeline to re-attempt ingestion. If you continue to see this error, please report an issue at https://aka.ms/ftk/ideas.'
+          errorCode: 'DataExplorerIngestionTimeout'
         }
       }
     ]
@@ -1421,7 +1438,7 @@ resource pipeline_StartBackfillProcess 'Microsoft.DataFactory/factories/pipeline
               }
             }
           ]
-          timeout: '0.12:00:00'
+          timeout: '0.02:00:00'
         }
       }
     ]
@@ -2921,7 +2938,7 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
         typeProperties: {
           variableName: 'hubDataset'
           value: {
-            value: '@if(equals(variables(\'exportDatasetType\'), \'focuscost\'), \'Costs\', if(equals(variables(\'exportDatasetType\'), \'pricesheet\'), \'Prices\', if(equals(variables(\'exportDatasetType\'), \'reservationdetails\'), \'CommitmentDiscountUsage\', if(equals(variables(\'exportDatasetType\'), \'reservationrecommendations\'), \'Recommendations\', if(equals(variables(\'exportDatasetType\'), \'reservationtransactions\'), \'Transactions\', variables(\'exportDatasetType\'))))))'
+            value: '@if(equals(toLower(variables(\'exportDatasetType\')), \'focuscost\'), \'Costs\', if(equals(toLower(variables(\'exportDatasetType\')), \'pricesheet\'), \'Prices\', if(equals(toLower(variables(\'exportDatasetType\')), \'reservationdetails\'), \'CommitmentDiscountUsage\', if(equals(toLower(variables(\'exportDatasetType\')), \'reservationrecommendations\'), \'Recommendations\', if(equals(toLower(variables(\'exportDatasetType\')), \'reservationtransactions\'), \'Transactions\', toLower(variables(\'exportDatasetType\')))))))'
             type: 'Expression'
           }
         }
@@ -2973,7 +2990,7 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
                     type: 'Expression'
                   }
                   destinationFolder: {
-                    value: '@toLower(replace(concat(variables(\'hubDataset\'),\'/\',substring(variables(\'date\'), 0, 4),\'/\',substring(variables(\'date\'), 4, 2),\'/\',variables(\'scope\')),\'//\',\'/\'))'
+                    value: '@replace(concat(variables(\'hubDataset\'),\'/\',substring(variables(\'date\'), 0, 4),\'/\',substring(variables(\'date\'), 4, 2),\'/\',toLower(variables(\'scope\'))),\'//\',\'/\')'
                     type: 'Expression'
                   }
                   destinationFile: {
@@ -2986,6 +3003,14 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
                   }
                   schemaFile: {
                     value: '@variables(\'schemaFile\')'
+                    type: 'Expression'
+                  }
+                  exportDatasetType: {
+                    value: '@variables(\'exportDatasetType\')'
+                    type: 'Expression'
+                  }
+                  exportDatasetVersion: {
+                    value: '@variables(\'exportDatasetVersion\')'
                     type: 'Expression'
                   }
                 }
@@ -3026,7 +3051,9 @@ resource pipeline_ExecuteExportsETL 'Microsoft.DataFactory/factories/pipelines@2
         type: 'String'
       }
     }
-    annotations: []
+    annotations: [
+      'New export'
+    ]
   }
 }
 
@@ -3155,6 +3182,30 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
           errorCode: 'SchemaLoadFailed'
         }
       }
+      { // Set Additional Columns
+        name: 'Set Additional Columns'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Load Schema Mappings'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'additionalColumns'
+          value: {
+            value: '@intersection(array(json(concat(\'[{"name":"x_SourceProvider","value":"Microsoft"},{"name":"x_SourceName","value":"Cost Management"},{"name":"x_SourceType","value":"\', pipeline().parameters.exportDatasetVersion, \'"},{"name":"x_SourceVersion","value":"\', pipeline().parameters.exportDatasetVersion, \'"}\'))), activity(\'Load Schema Mappings\').output.firstRow.additionalColumns)'
+            type: 'Expression'
+          }
+        }
+      }
       { // For Each Old File
         name: 'For Each Old File'
         description: 'Loop thru each of the existing files from previous exports.'
@@ -3249,6 +3300,12 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
               'Succeeded'
             ]
           }
+          {
+            activity: 'Set Additional Columns'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
         ]
         userProperties: []
         typeProperties: {
@@ -3257,10 +3314,10 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
             type: 'Expression'
           }
           cases: [
-            {
+            { // CSV
               value: 'csv'
               activities: [
-                {
+                { // Convert CSV File
                   name: 'Convert CSV File'
                   type: 'Copy'
                   dependsOn: []
@@ -3276,8 +3333,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
                     source: {
                       type: 'DelimitedTextSource'
                       additionalColumns: {
+                        value: '@variables(\'additionalColumns\')'
                         type: 'Expression'
-                        value: '@activity(\'Load Schema Mappings\').output.firstRow.additionalColumns'
                       }
                       storeSettings: {
                         type: 'AzureBlobFSReadSettings'
@@ -3333,10 +3390,10 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
                 }
               ]
             }
-            {
+            { // GZ
               value: 'gz'
               activities: [
-                {
+                { // Convert GZip CSV File
                   name: 'Convert GZip CSV File'
                   type: 'Copy'
                   dependsOn: []
@@ -3352,8 +3409,8 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
                     source: {
                       type: 'DelimitedTextSource'
                       additionalColumns: {
+                        value: '@variables(\'additionalColumns\')'
                         type: 'Expression'
-                        value: '@activity(\'Load Schema Mappings\').output.firstRow.additionalColumns'
                       }
                       storeSettings: {
                         type: 'AzureBlobFSReadSettings'
@@ -3409,10 +3466,10 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
                 }
               ]
             }
-            {
+            { // Parquet
               value: 'parquet'
               activities: [
-                {
+                { // Move Parquet File
                   name: 'Move Parquet File'
                   type: 'Copy'
                   dependsOn: []
@@ -3427,6 +3484,10 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
                   typeProperties: {
                     source: {
                       type: 'ParquetSource'
+                      additionalColumns: {
+                        value: '@variables(\'additionalColumns\')'
+                        type: 'Expression'
+                      }
                       storeSettings: {
                         type: 'AzureBlobFSReadSettings'
                         recursive: true
@@ -3479,7 +3540,7 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
             }
           ]
           defaultActivities: [
-            {
+            { // Error: UnsupportedFileType
               name: 'Unsupported File Type'
               type: 'Fail'
               dependsOn: []
@@ -3607,8 +3668,17 @@ resource pipeline_ToIngestion 'Microsoft.DataFactory/factories/pipelines@2018-06
       schemaFile: {
         type: 'string'
       }
+      exportDatasetType: {
+        type: 'string'
+      }
+      exportDatasetVersion: {
+        type: 'string'
+      }
     }
     variables: {
+      additionalColumns: {
+        type: 'Array'
+      }
       destinationPath: {
         type: 'String'
       }
@@ -3726,7 +3796,9 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
         type: 'String'
       }
     }
-    annotations: []
+    annotations: [
+      'New ingestion'
+    ]
   }
 }
 
@@ -3740,10 +3812,112 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
   parent: dataFactory
   properties: {
     activities: [
+      { // Read Column Names
+        name: 'Read Column Names'
+        type: 'Lookup'
+        dependsOn: []
+        policy: {
+          timeout: '0.12:00:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          source: {
+            type: 'ParquetSource'
+            storeSettings: {
+              type: 'AzureBlobFSReadSettings'
+              recursive: true
+              enablePartitionDiscovery: false
+            }
+            formatSettings: {
+              type: 'ParquetReadSettings'
+            }
+          }
+          dataset: {
+            referenceName: dataset_ingestion.name
+            type: 'DatasetReference'
+            parameters: {
+              blobPath: {
+                value: '@concat(pipeline().parameters.folderPath, \'/\', pipeline().parameters.fileName)'
+                type: 'Expression'
+              }
+            }
+          }
+        }
+      }
+      { // Loop thru Columns
+        name: 'Loop thru Columns'
+        type: 'ForEach'
+        dependsOn: [
+          {
+            activity: 'Read Column Names'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        userProperties: []
+        typeProperties: {
+          items: {
+            value: '@json(concat(\'[\', replace(replace(replace(replace(replace(replace(string(activity(\'Read Column Names\').output.firstRow), \'"\', \'"name":"\'), \'"name":":"name":"\', \'","value":"\'), \'"name":":\', \'","value":\'), \'"name":",\', \'"},{\'), \',"name":\', \'},{"name":\'), \'"name":"}\', \'"}\'), \']\'))'
+            type: 'Expression'
+          }
+          isSequential: true
+          activities: [
+            { // Append Ordinal Column
+              name: 'Append Ordinal Column'
+              type: 'AppendVariable'
+              dependsOn: [
+                {
+                  activity: 'Set Ordinal Index'
+                  dependencyConditions: [
+                    'Succeeded'
+                  ]
+                }
+              ]
+              userProperties: []
+              typeProperties: {
+                variableName: 'ordinalColumns'
+                value: {
+                  value: '@json(concat(\'{"column":"\', item().name, \'","Properties":{"Ordinal":\', variables(\'ordinalIndex\'), \'}}\'))'
+                  type: 'Expression'
+                }
+              }
+            }
+            { // Set Ordinal Index
+              name: 'Set Ordinal Index'
+              type: 'SetVariable'
+              dependsOn: []
+              policy: {
+                secureOutput: false
+                secureInput: false
+              }
+              userProperties: []
+              typeProperties: {
+                variableName: 'ordinalIndex'
+                value: {
+                  value: '@length(coalesce(variables(\'ordinalColumns\'), json(\'[]\')))'
+                  type: 'Expression'
+                }
+              }
+            }
+          ]
+        }
+      }
       { // Until Capacity Is Available
         name: 'Until Capacity Is Available'
         type: 'Until'
-        dependsOn: []
+        dependsOn: [
+          {
+            activity: 'Loop thru Columns'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
         userProperties: []
         typeProperties: {
           expression: {
@@ -3822,10 +3996,68 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                   }
                 ]
                 ifTrueActivities: [
+                  { // Set Ordinal Mapping Name
+                    name: 'Set Ordinal Mapping Name'
+                    type: 'SetVariable'
+                    dependsOn: []
+                    policy: {
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      variableName: 'ordinalMappingName'
+                      value: {
+                        value: '@concat(pipeline().parameters.table, \'_mapping_\', utcNow(\'yyyyMMdd_HHmmss\'))'
+                        type: 'Expression'
+                      }
+                    }
+                  }
+                  { // Create Mapping
+                    name: 'Create Mapping'
+                    type: 'AzureDataExplorerCommand'
+                    dependsOn: [
+                      {
+                        activity: 'Set Ordinal Mapping Name'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      timeout: '0.12:00:00'
+                      retry: 0
+                      retryIntervalInSeconds: 30
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      command: {
+                        value: '@concat(\'.create-or-alter table \', pipeline().parameters.table, \' ingestion csv mapping "\', variables(\'ordinalMappingName\'), \'" \'\'\', string(variables(\'ordinalColumns\')), \'\'\'\')'
+                        type: 'Expression'
+                      }
+                      commandTimeout: '00:20:00'
+                    }
+                    linkedServiceName: {
+                      referenceName: linkedService_dataExplorer.name
+                      type: 'LinkedServiceReference'
+                      parameters: {
+                        database: dataExplorerIngestionDatabase
+                      }
+                    }
+                  }
                   { // Ingest Data
                     name: 'Ingest Data'
                     type: 'Copy'
-                    dependsOn: []
+                    dependsOn: [
+                      {
+                        activity: 'Create Mapping'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
                     policy: {
                       timeout: '0.12:00:00'
                       retry: 0
@@ -3848,21 +4080,16 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       }
                       sink: any({ // Using any() to hide the error that gets surfaced because additionalProperties is not in the ADF schema yet
                         type: 'AzureDataExplorerSink'
-                        ingestionMappingName: ''
+                        ingestionMappingName: {
+                          value: '@variables(\'ordinalMappingName\')'
+                          type: 'Expression'
+                        }
                         additionalProperties: {
                           value: '@json(concat(\'{"tags":"[\\"drop-by:\', pipeline().parameters.ingestionId, \'\\", \\"drop-by:\', pipeline().parameters.folderPath, \'\\", \\"drop-by:ftk-version-${ftkVersion}\\"]"}\'))'
                           type: 'Expression'
                         }
                       })
                       enableStaging: false
-                      translator: {
-                        type: 'TabularTranslator'
-                        typeConversion: true
-                        typeConversionSettings: {
-                          allowDataTruncation: false
-                          treatBooleanAsNumber: false
-                        }
-                      }
                     }
                     inputs: [
                       {
@@ -3911,7 +4138,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                     }
                     typeProperties: {
                       command: {
-                        value: '@concat(\'.drop extents <| .show table \', pipeline().parameters.table, \' extents where tags !has "drop-by:\', pipeline().parameters.ingestionId, \'" and tags has "drop-by:\', pipeline().parameters.folderPath, \'"\')'
+                        value: '@concat(\'.drop extents <| .show extents where tags !has "drop-by:\', pipeline().parameters.ingestionId, \'" and tags has "drop-by:\', pipeline().parameters.folderPath, \'"\')'
                         type: 'Expression'
                       }
                       commandTimeout: '00:20:00'
@@ -3923,15 +4150,49 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                         database: dataExplorerIngestionDatabase
                       }
                     }
-                  }            
-                  { // Ingestion Complete
-                    name: 'Ingestion Complete'
-                    type: 'SetVariable'
+                  }
+                  { // Drop Mapping
+                    name: 'Drop Mapping'
+                    type: 'AzureDataExplorerCommand'
                     dependsOn: [
                       {
                         activity: 'Drop Old Data'
                         dependencyConditions: [
                           'Succeeded'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      timeout: '0.12:00:00'
+                      retry: 0
+                      retryIntervalInSeconds: 30
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      command: {
+                        value: '@concat(\'.drop table \', pipeline().parameters.table, \' ingestion csv mapping "\', variables(\'ordinalMappingName\'), \'"\')'
+                        type: 'Expression'
+                      }
+                      commandTimeout: '00:20:00'
+                    }
+                    linkedServiceName: {
+                      referenceName: linkedService_dataExplorer.name
+                      type: 'LinkedServiceReference'
+                      parameters: {
+                        database: dataExplorerIngestionDatabase
+                      }
+                    }
+                  }
+                  { // Ingestion Complete
+                    name: 'Ingestion Complete'
+                    type: 'SetVariable'
+                    dependsOn: [
+                      {
+                        activity: 'Drop Mapping'
+                        dependencyConditions: [
+                          'Completed'
                         ]
                       }
                     ]
@@ -3945,32 +4206,140 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       value: false
                     }
                   }
+                  { // Abort On Mapping Error
+                    name: 'Abort On Mapping Error'
+                    type: 'SetVariable'
+                    dependsOn: [
+                      {
+                        activity: 'Create Mapping'
+                        dependencyConditions: [
+                          'Failed'
+                        ]
+                      }
+                      {
+                        activity: 'Set Ordinal Mapping Name'
+                        dependencyConditions: [
+                          'Failed'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      variableName: 'tryAgain'
+                      value: false
+                    }
+                  }
+                  { // Error: DataExplorerIngestionMappingFailed
+                    name: 'Mapping Failed Error'
+                    type: 'Fail'
+                    dependsOn: [
+                      {
+                        activity: 'Abort On Mapping Error'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
+                    userProperties: []
+                    typeProperties: {
+                      message: {
+                        value: '@concat(\'Data Explorer ingestion mapping could not be created for the \', pipeline().parameters.table, \' table. Please fix the error and rerun ingestion for the following folder path: "\', pipeline().parameters.folderPath, \'". File: \', pipeline().parameters.originalfileName, \'. Error: \', if(greater(length(activity(\'Create Mapping\').output.errors), 0), activity(\'Create Mapping\').output.errors[0].Message, \'Unknown\'), \' (Code: \', if(greater(length(activity(\'Create Mapping\').output.errors), 0), activity(\'Create Mapping\').output.errors[0].Code, \'None\'), \')\')'
+                        type: 'Expression'
+                      }
+                      errorCode: 'DataExplorerIngestionMappingFailed'
+                    }
+                  }
+                  { // Abort On Ingestion Error
+                    name: 'Abort On Ingestion Error'
+                    type: 'SetVariable'
+                    dependsOn: [
+                      {
+                        activity: 'Ingest Data'
+                        dependencyConditions: [
+                          'Failed'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      variableName: 'tryAgain'
+                      value: false
+                    }
+                  }
+                  { // Error: DataExplorerIngestionFailed
+                    name: 'Ingestion Failed Error'
+                    type: 'Fail'
+                    dependsOn: [
+                      {
+                        activity: 'Abort On Ingestion Error'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
+                    userProperties: []
+                    typeProperties: {
+                      message: {
+                        value: '@concat(\'Data Explorer ingestion into the \', pipeline().parameters.table, \' table failed. Please fix the error and rerun ingestion for the following folder path: "\', pipeline().parameters.folderPath, \'". File: \', pipeline().parameters.originalfileName, \'. Error: \', if(greater(length(activity(\'Ingest Data\').output.errors), 0), activity(\'Ingest Data\').output.errors[0].Message, \'Unknown\'), \' (Code: \', if(greater(length(activity(\'Ingest Data\').output.errors), 0), activity(\'Ingest Data\').output.errors[0].Code, \'None\'), \')\')'
+                        type: 'Expression'
+                      }
+                      errorCode: 'DataExplorerIngestionFailed'
+                    }
+                  }
+                  { // Abort On Drop Error
+                    name: 'Abort On Drop Error'
+                    type: 'SetVariable'
+                    dependsOn: [
+                      {
+                        activity: 'Drop Old Data'
+                        dependencyConditions: [
+                          'Failed'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      variableName: 'tryAgain'
+                      value: false
+                    }
+                  }
+                  { // Error: DataExplorerIngestionDropFailed
+                    name: 'Drop Failed Error'
+                    type: 'Fail'
+                    dependsOn: [
+                      {
+                        activity: 'Abort On Drop Error'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
+                    userProperties: []
+                    typeProperties: {
+                      message: {
+                        value: '@concat(\'Data Explorer ingestion cleanup (drop extents) for the \', pipeline().parameters.table, \' table failed. Please fix the error and rerun ingestion for the following folder path: "\', pipeline().parameters.folderPath, \'". File: \', pipeline().parameters.originalfileName, \'. Error: \', if(greater(length(activity(\'Drop Old Data\').output.errors), 0), activity(\'Drop Old Data\').output.errors[0].Message, \'Unknown\'), \' (Code: \', if(greater(length(activity(\'Drop Old Data\').output.errors), 0), activity(\'Drop Old Data\').output.errors[0].Code, \'None\'), \')\')'
+                        type: 'Expression'
+                      }
+                      errorCode: 'DataExplorerIngestionDropFailed'
+                    }
+                  }
                 ]
               }
             }
-            { // Abort On Error
-              name: 'Abort On Error'
-              type: 'SetVariable'
-              dependsOn: [
-                {
-                  activity: 'If Has Capacity'
-                  dependencyConditions: [
-                    'Failed'
-                  ]
-                }
-              ]
-              policy: {
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                variableName: 'tryAgain'
-                value: false
-              }
-            }
           ]
-          timeout: '0.12:00:00'
+          timeout: '0.02:00:00'
         }
       }
     ]
@@ -3992,6 +4361,15 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
       }
     }
     variables: {
+      ordinalColumns: {
+        type: 'Array'
+      }
+      ordinalIndex: {
+        type: 'Array'
+      }
+      ordinalMappingName: {
+        type: 'String'
+      }
       tryAgain: {
         type: 'Boolean'
         defaultValue: true
@@ -4092,6 +4470,23 @@ resource pipeline_RerunETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01
           }
         }
       }
+      { // Set Ingestion Timestamp
+        name: 'Set Ingestion Timestamp'
+        type: 'SetVariable'
+        dependsOn: []
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'timestamp'
+          value: {
+            value: '@utcNow()'
+            type: 'Expression'
+          }
+        }
+      }
       { // For Each Old File
         name: 'For Each Old File'
         description: 'Loop thru each of the existing files.'
@@ -4099,6 +4494,12 @@ resource pipeline_RerunETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01
         dependsOn: [
           {
             activity: 'Filter Out Folders'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+          {
+            activity: 'Set Ingestion Timestamp'
             dependencyConditions: [
               'Succeeded'
             ]
@@ -4140,7 +4541,7 @@ resource pipeline_RerunETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01
                     type: 'Expression'
                   }
                   ingestionId: {
-                    value: '@concat(first(split(item().name, \'${ingestionIdFileNameSeparator}\')), \'_rerun\')'
+                    value: '@concat(first(split(item().name, \'${ingestionIdFileNameSeparator}\')), \'_\', variables(\'timestamp\'))'
                     type: 'Expression'
                   }
                   table: {
@@ -4196,6 +4597,9 @@ resource pipeline_RerunETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01
     }
     variables: {
       containerFolderPath: {
+        type: 'string'
+      }
+      timestamp: {
         type: 'string'
       }
     }

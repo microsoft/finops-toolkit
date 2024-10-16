@@ -31,6 +31,30 @@
       "mitigation": "Update the storage path for the Cost Management export to use the full Azure resource ID for the scope."
     },
     {
+      "code": "DataExplorerIngestionDropFailed",
+      "severity": "Critical",
+      "message": "Data Explorer ingestion cleanup (drop extents) failed. Data from a previous ingestion may be present in reporting, which could result in duplicated and inaccurate costs.",
+      "mitigation": "Review the Data Explorer error message and resolve the issue. Rerun data ingestion for the specified folder using the ingestion_RerunETL pipeline in Azure Data Factory. Report unresolved issues at https://aka.ms/ftk/ideas."
+    },
+    {
+      "code": "DataExplorerIngestionFailed",
+      "severity": "Critical",
+      "message": "Data Explorer ingestion failed. The new data will not be available for reporting.",
+      "mitigation": "Review the Data Explorer error message and resolve the issue. Rerun data ingestion for the specified folder using the ingestion_RerunETL pipeline in Azure Data Factory. Report unresolved issues at https://aka.ms/ftk/ideas."
+    },
+    {
+      "code": "DataExplorerIngestionMappingFailed",
+      "severity": "Critical",
+      "message": "Data Explorer ingestion mapping could not be created for the specified table.",
+      "mitigation": "Please fix the error and rerun ingestion for the specified folder path. If you continue to see this error, please report an issue at https://aka.ms/ftk/ideas."
+    },
+    {
+      "code": "DataExplorerIngestionTimeout",
+      "severity": "Critical",
+      "message": "Data Explorer ingestion timed out after 2 hours while waiting for available capacity.",
+      "mitigation": "Please re-run this pipeline to re-attempt ingestion. If you continue to see this error, please report an issue at https://aka.ms/ftk/ideas."
+    },
+    {
       "code": "ExportDataNotFound",
       "severity": "Critical",
       "message": "Exports were not found in the specified storage path.",

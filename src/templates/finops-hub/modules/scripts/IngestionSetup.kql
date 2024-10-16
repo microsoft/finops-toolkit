@@ -141,11 +141,16 @@ HubScopes()
     ProductId:          string,   // Azure MCA
     ProductID:          string,   // Azure EA 
     ServiceFamily:      string,   // Azure EA + MCA
-    SkuID:              string,   // Azure EA + MCA
+    SkuId:              string,   // Azure MCA
+    SkuID:              string,   // Azure EA
     Term:               string,   // Azure EA + MCA
     TierMinimumUnits:   decimal,  // Azure MCA
     UnitOfMeasure:      string,   // Azure EA + MCA
-    UnitPrice:          decimal   // Azure EA + MCA
+    UnitPrice:          decimal,  // Azure EA + MCA
+    x_SourceName:       string,   // Hubs add-on
+    x_SourceProvider:   string,   // Hubs add-on
+    x_SourceType:       string,   // Hubs add-on
+    x_SourceVersion:    string    // Hubs add-on
 )
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -168,15 +173,16 @@ Prices_transform_v1_0()
     // TODO: Does the effective start date for reservation prices change based on the export date?
     let isoMonths = (duration: string) {
         let number = toint(replace_regex(duration, @'[PMY]', ''));
-        case(
+        toint(case(
             duration == '', toint(''),
             duration endswith "Y", number * 12,
             duration endswith "M", number,
             -1
-        )
+        ))
     };
     let prices = materialize(
         Prices_raw
+        | extend x_SkuId = coalesce(SkuId, SkuID)
         | extend x_SkuMeterId = coalesce(MeterId, MeterID)
         | extend x_SkuProductId = coalesce(ProductId, ProductID)
         | extend x_SkuTerm = isoMonths(Term)
@@ -185,7 +191,6 @@ Prices_transform_v1_0()
             x_EffectivePeriodEnd = EffectiveEndDate,
             x_EffectivePeriodStart = EffectiveStartDate,
             x_PricingUnitDescription = UnitOfMeasure,
-            x_SkuId = SkuID,
             x_SkuIncludedQuantity = IncludedQuantity,
             x_SkuMeterCategory = MeterCategory,
             x_SkuMeterName = MeterName,
@@ -286,8 +291,6 @@ Prices_transform_v1_0()
         x_CommitmentDiscountEligibility,
         x_CommitmentUnitPriceSavings,
         x_CommitmentUnitPriceSavingsPercent = 1.0 * x_CommitmentUnitPriceSavings / ContractedUnitPrice * 100,
-        x_DatasetType = 'PriceSheet',
-        x_DatasetVersion = '2023-05-01',
         x_EffectivePeriodEnd,
         x_EffectivePeriodStart,
         x_EffectiveUnitPrice,
@@ -320,6 +323,10 @@ Prices_transform_v1_0()
         x_SkuPartNumber,
         x_SkuTerm,
         x_SkuTier,
+        x_SourceName = coalesce(x_SourceName, 'Cost Management'),
+        x_SourceProvider = coalesce(x_SourceProvider, 'Microsoft'),
+        x_SourceType = coalesce(x_SourceType, 'PriceSheet'),
+        x_SourceVersion = coalesce(x_SourceVersion, '2023-05-01'),
         x_TotalUnitPriceSavings,
         x_TotalUnitPriceSavingsPercent = 1.0 * x_TotalUnitPriceSavings / ListUnitPrice * 100
 }
@@ -350,8 +357,6 @@ Prices_transform_v1_0()
     x_CommitmentDiscountEligibility:     string,    // Hubs add-on
     x_CommitmentUnitPriceSavings:        decimal,   // Hubs add-on
     x_CommitmentUnitPriceSavingsPercent: decimal,   // Hubs add-on
-    x_DatasetType:                       string,    // Hubs add-on
-    x_DatasetVersion:                    string,    // Hubs add-on
     x_EffectivePeriodEnd:                datetime,  // Azure
     x_EffectivePeriodStart:              datetime,  // Azure
     x_EffectiveUnitPrice:                decimal,   // Azure
@@ -376,9 +381,13 @@ Prices_transform_v1_0()
     x_SkuServiceFamily:                  string,    // Azure
     x_SkuOfferId:                        string,    // Azure EA
     x_SkuPartNumber:                     string,    // Azure EA
-    x_SkuTerm:                           string,    // Azure
+    x_SkuTerm:                           int,       // Azure
     x_SkuTier:                           decimal,   // Azure MCA
-    x_TotalUnitPriceSavings:             decimal,   // Hub add-on
+    x_SourceName:                        string,    // Hubs add-on
+    x_SourceProvider:                    string,    // Hubs add-on
+    x_SourceType:                        string,    // Hubs add-on
+    x_SourceVersion:                     string,    // Hubs add-on
+    x_TotalUnitPriceSavings:             decimal,   // Hubs add-on
     x_TotalUnitPriceSavingsPercent:      decimal    // Hubs add-on
 )
 
@@ -386,16 +395,16 @@ Prices_transform_v1_0()
 
 // Update policy for Prices_raw -> Prices_final_v1_0
 // NOTE: Must be after transform function is defined
-// .alter-merge table Prices_final_v1_0 policy update
-// ```
-// [{
-//     "IsEnabled": true,
-//     "Source": "Prices_raw",
-//     "Query": "Prices_transform_v1_0()",
-//     "IsTransactional": true,
-//     "PropagateIngestionProperties": true
-// }]
-// ```
+.alter-merge table Prices_final_v1_0 policy update
+```
+[{
+    "IsEnabled": true,
+    "Source": "Prices_raw",
+    "Query": "Prices_transform_v1_0()",
+    "IsTransactional": true,
+    "PropagateIngestionProperties": true
+}]
+```
 
 //======================================================================================================================
 // Cost and usage
@@ -529,6 +538,10 @@ Prices_transform_v1_0()
     x_SkuServiceFamily:         string,    // Azure 1.0-preview(v1)+
     x_SkuTerm:                  string,    // Azure 1.0-preview(v1)+
     x_SkuTier:                  string,    // Azure 1.0-preview(v1)+ 
+    x_SourceName:               string,    // Hubs add-on
+    x_SourceProvider:           string,    // Hubs add-on
+    x_SourceType:               string,    // Hubs add-on
+    x_SourceVersion:            string,    // Hubs add-on
     x_UsageType:                string     // AWS 1.0
 )
 
@@ -551,7 +564,7 @@ Costs_transform_v1_0()
     // TODO: Add warnings (errors?) when there's a difference between meter metadata in cost and price datasets
     // TODO: Create alerts when there are differences between cost/price data (???)
     // TODO: Confirm the ProviderName value for AWS and GCP data and update it in the ProviderName backfill
-    focuscost_raw
+    Costs_raw
     //
     // Dedupe rows
     | extend x_IngestionTime = ingestion_time()
@@ -579,7 +592,6 @@ Costs_transform_v1_0()
         // 5. Date
         ChargePeriodStart
     ))
-    | summarize arg_max(x_IngestionTime, *) by x_ChargeId
     //
     // Fix columns needed in other changes
     | extend ProviderName = case(
@@ -596,7 +608,7 @@ Costs_transform_v1_0()
     | where tmp_MissingPrices
     | as costsWithMissingPrices
     | join kind=leftouter (
-        Prices_v1_0
+        Prices_final_v1_0
         | where x_SkuPriceType == 'Consumption' and strcat(x_SkuMeterId, x_SkuOfferId) in ((costsWithMissingPrices | summarize by strcat(x_SkuMeterId, x_SkuOfferId)))
         | project x_SkuMeterId, x_SkuOfferId, x_PricingBlockSize, PricingUnit, ListUnitPrice, ContractedUnitPrice
     ) on x_SkuMeterId, x_SkuOfferId
@@ -631,14 +643,6 @@ Costs_transform_v1_0()
     // Merge the rest of the unmodified cost records and remove excess columns
     | union (allCosts | where not(tmp_MissingPrices))
     | project-away x_PricingBlockSize1, PricingUnit1, ListUnitPrice1, ContractedUnitPrice1, tmp_MissingPrices
-    //
-    // Identify datasets
-    | extend x_DatasetType = 'FocusCost'
-    | extend x_DatasetVersion = case(
-        isnotempty(coalesce(ChargeClass, CommitmentDiscountStatus, tostring(ConsumedQuantity), ConsumedUnit, tostring(ContractedCost), tostring(ContractedUnitPrice), RegionId, RegionName)), '1.0',
-        isnotempty(coalesce(ChargeSubcategory, Region, tostring(UsageQuantity), UsageUnit)), iff(ProviderName == 'Microsoft', '1.0-preview(v1)', '1.0-preview'),
-        'Unknown'
-    )
     //
     // BUG: Fix ContractedCost that has bad values
     | extend ContractedCost = iff(ProviderName == 'Microsoft' and isnotempty(PricingQuantity) and isnotempty(x_PricingBlockSize) and ContractedCost != ContractedUnitPrice * PricingQuantity, ContractedUnitPrice * PricingQuantity, ContractedCost)
@@ -763,6 +767,14 @@ Costs_transform_v1_0()
         x_SkuServiceFamily,          // Azure 1.0-preview(v1)+
         x_SkuTerm,                   // Azure 1.0-preview(v1)+
         x_SkuTier,                   // Azure 1.0-preview(v1)+ 
+        x_SourceName     = coalesce(x_SourceName, 'Cost Management'),  // Hubs add-on
+        x_SourceProvider = coalesce(x_SourceProvider, 'Microsoft'),    // Hubs add-on
+        x_SourceType     = coalesce(x_SourceType, iff(isnotempty(x_BillingProfileId), 'FocusCost', '')),  // Hubs add-on
+        x_SourceVersion  = coalesce(x_SourceVersion, case(             // Hubs add-on
+            isnotempty(coalesce(ChargeClass, CommitmentDiscountStatus, tostring(ConsumedQuantity), ConsumedUnit, tostring(ContractedCost), tostring(ContractedUnitPrice), RegionId, RegionName)), '1.0',
+            isnotempty(coalesce(ChargeSubcategory, Region, tostring(UsageQuantity), UsageUnit)), iff(ProviderName == 'Microsoft', '1.0-preview(v1)', '1.0-preview'),
+            ''
+        )),
         x_UsageType                  // AWS 1.0
 }
 
@@ -888,6 +900,10 @@ Costs_transform_v1_0()
     x_SkuServiceFamily:         string,    // Azure 1.0-preview(v1)+
     x_SkuTerm:                  string,    // Azure 1.0-preview(v1)+
     x_SkuTier:                  string,    // Azure 1.0-preview(v1)+ 
+    x_SourceName:               string,    // Hubs add-on
+    x_SourceProvider:           string,    // Hubs add-on
+    x_SourceType:               string,    // Hubs add-on
+    x_SourceVersion:            string,    // Hubs add-on
     x_UsageType:                string     // AWS 1.0
 )
 
@@ -927,7 +943,11 @@ Costs_transform_v1_0()
     SkuName:                  string,
     TotalReservedQuantity:    decimal,
     UsageDate:                datetime,
-    UsedHours:                decimal
+    UsedHours:                decimal,
+    x_SourceName:             string,    // Hubs add-on
+    x_SourceProvider:         string,    // Hubs add-on
+    x_SourceType:             string,    // Hubs add-on
+    x_SourceVersion:          string     // Hubs add-on
 )
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -948,9 +968,9 @@ CommitmentDiscountUsage_transform_v1_0()
     CommitmentDiscountUsage_raw
     //
     // Transform existing columns to FOCUS (do not add any new columns until after deduping)
-    | project
+    | extend CommitmentDiscountId = strcat('/providers/Microsoft.Capacity/reservationOrders/', ReservationOrderId, '/reservations/', ReservationId)
+    | project-rename
         ChargePeriodStart = UsageDate,
-        CommitmentDiscountId = strcat('/providers/Microsoft.Capacity/reservationOrders/', ReservationOrderId, '/reservations/', ReservationId),
         ConsumedQuantity = UsedHours,
         ResourceId = InstanceId,
         x_CommitmentDiscountFlexGroup = InstanceFlexibilityGroup,
@@ -984,7 +1004,11 @@ CommitmentDiscountUsage_transform_v1_0()
         x_IngestionTime,
         x_RowId,
         x_SkuDescription,
-        x_SkuOrderId
+        x_SkuOrderId,
+        x_SourceName,                     // Hubs add-on
+        x_SourceProvider,                 // Hubs add-on
+        x_SourceType,                     // Hubs add-on
+        x_SourceVersion                   // Hubs add-on
 }
 
 
@@ -1015,7 +1039,11 @@ CommitmentDiscountUsage_transform_v1_0()
     SkuName:                        string,
     SkuProperties:                  string,
     Term:                           string,
-    TotalCostWithReservedInstances: string
+    TotalCostWithReservedInstances: string,
+    x_SourceName:                   string,    // Hubs add-on
+    x_SourceProvider:               string,    // Hubs add-on
+    x_SourceType:                   string,    // Hubs add-on
+    x_SourceVersion:                string     // Hubs add-on
 )
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1061,7 +1089,11 @@ CommitmentDiscountUsage_transform_v1_0()
     Region:                         string,
     ReservationOrderId:             string,
     ReservationOrderName:           string,
-    Term:                           string
+    Term:                           string,
+    x_SourceName:                   string,    // Hubs add-on
+    x_SourceProvider:               string,    // Hubs add-on
+    x_SourceType:                   string,    // Hubs add-on
+    x_SourceVersion:                string     // Hubs add-on
 )
 
 //----------------------------------------------------------------------------------------------------------------------
