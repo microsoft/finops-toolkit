@@ -1,26 +1,27 @@
 ---
 title: Data processing
-description: Details about how data is handled in FinOps hubs.
+description: Learn how FinOps hubs process data, including scope setup, data normalization, and optimization, to enhance cost management and analysis.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/03/2024
+ms.date: 10/08/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
+#customer intent: As a FinOps user, I want to understand how data is processed in FinOps hubs so that I can better understand how to use the tool.
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
 # How data is processed in FinOps hubs
 
-FinOps hubs perform a number of data processing activities to clean up, normalize, and optimize data. The following sections show how data flows from Cost Management into a hub instance.
+FinOps hubs perform many data processing activities to clean up, normalize, and optimize data. The following sections show how data flows from Cost Management into a hub instance.
 
 <br>
 
 ## Scope setup
 
-A **scope** is a level within the cloud resource and account hierarchy that provides access to cost, usage, and carbon data. For FinOps hubs, we typically recommend using Enterprise Agreement (EA) billing accounts or Microsoft Customer Agreement (MCA) billing profiles, however any cloud scope is sufficient for basic analysis. The main concern will be about whether price and reservation data is needed, since Cost Management only exposes those for EA billing accounts and MCA billing profiles.
+A **scope** is a level within the cloud resource and account hierarchy that provides access to cost, usage, and carbon data. For FinOps hubs, we typically recommend using Enterprise Agreement (EA) billing accounts or Microsoft Customer Agreement (MCA) billing profiles, however any cloud scope is sufficient for basic analysis. The main concern is about whether price and reservation data is needed, since Cost Management only exposes the data for EA billing accounts and MCA billing profiles.
 
-FinOps hubs support configuring scopes by manually configuring Cost Management exports or by granting FinOps hubs access to manage scopes on your behalf. Managed scopes are configured in the **config/settings.json** file in hub storage. The following describes what happens when a new, managed scope is added into this file. Unmanaged scopes (where Cost Management exports are manually configured) do not require additional setup.
+FinOps hubs support configuring scopes by manually configuring Cost Management exports or by granting FinOps hubs access to manage scopes on your behalf. Managed scopes are configured in the **config/settings.json** file in hub storage. The information describes what happens when a new, managed scope is added into this file. Unmanaged scopes, where Cost Management exports are manually configured, don't require other setup.
 
 <!--
 ```mermaid
@@ -62,14 +63,14 @@ sequenceDiagram
 <br>
 -->
 
-For managed scopes, hubs performs the following:
+For managed scopes, hubs perform the following steps:
 
 1. The **config_DailySchedule** and **config_MonthlySchedule** triggers run on their respective schedules to kick off data ingestion.
 2. The **config_StartExportProcess** pipeline gets the applicable exports for the schedule that is running.
 3. The **config_RunExportJobs** pipeline executes each of the selected exports.
 4. Cost Management exports raw cost details to the **msexports** container. [Learn more](#about-exports).
 
-After exports are run, whether managed or unmanaged, hubs performs the following:
+After exports are run, whether managed or unmanaged, hubs perform the following steps:
 
 1. The **msexports_ExecuteETL** pipeline kicks off the extract-transform-load (ETL) process when files are added to storage.
 2. The **msexports_ETL_ingestion** pipeline transforms the data to parquet format and moves it to the **ingestion** container using a scalable file structure. [Learn more](#about-ingestion).
@@ -88,27 +89,26 @@ ingestion/{dataset}/{yyyy}/{mm}/{scope-id}
 - `ingestion` is the container where the data pipeline saves data.
 - `{dataset}` is the exported dataset type.
 - `{month}` is the year and month of the exported data formatted as `yyyyMM`.
-- `{scope-id}` is expected to be the fully-qualified resource ID of the scope the data is from.
+- `{scope-id}` is expected to be the fully qualified resource ID of the scope the data is from.
 
-If you need to use hubs to monitor non-Azure data, convert the data to [FOCUS](../../_docs/focus/README.md) and drop it into the **ingestion** container. Please note this has not been explicitly tested in the latest release. If you experience any issues, please [create an issue](https://aka.ms/ftk/idea).
+If you need to use hubs to monitor non-Azure data, convert the data to [FOCUS](../../focus/what-is-focus.md) and drop it into the **ingestion** container. Note this process wasn't explicitly tested in the latest release. If you experience any issues, [create an issue](https://aka.ms/ftk/idea).
 
 <br>
 
 ## About exports
 
-FinOps hubs leverage Cost Management exports to obtain cost data. Cost Management controls the folder structure for the exported data in the **msexports** container. A typical path looks like:
+FinOps hubs use Cost Management exports to obtain cost data. Cost Management controls the folder structure for the exported data in the **msexports** container. A typical path looks like:
 
 ```text
 {container}/{path}/{date-range}/{export-name}/{export-time}/{guid}/{file}
 ```
 
-As of 0.4, FinOps hubs do not rely on file paths. Hubs utilize the manifest file to identify the scope, dataset, month, etc. The only important part of the path for hubs is the container, which must be **msexports**.
+As of 0.4, FinOps hubs don't rely on file paths. Hubs utilize the manifest file to identify the scope, dataset, month, etc. The only important part of the path for hubs is the container, which must be **msexports**.
 
-<blockquote class="warning" markdown="1">
-  _Do not export data to the **ingestion** container. Exported CSVs **must** be published to the **msexports** container to be processed by the hubs engine._
-  
-  _To ingest custom data, save FOCUS-aligned parquet files in the **ingestion** container for the FinOps toolkit Power BI reports to work as expected._
-</blockquote>
+> [!WARNING]
+  > - Don't export data to the **ingestion** container. Exported CSVs **must** be published to the **msexports** container to be processed by the hubs engine.
+  > - To ingest custom data, save FOCUS-aligned parquet files in the **ingestion** container for the FinOps toolkit Power BI reports to work as expected.
+
 
 Export manifests can change with API versions. Here's an example with API version `2023-07-01-preview`:
 
@@ -146,7 +146,7 @@ Export manifests can change with API versions. Here's an example with API versio
 }
 ```
 
-FinOps hubs leverage the following properties:
+FinOps hubs use the following properties:
 
 - `exportConfig.resourceId` to identify the scope.
 - `exportConfig.type` to identify the dataset type.
@@ -164,7 +164,9 @@ FinOps hubs leverage the following properties:
 
 <br>
 
-## 🗃️ FinOps hubs v0.4-0.5
+## FinOps hubs v0.4-0.5
+
+The following information describes how data is processed in FinOps hubs v0.4-0.5.
 
 ### Scope setup in v0.4-0.5
 
@@ -178,12 +180,12 @@ For managed scopes:
 1. The **config_DailySchedule** and **config_MonthlySchedule** triggers run on their respective schedules to kick off data ingestion.
 2. The **config_ExportData** pipeline gets the applicable exports for the schedule that is running.
 3. The **config_RunExports** pipeline executes each of the selected exports.
-4. Cost Management exports raw cost details to the **msexports** container. [Learn more](#about-exports-in-v04-05).
+4. Cost Management exports raw cost details to the **msexports** container. For more information, see [About exports in v04-05](#about-exports-in-v04-05).
 
 After exports are completed, for both managed and unmanaged scopes:
 
 1. The **msexports_ExecuteETL** pipeline kicks off the extract-transform-load (ETL) process when files are added to storage.
-2. The **msexports_ETL_ingestion** pipeline transforms the data to a standard schema and saves the raw data in parquet format to the **ingestion** container. [Learn more](#about-ingestion-in-v04-05).
+2. The **msexports_ETL_ingestion** pipeline transforms the data to a standard schema and saves the raw data in parquet format to the **ingestion** container. For more information, see [About ingestion in v04-05](#about-ingestion-in-v04-05).
 3. Power BI reads cost data from the **ingestion** container.
 
 ### About ingestion in v0.4-0.5
@@ -197,22 +199,22 @@ ingestion/{dataset}/{yyyy}/{mm}/{scope-id}
 - `ingestion` is the container where the data pipeline saves data.
 - `{dataset}` is the exported dataset type.
 - `{month}` is the year and month of the exported data formatted as `yyyyMM`.
-- `{scope-id}` is expected to be the fully-qualified resource ID of the scope the data is from.
+- `{scope-id}` is expected to be the fully qualified resource ID of the scope the data is from.
 
-If you need to use hubs to monitor non-Azure data, convert the data to [FOCUS](../../_docs/focus/README.md) and drop it into the **ingestion** container. Please note this has not been explicitly tested in the latest release. If you experience any issues, please [create an issue](https://aka.ms/ftk/idea).
+If you need to use hubs to monitor non-Azure data, convert the data to [FOCUS](../../focus/what-is-focus.md) and drop it into the **ingestion** container. This process wasn't explicitly tested in the latest release. If you experience any issues, [create an issue](https://aka.ms/ftk/idea).
 
 ### About exports in v0.4-0.5
 
-FinOps hubs leverage Cost Management exports to obtain cost data. Cost Management controls the folder structure for the exported data in the **msexports** container. A typical path looks like:
+FinOps hubs use Cost Management exports to obtain cost data. Cost Management controls the folder structure for the exported data in the **msexports** container. A typical path looks like:
 
 ```text
 {container}/{path}/{date-range}/{export-name}/{export-time}/{guid}/{file}
 ```
 
-As of 0.4, FinOps hubs do not rely on file paths. Hubs utilize the manifest file to identify the scope, dataset, month, etc. The only important part of the path for hubs is the container, which must be **msexports**.
+As of 0.4, FinOps hubs don't rely on file paths. Hubs utilize the manifest file to identify the scope, dataset, month, and so on. The only important part of the path for hubs is the container, which must be **msexports**.
 
 > [!NOTE]
-> Do not export data to the **ingestion** container. Exported CSVs **must** be published to the **msexports** container to be processed by the hubs engine.
+> Don't export data to the **ingestion** container. Exported CSVs **must** be published to the **msexports** container to be processed by the hubs engine.
 >
 > To ingest custom data, save FOCUS-aligned parquet files in the **ingestion** container for the FinOps toolkit Power BI reports to work as expected.
 
@@ -252,7 +254,7 @@ Export manifests can change with API versions. Here's an example with API versio
 }
 ```
 
-FinOps hubs leverage the following properties:
+FinOps hubs use the following properties:
 
 - `exportConfig.resourceId` to identify the scope.
 - `exportConfig.type` to identify the dataset type.
@@ -272,12 +274,14 @@ FinOps hubs support the following dataset types, versions, and API versions:
 
 ## FinOps hubs v0.2-0.3
 
-1. Cost Management exports raw cost details to the **msexports** container. [Learn more](#about-exports).
+The following steps outline the process for exporting and processing cost data using FinOps hubs versions 0.2-0.3:
+
+1. Cost Management exports raw cost details to the **msexports** container. For more information, see [About exports](#about-exports).
 2. The **msexports_ExecuteETL** pipeline kicks off the extract-transform-load (ETL) process when files are added to storage.
-3. The **msexports_ETL_ingestion** pipeline saves exported data in parquet format in the **ingestion** container. [Learn more](#about-ingestion).
+3. The **msexports_ETL_ingestion** pipeline saves exported data in parquet format in the **ingestion** container. For more information, see [About exports](#about-ingestion).
 4. Power BI reads cost data from the **ingestion** container.
 
-FinOps hubs 0.2-0.3 use the export path to determine the exported scope and month. This is important as updates to the path can break the data pipelines. To avoid this, we recommend updating to FinOps hubs 0.4. The expected path should mimic:
+FinOps hubs 0.2-0.3 use the export path to determine the exported scope and month. This point is important as updates to the path can break the data pipelines. To avoid this problem, we recommend updating to FinOps hubs 0.4. The expected path should mimic:
 
 ```text
 msexports/{scope-id}/{export-name}/{date-range}/{export-time}/{guid}/{file}
@@ -300,7 +304,7 @@ msexports/{scope-id}/{export-name}/{date-range}/{export-time}/{guid}/{file}
   > Hubs 0.3 and earlier use this to identify the month. Format for this folder is `yyyyMMdd-yyyyMMdd`. Hubs 0.4 uses the manifest instead.
 - `{export-time}` is a timestamp of when the export ran.
   > Hubs ignore this. Format for this folder is `yyyyMMddHHmm`.
-- `{guid}` is a unique GUID and is not always present.
+- `{guid}` is a unique GUID and isn't always present.
   > Hubs ignore this. Cost Management does not always include this folder. Whether or not it is included depends on the API version used to create the export.
 - `{file}` is either a manifest or exported data.
   > Version 0.3 and earlier ignore manifest files and only monitor **\*.csv** files. In a future release, hubs will monitor the manifest.
@@ -309,15 +313,17 @@ msexports/{scope-id}/{export-name}/{date-range}/{export-time}/{guid}/{file}
 
 ## FinOps hubs v0.1
 
+The following steps outline the process for exporting and processing cost data using FinOps hubs version 0.1:
+
 1. Cost Management exports raw cost details to the **msexports** container.
 2. The **msexports_transform** pipeline saves the raw data in parquet format to the **ingestion** container.
 3. Power BI reads cost data from the **ingestion** container.
 
 <br>
 
-## Next steps
+## Related content
 
-- [Deploy FinOps hubs](./finops-hubs-overview.md#create-a-new-hub)
-- [Learn more](./finops-hubs-overview.md#why-finops-hubs)
+- [Deploy FinOps hubs](finops-hubs-overview.md#create-a-new-hub)
+- [Learn more](finops-hubs-overview.md#why-finops-hubs)
 
 <br>

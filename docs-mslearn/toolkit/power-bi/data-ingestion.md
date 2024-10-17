@@ -1,73 +1,80 @@
 ---
 title: Data ingestion report
-description: Get insights into your data ingestion layer.
+description: Learn about the Data Ingestion Report, which provides insights into the data ingested into your FinOps hub storage account.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/03/2024
+ms.date: 10/10/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
+#customer intent: As a FinOps user, I want to learn about the Data ingestion report so that I can understand my incoming data.
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
 # Data ingestion report
 
-The **Data ingestion report** provides details about the data you've ingested into your FinOps hub storage account.
-
-You can download the Data ingestion report from the [latest release](https://github.com/microsoft/finops-toolkit/releases/latest).
+The **Data ingestion report** provides details about the data that got ingested into your FinOps hub storage account. You can download the Data ingestion report from the [latest release](https://aka.ms/ftk/latest).
 
 <br>
 
 ## Get started
 
-The **Get started** page includes a basic introduction to the report with additional links to learn more.
+The **Get started** page includes a basic introduction to the report with other links to learn more.
 
-![Screenshot of the Get started page](../../media/power-bi/data-ingestion_get-started.png)
+:::image type="content" source="./media/data-ingestion/get-started.png" border="true" alt-text="Screenshot of the Get started page that shows basic information and links to learn more." lightbox="./media/data-ingestion/get-started.png" :::
 
 <br>
 
 ## Hubs
 
-The **Hubs** page shows the cost of any FinOps hubs instances. Expand each instance to see the cost broken down by service (e.g., Storage or Key Vault). Most organizations will only have one hub instance. This page can be helpful in confirming how much your hub instance is costing you and if there are additional hub instances deployed within the organization, which could possibly be centralized.
+The **Hubs** page shows the cost of any FinOps hubs instances. Expand each instance to see the cost broken down by service (for example, Storage or Key Vault). Most organizations only have one hub instance. This page can be helpful in confirming how much your hub instance is costing you. And it helps confirm if there are other hub instances deployed within the organization, which could possibly be centralized.
 
-This page includes the same KPIs as most pages within the [Cost summary report](./cost-summary.md):
+This page includes the same KPIs as most pages within the [Cost summary report](cost-summary.md):
 
 - **Effective cost** shows the effective cost for the period with reservation purchases amortized across the commitment term.
 - **Total savings** shows how much you're saving compared to list prices.
 
-![Screenshot of the Hubs page](../../media/power-bi/data-ingestion_hubs.png)
+:::image type="content" source="./media/data-ingestion/hubs.png" border="true" alt-text="Screenshot of the Hubs page that shows the cost of FinOps hubs instances." lightbox="./media/data-ingestion/hubs.png" :::
 
 <br>
 
 ## Exports
 
-The **Exports** page shows which months have been exported for which scopes, when the exports were run, and if any of the ingestion flows failed. Failures can be identified by CSV files in the `msexports` container since that means they were not fully ingested. To investigate why ingestion failed, you will need to review the logs in Azure Data Factory. In general, as long as another ingestion was completed for that month, you are covered. Mid-month ingestion failures will not result in missing data since Cost Management re-exports the previous days' data in each export run. Exports are typically run up to the 5th of the following month. If you see a date after the 5th, then that usually means someone ran a one-time export for the month.
+The **Exports** page shows which months were exported for which scopes, when the exports were run, and if any ingestion flows failed. Failures are shown in CSV files in the `msexports` container since that means they weren't fully ingested. To investigate why ingestion failed, you need to review the logs in Azure Data Factory. In general, as long as another ingestion was completed for that month, you're covered. Mid-month ingestion failures don't result in missing data since Cost Management re-exports the previous days' data in each export run. Exports are typically run up to the fifth day of the following month. If you see a date after the fifth day of the month, then that usually means someone ran a one-time export for the month.
 
-<blockquote class="tip" markdown="1">
-  _If you only see one export run per month, you may have configured file overwriting. While this seting is important when using Power BI against raw data exports, it is not recommended for FinOps hubs because it removes the ability to monitor export runs over time (since files are deleted)._
-</blockquote>
+> [!TIP]
+> If you only see one export run per month, you might have configured file overwriting. While this setting is important when using Power BI against raw data exports, it is not recommended for FinOps hubs because it removes the ability to monitor export runs over time (since files are deleted).
 
-![Screenshot of the Exports page](../../media/power-bi/data-ingestion_exports.png)
+:::image type="content" source="./media/data-ingestion/exports.png" border="true" alt-text="Screenshot of the Exports page that shows detailed information about exports." lightbox="./media/data-ingestion/exports.png" :::
 
 <br>
 
 ## Ingestion
 
-The **Ingestion** page shows which months have been ingested and are available for querying in Power BI and other client apps. Note that the FinOps hubs ingestion process does not create new files every day, so you may only see 1-2 files. The number of files is determined by Cost Management when generating the initial partitioned CSV files.
+The **Ingestion** page shows which months have been ingested and are available for querying in Power BI and other client apps. The FinOps hubs ingestion process doesn't create new files every day, so you might only see one to two files. The number of files gets determined by Cost Management when generating the initial partitioned CSV files.
 
-Similar to exports that are run until the 5th of the following month, you will typically see ingested months being updated until the 5th of the following month. If you see a date later than the 5th, this is usually due to a one-time export run.
+Similar to exports that are run until the fifth day of the following month, you typically see ingested months being updated until the fifth day of the following month. If you see a date later than the fifth day of the month, it's often due to a one-time export run.
 
-If you notice exports from before ingested months, this typically means older data was removed from the `ingestion` container but the export metadata was not removed from `msexports`. Files in `msexports` can be safely be removed at any time. They are only useful for monitoring export runs.
+If you notice exports from before ingested months, it typically means older data was removed from the `ingestion` container but the export metadata wasn't removed from `msexports`. You can safely remove files in `msexports` at any time. They're only useful for monitoring export runs.
 
-![Screenshot of the Ingestion page](../../media/power-bi/data-ingestion_ingestion.png)
+:::image type="content" source="./media/data-ingestion/ingestion.png" border="true" alt-text="Screenshot of the Ingestion page that shows the months of ingestion data." lightbox="./media/data-ingestion/ingestion.png" :::
 
 <br>
 
 ## Ingestion errors
 
-The **Ingestion errors** page summarizes potential issues that have been identified after reviewing data in hub storage. For troubleshooting details about each error, refer to [Troubleshooting](../../_resources/troubleshooting.md).
+The **Ingestion errors** page summarizes potential issues that were identified after reviewing data in hub storage. For troubleshooting details about each error, see [Troubleshooting Power BI reports](https://aka.ms/ftk/trouble).
 
-![Screenshot of the Ingestion errors page](../../media/power-bi/data-ingestion_ingestion-errors.png)
+:::image type="content" source="./media/data-ingestion/ingestion-errors.png" border="true" alt-text="Screenshot of the Ingestion errors page that shows a summary of potential problems." lightbox="./media/data-ingestion/ingestion-errors.png" :::
+
+
+<br>
+
+## Looking for more?
+
+We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
+
+[Share feedback](https://aka.ms/ftk/idea)
 
 <br>
 
@@ -84,13 +91,5 @@ Related products:
 Related solutions:
 
 - [FinOps hubs](../hubs/finops-hubs-overview.md)
-
-<br>
-
-## Looking for more?
-
-We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
-
-[Share feedback](https://aka.ms/ftk/idea)
 
 <br>

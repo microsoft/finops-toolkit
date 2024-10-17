@@ -1,12 +1,13 @@
 ---
 title: Rate optimization report
-description: Summarize rate optimization details like commitment discount cost, savings, and coverage in Power BI.
+description: Learn about the Rate Optimization Report in Power BI, which summarizes savings from commitment discounts like reservations and savings plans.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/03/2024
+ms.date: 10/10/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
+#customer intent: As a FinOps user, I want to learn about the Rate optimization report so that I can understand savings from discounts.
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -15,9 +16,9 @@ ms.reviewer: micflan
 The **Rate optimization report** summarizes existing and potential savings from commitment discounts, like reservations and savings plans. This report enables you to:
 
 - Review Azure Hybrid Benefit usage.
-- Identify and resolve any under-utilized commitments (aka utilization).
-- Identify opportunity to save with more commitment discounts (aka coverage).
-- Determine which resources used commitment discounts (aka chargeback).
+- Identify and resolve any under-utilized commitments (also called utilization).
+- Identify opportunity to save with more commitment discounts (also called coverage).
+- Determine which resources used commitment discounts (also called chargeback).
 - Summarize cost savings from commitment discounts.
 
 You can download the Rate optimization report from the [latest release](https://github.com/microsoft/finops-toolkit/releases).
@@ -34,8 +35,8 @@ This report includes the following filters on each page:
 - Charge period (date range)
 - Subscription and resource group
 - Region
-- Commitment (e.g., reservation, savings plan)
-- Service (e.g., Virtual machines, SQL database)
+- Commitment (for example, reservation and savings plan)
+- Service (for example, virtual machines and SQL database)
 - Currency
 
 A few common KPIs you fill find in this report are:
@@ -50,9 +51,12 @@ A few common KPIs you fill find in this report are:
 
 ## Get started
 
-The **Get started** page includes a basic introduction to the report with additional links to learn more.
+The **Get started** page includes a basic introduction to the report with links to learn more.
 
-![Screenshot of the Get started page](../../media/power-bi/rate-optimization_get-started.png)
+> [!NOTE]
+> This article contains images showing example data. Any price data is for test purposes only.
+
+:::image type="content" source="./media/rate-optimization/get-started.png" border="true" alt-text="Screenshot of the Get started page that shows basic information about commitment discounts." lightbox="./media/rate-optimization/get-started.png" :::
 
 <br>
 
@@ -60,9 +64,9 @@ The **Get started** page includes a basic introduction to the report with additi
 
 The **Commitments** page provides a list of your commitment discounts and offers a summary of the quantity used, utilization, savings, and effective cost for the period.
 
-The chart breaks down the cost of used (utilized) vs. unused charges. Unused charges are split out by commitment type (e.g., reservation, savings plan).
+The chart breaks down the cost of used (utilized) vs. unused charges. The commitment type (for example, reservation and savings plan) splits unused charges.
 
-![Screenshot of the Commitments page](../../media/power-bi/rate-optimization_commitment-discounts.png)
+:::image type="content" source="./media/rate-optimization/commitment-discounts.png" border="true" alt-text="Screenshot of the Commitments page that shows a list of your commitment discounts." lightbox="./media/rate-optimization/commitment-discounts.png" :::
 
 <br>
 
@@ -70,33 +74,32 @@ The chart breaks down the cost of used (utilized) vs. unused charges. Unused cha
 
 The **Savings** page summarizes cost savings obtained from commitment discounts. Commitments are grouped by program and service.
 
-The chart shows total cost savings for the period split out by commitment type (e.g., reservation, savings plan).
+The chart shows total cost savings for the period split out by commitment type (for example, reservation and savings plan).
 
 > [!WARNING]
 > Microsoft Cost Management does not include the unit price for amortized charges with Microsoft Customer Agreement accounts, so commitment savings cannot be calculated. Please file a support request and speak to your field rep to escalate this.
 
-![Screenshot of the Savings page](../../media/power-bi/rate-optimization_savings.png)
+:::image type="content" source="./media/rate-optimization/savings.png" border="true" alt-text="Screenshot of the Savings page that shows cost savings from commitment discounts." lightbox="./media/rate-optimization/savings.png" :::
 
 <br>
 
 ## Chargeback
 
+The **Chargeback** page helps facilitate chargeback at a subscription, resource group, or resource level. Use the table for chargeback.
 <!-- NOTE: This page is duplicated in the cost-summary.md file as "Commitments". Please keep both updated at the same time. -->
 
-The **Chargeback** page helps facilitate chargeback at a subscription, resource group, or resource level. Use the table for chargeback.
-
-The chart shows the amortized cost for each subscription that used a commitment. If you see **Unassigned**, that is the unused cost that is not associated with a subscription.
+The chart shows the amortized cost for each subscription that used a commitment. If you see **Unassigned**, that is the unused cost that isn't associated with a subscription.
 
 > [!NOTE]
 > This page is also available in the Cost summary report as "Commitments" to show how commitments impact resource costs.
 
-![Screenshot of the Chargeback page](../../media/power-bi/rate-optimization_chargeback.png)
+:::image type="content" source="./media/rate-optimization/chargeback.png" border="true" alt-text="Screenshot of the Chargeback page that shows information used for chargeback." lightbox="./media/rate-optimization/chargeback.png" :::
 
 ### Chargeback customization tips
 
 - Consider changing the columns in the table based on your chargeback needs.
-- If you use tags for cost allocation, create custom columns in the CostDetails table that extract their values, then add those as columns into the visual for reporting.
-- Consider bringing in external data for additional allocation options.
+- If you use tags for cost allocation, create custom columns in the CostDetails table that extract their values, then add them as columns into the visual for reporting.
+- Consider bringing in external data for more allocation options.
 
 <br>
 
@@ -107,28 +110,28 @@ The **Reservation recommendations** page helps you identify any places where you
 These pages use the following filters for reservation recommendations:
 
 - **Term** – Length of time for a reservation.
-- **Lookback** – Period of historical time to use when recommending future reservations (e.g., 7-day, 30-day). Options are based on data you export.
+- **Lookback** – Period of historical time to use when recommending future reservations (for example, 7-day and 30-day). Options are based on data you export.
 - **Scope** – Indicates whether to view shared or single scope recommendations. Options are based on data you export.
 - **Subscription** – Indicates which subscription you want to see recommendations for. All are shown by default.
 
 The KPIs on this page cover:
 
-- **Potential savings** shows what you could save if you purchase the recommended VM reservations.
+- **Potential savings** shows what you could save if you purchase the recommended virtual machine (VM) reservations.
 - **Contracted cost** shows the cost that would be covered by the recommended reservations.
 
-There are 2 charts on the page that offer a breakdown of location, instance size flexibility group, and size; and, CPU hours over time. Your goal is to increase the committed usage in green and spend in blue in order to decrease the contracted cost in red, which costs you more.
+There are two charts on the page that offer a breakdown of location, instance size flexibility group, and size; and, CPU hours over time. Your goal is to increase the committed usage in green and spend in blue in order to decrease the contracted cost in red, which costs you more.
 
 The table below the charts shows the recommended reservations based on the specified lookback period.
 
 > [!IMPORTANT]
-> The reservation recommendations page utilizes Cost Management exports either directly in storage (via the **Export Storage URL** parameter) or as part of FinOps hubs. If you do not see recommendations, confirm that you have configured exports and the filters at the top of the page align to the recommendations you exported (e.g., term, lookback, scope).
+> The reservation recommendations page utilizes Cost Management exports either directly in storage (via the **Export Storage URL** parameter) or as part of FinOps hubs. If you do not see recommendations, confirm that you have configured exports and the filters at the top of the page align to the recommendations you exported (for example, term, lookback, and scope).
 
 <br>
 
 > [!IMPORTANT]
 > Potential savings and contracted cost estimations are only available for VM reservation recommendations. This page has not been tested for non-VM recommendations. You can view savings plan and reservation recommendations for other services in the Azure portal.
 
-![Screenshot of the Reservation recommendations page](../../media/power-bi/rate-optimization_reservation-recommendations.png)
+:::image type="content" source="./media/rate-optimization/reservation-recommendations.png" border="true" alt-text="Screenshot of the Reservation recommendations page that shows reservation purchase recommendations." lightbox="./media/rate-optimization/reservation-recommendations.png" :::
 
 <br>
 
@@ -136,53 +139,68 @@ The table below the charts shows the recommended reservations based on the speci
 
 <!-- NOTE: There is a similar page in the cost-summary.md file. They are not identical. Please keep both updated at the same time. -->
 
-The **Purchases** page shows any new commitment discount purchases (either monthly or upfront payments) within the specified period.
+The **Purchases** page shows any new commitment discount purchases, either monthly or upfront payments, within the specified period.
 
-There is one, **Billed cost** KPI which shows the total cost of the purchases as it is shown on your invoice. Note this is different than the cost on other pages, which show amortized cost.
+There's one, **Billed cost** KPI which shows the total cost of the purchases as it appears on your invoice. It's different than the cost on other pages, which show amortized cost.
 
-The chart shows the purchases over time and the table shows a list of the commitments that were purchased, including the term, product, and payment frequency (**OneTime** is for upfront payments and **Recurring** is for monthly).
+The chart shows the purchases over time and the table shows a list of the commitments that were purchased, including the term, product, and payment frequency. **OneTime** is for upfront payments and **Recurring** is for monthly.
 
-![Screenshot of the Purchases page](../../media/power-bi/rate-optimization_purchases.png)
+:::image type="content" source="./media/rate-optimization/purchases.png" border="true" alt-text="Screenshot of the Purchases page that shows new commitment discount purchases." lightbox="./media/rate-optimization/purchases.png" :::
 
 <br>
 
 ## Hybrid Benefit
 
-<!-- NOTE: This page is duplicated in the cost-summary.md file. Please keep both updated at the same time. -->
-
 The **Hybrid Benefit** page shows Azure Hybrid Benefit (AHB) usage for Windows Server virtual machines (VMs).
+
+<!-- NOTE: This page is duplicated in the cost-summary.md file. Please keep both updated at the same time. -->
 
 KPIs show how many VMs are using Azure Hybrid Benefit and how many vCPUs are used.
 
-There are 3 charts on the page:
+There are three charts on the page:
 
-1. SKU names and number of VMs currently using less than 8 vCPUs. These are under-utilizing AHB.
-2. SKU names and number of VMs with 8+ vCPUs that are not currently using AHB.
-3. Daily breakdown of AHB and non-AHB usage (excluding those where AHB is not supported).
+- SKU names and number of VMs currently using fewer than 8 vCPUs. They're under-utilizing AHB.
+- SKU names and number of VMs with 8+ vCPUs that aren't currently using AHB.
+- Daily breakdown of AHB and non-AHB usage (excluding VMs where AHB isn't supported).
 
-The table shows a list of VMs that are currently using or could be using AHB with their vCPU count, AHB vCPU count, resource group, subscription, cost and quantity.
+The table shows a list of VMs that are currently using or could be using AHB, showing:
 
-![Screenshot of the Hybrid Benefit page](../../media/power-bi/rate-optimization_hybrid-benefit.png)
+- vCPU count
+- AHB vCPU count
+- Resource group
+- Subscription
+- Cost
+- Quantity
+
+:::image type="content" source="./media/rate-optimization/hybrid-benefit.png" border="true" alt-text="Screenshot of the Hybrid Benefit page that shows usage for Windows server VMs." lightbox="./media/rate-optimization/hybrid-benefit.png" :::
 
 <br>
 
 ## Prices
 
-<!-- NOTE: There is a similar page in the cost-summary.md file. They are not identical. Please keep both updated at the same time. -->
-
 The **Prices** page shows the prices for all products that were used with commitment discounts during the period.
 
-The chart shows a summary of the meters that were used the most.
+<!-- NOTE: There is a similar page in the cost-summary.md file. They are not identical. Please keep both updated at the same time. -->
 
-![Screenshot of the Prices page](../../media/power-bi/rate-optimization_prices.png)
+The chart shows a summary of the meters that got used the most.
+
+:::image type="content" source="./media/rate-optimization/prices.png" border="true" alt-text="Screenshot of the Prices page that shows prices for all products that were used with commitment discounts." lightbox="./media/rate-optimization/prices.png" :::
 
 <br>
 
-## DQ
+## Data quality
 
-The **Data quality** page shows some of the data used to calculate savings at a cost and unit price level. This can be helpful in understanding the data but also in identifying issues in Cost Management data that result in an incomplete picture of cost savings (e.g., missing price and cost values). If you are missing any data, please contact support to help raise the priority of these bugs in Cost Management.
+The **Data quality** page shows some of the data used to calculate savings at a cost and unit price level. It can be helpful in understanding the data but also in identifying issues in Cost Management data that result in an incomplete picture of cost savings (for example, missing price and cost values). If you're missing any data, contact support to help raise the priority of these bugs in Cost Management.
 
-![Screenshot of the Data quality page](../../media/power-bi/rate-optimization_data-quality.png)
+:::image type="content" source="./media/rate-optimization/data-quality.png" border="true" alt-text="Screenshot of the Data quality page that shows some of the data used to calculate savings at a cost and unit price level." lightbox="./media/rate-optimization/data-quality.png" :::
+
+<br>
+
+## Looking for more?
+
+We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
+
+[Share feedback](https://aka.ms/ftk/idea)
 
 <br>
 
@@ -213,10 +231,3 @@ Related solutions:
 
 <br>
 
-## Looking for more?
-
-We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
-
-[Share feedback](https://aka.ms/ftk/idea)
-
-<br>
