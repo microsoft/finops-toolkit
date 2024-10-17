@@ -1,0 +1,224 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "content": {
+        "json": "# Databricks workspaces\r\n## Total of numbers"
+      },
+      "name": "text - 4"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "Resources\r\n| where type == \"microsoft.databricks/workspaces\"\r\n| summarize Count = count()\r\n",
+        "size": 0,
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "/subscriptions/f2cb1bf7-2056-43f7-a4e2-e7b0d29d740d"
+        ]
+      },
+      "name": "query - 2"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## Properties"
+      },
+      "name": "text - 12"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## Tag clusters for cost attribution\r\nTo monitor costs in general and to accurately attribute Azure Databricks usage to your organization’s business units and teams for chargeback purposes, you can tag clusters, SQL warehouses, and pools. These tags propagate to detailed Databricks Units (DBU) and cloud provider VM and blob storage usage for cost analysis.\r\nWhen setting up workspaces and clusters, consider cost control and attribution to streamline tagging and improve the accuracy of cost attribution.\r\nTotal costs include the DBU virtual machine, disk, and any associated network costs. For serverless SQL warehouses, the DBU cost already includes the virtual machine and disk costs.\r\nAzure Databricks resource tags can be utilized in cost analysis tools in the Azure Portal.",
+        "style": "upsell"
+      },
+      "name": "text - 19"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resources\r\n| where type == \"microsoft.databricks/workspaces\"\r\n| extend PricingTier = sku.name\r\n| extend WorkspaceUrl = properties.workspaceUrl\r\n| extend ProvisionState = properties.provisioningState\r\n| extend StorageAccountSKU = properties.parameters.storageAccountSkuName.value\r\n| extend Tags = case(isnotempty(properties.parameters.tags), properties.parameters.tags, \"null\")\r\n| project name, id, type, PricingTier, location, WorkspaceUrl, ProvisionState, StorageAccountSKU, Tags",
+        "size": 0,
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "/subscriptions/f2cb1bf7-2056-43f7-a4e2-e7b0d29d740d"
+        ]
+      },
+      "name": "query - 3"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "# Databricks cluster"
+      },
+      "name": "text - 6"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## Use the right instance type\r\nUsing the latest generation of cloud instance types typically offers performance benefits, as they provide the best performance and the latest features.\r\nTo achieve the best performance-to-price ratio for your workloads, , selecting the appropriate instance family is crucial. Here are some general guidelines:\r\n- **Memory optimized**: Ideal for machine learning, heavy shuffle, and spill workloads.\r\n- **Compute optimized**: Best suited for structured streaming workloads and maintenance tasks (e.g., optimize and vacuum).\r\n- **Storage optimized**: Effective for workloads that benefit from caching, such as ad-hoc and interactive data analysis.\r\n- **GPU optimized**: Designed for specialized machine learning and deep learning workloads.\r\n  - Only use GPUs for the right workloads: Virtual machines with GPUs can significantly accelerate deep learning tasks but are much more expensive than CPU-only machines. Use GPU instances only for workloads that have GPU-accelerated libraries, as most workloads do not benefit from GPU-enabled instances. Workspace administrators can restrict the use of GPU machines and resources to prevent unnecessary usage.\r\n- **General purpose**: Suitable when there are no specific requirements.\r\n\r\n## Choose the most efficient compute size\r\nAzure Databricks runs one executor per worker node, making the terms executor and worker interchangeable in the context of the Azure Databricks architecture. While cluster size is often considered in terms of the number of workers, other important factors should also be considered:\r\n- **Total executor cores (compute)**: The total number of cores across all executors, determining the maximum parallelism of a compute instance.\r\n- **Total executor memory**: The total amount of RAM across all executors, indicating how much data can be stored in memory before spilling to disk.\r\n- **Executor local storage**: The type and amount of local disk storage. Local disk is primarily used in the case of spills during shuffles and caching.",
+        "style": "upsell"
+      },
+      "name": "text - 13"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "DatabricksClusters\r\n| extend RequestParamsParsedString = parse_json(RequestParams)\r\n| extend ClusterName = coalesce(RequestParamsParsedString.cluster_name, RequestParamsParsedString.clusterName)\r\n// | extend ClusterId = RequestParamsParsedString.clusterId\r\n| extend NodeType = RequestParamsParsedString.node_type_id\r\n| extend SparkVersion = RequestParamsParsedString.spark_version\r\n| where OperationName == \"Microsoft.Databricks/clusters/create\" and isnotempty(ClusterName)\r\n| extend AutoScaleEnable = case(isnotempty(RequestParamsParsedString.autoscale), \"True\", \"False\")\r\n| extend AutoScaleParsedString = parse_json(tostring(RequestParamsParsedString.autoscale))\r\n| extend AutoScaleMax = case(AutoScaleEnable == \"True\", AutoScaleParsedString.max_workers, \"null\")\r\n| extend AutoScaleMin = case(AutoScaleEnable == \"True\", AutoScaleParsedString.min_workers, \"null\")\r\n| extend AutoTerminationEnable = case(isnotempty(RequestParamsParsedString.autotermination_minutes), \"True\", \"False\")\r\n| extend AutoTerminationMinutes = RequestParamsParsedString.autotermination_minutes\r\n| summarize arg_max(TimeGenerated, *) by tostring(ClusterName)\r\n// | project TimeGenerated, OperationName, RequestParams, ClusterName, ClusterId, NodeType, SparkVersion, AutoScaleEnable, AutoScaleMax, AutoScaleMin, AutoTerminationEnable, AutoTerminationMinutes\r\n| project ClusterName, NodeType",
+        "size": 0,
+        "timeContext": {
+          "durationMs": 2592000000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "/subscriptions/f2cb1bf7-2056-43f7-a4e2-e7b0d29d740d/resourceGroups/36738/providers/Microsoft.OperationalInsights/workspaces/Databricks01"
+        ]
+      },
+      "name": "query - 14"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## Use up-to-date runtimes for your workloads\r\nThe Azure Databricks platform offers various runtimes optimized for different tasks: Databricks Runtime for data engineering and Databricks Runtime for Machine Learning. These runtimes are designed to include the best selection of libraries for each task, ensuring they are up-to-date and work together optimally. Regularly released Databricks Runtimes bring performance improvements with each major release, often leading to cost savings through more efficient use of compute resources.",
+        "style": "upsell"
+      },
+      "name": "text - 11"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "DatabricksClusters\r\n| extend RequestParamsParsedString = parse_json(RequestParams)\r\n| extend ClusterName = coalesce(RequestParamsParsedString.cluster_name, RequestParamsParsedString.clusterName)\r\n// | extend ClusterId = RequestParamsParsedString.clusterId\r\n| extend NodeType = RequestParamsParsedString.node_type_id\r\n| extend SparkVersion = RequestParamsParsedString.spark_version\r\n| where OperationName == \"Microsoft.Databricks/clusters/create\" and isnotempty(ClusterName)\r\n| extend AutoScaleEnable = case(isnotempty(RequestParamsParsedString.autoscale), \"True\", \"False\")\r\n| extend AutoScaleParsedString = parse_json(tostring(RequestParamsParsedString.autoscale))\r\n| extend AutoScaleMax = case(AutoScaleEnable == \"True\", AutoScaleParsedString.max_workers, \"null\")\r\n| extend AutoScaleMin = case(AutoScaleEnable == \"True\", AutoScaleParsedString.min_workers, \"null\")\r\n| extend AutoTerminationEnable = case(isnotempty(RequestParamsParsedString.autotermination_minutes), \"True\", \"False\")\r\n| extend AutoTerminationMinutes = RequestParamsParsedString.autotermination_minutes\r\n| summarize arg_max(TimeGenerated, *) by tostring(ClusterName)\r\n// | project TimeGenerated, OperationName, RequestParams, ClusterName, ClusterId, NodeType, SparkVersion, AutoScaleEnable, AutoScaleMax, AutoScaleMin, AutoTerminationEnable, AutoTerminationMinutes\r\n| project ClusterName, SparkVersion",
+        "size": 0,
+        "timeContext": {
+          "durationMs": 2592000000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "/subscriptions/f2cb1bf7-2056-43f7-a4e2-e7b0d29d740d/resourceGroups/36738/providers/Microsoft.OperationalInsights/workspaces/Databricks01"
+        ]
+      },
+      "name": "query - 12"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## Use auto-scaling compute\r\n1. With autoscaling, Databricks dynamically reallocates workers based on the characteristics of your job. During more computationally intensive phases, Databricks automatically adds workers and removes them when no longer needed. This can reduce overall costs compared to using a statically sized compute instance.\r\n2. Compute auto-scaling has limitations when scaling down cluster size for structured streaming workloads. Databricks recommends using Delta Live Tables with Enhanced Autoscaling for streaming workloads.",
+        "style": "upsell"
+      },
+      "name": "text - 10"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "DatabricksClusters\r\n| extend RequestParamsParsedString = parse_json(RequestParams)\r\n| extend ClusterName = coalesce(RequestParamsParsedString.cluster_name, RequestParamsParsedString.clusterName)\r\n// | extend ClusterId = RequestParamsParsedString.clusterId\r\n| extend NodeType = RequestParamsParsedString.node_type_id\r\n| extend SparkVersion = RequestParamsParsedString.spark_version\r\n| where OperationName == \"Microsoft.Databricks/clusters/create\" and isnotempty(ClusterName)\r\n| extend AutoScaleEnable = case(isnotempty(RequestParamsParsedString.autoscale), \"True\", \"False\")\r\n| extend AutoScaleParsedString = parse_json(tostring(RequestParamsParsedString.autoscale))\r\n| extend AutoScaleMax = case(AutoScaleEnable == \"True\", AutoScaleParsedString.max_workers, \"null\")\r\n| extend AutoScaleMin = case(AutoScaleEnable == \"True\", AutoScaleParsedString.min_workers, \"null\")\r\n| extend AutoTerminationEnable = case(isnotempty(RequestParamsParsedString.autotermination_minutes), \"True\", \"False\")\r\n| extend AutoTerminationMinutes = RequestParamsParsedString.autotermination_minutes\r\n| summarize arg_max(TimeGenerated, *) by tostring(ClusterName)\r\n// | project TimeGenerated, OperationName, RequestParams, ClusterName, ClusterId, NodeType, SparkVersion, AutoScaleEnable, AutoScaleMax, AutoScaleMin, AutoTerminationEnable, AutoTerminationMinutes\r\n| project ClusterName, AutoScaleEnable, AutoScaleMax, AutoScaleMin",
+        "size": 0,
+        "timeContext": {
+          "durationMs": 2592000000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "/subscriptions/f2cb1bf7-2056-43f7-a4e2-e7b0d29d740d/resourceGroups/36738/providers/Microsoft.OperationalInsights/workspaces/Databricks01"
+        ]
+      },
+      "name": "query - 11"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## Use auto termination\r\nAzure Databricks provides several features to help control costs by reducing idle resources and controlling when compute resources can be deployed.\r\n\r\n1. Configure auto-termination for all interactive compute resources to automatically shut down after a specified period of inactivity.\r\n2. For use cases requiring compute only during business hours, you can configure auto-termination for compute resources and schedule a process to restart them in the morning, potentially prewarming data before users return to their desktops.\r\n3. If compute startup times are too long, consider using cluster pools. Azure Databricks pools consist of idle, ready-to-use instances that reduce cluster start and auto-scaling times. If no idle instances are available, the pools automatically expand by allocating new instances from the provider. Azure Databricks does not charge Databricks Units (DBUs) for idle instances in the pool, leading to cost savings, though instance provider billing still applies.",
+        "style": "upsell"
+      },
+      "name": "text - 8"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "DatabricksClusters\r\n| extend RequestParamsParsedString = parse_json(RequestParams)\r\n| extend ClusterName = coalesce(RequestParamsParsedString.cluster_name, RequestParamsParsedString.clusterName)\r\n// | extend ClusterId = RequestParamsParsedString.clusterId\r\n| extend NodeType = RequestParamsParsedString.node_type_id\r\n| extend SparkVersion = RequestParamsParsedString.spark_version\r\n| where OperationName == \"Microsoft.Databricks/clusters/create\" and isnotempty(ClusterName)\r\n| extend AutoScaleEnable = case(isnotempty(RequestParamsParsedString.autoscale), \"True\", \"False\")\r\n| extend AutoScaleParsedString = parse_json(tostring(RequestParamsParsedString.autoscale))\r\n| extend AutoScaleMax = case(AutoScaleEnable == \"True\", AutoScaleParsedString.max_workers, \"null\")\r\n| extend AutoScaleMin = case(AutoScaleEnable == \"True\", AutoScaleParsedString.min_workers, \"null\")\r\n| extend AutoTerminationEnable = case(isnotempty(RequestParamsParsedString.autotermination_minutes), \"True\", \"False\")\r\n| extend AutoTerminationMinutes = RequestParamsParsedString.autotermination_minutes\r\n| summarize arg_max(TimeGenerated, *) by tostring(ClusterName)\r\n// | project TimeGenerated, OperationName, RequestParams, ClusterName, ClusterId, NodeType, SparkVersion, AutoScaleEnable, AutoScaleMax, AutoScaleMin, AutoTerminationEnable, AutoTerminationMinutes\r\n| project ClusterName, AutoTerminationEnable, AutoTerminationMinutes",
+        "size": 0,
+        "timeContext": {
+          "durationMs": 2592000000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "/subscriptions/f2cb1bf7-2056-43f7-a4e2-e7b0d29d740d/resourceGroups/36738/providers/Microsoft.OperationalInsights/workspaces/Databricks01"
+        ],
+        "tileSettings": {
+          "showBorder": false
+        },
+        "graphSettings": {
+          "type": 0
+        },
+        "mapSettings": {
+          "locInfo": "LatLong"
+        }
+      },
+      "name": "query - 0"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "# Databricks SQL Warehouse\r\n## Configuration"
+      },
+      "name": "text - 7"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "DatabricksDatabricksSQL\r\n| where OperationName == \"Microsoft.Databricks/databrickssql/createEndpoint\"\r\n| extend RequestParamsParsedString = parse_json(RequestParams)\r\n| extend Name = RequestParamsParsedString.name\r\n| extend Type = RequestParamsParsedString.warehouse_type\r\n| extend Size = RequestParamsParsedString.cluster_size\r\n| extend AutoScaleEnable = case(isnotempty(RequestParamsParsedString.max_num_clusters), \"True\", \"False\")\r\n| extend AutoScaleMax = case(AutoScaleEnable == \"True\", RequestParamsParsedString.max_num_clusters, \"null\")\r\n| extend AutoScaleMin = case(AutoScaleEnable == \"True\", RequestParamsParsedString.min_num_clusters, \"null\")\r\n| extend AutoStopEnabled = case(isnotempty(RequestParamsParsedString.auto_stop_mins), \"True\", \"False\")\r\n| extend AutoStopMins = case(AutoStopEnabled == \"True\", RequestParamsParsedString.auto_stop_mins, \"null\")\r\n| extend PhotonEnabled = RequestParamsParsedString.enable_photon\r\n| extend ServerlessEnabled = RequestParamsParsedString.enable_serverless_compute\r\n// | project TimeGenerated, OperationName, RequestParams, Name, Type, Size, AutoScaleEnable, AutoScaleMax, AutoScaleMin, AutoStopEnabled, AutoStopMins, PhotonEnabled, ServerlessEnabled\r\n| project Name, Type, Size, AutoScaleEnable, AutoScaleMax, AutoScaleMin, AutoStopEnabled, AutoStopMins",
+        "size": 0,
+        "timeContext": {
+          "durationMs": 2592000000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "/subscriptions/f2cb1bf7-2056-43f7-a4e2-e7b0d29d740d/resourceGroups/36738/providers/Microsoft.OperationalInsights/workspaces/Databricks01"
+        ]
+      },
+      "name": "query - 1"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## Use SQL warehouse for SQL workloads\r\nFor interactive SQL workloads, a Databricks SQL warehouse is the most cost-efficient engine.\r\n- All SQL warehouses include Photon by default, which accelerates SQL and DataFrame API calls and reduces overall costs per workload.\r\n- Serverless SQL warehouses support intelligent workload management (IWM), enhancing their ability to process large volume of queries quickly and cost-effectively.\r\n\r\n## Use serverless services for your workloads\r\n### BI use cases\r\nBI workloads typically consume data in bursts and generate multiple concurrent queries. For example, a user using a BI tool might update a dashboard or run a query and then simply analyze the results without further interaction with the platform. In this scenario, the data platform:\r\n- Terminates idle compute resources to save costs.\r\n- Quickly provides the compute resources when new or updated data with the BI tool is requested.\r\n\r\nNon-serverless Azure Databricks SQL warehouses have a startup time of minutes, leading many users tend to accept the higher costs and avoid terminating them during idle periods. On the other hand, serverless SQL warehouses start and scale up in seconds, enabling both instant availability and idle termination, which enhances user experience and reduces overall costs. Additionally, serverless SQL warehouses scale down faster than non-serverless ones, further lowering expenses.\r\n\r\n### ML and AI model serving\r\nMost models are served as a REST API for integration into web or client application; the model serving service receives varying loads of requests over time, and a model serving platform should always provide sufficient resources, but only as many as are actually needed (upscaling and downscaling).\r\nMosaic AI Model Serving uses serverless compute and provides a highly available and low latency service for model deployment. The service automatically scales up or down to meet changes in demand, reducing infrastructure costs while optimizing latency performance.",
+        "style": "upsell"
+      },
+      "name": "text - 15"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "DatabricksDatabricksSQL\r\n| where OperationName == \"Microsoft.Databricks/databrickssql/createEndpoint\"\r\n| extend RequestParamsParsedString = parse_json(RequestParams)\r\n| extend Name = RequestParamsParsedString.name\r\n| extend Type = RequestParamsParsedString.warehouse_type\r\n| extend Size = RequestParamsParsedString.cluster_size\r\n| extend AutoScaleEnable = case(isnotempty(RequestParamsParsedString.max_num_clusters), \"True\", \"False\")\r\n| extend AutoScaleMax = case(AutoScaleEnable == \"True\", RequestParamsParsedString.max_num_clusters, \"null\")\r\n| extend AutoScaleMin = case(AutoScaleEnable == \"True\", RequestParamsParsedString.min_num_clusters, \"null\")\r\n| extend AutoStopEnabled = case(isnotempty(RequestParamsParsedString.auto_stop_mins), \"True\", \"False\")\r\n| extend AutoStopMins = case(AutoStopEnabled == \"True\", RequestParamsParsedString.auto_stop_mins, \"null\")\r\n| extend PhotonEnabled = RequestParamsParsedString.enable_photon\r\n| extend ServerlessEnabled = RequestParamsParsedString.enable_serverless_compute\r\n// | project TimeGenerated, OperationName, RequestParams, Name, Type, Size, AutoScaleEnable, AutoScaleMax, AutoScaleMin, AutoStopEnabled, AutoStopMins, PhotonEnabled, ServerlessEnabled\r\n| project Name, PhotonEnabled, ServerlessEnabled",
+        "size": 0,
+        "timeContext": {
+          "durationMs": 2592000000
+        },
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "/subscriptions/f2cb1bf7-2056-43f7-a4e2-e7b0d29d740d/resourceGroups/36738/providers/Microsoft.OperationalInsights/workspaces/Databricks01"
+        ]
+      },
+      "name": "query - 17"
+    }
+  ],
+  "fallbackResourceIds": [
+    "Azure Monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
