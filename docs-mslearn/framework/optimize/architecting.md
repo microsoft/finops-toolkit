@@ -40,13 +40,10 @@ Integrating the [Cloud Adoption Framework (CAF)](/azure/cloud-adoption-framework
 The "Architecting for Cloud" capability within the FinOps Framework helps customers, especially people at lower maturity levels, build foundational knowledge, establish processes, and implement best practices for designing cloud architectures that optimize cost, performance, and reliability.
 
 - **Educate stakeholders:** Conduct training sessions or workshops to educate stakeholders about the benefits and principles of cloud architecture, emphasizing cost optimization, scalability, and resilience.
-
 - **Implement architectural principles:** Establish architectural principles and design guidelines based on [WAF pillars](/azure/well-architected/workloads): operational excellence, security, reliability, performance efficiency, and cost optimization.
-
+- **Leverage Enterprise App Patterns for Web Apps:** Get started with the [Reliable Web App pattern](aka.ms/eap/rwa). Enterprise App Patterns are built on top of the principles laid out in the WAF and provide implementation techniques to optimize your .NET or Java web app's move to the cloud.
 - **Utilize Azure Well-Architected Review:** Conduct Azure [Well-Architected Reviews](/assessments/azure-architecture-review/) for workloads deployed in Azure. To identify areas for improvement, evaluate workloads against the five pillars of WAF.
-
 - **Implement cost management practices:** Incorporate the Cloud Adoption Framework's [cost management practices](/azure/cloud-adoption-framework/get-started/manage-costs) into your architectural designs. This effort includes right-sizing resources, using [commitment discounts](./rates.md), and implementing [cost allocation mechanisms](../understand/allocation.md).
-
 - **Establish governance and compliance:** Establish [governance mechanisms](/azure/cloud-adoption-framework/govern/monitor-cloud-governance) and compliance controls to ensure adherence to organizational policies, regulatory requirements, and industry standards. Use Azure Governance and Azure Blueprints for policy enforcement and compliance automation.
 
 <br>
