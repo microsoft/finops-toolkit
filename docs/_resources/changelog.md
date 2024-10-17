@@ -80,6 +80,14 @@ Legend:
 > ➕ Added:
 >
 > 1. Cost Management export modules for subscriptions and resource groups.
+>
+
+📗 FinOps guide
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed:
+>
+> 1. Added Enterprise App Patterns links resources to the architecting for the cloud section.
 
 🔍 Optimization engine
 {: .fs-5 .fw-500 .mt-4 mb-0 }
