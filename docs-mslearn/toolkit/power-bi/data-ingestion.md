@@ -13,7 +13,7 @@ ms.reviewer: micflan
 <!-- markdownlint-disable-next-line MD025 -->
 # Data ingestion report
 
-The **Data ingestion report** provides details about the data that got ingested into your FinOps hub storage account. You can download the Data ingestion report from the [latest release](https://github.com/microsoft/finops-toolkit/releases/latest).
+The **Data ingestion report** provides details about the data that got ingested into your FinOps hub storage account. You can download the Data ingestion report from the [latest release](https://aka.ms/ftk/latest).
 
 <br>
 

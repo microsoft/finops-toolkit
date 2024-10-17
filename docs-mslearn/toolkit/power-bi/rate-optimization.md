@@ -137,9 +137,9 @@ The table below the charts shows the recommended reservations based on the speci
 
 ## Purchases
 
-The **Purchases** page shows any new commitment discount purchases, either monthly or upfront payments, within the specified period.
-
 <!-- NOTE: There is a similar page in the cost-summary.md file. They are not identical. Please keep both updated at the same time. -->
+
+The **Purchases** page shows any new commitment discount purchases, either monthly or upfront payments, within the specified period.
 
 There's one, **Billed cost** KPI which shows the total cost of the purchases as it appears on your invoice. It's different than the cost on other pages, which show amortized cost.
 

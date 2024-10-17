@@ -29,7 +29,7 @@ FinOps hubs are in early development. Today, FinOps hubs extend Cost Management 
 <br>
 
 > [!NOTE]
-> FinOps hubs requires an Enterprise Agreement (EA), Microsoft Customer Agreement (MCA), or Microsoft Partner Agreement (MPA) account (including Cloud Solution Provider subscriptions). If you have a Microsoft Online Services Agreement (MOSA, called called pay-as-you-go) or a Microsoft internal subscription, you need to use FinOps hubs 0.1.1. Power BI reports weren't tested extensively with MOSA and MS Internal subscriptions. Speak to a Microsoft representative or file a billing support request to ask about migrating your subscription to Microsoft Customer Agreement.
+> FinOps hubs requires an Enterprise Agreement (EA), Microsoft Customer Agreement (MCA), or Microsoft Partner Agreement (MPA) account (including Cloud Solution Provider subscriptions). If you have a Microsoft Online Services Agreement (MOSA, often called pay-as-you-go) or a Microsoft internal subscription, you need to use FinOps hubs 0.1.1. Power BI reports weren't tested extensively with MOSA and MS Internal subscriptions. Speak to a Microsoft representative or file a billing support request to ask about migrating your subscription to Microsoft Customer Agreement.
 
 <br>
 
