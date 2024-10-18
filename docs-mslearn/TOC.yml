@@ -8,7 +8,7 @@
   - name: FinOps on Azure e-book
     href: https://aka.ms/finops/ebook
   - name: What's new
-    href: https://aka.ms/finops/tcblog
+    href: https://aka.ms/finops/blog
 - name: Implementing FinOps
   items:
   - name: Conduct a FinOps iteration
@@ -86,6 +86,22 @@
           href: framework/manage/tools-services.md
         - name: Intersecting frameworks
           href: framework/manage/intersecting-disciplines.md
+  - name: FinOps best practices
+    items:
+    - name: Best practices library
+      href: best-practices/library.md
+    - name: General services
+      href: best-practices/general.md
+    - name: Compute services
+      href: best-practices/compute.md
+    - name: Databases services
+      href: best-practices/databases.md
+    - name: Networking services
+      href: best-practices/networking.md
+    - name: Storage services
+      href: best-practices/storage.md
+    - name: Web services
+      href: best-practices/web.md
   - name: FOCUS
     items:
     - name: Overview
