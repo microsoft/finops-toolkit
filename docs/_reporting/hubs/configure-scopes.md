@@ -54,8 +54,6 @@ If you cannot grant permissions for your scope, you can create Cost Management e
      - _**MCA billing profile:** `billingProfiles/{billing-profile-id}`_
      - _**Subscription:** `subscriptions/{subscription-id}`_
      - _**Resource group:** `subscriptions/{subscription-id}/resourceGroups/{rg-name}`_
-   - **Format** = Parquet
-   - **Compression** = Snappy
    - **File partitioning** = On
    - **Overwrite data** = Off<sup>4</sup>
   

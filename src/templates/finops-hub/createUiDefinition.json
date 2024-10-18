@@ -79,7 +79,7 @@
             "type": "Microsoft.Common.TextBlock",
             "visible": true,
             "options": {
-              "text": "If Event Grid is not registered, we will deploy a temporary resouce to this location. If emppty, we will use the hub location. Event Grid is not supported in all regions, which may cause failures. If you face an error, please select a different region for Event Grid. If you continue to face errors, check the 'Event Grid is already registered' box above to skip this."
+              "text": "If Event Grid is not registered, we will deploy a temporary resouce to this location. If empty, we will use the hub location. Event Grid is not supported in all regions, which may cause failures. If you face an error, please select a different region for Event Grid. If you continue to face errors, check the 'Event Grid is already registered' box above to skip this."
             }
           },
           {
