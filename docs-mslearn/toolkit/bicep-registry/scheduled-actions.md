@@ -1,47 +1,31 @@
 ---
-layout: default
-parent: Bicep Registry
-title: Scheduled actions
-nav_order: 10
-description: 'Send an email on a schedule or when an anomaly is detected'
-permalink: /bicep/scheduled-actions
+title: Cost Management scheduled action bicep modules
+description: This article describes the Cost Management scheduled actions Bicep Registry modules that help you send an email on a schedule or when an anomaly is detected.
+author: bandersmsft
+ms.author: banders
+ms.date: 10/17/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
+#customer intent: As a FinOps user, I want to understand what Cost Management scheduled action bicep modules can help me accomplish.
 ---
 
-<span class="fs-9 d-block mb-4">Scheduled actions</span>
-Send an email on a schedule or when an anomaly is detected.
-{: .fs-6 .fw-300 }
+<!-- markdownlint-disable-next-line MD025 -->
+# Cost Management scheduled action bicep modules
 
-[Syntax](#-syntax){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Examples](#-examples){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [🧮 Syntax](#-syntax)
-- [📥 Parameters](#-parameters)
-- [🌟 Examples](#-examples)
-- [🧐 See also](#-see-also)
-- [🧰 Related tools](#-related-tools)
-
-</details>
-
----
+This article describes the Cost Management scheduled actions Bicep Registry modules that help you send an email on a schedule or when an anomaly is detected.
 
 Scheduled actions allow you to configure email alerts on a daily, weekly, or monthly basis. Scheduled actions are configured based on a Cost Management view, which can be opened and edited in Cost analysis in the Azure portal. Email alerts include a picture of the selected view and optionally a link to a CSV file with the summarized cost data.
 
 You can also use scheduled actions to configure anomaly detection alerts for subscriptions.
 
-[About scheduled alerts](https://learn.microsoft.com/azure/cost-management-billing/costs/save-share-views#subscribe-to-scheduled-alerts){: .btn .mb-4 .mb-md-0 .mr-4 }
-[About anomaly alerts](https://learn.microsoft.com/azure/cost-management-billing/understand/analyze-unexpected-charges){: .btn .mb-4 .mb-md-0 .mr-4 }
+To learn about scheduled alerts, see [Save and share views](/azure/cost-management-billing/costs/save-share-views#subscribe-to-scheduled-alerts). To learn about anomaly alerts, see [Analyze unexpected charges](/azure/cost-management-billing/understand/analyze-unexpected-charges).
 
 <br>
 
-## 🧮 Syntax
+## Syntax
 
-<small>Version: **1.1**</small>
-{: .label .label-green .pt-0 .pl-3 .pr-3 .m-0 }
-<small>Scopes: **Subscription, Resource group**</small>
-{: .label .pt-0 .pl-3 .pr-3 .m-0 }
+<small>Version: **1.1**</small> &nbsp; <small>Scopes: **Subscription, Resource group**</small>
 
 ```bicep
 module <string> 'br/public:cost/<scope>-scheduled-action:1.1' = {
@@ -73,7 +57,7 @@ module <string> 'br/public:cost/<scope>-scheduled-action:1.1' = {
 
 <br>
 
-## 📥 Parameters
+## Parameters
 
 | Name                   |   Type   | Description                                                                                                                                                                                                                                                                                           |
 | ---------------------- | :------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -100,14 +84,11 @@ module <string> 'br/public:cost/<scope>-scheduled-action:1.1' = {
 
 <br>
 
-## 🌟 Examples
+## Examples
 
 ### Schedule an email for a built-in view
 
-<small>Subscription</small>
-{: .label .pt-0 .pl-3 .pr-3 .m-0 }
-<small>Resource group</small>
-{: .label .pt-0 .pl-3 .pr-3 .m-0 }
+<small>Subscription</small> &nbsp; <small>Resource group</small>
 
 Creates a shared scheduled action for the DailyCosts built-in view.
 
@@ -128,10 +109,7 @@ module dailyCostsAlert 'br/public:cost/subscription-scheduled-action:1.0.2' = {
 
 ### Schedule an email with a custom start date
 
-<small>Subscription</small>
-{: .label .pt-0 .pl-3 .pr-3 .m-0 }
-<small>Resource group</small>
-{: .label .pt-0 .pl-3 .pr-3 .m-0 }
+<small>Subscription</small> &nbsp; <small>Resource group</small>
 
 Creates a private scheduled action for the DailyCosts built-in view with custom start/end dates.
 
@@ -156,7 +134,6 @@ module privateAlert 'br/public:cost/resourcegroup-scheduled-action:1.0.2' = {
 ### Configure an anomaly alert
 
 <small>Subscription</small>
-{: .label .pt-0 .pl-3 .pr-3 .m-0 }
 
 Creates an anomaly alert for a subscription.
 
@@ -175,18 +152,26 @@ module anomalyAlert 'br/public:cost/subscription-scheduled-action:1.0.2' = {
 
 <br>
 
-## 🧐 See also
+## Related content
+
+Related resources:
 
 - Bicep Registry: [Scheduled actions for subscriptions](https://github.com/Azure/bicep-registry-modules/tree/main/modules/cost/subscription-scheduled-action/README.md)
 - Bicep Registry: [Scheduled actions for resource groups](https://github.com/Azure/bicep-registry-modules/tree/main/modules/cost/resourcegroup-scheduled-action/README.md)
-- [ScheduledActions API reference](https://learn.microsoft.com/rest/api/cost-management/scheduled-actions)
+- [ScheduledActions API reference](/rest/api/cost-management/scheduled-actions)
 
-<br>
+Related FinOps capabilities:
 
----
+- [Reporting and analytics](../../framework/understand/reporting.md)
+- [Anomaly management](../../framework/understand/anomalies.md)
 
-## 🧰 Related tools
+Related products:
 
-{% include tools.md ps="1" %}
+- [Cost Management](/azure/cost-management-billing/costs/)
+
+Related solutions:
+
+- [FinOps toolkit Power BI reports](../power-bi/reports.md)
+- [FinOps hubs](../hubs/finops-hubs-overview.md)
 
 <br>
