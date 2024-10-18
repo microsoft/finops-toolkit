@@ -1,35 +1,19 @@
 ---
-layout: default
 title: Common terms
-nav_order: 30
-description: 'Common terms and definitions used throughout FinOps hubs.'
-permalink: /help/terms
+description: This article describes common terms and definitions used throughout the FinOps toolkit.
+author: bandersmsft
+ms.author: banders
+ms.date: 10/17/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
+#customer intent: As a FinOps user, I want to understand common terms used in the FinOps toolkit.
 ---
 
-<span class="fs-9 d-block mb-4">Common terms</span>
-Familiarize yourself with the terminology used in FinOps hubs.
-{: .fs-6 .fw-300 }
+<!-- markdownlint-disable-next-line MD025 -->
+# Common terms
 
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [A](#a)
-- [C](#c)
-- [D](#d)
-- [E](#e)
-- [L](#l)
-- [M](#m)
-- [N](#n)
-- [🧰 Related tools](#-related-tools)
-
-See also:
-
-- [FinOps hubs columns](./data-dictionary.md)
-- [Cost Management data dictionary](https://learn.microsoft.com/azure/cost-management-billing/automate/understand-usage-details-fields)
-
-</details>
-
----
+This article describes common terms and definitions used throughout the FinOps toolkit.
 
 <!-- markdownlint-disable heading-increment -->
 
@@ -125,10 +109,31 @@ See also: [Microsoft Partner Agreement](#mpa-or-microsoft-partner-agreement)
 
 <br>
 
----
+## Related content
 
-## 🧰 Related tools
+Related resources:
 
-{% include tools.md hubs="1" pbi="1" %}
+- [FinOps toolkit data dictionary](./data-dictionary.md)
+- [Cost Management data dictionary](https://learn.microsoft.com/azure/cost-management-billing/automate/understand-usage-details-fields)
+
+Related FinOps capabilities:
+
+- [Data ingestion](../../framework/understand/ingestion.md)
+- [Reporting and analytics](../../framework/understand/reporting.md)
+
+Related products:
+
+- [Cost Management](/azure/cost-management-billing/costs/)
+- [Azure Advisor](/azure/advisor/)
+- [Azure Resource Graph](/azure/governance/resource-graph/)
+- [Azure Policy](/azure/governance/policy/)
+
+Related solutions:
+
+- [FinOps toolkit Power BI reports](../power-bi/reports.md)
+- [FinOps hubs](../hubs/finops-hubs-overview.md)
+- [FinOps workbooks](https://aka.ms/finops/workbooks)
+- [Optimization engine](../optimization-engine/README.md)
+- [FinOps toolkit open data](../open-data.md)
 
 <br>

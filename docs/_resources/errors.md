@@ -1,54 +1,27 @@
 ---
-layout: default
 title: Common errors
-nav_order: 888
-description: 'Details and solutions for common issues you may experience.'
-permalink: /help/errors
+description: This article describes common FinOps toolkit errors and provides information about solutions.
+author: bandersmsft
+ms.author: banders
+ms.date: 10/17/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
+#customer intent: As a FinOps user, I want to understand and resolve common errors I may experience with the FinOps toolkit.
 ---
 
-<span class="fs-9 d-block mb-4">Troubleshooting common errors</span>
-Sorry to hear you're having a problem. We're here to help!
-{: .fs-6 .fw-300 }
-
-<details markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [BadHubVersion](#badhubversion)
-- [InvalidExportContainer](#invalidexportcontainer)
-- [InvalidExportVersion](#invalidexportversion)
-- [InvalidHubVersion](#invalidhubversion)
-- [InvalidScopeId](#invalidscopeid)
-- [ExportDataNotFound](#exportdatanotfound)
-- [HubDataNotFound](#hubdatanotfound)
-- [MissingContractedCost](#missingcontractedcost)
-- [MissingContractedUnitPrice](#missingcontractedunitprice)
-- [MissingListCost](#missinglistcost)
-- [MissingListUnitPrice](#missinglistunitprice)
-- [ManifestReadFailed](#manifestreadfailed)
-- [ResourceAccessForbiddenException](#resourceaccessforbiddenexception)
-- [RoleAssignmentUpdateNotPermitted](#roleassignmentupdatenotpermitted)
-- [SchemaLoadFailed](#schemaloadfailed)
-- [SchemaNotFound](#schemanotfound)
-- [UnknownExportFile](#unknownexportfile)
-- [UnknownHubVersion](#unknownhubversion)
-- [UnsupportedExportFileType](#unsupportedexportfiletype)
-- [UnsupportedExportType](#unsupportedexporttype)
-- [The \<name\> resource provider is not registered in subscription \<guid\>](#the-name-resource-provider-is-not-registered-in-subscription-guid)
-- [x\_PricingSubcategory shows the commitment discount ID](#x_pricingsubcategory-shows-the-commitment-discount-id)
-- [Power BI: Reports are missing data for specific dates](#power-bi-reports-are-missing-data-for-specific-dates)
-- [Power BI: Reports are empty (no data)](#power-bi-reports-are-empty-no-data)
-- [Power BI: The remote name could not be resolved: '\<storage-account\>.dfs.core.windows.net'](#power-bi-the-remote-name-could-not-be-resolved-storage-accountdfscorewindowsnet)
-- [Power BI: We cannot convert the value null to type Logical](#power-bi-we-cannot-convert-the-value-null-to-type-logical)
-- [FinOps hubs: We cannot convert the value null to type Table](#finops-hubs-we-cannot-convert-the-value-null-to-type-table)
-- [Next steps](#next-steps)
-
-</details>
-
----
+<!-- markdownlint-disable-next-line MD025 -->
+# Troubleshooting common errors
 
 This article describes common FinOps toolkit errors and provides information about solutions. If you get an error when using FinOps toolkit solutions that you don't understand or can't resolve, find the error code below with mitigation steps to resolve the problem.
 
-If the information provided doesn't resolve the issue, try the [Troubleshooting guide](./troubleshooting.md).
+Here's a list of common error codes with mitigation information.
+
+If the information provided doesn't resolve the issue, try the [Troubleshooting guide](troubleshooting.md).
+
+<!--
+If the information provided doesn't help you, [Create a support request](/azure/cost-management-billing/costs/cost-management-error-codes#create-a-support-request).
+-->
 
 <br>
 
@@ -58,7 +31,7 @@ If the information provided doesn't resolve the issue, try the [Troubleshooting 
 
 FinOps hubs 0.2 is not operational. Please upgrade to version 0.3 or later.
 
-**Mitigation**: Upgrade to the latest version of [FinOps hubs](../_reporting/hubs/README.md).
+**Mitigation**: Upgrade to the latest version of [FinOps hubs](../hubs/finops-hubs-overview.md).
 
 <br>
 
@@ -86,9 +59,9 @@ FinOps hubs requires FOCUS cost exports but this file looks like a legacy Cost M
 
 <sup>Severity: Critical</sup>
 
-FinOps hubs 0.1.1 and earlier do not work with the [Data ingestion Power BI report](../_reporting/power-bi/data-ingestion.md).
+FinOps hubs 0.1.1 and earlier do not work with the [Data ingestion Power BI report](../power-bi/data-ingestion.md).
 
-**Mitigation**: Upgrade to the latest version of [FinOps hubs](../_reporting/hubs/README.md) or download Power BI reports from [release 0.1.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1).
+**Mitigation**: Upgrade to the latest version of [FinOps hubs](../hubs/finops-hubs-overview.md) or download Power BI reports from [release 0.1.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1).
 
 <br>
 
@@ -126,7 +99,7 @@ FinOps hub data was not found in the specified storage account.
 4. FinOps hub data factory triggers should all be started.
 5. FinOps hub data factory pipelines should be successful.
 
-For more details and debugging steps, see [Validate your FinOps hub deployment](./troubleshooting.md#-validate-your-finops-hub-deployment).
+For more details and debugging steps, see [Validate your FinOps hub deployment](troubleshooting.md#validate-your-finops-hub-deployment).
 
 <br>
 
@@ -210,24 +183,24 @@ To confirm the manifest schema (\#1) or API version (\#2):
      ...
    }
    ```
-7. Confirm the are set to the following supported values:
+7. Confirm they are set to the following supported values:
    - **resourceId** can be any scope ID and any export name, but it must exist with the "Microsoft.CostManagement/exports" resource type. This is case-insensitive.
    - **type** must exist, but should not fail with this error for any non-null value.
    - **dataVersion** must exist, but should not fail with this error for any non-null value.
-   - **apiVersion** is not used explicitly but can signify changes to the manifest schema. See [supported API versions](../_reporting/hubs/data-processing.md#datasets) for details.
+   - **apiVersion** is not used explicitly but can signify changes to the manifest schema. See [supported API versions](../hubs/data-processing.md#datasets) for details.
 8. If you are using a newer API version:
-   1. [Create a change request issue in GitHub](https://aka.ms/ftk/idea) to track adding support for the new API version.
+   1. [Create a change request issue in GitHub](https://aka.ms/ftk/ideas) to track adding support for the new API version.
    2. Delete the export in Cost Management.
-   3. Create an export using the [New-FinOpsCostExport PowerShell command](../_automation/powershell/cost/New-FinOpsCostExport.md) using a supported API version.
+   3. Create an export using the [New-FinOpsCostExport PowerShell command](../powershell/cost/New-FinOpsCostExport.md) using a supported API version.
    <blockquote class="tip" markdown="1">
      _If you consider yourself a power user, you may want to try updating the pipeline yourself for the quickest resolution. To do that, open Data Factory, navigate to Author > Pipelines > msexports_ExecuteETL, and select the applicable "Set" activities and update the **Settings** > **Value** property as needed. If you do this, you do not need to re-create the export with an older version. Please still report the issue and consider sharing the new JSON from the `{}` icon at the top-right of the pipeline designer._
    </blockquote>
 9. If you notice the properties have changed for a supported API version:
-   1. [Create a change request issue in GitHub](https://aka.ms/ftk/idea) to track the breaking change. Please include the **type**, **dataVersion**, and **apiVersion** from your manifest.json file.
+   1. [Create a change request issue in GitHub](https://aka.ms/ftk/ideas) to track the breaking change. Please include the **type**, **dataVersion**, and **apiVersion** from your manifest.json file.
    2. File a support request with Cost Management to request their change be reverted as it will break everyone using FinOps hubs or other custom solutions. Include the following details to help the Cost Management support team identify the issue within their system. Note Cost Management does not have context on FinOps hubs, so we should keep the details focused on Cost Management functionality.
       > I am using Cost Management exports to pull my cost data into ADLS. I have an ADF pipeline that is processing the data when manifest files are written. My pipeline was built on API version **<your-supported-api-version>** which expects `exportConfig.resourceId`, `exportConfig.type`, and `exportConfig.dataVersion` properties to be delivered consistently. I noticed these files are not being included in the manifest file for this API version for my export that ran on **<your-export-date>**. My expectation is that the manifest file should never change for an existing API version. Can you please revert these changes?
       >
-      > To help you troubleshoot, here is my manifest file: <your-manifest-json>
+      > To help you troubleshoot, here is my manifest file: {your-manifest-json}
 
 If the manifest properties look good an this was a new or upgraded FinOps hub instance, confirm the deployment:
 
@@ -242,7 +215,7 @@ If the manifest properties look good an this was a new or upgraded FinOps hub in
 4. If any deployments failed, review the error message to determine if it's something you can resolve yourself (e.g., name conflict, fixable policy violation).
 5. If the error seems transient, try deploying again.
 6. If the error persists, create a [discussion](https://aka.ms/ftk/discuss) to see if anyone else if facing an issue or knows of a possible workaround (especially for policy issues).
-7. If the error is very clearly a bug or feature gap, [create a bug or feature request issue in GitHub](https://aka.ms/ftk/idea).
+7. If the error is very clearly a bug or feature gap, [create a bug or feature request issue in GitHub](https://aka.ms/ftk/ideas).
 
 We try to respond to issues and discussions within 2 business days.
 
@@ -260,7 +233,7 @@ TODO: Consider the following ways to streamline this in the future:
 
 Power BI: Exception of type 'Microsoft.Mashup.Engine.Interface.ResourceAccessForbiddenException' was thrown
 
-Indicates that the account loading data in Power BI does not have the [Storage Blob Data Reader role](https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-reader). Grant this role to the account loading data in Power BI.
+Indicates that the account loading data in Power BI does not have the [Storage Blob Data Reader role](/azure/role-based-access-control/built-in-roles#storage-blob-data-reader). Grant this role to the account loading data in Power BI.
 
 <br>
 
@@ -287,7 +260,7 @@ To fix that issue you will have to remove the stale identity:
 
 FinOps hub **msexports_ETL_ingestion** pipeline failed to load the schema file.
 
-**Mitigation**: Review the error message to note the dataset type and version, which are formatted with an underscore (e.g., `<type>_<version>` or `FocusCost_1.0`). Confirm that the dataset and type are both supported by the deployed version of FinOps hubs. See [supported datasets](../_reporting/hubs/data-processing.md#datasets) for details.
+**Mitigation**: Review the error message to note the dataset type and version, which are formatted with an underscore (e.g., `<type>_<version>` or `FocusCost_1.0`). Confirm that the dataset and type are both supported by the deployed version of FinOps hubs. See [supported datasets](../hubs/data-processing.md#datasets) for details.
 
 <br>
 
@@ -297,7 +270,7 @@ FinOps hub **msexports_ETL_ingestion** pipeline failed to load the schema file.
 
 FinOps hub **msexports_ExecuteETL** pipeline was not able to find the schema mapping file for the exported dataset.
 
-**Mitigation**: Confirm the dataset type and version are supported. See [supported datasets](../_reporting/hubs/data-processing.md#datasets) for details. If the dataset is supported, confirm the hub version with the [Data ingestion report](../_reporting/power-bi/data-ingestion.md).
+**Mitigation**: Confirm the dataset type and version are supported. See [supported datasets](../hubs/data-processing.md#datasets) for details. If the dataset is supported, confirm the hub version with the [Data ingestion report](../power-bi/data-ingestion.md).
 
 To add support for another dataset, create a custom mapping file and save it to `config/schemas/<dataset-type>_<dataset-version>.json`. The `<dataset-type>` `<dataset-version>` values much match what Cost Management uses. Use an existing schema file as a template to identify the datatype for each column. Keep in mind some datasets have different schemas for EA and MCA, which cannot be identified via these attributes and may cause an issue if you have both account types. We will add all datasets in a future release and account for the EA and MCA differences by aligning to FOCUS.
 
@@ -319,7 +292,7 @@ The file in hub storage does not look like it was exported from Cost Management.
 
 Unable to identify the version of FinOps hubs from the settings file. Please verify settings are correct. FinOps hubs 0.1.1 and earlier does not work with this Power BI report.
 
-**Mitigation**: Upgrade to the latest version of [FinOps hubs](../_reporting/hubs/README.md) or download Power BI reports from https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1
+**Mitigation**: Upgrade to the latest version of [FinOps hubs](../hubs/finops-hubs-overview.md) or download Power BI reports from the [FinOps toolkit v0.1.1 release](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1).
 
 <br>
 
@@ -329,7 +302,7 @@ Unable to identify the version of FinOps hubs from the settings file. Please ver
 
 Unable to ingest the specified export file because the file type is not supported.
 
-**Mitigation**: Either convert the file to a supported file format before adding to the msexports container or add support for converting the new file type to the msexports_ETL_ingestion pipeline.
+**Mitigation**: Either convert the file to a supported file format before adding to the msexports container or add support for converting the new file type to the **msexports_ETL_ingestion** pipeline.
 
 <br>
 
@@ -370,7 +343,7 @@ To check parameters, select **Transform data** > **Edit parameters** in the ribb
 - If you want a fixed date range that does not change over time (e.g., fiscal year reporting), set **RangeStart** and **RangeEnd**.
 - If you want to report on all data available, confirm that all 3 date parameters are empty.
 
-See [Set up your first report](../_reporting/power-bi/setup.md) for additional details.
+See [Set up your first report](../power-bi/setup.md) for additional details.
 
 <br>
 
@@ -399,7 +372,7 @@ Confirm the **ingestion** container is populated and refresh your reports or oth
 
 If the **ingestion** container is not empty, confirm whether you have **parquet** or **csv.gz** files by drilling into the folders.
 
-Once you know, verify the **FileType** parameter is set to `.parquet` or `.gz` in the Power BI report. See [Connect to your data](../_reporting/power-bi/README.md#-connect-to-your-data) for details.
+Once you know, verify the **FileType** parameter is set to `.parquet` or `.gz` in the Power BI report. See [Connect to your data](../power-bi/reports.md#connect-to-your-data) for details.
 
 If you're using another tool, ensure it supports the file type you're using.
 
@@ -407,13 +380,13 @@ If you're using another tool, ensure it supports the file type you're using.
 
 ## Power BI: The remote name could not be resolved: '\<storage-account>.dfs.core.windows.net'
 
-Indicates that the storage account name is incorrect. If using FinOps hubs, verify the **StorageUrl** parameter from the deployment. See [Connect to your data](../_reporting/power-bi/README.md#-connect-to-your-data) for details.
+Indicates that the storage account name is incorrect. If using FinOps hubs, verify the **StorageUrl** parameter from the deployment. See [Connect to your data](../power-bi/reports.md#connect-to-your-data) for details.
 
 <br>
 
 ## Power BI: We cannot convert the value null to type Logical
 
-Indicates that the **Billing Account ID** parameter is empty. If using FinOps hubs, set the value to the desired billing account ID. If you do not have access to the billing account or do not want to include commitment purchases and refunds, set the value to `0` and open the **CostDetails** query in the advanced editor and change the `2` to a `1`. This will inform the report to not load actual/billed cost data from the Cost Management connector. See [Connect to your data](../_reporting/power-bi/README.md#-connect-to-your-data) for details.
+Indicates that the **Billing Account ID** parameter is empty. If using FinOps hubs, set the value to the desired billing account ID. If you do not have access to the billing account or do not want to include commitment purchases and refunds, set the value to `0` and open the **CostDetails** query in the advanced editor and change the `2` to a `1`. This will inform the report to not load actual/billed cost data from the Cost Management connector. See [Connect to your data](../power-bi/reports.md#connect-to-your-data) for details.
 
 Applicable versions: **0.1 - 0.1.1** (fixed in **0.2**)
 
@@ -423,17 +396,22 @@ Applicable versions: **0.1 - 0.1.1** (fixed in **0.2**)
 
 This error typically indicates that data was not ingested into the **ingestion** container.
 
-If you just upgraded to FinOps hubs 0.2, this may be due to the Power BI report being old (from 0.1.x) or because you are not using FOCUS exports. See the [Upgrade guide](../_reporting/hubs/upgrade.md) for details.
+If you just upgraded to FinOps hubs 0.2, this may be due to the Power BI report being old (from 0.1.x) or because you are not using FOCUS exports. See the [Upgrade guide](../hubs/upgrade.md) for details.
 
 See [Reports are empty (no data)](#power-bi-reports-are-empty-no-data) for additional troubleshooting steps.
 
 <br>
 
+<!--
+## Create a support request
+
+If you're facing an error not listed above or need more help, file a [support request](/azure/azure-portal/supportability/how-to-create-azure-support-request) and specify the issue type as Billing.
+
+<br>
+-->
+
 ## Next steps
 
-Didn't find what you're looking for?
-
-[Start a discussion](https://aka.ms/finops/toolkit/discuss){: .btn .btn-primary .mb-4 .mb-md-0 .mr-4 }
-[Create an issue](https://aka.ms/ftk/idea){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+If you don't see the error you're experiencing, walk through the [troubleshooting guide](troubleshooting.md). If you have any questions, [start a discussion](https://aka.ms/finops/toolkit/discuss) or [create an issue](https://aka.ms/ftk/ideas) in GitHub.
 
 <br>

@@ -1,75 +1,88 @@
 ---
-layout: default
 title: Deployment options
-nav_order: 10
 description: 'Deploy FinOps toolkit solutions.'
-permalink: /help/deploy
+author: bandersmsft
+ms.author: banders
+ms.date: 10/17/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
+#customer intent: As a FinOps user, I want to understand what options I have to deploy FinOps toolkit tools.
 ---
 
-<span class="fs-9 d-block mb-4">FinOps toolkit deployment options</span>
-Explore the different options to deploy FinOps toolkit solutions. Deploy from the portal, make small tweaks, or download for a fully customized deployment.
-{: .fs-6 .fw-300 }
-
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [🗺️ Where to find FinOps toolkit templates](#️-where-to-find-finops-toolkit-templates)
-- [🚀 Deploy a FinOps toolkit template](#-deploy-a-finops-toolkit-template)
-- [🎛️ Using custom deployment in the Azure portal](#️-using-custom-deployment-in-the-azure-portal)
-
-</details>
-
----
+<!-- markdownlint-disable-next-line MD025 -->
+# FinOps toolkit deployment options
 
 The FinOps toolkit includes multiple ARM templates. Prerequisites, parameters, and post-deployment setup steps differ per template. Please refer to the template details for more information:
 
-- [FinOps hub](../_reporting/hubs/template.md)
-- [Optimization workbook](../_optimize/workbooks/optimization/README.md)
-- [Governance workbook](../_optimize/workbooks/governance/README.md)
+- [FinOps hub](../hubs/template.md)
+- [FinOps workbooks](../workbooks/finops-workbooks-overview.md)
 
 Note Bicep Registry modules can be referenced directly from your Bicep code and are not deployed using the steps below.
 
 <br>
 
-## 🗺️ Where to find FinOps toolkit templates
+## Where to find FinOps toolkit templates
 
 - Deploy from this site (links below).
-- Deploy from [Microsoft Learn code samples](https://learn.microsoft.com/samples/browse/?terms=finops).
+- Deploy from [Microsoft Learn code samples](/samples/browse/?terms=finops).
 - Deploy from [Azure Quickstart Templates](https://github.com/Azure/azure-quickstart-templates/tree/master/quickstarts/microsoft.costmanagement).
 - Download from [FinOps toolkit releases](https://github.com/microsoft/finops-toolkit/releases).
 - Include in your bicep modules from the [Bicep Registry](https://azure.github.io/bicep-registry-modules/#cost).
 
-<blockquote class="highlight" markdown="1">
-  💡 _Are we missing anywhere? [Let us know!](https://aka.ms/ftk/idea)_
-</blockquote>
-
 <br>
 
-## 🚀 Deploy a FinOps toolkit template
+## Deploy a FinOps toolkit template
 
 1. Select the **Deploy to Azure** button for the desired template:
 
-   | Template                                                               | Azure Commercial                                                      | Azure Gov                                                          | Azure China                                                          |
-   | ---------------------------------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------ | -------------------------------------------------------------------- |
-   | [FinOps hub](../_reporting/hubs/README.md)                             | {% include deploy.html template="finops-hub" public="1" %}            | {% include deploy.html template="finops-hub" gov="1" %}            | {% include deploy.html template="finops-hub" china="1" %}            |
-   | [FinOps workbooks](../_reporting/hubs/README.md)                       | {% include deploy.html template="finops-workbooks" public="1" %}      | {% include deploy.html template="finops-workbooks" gov="1" %}      | {% include deploy.html template="finops-workbooks" china="1" %}      |
-   | [Optimization workbook](../_optimize/workbooks/optimization/README.md) | {% include deploy.html template="optimization-workbook" public="1" %} | {% include deploy.html template="optimization-workbook" gov="1" %} | {% include deploy.html template="optimization-workbook" china="1" %} |
-   | [Governance workbook](../_optimize/workbooks/governance/README.md)     | {% include deploy.html template="governance-workbook" public="1" %}   | {% include deploy.html template="governance-workbook" gov="1" %}   | {% include deploy.html template="governance-workbook" china="1" %}   |
+   <table>
+     <tr><th>Template</th><th>Azure Commercial</th><th>Azure Gov</th><th>Azure China</th></tr>
+     <tr>
+      <td>
+        [FinOps hub](../hubs/finops-hubs-overview.md)
+      </td>
+      <td>
+        <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub-latest.ui.json"><img alt="Deploy To Azure" src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true" /></a>
+      </td>
+      <td>
+        <a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub-0.1.1.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub-0.1.1.ui.json"><img alt="Deploy To Azure Gov" src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.svg?sanitize=true" /></a>
+      </td>
+      <td>
+        <a href="https://portal.azure.cn/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub-0.1.1.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub-0.1.1.ui.json"><img alt="Deploy To Azure China" src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazurechina.svg?sanitize=true" /></a>
+      </td>
+     </tr>
+     <tr>
+      <td>
+        [FinOps workbooks](../workbooks/finops-workbooks-overview.md)
+      </td>
+      <td>
+        <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json"><img alt="Deploy To Azure" src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true" /></a>
+      </td>
+      <td>
+        <a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json"><img alt="Deploy To Azure Gov" src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.svg?sanitize=true" /></a>
+      </td>
+      <td>
+        <!--
+        <a href="https://portal.azure.cn/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-workbooks-latest.ui.json"><img alt="Deploy To Azure China" src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazurechina.svg?sanitize=true" /></a>
+        -->
+      </td>
+     </tr>
+   </table>
 
 2. Specify the desired values for each parameter. See the template details for more information.
-   <blockquote class="tip" markdown="1">
-     _Use the **Edit parameters** link to use a saved parameters file or to download a new parameters file for future use._
-   </blockquote>
+   > [!NOTE]
+   > Use the **Edit parameters** link to use a saved parameters file or to download a new parameters file for future use.
 3. Select the **Review + create** button.
 4. Select the **Create** button.
 
-![Screenshot of the FinOps hub create form](https://github.com/microsoft/finops-toolkit/assets/399533/80257886-41d3-402d-8756-c3eaced7a19b)
+:::image type="content" source="../../media/help/deploy-create-form.png" border="true" alt-text="Screenshot of the FinOps hub create form" lightbox="../../media/help/deploy-create-form.png" :::
 
 <br>
 
-## 🎛️ Using custom deployment in the Azure portal
+## Using custom deployment in the Azure portal
 
-![Screenshot of the custom deployment form](https://github.com/microsoft/finops-toolkit/assets/399533/cab162d6-cbb1-43e4-87ff-2e659285a428)
+:::image type="content" source="../../media/help/deploy-custom-deployment.png" border="true" alt-text="Screenshot of the custom deployment form." lightbox="../../media/help/deploy-custom-deployment.png" :::
 
 The Azure portal includes a **Custom deployment** option that supports all templates available in the Azure Quickstart Templates repository. To deploy a quickstart template:
 

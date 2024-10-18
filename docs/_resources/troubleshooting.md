@@ -1,39 +1,40 @@
 ---
-layout: default
 title: Troubleshooting
-nav_order: 999
-description: 'Details and solutions for common issues you may experience.'
-permalink: /help/troubleshoot
+description: This article describes how to validate FinOps toolkit solutions are configured correctly.
+author: bandersmsft
+ms.author: banders
+ms.date: 10/17/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
+#customer intent: As a FinOps user, I want to validate FinOps toolkit solutions are deployed and configured correctly.
 ---
 
-<span class="fs-9 d-block mb-4">Troubleshooting guide</span>
-Sorry to hear you're having a problem. We're here to help!
-{: .fs-6 .fw-300 }
+<!-- markdownlint-disable-next-line MD025 -->
+# Troubleshooting guide
 
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
+This article describes how to validate FinOps toolkit solutions have been deployed and configured correctly. If you have a specific error code, review [common errors](errors.md) for details and mitigation steps. If you need a more thorough walkthrough to validate your configuration, follow the applicable steps below.
 
-- [⏩ Do you have a specific error code?](#-do-you-have-a-specific-error-code)
-- [📋 Validate your FinOps hub deployment](#-validate-your-finops-hub-deployment)
-- [📋 Validate your Power BI configuration](#-validate-your-power-bi-configuration)
-
-</details>
-
----
-
-## ⏩ Do you have a specific error code?
-
-⚡ [Find common errors](./errors.md) ▶
+<!--
+If the information provided doesn't help you, [Create a support request](/azure/cost-management-billing/costs/cost-management-error-codes#create-a-support-request).
+-->
 
 <br>
 
-## 📋 Validate your FinOps hub deployment
+## Do you have a specific error code?
+
+If you have a specific error code, we recommend starting with [common errors](errors.md) for a direct explanation of the issue you are facing as well as how to mitigate or work around the issue.
+
+<br>
+
+## Validate your FinOps hub deployment
 
 <!--
 1. [Cost Export](#cost-export)
 2. [Azure Data Factory](#data-factory)
 3. [Storage Account (MSExport and Ingestion Containers)](#storage-account)
 4. [Power BI](#power-bi)
+
 ### Cost Management export
 
 - Error: "Failed to export cost data" - Ensure the Cost Management register provider is registered.
@@ -54,8 +55,6 @@ Sorry to hear you're having a problem. We're here to help!
 - Error: "Access to the resource is forbidden" - Check user permissions or SAS token settings.
 - Error: "Invalid Billing Account ID" - Ensure the correct billing account ID is used in the Commitment Discounts report.
 -->
-
-This guide helps you troubleshoot issues with the FinOps Hubs, focusing on two main sections: Data Ingestion and Connecting to Your Data. Always start troubleshooting with the Data Ingestion section before moving on to Connecting to Your Data.
 
 ### Step 1: Verify Cost Management export
 
@@ -92,11 +91,47 @@ This guide helps you troubleshoot issues with the FinOps Hubs, focusing on two m
 
 <br>
 
-## 📋 Validate your Power BI configuration
+## Validate your Power BI configuration
 
-### Step 1: Connect Power BI to storage
+### Step 1: Identify your storage URL
 
-Decide whether you will connect to storage using a user or service principal account or using a storage account key (aka SAS token).
+Before you begin validating your Power BI configuration, you need to know whether you are connecting to your data using one of the following mechanisms:
+
+- Cost Management connector for Power BI – Ideal for small accounts with limited needs. Not recommended if reporting on more than $2M in total costs.
+- Cost Management exports in storage – Requires exporting data from Cost Management into a storage account. Does not require additional deployments.
+- FinOps hubs – Requires deploying the [FinOps hub solution](../hubs/finops-hubs-overview.md).
+
+If you need assistance in choosing the best approach for your needs, see [Choosing a Power BI data source](../power-bi/help-me-choose.md).
+
+If using the Cost Management connector, see [Create visuals and reports with the Cost Management connector in Power BI Desktop](/power-bi/connect-data/desktop-connect-azure-cost-management).
+
+If using FinOps hubs, you can copy the URL from the deployment outputs in the Azure portal:
+
+1. Navigate to the resource group where FinOps hubs was deployed.
+2. Select **Settings** > **Deployments** in the menu.
+3. Select the **hub** deployment.
+4. Select **Outputs** in the menu.
+5. Copy the **storageUrlForPowerBI** value.
+6. Paste this URL into the **Hub storage URL** in Power BI.
+7. If using raw exports for any data, also follow the steps below.
+8. If not using raw exports for any data, paste the hub storage URL into the **Export storage URL** in Power BI.
+   > [!NOTE]
+   > Power BI requires both parameters to be set in order for the Power BI service to refresh datasets.
+
+If using raw exports without FinOps hubs for any datasets (even if you are using hubs for cost data), you can obtain the Data Lake Storage URI from your storage account in the Azure portal:
+
+1. Navigate to the storage account in the Azure portal.
+2. Select **Settings** > **Endpoints** in the menu.
+3. Copy the **Data Lake Storage** > **Data Lake Storage** URL.
+4. Paste this URL into the **Export storage URL** in Power BI.
+5. If using FinOps hubs for any data, also follow the steps above.
+6. If not using FinOps hubs for any data, paste the export storage URL into the **Hub storage URL** in Power BI.
+   > [!NOTE]
+   > Power BI requires both parameters to be set in order for the Power BI service to refresh datasets.
+
+### Step 2: Connect Power BI to storage
+
+Decide whether you will connect to storage using a user or service principal account or using a storage account key (also called SAS token).
 
 - **Using a user or service principal account**
   1. Ensure you have the Storage Blob Data Reader role explicitly to the account you will use. This permission is not inherited even if you have "Owner" or "Contributor" permissions.
@@ -107,14 +142,14 @@ Decide whether you will connect to storage using a user or service principal acc
      - Allowed permissions: Read and List
   2. Ensure you have also set a valid start and expiry date/time.
 
-### Step 2: Troubleshoot connection errors
+### Step 3: Troubleshoot connection errors
 
-1. If you try to connect to your storage account and receive an error: "Access to the resource is forbidden", it is very likely you are missing a few permissions. Refer back to [Connect Power BI to storage](#step-1-connect-power-bi-to-storage) to ensure you have the correct permissions.
+1. If you try to connect to your storage account and receive an error: "Access to the resource is forbidden", it is very likely you are missing a few permissions. Refer back to [Connect Power BI to storage](#step-2-connect-power-bi-to-storage) to ensure you have the correct permissions.
 2. If you see an error about access being forbidden, review if the billing account that you are connecting to is correct. Power BI reports are provided with a sample billing account, and if you don't change that to your own ID, you won't be able to connect.
 
-### Step 3: Troubleshoot missing months of data
+### Step 4: Troubleshoot missing months of data
 
-1. If the Power BI report does not include entire months of data, confirm the date parameters in the Power BI report by checking **Transform data** > **Edit parameters** in the ribbon. See [Set up your first report](../_reporting/power-bi/setup.md) for details.
+1. If the Power BI report does not include entire months of data, confirm the date parameters in the Power BI report by checking **Transform data** > **Edit parameters** in the ribbon. See [Set up your first report](../power-bi/setup.md) for details.
    - **Number of Months** defines how many closed months (before the current month) will be shown in reports. Even if data is exported, data outside this range will not be shown. If defined, this parameter overrides others.
    - **RangeStart** and **RangeEnd define an explicit date range of data to show in the reports. Anything before or after these dates will not be shown.
    - If **RangeStart** is empty, all historical data before **RangeEnd** will be included.
@@ -122,3 +157,11 @@ Decide whether you will connect to storage using a user or service principal acc
    - If all date parameters are empty, all available data will be included.
 
 <br>
+
+<!--
+## Create a support request
+
+If you're facing an error not listed above or need more help, file a [support request](/azure/azure-portal/supportability/how-to-create-azure-support-request) and specify the issue type as Billing.
+
+<br>
+-->
