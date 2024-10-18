@@ -412,6 +412,6 @@ If you're facing an error not listed above or need more help, file a [support re
 
 ## Next steps
 
-If you don't see the error you're experiencing, walk through the [troubleshooting guide](troubleshooting.md). If you have any questions, [start a discussion](https://aka.ms/finops/toolkit/discuss) or [create an issue](https://aka.ms/ftk/ideas) in GitHub.
+If you don't see the error you're experiencing, walk through the [troubleshooting guide](troubleshooting.md). If you have any questions, [start a discussion](https://aka.ms/ftk/discuss) or [create an issue](https://aka.ms/ftk/ideas) in GitHub.
 
 <br>

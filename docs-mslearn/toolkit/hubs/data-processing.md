@@ -91,7 +91,7 @@ ingestion/{dataset}/{yyyy}/{mm}/{scope-id}
 - `{month}` is the year and month of the exported data formatted as `yyyyMM`.
 - `{scope-id}` is expected to be the fully qualified resource ID of the scope the data is from.
 
-If you need to use hubs to monitor non-Azure data, convert the data to [FOCUS](../../focus/what-is-focus.md) and drop it into the **ingestion** container. Note this process wasn't explicitly tested in the latest release. If you experience any issues, [create an issue](https://aka.ms/ftk/idea).
+If you need to use hubs to monitor non-Azure data, convert the data to [FOCUS](../../focus/what-is-focus.md) and drop it into the **ingestion** container. Note this process wasn't explicitly tested in the latest release. If you experience any issues, [create an issue](https://aka.ms/ftk/ideas).
 
 <br>
 
@@ -201,7 +201,7 @@ ingestion/{dataset}/{yyyy}/{mm}/{scope-id}
 - `{month}` is the year and month of the exported data formatted as `yyyyMM`.
 - `{scope-id}` is expected to be the fully qualified resource ID of the scope the data is from.
 
-If you need to use hubs to monitor non-Azure data, convert the data to [FOCUS](../../focus/what-is-focus.md) and drop it into the **ingestion** container. This process wasn't explicitly tested in the latest release. If you experience any issues, [create an issue](https://aka.ms/ftk/idea).
+If you need to use hubs to monitor non-Azure data, convert the data to [FOCUS](../../focus/what-is-focus.md) and drop it into the **ingestion** container. This process wasn't explicitly tested in the latest release. If you experience any issues, [create an issue](https://aka.ms/ftk/ideas).
 
 ### About exports in v0.4-0.5
 

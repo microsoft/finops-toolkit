@@ -123,7 +123,7 @@ To create a new FinOps hub, follow these steps:
 
    For more information, see [Connect to your data](../power-bi/reports.md#connect-to-your-data).
 
-If you run into any issues, see [Troubleshooting Power BI reports](https://aka.ms/ftk/trouble).
+If you run into any issues, see [Troubleshooting Power BI reports](../help/troubleshooting.md).
 
 > [!NOTE]
 > If you need to deploy to Azure Gov or Azure China, use [FinOps hubs 0.1.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1). Instructions are the same except you will create an amortized cost export instead of a FOCUS export.
@@ -132,7 +132,7 @@ If you run into any issues, see [Troubleshooting Power BI reports](https://aka.m
   &nbsp;
   <a href="https://portal.azure.cn/#create/Microsoft.Template/uri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub-0.1.1.json/createUIDefinitionUri/https%3A%2F%2Fmicrosoft.github.io%2Ffinops-toolkit%2Fdeploy%2Ffinops-hub-0.1.1.ui.json"><img alt="Deploy To Azure China" src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazurechina.svg?sanitize=true" /></a>
 
-If you run into any issues, refer to the [Troubleshooting guide](https://aka.ms/ftk/trouble).
+If you run into any issues, refer to the [Troubleshooting guide](../help/troubleshooting.md).
 
 A *scope* is an Azure construct that contains resources or enables purchasing services, like a resource group, subscription, management group, or billing account. The resource ID for a scope is the Azure Resource Manager URI that identifies the scope (for example, "/subscriptions/###" for a subscription or "/providers/Microsoft.Billing/billingAccounts/###" for a billing account). For more information, see [Understand and work with scopes](https://aka.ms/costmgmt/scopes).
 
@@ -164,7 +164,7 @@ After you deploy a hub instance, there are several ways for you to get started:
    [Data Factory](/azure/data-factory/introduction) is used to ingest and transform data. We recommend using Data Factory as a cost-efficient solution to apply custom logic to your cost data. Don't modify built-in pipelines or data in the **msexports** container. If you create custom pipelines, monitor new data in the **ingestion** container and use a consistent prefix to ensure they don't overlap with new pipelines. Refer to [data processing](./data-processing.md) for details about how data is processed.
 
    > [!IMPORTANT]
-   > Keep in mind this is the primary area we are planning to evolve in [upcoming FinOps toolkit releases](https://aka.ms/finops/toolkit/roadmap). Get familiar the roadmap to avoid conflicts with future updates. Consider [contributing to the project](https://github.com/microsoft/finops-toolkit/blob/dev/CONTRIBUTING.md) to add support for new scenarios to avoid conflicts.
+   > Keep in mind this is the primary area we are planning to evolve in [upcoming FinOps toolkit releases](../roadmap.md). Get familiar the roadmap to avoid conflicts with future updates. Consider [contributing to the project](https://github.com/microsoft/finops-toolkit/blob/dev/CONTRIBUTING.md) to add support for new scenarios to avoid conflicts.
 
 6. Generate custom alerts using Power Automate.
 
@@ -189,7 +189,7 @@ You need one or more of the following to export your cost data:
 | Scope                                                 | Permission                                                                                                  |
 | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | Subscriptions and resource groups (all account types) | [Cost Management Contributor](/azure/role-based-access-control/built-in-roles#cost-management-contributor). |
-| EA billing scopes                                     | Enterprise Reader, Department Reader, or Account Owner (also known as enrollment account).                            |
+| EA billing scopes                                     | Enterprise Reader, Department Reader, or Account Owner (also known as enrollment account).                  |
 | MCA billing scopes                                    | Contributor on the billing account, billing profile, or invoice section.                                    |
 | MPA billing scopes                                    | Contributor on the billing account, billing profile, or customer.                                           |
 
@@ -217,7 +217,7 @@ Related products:
 Related solutions:
 
 - [FinOps toolkit Power BI reports](../power-bi/reports.md)
-- [FinOps workbooks](https://aka.ms/finops/workbooks)
+- [FinOps workbooks](../workbooks/finops-workbooks-overview.md)
 - [FinOps toolkit open data](../open-data.md)
 
 <br>

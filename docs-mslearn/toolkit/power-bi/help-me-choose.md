@@ -112,7 +112,7 @@ Related products:
 Related solutions:
 
 - [FinOps hubs](../hubs/finops-hubs-overview.md)
-- [FinOps workbooks](https://aka.ms/finops/workbooks)
+- [FinOps workbooks](../workbooks/finops-workbooks-overview.md)
 - [FinOps toolkit open data](../open-data.md)
 
 <br>

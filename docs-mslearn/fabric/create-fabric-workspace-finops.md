@@ -9,6 +9,7 @@ ms.service: finops
 ms.reviewer: micflan
 ---
 
+<!-- markdownlint-disable-next-line MD025 -->
 # Create a Fabric workspace for FinOps
 
 This article walks you through creating and configuring a [Microsoft Fabric](/fabric/get-started/microsoft-fabric-overview) workspace for FinOps. It provides a step-by-step guide to create and configure Azure Data Lake storage (ADLS) setup, data export, workspace creation, and data ingestion. When completed, you can use Power BI to build reports.
@@ -37,7 +38,7 @@ Microsoft Fabric is optimized to work with storage accounts with hierarchical na
 - Option 2: To enable hierarchical namespace on an existing storage account, see [Upgrade Azure Blob Storage with Azure Data Lake Storage Gen2 capabilities](/azure/storage/blobs/upgrade-to-data-lake-storage-gen2-how-to?tabs=azure-portal).
 
 >[!TIP]
->If you deployed [FinOps hubs](https://aka.ms/finops/hubs), you can use the storage account created as part of the hub resource group.
+>If you deployed [FinOps hubs](../toolkit/hubs), you can use the storage account created as part of the hub resource group.
 
 For the following example, we used the following Data Lake Gen 2 storage account. You use your own storage account and subscription details.
 
@@ -52,7 +53,7 @@ For the following example, we used the following Data Lake Gen 2 storage account
 
 Since we're creating a workspace optimized for FinOps, we export cost data using the FinOps Open Cost and Usage Specification (FOCUS), a provider-agnostic data format for cost details. All our examples use FOCUS but you can also use existing actual or amortized cost exports that have file overwriting enabled.
 
-To learn more about FOCUS and its benefits, see [About FOCUS](https://microsoft.github.io/finops-toolkit/focus). The FinOps Foundation also offers a free [Introduction to FOCUS course](https://learn.finops.org/introduction-to-focus). Microsoft’s Power BI solutions for FinOps are aligned to FOCUS.
+To learn more about FOCUS and its benefits, see [About FOCUS](../focus). The FinOps Foundation also offers a free [Introduction to FOCUS course](https://learn.finops.org/introduction-to-focus). Microsoft’s Power BI solutions for FinOps are aligned to FOCUS.
 
 To create an export, see [Create exports](/azure/cost-management-billing/costs/tutorial-improved-exports#create-exports).
 
@@ -82,7 +83,7 @@ Ensure that your export completed and that the file is available before moving t
 
 If you want to automate export creation, consider using the [New-FinOpsCostExport command](https://microsoft.github.io/finops-toolkit/powershell/cost/New-FinOpsCostExport) in the FinOps toolkit PowerShell module.
 
-If you deployed [FinOps hubs](https://aka.ms/finops/hubs), you can skip this step and use the processed data in hub storage.
+If you deployed [FinOps hubs](../toolkit/hubs/finops-hubs-overview.d), you can skip this step and use the processed data in hub storage.
 
 <br>
 
@@ -117,7 +118,7 @@ To create a new lakehouse in the Fabric workspace of your choice:
 1. Select the workspace where you want to create the lakehouse.
 1. Near the top left of the page, select **+ New** and then select **More options**.  
     :::image type="content" source="./media/create-fabric-workspace-finops/fabric-new-more-options.png" border="true" alt-text="Screenshot showing navigation to More options." lightbox="./media/create-fabric-workspace-finops/fabric-new-more-options.png" :::
-3. Select **Lakehouse**  
+1. Select **Lakehouse**  
     :::image type="content" source="./media/create-fabric-workspace-finops/fabric-new-lakehouse.png" border="true" alt-text="Screenshot showing the Lakehouse option." lightbox="./media/create-fabric-workspace-finops/fabric-new-lakehouse.png" :::
 
 For more information, see [Create a lakehouse](/fabric/data-engineering/create-lakehouse).
@@ -132,11 +133,11 @@ To create a shortcut, see [Create an Azure Data Lake Storage Gen2 shortcut](/fab
 
 1. Sign in to the Fabric app using your [Fabric free account](https://www.microsoft.com/microsoft-fabric/getting-started) or [Microsoft Power BI](https://app.powerbi.com) account.
 1. Select the lakehouse of your choice.
-2. Select the ellipsis (**...**) next to **Files**.  
+1. Select the ellipsis (**...**) next to **Files**.  
     You add CSV and Parquet files under **Files**. Delta tables get added under **Tables**.
-3. Select **New shortcut**.  
+1. Select **New shortcut**.  
     :::image type="content" source="./media/create-fabric-workspace-finops/fabric-new-shortcut.png" border="true" alt-text="Screenshot showing creating a new shortcut in a lakehouse under the Files folder." lightbox="./media/create-fabric-workspace-finops/fabric-new-shortcut.png" :::
-4. Select **Azure Data Lake Storage Gen 2** and provide the following settings:
+1. Select **Azure Data Lake Storage Gen 2** and provide the following settings:
    - URL = **Data Lake Storage** URL of the Data Lake storage account. See the following note about authentication.
    - Connection = **Create a new connection**
    - Connection name = &lt;*Any name of your choice*&gt;
@@ -147,7 +148,7 @@ Here’s an example screenshot showing the New shortcut connection settings.
 
 :::image type="content" source="./media/create-fabric-workspace-finops/fabric-new-shortcut-connection-settings.png" border="true" alt-text="Screenshot showing the New shortcut connection settings." lightbox="./media/create-fabric-workspace-finops/fabric-new-shortcut-connection-settings.png" :::
 
-To get the Data Lake Storage URL, view the storage account where the export created a directory and the FOCUS cost file. Under **Settings**, select **Endpoints**. Copy the URL marked as **Data Lake Storage**. 
+To get the Data Lake Storage URL, view the storage account where the export created a directory and the FOCUS cost file. Under **Settings**, select **Endpoints**. Copy the URL marked as **Data Lake Storage**.
 
 Here’s an example screenshot showing the Data Lake Storage URL on the **Endpoints** page.
 
@@ -185,7 +186,7 @@ Here’s an example screenshot showing data in the Lakehouse table.
 
 ### [Automate data ingestion](#tab/automate-data-ingestion)
 
-For detailed information about automating the process to ingest data into Fabric tables, see [How to use notebooks](/fabric/data-engineering/how-to-use-notebook). 
+For detailed information about automating the process to ingest data into Fabric tables, see [How to use notebooks](/fabric/data-engineering/how-to-use-notebook).
 
 Here are the high-level steps:
 
@@ -244,11 +245,13 @@ After the data is ingested into Fabric and tables are ready, you can move on to 
 1. Select the workspace where you created the lakehouse and then select the lakehouse.
 1. In the Explorer pane, select **Tables** and then select the table that you created.
 1. At the top of the page, select **New semantic model** and name the model. For more information, see [Default Power BI semantic models](/fabric/data-warehouse/semantic-models#sync-the-default-power-bi-semantic-model).
-4. Select the Power BI symbol at the bottom left.
-5. Select the same semantic model to build reports and then use Copilot to generate insights from your ingested data.
+1. Select the Power BI symbol at the bottom left.
+1. Select the same semantic model to build reports and then use Copilot to generate insights from your ingested data.
 
 >[!NOTE]
 > The Power BI demo uses simulated cost data for illustration purposes.
+
+<br>
 
 ## Related content
 
@@ -258,5 +261,7 @@ Related products:
 
 Related solutions:
 
-- [FinOps hubs](https://aka.ms/finops/hubs)
-- [FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi)
+- [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md)
+- [FinOps toolkit Power BI reports](../toolkit/power-bi/reports.md)
+
+<br>

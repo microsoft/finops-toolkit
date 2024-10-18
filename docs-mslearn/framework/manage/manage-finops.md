@@ -117,7 +117,7 @@ Related products:
 
 Related solutions:
 
-- [Governance workbook](https://microsoft.github.io/finops-toolkit/governance-workbook)
-- [FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi)
+- [FinOps toolkit Power BI reports](../../toolkit/power-bi/reports.md)
+- [FinOps workbooks](../../toolkit/workbooks/finops-workbooks-overview.md)
 
 <br>

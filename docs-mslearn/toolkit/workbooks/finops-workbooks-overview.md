@@ -48,7 +48,7 @@ This template includes the following workbooks:
 
 We'd love to hear about any workbooks you need or general questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new workbooks.
 
-[Share feedback](https://aka.ms/ftk/idea)
+[Share feedback](https://aka.ms/ftk/ideas)
 
 <br>
 

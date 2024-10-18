@@ -104,7 +104,7 @@ Here's a list of known issues with the Cost Management connector report:
 
 ## Feedback about FOCUS columns
 
-If you have feedback about our mappings or about our full FOCUS support plans, start a thread in [FinOps toolkit discussions](https://aka.ms/ftk/discuss). If you think you have a bug, [create an issue](https://aka.ms/ftk/idea).
+If you have feedback about our mappings or about our full FOCUS support plans, start a thread in [FinOps toolkit discussions](https://aka.ms/ftk/discuss). If you think you have a bug, [create an issue](https://aka.ms/ftk/ideas).
 
 If you have feedback about FOCUS, [create an issue in the FOCUS repository](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/issues/new/choose). We also encourage you to consider contributing to the FOCUS project. The project is looking for more practitioners to help bring their experience to help guide efforts and make it the most useful spec it can be. To learn more about FOCUS or to contribute to the project, visit [focus.finops.org](https://focus.finops.org).
 
@@ -114,7 +114,7 @@ If you have feedback about FOCUS, [create an issue in the FOCUS repository](http
 
 We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
 
-[Share feedback](https://aka.ms/ftk/idea)
+[Share feedback](https://aka.ms/ftk/ideas)
 
 <br>
 
@@ -143,7 +143,7 @@ Related products:
 Related solutions:
 
 - [FinOps hubs](../hubs/finops-hubs-overview.md)
-- [FinOps workbooks](https://aka.ms/finops/workbooks)
+- [FinOps workbooks](../workbooks/finops-workbooks-overview.md)
 - [FinOps toolkit open data](../open-data.md)
 
 <br>

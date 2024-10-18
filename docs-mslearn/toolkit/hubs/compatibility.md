@@ -31,16 +31,16 @@ The storage path is important for any client that's utilizing the same datasets.
 
 The Power BI version refers to the Power BI reports made available within that specific version of the FinOps toolkit. If you customized an older version of the reports, make note of the version you started with, as that is what is useful here.
 
-| Cost Management exports                   | FinOps hubs | Storage path                    | Power BI      | Notes                                                                                                                                    |
-| ----------------------------------------- | ----------- | ------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| FOCUS costs, Prices, Reservation datasets | 0.6         | {dataset}/{yyyy}/{MM}/{scope}   | 0.6+          | Reservation recommendations pulled from hub storage                                                                                      |
-| FOCUS 1.0-preview(v1) or 1.0 costs        | 0.6         | {dataset}/{yyyy}/{MM}/{scope}¹ | 0.6+²       | Storage path updated; Reservation recommendations pulled from a separate, nonhub storage URL (or excluded from report)                  |
-| FOCUS 1.0-preview(v1) or 1.0 costs        | 0.5         | {scope}/{yyyyMM}/{dataset}      | 0.4+²       | Reservation recommendations pulled from a separate, nonhub storage URL (or excluded from report)                                        |
-| FOCUS 1.0-preview(v1) or 1.0 costs        | 0.4         | {scope}/{yyyyMM}/{dataset}      | 0.4+²       | Supports a mix of FOCUS 1.0 and 1.0-preview(v1) data; Reservation recommendations pulled from the Cost Management connector for Power BI |
+| Cost Management exports                   | FinOps hubs | Storage path                   | Power BI      | Notes                                                                                                                                    |
+| ----------------------------------------- | ----------- | ------------------------------ | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| FOCUS costs, Prices, Reservation datasets | 0.6         | {dataset}/{yyyy}/{MM}/{scope}  | 0.6+          | Reservation recommendations pulled from hub storage                                                                                      |
+| FOCUS 1.0-preview(v1) or 1.0 costs        | 0.6         | {dataset}/{yyyy}/{MM}/{scope}¹ | 0.6+²         | Storage path updated; Reservation recommendations pulled from a separate, nonhub storage URL (or excluded from report)                   |
+| FOCUS 1.0-preview(v1) or 1.0 costs        | 0.5         | {scope}/{yyyyMM}/{dataset}     | 0.4+²         | Reservation recommendations pulled from a separate, nonhub storage URL (or excluded from report)                                         |
+| FOCUS 1.0-preview(v1) or 1.0 costs        | 0.4         | {scope}/{yyyyMM}/{dataset}     | 0.4+²         | Supports a mix of FOCUS 1.0 and 1.0-preview(v1) data; Reservation recommendations pulled from the Cost Management connector for Power BI |
 | FOCUS 1.0-preview(v1) only                | 0.4         | {scope}/{yyyyMM}/{dataset}¹    | 0.2+          | Storage path updated                                                                                                                     |
-| FOCUS 1.0-preview(v1) costs only          | 0.2 - 0.3   | {path}/{yyyyMM}/{dataset}       | 0.2+²       | Switched to FOCUS data only                                                                                                              |
-| Actual or Amortized costs (not both)      | 0.1 - 0.1.1 | {path}/{yyyyMM}/{dataset}       | 0.0.1 - 0.1.1 | Enterprise Agreement and Microsoft Customer Agreement                                                                                                                               |
-| Actual or Amortized costs (not both)      | 0.0.1       | {path}/{yyyyMM}/{dataset}       | 0.0.1 - 0.1.1 | Enterprise Agreement                                                                                                                                  |
+| FOCUS 1.0-preview(v1) costs only          | 0.2 - 0.3   | {path}/{yyyyMM}/{dataset}      | 0.2+²         | Switched to FOCUS data only                                                                                                              |
+| Actual or Amortized costs (not both)      | 0.1 - 0.1.1 | {path}/{yyyyMM}/{dataset}      | 0.0.1 - 0.1.1 | Enterprise Agreement and Microsoft Customer Agreement                                                                                    |
+| Actual or Amortized costs (not both)      | 0.0.1       | {path}/{yyyyMM}/{dataset}      | 0.0.1 - 0.1.1 | Enterprise Agreement                                                                                                                     |
 
 ¹ When storage paths update, there is a risk that re-exported data will land in a new place and might cause duplicate data. To resolve, remove the old folders in the **ingestion** container.<br>
 
@@ -52,7 +52,7 @@ The Power BI version refers to the Power BI reports made available within that s
 
 Did this guide give you the answers you needed? If not, ask a question or share feedback to let us know how we can improve it. We're here to help!
 
-[Ask a question](https://aka.ms/ftk/discuss) &nbsp; [Share feedback](https://aka.ms/ftk/idea)
+[Ask a question](https://aka.ms/ftk/discuss) &nbsp; [Share feedback](https://aka.ms/ftk/ideas)
 
 <br>
 

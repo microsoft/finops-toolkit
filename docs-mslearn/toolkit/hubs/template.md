@@ -60,7 +60,7 @@ Ensure the following prerequisites are met before you deploy the template:
 - The Microsoft.EventGrid resource provider must be registered in your subscription. For more information, see [Register a resource provider](/azure/azure-resource-manager/management/resource-providers-and-types#register-resource-provider).
 
    > [!IMPORTANT]
-   > If you forget this step, the deployment will succeed, but the pipeline trigger will not be started and data will not be ready. For more information, see [Troubleshooting Power BI reports](https://aka.ms/ftk/trouble).
+   > If you forget this step, the deployment will succeed, but the pipeline trigger will not be started and data will not be ready. For more information, see [Troubleshooting Power BI reports](../help/troubleshooting.md).
 
 <br>
 

@@ -13,7 +13,7 @@ ms.reviewer: micflan
 <!-- markdownlint-disable-next-line MD025 -->
 # Cost Management template app for Enterprise Agreement accounts
 
-The **EA template app** is the PBIX version of the "Cost Management app" in Microsoft AppSource. The template app isn't customizable or downloadable, so we're making the PBIX file available here. We don't recommend using this report as it only works for Enterprise Agreement billing accounts and is no longer being updated. You're welcome to download and customize it as needed. However, you might want to check out the other [FinOps toolkit reports](reports.md), which were updated to cover new scenarios. The [Cost summary](cost-summary.md) and [Rate optimization](rate-optimization.md) reports were both created based on the template app, so you should find most capabilities within those reports. If you feel something is missing, [let us know](https://aka.ms/ftk/idea)!
+The **EA template app** is the PBIX version of the "Cost Management app" in Microsoft AppSource. The template app isn't customizable or downloadable, so we're making the PBIX file available here. We don't recommend using this report as it only works for Enterprise Agreement billing accounts and is no longer being updated. You're welcome to download and customize it as needed. However, you might want to check out the other [FinOps toolkit reports](reports.md), which were updated to cover new scenarios. The [Cost summary](cost-summary.md) and [Rate optimization](rate-optimization.md) reports were both created based on the template app, so you should find most capabilities within those reports. If you feel something is missing, [let us know](https://aka.ms/ftk/ideas)!
 
 <br>
 
@@ -51,7 +51,7 @@ In general, we don't plan to make changes to the template app. The following min
 
 We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
 
-[Share feedback](https://aka.ms/ftk/idea)
+[Share feedback](https://aka.ms/ftk/ideas)
 
 <br>
 
@@ -70,7 +70,7 @@ Related products:
 Related solutions:
 
 - [FinOps hubs](../hubs/finops-hubs-overview.md)
-- [FinOps workbooks](https://aka.ms/finops/workbooks)
+- [FinOps workbooks](../workbooks/finops-workbooks-overview.md)
 - [FinOps toolkit open data](../open-data.md)
 
 <br>

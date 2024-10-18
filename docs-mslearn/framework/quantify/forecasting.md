@@ -135,9 +135,9 @@ Related products:
 Related solutions:
 
 - [Cost Management connector for Power BI](/power-bi/connect-data/desktop-connect-azure-cost-management)
-- [FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi)
-- [FinOps hubs](https://aka.ms/finops/hubs)
-- [FinOps toolkit Bicep Registry modules](https://aka.ms/ftk/bicep)
+- [FinOps toolkit Power BI reports](../../toolkit/power-bi/reports.md)
+- [FinOps hubs](../../toolkit/hubs/finops-hubs-overview.md)
+- [FinOps toolkit bicep modules](../../toolkit/bicep-registry/modules.md)
 
 Other resources:
 

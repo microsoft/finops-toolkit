@@ -87,8 +87,8 @@ Related products:
 Related solutions:
 
 - [Cost Management connector for Power BI](/power-bi/connect-data/desktop-connect-azure-cost-management)
-- [FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi)
-- [FinOps hubs](https://aka.ms/finops/hubs)
-- [FinOps toolkit PowerShell module](https://aka.ms/ftk/ps)
+- [FinOps toolkit Power BI reports](../../toolkit/power-bi/reports.md)
+- [FinOps hubs](../../toolkit/hubs/finops-hubs-overview.md)
+- [FinOps toolkit PowerShell module](../../toolkit/powershell/powershell-commands.md)
 
 <br>

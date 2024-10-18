@@ -56,7 +56,7 @@ When you first start managing cost in the cloud, you use the native tools availa
   - Determine the level of granularity required and how often the data needs to be refreshed. Daily cost data can be a challenge to manage for a large account. Consider monthly aggregates to reduce costs and increase query performance and reliability if that meets your reporting needs.
 - Consider using a third-party FinOps platform.
   - Review the available [third-party solutions in the Azure Marketplace](https://portal.azure.com/#view/Microsoft_Azure_Marketplace/MarketplaceOffersBlade/searchQuery/cost).
-  - If you decide to build your own solution, consider starting with [FinOps hubs](https://aka.ms/finops/hubs), part of the open source FinOps toolkit provided by Microsoft.
+  - If you decide to build your own solution, consider starting with [FinOps hubs](../../toolkit/hubs/finops-hubs-overview.md), part of the open source FinOps toolkit provided by Microsoft.
     - FinOps hubs accelerate your development and help you focus on building the features you need rather than infrastructure.
 - Complement cloud cost data with organizational hierarchies and budgets.
 - Select the [cost details solution](/azure/cost-management-billing/automate/usage-details-best-practices) that is right for you. We recommend scheduled exports, which push cost data to a storage account on a daily or monthly basis.
@@ -76,7 +76,7 @@ At this point, you have a data pipeline and are ingesting data into a central da
 
 - Normalize data to a standard schema to support aligning and blending data from multiple sources.
   - For cost data, we recommend using the [FinOps Open Cost & Usage Specification (FOCUS) schema](../../focus/what-is-focus.md).
-  - [FinOps hubs](https://aka.ms/finops/hubs) includes Power BI reports that normalize data to the FOCUS schema, which can be a good starting point.
+  - [FinOps hubs](../../toolkit/hubs/finops-hubs-overview.md) includes Power BI reports that normalize data to the FOCUS schema, which can be a good starting point.
 - Complement cloud cost data with organizational hierarchies and budgets.
   - Consider labeling or tagging requirements to map cloud costs to organizational hierarchies.
 - Enrich cloud resource and solution data with internal CMDB or ITAM data.
@@ -133,7 +133,7 @@ Related products:
 
 Related solutions:
 
-- [FinOps hubs](https://aka.ms/finops/hubs)
-- [FinOps toolkit PowerShell module](https://aka.ms/ftk/ps)
+- [FinOps hubs](../../toolkit/hubs/finops-hubs-overview.md)
+- [FinOps toolkit PowerShell module](../../toolkit/powershell/powershell-commands.md)
 
 <br>

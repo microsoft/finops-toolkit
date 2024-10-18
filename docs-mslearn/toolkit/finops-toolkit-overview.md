@@ -28,22 +28,18 @@ The FinOps toolkit is an ever-evolving collection of tools and resources. The fo
 
 - [FinOps hubs](hubs/finops-hubs-overview.md) – Open, extensible, and scalable cost reporting.
 - [Power BI reports](power-bi/reports.md) – Accelerate your reporting with Power BI starter kits.
+- [FinOps workbooks](./workbooks/finops-workbooks-overview.md) – Central hub for cost optimization.
+  - [Cost optimization workbook](./workbooks/optimization.md) – Central hub for cost optimization.
+  - [Governance workbook](./workbooks/governance.md) – Central hub for governance.
+- [Azure Optimization Engine](./optimization-engine/optimization-engine-overview.md) – Extensible solution for custom optimization recommendations.
+- [PowerShell module](./powershell/powershell-commands.md) – Automate and manage FinOps solutions and capabilities.
+- [Bicep Registry modules](./bicep-registry/modules.md) – Official repository for Bicep modules.
 - [Open data](open-data.md) – Data available for anyone to access, use, and share without restriction.
   - [Pricing units](open-data.md#pricing-units) – Microsoft pricing units, distinct units, and scaling factors.
   - [Regions](open-data.md#regions) – Microsoft Commerce locations and Azure regions (IDs and names).
   - [Resource types](open-data.md#resource-types) – Microsoft Azure resource type display names, icons, and more.
   - [Services](open-data.md#services) – Microsoft consumed services, resource types, and FOCUS service categories.
   - [Sample exports](open-data.md#dataset-examples) – Sample files from Cost Management exports.
-
-<!--
-For a future PR:
-- 📒 [FinOps workbooks](./workbooks) – Central hub for cost optimization.
-  - 💵 [Cost optimization workbook](./workbooks/optimization) – Central hub for cost optimization.
-  - ⚖️ [Governance workbook](./workbooks/governance) – Central hub for governance.
-- 🔍 [Azure Optimization Engine](./optimization-engine) – Extensible solution for custom optimization recommendations.
-- 🖥️ [PowerShell module](./powershell) – Automate and manage FinOps solutions and capabilities.
-- 🦾 [Bicep Registry modules](./bicep) – Official repository for Bicep modules.
--->
 
 <br>
 
@@ -67,7 +63,7 @@ The FinOps toolkit is an open source project. We have many ideas on the long-ter
 
 All the main changes are tracked in the changelog. For more information, see the commit history.
 
-[Explore the changelog](https://aka.ms/ftk/changes) &nbsp; [Browse the commit history](https://github.com/microsoft/finops-toolkit/commits/main).
+[Explore the changelog](changelog.md) &nbsp; [Browse the commit history](https://github.com/microsoft/finops-toolkit/commits/main).
 
 <br>
 
@@ -82,11 +78,5 @@ Related products:
 - [Cost Management](/azure/cost-management-billing/costs/)
 - [Azure Resource Graph](/azure/governance/resource-graph/)
 - [Azure Monitor](/azure/azure-monitor/)
-
-Related solutions:
-
-- [FinOps hubs](hubs/finops-hubs-overview.md)
-- [FinOps workbooks](https://aka.ms/finops/workbooks)
-- [FinOps toolkit open data](open-data.md)
 
 <br>

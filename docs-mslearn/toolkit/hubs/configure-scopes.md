@@ -61,7 +61,7 @@ If you can't grant permissions for your scope, you can create Cost Management ex
    - Exports can take up to a day to show up after first created.
    - Use the **Run now** command at the top of the Cost Management Exports page.
    - Your data should be available within 15 minutes or so, depending on how large your account is.
-   - If you want to backfill data, open the export details and select the **Export selected dates** command to export one month at a time or use the [Start-FinOpsCostExport PowerShell command](https://aka.ms/ftk/Start-FinOpsCostExport) to export a larger date range.
+   - If you want to backfill data, open the export details and select the **Export selected dates** command to export one month at a time or use the [Start-FinOpsCostExport PowerShell command](../powershell/cost/Start-FinOpsCostExport.md) to export a larger date range.
 5. Repeat steps 1-4 for each scope you want to monitor.
 
 _¹ FinOps hubs 0.2 and later requires FOCUS cost data. As of July 2024, the option to export FOCUS cost data is only accessible from the central Cost Management experience in the Azure portal. If you don't see this option, search for or navigate to [Cost Management Exports](https://portal.azure.com/#blade/Microsoft_Azure_CostManagement/Menu/open/exports)._
@@ -211,7 +211,7 @@ Managed exports use a managed identity (MI) to configure the exports automatical
 
 ## Configure exports via PowerShell
 
-If it's the first time you're using the FinOps toolkit PowerShell module, refer to the [PowerShell](https://aka.ms/ftk/ps) deployment guide to install the module.
+If it's the first time you're using the FinOps toolkit PowerShell module, refer to the [PowerShell](../powershell/powershell-commands.md) deployment guide to install the module.
 
 1. Install the FinOps toolkit PowerShell module.
 

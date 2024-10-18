@@ -44,7 +44,7 @@ A few important notes about the data:
 > [!NOTE]
 > In the Cost Management FOCUS dataset, `UnitOfMeasure` is renamed to `x_PricingUnitDescription`. Both `PricingUnit` and `UsageUnit` in FOCUS are set to the `DistictUnits` column.
 
-[Download PricingUnits.csv](https://github.com/microsoft/finops-toolkit/releases/latest/download/PricingUnits.csv) &nbsp; [See PowerShell](https://aka.ms/ftk/Get-FinOpsPricingUnit)
+[Download PricingUnits.csv](https://github.com/microsoft/finops-toolkit/releases/latest/download/PricingUnits.csv) &nbsp; [See PowerShell](powershell/data/Get-FinOpsPricingUnit)
 
 <br>
 
@@ -66,7 +66,7 @@ Sample data:
 
 <!-- cSpell:enable -->
 
-[Download Regions.csv](https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv) &nbsp; [See PowerShell](https://aka.ms/ftk/Get-FinOpsRegion)
+[Download Regions.csv](https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv) &nbsp; [See PowerShell](powershell/data/Get-FinOpsRegion)
 
 > [!NOTE]
 > Convert region values to lowercase before mapping. This helps reduce duplication and speed up the mapping process.
@@ -98,7 +98,7 @@ Sample data:
 > [!NOTE]
 > Convert resource type values to lowercase before mapping. This helps reduce duplication and speed up the mapping process.
 
-[Download ResourceTypes.csv](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv) &nbsp; [Download ResourceTypes.json](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.json) &nbsp; [See PowerShell](https://aka.ms/ftk/Get-FinOpsResourceType)
+[Download ResourceTypes.csv](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv) &nbsp; [Download ResourceTypes.json](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.json) &nbsp; [See PowerShell](powershell/data/Get-FinOpsResourceType)
 
 <br>
 
@@ -155,14 +155,14 @@ Given each dataset uses different columns and data types, FOCUS defines the meta
 
 Sample data:
 
-| ColumnName           | DataType | Description|
-| --- | --- | --- |
-| `BilledCost`| Decimal  | A charge serving as the basis for invoicing, inclusive of all reduced rates and discounts while excluding the amortization of upfront charges (one-time or recurring). |
-| `BillingAccountId`   | String   | Unique identifier assigned to a billing account by the provider.|
-| `BillingAccountName` | String   | Display name assigned to a billing account.|
-| `BillingCurrency`    | String   | Currency that a charge was billed in.|
-| `BillingPeriodEnd`   | DateTime | End date and time of the billing period.|
-| `BillingPeriodStart` | DateTime | Beginning date and time of the billing period.|
+| ColumnName           | DataType | Description                                                                                                                                                            |
+| -------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `BilledCost`         | Decimal  | A charge serving as the basis for invoicing, inclusive of all reduced rates and discounts while excluding the amortization of upfront charges (one-time or recurring). |
+| `BillingAccountId`   | String   | Unique identifier assigned to a billing account by the provider.                                                                                                       |
+| `BillingAccountName` | String   | Display name assigned to a billing account.                                                                                                                            |
+| `BillingCurrency`    | String   | Currency that a charge was billed in.                                                                                                                                  |
+| `BillingPeriodEnd`   | DateTime | End date and time of the billing period.                                                                                                                               |
+| `BillingPeriodStart` | DateTime | Beginning date and time of the billing period.                                                                                                                         |
 
 Metadata is available for the following datasets:
 
@@ -178,7 +178,7 @@ Metadata is available for the following datasets:
 
 We'd love to hear about any datasets you're looking for. Create a new issue with the details that you'd like to see either included in existing or new datasets.
 
-[Share feedback](https://aka.ms/ftk/idea)
+[Share feedback](https://aka.ms/ftk/ideas)
 
 <br>
 
@@ -200,6 +200,6 @@ Related solutions:
 
 - [FinOps hubs](hubs/finops-hubs-overview.md)
 - [FinOps toolkit Power BI reports](power-bi/reports.md)
-- [FinOps toolkit PowerShell module](https://aka.ms/ftk/ps)
+- [FinOps toolkit PowerShell module](../../toolkit/powershell/powershell-commands.md)
 
 <br>

@@ -69,7 +69,7 @@ You have commitment discounts in place at this point. As you move beyond the bas
   - Consider implementing a consistent utilization and coverage monitoring system that covers all accounts.
 - Establish a process for centralized purchasing of commitment-based offers, assigning responsibility to a dedicated team or individual.
 - Consider programmatically aligning governance policies with commitments to prioritize SKUs and locations that are covered by reservations and aren't fully utilized when deploying new applications.
-- If you need to monitor the usage of commitment discounts outside of the Azure portal, consider deploying FinOps hubs, which include a [Rate optimization report](https://aka.ms/ftk/pbi/RateOptimization). It summarizes existing and potential savings from commitment discounts, like reservations and savings plans.
+- If you need to monitor the usage of commitment discounts outside of the Azure portal, consider deploying FinOps hubs, which include a [Rate optimization report](../../toolkit/power-bi/rate-optimization.md). It summarizes existing and potential savings from commitment discounts, like reservations and savings plans.
 
 <br>
 
@@ -100,9 +100,9 @@ Related products:
 Related solutions:
 
 - [Cost Management connector for Power BI](/power-bi/connect-data/desktop-connect-azure-cost-management)
-- [FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi)
-- [Cost optimization workbook](../../toolkit/optimization-workbook/cost-optimization-workbook.md)
-- [FinOps hubs](https://aka.ms/finops/hubs)
+- [FinOps toolkit Power BI reports](../../toolkit/power-bi/reports.md)
+- [FinOps workbooks](../../toolkit/workbooks/finops-workbooks-overview.md)
+- [FinOps hubs](../../toolkit/hubs/finops-hubs-overview.md)
 
 Other resources:
 

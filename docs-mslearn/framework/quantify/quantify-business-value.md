@@ -77,7 +77,7 @@ Related products:
 Related solutions:
 
 - [Microsoft Cloud for Sustainability](https://www.microsoft.com/sustainability/cloud)
-- [FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi)
+- [FinOps toolkit Power BI reports](../../toolkit/power-bi/reports.md)
 
 Other resources:
 

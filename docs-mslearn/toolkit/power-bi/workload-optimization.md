@@ -68,7 +68,7 @@ The chart shows the cost of each disk over time. The table shows the disks with 
 
 We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
 
-[Share feedback](https://aka.ms/ftk/idea)
+[Share feedback](https://aka.ms/ftk/ideas)
 
 <br>
 
@@ -87,7 +87,7 @@ Related products:
 Related solutions:
 
 - [FinOps hubs](../hubs/finops-hubs-overview.md)
-- [FinOps workbooks](https://aka.ms/finops/workbooks)
+- [FinOps workbooks](../workbooks/finops-workbooks-overview.md)
 - [FinOps toolkit open data](../open-data.md)
 
 <br>

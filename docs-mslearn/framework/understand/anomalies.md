@@ -42,9 +42,9 @@ When you first start managing cost in the cloud, you use the native tools availa
   - Use smart views in Cost analysis to [review anomaly insights](/azure/cost-management-billing/understand/analyze-unexpected-charges#identify-cost-anomalies) that were automatically detected for each subscription.
   - Use customizable views in Cost analysis to [manually find unexpected changes](/azure/cost-management-billing/understand/analyze-unexpected-charges#manually-find-unexpected-cost-changes).
   - Consider [saving custom views](/azure/cost-management-billing/costs/save-share-views) that show cost over time for specific workloads to save time.
-  - Consider creating more detailed usage reports using [Power BI](https://aka.ms/ftk/pbi).
+  - Consider creating more detailed usage reports using [Power BI](../../toolkit/power-bi/reports.md).
 - Once an anomaly is identified, take appropriate actions to address it.
-  - Review the anomaly details with the engineers who manage the related cloud resources. Some autodetected "anomalies" are planned or at least known resource configuration changes as part of building and managing cloud services.
+  - Review the anomaly details with the engineers who manage the related cloud resources. Some auto-detected "anomalies" are planned or at least known resource configuration changes as part of building and managing cloud services.
   - If you need lower-level usage details, review resource utilization in [Azure Monitor metrics](/azure/azure-monitor/essentials/metrics-getting-started).
   - If you need resource details, review [resource configuration changes in Azure Resource Graph](/azure/governance/resource-graph/how-to/get-resource-changes).
 
@@ -91,7 +91,7 @@ Related products:
 
 Related solutions:
 
-- [FinOps toolkit Bicep Registry modules](https://aka.ms/ftk/bicep)
-- [FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi)
+- [FinOps toolkit bicep modules](../../toolkit/bicep-registry/modules.md)
+- [FinOps toolkit Power BI reports](../../toolkit/power-bi/reports.md)
 
 <br>

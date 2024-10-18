@@ -116,10 +116,9 @@ Related products:
 
 Related solutions:
 
-- [Cost optimization workbook](../../toolkit/optimization-workbook/cost-optimization-workbook.md)
-- [Governance workbook](https://microsoft.github.io/finops-toolkit/workbooks/governance)
-- [FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi)
-- [FinOps hubs](https://aka.ms/finops/hubs)
+- [FinOps workbooks](../../toolkit/workbooks/finops-workbooks-overview.md)
+- [FinOps toolkit Power BI reports](../../toolkit/power-bi/reports.md)
+- [FinOps hubs](../../toolkit/hubs/finops-hubs-overview.md)
 
 Other resources:
 

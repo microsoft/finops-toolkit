@@ -69,8 +69,8 @@ Related FinOps capabilities:
 Related solutions:
 
 - [Cost Management connector for Power BI](/power-bi/connect-data/desktop-connect-azure-cost-management)
-- [FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi)
-- [FinOps hubs](https://aka.ms/finops/hubs)
-- [Cost optimization workbook](../../toolkit/optimization-workbook/cost-optimization-workbook.md)
+- [FinOps toolkit Power BI reports](../../toolkit/power-bi/reports.md)
+- [FinOps hubs](../../toolkit/hubs/finops-hubs-overview.md)
+- [FinOps workbooks](../../toolkit/workbooks/finops-workbooks-overview.md)
 
 <br>

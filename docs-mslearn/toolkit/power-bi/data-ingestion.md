@@ -63,7 +63,7 @@ If you notice exports from before ingested months, it typically means older data
 
 ## Ingestion errors
 
-The **Ingestion errors** page summarizes potential issues that were identified after reviewing data in hub storage. For troubleshooting details about each error, see [Troubleshooting Power BI reports](https://aka.ms/ftk/trouble).
+The **Ingestion errors** page summarizes potential issues that were identified after reviewing data in hub storage. For troubleshooting details about each error, see [Troubleshooting Power BI reports](../help/troubleshooting.md).
 
 :::image type="content" source="./media/data-ingestion/ingestion-errors.png" border="true" alt-text="Screenshot of the Ingestion errors page that shows a summary of potential problems." lightbox="./media/data-ingestion/ingestion-errors.png" :::
 
@@ -74,7 +74,7 @@ The **Ingestion errors** page summarizes potential issues that were identified a
 
 We'd love to hear about any reports, charts, or general reporting questions you're looking to answer. Create a new issue with the details that you'd like to see either included in existing or new reports.
 
-[Share feedback](https://aka.ms/ftk/idea)
+[Share feedback](https://aka.ms/ftk/ideas)
 
 <br>
 

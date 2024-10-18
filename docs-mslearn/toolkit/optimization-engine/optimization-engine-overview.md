@@ -163,6 +163,6 @@ Related solutions:
 
 - [FinOps hubs](../hubs/finops-hubs-overview.md)
 - [FinOps toolkit Power BI reports](../power-bi/reports.md)
-- [FinOps workbooks](https://aka.ms/finops/workbooks)
+- [FinOps workbooks](../workbooks/finops-workbooks-overview.md)
 
 <br>

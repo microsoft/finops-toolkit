@@ -13,7 +13,7 @@ ms.reviewer: micflan
 <!-- markdownlint-disable-next-line MD025 -->
 # FinOps toolkit roadmap
 
-The Microsoft FinOps toolkit is an open-source collection of tools and resources that help you learn, adopt, and implement FinOps capabilities in the Microsoft Cloud. This document outlines the key themes and directional initiatives identified by the [Governing board](https://github.com/microsoft/finops-toolkit/wiki/Governing-board). They're based on direct feedback and inputs from the [Advisory council](https://github.com/microsoft/finops-toolkit/wiki/Advisory-council) on behalf of toolkit contributors and consumers. As of May 2024, the FinOps toolkit targets publishing new releases at the end of every month, which includes updates to this roadmap and the [changelog](https://aka.ms/ftk/changes).
+The Microsoft FinOps toolkit is an open-source collection of tools and resources that help you learn, adopt, and implement FinOps capabilities in the Microsoft Cloud. This document outlines the key themes and directional initiatives identified by the [Governing board](https://github.com/microsoft/finops-toolkit/wiki/Governing-board). They're based on direct feedback and inputs from the [Advisory council](https://github.com/microsoft/finops-toolkit/wiki/Advisory-council) on behalf of toolkit contributors and consumers. As of May 2024, the FinOps toolkit targets publishing new releases at the end of every month, which includes updates to this roadmap and the [changelog](changelog.md).
 
 Roadmap term: **January - December 2024**
 
@@ -21,7 +21,7 @@ Roadmap term: **January - December 2024**
 
 This roadmap is a culmination of feedback from toolkit contributors, consumers, and the FinOps community as a whole. The roadmap provides a high-level view of where the toolkit is directionally headed. It summarizes key themes and initiatives but isn't a complete list of every change that can or will get made. We share the roadmap to garner early feedback. Ultimately, the FinOps toolkit community drives contributions.
 
-While our community is growing, we don't have a dedicated staff and can't commit to explicit dates. As a result, not all items will be completed within the year. If you would like to see something added, [create an issue](https://aka.ms/ftk/idea) or [start a discussion](https://aka.ms/ftk/discuss). And, we welcome any contribution with a pull request.
+While our community is growing, we don't have a dedicated staff and can't commit to explicit dates. As a result, not all items will be completed within the year. If you would like to see something added, [create an issue](https://aka.ms/ftk/ideas) or [start a discussion](https://aka.ms/ftk/discuss). And, we welcome any contribution with a pull request.
 
 <br>
 
@@ -133,11 +133,5 @@ Related products:
 - [Cost Management](/azure/cost-management-billing/costs/)
 - [Azure Resource Graph](/azure/governance/resource-graph/)
 - [Azure Monitor](/azure/azure-monitor/)
-
-Related solutions:
-
-- [FinOps hubs](hubs/finops-hubs-overview.md)
-- [FinOps workbooks](https://aka.ms/finops/workbooks)
-- [FinOps toolkit open data](open-data.md)
 
 <br>

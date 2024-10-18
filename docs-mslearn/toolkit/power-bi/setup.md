@@ -65,9 +65,8 @@ The FinOps toolkit Power BI reports include preconfigured visuals, but aren't co
      > [!WARNING]
      > [Enable incremental refresh](/power-bi/connect-data/incremental-refresh-configure#define-policy) to load more than $5M of raw cost details. Power BI reports can only support $2-5M of data when incremental refresh is not enabled. After incremental refresh is enabled, they can support $2-5M/month for a total of ~$65M in raw cost details.
 8. Select **Close & Apply** to save your settings.
-8. Select **Close & Apply** to save your settings.
 
-If you run into any issues syncing your data, see [Troubleshooting Power BI reports](https://aka.ms/ftk/trouble).
+If you run into any issues syncing your data, see [Troubleshooting Power BI reports](../help/troubleshooting.md).
 
 <br>
 
@@ -236,7 +235,7 @@ See [Queries and datasets](#️-queries-and-datasets) below for additional detai
 FinOps toolkit reports offer multiple versions of cost details to align to different schemas for backwards compatibility. These schemas are only provided to assist in migrating from older versions. We recommend updating visuals to use CostDetails or the newest underlying dataset. If you do not need legacy datasets, you can remove them from the Power Query Editor (Transform data) window.
 
 <blockquote class="warning" markdown="1">
-   _FinOps hubs will eventually adopt the [FOCUS standard](https://aka.ms/finops/focus) when available._
+   _FinOps hubs will eventually adopt the [FOCUS standard](../../focus/what-is-focus.md) when available._
 </blockquote>
 
 ### CostDetails
@@ -300,7 +299,7 @@ Related products:
 Related solutions:
 
 - [FinOps hubs](../hubs/finops-hubs-overview.md)
-- [FinOps workbooks](https://aka.ms/finops/workbooks)
+- [FinOps workbooks](../workbooks/finops-workbooks-overview.md)
 - [FinOps toolkit open data](../open-data.md)
 
 <br>

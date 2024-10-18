@@ -60,7 +60,7 @@ Once you have a consolidated list of the Microsoft, third-party, and homegrown t
 
 - Map tools and services to organizational objectives.
 - Identify which tools are used by different teams and stakeholders.
-- Investigate options to extend current tools and services, like the [FinOps toolkit](https://aka.ms/finops/toolkit).
+- Investigate options to extend current tools and services, like the [FinOps toolkit](../../toolkit/finops-toolkit-overview.md).
 <br>
 
 ## Building on the basics
@@ -68,8 +68,8 @@ Once you have a consolidated list of the Microsoft, third-party, and homegrown t
 At this point, you defined your organizational objectives, identified how current tools and services meet them, and hopefully identified any limitations and gaps. As you move beyond the basics, you focus on establishing a plan to address limitations and gaps or opportunities to go beyond your basic requirements to further maximize cloud ROI through new opportunities made available via new or existing tools and services.
 
 - Evaluate existing tools and services and establish a plan to address any limitations and gaps.
-  - Automate tasks with [PowerShell commands](https://aka.ms/ftk/ps) and [Bicep modules](https://aka.ms/ftk/bicep).
-  - Consider lightweight tools for engineers, like the [Cost optimization](../../toolkit/optimization-workbook/cost-optimization-workbook.md) or [Governance](https://microsoft.github.io/finops-toolkit/workbooks/governance) workbooks.
+  - Automate tasks with [PowerShell commands](../../toolkit/powershell/powershell-commands.md) and [Bicep modules](../../toolkit/bicep-registry/modules.md).
+  - Consider lightweight tools for engineers, like the [FinOps workbooks](../../toolkit/workbooks/finops-workbooks-overview.md) workbooks.
   - If you're looking for an extensible platform for reporting and analytics, check out [FinOps hubs](../../toolkit/hubs/finops-hubs-overview.md) and connect to your hub from Microsoft Fabric to go even further.
 - Document the key processes around the tools and services available to teams.
   - Include when to use and how to get started with each.
@@ -105,11 +105,11 @@ Related products:
 
 Related solutions:
 
-- [FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi)
-- [FinOps hubs](https://aka.ms/finops/hubs)
-- [Cost optimization workbook](../../toolkit/optimization-workbook/cost-optimization-workbook.md)
-- [Governance workbook](https://microsoft.github.io/finops-toolkit/workbooks/governance)
-- [FinOps toolkit PowerShell commands](https://aka.ms/ftk/ps)
-- [FinOps toolkit bicep modules](https://aka.ms/ftk/bicep)
+- [FinOps toolkit Power BI reports](../../toolkit/power-bi/reports.md)
+- [FinOps hubs](../../toolkit/hubs/finops-hubs-overview.md)
+- [Cost optimization workbook](../../toolkit/workbooks/optimization.md)
+- [Governance workbook](../../toolkit/workbooks/governance.md)
+- [FinOps toolkit PowerShell module](../../toolkit/powershell/powershell-commands.md)
+- [FinOps toolkit bicep modules](../../toolkit/bicep-registry/modules.md)
 
 <br>

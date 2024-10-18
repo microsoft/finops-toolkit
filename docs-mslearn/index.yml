@@ -27,7 +27,7 @@ highlightedContent:
     # Card
     - title: FinOps blog
       itemType: whats-new
-      url: https://aka.ms/finops/tcblog
+      url: https://aka.ms/finops/blog
     # Card
     - title: FinOps with Azure e-book
       itemType: download

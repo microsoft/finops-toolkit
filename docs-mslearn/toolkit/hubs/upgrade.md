@@ -42,13 +42,13 @@ Use the following sections to determine the best steps to upgrade your hub insta
 
 Microsoft Online Services Agreement (MOSA, also called pay-as-you-go) and Microsoft internal subscriptions aren't supported in FinOps hubs `0.2` or later. You can use Power BI reports from the `0.1.1` release or the FinOps toolkit PowerShell module `0.1.1`, but there's no need to upgrade your hub instance. Changes were internal or only apply to initial onboarding. Contact support about transitioning to a Microsoft Customer Agreement account.
 
-[Download 0.1.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1) &nbsp; [Install PowerShell](https://aka.ms/ftk/ps#install-the-module)
+[Download 0.1.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1) &nbsp; [Install PowerShell](../powershell/powershell-commands.md#install-the-module)
 
 ### EA and MCA accounts for 0.0.1
 
 If you have an EA or MCA account, upgrade to `0.2` which uses the new [FOCUS](../../focus/what-is-focus.md) cost data format and covers both billed (actual) and amortized costs with 30% less data size (and storage costs). It's the baseline for all future updates.
 
-[See 0.2 upgrade instructions](#ea-and-mca-accounts-for-01x) &nbsp; [View changes](https://aka.ms/ftk/changes#-v01)
+[See 0.2 upgrade instructions](#ea-and-mca-accounts-for-01x) &nbsp; [View changes](../changelog.md#v01)
 
 <br>
 
@@ -62,7 +62,7 @@ Use the following sections to determine the best steps to upgrade your hub insta
 
 Microsoft Online Services Agreement (MOSA, also called pay-as-you-go) and Microsoft internal subscriptions aren't supported in FinOps hubs `0.2` or later. You can use Power BI reports from the `0.1.1` release or the FinOps toolkit PowerShell module `0.1.1`, but there's no need to upgrade your hub instance. Contact support about transitioning to a Microsoft Customer Agreement account.
 
-[Download 0.1.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1) &nbsp; [Install PowerShell](https://aka.ms/ftk/ps#install-the-module)
+[Download 0.1.1](https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1) &nbsp; [Install PowerShell](../powershell/powershell-commands.md#install-the-module)
 
 ### EA and MCA accounts for 0.1.x
 
@@ -89,7 +89,7 @@ Based on the preceding considerations, use the following steps to upgrade your h
    > You can skip step 1 since resource providers have already been registered.
 4. Backfill historical data using the FOCUS export.
 
-[Download 0.3](https://github.com/microsoft/finops-toolkit/releases/tag/v0.3) &nbsp; [View changes](https://aka.ms/ftk/changes#-v02)
+[Download 0.3](https://github.com/microsoft/finops-toolkit/releases/tag/v0.3) &nbsp; [View changes](../changelog.md#v02)
 
 <br>
 
@@ -97,7 +97,7 @@ Based on the preceding considerations, use the following steps to upgrade your h
 
 Upgrading FinOps hubs 0.2 to 0.3 is as simple as redeploying the template and optionally update to the 0.3 Power BI reports. There are no breaking changes, so Power BI reports from 0.2 should work with 0.3 and vice-versa.
 
-[Download 0.3](https://github.com/microsoft/finops-toolkit/releases/tag/v0.3) &nbsp; [View changes](https://aka.ms/ftk/changes#-v03)
+[Download 0.3](https://github.com/microsoft/finops-toolkit/releases/tag/v0.3) &nbsp; [View changes](../changelog.md#v03)
 
 <br>
 
@@ -114,7 +114,7 @@ FinOps hubs 0.4 aligns with FOCUS 1.0, so note the changes to the following colu
 
 Reports work with both FOCUS 1.0 and FOCUS 1.0 preview exports, so there's no need to change exports in order to use the new reports. The reports themselves update the schema to meet FOCUS 1.0 requirements.
 
-[Download 0.4](https://github.com/microsoft/finops-toolkit/releases/tag/v0.4) &nbsp; [View changes](https://aka.ms/ftk/changes#-v04)
+[Download 0.4](https://github.com/microsoft/finops-toolkit/releases/tag/v0.4) &nbsp; [View changes](../changelog.md#v04)
 
 <br>
 
@@ -126,7 +126,7 @@ FinOps toolkit 0.5 reports replaced the Cost Management connector with reservati
 
 If you exported reservation recommendations to the **msexports** container of your hub storage account, use that. If you chose not to export reservation recommendations, set the **Export Storage URL** to the same FinOps hub URL. If you leave one of the URLs empty, the report doesn't refresh in the Power BI service and you get a "dynamic query" error. Placing the same URL in both parameters should work around this limitation.
 
-[Download 0.5](https://github.com/microsoft/finops-toolkit/releases/tag/v0.5) &nbsp; [View changes](https://aka.ms/ftk/changes#-v05)
+[Download 0.5](https://github.com/microsoft/finops-toolkit/releases/tag/v0.5) &nbsp; [View changes](../changelog.md#v05)
 
 <br>
 
@@ -137,7 +137,7 @@ Upgrading FinOps hubs 0.5 to 0.6 involves redeploying the template and updating 
 > [!IMPORTANT]
 > If you re-export any historical data in 0.6 that was previously exported in an earlier release, FinOps hubs will not clean up the old data, which will result in duplicated data. The simplest way to resolve this is to delete the older data in the **ingestion** container. FinOps hubs 0.6 moves all content into a folder based on the dataset type: **focuscost**, **pricesheet**, **reservationdetails**, **reservationrecommendations**, or **reservationtransactions**. Any other folders can be safely removed. Once removed, re-run your historical data backfill.
 
-[Download 0.6](https://github.com/microsoft/finops-toolkit/releases/tag/v0.6) &nbsp; [View changes](https://aka.ms/ftk/changes#-v06)
+[Download 0.6](https://github.com/microsoft/finops-toolkit/releases/tag/v0.6) &nbsp; [View changes](../changelog.md#v06)
 
 <br>
 

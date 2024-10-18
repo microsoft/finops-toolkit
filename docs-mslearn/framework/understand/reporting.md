@@ -102,7 +102,7 @@ As a starting point, we focus on tools available in the Azure portal and Microso
 - Use the different tools optimized to provide the details you need to understand the holistic picture of your resource cost and usage.
   - [Analyze resource usage metrics in Azure Monitor](/azure/azure-monitor/essentials/tutorial-metrics).
   - [Review resource configuration changes in Azure Resource Graph](/azure/governance/resource-graph/how-to/get-resource-changes).
-- If you need to build more advanced reports or merge cost data with other cloud or business data, [use the FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi).
+- If you need to build more advanced reports or merge cost data with other cloud or business data, [use the FinOps toolkit Power BI reports](../../toolkit/power-bi/reports.md).
 
 <br>
 
@@ -157,11 +157,10 @@ Related products:
 Related solutions:
 
 - [Cost Management connector for Power BI](/power-bi/connect-data/desktop-connect-azure-cost-management)
-- [FinOps toolkit Power BI reports](https://aka.ms/ftk/pbi)
-- [FinOps hubs](https://aka.ms/finops/hubs)
-- [Cost optimization workbook](../../toolkit/optimization-workbook/cost-optimization-workbook.md)
-- [Governance workbook](https://microsoft.github.io/finops-toolkit/workbooks/governance)
-- [FinOps toolkit Bicep Registry modules](https://aka.ms/ftk/bicep)
+- [FinOps toolkit Power BI reports](../../toolkit/power-bi/reports.md)
+- [FinOps hubs](../../toolkit/hubs/finops-hubs-overview.md)
+- [FinOps workbooks](../../toolkit/workbooks/finops-workbooks-overview.md)
+- [FinOps toolkit bicep modules](../../toolkit/bicep-registry/modules.md)
 
 Other resources:
 
