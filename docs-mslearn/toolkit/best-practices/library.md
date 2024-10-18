@@ -18,7 +18,7 @@ The FinOps best practices library is a collection of essential proven practices 
 <!-- Sort list alphabetically for findability -->
 
 - [General](general.md)
-- [Compute](compute.md)
+- [Compute](compute/compute.md)
 - [Databases](databases.md)
 - [Networking](networking.md)
 - [Storage](storage.md)
@@ -42,7 +42,7 @@ Related solutions:
 
 - [FinOps toolkit Power BI reports](../../../docs-mslearn/power-bi/reports.md)
 - [FinOps hubs](../../../docs-mslearn/hubs/finops-hubs-overview.md)
-- [FinOps workbooks](../../../docs-mslearn/toolkit/workbooks/finops-workbooks-overview.md)
+- [FinOps workbooks](../../_optimize/workbooks/finops-workbooks-overview.md)
 - [Optimization engine](../../../docs-mslearn/optimization-engine/optimization-engine-overview.md)
 
 <br>
