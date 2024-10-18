@@ -90,4 +90,3 @@ Related solutions:
 - [FinOps toolkit open data](open-data.md)
 
 <br>
-

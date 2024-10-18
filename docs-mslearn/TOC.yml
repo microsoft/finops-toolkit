@@ -106,7 +106,6 @@
   items:
   - name: Overview
     href: toolkit/finops-toolkit-overview.md
-    items:
   - name: Hubs
     items:
     - name: Overview
@@ -143,10 +142,54 @@
       href: toolkit/power-bi/connector.md
     - name: EA template app report
       href: toolkit/power-bi/template-app.md
-  - name: Cost optimization workbook
-    href: toolkit/optimization-workbook/cost-optimization-workbook.md
+  - name: Workbooks
+    items:
+    - name: Overview
+      href: toolkit/workbooks/finops-workbooks-overview.md
+    - name: Governance workbook
+      href: toolkit/workbooks/governance.md
+    - name: Optimization workbook
+      href: toolkit/workbooks/optimization.md
+    - name: Customize workbooks
+      href: toolkit/workbooks/customize-workbooks.md
+  - name: Optimization engine
+    items:
+    - name: Overview
+      href: toolkit/optimization-engine/optimization-engine-overview.md
+    - name: Reports
+      href: toolkit/optimization-engine/reports.md
+    - name: Customizations
+      href: toolkit/optimization-engine/customize.md
+    - name: Configure workspaces
+      href: toolkit/optimization-engine/configure-workspaces.md
+    - name: Suppress recommendations
+      href: toolkit/optimization-engine/suppress-recommendations.md
+    - name: Setup options
+      href: toolkit/optimization-engine/setup-options.md
+    - name: FAQ
+      href: toolkit/optimization-engine/faq.md
+    - name: Troubleshooting guide
+      href: toolkit/optimization-engine/troubleshooting.md
   - name: Open data
     href: toolkit/open-data.md
+  - name: Help + support
+    items:
+    - name: Help options
+      href: toolkit/help/help-options.md
+    - name: Get support
+      href: toolkit/help/support.md
+    - name: How to deploy tools
+      href: toolkit/help/deploy.md
+    - name: Data dictionary
+      href: toolkit/help/data-dictionary.md
+    - name: Common terms
+      href: toolkit/help/terms.md
+    - name: Troubleshooting guide
+      href: toolkit/help/troubleshooting.md
+    - name: Common errors
+      href: toolkit/help/errors.md
+  - name: Changelog
+    href: toolkit/changelog.md
   - name: Roadmap
     href: toolkit/roadmap.md
 - name: Resources

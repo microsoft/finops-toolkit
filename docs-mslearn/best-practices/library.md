@@ -36,13 +36,13 @@ Did we miss anything? Would you like to see something added? We'd love to hear a
 
 Related resources:
 
-- [FinOps Framework](../../../docs-mslearn/framework/finops-framework.md)
+- [FinOps Framework](../framework/finops-framework.md)
 
 Related solutions:
 
-- [FinOps toolkit Power BI reports](../../../docs-mslearn/power-bi/reports.md)
-- [FinOps hubs](../../../docs-mslearn/hubs/finops-hubs-overview.md)
-- [FinOps workbooks](../../_optimize/workbooks/finops-workbooks-overview.md)
-- [Optimization engine](../../../docs-mslearn/optimization-engine/optimization-engine-overview.md)
+- [FinOps toolkit Power BI reports](../toolkit/power-bi/reports.md)
+- [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md)
+- [FinOps workbooks](../toolkit/workbooks/finops-workbooks-overview.md)
+- [Optimization engine](../toolkit/optimization-engine/optimization-engine-overview.md)
 
 <br>
