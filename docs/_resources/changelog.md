@@ -65,6 +65,7 @@ Legend:
 > 2. Auto-backfill – Backfill historical data from Microsoft Cost Management.
 > 3. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
 > 4. ETL pipelile – Add support for parquet files created by Cost Management exports.
+> 5. Template - Added an optional enableInfrastructureEncryption template parameter to support storage account infrastructure encryption.
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }

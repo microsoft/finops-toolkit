@@ -46,6 +46,9 @@ param remoteHubStorageKey string = ''
 @description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
 
+@description('Optional. Enable infrastructure encryption on the storage account.')
+param enableInfrastructureEncryption bool = true
+
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
