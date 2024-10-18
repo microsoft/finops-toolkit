@@ -45,7 +45,7 @@ param remoteHubStorageUri string = ''
 @secure()
 param remoteHubStorageKey string = ''
 
-@description('Optional. Storage account to enable infrastructure encryption.')
+@description('Optional. To enable infrastructure encryption on the storage account.')
 param enableInfrastructureEncryption bool = true
 
 //==============================================================================
