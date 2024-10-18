@@ -1,37 +1,23 @@
 ---
-layout: default
-grand_parent: PowerShell
-parent: FinOps hubs
-title: Remove-FinOpsHubScope
-nav_order: 1
-description: 'Stops monitoring a scope within a FinOps hub instance.'
-permalink: /powershell/hubs/Remove-FinOpsHubScope
+title: Remove-FinOpsHubScope command
+description: Stops monitoring a scope within a FinOps hub instance.
+author: bandersmsft
+ms.author: banders
+ms.date: 10/17/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
+#customer intent: As a FinOps user, I want to understand how to use the Remove-FinOpsHubScope PowerShell command.
 ---
 
-<span class="fs-9 d-block mb-4">Remove-FinOpsHubScope</span>
-Stops monitoring a scope within a FinOps hub instance.
-{: .fs-6 .fw-300 }
-
-[Syntax](#-syntax){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Examples](#-examples){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [🧮 Syntax](#-syntax)
-- [📥 Parameters](#-parameters)
-- [🌟 Examples](#-examples)
-- [🧰 Related tools](#-related-tools)
-
-</details>
-
----
+<!-- markdownlint-disable-next-line MD025 -->
+# Remove-FinOpsHubScope command
 
 The **Remove-FinOpsHubScope** command removes a scope from being monitored by a FinOps hub instance. Data related to that scope is kept by default. To remove the data, use the `-RemoveData` option.
 
 <br>
 
-## 🧮 Syntax
+## Syntax
 
 ```powershell
 Remove-FinOpsHubScope `
@@ -43,18 +29,18 @@ Remove-FinOpsHubScope `
 
 <br>
 
-## 📥 Parameters
+## Parameters
 
-| Name                  | Description                                                                                     |
-| --------------------- | ----------------------------------------------------------------------------------------------- |
-|`‑Id`|    Required resource ID of the scope to remove.
-|`‑HubName`|    Required. Name of the FinOps hub instance.
-|`‑HubResourceGroupName`|    Optional. Name of the resource group the FinOps hub was deployed to.
-|`‑RemoveData`|    Optional. Indicates whether to remove data for this scope from storage. Default = false
+| Name                    | Description                                                                             |
+| ----------------------- | --------------------------------------------------------------------------------------- |
+| `‑Id`                   | Required resource ID of the scope to remove.                                            |
+| `‑HubName`              | Required. Name of the FinOps hub instance.                                              |
+| `‑HubResourceGroupName` | Optional. Name of the resource group the FinOps hub was deployed to.                    |
+| `‑RemoveData`           | Optional. Indicates whether to remove data for this scope from storage. Default = false |
 
 <br>
 
-## 🌟 Examples
+## Examples
 
 ### Remove billing account and keep data
 
@@ -74,10 +60,11 @@ Removes the exports configured to use the FooHub hub instance and removes data f
 
 <br>
 
----
+## Related content
 
-## 🧰 Related tools
+Related solutions:
 
-{% include tools.md hubs="1" pbi="1" %}
+- [FinOps toolkit Power BI reports](../power-bi/reports.md)
+- [FinOps hubs](../hubs/finops-hubs-overview.md)
 
 <br>

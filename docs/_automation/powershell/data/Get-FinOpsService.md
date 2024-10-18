@@ -1,41 +1,23 @@
 ---
-layout: default
-grand_parent: PowerShell
-parent: Open data
-title: Get-FinOpsService
-nav_order: 40
-description: 'Gets the name and category for a service, publisher, and cloud provider'
-permalink: /powershell/data/Get-FinOpsService
+title: Get-FinOpsService command
+description: Gets the name and category for a service, publisher, and cloud provider
+author: bandersmsft
+ms.author: banders
+ms.date: 10/17/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
+#customer intent: As a FinOps user, I want to understand how to use the what Get-FinOpsService command in the FinOpsToolkit module.
 ---
 
-<span class="fs-9 d-block mb-4">Get-FinOpsService</span>
-Gets the name and category for a service, publisher, and cloud provider to support FinOps Open Cost and Usage Specification (FOCUS).
-{: .fs-6 .fw-300 }
-
-[Syntax](#-syntax){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Examples](#-examples){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [🧮 Syntax](#-syntax)
-- [📥 Parameters](#-parameters)
-- [🌟 Examples](#-examples)
-- [🧰 Related tools](#-related-tools)
-
-</details>
-
----
+<!-- markdownlint-disable-next-line MD025 -->
+# Get-FinOpsService command
 
 The **Get-FinOpsService** command returns service details based on the specified filters. This command is designed to help map Cost Management cost data to the FinOps Open Cost and Usage Specification (FOCUS) schema but can also be useful for general data cleansing.
 
-<blockquote class="important" markdown="1">
-  _Both `ConsumedService` and `ResourceType` are required to find a unique service in many cases._
-</blockquote>
-
 <br>
 
-## 🧮 Syntax
+## Syntax
 
 ```powershell
 Get-FinOpsService `
@@ -52,7 +34,7 @@ Get-FinOpsService `
 
 <br>
 
-## 📥 Parameters
+## Parameters
 
 | Name                 | Description                                                                                                               |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------- |
@@ -68,7 +50,7 @@ Get-FinOpsService `
 
 <br>
 
-## 🌟 Examples
+## Examples
 
 ### Get a specific region
 
@@ -82,10 +64,16 @@ Returns all services with a resource provider that starts with "Microsoft.C".
 
 <br>
 
----
+## Related content
 
-## 🧰 Related tools
+Related products:
 
-{% include tools.md data="1" pbi="1" hubs="1" %}
+- [Cost Management](/azure/cost-management-billing/costs/)
+
+Related solutions:
+
+- [FinOps toolkit Power BI reports](../power-bi/reports.md)
+- [FinOps hubs](../hubs/finops-hubs-overview.md)
+- [FinOps toolkit open data](../open-data.md)
 
 <br>

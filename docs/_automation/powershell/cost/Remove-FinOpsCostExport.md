@@ -1,31 +1,17 @@
 ---
-layout: default
-grand_parent: PowerShell
-parent: Cost Management
-title: Remove-FinOpsCostExport
-nav_order: 1
-description: 'Delete a Cost Management export and optionally data associated with the export'
-permalink: /powershell/cost/Remove-FinOpsCostExport
+title: Remove-FinOpsCostExport command
+description: Delete a Cost Management export and optionally data associated with the export
+author: bandersmsft
+ms.author: banders
+ms.date: 10/17/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
+#customer intent: As a FinOps user, I want to understand how to use the what Remove-FinOpsCostExport command in the FinOpsToolkit module.
 ---
 
-<span class="fs-9 d-block mb-4">Remove-FinOpsCostExport</span>
-Delete a Cost Management export and optionally data associated with the export.
-{: .fs-6 .fw-300 }
-
-[Syntax](#-syntax){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Examples](#-examples){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [🧮 Syntax](#-syntax)
-- [📥 Parameters](#-parameters)
-- [🌟 Examples](#-examples)
-- [🧰 Related tools](#-related-tools)
-
-</details>
-
----
+<!-- markdownlint-disable-next-line MD025 -->
+# Remove-FinOpsCostExport command
 
 The **Remove-FinOpsCostExport** command deletes a Cost Management export and optionally data associated with the export.
 
@@ -37,7 +23,7 @@ This command has been tested with the following API versions:
 
 <br>
 
-## 🧮 Syntax
+## Syntax
 
 ```powershell
 Remove-FinOpsCostExport `
@@ -49,7 +35,7 @@ Remove-FinOpsCostExport `
 
 <br>
 
-## 📥 Parameters
+## Parameters
 
 | Name          | Description                                                                                          |
 | ------------- | ---------------------------------------------------------------------------------------------------- |
@@ -60,7 +46,7 @@ Remove-FinOpsCostExport `
 
 <br>
 
-## 🌟 Examples
+## Examples
 
 ### Delete a Cost Management export
 
@@ -75,10 +61,15 @@ Deletes a Cost Management export and removes the exported data from the linked s
 
 <br>
 
----
+## Related content
 
-## 🧰 Related tools
+Related products:
 
-{% include tools.md hubs="1" %}
+- [Cost Management](/azure/cost-management-billing/costs/)
+
+Related solutions:
+
+- [FinOps toolkit Power BI reports](../power-bi/reports.md)
+- [FinOps hubs](../hubs/finops-hubs-overview.md)
 
 <br>

@@ -1,37 +1,23 @@
 ---
-layout: default
-grand_parent: PowerShell
-parent: FinOps hubs
-title: Get-FinOpsHub
-nav_order: 2
-description: 'Gets details about a FinOps hub instance.'
-permalink: /powershell/hubs/Get-FinOpsHub
+title: Get-FinOpsHub command
+description: Gets details about a FinOps hub instance.
+author: bandersmsft
+ms.author: banders
+ms.date: 10/17/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
+#customer intent: As a FinOps user, I want to understand how to use the what Get-FinOpsHub command in the FinOpsToolkit module.
 ---
 
-<span class="fs-9 d-block mb-4">Get-FinOpsHub</span>
-Gets details about a FinOps hub instance.
-{: .fs-6 .fw-300 }
-
-[Syntax](#-syntax){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Examples](#-examples){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [🧮 Syntax](#-syntax)
-- [📥 Parameters](#-parameters)
-- [🌟 Examples](#-examples)
-- [🧰 Related tools](#-related-tools)
-
-</details>
-
----
+<!-- markdownlint-disable-next-line MD025 -->
+# Get-FinOpsHub command
 
 The Get-FinOpsHubs command calls GitHub to retrieve all toolkit releases, then filters the list based on the specified options.
 
 <br>
 
-## 🧮 Syntax
+## Syntax
 
 ```powershell
 Get-FinOpsHub `
@@ -42,7 +28,7 @@ Get-FinOpsHub `
 
 <br>
 
-## 📥 Parameters
+## Parameters
 
 | Name                 | Description                                                                              |
 | -------------------- | ---------------------------------------------------------------------------------------- |
@@ -51,7 +37,7 @@ Get-FinOpsHub `
 
 <br>
 
-## 🌟 Examples
+## Examples
 
 ### Get all hubs
 
@@ -87,10 +73,11 @@ Returns all FinOps hubs named 'foo' in the 'bar' resource group.
 
 <br>
 
----
+## Related content
 
-## 🧰 Related tools
+Related solutions:
 
-{% include tools.md hubs="1" %}
+- [FinOps toolkit Power BI reports](../power-bi/reports.md)
+- [FinOps hubs](../hubs/finops-hubs-overview.md)
 
 <br>

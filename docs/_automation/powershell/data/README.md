@@ -1,36 +1,23 @@
 ---
-layout: default
-parent: PowerShell
 title: Open data
-has_children: true
-nav_order: 9
-description: 'PowerShell commands to work with FinOps toolkit open data.'
-permalink: /powershell/data
+description: PowerShell commands to work with FinOps toolkit open data.
+author: bandersmsft
+ms.author: banders
+ms.date: 10/17/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
+#customer intent: As a FinOps user, I want to understand what PowerShell commands are available to leverage FinOps open data in the FinOpsToolkit module.
 ---
 
-<span class="fs-9 d-block mb-4">Open data integration</span>
-Work with FinOps toolkit open data within your data ingestion and cleansing efforts.
-{: .fs-6 .fw-300 }
-
-[Install](../README.md#️-install-the-module){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Commands](#-commands){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [⚡ Commands](#-commands)
-- [🙋‍♀️ Looking for more?](#️-looking-for-more)
-- [🧰 Related tools](#-related-tools)
-
-</details>
-
----
+<!-- markdownlint-disable-next-line MD025 -->
+# Open data integration
 
 The FinOps toolkit open data PowerShell commands help you integrate datasets into your workflow.
 
 <br>
 
-## ⚡ Commands
+## Commands
 
 - [Get-FinOpsPricingUnit](Get-FinOpsPricingUnit.md) – Gets an Azure region ID and name.
 - [Get-FinOpsRegion](Get-FinOpsRegion.md) – Gets an Azure region ID and name.
@@ -39,19 +26,22 @@ The FinOps toolkit open data PowerShell commands help you integrate datasets int
 
 <br>
 
-## 🙋‍♀️ Looking for more?
+## Looking for more?
 
-We'd love to hear about any commands or scripts you're looking for. Vote up (👍) existing ideas or create a new issue to suggest a new idea. We'll focus on ideas with the most votes.
-
-[Vote on ideas](https://github.com/microsoft/finops-toolkit/issues?q=is%3Aissue+is%3Aopen+label%3A%22Area%3A+PowerShell%22+sort%3Areactions-%2B1-desc){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
-[Suggest an idea](https://aka.ms/ftk/idea){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+We'd love to hear about any commands or scripts you're looking for. Vote up (👍) existing ideas or create a new issue to suggest a new idea in the [FinOps toolkit issues list](https://aka.ms/ftk/ideas). We'll focus on ideas with the most votes.
 
 <br>
 
----
+## Related content
 
-## 🧰 Related tools
+Related products:
 
-{% include tools.md hubs="1" pbi="1" data="1" %}
+- [Cost Management](/azure/cost-management-billing/costs/)
+
+Related solutions:
+
+- [FinOps toolkit Power BI reports](../power-bi/reports.md)
+- [FinOps hubs](../hubs/finops-hubs-overview.md)
+- [FinOps toolkit open data](../open-data.md)
 
 <br>

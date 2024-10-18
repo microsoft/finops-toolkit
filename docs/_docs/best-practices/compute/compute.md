@@ -1,31 +1,21 @@
 ---
-layout: default
-parent: Best practices
-title: Compute
-description: 'Discover essential FinOps best practices to optimize cost efficiency and governance for your Azure resources.'
-permalink: /best-practices/compute
-author: arclares
-ms.date: 08/16/2024
+title: FinOps best practices for Compute
+description: This article outlines a collection of proven FinOps practices for compute services.
+author: bandersmsft
+ms.author: banders
+ms.date: 10/17/2024
+ms.topic: concept-article
 ms.service: finops
+ms.reviewer: arclares
+#customer intent: As a FinOps user, I want to understand what FinOps best practices I should use with compute services. 
 ---
 
-<span class="fs-9 d-block mb-4">Compute best practices</span>
-Discover essential FinOps best practices to optimize cost efficiency and governance for your Azure compute resources.
-{: .fs-6 .fw-300 }
+<!-- markdownlint-disable-next-line MD025 -->
+# FinOps best practices for Compute
 
-[Share feedback](#️-looking-for-more){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+This article outlines a collection of proven FinOps practices for compute services.
 
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [Azure Kubernetes Service](#azure-kubernetes-service)
-- [Virtual machines](#virtual-machines)
-- [🙋‍♀️ Looking for more?](#️-looking-for-more)
-- [🧰 Related tools](#-related-tools)
-
-</details>
-
----
+<br>
 
 ## Azure Kubernetes Service
 
@@ -152,18 +142,29 @@ resources
 
 <br>
 
-## 🙋‍♀️ Looking for more?
+## Looking for more?
 
-We'd love to hear about any datasets you're looking for. Create a new issue with the details that you'd like to see either included in existing or new best practices.
-
-[Share feedback](https://aka.ms/ftk/idea){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+Did we miss anything? Would you like to see something added? We'd love to hear about any questions, problems, or solutions you'd like to see covered here. [Create a new issue](https://aka.ms/ftk/ideas) with the details that you'd like to see either included here.
 
 <br>
 
----
+## Related content
 
-## 🧰 Related tools
+Related resources:
 
-{% include tools.md bicep="0" data="0" gov="0" hubs="0" opt="1" pbi="0" ps="0" %}
+- [FinOps Framework](../../../docs-mslearn/framework/finops-framework.md)
+
+Related products:
+
+- [Azure Carbon Optimization](/azure/carbon-optimization/)
+- [Azure Advisor](/azure/advisor/)
+- [Azure Resource Graph](/azure/governance/resource-graph/)
+
+Related solutions:
+
+- [FinOps toolkit Power BI reports](../../../docs-mslearn/power-bi/reports.md)
+- [FinOps hubs](../../../docs-mslearn/hubs/finops-hubs-overview.md)
+- [FinOps workbooks](../../../docs-mslearn/toolkit/workbooks/finops-workbooks-overview.md)
+- [Optimization engine](../../../docs-mslearn/optimization-engine/optimization-engine-overview.md)
 
 <br>

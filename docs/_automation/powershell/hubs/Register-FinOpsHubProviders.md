@@ -1,31 +1,17 @@
 ---
-layout: default
-grand_parent: PowerShell
-parent: FinOps hubs
-title: Register-FinOpsHubProviders
-nav_order: 1
-description: 'Register Azure resource providers required for FinOps hub.'
-permalink: /powershell/hubs/Register-FinOpsHubProviders
+title: Register-FinOpsHubProviders command
+description: Register Azure resource providers required for FinOps hub.
+author: bandersmsft
+ms.author: banders
+ms.date: 10/17/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
+#customer intent: As a FinOps user, I want to understand how to use the what Register-FinOpsHubProviders command in the FinOpsToolkit module.
 ---
 
-<span class="fs-9 d-block mb-4">Register-FinOpsHubProviders</span>
-Register Azure resource providers required for FinOps hub.
-{: .fs-6 .fw-300 }
-
-[Syntax](#-syntax){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Examples](#-examples){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [🧮 Syntax](#-syntax)
-- [📥 Parameters](#-parameters)
-- [🌟 Examples](#-examples)
-- [🧰 Related tools](#-related-tools)
-
-</details>
-
----
+<!-- markdownlint-disable-next-line MD025 -->
+# Register-FinOpsHubProviders command
 
 The **Register-FinOpsHubProviders** command registers the Azure resource providers required to deploy and operate a FinOps hub instance.
 
@@ -33,7 +19,7 @@ To register a resource provider, you must have Contributor access (or the /regis
 
 <br>
 
-## 🧮 Syntax
+## Syntax
 
 ```powershell
 Register-FinOpsHubProviders `
@@ -42,7 +28,7 @@ Register-FinOpsHubProviders `
 
 <br>
 
-## 📥 Parameters
+## Parameters
 
 | Name      | Description                                                                        |
 | --------- | ---------------------------------------------------------------------------------- |
@@ -52,7 +38,7 @@ Register-FinOpsHubProviders `
 
 <br>
 
-## 🌟 Examples
+## Examples
 
 ### Test register FinOps hub providers
 
@@ -65,10 +51,11 @@ Shows what would happen if the command runs without actually running it.
 
 <br>
 
----
+## Related content
 
-## 🧰 Related tools
+Related solutions:
 
-{% include tools.md hubs="1" %}
+- [FinOps toolkit Power BI reports](../power-bi/reports.md)
+- [FinOps hubs](../hubs/finops-hubs-overview.md)
 
 <br>

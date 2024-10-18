@@ -1,31 +1,17 @@
 ---
-layout: default
-grand_parent: PowerShell
-parent: FinOps hubs
-title: Deploy-FinOpsHub
-nav_order: 1
-description: 'Deploys a FinOps hub instance.'
-permalink: /powershell/hubs/Deploy-FinOpsHub
+title: Deploy-FinOpsHub command
+description: Deploys a FinOps hub instance.
+author: bandersmsft
+ms.author: banders
+ms.date: 10/17/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
+#customer intent: As a FinOps user, I want to understand how to use the what Deploy-FinOpsHub command in the FinOpsToolkit module.
 ---
 
-<span class="fs-9 d-block mb-4">Deploy-FinOpsHub</span>
-Deploys a FinOps hub instance.
-{: .fs-6 .fw-300 }
-
-[Syntax](#-syntax){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Examples](#-examples){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [🧮 Syntax](#-syntax)
-- [📥 Parameters](#-parameters)
-- [🌟 Examples](#-examples)
-- [🧰 Related tools](#-related-tools)
-
-</details>
-
----
+<!-- markdownlint-disable-next-line MD025 -->
+# Deploy-FinOpsHub command
 
 The **Deploy-FinOpsHub** command either creates a new or updates an existing FinOps hub instance by deploying an Azure Resource Manager deployment template. The FinOps hub template is downloaded from GitHub. To learn more about the template, see the [FinOps hub template](../../../_reporting/hubs/template.md).
 
@@ -33,7 +19,7 @@ Deploy-FinOpsHub calls [Initialize-FinOpsHubDeployment](Initialize-FinOpsHubDepl
 
 <br>
 
-## 🧮 Syntax
+## Syntax
 
 ```powershell
 Deploy-FinOpsHub `
@@ -49,7 +35,7 @@ Deploy-FinOpsHub `
 
 <br>
 
-## 📥 Parameters
+## Parameters
 
 | Name             | Description                                                                                                                                                                          |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -63,7 +49,7 @@ Deploy-FinOpsHub `
 
 <br>
 
-## 🌟 Examples
+## Examples
 
 ### Deploy latest version
 
@@ -90,10 +76,11 @@ Deploys a FinOps hub instance named MyHub to the MyExistingResourceGroup resourc
 
 <br>
 
----
+## Related content
 
-## 🧰 Related tools
+Related solutions:
 
-{% include tools.md hubs="1" %}
+- [FinOps toolkit Power BI reports](../power-bi/reports.md)
+- [FinOps hubs](../hubs/finops-hubs-overview.md)
 
 <br>

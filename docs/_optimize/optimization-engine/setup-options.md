@@ -1,29 +1,23 @@
 ---
-layout: default
-parent: Optimization engine
 title: Setup options
-nav_order: 50
-description: 'Advanced scenarios for setting up or upgrading AOE.'
-permalink: /optimization-engine/setup-options
+description: This article describes advance scenarios for setting up or upgrading Azure optimization engine (AOE).
+author: bandersmsft
+ms.author: banders
+ms.date: 10/17/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: hepint
+#customer intent: As a FinOps user, I want to understand how to setup Azure optimization engine (AOE).
 ---
 
-<span class="fs-9 d-block mb-4">Setup options</span>
-Advanced scenarios for setting up or upgrading AOE.
-{: .fs-6 .fw-300 }
+<!-- markdownlint-disable-next-line MD025 -->
+# Azure optimization engine setup options
 
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
+This article describes advance scenarios for setting up or upgrading Azure optimization engine (AOE).
 
-- [🎛️ Using a local repository](#-using-a-local-repository)
-- [👂 Silent deployment](#-silent-deployment)
-- [🤝 Enabling Azure commitments workbooks](#-enabling-azure-commitments-workbooks)
-- [🔼 Upgrading AOE](#-upgrading-aoe)
+<br>
 
-</details>
-
----
-
-## 🎛️ Using a local repository
+## Using a local repository
 
 If you choose to deploy all the dependencies from your own local repository, you must publish the solution files into a publicly reachable URL. You must ensure the entire AOE project structure is available at the same base URL. Storage Account SAS Token-based URLs are not supported.
 
@@ -38,7 +32,9 @@ $tags = @{"CostCenter"="FinOps";"Environment"="Production"}
 .\Deploy-AzureOptimizationEngine.ps1 -TemplateUri "https://contoso.com/azuredeploy.bicep" -ResourceTags $tags
 ```
 
-## 👂 Silent deployment
+<br>
+
+## Silent deployment
 
 Optionally, you can also use the `SilentDeploymentSettingsPath` input parameter to deploy AOE in a more automated way.  
 The file referencing should be a JSON file with the needed attributes defined (**all mandatory** unless specified).  
@@ -77,7 +73,9 @@ parameters, for example to grant the SQL administrator role to an Entra ID group
   When deploying AOE with non-user identities (service principals), you must ensure you assign a system identity to the AOE SQL Server and grant it the `Directory Readers` role in Entra ID. Please follow the steps described [here](https://aka.ms/sqlaadsetup).
 </blockquote>
 
-## 🤝 Enabling Azure commitments workbooks
+<br>
+
+## Enabling Azure commitments workbooks
 
 In order to leverage the Workbooks that allow you to analyze your Azure commitments usage (`Benefits Usage`, `Reservations Usage` and `Savings Plans Usage`) or estimate the impact of doing additional consumption commitments (`Benefits Simulation` and `Reservations Potential`), you need to configure AOE and grant privileges to its Managed Identity at your consumption agreement level (EA or MCA). If you could not do it during setup/upgrade, you can still execute those extra configuration steps, provided you do it with a user that is **both Contributor in the AOE resource group and have administrative privileges over the consumption agreement** (Enterprise Enrollment Administrator for EA or Billing Profile Owner for MCA). You just have to use the `Setup-BenefitsUsageDependencies.ps1` script following the syntax below and answer the input requests:
 
@@ -89,7 +87,9 @@ If you run into issues with the Azure Pricesheet ingestion (due to the large siz
 
 The Reservations Usage Workbook has a couple of "Unused Reservations" tiles that require AOE to export Consumption data at the EA/MCA scope (instead of the default Subscription scope). You can switch to EA/MCA scope consumption by creating/updating the `AzureOptimization_ConsumptionScope` Automation variable with `BillingAccount` (EA/MCA, requiring additional Billing Account Reader role manually granted to the AOE managed identity) or `BillingProfile` (MCA only) as value. Be aware that this option may generate a very large single consumption export which may lead to errors due to lack of memory (this would in turn require [deploying AOE with a Hybrid Worker](./customize.md#-scale-aoe-runbooks-with-hybrid-worker)).
 
-## 🔼 Upgrading AOE
+<br>
+
+## Upgrading AOE
 
 If you have a previous version of AOE and wish to upgrade, it's as simple as re-running the deployment script with the resource naming options you chose at the initial deployment. It will re-deploy the ARM template, adding new resources and updating existing ones.
 
@@ -108,3 +108,5 @@ With the `DoPartialUpgrade` switch, the deployment will only:
 * Update Log Analytics Workbooks
 
 Some customers may also customize the SQL Server deployment, for example, migrating from SQL Database to a SQL Managed Instance. There is no tooling available to assist in the migration, but once the database migration is done manually, the AOE upgrade script supports future `DoPartialUpgrade` upgrades with the `IgnoreNamingAvailabilityErrors` switch on (skips SQL Server naming/existence validation).
+
+<br>

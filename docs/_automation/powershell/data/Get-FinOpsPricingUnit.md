@@ -1,31 +1,17 @@
 ---
-layout: default
-grand_parent: PowerShell
-parent: Open data
-title: Get-FinOpsPricingUnit
-nav_order: 10
-description: 'Gets a pricing unit, distinct unit, and block size'
-permalink: /powershell/data/Get-FinOpsPricingUnit
+title: Get-FinOpsPricingUnit command
+description: Gets a pricing unit, distinct unit, and block size
+author: bandersmsft
+ms.author: banders
+ms.date: 10/17/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
+#customer intent: As a FinOps user, I want to understand how to use the what Get-FinOpsPricingUnit command in the FinOpsToolkit module.
 ---
 
-<span class="fs-9 d-block mb-4">Get-FinOpsPricingUnit</span>
-Gets a pricing unit with its corresponding distinct unit and block size.
-{: .fs-6 .fw-300 }
-
-[Syntax](#-syntax){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Examples](#-examples){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [🧮 Syntax](#-syntax)
-- [📥 Parameters](#-parameters)
-- [🌟 Examples](#-examples)
-- [🧰 Related tools](#-related-tools)
-
-</details>
-
----
+<!-- markdownlint-disable-next-line MD025 -->
+# Get-FinOpsPricingUnit command
 
 The **Get-FinOpsPricingUnit** command returns a pricing unit (aka unit of measure) with the singular, distinct unit based on applicable block pricing rules, and the pricing block size.
 
@@ -35,7 +21,7 @@ The **Get-FinOpsPricingUnit** command returns a pricing unit (aka unit of measur
 
 <br>
 
-## 🧮 Syntax
+## Syntax
 
 ```powershell
 Get-FinOpsPricingUnit `
@@ -46,7 +32,7 @@ Get-FinOpsPricingUnit `
 
 <br>
 
-## 📥 Parameters
+## Parameters
 
 | Name          | Description                                                                                                                                                 |
 | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -56,7 +42,7 @@ Get-FinOpsPricingUnit `
 
 <br>
 
-## 🌟 Examples
+## Examples
 
 ### Get based on unit of measure
 
@@ -76,10 +62,16 @@ Returns all pricing units measured in gigabytes.
 
 <br>
 
----
+## Related content
 
-## 🧰 Related tools
+Related products:
 
-{% include tools.md data="1" %}
+- [Cost Management](/azure/cost-management-billing/costs/)
+
+Related solutions:
+
+- [FinOps toolkit Power BI reports](../power-bi/reports.md)
+- [FinOps hubs](../hubs/finops-hubs-overview.md)
+- [FinOps toolkit open data](../open-data.md)
 
 <br>

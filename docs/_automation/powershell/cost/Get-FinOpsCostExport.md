@@ -1,32 +1,17 @@
 ---
-layout: default
-grand_parent: PowerShell
-parent: Cost Management
-title: Get-FinOpsCostExport
-nav_order: 1
-description: 'Get a list of Cost Management exports.'
-permalink: /powershell/cost/Get-FinOpsCostExport
+title: Get-FinOpsCostExport command
+description: Get a list of Cost Management exports.
+author: bandersmsft
+ms.author: banders
+ms.date: 10/17/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
+#customer intent: As a FinOps user, I want to understand how to use the what Get-FinOpsCostExport command in the FinOpsToolkit module.
 ---
 
-<span class="fs-9 d-block mb-4">Get-FinOpsCostExport</span>
-Get a list of Cost Management exports.
-{: .fs-6 .fw-300 }
-
-[Syntax](#-syntax){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Examples](#-examples){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [🧮 Syntax](#-syntax)
-- [📥 Parameters](#-parameters)
-- [📤 Return value](#-return-value)
-- [🌟 Examples](#-examples)
-- [🧰 Related tools](#-related-tools)
-
-</details>
-
----
+<!-- markdownlint-disable-next-line MD025 -->
+# Get-FinOpsCostExport command
 
 The **Get-FinOpsCostExport** command gets a list of Cost Management exports for a given scope.
 
@@ -38,7 +23,7 @@ This command has been tested with the following API versions:
 
 <br>
 
-## 🧮 Syntax
+## Syntax
 
 ```powershell
 Get-FinOpsCostExport `
@@ -53,7 +38,7 @@ Get-FinOpsCostExport `
 
 <br>
 
-## 📥 Parameters
+## Parameters
 
 | Name                | Description                                                                                                         |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------- |
@@ -114,7 +99,7 @@ Get-FinOpsCostExport `
 
 <br>
 
-## 🌟 Examples
+## Examples
 
 ### Get all cost exports for a subscription
 
@@ -177,10 +162,15 @@ Get-FinOpsCostExport `
 Gets all exports within the subscription scope for a container matching wildcard pattern and using a specific API version.
 <br>
 
----
+## Related content
 
-## 🧰 Related tools
+Related products:
 
-{% include tools.md hubs="1" pbi="1" %}
+- [Cost Management](/azure/cost-management-billing/costs/)
+
+Related solutions:
+
+- [FinOps toolkit Power BI reports](../power-bi/reports.md)
+- [FinOps hubs](../hubs/finops-hubs-overview.md)
 
 <br>

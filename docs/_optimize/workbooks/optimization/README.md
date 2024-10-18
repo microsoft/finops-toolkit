@@ -1,49 +1,72 @@
 ---
-layout: default
-parent: FinOps workbooks
 title: Optimization workbook
-has_children: true
-nav_order: 1
-description: 'Azure Monitor workbook focused on cost optimization.'
-permalink: /workbooks/optimization
+description: Azure Monitor workbook focused on cost optimization.
+author: bandersmsft
+ms.author: banders
+ms.date: 10/17/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
+#customer intent: As a FinOps user, I want to understand what the FinOps Optimization workbook is and how it can help me implement the Workload optimization and Rate optimization FinOps capabilities.
 ---
 
-<span class="fs-9 d-block mb-4">Cost optimization workbook</span>
-Give your engineers a single pane of glass for cost optimization with this handy Azure Monitor workbook.
-{: .fs-6 .fw-300 }
+<!-- markdownlint-disable-next-line MD025 -->
+# Optimization workbook
 
-[Deploy](#-deploy-the-workbook){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Try now](<https://portal.azure.com/#blade/AppInsightsExtension/UsageNotebookBlade/ComponentId/Azure%20Advisor/ConfigurationId/community-Workbooks%2FAzure%20Advisor%2FCost%20Optimization/Type/workbook/WorkbookTemplateName/Cost%20Optimization%20(Preview)>){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
+The optimization workbook is an Azure Monitor workbook that provides a single pane of glass for cost optimization, modeled after the Well-Architected Framework guidance. It offers a range of insights, including:
 
----
+- Advisor cost recommendations
+- Idle resource identification
+- Management of improperly deallocated virtual machines
+- Insights into using Azure Hybrid Benefit options for Windows, Linux, and SQL databases
 
-The cost optimization workbook is an Azure Monitor workbook that provides a single pane of glass for cost optimization, modeled after the Well-Architected Framework guidance.
+The workbook includes insights for compute, storage and networking. The workbook also has a quick fix option for some queries. The quick fix option allows you to apply the recommended optimization directly from the workbook page, streamlining the optimization process.
 
-![Screenshot of the Cost optimization workbook overview](https://github.com/microsoft/finops-toolkit/assets/399533/70b71cb4-d42e-40fc-8870-b4262ecc3633)
+:::image type="content" source="../../media/workbooks/optimization.png" border="true" alt-text="Screenshot of the Cost optimization workbook overview" lightbox="../../media/workbooks/optimization.png":::
+
+The workbook has two main sections: Rate optimization and Usage optimization.
 
 <br>
 
-## ➕ Deploy the workbook
+## Rate optimization
 
-1. Confirm you have the following least-privileged roles to deploy and use the workbook:
+This section focuses on strategies to optimize your Azure costs by addressing rate-related factors. It includes insights from Advisor cost recommendations, guidance on the utilization of Azure Hybrid Benefit options for Windows, Linux, and SQL databases, and more. It also includes recommendations for commitment discounts, such as Reservations and Azure Savings Plans. Rate optimization is critical for reducing the hourly or monthly cost of your resources.
 
-   - **Workbook Contributor** allows you to deploy the workbook.
-   - **Reader** view all of the workbook tabs.
+Here's an example of the Rate optimization section for Windows virtual machines with Azure Hybrid Benefit.
 
-   <blockquote class="tip" markdown="1">
-     _If you only have read access, you can still import your workbook directly into Azure Monitor. You will not be able to save it, but you can view all tabs._
-   </blockquote>
-
-2. Deploy the **optimization-workbook** template. [Learn more](../../../_resources/deploy.md).
-
-   {% include deploy.html template="optimization-workbook" public="1" gov="1" china="0" %}
+:::image type="content" source="../../media/cost-optimization-workbook/rate-optimization-example.png" alt-text="Screenshot showing the Rate optimization section for Windows virtual machines with Azure Hybrid Benefit." lightbox="../../media/cost-optimization-workbook/rate-optimization-example.png" :::
 
 <br>
 
----
+## Usage optimization
 
-## 🧰 Related tools
+The purpose of Usage optimization is to ensure that your Azure resources are used efficiently. This section provides guidance to identify idle resources, manage improperly deallocated virtual machines, and implement recommendations to enhance resource efficiency. Focus on usage optimization to maximize your resource utilization and minimize costs.
 
-{% include tools.md hubs="1" gov="1" aoe="1" %}
+Here's an example of the Usage optimization section for AKS.
+
+:::image type="content" source="../../media/cost-optimization-workbook/usage-optimization-example.png" alt-text="Screenshot showing the Usage optimization section for AKS." lightbox="../../media/cost-optimization-workbook/usage-optimization-example.png" :::
+
+For more information about the Cost optimization workbook, see [Understand and optimize your Azure costs using the Cost optimization workbook](/azure/advisor/advisor-cost-optimization-workbook).
+
+<br>
+
+## Related content
+
+Related FinOps capabilities:
+
+- [Rate optimization](../../framework/optimize/rates.md)
+- [Workload optimization](../../framework/optimize/workloads.md)
+
+Related products:
+
+- [Azure Resource Graph](/azure/governance/resource-graph/)
+- [Azure Advisor](/azure/advisor/)
+- [Cost Management](/azure/cost-management-billing/costs/)
+
+Related solutions:
+
+- [Optimization engine](../optimization-engine/optimization-engine-overview.md)
+- [FinOps toolkit Power BI reports](../power-bi/reports.md)
+- [FinOps hubs](../hubs/finops-hubs-overview.md)
 
 <br>

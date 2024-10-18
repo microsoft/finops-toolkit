@@ -1,37 +1,23 @@
 ---
-layout: default
-grand_parent: PowerShell
-parent: Open data
-title: Get-FinOpsRegion
-nav_order: 20
-description: 'Gets an Azure region ID and name'
-permalink: /powershell/data/Get-FinOpsRegion
+title: Get-FinOpsRegion command
+description: Gets an Azure region ID and name
+author: bandersmsft
+ms.author: banders
+ms.date: 10/17/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
+#customer intent: As a FinOps user, I want to understand how to use the what Get-FinOpsRegion command in the FinOpsToolkit module.
 ---
 
-<span class="fs-9 d-block mb-4">Get-FinOpsRegion</span>
-Gets an Azure region ID and name to clean up Cost Management cost data during ingestion.
-{: .fs-6 .fw-300 }
-
-[Syntax](#-syntax){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Examples](#-examples){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [🧮 Syntax](#-syntax)
-- [📥 Parameters](#-parameters)
-- [🌟 Examples](#-examples)
-- [🧰 Related tools](#-related-tools)
-
-</details>
-
----
+<!-- markdownlint-disable-next-line MD025 -->
+# Get-FinOpsRegion command
 
 The **Get-FinOpsRegion** command returns an Azure region ID and name based on the specified resource location.
 
 <br>
 
-## 🧮 Syntax
+## Syntax
 
 ```powershell
 Get-FinOpsRegion `
@@ -42,7 +28,7 @@ Get-FinOpsRegion `
 
 <br>
 
-## 📥 Parameters
+## Parameters
 
 | Name            | Description                                                                                                                      |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
@@ -52,7 +38,7 @@ Get-FinOpsRegion `
 
 <br>
 
-## 🌟 Examples
+## Examples
 
 ### Get a specific region
 
@@ -72,10 +58,16 @@ Returns all Asia regions with the original Cost Management ResourceLocation valu
 
 <br>
 
----
+## Related content
 
-## 🧰 Related tools
+Related products:
 
-{% include tools.md data="1" %}
+- [Cost Management](/azure/cost-management-billing/costs/)
+
+Related solutions:
+
+- [FinOps toolkit Power BI reports](../power-bi/reports.md)
+- [FinOps hubs](../hubs/finops-hubs-overview.md)
+- [FinOps toolkit open data](../open-data.md)
 
 <br>

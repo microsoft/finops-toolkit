@@ -1,53 +1,48 @@
 ---
-layout: default
-title: Best practices
-has_children: true
-nav_order: 30
-description: 'Discover essential FinOps best practices to optimize cost efficiency and governance for your Azure resources.'
-permalink: /best-practices
+title: FinOps best practices library
+description: Discover essential FinOps best practices to optimize cost efficiency and governance for your Azure resources.
+author: bandersmsft
+ms.author: banders
+ms.date: 10/17/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: arclares
+#customer intent: As a FinOps user, I want to understand what FinOps best practices I should use with Microsoft Cloud services.
 ---
 
-<span class="fs-9 d-block mb-4">FinOps best practices library</span>
+<!-- markdownlint-disable-next-line MD025 -->
+# FinOps best practices library
 
-Discover essential proven practices to manage and optimize cost, usage, and carbon efficiency across your Microsoft Cloud environment.
-{: .fs-6 .fw-300 }
-
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [📇 List of services](#-list-of-services)
-- [🙋‍♀️ Looking for more?](#️-looking-for-more)
-- [🧰 Related tools](#-related-tools)
-
-</details>
-
----
-
-## 📇 List of services
+The FinOps best practices library is a collection of essential proven practices to manage and optimize cost, usage, and carbon efficiency across your Microsoft Cloud environment. Guidance is organized by service category. Use the categories below to explore FinOps practices for different services.
 
 <!-- Sort list alphabetically for findability -->
 
-- [General](general/general.md)
-- [Compute](compute/compute.md)
-- [Databases](databases/databases.md)
-- [Networking](networking/networking.md)
-- [Storage](storage/storage.md)
-- [Web](web/web.md)
+- [General](general.md)
+- [Compute](compute.md)
+- [Databases](databases.md)
+- [Networking](networking.md)
+- [Storage](storage.md)
+- [Web](web.md)
 
 <br>
 
-## 🙋‍♀️ Looking for more?
+## Looking for more?
 
-Did we miss anything? Would you like to see something added? We'd love to hear about any questions, problems, or solutions you'd like to see covered here. Create a new issue with the details that you'd like to see either included here.
-
-[Share feedback](https://github.com/microsoft/finops-toolkit/issues/new/choose){: .btn .mt-2 .mb-4 .mb-md-0 .mr-4 }
+Did we miss anything? Would you like to see something added? We'd love to hear about any questions, problems, or solutions you'd like to see covered here. [Create a new issue](https://aka.ms/ftk/ideas) with the details that you'd like to see either included here.
 
 <br>
 
----
+## Related content
 
-## 🧰 Related tools
+Related resources:
 
-{% include tools.md hubs="1" pbi="1" opt="1" gov="1" ps="0" bicep="0" data="0" %}
+- [FinOps Framework](../../../docs-mslearn/framework/finops-framework.md)
+
+Related solutions:
+
+- [FinOps toolkit Power BI reports](../../../docs-mslearn/power-bi/reports.md)
+- [FinOps hubs](../../../docs-mslearn/hubs/finops-hubs-overview.md)
+- [FinOps workbooks](../../../docs-mslearn/toolkit/workbooks/finops-workbooks-overview.md)
+- [Optimization engine](../../../docs-mslearn/optimization-engine/optimization-engine-overview.md)
 
 <br>

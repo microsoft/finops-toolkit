@@ -1,31 +1,17 @@
 ---
-layout: default
-grand_parent: PowerShell
-parent: Cost Management
-title: New-FinOpsCostExport
-nav_order: 1
-description: 'Creates a new Cost Management export.'
-permalink: /powershell/cost/New-FinOpsCostExport
+title: New-FinOpsCostExport command
+description: Creates a new Cost Management export.
+author: bandersmsft
+ms.author: banders
+ms.date: 10/17/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
+#customer intent: As a FinOps user, I want to understand how to use the what New-FinOpsCostExport command in the FinOpsToolkit module.
 ---
 
-<span class="fs-9 d-block mb-4">New-FinOpsCostExport</span>
-Creates a new Cost Management export.
-{: .fs-6 .fw-300 }
-
-[Syntax](#-syntax){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Examples](#-examples){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [🧮 Syntax](#-syntax)
-- [📥 Parameters](#-parameters)
-- [🌟 Examples](#-examples)
-- [🧰 Related tools](#-related-tools)
-
-</details>
-
----
+<!-- markdownlint-disable-next-line MD025 -->
+# New-FinOpsCostExport command
 
 The **New-FinOpsCostExport** command creates a new Cost Management export for the specified scope.
 
@@ -36,7 +22,7 @@ This command has been tested with the following API versions:
 
 <br>
 
-## 🧮 Syntax
+## Syntax
 
 ```powershell
 # Create a new daily/monthly export
@@ -81,7 +67,7 @@ New-FinOpsCostExport `
 
 <br>
 
-## 📥 Parameters
+## Parameters
 
 | Name                | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -108,7 +94,7 @@ New-FinOpsCostExport `
 
 <br>
 
-## 🌟 Examples
+## Examples
 
 ### Create one time export
 
@@ -164,14 +150,19 @@ New-FinopsCostExport -Name 'Daily--MTD' `
     -Execute
 ```
 
-Creates a new daily export called Daily-MTD with StartDate = DateTime.Now and EndDate 5 years from StartDate. Additiionally, export cost data for the previous 4 months and save all results in costreports container of the specified storage account.
+Creates a new daily export called Daily-MTD with StartDate = DateTime.Now and EndDate 5 years from StartDate. Additionally, export cost data for the previous 4 months and save all results in "costreports" container of the specified storage account.
 
 <br>
 
----
+## Related content
 
-## 🧰 Related tools
+Related products:
 
-{% include tools.md bicep="0" data="0" gov="0" hubs="1" opt="0" pbi="1" ps="0" %}
+- [Cost Management](/azure/cost-management-billing/costs/)
+
+Related solutions:
+
+- [FinOps toolkit Power BI reports](../power-bi/reports.md)
+- [FinOps hubs](../hubs/finops-hubs-overview.md)
 
 <br>

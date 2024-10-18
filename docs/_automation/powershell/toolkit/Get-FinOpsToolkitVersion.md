@@ -1,36 +1,23 @@
 ---
-layout: default
-grand_parent: PowerShell
-parent: Toolkit
-title: Get-FinOpsToolkitVersion
-nav_order: 1
-description: 'Gets available versions from published FinOps toolkit releases.'
-permalink: /powershell/toolkit/Get-FinOpsToolkitVersion
+title: Get-FinOpsToolkitVersion command
+description: Gets available versions from published FinOps toolkit releases.
+author: bandersmsft
+ms.author: banders
+ms.date: 10/17/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
+#customer intent: As a FinOps user, I want to understand how to use the Get-FinOpsToolkitVersion PowerShell command.
 ---
 
-<span class="fs-9 d-block mb-4">Get-FinOpsToolkitVersion</span>
-Gets available versions from published FinOps toolkit releases.
-{: .fs-6 .fw-300 }
-
-[Syntax](#-syntax){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Examples](#-examples){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [🧮 Syntax](#-syntax)
-- [📥 Parameters](#-parameters)
-- [🌟 Examples](#-examples)
-
-</details>
-
----
+<!-- markdownlint-disable-next-line MD025 -->
+# Get-FinOpsToolkitVersion command
 
 The Get-FinOpsToolkitVersions command calls GitHub to retrieve all toolkit releases, then filters the list based on the specified options.
 
 <br>
 
-## 🧮 Syntax
+## Syntax
 
 ```powershell
 Get-FinOpsToolkitVersion `
@@ -41,7 +28,7 @@ Get-FinOpsToolkitVersion `
 
 <br>
 
-## 📥 Parameters
+## Parameters
 
 | Name    | Description                                                                                |
 | ------- | ------------------------------------------------------------------------------------------ |
@@ -50,7 +37,7 @@ Get-FinOpsToolkitVersion `
 
 <br>
 
-## 🌟 Examples
+## Examples
 
 ### Get stable release versions
 

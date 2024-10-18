@@ -1,31 +1,17 @@
 ---
-layout: default
-grand_parent: PowerShell
-parent: FinOps hubs
-title: Remove-FinOpsHub
-nav_order: 1
-description: 'Remove a FinOps hub instance.'
-permalink: /powershell/hubs/Remove-FinOpsHub
+title: Remove-FinOpsHub command
+description: Remove a FinOps hub instance.
+author: bandersmsft
+ms.author: banders
+ms.date: 10/17/2024
+ms.topic: concept-article
+ms.service: finops
+ms.reviewer: micflan
+#customer intent: As a FinOps user, I want to understand how to use the what New-FinOpsHub command in the FinOpsToolkit module.
 ---
 
-<span class="fs-9 d-block mb-4">Remove-FinOpsHub</span>
-Delete a FinOps hub instance, including all dependent resources.
-{: .fs-6 .fw-300 }
-
-[Syntax](#-syntax){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-4 }
-[Examples](#-examples){: .btn .fs-5 .mb-4 .mb-md-0 .mr-4 }
-
-<details open markdown="1">
-   <summary class="fs-2 text-uppercase">On this page</summary>
-
-- [🧮 Syntax](#-syntax)
-- [📥 Parameters](#-parameters)
-- [🌟 Examples](#-examples)
-- [🧰 Related tools](#-related-tools)
-
-</details>
-
----
+<!-- markdownlint-disable-next-line MD025 -->
+# Remove-FinOpsHub command
 
 The **Remove-FinOpsHub** command removes a FinOps hub instance and optionally keep the storage account hosting cost data.
 
@@ -33,7 +19,7 @@ The comamnd returns a boolean value indicating whether all resources were succes
 
 <br>
 
-## 🧮 Syntax
+## Syntax
 
 ```powershell
 Remove-FinOpsHub `
@@ -50,7 +36,7 @@ Remove-FinOpsHub `
 
 <br>
 
-## 📥 Parameters
+## Parameters
 
 | Name                  | Description                                                                                     |
 | --------------------- | ----------------------------------------------------------------------------------------------- |
@@ -61,7 +47,7 @@ Remove-FinOpsHub `
 
 <br>
 
-## 🌟 Examples
+## Examples
 
 ### Remove a FinOps hub instance
 
@@ -76,10 +62,11 @@ Deletes a FinOps Hub named MyHub and deletes all associated resource except the 
 
 <br>
 
----
+## Related content
 
-## 🧰 Related tools
+Related solutions:
 
-{% include tools.md hubs="1" %}
+- [FinOps toolkit Power BI reports](../power-bi/reports.md)
+- [FinOps hubs](../hubs/finops-hubs-overview.md)
 
 <br>
