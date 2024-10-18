@@ -103,7 +103,7 @@
             "type": "Microsoft.Common.TextBlock",
             "visible":true,
 			      "options":{
-				    "text":"Infrastructure encryption can be enabled for the entire storage account. When infrastructure encryption is enabled for a storage account, data is encrypted twice once at the service level and once at the infrastructure level with two different encryption algorithms and two different keys. To enable infrastructure encryption for this storage account, you must check this box to use infrastructure encryption at the time that you deploy this template. Infrastructure encryption cannot be enabled or disabled after the account has been created."
+				    "text":"Infrastructure encryption can be enabled for the entire storage account. When infrastructure encryption is enabled for a storage account, data is encrypted twice once at the service level and once at the infrastructure level with two different encryption algorithms and two different keys. To enable infrastructure encryption for this storage account, you must check this box at the time that you deploy this template. Infrastructure encryption cannot be enabled or disabled after the account has been created."
 			      }
           },
 		      {
