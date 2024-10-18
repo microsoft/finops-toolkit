@@ -18,7 +18,7 @@ This document summarizes the known conformance gaps for the latest FOCUS 1.0 dat
 
 ## Overall conformance
 
-The Microsoft Cost Management FOCUS 1.0 dataset has a conformance score of **95%**.
+The Microsoft Cost Management FOCUS 1.0 dataset has a conformance score of **96%**.
 
 The remaining conformance gaps are summarized below. The list is categorized by their impact to primary FinOps scenarios. For additional details on these or other FOCUS requirements, please refer to the [full conformance report](./conformance-full-report.md). The IDs provided in the tables below are for reference purposes only. IDs are not defined as part of FOCUS.
 
@@ -41,8 +41,6 @@ The remaining conformance gaps are summarized below. The list is categorized by 
 
 | Issue                                                                                                       | Workaround                                           | Columns / Requirements                                                                                                                                      |
 | ----------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| PricingQuantity and ContractedCost use the wrong scale and are incorrect for Enterprise Agreement accounts. | Multiply by x_PricingBlockSize.                      | ContractedCost, PricingQuantity<br>PQ5, CnC3, CnC5, LC3                                                                                                     |
-| BillingPeriodEnd has a known bug where the time is "23:59:59.999" when it should be "00:00:00".             | Remove the time element or update it to be midnight. | BillingPeriodEnd<br>BPE2.2                                                                                                                                  |
 | Date columns all follow the ISO 8601 standard, but do not include seconds (e.g., “2024-01-01T00:00Z”). | Replace “T00:00Z” with “T00:00:00Z”. Do not add “:00” without confirming seconds are not present. This will be resolved in “1.0r2”. | BillingPeriodStart, BillingPeriodEnd, ChargePeriodStart, ChargePeriodEnd, x_BillingExchangeRateDate, x_ServicePeriodEnd, x_ServicePeriodStart<br>DTF5 |
 | Some columns can be "-2" or “Unassigned” when there is no value.                                            | Replace "-2" and “Unassigned” with null.             | SkuPriceId, SubAccountName, x_AccountId, x_AccountName, x_AccountOwnerId, x_InvoiceSectionId, x_InvoiceSectionName, x_PricingUnitDescription<br>NH1-3, SAN3 |
 
