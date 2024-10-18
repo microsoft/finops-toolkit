@@ -129,6 +129,24 @@ At this point, you're likely utilizing the native reporting and analysis solutio
 
 <br>
 
+## KPIs and metrics
+
+| **Category** | **Definition** | **KPI** |
+|--------------|----------------|---------|
+| Reporting needs | Measures the identification of stakeholders and their reporting  needs. | Percentage of stakeholders with defined reporting needs. |
+| Report coverage | Measures the number of teams with comprehensive reports available. | Number of teams with reports for all personas. |
+| Report distribution | Measures the frequency and reach of distributed reports. | Frequency and reach of distributed reports. |
+| Investigative time | Measures the time required to analyze cloud usage and cost questions. | Average time to report on required cloud usage and costs details. |
+| Tagging compliance | Measures the resource tagging compliance to facilitate accurate reporting and analytics. | Percentage of resources tagged and the compliance. |
+| Spend awareness | Measures the awareness and accountability of cloud spend across all workloads, and personas. | Percentage of personas receiving cloud usage and cost reports. |
+| Feedback pipelines | Evaluates feedback processes for stakeholders and core personas. | Automation capability to provide feedback on reports to the FinOps team. |
+| Adoption rate | Measures usage of the reporting and analytics tools. | Percentage of teams utilizing provided reports. |
+| Data update frequency | Tracks how often report data is updated. | Time between data refreshes. |
+| Data accuracy | Evaluates the accuracy of available reports. | Accuracy percentage of the reports. |
+| Report development | Measures the time to develop requested reports. | Average time to generate and provide a new or updated report to stakeholders. |
+
+<br>
+
 ## Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Reporting and analytics capability](https://www.finops.org/framework/capabilities/reporting-analytics/) article in the FinOps Framework documentation.
