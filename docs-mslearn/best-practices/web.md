@@ -94,9 +94,9 @@ Related resources:
 
 Related solutions:
 
-- [FinOps toolkit Power BI reports](../power-bi/reports.md)
-- [FinOps hubs](../hubs/finops-hubs-overview.md)
-- [FinOps workbooks](../../docs/_optimize/workbooks/README.md)
-- [Optimization engine](../optimization-engine/optimization-engine-overview.md)
+- [FinOps toolkit Power BI reports](../toolkit/power-bi/reports.md)
+- [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md)
+- [FinOps workbooks](../toolkit/workbooks/finops-workbooks-overview.md)
+- [Optimization engine](../toolkit/optimization-engine/optimization-engine-overview.md)
 
 <br>
