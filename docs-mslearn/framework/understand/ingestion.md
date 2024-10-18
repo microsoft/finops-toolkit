@@ -108,6 +108,21 @@ At this point, you have a data pipeline and are ingesting data into a central da
 
 <br>
 
+## Data Ingestion Metrics
+
+| **Category** | **Definition** | **KPI** |
+|----------|-----------|-----|
+| Data Completeness | Measures the extent to which all required data fields are present in the dataset and tracks the overall data completeness trend over a specified period.| Percentage of data fields that are complete and the overall data completeness over time. |
+| Data Quality Performance | Measures the percentage of successful data quality checks and the total number of data quality checks conducted within a specified period. | Number of data quality checks conducted and the percentage of successful data quality checks . |
+|Data Ingestion Frequency | Measures how often data is ingested into the system. | Number of data ingestion events per unit of time (daily, weekly, monthly, quarterly, annually). |
+| Volume of Data Ingested | Measures the total volume of data ingested into the repository. | Total volume of data ingested into the repository.  |
+| Growth Rate | Measure the rate at which the volume of data ingested is increasing over time. | Percentage increase of total data volume in repository per unit of time. |
+| Ingestion Latency | Measures the average time taken for data to be ingested into the repository and tracks the trend of this latency over a specified period. | Mean time of data ingestion latency and the latency trend over a specified period. |
+| Historical Data Availability | Measures the lookback period of data that is ingested and available for analysis. | Span of historical data ingested. |
+| Investigation Time to Resolution | Measures the time taken to investigate and resolve data quality or availability issues and tracks the trend of this resolution time over a specified period. | Mean time to investigate and resolve data quality or availability issues, and the trend over time. |
+
+<br>
+
 ## Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [data ingestion capability](https://www.finops.org/framework/capabilities/data-ingestion/) article in the FinOps Framework documentation.
