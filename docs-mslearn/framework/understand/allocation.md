@@ -125,6 +125,20 @@ At this point, you have an allocation strategy with detailed cloud management an
 
 <br>
 
+## KPIs and metrics
+
+| **Category** | **Definition** | **KPI** |
+|--------------|----------------|---------|
+| Cost allocated | Evaluates the extent to which cloud costs are allocated among organizational units.| Percentage of cloud cost allocated. |
+| Allocation granularity | Assesses the level of detail in cost allocation, from department to project scope. | Percentage of cost allocation defined across various scope levels (department, subscription, resource group, project, application). |
+| Unallocated cloud costs | Measures the percentage of cloud costs that are not allocated to any specific project, team, or department. | Percentage of unallocated cloud costs. |
+| Allocation tagging strategy | Evaluates the implementation of a tagging strategy for cost allocation for each workload or business unit. | Percentage of cost allocation tagging strategy defined and implemented for each workload or business unit, and the percentage of untagged resources and associated costs. |
+| Tagging policy compliance | Measures compliance with the organizational tagging policy for cloud resources. | Percentage of cloud resources that are compliant with the organization's allocation tagging strategy. |
+| Ownership coverage | Measures the extent to which ownership is defined for all resources. | Percentage of resources with resource owners defined. |
+| Shared resources | Measures the identification of shared resources and the allotted cost distribution. | Percentage of shared resources identified and allocation distribution defined. |
+
+<br>
+
 ## Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Allocation capability](https://www.finops.org/framework/capabilities/allocation/) article in the FinOps Framework documentation.
