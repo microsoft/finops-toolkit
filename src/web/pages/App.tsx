@@ -1,27 +1,37 @@
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import HomePage from './HomePage';
+import FinOpsHubsPage from './FinOpsHubsPage';
+import FinOpsWorkbooksPage from './FinOpsWorkbooksPage';
+import GovernanceWorkbookPage from './GovernanceWorkbookPage';
+import AzureOptimizationEnginePage from './AzureOptimizationEnginePage';
+import PowerShellModulePage from './PowerShellModulePage';
+import BicepRegistryModulesPage from './BicepRegistryModulesPage';
+import OpenDataPage from './OpenDataPage';
+import PowerBIReportsPage from './PowerBIReportsPage';
+import CostOptimizationWorkbookPage from './CostOptimizationWorkbookPage';
+import ToolsLandingPage from './ToolsLandingPage';
+
 import './App.css';
 
 function App() {
-
   return (
-    <>
-      <head>
-        <h1>Kick start your FinOps efforts</h1>
-        <h2>Automate and extend the Microsoft Cloud with starter kits, scripts, and advanced solutions to accelerate your FinOps journey.</h2>
-      </head>
-      <p>
-          The Microsoft FinOps toolkit is an open-source collection of learning resources and customizable tools to help you adopt and implement FinOps capabilities that automate and extend the Microsoft Cloud. This includes:
-        </p>
-      <ul>
-        <li>Starter kits that help you get up and running.</li>
-        <li>Automation scripts to streamline cost configuration and management at scale.</li>
-        <li>Advanced solutions to facilitate building custom capabilities.</li>
-        <li>Learning resources and best practices about how to implement FinOps.</li>
-      </ul>
-      <p>
-        Read on to learn about the tools and roadmap for the FinOps toolkit or how to get involved.
-      </p>
-    </>
+
+    <Router>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/bicep-registry" element={<BicepRegistryModulesPage />} />
+          <Route path="/hubs" element={<FinOpsHubsPage />} />
+          <Route path="/open-data" element={<OpenDataPage />} />
+          <Route path="/optimization-engine" element={<AzureOptimizationEnginePage />} />
+          <Route path="/power-bi" element={<PowerBIReportsPage />} />
+          <Route path="/powershell" element={<PowerShellModulePage />} />
+          <Route path="/tools" element={<ToolsLandingPage />} />
+          <Route path="/workbooks" element={<FinOpsWorkbooksPage />} />
+          <Route path="/workbooks/governance" element={<GovernanceWorkbookPage />} />
+          <Route path="/workbooks/optimization" element={<CostOptimizationWorkbookPage />} />
+        </Routes>
+    </Router>
   );
-}
+};
 
 export default App;
