@@ -160,17 +160,22 @@ HubScopes()
 with (docstring='Transforms Prices_raw into FOCUS 1.0.', folder='Prices')
 Prices_transform_v1_0()
 {
+    // TODO: EffectiveEndDate for MCA is inclusive
     // TODO: Handle null MeterId
     // TODO: Add x_CommitmentDiscountMinimum (as in the minimum commitment amount; e.g., 100TB, 1PB, 10PB for storage)
     // TODO: Consider cleaning up x_SkuRegion
     // TODO: Create new rows for reservation usage rows?
     // TODO: Why is MeterName missing for some records (e.g., reservations)?
+    // TODO: Why are 309 meters missing all meter metadata for MCA?
     // TODO: Why is MarketPrice not the on-demand list price for savings plan prices?
     // TODO: Why is MarketPrice ~= UnitPrice (but not ==) for savings plan prices?
     // TODO: Why are there Az Stack and Az Comm Services meters with "Unassigned" ProductName, MeterCategory, MeterSubcategory, MeterName, MeterRegion?
     // TODO: Does ListUnitPrice/x_EffectiveUnitPrice match usage data for savings plans?
     // TODO: Does x_SkuMeterName match usage data?
     // TODO: Does the effective start date for reservation prices change based on the export date?
+    // TODO: How can we differentiate between Microsoft and third-party meters?
+    // TODO: How do we create a unique ID for third-party meters for MCA?
+    // TODO: How do we differentiate dev/test for MCA?
     let isoMonths = (duration: string) {
         let number = toint(replace_regex(duration, @'[PMY]', ''));
         toint(case(
@@ -279,13 +284,13 @@ Prices_transform_v1_0()
         SkuId = coalesce(ProductId, ProductID),
         SkuIdv2 = x_SkuMeterId,
         SkuPriceId = strcat(x_SkuProductId, '_', x_SkuId, '_', x_SkuMeterType),
-        SkuPriceIdv2, 
-        x_AccountType = case(
+        SkuPriceIdv2,
+        x_BaseUnitPrice,
+        x_BillingAccountAgreement = case(
             strlen(x_BillingAccountId) > 32, 'MCA',
             strlen(x_BillingAccountId) < 32, 'EA',
             'Unknown'
         ),
-        x_BaseUnitPrice,
         x_BillingAccountId,
         x_BillingProfileId,
         x_CommitmentDiscountEligibility,
@@ -350,8 +355,8 @@ Prices_transform_v1_0()
     SkuIdv2:                             string,    // Hubs add-on
     SkuPriceId:                          string,
     SkuPriceIdv2:                        string,    // Hubs add-on
-    x_AccountType:                       string,    // Hubs add-on
     x_BaseUnitPrice:                     decimal,   // Azure
+    x_BillingAccountAgreement:           string,    // Hubs add-on
     x_BillingAccountId:                  string,    // Azure MCA
     x_BillingProfileId:                  string,    // Azure MCA
     x_CommitmentDiscountEligibility:     string,    // Hubs add-on
@@ -395,7 +400,7 @@ Prices_transform_v1_0()
 
 // Update policy for Prices_raw -> Prices_final_v1_0
 // NOTE: Must be after transform function is defined
-.alter-merge table Prices_final_v1_0 policy update
+.alter table Prices_final_v1_0 policy update
 ```
 [{
     "IsEnabled": true,
@@ -405,6 +410,7 @@ Prices_transform_v1_0()
     "PropagateIngestionProperties": true
 }]
 ```
+
 
 //======================================================================================================================
 // Cost and usage
@@ -553,6 +559,7 @@ with (docstring='All costs transformed to FOCUS 1.0.', folder='Costs')
 Costs_transform_v1_0()
 {
     // TODO: Should Adjustment costs be on List/ContractedCost?
+    // TODO: PublisherName "Microsoft Corporation" -> "Microsoft"
     // TODO: File a bug on CM for ContractedCost being off by the x_PricingBlockSize
     // TODO: Confirm PricingQuantity and PricingUnit for reservation purchases
     // TODO: Reservation usage has List/ContractedCost but Effective/BilledCost == 0
@@ -647,13 +654,17 @@ Costs_transform_v1_0()
     // BUG: Fix ContractedCost that has bad values
     | extend ContractedCost = iff(ProviderName == 'Microsoft' and isnotempty(PricingQuantity) and isnotempty(x_PricingBlockSize) and ContractedCost != ContractedUnitPrice * PricingQuantity, ContractedUnitPrice * PricingQuantity, ContractedCost)
     //
+    // Consumed quantity
+    | extend ConsumedQuantity = iff(ChargeCategory == 'Usage', coalesce(ConsumedQuantity, UsageQuantity, UsageAmount), todecimal(''))
+    | extend ConsumedUnit = iff(ChargeCategory == 'Usage' and isnotempty(ConsumedQuantity), coalesce(ConsumedUnit, UsageUnit, 'Units'), '')
+    //
     // Normalize datasets
     | project
         AvailabilityZone,
         BilledCost,
         BillingAccountId,
         BillingAccountName,
-        BillingAccountType,  // Azure 1.0-preview(v1)+
+        BillingAccountType,          // Azure 1.0-preview(v1)+
         BillingCurrency,
         BillingPeriodEnd,
         BillingPeriodStart,
@@ -672,8 +683,8 @@ Costs_transform_v1_0()
         CommitmentDiscountName,
         CommitmentDiscountStatus = case(ChargeSubcategory in ('Used', 'Unused'), ChargeSubcategory, CommitmentDiscountStatus),
         CommitmentDiscountType,
-        ConsumedQuantity = iff(ChargeCategory == 'Usage', coalesce(ConsumedQuantity, UsageQuantity, UsageAmount), todecimal('')),
-        ConsumedUnit = iff(ChargeCategory == 'Usage' and isnotempty(ConsumedQuantity), coalesce(ConsumedUnit, UsageUnit, 'Units'), ''),
+        ConsumedQuantity,
+        ConsumedUnit,
         ContractedCost = coalesce(ContractedCost, x_OnDemandCost, x_Cost),
         ContractedUnitPrice = coalesce(ContractedUnitPrice, x_OnDemandUnitPrice),
         EffectiveCost,
@@ -700,13 +711,18 @@ Costs_transform_v1_0()
         SkuPriceId,
         SubAccountId,
         SubAccountName,
-        SubAccountType,
+        SubAccountType,              // Azure 1.0-preview(v1)+
         Tags,
         x_AccountId,                 // Azure 1.0-preview(v1)+
         x_AccountName,               // Azure 1.0-preview(v1)+
         x_AccountOwnerId,            // Azure 1.0-preview(v1)+
         x_BilledCostInUsd,           // Azure 1.0-preview(v1)+
         x_BilledUnitPrice,           // Azure 1.0-preview(v1)+
+        x_BillingAccountAgreement = case(
+            ProviderName == 'Microsoft' and x_BillingAccountId == x_BillingProfileId, 'EA',
+            ProviderName == 'Microsoft' and x_BillingAccountId != x_BillingProfileId, 'MCA',
+            ProviderName
+        ),                           // Hubs add-on
         x_BillingAccountId,          // Azure 1.0-preview(v1)+
         x_BillingAccountName,        // Azure 1.0-preview(v1)+
         x_BillingExchangeRate,       // Azure 1.0-preview(v1)+
@@ -727,7 +743,7 @@ Costs_transform_v1_0()
         x_EffectiveCostInUsd,        // Azure 1.0-preview(v1)+
         x_EffectiveUnitPrice,        // Azure 1.0-preview(v1)+
         x_ExportTime,                // GCP Jan 2024
-        x_IngestionTime,
+        x_IngestionTime,             // Hubs add-on
         x_InvoiceId,                 // Azure 1.0-preview(v1)+
         x_InvoiceIssuerId,           // Azure 1.0-preview(v1)+
         x_InvoiceSectionId,          // Azure 1.0-preview(v1)+
@@ -770,11 +786,11 @@ Costs_transform_v1_0()
         x_SourceName     = coalesce(x_SourceName, 'Cost Management'),  // Hubs add-on
         x_SourceProvider = coalesce(x_SourceProvider, 'Microsoft'),    // Hubs add-on
         x_SourceType     = coalesce(x_SourceType, iff(isnotempty(x_BillingProfileId), 'FocusCost', '')),  // Hubs add-on
-        x_SourceVersion  = coalesce(x_SourceVersion, case(             // Hubs add-on
+        x_SourceVersion  = coalesce(x_SourceVersion, case(
             isnotempty(coalesce(ChargeClass, CommitmentDiscountStatus, tostring(ConsumedQuantity), ConsumedUnit, tostring(ContractedCost), tostring(ContractedUnitPrice), RegionId, RegionName)), '1.0',
             isnotempty(coalesce(ChargeSubcategory, Region, tostring(UsageQuantity), UsageUnit)), iff(ProviderName == 'Microsoft', '1.0-preview(v1)', '1.0-preview'),
             ''
-        )),
+        )),                          // Hubs add-on
         x_UsageType                  // AWS 1.0
 }
 
@@ -796,7 +812,6 @@ Costs_transform_v1_0()
     ChargeFrequency:            string,
     ChargePeriodEnd:            datetime,
     ChargePeriodStart:          datetime,
-    ChargeSubcategory:          string,
     CommitmentDiscountCategory: string,    // FOCUS 1.0-preview only
     CommitmentDiscountId:       string,
     CommitmentDiscountName:     string,
@@ -815,7 +830,6 @@ Costs_transform_v1_0()
     PricingUnit:                string,
     ProviderName:               string,
     PublisherName:              string,
-    Region:                     string,    // FOCUS 1.0-preview only
     RegionId:                   string,
     RegionName:                 string,
     ResourceId:                 string,
@@ -829,14 +843,12 @@ Costs_transform_v1_0()
     SubAccountName:             string,
     SubAccountType:             string,
     Tags:                       string,
-    UsageAmount:                decimal,   // GCP Jan 2024 -- Removed Mar 2024 (UsageQuantity)
-    UsageQuantity:              decimal,   // FOCUS 1.0-preview only
-    UsageUnit:                  string,    // FOCUS 1.0-preview only
     x_AccountId:                string,    // Azure 1.0-preview(v1)+
     x_AccountName:              string,    // Azure 1.0-preview(v1)+
     x_AccountOwnerId:           string,    // Azure 1.0-preview(v1)+
     x_BilledCostInUsd:          decimal,   // Azure 1.0-preview(v1)+
     x_BilledUnitPrice:          decimal,   // Azure 1.0-preview(v1)+
+    x_BillingAccountAgreement:  string,    // Hubs add-on
     x_BillingAccountId:         string,    // Azure 1.0-preview(v1)+
     x_BillingAccountName:       string,    // Azure 1.0-preview(v1)+
     x_BillingExchangeRate:      decimal,   // Azure 1.0-preview(v1)+
@@ -845,7 +857,6 @@ Costs_transform_v1_0()
     x_BillingProfileName:       string,    // Azure 1.0-preview(v1)+
     x_ChargeId:                 string,    // Azure 1.0-preview(v1) only
     x_ContractedCostInUsd:      decimal,   // Azure 1.0+
-    x_Cost:                     decimal,   // GCP Jan 2024 -- Removed Jun 2024 (ContractedCost)
     x_CostAllocationRuleName:   string,    // Azure 1.0-preview(v1)+
     x_CostCategories:           string,    // AWS 1.0 (JSON)
     x_CostCenter:               string,    // Azure 1.0-preview(v1)+
@@ -858,15 +869,13 @@ Costs_transform_v1_0()
     x_EffectiveCostInUsd:       decimal,   // Azure 1.0-preview(v1)+
     x_EffectiveUnitPrice:       decimal,   // Azure 1.0-preview(v1)+
     x_ExportTime:               datetime,  // GCP Jan 2024
+    x_IngestionTime:            datetime,  // Hubs add-on
     x_InvoiceId:                string,    // Azure 1.0-preview(v1)+
     x_InvoiceIssuerId:          string,    // Azure 1.0-preview(v1)+
     x_InvoiceSectionId:         string,    // Azure 1.0-preview(v1)+
     x_InvoiceSectionName:       string,    // Azure 1.0-preview(v1)+
     x_ListCostInUsd:            decimal,   // Azure 1.0-preview(v1)+
     x_Location:                 string,    // GCP Jan 2024
-    x_OnDemandCost:             decimal,   // Azure 1.0-preview(v1) only
-    x_OnDemandCostInUsd:        decimal,   // Azure 1.0-preview(v1) only
-    x_OnDemandUnitPrice:        decimal,   // Azure 1.0-preview(v1) only
     x_Operation:                string,    // AWS 1.0
     x_PartnerCreditApplied:     string,    // Azure 1.0-preview(v1)+
     x_PartnerCreditRate:        string,    // Azure 1.0-preview(v1)+
@@ -911,7 +920,7 @@ Costs_transform_v1_0()
 
 // Update policy for Costs_raw -> Costs_final_v1_0 table
 // NOTE: Must be after transform function is defined
-// .alter-merge table Costs_final_v1_0 policy update
+// .alter table Costs_final_v1_0 policy update
 // ```
 // [{
 //     "IsEnabled": true,
@@ -1036,6 +1045,7 @@ CommitmentDiscountUsage_transform_v1_0()
     RecommendedQuantityNormalized:  decimal,
     ResourceType:                   string,
     Scope:                          string,
+    SKU:                            string,
     SkuName:                        string,
     SkuProperties:                  string,
     Term:                           string,

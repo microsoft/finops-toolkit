@@ -7,6 +7,48 @@
       "mitigation": "Upgrade to the latest version of FinOps hubs at https://aka.ms/finops/hubs."
     },
     {
+      "code": "DataExplorerIngestionFailed",
+      "severity": "Critical",
+      "message": "Data Explorer ingestion failed. The new data will not be available for reporting.",
+      "mitigation": "Review the Data Explorer error message and resolve the issue. Rerun data ingestion for the specified folder using the ingestion_RerunETL pipeline in Azure Data Factory. Report unresolved issues at https://aka.ms/ftk/ideas."
+    },
+    {
+      "code": "DataExplorerIngestionMappingFailed",
+      "severity": "Critical",
+      "message": "Data Explorer ingestion mapping could not be created for the specified table.",
+      "mitigation": "Please fix the error and rerun ingestion for the specified folder path. If you continue to see this error, please report an issue at https://aka.ms/ftk/ideas."
+    },
+    {
+      "code": "DataExplorerIngestionTimeout",
+      "severity": "Critical",
+      "message": "Data Explorer ingestion timed out after 2 hours while waiting for available capacity.",
+      "mitigation": "Please re-run this pipeline to re-attempt ingestion. If you continue to see this error, please report an issue at https://aka.ms/ftk/ideas."
+    },
+    {
+      "code": "DataExplorerPostIngestionDropFailed",
+      "severity": "Critical",
+      "message": "Data Explorer post-ingestion cleanup (drop extents from the final table) failed. Data from a previous ingestion may be present in reporting, which could result in duplicated and inaccurate costs.",
+      "mitigation": "Review the Data Explorer error message and resolve the issue. Rerun data ingestion for the specified folder using the ingestion_RerunETL pipeline in Azure Data Factory. Report unresolved issues at https://aka.ms/ftk/ideas."
+    },
+    {
+      "code": "DataExplorerPreIngestionDropFailed",
+      "severity": "Critical",
+      "message": "Data Explorer pre-ingestion cleanup (drop extents from the raw table) failed. Ingestion was not completed.",
+      "mitigation": "Review the Data Explorer error message and resolve the issue. Rerun data ingestion for the specified folder using the ingestion_RerunETL pipeline in Azure Data Factory. Report unresolved issues at https://aka.ms/ftk/ideas."
+    },
+    {
+      "code": "ExportDataNotFound",
+      "severity": "Critical",
+      "message": "Exports were not found in the specified storage path.",
+      "mitigation": "Confirm that a Cost Management export was created and configured with the correct storage account, container, and storage path. After created, select 'Run now' to start the export process. Exports can take 15-30 minutes to complete depending on the size of the account. If you intended to use FinOps hubs, please correct the storage URL to point to the 'ingestion' container. Refer to the 'storageUrlForPowerBI' output from the FinOps hub deployment for the full URL."
+    },
+    {
+      "code": "HubDataNotFound",
+      "severity": "Critical",
+      "message": "FinOps hub data was not found in the specified storage account.",
+      "mitigation": "Confirm the storage URL matches the 'StorageUrlForPowerBI' from your FinOps hub deployment, Cost Management exports are pointing to the 'msexports' container and have successfully exported data, and that FinOps hub data factory triggers are started and pipelines are running successfully. Leverage the Data ingestion report and the troubleshooting guide (https://aka.ms/finops/hubs/troubleshoot) to validate your deployment."
+    },
+    {
       "code": "InvalidExportContainer",
       "severity": "Critical",
       "message": "This file looks like it may be exported from Cost Management but it is not in the correct container.",
@@ -29,42 +71,6 @@
       "severity": "Informational",
       "message": "The export path is not a valid scope ID. FinOps hubs expects the export path to be an Azure resource ID for the scope the export was created to simplify management. This should not cause failures, but may result in confusing results for scope-related reports.",
       "mitigation": "Update the storage path for the Cost Management export to use the full Azure resource ID for the scope."
-    },
-    {
-      "code": "DataExplorerIngestionDropFailed",
-      "severity": "Critical",
-      "message": "Data Explorer ingestion cleanup (drop extents) failed. Data from a previous ingestion may be present in reporting, which could result in duplicated and inaccurate costs.",
-      "mitigation": "Review the Data Explorer error message and resolve the issue. Rerun data ingestion for the specified folder using the ingestion_RerunETL pipeline in Azure Data Factory. Report unresolved issues at https://aka.ms/ftk/ideas."
-    },
-    {
-      "code": "DataExplorerIngestionFailed",
-      "severity": "Critical",
-      "message": "Data Explorer ingestion failed. The new data will not be available for reporting.",
-      "mitigation": "Review the Data Explorer error message and resolve the issue. Rerun data ingestion for the specified folder using the ingestion_RerunETL pipeline in Azure Data Factory. Report unresolved issues at https://aka.ms/ftk/ideas."
-    },
-    {
-      "code": "DataExplorerIngestionMappingFailed",
-      "severity": "Critical",
-      "message": "Data Explorer ingestion mapping could not be created for the specified table.",
-      "mitigation": "Please fix the error and rerun ingestion for the specified folder path. If you continue to see this error, please report an issue at https://aka.ms/ftk/ideas."
-    },
-    {
-      "code": "DataExplorerIngestionTimeout",
-      "severity": "Critical",
-      "message": "Data Explorer ingestion timed out after 2 hours while waiting for available capacity.",
-      "mitigation": "Please re-run this pipeline to re-attempt ingestion. If you continue to see this error, please report an issue at https://aka.ms/ftk/ideas."
-    },
-    {
-      "code": "ExportDataNotFound",
-      "severity": "Critical",
-      "message": "Exports were not found in the specified storage path.",
-      "mitigation": "Confirm that a Cost Management export was created and configured with the correct storage account, container, and storage path. After created, select 'Run now' to start the export process. Exports can take 15-30 minutes to complete depending on the size of the account. If you intended to use FinOps hubs, please correct the storage URL to point to the 'ingestion' container. Refer to the 'storageUrlForPowerBI' output from the FinOps hub deployment for the full URL."
-    },
-    {
-      "code": "HubDataNotFound",
-      "severity": "Critical",
-      "message": "FinOps hub data was not found in the specified storage account.",
-      "mitigation": "Confirm the storage URL matches the 'StorageUrlForPowerBI' from your FinOps hub deployment, Cost Management exports are pointing to the 'msexports' container and have successfully exported data, and that FinOps hub data factory triggers are started and pipelines are running successfully. Leverage the Data ingestion report and the troubleshooting guide (https://aka.ms/finops/hubs/troubleshoot) to validate your deployment."
     },
     {
       "code": "ManifestReadFailed",

@@ -3761,7 +3761,7 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
               value: '@pipeline().parameters.fileName'
               type: 'Expression'
             }
-            originalfileName: {
+            originalFileName: {
               value: '@last(split(pipeline().parameters.fileName, \'${ingestionIdFileNameSeparator}\'))'
               type: 'Expression'
             }
@@ -3996,6 +3996,33 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                   }
                 ]
                 ifTrueActivities: [
+                  { // Pre-Ingest Cleanup
+                    name: 'Pre-Ingest Cleanup'
+                    description: 'Cost Management exports include all month-to-date data from the previous export run. To ensure data is not double-reported, it must be dropped from the raw table before ingestion completes. Remove previous ingestions into the raw table for the month and any previous runs of the current ingestion month file in any table.'
+                    type: 'AzureDataExplorerCommand'
+                    dependsOn: []
+                    policy: {
+                      timeout: '0.12:00:00'
+                      retry: 0
+                      retryIntervalInSeconds: 30
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    typeProperties: {
+                      command: {
+                        value: '@concat(\'.drop extents <| .show extents | where (TableName == "\', pipeline().parameters.table, \'" and Tags !has "drop-by:\', pipeline().parameters.ingestionId, \'" and Tags has "drop-by:\', pipeline().parameters.folderPath, \'") or (Tags has "drop-by:\', pipeline().parameters.ingestionId, \'" and Tags has "drop-by:\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.originalFileName, \'")\')'
+                        type: 'Expression'
+                      }
+                      commandTimeout: '00:20:00'
+                    }
+                    linkedServiceName: {
+                      referenceName: linkedService_dataExplorer.name
+                      type: 'LinkedServiceReference'
+                      parameters: {
+                        database: dataExplorerIngestionDatabase
+                      }
+                    }
+                  }
                   { // Set Ordinal Mapping Name
                     name: 'Set Ordinal Mapping Name'
                     type: 'SetVariable'
@@ -4052,6 +4079,12 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                     type: 'Copy'
                     dependsOn: [
                       {
+                        activity: 'Pre-Ingest Cleanup'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                      {
                         activity: 'Create Mapping'
                         dependencyConditions: [
                           'Succeeded'
@@ -4085,7 +4118,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                           type: 'Expression'
                         }
                         additionalProperties: {
-                          value: '@json(concat(\'{"tags":"[\\"drop-by:\', pipeline().parameters.ingestionId, \'\\", \\"drop-by:\', pipeline().parameters.folderPath, \'\\", \\"drop-by:ftk-version-${ftkVersion}\\"]"}\'))'
+                          value: '@json(concat(\'{"tags":"[\\"drop-by:\', pipeline().parameters.ingestionId, \'\\", \\"drop-by:\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.originalFileName, \'\\", \\"drop-by:ftk-version-${ftkVersion}\\"]"}\'))'
                           type: 'Expression'
                         }
                       })
@@ -4117,10 +4150,11 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       }
                     ]
                   }
-                  { // Drop Old Data
-                    name: 'Drop Old Data'
-                    description: 'Cost Management exports include all data from the previous export run. To ensure data is not double-reported, it must be dropped after ingestion completes.'
+                  {
+                    name: 'Debug - Copy to Ingestion Log'
+                    description: 'Raw data is automatically cleaned up after ingestion. This activity copies raw data to a {dataset}_log table with additional metadata for debugging purposes. This data is never cleaned up and must be removed manually via ".drop table {dataset}_log".'
                     type: 'AzureDataExplorerCommand'
+                    state: 'Inactive'
                     dependsOn: [
                       {
                         activity: 'Ingest Data'
@@ -4136,9 +4170,45 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       secureOutput: false
                       secureInput: false
                     }
+                    userProperties: []
                     typeProperties: {
                       command: {
-                        value: '@concat(\'.drop extents <| .show extents where tags !has "drop-by:\', pipeline().parameters.ingestionId, \'" and tags has "drop-by:\', pipeline().parameters.folderPath, \'"\')'
+                        value: '@concat(\'.set-or-append \', replace(pipeline().parameters.table, \'_raw\', \'_log\'), \' <| \', pipeline().parameters.table, \' | extend INGESTION = "\', pipeline().parameters.ingestionId, \'", FOLDER = "\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.originalFileName, \'", TIMESTAMP = now() | project-reorder INGESTION, FOLDER, TIMESTAMP\')'
+                        type: 'Expression'
+                      }
+                      commandTimeout: '00:20:00'
+                    }
+                    linkedServiceName: {
+                      referenceName: linkedService_dataExplorer.name
+                      type: 'LinkedServiceReference'
+                      parameters: {
+                        database: dataExplorerIngestionDatabase
+                      }
+                    }
+                  }
+                  { // Post-Ingest Cleanup
+                    name: 'Post-Ingest Cleanup'
+                    description: 'Cost Management exports include all month-to-date data from the previous export run. To ensure data is not double-reported, it must be dropped after ingestion completes. Remove the current ingestion month file from raw and any old ingestions for the month from the final table.'
+                    type: 'AzureDataExplorerCommand'
+                    dependsOn: [
+                      {
+                        activity: 'Debug - Copy to Ingestion Log'
+                        dependencyConditions: [
+                          'Completed'
+                          'Skipped'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      timeout: '0.12:00:00'
+                      retry: 0
+                      retryIntervalInSeconds: 30
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    typeProperties: {
+                      command: {
+                        value: '@concat(\'.drop extents <| .show extents | where (TableName == "\', pipeline().parameters.table, \'" and Tags has "drop-by:\', pipeline().parameters.ingestionId, \'" and Tags has "drop-by:\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.originalFileName, \'") or (TableName startswith "\', replace(pipeline().parameters.table, \'_raw\', \'_final_v\'), \'" and Tags !has "drop-by:\', pipeline().parameters.ingestionId, \'" and Tags has "drop-by:\', pipeline().parameters.folderPath, \'")\')'
                         type: 'Expression'
                       }
                       commandTimeout: '00:20:00'
@@ -4156,7 +4226,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                     type: 'AzureDataExplorerCommand'
                     dependsOn: [
                       {
-                        activity: 'Drop Old Data'
+                        activity: 'Ingest Data'
                         dependencyConditions: [
                           'Succeeded'
                         ]
@@ -4189,6 +4259,12 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                     name: 'Ingestion Complete'
                     type: 'SetVariable'
                     dependsOn: [
+                      {
+                        activity: 'Post-Ingest Cleanup'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
                       {
                         activity: 'Drop Mapping'
                         dependencyConditions: [
@@ -4247,7 +4323,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                     userProperties: []
                     typeProperties: {
                       message: {
-                        value: '@concat(\'Data Explorer ingestion mapping could not be created for the \', pipeline().parameters.table, \' table. Please fix the error and rerun ingestion for the following folder path: "\', pipeline().parameters.folderPath, \'". File: \', pipeline().parameters.originalfileName, \'. Error: \', if(greater(length(activity(\'Create Mapping\').output.errors), 0), activity(\'Create Mapping\').output.errors[0].Message, \'Unknown\'), \' (Code: \', if(greater(length(activity(\'Create Mapping\').output.errors), 0), activity(\'Create Mapping\').output.errors[0].Code, \'None\'), \')\')'
+                        value: '@concat(\'Data Explorer ingestion mapping could not be created for the \', pipeline().parameters.table, \' table. Please fix the error and rerun ingestion for the following folder path: "\', pipeline().parameters.folderPath, \'". File: \', pipeline().parameters.originalFileName, \'. Error: \', if(greater(length(activity(\'Create Mapping\').output.errors), 0), activity(\'Create Mapping\').output.errors[0].Message, \'Unknown\'), \' (Code: \', if(greater(length(activity(\'Create Mapping\').output.errors), 0), activity(\'Create Mapping\').output.errors[0].Code, \'None\'), \')\')'
                         type: 'Expression'
                       }
                       errorCode: 'DataExplorerIngestionMappingFailed'
@@ -4288,18 +4364,18 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                     userProperties: []
                     typeProperties: {
                       message: {
-                        value: '@concat(\'Data Explorer ingestion into the \', pipeline().parameters.table, \' table failed. Please fix the error and rerun ingestion for the following folder path: "\', pipeline().parameters.folderPath, \'". File: \', pipeline().parameters.originalfileName, \'. Error: \', if(greater(length(activity(\'Ingest Data\').output.errors), 0), activity(\'Ingest Data\').output.errors[0].Message, \'Unknown\'), \' (Code: \', if(greater(length(activity(\'Ingest Data\').output.errors), 0), activity(\'Ingest Data\').output.errors[0].Code, \'None\'), \')\')'
+                        value: '@concat(\'Data Explorer ingestion into the \', pipeline().parameters.table, \' table failed. Please fix the error and rerun ingestion for the following folder path: "\', pipeline().parameters.folderPath, \'". File: \', pipeline().parameters.originalFileName, \'. Error: \', if(greater(length(activity(\'Ingest Data\').output.errors), 0), activity(\'Ingest Data\').output.errors[0].Message, \'Unknown\'), \' (Code: \', if(greater(length(activity(\'Ingest Data\').output.errors), 0), activity(\'Ingest Data\').output.errors[0].Code, \'None\'), \')\')'
                         type: 'Expression'
                       }
                       errorCode: 'DataExplorerIngestionFailed'
                     }
                   }
-                  { // Abort On Drop Error
-                    name: 'Abort On Drop Error'
+                  { // Abort On Pre-Ingest Drop Error
+                    name: 'Abort On Pre-Ingest Drop Error'
                     type: 'SetVariable'
                     dependsOn: [
                       {
-                        activity: 'Drop Old Data'
+                        activity: 'Pre-Ingest Cleanup'
                         dependencyConditions: [
                           'Failed'
                         ]
@@ -4315,12 +4391,12 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       value: false
                     }
                   }
-                  { // Error: DataExplorerIngestionDropFailed
-                    name: 'Drop Failed Error'
+                  { // Error: DataExplorerPreIngestionDropFailed
+                    name: 'Pre-Ingest Drop Failed Error'
                     type: 'Fail'
                     dependsOn: [
                       {
-                        activity: 'Abort On Drop Error'
+                        activity: 'Abort On Pre-Ingest Drop Error'
                         dependencyConditions: [
                           'Succeeded'
                         ]
@@ -4329,10 +4405,51 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                     userProperties: []
                     typeProperties: {
                       message: {
-                        value: '@concat(\'Data Explorer ingestion cleanup (drop extents) for the \', pipeline().parameters.table, \' table failed. Please fix the error and rerun ingestion for the following folder path: "\', pipeline().parameters.folderPath, \'". File: \', pipeline().parameters.originalfileName, \'. Error: \', if(greater(length(activity(\'Drop Old Data\').output.errors), 0), activity(\'Drop Old Data\').output.errors[0].Message, \'Unknown\'), \' (Code: \', if(greater(length(activity(\'Drop Old Data\').output.errors), 0), activity(\'Drop Old Data\').output.errors[0].Code, \'None\'), \')\')'
+                        value: '@concat(\'Data Explorer pre-ingestion cleanup (drop extents from raw table) for the \', pipeline().parameters.table, \' table failed. Ingestion was not completed. Please fix the error and rerun ingestion for the following folder path: "\', pipeline().parameters.folderPath, \'". File: \', pipeline().parameters.originalFileName, \'. Error: \', if(greater(length(activity(\'Pre-Ingest Cleanup\').output.errors), 0), activity(\'Pre-Ingest Cleanup\').output.errors[0].Message, \'Unknown\'), \' (Code: \', if(greater(length(activity(\'Pre-Ingest Cleanup\').output.errors), 0), activity(\'Pre-Ingest Cleanup\').output.errors[0].Code, \'None\'), \')\')'
                         type: 'Expression'
                       }
-                      errorCode: 'DataExplorerIngestionDropFailed'
+                      errorCode: 'DataExplorerPreIngestionDropFailed'
+                    }
+                  }
+                  { // Abort On Post-Ingest Drop Error
+                    name: 'Abort On Post-Ingest Drop Error'
+                    type: 'SetVariable'
+                    dependsOn: [
+                      {
+                        activity: 'Post-Ingest Cleanup'
+                        dependencyConditions: [
+                          'Failed'
+                        ]
+                      }
+                    ]
+                    policy: {
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      variableName: 'tryAgain'
+                      value: false
+                    }
+                  }
+                  { // Error: DataExplorerPostIngestionDropFailed
+                    name: 'Post-Ingest Drop Failed Error'
+                    type: 'Fail'
+                    dependsOn: [
+                      {
+                        activity: 'Abort On Post-Ingest Drop Error'
+                        dependencyConditions: [
+                          'Succeeded'
+                        ]
+                      }
+                    ]
+                    userProperties: []
+                    typeProperties: {
+                      message: {
+                        value: '@concat(\'Data Explorer post-ingestion cleanup (drop extents from final tables) for the \', replace(pipeline().parameters.table, \'_raw\', \'_final_*\'), \' table failed. Please fix the error and rerun ingestion for the following folder path: "\', pipeline().parameters.folderPath, \'". File: \', pipeline().parameters.originalFileName, \'. Error: \', if(greater(length(activity(\'Post-Ingest Cleanup\').output.errors), 0), activity(\'Post-Ingest Cleanup\').output.errors[0].Message, \'Unknown\'), \' (Code: \', if(greater(length(activity(\'Post-Ingest Cleanup\').output.errors), 0), activity(\'Post-Ingest Cleanup\').output.errors[0].Code, \'None\'), \')\')'
+                        type: 'Expression'
+                      }
+                      errorCode: 'DataExplorerPostIngestionDropFailed'
                     }
                   }
                 ]
@@ -4350,7 +4467,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
       fileName: {
         type: 'string'
       }
-      originalfileName: {
+      originalFileName: {
         type: 'string'
       }
       ingestionId: {
@@ -4536,7 +4653,7 @@ resource pipeline_RerunETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01
                     value: '@item().name'
                     type: 'Expression'
                   }
-                  originalfileName: {
+                  originalFileName: {
                     value: '@last(split(item().name, \'${ingestionIdFileNameSeparator}\'))'
                     type: 'Expression'
                   }
@@ -4603,7 +4720,9 @@ resource pipeline_RerunETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01
         type: 'string'
       }
     }
-    annotations: []
+    annotations: [
+      'New ingestion'
+    ]
   }
 }
 

@@ -14,10 +14,11 @@ Sorry to hear you're having a problem. We're here to help!
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [BadHubVersion](#badhubversion)
-- [DataExplorerIngestionDropFailed](#dataexploreringestiondropfailed)
 - [DataExplorerIngestionFailed](#dataexploreringestionfailed)
 - [DataExplorerIngestionMappingFailed](#dataexploreringestionmappingfailed)
 - [DataExplorerIngestionTimeout](#dataexploreringestiontimeout)
+- [DataExplorerPostIngestionDropFailed](#dataexplorerpostingestiondropfailed)
+- [DataExplorerPreIngestionDropFailed](#dataexplorerpreingestiondropfailed)
 - [InvalidExportContainer](#invalidexportcontainer)
 - [InvalidExportVersion](#invalidexportversion)
 - [InvalidHubVersion](#invalidhubversion)
@@ -66,16 +67,6 @@ FinOps hubs 0.2 is not operational. Please upgrade to version 0.3 or later.
 
 <br>
 
-## DataExplorerIngestionDropFailed
-
-<sup>Severity: Critical</sup>
-
-Data Explorer ingestion cleanup (drop extents) failed. Data from a previous ingestion may be present in reporting, which could result in duplicated and inaccurate costs.
-
-**Mitigation**: Review the Data Explorer error message and resolve the issue. Rerun data ingestion for the specified folder using the ingestion_RerunETL pipeline in Azure Data Factory. Report unresolved issues at https://aka.ms/ftk/ideas.
-
-<br>
-
 ## DataExplorerIngestionFailed
 
 <sup>Severity: Critical</sup>
@@ -103,6 +94,26 @@ Data Explorer ingestion mapping could not be created for the specified table.
 Data Explorer ingestion timed out after 2 hours while waiting for available capacity.
 
 **Mitigation**: Please re-run this pipeline to re-attempt ingestion. If you continue to see this error, please report an issue at https://aka.ms/ftk/ideas.
+
+<br>
+
+## DataExplorerPostIngestionDropFailed
+
+<sup>Severity: Critical</sup>
+
+Data Explorer post-ingestion cleanup (drop extents from the final table) failed. Data from a previous ingestion may be present in reporting, which could result in duplicated and inaccurate costs.
+
+**Mitigation**: Review the Data Explorer error message and resolve the issue. Rerun data ingestion for the specified folder using the `ingestion_RerunETL` pipeline in Azure Data Factory. Report unresolved issues at https://aka.ms/ftk/ideas.
+
+<br>
+
+## DataExplorerPreIngestionDropFailed
+
+<sup>Severity: Critical</sup>
+
+Data Explorer pre-ingestion cleanup (drop extents from the raw table) failed. Ingestion was not completed.
+
+**Mitigation**: Review the Data Explorer error message and resolve the issue. Rerun data ingestion for the specified folder using the `ingestion_RerunETL` pipeline in Azure Data Factory. Report unresolved issues at https://aka.ms/ftk/ideas.
 
 <br>
 
