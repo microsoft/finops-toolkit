@@ -67,6 +67,20 @@ At this point, you have automated alerts configured and ideally views and report
 
 <br>
 
+## KPIs and metrics
+
+| **Category** | **Definition** | **KPI** |
+|--------------|----------------|---------|
+| Anomaly alert coverage | Measures the extent to which anomaly alerts are enabled across all workloads. | Percentage of workloads/subscriptions with anomaly alerts enabled. |
+| Time to alert awareness | Measures the average time taken from the occurrence of an anomaly to the alert being raised and the resource owner being made aware. | Average length of time from anomaly detection to alert/resource owner awareness. |
+| Time to anomaly remediation | Measures the average time taken from the occurrence of an anomaly to its remediation. | Average length of time from anomaly detection to remediation. |
+| Unresolved anomalies | Measures the number and duration of unresolved anomalies. | Quantity and duration of unresolved anomalies. |
+| Forecasted unnecessary cloud spend | Measures the amount of forecasted unnecessary cloud spend if the anomaly was not detected for the billing period. | Amount of forecasted unnecessary cloud spend if anomaly was not detected for the billing period. |
+| Proactive anomaly alerts | Measures the number of planned anomalies that were not proactively alerted to all core personas involved over a period. | Number of planned anomalies not proactively alerted to all core personas involved over a period. |
+| Anomaly detection accuracy | Measures the number of false positive and false negative anomaly alerts. | Number of false positives and false negatives. |
+
+<br>
+
 ## Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Anomaly management capability](https://www.finops.org/framework/capabilities/anomaly-management) article in the FinOps Framework documentation.
