@@ -920,16 +920,16 @@ Costs_transform_v1_0()
 
 // Update policy for Costs_raw -> Costs_final_v1_0 table
 // NOTE: Must be after transform function is defined
-// .alter table Costs_final_v1_0 policy update
-// ```
-// [{
-//     "IsEnabled": true,
-//     "Source": "Costs_raw",
-//     "Query": "Costs_transform_v1_0()",
-//     "IsTransactional": true,
-//     "PropagateIngestionProperties": true
-// }]
-// ```
+.alter table Costs_final_v1_0 policy update
+```
+[{
+    "IsEnabled": true,
+    "Source": "Costs_raw",
+    "Query": "Costs_transform_v1_0()",
+    "IsTransactional": true,
+    "PropagateIngestionProperties": true
+}]
+```
 
 
 //======================================================================================================================
