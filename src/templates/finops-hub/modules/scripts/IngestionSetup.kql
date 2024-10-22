@@ -296,7 +296,7 @@ Prices_transform_v1_0()
         x_CommitmentDiscountEligibility,
         x_CommitmentUnitPriceSavings,
         x_CommitmentUnitPriceSavingsPercent = 1.0 * x_CommitmentUnitPriceSavings / ContractedUnitPrice * 100,
-        x_EffectivePeriodEnd,
+        x_EffectivePeriodEnd = startofmonth(x_EffectivePeriodEnd + 1h),
         x_EffectivePeriodStart,
         x_EffectiveUnitPrice,
         x_IngestionTime,

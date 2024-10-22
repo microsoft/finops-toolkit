@@ -4173,7 +4173,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                     userProperties: []
                     typeProperties: {
                       command: {
-                        value: '@concat(\'.set-or-append \', replace(pipeline().parameters.table, \'_raw\', \'_log\'), \' <| \', pipeline().parameters.table, \' | extend INGESTION = "\', pipeline().parameters.ingestionId, \'", FOLDER = "\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.originalFileName, \'", TIMESTAMP = now() | project-reorder INGESTION, FOLDER, TIMESTAMP\')'
+                        value: '@concat(\'.set-or-append \', replace(pipeline().parameters.table, \'_raw\', \'_log\'), \' <| \', pipeline().parameters.table, \' | extend INGESTION = "\', pipeline().parameters.ingestionId, \'", PATH = "\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.originalFileName, \'", TIMESTAMP = now() | project-reorder INGESTION, PATH, TIMESTAMP\')'
                         type: 'Expression'
                       }
                       commandTimeout: '00:20:00'
@@ -4654,15 +4654,15 @@ resource pipeline_RerunETL 'Microsoft.DataFactory/factories/pipelines@2018-06-01
                     type: 'Expression'
                   }
                   originalFileName: {
-                    value: '@last(split(item().name, \'${ingestionIdFileNameSeparator}\'))'
+                    value: '@last(array(split(item().name, \'${ingestionIdFileNameSeparator}\')))'
                     type: 'Expression'
                   }
                   ingestionId: {
-                    value: '@concat(first(split(item().name, \'${ingestionIdFileNameSeparator}\')), \'_\', variables(\'timestamp\'))'
+                    value: '@concat(first(array(split(item().name, \'${ingestionIdFileNameSeparator}\'))), \'_\', variables(\'timestamp\'))'
                     type: 'Expression'
                   }
                   table: {
-                    value: '@concat(first(split(variables(\'containerFolderPath\'), \'/\')), \'_raw\')'
+                    value: '@concat(first(array(split(variables(\'containerFolderPath\'), \'/\'))), \'_raw\')'
                     type: 'Expression'
                   }
                 }
