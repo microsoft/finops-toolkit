@@ -47,8 +47,8 @@ If you cannot grant permissions for your scope, you can create Cost Management e
    - **Frequency** = `Daily export of month-to-date costs`<sup>3</sup>
    - **Storage account** = (Use subscription/resource deployed with your hub)
    - **Container** = `msexports`
-   - **Format** = `CSV`
-   - **Compression Type** = `none`
+   - **Format** = `Parquet`
+   - **Compression** = `Snappy`
    - **Directory** = (Specify a unique path for this scope<sup>5</sup>)
      - _**EA billing account:** `billingAccounts/{enrollment-number}`_
      - _**MCA billing profile:** `billingProfiles/{billing-profile-id}`_
