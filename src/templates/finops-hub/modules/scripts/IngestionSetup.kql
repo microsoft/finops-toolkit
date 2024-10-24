@@ -587,7 +587,7 @@ Costs_transform_v1_0()
     // TODO: Confirm the ProviderName value for AWS and GCP data and update it in the ProviderName backfill
     // TODO: What should the ListCost/UnitPrice and ContractedCost/UnitPrice be for rounding adjustments?
     // TODO: What should the ListCost/UnitPrice and ContractedCost/UnitPrice be for commitment discount purchases?
-    sourceTable
+    Costs_raw
     //
     // Dedupe rows
     | extend x_IngestionTime = ingestion_time()
