@@ -562,6 +562,15 @@ Costs_transform_v1_0()
     // TODO: Add ServiceModel
     // TODO: Add CommitmentDiscountSpend/UsageEligibility
     // TODO: Consider fixing PricingQuantity and ContractedCost with bad values due to the wrong PricingQuantity scale
+    // TODO: Consider fixing "Other" ServiceCategory values
+    // TODO: Consider replacing "Microsoft Corporation" PublisherName values
+    // TODO: Fix FOCUS conformance gaps
+    // TODO: ContractedCost/UnitPrice are 0 for commitment discount purchases
+    // TODO: Savings plan purchases show a ChargeFrequency of "Usage-Based" but should be "One-Time" or "Recurring"
+    // TODO: Savings plan purchases do not have a ServiceName
+    // TODO: x_BilledUnitPrice is 0 for commitment discount purchases
+    // TODO: Lowercase Microsoft 1.0-preview ResourceId values
+    // TODO: Should commitment discount purchases have a time for ChargeperiodStart/End?
     // TODO: Should Adjustment costs be on List/ContractedCost?
     // TODO: PublisherName "Microsoft Corporation" -> "Microsoft"
     // TODO: File a bug on CM for ContractedCost being off by the x_PricingBlockSize
@@ -576,7 +585,9 @@ Costs_transform_v1_0()
     // TODO: Add warnings (errors?) when there's a difference between meter metadata in cost and price datasets
     // TODO: Create alerts when there are differences between cost/price data (???)
     // TODO: Confirm the ProviderName value for AWS and GCP data and update it in the ProviderName backfill
-    Costs_raw
+    // TODO: What should the ListCost/UnitPrice and ContractedCost/UnitPrice be for rounding adjustments?
+    // TODO: What should the ListCost/UnitPrice and ContractedCost/UnitPrice be for commitment discount purchases?
+    sourceTable
     //
     // Dedupe rows
     | extend x_IngestionTime = ingestion_time()
@@ -696,7 +707,7 @@ Costs_transform_v1_0()
         CommitmentDiscountCategory,
         CommitmentDiscountId,
         CommitmentDiscountName,
-        CommitmentDiscountStatus = case(ChargeSubcategory in ('Used', 'Unused'), ChargeSubcategory, CommitmentDiscountStatus),
+        CommitmentDiscountStatus = case(ChargeSubcategory == 'Used Commitment', 'Used', ChargeSubcategory == 'Unused Commitment', 'Unused', CommitmentDiscountStatus),
         CommitmentDiscountType,
         ConsumedQuantity,
         ConsumedUnit,
@@ -715,7 +726,7 @@ Costs_transform_v1_0()
         PricingUnit,
         ProviderName,
         PublisherName,
-        RegionId = coalesce(RegionId, Region),
+        RegionId = coalesce(RegionId, iff(ProviderName == 'Microsoft', replace_string(tolower(Region), ' ', ''), Region)),
         RegionName = coalesce(RegionName, Region),
         ResourceId,
         ResourceName = tolower(ResourceName),
