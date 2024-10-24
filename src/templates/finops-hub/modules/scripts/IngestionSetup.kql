@@ -216,7 +216,7 @@ Prices_transform_v1_0()
             x_SkuPriceType == 'SavingsPlan', 'Usage',  // Savings plan prices are for committed usage, not the purchase
             ''
         )
-        | extend SkuPriceIdv2 = strcat(case(x_SkuPriceType == 'Consumption', 'OD', x_SkuPriceType == 'ReservedInstance', 'RI', x_SkuPriceType == 'SavingsPlan', 'SP', 'XX'), substring(ChargeCategory, 0, 1), x_SkuTerm, '_', x_SkuMeterId, '_', x_SkuProductId, '_', x_SkuId, '_', x_SkuTier, '_', x_SkuOfferId) //MeterType, '_',
+        | extend SkuPriceIdv2 = strcat(case(x_SkuPriceType == 'Consumption', 'OD', x_SkuPriceType == 'ReservedInstance', 'RI', x_SkuPriceType == 'SavingsPlan', 'SP', 'XX'), substring(ChargeCategory, 0, 1), x_SkuTerm, '_', x_SkuProductId, '_', x_SkuId, '_', x_SkuMeterType, '_', x_SkuMeterId, '_', x_SkuTier, '_', x_SkuOfferId)
         | extend x_BillingAccountId = iff(BillingAccountId startswith '/', split(BillingAccountId, '/')[-1], coalesce(BillingAccountId, EnrollmentNumber))
         | extend x_BillingProfileId = iff(BillingProfileId startswith '/', split(BillingProfileId, '/')[-1], coalesce(BillingProfileId, EnrollmentNumber))
         | extend tmp_SavingsPlanKey = strcat(x_SkuMeterId, x_SkuProductId, x_SkuId, x_SkuTier, x_SkuOfferId)
