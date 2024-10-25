@@ -166,6 +166,7 @@ Prices_transform_v1_0()
     // TODO: Consider adding x_ServiceModel
     // TODO: Consider cleaning up x_SkuRegion
     // TODO: Consider creating new rows for reservation usage
+    // TODO: SkuPriceId should not be "_" for unused savings plan rows
     // TODO: Why is MeterName missing for some records (e.g., reservations)?
     // TODO: Why are 309 meters missing all meter metadata for MCA?
     // TODO: Why is MarketPrice not the on-demand list price for savings plan prices?
@@ -216,7 +217,7 @@ Prices_transform_v1_0()
             x_SkuPriceType == 'SavingsPlan', 'Usage',  // Savings plan prices are for committed usage, not the purchase
             ''
         )
-        | extend SkuPriceIdv2 = strcat(case(x_SkuPriceType == 'Consumption', 'OD', x_SkuPriceType == 'ReservedInstance', 'RI', x_SkuPriceType == 'SavingsPlan', 'SP', 'XX'), substring(ChargeCategory, 0, 1), x_SkuTerm, '_', x_SkuProductId, '_', x_SkuId, '_', x_SkuMeterType, '_', x_SkuMeterId, '_', x_SkuTier, '_', x_SkuOfferId)
+        | extend SkuPriceIdv2 = strcat(case(x_SkuPriceType == 'Consumption', 'OD', x_SkuPriceType == 'ReservedInstance', 'RI', x_SkuPriceType == 'SavingsPlan', 'SP', 'XX'), substring(ChargeCategory, 0, 1), x_SkuTerm, '_', x_SkuProductId, '_', x_SkuId, '_', x_SkuMeterType, '_', x_SkuTier, x_SkuOfferId)
         | extend x_BillingAccountId = iff(BillingAccountId startswith '/', split(BillingAccountId, '/')[-1], coalesce(BillingAccountId, EnrollmentNumber))
         | extend x_BillingProfileId = iff(BillingProfileId startswith '/', split(BillingProfileId, '/')[-1], coalesce(BillingProfileId, EnrollmentNumber))
         | extend tmp_SavingsPlanKey = strcat(x_SkuMeterId, x_SkuProductId, x_SkuId, x_SkuTier, x_SkuOfferId)
@@ -587,43 +588,57 @@ Costs_transform_v1_0()
     // TODO: Confirm the ProviderName value for AWS and GCP data and update it in the ProviderName backfill
     // TODO: What should the ListCost/UnitPrice and ContractedCost/UnitPrice be for rounding adjustments?
     // TODO: What should the ListCost/UnitPrice and ContractedCost/UnitPrice be for commitment discount purchases?
+    // TODO: Why do price sheet savings plan usage prices not match cost effective prices?
     Costs_raw
     //
     // Dedupe rows
     | extend x_IngestionTime = ingestion_time()
-    | extend x_ChargeId = hash_sha256(strcat(
-        // DO NOT CHANGE COLUMNS OR COLUMN ORDER
-        // 1. Resource hierarchy (including resource name), highest to lowest
-        BillingAccountId,
-        x_InvoiceSectionId,
-        x_AccountOwnerId,
-        SubAccountId,
-        x_ResourceGroupName,
-        ResourceName,
-        // 2. Resource details
-        ResourceId,
-        RegionId,
-        Tags,
-        CommitmentDiscountId,
-        x_CostCenter,
-        // 4. Meter details
-        SkuPriceId,
-        x_SkuMeterId,
-        x_SkuPartNumber,
-        x_SkuOfferId,
-        x_SkuDetails,
-        // 5. Date
-        ChargePeriodStart
-    ))
+    | extend x_ChargeId = ''
+    // TODO: Consider adding a unique charge ID per row
+    // hash_sha256(strcat(
+    //     // DO NOT CHANGE COLUMNS OR COLUMN ORDER
+    //     // 1. Resource hierarchy (including resource name), highest to lowest
+    //     BillingAccountId,
+    //     x_InvoiceSectionId,
+    //     x_AccountOwnerId,
+    //     SubAccountId,
+    //     x_ResourceGroupName,
+    //     ResourceName,
+    //     // 2. Resource details
+    //     ResourceId,
+    //     RegionId,
+    //     Tags,
+    //     CommitmentDiscountId,
+    //     x_CostCenter,
+    //     // 4. Meter details
+    //     SkuPriceId,
+    //     x_SkuMeterId,
+    //     x_SkuPartNumber,
+    //     x_SkuOfferId,
+    //     x_SkuDetails,
+    //     // 5. Date
+    //     ChargePeriodStart
+    // ))
+    //
+    // Identify data quality issues
+    | extend x_SourceChanges = replace_regex(strcat(
+        iff((isempty(ContractedCost)      or ContractedCost == 0)      and EffectiveCost != 0 ,                                     'MissingContractedCost,',            ''),
+        iff((isempty(ContractedUnitPrice) or ContractedUnitPrice == 0) and x_EffectiveUnitPrice != 0 ,                              'MissingContractedUnitPrice,',       ''),
+        iff((isempty(ListCost)            or ListCost == 0)            and (ContractedCost != 0      or EffectiveCost != 0),        'MissingListCost,',                  ''),
+        iff((isempty(ListUnitPrice)       or ListUnitPrice == 0)       and (ContractedUnitPrice != 0 or x_EffectiveUnitPrice != 0), 'MissingListUnitPrice,',             ''),
+        iff(isempty(ProviderName),                                                                                                  'MissingProviderName,',              ''),
+        iff(PricingCategory == 'Standard' and isnotempty(CommitmentDiscountId) and ChargeCategory == 'Usage',                       'PricingCategoryShouldBeCommitted,', ''),
+        iff(x_SkuTerm == '1Year' or x_SkuTerm == '3Years' or x_SkuTerm == '5Years',                                                 'SkuTermShouldBeAnInteger,',         '')
+    ), ',$', '')
     //
     // Fix columns needed in other changes
     | extend ProviderName = case(
-            isnotempty(ProviderName), ProviderName,
-            isnotempty(coalesce(x_CostCategories, x_Discount, x_Operation, x_ServiceCode, x_UsageType)), 'AWS',
-            isnotempty(coalesce(tostring(UsageAmount), tostring(x_Cost), x_Credits, x_CostType, tostring(x_CurrencyConversionRate), tostring(x_ExportTime), x_Project, x_ServiceId)), 'GCP',
-            isnotempty(coalesce(x_BillingProfileId, x_InvoiceSectionId)), 'Microsoft',
-            ''
-        )
+        isnotempty(ProviderName), ProviderName,
+        isnotempty(coalesce(x_CostCategories, x_Discount, x_Operation, x_ServiceCode, x_UsageType)), 'AWS',
+        isnotempty(coalesce(tostring(UsageAmount), tostring(x_Cost), x_Credits, x_CostType, tostring(x_CurrencyConversionRate), tostring(x_ExportTime), x_Project, x_ServiceId)), 'GCP',
+        isnotempty(coalesce(x_BillingProfileId, x_InvoiceSectionId)), 'Microsoft',
+        ''
+    )
     //
     // Identify source
     | extend x_SourceName     = coalesce(x_SourceName, iff(isnotempty(x_BillingProfileId), 'Cost Management', ProviderName))
@@ -634,25 +649,37 @@ Costs_transform_v1_0()
         isnotempty(coalesce(ChargeSubcategory, Region, tostring(UsageQuantity), UsageUnit)), iff(ProviderName == 'Microsoft', '1.0-preview(v1)', '1.0-preview'),
         ''
     ))
+    // Append version check error code
+    | extend x_SourceChanges = strcat(x_SourceChanges, iff(isempty(x_SourceChanges), '', ','), case(
+        x_SourceVersion == '1.0', '',
+        x_SourceVersion == '', 'UnknownFocusVersion',
+        'LegacyFocusVersion'
+    ))
     //
     // Backfill missing prices -- mapping to on-demand prices requires meter ID and offer ID
-    | extend tmp_MissingPrices = ProviderName == 'Microsoft' and (ListUnitPrice == 0 or ContractedUnitPrice == 0) and x_EffectiveUnitPrice != 0
+    | extend tmp_MissingPrices = ProviderName == 'Microsoft'
+        and (ListUnitPrice == 0 or ContractedUnitPrice == 0)
+        and x_EffectiveUnitPrice != 0
+        and not(CommitmentDiscountCategory == 'Spend' and CommitmentDiscountStatus == 'Unused')
+        and isnotempty(strcat(x_SkuMeterId, x_SkuOfferId))
     | as allCosts
     | where tmp_MissingPrices
+    | extend tmp_ReservationPriceLookupKey = strcat(x_BillingProfileId, substring(ChargePeriodStart, 0, 7), x_SkuMeterId, x_SkuOfferId)
     | as costsWithMissingPrices
     | join kind=leftouter (
         Prices_final_v1_0
-        | where x_SkuPriceType == 'Consumption' and strcat(x_SkuMeterId, x_SkuOfferId) in ((costsWithMissingPrices | summarize by strcat(x_SkuMeterId, x_SkuOfferId)))
-        | project x_SkuMeterId, x_SkuOfferId, x_PricingBlockSize, PricingUnit, ListUnitPrice, ContractedUnitPrice
-    ) on x_SkuMeterId, x_SkuOfferId
+        | extend tmp_ReservationPriceLookupKey = strcat(x_BillingProfileId, substring(x_EffectivePeriodStart, 0, 7), x_SkuMeterId, x_SkuOfferId)
+        | where x_SkuPriceType == 'Consumption' and tmp_ReservationPriceLookupKey in ((costsWithMissingPrices | summarize by tmp_ReservationPriceLookupKey))
+        | summarize ListUnitPrice = min(ListUnitPrice), ContractedUnitPrice = min(ContractedUnitPrice) by tmp_ReservationPriceLookupKey, x_PricingBlockSize, PricingUnit
+    ) on tmp_ReservationPriceLookupKey
     // Select the best price to use for each row
     | extend ContractedUnitPrice = case(
         // If price is already correct, keep that
         ContractedUnitPrice != 0 or x_EffectiveUnitPrice == 0, ContractedUnitPrice,
         // If both prices use the same scale, use the new one
-        PricingUnit == PricingUnit1 and x_PricingBlockSize == x_PricingBlockSize1, ContractedUnitPrice1,
+        PricingUnit == PricingUnit1 and x_PricingBlockSize == x_PricingBlockSize1, ContractedUnitPrice1 * x_BillingExchangeRate,
         // If prices are the same unit but not the same scale, use the new one but correct the scale
-        PricingUnit == PricingUnit1 and x_PricingBlockSize != x_PricingBlockSize1 and isnotempty(x_PricingBlockSize) and isnotempty(x_PricingBlockSize1), ContractedUnitPrice1 / x_PricingBlockSize1 * x_PricingBlockSize,
+        PricingUnit == PricingUnit1 and x_PricingBlockSize != x_PricingBlockSize1 and isnotempty(x_PricingBlockSize) and isnotempty(x_PricingBlockSize1), ContractedUnitPrice1 * x_BillingExchangeRate / x_PricingBlockSize1 * x_PricingBlockSize,
         // If prices use different units, assume the effective price is the same as contracted price to support aggregations
         PricingUnit != PricingUnit1, x_EffectiveUnitPrice,
         // Otherwise (should never get here)
@@ -662,9 +689,9 @@ Costs_transform_v1_0()
         // If price is already correct, keep that
         ListUnitPrice != 0 or x_EffectiveUnitPrice == 0, ListUnitPrice,
         // If both prices use the same scale, use the new one
-        PricingUnit == PricingUnit1 and x_PricingBlockSize == x_PricingBlockSize1, ListUnitPrice1,
+        PricingUnit == PricingUnit1 and x_PricingBlockSize == x_PricingBlockSize1, ListUnitPrice1 * x_BillingExchangeRate,
         // If prices are the same unit but not the same scale, use the new one but correct the scale
-        PricingUnit == PricingUnit1 and x_PricingBlockSize != x_PricingBlockSize1 and isnotempty(x_PricingBlockSize) and isnotempty(x_PricingBlockSize1), ListUnitPrice1 / x_PricingBlockSize1 * x_PricingBlockSize,
+        PricingUnit == PricingUnit1 and x_PricingBlockSize != x_PricingBlockSize1 and isnotempty(x_PricingBlockSize) and isnotempty(x_PricingBlockSize1), ListUnitPrice1 * x_BillingExchangeRate / x_PricingBlockSize1 * x_PricingBlockSize,
         // If prices use different units, assume the contracted price is the same as list price to support aggregations
         PricingUnit != PricingUnit1, ContractedUnitPrice,
         // Otherwise (should never get here)
@@ -675,12 +702,12 @@ Costs_transform_v1_0()
     | extend ContractedCost = case(ContractedCost != 0 or EffectiveCost == 0, ContractedCost, ContractedUnitPrice != 0, ContractedUnitPrice * PricingQuantity, ContractedCost)
     // Merge the rest of the unmodified cost records and remove excess columns
     | union (allCosts | where not(tmp_MissingPrices))
-    | project-away x_PricingBlockSize1, PricingUnit1, ListUnitPrice1, ContractedUnitPrice1, tmp_MissingPrices
+    | project-away x_PricingBlockSize1, PricingUnit1, ListUnitPrice1, ContractedUnitPrice1, tmp_MissingPrices, tmp_ReservationPriceLookupKey, tmp_ReservationPriceLookupKey1
     //
     // BUG: Fix ContractedCost that has bad values
     | extend ContractedCost = iff(ProviderName == 'Microsoft' and isnotempty(PricingQuantity) and isnotempty(x_PricingBlockSize) and ContractedCost != ContractedUnitPrice * PricingQuantity, ContractedUnitPrice * PricingQuantity, ContractedCost)
     //
-    // Consumed quantity
+    // Handle FOCUS 1.0-preview UsageQuantity/Unit
     | extend ConsumedQuantity = iff(ChargeCategory == 'Usage', coalesce(ConsumedQuantity, UsageQuantity, UsageAmount), todecimal(''))
     | extend ConsumedUnit = iff(ChargeCategory == 'Usage' and isnotempty(ConsumedQuantity), coalesce(ConsumedUnit, UsageUnit, 'Units'), '')
     //
@@ -695,6 +722,7 @@ Costs_transform_v1_0()
         BillingPeriodEnd,
         BillingPeriodStart,
         ChargeCategory = case(
+            // Handle FOCUS 1.0-preview ChargeSubcategory
             ChargeSubcategory == 'Credit', 'Credit',
             ChargeSubcategory == 'Refund', 'Purchase',  // We are assuming purchase refunds since we don't have data to indicate usage refunds
             ChargeCategory
@@ -707,7 +735,12 @@ Costs_transform_v1_0()
         CommitmentDiscountCategory,
         CommitmentDiscountId,
         CommitmentDiscountName,
-        CommitmentDiscountStatus = case(ChargeSubcategory == 'Used Commitment', 'Used', ChargeSubcategory == 'Unused Commitment', 'Unused', CommitmentDiscountStatus),
+        CommitmentDiscountStatus = case(
+            // Handle FOCUS 1.0-preview ChargeSubcategory
+            ChargeSubcategory == 'Used Commitment', 'Used',
+            ChargeSubcategory == 'Unused Commitment', 'Unused',
+            CommitmentDiscountStatus
+        ),
         CommitmentDiscountType,
         ConsumedQuantity,
         ConsumedUnit,
@@ -718,6 +751,7 @@ Costs_transform_v1_0()
         ListCost,
         ListUnitPrice,
         PricingCategory = case(
+            // Handle FOCUS 1.0-preview PricingCategory values
             PricingCategory == 'On-Demand', 'Standard',
             PricingCategory == 'Commitment-Based', 'Committed',
             PricingCategory
@@ -726,6 +760,7 @@ Costs_transform_v1_0()
         PricingUnit,
         ProviderName,
         PublisherName,
+        // Handle FOCUS 1.0-preview Region column
         RegionId = coalesce(RegionId, iff(ProviderName == 'Microsoft', replace_string(tolower(Region), ' ', ''), Region)),
         RegionName = coalesce(RegionName, Region),
         ResourceId,
@@ -809,6 +844,7 @@ Costs_transform_v1_0()
         x_SkuServiceFamily,          // Azure 1.0-preview(v1)+
         x_SkuTerm,                   // Azure 1.0-preview(v1)+
         x_SkuTier,                   // Azure 1.0-preview(v1)+ 
+        x_SourceChanges,             // Hubs add-on
         x_SourceName,                // Hubs add-on
         x_SourceProvider,            // Hubs add-on
         x_SourceType,                // Hubs add-on
@@ -931,6 +967,7 @@ Costs_transform_v1_0()
     x_SkuServiceFamily:         string,    // Azure 1.0-preview(v1)+
     x_SkuTerm:                  string,    // Azure 1.0-preview(v1)+
     x_SkuTier:                  string,    // Azure 1.0-preview(v1)+ 
+    x_SourceChanges:            string,    // Hubs add-on
     x_SourceName:               string,    // Hubs add-on
     x_SourceProvider:           string,    // Hubs add-on
     x_SourceType:               string,    // Hubs add-on

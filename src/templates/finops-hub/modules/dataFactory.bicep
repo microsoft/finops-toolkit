@@ -3862,7 +3862,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
         userProperties: []
         typeProperties: {
           items: {
-            value: '@json(concat(\'[\', replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(string(activity(\'Read Column Names\').output.firstRow), \'"\', \'"name":"\'), \'"name":":"name":"\', \'","value":"\'), \'"name":":\', \'","value":\'), \'"name":",\', \'"},{\'), \',"name":\', \'},{"name":\'), \'"name":"}\', \'"}\'), \'"value":"{\\"name":"\', \'"value":"{\\"\'), \'\\","value": \\"name":"\', \'\\":\\"\'), \'\\","value":\\"name":"\', \'\\":\\"\'), \'\\"},{\\"name":"\', \'\\"},{\\"\'), \']\'))'
+            value: '@json(concat(\'[\', replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(string(activity(\'Read Column Names\').output.firstRow), \'"\', \'"name":"\'), \'"name":":"name":"\', \'","value":"\'), \'"name":":\', \'","value":\'), \'"name":",\', \'"},{\'), \',"name":\', \'},{"name":\'), \'"name":"}\', \'"}\'), \'"value":"{\\"name":"\', \'"value":"{\\"\'), \'\\","value": \\"name":"\', \'\\":\\"\'), \'\\","value":\\"name":"\', \'\\":\\"\'), \'\\"},{\\"name":"\', \'\\"},{\\"\'), \'\\","value": \\"},{,,\\"}\', \'\\":\\"\\"}\'), \'\\","value":\', \'\\":\'), \']\'))'
             type: 'Expression'
           }
           isSequential: true
@@ -3907,6 +3907,89 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
           ]
         }
       }
+      { // Read Hub Config
+        name: 'Read Hub Config'
+        description: 'Read the hub config to determine how long data should be retained.'
+        type: 'Lookup'
+        dependsOn: []
+        policy: {
+          timeout: '0.12:00:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          source: {
+            type: 'JsonSource'
+            storeSettings: {
+              type: 'AzureBlobFSReadSettings'
+              recursive: false
+              enablePartitionDiscovery: false
+            }
+            formatSettings: {
+              type: 'JsonReadSettings'
+            }
+          }
+          dataset: {
+            referenceName: dataset_config.name
+            type: 'DatasetReference'
+            parameters: {
+              fileName: 'settings.json'
+              folderPath: configContainerName
+            }
+          }
+        }
+      }
+      { // Set Log Retention Days
+        name: 'Set Log Retention Days'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Read Hub Config'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'logRetentionDays'
+          value: {
+            value: '@coalesce(activity(\'Read Hub Config\').output.firstRow.retention.log.days, 0)'
+            type: 'Expression'
+          }
+        }
+      }
+      { // Set Final Retention Months
+        name: 'Set Final Retention Months'
+        type: 'SetVariable'
+        dependsOn: [
+          {
+            activity: 'Read Hub Config'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+        ]
+        policy: {
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          variableName: 'finalRetentionMonths'
+          value: {
+            value: '@coalesce(activity(\'Read Hub Config\').output.firstRow.retention.final.months, 999)'
+            type: 'Expression'
+          }
+        }
+      }
       { // Until Capacity Is Available
         name: 'Until Capacity Is Available'
         type: 'Until'
@@ -3915,6 +3998,20 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
             activity: 'Loop thru Columns'
             dependencyConditions: [
               'Succeeded'
+            ]
+          }
+          {
+            activity: 'Set Log Retention Days'
+            dependencyConditions: [
+              'Completed'
+              'Skipped'
+            ]
+          }
+          {
+            activity: 'Set Final Retention Months'
+            dependencyConditions: [
+              'Completed'
+              'Skipped'
             ]
           }
         ]
@@ -4150,11 +4247,10 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       }
                     ]
                   }
-                  {
+                  { // Debug - Copy to Ingestion Log
                     name: 'Debug - Copy to Ingestion Log'
                     description: 'Raw data is automatically cleaned up after ingestion. This activity copies raw data to a {dataset}_log table with additional metadata for debugging purposes. This data is never cleaned up and must be removed manually via ".drop table {dataset}_log".'
                     type: 'AzureDataExplorerCommand'
-                    state: 'Inactive'
                     dependsOn: [
                       {
                         activity: 'Ingest Data'
@@ -4173,7 +4269,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                     userProperties: []
                     typeProperties: {
                       command: {
-                        value: '@concat(\'.set-or-append \', replace(pipeline().parameters.table, \'_raw\', \'_log\'), \' <| \', pipeline().parameters.table, \' | extend INGESTION = "\', pipeline().parameters.ingestionId, \'", PATH = "\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.originalFileName, \'", TIMESTAMP = now() | project-reorder INGESTION, PATH, TIMESTAMP\')'
+                        value: '@if(lessOrEquals(variables(\'logRetentionDays\'), 0), \'print "ignore"\', concat(\'.set-or-append \', replace(pipeline().parameters.table, \'_raw\', \'_log\'), \' with (tags=\'\'["drop-by:\', formatDateTime(utcNow(), \'yyyy-MM-dd\'), \'"]\'\') <| \', pipeline().parameters.table, \' | extend INGESTION = "\', pipeline().parameters.ingestionId, \'", PATH = "\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.originalFileName, \'", TIMESTAMP = now() | project-reorder INGESTION, PATH, TIMESTAMP\'))'
                         type: 'Expression'
                       }
                       commandTimeout: '00:20:00'
@@ -4208,7 +4304,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                     }
                     typeProperties: {
                       command: {
-                        value: '@concat(\'.drop extents <| .show extents | where (TableName == "\', pipeline().parameters.table, \'" and Tags has "drop-by:\', pipeline().parameters.ingestionId, \'" and Tags has "drop-by:\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.originalFileName, \'") or (TableName startswith "\', replace(pipeline().parameters.table, \'_raw\', \'_final_v\'), \'" and Tags !has "drop-by:\', pipeline().parameters.ingestionId, \'" and Tags has "drop-by:\', pipeline().parameters.folderPath, \'")\')'
+                        value: '@concat(\'.drop extents <| .show extents | extend isNewRawData = (TableName == "\', pipeline().parameters.table, \'" and Tags has "drop-by:\', pipeline().parameters.ingestionId, \'" and Tags has "drop-by:\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.originalFileName, \'") | extend isOldFinalData = (TableName startswith "\', replace(pipeline().parameters.table, \'_raw\', \'_final_v\'), \'" and Tags !has "drop-by:\', pipeline().parameters.ingestionId, \'" and Tags has "drop-by:\', pipeline().parameters.folderPath, \'") | extend isPastFinalRetention = (TableName startswith "\', replace(pipeline().parameters.table, \'_raw\', \'_final_v\'), \'" and todatetime(substring(strcat(replace_string(extract("drop-by:[A-Za-z]+/(\\\\d{4}/\\\\d{2}(/\\\\d{2})?)", 1, Tags), "/", "-"), "-01"), 0, 10)) < datetime_add("month", -\', if(lessOrEquals(variables(\'finalRetentionMonths\'), 0), 0, variables(\'finalRetentionMonths\')), \', startofmonth(now()))) | extend isPastLogRetention = (TableName == "\', replace(pipeline().parameters.table, \'_raw\', \'_log\'), \'" and todatetime(extract("drop-by:(\\\\d{4}-\\\\d{2}-\\\\d{2})", 1, Tags)) < ago(\', variables(\'logRetentionDays\'), \'d)) | where isNewRawData or isOldFinalData or isPastFinalRetention or isPastLogRetention\')'
                         type: 'Expression'
                       }
                       commandTimeout: '00:20:00'
@@ -4490,6 +4586,14 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
       tryAgain: {
         type: 'Boolean'
         defaultValue: true
+      }
+      logRetentionDays: {
+        type: 'Integer'
+        defaultValue: 0
+      }
+      finalRetentionMonths: {
+        type: 'Integer'
+        defaultValue: 999
       }
     }
     annotations: []

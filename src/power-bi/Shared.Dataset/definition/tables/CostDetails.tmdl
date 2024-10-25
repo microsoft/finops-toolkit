@@ -934,22 +934,6 @@ table CostDetails
 
 		annotation SummarizationSetBy = User
 
-	column x_DatasetType
-		dataType: string
-		lineageTag: 47fcf209-57d6-4c70-9b47-dc82f6ff4454
-		summarizeBy: none
-		sourceColumn: x_DatasetType
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_DatasetVersion
-		dataType: string
-		lineageTag: ae4954b3-ca2a-44f8-8f32-38ca8619f4d3
-		summarizeBy: none
-		sourceColumn: x_DatasetVersion
-
-		annotation SummarizationSetBy = Automatic
-
 	column x_InvoiceIssuerId
 		dataType: string
 		lineageTag: 8ca7b114-d9d4-4763-bdab-91c0ba2774d8
@@ -1181,11 +1165,27 @@ table CostDetails
 
 		annotation SummarizationSetBy = Automatic
 
-	column x_DatasetChanges
+	column x_SourceChanges
 		dataType: string
 		lineageTag: 7162fa87-5d0f-45cd-b887-eadfe2748190
 		summarizeBy: none
-		sourceColumn: x_DatasetChanges
+		sourceColumn: x_SourceChanges
+
+		annotation SummarizationSetBy = Automatic
+
+    column x_SourceType
+		dataType: string
+		lineageTag: 47fcf209-57d6-4c70-9b47-dc82f6ff4454
+		summarizeBy: none
+		sourceColumn: x_SourceType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SourceVersion
+		dataType: string
+		lineageTag: ae4954b3-ca2a-44f8-8f32-38ca8619f4d3
+		summarizeBy: none
+		sourceColumn: x_SourceVersion
 
 		annotation SummarizationSetBy = Automatic
 
@@ -1379,7 +1379,7 @@ table CostDetails
 				            Table.AddColumn(
 				                // Create AvailabilityZone column if missing to support non-Microsoft clouds
 				                if Table.HasColumns(LatestSchema, {"AvailabilityZone"}) then LatestSchema else Table.AddColumn(LatestSchema, "AvailabilityZone", each null),
-				                "x_DatasetChanges",
+				                "x_SourceChanges",
 				                each let
 				                    value = Text.Combine(List.RemoveNulls({
 				                        if ([ContractedCost] = null      or [ContractedCost] = 0)      and [EffectiveCost] <> 0                                        then "MissingContractedCost"            else null,
@@ -1394,10 +1394,10 @@ table CostDetails
 				                    output
 				            ),
 				            // Reset missing cost/prices
-				            0.0, each if Text.Contains([x_DatasetChanges], "MissingContractedCost")      then null else [ContractedCost],      Replacer.ReplaceValue, {"ContractedCost"}),
-				            0.0, each if Text.Contains([x_DatasetChanges], "MissingContractedUnitPrice") then null else [ContractedUnitPrice], Replacer.ReplaceValue, {"ContractedUnitPrice"}),
-				            0.0, each if Text.Contains([x_DatasetChanges], "MissingListCost")            then null else [ListCost],            Replacer.ReplaceValue, {"ListCost"}),
-				            0.0, each if Text.Contains([x_DatasetChanges], "MissingListUnitPrice")       then null else [ListUnitPrice],       Replacer.ReplaceValue, {"ListUnitPrice"}),
+				            0.0, each if Text.Contains([x_SourceChanges], "MissingContractedCost")      then null else [ContractedCost],      Replacer.ReplaceValue, {"ContractedCost"}),
+				            0.0, each if Text.Contains([x_SourceChanges], "MissingContractedUnitPrice") then null else [ContractedUnitPrice], Replacer.ReplaceValue, {"ContractedUnitPrice"}),
+				            0.0, each if Text.Contains([x_SourceChanges], "MissingListCost")            then null else [ListCost],            Replacer.ReplaceValue, {"ListCost"}),
+				            0.0, each if Text.Contains([x_SourceChanges], "MissingListUnitPrice")       then null else [ListUnitPrice],       Replacer.ReplaceValue, {"ListUnitPrice"}),
 				            // Fix inconsistent Microsoft x_SkuTerm values
 				            "1Year",  12, Replacer.ReplaceValue, {"x_SkuTerm"}),
 				            "3Years", 36, Replacer.ReplaceValue, {"x_SkuTerm"}),

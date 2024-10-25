@@ -30,11 +30,17 @@ param tagsByResource object = {}
 @description('Optional. List of scope IDs to monitor and ingest cost for.')
 param scopesToMonitor array
 
-@description('Optional. Number of days of cost data to retain in the ms-cm-exports container. Default: 0.')
+@description('Optional. Number of days of data to retain in the msexports container. Default: 0.')
 param msexportRetentionInDays int = 0
 
-@description('Optional. Number of months of cost data to retain in the ingestion container. Default: 13.')
+@description('Optional. Number of months of data to retain in the ingestion container. Default: 13.')
 param ingestionRetentionInMonths int = 13
+
+@description('Optional. Number of days of data to retain in the Data Explorer *_log tables. Default: 0.')
+param logRetentionInDays int = 0
+
+@description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.')
+param finalRetentionInMonths int = 13
 
 //------------------------------------------------------------------------------
 // Variables
@@ -175,6 +181,14 @@ resource uploadSettings 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
       {
         name: 'ingestionRetentionInMonths'
         value: string(ingestionRetentionInMonths)
+      }
+      {
+        name: 'logRetentionInDays'
+        value: string(logRetentionInDays)
+      }
+      {
+        name: 'finalRetentionInMonths'
+        value: string(finalRetentionInMonths)
       }
       {
         name: 'storageAccountName'

@@ -112,11 +112,17 @@ param tagsByResource object = {}
 @description('Optional. List of scope IDs to monitor and ingest cost for.')
 param scopesToMonitor array
 
-@description('Optional. Number of days of cost data to retain in the ms-cm-exports container. Default: 0.')
+@description('Optional. Number of days of data to retain in the msexports container. Default: 0.')
 param exportRetentionInDays int = 0
 
-@description('Optional. Number of months of cost data to retain in the ingestion container. Default: 13.')
+@description('Optional. Number of months of data to retain in the ingestion container. Default: 13.')
 param ingestionRetentionInMonths int = 13
+
+@description('Optional. Number of days of data to retain in the Data Explorer *_log tables. Default: 0.')
+param dataExplorerLogRetentionInDays int = 0
+
+@description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.')
+param dataExplorerFinalRetentionInMonths int = 13
 
 @description('Optional. Remote storage account for ingestion dataset.')
 param remoteHubStorageUri string = ''
@@ -225,6 +231,8 @@ module storage 'storage.bicep' = {
     scopesToMonitor: scopesToMonitor
     msexportRetentionInDays: exportRetentionInDays
     ingestionRetentionInMonths: ingestionRetentionInMonths
+    logRetentionInDays: dataExplorerLogRetentionInDays
+    finalRetentionInMonths: dataExplorerFinalRetentionInMonths
   }
 }
 

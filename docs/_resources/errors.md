@@ -25,10 +25,12 @@ Sorry to hear you're having a problem. We're here to help!
 - [InvalidScopeId](#invalidscopeid)
 - [ExportDataNotFound](#exportdatanotfound)
 - [HubDataNotFound](#hubdatanotfound)
+- [LegacyFocusVersion](#legacyfocusversion)
 - [MissingContractedCost](#missingcontractedcost)
 - [MissingContractedUnitPrice](#missingcontractedunitprice)
 - [MissingListCost](#missinglistcost)
 - [MissingListUnitPrice](#missinglistunitprice)
+- [MissingProviderName](#missingprovidername)
 - [ManifestReadFailed](#manifestreadfailed)
 - [RerunFilesNotFound](#rerunfilesnotfound)
 - [ResourceAccessForbiddenException](#resourceaccessforbiddenexception)
@@ -36,6 +38,7 @@ Sorry to hear you're having a problem. We're here to help!
 - [SchemaLoadFailed](#schemaloadfailed)
 - [SchemaNotFound](#schemanotfound)
 - [UnknownExportFile](#unknownexportfile)
+- [UnknownFocusVersion](#unknownfocusversion)
 - [UnknownHubVersion](#unknownhubversion)
 - [UnsupportedExportType](#unsupportedexporttype)
 - [The \<name\> resource provider is not registered in subscription \<guid\>](#the-name-resource-provider-is-not-registered-in-subscription-guid)
@@ -185,11 +188,21 @@ For more details and debugging steps, see [Validate your FinOps hub deployment](
 
 <br>
 
+## LegacyFocusVersion
+
+<sup>Severity: Informational</sup>
+
+This error code is shown in the `x_SourceChanges` column when the ingested data uses an older version of FOCUS. FinOps hubs converts data to the latest FOCUS version so this should not cause an issue; however, the modernization transform cannot account for all scenarios and may result in unexpected results in some cases. Refer to documentation for known issues.
+
+**Mitigation**: Update configured exports to use the latest FOCUS version. If the latest FOCUS version is not supported by the provider, please request official support for the latest FOCUS version.
+
+<br>
+
 ## MissingContractedCost
 
 <sup>Severity: Informational</sup>
 
-This error code is shown in the `x_DatasetChanges` column when `ContractedCost` is either null or 0 and `EffectiveCost` is greater than 0. The error indicates Microsoft Cost Management did not include `ContractedCost` for the specified rows, which means savings cannot be calculated.
+This error code is shown in the `x_SourceChanges` column when `ContractedCost` is either null or 0 and `EffectiveCost` is greater than 0. The error indicates Microsoft Cost Management did not include `ContractedCost` for the specified rows, which means savings cannot be calculated.
 
 **Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `EffectiveCost` into the `ContractedCost` column for rows flagged with this error code. Savings will not be available for these records.
 
@@ -201,7 +214,7 @@ To calculate complete savings, you can join cost and usage data with prices. For
 
 <sup>Severity: Informational</sup>
 
-This error code is shown in the `x_DatasetChanges` column when `ContractedUnitPrice` is either null or 0 and `EffectiveUnitPrice` is greater than 0. The error indicates Microsoft Cost Management did not include `ContractedUnitPrice` for the specified rows, which means savings cannot be calculated.
+This error code is shown in the `x_SourceChanges` column when `ContractedUnitPrice` is either null or 0 and `EffectiveUnitPrice` is greater than 0. The error indicates Microsoft Cost Management did not include `ContractedUnitPrice` for the specified rows, which means savings cannot be calculated.
 
 **Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `EffectiveUnitPrice` into the `ContractedUnitPrice` column for rows flagged with this error code. Savings will not be available for these records.
 
@@ -213,7 +226,7 @@ To calculate complete savings, you can join cost and usage data with prices. For
 
 <sup>Severity: Informational</sup>
 
-This error code is shown in the `x_DatasetChanges` column when `ListCost` is either null or 0 and `ContractedCost` is greater than 0. The error indicates Microsoft Cost Management did not include `ListCost` for the specified rows, which means savings cannot be calculated.
+This error code is shown in the `x_SourceChanges` column when `ListCost` is either null or 0 and `ContractedCost` is greater than 0. The error indicates Microsoft Cost Management did not include `ListCost` for the specified rows, which means savings cannot be calculated.
 
 **Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `ContractedCost` into the `ListCost` column for rows flagged with this error code. Savings will not be available for these records.
 
@@ -225,11 +238,21 @@ To calculate complete savings, you can join cost and usage data with prices. For
 
 <sup>Severity: Informational</sup>
 
-This error code is shown in the `x_DatasetChanges` column when `ListUnitPrice` is either null or 0 and `ContractedUnitPrice` is greater than 0. The error indicates Microsoft Cost Management did not include `ListUnitPrice` for the specified rows, which means savings cannot be calculated.
+This error code is shown in the `x_SourceChanges` column when `ListUnitPrice` is either null or 0 and `ContractedUnitPrice` is greater than 0. The error indicates Microsoft Cost Management did not include `ListUnitPrice` for the specified rows, which means savings cannot be calculated.
 
 **Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `ContractedUnitPrice` into the `ListUnitPrice` column for rows flagged with this error code. Savings will not be available for these records.
 
 To calculate complete savings, you can join cost and usage data with prices. For additional details, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
+
+<br>
+
+## MissingProviderName
+
+<sup>Severity: Informational</sup>
+
+This error code is shown in the `x_SourceChanges` column when `ProviderName` is null. The error indicates the provider of the dataset (e.g., Microsoft Cost Management) did not include a `ProviderName` value for the specified rows.
+
+**Mitigation**: As a workaround to the missing data, FinOps toolkit reports attempt to identify the provider based on the available columns.
 
 <br>
 
@@ -375,6 +398,16 @@ To add support for another dataset, create a custom mapping file and save it to 
 The file in hub storage does not look like it was exported from Cost Management. File will be ignored.
 
 **Mitigation**: The **msexports** container is intended for Cost Management exports only. Please move other files in another storage container.
+
+<br>
+
+## UnknownFocusVersion
+
+<sup>Severity: Informational</sup>
+
+This error code is shown in the `x_SourceChanges` column when a FOCUS version could not be identified.
+
+**Mitigation**: Validate that the FOCUS dataset is using a supported FOCUS version. Report this issue with an anonymized sample of the data at https://aka.ms/ftk/ideas to investigate further.
 
 <br>
 
