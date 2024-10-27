@@ -3862,7 +3862,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
         userProperties: []
         typeProperties: {
           items: {
-            value: '@json(concat(\'[\', replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(string(activity(\'Read Column Names\').output.firstRow), \'"\', \'"name":"\'), \'"name":":"name":"\', \'","value":"\'), \'"name":":\', \'","value":\'), \'"name":",\', \'"},{\'), \',"name":\', \'},{"name":\'), \'"name":"}\', \'"}\'), \'"value":"{\\"name":"\', \'"value":"{\\"\'), \'\\","value": \\"name":"\', \'\\":\\"\'), \'\\","value":\\"name":"\', \'\\":\\"\'), \'\\"},{\\"name":"\', \'\\"},{\\"\'), \'\\","value": \\"},{,,\\"}\', \'\\":\\"\\"}\'), \'\\","value":\', \'\\":\'), \']\'))'
+            value: '@json(concat(\'[\', replace(replace(replace(replace(replace(replace(string(activity(\'Read Column Names\').output.firstRow), \'\\"\', \'$$ftk-esc-quote$$\'), \',"\', \'},{"\'), \'{"\', \'{"name"$$ftk-colon$$"\'), \'":\', \'","value":\'), \'$$ftk-colon$$\', \':\'), \'$$ftk-esc-quote$$\', \'\\"\'), \']\'))'
             type: 'Expression'
           }
           isSequential: true
