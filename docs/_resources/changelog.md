@@ -65,6 +65,12 @@ Legend:
 > 2. Auto-backfill – Backfill historical data from Microsoft Cost Management.
 > 3. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
 > 4. ETL pipelile – Add support for parquet files created by Cost Management exports.
+> 5. Private endpoints support.
+>    - Added private endpoints for storage account & Keyvault.
+>    - Added managed virtual network & storage endpoint for Azure Data Factory Runtime.
+>    - All data processing now happens within a vNet.
+>    - Added param to disable external access to data lake
+>    - Added param to specify subnet range of vnet - minumum size = /27
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
