@@ -59,6 +59,15 @@ Recommendations_v1_0()
 }
 
 
+// Transactions_final_v1_0
+.create-or-alter function
+with (docstring = 'Gets all transactions aligned to FOCUS 1.0.', folder = 'Transactions')
+Transactions_v1_0()
+{
+    database('Ingestion').Transactions_transform_v1_0
+}
+
+
 //======================================================================================================================
 // Latest FOCUS version
 //======================================================================================================================
@@ -92,4 +101,12 @@ with (docstring = 'Gets all recommendations with the latest supported version of
 Recommendations()
 {
     Recommendations_v1_0()
+}
+
+
+.create-or-alter function
+with (docstring = 'Gets all transactions with the latest supported version of the FOCUS schema.', folder = 'Transactions')
+Transactions()
+{
+    Transactions_v1_0()
 }
