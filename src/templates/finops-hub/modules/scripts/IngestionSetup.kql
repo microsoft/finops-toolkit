@@ -711,7 +711,7 @@ Costs_transform_v1_0()
     | extend ConsumedQuantity = iff(ChargeCategory == 'Usage', coalesce(ConsumedQuantity, UsageQuantity, UsageAmount), todecimal(''))
     | extend ConsumedUnit = iff(ChargeCategory == 'Usage' and isnotempty(ConsumedQuantity), coalesce(ConsumedUnit, UsageUnit, 'Units'), '')
     //
-    // Normalize datasets
+    // Sort columns and apply final transforms
     | project
         AvailabilityZone,
         BilledCost,
@@ -1020,64 +1020,122 @@ Costs_transform_v1_0()
 
 //----------------------------------------------------------------------------------------------------------------------
 
-// TODO: Add CommitmentDiscountUsage_final_v1_0 table and update policy
-
-//----------------------------------------------------------------------------------------------------------------------
-
 // CommitmentDiscountUsage_transform_v1_0 function
 .create-or-alter function
 with (docstring='All commitment discount usage transformed to FOCUS 1.0. This includes reservationdeatils_raw.', folder='Commitment discounts')
 CommitmentDiscountUsage_transform_v1_0()
 {
-    // TODO: Consider adding ResourceType, ServiceName, ServiceCategory, ServiceSubcategory (1.1)
-    // TODO: Confirm the ReservedHours includes non-hour units
+    // TODO: What are these columns: ReservedHours, TotalReservedQuantity, UsedHours
+    // TODO: Is SkuName the same as x_SkuSize?
+    // TODO: What are the possible values for Kind?
+    // TODO: Consider adding ServiceSubcategory (1.1)
+    // TODO: Does this dataset include non-hour units (namely the ReservedHours column)?
     // TODO: Is the SkuName the same as x_SkuDescription?
-    // TODO: Is Kind the same as the product?
     CommitmentDiscountUsage_raw
     //
-    // Transform existing columns to FOCUS (do not add any new columns until after deduping)
-    | extend CommitmentDiscountId = strcat('/providers/Microsoft.Capacity/reservationOrders/', ReservationOrderId, '/reservations/', ReservationId)
-    | project-rename
-        ChargePeriodStart = UsageDate,
-        ConsumedQuantity = UsedHours,
-        ResourceId = InstanceId,
-        x_CommitmentDiscountFlexGroup = InstanceFlexibilityGroup,
-        x_CommitmentDiscountFlexRatio = InstanceFlexibilityRatio,
-        x_CommitmentDiscountPeriodTotal = ReservedHours,
-        x_CommitmentDiscountProduct = Kind,
-        x_CommitmentDiscountTermTotal = TotalReservedQuantity,
-        x_SkuDescription = SkuName,
-        x_SkuOrderId = ReservationOrderId
+    // Set ProviderName
+    | extend ProviderName = 'Microsoft'
     //
-    // Dedupe rows
-    | extend x_IngestionTime = ingestion_time()
-    | extend x_RowId = hash_sha256(strcat(
-        // DO NOT CHANGE COLUMNS OR COLUMN ORDER
-        CommitmentDiscountId,
-        ResourceId,
-        ChargePeriodStart
-    ))
-    | summarize arg_max(x_IngestionTime , *) by x_RowId
+    // Handle resource columns
+    | extend ResourceId = tolower(InstanceId)
+    | parse ResourceId with "/subscriptions/" SubAccountId "/resourcegroups/" x_ResourceGroupName "/providers/" tmp_ResourceProvider "/" tmp_ResourceProviderPath
+    | extend segments = split(tmp_ResourceProviderPath, '/')
+    | mv-apply element = segments on (extend index = row_number() | where index % 2 == 0 | summarize ResourceName = strcat_array(make_list(element), '/'))
+    | mv-apply element = segments on (extend index = row_number() | where index % 2 == 1 | summarize x_ResourceType = strcat_array(make_list(element), '/'))
+    | extend x_ResourceType = strcat(tmp_ResourceProvider, '/', x_ResourceType)
+    | lookup kind=leftouter (ResourceTypes | distinct x_ResourceType, ResourceType = SingularDisplayName) on x_ResourceType
+    | lookup kind=leftouter (Services | distinct x_ResourceType, ServiceName, ServiceCategory, x_ServiceModel) on x_ResourceType
+    //
+    // Sort columns and apply final transforms
     | project
-        ChargePeriodEnd = ChargePeriodStart + 1d,
-        ChargePeriodStart,
-        CommitmentDiscountId,
-        ConsumedQuantity,
+        ChargePeriodEnd                     = UsageDate + 1d,
+        ChargePeriodStart                   = UsageDate,  // TODO: Should we use startofday()?
+        CommitmentDiscountCategory          = 'Usage',
+        CommitmentDiscountId                = tolower(strcat('/providers/microsoft.capacity/reservationorders/', ReservationOrderId, '/reservations/', ReservationId)),
+        // TODO: CommitmentDiscountName,
+        CommitmentDiscountType              = 'Reservation',
+        ConsumedQuantity                    = UsedHours,
+        // TODO: ConsumedUnit,
+        ProviderName,
         ResourceId,
-        x_CommitmentDiscountFlexGroup,
-        x_CommitmentDiscountFlexRatio,
-        x_CommitmentDiscountPeriodTotal,
-        x_CommitmentDiscountProduct,
-        x_CommitmentDiscountTermTotal,
-        x_IngestionTime,
-        x_RowId,
-        x_SkuDescription,
-        x_SkuOrderId,
-        x_SourceName,                     // Hubs add-on
-        x_SourceProvider,                 // Hubs add-on
-        x_SourceType,                     // Hubs add-on
-        x_SourceVersion                   // Hubs add-on
+        ResourceName,
+        ResourceType,
+        ServiceCategory,
+        ServiceName,
+        SubAccountId                        = extract('/subscriptions/([^/]+)', 1, ResourceId),
+        // TODO: SubAccountName,
+        x_CommitmentDiscountCommittedCount  = TotalReservedQuantity,
+        x_CommitmentDiscountCommittedAmount = ReservedHours,
+        // TODO: Is this needed? -- x_CommitmentDiscountKind            = Kind,
+        x_CommitmentDiscountNormalizedGroup = iff(InstanceFlexibilityGroup == 'NA', '', InstanceFlexibilityGroup),
+        x_CommitmentDiscountNormalizedRatio = InstanceFlexibilityRatio,
+        x_CommitmentDiscountQuantity        = UsedHours * InstanceFlexibilityRatio,
+        x_IngestionTime                     = ingestion_time(),             // Hubs add-on
+        x_ResourceGroupName                 = extract('/resourcegroups/([^/]+)/', 1, ResourceId),
+        x_ResourceType,
+        // x_RowId = hash_sha256(strcat(
+        //     // DO NOT CHANGE COLUMNS OR COLUMN ORDER
+        //     CommitmentDiscountId,
+        //     ResourceId,
+        //     ChargePeriodStart
+        // )),
+        x_ServiceModel,
+        x_SkuOrderId                        = ReservationOrderId,
+        x_SkuSize                           = iff(SkuName == 'NA', '', SkuName),
+        x_SourceName                        = coalesce(x_SourceName, iff(ProviderName == 'Microsoft', 'Cost Management', ProviderName)),
+        x_SourceProvider                    = coalesce(x_SourceProvider, ProviderName),
+        x_SourceType                        = coalesce(x_SourceType, iff(ProviderName == 'Microsoft', 'ReservationDetails', '')),
+        x_SourceVersion                     = coalesce(x_SourceVersion, iff(ProviderName == 'Microsoft', '2024-03-01', ''))
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+// CommitmentDiscountUsage_final_v1_0 table
+.create-merge table CommitmentDiscountUsage_final_v1_0 (
+    ChargePeriodEnd:                     datetime,  // Hubs add-on
+    ChargePeriodStart:                   datetime,  // MS 2023-03-01
+    CommitmentDiscountCategory:          string,    // Hubs add-on
+    CommitmentDiscountId:                string,    // MS 2023-03-01
+    CommitmentDiscountType:              string,    // Hubs add-on
+    ConsumedQuantity:                    decimal,   // MS 2023-03-01
+    ProviderName:                        string,    // Hubs add-on
+    ResourceId:                          string,    // MS 2023-03-01
+    ResourceName:                        string,    // Hubs add-on
+    ResourceType:                        string,    // Hubs add-on
+    ServiceCategory:                     string,    // Hubs add-on
+    ServiceName:                         string,    // Hubs add-on
+    SubAccountId:                        string,    // Hubs add-on
+    x_CommitmentDiscountCommittedCount:  decimal,   // MS 2023-03-01
+    x_CommitmentDiscountCommittedAmount: decimal,   // MS 2023-03-01
+    x_CommitmentDiscountNormalizedGroup: string,    // MS 2023-03-01
+    x_CommitmentDiscountNormalizedRatio: decimal,   // MS 2023-03-01
+    x_CommitmentDiscountQuantity:        decimal,   // MS 2023-03-01
+    x_IngestionTime:                     datetime,  // Hubs add-on
+    x_ResourceGroupName:                 string,    // Hubs add-on
+    x_ResourceType:                      string,    // Hubs add-on
+    x_ServiceModel:                      string,    // Hubs add-on
+    x_SkuOrderId:                        string,    // MS 2023-03-01
+    x_SkuSize:                           string,    // MS 2023-03-01
+    x_SourceName:                        string,    // Hubs add-on
+    x_SourceProvider:                    string,    // Hubs add-on
+    x_SourceType:                        string,    // Hubs add-on
+    x_SourceVersion:                     string     // Hubs add-on
+)
+
+//----------------------------------------------------------------------------------------------------------------------
+
+// Update policy for CommitmentDiscountUsage_raw -> CommitmentDiscountUsage_final_v1_0 table
+// NOTE: Must be after transform function is defined
+.alter table CommitmentDiscountUsage_final_v1_0 policy update
+```
+[{
+    "IsEnabled": true,
+    "Source": "CommitmentDiscountUsage_raw",
+    "Query": "CommitmentDiscountUsage_transform_v1_0()",
+    "IsTransactional": true,
+    "PropagateIngestionProperties": true
+}]
+```
 
 
 //======================================================================================================================
