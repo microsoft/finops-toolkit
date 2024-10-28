@@ -82,6 +82,7 @@ microsoft.cognitiveservices,microsoft.cognitiveservices/accounts,Azure AI Servic
 microsoft.communication,microsoft.communication/communicationservices,Azure Communication Services,Integration,Messaging,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.community,microsoft.community/communitytrainings,Community Training,Business Applications,Other (Business Applications),Microsoft,Cloud Provider,Cloud,SaaS
 microsoft.compute,microsoft.compute/capacityreservationgroups,Virtual Machines,Compute,Virtual Machines,Microsoft,Cloud Provider,Cloud,IaaS
+microsoft.compute,microsoft.compute/capacityreservationgroups/capacityreservations,Virtual Machines,Compute,Virtual Machines,Microsoft,Cloud Provider,Cloud,IaaS
 microsoft.compute,microsoft.compute/cloudservices,Cloud Services,Compute,Serverless Compute,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.compute,microsoft.compute/disks,Virtual Machines,Compute,Virtual Machines,Microsoft,Cloud Provider,Cloud,IaaS
 microsoft.compute,microsoft.compute/galleries,Virtual Machines,Compute,Virtual Machines,Microsoft,Cloud Provider,Cloud,IaaS
@@ -292,6 +293,7 @@ microsoft.sql,microsoft.sql/longtermretentionservers,Azure SQL Database,Database
 microsoft.sql,microsoft.sql/managedinstances,Azure SQL Database,Databases,Relational Databases,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.sql,microsoft.sql/servers,Azure SQL Database,Databases,Relational Databases,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.sql,microsoft.sql/servers/databases,Azure SQL Database,Databases,Relational Databases,Microsoft,Cloud Provider,Cloud,PaaS
+microsoft.sql,microsoft.sql/servers/elasticpools,Azure SQL Database,Databases,Relational Databases,Microsoft,Cloud Provider,Cloud,PaaS
 microsoft.storage,microsoft.storage/storageaccounts,Storage Accounts,Storage,Storage Platforms,Microsoft,Cloud Provider,Cloud,IaaS
 microsoft.storagecache,microsoft.storagecache/amlfilesystems,Azure HPC Cache,Storage,Storage Platforms,Microsoft,Cloud Provider,Hybrid,IaaS
 microsoft.storagecache,microsoft.storagecache/caches,Azure HPC Cache,Storage,Storage Platforms,Microsoft,Cloud Provider,Hybrid,IaaS
