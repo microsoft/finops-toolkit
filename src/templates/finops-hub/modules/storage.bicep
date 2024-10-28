@@ -36,6 +36,18 @@ param msexportRetentionInDays int = 0
 @description('Optional. Number of months of cost data to retain in the ingestion container. Default: 13.')
 param ingestionRetentionInMonths int = 13
 
+@description('Required. Id of the virtual network for private endpoints.')
+param virtualNetworkId string
+
+@description('Required. Id of the subnet for private endpoints.')
+param privateEndpointSubnetId string
+
+@description('Required. Id of the virtual network for running deployment scripts.')
+param scriptSubnetId string
+
+@description('Optional. Enable public access to the data lake.  Default: false.')
+param enablePublicAccess bool
+
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
@@ -44,6 +56,7 @@ param ingestionRetentionInMonths int = 13
 var safeHubName = replace(replace(toLower(hubName), '-', ''), '_', '')
 var storageAccountSuffix = uniqueSuffix
 var storageAccountName = '${take(safeHubName, 24 - length(storageAccountSuffix))}${storageAccountSuffix}'
+var scriptStorageAccountName = '${take(safeHubName, 16 - length(storageAccountSuffix))}script${storageAccountSuffix}'
 var schemaFiles = {
   'focuscost_1.0': loadTextContent('../schemas/focuscost_1.0.json')
   'focuscost_1.0-preview(v1)': loadTextContent('../schemas/focuscost_1.0-preview(v1).json')
@@ -60,6 +73,7 @@ var schemaFiles = {
 var blobUploadRbacRoles = [
   'ba92f5b4-2d11-453d-a403-e96b0029c9fe' // Storage Blob Data Contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor
   'e40ec5ca-96e0-45a2-b4ff-59039f2c2b59' // Managed Identity Contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#managed-identity-contributor
+  '69566ab7-960f-475b-8e7c-b3118f30c6bd' // Storage File Data Privileged Contributor - https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/storage#storage-file-data-privileged-contributor
 ]
 
 //==============================================================================
@@ -76,9 +90,181 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   tags: union(tags, contains(tagsByResource, 'Microsoft.Storage/storageAccounts') ? tagsByResource['Microsoft.Storage/storageAccounts'] : {})
   properties: {
     supportsHttpsTrafficOnly: true
+    allowSharedKeyAccess: true
     isHnsEnabled: true
     minimumTlsVersion: 'TLS1_2'
     allowBlobPublicAccess: false
+    publicNetworkAccess: 'Enabled'
+    networkAcls: {
+      bypass: 'AzureServices'
+      defaultAction: enablePublicAccess ? 'Allow' : 'Deny'
+    }
+  }
+}
+
+resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' =  {
+  name: scriptStorageAccountName
+  location: location
+  sku: {
+    name: 'Standard_LRS' //sku
+  }
+  kind: 'StorageV2'// 'BlockBlobStorage'
+  tags: union(tags, contains(tagsByResource, 'Microsoft.Storage/storageAccounts') ? tagsByResource['Microsoft.Storage/storageAccounts'] : {})
+  properties: {
+    supportsHttpsTrafficOnly: true
+    allowSharedKeyAccess: true
+    isHnsEnabled: false
+    minimumTlsVersion: 'TLS1_2'
+    allowBlobPublicAccess: false
+    publicNetworkAccess: 'Enabled'
+    networkAcls: {
+      bypass: 'AzureServices'
+      defaultAction: 'Deny'
+      virtualNetworkRules: [
+        {
+          id: scriptSubnetId
+          action: 'Allow'
+        }
+      ]
+    }
+  }
+}
+
+resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
+  name: 'privatelink.blob.${environment().suffixes.storage}'
+  location: 'global'
+  properties: {}
+}
+
+resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
+  name: 'privatelink.dfs.${environment().suffixes.storage}'
+  location: 'global'
+  properties: {}
+}
+
+resource blobPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
+  parent: blobPrivateDnsZone
+  name: '${replace(blobPrivateDnsZone.name, '.', '-')}-link'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: virtualNetworkId
+    }
+  }
+}
+
+resource dfsPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
+  parent: dfsPrivateDnsZone
+  name: '${replace(dfsPrivateDnsZone.name, '.', '-')}-link'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: virtualNetworkId
+    }
+  }
+}
+
+resource blobEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
+  name: '${storageAccount.name}-blob-ep'
+  location: location
+  properties: {
+    subnet: {
+      id: privateEndpointSubnetId
+    }
+    privateLinkServiceConnections: [
+      {
+        name: 'blobLink'
+        properties: {
+          privateLinkServiceId: storageAccount.id
+          groupIds: ['blob']
+        }
+      }
+    ]
+  }
+}
+
+resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
+  name: '${scriptStorageAccount.name}-blob-ep'
+  location: location
+  properties: {
+    subnet: {
+      id: privateEndpointSubnetId
+    }
+    privateLinkServiceConnections: [
+      {
+        name: 'scriptLink'
+        properties: {
+          privateLinkServiceId: scriptStorageAccount.id
+          groupIds: ['blob']
+        }
+      }
+    ]
+  }
+}
+
+resource dfsEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
+  name: '${storageAccount.name}-dfs-ep'
+  location: location
+  properties: {
+    subnet: {
+      id: privateEndpointSubnetId
+    }
+    privateLinkServiceConnections: [
+      {
+        name: 'dfsLink'
+        properties: {
+          privateLinkServiceId: storageAccount.id
+          groupIds: ['dfs']
+        }
+      }
+    ]
+  }
+}
+
+resource blobPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = {
+  name: 'blob-endpoint-zone'
+  parent: blobEndpoint
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: blobPrivateDnsZone.name
+        properties: {
+          privateDnsZoneId: blobPrivateDnsZone.id
+        }
+      }
+    ]
+  }
+}
+
+resource scriptPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = {
+  name: 'blob-endpoint-zone'
+  parent: scriptEndpoint
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: blobPrivateDnsZone.name
+        properties: {
+          privateDnsZoneId: blobPrivateDnsZone.id
+        }
+      }
+    ]
+  }
+}
+
+resource dfsPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = {
+  name: 'dfs-endpoint-zone'
+  parent: dfsEndpoint
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: dfsPrivateDnsZone.name
+        properties: {
+          privateDnsZoneId: dfsPrivateDnsZone.id
+        }
+      }
+    ]
   }
 }
 
@@ -140,8 +326,8 @@ resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-0
   }
 }]
 
-resource uploadSettings 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: '${storageAccountName}_uploadSettings'
+resource uploadSettings 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
+  name: '${safeHubName}_uploadSettings'
   kind: 'AzurePowerShell'
   // chinaeast2 is the only region in China that supports deployment scripts
   location: startsWith(location, 'china') ? 'chinaeast2' : location
@@ -155,9 +341,13 @@ resource uploadSettings 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   dependsOn: [
     configContainer
     identityRoleAssignments
+    blobEndpoint
+    blobPrivateDnsZoneGroup
+    scriptEndpoint
+    scriptPrivateDnsZoneGroup
   ]
   properties: {
-    azPowerShellVersion: '8.0'
+    azPowerShellVersion: '9.0'
     retentionInterval: 'PT1H'
     environmentVariables: [
       {
@@ -190,6 +380,18 @@ resource uploadSettings 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
       }
     ]
     scriptContent: loadTextContent('./scripts/Copy-FileToAzureBlob.ps1')
+    storageAccountSettings: {
+      storageAccountName: scriptStorageAccount.name
+      //storageAccountKey: storageAccount.listKeys().keys[0].value
+    }
+    containerSettings: {
+      containerGroupName: '${scriptStorageAccount.name}cg'
+      subnetIds: [
+        {
+          id: scriptSubnetId
+        }
+      ]
+    }
   }
 }
 
@@ -202,6 +404,12 @@ output resourceId string = storageAccount.id
 
 @description('The name of the storage account.')
 output name string = storageAccount.name
+
+@description('The resource ID of the storage account.')
+output scriptStorageAccountResourceId string = scriptStorageAccount.id
+
+@description('The name of the storage account.')
+output scriptStorageAccountName string = scriptStorageAccount.name
 
 @description('The name of the container used for configuration settings.')
 output configContainer string = configContainer.name
