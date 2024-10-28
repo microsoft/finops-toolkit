@@ -15,7 +15,7 @@ const menuItems = [
     { name: 'Contributors', icon: <FaUsers />, route: '/contributors' },
 ];
 
-const Sidebar = () => {
+const SideBar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const toggleSidebar = () => {
@@ -118,4 +118,4 @@ const MenuText = styled.span`
   color: #333;
 `;
 
-export default Sidebar;
+export default SideBar;

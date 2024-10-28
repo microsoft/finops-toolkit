@@ -1,15 +1,15 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom'; // For Link routing
-import Sidebar from '../../components/Sidebar';
+import SideBar from '../../components/SideBar';
 
 // Helper function to render with Router
 const renderWithRouter = (component: React.ReactNode) => {
   return render(<BrowserRouter>{component}</BrowserRouter>);
 };
 
-describe('Sidebar', () => {
+describe('SideBar', () => {
   it('should collapse the sidebar when toggle button is clicked', () => {
-    renderWithRouter(<Sidebar />);
+    renderWithRouter(<SideBar />);
 
     // Initially, sidebar should not be collapsed (menu items should be visible)
     expect(screen.getByText(/Home/i)).toBeInTheDocument();
@@ -25,7 +25,7 @@ describe('Sidebar', () => {
   });
 
   it('should expand the sidebar when toggle button is clicked again', () => {
-    renderWithRouter(<Sidebar />);
+    renderWithRouter(<SideBar />);
 
     // Find the toggle button by alt text and simulate clicks to collapse and then expand
     const toggleButton = screen.getByAltText(/Collapse Sidebar/i);
@@ -37,7 +37,7 @@ describe('Sidebar', () => {
   });
 
   it('should render internal links correctly', () => {
-    renderWithRouter(<Sidebar />);
+    renderWithRouter(<SideBar />);
 
     // Check for internal link rendering
     const homeLink = screen.getByText(/Home/i);
@@ -51,7 +51,7 @@ describe('Sidebar', () => {
   });
 
   it('should render external link with correct attributes', () => {
-    renderWithRouter(<Sidebar />);
+    renderWithRouter(<SideBar />);
 
     // Check for external link rendering and attributes
     const learningLink = screen.getByText(/Learning/i);

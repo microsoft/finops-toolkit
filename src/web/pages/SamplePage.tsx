@@ -1,4 +1,4 @@
-import Sidebar from '../components/Sidebar';
+import Sidebar from '../components/SideBar';
 import TopMenuBar from '../components/TopMenuBar';
 
 export function SamplePage() {

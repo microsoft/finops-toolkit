@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import HomePage from './HomePage';
 import FinOpsHubsPage from './FinOpsHubsPage';
 import FinOpsWorkbooksPage from './FinOpsWorkbooksPage';
 import GovernanceWorkbookPage from './GovernanceWorkbookPage';
@@ -21,7 +20,7 @@ function App() {
         <FluentUIProvider>
                 <Router>
                         <Routes>
-                        <Route path="/" element={<HomePage />} />
+                        <Route path="/" element={<SamplePage />} />
                         <Route path="/bicep-registry" element={<BicepRegistryModulesPage />} />
                         <Route path="/hubs" element={<FinOpsHubsPage />} />
                         <Route path="/open-data" element={<OpenDataPage />} />
