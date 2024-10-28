@@ -25,7 +25,7 @@
 
 // CommitmentDiscountUsage_final_v1_0
 .create-or-alter function
-with (docstring = 'Gets all commitment discount usage records with the latest supported version of the FOCUS schema.', folder = 'CommitmentDiscountUsage')
+with (docstring = 'Gets all commitment discount usage records aligned to FOCUS 1.0.', folder = 'CommitmentDiscountUsage')
 CommitmentDiscountUsage_v1_0()
 {
     database('Ingestion').CommitmentDiscountUsage_transform_v1_0
@@ -34,7 +34,7 @@ CommitmentDiscountUsage_v1_0()
 
 // Costs_final_v1_0
 .create-or-alter function
-with (docstring = 'Gets all cost and usage records with the latest supported version of the FOCUS schema.', folder = 'Costs')
+with (docstring = 'Gets all cost and usage records aligned to FOCUS 1.0.', folder = 'Costs')
 Costs_v1_0()
 {
     database('Ingestion').Costs_transform_v1_0
@@ -43,10 +43,19 @@ Costs_v1_0()
 
 // Prices_final_v1_0
 .create-or-alter function
-with (docstring = 'Gets all prices with the latest supported version of the FOCUS schema.', folder = 'Prices')
+with (docstring = 'Gets all prices aligned to FOCUS 1.0.', folder = 'Prices')
 Prices_v1_0()
 {
     database('Ingestion').Prices_transform_v1_0
+}
+
+
+// Recommendations_final_v1_0
+.create-or-alter function
+with (docstring = 'Gets all recommendations aligned to FOCUS 1.0.', folder = 'Recommendations')
+Recommendations_v1_0()
+{
+    database('Ingestion').Recommendations_transform_v1_0
 }
 
 
@@ -75,4 +84,12 @@ with (docstring = 'Gets all prices with the latest supported version of the FOCU
 Prices()
 {
     Prices_v1_0()
+}
+
+
+.create-or-alter function
+with (docstring = 'Gets all recommendations with the latest supported version of the FOCUS schema.', folder = 'Recommendations')
+Recommendations()
+{
+    Recommendations_v1_0()
 }
