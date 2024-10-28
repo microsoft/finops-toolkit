@@ -66,6 +66,8 @@ var datasetPropsDefault = {
 var safeExportContainerName = replace('${exportContainerName}', '-', '_')
 var safeIngestionContainerName = replace('${ingestionContainerName}', '-', '_')
 var safeConfigContainerName = replace('${configContainerName}', '-', '_')
+var managedVnetName = 'default'
+var managedIntegrationRuntimeName = 'AutoResolveIntegrationRuntime'
 
 // All hub triggers (used to auto-start)
 var fileAddedExportTriggerName = '${safeExportContainerName}_FileAdded'
@@ -117,6 +119,69 @@ module azuretimezones 'azuretimezones.bicep' = {
   name: 'azuretimezones'
   params: {
     location: location
+  }
+}
+
+resource managedVirtualNetwork 'Microsoft.DataFactory/factories/managedVirtualNetworks@2018-06-01' = {
+  name: managedVnetName
+  parent: dataFactory
+  properties: {}
+}
+
+resource managedIntegrationRuntime 'Microsoft.DataFactory/factories/integrationRuntimes@2018-06-01' = {
+  name: managedIntegrationRuntimeName
+  parent: dataFactory
+  properties: {
+    type: 'Managed'
+    managedVirtualNetwork: {
+      referenceName: managedVnetName
+      type: 'ManagedVirtualNetworkReference'
+    }
+    typeProperties: {
+      computeProperties: {
+        location: 'AutoResolve'
+      }
+    }
+  }
+  dependsOn: [
+    managedVirtualNetwork
+  ]
+}
+
+resource storageManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = {
+  name: storageAccount.name
+  parent: managedVirtualNetwork
+  dependsOn: [
+    identityRoleAssignments
+  ]
+  properties: {
+    name: storageAccount.name
+    groupId: 'dfs'
+    privateLinkResourceId: storageAccount.id
+    fqdns: [
+      storageAccount.properties.primaryEndpoints.dfs
+    ]
+  }
+}
+
+module getPrivateEndpointConnections 'storageEndpoints.bicep' = {
+  name: 'GetPrivateEndpointConnections'
+  dependsOn: [
+    storageManagedPrivateEndpoint
+  ]
+  params: {
+    storageAccountName: storageAccount.name
+  }
+}
+
+module approvePrivateEndpointConnections 'storageEndpoints.bicep' = {
+  name: 'ApprovePrivateEndpointConnections'
+  dependsOn: [
+    getPrivateEndpointConnections
+  ]
+  params: {
+    storageAccountName: storageAccount.name
+    privateEndpointConnections: getPrivateEndpointConnections.outputs.privateEndpointConnections
   }
 }
 
@@ -264,6 +329,10 @@ resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedser
     type: 'AzureBlobFS'
     typeProperties: {
       url: reference('Microsoft.Storage/storageAccounts/${storageAccount.name}', '2021-08-01').primaryEndpoints.dfs
+    }
+    connectVia: {
+      referenceName: managedIntegrationRuntime.name
+      type: 'IntegrationRuntimeReference'
     }
   }
 }
