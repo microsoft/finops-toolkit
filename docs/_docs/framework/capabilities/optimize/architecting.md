@@ -58,6 +58,8 @@ Starting with the "Architecting for Cloud" capability within the FinOps Framewor
 
 - **Implement architectural principles:** Establish architectural principles and design guidelines based on [WAF pillars](https://learn.microsoft.com/azure/well-architected/workloads): operational excellence, security, reliability, performance efficiency, and cost optimization.
 
+- **Leverage Enterprise App Patterns for Web Apps:** Get started with the [Reliable Web App pattern](aka.ms/eap/rwa). Enterprise App Patterns are built on top of the principles laid out in the WAF and provide implementation techniques to optimize your .NET or Java web app's move to the cloud.
+
 - **Utilize Azure Well-Architected Review:** Conduct Azure [Well-Architected Reviews](https://learn.microsoft.com/assessments/azure-architecture-review/) for workloads deployed in Azure. Evaluate workloads against the five pillars of WAF to identify areas for improvement.
 
 - **Implement cost management practices:** Review and incorporate CAF's [cost management practices](https://learn.microsoft.com/azure/cloud-adoption-framework/get-started/manage-costs) into architectural designs, such as right-sizing resources, [leveraging reserved instances](./rates.md), and implementing cost allocation mechanisms. Use Azure Cost Management + Billing to monitor and optimize costs.
