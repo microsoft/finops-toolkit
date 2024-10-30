@@ -414,9 +414,11 @@ table VirtualMachines
 		queryGroup: 'Resource Graph'
 		source =
 				let
-				  Source = AzureResourceGraph.Query("Resources | where type =~ 'Microsoft.Compute/virtualMachines'", "Tenant", null, null, [resultTruncated = false]),
-				  DemoFilter = Table.SelectRows(Source, each #"Hub Storage URL" <> "https://demohubupzaljui2bxfm.dfs.core.windows.net/ingestion" or List.Contains({"51f73f67-1f29-4120-863e-dd315f743fc1", "586f1d47-9dd9-43d5-b196-6e28f8405ff8", "64e355d7-997c-491d-b0c1-8414dccfcf42", "736af2bf-9fcb-4145-a19b-5b30b2b8949d", "73c0021f-a37d-433f-8baa-7450cb54eea6", "9ec51cfd-5ca7-4d76-8101-dd0a4abc5674", "ed570627-0265-4620-bb42-bae06bcfa914"}, [subscriptionId])),
-				  #"Expanded properties" = Table.ExpandRecordColumn(DemoFilter, "properties", {"provisioningState", "timeCreated", "networkProfile", "osProfile", "storageProfile", "hardwareProfile", "vmId", "diagnosticsProfile", "extended", "licenseType"}, {"provisioningState", "timeCreated", "networkProfile", "osProfile", "storageProfile", "hardwareProfile", "vmId", "diagnosticsProfile", "extended", "licenseType"}),
+				  Source = AzureResourceGraph.Query(
+				    "Resources
+				    | where type =~ 'Microsoft.Compute/virtualMachines'
+				  " & ftk_DemoFilter(), "Tenant", null, null, [resultTruncated = false]),
+				  #"Expanded properties" = Table.ExpandRecordColumn(Source, "properties", {"provisioningState", "timeCreated", "networkProfile", "osProfile", "storageProfile", "hardwareProfile", "vmId", "diagnosticsProfile", "extended", "licenseType"}, {"provisioningState", "timeCreated", "networkProfile", "osProfile", "storageProfile", "hardwareProfile", "vmId", "diagnosticsProfile", "extended", "licenseType"}),
 				  #"Expanded osProfile" = Table.ExpandRecordColumn(#"Expanded properties", "osProfile", {"computerName", "requireGuestProvisionSignal", "allowExtensionOperations", "adminUsername", "secrets", "linuxConfiguration", "windowsConfiguration"}, {"osProfile.computerName", "osProfile.requireGuestProvisionSignal", "osProfile.allowExtensionOperations", "osProfile.adminUsername", "osProfile.secrets", "osProfile.linuxConfiguration", "osProfile.windowsConfiguration"}),
 				  #"Expanded networkProfile" = Table.ExpandRecordColumn(#"Expanded osProfile", "networkProfile", {"networkInterfaces"}, {"networkInterfaces"}),
 				  #"Expanded networkInterfaces" = Table.ExpandListColumn(#"Expanded networkProfile", "networkInterfaces"),

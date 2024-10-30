@@ -198,9 +198,11 @@ table ManagementGroups
 		queryGroup: 'Resource Graph'
 		source =
 				let
-				  Source = AzureResourceGraph.Query("resourcecontainers | where type == 'microsoft.management/managementgroups'", "Tenant", null, null, [resultTruncated = false]),
-				  DemoFilter = Table.SelectRows(Source, each #"Hub Storage URL" <> "https://demohubupzaljui2bxfm.dfs.core.windows.net/ingestion" or Text.Contains([id], "/trey")),
-				  #"Expanded properties" = Table.ExpandRecordColumn(DemoFilter, "properties", {"displayName", "details"}, {"displayName", "details"}),
+				  Source = AzureResourceGraph.Query("
+				    resourcecontainers
+				    | where type == 'microsoft.management/managementgroups'
+				  " & (if ftk_DemoFilter() = "" then "" else "| where name startswith 'Trey'"), "Tenant", null, null, [resultTruncated = false]),
+				  #"Expanded properties" = Table.ExpandRecordColumn(Source, "properties", {"displayName", "details"}, {"displayName", "details"}),
 				  #"Expanded details" = Table.ExpandRecordColumn(#"Expanded properties", "details", {"managementGroupAncestorsChain", "updatedTime", "updatedBy", "version", "parent"}, {"managementGroupAncestorsChain", "updatedTime", "updatedBy", "version", "parent"}),
 				  #"Expanded parent" = Table.ExpandRecordColumn(#"Expanded details", "parent", {"displayName", "name", "id"}, {"parent.displayName", "parent.name", "parent.id"}),
 				  #"Expanded managementGroupAncestorsChain" = Table.ExpandListColumn(#"Expanded parent", "managementGroupAncestorsChain"),

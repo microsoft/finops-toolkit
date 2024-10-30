@@ -336,14 +336,6 @@ table CostDetails
 
 		annotation SummarizationSetBy = Automatic
 
-	column x_AccountType
-		dataType: string
-		lineageTag: 579e9690-32b1-4b93-91d9-4ef106f09352
-		summarizeBy: none
-		sourceColumn: x_AccountType
-
-		annotation SummarizationSetBy = Automatic
-
 	column x_BilledCostInUsd
 		dataType: double
 		formatString: #,0.00
@@ -934,6 +926,22 @@ table CostDetails
 
 		annotation SummarizationSetBy = User
 
+	column x_SourceType
+		dataType: string
+		lineageTag: 47fcf209-57d6-4c70-9b47-dc82f6ff4454
+		summarizeBy: none
+		sourceColumn: x_SourceType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SourceVersion
+		dataType: string
+		lineageTag: ae4954b3-ca2a-44f8-8f32-38ca8619f4d3
+		summarizeBy: none
+		sourceColumn: x_SourceVersion
+
+		annotation SummarizationSetBy = Automatic
+
 	column x_InvoiceIssuerId
 		dataType: string
 		lineageTag: 8ca7b114-d9d4-4763-bdab-91c0ba2774d8
@@ -1173,22 +1181,6 @@ table CostDetails
 
 		annotation SummarizationSetBy = Automatic
 
-    column x_SourceType
-		dataType: string
-		lineageTag: 47fcf209-57d6-4c70-9b47-dc82f6ff4454
-		summarizeBy: none
-		sourceColumn: x_SourceType
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_SourceVersion
-		dataType: string
-		lineageTag: ae4954b3-ca2a-44f8-8f32-38ca8619f4d3
-		summarizeBy: none
-		sourceColumn: x_SourceVersion
-
-		annotation SummarizationSetBy = Automatic
-
 	column tag_Application
 		dataType: string
 		lineageTag: fd4de6d8-dcc7-4095-a8d4-091d0d08ab9a
@@ -1314,6 +1306,14 @@ table CostDetails
 		lineageTag: c0817ef1-b8fa-4060-98b3-8e68d1578fd8
 		summarizeBy: none
 		sourceColumn: x_ToolkitVersion
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_BillingAccountAgreement
+		dataType: string
+		lineageTag: 99be9246-b223-46ec-ad71-94a8014ef7c7
+		summarizeBy: none
+		sourceColumn: x_BillingAccountAgreement
 
 		annotation SummarizationSetBy = Automatic
 

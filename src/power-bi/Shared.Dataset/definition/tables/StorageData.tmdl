@@ -154,11 +154,12 @@ table StorageData
 		queryGroup: Storage
 		source = ```
 				let
-					hubStore = if #"Hub Storage URL" = "" or #"Hub Storage URL" = null then null else AzureStorage.DataLake(#"Hub Storage URL" & "/.."),
-					expStore = if #"Export Storage URL" = "" or #"Export Storage URL" = null then null else AzureStorage.DataLake(#"Export Storage URL"),
-					ADLS = if hubStore <> null then hubStore else expStore,
+					urlSegments = Text.Split(#"Storage URL", "/"),
+					ADLS = if #"Storage URL" = "" or #"Storage URL" = null then null
+						else if List.Count(urlSegments) = 4 and urlSegments{3} = "ingestion" then AzureStorage.DataLake(#"Storage URL" & "/..")
+						else if List.Count(urlSegments) = 7 and urlSegments{5} = "Files" and urlSegments{6} = "ingestion" then AzureStorage.DataLake(#"Storage URL" & "/..")
+						else AzureStorage.DataLake(#"Storage URL"),
 				
-					// 
 					Files = Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(ADLS,
 						"Segments",         each Text.Split(Text.Replace(Text.Trim([Folder Path], "/"), "https://", ""), "/")),
 						"SegmentCount",     each List.Count([Segments])),
@@ -180,7 +181,7 @@ table StorageData
 						// TODO: Need to update to account for legacy exports which have an extra level
 						"IsExport",
 							each ([Name] = "manifest.json" or [Name] = "_manifest.json" or [Extension] = ".csv" or [Extension] = ".gz" or [Extension] = ".parquet") and (
-								([SegmentCount] >= 7 and Text.Length([Segments]{[SegmentCount]-1}) = 36 and Text.Length([Segments]{[SegmentCount]-2}) = 12 and Text.Length([Segments]{[SegmentCount]-3}) = 17)
+								   ([SegmentCount] >= 7 and Text.Length([Segments]{[SegmentCount]-1}) = 36 and Text.Length([Segments]{[SegmentCount]-2}) = 12 and Text.Length([Segments]{[SegmentCount]-3}) = 17)
 								or ([SegmentCount] >= 6 and Text.Length([Segments]{[SegmentCount]-1}) = 36 and Text.Length([Segments]{[SegmentCount]-2}) = 12)
 								or ([SegmentCount] >= 7 and Text.Length([Segments]{[SegmentCount]-1}) = 36 and Text.Length([Segments]{[SegmentCount]-2}) = 17) // Exports v2 preview bug had a missing folder (remove after June 2025)
 							)
@@ -205,14 +206,18 @@ table StorageData
 						),
 						"SegmentCount", each List.Count([Segments])),
 				
-					_supportedDatasets = {"focuscost","pricesheet","reservationdetails","reservationrecommendations","reservationtransactions"},
+					_supportedDatasets = {"CommitmentDiscountUsage","Costs","Prices","Recommendations","Transactions"},
+					_supportedExportTypes = {"focuscost","pricesheet","reservationdetails","reservationrecommendations","reservationtransactions"},
 					Details = Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(FixSegments,
 						"IsConfig",          each [StorageContainer] = "config" and [Name] = "settings.json"),
 						"IsManifest",        each [IsExport] and ([Name] = "manifest.json" or [Name] = "_manifest.json")),
 						"IsLegacyManifest",  each [IsManifest] and [Name] = "_manifest.json"),
 						"IsData",            each [Extension] = ".csv" or [Extension] = ".parquet"),
 						"IsLegacyIngestion", each [Extension] = ".parquet" and [SegmentCount] > 5 and ([Segments]{2} = "subscriptions" or [Segments]{2} = "providers") and Text.Lower([Segments]{[SegmentCount]-1}) = "focuscost" and Text.Length([Segments]{[SegmentCount]-2}) = 6),
-						"IsIngestion",       each [Extension] = ".parquet" and [SegmentCount] > 6 and ([Segments]{5} = "subscriptions" or [Segments]{5} = "providers") and List.Contains(_supportedDatasets, Text.Lower([Segments]{2})) and Text.Length([Segments]{3}) = 4 and Text.Length([Segments]{4}) = 2),
+						"IsIngestion",       each [Extension] = ".parquet" and (
+							   ([SegmentCount] > 4 and List.Contains(_supportedExportTypes, Text.Lower([Segments]{2})) and Text.Length([Segments]{3}) = 4 and Text.Length([Segments]{4}) = 2)
+							or ([SegmentCount] > 4 and List.Contains(_supportedDatasets,               [Segments]{2})  and Text.Length([Segments]{3}) = 4 and Text.Length([Segments]{4}) = 2)
+						)),
 						"ContentType",
 							each if [IsConfig]                                                      then "Hub Settings"
 							else if [StorageContainer] = "config" and (Text.StartsWith([Name], "focuscost_") or [Segments]{2} = "schemas") and [Extension] = ".json" then "Dataset Schema"
@@ -281,7 +286,8 @@ table StorageData
 									else Text.Lower([Json][exportConfig][type]) 
 								)
 								else if [IsLegacyIngestion] then Text.Lower([Segments]{[SegmentCount]-1})
-								else if [IsIngestion] then Text.Lower([Segments]{2})
+								else if [IsIngestion] and List.Contains(_supportedExportTypes, Text.Lower([Segments]{2})) then Text.Lower([Segments]{2})
+								else if [IsIngestion] and List.Contains(_supportedDatasets, [Segments]{2}) then [Segments]{2}
 								else null
 							otherwise null
 						),
@@ -315,7 +321,7 @@ table StorageData
 								if [Name] = "manifest.json" and [Folder Path] = null then "ExportNotFound"
 								else if [Name] = "_manifest.json"                    then "InvalidExportVersion"
 								else if [IsExport] = false                           then "UnknownExportFile"
-								else if [IsExport] and [Dataset] <> null and [Dataset] <> "" and List.Contains(_supportedDatasets, Text.Lower([Dataset])) = false then "UnsupportedExportType"
+								else if [IsExport] and [Dataset] <> null and [Dataset] <> "" and List.Contains(_supportedDatasets, [Dataset]) = false and List.Contains(_supportedExportTypes, Text.Lower([Dataset])) = false then "UnsupportedExportType"
 								else null
 							)
 							else if [StorageContainer] <> "msexports" and [IsExport] then "InvalidExportContainer"
@@ -360,7 +366,7 @@ table StorageData
 					Finalize
 				```
 
-	annotation PBI_ResultType = Exception
+	annotation PBI_ResultType = Table
 
 	annotation PBI_NavigationStepName = Navigation
 

@@ -121,14 +121,6 @@ table ReservationTransactions
 
 		annotation SummarizationSetBy = Automatic
 
-	column x_AccountType
-		dataType: string
-		lineageTag: 193d1287-6f5d-470d-817a-1b6e22c93888
-		summarizeBy: none
-		sourceColumn: x_AccountType
-
-		annotation SummarizationSetBy = Automatic
-
 	column x_BillingProfileId
 		dataType: string
 		lineageTag: e8191922-fa58-41db-af17-fdfd967d760a
@@ -160,22 +152,6 @@ table ReservationTransactions
 		lineageTag: 9b2102fe-75d5-4aeb-b223-7f20e3d26727
 		summarizeBy: none
 		sourceColumn: x_CostCenter
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_DatasetType
-		dataType: string
-		lineageTag: a775bfd8-14ec-4bee-85a0-ea315f36bc67
-		summarizeBy: none
-		sourceColumn: x_DatasetType
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_DatasetVersion
-		dataType: string
-		lineageTag: 387973da-4c96-488d-b970-4bb0b1ff76b8
-		summarizeBy: none
-		sourceColumn: x_DatasetVersion
 
 		annotation SummarizationSetBy = Automatic
 
@@ -273,6 +249,30 @@ table ReservationTransactions
 
 		annotation SummarizationSetBy = Automatic
 
+	column x_BillingAccountAgreement
+		dataType: string
+		lineageTag: 50eb143b-728e-4ad2-8196-258a38fbe29d
+		summarizeBy: none
+		sourceColumn: x_BillingAccountAgreement
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SourceType
+		dataType: string
+		lineageTag: 396ebfae-f948-42fa-851e-19c017d42c28
+		summarizeBy: none
+		sourceColumn: x_SourceType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SourceVersion
+		dataType: string
+		lineageTag: e97f269f-9801-41a4-9f77-4cf393906c6e
+		summarizeBy: none
+		sourceColumn: x_SourceVersion
+
+		annotation SummarizationSetBy = Automatic
+
 	partition ReservationTransactions = m
 		mode: import
 		queryGroup: Storage
@@ -348,7 +348,7 @@ table ReservationTransactions
 				    Add = Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Table.AddColumn(Rename,
 				        // TODO: Should we add ChargePeriodEnd? If so, what time should be used?
 				        // BillingAccountId is not valid for MCA because we are missig the billing account ID (we only have billing profile ID)
-				        "BillingAccountId", each if [x_AccountType] = "MCA" then "/providers/Microsoft.Billig/billingProfiles/" & [x_BillingProfileId] else "/providers/Microsoft.Billig/billingAccounts/" & [x_BillingProfileId]),
+				        "BillingAccountId", each if [x_BillingAccountAgreement] = "MCA" then "/providers/Microsoft.Billing/billingProfiles/" & [x_BillingProfileId] else "/providers/Microsoft.Billing/billingAccounts/" & [x_BillingProfileId]),
 				        "BillingPeriodEnd", each Date.AddMonths([BillingPeriodStart], 1)),
 				        "ChargeCategory",   each if [x_ChargeType] = "Purchase" or [x_ChargeType] = "Cancel" or [x_ChargeType] = "Refund" then "Purchase" else null),
 				        "ChargeClass",      each if [x_ChargeType] = "Refund" then "Correction" else null),

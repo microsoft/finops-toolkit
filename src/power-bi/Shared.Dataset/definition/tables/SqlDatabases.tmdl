@@ -319,9 +319,11 @@ table SqlDatabases
 		queryGroup: 'Resource Graph'
 		source =
 				let
-				  Source = AzureResourceGraph.Query("resources | where type == 'microsoft.sql/servers/databases'", "Tenant", null, null, [resultTruncated = false]),
-				  DemoFilter = Table.SelectRows(Source, each #"Hub Storage URL" <> "https://demohubupzaljui2bxfm.dfs.core.windows.net/ingestion" or List.Contains({"51f73f67-1f29-4120-863e-dd315f743fc1", "586f1d47-9dd9-43d5-b196-6e28f8405ff8", "64e355d7-997c-491d-b0c1-8414dccfcf42", "736af2bf-9fcb-4145-a19b-5b30b2b8949d", "73c0021f-a37d-433f-8baa-7450cb54eea6", "9ec51cfd-5ca7-4d76-8101-dd0a4abc5674", "ed570627-0265-4620-bb42-bae06bcfa914"}, [subscriptionId])),
-				  #"Expanded sku" = Table.ExpandRecordColumn(DemoFilter, "sku", {"name", "tier", "capacity", "family"}, {"sku.name", "sku.tier", "sku.capacity", "sku.family"}),
+				  Source = AzureResourceGraph.Query(
+				    "resources
+				    | where type == 'microsoft.sql/servers/databases'
+				  " & ftk_DemoFilter(), "Tenant", null, null, [resultTruncated = false]),
+				  #"Expanded sku" = Table.ExpandRecordColumn(Source, "sku", {"name", "tier", "capacity", "family"}, {"sku.name", "sku.tier", "sku.capacity", "sku.family"}),
 				  #"Expanded properties" = Table.ExpandRecordColumn(#"Expanded sku", "properties", {"status", "requestedBackupStorageRedundancy", "currentBackupStorageRedundancy", "requestedServiceObjectiveName", "currentServiceObjectiveName", "maintenanceConfigurationId", "defaultSecondaryLocation", "isInfraEncryptionEnabled", "earliestRestoreDate", "zoneRedundant", "availabilityZone", "catalogCollation", "creationDate", "collation", "licenseType", "maxSizeBytes", "isLedgerOn", "databaseId", "currentSku", "readScale", "maxLogSizeBytes"}, {"properties.status", "properties.requestedBackupStorageRedundancy", "properties.currentBackupStorageRedundancy", "properties.requestedServiceObjectiveName", "properties.currentServiceObjectiveName", "properties.maintenanceConfigurationId", "properties.defaultSecondaryLocation", "properties.isInfraEncryptionEnabled", "properties.earliestRestoreDate", "properties.zoneRedundant", "properties.availabilityZone", "properties.catalogCollation", "properties.creationDate", "properties.collation", "properties.licenseType", "properties.maxSizeBytes", "properties.isLedgerOn", "properties.databaseId", "properties.currentSku", "properties.readScale", "properties.maxLogSizeBytes"}),
 				  #"Changed Type" = Table.TransformColumnTypes(#"Expanded properties",{{"properties.creationDate", type datetimezone}})
 				in

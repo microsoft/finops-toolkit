@@ -81,14 +81,6 @@ table Prices
 
 		annotation SummarizationSetBy = Automatic
 
-	column x_AccountType
-		dataType: string
-		lineageTag: 6f5880ec-d0c4-4cbf-b077-04f05e335fb1
-		summarizeBy: none
-		sourceColumn: x_AccountType
-
-		annotation SummarizationSetBy = Automatic
-
 	column x_BaseUnitPrice
 		dataType: double
 		lineageTag: 196be5f1-cd04-4b36-b818-d5dfcc5c1bbf
@@ -112,22 +104,6 @@ table Prices
 		lineageTag: 965223cb-6b8d-4dcd-a97e-9b4ff00427d8
 		summarizeBy: none
 		sourceColumn: x_BillingProfileId
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_DatasetType
-		dataType: string
-		lineageTag: f3f8b960-c332-4b5b-a76a-097e1551799e
-		summarizeBy: none
-		sourceColumn: x_DatasetType
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_DatasetVersion
-		dataType: string
-		lineageTag: e0daaf15-3a7d-430d-83c5-cbf6f649052a
-		summarizeBy: none
-		sourceColumn: x_DatasetVersion
 
 		annotation SummarizationSetBy = Automatic
 
@@ -294,6 +270,54 @@ table Prices
 		lineageTag: 091ca856-451e-4b7e-a2c1-6a779530c80d
 		summarizeBy: none
 		sourceColumn: x_SkuId
+
+		annotation SummarizationSetBy = Automatic
+
+	column BillingAccountName
+		dataType: string
+		lineageTag: 24ef666f-89e9-484a-bc3d-17503ca58eff
+		summarizeBy: none
+		sourceColumn: BillingAccountName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_BillingAccountAgreement
+		dataType: string
+		lineageTag: 4368fe70-6efa-49a8-9df7-abb859926de7
+		summarizeBy: none
+		sourceColumn: x_BillingAccountAgreement
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_BillingProfileName
+		dataType: string
+		lineageTag: 30971e71-71dd-4d4f-9dd0-92eb7a9b8827
+		summarizeBy: none
+		sourceColumn: x_BillingProfileName
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuTierMinimum
+		dataType: string
+		lineageTag: ee6d677c-6bef-42c9-84f5-842b0cc6dadd
+		summarizeBy: none
+		sourceColumn: x_SkuTierMinimum
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SourceType
+		dataType: string
+		lineageTag: 8acc7e19-fe28-4508-8cc3-166317d442c7
+		summarizeBy: none
+		sourceColumn: x_SourceType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SourceVersion
+		dataType: string
+		lineageTag: c9aed3be-165a-479e-b6cc-e4a4f873bca8
+		summarizeBy: none
+		sourceColumn: x_SourceVersion
 
 		annotation SummarizationSetBy = Automatic
 

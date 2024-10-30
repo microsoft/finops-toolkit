@@ -42,14 +42,6 @@ table ReservationRecomendations
 
 		annotation SummarizationSetBy = Automatic
 
-	column x_AccountType
-		dataType: string
-		lineageTag: 0a385e25-e8b0-4101-84aa-883d0d050efc
-		summarizeBy: none
-		sourceColumn: x_AccountType
-
-		annotation SummarizationSetBy = Automatic
-
 	column x_CommitmentCostSavings
 		dataType: double
 		lineageTag: a485aa3f-b250-47dd-bc10-25ee191fbe2b
@@ -59,22 +51,6 @@ table ReservationRecomendations
 		annotation SummarizationSetBy = Automatic
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
-
-	column x_DatasetType
-		dataType: string
-		lineageTag: 4a5e4480-c660-4088-a00b-0660e3021f06
-		summarizeBy: none
-		sourceColumn: x_DatasetType
-
-		annotation SummarizationSetBy = Automatic
-
-	column x_DatasetVersion
-		dataType: string
-		lineageTag: 9c437cb5-51a7-4c09-a644-a430d4cd1f16
-		summarizeBy: none
-		sourceColumn: x_DatasetVersion
-
-		annotation SummarizationSetBy = Automatic
 
 	column x_IncrementalRefreshDate
 		dataType: string
@@ -207,6 +183,30 @@ table ReservationRecomendations
 		lineageTag: d4ac4964-0805-4398-bc73-9dd7db4bae61
 		summarizeBy: none
 		sourceColumn: x_CommitmentDiscountScope
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_BillingAccountAgreement
+		dataType: string
+		lineageTag: bd791989-03ff-472b-bf5a-835bf1ea6a7d
+		summarizeBy: none
+		sourceColumn: x_BillingAccountAgreement
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SourceType
+		dataType: string
+		lineageTag: 6f87e180-fda9-41a6-817b-320f313162d1
+		summarizeBy: none
+		sourceColumn: x_SourceType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SourceVersion
+		dataType: string
+		lineageTag: 5b288faa-c9d1-4fc5-a96d-31eacecd5060
+		summarizeBy: none
+		sourceColumn: x_SourceVersion
 
 		annotation SummarizationSetBy = Automatic
 

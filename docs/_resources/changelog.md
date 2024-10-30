@@ -101,10 +101,35 @@ Legend:
 
 ## 🚚 v0.7
 
-<sup>Released October 2, 2024</sup>
+<sup>Released November 2024</sup>
+
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> - General
+>   1. Added partial support for OneLake URLs.
+>      - This is not fully tested. This is based on feedback about OneLake file paths being different. Additional changes may be needed to fully support Microsoft Fabric.
+>
+> ✏️ Changed:
+>
+> - General
+>   1. Consolidated the **Hub Storage URL** and **Export Storage URL** parameters into a single **Storage URL**.
+>      - This means all datasets will either need to be raw exports outside of FinOps hubs or be processed through hubs. This release no longer supports some data from hubs and some from raw exports.
+>      - If you have existing exports that are not running through hubs data pipelines, simply change the exports to point to the hub **msexports** container.
+>      - This change was made to simplify the setup process and avoid errors in Power BI service configuration (e.g., incremental refresh).
+>   2. Renamed the following columns:
+>      - x_DatasetChanges is now `x_SourceChanges`
+>      - x_DatasetType is now `x_SourceType`
+>      - x_DatasetVersion is now `x_SourceVersion`
+>      - x_AccountType is now `x_BillingAccountAgreement`
 
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
+
+<small>**Breaking change**</small>
+{: .label .label-red .pt-0 .pl-3 .pr-3 .m-0 }
 
 > ➕ Added:
 >
@@ -112,7 +137,16 @@ Legend:
 >
 > ✏️ Changed:
 >
-> 1. Renamed the `msexports_FileAdded` trigger to `msexports_ManifestAdded`.
+> 1. Changed dataset names in the ingestion container to facilitate Azure Data Explorer ingestion.
+>    <blockquote class="important" markdown="1">
+>       _This change requires removing previously ingested data for the current month to avoid data duplication. You do not need to re-export historical data for storage-based Power BI reports; however, historical data DOES need to be re-exported to ingest into Azure Data Explorer._
+>    </blockquote>
+>    - For FOCUS cost data, use "Costs".
+>    - For price sheet data, use "Prices".
+>    - For reservation details, use "CommitmentDiscountUsage".
+>    - For reservation recommendations, use "Recommendations".
+>    - For reservation transactions, use "Transactions".
+> 2. Renamed the `msexports_FileAdded` trigger to `msexports_ManifestAdded`.
 
 📒 Azure Monitor workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
