@@ -1,78 +1,66 @@
-import { Text } from '@fluentui/react-components';
-import styled from 'styled-components';
+import { Text, makeStyles, FluentProvider, Image } from '@fluentui/react-components';
+
+const useStyles = makeStyles({
+  fullWidthContainer: {
+    width: '100vw',
+    height: '40px',
+    margin: 0,
+    padding: 0,
+  },
+  commandBar: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    backgroundColor: '#f4f6f8',
+    overflowX: 'hidden',
+    '@media (max-width: 768px)': {
+      flexDirection: 'column',
+      alignItems: 'center',
+    },
+  },
+  logoTextContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    margin: '8px',
+    '@media (max-width: 768px)': {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+  },
+  logo: {
+    width: '24px',
+    height: '24px',
+    marginRight: '8px',
+  },
+  textContainer: {
+    fontSize: '12px',
+    color: '#333',
+    '@media (max-width: 768px)': {
+      textAlign: 'center',
+    },
+  },
+});
 
 function TopMenuBar() {
-
-
-// Return the top menu bar with the FinOps toolkit logo
+  const classes = useStyles();
 
   return (
-    <FullWidthContainer>
-      <StyledCommandBar>
-        <LogoTextContainer>
-          <Logo src="logo-windows.png" alt="Microsoft Logo" />
-          <TextContainer>
-            <Text size={300} weight="medium">FinOps toolkit</Text>
-          </TextContainer>
-        </LogoTextContainer>
-
-      </StyledCommandBar>
-    </FullWidthContainer>
+    <FluentProvider>
+      <div className={classes.fullWidthContainer}>
+        <div className={classes.commandBar}>
+          <div className={classes.logoTextContainer}>
+            <Image src="logo-windows.png" alt="Microsoft Logo" className={classes.logo} />
+            <div className={classes.textContainer}>
+              <Text size={300} weight="medium">
+                FinOps toolkit
+              </Text>
+            </div>
+          </div>
+        </div>
+      </div>
+    </FluentProvider>
   );
 }
-
-
-// Styled components for layout and customization
-const StyledCommandBar = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  background-color: #f4f6f8;
-  overflow-x: hidden;
-
-  /* Media Query for responsiveness */
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: center;  /* Center align all items */
-  }
-`;
-
-const LogoTextContainer = styled.div`
-  display: flex;
-  align-items: center;
-  margin: 8px;
-
-  @media (max-width: 768px) {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    
-    margin: 8px;
-  }
-`;
-
-const Logo = styled.img`
-  width: 24px;
-  height: 24px;
-  margin-right: 8px;
-`;
-
-const TextContainer = styled.div`
-  font-size: 12px;
-  color: #333;
-
-  @media (max-width: 768px) {
-    text-align: center;
-  }
-`;
-
-// Ensure the top menu bar takes the full viewport width
-const FullWidthContainer = styled.div`
-  width: 100vw;
-  margin: 0;
-  padding: 0;
-  height: 40px;
-`;
 
 export default TopMenuBar;
