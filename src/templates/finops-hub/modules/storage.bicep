@@ -81,7 +81,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     supportsHttpsTrafficOnly: true
     encryption: {
       keySource: 'Microsoft.Storage'
-      requireInfrastructureEncryption: true
+      requireInfrastructureEncryption: enableInfrastructureEncryption
     }
     isHnsEnabled: true
     minimumTlsVersion: 'TLS1_2'
