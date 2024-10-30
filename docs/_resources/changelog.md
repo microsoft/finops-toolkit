@@ -81,6 +81,22 @@ Legend:
 > ➕ Added:
 >
 > 1. Cost Management export modules for subscriptions and resource groups.
+>
+
+📗 FinOps guide
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed:
+>
+> 1. Added Enterprise App Patterns links resources to the architecting for the cloud section.
+
+🔍 Optimization engine
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> 🛠️ Fixed:
+>
+> 1. Exports ingestion issues in cases where exports come with empty lines ([#998](https://github.com/microsoft/finops-toolkit/issues/998))
+> 1. Missing columns in EA savings plans exports ([#1026](https://github.com/microsoft/finops-toolkit/issues/1026))
 
 <br><a name="latest"></a>
 
