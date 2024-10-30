@@ -36,7 +36,7 @@ param msexportRetentionInDays int = 0
 @description('Optional. Number of months of cost data to retain in the ingestion container. Default: 13.')
 param ingestionRetentionInMonths int = 13
 
- @description('Optional. Enable infrastructure encryption on the storage account. Default = false.')
+@description('Optional. Enable infrastructure encryption on the storage account. Default = false.')
 param enableInfrastructureEncryption bool = false
 
 //------------------------------------------------------------------------------
