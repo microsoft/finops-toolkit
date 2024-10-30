@@ -99,6 +99,24 @@ Legend:
 
 <br><a name="latest"></a>
 
+## 🚚 v0.7
+
+
+📒 Azure Monitor workbooks
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> 🛠️ **Fixed:**
+> - Minor bug fixes:
+>   - **Commitment discounts**:
+>     - Fixed RI ROWS Limited
+>   - **Storage**:
+>     - Included tag "RSVaultBackup" in the list of non-idle disks
+>   - **Compute**:
+>     - Fixed incorrect VM processor in "processors" query
+>   - **Database**:
+>     - Removed Idle SQLDB query to be re-evaluated by engineering
+
+
 ## 🪛 v0.6 Update 1
 
 <sup>Released October 5, 2024</sup>
