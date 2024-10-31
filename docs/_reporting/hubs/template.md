@@ -94,6 +94,8 @@ Please ensure the following prerequisites are met before deploying this template
 | **ingestionRetentionInMonths** | int    | Optional. Number of months of cost data to retain in the ingestion container.                                                                                                                                                                                     | 13                  |
 | **remoteHubStorageUri**        | string | Optional. Storage account to push data to for ingestion into a remote hub.                                                                                                                                                                                        |                     |
 | **remoteHubStorageKey**        | string | Optional. Storage account key to use when pushing data to a remote hub.                                                                                                                                                                                           |                     |
+| **enablePublicAccess**        | string | Optional. Disable public access to the datalake (storage firewall).                                                                                                                                                                                          | False               |
+| **virtualNetworkAddressPrefix**        | string | Optional. IP Address range for the private vNet used by the toolkit. /27 recommended to avoid wasting IP's as the deployment will split it into 2 x /28 subnets.                                                                                                                                                                                           | '10.20.30.0/27'     |
 
 <br>
 
@@ -114,6 +116,7 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
       - `settings.json` – Hub settings.
       - `schemas/focuscost_1.0.json` – FOCUS 1.0 schema definition for parquet conversion.
       - `schemas/focuscost_1.0-preview(v1).json` – FOCUS 1.0-preview schema definition for parquet conversion.
+- `<hubName>script<unique-suffix>` storage account (Data Lake Storage Gen2) for deployment scripts.
 - `<hubName>-engine-<unique-suffix>` Data Factory instance
   - Pipelines:
     - `msexports_ExecuteETL` – Queues the `msexports_ETL_ingestion` pipeline to account for Data Factory pipeline trigger limits.
@@ -130,6 +133,9 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
     - `config_DailySchedule` – Triggers the `config_RunExportJobs` pipeline daily for the current month's cost data.
     - `config_MonthlySchedule` – Triggers the `config_RunExportJobs` pipeline monthly for the previous month's cost data.
     - `msexports_FileAdded` – Triggers the `msexports_ExecuteETL` pipeline when Cost Management exports complete.
+  - Managed Private Endpoints
+    - `<hubName>store<unique-suffix>` - Managed private endpoint for storage account.
+    - `<hubName>-vault-<unique-suffix>` - Managed private endpoint for Azure Key Vault.
 - `<hubName>-vault-<unique-suffix>` Key Vault instance
   - Secrets:
     - Data Factory system managed identity
