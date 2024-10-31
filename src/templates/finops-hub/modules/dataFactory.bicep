@@ -165,7 +165,7 @@ resource storageManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedV
 }
 
 module getStoragePrivateEndpointConnections 'storageEndpoints.bicep' = {
-  name: 'GetPrivateEndpointConnections'
+  name: 'GetStoragePrivateEndpointConnections'
   dependsOn: [
     storageManagedPrivateEndpoint
   ]
@@ -175,7 +175,7 @@ module getStoragePrivateEndpointConnections 'storageEndpoints.bicep' = {
 }
 
 module approveStoragePrivateEndpointConnections 'storageEndpoints.bicep' = {
-  name: 'ApprovePrivateEndpointConnections'
+  name: 'ApproveStoragePrivateEndpointConnections'
   dependsOn: [
     getStoragePrivateEndpointConnections
   ]
