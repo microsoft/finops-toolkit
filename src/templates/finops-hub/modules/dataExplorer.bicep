@@ -80,16 +80,12 @@ param clusterName string = ''
   'Standard_L32as_v3'
   'Standard_L32s_v3'
 ])
-param clusterSkuName string = 'Dev(No SLA)_Standard_E2a_v4'
+param clusterSku string = 'Dev(No SLA)_Standard_E2a_v4'
 
-@description('Optional. SKU tier for the Azure Data Explorer cluster. Use Basic for the lowest cost with no SLA (due to a single node). Use Standard for high availability and improved performance. Allowed values: Basic, Standard. Default: "Basic".')
-@allowed(['Basic', 'Standard'])
-param clusterSkuTier string = 'Basic'
-
-@description('Optional. Number of nodes to use in the cluster. Allowed values: 1 for the Basic SKU tier and 2-1000 for Standard. Default: 1.')
+@description('Optional. Number of nodes to use in the cluster. Allowed values: 1 for the Basic SKU tier and 2-1000 for Standard. Default: 1 for dev/test SKUs, 2 for standard SKUs.')
 @minValue(1)
 @maxValue(1000)
-param clusterSkuCapacity int = 1
+param clusterCapacity int = 1
 
 @description('Optional. Forces the table to be updated if different from the last time it was deployed.')
 param forceUpdateTag string = utcNow()
@@ -158,9 +154,9 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
   location: location
   tags: union(tags, contains(tagsByResource, 'Microsoft.Kusto/clusters') ? tagsByResource['Microsoft.Kusto/clusters'] : {})
   sku: {
-    name: clusterSkuName
-    tier: clusterSkuTier
-    capacity: clusterSkuCapacity
+    name: clusterSku
+    tier: startsWith(clusterSku, 'Dev(No SLA)_') ? 'Basic' : 'Standard'
+    capacity: startsWith(clusterSku, 'Dev(No SLA)_') ? 1 : (clusterCapacity == 1 ? 2 : clusterCapacity)
   }
   identity: {
     type: 'SystemAssigned'

@@ -1030,7 +1030,6 @@ CommitmentDiscountUsage_transform_v1_0()
     // TODO: What are the possible values for Kind?
     // TODO: Consider adding ServiceSubcategory (1.1)
     // TODO: Does this dataset include non-hour units (namely the ReservedHours column)?
-    // TODO: Is the SkuName the same as x_SkuDescription?
     CommitmentDiscountUsage_raw
     //
     // Set ProviderName

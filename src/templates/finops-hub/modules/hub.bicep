@@ -92,16 +92,12 @@ param dataExplorerName string = ''
   'Standard_L32as_v3'
   'Standard_L32s_v3'
 ])
-param dataExplorerSkuName string = 'Dev(No SLA)_Standard_E2a_v4'
+param dataExplorerSku string = 'Dev(No SLA)_Standard_E2a_v4'
 
-@description('Optional. SKU tier for the Azure Data Explorer cluster. Use Basic for the lowest cost with no SLA (due to a single node). Use Standard for high availability and improved performance. Allowed values: Basic, Standard. Default: "Basic".')
-@allowed(['Basic', 'Standard'])
-param dataExplorerSkuTier string = 'Basic'
-
-@description('Optional. Number of nodes to use in the cluster. Allowed values: 1 for the Basic SKU tier and 2-1000 for Standard. Default: 1.')
+@description('Optional. Number of nodes to use in the cluster. Allowed values: 1 for the Basic SKU tier and 2-1000 for Standard. Default: 1 for dev/test SKUs, 2 for standard SKUs.')
 @minValue(1)
 @maxValue(1000)
-param dataExplorerSkuCapacity int = 1
+param dataExplorerCapacity int = 1
 
 @description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
 param tags object = {}
@@ -246,9 +242,8 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
     // hubName: hubName
     // uniqueSuffix: uniqueSuffix
     clusterName: dataExplorerName
-    clusterSkuName: dataExplorerSkuName
-    clusterSkuTier: dataExplorerSkuTier
-    clusterSkuCapacity: dataExplorerSkuCapacity
+    clusterSku: dataExplorerSku
+    clusterCapacity: dataExplorerCapacity
     location: location
     tags: resourceTags
     tagsByResource: tagsByResource
