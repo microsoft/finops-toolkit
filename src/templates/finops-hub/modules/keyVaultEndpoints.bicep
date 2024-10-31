@@ -20,7 +20,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
 }
 
 resource privateEndpointConnection 'Microsoft.KeyVault/vaults/privateEndpointConnections@2023-07-01' =  [ for privateEndpointConnection in privateEndpointConnections : if (privateEndpointConnection.properties.privateLinkServiceConnectionState.status == 'Pending') {
-  name: privateEndpointConnection.name
+  name: last(array(split(privateEndpointConnection.id, '/')))
   parent: keyVault
   properties: {
     privateLinkServiceConnectionState: {
