@@ -164,7 +164,7 @@ resource storageManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedV
   }
 }
 
-module getPrivateEndpointConnections 'storageEndpoints.bicep' = {
+module getStoragePrivateEndpointConnections 'storageEndpoints.bicep' = {
   name: 'GetPrivateEndpointConnections'
   dependsOn: [
     storageManagedPrivateEndpoint
@@ -174,14 +174,51 @@ module getPrivateEndpointConnections 'storageEndpoints.bicep' = {
   }
 }
 
-module approvePrivateEndpointConnections 'storageEndpoints.bicep' = {
+module approveStoragePrivateEndpointConnections 'storageEndpoints.bicep' = {
   name: 'ApprovePrivateEndpointConnections'
   dependsOn: [
-    getPrivateEndpointConnections
+    getStoragePrivateEndpointConnections
   ]
   params: {
     storageAccountName: storageAccount.name
-    privateEndpointConnections: getPrivateEndpointConnections.outputs.privateEndpointConnections
+    privateEndpointConnections: getStoragePrivateEndpointConnections.outputs.privateEndpointConnections
+  }
+}
+
+resource keyVaultManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = {
+  name: keyVault.name
+  parent: managedVirtualNetwork
+  dependsOn: [
+    identityRoleAssignments
+  ]
+  properties: {
+    name: keyVault.name
+    groupId: 'vault'
+    privateLinkResourceId: keyVault.id
+    fqdns: [
+      keyVault.properties.vaultUri
+    ]
+  }
+}
+
+module getKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = {
+  name: 'GetKeyVaultPrivateEndpointConnections'
+  dependsOn: [
+    keyVaultManagedPrivateEndpoint
+  ]
+  params: {
+    keyVaultName: keyVault.name
+  }
+}
+
+module approveKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = {
+  name: 'ApproveKeyVaultPrivateEndpointConnections'
+  dependsOn: [
+    getKeyVaultPrivateEndpointConnections
+  ]
+  params: {
+    keyVaultName: keyVault.name
+    privateEndpointConnections: getKeyVaultPrivateEndpointConnections.outputs.privateEndpointConnections
   }
 }
 
