@@ -15,6 +15,10 @@ param storageAccountName string
 // Resources
 //==============================================================================
 
+resource storageAccount 'Microsoft.Storage/storageAccounts@2023-04-01' existing = {
+  name: storageAccountName
+}
+
 resource privateEndpointConnection 'Microsoft.Storage/storageAccounts/privateEndpointConnections@2023-04-01' =  [ for privateEndpointConnection in privateEndpointConnections : if (privateEndpointConnection.properties.privateLinkServiceConnectionState.status == 'Pending') {
   name: privateEndpointConnection.name
   parent: storageAccount
@@ -26,10 +30,6 @@ resource privateEndpointConnection 'Microsoft.Storage/storageAccounts/privateEnd
     }
   }
 }]
-
-resource storageAccount 'Microsoft.Storage/storageAccounts@2023-04-01' existing = {
-  name: storageAccountName
-}
 
 //==============================================================================
 // Outputs
