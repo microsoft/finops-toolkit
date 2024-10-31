@@ -70,6 +70,9 @@ var schemaFiles = {
 }
 
 // Roles needed to auto-start triggers
+// Storage Blob Data Contributor - used by deployment scripts to write data to blob storage
+// Storage File Data Privileged Contributor - used by deployment scripts to write data to blob storage
+// https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/deployment-script-template#use-existing-storage-account
 var blobUploadRbacRoles = [
   'ba92f5b4-2d11-453d-a403-e96b0029c9fe' // Storage Blob Data Contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#storage-blob-data-contributor
   'e40ec5ca-96e0-45a2-b4ff-59039f2c2b59' // Managed Identity Contributor - https://learn.microsoft.com/azure/role-based-access-control/built-in-roles#managed-identity-contributor
@@ -327,7 +330,7 @@ resource identityRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-0
 }]
 
 resource uploadSettings 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
-  name: '${safeHubName}_uploadSettings'
+  name: '${storageAccountName}_uploadSettings'
   kind: 'AzurePowerShell'
   // chinaeast2 is the only region in China that supports deployment scripts
   location: startsWith(location, 'china') ? 'chinaeast2' : location
