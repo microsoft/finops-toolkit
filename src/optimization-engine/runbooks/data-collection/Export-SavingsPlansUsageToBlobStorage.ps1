@@ -178,6 +178,17 @@ $savingsPlans = @()
 
 foreach ($usage in $savingsPlansUsage)
 {
+    $purchaseDate = $usage.properties.purchaseDateTime
+    if ([string]::IsNullOrEmpty($purchaseDate) -and -not([string]::IsNullOrEmpty($usage.properties.purchaseDate)))
+    {
+        $purchaseDate = (Get-Date -Date $usage.properties.purchaseDate).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
+    }
+    $expiryDate = $usage.properties.expiryDateTime
+    if ([string]::IsNullOrEmpty($expiryDate) -and -not([string]::IsNullOrEmpty($usage.properties.expiryDate)))
+    {
+        $expiryDate = (Get-Date -Date $usage.properties.expiryDate).ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'")
+    }
+
     $savingsPlanEntry = New-Object PSObject -Property @{
         SavingsPlanResourceId = $usage.id
         SavingsPlanOrderId = $usage.id.Substring(0,$usage.id.IndexOf("/savingsPlans/"))
@@ -188,14 +199,14 @@ foreach ($usage in $savingsPlansUsage)
         ProvisioningState = $usage.properties.displayProvisioningState
         AppliedScopeType = $usage.properties.userFriendlyAppliedScopeType
         RenewState = $usage.properties.renew
-        PurchaseDate = $usage.properties.purchaseDateTime
+        PurchaseDate = $purchaseDate
         BenefitStart = $usage.properties.benefitStartTime
-        ExpiryDate = $usage.properties.expiryDateTime
+        ExpiryDate = $expiryDate
         EffectiveDate = $usage.properties.effectiveDateTime
         BillingScopeId = $usage.properties.billingScopeId
         BillingAccountId = $usage.properties.billingAccountId
         BillingProfileId = $usage.properties.billingProfileId
-        BillingPlan = $usage.properties.billingProfileId
+        BillingPlan = $usage.properties.billingPlan
         CommitmentGrain = $usage.properties.commitment.grain
         CommitmentCurrencyCode = $usage.properties.commitment.currencyCode
         CommitmentAmount = $usage.properties.commitment.amount

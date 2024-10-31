@@ -40,6 +40,7 @@ Sorry to hear you're having a problem. We're here to help!
 - [UnknownExportFile](#unknownexportfile)
 - [UnknownFocusVersion](#unknownfocusversion)
 - [UnknownHubVersion](#unknownhubversion)
+- [UnsupportedExportFileType](#unsupportedexportfiletype)
 - [UnsupportedExportType](#unsupportedexporttype)
 - [The \<name\> resource provider is not registered in subscription \<guid\>](#the-name-resource-provider-is-not-registered-in-subscription-guid)
 - [x\_PricingSubcategory shows the commitment discount ID](#x_pricingsubcategory-shows-the-commitment-discount-id)
@@ -418,6 +419,16 @@ This error code is shown in the `x_SourceChanges` column when a FOCUS version co
 Unable to identify the version of FinOps hubs from the settings file. Please verify settings are correct. FinOps hubs 0.1.1 and earlier does not work with this Power BI report.
 
 **Mitigation**: Upgrade to the latest version of [FinOps hubs](../_reporting/hubs/README.md) or download Power BI reports from https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1
+
+<br>
+
+## UnsupportedExportFileType
+
+<sup>Severity: Critical</sup>
+
+Unable to ingest the specified export file because the file type is not supported.
+
+**Mitigation**: Either convert the file to a supported file format before adding to the msexports container or add support for converting the new file type to the msexports_ETL_ingestion pipeline.
 
 <br>
 

@@ -157,6 +157,12 @@
       "mitigation": "Upgrade to the latest version of FinOps hubs at https://aka.ms/finops/hubs or download Power BI reports from https://github.com/microsoft/finops-toolkit/releases/tag/v0.1.1."
     },
     {
+      "code": "UnsupportedExportFileType",
+      "severity": "Critical",
+      "message": "Unable to ingest the specified export file because the file type is not supported.",
+      "mitigation": "Either convert the file to a supported file format before adding to the msexports container or add support for converting the new file type to the msexports_ETL_ingestion pipeline."
+    },
+    {
       "code": "UnsupportedExportType",
       "severity": "Warning",
       "message": "This export manifest indicates the export was for an unsupported dataset. Exported data will be reported as ingestion errors.",

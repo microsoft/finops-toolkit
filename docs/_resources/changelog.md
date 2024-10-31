@@ -80,6 +80,22 @@ Legend:
 > ➕ Added:
 >
 > 1. Cost Management export modules for subscriptions and resource groups.
+>
+
+📗 FinOps guide
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ✏️ Changed:
+>
+> 1. Added Enterprise App Patterns links resources to the architecting for the cloud section.
+
+🔍 Optimization engine
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> 🛠️ Fixed:
+>
+> 1. Exports ingestion issues in cases where exports come with empty lines ([#998](https://github.com/microsoft/finops-toolkit/issues/998))
+> 1. Missing columns in EA savings plans exports ([#1026](https://github.com/microsoft/finops-toolkit/issues/1026))
 
 <br><a name="latest"></a>
 
@@ -97,6 +113,26 @@ Legend:
 > ✏️ Changed:
 >
 > 1. Renamed the `msexports_FileAdded` trigger to `msexports_ManifestAdded`.
+
+📒 Azure Monitor workbooks
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
+>   1. On the Storagetab, included the **RSVaultBackup** tag in the list of non-idle disks.
+>
+> 🛠️ Fixed:
+> 
+> - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
+>   1. On the Commitment discounts tab, fixed RI ROWS Limited.
+>   2. On the Compute tab, fixed incorrect VM processor in processors query.
+>
+> 🗑️ Removed:
+>
+> - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
+>   1. On the Database tab, removed the idle SQL databases query.
+>      - This query will be re-evaluated and added again in a future release.
 
 <br>
 
