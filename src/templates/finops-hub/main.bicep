@@ -45,6 +45,12 @@ param remoteHubStorageUri string = ''
 @secure()
 param remoteHubStorageKey string = ''
 
+@description('Optional. Enable public access to the data lake.  Default: true.')
+param enablePublicAccess bool = true
+
+@description('Optional. Address space for the workload. A /27 is required for the workload. Default: "10.20.30.0/27".')
+param virtualNetworkAddressPrefix string = '10.20.30.0/27'
+
 //==============================================================================
 // Resources
 //==============================================================================
@@ -63,6 +69,8 @@ module hub 'modules/hub.bicep' = {
     ingestionRetentionInMonths: ingestionRetentionInMonths
     remoteHubStorageUri: remoteHubStorageUri
     remoteHubStorageKey: remoteHubStorageKey
+    enablePublicAccess: enablePublicAccess
+    virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
   }
 }
 
