@@ -169,7 +169,7 @@ resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = {
 
 output vNetId string = vNet.id
 output vNetName string = vNet.name
-output vnetAddressSpace array = vNet.properties.addressSpace.addressPrefixes
+output vNetAddressSpace array = vNet.properties.addressSpace.addressPrefixes
 output vNetSubnets array = vNet.properties.subnets
 output finopsHubSubnetId string = vNet.properties.subnets[0].id
 output scriptSubnetId string = vNet.properties.subnets[1].id
