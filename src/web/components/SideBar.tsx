@@ -27,6 +27,7 @@ import {
   PanelLeftContractRegular,
 } from "@fluentui/react-icons";
 
+// Styles for the sidebar using Fluent UI's `makeStyles`
 const useStyles = makeStyles({
     sidebar: {
       minHeight: '100vh',
