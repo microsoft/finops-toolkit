@@ -114,6 +114,10 @@
       href: focus/validate.md
     - name: FOCUS dataset
       href: focus/metadata.md
+    - name: FOCUS conformance summary
+      href: focus/conformance-summary.md
+    - name: FOCUS conformance report
+      href: focus/conformance-full-report.md
 - name: Microsoft Fabric workspace for FinOps
   items:
   - name: Create a Fabric workspace for FinOps
