@@ -1,9 +1,9 @@
 ---
 title: FOCUS conformance summary
-description: General information about the FOCUS dataset including the data generator, schema version, and columns included in the dataset.
+description: Summary of FOCUS conformance gaps in the Microsoft Cost Management FOCUS dataset with applicable workarounds.
 author: bandersmsft
 ms.author: banders
-ms.date: 07/15/2024
+ms.date: 10/31/2024
 ms.topic: reference
 ms.service: finops
 ms.reviewer: micflan
@@ -72,7 +72,7 @@ The remaining conformance gaps are summarized in the following sections. For det
 Related resources:
 
 - [FOCUS conformance full report](./conformance-full-report.md)
-- [Microsoft Cost Management FOCUS dataset](/azure/cost-management-billing/dataset-schema/cost-usage-details-focus.md)
+- [Microsoft Cost Management FOCUS dataset](/azure/cost-management-billing/dataset-schema/cost-usage-details-focus)
 
 Related products:
 

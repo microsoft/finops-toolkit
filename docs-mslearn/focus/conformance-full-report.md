@@ -1,9 +1,9 @@
 ---
 title: FOCUS conformance report
-description: General information about the FOCUS dataset including the data generator, schema version, and columns included in the dataset.
+description: Comprehensive analysis of the Microsoft Cost Management FOCUS dataset's adherence to FOCUS requirements.
 author: bandersmsft
 ms.author: banders
-ms.date: 07/15/2024
+ms.date: 10/31/2024
 ms.topic: reference
 ms.service: finops
 ms.reviewer: micflan
@@ -757,20 +757,20 @@ The rest of this document lists the FOCUS requirements grouped by attribute and 
 
 <sup>Source: [columns/tags.md](https://github.com/FinOps-Open-Cost-and-Usage-Spec/FOCUS_Spec/blob/v1.0/specification/columns/tags.md)</sup>
 
-| ID  | Type        | Criteria                                                                                                                                  | Status           | Notes                                                                                                                                         |
-| --- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| T0  | Description | The set of tags assigned to tag sources that account for potential provider-defined or user-defined tag evaluations.                      | Supports         |                                                                                                                                               |
-| T1  | MUST        | The Tags column MUST be present in the billing data when the provider supports setting user or provider-defined tags.                     | Supports         |                                                                                                                                               |
-| T2  | MUST        | The Tags column MUST contain user-defined and provider-defined tags.                                                                      | Supports         |                                                                                                                                               |
-| T3  | MUST        | The Tags column MUST only contain finalized tags.                                                                                         | Supports         |                                                                                                                                               |
-| T4  | MUST        | The Tags column MUST be in [Key-Value Format](#key-value-format).                                                                         | Supports         |                                                                                                                                               |
-| T5  | SHOULD      | A Tag key with a non-null value for a given resource SHOULD be included in the tags column.                                               | Supports         |                                                                                                                                               |
-| T6  | MAY         | A Tag key with a null value for a given resource MAY be included in the tags column depending on the provider's tag finalization process. | Supports         |                                                                                                                                               |
-| T7  | MUST        | A Tag key that does not support a corresponding value, MUST have a corresponding true (boolean) value set.                                | Not Applicable   | Microsoft Cloud tags support both keys and values.                                                                                            |
-| T8  | MUST        | If Tag finalization is supported, providers MUST publish tag finalization methods and semantics within their respective documentation.    | Supports         | See [Group and allocate costs using tag inheritance](https://learn.microsoft.com/azure/cost-management-billing/costs/enable-tag-inheritance). |
-| T9  | MUST        | Providers MUST NOT alter user-defined Tag keys or values.                                                                                 | Supports         |                                                                                                                                               |
-| T10 | MUST        | Provider-defined tags MUST be prefixed with a provider-specified tag key prefix.                                                          | Does Not Support | Provider-specified tags can't be differentiated from user-defined tags. Tags aren't modified to support backwards compatibility.              |
-| T11 | SHOULD      | Providers SHOULD publish all provider-specified tag key prefixes within their respective documentation.                                   | Not Applicable   | Provider prefixes aren't currently specified.                                                                                                 |
+| ID  | Type        | Criteria                                                                                                                                  | Status           | Notes                                                                                                                            |
+| --- | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| T0  | Description | The set of tags assigned to tag sources that account for potential provider-defined or user-defined tag evaluations.                      | Supports         |                                                                                                                                  |
+| T1  | MUST        | The Tags column MUST be present in the billing data when the provider supports setting user or provider-defined tags.                     | Supports         |                                                                                                                                  |
+| T2  | MUST        | The Tags column MUST contain user-defined and provider-defined tags.                                                                      | Supports         |                                                                                                                                  |
+| T3  | MUST        | The Tags column MUST only contain finalized tags.                                                                                         | Supports         |                                                                                                                                  |
+| T4  | MUST        | The Tags column MUST be in [Key-Value Format](#key-value-format).                                                                         | Supports         |                                                                                                                                  |
+| T5  | SHOULD      | A Tag key with a non-null value for a given resource SHOULD be included in the tags column.                                               | Supports         |                                                                                                                                  |
+| T6  | MAY         | A Tag key with a null value for a given resource MAY be included in the tags column depending on the provider's tag finalization process. | Supports         |                                                                                                                                  |
+| T7  | MUST        | A Tag key that does not support a corresponding value, MUST have a corresponding true (boolean) value set.                                | Not Applicable   | Microsoft Cloud tags support both keys and values.                                                                               |
+| T8  | MUST        | If Tag finalization is supported, providers MUST publish tag finalization methods and semantics within their respective documentation.    | Supports         | See [Group and allocate costs using tag inheritance](/azure/cost-management-billing/costs/enable-tag-inheritance).               |
+| T9  | MUST        | Providers MUST NOT alter user-defined Tag keys or values.                                                                                 | Supports         |                                                                                                                                  |
+| T10 | MUST        | Provider-defined tags MUST be prefixed with a provider-specified tag key prefix.                                                          | Does Not Support | Provider-specified tags can't be differentiated from user-defined tags. Tags aren't modified to support backwards compatibility. |
+| T11 | SHOULD      | Providers SHOULD publish all provider-specified tag key prefixes within their respective documentation.                                   | Not Applicable   | Provider prefixes aren't currently specified.                                                                                    |
 
 <br>
 
@@ -779,7 +779,7 @@ The rest of this document lists the FOCUS requirements grouped by attribute and 
 Related resources:
 
 - [FOCUS conformance summary](./conformance-summary.md)
-- [Microsoft Cost Management FOCUS dataset](/azure/cost-management-billing/dataset-schema/cost-usage-details-focus.md)
+- [Microsoft Cost Management FOCUS dataset](/azure/cost-management-billing/dataset-schema/cost-usage-details-focus)
 
 Related products:
 
