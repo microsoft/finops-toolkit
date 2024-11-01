@@ -124,6 +124,7 @@ function SideBar() {
           icon={isCollapsed ? <PanelLeftExpandRegular /> : <PanelLeftContractRegular />}
           className={classes.toggleButton}
           onClick={toggleSidebar}
+          aria-label={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
         />
         {menuItems.map((item, index) => (
           <div
