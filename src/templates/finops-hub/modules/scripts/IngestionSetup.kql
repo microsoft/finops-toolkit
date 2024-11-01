@@ -61,8 +61,6 @@ HubScopes()
 // FTK open data
 //======================================================================================================================
 
-// TODO: Ingest open data rather than accessing it dynamically at runtime
-
 // PricingUnits
 .create-merge table PricingUnits (    
     x_PricingUnitDescription: string,
@@ -152,6 +150,9 @@ HubScopes()
     x_SourceType:       string,   // Hubs add-on
     x_SourceVersion:    string    // Hubs add-on
 )
+
+// Set Prices_raw retention policy
+.alter-merge table Prices_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -552,6 +553,9 @@ Prices_transform_v1_0()
     x_SourceVersion:            string,    // Hubs add-on
     x_UsageType:                string     // AWS 1.0
 )
+
+// Set Costs_raw retention policy
+.alter-merge table Costs_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -1018,6 +1022,9 @@ Costs_transform_v1_0()
     x_SourceVersion:          string     // Hubs add-on
 )
 
+// Set CommitmentDiscountUsage_raw retention policy
+.alter-merge table CommitmentDiscountUsage_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
+
 //----------------------------------------------------------------------------------------------------------------------
 
 // CommitmentDiscountUsage_transform_v1_0 function
@@ -1175,6 +1182,9 @@ CommitmentDiscountUsage_transform_v1_0()
     x_SourceVersion:                string     // Hubs add-on
 )
 
+// Set Recommendations_raw retention policy
+.alter-merge table Recommendations_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
+
 //----------------------------------------------------------------------------------------------------------------------
 
 // Recommendations_transform_v1_0 function
@@ -1324,6 +1334,9 @@ Recommendations_transform_v1_0()
     x_SourceType:                   string,    // Hubs add-on
     x_SourceVersion:                string     // Hubs add-on
 )
+
+// Set Transactions_raw retention policy
+.alter-merge table Transactions_raw policy retention softdelete = $$rawRetentionInDays$$d recoverability = disabled
 
 //----------------------------------------------------------------------------------------------------------------------
 

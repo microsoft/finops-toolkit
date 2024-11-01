@@ -66,7 +66,7 @@ if (!$json)
             'ingestion' = @{
                 months = 13
             }
-            'log'       = @{
+            'raw'       = @{
                 days = 0
             }
             'final'     = @{
@@ -94,7 +94,7 @@ if (!($json.retention))
         "ingestion": {
             "months": 13
         },
-        "log": {
+        "raw": {
             "days": 0
         },
         "final": {
@@ -125,14 +125,14 @@ else
     $json.retention.ingestion.months = [Int32]::Parse($env:ingestionRetentionInMonths)
 }
 
-# Set or update log retention
-if (!($json.retention.log))
+# Set or update raw retention
+if (!($json.retention.raw))
 {
-    $json.retention | Add-Member -Name log -Value (ConvertFrom-Json "{""days"":$($env:logRetentionInDays)}") -MemberType NoteProperty
+    $json.retention | Add-Member -Name raw -Value (ConvertFrom-Json "{""days"":$($env:rawRetentionInDays)}") -MemberType NoteProperty
 }
 else
 {
-    $json.retention.log.days = [Int32]::Parse($env:logRetentionInDays)
+    $json.retention.raw.days = [Int32]::Parse($env:rawRetentionInDays)
 }
 
 # Set or update final retention

@@ -76,6 +76,14 @@
         "label": "Pricing",
         "elements": [
           {
+            "name": "pricingIntro",
+            "type": "Microsoft.Common.TextBlock",
+            "visible": true,
+            "options": {
+              "text": "Estimated costs below are based on list prices for the default settings. Refer to the Azure pricing calculator for the most accurate pricing based on your discounts. Learn more @ https://aka.ms/finops/hubs/calculator"
+            }
+          },
+          {
             "name": "storage",
             "type": "Microsoft.Common.Section",
             "label": "Data Factory + storage",
@@ -97,51 +105,51 @@
                 }
               },
               {
-        "name": "storageSku",
-        "type": "Microsoft.Common.DropDown",
-        "label": "Storage redundancy",
-        "defaultValue": "Locally-redundant (LRS) - Lowest cost",
-        "toolTip": "The data in your storage account is always replicated to ensure durability and high availability. Choose a replication strategy that matches your durability requirements. [Learn more](https://go.microsoft.com/fwlink/?linkid=2163103)",
-        "constraints": {
-          "required": false,
-          "allowedValues": [
-            {
-              "label": "Locally-redundant (LRS) - Lowest cost",
-              "value": "Premium_LRS"
-            },
-            {
-              "label": "Zone-redundant (ZRS) - High availability",
-              "value": "Premium_ZRS"
-            }
-          ]
-        },
-        "visible": true
-      }
-    ],
+                "name": "storageSku",
+                "type": "Microsoft.Common.DropDown",
+                "label": "Storage redundancy",
+                "defaultValue": "Locally-redundant (LRS) - Lowest cost",
+                "toolTip": "The data in your storage account is always replicated to ensure durability and high availability. Choose a replication strategy that matches your durability requirements. [Learn more](https://go.microsoft.com/fwlink/?linkid=2163103)",
+                "constraints": {
+                  "required": false,
+                  "allowedValues": [
+                    {
+                      "label": "Locally-redundant (LRS) - Lowest cost",
+                      "value": "Premium_LRS"
+                    },
+                    {
+                      "label": "Zone-redundant (ZRS) - High availability",
+                      "value": "Premium_ZRS"
+                    }
+                  ]
+                },
+                "visible": true
+              }
+            ],
             "visible": true
           },
-      {
+          {
             "name": "dataExplorer",
             "type": "Microsoft.Common.Section",
             "label": "Data Explorer (optional)",
-        "elements": [
-          {
+            "elements": [
+              {
                 "name": "dataExplorerPricingIntro",
-            "type": "Microsoft.Common.TextBlock",
-            "visible": true,
-            "options": {
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
                   "text": "Azure Data Explorer is optional. If a cluster name is not specified on the Basics tab, this setting is ignored."
-            }
-          },
-          {
+                }
+              },
+              {
                 "name": "dataExplorerEstimate",
                 "type": "Microsoft.Common.TextBlock",
                 "visible": true,
                 "options": {
                   "text": "Added cost: Starts at $120/mo plus another ~$5/mo per million in monitored spend* (<0.02% of annual spend)."
                 }
-          },
-          {
+              },
+              {
                 "name": "dataExplorerSku",
                 "type": "Microsoft.Common.DropDown",
                 "label": "Data Explorer SKU",
@@ -427,7 +435,105 @@
             "visible": true,
             "options": {
               "text": "* Monitored spend refers to how much cost data is stored based on desired retention. For instance, $1 million per month in spend for 13 months is $13 million in monitored spend. The basic deployment with Data Explorer would be $250/mo - $120/mo for a single node cluster plus $10 times 13 for Data Factory and storage costs."
+            }
           }
+        ]
+      },
+      {
+        "name": "retention",
+        "label": "Data retention",
+        "elements": [
+          {
+            "name": "retentionIntro",
+            "type": "Microsoft.Common.TextBlock",
+            "visible": true,
+            "options": {
+              "text": "Data retention settings indicate how long to keep data available for reporting or additional processing. Retained data contributes to monitored spend and the total storage costs for the hub instance."
+            }
+          },
+          {
+            "name": "storage",
+            "type": "Microsoft.Common.Section",
+            "label": "Storage",
+            "visible": false,
+            "elements": [
+              {
+                "name": "storageIntro",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "Storage retention is not implemented yet. You can set the retention period but files will not be automatically removed."
+                }
+              },
+              {
+                "name": "msexportsDays",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Export retention (days)",
+                "defaultValue": "0",
+                "toolTip": "Indicates how many days Cost Management exports are kept in the msexports container. If 0, exported data will be deleted after ingestion. Manifest files are always retained for troubleshooting. If set to any higher value, exported data will be retained indefinitely. This retention setting has not been implemented yet.",
+                "constraints": {
+                  "required": false,
+                  "regex": "^[0-9]{1,4}$",
+                  "validationMessage": "Number of days must be between 0 and 9999."
+                },
+                "visible": true
+              },
+              {
+                "name": "ingestionMonths",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Ingestion retention (months)",
+                "defaultValue": "13",
+                "toolTip": "Indicates how many months exported data is kept in the ingestion container. This retention setting has not been implemented yet.",
+                "constraints": {
+                  "required": false,
+                  "regex": "^[0-9]{1,2}$",
+                  "validationMessage": "Number of months must be between 0 and 99."
+                },
+                "visible": true
+              }
+            ]
+          },
+          {
+            "name": "dataExplorer",
+            "type": "Microsoft.Common.Section",
+            "label": "Data Explorer (optional)",
+            "visible": true,
+            "elements": [
+              {
+                "name": "dataExplorerIntro",
+                "type": "Microsoft.Common.TextBlock",
+                "visible": true,
+                "options": {
+                  "text": "Azure Data Explorer is optional. If a cluster name is not specified on the Basics tab, this setting is ignored."
+                }
+              },
+              {
+                "name": "rawDays",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Raw data retention (days)",
+                "defaultValue": "0",
+                "toolTip": "Indicates how many days ingested data should be retained in 'raw' tables. If 0, ingested data is deleted immediately after ingested into 'final' (normalized) tables.",
+                "constraints": {
+                  "required": false,
+                  "regex": "^[0-9]{1,4}$",
+                  "validationMessage": "Number of days must be between 0 and 9999."
+                },
+                "visible": true
+              },
+              {
+                "name": "finalMonths",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Normalized data retention (months)",
+                "defaultValue": "13",
+                "toolTip": "Indicates how many closed (complete) months data should be retained in 'final' (normalized) tables. If 0, ingested data is deleted on the first of the next month. This retention setting is only enforced when new data is ingested. If data ingestion stops, historical data will be retained indefinitely.",
+                "constraints": {
+                  "required": false,
+                  "regex": "^[0-9]{1,2}$",
+                  "validationMessage": "Number of months must be between 0 and 99."
+                },
+                "visible": true
+              }
+            ]
           }
         ]
       },
@@ -457,6 +563,10 @@
       "location": "[location()]",
       "storageSku": "[steps('pricing').storage.storageSku]",
       "dataExplorerSku": "[steps('pricing').dataExplorer.dataExplorerSku]",
+      "exportRetentionInDays": "[steps('retention').storage.msexportsDays]",
+      "ingestionRetentionInMonths": "[steps('retention').storage.ingestionMonths]",
+      "dataExplorerRawRetentionInDays": "[steps('retention').dataExplorer.rawDays]",
+      "dataExplorerFinalRetentionInMonths": "[steps('retention').dataExplorer.finalMonths]",
       "tagsByResource": "[steps('tags').tagsByResource]"
     }
   }

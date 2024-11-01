@@ -116,8 +116,8 @@ param exportRetentionInDays int = 0
 @description('Optional. Number of months of data to retain in the ingestion container. Default: 13.')
 param ingestionRetentionInMonths int = 13
 
-@description('Optional. Number of days of data to retain in the Data Explorer *_log tables. Default: 0.')
-param dataExplorerLogRetentionInDays int = 0
+@description('Optional. Number of days of data to retain in the Data Explorer *_raw tables. Default: 0.')
+param dataExplorerRawRetentionInDays int = 0
 
 @description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.')
 param dataExplorerFinalRetentionInMonths int = 13
@@ -148,7 +148,7 @@ module hub 'modules/hub.bicep' = {
     scopesToMonitor: scopesToMonitor
     exportRetentionInDays: exportRetentionInDays
     ingestionRetentionInMonths: ingestionRetentionInMonths
-    dataExplorerLogRetentionInDays: dataExplorerLogRetentionInDays
+    dataExplorerRawRetentionInDays: dataExplorerRawRetentionInDays
     dataExplorerFinalRetentionInMonths: dataExplorerFinalRetentionInMonths
     remoteHubStorageUri: remoteHubStorageUri
     remoteHubStorageKey: remoteHubStorageKey

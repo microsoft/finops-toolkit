@@ -105,6 +105,9 @@ param tagsByResource object = {}
 @description('Required. Name of the Data Factory instance.')
 param dataFactoryName string
 
+@description('Optional. Number of days of data to retain in the Data Explorer *_raw tables. Default: 0.')
+param rawRetentionInDays int = 0
+
 // @description('Required. Name of the storage account to use for data ingestion.')
 // param storageAccountName string
 
@@ -173,10 +176,11 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
     resource ingestionSetupScript 'scripts' = {
       name: 'SetupScript'
       properties: {
-        scriptContent: replace(replace(replace(loadTextContent('scripts/IngestionSetup.kql'),
+        scriptContent: replace(replace(replace(replace(loadTextContent('scripts/IngestionSetup.kql'),
           '$$adfPrincipalId$$', dataFactory.identity.principalId),
           '$$adfTenantId$$', dataFactory.identity.tenantId),
-          '$$ftkOpenDataFolder$$', empty(ftkBranch) ? 'https://github.com/microsoft/finops-toolkit/releases/download/v${ftkVersion}' : 'https://raw.githubusercontent.com/microsoft/finops-toolkit/${ftkBranch}/src/open-data')
+          '$$ftkOpenDataFolder$$', empty(ftkBranch) ? 'https://github.com/microsoft/finops-toolkit/releases/download/v${ftkVersion}' : 'https://raw.githubusercontent.com/microsoft/finops-toolkit/${ftkBranch}/src/open-data'),
+          '$$rawRetentionInDays$$', string(rawRetentionInDays))
         continueOnErrors: continueOnErrors
         forceUpdateTag: forceUpdateTag
       }

@@ -3942,30 +3942,6 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
           }
         }
       }
-      { // Set Log Retention Days
-        name: 'Set Log Retention Days'
-        type: 'SetVariable'
-        dependsOn: [
-          {
-            activity: 'Read Hub Config'
-            dependencyConditions: [
-              'Succeeded'
-            ]
-          }
-        ]
-        policy: {
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          variableName: 'logRetentionDays'
-          value: {
-            value: '@coalesce(activity(\'Read Hub Config\').output.firstRow.retention.log.days, 0)'
-            type: 'Expression'
-          }
-        }
-      }
       { // Set Final Retention Months
         name: 'Set Final Retention Months'
         type: 'SetVariable'
@@ -3998,13 +3974,6 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
             activity: 'Loop thru Columns'
             dependencyConditions: [
               'Succeeded'
-            ]
-          }
-          {
-            activity: 'Set Log Retention Days'
-            dependencyConditions: [
-              'Completed'
-              'Skipped'
             ]
           }
           {
@@ -4247,51 +4216,15 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       }
                     ]
                   }
-                  { // Debug - Copy to Ingestion Log
-                    name: 'Debug - Copy to Ingestion Log'
-                    description: 'Raw data is automatically cleaned up after ingestion. This activity copies raw data to a {dataset}_log table with additional metadata for debugging purposes. This data is never cleaned up and must be removed manually via ".drop table {dataset}_log".'
-                    type: 'AzureDataExplorerCommand'
-                    dependsOn: [
-                      {
-                        activity: 'Ingest Data'
-                        dependencyConditions: [
-                          'Succeeded'
-                        ]
-                      }
-                    ]
-                    policy: {
-                      timeout: '0.12:00:00'
-                      retry: 0
-                      retryIntervalInSeconds: 30
-                      secureOutput: false
-                      secureInput: false
-                    }
-                    userProperties: []
-                    typeProperties: {
-                      command: {
-                        value: '@if(lessOrEquals(variables(\'logRetentionDays\'), 0), \'print "ignore"\', concat(\'.set-or-append \', replace(pipeline().parameters.table, \'_raw\', \'_log\'), \' with (tags=\'\'["drop-by:\', formatDateTime(utcNow(), \'yyyy-MM-dd\'), \'"]\'\') <| \', pipeline().parameters.table, \' | extend INGESTION = "\', pipeline().parameters.ingestionId, \'", PATH = "\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.originalFileName, \'", TIMESTAMP = now() | project-reorder INGESTION, PATH, TIMESTAMP\'))'
-                        type: 'Expression'
-                      }
-                      commandTimeout: '00:20:00'
-                    }
-                    linkedServiceName: {
-                      referenceName: linkedService_dataExplorer.name
-                      type: 'LinkedServiceReference'
-                      parameters: {
-                        database: dataExplorerIngestionDatabase
-                      }
-                    }
-                  }
                   { // Post-Ingest Cleanup
                     name: 'Post-Ingest Cleanup'
                     description: 'Cost Management exports include all month-to-date data from the previous export run. To ensure data is not double-reported, it must be dropped after ingestion completes. Remove the current ingestion month file from raw and any old ingestions for the month from the final table.'
                     type: 'AzureDataExplorerCommand'
                     dependsOn: [
                       {
-                        activity: 'Debug - Copy to Ingestion Log'
+                        activity: 'Ingest Data'
                         dependencyConditions: [
                           'Completed'
-                          'Skipped'
                         ]
                       }
                     ]
@@ -4304,7 +4237,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                     }
                     typeProperties: {
                       command: {
-                        value: '@concat(\'.drop extents <| .show extents | extend isNewRawData = (TableName == "\', pipeline().parameters.table, \'" and Tags has "drop-by:\', pipeline().parameters.ingestionId, \'" and Tags has "drop-by:\', pipeline().parameters.folderPath, \'/\', pipeline().parameters.originalFileName, \'") | extend isOldFinalData = (TableName startswith "\', replace(pipeline().parameters.table, \'_raw\', \'_final_v\'), \'" and Tags !has "drop-by:\', pipeline().parameters.ingestionId, \'" and Tags has "drop-by:\', pipeline().parameters.folderPath, \'") | extend isPastFinalRetention = (TableName startswith "\', replace(pipeline().parameters.table, \'_raw\', \'_final_v\'), \'" and todatetime(substring(strcat(replace_string(extract("drop-by:[A-Za-z]+/(\\\\d{4}/\\\\d{2}(/\\\\d{2})?)", 1, Tags), "/", "-"), "-01"), 0, 10)) < datetime_add("month", -\', if(lessOrEquals(variables(\'finalRetentionMonths\'), 0), 0, variables(\'finalRetentionMonths\')), \', startofmonth(now()))) | extend isPastLogRetention = (TableName == "\', replace(pipeline().parameters.table, \'_raw\', \'_log\'), \'" and todatetime(extract("drop-by:(\\\\d{4}-\\\\d{2}-\\\\d{2})", 1, Tags)) < ago(\', variables(\'logRetentionDays\'), \'d)) | where isNewRawData or isOldFinalData or isPastFinalRetention or isPastLogRetention\')'
+                        value: '@concat(\'.drop extents <| .show extents | extend isOldFinalData = (TableName startswith "\', replace(pipeline().parameters.table, \'_raw\', \'_final_v\'), \'" and Tags !has "drop-by:\', pipeline().parameters.ingestionId, \'" and Tags has "drop-by:\', pipeline().parameters.folderPath, \'") | extend isPastFinalRetention = (TableName startswith "\', replace(pipeline().parameters.table, \'_raw\', \'_final_v\'), \'" and todatetime(substring(strcat(replace_string(extract("drop-by:[A-Za-z]+/(\\\\d{4}/\\\\d{2}(/\\\\d{2})?)", 1, Tags), "/", "-"), "-01"), 0, 10)) < datetime_add("month", -\', if(lessOrEquals(variables(\'finalRetentionMonths\'), 0), 0, variables(\'finalRetentionMonths\')), \', startofmonth(now()))) | where isOldFinalData or isPastFinalRetention\')'
                         type: 'Expression'
                       }
                       commandTimeout: '00:20:00'
@@ -4324,7 +4257,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       {
                         activity: 'Ingest Data'
                         dependencyConditions: [
-                          'Succeeded'
+                          'Completed'
                         ]
                       }
                     ]
