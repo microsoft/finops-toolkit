@@ -1,15 +1,15 @@
-import { Text, makeStyles, FluentProvider, Image } from '@fluentui/react-components';
+import { Text, makeStyles, FluentProvider, Image, Divider } from '@fluentui/react-components';
 
 const useStyles = makeStyles({
   fullWidthContainer: {
     width: '100vw',
     height: '40px',
-    margin: 0,
+    marginTop: '8px',
     padding: 0,
   },
   commandBar: {
     display: 'flex',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     width: '100%',
     backgroundColor: '#f4f6f8',
@@ -32,6 +32,10 @@ const useStyles = makeStyles({
     width: '24px',
     height: '24px',
     marginRight: '8px',
+  },
+  divider: {
+    height: '20px',
+    margin: '0 8px',
   },
   textContainer: {
     fontSize: '12px',
@@ -56,6 +60,7 @@ function TopMenuBar() {
                 FinOps toolkit
               </Text>
             </div>
+            <Divider vertical className={classes.divider} />
           </div>
         </div>
       </div>
