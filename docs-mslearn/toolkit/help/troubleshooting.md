@@ -66,7 +66,7 @@ If you have a specific error code, we recommend starting with [common errors](er
 1. Go to Data Factory studio, then go to Monitor and make sure both pipelines are running.
 2. Compare the last run time with the time of the last cost export. They should be close.
 3. Open the Data Factory instance in Data Factory Studio and select Manage > Author > Triggers. Verify the `msexports_FileAdded` trigger is started. If not, start it.
-4. If the trigger fails to start with a “resource provider is not registered” error, open the subscription in the Azure portal, then select Settings > Resource providers, select the Microsoft.EventGrid row, then select Register. Registration may take a few minutes.
+4. If the trigger fails to start with a "resource provider is not registered" error, open the subscription in the Azure portal, then select Settings > Resource providers, select the Microsoft.EventGrid row, then select Register. Registration may take a few minutes.
 5. After registration completes, start the `msexports_FileAdded` trigger again.
 6. After the trigger is started, re-run all connected Cost Management exports. Data should be fully ingested within 10-20 minutes.
 7. If the ingestion pipeline is not running and it is showing a `MappingColumnNameNotFoundInSourceFile` error message, verify the export is configured for FOCUS `1.0-preview(v1)` and not `1.0`.
