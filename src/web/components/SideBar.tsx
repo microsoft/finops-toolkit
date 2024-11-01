@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  FluentProvider,
   makeStyles,
   Button,
   tokens,
@@ -119,7 +118,6 @@ function SideBar() {
   };
 
   return (
-    <FluentProvider>
       <div className={`${classes.sidebar} ${isCollapsed ? classes.collapsed : classes.expanded}`}>
         <Button
           appearance="subtle"
@@ -151,7 +149,6 @@ function SideBar() {
           </div>
         ))}
       </div>
-    </FluentProvider>
   );
 };
 

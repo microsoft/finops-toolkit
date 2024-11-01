@@ -1,4 +1,4 @@
-import { Text, makeStyles, FluentProvider, Image, Divider } from '@fluentui/react-components';
+import { Text, makeStyles, Image, Divider } from '@fluentui/react-components';
 
 const useStyles = makeStyles({
   fullWidthContainer: {
@@ -50,7 +50,6 @@ function TopMenuBar() {
   const classes = useStyles();
 
   return (
-    <FluentProvider>
       <div className={classes.fullWidthContainer}>
         <div className={classes.commandBar}>
           <div className={classes.logoTextContainer}>
@@ -64,7 +63,6 @@ function TopMenuBar() {
           </div>
         </div>
       </div>
-    </FluentProvider>
   );
 }
 
