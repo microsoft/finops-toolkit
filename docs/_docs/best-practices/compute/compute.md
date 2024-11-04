@@ -18,8 +18,9 @@ Discover essential FinOps best practices to optimize cost efficiency and governa
 <details open markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
-- [Azure Kubernetes Service](#azure-kubernetes-service)
+- [Advisor](#advisor)
 - [Virtual machines](#virtual-machines)
+- [Azure Kubernetes Service](#azure-kubernetes-service)
 - [🙋‍♀️ Looking for more?](#️-looking-for-more)
 - [🧰 Related tools](#-related-tools)
 
@@ -27,39 +28,25 @@ Discover essential FinOps best practices to optimize cost efficiency and governa
 
 ---
 
-## Azure Kubernetes Service
+## Advisor
 
-### Query: AKS Cluster
+### List of cost recommendations for Compute
 
-This Azure Resource Graph (ARG) query retrieves detailed information about Azure Kubernetes Service (AKS) clusters within your Azure environment.
+This Azure Resource Graph (ARG) query retrieves a list of Azure Advisor recommendations specifically for compute resources. It filters the recommendations to include only those related to virtual machines, scale sets, and other compute services, providing insights into potential cost savings.
 
 <h4>Category</h4>
 
-Resource management
+Cost optimization
 
 <h4>Query</h4>
 
 ```kql
-resources
-| where type == "microsoft.containerservice/managedclusters"
-| extend AgentPoolProfiles = properties.agentPoolProfiles
-| mvexpand AgentPoolProfiles
-| project
-    id,
-    ProfileName = tostring(AgentPoolProfiles.name),
-    Sku = tostring(sku.name),
-    Tier = tostring(sku.tier),
-    mode = AgentPoolProfiles.mode,
-    AutoScaleEnabled = AgentPoolProfiles.enableAutoScaling,
-    SpotVM = AgentPoolProfiles.scaleSetPriority,
-    VMSize = tostring(AgentPoolProfiles.vmSize),
-    nodeCount = tostring(AgentPoolProfiles.['count']),
-    minCount = tostring(AgentPoolProfiles.minCount),
-    maxCount = tostring(AgentPoolProfiles.maxCount),
-    location,
-    resourceGroup,
-    subscriptionId,
-    AKSname = name
+advisorresources
+| where type == "microsoft.advisor/recommendations"
+| where tostring (properties.category) has "Cost"
+| where properties.shortDescription.problem has "underutilized"
+| where properties.impactedField has "Compute" or properties.impactedField has "Container" or properties.impactedField has "Web"
+| project AffectedResource=tostring(properties.resourceMetadata.resourceId),Impact=properties.impact,resourceGroup,AdditionaInfo=properties.extendedProperties,subscriptionId,Recommendation=tostring(properties.shortDescription.problem)
 ```
 
 <br>
@@ -88,9 +75,33 @@ resources
 | project id, PowerState, VMLocation, resourceGroup, subscriptionId
 ```
 
-### Query: Virtual machine scale set details
+<br>
 
-This query analyzes Virtual Machine Scale Sets (VMSS) in your Azure environment based on their SKU, spot VM priority, and priority mix policy. It provides insights for cost optimization and resource management strategies.
+### Query: List Virtual Machines deallocated
+
+This Azure Resource Graph (ARG) query identifies Virtual Machines (VMs) in your Azure environment that are in the 'deallocated' state. It retrieves details about their power state, location, resource group, and subscription ID.
+
+<h4>Category</h4>
+
+Waste reduction
+
+<h4>Query</h4>
+
+```kql
+resources
+| where type =~ 'microsoft.compute/virtualmachines'
+    and tostring(properties.extended.instanceView.powerState.displayStatus) == 'VM deallocated'
+| where resourceGroup in ({ResourceGroup})
+| extend  PowerState=tostring(properties.extended.instanceView.powerState.displayStatus), VMLocation=location, resourceGroup=strcat('/subscriptions/',subscriptionId,'/resourceGroups/',resourceGroup)
+| order by id asc
+| project id, PowerState, VMLocation, resourceGroup, subscriptionId
+```
+
+<br>
+
+### Query: List of Virtual Machines with their associated disks
+
+This Resource Graph query retrieves a comprehensive list of all Virtual Machines (VMs) in your Azure environment, along with details of their associated disks. It provides insights into the storage configuration of each VM, helping you manage and optimize your storage resources effectively.
 
 <h4>Category</h4>
 
@@ -99,14 +110,24 @@ Resource management
 <h4>Query</h4>
 
 ```kql
-resources
-| where type =~ 'microsoft.compute/virtualmachinescalesets'
-| extend SpotVMs = tostring(properties.virtualMachineProfile.priority)
-| extend SpotPriorityMix = tostring(properties.priorityMixPolicy)
-| extend SKU = tostring(sku.name)
-| extend resourceGroup = strcat('/subscriptions/', subscriptionId, '/resourceGroups/', resourceGroup)
-| project id, SKU, SpotVMs, SpotPriorityMix, subscriptionId, resourceGroup, location
+Resources | where type == "microsoft.compute/virtualmachines"
+| extend osDiskId= tostring(properties.storageProfile.osDisk.managedDisk.id)
+        | join kind=leftouter(resources
+            | where type =~ 'microsoft.compute/disks'
+            | where properties !has 'Unattached'
+            | where properties has 'osType'
+            | project OS = tostring(properties.osType), osSku = tostring(sku.name), osDiskSizeGB = toint(properties.diskSizeGB), osDiskId=tostring(id)) on osDiskId
+        | join kind=leftouter(Resources
+            | where type =~ 'microsoft.compute/disks'
+            | where properties !has "osType"
+            | where properties !has 'Unattached'
+            | project sku = tostring(sku.name), diskSizeGB = toint(properties.diskSizeGB), id = managedBy
+            | summarize sum(diskSizeGB), count(sku) by id, sku) on id
+| project vmId=id, subscriptionId, resourceGroup, OS, location, osDiskId, osSku, osDiskSizeGB, DataDisksGB=sum_diskSizeGB, diskSkuCount=count_sku
+| sort by diskSkuCount desc
 ```
+
+<br>
 
 ### Query: Virtual Machine processor type analysis
 
@@ -148,6 +169,65 @@ resources
     "Intel"
 )
 | project vmName = name, processorType, vmSize, resourceGroup
+```
+
+<br>
+
+### Query: Virtual machine scale set details
+
+This query analyzes Virtual Machine Scale Sets (VMSS) in your Azure environment based on their SKU, spot VM priority, and priority mix policy. It provides insights for cost optimization and resource management strategies.
+
+<h4>Category</h4>
+
+Resource management
+
+<h4>Query</h4>
+
+```kql
+resources
+| where type =~ 'microsoft.compute/virtualmachinescalesets'
+| extend SpotVMs = tostring(properties.virtualMachineProfile.priority)
+| extend SpotPriorityMix = tostring(properties.priorityMixPolicy)
+| extend SKU = tostring(sku.name)
+| extend resourceGroup = strcat('/subscriptions/', subscriptionId, '/resourceGroups/', resourceGroup)
+| project id, SKU, SpotVMs, SpotPriorityMix, subscriptionId, resourceGroup, location
+```
+
+<br>
+
+## Azure Kubernetes Service
+
+### Query: AKS Cluster
+
+This Azure Resource Graph (ARG) query retrieves detailed information about Azure Kubernetes Service (AKS) clusters within your Azure environment.
+
+<h4>Category</h4>
+
+Resource management
+
+<h4>Query</h4>
+
+```kql
+resources
+| where type == "microsoft.containerservice/managedclusters"
+| extend AgentPoolProfiles = properties.agentPoolProfiles
+| mvexpand AgentPoolProfiles
+| project
+    id,
+    ProfileName = tostring(AgentPoolProfiles.name),
+    Sku = tostring(sku.name),
+    Tier = tostring(sku.tier),
+    mode = AgentPoolProfiles.mode,
+    AutoScaleEnabled = AgentPoolProfiles.enableAutoScaling,
+    SpotVM = AgentPoolProfiles.scaleSetPriority,
+    VMSize = tostring(AgentPoolProfiles.vmSize),
+    nodeCount = tostring(AgentPoolProfiles.['count']),
+    minCount = tostring(AgentPoolProfiles.minCount),
+    maxCount = tostring(AgentPoolProfiles.maxCount),
+    location,
+    resourceGroup,
+    subscriptionId,
+    AKSname = name
 ```
 
 <br>
