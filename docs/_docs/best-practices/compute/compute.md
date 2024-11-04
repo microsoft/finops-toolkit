@@ -20,6 +20,7 @@ Discover essential FinOps best practices to optimize cost efficiency and governa
 
 - [Advisor](#advisor)
 - [Virtual machines](#virtual-machines)
+- [App Service plans](#app-service-plans)
 - [Azure Kubernetes Service](#azure-kubernetes-service)
 - [🙋‍♀️ Looking for more?](#️-looking-for-more)
 - [🧰 Related tools](#-related-tools)
@@ -191,6 +192,28 @@ resources
 | extend SKU = tostring(sku.name)
 | extend resourceGroup = strcat('/subscriptions/', subscriptionId, '/resourceGroups/', resourceGroup)
 | project id, SKU, SpotVMs, SpotPriorityMix, subscriptionId, resourceGroup, location
+```
+
+<br>
+
+## App Service plans
+
+### Query: App Service plans with no hosted applications
+
+This Resource Graph query identifies all App Service plans in your Azure environment that do not have any hosted applications. It helps you pinpoint unused resources, enabling you to optimize costs and improve resource management.
+
+<h4>Category</h4>
+
+Waste management
+
+<h4>Query</h4>
+
+```kql
+resources
+| where type =~ "microsoft.web/serverfarms"
+| where properties.numberOfSites == 0
+| extend Details = pack_all()
+| project Resource=id, resourceGroup, location, subscriptionId, Sku=sku.name, Tier=sku.tier, tags ,Details
 ```
 
 <br>
