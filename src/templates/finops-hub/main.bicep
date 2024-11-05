@@ -59,6 +59,7 @@ module hub 'modules/hub.bicep' = {
     location: location
     // eventGridLocation: eventGridLocation
     storageSku: storageSku
+    enableInfrastructureEncryption: enableInfrastructureEncryption
     tags: tags
     tagsByResource: tagsByResource
     scopesToMonitor: scopesToMonitor

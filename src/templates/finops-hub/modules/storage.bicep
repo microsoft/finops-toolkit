@@ -77,16 +77,17 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   }
   kind: 'BlockBlobStorage'
   tags: union(tags, contains(tagsByResource, 'Microsoft.Storage/storageAccounts') ? tagsByResource['Microsoft.Storage/storageAccounts'] : {})
-  properties: {
-    supportsHttpsTrafficOnly: true
+  properties: union(!enableInfrastructureEncryption ? {} : {
     encryption: {
       keySource: 'Microsoft.Storage'
       requireInfrastructureEncryption: true
     }
+  }, {
+    supportsHttpsTrafficOnly: true
     isHnsEnabled: true
     minimumTlsVersion: 'TLS1_2'
     allowBlobPublicAccess: false
-  }
+  })
 }
 
 //------------------------------------------------------------------------------

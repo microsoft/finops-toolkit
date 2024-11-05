@@ -137,6 +137,7 @@ module storage 'storage.bicep' = {
     location: location
     tags: resourceTags
     tagsByResource: tagsByResource
+    enableInfrastructureEncryption: enableInfrastructureEncryption
     scopesToMonitor: scopesToMonitor
     msexportRetentionInDays: exportRetentionInDays
     ingestionRetentionInMonths: ingestionRetentionInMonths
