@@ -34,10 +34,10 @@ param tags object = {}
 @description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
 param tagsByResource object = {}
 
-@description('Required. Id of the virtual network for private endpoints.')
+@description('Required. Resource ID of the virtual network for private endpoints.')
 param virtualNetworkId string
 
-@description('Required. Id of the subnet for private endpoints.')
+@description('Required. Resource ID of the subnet for private endpoints.')
 param privateEndpointSubnetId string
 
 //------------------------------------------------------------------------------

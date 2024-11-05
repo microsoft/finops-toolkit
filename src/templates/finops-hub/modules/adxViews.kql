@@ -1,9 +1,0 @@
-// Use this on an existing cluster to create a materialized view for the Focus table based on all the existing data.
-
-.create materialized-view with (backfill=true) FocusClean on table Focus
-{
-    Focus
-    | extend IngestionTime = ingestion_time()
-    | summarize arg_max(IngestionTime , *) by BillingAccountId, ChargePeriodStart, CommitmentDiscountId, Region, ResourceId, SkuPriceId, SubAccountId, x_AccountOwnerId, x_CostCenter, x_InvoiceSectionId, x_SkuDetails, x_SkuMeterId,
-x_SkuOfferId
-}

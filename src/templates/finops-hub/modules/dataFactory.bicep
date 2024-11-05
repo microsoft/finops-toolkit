@@ -164,9 +164,6 @@ resource managedIntegrationRuntime 'Microsoft.DataFactory/factories/integrationR
 resource storageManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = {
   name: storageAccount.name
   parent: managedVirtualNetwork
-  dependsOn: [
-    identityRoleAssignments
-  ]
   properties: {
     name: storageAccount.name
     groupId: 'dfs'
@@ -201,9 +198,6 @@ module approveStoragePrivateEndpointConnections 'storageEndpoints.bicep' = {
 resource keyVaultManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = {
   name: keyVault.name
   parent: managedVirtualNetwork
-  dependsOn: [
-    identityRoleAssignments
-  ]
   properties: {
     name: keyVault.name
     groupId: 'vault'
