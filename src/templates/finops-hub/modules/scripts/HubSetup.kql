@@ -28,7 +28,7 @@
 with (docstring = 'Gets all commitment discount usage records aligned to FOCUS 1.0.', folder = 'CommitmentDiscountUsage')
 CommitmentDiscountUsage_v1_0()
 {
-    database('Ingestion').CommitmentDiscountUsage_transform_v1_0
+    database('Ingestion').CommitmentDiscountUsage_final_v1_0
 }
 
 
@@ -37,7 +37,7 @@ CommitmentDiscountUsage_v1_0()
 with (docstring = 'Gets all cost and usage records aligned to FOCUS 1.0.', folder = 'Costs')
 Costs_v1_0()
 {
-    database('Ingestion').Costs_transform_v1_0
+    database('Ingestion').Costs_final_v1_0
 }
 
 
@@ -46,7 +46,7 @@ Costs_v1_0()
 with (docstring = 'Gets all prices aligned to FOCUS 1.0.', folder = 'Prices')
 Prices_v1_0()
 {
-    database('Ingestion').Prices_transform_v1_0
+    database('Ingestion').Prices_final_v1_0
 }
 
 
@@ -55,7 +55,7 @@ Prices_v1_0()
 with (docstring = 'Gets all recommendations aligned to FOCUS 1.0.', folder = 'Recommendations')
 Recommendations_v1_0()
 {
-    database('Ingestion').Recommendations_transform_v1_0
+    database('Ingestion').Recommendations_final_v1_0
 }
 
 
@@ -64,7 +64,7 @@ Recommendations_v1_0()
 with (docstring = 'Gets all transactions aligned to FOCUS 1.0.', folder = 'Transactions')
 Transactions_v1_0()
 {
-    database('Ingestion').Transactions_transform_v1_0
+    database('Ingestion').Transactions_final_v1_0
 }
 
 
