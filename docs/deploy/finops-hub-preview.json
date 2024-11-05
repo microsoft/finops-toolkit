@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.30.3.12046",
-      "templateHash": "18223191720803904528"
+      "templateHash": "17492791556910592549"
     }
   },
   "parameters": {
@@ -110,6 +110,9 @@
           "storageSku": {
             "value": "[parameters('storageSku')]"
           },
+          "enableInfrastructureEncryption": {
+            "value": "[parameters('enableInfrastructureEncryption')]"
+          },
           "tags": {
             "value": "[parameters('tags')]"
           },
@@ -139,7 +142,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.30.3.12046",
-              "templateHash": "3833485232364384946"
+              "templateHash": "10233613975183012161"
             }
           },
           "parameters": {
@@ -303,6 +306,9 @@
                   "tagsByResource": {
                     "value": "[parameters('tagsByResource')]"
                   },
+                  "enableInfrastructureEncryption": {
+                    "value": "[parameters('enableInfrastructureEncryption')]"
+                  },
                   "scopesToMonitor": {
                     "value": "[parameters('scopesToMonitor')]"
                   },
@@ -320,7 +326,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.30.3.12046",
-                      "templateHash": "14897618402554068395"
+                      "templateHash": "14057672980509513312"
                     }
                   },
                   "parameters": {
@@ -438,16 +444,7 @@
                       },
                       "kind": "BlockBlobStorage",
                       "tags": "[union(parameters('tags'), if(contains(parameters('tagsByResource'), 'Microsoft.Storage/storageAccounts'), parameters('tagsByResource')['Microsoft.Storage/storageAccounts'], createObject()))]",
-                      "properties": {
-                        "supportsHttpsTrafficOnly": true,
-                        "encryption": {
-                          "keySource": "Microsoft.Storage",
-                          "requireInfrastructureEncryption": "[parameters('enableInfrastructureEncryption')]"
-                        },
-                        "isHnsEnabled": true,
-                        "minimumTlsVersion": "TLS1_2",
-                        "allowBlobPublicAccess": false
-                      }
+                      "properties": "[union(if(not(parameters('enableInfrastructureEncryption')), createObject(), createObject('encryption', createObject('keySource', 'Microsoft.Storage', 'requireInfrastructureEncryption', parameters('enableInfrastructureEncryption')))), createObject('supportsHttpsTrafficOnly', true(), 'isHnsEnabled', true(), 'minimumTlsVersion', 'TLS1_2', 'allowBlobPublicAccess', false()))]"
                     },
                     {
                       "type": "Microsoft.Storage/storageAccounts/blobServices",
