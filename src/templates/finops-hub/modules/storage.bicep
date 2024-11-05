@@ -80,7 +80,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   properties: union(!enableInfrastructureEncryption ? {} : {
     encryption: {
       keySource: 'Microsoft.Storage'
-      requireInfrastructureEncryption: true
+      requireInfrastructureEncryption: enableInfrastructureEncryption
     }
   }, {
     supportsHttpsTrafficOnly: true
