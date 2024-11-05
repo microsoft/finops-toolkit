@@ -24,6 +24,7 @@ Upgrade an existing FinOps hub instance to the latest version to leverage new ca
 - [Upgrading 0.3](#upgrading-03)
 - [Upgrading 0.4](#upgrading-04)
 - [Upgrading 0.5](#upgrading-05)
+- [Upgrading 0.6](#upgrading-06)
 - [⏭️ Next steps](#️-next-steps)
 
 </details>
@@ -155,12 +156,25 @@ If you exported reservation recommendations to the **msexports** container of yo
 
 ## Upgrading 0.5
 
-Upgrading FinOps hubs 0.5 to 0.6 involves re-deploying the template and updating Power BI reports. FinOps hubs 0.6 changed how data is stored in the **ingestion** container, which means older Power BI reports will not work with data exported with FinOps hubs 0.6. Conversely, 0.6 Power BI reports _will_ work with older FinOps hubs versions, so previously exported data will continue to work without re-exporting it.
+Upgrading FinOps hubs 0.5 to 0.6 involves re-deploying the template, removing the previously ingested data for the current month, and updating Power BI reports. FinOps hubs 0.6 changed the folder paths for data stored in the **ingestion** container, which means older Power BI reports will not work with data exported with FinOps hubs 0.6. Conversely, 0.6 Power BI reports _will_ work with older FinOps hubs versions, so previously exported data will continue to work without re-exporting it. The only caveat is that, you must delete the current month's data from the old path in the **ingestion** container to avoid it being double-counted.
 
 > [!IMPORTANT]
 > If you re-export any historical data in 0.6 that was previously exported in an earlier release, FinOps hubs will not clean up the old data, which will result in duplicated data. The simplest way to resolve this is to delete the older data in the **ingestion** container. FinOps hubs 0.6 moves all content into a folder based on the dataset type: **focuscost**, **pricesheet**, **reservationdetails**, **reservationrecommendations**, or **reservationtransactions**. Any other folders can be safely removed. Once removed, re-run your historical data backfill.
 
 [Download 0.6](https://github.com/microsoft/finops-toolkit/releases/tag/v0.6) &nbsp; [View changes](https://aka.ms/ftk/changes#-v06)
+
+<br>
+
+## Upgrading 0.6
+
+Upgrading FinOps hubs 0.6 to 0.7 involves re-deploying the template, removing the previously ingested data for the current month, and updating Power BI reports. FinOps hubs 0.7 changed the folder paths for data stored in the **ingestion** container, which means older Power BI reports will not work with data exported with FinOps hubs 0.7. Conversely, 0.7 Power BI reports _will_ work with older FinOps hubs versions, so previously exported data will continue to work without re-exporting it. The only caveat is that, you must delete the current month's data from the old path in the **ingestion** container to avoid it being double-counted.
+
+If you are leveraging the Azure Data Explorer option, you will need to re-ingest all historical data so it can be cleanly ingested into Azure Data Explorer. This includes any data brought in from other systems or clouds.
+
+> [!IMPORTANT]
+> If you re-export any historical data in 0.7 that was previously exported in an earlier release, FinOps hubs will not clean up the old data, which will result in duplicated data. The simplest way to resolve this is to delete the older data in the **ingestion** container. FinOps hubs 0.7 moves all content into a folder based on the dataset type: **CommitmentDiscountUsage**, **Costs**, **Prices**, **Recommendations**, or **Transactions**. Any other folders can be safely removed. Once removed, re-run your historical data backfill.
+
+[Download 0.7](https://github.com/microsoft/finops-toolkit/releases/tag/v0.7) &nbsp; [View changes](https://aka.ms/ftk/changes#-v07)
 
 <br>
 

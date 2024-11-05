@@ -5,7 +5,7 @@
 // Parameters
 //==============================================================================
 
-@description('Required. Name of the hub. Used to ensure unique resource names.')
+@description('Required. Name of the FinOps hub instance. Used to ensure unique resource names.')
 param hubName string
 
 @description('Required. Suffix to add to the storage account name to ensure uniqueness.')
@@ -21,7 +21,7 @@ param location string = resourceGroup().location
 @description('Optional. Storage SKU to use. LRS = Lowest cost, ZRS = High availability. Note Standard SKUs are not available for Data Lake gen2 storage. Allowed: Premium_LRS, Premium_ZRS. Default: Premium_LRS.')
 param sku string = 'Premium_LRS'
 
-@description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
+@description('Optional. Tags to apply to all resources.')
 param tags object = {}
 
 @description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
@@ -30,11 +30,17 @@ param tagsByResource object = {}
 @description('Optional. List of scope IDs to monitor and ingest cost for.')
 param scopesToMonitor array
 
-@description('Optional. Number of days of cost data to retain in the ms-cm-exports container. Default: 0.')
+@description('Optional. Number of days of data to retain in the msexports container. Default: 0.')
 param msexportRetentionInDays int = 0
 
-@description('Optional. Number of months of cost data to retain in the ingestion container. Default: 13.')
+@description('Optional. Number of months of data to retain in the ingestion container. Default: 13.')
 param ingestionRetentionInMonths int = 13
+
+@description('Optional. Number of days of data to retain in the Data Explorer *_raw tables. Default: 0.')
+param rawRetentionInDays int = 0
+
+@description('Optional. Number of months of data to retain in the Data Explorer *_final_v* tables. Default: 13.')
+param finalRetentionInMonths int = 13
 
 @description('Required. Id of the virtual network for private endpoints.')
 param virtualNetworkId string
@@ -101,8 +107,8 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     networkAcls: {
       bypass: 'AzureServices'
       defaultAction: enablePublicAccess ? 'Allow' : 'Deny'
-    }
   }
+}
 }
 
 resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' =  {
@@ -370,6 +376,14 @@ resource uploadSettings 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
         value: string(ingestionRetentionInMonths)
       }
       {
+        name: 'rawRetentionInDays'
+        value: string(rawRetentionInDays)
+      }
+      {
+        name: 'finalRetentionInMonths'
+        value: string(finalRetentionInMonths)
+      }
+      {
         name: 'storageAccountName'
         value: storageAccountName
       }
@@ -386,13 +400,13 @@ resource uploadSettings 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
     storageAccountSettings: {
       storageAccountName: scriptStorageAccount.name
       //storageAccountKey: storageAccount.listKeys().keys[0].value
-    }
+  }
     containerSettings: {
       containerGroupName: '${scriptStorageAccount.name}cg'
       subnetIds: [
         {
           id: scriptSubnetId
-        }
+}
       ]
     }
   }

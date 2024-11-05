@@ -62,7 +62,9 @@ sequenceDiagram
     Cost Management->>msexports: ④ Export data
     msexports->>msexports: ⑤ msexports_ExecuteETL
     msexports->>ingestion: ⑥ msexports_ETL_ingestion
-    Power BI-->>ingestion: ⑦ Read data
+    ingestion->>ingestion: ⑦ ingestion_ExecuteETL
+    ingestion->>ADX: ⑧ ingestion_ETL_dataExplorer
+    Power BI-->>ingestion: ⑨ Read data
 ```
 
 <br>
@@ -71,26 +73,45 @@ sequenceDiagram
 2. The **config_StartExportProcess** pipeline gets the applicable exports for the schedule that is running.
 3. The **config_RunExportJobs** pipeline executes each of the selected exports.
 4. Cost Management exports raw cost details to the **msexports** container. [Learn more](#ℹ️-about-exports).
-5. The **msexports_ExecuteETL** pipeline kicks off the extract-transform-load (ETL) process when files are added to storage.
+5. The **msexports_ExecuteETL** pipeline queues the extract-transform-load (ETL) pipeline when files are added to the **msexports** container.
 6. The **msexports_ETL_ingestion** pipeline transforms the data to parquet format and moves it to the **ingestion** container using a scalable file structure. [Learn more](#ℹ️-about-ingestion).
-7. Power BI or other tools read data from the **ingestion** container.
+7. The **ingestion_ExecuteETL** pipeline queues the Azure Data Explorer ingestion pipeline when files are added to the **ingestion** container, if enabled during the hub deployment.
+8. The **ingestion_ETL_dataExplorer** pipeline ingests data into Azure Data Explorer, if enabled during the hub deployment.
+9. Power BI or other tools read data from the **ingestion** container.
+   <blockquote class="note" markdown="1">
+     _Power BI support for Azure Data Explorer is coming in a future update._
+   </blockquote>
 
 <br>
 
 ## ℹ️ About ingestion
 
-FinOps hubs rely on a specific folder path in the **ingestion** container:
+FinOps hubs rely on a specific folder path and file name format in the **ingestion** container:
 
 ```text
-ingestion/{dataset}/{yyyy}/{mm}/{scope-id}
+ingestion/{dataset}/{date-folder-path}/{scope-id-path}/{ingestion-id}__{original-file-name}.parquet
 ```
 
 - `ingestion` is the container where the data pipeline saves data.
-- `{dataset}` is the exported dataset type.
-- `{month}` is the year and month of the exported data formatted as `yyyyMM`.
-- `{scope-id}` is expected to be the fully-qualified resource ID of the scope the data is from.
+- `{dataset}` is the exported dataset type. If ingesting into Azure Data Explorer, this must have a matching, case-sensitive "_raw" table (e.g., "Costs_raw"). FinOps hubs supports the following datasets in this release:
+  - **CommitmentDiscountUsage** - Cost Management reservation details export.
+  - **Costs** - FOCUS cost and usage data.
+  - **Prices** - Cost Management price sheet export.
+  - **Recommendations** - Cost Management reservation recommendations export.
+  - **Transactions** - Cost Management reservation transactions export.
+  - To ingest custom datasets, create a matching `{dataset}_raw` table and parquet ingestion mapping in the **Ingestion** database.
+- `{date-folder-path}` can be one or more folders that indicate how many ingested datasets should be retained. Examples:
+  - `all` (or any placeholder) to not track history for the dataset. Every ingestion will replace the previous data. Not supported in storage-based Power BI reports.
+  - `{yyyy}` as a 4-digit year of the exported dataset to only retain the latest ingestion per year. Not supported in storage-based Power BI reports.
+  - `{yyyy}/{mm}` as a 4-digit year and 2-digit month of the exported dataset to retain the latest ingestion per month.
+  - `{yyyy}/{mm}/{dd}` as a 4-digit year, 2-digit month, and 2-digit day of the exported dataset to retain the latest ingestion per day. Not supported in storage-based Power BI reports.
+- `{scope-id-path}` is the fully-qualified resource ID of the scope the data is from. If ingesting non-Azure data, we recommend using a logical hierarchy based on the scope of data (e.g., "aws/{account-id}", "gcp/{project-name}", "oci/{component-id}/{component-id}").
+- `{ingestion-id}` is a unique ID for the ingested dataset. This can be a GUID, a timestamp, or any value as long as it is consistent across all files for the ingested dataset. This value is used to remove previously ingested data in the same folder path.
+- `{original-file-name}` is intended to be the original file name or other identifier to indicate where the data in the file originated. This value is for your troubleshooting purposes only.
 
-If you need to use hubs to monitor non-Azure data, convert the data to [FOCUS](../../_docs/focus/README.md) and drop it into the **ingestion** container. Please note this has not been explicitly tested in the latest release. If you experience any issues, please [create an issue](https://aka.ms/ftk/idea).
+The full folder path and ingestion ID are both used to ensure data is not duplicated in storage or in Azure Data Explorer. The original file name is added to Azure Data Explorer extents for troubleshooting purposes, but is not otherwise tracked or used by FinOps hubs.
+
+If you need to use hubs to monitor non-Azure data, convert the data to [FOCUS](../../_docs/focus/README.md) and drop it into the **ingestion** container using the guidance above. Please note this has not been explicitly tested in the latest release. If you experience any issues, please [create an issue](https://aka.ms/ftk/idea).
 
 <br>
 
