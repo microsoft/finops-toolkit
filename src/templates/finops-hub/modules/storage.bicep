@@ -36,6 +36,9 @@ param msexportRetentionInDays int = 0
 @description('Optional. Number of months of data to retain in the ingestion container. Default: 13.')
 param ingestionRetentionInMonths int = 13
 
+@description('Optional. Enable infrastructure encryption on the storage account. Default = false.')
+param enableInfrastructureEncryption bool = false
+
 @description('Optional. Number of days of data to retain in the Data Explorer *_raw tables. Default: 0.')
 param rawRetentionInDays int = 0
 
@@ -97,12 +100,18 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   }
   kind: 'BlockBlobStorage'
   tags: union(tags, contains(tagsByResource, 'Microsoft.Storage/storageAccounts') ? tagsByResource['Microsoft.Storage/storageAccounts'] : {})
-  properties: {
+  properties: union(!enableInfrastructureEncryption ? {} : {
+    encryption: {
+      keySource: 'Microsoft.Storage'
+      requireInfrastructureEncryption: enableInfrastructureEncryption
+    }
+  }, {
     supportsHttpsTrafficOnly: true
     allowSharedKeyAccess: true
     isHnsEnabled: true
     minimumTlsVersion: 'TLS1_2'
     allowBlobPublicAccess: false
+  })
     publicNetworkAccess: 'Enabled'
     networkAcls: {
       bypass: 'AzureServices'

@@ -71,6 +71,7 @@ Legend:
 >    - All data processing now happens within a vNet.
 >    - Added param to disable external access to data lake
 >    - Added param to specify subnet range of vnet - minumum size = /27
+> 6. Infrastructure encryption - Added an optional enableInfrastructureEncryption template parameter to support storage account infrastructure encryption.
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
