@@ -127,6 +127,12 @@ param remoteHubStorageUri string = ''
 @secure()
 param remoteHubStorageKey string = ''
 
+@description('Optional. Address space for the workload. A /27 is required for the workload. Default: "10.20.30.0/27".')
+param virtualNetworkAddressPrefix string = '10.20.30.0/27'
+
+@description('Optional. Enable public access to the data lake. Default: true.')
+param enablePublicAccess bool = true
+
 @description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
 
@@ -212,6 +218,19 @@ resource defaultTelemetry 'Microsoft.Resources/deployments@2022-09-01' = if (ena
 }
 
 //------------------------------------------------------------------------------
+// Virtual network
+//------------------------------------------------------------------------------
+
+module vnet 'vnet.bicep' = {
+  name: 'vnet'
+  params: {
+    hubName: hubName
+    location: location
+    virtualNetworkAddressPrefix: virtualNetworkAddressPrefix
+  }
+}
+
+//------------------------------------------------------------------------------
 // ADLSv2 storage account for staging and archive
 //------------------------------------------------------------------------------
 
@@ -229,6 +248,10 @@ module storage 'storage.bicep' = {
     ingestionRetentionInMonths: ingestionRetentionInMonths
     rawRetentionInDays: dataExplorerRawRetentionInDays
     finalRetentionInMonths: dataExplorerFinalRetentionInMonths
+    virtualNetworkId: vnet.outputs.vNetId
+    privateEndpointSubnetId: vnet.outputs.finopsHubSubnetId
+    scriptSubnetId: vnet.outputs.scriptSubnetId
+    enablePublicAccess: enablePublicAccess
   }
 }
 
@@ -306,6 +329,8 @@ module keyVault 'keyVault.bicep' = {
     tags: resourceTags
     tagsByResource: tagsByResource
     storageAccountKey: remoteHubStorageKey
+    virtualNetworkId: vnet.outputs.vNetId
+    privateEndpointSubnetId: vnet.outputs.finopsHubSubnetId
     accessPolicies: [
       {
         objectId: dataFactory.identity.principalId

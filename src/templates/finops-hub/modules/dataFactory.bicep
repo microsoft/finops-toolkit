@@ -74,6 +74,8 @@ var datasetPropsDefault = {
 var safeExportContainerName = replace('${exportContainerName}', '-', '_')
 var safeIngestionContainerName = replace('${ingestionContainerName}', '-', '_')
 var safeConfigContainerName = replace('${configContainerName}', '-', '_')
+var managedVnetName = 'default'
+var managedIntegrationRuntimeName = 'AutoResolveIntegrationRuntime'
 
 // Separator used to separate ingestion ID from file name for ingested files
 var ingestionIdFileNameSeparator = '__'
@@ -130,6 +132,106 @@ module azuretimezones 'azuretimezones.bicep' = {
   name: 'azuretimezones'
   params: {
     location: location
+  }
+}
+
+resource managedVirtualNetwork 'Microsoft.DataFactory/factories/managedVirtualNetworks@2018-06-01' = {
+  name: managedVnetName
+  parent: dataFactory
+  properties: {}
+}
+
+resource managedIntegrationRuntime 'Microsoft.DataFactory/factories/integrationRuntimes@2018-06-01' = {
+  name: managedIntegrationRuntimeName
+  parent: dataFactory
+  properties: {
+    type: 'Managed'
+    managedVirtualNetwork: {
+      referenceName: managedVnetName
+      type: 'ManagedVirtualNetworkReference'
+    }
+    typeProperties: {
+      computeProperties: {
+        location: 'AutoResolve'
+      }
+    }
+  }
+  dependsOn: [
+    managedVirtualNetwork
+  ]
+}
+
+resource storageManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = {
+  name: storageAccount.name
+  parent: managedVirtualNetwork
+  dependsOn: [
+    identityRoleAssignments
+  ]
+  properties: {
+    name: storageAccount.name
+    groupId: 'dfs'
+    privateLinkResourceId: storageAccount.id
+    fqdns: [
+      storageAccount.properties.primaryEndpoints.dfs
+    ]
+  }
+}
+
+module getStoragePrivateEndpointConnections 'storageEndpoints.bicep' = {
+  name: 'GetStoragePrivateEndpointConnections'
+  dependsOn: [
+    storageManagedPrivateEndpoint
+  ]
+  params: {
+    storageAccountName: storageAccount.name
+  }
+}
+
+module approveStoragePrivateEndpointConnections 'storageEndpoints.bicep' = {
+  name: 'ApproveStoragePrivateEndpointConnections'
+  dependsOn: [
+    getStoragePrivateEndpointConnections
+  ]
+  params: {
+    storageAccountName: storageAccount.name
+    privateEndpointConnections: getStoragePrivateEndpointConnections.outputs.privateEndpointConnections
+  }
+}
+
+resource keyVaultManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = {
+  name: keyVault.name
+  parent: managedVirtualNetwork
+  dependsOn: [
+    identityRoleAssignments
+  ]
+  properties: {
+    name: keyVault.name
+    groupId: 'vault'
+    privateLinkResourceId: keyVault.id
+    fqdns: [
+      keyVault.properties.vaultUri
+    ]
+  }
+}
+
+module getKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = {
+  name: 'GetKeyVaultPrivateEndpointConnections'
+  dependsOn: [
+    keyVaultManagedPrivateEndpoint
+  ]
+  params: {
+    keyVaultName: keyVault.name
+  }
+}
+
+module approveKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = {
+  name: 'ApproveKeyVaultPrivateEndpointConnections'
+  dependsOn: [
+    getKeyVaultPrivateEndpointConnections
+  ]
+  params: {
+    keyVaultName: keyVault.name
+    privateEndpointConnections: getKeyVaultPrivateEndpointConnections.outputs.privateEndpointConnections
   }
 }
 
@@ -276,6 +378,10 @@ resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedser
     type: 'AzureBlobFS'
     typeProperties: {
       url: reference('Microsoft.Storage/storageAccounts/${storageAccount.name}', '2021-08-01').primaryEndpoints.dfs
+    }
+    connectVia: {
+      referenceName: managedIntegrationRuntime.name
+      type: 'IntegrationRuntimeReference'
     }
   }
 }

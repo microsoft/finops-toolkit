@@ -101,6 +101,8 @@ Please ensure the following prerequisites are met before deploying this template
 | **dataExplorerFinalRetentionInMonths** | Int    | Optional. Number of months of data to retain in the Data Explorer \*_final_v\* tables.                                                                                                                                                                | 13                 |
 | **remoteHubStorageUri**                | String | Optional. Storage account to push data to for ingestion into a remote hub.                                                                                                                                                                            |                    |
 | **remoteHubStorageKey**                | String | Optional. Storage account key to use when pushing data to a remote hub.                                                                                                                                                                               |                    |
+| **enablePublicAccess**         | string | Optional. Disable public access to the datalake (storage firewall).                                                                                                                                                                                          | False               |
+| **virtualNetworkAddressPrefix**| string | Optional. IP Address range for the private vNet used by the toolkit. /27 recommended to avoid wasting IP's as the deployment will split it into 2 x /28 subnets.                                                                                                                                                                                           | '10.20.30.0/27'     |
 
 <br>
 
@@ -128,6 +130,7 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
       - `schemas/reservationrecommendations_2023-05-01_mca.json` – Reservation recommendations MCA schema definition version 2023-05-01 for parquet conversion.
       - `schemas/reservationtransactions_2023-05-01_ea.json` – Reservation transactions EA schema definition version 2023-05-01 for parquet conversion.
       - `schemas/reservationtransactions_2023-05-01_mca.json` – Reservation transactions MCA schema definition version 2023-05-01 for parquet conversion.
+- `<hubName>script<unique-suffix>` storage account (Data Lake Storage Gen2) for deployment scripts.
 - `<hubName>-engine-<unique-suffix>` Data Factory instance
   - Pipelines:
     - `config_InitializeHub` – Initializes (or updates) the FinOps hub instance after deployment.
@@ -147,6 +150,9 @@ Resources use the following naming convention: `<hubName>-<purpose>-<unique-suff
     - `config_MonthlySchedule` – Triggers the `config_RunExportJobs` pipeline monthly for the previous month's cost data.
     - `msexports_ManifestAdded` – Triggers the `msexports_ExecuteETL` pipeline when Cost Management exports complete.
     - `ingestion_DataFileAdded` – Triggers the `ingestion_ExecuteETL` pipeline when files are ingested.
+  - Managed Private Endpoints
+    - `<hubName>store<unique-suffix>` - Managed private endpoint for storage account.
+    - `<hubName>-vault-<unique-suffix>` - Managed private endpoint for Azure Key Vault.
 - `<hubName>-vault-<unique-suffix>` Key Vault instance
   - Secrets:
     - Data Factory system managed identity
