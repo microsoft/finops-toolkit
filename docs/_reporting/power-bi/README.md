@@ -110,7 +110,7 @@ In general, we recommend starting with Power BI reports by connecting to the cos
 
 _<sup>1) Microsoft Fabric can connect to either raw exports or FinOps hubs. FinOps toolkit reports do not support Microsoft Fabric yet but will in a future release.</sup>_
 
-<sup>2) The estimated cost of Hubs on ADX assumes the two instances are running 24x7. Costs can be reduced by enabling auto-shutdown outside of business hours or applying commitment discounts. Prices are estiamted in UK North as of October 2024</sup>_
+<sup>2) The estimated cost of Hubs on ADX assumes the two instances are running 24x7. Costs can be reduced by enabling auto-shutdown outside of business hours or applying commitment discounts. Prices are estiamted in UK South as of October 2024</sup>_
 
 _<sup>3) Power BI constraints are based on data size and processing time. Monitored spend estimations are for reference only. You may see different limits based on services you use and other datasets you ingest.</sup>_
 
