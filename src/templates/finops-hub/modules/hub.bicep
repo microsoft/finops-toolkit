@@ -99,6 +99,9 @@ param dataExplorerSku string = 'Dev(No SLA)_Standard_E2a_v4'
 @maxValue(1000)
 param dataExplorerCapacity int = 1
 
+@description('Optional. If true, the ADX cluster will auto-stop after a period of inactivity. Not recommended as data ingestion might break. Default: false.')
+param dataExplorerEnableAutoStop bool = false
+
 @description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
 param tags object = {}
 
@@ -276,6 +279,7 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
     tagsByResource: tagsByResource
     dataFactoryName: dataFactory.name
     rawRetentionInDays: dataExplorerRawRetentionInDays
+    enableAutoStop: dataExplorerEnableAutoStop
     // eventGridLocation: finalEventGridLocation
     // storageAccountName: storage.outputs.name
     // storageContainerName: storage.outputs.ingestionContainer

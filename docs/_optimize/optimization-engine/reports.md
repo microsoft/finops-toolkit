@@ -34,7 +34,7 @@ AOE includes a [Power BI report](http://aka.ms/AzureOptimizationEngine/powerbi) 
 
 ![Open the Transform Data > Data source settings menu item](../assets/images/aoe/powerbi-transformdatamenu.jpg "Transform Data menu options")
 
-Then click on "Change source" and change to your SQL database server URL (don't forget to ensure your SQL Firewall rules allow for the connection).
+Then click on "Change source" and change to your SQL database server URL (don't forget to ensure your SQL Firewall rules allow for the connection and to sign in with a Microsoft work/school account with permissions on the SQL Database).
 
 ![Click on Change source and update SQL Server URL](../assets/images/aoe/powerbi-datasourcesettings.jpg "Update data source settings")
 

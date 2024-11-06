@@ -108,6 +108,9 @@ param dataFactoryName string
 @description('Optional. Number of days of data to retain in the Data Explorer *_raw tables. Default: 0.')
 param rawRetentionInDays int = 0
 
+@description('Optional. If true, the ADX cluster will auto-stop after a period of inactivity. Not recommended as data ingestion might break. Default: false.')
+param enableAutoStop bool = false
+
 // @description('Required. Name of the storage account to use for data ingestion.')
 // param storageAccountName string
 
@@ -166,21 +169,13 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
   }
   properties: {
     enableStreamingIngest: true
+    enableAutoStop: enableAutoStop
   }
 
   resource ingestionDb 'databases' = {
     name: 'Ingestion'
     location: location
     kind: 'ReadWrite'
-
-    resource ingestionCommonScript 'scripts' = {
-      name: 'CommonFunctions'
-      properties: {
-        scriptContent: loadTextContent('scripts/IngestionSetup.kql')
-        continueOnErrors: continueOnErrors
-        forceUpdateTag: forceUpdateTag
-      }
-    }
 
     resource ingestionSetupScript 'scripts' = {
       name: 'SetupScript'
@@ -203,15 +198,6 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
     dependsOn: [
       ingestionDb
     ]
-
-    resource ingestionCommonScript 'scripts' = {
-      name: 'CommonFunctions'
-      properties: {
-        scriptContent: loadTextContent('scripts/IngestionSetup.kql')
-        continueOnErrors: continueOnErrors
-        forceUpdateTag: forceUpdateTag
-      }
-    }
 
     resource hubSetupScript 'scripts' = {
       name: 'SetupScript'
