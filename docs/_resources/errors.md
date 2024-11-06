@@ -13,6 +13,7 @@ Sorry to hear you're having a problem. We're here to help!
 <details markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
+- [AccountPropertyCannotBeUpdated](#accountpropertycannotbeupdated)
 - [BadHubVersion](#badhubversion)
 - [InvalidExportContainer](#invalidexportcontainer)
 - [InvalidExportVersion](#invalidexportversion)
@@ -37,6 +38,8 @@ Sorry to hear you're having a problem. We're here to help!
 - [x\_PricingSubcategory shows the commitment discount ID](#x_pricingsubcategory-shows-the-commitment-discount-id)
 - [Power BI: Reports are missing data for specific dates](#power-bi-reports-are-missing-data-for-specific-dates)
 - [Power BI: Reports are empty (no data)](#power-bi-reports-are-empty-no-data)
+  - [FinOps hubs: Ingestion container is empty](#finops-hubs-ingestion-container-is-empty)
+  - [FinOps hubs: Files available in the ingestion container](#finops-hubs-files-available-in-the-ingestion-container)
 - [Power BI: The remote name could not be resolved: '\<storage-account\>.dfs.core.windows.net'](#power-bi-the-remote-name-could-not-be-resolved-storage-accountdfscorewindowsnet)
 - [Power BI: We cannot convert the value null to type Logical](#power-bi-we-cannot-convert-the-value-null-to-type-logical)
 - [FinOps hubs: We cannot convert the value null to type Table](#finops-hubs-we-cannot-convert-the-value-null-to-type-table)
@@ -49,6 +52,18 @@ Sorry to hear you're having a problem. We're here to help!
 This article describes common FinOps toolkit errors and provides information about solutions. If you get an error when using FinOps toolkit solutions that you don't understand or can't resolve, find the error code below with mitigation steps to resolve the problem.
 
 If the information provided doesn't resolve the issue, try the [Troubleshooting guide](./troubleshooting.md).
+
+<br>
+
+## AccountPropertyCannotBeUpdated
+
+<sup>Severity: Critical</sup>
+
+**Error type**: The property 'requireInfrastructureEncryption' was specified in the input, but it cannot be updated as it is read-only.
+
+The storage account cannot enable the infrastructure encryption property post-deployment.
+
+**Mitigation**: Ensure that your storage account requires infrastructure encryption. If it does, delete the existing storage account and redeploy a new template with the infrastructure encryption property enabled.
 
 <br>
 
