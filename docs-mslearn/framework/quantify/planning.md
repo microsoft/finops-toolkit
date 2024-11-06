@@ -76,12 +76,6 @@ With these insights, you can make more accurate cost predictions and manage your
 
 <br>
 
-## Learn more at the FinOps Foundation
-
-This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see to the [planning and estimating](https://www.finops.org/framework/capabilities/planning-estimating/) article in the FinOps Framework documentation.
-
-<br>
-
 ## KPIs and metrics
 
 To ensure effective planning and estimating of workloads deployed into Azure, these metrics provide a clear and measurable framework for assessing the quality and effectiveness of planning resource usage and cost estimation efforts.
@@ -93,6 +87,12 @@ To ensure effective planning and estimating of workloads deployed into Azure, th
 | Cost estimate accuracy | Measures the variance between the estimated costs and the actual costs of the workload. | Percentage variance between estimated costs and actual costs. |
 | Estimate timeliness | Measures the turnaround time to develop or update and accurate cost estimate to provide to stakeholders. | Average time to develop a planned deployment and cost estimate. |
 | Estimate scenario coverage | Measures how ganualr each plan and cost estimate is and if alternative scenarios are included, such as reliability and resiliency scenarios. | Level of granularity and number of alternate scenarios considered. |
+
+<br>
+
+## Learn more at the FinOps Foundation
+
+This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see to the [planning and estimating](https://www.finops.org/framework/capabilities/planning-estimating/) article in the FinOps Framework documentation.
 
 <br>
 
