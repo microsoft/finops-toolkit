@@ -10,7 +10,7 @@
     "strict": true,
     "jsx": "react-jsx", // or "react" for older versions of React
     "module": "esnext",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
   },
   "include": ["src"],
   "files": [],
