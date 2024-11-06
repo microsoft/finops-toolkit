@@ -82,6 +82,20 @@ This capability is a part of the FinOps Framework by the FinOps Foundation, a no
 
 <br>
 
+## KPIs and metrics
+
+To ensure effective planning and estimating of workloads deployed into Azure, these metrics provide a clear and measurable framework for assessing the quality and effectiveness of planning resource usage and cost estimation efforts.
+
+| **Category** | **Definition** | **KPI** |
+|--------------|----------------|---------|
+| Standardization quality | Evaluates the criteria of planning and cost estimates to ensure alignment with stakeholders' needs and request, and secures acknowledgment for all core personas involved. | Level of completeness, clarity, and stakeholder alignment of criteria across all evaluated workloads. |
+| Workload compliance | Measures whether planning and estimating is conducted for all workloads prior to deployment.  | Percentage of workloads that have conducted planning and estimating prior to deployments.  |
+| Cost estimate accuracy | Measures the variance between the estimated costs and the actual costs of the workload. | Percentage variance between estimated costs and actual costs. |
+| Estimate timeliness | Measures the turnaround time to develop or update and accurate cost estimate to provide to stakeholders. | Average time to develop a planned deployment and cost estimate. |
+| Estimate scenario coverage | Measures how ganualr each plan and cost estimate is and if alternative scenarios are included, such as reliability and resiliency scenarios. | Level of granularity and number of alternate scenarios considered. |
+
+<br>
+
 ## Related content
 
 Related FinOps capabilities:
