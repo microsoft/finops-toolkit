@@ -17,6 +17,7 @@ Explore the latest and greatest features and enhancements from the FinOps toolki
    <summary class="fs-2 text-uppercase">On this page</summary>
 
 - [🔄️ Unreleased](#️-unreleased)
+- [🚚 v0.7](#-v07)
 - [🪛 v0.6 Update 1](#-v06-update-1)
 - [🚚 v0.6](#-v06)
 - [🪛 v0.5 Update 1](#-v05-update-1)
@@ -61,11 +62,16 @@ Legend:
 
 > ➕ Added:
 >
-> 1. Analytics engine – Ingest cost data into an Azure Data Explorer cluster.
 > 2. Auto-backfill – Backfill historical data from Microsoft Cost Management.
 > 3. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
 > 4. ETL pipelile – Add support for parquet files created by Cost Management exports.
-> 5. Infrastructure encryption - Added an optional enableInfrastructureEncryption template parameter to support storage account infrastructure encryption.
+> 5. Private endpoints support.
+>    - Added private endpoints for storage account & Keyvault.
+>    - Added managed virtual network & storage endpoint for Azure Data Factory Runtime.
+>    - All data processing now happens within a vNet.
+>    - Added param to disable external access to data lake
+>    - Added param to specify subnet range of vnet - minumum size = /27
+> 6. Infrastructure encryption - Added an optional enableInfrastructureEncryption template parameter to support storage account infrastructure encryption.
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -99,6 +105,77 @@ Legend:
 > 1. Missing columns in EA savings plans exports ([#1026](https://github.com/microsoft/finops-toolkit/issues/1026))
 
 <br><a name="latest"></a>
+
+## 🚚 v0.7
+
+<sup>Released November 2024</sup>
+
+📊 Power BI reports
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> - General
+>   1. Added partial support for OneLake URLs.
+>      - This is not fully tested. This is based on feedback about OneLake file paths being different. Additional changes may be needed to fully support Microsoft Fabric.
+>
+> ✏️ Changed:
+>
+> - General
+>   1. Consolidated the **Hub Storage URL** and **Export Storage URL** parameters into a single **Storage URL**.
+>      - This means all datasets will either need to be raw exports outside of FinOps hubs or be processed through hubs. This release no longer supports some data from hubs and some from raw exports.
+>      - If you have existing exports that are not running through hubs data pipelines, simply change the exports to point to the hub **msexports** container.
+>      - This change was made to simplify the setup process and avoid errors in Power BI service configuration (e.g., incremental refresh).
+>   2. Renamed the following columns:
+>      - x_DatasetChanges is now `x_SourceChanges`
+>      - x_DatasetType is now `x_SourceType`
+>      - x_DatasetVersion is now `x_SourceVersion`
+>      - x_AccountType is now `x_BillingAccountAgreement`
+
+🏦 FinOps hubs
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+<small>**Breaking change**</small>
+{: .label .label-red .pt-0 .pl-3 .pr-3 .m-0 }
+
+> ➕ Added:
+>
+> 1. Option to ingest data into an Azure Data Explorer cluster.
+>
+> ✏️ Changed:
+>
+> 1. Changed dataset names in the ingestion container to facilitate Azure Data Explorer ingestion.
+>    <blockquote class="important" markdown="1">
+>       _This change requires removing previously ingested data for the current month to avoid data duplication. You do not need to re-export historical data for storage-based Power BI reports; however, historical data DOES need to be re-exported to ingest into Azure Data Explorer._
+>    </blockquote>
+>    - For FOCUS cost data, use "Costs".
+>    - For price sheet data, use "Prices".
+>    - For reservation details, use "CommitmentDiscountUsage".
+>    - For reservation recommendations, use "Recommendations".
+>    - For reservation transactions, use "Transactions".
+> 2. Renamed the `msexports_FileAdded` trigger to `msexports_ManifestAdded`.
+
+📒 Azure Monitor workbooks
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
+>   1. On the Storagetab, included the **RSVaultBackup** tag in the list of non-idle disks.
+>
+> 🛠️ Fixed:
+> 
+> - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
+>   1. On the Commitment discounts tab, fixed RI ROWS Limited.
+>   2. On the Compute tab, fixed incorrect VM processor in processors query.
+>
+> 🗑️ Removed:
+>
+> - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
+>   1. On the Database tab, removed the idle SQL databases query.
+>      - This query will be re-evaluated and added again in a future release.
+
+<br>
 
 ## 🪛 v0.6 Update 1
 

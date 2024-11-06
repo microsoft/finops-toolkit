@@ -15,22 +15,31 @@ Sorry to hear you're having a problem. We're here to help!
 
 - [AccountPropertyCannotBeUpdated](#accountpropertycannotbeupdated)
 - [BadHubVersion](#badhubversion)
+- [DataExplorerIngestionFailed](#dataexploreringestionfailed)
+- [DataExplorerIngestionMappingFailed](#dataexploreringestionmappingfailed)
+- [DataExplorerIngestionTimeout](#dataexploreringestiontimeout)
+- [DataExplorerPostIngestionDropFailed](#dataexplorerpostingestiondropfailed)
+- [DataExplorerPreIngestionDropFailed](#dataexplorerpreingestiondropfailed)
 - [InvalidExportContainer](#invalidexportcontainer)
 - [InvalidExportVersion](#invalidexportversion)
 - [InvalidHubVersion](#invalidhubversion)
 - [InvalidScopeId](#invalidscopeid)
 - [ExportDataNotFound](#exportdatanotfound)
 - [HubDataNotFound](#hubdatanotfound)
+- [LegacyFocusVersion](#legacyfocusversion)
 - [MissingContractedCost](#missingcontractedcost)
 - [MissingContractedUnitPrice](#missingcontractedunitprice)
 - [MissingListCost](#missinglistcost)
 - [MissingListUnitPrice](#missinglistunitprice)
+- [MissingProviderName](#missingprovidername)
 - [ManifestReadFailed](#manifestreadfailed)
+- [RerunFilesNotFound](#rerunfilesnotfound)
 - [ResourceAccessForbiddenException](#resourceaccessforbiddenexception)
 - [RoleAssignmentUpdateNotPermitted](#roleassignmentupdatenotpermitted)
 - [SchemaLoadFailed](#schemaloadfailed)
 - [SchemaNotFound](#schemanotfound)
 - [UnknownExportFile](#unknownexportfile)
+- [UnknownFocusVersion](#unknownfocusversion)
 - [UnknownHubVersion](#unknownhubversion)
 - [UnsupportedExportFileType](#unsupportedexportfiletype)
 - [UnsupportedExportType](#unsupportedexporttype)
@@ -74,6 +83,56 @@ The storage account cannot enable the infrastructure encryption property post-de
 FinOps hubs 0.2 is not operational. Please upgrade to version 0.3 or later.
 
 **Mitigation**: Upgrade to the latest version of [FinOps hubs](../_reporting/hubs/README.md).
+
+<br>
+
+## DataExplorerIngestionFailed
+
+<sup>Severity: Critical</sup>
+
+Data Explorer ingestion failed. The new data will not be available for reporting.
+
+**Mitigation**: Review the Data Explorer error message and resolve the issue. Rerun data ingestion for the specified folder using the ingestion_RerunETL pipeline in Azure Data Factory. Report unresolved issues at https://aka.ms/ftk/ideas.
+
+<br>
+
+## DataExplorerIngestionMappingFailed
+
+<sup>Severity: Critical</sup>
+
+Data Explorer ingestion mapping could not be created for the specified table.
+
+**Mitigation**: Please fix the error and rerun ingestion for the specified folder path. If you continue to see this error, please report an issue at https://aka.ms/ftk/ideas.
+
+<br>
+
+## DataExplorerIngestionTimeout
+
+<sup>Severity: Critical</sup>
+
+Data Explorer ingestion timed out after 2 hours while waiting for available capacity.
+
+**Mitigation**: Please re-run this pipeline to re-attempt ingestion. If you continue to see this error, please report an issue at https://aka.ms/ftk/ideas.
+
+<br>
+
+## DataExplorerPostIngestionDropFailed
+
+<sup>Severity: Critical</sup>
+
+Data Explorer post-ingestion cleanup (drop extents from the final table) failed. Data from a previous ingestion may be present in reporting, which could result in duplicated and inaccurate costs.
+
+**Mitigation**: Review the Data Explorer error message and resolve the issue. Rerun data ingestion for the specified folder using the `ingestion_RerunETL` pipeline in Azure Data Factory. Report unresolved issues at https://aka.ms/ftk/ideas.
+
+<br>
+
+## DataExplorerPreIngestionDropFailed
+
+<sup>Severity: Critical</sup>
+
+Data Explorer pre-ingestion cleanup (drop extents from the raw table) failed. Ingestion was not completed.
+
+**Mitigation**: Review the Data Explorer error message and resolve the issue. Rerun data ingestion for the specified folder using the `ingestion_RerunETL` pipeline in Azure Data Factory. Report unresolved issues at https://aka.ms/ftk/ideas.
 
 <br>
 
@@ -145,11 +204,21 @@ For more details and debugging steps, see [Validate your FinOps hub deployment](
 
 <br>
 
+## LegacyFocusVersion
+
+<sup>Severity: Informational</sup>
+
+This error code is shown in the `x_SourceChanges` column when the ingested data uses an older version of FOCUS. FinOps hubs converts data to the latest FOCUS version so this should not cause an issue; however, the modernization transform cannot account for all scenarios and may result in unexpected results in some cases. Refer to documentation for known issues.
+
+**Mitigation**: Update configured exports to use the latest FOCUS version. If the latest FOCUS version is not supported by the provider, please request official support for the latest FOCUS version.
+
+<br>
+
 ## MissingContractedCost
 
 <sup>Severity: Informational</sup>
 
-This error code is shown in the `x_DatasetChanges` column when `ContractedCost` is either null or 0 and `EffectiveCost` is greater than 0. The error indicates Microsoft Cost Management did not include `ContractedCost` for the specified rows, which means savings cannot be calculated.
+This error code is shown in the `x_SourceChanges` column when `ContractedCost` is either null or 0 and `EffectiveCost` is greater than 0. The error indicates Microsoft Cost Management did not include `ContractedCost` for the specified rows, which means savings cannot be calculated.
 
 **Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `EffectiveCost` into the `ContractedCost` column for rows flagged with this error code. Savings will not be available for these records.
 
@@ -161,7 +230,7 @@ To calculate complete savings, you can join cost and usage data with prices. For
 
 <sup>Severity: Informational</sup>
 
-This error code is shown in the `x_DatasetChanges` column when `ContractedUnitPrice` is either null or 0 and `EffectiveUnitPrice` is greater than 0. The error indicates Microsoft Cost Management did not include `ContractedUnitPrice` for the specified rows, which means savings cannot be calculated.
+This error code is shown in the `x_SourceChanges` column when `ContractedUnitPrice` is either null or 0 and `EffectiveUnitPrice` is greater than 0. The error indicates Microsoft Cost Management did not include `ContractedUnitPrice` for the specified rows, which means savings cannot be calculated.
 
 **Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `EffectiveUnitPrice` into the `ContractedUnitPrice` column for rows flagged with this error code. Savings will not be available for these records.
 
@@ -173,7 +242,7 @@ To calculate complete savings, you can join cost and usage data with prices. For
 
 <sup>Severity: Informational</sup>
 
-This error code is shown in the `x_DatasetChanges` column when `ListCost` is either null or 0 and `ContractedCost` is greater than 0. The error indicates Microsoft Cost Management did not include `ListCost` for the specified rows, which means savings cannot be calculated.
+This error code is shown in the `x_SourceChanges` column when `ListCost` is either null or 0 and `ContractedCost` is greater than 0. The error indicates Microsoft Cost Management did not include `ListCost` for the specified rows, which means savings cannot be calculated.
 
 **Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `ContractedCost` into the `ListCost` column for rows flagged with this error code. Savings will not be available for these records.
 
@@ -185,11 +254,21 @@ To calculate complete savings, you can join cost and usage data with prices. For
 
 <sup>Severity: Informational</sup>
 
-This error code is shown in the `x_DatasetChanges` column when `ListUnitPrice` is either null or 0 and `ContractedUnitPrice` is greater than 0. The error indicates Microsoft Cost Management did not include `ListUnitPrice` for the specified rows, which means savings cannot be calculated.
+This error code is shown in the `x_SourceChanges` column when `ListUnitPrice` is either null or 0 and `ContractedUnitPrice` is greater than 0. The error indicates Microsoft Cost Management did not include `ListUnitPrice` for the specified rows, which means savings cannot be calculated.
 
 **Mitigation**: As a workaround to the missing data, FinOps toolkit reports copy the `ContractedUnitPrice` into the `ListUnitPrice` column for rows flagged with this error code. Savings will not be available for these records.
 
 To calculate complete savings, you can join cost and usage data with prices. For additional details, see [issue #873](https://github.com/microsoft/finops-toolkit/issues/873).
+
+<br>
+
+## MissingProviderName
+
+<sup>Severity: Informational</sup>
+
+This error code is shown in the `x_SourceChanges` column when `ProviderName` is null. The error indicates the provider of the dataset (e.g., Microsoft Cost Management) did not include a `ProviderName` value for the specified rows.
+
+**Mitigation**: As a workaround to the missing data, FinOps toolkit reports attempt to identify the provider based on the available columns.
 
 <br>
 
@@ -271,6 +350,16 @@ TODO: Consider the following ways to streamline this in the future:
 
 <br>
 
+## RerunFilesNotFound
+
+<sup>Severity: Critical</sup>
+
+Unable to locate previously ingested parquet files in the specified folder path.
+
+**Mitigation**: Confirm the folder path is the full path, including the **ingestion** container and not starting with or ending with a slash (**/**). Copy the path from the last successful **ingestion_ExecuteETL** pipeline run.
+
+<br>
+
 ## ResourceAccessForbiddenException
 
 Power BI: Exception of type 'Microsoft.Mashup.Engine.Interface.ResourceAccessForbiddenException' was thrown
@@ -325,6 +414,16 @@ To add support for another dataset, create a custom mapping file and save it to 
 The file in hub storage does not look like it was exported from Cost Management. File will be ignored.
 
 **Mitigation**: The **msexports** container is intended for Cost Management exports only. Please move other files in another storage container.
+
+<br>
+
+## UnknownFocusVersion
+
+<sup>Severity: Informational</sup>
+
+This error code is shown in the `x_SourceChanges` column when a FOCUS version could not be identified.
+
+**Mitigation**: Validate that the FOCUS dataset is using a supported FOCUS version. Report this issue with an anonymized sample of the data at https://aka.ms/ftk/ideas to investigate further.
 
 <br>
 
