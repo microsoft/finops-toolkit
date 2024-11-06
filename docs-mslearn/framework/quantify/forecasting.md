@@ -108,6 +108,21 @@ At this point, you have a manual process for generating a forecast. As you move 
 
 <br>
 
+## KPIs and metrics
+
+To ensure effective cost forecasting for workloads deployed into Azure, these metrics provide a clear and measurable framework for assessing the quality, accuracy, and responsiveness of cost forecasting efforts.
+
+| **Category** | **Definition** | **KPI** |
+|--------------|----------------|---------|
+| Forecast accuracy | Measures how closely the forecasted cloud spend matches the actual cloud spend for a specified scope or workload. | Percentage difference between the forecasted amount and the actual cloud spend for the specified scope or workload (e.g., 20% for crawl, 15% for walk, 12% for run). |
+| Forecast alert coverage | Measures the proportion of workloads that have forecast alerts enabled and have designated owners. | Percentage of workloads with forecast alerts enabled and owners defined. |
+| Time to alert awareness | Measures the time taken for a resource owner to become aware of a triggered forecast alert. | Average time for a resource owner to become aware of a triggered forecast alert. |
+| Time to forecast alert remediation | Measures the average time taken from the occurrence of a forecast alert to its resolution. | Average time taken to remediate a triggered forecast alert. |
+| Forecast variance analysis | Measures the reasons for discrepancies between forecasted and actual costs, identifying patterns or recurring issues. | Percentage of variance attributed to specific causes (e.g., unexpected usage spikes, pricing changes). |
+| Forecast confidence level | Assesses the confidence level of the forecast based on historical accuracy and current data quality. | Confidence percentage assigned to each forecast (e.g., 90% confidence level). |
+| Forecast adjustment frequency | Tracks how often forecasts are adjusted based on new data or changing conditions. | Number of forecast adjustments per month or quarter. |
+| Forecast communication effectiveness | Evaluates how effectively forecast information is communicated to stakeholders. | Stakeholder satisfaction score or feedback rating on forecast communication. |
+
 ## Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Forecasting capability](https://www.finops.org/framework/capabilities/forecasting) article in the FinOps Framework documentation.
