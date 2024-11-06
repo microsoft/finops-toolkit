@@ -1374,7 +1374,7 @@ table CostDetails
 				    // Fix known bugs and set datatyps
 				    Fixes = Table.TransformColumnTypes(
 				        // Data fixes
-				        Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(
+				        Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(Table.ReplaceValue(
 				            // Track all the changes we're about to make before we make them for transparency
 				            Table.AddColumn(
 				                // Create AvailabilityZone column if missing to support non-Microsoft clouds
@@ -1398,6 +1398,8 @@ table CostDetails
 				            0.0, each if Text.Contains([x_SourceChanges], "MissingContractedUnitPrice") then null else [ContractedUnitPrice], Replacer.ReplaceValue, {"ContractedUnitPrice"}),
 				            0.0, each if Text.Contains([x_SourceChanges], "MissingListCost")            then null else [ListCost],            Replacer.ReplaceValue, {"ListCost"}),
 				            0.0, each if Text.Contains([x_SourceChanges], "MissingListUnitPrice")       then null else [ListUnitPrice],       Replacer.ReplaceValue, {"ListUnitPrice"}),
+				            // Fix savings plan purchases
+				            each [EffectiveCost], each if [ChargeCategory] = "Purchase" and ([CommitmentDiscountId] = "" or [CommitmentDiscountId] = null) then [EffectiveCost] else 0.0, Replacer.ReplaceValue, {"EffectiveCost"}),
 				            // Fix inconsistent Microsoft x_SkuTerm values
 				            "1Year",  12, Replacer.ReplaceValue, {"x_SkuTerm"}),
 				            "3Years", 36, Replacer.ReplaceValue, {"x_SkuTerm"}),

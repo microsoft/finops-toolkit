@@ -624,12 +624,13 @@ Costs_transform_v1_0()
     //
     // Identify data quality issues
     | extend x_SourceChanges = replace_regex(strcat(
+        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId),                                                      'InvalidEffectiveCost,',             ''),
         iff((isempty(ContractedCost)      or ContractedCost == 0)      and EffectiveCost != 0 ,                                     'MissingContractedCost,',            ''),
         iff((isempty(ContractedUnitPrice) or ContractedUnitPrice == 0) and x_EffectiveUnitPrice != 0 ,                              'MissingContractedUnitPrice,',       ''),
         iff((isempty(ListCost)            or ListCost == 0)            and (ContractedCost != 0      or EffectiveCost != 0),        'MissingListCost,',                  ''),
         iff((isempty(ListUnitPrice)       or ListUnitPrice == 0)       and (ContractedUnitPrice != 0 or x_EffectiveUnitPrice != 0), 'MissingListUnitPrice,',             ''),
         iff(isempty(ProviderName),                                                                                                  'MissingProviderName,',              ''),
-        iff(isempty(PublisherName),                                                                                                 'MissingPublisherName,',              ''),
+        iff(isempty(PublisherName),                                                                                                 'MissingPublisherName,',             ''),
         iff(PricingCategory == 'Standard' and isnotempty(CommitmentDiscountId) and ChargeCategory == 'Usage',                       'PricingCategoryShouldBeCommitted,', ''),
         iff(x_SkuTerm == '1Year' or x_SkuTerm == '3Years' or x_SkuTerm == '5Years',                                                 'SkuTermShouldBeAnInteger,',         '')
     ), ',$', '')
