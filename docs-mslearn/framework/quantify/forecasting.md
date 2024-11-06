@@ -123,6 +123,8 @@ To ensure effective cost forecasting for workloads deployed into Azure, these me
 | Forecast adjustment frequency | Tracks how often forecasts are adjusted based on new data or changing conditions. | Number of forecast adjustments per month or quarter. |
 | Forecast communication effectiveness | Evaluates how effectively forecast information is communicated to stakeholders. | Stakeholder satisfaction score or feedback rating on forecast communication. |
 
+<br>
+
 ## Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see the [Forecasting capability](https://www.finops.org/framework/capabilities/forecasting) article in the FinOps Framework documentation.
