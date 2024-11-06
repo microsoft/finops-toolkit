@@ -100,7 +100,7 @@ resources
 
 <br>
 
-### Query: List of Virtual Machines with their associated disks
+### Query: List of virtual machines with their associated disks
 
 This Resource Graph query retrieves a comprehensive list of all Virtual Machines (VMs) in your Azure environment, along with details of their associated disks. It provides insights into the storage configuration of each VM, helping you manage and optimize your storage resources effectively.
 
