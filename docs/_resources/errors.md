@@ -72,7 +72,9 @@ This error typically occurs when updating a FinOps hub deployment with a differe
 
 > The property 'requireInfrastructureEncryption' was specified in the input, but it cannot be updated as it is read-only.
 
-**Mitigation**: Ensure that your storage account requires infrastructure encryption. If it does, delete the existing storage account and redeploy a new template with the infrastructure encryption property enabled.
+**Mitigation**: If you did not mean to change this setting, confirm whether your storage account is configured to use infrastructure encryption and re-deploy the FinOps hub template with the same value (either on or off). If you want to change the setting, we recommend deploying a new FinOps hub instance, as this will require re-ingesting all data.
+
+You can try to delete the existing storage account and redeploy the template with infrastructure encryption changed; however, we have not thoroughly tested this. While we do not anticipate issues, we cannot confirm if it will cause problems.
 
 <br>
 
