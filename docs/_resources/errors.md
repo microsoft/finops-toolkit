@@ -68,9 +68,9 @@ If the information provided doesn't resolve the issue, try the [Troubleshooting 
 
 <sup>Severity: Critical</sup>
 
-**Error type**: The property 'requireInfrastructureEncryption' was specified in the input, but it cannot be updated as it is read-only.
+This error typically occurs when updating a FinOps hub deployment with a different storage account configuration than was originally used during creation. While most properties can be changed, there are a few properties that can only be set once when the storage account is created and cannot change. The one known case of this for FinOps hubs is the "requireInfrastructureEncryption" property. If was enabled or disabled during the first FinOps hub deployment, then it cannot be changed. You will see the following error when this happens:
 
-The storage account cannot enable the infrastructure encryption property post-deployment.
+> The property 'requireInfrastructureEncryption' was specified in the input, but it cannot be updated as it is read-only.
 
 **Mitigation**: Ensure that your storage account requires infrastructure encryption. If it does, delete the existing storage account and redeploy a new template with the infrastructure encryption property enabled.
 
