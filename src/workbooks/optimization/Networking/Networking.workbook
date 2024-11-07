@@ -282,7 +282,7 @@
                         "id": "68a77162-06c2-4648-83e0-f8f41c4fbda7",
                         "cellValue": "SelectedSubTab",
                         "linkTarget": "parameter",
-                        "linkLabel": "Express Route",
+                        "linkLabel": "ExpressRoute",
                         "subTarget": "ER",
                         "style": "link"
                       },
@@ -1704,7 +1704,7 @@
                             {
                               "type": 1,
                               "content": {
-                                "json": "# Recommendations for Express Route\r\n\r\n## Express Route Gateways without a completed circuit (ISP has not completed the connection)\r\nThis table identifies Express Route circutis that have not been completed. ",
+                                "json": "# Recommendations for ExpressRoute\r\n\r\n## ExpressRoute Gateways without a completed circuit (ISP has not completed the connection)\r\nThis table identifies ExpressRoute circutis that have not been completed. ",
                                 "style": "upsell"
                               },
                               "name": "Recommendations for premium Firewall"
@@ -1715,8 +1715,8 @@
                                 "version": "KqlItem/1.0",
                                 "query": "resources\r\n| where type =~ 'Microsoft.Network/expressRouteCircuits' and properties.serviceProviderProvisioningState == \"NotProvisioned\"\r\n| extend ServiceLocation=tostring(properties.serviceProviderProperties.peeringLocation), ServiceProvider=tostring(properties.serviceProviderProperties.serviceProviderName), BandwidthInMbps=tostring(properties.serviceProviderProperties.bandwidthInMbps)\r\n| project   ERId=id,ERName = name, ERRG = resourceGroup, SKUName=tostring(sku.name), SKUTier=tostring(sku.tier), SKUFamily=tostring(sku.family), ERLocation = location, ServiceLocation, ServiceProvider, BandwidthInMbps\r\n| join kind = innerunique(\r\n    resources\r\n    | extend replaced_tags = replace('{}', 'null', tostring(tags))\r\n    | extend replaced_tags = parse_json(replaced_tags)\r\n    | mv-expand replaced_tags\r\n    | extend tagName = tostring(bag_keys(replaced_tags)[0])\r\n    | extend tagValue = tostring(replaced_tags['{TagName}'])\r\n    | where tagName has '{TagName}' and tagValue has '{TagValue}'\r\n    | extend ERId=id\r\n    | distinct ERId\r\n    )\r\n    on ERId\r\n\r\n",
                                 "size": 0,
-                                "title": "Idle Express Route circuits",
-                                "noDataMessage": "No idle Express Route circuit found",
+                                "title": "Idle ExpressRoute circuits",
+                                "noDataMessage": "No idle ExpressRoute circuit found",
                                 "noDataMessageStyle": 3,
                                 "showExportToExcel": true,
                                 "queryType": 1,
@@ -1734,7 +1734,7 @@
                                   "labelSettings": [
                                     {
                                       "columnId": "ERId",
-                                      "label": "Express Route ID"
+                                      "label": "ExpressRoute ID"
                                     },
                                     {
                                       "columnId": "ERName",
@@ -1775,7 +1775,7 @@
                                   ]
                                 }
                               },
-                              "name": "Idle Express Route circuits"
+                              "name": "Idle ExpressRoute circuits"
                             }
                           ]
                         },
@@ -1784,7 +1784,7 @@
                           "comparison": "isEqualTo",
                           "value": "ER"
                         },
-                        "name": "Express Route Group"
+                        "name": "ExpressRoute Group"
                       }
                     ]
                   },
