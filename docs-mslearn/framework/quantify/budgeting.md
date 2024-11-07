@@ -65,16 +65,16 @@ To ensure effective budget management for workloads deployed into Azure, these m
 
 | **Category** | **Definition** | **KPI** |
 |--------------|----------------|---------|
-| Budget Coverage | Measures the percentage of workloads that have budgets enabled. | Percentage of workloads with budgets enabled. |
-| Budget Alert Coverage | Measures the percentage of workloads that have budget alerts enabled and workload owners defined. | Percentage of workloads with budget alerts enabled and owners defined. |
-| Budget to Actual Variance | Measures the variance between the budgeted amount and the actual costs. | Percentage variance between budgeted and actual costs. |
-| Budget to Forecast Variance | Measures the variance between the budgeted amount and the forecasted costs. | Percentage variance between budgeted and forecasted costs. |
-| Budget Performance | Measures how well the workload is performing against the budgeted amount. | Percentage to Budget (Favorable to Budget vs. Unfavorable to Budget amounts). |
-| Variance Compliance | Measures the percentage of workloads with Budget vs. Actual Variance at or below specific thresholds. | Percentage of workloads with Budget vs. Actual Variance at or below 20%, 15%, 12% variance for crawl, walk, run maturity. |
-| Budget Utilization Rate | Measures the percentage of allocated budget utilization (burn rate) over a period of time. | Actual Spend for Time Period / Budget for Time Period. |
-| Budget Adherence | Measures the percentage of workloads that are under or over budget. | Percentage of workloads under and over budget. |
-| Planned Budget Overage | Measures the percentage of workloads with planned budget overage. | Percentage of workloads with planned budget overage. |
-| Budget Investigative Timeliness | Measures the average time to investigate and respond to budget alerts and budget overages. | Average time to respond to a budget alert. |
+| Budget coverage | Measures the percentage of workloads that have budgets enabled. | Percentage of workloads with budgets enabled. |
+| Budget alert coverage | Measures the percentage of workloads that have budget alerts enabled and workload owners defined. | Percentage of workloads with budget alerts enabled and owners defined. |
+| Budget to actual variance | Measures the variance between the budgeted amount and the actual costs. | Percentage variance between budgeted and actual costs. |
+| Budget to forecast variance | Measures the variance between the budgeted amount and the forecasted costs. | Percentage variance between budgeted and forecasted costs. |
+| Budget performance | Measures how well the workload is performing against the budgeted amount. | Percentage to Budget (Favorable to Budget vs. Unfavorable to Budget amounts). |
+| Variance compliance | Measures the percentage of workloads with Budget vs. Actual Variance at or below specific thresholds. | Percentage of workloads with Budget vs. Actual Variance at or below 20%, 15%, 12% variance for crawl, walk, run maturity. |
+| Budget utilization Rate | Measures the percentage of allocated budget utilization (burn rate) over a period of time. | Actual Spend for Time Period / Budget for Time Period. |
+| Budget adherence | Measures the percentage of workloads that are under or over budget. | Percentage of workloads under and over budget. |
+| Planned budget overage | Measures the percentage of workloads with planned budget overage. | Percentage of workloads with planned budget overage. |
+| Budget investigative timeliness | Measures the average time to investigate and respond to budget alerts and budget overages. | Average time to respond to a budget alert. |
 
 <br>
 
