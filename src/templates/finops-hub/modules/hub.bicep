@@ -99,7 +99,7 @@ param dataExplorerSku string = 'Dev(No SLA)_Standard_E2a_v4'
 @maxValue(1000)
 param dataExplorerCapacity int = 1
 
-@description('Optional. If true, the ADX cluster will auto-stop after a period of inactivity. Not recommended as data ingestion might break. Default: false.')
+@description('Optional. Indicates whether to stop the Data Explorer cluster if not used after 24 hours. This setting is not recommended as it will cause errors in data ingestion pipelines. Default: false.')
 param dataExplorerEnableAutoStop bool = false
 
 @description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
