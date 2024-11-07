@@ -166,6 +166,7 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
   }
   properties: {
     enableStreamingIngest: true
+    enableAutoStop: false
   }
 
   resource ingestionDb 'databases' = {
