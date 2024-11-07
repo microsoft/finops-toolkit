@@ -1161,7 +1161,7 @@
                                 "json": "# Recommendations for NAT Gateways\r\nReview idle NAT Gateways that have no subnet defined, as they may represent additional cost.\r\n",
                                 "style": "upsell"
                               },
-                              "name": "Recommendations for idle virtualNetworkGateways"
+                              "name": "Recommendations for idle NAT Gateway"
                             },
                             {
                               "type": 3,
@@ -1704,10 +1704,10 @@
                             {
                               "type": 1,
                               "content": {
-                                "json": "# Recommendations for ExpressRoute\r\n\r\n## ExpressRoute Gateways without a completed circuit (Service provider has not completed the connection)\r\nThis table identifies ExpressRoute circutis that have not been completed. ",
+                                "json": "# Recommendations for ExpressRoute\r\n\r\n## ExpressRoute circuits that have not been provisioned\r\nReview idle ExpressRoute circuits (service provider has not completed provisioning or has deprovisioned), as they may represent additional cost.",
                                 "style": "upsell"
                               },
-                              "name": "Recommendations for premium Firewall"
+                              "name": "Recommendations for ExpressRoute"
                             },
                             {
                               "type": 3,
@@ -1738,7 +1738,7 @@
                                     },
                                     {
                                       "columnId": "ERName",
-                                      "label": "E.R. Name"
+                                      "label": "ER Name"
                                     },
                                     {
                                       "columnId": "ERRG",
