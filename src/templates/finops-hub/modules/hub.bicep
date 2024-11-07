@@ -99,9 +99,6 @@ param dataExplorerSku string = 'Dev(No SLA)_Standard_E2a_v4'
 @maxValue(1000)
 param dataExplorerCapacity int = 1
 
-@description('Optional. Indicates whether to stop the Data Explorer cluster if not used after 24 hours. This setting is not recommended as it will cause errors in data ingestion pipelines. Default: false.')
-param dataExplorerEnableAutoStop bool = false
-
 @description('Optional. Tags to apply to all resources. We will also add the cm-resource-parent tag for improved cost roll-ups in Cost Management.')
 param tags object = {}
 
@@ -279,7 +276,6 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
     tagsByResource: tagsByResource
     dataFactoryName: dataFactory.name
     rawRetentionInDays: dataExplorerRawRetentionInDays
-    enableAutoStop: dataExplorerEnableAutoStop
     // eventGridLocation: finalEventGridLocation
     // storageAccountName: storage.outputs.name
     // storageContainerName: storage.outputs.ingestionContainer
