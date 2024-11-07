@@ -118,6 +118,7 @@ Legend:
 > - General
 >   1. Added partial support for OneLake URLs.
 >      - This is not fully tested. This is based on feedback about OneLake file paths being different. Additional changes may be needed to fully support Microsoft Fabric.
+>   1. Fix EffectiveCost for savings plan purchases to work around a bug in exported data.
 >
 > ✏️ Changed:
 >
@@ -141,6 +142,10 @@ Legend:
 > ➕ Added:
 >
 > 1. Option to ingest data into an Azure Data Explorer cluster.
+> 1. Set missing reservation list and contracted prices/cost columns for EA and MCA accounts (Data Explorer only).
+>    - Requires the price sheet export to be configured.
+> 1. Fix EffectiveCost for savings plan purchases to work around a bug in exported data (Data Explorer only).
+>    - The same fix was applied to Power BI reports for those not using Data Explorer. The underlying data has not changed however.
 >
 > ✏️ Changed:
 >
@@ -153,7 +158,7 @@ Legend:
 >    - For reservation details, use "CommitmentDiscountUsage".
 >    - For reservation recommendations, use "Recommendations".
 >    - For reservation transactions, use "Transactions".
-> 2. Renamed the `msexports_FileAdded` trigger to `msexports_ManifestAdded`.
+> 1. Renamed the `msexports_FileAdded` trigger to `msexports_ManifestAdded`.
 
 📒 Azure Monitor workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -164,7 +169,7 @@ Legend:
 >   1. On the Storagetab, included the **RSVaultBackup** tag in the list of non-idle disks.
 >
 > 🛠️ Fixed:
-> 
+>
 > - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
 >   1. On the Commitment discounts tab, fixed RI ROWS Limited.
 >   2. On the Compute tab, fixed incorrect VM processor in processors query.
