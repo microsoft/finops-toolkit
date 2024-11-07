@@ -177,6 +177,15 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
     location: location
     kind: 'ReadWrite'
 
+    resource ingestionCommonScript 'scripts' = {
+      name: 'CommonFunctions'
+      properties: {
+        scriptContent: loadTextContent('scripts/Common.kql')
+        continueOnErrors: continueOnErrors
+        forceUpdateTag: forceUpdateTag
+      }
+    }
+
     resource ingestionSetupScript 'scripts' = {
       name: 'SetupScript'
       properties: {
@@ -198,6 +207,15 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
     dependsOn: [
       ingestionDb
     ]
+
+    resource ingestionCommonScript 'scripts' = {
+      name: 'CommonFunctions'
+      properties: {
+        scriptContent: loadTextContent('scripts/Common.kql')
+        continueOnErrors: continueOnErrors
+        forceUpdateTag: forceUpdateTag
+      }
+    }
 
     resource hubSetupScript 'scripts' = {
       name: 'SetupScript'
