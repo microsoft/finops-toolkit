@@ -1704,7 +1704,7 @@
                             {
                               "type": 1,
                               "content": {
-                                "json": "# Recommendations for ExpressRoute\r\n\r\n## ExpressRoute Gateways without a completed circuit (ISP has not completed the connection)\r\nThis table identifies ExpressRoute circutis that have not been completed. ",
+                                "json": "# Recommendations for ExpressRoute\r\n\r\n## ExpressRoute Gateways without a completed circuit (Service provider has not completed the connection)\r\nThis table identifies ExpressRoute circutis that have not been completed. ",
                                 "style": "upsell"
                               },
                               "name": "Recommendations for premium Firewall"
