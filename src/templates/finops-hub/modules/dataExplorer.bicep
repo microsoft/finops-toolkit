@@ -108,7 +108,7 @@ param dataFactoryName string
 @description('Optional. Number of days of data to retain in the Data Explorer *_raw tables. Default: 0.')
 param rawRetentionInDays int = 0
 
-@description('Optional. If true, the ADX cluster will auto-stop after a period of inactivity. Not recommended as data ingestion might break. Default: false.')
+@description('Optional. Indicates whether to stop the Data Explorer cluster if not used after 24 hours. This setting is not recommended as it will cause errors in data ingestion pipelines. Default: false.')
 param enableAutoStop bool = false
 
 // @description('Required. Name of the storage account to use for data ingestion.')
