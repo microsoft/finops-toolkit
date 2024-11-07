@@ -38,10 +38,23 @@ FinOps hubs are a reliable, trustworthy platform for cost analytics, insights, a
 
 We are very early in our journey. Today, FinOps hubs extend Cost Management by exporting cost details to a consolidated storage account and addressing a few of the inherent limitations that make exports more difficult to use. In their most basic form, FinOps hubs enable more Power BI reporting options. On the more advanced end, FinOps hubs are a foundation for you to build your own cost management and optimization solution.
 
+🆕 FinOps Hubs integrated with ADX:
+The newest offering in FinOps hubs, ADX integration, provides powerful new ways to analyze and explore cost data. Hubs on ADX allow you to leverage Kusto Query Language (KQL) for deeper, more customizable insights, particularly useful for teams needing to analyze complex cost trends or merge data from various sources. Key ADX features include:
+
+    Scalability: The ADX integration is designed to handle larger data volumes, scaling up capacity with adjustable VM sizes. The default setup can manage up to $10M/month, making it ideal for larger organizations.
+
+    Built-In Queries: ADX offers pre-configured queries that simplify cost exploration, letting you dive into granular data views without extensive setup.
+
+For a more detailed view and featre comparison between the different Hubs versions, refer to the [help me choose](../power-bi/README.md)page.
+
 <blockquote class="highlight-green-title" markdown="1">
-  💵 Estimated cost: $25/mo per $1M in cost being monitored
+  💵 Estimated cost: 
   
-  _Estimated cost includes $5 for Azure storage and data processing plus up to $20 per user for [Power BI licenses](https://www.microsoft.com/power-platform/products/power-bi/pricing). Exact cost will vary based on discounts, data size per $1M (~20GB of data), and Power BI license requirements. Pipelines will run once a day per export, plus one additional monthly run per export. Pipeline run time depends on data size. For details, refer to the [FinOps hub cost estimate](https://azure.com/e/c3d98263bec048b6af52acb180c42b7e) in the Azure Pricing Calculator or monitor hub cost using the [Data ingestion report](../power-bi/data-ingestion.md)._
+  Hubs with Azure Data Factory:  **$25/mo per $1M in cost being monitored**
+    _Estimated cost includes $5 for Azure storage and data processing plus up to $20 per user for [Power BI licenses](https://www.microsoft.com/power-platform/products/power-bi/pricing). Exact cost will vary based on discounts, data size per $1M (~20GB of data), and Power BI license requirements. Pipelines will run once a day per export, plus one additional monthly run per export. Pipeline run time depends on data size. For details, refer to the [FinOps hub cost estimate](https://aka.ms/finops/hubs/calculator) in the Azure Pricing Calculator or monitor hub cost using the [Data ingestion report](../power-bi/data-ingestion.md)._
+
+  Hubs with Azure Data Explorer:  ** ~$220 per month**
+    _Estimated cost includes The estimated cost of Hubs on ADX assumes instance is running 24x7. Costs can be reduced by enabling auto-shutdown outside of business hours or applying commitment discounts. Prices are estiamted in UK South as of October 2024. If you are using Power BI dashboards, you need to include up to $20 per user for [Power BI licenses](https://www.microsoft.com/power-platform/products/power-bi/pricing). Exact cost will vary based on discounts, data size per $1M (~20GB of data), and Power BI license requirements. Pipelines will run once a day per export, plus one additional monthly run per export. Pipeline run time depends on data size. For details, refer to the [FinOps hub cost estimate](https://aka.ms/finops/hubs/calculator/adx) in the Azure Pricing Calculator or monitor hub cost using the [Data ingestion report](../power-bi/data-ingestion.md)._
 </blockquote>
 
 <blockquote class="note" markdown="1">
@@ -82,13 +95,15 @@ _<sup>2) EA billing scopes can be exported to any tenant today. Simply sign in t
 
 ## 📦 What's included
 
-The FinOps hub template includes the following resources:
+The default deployment of FinOps hub template includes the following resources:
 
 - Storage account (Data Lake Storage Gen2) to hold all cost data.
 - Data Factory instance to manage data ingestion and cleanup.
 - Key Vault to store the Data Factory system managed identity credentials.
 
-Once deployed, you can report on the data in Power BI or by connecting to the storage account directly.
+If you would like to use the new Azure Data Explorer features, you will need to enbale the parameter **dataExplorerName**. To learn more about the parameters needed to deploy Hubs with ADX, refer to the [template](../hubs/template.md) page.
+
+Once deployed, you can report on the data in ADX dashboards (__comming soon__), Power BI or by connecting to the storage account directly.
 
 <img alt="Screenshot of the cost summary report" style="max-width:200px" src="https://user-images.githubusercontent.com/399533/216882658-45f026f1-c895-48ca-81e2-35765af8e29e.png">
 <img alt="Screenshot of the services cost report" style="max-width:200px" src="https://user-images.githubusercontent.com/399533/216882700-4e04b589-0580-4e49-9b40-9f5948792975.png">
