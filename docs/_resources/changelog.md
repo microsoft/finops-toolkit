@@ -141,6 +141,9 @@ Legend:
 > ➕ Added:
 >
 > 1. Option to ingest data into an Azure Data Explorer cluster.
+> 2. Support for FOCUS 1.0r2 exports.
+>    - The 1.0r2 dataset only differs in date formatting. There are no functional differences compared to 1.0.
+>    - The 1.0r2 dataset is only needed when ingesting data into a system that requires date/time values to include seconds (for example, "2024-01-01T00:00:00Z" where the last "00" is seconds).
 >
 > ✏️ Changed:
 >
