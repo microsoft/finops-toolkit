@@ -77,6 +77,7 @@ var schemaFiles = {
   'reservationrecommendations_2023-05-01_mca': loadTextContent('../schemas/reservationrecommendations_2023-05-01_mca.json')
   'reservationtransactions_2023-05-01_ea': loadTextContent('../schemas/reservationtransactions_2023-05-01_ea.json')
   'reservationtransactions_2023-05-01_mca': loadTextContent('../schemas/reservationtransactions_2023-05-01_mca.json')
+  'recommendations_1.0': loadTextContent('../schemas/recommendations_1.0.json')
 }
 
 // Roles needed to auto-start triggers
