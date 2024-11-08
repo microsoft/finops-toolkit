@@ -1161,7 +1161,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: dataset_dataExplorer.name
+                      referenceName: dataExplorerName
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -1192,7 +1192,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: dataset_dataExplorer.name
+                      referenceName: dataExplorerName
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -1223,7 +1223,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: dataset_dataExplorer.name
+                      referenceName: dataExplorerName
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -1254,7 +1254,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: dataset_dataExplorer.name
+                      referenceName: dataExplorerName
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -1285,7 +1285,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: dataset_dataExplorer.name
+                      referenceName: dataExplorerName
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -4361,7 +4361,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                     ]
                     outputs: [
                       {
-                        referenceName: dataset_dataExplorer.name
+                        referenceName: 'hubDataExplorer'
                         type: 'DatasetReference'
                         parameters: {
                           database: dataExplorerIngestionDatabase

@@ -165,6 +165,7 @@ var dataFactoryName = replace(
 var deployDataExplorer = !empty(dataExplorerName)
 var safeDataExplorerName = !deployDataExplorer ? '' : dataExplorer.outputs.clusterName
 var safeDataExplorerUri = !deployDataExplorer ? '' : dataExplorer.outputs.clusterUri
+var safeDataExplorerId = !deployDataExplorer ? '' : dataExplorer.outputs.clusterId
 var safeDataExplorerIngestionDb = !deployDataExplorer ? '' : dataExplorer.outputs.ingestionDbName
 
 // var eventGridPrefix = '${replace(hubName, '_', '-')}-ns'
@@ -320,6 +321,7 @@ module dataFactoryResources 'dataFactory.bicep' = {
     dataExplorerName: safeDataExplorerName
     dataExplorerIngestionDatabase: safeDataExplorerIngestionDb
     dataExplorerUri: safeDataExplorerUri
+    dataExplorerId: safeDataExplorerId
     keyVaultName: keyVault.outputs.name
     remoteHubStorageUri: remoteHubStorageUri
   }
