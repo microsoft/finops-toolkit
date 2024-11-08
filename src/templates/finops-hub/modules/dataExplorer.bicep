@@ -114,6 +114,15 @@ param rawRetentionInDays int = 0
 // @description('Required. Name of storage container to monitor for data ingestion.')
 // param storageContainerName string
 
+@description('Required. Resource ID of the virtual network for private endpoints.')
+param virtualNetworkId string
+
+@description('Required. Resource ID of the subnet for private endpoints.')
+param privateEndpointSubnetId string
+
+@description('Optional. Enable public access to the data lake.  Default: false.')
+param enablePublicAccess bool = true
+
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
@@ -121,6 +130,7 @@ param rawRetentionInDays int = 0
 var ftkver = any(loadTextContent('ftkver.txt')) // any() is used to suppress a warning the array size (only happens when version does not contain a dash)
 var ftkVersion = contains(ftkver, '-') ? split(ftkver, '-')[0] : ftkver
 var ftkBranch = contains(ftkver, '-') ? split(ftkver, '-')[1] : ''
+var dataExplorerPrivateDnsZoneName = replace('privatelink.${location}.${replace(environment().suffixes.storage, 'core', 'kusto')}', '..', '.')
 
 //==============================================================================
 // Resources
@@ -133,6 +143,18 @@ var ftkBranch = contains(ftkver, '-') ? split(ftkver, '-')[1] : ''
 // Get data factory instance
 resource dataFactory 'Microsoft.DataFactory/factories@2018-06-01' existing = {
   name: dataFactoryName
+}
+
+resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = {
+  name: 'privatelink.blob.${environment().suffixes.storage}'
+}
+
+resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = {
+  name: 'privatelink.queue.${environment().suffixes.storage}'
+}
+
+resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = {
+  name: 'privatelink.table.${environment().suffixes.storage}'
 }
 
 // resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
@@ -167,6 +189,7 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
   properties: {
     enableStreamingIngest: true
     enableAutoStop: false
+    publicNetworkAccess: enablePublicAccess ? 'Enabled' : 'Disabled'
   }
 
   resource ingestionDb 'databases' = {
@@ -245,6 +268,80 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
 //     )
 //   }
 // }
+
+// DNS zone
+resource dataExplorerPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
+  name: dataExplorerPrivateDnsZoneName
+  location: 'global'
+  properties: {}
+}
+
+// Link DNS zone to VNet
+resource dataExplorerPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
+  name: '${replace(dataExplorerPrivateDnsZone.name, '.', '-')}-link'
+  location: 'global'
+  parent: dataExplorerPrivateDnsZone
+  properties: {
+    virtualNetwork: {
+      id: virtualNetworkId
+    }
+    registrationEnabled: false
+  }
+}
+
+// Private endpoint
+resource dataExplorerEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
+  name: '${cluster.name}-ep'
+  location: location
+  properties: {
+    subnet: {
+      id: privateEndpointSubnetId
+    }
+    privateLinkServiceConnections: [
+      {
+        name: 'dataExplorerLink'
+        properties: {
+          privateLinkServiceId: cluster.id
+          groupIds: ['cluster']
+        }
+      }
+    ]
+  }
+}
+
+// DNS records for private endpoint
+resource dataExplorerPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = {
+  name: 'dataExplorer-endpoint-zone'
+  parent: dataExplorerEndpoint
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'privatelink-westus-kusto-net'
+        properties: {
+          privateDnsZoneId: dataExplorerPrivateDnsZone.id
+        }
+      }
+      {
+        name: 'privatelink-blob-core-windows-net'
+        properties: {
+          privateDnsZoneId: blobPrivateDnsZone.id
+        }
+      }
+      {
+        name: 'privatelink-table-core-windows-net'
+        properties: {
+          privateDnsZoneId: tablePrivateDnsZone.id
+        }
+      }
+      {
+        name: 'privatelink-queue-core-windows-net'
+        properties: {
+          privateDnsZoneId: queuePrivateDnsZone.id
+        }
+      }
+    ]
+  }
+}
 
 //==============================================================================
 // Outputs

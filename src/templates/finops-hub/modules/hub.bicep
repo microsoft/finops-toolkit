@@ -276,6 +276,8 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
     tagsByResource: tagsByResource
     dataFactoryName: dataFactory.name
     rawRetentionInDays: dataExplorerRawRetentionInDays
+    virtualNetworkId: vnet.outputs.vNetId
+    privateEndpointSubnetId: vnet.outputs.dataExplorerSubnetId
     // eventGridLocation: finalEventGridLocation
     // storageAccountName: storage.outputs.name
     // storageContainerName: storage.outputs.ingestionContainer
@@ -313,7 +315,7 @@ module dataFactoryResources 'dataFactory.bicep' = {
     exportContainerName: storage.outputs.exportContainer
     configContainerName: storage.outputs.configContainer
     ingestionContainerName: storage.outputs.ingestionContainer
-    dataExplorerUri: dataExplorerUri
+    dataExplorerName: dataExplorer.outputs.clusterName
     dataExplorerIngestionDatabase: dataExplorerIngestionDb
     keyVaultName: keyVault.outputs.name
     remoteHubStorageUri: remoteHubStorageUri
