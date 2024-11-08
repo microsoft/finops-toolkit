@@ -106,7 +106,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
       keySource: 'Microsoft.Storage'
       requireInfrastructureEncryption: enableInfrastructureEncryption
     }
-  }, {
+    }, {
     supportsHttpsTrafficOnly: true
     allowSharedKeyAccess: true
     isHnsEnabled: true
@@ -160,6 +160,18 @@ resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
   properties: {}
 }
 
+resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
+  name: 'privatelink.queue.${environment().suffixes.storage}'
+  location: 'global'
+  properties: {}
+}
+
+resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
+  name: 'privatelink.table.${environment().suffixes.storage}'
+  location: 'global'
+  properties: {}
+}
+
 resource blobPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
   parent: blobPrivateDnsZone
   name: '${replace(blobPrivateDnsZone.name, '.', '-')}-link'
@@ -175,6 +187,30 @@ resource blobPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetwor
 resource dfsPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
   parent: dfsPrivateDnsZone
   name: '${replace(dfsPrivateDnsZone.name, '.', '-')}-link'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: virtualNetworkId
+    }
+  }
+}
+
+resource queuePrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
+  parent: queuePrivateDnsZone
+  name: '${replace(queuePrivateDnsZone.name, '.', '-')}-link'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: virtualNetworkId
+    }
+  }
+}
+
+resource tablePrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
+  parent: tablePrivateDnsZone
+  name: '${replace(tablePrivateDnsZone.name, '.', '-')}-link'
   location: 'global'
   properties: {
     registrationEnabled: false
