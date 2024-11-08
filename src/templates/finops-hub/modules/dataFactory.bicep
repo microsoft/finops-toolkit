@@ -26,8 +26,8 @@ param ingestionContainerName string
 @description('Required. The name of the container where normalized data is ingested.')
 param configContainerName string
 
-@description('Optional. URI of the Azure Data Explorer cluster to use for advanced analytics, if applicable.')
-param dataExplorerUri string = ''
+@description('Optional. Name of the Azure Data Explorer cluster to use for advanced analytics, if applicable.')
+param dataExplorerName string = ''
 
 @description('Optional. Name of the Azure Data Explorer ingestion database. Default: "ingestion".')
 param dataExplorerIngestionDatabase string = 'Ingestion'
@@ -55,7 +55,7 @@ var exportApiVersion = '2023-07-01-preview'
 // Function to generate the body for a Cost Management export
 func getExportBody(exportContainerName string, datasetType string, schemaVersion string, isMonthly bool, exportFormat string, compressionMode string, partitionData string, dataOverwriteBehavior string) string => '{ "properties": { "definition": { "dataSet": { "configuration": { "dataVersion": "${schemaVersion}", "filters": [] }, "granularity": "Daily" }, "timeframe": "${isMonthly ? 'TheLastMonth': 'MonthToDate' }", "type": "${datasetType}" }, "deliveryInfo": { "destination": { "container": "${exportContainerName}", "rootFolderPath": "@{if(startswith(item().scope, \'/\'), substring(item().scope, 1, sub(length(item().scope), 1)) ,item().scope)}", "type": "AzureBlob", "resourceId": "@{variables(\'storageAccountId\')}" } }, "schedule": { "recurrence": "${ isMonthly ? 'Monthly' : 'Daily'}", "recurrencePeriod": { "from": "2024-01-01T00:00:00.000Z", "to": "2050-02-01T00:00:00.000Z" }, "status": "Inactive" }, "format": "${exportFormat}", "partitionData": "${partitionData}", "dataOverwriteBehavior": "${dataOverwriteBehavior}", "compressionMode": "${compressionMode}" }, "id": "@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}", "name": "@{variables(\'exportName\')}", "type": "Microsoft.CostManagement/reports", "identity": { "type": "systemAssigned" }, "location": "global" }'
 
-var deployDataExplorer = !empty(dataExplorerUri)
+var deployDataExplorer = !empty(dataExplorerName)
 
 var datasetPropsDefault = {
     location: {
@@ -126,6 +126,11 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing 
 // Get keyvault instance
 resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
   name: keyVaultName
+}
+
+// Get ADX instance
+resource dataExplorer 'Microsoft.Kusto/clusters@2023-08-15' existing = {
+  name: dataExplorerName
 }
 
 module azuretimezones 'azuretimezones.bicep' = {
@@ -226,6 +231,40 @@ module approveKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = {
   params: {
     keyVaultName: keyVault.name
     privateEndpointConnections: getKeyVaultPrivateEndpointConnections.outputs.privateEndpointConnections
+  }
+}
+
+resource dataExplorerManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = if (deployDataExplorer) {
+  name: dataExplorer.name
+  parent: managedVirtualNetwork
+  properties: {
+    name: dataExplorer.name
+    groupId: 'cluster'
+    privateLinkResourceId: dataExplorer.id
+    fqdns: [
+      dataExplorer.properties.uri
+    ]
+  }
+}
+
+module getdataExplorerPrivateEndpointConnections 'dataExplorerEndpoints.bicep' = if (deployDataExplorer) {
+  name: 'GetdataExplorerPrivateEndpointConnections'
+  dependsOn: [
+    dataExplorerManagedPrivateEndpoint
+  ]
+  params: {
+    dataExplorerName: dataExplorer.name
+  }
+}
+
+module approvedataExplorerPrivateEndpointConnections 'dataExplorerEndpoints.bicep' = if (deployDataExplorer) {
+  name: 'ApprovedataExplorerPrivateEndpointConnections'
+  dependsOn: [
+    getdataExplorerPrivateEndpointConnections
+  ]
+  params: {
+    dataExplorerName: dataExplorer.name
+    privateEndpointConnections: getdataExplorerPrivateEndpointConnections.outputs.privateEndpointConnections
   }
 }
 
@@ -360,6 +399,10 @@ resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@
     typeProperties: {
       baseUrl: reference('Microsoft.KeyVault/vaults/${keyVault.name}', '2023-02-01').vaultUri
     }
+    connectVia: {
+      referenceName: managedIntegrationRuntime.name
+      type: 'IntegrationRuntimeReference'
+    }
   }
 }
 
@@ -392,10 +435,14 @@ resource linkedService_dataExplorer 'Microsoft.DataFactory/factories/linkedservi
       }
     }
     typeProperties: {
-      endpoint: dataExplorerUri
+      endpoint: dataExplorer.properties.uri
       database: '@{linkedService().database}'
       tenant: dataFactory.identity.tenantId
       servicePrincipalId: dataFactory.identity.principalId
+    }
+    connectVia: {
+      referenceName: managedIntegrationRuntime.name
+      type: 'IntegrationRuntimeReference'
     }
   }
 }
@@ -418,6 +465,10 @@ resource linkedService_remoteHubStorage 'Microsoft.DataFactory/factories/linkeds
         secretName: '${toLower(hubName)}-storage-key'
       }
     }
+    connectVia: {
+      referenceName: managedIntegrationRuntime.name
+      type: 'IntegrationRuntimeReference'
+    }
   }
 }
 
@@ -436,6 +487,10 @@ resource linkedService_ftkRepo 'Microsoft.DataFactory/factories/linkedservices@2
       url: '@concat(\'https://github.com/microsoft/finops-toolkit/\', linkedService().filePath)'
       enableServerCertificateValidation: true
       authenticationType: 'Anonymous'
+    }
+    connectVia: {
+      referenceName: managedIntegrationRuntime.name
+      type: 'IntegrationRuntimeReference'
     }
   }
 }
