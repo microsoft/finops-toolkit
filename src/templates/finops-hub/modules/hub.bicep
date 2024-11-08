@@ -278,6 +278,7 @@ module dataExplorer 'dataExplorer.bicep' = if (deployDataExplorer) {
     rawRetentionInDays: dataExplorerRawRetentionInDays
     virtualNetworkId: vnet.outputs.vNetId
     privateEndpointSubnetId: vnet.outputs.dataExplorerSubnetId
+    enablePublicAccess: enablePublicAccess
     // eventGridLocation: finalEventGridLocation
     // storageAccountName: storage.outputs.name
     // storageContainerName: storage.outputs.ingestionContainer

@@ -121,7 +121,7 @@ param virtualNetworkId string
 param privateEndpointSubnetId string
 
 @description('Optional. Enable public access to the data lake.  Default: false.')
-param enablePublicAccess bool = true
+param enablePublicAccess bool
 
 //------------------------------------------------------------------------------
 // Variables
