@@ -1175,7 +1175,24 @@ CommitmentDiscountUsage_transform_v1_0()
     x_SourceName:                   string,    // Hubs add-on
     x_SourceProvider:               string,    // Hubs add-on
     x_SourceType:                   string,    // Hubs add-on
-    x_SourceVersion:                string     // Hubs add-on
+    x_SourceVersion:                string,    // Hubs add-on
+    ResourceId:                     string,    // Advisor
+    ResourceName:                   string,    // Advisor
+    x_ResourceType:                 string,    // Advisor
+    x_RecommendationCategory:       string,    // Advisor
+    x_RecommendationProvider:       string,    // Advisor
+    x_RecommendationId:             string,    // Advisor
+    x_RecommendationDescription:    string,    // Advisor
+    x_RecommendationSolution:       string,    // Advisor
+    x_RecommendationTypeId:         string,    // Advisor
+    SubAccountId:                   string,    // Advisor
+    SubAccountName:                 string,    // Advisor
+    x_RecommendationImpact:         string,    // Advisor
+    x_RecommendationControl:        string,    // Advisor
+    x_RecommendationMaturityLevel:  string,    // Advisor
+    x_RecommendationDetails:        string,    // Advisor
+    x_RecommendationDate:           datetime,  // Advisor
+    x_ResourceGroupName:            string     // Advisor
 )
 
 // Set Recommendations_raw retention policy
@@ -1202,12 +1219,12 @@ Recommendations_transform_v1_0()
     Recommendations_raw
     //
     // Set ProviderName
-    | extend ProviderName = 'Microsoft'
+    | extend ProviderName = coalesce(x_RecommendationProvider, 'Microsoft')
     //
     // Set source columns
     | extend x_SourceName     = coalesce(x_SourceName, iff(ProviderName == 'Microsoft', 'Cost Management', ProviderName))
     | extend x_SourceProvider = coalesce(x_SourceProvider, ProviderName)
-    | extend x_SourceType     = coalesce(x_SourceType, iff(ProviderName == 'Microsoft', 'ReservationRecommendations', ''))
+    | extend x_SourceType     = coalesce(x_SourceType, iff(ProviderName == 'Microsoft', 'ReservationRecommendations', iif(ProviderName in ('Microsoft.Advisor','Microsoft.FinOpsToolkit'), 'AdvisorRecommendations', '')))
     | extend x_SourceVersion  = coalesce(x_SourceVersion, iff(ProviderName == 'Microsoft', '2023-05-01', ''))
     //
     // Build recommendation details
@@ -1226,15 +1243,29 @@ Recommendations_transform_v1_0()
         'SkuSize', coalesce(SKU, SkuName),
         'SkuTerm', isoMonths(Term)
       ),
+      x_SourceType == 'AdvisorRecommendations', bag_pack(
+        'ResourceId', ResourceId,
+        'ResourceName', ResourceName,
+        'ResourceGroupName', x_ResourceGroupName,
+        'ResourceType', x_ResourceType,
+        'RecommendationCategory', x_RecommendationCategory,
+        'RecommendationId', x_RecommendationId,
+        'RecommendationSolution', x_RecommendationSolution,
+        'RecommendationTypeId', x_RecommendationTypeId,
+        'RecommendationImpact', x_RecommendationImpact,
+        'RecommendationControl', x_RecommendationControl,
+        'RecommendationMaturityLevel', x_RecommendationMaturityLevel,
+        'AdditionalInfo', x_RecommendationDetails
+      ),
       dynamic({})
     )
     //
     // Sort columns and apply final transforms
     | project
       // TODO: Should we include ChargePeriodEnd?
-      ChargePeriodStart = FirstUsageDate,
+      ChargePeriodStart = coalesce(FirstUsageDate, x_RecommendationDate),
       ProviderName,
-      SubAccountId      = iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), ''),
+      SubAccountId      = coalesce(SubAccountId, iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), '')),
       // TODO: SubAccountName,
       x_IngestionTime   = ingestion_time(),             // Hubs add-on
       x_LookbackPeriod  = case(
@@ -1248,7 +1279,9 @@ Recommendations_transform_v1_0()
       x_SourceName,
       x_SourceProvider,
       x_SourceType,
-      x_SourceVersion
+      x_SourceVersion,
+      SubAccountName,
+      x_RecommendationDescription
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1267,7 +1300,9 @@ Recommendations_transform_v1_0()
     x_SourceName:                string,
     x_SourceProvider:            string,
     x_SourceType:                string,
-    x_SourceVersion:             string
+    x_SourceVersion:             string,
+    SubAccountName:              string,
+    x_RecommendationDescription: string
 )
 
 //----------------------------------------------------------------------------------------------------------------------
