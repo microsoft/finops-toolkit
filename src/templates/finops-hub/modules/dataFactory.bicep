@@ -29,6 +29,12 @@ param configContainerName string
 @description('Optional. Name of the Azure Data Explorer cluster to use for advanced analytics, if applicable.')
 param dataExplorerName string = ''
 
+@description('Optional. Resource ID of the Azure Data Explorer cluster to use for advanced analytics, if applicable.')
+param dataExplorerId string = ''
+
+@description('Optional. URI of the Azure Data Explorer cluster to use for advanced analytics, if applicable.')
+param dataExplorerUri string = ''
+
 @description('Optional. Name of the Azure Data Explorer ingestion database. Default: "ingestion".')
 param dataExplorerIngestionDatabase string = 'Ingestion'
 
@@ -126,11 +132,6 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' existing 
 // Get keyvault instance
 resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' existing = {
   name: keyVaultName
-}
-
-// Get ADX instance
-resource dataExplorer 'Microsoft.Kusto/clusters@2023-08-15' existing = {
-  name: dataExplorerName
 }
 
 module azuretimezones 'azuretimezones.bicep' = {
@@ -235,25 +236,26 @@ module approveKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = {
 }
 
 resource dataExplorerManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = if (deployDataExplorer) {
-  name: dataExplorer.name
+  name: dataExplorerName
   parent: managedVirtualNetwork
   properties: {
-    name: dataExplorer.name
+    name: dataExplorerName
     groupId: 'cluster'
-    privateLinkResourceId: dataExplorer.id
+    privateLinkResourceId: dataExplorerId
     fqdns: [
-      dataExplorer.properties.uri
+      dataExplorerUri
     ]
   }
 }
 
+
 module getdataExplorerPrivateEndpointConnections 'dataExplorerEndpoints.bicep' = if (deployDataExplorer) {
   name: 'GetdataExplorerPrivateEndpointConnections'
   dependsOn: [
-    dataExplorerManagedPrivateEndpoint
+    stopTriggers
   ]
   params: {
-    dataExplorerName: dataExplorer.name
+    dataExplorerName: dataExplorerName
   }
 }
 
@@ -263,7 +265,7 @@ module approvedataExplorerPrivateEndpointConnections 'dataExplorerEndpoints.bice
     getdataExplorerPrivateEndpointConnections
   ]
   params: {
-    dataExplorerName: dataExplorer.name
+    dataExplorerName: dataExplorerName
     privateEndpointConnections: getdataExplorerPrivateEndpointConnections.outputs.privateEndpointConnections
   }
 }
@@ -424,7 +426,7 @@ resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedser
 }
 
 resource linkedService_dataExplorer 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = if (deployDataExplorer) {
-  name: 'hubDataExplorer'
+  name: dataExplorerName
   parent: dataFactory
   properties: {
     type: 'AzureDataExplorer'
@@ -435,7 +437,7 @@ resource linkedService_dataExplorer 'Microsoft.DataFactory/factories/linkedservi
       }
     }
     typeProperties: {
-      endpoint: dataExplorer.properties.uri
+      endpoint: dataExplorerUri
       database: '@{linkedService().database}'
       tenant: dataFactory.identity.tenantId
       servicePrincipalId: dataFactory.identity.principalId
@@ -712,7 +714,7 @@ resource dataset_dataExplorer 'Microsoft.DataFactory/factories/datasets@2018-06-
       parameters: {
         database: '@dataset().database'
       }
-      referenceName: linkedService_dataExplorer.name
+      referenceName: dataExplorerName
       type: 'LinkedServiceReference'
     }
     parameters: {
@@ -1082,7 +1084,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                 commandTimeout: '00:20:00'
               }
               linkedServiceName: {
-                referenceName: linkedService_dataExplorer.name
+                referenceName: dataExplorerName
                 type: 'LinkedServiceReference'
                 parameters: {
                   database: dataExplorerIngestionDatabase
@@ -4163,7 +4165,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                 commandTimeout: '00:20:00'
               }
               linkedServiceName: {
-                referenceName: linkedService_dataExplorer.name
+                referenceName: dataExplorerName
                 type: 'LinkedServiceReference'
               }
             }
@@ -4237,7 +4239,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: linkedService_dataExplorer.name
+                      referenceName: dataExplorerName
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -4288,7 +4290,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: linkedService_dataExplorer.name
+                      referenceName: dataExplorerName
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -4398,7 +4400,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: linkedService_dataExplorer.name
+                      referenceName: dataExplorerName
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -4432,7 +4434,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: linkedService_dataExplorer.name
+                      referenceName: dataExplorerName
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase

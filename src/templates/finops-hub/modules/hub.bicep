@@ -163,8 +163,9 @@ var dataFactoryName = replace(
 
 // Do not reference the dataExplorer deployment directly or indirectly to avoid a DeploymentNotFound error
 var deployDataExplorer = !empty(dataExplorerName)
-var dataExplorerUri = !deployDataExplorer ? '' : dataExplorer.outputs.clusterUri
-var dataExplorerIngestionDb = !deployDataExplorer ? '' : dataExplorer.outputs.ingestionDbName
+var safeDataExplorerName = !deployDataExplorer ? '' : dataExplorer.outputs.clusterName
+var safeDataExplorerUri = !deployDataExplorer ? '' : dataExplorer.outputs.clusterUri
+var safeDataExplorerIngestionDb = !deployDataExplorer ? '' : dataExplorer.outputs.ingestionDbName
 
 // var eventGridPrefix = '${replace(hubName, '_', '-')}-ns'
 // var eventGridSuffix = '-${uniqueSuffix}'
@@ -316,8 +317,9 @@ module dataFactoryResources 'dataFactory.bicep' = {
     exportContainerName: storage.outputs.exportContainer
     configContainerName: storage.outputs.configContainer
     ingestionContainerName: storage.outputs.ingestionContainer
-    dataExplorerName: dataExplorer.outputs.clusterName
-    dataExplorerIngestionDatabase: dataExplorerIngestionDb
+    dataExplorerName: safeDataExplorerName
+    dataExplorerIngestionDatabase: safeDataExplorerIngestionDb
+    dataExplorerUri: safeDataExplorerUri
     keyVaultName: keyVault.outputs.name
     remoteHubStorageUri: remoteHubStorageUri
   }
