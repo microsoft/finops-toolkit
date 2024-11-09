@@ -66,11 +66,11 @@ Legend:
 > 3. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
 > 4. ETL pipelile – Add support for parquet files created by Cost Management exports.
 > 5. Private endpoints support.
->    - Added private endpoints for storage account & Keyvault.
+>    - Added private endpoints for storage account, Azure Data Explorer & Keyvault.
 >    - Added managed virtual network & storage endpoint for Azure Data Factory Runtime.
 >    - All data processing now happens within a vNet.
->    - Added param to disable external access to data lake
->    - Added param to specify subnet range of vnet - minumum size = /27
+>    - Added param to disable external access to Azure Data Lake and Azure Data Explorer.
+>    - Added param to specify subnet range of vnet - minumum size = /26
 > 6. Infrastructure encryption - Added an optional enableInfrastructureEncryption template parameter to support storage account infrastructure encryption.
 
 📊 Power BI reports
