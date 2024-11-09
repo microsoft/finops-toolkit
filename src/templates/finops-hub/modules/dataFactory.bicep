@@ -3967,6 +3967,9 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
 resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer) {
   name: '${safeIngestionContainerName}_ETL_dataExplorer'
   parent: dataFactory
+  dependsOn: [
+    stopTriggers // Can't reference dataset and linked service directly because they're conditional.
+  ]
   properties: {
     activities: [
       { // Read Column Names
