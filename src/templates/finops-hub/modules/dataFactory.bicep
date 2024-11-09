@@ -6190,7 +6190,13 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
       schemaFile: {
         type: 'String'
       }
+      instanceId: {
+        type: 'String'
+      }
       blobExportTimestamp: {
+        type: 'String'
+      }
+      blobBasePath: {
         type: 'String'
       }
       pipelineFailed: {
