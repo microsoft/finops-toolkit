@@ -907,9 +907,9 @@ resource trigger_RecommendationsDailySchedule 'Microsoft.DataFactory/factories/t
     type: 'ScheduleTrigger'
     typeProperties: {
       recurrence: {
-        frequency: 'Hour'
-        interval: 24
-        startTime: '2023-01-01T01:02:00'
+        frequency: 'Day'
+        interval: 1
+        startTime: '2023-01-01T03:03:00'
         timeZone: azuretimezones.outputs.Timezone
       }
     }
