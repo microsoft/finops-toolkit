@@ -714,7 +714,7 @@ resource dataset_dataExplorer 'Microsoft.DataFactory/factories/datasets@2018-06-
       parameters: {
         database: '@dataset().database'
       }
-      referenceName: dataExplorerName
+      referenceName: linkedService_dataExplorer.name
       type: 'LinkedServiceReference'
     }
     parameters: {
@@ -3971,6 +3971,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
     stopTriggers // Can't reference dataset and linked service directly because they're conditional.
   ]
   properties: {
+    // concurrency: 8  // sanity check
     activities: [
       { // Read Column Names
         name: 'Read Column Names'
@@ -4364,7 +4365,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                     ]
                     outputs: [
                       {
-                        referenceName: 'hubDataExplorer'
+                        referenceName: dataset_dataExplorer.name
                         type: 'DatasetReference'
                         parameters: {
                           database: dataExplorerIngestionDatabase
