@@ -582,11 +582,7 @@
     "outputs": {
       "hubName": "[basics('hubName')]",
       "location": "[location()]",
-      "storageSku": "[basics('storageSku')]",
       "enableInfrastructureEncryption": "[steps('advanced').enableInfrastructureEncryption]",
-      "tagsByResource": "[steps('tags').tagsByResource]",
-      "skipEventGridRegistration": "[steps('eventGrid').skipEventGridRegistration]",
-      "eventGridLocation": "[steps('eventGrid').eventGridLocation]"
       "storageSku": "[steps('pricing').storage.storageSku]",
       "dataExplorerSku": "[steps('pricing').dataExplorer.dataExplorerSku]",
       "exportRetentionInDays": "[steps('retention').storage.msexportsDays]",
