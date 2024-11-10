@@ -135,6 +135,10 @@ Legend:
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
+> ➕ Added:
+> 
+> 1. Infrastructure encryption - Added an optional enableInfrastructureEncryption template parameter to support storage account infrastructure encryption.
+
 <small>**Breaking change**</small>
 {: .label .label-red .pt-0 .pl-3 .pr-3 .m-0 }
 
