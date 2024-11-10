@@ -5100,1043 +5100,176 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
           errorCode: 'SchemaLoadFailed'
         }
       }
-      { // Get Advisor recommendations from ARG
-        name: 'Export Advisor Cost Recommendations'
-        type: 'Copy'
+      { // Load Queries
+        name: 'Load Queries'
+        type: 'Lookup'
+        dependsOn: [
+        ]
+        policy: {
+          timeout: '0.00:10:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
+        }
+        userProperties: []
+        typeProperties: {
+          source: {
+            type: 'JsonSource'
+            storeSettings: {
+              type: 'AzureBlobFSReadSettings'
+              recursive: true
+              enablePartitionDiscovery: false
+            }
+            formatSettings: {
+              type: 'JsonReadSettings'
+            }
+          }
+          dataset: {
+            referenceName: dataset_config.name
+            type: 'DatasetReference'
+            parameters: {
+              fileName: 'queries.json'
+              folderPath: '${configContainerName}/argexports'
+            }
+          }
+          firstRowOnly: true
+        }
+      }
+      { // Iterate Queries
+        name: 'Iterate Queries'
+        type: 'ForEach'
         dependsOn: [
           {
+            activity: 'Set Error Counter'
+            dependencyConditions: [
+              'Succeeded'
+            ]
+          }
+          {
             activity: 'Set Blob Base Path'
-            dependencyConditions: ['Succeeded']
+            dependencyConditions: [
+              'Succeeded'
+            ]
           }
           {
             activity: 'Load Schema Mappings'
-            dependencyConditions: ['Succeeded']
+            dependencyConditions: [
+              'Succeeded'
+            ]
           }
           {
-            activity: 'Set Error Counter'
-            dependencyConditions: ['Succeeded']
-          }
-        ]
-        policy: {
-          timeout: '0.00:10:00'
-          retry: 0
-          retryIntervalInSeconds: 30
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          source: {
-            type: 'RestSource'
-            httpRequestTimeout: '00:02:00'
-            requestInterval: '00:00:01'
-            requestMethod: 'POST'
-            requestBody: '{\n  "query": "advisorresources \n| where type == \'microsoft.advisor/recommendations\' \n| where properties.category == \'Cost\' \n| project \n    x_RecommendationId=id, \n    x_ResourceGroupName=tolower(resourceGroup), \n    SubAccountId=subscriptionId, \n    x_RecommendationCategory=tostring(properties.category), \n    x_RecommendationProvider=\'Microsoft.Advisor\', \n    x_RecommendationImpact=tostring(properties.impact), \n    x_RecommendationTypeId= tostring(properties.recommendationTypeId), \n    x_RecommendationControl=tostring(properties.extendedProperties.recommendationControl), \n    x_RecommendationMaturityLevel=tostring(properties.extendedProperties.maturityLevel), \n    x_RecommendationDescription=tostring(properties.shortDescription.problem), \n    x_RecommendationSolution=tostring(properties.shortDescription.solution), \n    ResourceId=tolower(properties.resourceMetadata.resourceId), \n    x_ResourceType=tolower(properties.impactedField), \n    ResourceName=tolower(properties.impactedValue), \n    x_RecommendationDetails=tostring(properties.extendedProperties), \n    x_RecommendationDate=tostring(properties.lastUpdated) \n| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project SubAccountName=name, SubAccountId=subscriptionId ) on SubAccountId \n| project-away SubAccountId1" \n}'
-            additionalHeaders: {
-              'Content-Type': 'application/json'
-            }
-          }
-          sink: {
-            type: 'ParquetSink'
-            storeSettings: {
-              type: 'AzureBlobFSWriteSettings'
-            }
-            formatSettings: {
-              type: 'ParquetWriteSettings'
-              fileExtension: '.parquet'
-            }
-          }
-          enableStaging: false
-          translator: {
-            value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
-            type: 'Expression'
-          }
-        }
-        inputs: [
-          {
-            referenceName: dataset_resourcegraph.name
-            type: 'DatasetReference'
-            parameters: {}
-          }
-        ]
-        outputs: [
-          {
-            referenceName: dataset_ingestion.name
-            type: 'DatasetReference'
-            parameters: {
-              blobPath: {
-                value: '@concat(variables(\'blobBasePath\'), \'cost-advisor.parquet\')'
-                type: 'Expression'
-              }
-            }
-          }
-        ]
-      }
-      { // Error: Get Advisor recommendations
-        name: 'Catch Advisor Cost Failure'
-        type: 'IfCondition'
-        dependsOn: [
-          {
-            activity: 'Export Advisor Cost Recommendations'
-            dependencyConditions: ['Failed']
+            activity: 'Load Queries'
+            dependencyConditions: [
+              'Succeeded'
+            ]
           }
         ]
         userProperties: []
         typeProperties: {
-          expression: {
-            value: '@contains(activity(\'Export Advisor Cost Recommendations\').output.errors[0].Message, \'Sequence contains no elements\')'
+          items: {
+            value: '@activity(\'Load Queries\').output.firstRow.recommendations'
             type: 'Expression'
           }
-          ifFalseActivities: [
-            {
-              name: 'Set Advisor Cost Error Counter'
-              type: 'SetVariable'
-              dependsOn: []
+          isSequential: true
+          activities: [
+            { name: 'Execute Query'
+              type: 'Copy'
+              dependsOn: [
+              ]
               policy: {
+                timeout: '0.00:10:00'
+                retry: 0
+                retryIntervalInSeconds: 60
                 secureOutput: false
                 secureInput: false
               }
               userProperties: []
               typeProperties: {
-                variableName: 'pipelineFailed'
-                value: {
-                  value: '@bool(true)'
+                source: {
+                  type: 'RestSource'
+                  httpRequestTimeout: '00:02:00'
+                  requestInterval: '00.00:00:00.050'
+                  requestMethod: 'POST'
+                  requestBody: {
+                    value: '@concat(\'{\n  "query": "\', item().query, \'" \n}\')'
+                    type: 'Expression'
+                  }
+                  additionalHeaders: {
+                    'Content-Type': 'application/json'
+                  }
+                }
+                sink: {
+                  type: 'ParquetSink'
+                  storeSettings: {
+                    type: 'AzureBlobFSWriteSettings'
+                  }
+                  formatSettings: {
+                    type: 'ParquetWriteSettings'
+                    fileExtension: '.parquet'
+                  }
+                }
+                enableStaging: false
+                translator: {
+                  value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
                   type: 'Expression'
                 }
               }
+              inputs: [
+                {
+                  referenceName: 'resourcegraph'
+                  type: 'DatasetReference'
+                  parameters: {}
+                }
+              ]
+              outputs: [
+                {
+                  referenceName: 'ingestion'
+                  type: 'DatasetReference'
+                  parameters: {
+                    blobPath: {
+                      value: '@concat(variables(\'blobBasePath\'), item().name, \'.parquet\')'
+                      type: 'Expression'
+                    }
+                  }
+                }
+              ]
             }
-          ]
-        }
-      }
-      { // Get Unattached Disks       
-        name: 'Export Unattached Disks'
-        type: 'Copy'
-        dependsOn: [
-          {
-            activity: 'Export Advisor Cost Recommendations'
-            dependencyConditions: ['Completed']
-          }
-        ]
-        policy: {
-          timeout: '0.00:10:00'
-          retry: 0
-          retryIntervalInSeconds: 30
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          source: {
-            type: 'RestSource'
-            httpRequestTimeout: '00:02:00'
-            requestInterval: '00:00:01'
-            requestMethod: 'POST'
-            requestBody: '{\n  "query": "resources \n| where type =~ \'microsoft.compute/disks\' and isempty(managedBy) \n| extend diskState = tostring(properties.diskState) \n| where diskState != \'ActiveSAS\' and tags !contains \'ASR-ReplicaDisk\' and tags !contains \'asrseeddisk\' \n| extend DiskId=id, DiskIDfull=id, DiskName=name, SKUName=sku.name, SKUTier=sku.tier, DiskSizeGB=tostring(properties.diskSizeGB), Location=location, TimeCreated=tostring(properties.timeCreated), SubId=subscriptionId | order by DiskId asc | project DiskId, DiskIDfull, DiskName, DiskSizeGB, SKUName, SKUTier, resourceGroup, Location, TimeCreated, subscriptionId, type\n| project \n    x_RecommendationId=strcat(tolower(DiskId),\'-unattached\'), \n    x_ResourceGroupName=tolower(resourceGroup), \n    SubAccountId=subscriptionId, \n    x_RecommendationCategory=\'Cost\', \n    x_RecommendationProvider=\'Microsoft.FinOpsToolkit\', \n    x_RecommendationImpact=\'High\', \n    x_RecommendationTypeId=\'e0c02939-ce02-4f9d-881f-8067ae7ec90f\', \n    x_RecommendationControl=\'UsageOptimization/OrphanedResources\', \n    x_RecommendationMaturityLevel=\'Preview\', \n    x_RecommendationDescription=\'Unattached (orphaned) disk is incurring in storage costs\', \n    x_RecommendationSolution=\'Remove or downgrade the unattached disk\', \n    ResourceId = tolower(DiskId), \n    x_ResourceType=type, \n    ResourceName=tolower(DiskName), \n    x_RecommendationDetails= strcat(\'{\\"DiskSizeGB\\": \', DiskSizeGB, \', \\"SKUName\\": \\"\', SKUName, \'\\", \\"SKUTier\\": \\"\', SKUTier, \'\\", \\"Location\\": \\"\', Location, \'\\", \\"TimeCreated\\": \\"\', TimeCreated, \'\\" }\'), \n    x_RecommendationDate = now() \n| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project SubAccountName=name, SubAccountId=subscriptionId ) on SubAccountId \n| project-away SubAccountId1"\n}'
-            additionalHeaders: {
-              'Content-Type': 'application/json'
-            }
-          }
-          sink: {
-            type: 'ParquetSink'
-            storeSettings: {
-              type: 'AzureBlobFSWriteSettings'
-            }
-            formatSettings: {
-              type: 'ParquetWriteSettings'
-              fileExtension: '.parquet'
-            }
-          }
-          enableStaging: false
-          translator: {
-            value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
-            type: 'Expression'
-          }
-        }
-        inputs: [
-          {
-            referenceName: dataset_resourcegraph.name
-            type: 'DatasetReference'
-            parameters: {}
-          }
-        ]
-        outputs: [
-          {
-            referenceName: dataset_ingestion.name
-            type: 'DatasetReference'
-            parameters: {
-              blobPath: {
-                value: '@concat(variables(\'blobBasePath\'), \'cost-custom-storage-unattacheddisks.parquet\')'
-                type: 'Expression'
-              }
-            }
-          }
-        ]
-      }
-      { // Error: Get Unattached Disks
-        name: 'Catch Unattached Disks Failure'
-        type: 'IfCondition'
-        dependsOn: [
-          {
-            activity: 'Export Unattached Disks'
-            dependencyConditions: [
-              'Failed'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          expression: {
-            value: '@contains(activity(\'Export Unattached Disks\').output.errors[0].Message, \'Sequence contains no elements\')'
-            type: 'Expression'
-          }
-          ifFalseActivities: [
-            {
-              name: 'Set Unattached Disks Error Counter'
-              type: 'SetVariable'
-              dependsOn: []
-              policy: {
-                secureOutput: false
-                secureInput: false
-              }
+            { name: 'Catch Query Failure'
+              type: 'IfCondition'
+              dependsOn: [
+                {
+                  activity: 'Execute Query'
+                  dependencyConditions: [
+                    'Failed'
+                  ]
+                }
+              ]
               userProperties: []
               typeProperties: {
-                variableName: 'pipelineFailed'
-                value: {
-                  value: '@bool(true)'
+                expression: {
+                  value: '@contains(activity(\'Execute Query\').output.errors[0].Message, \'Sequence contains no elements\')'
                   type: 'Expression'
                 }
-              }
-            }
-          ]
-        }
-      }
-      { // Get Non-Spot AKS Pools
-        name: 'Export Non-Spot AKS Pools'
-        type: 'Copy'
-        dependsOn: [
-          {
-            activity: 'Export Unattached Disks'
-            dependencyConditions: [
-              'Completed'
-            ]
-          }
-        ]
-        policy: {
-          timeout: '0.00:10:00'
-          retry: 0
-          retryIntervalInSeconds: 60
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          source: {
-            type: 'RestSource'
-            httpRequestTimeout: '00:02:00'
-            requestInterval: '00.00:00:00.050'
-            requestMethod: 'POST'
-            requestBody: '{\n  "query": "resources \n| where type == \'microsoft.containerservice/managedclusters\' \n| mvexpand AgentPoolProfiles = properties.agentPoolProfiles\n| project id, type, ProfileName = tostring(AgentPoolProfiles.name), Sku = tostring(sku.name), Tier = tostring(sku.tier), mode = AgentPoolProfiles.mode, AutoScaleEnabled = AgentPoolProfiles.enableAutoScaling, SpotVM = AgentPoolProfiles.scaleSetPriority, VMSize = tostring(AgentPoolProfiles.vmSize), NodeCount = tostring(AgentPoolProfiles.[\'count\']), minCount = tostring(AgentPoolProfiles.minCount), maxCount = tostring(AgentPoolProfiles.maxCount), Location=location, resourceGroup, subscriptionId, AKSname = name\n| where AutoScaleEnabled == \'true\' and isnull(SpotVM)\n| project \n    x_RecommendationId=strcat(tolower(id),\'-notSpot\'), \n    x_ResourceGroupName=tolower(resourceGroup), \n    SubAccountId=subscriptionId, \n    x_RecommendationCategory=\'Cost\', \n    x_RecommendationProvider=\'Microsoft.FinOpsToolkit\', \n    x_RecommendationImpact=\'Medium\', \n    x_RecommendationTypeId=\'c26abcc2-d5e6-4654-be4a-7d338e5c1e5f\', \n    x_RecommendationControl=\'UsageOptimization/OptimizeResources\', \n    x_RecommendationMaturityLevel=\'Preview\', \n    x_RecommendationDescription=\'The AKS cluster agent pool scale set is not utilizing Spot VMs\', \n    x_RecommendationSolution=\'Consider enabling Spot VMs for this AKS cluster to optimize costs, as Spot VMs offer significantly lower pricing compared to regular VMs\', \n    ResourceId = tolower(id), \n    x_ResourceType=type, \n    ResourceName=tolower(AKSname), \n    x_RecommendationDetails= strcat(\'{\\"AutoScaleEnabled\\": \', AutoScaleEnabled, \', \\"SpotVM\\": \\"\', SpotVM, \'\\", \\"VMSize\\": \\"\', VMSize, \'\\", \\"Location\\": \\"\', Location, \'\\", \\"NodeCount\\": \\"\', NodeCount, \'\\", \\"minCount\\": \\"\', minCount, \'\\", \\"maxCount\\": \\"\', maxCount, \'\\" }\'), \n    x_RecommendationDate = now() \n| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project SubAccountName=name, SubAccountId=subscriptionId ) on SubAccountId \n| project-away SubAccountId1"\n}'
-            additionalHeaders: {
-              'Content-Type': 'application/json'
-            }
-          }
-          sink: {
-            type: 'ParquetSink'
-            storeSettings: {
-              type: 'AzureBlobFSWriteSettings'
-            }
-            formatSettings: {
-              type: 'ParquetWriteSettings'
-              fileExtension: '.parquet'
-            }
-          }
-          enableStaging: false
-          translator: {
-            value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
-            type: 'Expression'
-          }
-        }
-        inputs: [
-          {
-            referenceName: 'resourcegraph'
-            type: 'DatasetReference'
-            parameters: {}
-          }
-        ]
-        outputs: [
-          {
-            referenceName: 'ingestion'
-            type: 'DatasetReference'
-            parameters: {
-              blobPath: {
-                value: '@concat(variables(\'blobBasePath\'), \'cost-custom-compute-aksnonspot.parquet\')'
-                type: 'Expression'
-              }
-            }
-          }
-        ]
-      }
-      { // Error: Get Non-Spot AKS Pools
-        name: 'Catch Non-Spot AKS Pools Failure'
-        type: 'IfCondition'
-        dependsOn: [
-          {
-            activity: 'Export Non-Spot AKS Pools'
-            dependencyConditions: [
-              'Failed'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          expression: {
-            value: '@contains(activity(\'Export Non-Spot AKS Pools\').output.errors[0].Message, \'Sequence contains no elements\')'
-            type: 'Expression'
-          }
-          ifFalseActivities: [
-            {
-              name: 'Set Non-Spot AKS Error Counter'
-              type: 'SetVariable'
-              dependsOn: []
-              policy: {
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                variableName: 'pipelineFailed'
-                value: {
-                  value: '@bool(true)'
-                  type: 'Expression'
-                }
-              }
-            }
-          ]
-        }
-      }
-      { // Get Non-Deallocated VMs
-        name: 'Export Non-Deallocated VMs'
-        type: 'Copy'
-        dependsOn: [
-          {
-            activity: 'Export Non-Spot AKS Pools'
-            dependencyConditions: [
-              'Completed'
-            ]
-          }
-        ]
-        policy: {
-          timeout: '0.00:10:00'
-          retry: 0
-          retryIntervalInSeconds: 60
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          source: {
-            type: 'RestSource'
-            httpRequestTimeout: '00:02:00'
-            requestInterval: '00.00:00:00.050'
-            requestMethod: 'POST'
-            requestBody: '{\n  "query": "resources\n| where type =~ \'microsoft.compute/virtualmachines\' and tostring(properties.extended.instanceView.powerState.displayStatus) != \'VM deallocated\' and tostring(properties.extended.instanceView.powerState.displayStatus) != \'VM running\' \n| extend PowerState=tostring(properties.extended.instanceView.powerState.displayStatus) \n| extend Location=location, type\n| project id, PowerState, Location, resourceGroup, subscriptionId, VMName=name, type\n| project \n    x_RecommendationId=strcat(tolower(id),\'-notDeallocated\'), \n    x_ResourceGroupName=tolower(resourceGroup), \n    SubAccountId=subscriptionId, \n    x_RecommendationCategory=\'Cost\', \n    x_RecommendationProvider=\'Microsoft.FinOpsToolkit\', \n    x_RecommendationImpact=\'Medium\', \n    x_RecommendationTypeId=\'ab2ff882-e927-4093-9d11-631be0219975\', \n    x_RecommendationControl=\'UsageOptimization/OptimizeResources\', \n    x_RecommendationMaturityLevel=\'Preview\', \n    x_RecommendationDescription=\'Virtual machine is powered off but not deallocated\', \n    x_RecommendationSolution=\'Deallocate the virtual machine to ensure it does not incur in compute costs\', \n    ResourceId = tolower(id), \n    x_ResourceType=type, \n    ResourceName=tolower(VMName), \n    x_RecommendationDetails= strcat(\'{\\"PowerState\\": \', PowerState, \',\\"Location\\": \\"\', Location),\n    x_RecommendationDate = now() \n| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project SubAccountName=name, SubAccountId=subscriptionId ) on SubAccountId \n| project-away SubAccountId1"\n}'
-            additionalHeaders: {
-              'Content-Type': 'application/json'
-            }
-          }
-          sink: {
-            type: 'ParquetSink'
-            storeSettings: {
-              type: 'AzureBlobFSWriteSettings'
-            }
-            formatSettings: {
-              type: 'ParquetWriteSettings'
-              fileExtension: '.parquet'
-            }
-          }
-          enableStaging: false
-          translator: {
-            value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
-            type: 'Expression'
-          }
-        }
-        inputs: [
-          {
-            referenceName: 'resourcegraph'
-            type: 'DatasetReference'
-            parameters: {}
-          }
-        ]
-        outputs: [
-          {
-            referenceName: 'ingestion'
-            type: 'DatasetReference'
-            parameters: {
-              blobPath: {
-                value: '@concat(variables(\'blobBasePath\'), \'cost-custom-compute-vmsnotdeallocated.parquet\')'
-                type: 'Expression'
-              }
-            }
-          }
-        ]
-      }
-      { // Error: Get Non-Deallocated VMs
-        name: 'Catch Non-Deallocated VMs Failure'
-        type: 'IfCondition'
-        dependsOn: [
-          {
-            activity: 'Export Non-Deallocated VMs'
-            dependencyConditions: [
-              'Failed'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          expression: {
-            value: '@contains(activity(\'Export Non-Deallocated VMs\').output.errors[0].Message, \'Sequence contains no elements\')'
-            type: 'Expression'
-          }
-          ifFalseActivities: [
-            {
-              name: 'Set Non-Deallocated VMs Error Counter'
-              type: 'SetVariable'
-              dependsOn: []
-              policy: {
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                variableName: 'pipelineFailed'
-                value: {
-                  value: '@bool(true)'
-                  type: 'Expression'
-                }
-              }
-            }
-          ]
-        }
-      }
-      { // Get AppGWs Without Backend
-        name: 'Export AppGWs Without Backend'
-        type: 'Copy'
-        dependsOn: [
-          {
-            activity: 'Export Non-Deallocated VMs'
-            dependencyConditions: [
-              'Completed'
-            ]
-          }
-        ]
-        policy: {
-          timeout: '0.00:10:00'
-          retry: 0
-          retryIntervalInSeconds: 60
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          source: {
-            type: 'RestSource'
-            httpRequestTimeout: '00:02:00'
-            requestInterval: '00.00:00:00.050'
-            requestMethod: 'POST'
-            requestBody: '{\n  "query": "resources\n| where type =~ \'Microsoft.Network/applicationGateways\' \n| extend backendPoolsCount = array_length(properties.backendAddressPools),SKUName= tostring(properties.sku.name), SKUTier= tostring(properties.sku.tier),SKUCapacity=properties.sku.capacity,backendPools=properties.backendAddressPools,resourceGroup=strcat(\'/subscriptions/\',subscriptionId,\'/resourceGroups/\',resourceGroup)\n| project id, name, SKUName, SKUTier, SKUCapacity,resourceGroup,subscriptionId, AppGWName=name, type, Location=location\n| join (\n    resources\n    | where type =~ \'Microsoft.Network/applicationGateways\'\n    | mvexpand backendPools = properties.backendAddressPools\n    | extend backendIPCount = array_length(backendPools.properties.backendIPConfigurations)\n    | extend backendAddressesCount = array_length(backendPools.properties.backendAddresses)\n    | extend backendPoolName  = backendPools.properties.backendAddressPools.name\n    | summarize backendIPCount = sum(backendIPCount) ,backendAddressesCount=sum(backendAddressesCount) by id\n) on id\n| project-away id1\n| where  (backendIPCount == 0 or isempty(backendIPCount)) and (backendAddressesCount==0 or isempty(backendAddressesCount))\n| project \n    x_RecommendationId=strcat(tolower(id),\'-idle\'), \n    x_ResourceGroupName=tolower(resourceGroup), \n    SubAccountId=subscriptionId, \n    x_RecommendationCategory=\'Cost\', \n    x_RecommendationProvider=\'Microsoft.FinOpsToolkit\', \n    x_RecommendationImpact=\'High\', \n    x_RecommendationTypeId=\'4f69df93-5972-44e0-97cf-4343c2bcf4b8\', \n    x_RecommendationControl=\'UsageOptimization/OrphanedResources\', \n    x_RecommendationMaturityLevel=\'Preview\', \n    x_RecommendationDescription=\'Application Gateway without any backend pool\', \n    x_RecommendationSolution=\'Review and remove this resource if not needed\', \n    ResourceId = tolower(id), \n    x_ResourceType=type, \n    ResourceName=tolower(AppGWName), \n    x_RecommendationDetails= strcat(\'{\\"backendIPCount\\": \', backendIPCount, \',\\"Location\\": \\"\', Location), \n    x_RecommendationDate = now() \n| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project SubAccountName=name, SubAccountId=subscriptionId ) on SubAccountId \n| project-away SubAccountId1"\n}'
-            additionalHeaders: {
-              'Content-Type': 'application/json'
-            }
-          }
-          sink: {
-            type: 'ParquetSink'
-            storeSettings: {
-              type: 'AzureBlobFSWriteSettings'
-            }
-            formatSettings: {
-              type: 'ParquetWriteSettings'
-              fileExtension: '.parquet'
-            }
-          }
-          enableStaging: false
-          translator: {
-            value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
-            type: 'Expression'
-          }
-        }
-        inputs: [
-          {
-            referenceName: 'resourcegraph'
-            type: 'DatasetReference'
-            parameters: {}
-          }
-        ]
-        outputs: [
-          {
-            referenceName: 'ingestion'
-            type: 'DatasetReference'
-            parameters: {
-              blobPath: {
-                value: '@concat(variables(\'blobBasePath\'), \'cost-custom-network-appgwnobackend.parquet\')'
-                type: 'Expression'
-              }
-            }
-          }
-        ]
-      }
-      { // Error: Get AppGWs Without Backend
-        name: 'Catch AppGWs Without Backend Failure'
-        type: 'IfCondition'
-        dependsOn: [
-          {
-            activity: 'Export AppGWs Without Backend'
-            dependencyConditions: [
-              'Failed'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          expression: {
-            value: '@contains(activity(\'Export AppGWs Without Backend\').output.errors[0].Message, \'Sequence contains no elements\')'
-            type: 'Expression'
-          }
-          ifFalseActivities: [
-            {
-              name: 'Set Idle AppGWs Error Counter'
-              type: 'SetVariable'
-              dependsOn: []
-              policy: {
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                variableName: 'pipelineFailed'
-                value: {
-                  value: '@bool(true)'
-                  type: 'Expression'
-                }
-              }
-            }
-          ]
-        }
-      }
-      { // Get LBs Without Backend
-        name: 'Export LBs Without Backend'
-        type: 'Copy'
-        dependsOn: [
-          {
-            activity: 'Export AppGWs Without Backend'
-            dependencyConditions: [
-              'Completed'
-            ]
-          }
-        ]
-        policy: {
-          timeout: '0.00:10:00'
-          retry: 0
-          retryIntervalInSeconds: 60
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          source: {
-            type: 'RestSource'
-            httpRequestTimeout: '00:02:00'
-            requestInterval: '00.00:00:00.050'
-            requestMethod: 'POST'
-            requestBody: '{\n  "query": "resources\n| extend SKUName=tostring(sku.name) \n| extend SKUTier=tostring(sku.tier), Location=location \n| extend backendAddressPools = properties.backendAddressPools\n| where type =~ \'microsoft.network/loadbalancers\' and array_length(backendAddressPools) == 0 and sku.name!=\'Basic\' \n| extend id,name, SKUName,SKUTier,backendAddressPools, location,resourceGroup, subscriptionId, type\n| project \n    x_RecommendationId=strcat(tolower(id),\'-idle\'), \n    x_ResourceGroupName=tolower(resourceGroup), \n    SubAccountId=subscriptionId, \n    x_RecommendationCategory=\'Cost\', \n    x_RecommendationProvider=\'Microsoft.FinOpsToolkit\', \n    x_RecommendationImpact=\'High\', \n    x_RecommendationTypeId=\'ab703887-fa23-4915-abdc-3defbea89f7a\', \n    x_RecommendationControl=\'UsageOptimization/OrphanedResources\', \n    x_RecommendationMaturityLevel=\'Preview\', \n    x_RecommendationDescription=\'Load balancer without a backend pool\', \n    x_RecommendationSolution=\'Review and remove this resource if not needed\', \n    ResourceId = tolower(id), \n    x_ResourceType=type, \n    ResourceName=tolower(name), \n    x_RecommendationDetails= strcat(\'{\\"SKUName\\": \', SKUName, \',\\"SKUTier\\": \\"\', SKUTier, \',\\"Location\\": \\"\', Location), \n    x_RecommendationDate = now() \n| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project SubAccountName=name, SubAccountId=subscriptionId ) on SubAccountId \n| project-away SubAccountId1"\n}'
-            additionalHeaders: {
-              'Content-Type': 'application/json'
-            }
-          }
-          sink: {
-            type: 'ParquetSink'
-            storeSettings: {
-              type: 'AzureBlobFSWriteSettings'
-            }
-            formatSettings: {
-              type: 'ParquetWriteSettings'
-              fileExtension: '.parquet'
-            }
-          }
-          enableStaging: false
-          translator: {
-            value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
-            type: 'Expression'
-          }
-        }
-        inputs: [
-          {
-            referenceName: 'resourcegraph'
-            type: 'DatasetReference'
-            parameters: {}
-          }
-        ]
-        outputs: [
-          {
-            referenceName: 'ingestion'
-            type: 'DatasetReference'
-            parameters: {
-              blobPath: {
-                value: '@concat(variables(\'blobBasePath\'), \'cost-custom-network-lbnobackend.parquet\')'
-                type: 'Expression'
-              }
-            }
-          }
-        ]
-      }
-      { // Error: Get LBs Without Backend
-        name: 'Catch LBs Without Backend Failure'
-        type: 'IfCondition'
-        dependsOn: [
-          {
-            activity: 'Export LBs Without Backend'
-            dependencyConditions: [
-              'Failed'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          expression: {
-            value: '@contains(activity(\'Export LBs Without Backend\').output.errors[0].Message, \'Sequence contains no elements\')'
-            type: 'Expression'
-          }
-          ifFalseActivities: [
-            {
-              name: 'Set Idle LBs Error Counter'
-              type: 'SetVariable'
-              dependsOn: []
-              policy: {
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                variableName: 'pipelineFailed'
-                value: {
-                  value: '@bool(true)'
-                  type: 'Expression'
-                }
-              }
-            }
-          ]
-        }
-      }
-      { // Get Unattached Public IPs
-        name: 'Export Unattached Public IPs'
-        type: 'Copy'
-        dependsOn: [
-          {
-            activity: 'Export LBs Without Backend'
-            dependencyConditions: [
-              'Completed'
-            ]
-          }
-        ]
-        policy: {
-          timeout: '0.00:10:00'
-          retry: 0
-          retryIntervalInSeconds: 60
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          source: {
-            type: 'RestSource'
-            httpRequestTimeout: '00:02:00'
-            requestInterval: '00.00:00:00.050'
-            requestMethod: 'POST'
-            requestBody: '{\n  "query": "resources \n| where type =~ \'Microsoft.Network/publicIPAddresses\' and isempty(properties.ipConfiguration) and isempty(properties.natGateway) and properties.publicIPAllocationMethod =~ \'Static\' \n| extend PublicIpId=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, Location=location \n| project PublicIpId, IPName, SKUName, resourceGroup, Location, AllocationMethod, subscriptionId, type, name \n| union ( resources | where type =~ \'microsoft.network/networkinterfaces\' and isempty(properties.virtualMachine) and isnull(properties.privateEndpoint) and isnotempty(properties.ipConfigurations) \n| extend IPconfig = properties.ipConfigurations | mv-expand IPconfig | extend PublicIpId= tostring(IPconfig.properties.publicIPAddress.id) \n| project PublicIpId, name | join ( resources | where type =~ \'Microsoft.Network/publicIPAddresses\'\n| extend PublicIpId=id, IPName=name, AllocationMethod=tostring(properties.publicIPAllocationMethod), SKUName=sku.name, resourceGroup, Location=location, name, id ) on PublicIpId \n| extend PublicIpId,IPName, SKUName, resourceGroup, Location, AllocationMethod,name, subscriptionId )\n| project \n    x_RecommendationId=strcat(tolower(PublicIpId),\'-idle\'), \n    x_ResourceGroupName=tolower(resourceGroup), \n    SubAccountId=subscriptionId, \n    x_RecommendationCategory=\'Cost\', \n    x_RecommendationProvider=\'Microsoft.FinOpsToolkit\', \n    x_RecommendationImpact=\'Low\', \n    x_RecommendationTypeId=\'3ecbf770-9404-4504-a450-cc198e8b2a7d\', \n    x_RecommendationControl=\'UsageOptimization/OrphanedResources\', \n    x_RecommendationMaturityLevel=\'Preview\', \n    x_RecommendationDescription=\'Unattached (orphaned) public IP is incurring in networking costs\', \n    x_RecommendationSolution=\'Review and remove this resource if not needed\', \n    ResourceId = tolower(PublicIpId), \n    x_ResourceType=type, \n    ResourceName=tolower(name), \n    x_RecommendationDetails= strcat(\'{\\"SKUName\\": \', SKUName, \',\\"AllocationMethod\\": \\"\', AllocationMethod,\',\\"Location\\": \\"\', Location), \n    x_RecommendationDate = now() \n| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project SubAccountName=name, SubAccountId=subscriptionId ) on SubAccountId \n| project-away SubAccountId1"\n}'
-            additionalHeaders: {
-              'Content-Type': 'application/json'
-            }
-          }
-          sink: {
-            type: 'ParquetSink'
-            storeSettings: {
-              type: 'AzureBlobFSWriteSettings'
-            }
-            formatSettings: {
-              type: 'ParquetWriteSettings'
-              fileExtension: '.parquet'
-            }
-          }
-          enableStaging: false
-          translator: {
-            value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
-            type: 'Expression'
-          }
-        }
-        inputs: [
-          {
-            referenceName: 'resourcegraph'
-            type: 'DatasetReference'
-            parameters: {}
-          }
-        ]
-        outputs: [
-          {
-            referenceName: 'ingestion'
-            type: 'DatasetReference'
-            parameters: {
-              blobPath: {
-                value: '@concat(variables(\'blobBasePath\'), \'cost-custom-network-pipunattached.parquet\')'
-                type: 'Expression'
-              }
-            }
-          }
-        ]
-      }
-      { // Error: Get Unattached Public IPs
-        name: 'Catch Unattached Public IPs Failure'
-        type: 'IfCondition'
-        dependsOn: [
-          {
-            activity: 'Export Unattached Public IPs'
-            dependencyConditions: [
-              'Failed'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          expression: {
-            value: '@contains(activity(\'Export Unattached Public IPs\').output.errors[0].Message, \'Sequence contains no elements\')'
-            type: 'Expression'
-          }
-          ifFalseActivities: [
-            {
-              name: 'Set Orphan PIPs Error Counter'
-              type: 'SetVariable'
-              dependsOn: []
-              policy: {
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                variableName: 'pipelineFailed'
-                value: {
-                  value: '@bool(true)'
-                  type: 'Expression'
-                }
-              }
-            }
-          ]
-        }
-      }
-      { // Get Empty SQL Elastic Pools
-        name: 'Export Empty SQL Elastic Pools'
-        type: 'Copy'
-        dependsOn: [
-          {
-            activity: 'Export Unattached Public IPs'
-            dependencyConditions: [
-              'Completed'
-            ]
-          }
-        ]
-        policy: {
-          timeout: '0.00:10:00'
-          retry: 0
-          retryIntervalInSeconds: 60
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          source: {
-            type: 'RestSource'
-            httpRequestTimeout: '00:02:00'
-            requestInterval: '00.00:00:00.050'
-            requestMethod: 'POST'
-            requestBody: '{\n  "query": "resources \n| where type == \'microsoft.sql/servers/elasticpools\'\n| extend elasticPoolId = tolower(tostring(id)), elasticPoolName = name, elasticPoolRG = resourceGroup,skuName=tostring(sku.name),skuTier=tostring(sku.tier),skuCapacity=tostring(sku.capacity), Location=location, type\n| join kind=leftouter ( resources | where type == \'microsoft.sql/servers/databases\'\n| extend elasticPoolId = tolower(tostring(properties.elasticPoolId)) ) on elasticPoolId\n| summarize databaseCount = countif(isnotempty(elasticPoolId1)) by elasticPoolId, elasticPoolName,serverResourceGroup=resourceGroup,name,skuName,skuTier,skuCapacity,elasticPoolRG,Location, type, subscriptionId\n| where databaseCount == 0 \n| project elasticPoolId, elasticPoolName, databaseCount, elasticPoolRG ,skuName,skuTier ,skuCapacity, Location, type, subscriptionId\n| project \n    x_RecommendationId=strcat(tolower(elasticPoolId),\'-idle\'), \n    x_ResourceGroupName=tolower(elasticPoolRG), \n    SubAccountId=subscriptionId, \n    x_RecommendationCategory=\'Cost\', \n    x_RecommendationProvider=\'Microsoft.FinOpsToolkit\', \n    x_RecommendationImpact=\'High\', \n    x_RecommendationTypeId=\'50987aae-a46d-49ae-bd41-a670a4dd18bd\', \n    x_RecommendationControl=\'UsageOptimization/OrphanedResources\', \n    x_RecommendationMaturityLevel=\'Preview\', \n    x_RecommendationDescription=\'SQL Database elastic pool has no associated databases\', \n    x_RecommendationSolution=\'Review and remove this resource if not needed\', \n    ResourceId = tolower(elasticPoolId), \n    x_ResourceType=type, \n    ResourceName=tolower(elasticPoolName), \n    x_RecommendationDetails= strcat(\'{\\"skuName\\": \', skuName, \',\\"skuTier\\": \\"\', skuTier,\',\\"skuCapacity\\": \\"\', skuCapacity,\',\\"Location\\": \\"\', Location), \n    x_RecommendationDate = now() \n| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project SubAccountName=name, SubAccountId=subscriptionId ) on SubAccountId \n| project-away SubAccountId1"\n}'
-            additionalHeaders: {
-              'Content-Type': 'application/json'
-            }
-          }
-          sink: {
-            type: 'ParquetSink'
-            storeSettings: {
-              type: 'AzureBlobFSWriteSettings'
-            }
-            formatSettings: {
-              type: 'ParquetWriteSettings'
-              fileExtension: '.parquet'
-            }
-          }
-          enableStaging: false
-          translator: {
-            value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
-            type: 'Expression'
-          }
-        }
-        inputs: [
-          {
-            referenceName: 'resourcegraph'
-            type: 'DatasetReference'
-            parameters: {}
-          }
-        ]
-        outputs: [
-          {
-            referenceName: 'ingestion'
-            type: 'DatasetReference'
-            parameters: {
-              blobPath: {
-                value: '@concat(variables(\'blobBasePath\'), \'cost-custom-database-emptyelasticpool.parquet\')'
-                type: 'Expression'
-              }
-            }
-          }
-        ]
-      }
-      { // Error: Get Empty SQL Elastic Pools
-        name: 'Catch Empty SQL Elastic Pools Failure'
-        type: 'IfCondition'
-        dependsOn: [
-          {
-            activity: 'Export Empty SQL Elastic Pools'
-            dependencyConditions: [
-              'Failed'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          expression: {
-            value: '@contains(activity(\'Export Empty SQL Elastic Pools\').output.errors[0].Message, \'Sequence contains no elements\')'
-            type: 'Expression'
-          }
-          ifFalseActivities: [
-            {
-              name: 'Set Empty SQL Elastic Pools Error Counter'
-              type: 'SetVariable'
-              dependsOn: []
-              policy: {
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                variableName: 'pipelineFailed'
-                value: {
-                  value: '@bool(true)'
-                  type: 'Expression'
-                }
-              }
-            }
-          ]
-        }
-      }
-      { // Get Windows Without AHB
-        name: 'Export Windows Without AHB'
-        type: 'Copy'
-        dependsOn: [
-          {
-            activity: 'Export Empty SQL Elastic Pools'
-            dependencyConditions: [
-              'Completed'
-            ]
-          }
-        ]
-        policy: {
-          timeout: '0.00:10:00'
-          retry: 0
-          retryIntervalInSeconds: 60
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          source: {
-            type: 'RestSource'
-            httpRequestTimeout: '00:02:00'
-            requestInterval: '00.00:00:00.050'
-            requestMethod: 'POST'
-            requestBody: '{\n  "query": "resourcecontainers \n| where type =~ \'Microsoft.Resources/subscriptions\' \n| where tostring (properties.subscriptionPolicies.quotaId) !has \'MSDNDevTest_2014-09-01\' \n| extend SubscriptionName=name \n| join (\n    resources \n    | where type =~ \'microsoft.compute/virtualmachines\' or type =~ \'microsoft.compute/virtualMachineScaleSets\'\n    | where tostring(properties.storageProfile.imageReference.publisher ) == \'MicrosoftWindowsServer\' or tostring(properties.virtualMachineProfile.storageProfile.osDisk.osType) == \'Windows\' or tostring(properties.storageProfile.imageReference.publisher ) == \'microsoftsqlserver\'\n    | where tostring(properties.[\'licenseType\']) !has \'Windows\' and tostring(properties.virtualMachineProfile.[\'licenseType\']) == \'Windows_Server\'\n    | extend WindowsId=id, VMSku=tostring(properties.hardwareProfile.vmSize), vmResourceGroup=resourceGroup, vmType=type, Location=location,LicenseType = tostring(properties.[\'licenseType\'])\n    | extend ActualCores = toint(extract(\'.[A-Z]([0-9]+)\', 1, tostring(properties.hardwareProfile.vmSize)))\n    | extend CheckAHBWindows = case(\n        type == \'microsoft.compute/virtualmachines\' or type =~ \'microsoft.compute/virtualMachineScaleSets\', iif((properties.[\'licenseType\'])\n        !has \'Windows\' and (properties.virtualMachineProfile.[\'licenseType\']) !has \'Windows\' , \'AHB-disabled\', \'AHB-enabled\'),\n        \'Not Windows\'\n    )\n) on subscriptionId \n| project \n    x_RecommendationId=strcat(tolower(WindowsId),\'-CheckAHBWindows\'), \n    x_ResourceGroupName=tolower(vmResourceGroup), \n    SubAccountId=subscriptionId, \n    x_RecommendationCategory=\'Cost\', \n    x_RecommendationProvider=\'Microsoft.FinOpsToolkit\', \n    x_RecommendationImpact=\'Medium\', \n    x_RecommendationTypeId=\'f326c065-b9f7-4a0e-a0f1-5a1c060bc25d\', \n    x_RecommendationControl=\'RateOptimization/Licensing\', \n    x_RecommendationMaturityLevel=\'Preview\', \n    x_RecommendationDescription=\'Windows virtual machine is not leveraging Azure Hybrid Benefit\', \n    x_RecommendationSolution=\'Review the virtual machine licensing option\', \n    ResourceId = tolower(WindowsId), \n    x_ResourceType=vmType, \n    ResourceName=tolower(split(WindowsId,\'/\')[-1]), \n    x_RecommendationDetails= strcat(\'{\\"VMSku\\": \', VMSku, \',\\"CheckAHBWindows\\": \\"\', CheckAHBWindows,\',\\"ActualCores\\": \\"\', ActualCores,\',\\"Location\\": \\"\', Location), \n    x_RecommendationDate = now() \n| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project SubAccountName=name, SubAccountId=subscriptionId ) on SubAccountId \n| project-away SubAccountId1"\n}'
-            additionalHeaders: {
-              'Content-Type': 'application/json'
-            }
-          }
-          sink: {
-            type: 'ParquetSink'
-            storeSettings: {
-              type: 'AzureBlobFSWriteSettings'
-            }
-            formatSettings: {
-              type: 'ParquetWriteSettings'
-              fileExtension: '.parquet'
-            }
-          }
-          enableStaging: false
-          translator: {
-            value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
-            type: 'Expression'
-          }
-        }
-        inputs: [
-          {
-            referenceName: 'resourcegraph'
-            type: 'DatasetReference'
-            parameters: {}
-          }
-        ]
-        outputs: [
-          {
-            referenceName: 'ingestion'
-            type: 'DatasetReference'
-            parameters: {
-              blobPath: {
-                value: '@concat(variables(\'blobBasePath\'), \'cost-custom-compute-windowsnoahb.parquet\')'
-                type: 'Expression'
-              }
-            }
-          }
-        ]
-      }
-      { // Error: Get Windows Without AHB
-        name: 'Catch Windows Without AHB Failure'
-        type: 'IfCondition'
-        dependsOn: [
-          {
-            activity: 'Export Windows Without AHB'
-            dependencyConditions: [
-              'Failed'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          expression: {
-            value: '@contains(activity(\'Export Windows Without AHB\').output.errors[0].Message, \'Sequence contains no elements\')'
-            type: 'Expression'
-          }
-          ifFalseActivities: [
-            {
-              name: 'Set Windows No AHB Error Counter'
-              type: 'SetVariable'
-              dependsOn: []
-              policy: {
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                variableName: 'pipelineFailed'
-                value: {
-                  value: '@bool(true)'
-                  type: 'Expression'
-                }
-              }
-            }
-          ]
-        }
-      }
-      { // Get SQL VMs Without AHB
-        name: 'Export SQL VMs Without AHB'
-        type: 'Copy'
-        dependsOn: [
-          {
-            activity: 'Export Windows Without AHB'
-            dependencyConditions: [
-              'Completed'
-            ]
-          }
-        ]
-        policy: {
-          timeout: '0.00:10:00'
-          retry: 0
-          retryIntervalInSeconds: 60
-          secureOutput: false
-          secureInput: false
-        }
-        userProperties: []
-        typeProperties: {
-          source: {
-            type: 'RestSource'
-            httpRequestTimeout: '00:02:00'
-            requestInterval: '00.00:00:00.050'
-            requestMethod: 'POST'
-            requestBody: '{\n  "query": "resourcecontainers \n| where type =~ \'Microsoft.Resources/subscriptions\' \n| where tostring (properties.subscriptionPolicies.quotaId) !has \'MSDNDevTest_2014-09-01\' \n| extend SubscriptionName=name \n| join (\n     resources | where type =~ \'Microsoft.SqlVirtualMachine/SqlVirtualMachines\' and tostring(properties.[\'sqlServerLicenseType\']) != \'AHUB\' \n    | extend SQLID=id, VMName = name, resourceGroup, Location = location, LicenseType = tostring(properties.[\'sqlServerLicenseType\']), OSType=tostring(properties.storageProfile.imageReference.offer), SQLAgentType = tostring(properties.[\'sqlManagement\']), SQLVersion = tostring(properties.[\'sqlImageOffer\']), SQLSKU=tostring(properties.[\'sqlImageSku\'])\n) on subscriptionId \n| join (\n    resources\n    | where type =~ \'Microsoft.Compute/virtualmachines\'\n    | extend ActualCores = toint(extract(\'.[A-Z]([0-9]+)\', 1, tostring(properties.hardwareProfile.vmSize)))\n    | project VMName = tolower(name), VMSize = tostring(properties.hardwareProfile.vmSize),ActualCores, subscriptionId, vmType=type, vmResourceGroup=resourceGroup\n) on VMName\n| order by id asc    \n| where SQLSKU != \'Developer\' and SQLSKU != \'Express\'\n| extend CheckAHBSQLVM= case(\n    type == \'Microsoft.SqlVirtualMachine/SqlVirtualMachines\', iif((properties.[\'sqlServerLicenseType\']) != \'AHUB\', \'AHB-disabled\', \'AHB-enabled\'),\n    \'Not Windows\'\n)\n| project SQLID,VMName,resourceGroup, Location, VMSize, SQLVersion, SQLSKU, SQLAgentType, LicenseType, SubscriptionName,type,CheckAHBSQLVM, subscriptionId,ActualCores, vmType, vmResourceGroup\n| project \n    x_RecommendationId=strcat(tolower(SQLID),\'-CheckAHBSQLVM\'), \n    x_ResourceGroupName=tolower(vmResourceGroup), \n    SubAccountId=subscriptionId, \n    x_RecommendationCategory=\'Cost\', \n    x_RecommendationProvider=\'Microsoft.FinOpsToolkit\', \n    x_RecommendationImpact=\'High\', \n    x_RecommendationTypeId=\'01decd62-f91b-4434-abe5-9a09e13e018f\', \n    x_RecommendationControl=\'RateOptimization/Licensing\', \n    x_RecommendationMaturityLevel=\'Preview\', \n    x_RecommendationDescription=\'SQL virtual machine is not leveraging Azure Hybrid Benefit\', \n    x_RecommendationSolution=\'Review the SQL licensing option\', \n    ResourceId = tolower(SQLID), \n    x_ResourceType=vmType, \n    ResourceName=tolower(VMName), \n    x_RecommendationDetails= strcat(\'{\\"VMSize\\": \\"\', VMSize, \'\\", \\"CheckAHBSQLVM\\": \\"\', CheckAHBSQLVM, \'\\", \\"ActualCores\\": \\"\', ActualCores, \'\\", \\"SQLVersion\\": \\"\', SQLVersion, \'\\", \\"SQLSKU\\": \\"\', SQLSKU, \'\\", \\"SQLAgentType\\": \\"\', SQLAgentType, \'\\", \\"LicenseType\\": \\"\', LicenseType, \'\\", \\"Location\\": \\"\', Location, \'\\"}\'), \n    x_RecommendationDate = now() \n| join kind=leftouter ( resourcecontainers | where type == \'microsoft.resources/subscriptions\' | project SubAccountName=name, SubAccountId=subscriptionId ) on SubAccountId \n| project-away SubAccountId1"\n}'
-            additionalHeaders: {
-              'Content-Type': 'application/json'
-            }
-          }
-          sink: {
-            type: 'ParquetSink'
-            storeSettings: {
-              type: 'AzureBlobFSWriteSettings'
-            }
-            formatSettings: {
-              type: 'ParquetWriteSettings'
-              fileExtension: '.parquet'
-            }
-          }
-          enableStaging: false
-          translator: {
-            value: '@activity(\'Load Schema Mappings\').output.firstRow.translator'
-            type: 'Expression'
-          }
-        }
-        inputs: [
-          {
-            referenceName: 'resourcegraph'
-            type: 'DatasetReference'
-            parameters: {}
-          }
-        ]
-        outputs: [
-          {
-            referenceName: 'ingestion'
-            type: 'DatasetReference'
-            parameters: {
-              blobPath: {
-                value: '@concat(variables(\'blobBasePath\'), \'cost-custom-database-sqlnoahb.parquet\')'
-                type: 'Expression'
-              }
-            }
-          }
-        ]
-      }
-      { // Error: Get SQL VMs Without AHB
-        name: 'Catch SQL VMs Without AHB Failure'
-        type: 'IfCondition'
-        dependsOn: [
-          {
-            activity: 'Export SQL VMs Without AHB'
-            dependencyConditions: [
-              'Failed'
-            ]
-          }
-        ]
-        userProperties: []
-        typeProperties: {
-          expression: {
-            value: '@contains(activity(\'Export SQL VMs Without AHB\').output.errors[0].Message, \'Sequence contains no elements\')'
-            type: 'Expression'
-          }
-          ifFalseActivities: [
-            {
-              name: 'Set SQL VMs No AHB Error Counter'
-              type: 'SetVariable'
-              dependsOn: []
-              policy: {
-                secureOutput: false
-                secureInput: false
-              }
-              userProperties: []
-              typeProperties: {
-                variableName: 'pipelineFailed'
-                value: {
-                  value: '@bool(true)'
-                  type: 'Expression'
-                }
+                ifFalseActivities: [
+                  {
+                    name: 'Set Query Error Counter'
+                    type: 'SetVariable'
+                    dependsOn: []
+                    policy: {
+                      secureOutput: false
+                      secureInput: false
+                    }
+                    userProperties: []
+                    typeProperties: {
+                      variableName: 'pipelineFailed'
+                      value: {
+                        value: '@bool(true)'
+                        type: 'Expression'
+                      }
+                    }
+                  }
+                ]
               }
             }
           ]
@@ -6147,13 +5280,7 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
         type: 'IfCondition'
         dependsOn: [
           {
-            activity: 'Export SQL VMs Without AHB'
-            dependencyConditions: [
-              'Completed'
-            ]
-          }
-          {
-            activity: 'Catch SQL VMs Without AHB Failure'
+            activity: 'Iterate Queries'
             dependencyConditions: [
               'Completed'
             ]
