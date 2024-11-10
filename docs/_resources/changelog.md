@@ -71,6 +71,7 @@ Legend:
 >    - All data processing now happens within a vNet.
 >    - Added param to disable external access to data lake
 >    - Added param to specify subnet range of vnet - minumum size = /27
+> 6. Infrastructure encryption - Added an optional enableInfrastructureEncryption template parameter to support storage account infrastructure encryption.
 
 📊 Power BI reports
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -144,6 +145,9 @@ Legend:
 > ➕ Added:
 >
 > 1. Option to ingest data into an Azure Data Explorer cluster.
+> 2. Support for FOCUS 1.0r2 exports.
+>    - The 1.0r2 dataset only differs in date formatting. There are no functional differences compared to 1.0.
+>    - The 1.0r2 dataset is only needed when ingesting data into a system that requires date/time values to include seconds (for example, "2024-01-01T00:00:00Z" where the last "00" is seconds).
 >
 > ✏️ Changed:
 >

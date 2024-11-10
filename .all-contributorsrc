@@ -454,6 +454,7 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/59753782?v=4",
       "profile": "https://github.com/ro100e",
       "contributions": [
+        "code",
         "doc"
       ]
     },
@@ -539,6 +540,15 @@
       "profile": "https://github.com/grantxyzou",
       "contributions": [
         "design"
+      ]
+    },
+    {
+      "login": "juyamagu",
+      "name": "Junya Yamaguchi",
+      "avatar_url": "https://avatars.githubusercontent.com/u/52237425?v=4",
+      "profile": "https://github.com/juyamagu",
+      "contributions": [
+        "code"
       ]
     }
   ],

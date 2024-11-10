@@ -166,6 +166,7 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
   }
   properties: {
     enableStreamingIngest: true
+    enableAutoStop: false
   }
 
   resource ingestionDb 'databases' = {
@@ -176,7 +177,7 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
     resource ingestionCommonScript 'scripts' = {
       name: 'CommonFunctions'
       properties: {
-        scriptContent: loadTextContent('scripts/IngestionSetup.kql')
+        scriptContent: loadTextContent('scripts/Common.kql')
         continueOnErrors: continueOnErrors
         forceUpdateTag: forceUpdateTag
       }
@@ -207,7 +208,7 @@ resource cluster 'Microsoft.Kusto/clusters@2023-08-15' = {
     resource ingestionCommonScript 'scripts' = {
       name: 'CommonFunctions'
       properties: {
-        scriptContent: loadTextContent('scripts/IngestionSetup.kql')
+        scriptContent: loadTextContent('scripts/Common.kql')
         continueOnErrors: continueOnErrors
         forceUpdateTag: forceUpdateTag
       }
