@@ -106,7 +106,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
       keySource: 'Microsoft.Storage'
       requireInfrastructureEncryption: enableInfrastructureEncryption
     }
-    }, {
+  }, {
     supportsHttpsTrafficOnly: true
     allowSharedKeyAccess: true
     isHnsEnabled: true
