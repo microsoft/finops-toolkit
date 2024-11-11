@@ -39,7 +39,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "1 GB","MCA, EA",1,GB
 "1 GB Hour","MCA, EA",1,GB Hours
 "1 GB Second","MCA, EA",1,GB Seconds
-"1 GB/Day",MCA,1,GB/Day
+"1 GB/Day","MCA, EA",1,GB/Day
 "1 GB/Hour","MCA, EA",1,GB/Hour
 "1 GB/Month","MCA, EA",1,GB/Month
 "1 GB/hora",MCA,1,GB/Hour
@@ -79,8 +79,8 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "1 Plans",EA,1,Plans
 "1 Policies",EA,1,Policies
 "1 Resource",EA,1,Resources
-"1 Rotation",MCA,1,Rotation
-"1 Second",MCA,1,Seconds
+"1 Rotation","MCA, EA",1,Rotation
+"1 Second","MCA, EA",1,Seconds
 "1 Sites",EA,1,Sites
 "1 Subscription",EA,1,Subscriptions
 "1 Subscriptions",EA,1,Subscriptions
@@ -307,7 +307,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "10K Transactions",MCA,10000,Transactions
 "10K/Hour",MCA,10000,Units/Hour
 "10K/Month","MCA, EA",10000,Units/Month
-"10M",MCA,10000000,Units
+"10M","MCA, EA",10000000,Units
 "128 MB","MCA, EA",128,MB
 "150 Hours",EA,150,Hours
 "1B",MCA,1000000000,Units
@@ -372,7 +372,7 @@ UnitOfMeasure,AccountTypes,PricingBlockSize,DistinctUnits
 "Minute(s)","MCA, EA",1,Minutes
 "Per Call","MCA, EA",1,Calls
 "Per Request",MCA,1,Requests
-"Text",MCA,1,Messages
+"Text","MCA, EA",1,Messages
 "Unassigned",EA,1,Units
 "Unit",MCA,1,Units
 "Units",MCA,1,Units
