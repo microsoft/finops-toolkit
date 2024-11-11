@@ -24,7 +24,7 @@ var vNetName = '${safeHubName}-vnet-${location}'
 var nsgName = '${vNetName}-nsg'
 var subnets = [
   {
-    name: 'finops-hub-subnet'
+    name: 'private-endpoint-subnet'
     properties: {
       addressPrefix: cidrSubnet(virtualNetworkAddressPrefix, 28, 0)
       networkSecurityGroup: {
