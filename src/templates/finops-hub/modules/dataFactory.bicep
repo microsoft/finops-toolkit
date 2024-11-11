@@ -249,8 +249,8 @@ resource dataExplorerManagedPrivateEndpoint 'Microsoft.DataFactory/factories/man
 }
 
 
-module getdataExplorerPrivateEndpointConnections 'dataExplorerEndpoints.bicep' = if (deployDataExplorer) {
-  name: 'GetdataExplorerPrivateEndpointConnections'
+module getDataExplorerPrivateEndpointConnections 'dataExplorerEndpoints.bicep' = if (deployDataExplorer) {
+  name: 'GetDataExplorerPrivateEndpointConnections'
   dependsOn: [
     stopTriggers
   ]
@@ -259,14 +259,14 @@ module getdataExplorerPrivateEndpointConnections 'dataExplorerEndpoints.bicep' =
   }
 }
 
-module approvedataExplorerPrivateEndpointConnections 'dataExplorerEndpoints.bicep' = if (deployDataExplorer) {
-  name: 'ApprovedataExplorerPrivateEndpointConnections'
+module approveDataExplorerPrivateEndpointConnections 'dataExplorerEndpoints.bicep' = if (deployDataExplorer) {
+  name: 'ApproveDataExplorerPrivateEndpointConnections'
   dependsOn: [
-    getdataExplorerPrivateEndpointConnections
+    getDataExplorerPrivateEndpointConnections
   ]
   params: {
     dataExplorerName: dataExplorerName
-    privateEndpointConnections: getdataExplorerPrivateEndpointConnections.outputs.privateEndpointConnections
+    privateEndpointConnections: getDataExplorerPrivateEndpointConnections.outputs.privateEndpointConnections
   }
 }
 
@@ -714,7 +714,7 @@ resource dataset_dataExplorer 'Microsoft.DataFactory/factories/datasets@2018-06-
       parameters: {
         database: '@dataset().database'
       }
-      referenceName: linkedService_dataExplorer.name
+      referenceName: dataExplorerName
       type: 'LinkedServiceReference'
     }
     parameters: {
