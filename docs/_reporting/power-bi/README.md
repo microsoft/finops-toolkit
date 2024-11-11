@@ -33,7 +33,7 @@ Accelerate your analytics efforts with simple, targeted reports. Summarize and b
 
 ## 📈 Available reports
 
-The FinOps toolkit includes two sets of reports that connect to different data sources. We recommend using the following reports which connect to Cost Management exports or [FinOps hubs](../hubs/README.md):
+The FinOps toolkit includes the following reports that can connect to exported data in a storage account:
 
 - [Cost summary](./cost-summary.md) – Overview of amortized costs with common breakdowns.
 - [Rate optimization](./rate-optimization.md) – Summarizes existing and potential savings from commitment discounts.
@@ -41,7 +41,9 @@ The FinOps toolkit includes two sets of reports that connect to different data s
 - [Cloud policy and governance](./governance.md) – Summarize cloud governance posture including areas like compliance, security, operations, and resource management.
 - [Data ingestion](./data-ingestion.md) – Provides insights into your data ingestion layer.
 
-The following reports use the Cost Management connector for Power BI to connect to your data. While the connector is not recommended due to the reasons below, these reports will be available as long as the connector is supported by the Cost Management team.
+If you need to monitor more than $5M in spend, we generally recommend using KQL-based reports that connect to [FinOps hubs](../hubs/README.md) with Azure Data Explorer. As of November 2024, only the Cost summary and Rate optimization reports connect to Data Explorer. Additional reports will come in future updates. Organizations who need other reports can continue to connect to the underlying hub storage account.
+
+In addition, the following reports use the Cost Management connector for Power BI to connect to your data. While the connector is not recommended, these reports will be available as long as the connector is supported by the Cost Management team.
 
 - [Cost Management connector](./connector.md) – Summarizes costs, savings, and commitment discounts using the Cost Management connector for EA and MCA accounts.
 - [Cost Management template app](./template-app.md) (EA only) – The original Cost Management template app as a customizable PBIX file.
