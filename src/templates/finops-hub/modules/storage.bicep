@@ -79,6 +79,9 @@ var schemaFiles = {
   'reservationtransactions_2023-05-01_mca': loadTextContent('../schemas/reservationtransactions_2023-05-01_mca.json')
   'recommendations_1.0': loadTextContent('../schemas/recommendations_1.0.json')
 }
+var queriesFiles = {
+  'Recommendations': loadTextContent('./scripts/Recommendations.json')
+}
 
 // Roles needed to auto-start triggers
 // Storage Blob Data Contributor - used by deployment scripts to write data to blob storage
@@ -404,6 +407,10 @@ resource uploadSettings 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
       {
         name: 'schemaFiles'
         value: string(schemaFiles)
+      }
+      {
+        name: 'queriesFiles'
+        value: string(queriesFiles)
       }
     ]
     scriptContent: loadTextContent('./scripts/Copy-FileToAzureBlob.ps1')

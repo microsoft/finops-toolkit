@@ -5129,8 +5129,8 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
             referenceName: dataset_config.name
             type: 'DatasetReference'
             parameters: {
-              fileName: 'queries.json'
-              folderPath: '${configContainerName}/argexports'
+              fileName: 'Recommendations.json'
+              folderPath: '${configContainerName}/queries'
             }
           }
           firstRowOnly: true
@@ -5168,7 +5168,7 @@ resource pipeline_ExecuteRecommendations 'Microsoft.DataFactory/factories/pipeli
         userProperties: []
         typeProperties: {
           items: {
-            value: '@activity(\'Load Queries\').output.firstRow.recommendations'
+            value: '@activity(\'Load Queries\').output.firstRow.queries'
             type: 'Expression'
           }
           isSequential: true

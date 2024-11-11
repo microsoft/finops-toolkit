@@ -1224,7 +1224,7 @@ Recommendations_transform_v1_0()
     // Set source columns
     | extend x_SourceName     = coalesce(x_SourceName, iff(ProviderName == 'Microsoft', 'Cost Management', ProviderName))
     | extend x_SourceProvider = coalesce(x_SourceProvider, ProviderName)
-    | extend x_SourceType     = coalesce(x_SourceType, iff(ProviderName == 'Microsoft', 'ReservationRecommendations', iif(ProviderName in ('Microsoft.Advisor','Microsoft.FinOpsToolkit'), 'AdvisorRecommendations', '')))
+    | extend x_SourceType     = coalesce(x_SourceType, iff(ProviderName == 'Microsoft', 'ReservationRecommendations', iif(ProviderName in ('Microsoft.Advisor','Microsoft.FinOpsToolkit'), 'Recommendations', '')))
     | extend x_SourceVersion  = coalesce(x_SourceVersion, iff(ProviderName == 'Microsoft', '2023-05-01', ''))
     //
     // Build recommendation details
@@ -1243,7 +1243,7 @@ Recommendations_transform_v1_0()
         'SkuSize', coalesce(SKU, SkuName),
         'SkuTerm', isoMonths(Term)
       ),
-      x_SourceType == 'AdvisorRecommendations', bag_pack(
+      x_SourceType == 'Recommendations', bag_pack(
         'ResourceId', ResourceId,
         'ResourceName', ResourceName,
         'ResourceGroupName', x_ResourceGroupName,
