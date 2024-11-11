@@ -57,11 +57,12 @@ param tagsByResource object = {}
 var focusSchemaVersion = '1.0'
 var ftkVersion = loadTextContent('ftkver.txt')
 var exportApiVersion = '2023-07-01-preview'
+var hubDataExplorerName = 'HubDataExplorer'
 
 // Function to generate the body for a Cost Management export
 func getExportBody(exportContainerName string, datasetType string, schemaVersion string, isMonthly bool, exportFormat string, compressionMode string, partitionData string, dataOverwriteBehavior string) string => '{ "properties": { "definition": { "dataSet": { "configuration": { "dataVersion": "${schemaVersion}", "filters": [] }, "granularity": "Daily" }, "timeframe": "${isMonthly ? 'TheLastMonth': 'MonthToDate' }", "type": "${datasetType}" }, "deliveryInfo": { "destination": { "container": "${exportContainerName}", "rootFolderPath": "@{if(startswith(item().scope, \'/\'), substring(item().scope, 1, sub(length(item().scope), 1)) ,item().scope)}", "type": "AzureBlob", "resourceId": "@{variables(\'storageAccountId\')}" } }, "schedule": { "recurrence": "${ isMonthly ? 'Monthly' : 'Daily'}", "recurrencePeriod": { "from": "2024-01-01T00:00:00.000Z", "to": "2050-02-01T00:00:00.000Z" }, "status": "Inactive" }, "format": "${exportFormat}", "partitionData": "${partitionData}", "dataOverwriteBehavior": "${dataOverwriteBehavior}", "compressionMode": "${compressionMode}" }, "id": "@{variables(\'resourceManagementUri\')}@{item().scope}/providers/Microsoft.CostManagement/exports/@{variables(\'exportName\')}", "name": "@{variables(\'exportName\')}", "type": "Microsoft.CostManagement/reports", "identity": { "type": "systemAssigned" }, "location": "global" }'
 
-var deployDataExplorer = !empty(dataExplorerName)
+var deployDataExplorer = !empty(dataExplorerId)
 
 var datasetPropsDefault = {
     location: {
@@ -236,10 +237,10 @@ module approveKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = {
 }
 
 resource dataExplorerManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = if (deployDataExplorer) {
-  name: dataExplorerName
+  name: hubDataExplorerName
   parent: managedVirtualNetwork
   properties: {
-    name: dataExplorerName
+    name: hubDataExplorerName
     groupId: 'cluster'
     privateLinkResourceId: dataExplorerId
     fqdns: [
@@ -248,11 +249,10 @@ resource dataExplorerManagedPrivateEndpoint 'Microsoft.DataFactory/factories/man
   }
 }
 
-
 module getDataExplorerPrivateEndpointConnections 'dataExplorerEndpoints.bicep' = if (deployDataExplorer) {
   name: 'GetDataExplorerPrivateEndpointConnections'
   dependsOn: [
-    stopTriggers
+    dataExplorerManagedPrivateEndpoint
   ]
   params: {
     dataExplorerName: dataExplorerName
@@ -280,6 +280,7 @@ resource triggerManagerIdentity 'Microsoft.ManagedIdentity/userAssignedIdentitie
   location: location
   tags: union(tags, contains(tagsByResource, 'Microsoft.ManagedIdentity/userAssignedIdentities') ? tagsByResource['Microsoft.ManagedIdentity/userAssignedIdentities'] : {})
 }
+
 resource triggerManagerRoleAssignments 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for role in autoStartRbacRoles: {
   name: guid(dataFactory.id, role, triggerManagerIdentity.id)
   scope: dataFactory
@@ -426,7 +427,7 @@ resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedser
 }
 
 resource linkedService_dataExplorer 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = if (deployDataExplorer) {
-  name: dataExplorerName
+  name: hubDataExplorerName
   parent: dataFactory
   properties: {
     type: 'AzureDataExplorer'
@@ -706,15 +707,18 @@ resource dataset_ingestion_files 'Microsoft.DataFactory/factories/datasets@2018-
 }
 
 resource dataset_dataExplorer 'Microsoft.DataFactory/factories/datasets@2018-06-01' = if (deployDataExplorer) {
-  name: 'hubDataExplorer'
+  name: hubDataExplorerName
   parent: dataFactory
+  dependsOn: [
+    approveDataExplorerPrivateEndpointConnections
+  ]
   properties: {
     type: 'AzureDataExplorerTable'
     linkedServiceName: {
       parameters: {
         database: '@dataset().database'
       }
-      referenceName: dataExplorerName
+      referenceName: hubDataExplorerName
       type: 'LinkedServiceReference'
     }
     parameters: {
@@ -1084,7 +1088,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                 commandTimeout: '00:20:00'
               }
               linkedServiceName: {
-                referenceName: dataExplorerName
+                referenceName: hubDataExplorerName
                 type: 'LinkedServiceReference'
                 parameters: {
                   database: dataExplorerIngestionDatabase
@@ -1161,7 +1165,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: dataExplorerName
+                      referenceName: hubDataExplorerName
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -1192,7 +1196,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: dataExplorerName
+                      referenceName: hubDataExplorerName
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -1223,7 +1227,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: dataExplorerName
+                      referenceName: hubDataExplorerName
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -1254,7 +1258,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: dataExplorerName
+                      referenceName: hubDataExplorerName
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -1285,7 +1289,7 @@ resource pipeline_InitializeHub 'Microsoft.DataFactory/factories/pipelines@2018-
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: dataExplorerName
+                      referenceName: hubDataExplorerName
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -3967,9 +3971,6 @@ resource pipeline_ExecuteIngestionETL 'Microsoft.DataFactory/factories/pipelines
 resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018-06-01' = if (deployDataExplorer) {
   name: '${safeIngestionContainerName}_ETL_dataExplorer'
   parent: dataFactory
-  dependsOn: [
-    stopTriggers // Can't reference dataset and linked service directly because they're conditional.
-  ]
   properties: {
     // concurrency: 8  // sanity check
     activities: [
@@ -4169,7 +4170,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                 commandTimeout: '00:20:00'
               }
               linkedServiceName: {
-                referenceName: dataExplorerName
+                referenceName: hubDataExplorerName
                 type: 'LinkedServiceReference'
               }
             }
@@ -4243,7 +4244,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: dataExplorerName
+                      referenceName: hubDataExplorerName
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -4294,7 +4295,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: dataExplorerName
+                      referenceName: hubDataExplorerName
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -4404,7 +4405,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: dataExplorerName
+                      referenceName: hubDataExplorerName
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
@@ -4438,7 +4439,7 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
                       commandTimeout: '00:20:00'
                     }
                     linkedServiceName: {
-                      referenceName: dataExplorerName
+                      referenceName: hubDataExplorerName
                       type: 'LinkedServiceReference'
                       parameters: {
                         database: dataExplorerIngestionDatabase
