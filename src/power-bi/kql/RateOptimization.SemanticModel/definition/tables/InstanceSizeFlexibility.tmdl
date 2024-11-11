@@ -1,0 +1,93 @@
+/// Instance size flexibility data loaded from a Cost Management storage account. Use anonymous access to connect to this data.
+table InstanceSizeFlexibility
+	lineageTag: 9b860b11-eaaf-481a-b298-c8811f7d3f7b
+
+	column x_CommitmentDiscountFlexGroup
+		dataType: string
+		lineageTag: 7add605b-e09b-430f-bf63-c3c50ef809a5
+		summarizeBy: none
+		sourceColumn: x_CommitmentDiscountFlexGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column RegionId
+		dataType: string
+		lineageTag: 9265f279-23e1-4705-b535-a4c3cedfb399
+		summarizeBy: none
+		sourceColumn: RegionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuType
+		dataType: string
+		lineageTag: 6255a4d8-7dd0-4200-9924-92ecc4619bc4
+		summarizeBy: none
+		sourceColumn: x_SkuType
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CommitmentDiscountFlexRatio
+		dataType: int64
+		formatString: 0
+		lineageTag: fd2c7cef-e024-49c6-a8c9-6d1f61cb621d
+		summarizeBy: sum
+		sourceColumn: x_CommitmentDiscountFlexRatio
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuComboMeter
+		dataType: string
+		lineageTag: 8d5a15bf-7fda-4227-b630-da19c6ef34c7
+		summarizeBy: none
+		sourceColumn: x_SkuComboMeter
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuHardwareMeter
+		dataType: string
+		lineageTag: e7c4ead3-c0b0-4ccf-ba41-1dcc4e35441a
+		summarizeBy: none
+		sourceColumn: x_SkuHardwareMeter
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuSoftwareMeter
+		dataType: string
+		lineageTag: fabad1ee-6026-4f78-8243-5731a724be59
+		summarizeBy: none
+		sourceColumn: x_SkuSoftwareMeter
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_CommitmentDiscountKey
+		dataType: string
+		lineageTag: f9f3cf14-fafb-40d3-b892-48f33785faba
+		summarizeBy: none
+		sourceColumn: x_CommitmentDiscountKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column x_SkuTypeNormalized
+		dataType: string
+		lineageTag: 760948b3-59af-4206-aee5-f1000d7a896c
+		summarizeBy: none
+		sourceColumn: x_SkuTypeNormalized
+
+		annotation SummarizationSetBy = Automatic
+
+	partition InstanceSizeFlexibility = m
+		mode: import
+		queryGroup: 'Open data'
+		source =
+				let
+				    Source = Csv.Document(AzureStorage.BlobContents("https://ccmstorageprod.blob.core.windows.net/costmanagementconnector-data/AutofitComboMeterData.csv"),[Delimiter=",", Columns=9, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"InstanceSizeFlexibilityGroup", type text}, {"ResourceLocation", type text}, {"ArmSkuName", type text}, {"Ratio", Int64.Type}, {"ComboMeter", type text}, {"HardwareMeter", type text}, {"SoftwareMeter", type text}, {"CompositeKey", type text}, {"NormalizedSKU", type text}}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Changed Type",{{"ArmSkuName", "x_SkuType"}, {"ComboMeter", "x_SkuComboMeter"}, {"CompositeKey", "x_CommitmentDiscountKey"}, {"HardwareMeter", "x_SkuHardwareMeter"}, {"InstanceSizeFlexibilityGroup", "x_CommitmentDiscountFlexGroup"}, {"NormalizedSKU", "x_SkuTypeNormalized"}, {"ResourceLocation", "RegionId"}, {"SoftwareMeter", "x_SkuSoftwareMeter"}, {"Ratio", "x_CommitmentDiscountFlexRatio"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

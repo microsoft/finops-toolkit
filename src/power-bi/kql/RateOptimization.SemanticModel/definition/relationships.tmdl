@@ -1,0 +1,12 @@
+relationship 4564a47b-eaad-4726-2ce4-df8734c5ae7c
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: InstanceSizeFlexibility.x_CommitmentDiscountKey
+	toColumn: ReservationRecommendations.x_CommitmentDiscountKey
+
+relationship dab2c030-13ce-25fc-832c-1a5a5b7e32e3
+	crossFilteringBehavior: bothDirections
+	toCardinality: many
+	fromColumn: CommitmentDiscountCosts.x_CommitmentDiscountKey
+	toColumn: ReservationRecommendations.x_CommitmentDiscountKey
+

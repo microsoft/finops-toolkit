@@ -47,9 +47,6 @@ HubSettings()
 with (docstring='Gets the currently configured scopes.', folder='Settings')
 HubScopes()
 {
-    // TODO: Detect any scopes that are duplicated via the drop-by folder path
-    // TODO: Create an array of missing data based on the configured retention setting
-    // TODO: Add min/max data timestamps for each scope
     HubSettings
     | project scopes
     | mv-expand scopes
@@ -157,24 +154,7 @@ HubScopes()
 with (docstring='Transforms Prices_raw into FOCUS 1.0.', folder='Prices')
 Prices_transform_v1_0()
 {
-    // TODO: Handle null MeterId
-    // TODO: Consider adding x_CommitmentDiscountMinimum (as in the minimum commitment amount; e.g., 100TB, 1PB, 10PB for storage)
-    // TODO: Consider adding x_CommitmentDiscountNormalizedRatio
-    // TODO: Consider adding x_ServiceModel
-    // TODO: Consider cleaning up x_SkuRegion
-    // TODO: Consider creating new rows for reservation usage
-    // TODO: SkuPriceId should not be "_" for unused savings plan rows
-    // TODO: Why is MeterName missing for some records (e.g., reservations)?
-    // TODO: Why are 309 meters missing all meter metadata for MCA?
-    // TODO: Why is MarketPrice not the on-demand list price for savings plan prices?
-    // TODO: Why is MarketPrice ~= UnitPrice (but not ==) for savings plan prices?
-    // TODO: Why are there Az Stack and Az Comm Services meters with "Unassigned" ProductName, MeterCategory, MeterSubcategory, MeterName, MeterRegion?
-    // TODO: Does ListUnitPrice/x_EffectiveUnitPrice match usage data for savings plans?
-    // TODO: Does x_SkuMeterName match usage data?
-    // TODO: Does the effective start date for reservation prices change based on the export date?
-    // TODO: How can we differentiate between Microsoft and third-party meters?
-    // TODO: How do we create a unique ID for third-party meters for MCA?
-    // TODO: How do we differentiate dev/test for MCA?
+    // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
     let isoMonths = (duration: string) {
         let number = toint(replace_regex(duration, @'[PMY]', ''));
         toint(case(
@@ -249,9 +229,9 @@ Prices_transform_v1_0()
     | lookup kind=leftouter (PricingUnits) on x_PricingUnitDescription
     //
     | extend x_EffectiveUnitPrice = iff(x_SkuPriceType == 'SavingsPlan', UnitPrice, todecimal(''))  // Savings plan prices are for the effective price, not the contracted price
-    | extend x_CommitmentUnitPriceSavings = ContractedUnitPrice - x_EffectiveUnitPrice
-    | extend x_NegotiatedUnitPriceSavings = ListUnitPrice - ContractedUnitPrice
-    | extend x_TotalUnitPriceSavings = ListUnitPrice - x_EffectiveUnitPrice
+    | extend x_EffectiveUnitPriceDiscount = ContractedUnitPrice - x_EffectiveUnitPrice
+    | extend x_ContractedUnitPriceDiscount = ListUnitPrice - ContractedUnitPrice
+    | extend x_TotalUnitPriceDiscount = ListUnitPrice - x_EffectiveUnitPrice
     | project
         BillingAccountId = case(
             BillingProfileId startswith '/', BillingProfileId,
@@ -293,14 +273,14 @@ Prices_transform_v1_0()
         x_BillingProfileId,
         x_CommitmentDiscountSpendEligibility,
         x_CommitmentDiscountUsageEligibility,
-        x_CommitmentUnitPriceSavings,
-        x_CommitmentUnitPriceSavingsPercent = 1.0 * x_CommitmentUnitPriceSavings / ContractedUnitPrice * 100,
+        x_ContractedUnitPriceDiscount,
+        x_ContractedUnitPriceDiscountPercent = 1.0 * x_ContractedUnitPriceDiscount / ListUnitPrice * 100,
         x_EffectivePeriodEnd = startofmonth(x_EffectivePeriodEnd + 1h),
         x_EffectivePeriodStart,
         x_EffectiveUnitPrice,
+        x_EffectiveUnitPriceDiscount,
+        x_EffectiveUnitPriceDiscountPercent = 1.0 * x_EffectiveUnitPriceDiscount / ContractedUnitPrice * 100,
         x_IngestionTime,
-        x_NegotiatedUnitPriceSavings,
-        x_NegotiatedUnitPriceSavingsPercent = 1.0 * x_NegotiatedUnitPriceSavings / ListUnitPrice * 100,
         x_PricingBlockSize,
         x_PricingCurrency = coalesce(Currency, CurrencyCode),  // CurrencyCode last as a fallback only
         x_PricingSubcategory = case(
@@ -331,8 +311,8 @@ Prices_transform_v1_0()
         x_SourceProvider = coalesce(x_SourceProvider, 'Microsoft'),
         x_SourceType = coalesce(x_SourceType, 'PriceSheet'),
         x_SourceVersion = coalesce(x_SourceVersion, '2023-05-01'),
-        x_TotalUnitPriceSavings,
-        x_TotalUnitPriceSavingsPercent = 1.0 * x_TotalUnitPriceSavings / ListUnitPrice * 100
+        x_TotalUnitPriceDiscount,
+        x_TotalUnitPriceDiscountPercent = 1.0 * x_TotalUnitPriceDiscount / ListUnitPrice * 100
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -359,14 +339,14 @@ Prices_transform_v1_0()
     x_BillingProfileId:                   string,    // Azure MCA
     x_CommitmentDiscountSpendEligibility: string,    // Hubs add-on
     x_CommitmentDiscountUsageEligibility: string,    // Hubs add-on
-    x_CommitmentUnitPriceSavings:         decimal,   // Hubs add-on
-    x_CommitmentUnitPriceSavingsPercent:  decimal,   // Hubs add-on
+    x_ContractedUnitPriceDiscount:        decimal,   // Hubs add-on
+    x_ContractedUnitPriceDiscountPercent: decimal,   // Hubs add-on
     x_EffectivePeriodEnd:                 datetime,  // Azure
     x_EffectivePeriodStart:               datetime,  // Azure
     x_EffectiveUnitPrice:                 decimal,   // Azure
+    x_EffectiveUnitPriceDiscount:         decimal,   // Hubs add-on
+    x_EffectiveUnitPriceDiscountPercent:  decimal,   // Hubs add-on
     x_IngestionTime:                      datetime,  // Hubs add-on
-    x_NegotiatedUnitPriceSavings:         decimal,   // Hubs add-on
-    x_NegotiatedUnitPriceSavingsPercent:  decimal,   // Hubs add-on
     x_PricingBlockSize:                   decimal,   // Hubs add-on
     x_PricingCurrency:                    string,    // Azure
     x_PricingSubcategory:                 string,    // Hubs add-on
@@ -391,8 +371,8 @@ Prices_transform_v1_0()
     x_SourceProvider:                     string,    // Hubs add-on
     x_SourceType:                         string,    // Hubs add-on
     x_SourceVersion:                      string,    // Hubs add-on
-    x_TotalUnitPriceSavings:              decimal,   // Hubs add-on
-    x_TotalUnitPriceSavingsPercent:       decimal    // Hubs add-on
+    x_TotalUnitPriceDiscount:             decimal,   // Hubs add-on
+    x_TotalUnitPriceDiscountPercent:      decimal    // Hubs add-on
 )
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -562,35 +542,7 @@ Prices_transform_v1_0()
 with (docstring='All costs transformed to FOCUS 1.0.', folder='Costs')
 Costs_transform_v1_0()
 {
-    // TODO: Add ServiceModel
-    // TODO: Add CommitmentDiscountSpend/UsageEligibility
-    // TODO: Consider fixing PricingQuantity and ContractedCost with bad values due to the wrong PricingQuantity scale
-    // TODO: Consider fixing "Other" ServiceCategory values
-    // TODO: Consider replacing "Microsoft Corporation" PublisherName values
-    // TODO: Fix FOCUS conformance gaps
-    // TODO: ContractedCost/UnitPrice are 0 for commitment discount purchases
-    // TODO: Savings plan purchases show a ChargeFrequency of "Usage-Based" but should be "One-Time" or "Recurring"
-    // TODO: Savings plan purchases do not have a ServiceName
-    // TODO: x_BilledUnitPrice is 0 for commitment discount purchases
-    // TODO: Lowercase Microsoft 1.0-preview ResourceId values
-    // TODO: Should commitment discount purchases have a time for ChargeperiodStart/End?
-    // TODO: Should Adjustment costs be on List/ContractedCost?
-    // TODO: PublisherName "Microsoft Corporation" -> "Microsoft"
-    // TODO: File a bug on CM for ContractedCost being off by the x_PricingBlockSize
-    // TODO: PricingUnit is incorrect for reservation purchases
-    // TODO: Reservation usage has List/ContractedCost but Effective/BilledCost == 0
-    // TODO: Create a pattern for identifying (and filtering out) commitment discount purchases (so they aren't dobule-counted)
-    // TODO: PricingUnit is "Units" when it should be "Operations"
-    // TODO: Consider setting BillingAccountType/SubAccountType for non-Azure datasets
-    // TODO: Replace SkuId/SkuPriceId for Microsoft EA rows
-    // TODO: Add SkuPriceIdv2 for Microsoft rows
-    // TODO: Add warnings for any changes applied to the data
-    // TODO: Add warnings (errors?) when there's a difference between meter metadata in cost and price datasets
-    // TODO: Create alerts when there are differences between cost/price data (???)
-    // TODO: Confirm the ProviderName value for AWS and GCP data and update it in the ProviderName backfill
-    // TODO: What should the ListCost/UnitPrice and ContractedCost/UnitPrice be for rounding adjustments?
-    // TODO: What should the ListCost/UnitPrice and ContractedCost/UnitPrice be for commitment discount purchases?
-    // TODO: Why do price sheet savings plan usage prices not match cost effective prices?
+    // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
     Costs_raw
     //
     // Dedupe rows
@@ -659,7 +611,7 @@ Costs_transform_v1_0()
         'LegacyFocusVersion'
     ))
     //
-    // Backfill missing prices -- mapping to on-demand prices requires meter ID and offer ID
+    // Populate missing prices -- mapping to on-demand prices requires meter ID and offer ID
     | extend tmp_MissingPrices = ProviderName == 'Microsoft'
         and (ListUnitPrice == 0 or ContractedUnitPrice == 0)
         and x_EffectiveUnitPrice != 0
@@ -1030,11 +982,7 @@ Costs_transform_v1_0()
 with (docstring='All commitment discount usage transformed to FOCUS 1.0. This includes reservationdeatils_raw.', folder='Commitment discounts')
 CommitmentDiscountUsage_transform_v1_0()
 {
-    // TODO: What are these columns: ReservedHours, TotalReservedQuantity, UsedHours
-    // TODO: Is SkuName the same as x_SkuSize?
-    // TODO: What are the possible values for Kind?
-    // TODO: Consider adding ServiceSubcategory (1.1)
-    // TODO: Does this dataset include non-hour units (namely the ReservedHours column)?
+    // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
     CommitmentDiscountUsage_raw
     //
     // Set ProviderName
@@ -1042,6 +990,7 @@ CommitmentDiscountUsage_transform_v1_0()
     //
     // Handle resource columns
     | extend ResourceId = tolower(InstanceId)
+    // TODO: Switch to use parse_resourceid()
     | parse ResourceId with "/subscriptions/" SubAccountId "/resourcegroups/" x_ResourceGroupName "/providers/" tmp_ResourceProvider "/" tmp_ResourceProviderPath
     | extend segments = split(tmp_ResourceProviderPath, '/')
     | mv-apply element = segments on (extend index = row_number() | where index % 2 == 0 | summarize ResourceName = strcat_array(make_list(element), '/'))
@@ -1053,21 +1002,18 @@ CommitmentDiscountUsage_transform_v1_0()
     // Sort columns and apply final transforms
     | project
         ChargePeriodEnd                     = UsageDate + 1d,
-        ChargePeriodStart                   = UsageDate,  // TODO: Should we use startofday()?
+        ChargePeriodStart                   = UsageDate,
         CommitmentDiscountCategory          = 'Usage',
         CommitmentDiscountId                = tolower(strcat('/providers/microsoft.capacity/reservationorders/', ReservationOrderId, '/reservations/', ReservationId)),
-        // TODO: CommitmentDiscountName,
         CommitmentDiscountType              = 'Reservation',
         ConsumedQuantity                    = UsedHours,
-        // TODO: ConsumedUnit,
         ProviderName,
         ResourceId,
         ResourceName,
         ResourceType,
         ServiceCategory,
         ServiceName,
-        SubAccountId                        = extract('/subscriptions/([^/]+)', 1, ResourceId),
-        // TODO: SubAccountName,
+        SubAccountId,
         x_CommitmentDiscountCommittedCount  = TotalReservedQuantity,
         x_CommitmentDiscountCommittedAmount = ReservedHours,
         // TODO: Is this needed? -- x_CommitmentDiscountKind            = Kind,
@@ -1149,7 +1095,6 @@ CommitmentDiscountUsage_transform_v1_0()
 //======================================================================================================================
 
 // Recommendations_raw table
-// TODO: Add Advisor cost recommendation columns
 .create-merge table Recommendations_raw (
     CostWithNoReservedInstances:    decimal,   // MS CM EA+MCA resv reco 2024-05-01
     FirstUsageDate:                 datetime,  // MS CM EA+MCA resv reco 2024-05-01
@@ -1188,8 +1133,7 @@ CommitmentDiscountUsage_transform_v1_0()
 with (docstring='All recommendations transformed to FOCUS 1.0.', folder='Recommendations')
 Recommendations_transform_v1_0()
 {
-    // TODO: Move ProviderName upstream
-    // TODO: Why is SubscriptionId not included?
+    // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
     let isoMonths = (duration: string) {
         let number = toint(replace_regex(duration, @'[PMY]', ''));
         toint(case(
@@ -1211,6 +1155,7 @@ Recommendations_transform_v1_0()
     | extend x_SourceVersion  = coalesce(x_SourceVersion, iff(ProviderName == 'Microsoft', '2023-05-01', ''))
     //
     // Build recommendation details
+    | lookup kind=leftouter (database('Ingestion').Regions | distinct Location = RegionId, RegionName) on Location
     | extend x_RecommendationDetails = case(
       x_SourceType == 'ReservationRecommendations', bag_pack(
         'CommitmentDiscountNormalizedGroup', InstanceFlexibilityGroup,
@@ -1218,9 +1163,15 @@ Recommendations_transform_v1_0()
         'CommitmentDiscountNormalizedSize', NormalizedSize,
         'CommitmentDiscountResourceType', ResourceType,
         'CommitmentDiscountScope', coalesce(Scope, scope),
+        'LookbackPeriodDuration', case(
+            LookBackPeriod matches regex @'^Last([0-9]+)Days$', replace_regex(LookBackPeriod, @'^Last([0-9]+)Days$', @'P\1D'),
+            ''
+        ),
+        'LookbackPeriodStart', FirstUsageDate,
         'RecommendedQuantity', RecommendedQuantity,
         'RecommendedQuantityNormalized', RecommendedQuantityNormalized,
         'RegionId', Location,
+        'RegionName', RegionName,
         'SkuMeterId', coalesce(MeterId, MeterID),
         'SkuPriceDetails', SkuProperties,
         'SkuSize', coalesce(SKU, SkuName),
@@ -1231,19 +1182,13 @@ Recommendations_transform_v1_0()
     //
     // Sort columns and apply final transforms
     | project
-      // TODO: Should we include ChargePeriodEnd?
-      ChargePeriodStart = FirstUsageDate,
       ProviderName,
-      SubAccountId      = iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), ''),
-      // TODO: SubAccountName,
-      x_IngestionTime   = ingestion_time(),             // Hubs add-on
-      x_LookbackPeriod  = case(
-        LookBackPeriod matches regex @'^Last([0-9]+)Days$', replace_regex(LookBackPeriod, @'^Last([0-9]+)Days$', @'P\1D'),
-        ''
-      ),
-      x_RecommendationCostAfter  = TotalCostWithReservedInstances,
-      x_RecommendationCostBefore = CostWithNoReservedInstances,
-      x_RecommendationCostSavings = NetSavings,
+      SubAccountId = iff(isnotempty(SubscriptionId), strcat('/subscriptions/', SubscriptionId), ''),
+      x_IngestionTime = ingestion_time(),
+      x_EffectiveCostAfter = TotalCostWithReservedInstances,
+      x_EffectiveCostBefore = CostWithNoReservedInstances,
+      x_EffectiveCostSavings = NetSavings,
+      x_RecommendationDate = FirstUsageDate + (toint(extract(@'^Last([0-9]+)Days$', 1, LookBackPeriod)) * 1d),
       x_RecommendationDetails,
       x_SourceName,
       x_SourceProvider,
@@ -1255,19 +1200,18 @@ Recommendations_transform_v1_0()
 
 // Recommendations_final_v1_0 table
 .create-merge table Recommendations_final_v1_0 (
-    ChargePeriodStart:           datetime,
-    ProviderName:                string,
-    SubAccountId:                string,
-    x_IngestionTime:             datetime,
-    x_LookbackPeriod:            string,
-    x_RecommendationCostAfter:   decimal,
-    x_RecommendationCostBefore:  decimal,
-    x_RecommendationCostSavings: decimal,
-    x_RecommendationDetails:     dynamic,
-    x_SourceName:                string,
-    x_SourceProvider:            string,
-    x_SourceType:                string,
-    x_SourceVersion:             string
+    ProviderName:            string,
+    SubAccountId:            string,
+    x_IngestionTime:         datetime,
+    x_EffectiveCostAfter:    decimal,
+    x_EffectiveCostBefore:   decimal,
+    x_EffectiveCostSavings:  decimal,
+    x_RecommendationDate:    datetime,
+    x_RecommendationDetails: dynamic,
+    x_SourceName:            string,
+    x_SourceProvider:        string,
+    x_SourceType:            string,
+    x_SourceVersion:         string
 )
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1339,11 +1283,7 @@ Recommendations_transform_v1_0()
 with (docstring='All transactions transformed to FOCUS 1.0.', folder='Transactions')
 Transactions_transform_v1_0()
 {
-    // TODO: Consider looking up the billing account ID from cost data to fix the invalid BillingAccountId column
-    // TODO: Is the Currency column the pricing or billing currency?
-    // TODO: A "Cancel" ChargeClass is not valid in FOCUS -- should we track this differently or leave it as an acceptable conformance gap?
-    // TODO: Move ProviderName upstream
-    // TODO: Map BillingFrequency values to ChargeFrequency
+    // NOTE: All open issues and questions are tracked @ https://github.com/microsoft/finops-toolkit/issues/1111
     let isoMonths = (duration: string) {
         let number = toint(replace_regex(duration, @'[PMY]', ''));
         toint(case(
@@ -1397,7 +1337,6 @@ Transactions_transform_v1_0()
         BillingFrequency == 'Recurring', 'Recurring',
         BillingFrequency
       ),
-      // TODO: Should we include ChargePeriodEnd?
       ChargePeriodStart    = EventDate,
       PricingQuantity      = Quantity,
       PricingUnit          = 'Reservations',
