@@ -118,6 +118,10 @@ Legend:
 > - General
 >   1. Added partial support for OneLake URLs.
 >      - This is not fully tested. This is based on feedback about OneLake file paths being different. Additional changes may be needed to fully support Microsoft Fabric.
+> - [Cost summary](../_reporting/power-bi/cost-summary.md)
+>   1. Added KQL-based version that connects to FinOps hubs with Azure Data Explorer.
+> - [Rate optimization](../_reporting/power-bi/rate-optimization.md)
+>   1. Added KQL-based version that connects to FinOps hubs with Azure Data Explorer.
 >
 > ✏️ Changed:
 >
