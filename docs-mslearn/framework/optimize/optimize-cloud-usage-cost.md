@@ -3,7 +3,7 @@ title: Optimize cloud usage and cost
 description: Learn about the FinOps capabilities that help you identify and implement the right mix of pricing models, services, and resources needed to meet business demands.
 author: bandersmsft
 ms.author: banders
-ms.date: 08/15/2024
+ms.date: 10/30/2024
 ms.topic: conceptual
 ms.service: finops
 ms.reviewer: micflan

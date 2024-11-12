@@ -3,10 +3,11 @@ title: Update reports
 description: Learn how to update existing reports from Cost Management actual or amortized datasets to use FOCUS columns.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/03/2024
+ms.date: 10/29/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
+#customer intent: As a FinOps user, I want to learn how to update existing reports to use the columns defined by the FinOps Open Cost and Usage Specification (FOCUS).
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
@@ -35,11 +36,11 @@ Use the following table to update existing automation and reporting solutions to
 | BillingProfileName           | (All)                      | • Enterprise Agreement: Use **x_BillingProfileName**<br><br>• Microsoft Customer Agreement: Use **BillingAccountName**                                             |
 | BillingPeriodEndDate         | (All)                      | Use **BillingPeriodEnd** and change comparisons to use less than (`<`) rather than less than or equal to (`<=`)                                                    |
 | BillingPeriodStartDate       | (All)                      | Use **BillingPeriodStart**                                                                                                                                         |
-| ChargeType                   | "Usage", "Purchase", "Tax" | Use **ChargeCategory**                                                                                                                                             |
-| ChargeType                   | "UnusedReservation"        | Use **CommitmentDiscountStatus** = "Unused" and **CommitmentDiscountType** = "Reservation"                                                                         |
-| ChargeType                   | "UnusedSavingsPlan"        | Use **CommitmentDiscountStatus** = "Unused" and **CommitmentDiscountType** = "Savings Plan"                                                                        |
-| ChargeType                   | "Refund"                   | Use **ChargeClass** = "Correction"                                                                                                                                 |
-| ChargeType                   | "RoundingAdjustment"       | Use **ChargeCategory** = "Adjustment" (might include other charges)                                                                                                |
+| ChargeType                   | `Usage`, `Purchase`, `Tax` | Use **ChargeCategory**                                                                                                                                             |
+| ChargeType                   | `UnusedReservation`        | Use **CommitmentDiscountStatus** = `Unused` and **CommitmentDiscountType** = `Reservation`                                                                         |
+| ChargeType                   | `UnusedSavingsPlan`        | Use **CommitmentDiscountStatus** = `Unused` and **CommitmentDiscountType** = `Savings Plan`                                                                        |
+| ChargeType                   | `Refund`                   | Use **ChargeClass** = `Correction`                                                                                                                                 |
+| ChargeType                   | `RoundingAdjustment`       | Use **ChargeCategory** = `Adjustment` (might include other charges)                                                                                                |
 | CostAllocationRuleName       | (All)                      | Use **x_CostAllocationRuleName**                                                                                                                                   |
 | CostCenter                   | (All)                      | Use **x_CostCenter**                                                                                                                                               |
 | CostInUsd                    | (All)                      | For actual cost, use **x_BilledCostInUsd**; otherwise, use **x_EffectiveCostInUsd**                                                                                |
@@ -50,9 +51,9 @@ Use the following table to update existing automation and reporting solutions to
 | EffectivePrice               | (All)                      | Use **x_EffectiveUnitPrice**                                                                                                                                       |
 | ExchangeRatePricingToBilling | (All)                      | Use **x_BillingExchangeRate**                                                                                                                                      |
 | ExchangeRateDate             | (All)                      | Use **x_BillingExchangeRateDate**                                                                                                                                  |
-| Frequency                    | "OneTime"                  | Use **ChargeFrequency** = "One-Time"                                                                                                                               |
-| Frequency                    | "Recurring"                | Use **ChargeFrequency** = "Recurring"                                                                                                                              |
-| Frequency                    | "UsageBased"               | Use **ChargeFrequency** = "Usage-Based"                                                                                                                            |
+| Frequency                    | `OneTime`                  | Use **ChargeFrequency** = `One-Time`                                                                                                                               |
+| Frequency                    | `Recurring`                | Use **ChargeFrequency** = `Recurring`                                                                                                                              |
+| Frequency                    | `UsageBased`               | Use **ChargeFrequency** = `Usage-Based`                                                                                                                            |
 | InvoiceId                    | (All)                      | Use **x_InvoiceId**                                                                                                                                                |
 | InvoiceSectionId             | (All)                      | Use **x_InvoiceSectionId**                                                                                                                                         |
 | InvoiceSectionName           | (All)                      | Use **x_InvoiceSectionName**                                                                                                                                       |
@@ -75,15 +76,15 @@ Use the following table to update existing automation and reporting solutions to
 | PaygCostInBillingCurrency    | (All)                      | Use **ListCost**                                                                                                                                                   |
 | PayGPrice                    | (All)                      | Use **ListUnitPrice** / **x_BillingExchangeRate**                                                                                                                  |
 | PricingCurrency              | (All)                      | Use **x_PricingCurrency**                                                                                                                                          |
-| PricingModel                 | "OnDemand"                 | Use **PricingCategory** = "Standard"                                                                                                                               |
-| PricingModel                 | "Reservation"              | For all commitments, use **PricingCategory** = "Committed"; for reservations only, use **CommitmentDiscountCategory** = "Usage"                                    |
-| PricingModel                 | "SavingsPlan"              | For all commitments, use **PricingCategory** = "Committed"; for savings plans only, use **CommitmentDiscountCategory** = "Spend"                                   |
-| PricingModel                 | "Spot"                     | Use **PricingCategory** = "Dynamic" or **x_PricingSubcategory** = "Spot"                                                                                           |
+| PricingModel                 | `OnDemand`                 | Use **PricingCategory** = `Standard`                                                                                                                               |
+| PricingModel                 | `Reservation`              | For all commitments, use **PricingCategory** = `Committed`; for reservations only, use **CommitmentDiscountCategory** = `Usage`                                    |
+| PricingModel                 | `SavingsPlan`              | For all commitments, use **PricingCategory** = `Committed`; for savings plans only, use **CommitmentDiscountCategory** = `Spend`                                   |
+| PricingModel                 | `Spot`                     | Use **PricingCategory** = `Dynamic` or **x_PricingSubcategory** = `Spot`                                                                                           |
 | ProductId                    | (All)                      | Use **SkuId**                                                                                                                                                      |
 | Quantity                     | (All)                      | For the usage amount, use **ConsumedQuantity**; for the amount you were charged for after accounting for pricing block size, use **PricingQuantity**               |
 | ResellerMpnId                | (All)                      | Use **x_ResellerId**                                                                                                                                               |
 | ResellerName                 | (All)                      | Use **x_ResellerName**                                                                                                                                             |
-| ReservationId                | (All)                      | Use **CommitmentDiscountId**; split by "/" and use last segment for the reservation GUID                                                                           |
+| ReservationId                | (All)                      | Use **CommitmentDiscountId**; split by `/` and use last segment for the reservation GUID                                                                           |
 | ReservationName              | (All)                      | Use **CommitmentDiscountName**                                                                                                                                     |
 | ResourceGroupName            | (All)                      | Use **x_ResourceGroupName**                                                                                                                                        |
 | ResourceLocationNormalized   | (All)                      | Use **RegionName** or **RegionId**                                                                                                                                 |

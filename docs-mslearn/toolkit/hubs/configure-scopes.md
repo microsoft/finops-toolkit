@@ -3,7 +3,7 @@ title: Configure scopes
 description: Connect FinOps hubs to billing accounts and subscriptions by configuring Cost Management exports manually or give FinOps hubs access to manage exports for you.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/08/2024
+ms.date: 10/30/2024
 ms.topic: how-to
 ms.service: finops
 ms.reviewer: micflan
@@ -81,7 +81,7 @@ _⁵ Export paths can be any value but must be unique per scope. We recommended 
 Managed exports allow FinOps hubs to set up and maintain Cost Management exports for you. To enable managed exports, you must grant Azure Data Factory access to read data across each scope you want to monitor.
 
 
-:::image type="content" source="./media/configure-scopes/hubs-scopes.png" border="true" alt-text="Screenshot showing the supported scopes for hubs." lightbox="./media/configure-scopes/hubs-scopes.png" :::
+:::image type="content" source="./media/configure-scopes/hubs-scopes.png" border="false" alt-text="Diagram showing the supported scopes for hubs." lightbox="./media/configure-scopes/hubs-scopes.png" :::
 
 > [!NOTE]
 > Managed exports are only available in FinOps hubs 0.4 and later.
@@ -106,14 +106,14 @@ Managed exports use a managed identity (MI) to configure the exports automatical
       ```powershell
       # Grants enrollment reader permissions to the specified service principal or managed identity
       Add-FinOpsServicePrincipal `
-         -ObjectId 00000000-0000-0000-0000-000000000000 ` # Object Id of data factory managed identity
-         -TenantId 00000000-0000-0000-0000-000000000000 ` # Azure Active Directory tenant Id
+         -ObjectId aaaaaaaa-0000-1111-2222-bbbbbbbbbbbb ` # Object Id of data factory managed identity
+         -TenantId aaaabbbb-0000-cccc-1111-dddd2222eeee ` # Azure Active Directory tenant Id
          -BillingAccountId 12345                          # Enrollment ID
    
       # Grants department reader permissions to the specified service principal or managed identity
       Add-FinOpsServicePrincipal `
-         -ObjectId 00000000-0000-0000-0000-000000000000 ` # Object Id of data factory managed identity
-         -TenantId 00000000-0000-0000-0000-000000000000 ` # Azure Active Directory tenant Id
+         -ObjectId aaaaaaaa-0000-1111-2222-bbbbbbbbbbbb ` # Object Id of data factory managed identity
+         -TenantId aaaabbbb-0000-cccc-1111-dddd2222eeee ` # Azure Active Directory tenant Id
          -BillingAccountId 12345 `                        # Enrollment Id
          -DepartmentId 67890                              # Department Id
    ```
@@ -179,7 +179,7 @@ Managed exports use a managed identity (MI) to configure the exports automatical
   ```json
   "scopes": [
     {
-      "scope": "/subscriptions/00000000-0000-0000-0000-000000000000"
+      "scope": "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e"
     }
   ]
   ```
@@ -189,10 +189,10 @@ Managed exports use a managed identity (MI) to configure the exports automatical
   ```json
   "scopes": [
     {
-      "scope": "/subscriptions/00000000-0000-0000-0000-000000000000"
+      "scope": "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e"
     },
     {
-      "scope": "subscriptions/00000000-0000-0000-0000-000000000001"
+      "scope": "subscriptions/bbbb1b1b-cc2c-dd3d-ee4e-ffffff5f5f5f"
     }
   ]
   ```
@@ -202,7 +202,7 @@ Managed exports use a managed identity (MI) to configure the exports automatical
   ```json
   "scopes": [
     {
-      "scope": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/ftk-finops-hub"
+      "scope": "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e/resourceGroups/ftk-finops-hub"
     }
   ]
   ```

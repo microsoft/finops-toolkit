@@ -3,7 +3,7 @@ title: Cost Management scheduled action bicep modules
 description: This article describes the Cost Management scheduled actions Bicep Registry modules that help you send an email on a schedule or when an anomaly is detected.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/17/2024
+ms.date: 10/30/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
@@ -15,9 +15,7 @@ ms.reviewer: micflan
 
 This article describes the Cost Management scheduled actions Bicep Registry modules that help you send an email on a schedule or when an anomaly is detected.
 
-Scheduled actions allow you to configure email alerts on a daily, weekly, or monthly basis. Scheduled actions are configured based on a Cost Management view, which can be opened and edited in Cost analysis in the Azure portal. Email alerts include a picture of the selected view and optionally a link to a CSV file with the summarized cost data.
-
-You can also use scheduled actions to configure anomaly detection alerts for subscriptions.
+Scheduled actions allow you to configure email alerts on a daily, weekly, or monthly basis. Scheduled actions are configured based on a Cost Management view, which can be opened and edited in Cost analysis in the Azure portal. Email alerts include a picture of the selected view and optionally a link to a CSV file with the summarized cost data. You can also use scheduled actions to configure anomaly detection alerts for subscriptions.
 
 To learn about scheduled alerts, see [Save and share views](/azure/cost-management-billing/costs/save-share-views#subscribe-to-scheduled-alerts). To learn about anomaly alerts, see [Analyze unexpected charges](/azure/cost-management-billing/understand/analyze-unexpected-charges).
 
@@ -25,7 +23,7 @@ To learn about scheduled alerts, see [Save and share views](/azure/cost-manageme
 
 ## Syntax
 
-<small>Version: **1.1**</small> &nbsp; <small>Scopes: **Subscription, Resource group**</small>
+Version: **1.1** &nbsp; Scopes: **Subscription, Resource group**
 
 ```bicep
 module <string> 'br/public:cost/<scope>-scheduled-action:1.1' = {
@@ -59,26 +57,28 @@ module <string> 'br/public:cost/<scope>-scheduled-action:1.1' = {
 
 ## Parameters
 
+Here are the parameters for the scheduled action modules:
+
 | Name                   |   Type   | Description                                                                                                                                                                                                                                                                                           |
 | ---------------------- | :------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `name`                 | `string` | Required. Name of the scheduled action used in the resource ID.                                                                                                                                                                                                                                       |
 | `kind`                 | `string` | Optional. Indicates the kind of scheduled action. Default: Email.                                                                                                                                                                                                                                     |
-| `private`              |  `bool`  | Optional. Indicates whether the scheduled action is private and only editable by the current user. If false, the scheduled action will be shared with other users in the same scope. Ignored if kind is "InsightAlert". Default: false.                                                               |
-| `builtInView`          | `string` | Optional. Specifies which built-in view to use. This is a shortcut for the full view ID.                                                                                                                                                                                                              |
-| `viewId`               | `string` | Optional. Required if kind is "Email" and builtInView is not set. The resource ID of the view to which the scheduled action will send. The view must either be private (tenant level) or owned by the same scope as the scheduled action. Ignored if kind is "InsightAlert" or if builtInView is set. |
+| `private`              |  `bool`  | Optional. Indicates whether the scheduled action is private and only editable by the current user. If false, the scheduled action is shared with other users in the same scope. Ignored if kind is `InsightAlert`. Default: false.                                                               |
+| `builtInView`          | `string` | Optional. Specifies which built-in view to use. It's a shortcut for the full view ID.                                                                                                                                                                                                              |
+| `viewId`               | `string` | Optional. Required if kind is `Email` and builtInView isn't set. The resource ID of the view to which the scheduled action sends. The view must either be private (tenant level) or owned by the same scope as the scheduled action. Ignored if kind is `InsightAlert` or if builtInView is set. |
 | `displayName`          | `string` | Optional. The display name to show in the portal when viewing the list of scheduled actions. Default: (scheduled action name).                                                                                                                                                                        |
 | `status`               | `string` | Optional. The status of the scheduled action. Default: Enabled.                                                                                                                                                                                                                                       |
-| `notificationEmail`    | `string` | Required. Email address of the person or team responsible for this scheduled action. This email address will be included in emails. Default: (email address of user deploying the template).                                                                                                          |
+| `notificationEmail`    | `string` | Required. Email address of the person or team responsible for this scheduled action. This email address is included in emails. Default: (email address of user deploying the template).                                                                                                          |
 | `emailRecipients`      | `array`  | Required. List of email addresses that should receive emails. At least one valid email address is required.                                                                                                                                                                                           |
-| `emailSubject`         | `string` | Optional. The subject of the email that will be sent to the email recipients. Default: (view name).                                                                                                                                                                                                   |
-| `emailMessage`         | `string` | Optional. Include a message for recipients to add context about why they are getting the email, what to do, and/or who to contact. Default: "" (no message).                                                                                                                                          |
-| `emailLanguage`        | `string` | Optional. The language that will be used for the email template. Default: en.                                                                                                                                                                                                                         |
-| `emailRegionalFormat`  | `string` | Optional. The regional format that will be used for dates, times, and numbers. Default: en-us.                                                                                                                                                                                                        |
-| `includeCsv`           |  `bool`  | Optional. Indicates whether to include a link to a CSV file with the backing data for the chart. Ignored if kind is "InsightAlert". Default: false.                                                                                                                                                   |
-| `scheduleFrequency`    | `string` | Optional. The frequency at which the scheduled action will run. Default: Daily for "Email" and Weekly for "InsightAlert".                                                                                                                                                                             |
-| `scheduleDaysOfWeek`   | `array`  | Optional. Required if kind is "Email" and scheduleFrequency is "Weekly". List of days of the week that emails should be delivered. Allowed: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday. Default: Monday.                                                                          |
-| `scheduleDayOfMonth`   |  `int`   | Optional. Required if kind is "Email" and scheduleFrequency is "Monthly". The day of the month that emails should be delivered. Note monthly cost is not final until the 3rd of the month. This or scheduleWeeksOfMonth is required if scheduleFrequency is "Monthly". Default: 0 (not set).          |
-| `scheduleWeeksOfMonth` | `array`  | Optional. List of weeks of the month that emails should be delivered. This or scheduleDayOfMonth is required if scheduleFrequency is "Monthly". Allowed: First, Second, Third, Fourth, Last. Default [] (not set).                                                                                    |
+| `emailSubject`         | `string` | Optional. The subject of the email that gets sent to the email recipients. Default: (view name).                                                                                                                                                                                                   |
+| `emailMessage`         | `string` | Optional. Include a message for recipients to add context about why they're getting the email, what to do, and/or who to contact. Default: `""` (no message).                                                                                                                                          |
+| `emailLanguage`        | `string` | Optional. The language that is used for the email template. Default: en.                                                                                                                                                                                                                         |
+| `emailRegionalFormat`  | `string` | Optional. The regional format that is used for dates, times, and numbers. Default: en-us.                                                                                                                                                                                                        |
+| `includeCsv`           |  `bool`  | Optional. Indicates whether to include a link to a CSV file with the backing data for the chart. Ignored if kind is `InsightAlert`. Default: false.                                                                                                                                                   |
+| `scheduleFrequency`    | `string` | Optional. The frequency that the scheduled action runs. Default: Daily for `Email` and Weekly for `InsightAlert`.                                                                                                                                                                             |
+| `scheduleDaysOfWeek`   | `array`  | Optional. Required if kind is `Email` and scheduleFrequency is `Weekly`. List of days of the week that emails should be delivered. Allowed: Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday. Default: Monday.                                                                          |
+| `scheduleDayOfMonth`   |  `int`   | Optional. Required if kind is `Email` and scheduleFrequency is `Monthly`. The day of the month that emails should be delivered. Monthly cost isn't final until the third day of the month. This value or scheduleWeeksOfMonth is required if scheduleFrequency is `Monthly`. Default: 0 (not set).          |
+| `scheduleWeeksOfMonth` | `array`  | Optional. List of weeks of the month that emails should be delivered. This value or scheduleDayOfMonth is required if scheduleFrequency is `Monthly`. Allowed: First, Second, Third, Fourth, Last. Default [] (not set).                                                                                    |
 | `scheduleStartDate`    | `string` | Optional. The first day the schedule should run. Use the time to indicate when you want to receive emails. Must be in the format yyyy-MM-ddTHH:miZ. Default = Now.                                                                                                                                    |
 | `scheduleEndDate`      | `string` | Optional. The last day the schedule should run. Must be in the format yyyy-MM-dd. Default = 1 year from start date.                                                                                                                                                                                   |
 
@@ -86,9 +86,11 @@ module <string> 'br/public:cost/<scope>-scheduled-action:1.1' = {
 
 ## Examples
 
+The following examples  help you send an email on a schedule or when an anomaly is detected.
+
 ### Schedule an email for a built-in view
 
-<small>Subscription</small> &nbsp; <small>Resource group</small>
+Subscription &nbsp; Resource group
 
 Creates a shared scheduled action for the DailyCosts built-in view.
 
@@ -109,7 +111,7 @@ module dailyCostsAlert 'br/public:cost/subscription-scheduled-action:1.0.2' = {
 
 ### Schedule an email with a custom start date
 
-<small>Subscription</small> &nbsp; <small>Resource group</small>
+Subscription &nbsp; Resource group
 
 Creates a private scheduled action for the DailyCosts built-in view with custom start/end dates.
 
@@ -133,7 +135,7 @@ module privateAlert 'br/public:cost/resourcegroup-scheduled-action:1.0.2' = {
 
 ### Configure an anomaly alert
 
-<small>Subscription</small>
+Subscription
 
 Creates an anomaly alert for a subscription.
 

@@ -1,10 +1,10 @@
 ---
 title: Get-FinOpsService command
-description: Gets the name and category for a service, publisher, and cloud provider
+description: Get the name and category for a service, publisher, and cloud provider using the Get-FinOpsService command in the FinOpsToolkit module.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/17/2024
-ms.topic: concept-article
+ms.date: 11/01/2024
+ms.topic: reference
 ms.service: finops
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand how to use the what Get-FinOpsService command in the FinOpsToolkit module.
@@ -52,6 +52,8 @@ Get-FinOpsService `
 
 ## Examples
 
+The following example demonstrates how to use the Get-FinOpsService command to retrieve service details.
+
 ### Get a specific region
 
 ```powershell
@@ -60,7 +62,7 @@ Get-FinOpsService `
     -ResourceType "Microsoft.Compute/virtualMachines"
 ```
 
-Returns all services with a resource provider that starts with "Microsoft.C".
+Returns all services with a resource provider that starts with `Microsoft.C`.
 
 <br>
 
@@ -72,8 +74,8 @@ Related products:
 
 Related solutions:
 
-- [FinOps toolkit Power BI reports](../power-bi/reports.md)
-- [FinOps hubs](../hubs/finops-hubs-overview.md)
-- [FinOps toolkit open data](../open-data.md)
+- [FinOps toolkit Power BI reports](../../power-bi/reports.md)
+- [FinOps hubs](../../hubs/finops-hubs-overview.md)
+- [FinOps toolkit open data](../../open-data.md)
 
 <br>

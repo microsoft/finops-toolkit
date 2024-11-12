@@ -1,6 +1,6 @@
 ---
 title: Open data for FinOps
-description: Use open data to normalize and enhance your FinOps reporting.
+description: Use open data to normalize and enhance your FinOps reporting, ensuring accurate and consistent data for better insights and decision-making.
 ms.topic: concept-article
 author: bandersmsft
 ms.author: banders
@@ -44,7 +44,7 @@ A few important notes about the data:
 > [!NOTE]
 > In the Cost Management FOCUS dataset, `UnitOfMeasure` is renamed to `x_PricingUnitDescription`. Both `PricingUnit` and `UsageUnit` in FOCUS are set to the `DistictUnits` column.
 
-[Download PricingUnits.csv](https://github.com/microsoft/finops-toolkit/releases/latest/download/PricingUnits.csv) &nbsp; [See PowerShell](powershell/data/Get-FinOpsPricingUnit)
+[Download PricingUnits.csv](https://github.com/microsoft/finops-toolkit/releases/latest/download/PricingUnits.csv) &nbsp; [See PowerShell](powershell/data/get-finopspricingunit.md)
 
 <br>
 
@@ -66,7 +66,7 @@ Sample data:
 
 <!-- cSpell:enable -->
 
-[Download Regions.csv](https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv) &nbsp; [See PowerShell](powershell/data/Get-FinOpsRegion)
+[Download Regions.csv](https://github.com/microsoft/finops-toolkit/releases/latest/download/Regions.csv) &nbsp; [See PowerShell](powershell/data/get-finopsregion.md)
 
 > [!NOTE]
 > Convert region values to lowercase before mapping. This helps reduce duplication and speed up the mapping process.
@@ -98,7 +98,7 @@ Sample data:
 > [!NOTE]
 > Convert resource type values to lowercase before mapping. This helps reduce duplication and speed up the mapping process.
 
-[Download ResourceTypes.csv](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv) &nbsp; [Download ResourceTypes.json](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.json) &nbsp; [See PowerShell](powershell/data/Get-FinOpsResourceType)
+[Download ResourceTypes.csv](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.csv) &nbsp; [Download ResourceTypes.json](https://github.com/microsoft/finops-toolkit/releases/latest/download/ResourceTypes.json) &nbsp; [See PowerShell](powershell/data/get-finopsresourcetype.md)
 
 <br>
 
@@ -200,6 +200,6 @@ Related solutions:
 
 - [FinOps hubs](hubs/finops-hubs-overview.md)
 - [FinOps toolkit Power BI reports](power-bi/reports.md)
-- [FinOps toolkit PowerShell module](../../toolkit/powershell/powershell-commands.md)
+- [FinOps toolkit PowerShell module](powershell/powershell-commands.md)
 
 <br>

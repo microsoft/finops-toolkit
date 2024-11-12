@@ -1,10 +1,10 @@
 ---
 title: Common terms
-description: This article describes common terms and definitions used throughout the FinOps toolkit.
+description: This article defines common terms used in the FinOps toolkit to help users understand the data and insights provided.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/17/2024
-ms.topic: concept-article
+ms.date: 10/30/2024
+ms.topic: reference
 ms.service: finops
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand common terms used in the FinOps toolkit.
@@ -13,97 +13,83 @@ ms.reviewer: micflan
 <!-- markdownlint-disable-next-line MD025 -->
 # Common terms
 
-This article describes common terms and definitions used throughout the FinOps toolkit.
+This article describes common terms and definitions used throughout the FinOps toolkit. These terms are used to help you understand the data and insights provided by the toolkit.
 
 <!-- markdownlint-disable heading-increment -->
 
-## A
+## Amortization
 
-#### Amortization
-
-**Amortization** breaks reservation and savings plan purchases down and allocates costs to the resources that received the benefit. Due to this, amortized costs will not show purchase costs and will not match your invoice.
+**Amortization** breaks down reservation and savings plan purchases and allocates costs to the resources that received the benefit. Due to this, amortized costs don't show purchase costs and don't match your invoice.
 
 <br>
 
-## C
+## CSP or Cloud Solution Provider
 
-#### CSP or Cloud Solution Provider
+"Cloud Solution Provider" (CSP) is a program that allows third-party Microsoft partners to sell Microsoft Cloud products and services to their end customers. In this program, end customers receive bills directly from their partner and not Microsoft. Within the FinOps toolkit, CSP has the same level of support as [Microsoft Customer Agreement (MCA)](#mca-or-microsoft-customer-agreement) accounts unless there's a limitation in Microsoft Cost Management or the underlying commerce platform.
 
-"Cloud Solution Provider" (CSP) is a program that allows third-party Microsoft partners to sell Microsoft Cloud products and services to their end customers. In this, end customers receive bills directly from their partner and not Microsoft. Within the FinOps toolkit, CSP has the same level of support as [Microsoft Customer Agreement (MCA)](#mca-or-microsoft-customer-agreement) accounts unless there is a limitation in Microsoft Cost Management or the underlying commerce platform.
-
-See also: [Microsoft Partner Agreement](#mpa-or-microsoft-partner-agreement)
+See also: [Microsoft Partner Agreement](#microsoft-partner-agreement-mpa)
 
 <br>
 
-#### Commitment-based discounts
+## Commitment-based discounts
 
 See [Commitment discounts](#commitment-discounts).
 
-#### Commitment discounts
+## Commitment discounts
 
-"Commitment discounts" refers to any discounts you can obtain by pre-committing to a specific amount of usage for a predetermined amount of time, like reservations, savings plans, or committed use discounts (CUDs).
+"Commitment discounts" refers to any discounts you can obtain by precommitting to a specific amount of usage for a predetermined amount of time, like reservations, savings plans, or committed use discounts (CUDs).
 
-#### Commitment savings
+## Commitment savings
 
-"Commitment savings" refers to the total amount saved compared to negotiated, on-demand rates defined on the contract. This only includes [commitment discounts](#commitment-discounts). To include negotiated discounts, use [Discount savings](#discount-savings).
-
-<br>
-
-## D
-
-#### Discount savings
-
-"Discount savings" refers to the total amount saved compared to list (retail or PAYG) rates. This includes [negotiated](#negotiated-discounts) and [commitment discounts](#commitment-discounts).
+"Commitment savings" refers to the total amount saved compared to negotiated and on-demand rates defined on the contract. It only includes [commitment discounts](#commitment-discounts). To include negotiated discounts, use [Discount savings](#discount-savings).
 
 <br>
 
-## E
+## Discount savings
 
-#### EA or Enterprise Agreement
+"Discount savings" refers to the total amount saved compared to list (retail or pay-as-you-go) rates. It includes [negotiated](#negotiated-discounts) and [commitment discounts](#commitment-discounts).
+
+<br>
+
+## EA or Enterprise Agreement
 
 "Enterprise Agreement" is an agreement between Microsoft and an organization for how they can purchase, use, and pay for Azure.
 
 <br>
 
-## L
-
-#### List cost
+## List cost
 
 "List cost" is the cost of a product or service if it were billed at its [list price](#list-price).
 
-#### List price
+## List price
 
-"List price" (aka "market price") is the publicly available price for a product or service. This is the price you would pay if you purchased the product or service without any discounts.
-
-<br>
-
-## M
-
-#### MCA or Microsoft Customer Agreement
-
-"Microsoft Customer Agreement" is an agreement between Microsoft and an individual or organization for how they can purchase, use, and pay for Microsoft Cloud services, like Azure, Microsoft 365, Dynamics 365, Power Platform, etc. Generally, the term "Microsoft Customer Agreement" includes [Cloud Solution Provider (CSP)](#csp-or-cloud-solution-provider) partners and customers.
-
-See also: [Microsoft Partner Agreement](#mpa-or-microsoft-partner-agreement)
+"List price" (also called "market price") is the publicly available price for a product or service. It's the price you would pay if you purchased the product or service without any discounts.
 
 <br>
 
-#### MOSA or Microsoft Online Services Agreement
+## MCA or Microsoft Customer Agreement
 
-"Microsoft Online Services Agreement" is an agreement between Microsoft and an individual or organization for how they can purchase, use and pay for Azure. MOSA subscriptions are typically obtained directly from the Azure website.
+"Microsoft Customer Agreement" is an agreement between Microsoft and an individual or organization. It determines how they can purchase, use, and pay for Microsoft Cloud services. Such as, Azure, Microsoft 365, Dynamics 365, Power Platform, and so on. Generally, the term "Microsoft Customer Agreement" includes [Cloud Solution Provider (CSP)](#csp-or-cloud-solution-provider) partners and customers.
+
+See also: [Microsoft Partner Agreement](#microsoft-partner-agreement-mpa)
 
 <br>
 
-#### MPA or Microsoft Partner Agreement
+## Microsoft Online Services Agreement (MOSA)
+
+"Microsoft Online Services Agreement" is an agreement between Microsoft and an individual or organization for how they can purchase, use, and pay for Azure. MOSA subscriptions are typically obtained directly from the Azure website.
+
+<br>
+
+## Microsoft Partner Agreement (MPA)
 
 "Microsoft Partner Agreement" is an agreement between Microsoft and a [Cloud Solution Provider (CSP)](#csp-or-cloud-solution-provider) partner organization that resells Microsoft Cloud services, like Azure, Microsoft 365, Dynamics 365, Power Platform, etc. Partners can also work with intermediary resellers. The individual or organization that resellers work with sign a [Microsoft Customer Agreement (MCA)](#mca-or-microsoft-customer-agreement).
 
 <br>
 
-## N
+## Negotiated discounts
 
-#### Negotiated discounts
-
-"Negotiated discounts" are a type of rate optimization you can obtain by negotiating with cloud providers during large deals. As an example, this usually happens with Microsoft Sales as part of signing an Enterprise Agreement (EA) or [Microsoft Customer Agreement (MCA)](#mca-or-microsoft-customer-agreement).
+"Negotiated discounts" are a type of rate optimization you can obtain by negotiating with cloud providers during large deals. As an example, it usually happens with Microsoft Sales as part of signing an Enterprise Agreement (EA) or [Microsoft Customer Agreement (MCA)](#mca-or-microsoft-customer-agreement).
 
 <!-- markdownlint-restore -->
 
@@ -114,7 +100,7 @@ See also: [Microsoft Partner Agreement](#mpa-or-microsoft-partner-agreement)
 Related resources:
 
 - [FinOps toolkit data dictionary](./data-dictionary.md)
-- [Cost Management data dictionary](https://learn.microsoft.com/azure/cost-management-billing/automate/understand-usage-details-fields)
+- [Cost Management data dictionary](/azure/cost-management-billing/automate/understand-usage-details-fields)
 
 Related FinOps capabilities:
 
@@ -133,7 +119,7 @@ Related solutions:
 - [FinOps toolkit Power BI reports](../power-bi/reports.md)
 - [FinOps hubs](../hubs/finops-hubs-overview.md)
 - [FinOps workbooks](../workbooks/finops-workbooks-overview.md)
-- [Optimization engine](../optimization-engine/README.md)
+- [Optimization engine](../optimization-engine/overview.md)
 - [FinOps toolkit open data](../open-data.md)
 
 <br>

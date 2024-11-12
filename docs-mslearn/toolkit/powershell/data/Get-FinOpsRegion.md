@@ -1,10 +1,10 @@
 ---
 title: Get-FinOpsRegion command
-description: Gets an Azure region ID and name
+description: Get an Azure region ID and name based on the specified resource location using the Get-FinOpsRegion command in the FinOpsToolkit module.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/17/2024
-ms.topic: concept-article
+ms.date: 11/01/2024
+ms.topic: reference
 ms.service: finops
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand how to use the what Get-FinOpsRegion command in the FinOpsToolkit module.
@@ -30,15 +30,17 @@ Get-FinOpsRegion `
 
 ## Parameters
 
-| Name            | Description                                                                                                                      |
+| Name            | Description                                                                                                                      | Notes
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| ResouceLocation | Optional. Resource location value from a Cost Management cost/usage details dataset. Accepts wildcards. Default = \* (all).      |
+| ResourceLocation | Optional. Resource location value from a Cost Management cost/usage details dataset. Accepts wildcards. Default = \* (all).      |
 | RegionId        | Optional. Azure region ID (lowercase English name without spaces). Accepts wildcards. Default = \* (all).                        |
 | RegionName      | Optional. Azure region name (title case English name with spaces). Accepts wildcards. Default = \* (all).IncludeResourceLocation | Optional. Indicates whether to include the ResourceLocation property in the output. Default = false. |
 
 <br>
 
 ## Examples
+
+The following examples demonstrate how to use the Get-FinOpsRegion command to retrieve Azure region IDs and names based on different criteria.
 
 ### Get a specific region
 
@@ -66,8 +68,8 @@ Related products:
 
 Related solutions:
 
-- [FinOps toolkit Power BI reports](../power-bi/reports.md)
-- [FinOps hubs](../hubs/finops-hubs-overview.md)
-- [FinOps toolkit open data](../open-data.md)
+- [FinOps toolkit Power BI reports](../../power-bi/reports.md)
+- [FinOps hubs](../../hubs/finops-hubs-overview.md)
+- [FinOps toolkit open data](../../open-data.md)
 
 <br>

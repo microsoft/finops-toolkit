@@ -1,10 +1,10 @@
 ---
 title: Remove-FinOpsCostExport command
-description: Delete a Cost Management export and optionally data associated with the export
+description: Delete a Cost Management export and optionally data associated with the export using the Remove-FinOpsCostExport command in the FinOpsToolkit module.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/17/2024
-ms.topic: concept-article
+ms.date: 11/01/2024
+ms.topic: reference
 ms.service: finops
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand how to use the what Remove-FinOpsCostExport command in the FinOpsToolkit module.
@@ -15,11 +15,11 @@ ms.reviewer: micflan
 
 The **Remove-FinOpsCostExport** command deletes a Cost Management export and optionally data associated with the export.
 
-This command has been tested with the following API versions:
+This command was tested with the following API versions:
 
-- 2023-07-01-preview (default) – Enables FocusCost and other datasets.
-- 2023-08-01
-- 2023-03-01
+- **2023-07-01-preview (default)** – Enables FocusCost and other datasets.
+- **2023-08-01**
+- **2023-03-01**
 
 <br>
 
@@ -53,7 +53,7 @@ Remove-FinOpsCostExport `
 ```powershell
 Remove-FinOpsCostExport `
     -Name MyExport`
-    -Scope "/subscriptions/00000000-0000-0000-0000-000000000000"`
+    -Scope "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e"`
     -RemoveData
 ```
 
@@ -69,7 +69,7 @@ Related products:
 
 Related solutions:
 
-- [FinOps toolkit Power BI reports](../power-bi/reports.md)
-- [FinOps hubs](../hubs/finops-hubs-overview.md)
+- [FinOps toolkit Power BI reports](../../power-bi/reports.md)
+- [FinOps hubs](../../hubs/finops-hubs-overview.md)
 
 <br>

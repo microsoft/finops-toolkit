@@ -1,10 +1,10 @@
 ---
 title: Get-FinOpsHub command
-description: Gets details about a FinOps hub instance.
+description: Get details about a FinOps hub instance using the Get-FinOpsHub command in the FinOpsToolkit module.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/17/2024
-ms.topic: concept-article
+ms.date: 11/01/2024
+ms.topic: reference
 ms.service: finops
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand how to use the what Get-FinOpsHub command in the FinOpsToolkit module.
@@ -39,6 +39,8 @@ Get-FinOpsHub `
 
 ## Examples
 
+The following examples demonstrate how to use the Get-FinOpsHub command to retrieve details about FinOps hub instances.
+
 ### Get all hubs
 
 ```powershell
@@ -53,7 +55,7 @@ Returns all FinOps hubs for the selected subscription.
 Get-FinOpsHub -Name foo*
 ```
 
-Returns all FinOps hubs that start with 'foo'.
+Returns all FinOps hubs that start with `foo`.
 
 ### Get hubs in a resource group
 
@@ -61,7 +63,7 @@ Returns all FinOps hubs that start with 'foo'.
 Get-FinOpsHub -ResourceGroupName foo
 ```
 
-Returns all hubs in the 'foo' resource group.
+Returns all hubs in the `foo` resource group.
 
 ### Get named hubs in a resource group
 
@@ -69,7 +71,7 @@ Returns all hubs in the 'foo' resource group.
 Get-FinOpsHub -Name foo -ResourceGroupName bar
 ```
 
-Returns all FinOps hubs named 'foo' in the 'bar' resource group.
+Returns all FinOps hubs named `foo` in the `bar` resource group.
 
 <br>
 
@@ -77,7 +79,8 @@ Returns all FinOps hubs named 'foo' in the 'bar' resource group.
 
 Related solutions:
 
-- [FinOps toolkit Power BI reports](../power-bi/reports.md)
-- [FinOps hubs](../hubs/finops-hubs-overview.md)
+- [FinOps toolkit Power BI reports](../../power-bi/reports.md)
+- [FinOps hubs](../../hubs/finops-hubs-overview.md)
+
 
 <br>

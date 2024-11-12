@@ -1,10 +1,10 @@
 ---
-title: Open data
-description: PowerShell commands to work with FinOps toolkit open data.
+title: Open data commands
+description: Learn about PowerShell commands available in the FinOpsToolkit module to work with FinOps open data and integrate datasets into your workflow.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/17/2024
-ms.topic: concept-article
+ms.date: 11/01/2024
+ms.topic: reference
 ms.service: finops
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand what PowerShell commands are available to leverage FinOps open data in the FinOpsToolkit module.
@@ -28,7 +28,7 @@ The FinOps toolkit open data PowerShell commands help you integrate datasets int
 
 ## Looking for more?
 
-We'd love to hear about any commands or scripts you're looking for. Vote up (👍) existing ideas or create a new issue to suggest a new idea in the [FinOps toolkit issues list](https://aka.ms/ftk/ideas). We'll focus on ideas with the most votes.
+We'd love to hear about any commands or scripts you're looking for. To suggest a new idea in the [FinOps toolkit issues list](https://aka.ms/ftk/ideas), vote up existing ideas or create a new issue. We focus on ideas with the most votes.
 
 <br>
 
@@ -40,8 +40,8 @@ Related products:
 
 Related solutions:
 
-- [FinOps toolkit Power BI reports](../power-bi/reports.md)
-- [FinOps hubs](../hubs/finops-hubs-overview.md)
-- [FinOps toolkit open data](../open-data.md)
+- [FinOps toolkit Power BI reports](../../power-bi/reports.md)
+- [FinOps hubs](../../hubs/finops-hubs-overview.md)
+- [FinOps toolkit open data](../../open-data.md)
 
 <br>

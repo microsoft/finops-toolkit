@@ -1,9 +1,9 @@
 ---
-title: FinOps hubs
+title: FinOps hubs overview
 description: FinOps hubs provide a reliable platform for cost analytics, insights, and optimization, supporting large accounts and organizations.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/09/2024
+ms.date: 10/30/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan

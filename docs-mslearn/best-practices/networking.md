@@ -1,9 +1,9 @@
 ---
 title: FinOps best practices for Networking
-description: This article outlines a collection of proven FinOps practices for networking services.
+description: This article outlines proven FinOps practices for networking services, focusing on cost optimization, efficiency improvements, and resource insights.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/17/2024
+ms.date: 10/29/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: arclares
@@ -13,21 +13,23 @@ ms.reviewer: arclares
 <!-- markdownlint-disable-next-line MD025 -->
 # FinOps best practices for Networking
 
-This article outlines a collection of proven FinOps practices for networking services.
+This article outlines proven FinOps practices for networking services. They focus on cost optimization, efficiency improvements, and resource insights.
 
 <br>
 
 ## Azure Firewall
 
+The following sections provide Azure Resource Graph (ARG) queries for Azure Firewall. These queries help you gain insights into your Azure firewall resources and ensure they're configured with the appropriate settings. By analyzing usage patterns and surfacing recommendations from Azure Advisor, you can optimize your Azure firewall configurations for cost efficiency.
+
 ### Query: Azure firewall and firewall policies analysis
 
-This Azure Resource Graph (ARG) query analyzes Azure firewalls and their associated firewall policies within your Azure environment. It specifically targets firewalls with a premium SKU tier and verifies that the configurations in their associated firewall policies are utilizing the premium features.
+This ARG query analyzes Azure firewalls and their associated firewall policies within your Azure environment. It specifically targets firewalls with a premium SKU tier and verifies that the configurations in their associated firewall policies are utilizing the premium features.
 
-<h4>Category</h4>
+**Category**
 
 Optimization
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 resources 
@@ -54,13 +56,13 @@ resources
 
 ### Query: Azure Firewall and associated subnets analysis
 
-This Azure Resource Graph (ARG) query analyzes Azure firewalls and their associated subnets within your Azure environment. It provides insights into which subnets are associated with each Azure firewall instance. Optimize the use of Azure firewall by having a central instance of Azure firewall in the hub virtual network or Virtual WAN secure hub and share the same firewall across many spoke virtual networks that are connected to the same hub from the same region.
+This ARG query analyzes Azure firewalls and their associated subnets within your Azure environment. It provides insights into which subnets are associated with each Azure firewall instance. Optimize the use of Azure firewall by having a central instance of Azure firewall in the hub virtual network or Virtual WAN secure hub. Then share the same firewall across many spoke virtual networks that are connected to the same hub from the same region.
 
-<h4>Category</h4>
+**Category**
 
 Optimization
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 resources
@@ -94,15 +96,17 @@ resources
 
 ## Application Gateway
 
+The following section provides an ARG queries for Azure Application Gateway. It helps you gain insights into your Azure Application Gateway resources and ensure they're configured with the appropriate settings.
+
 ### Query: Idle application gateways
 
-This Azure Resource Graph (ARG) query analyzes application gateways and their associated backend pools within your Azure environment. It provides insights into which application gateways have empty backend pools, indicating they may be idle and potentially unnecessary.
+This ARG query analyzes application gateways and their associated backend pools within your Azure environment. It provides insights into which application gateways have empty backend pools, indicating they might be idle and potentially unnecessary.
 
-<h4>Category</h4>
+**Category**
 
 Optimization
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 resources
@@ -137,15 +141,17 @@ resources
 
 ## ExpressRoute
 
+The following section provides an ARG query for ExpressRoute. It helps you gain insights into your ExpressRoute circuits and ensure they're configured with the appropriate settings.
+
 ### Query: Idle ExpressRoute circuits
 
-This Azure Resource Graph (ARG) query analyzes ExpressRoute circuits within your Azure environment to identify those without a completed circuit.
+This ARG query analyzes ExpressRoute circuits within your Azure environment to identify any without a completed circuit.
 
-<h4>Category</h4>
+**Category**
 
 Optimization
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 resources
@@ -172,15 +178,17 @@ resources
 
 ## Load Balancer
 
+The following section provides an ARG query for Azure Load Balancer. It helps you gain insights into your Azure load balancer resources and ensure they're configured with the appropriate settings.
+
 ### Query: Idle load balancers
 
-This Azure Resource Graph (ARG) query analyzes Azure load balancers and their associated backend pools within your Azure environment. It provides insights into which load balancers have empty backend pools, indicating they may be idle and potentially unnecessary.
+This ARG query analyzes Azure load balancers and their associated backend pools within your Azure environment. It provides insights into which load balancers have empty backend pools, indicating they might be idle and potentially unnecessary.
 
-<h4>Category</h4>
+**Category**
 
 Optimization
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 resources
@@ -207,15 +215,17 @@ resources
 
 ## Private DNS
 
+The following section provides an ARG query for Private DNS. It helps you gain insights into your Private DNS resources and ensure they're configured with the appropriate settings.
+
 ### Query: Private DNS
 
-This Azure Resource Graph (ARG) query analyzes Private DNS zones within your Azure environment to identify those without Virtual Network Links.
+This ARG query analyzes Private DNS zones within your Azure environment to identify any without Virtual Network Links.
 
-<h4>Category</h4>
+**Category**
 
 Optimization
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 resources
@@ -232,15 +242,17 @@ resources
 
 ## Public IP address
 
+The following sections provide ARG queries for public IP addresses. They help you gain insights into your public IP address resources and ensure they're configured with the appropriate settings.
+
 ### Query: Idle public IP addresses
 
-This Azure Resource Graph (ARG) query analyzes Azure public ip adresses. It provides insights into which public IPs are idle and potentially unnecessary.
+This ARG query analyzes Azure public IP addresses. It provides insights into which public IPs are idle and potentially unnecessary.
 
-<h4>Category</h4>
+**Category**
 
 Optimization
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 resources
@@ -290,13 +302,13 @@ resources
 
 ### Query: Identify public IP addresses routing method 
 
-This Azure Resource Graph (ARG) query analyzes public IP addresses and identifies the routing method, allocation method, SKU, and other details of public IP addresses that are associated with an IP configuration
+This ARG query analyzes public IP addresses and identifies the routing method, allocation method, and SKU. It also analyzes other details of public IP addresses that are associated with an IP configuration.
 
-<h4>Category</h4>
+**Category**
 
 Optimization
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 resources
@@ -325,11 +337,11 @@ resources
 
 If you need to protect fewer than 15 public IP resources, the IP protection tier is the more cost-effective option. However, if you have more than 15 public IP resources to protect, then the network protection tier becomes more cost-effective.
 
-<h4>Category</h4>
+**Category**
 
 Optimization
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 resources
@@ -345,15 +357,17 @@ resources
 
 ## Virtual Network Gateway
 
+The following sections provide ARG queries for Virtual Network Gateways. They help you gain insights into your Virtual Network Gateway resources and ensure they're configured with the appropriate settings.
+
 ### Query: Check for idle Virtual Network Gateway
 
-This Azure Resource Graph (ARG) query analyzes Virtual Network Gateways within your Azure environment to identify those that are idle.
+This ARG query analyzes Virtual Network Gateways within your Azure environment to identify any that are idle.
 
-<h4>Category</h4>
+**Category**
 
 Optimization
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 resources
@@ -378,13 +392,13 @@ resources
 
 ### Query: Check for idle NAT gateway
 
-This Azure Resource Graph (ARG) query analyzes NAT gateways within your Azure environment to identify those that are idle.
+This ARG query analyzes NAT gateways within your Azure environment to identify any that are idle.
 
-<h4>Category</h4>
+**Category**
 
 Optimization
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 resources
@@ -419,6 +433,6 @@ Related solutions:
 - [FinOps toolkit Power BI reports](../toolkit/power-bi/reports.md)
 - [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md)
 - [FinOps workbooks](../toolkit/workbooks/finops-workbooks-overview.md)
-- [Optimization engine](../toolkit/optimization-engine/optimization-engine-overview.md)
+- [Optimization engine](../toolkit/optimization-engine/overview.md)
 
 <br>

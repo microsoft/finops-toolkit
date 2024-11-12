@@ -1,37 +1,39 @@
 ---
 title: FinOps best practices for general resource management
-description: This article outlines a collection of proven FinOps practices for Microsoft Cloud services.
+description: This article outlines proven FinOps practices for Microsoft Cloud services, focusing on cost optimization, efficiency improvements, and resource insights.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/17/2024
+ms.date: 10/29/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: arclares
-#customer intent: As a FinOps user, I want to understand what FinOps best practices I should use with Microsoft Cloud services. 
+#customer intent: As a FinOps user, I want to understand what FinOps best practices I should use with Microsoft Cloud services.
 ---
 
 <!-- markdownlint-disable-next-line MD025 -->
 # FinOps best practices for general resource management
 
-This article outlines a collection of general proven FinOps practices that can be applied to many Microsoft Cloud services.
+This article outlines a collection of general FinOps best practices that can be applied to various Microsoft Cloud services. It includes strategies for optimizing costs, improving efficiency, and using Azure Resource Graph (ARG) queries to gain insights into your resources. By following these practices, you can ensure that your cloud services are cost-effective and aligned with your organization's financial goals.
 
 <br>
 
 ## Carbon Optimization
 
+The following section provides an ARG query for carbon optimization. It helps you gain insights into your Azure resources and identify opportunities to reduce carbon emissions. By analyzing recommendations from Azure Advisor, you can optimize your cloud infrastructure for sustainability and environmental impact.
+
 ### Query: Carbon emissions
 
-This Azure Resource Graph (ARG) query identifies resources within your Azure environment that have recommendations for reducing carbon emissions, based on Azure Advisor recommendations.
+This ARG query identifies resources within your Azure environment that have recommendations for reducing carbon emissions, based on Azure Advisor recommendations.
 
-<h4>Description</h4>
+**Description**
 
 This query surfaces Azure resources with recommendations from Azure Advisor for optimizing carbon emissions. It highlights potential carbon savings and provides insights into how these recommendations can be implemented to reduce the carbon footprint of your cloud infrastructure.
 
-<h4>Category</h4>
+**Category**
 
 Sustainability
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 advisorresources
@@ -77,6 +79,6 @@ Related solutions:
 - [FinOps toolkit Power BI reports](../toolkit/power-bi/reports.md)
 - [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md)
 - [FinOps workbooks](../toolkit/workbooks/finops-workbooks-overview.md)
-- [Optimization engine](../toolkit/optimization-engine/optimization-engine-overview.md)
+- [Optimization engine](../toolkit/optimization-engine/overview.md)
 
 <br>

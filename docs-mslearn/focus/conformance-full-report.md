@@ -369,7 +369,7 @@ The rest of this document lists the FOCUS requirements grouped by attribute and 
 
 | ID     | Type        | Criteria                                                                                                                                        | Status   | Notes |
 | ------ | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----- |
-| CDC0   | Description | Indicates whether the commitment-based discount identified in the CommitmentDiscountId column is based on usage quantity or cost (aka "spend"). | Supports |       |
+| CDC0   | Description | Indicates whether the commitment-based discount identified in the CommitmentDiscountId column is based on usage quantity or cost (also known as "spend"). | Supports |       |
 | CDC1   | MUST        | The CommitmentDiscountCategory column MUST be present in the billing data when the provider supports commitment-based discounts.                | Supports |       |
 | CDC2.1 | MUST        | \[CommitmentDiscountCategory\] MUST be of type String...                                                                                        | Supports |       |
 | CDC2.2 | MUST        | \[CommitmentDiscountCategory\]... MUST be null when CommitmentDiscountId is null...                                                             | Supports |       |

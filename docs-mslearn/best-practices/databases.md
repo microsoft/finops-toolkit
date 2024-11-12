@@ -3,7 +3,7 @@ title: FinOps best practices for Databases
 description: This article outlines a collection of proven FinOps practices for database services.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/17/2024
+ms.date: 10/29/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: arclares
@@ -13,25 +13,27 @@ ms.reviewer: arclares
 <!-- markdownlint-disable-next-line MD025 -->
 # FinOps best practices for Databases
 
-This article outlines a collection of proven FinOps practices for compute services.
+This article outlines a collection of proven FinOps practices for database services. It provides strategies for optimizing costs, improving efficiency, and using Azure Resource Graph (ARG) queries to gain insights into your database resources. By following these practices, you can ensure that your database services are cost-effective and aligned with your organization's financial goals.
 
 <br>
 
 ## Cosmos DB
 
+The following sections provide ARG queries for Cosmos DB. These queries help you gain insights into your Cosmos DB accounts and ensure they're configured with the appropriate Request Units (RUs). By analyzing usage patterns and surfacing recommendations from Azure Advisor, you can optimize RUs for cost efficiency.
+
 ### Query: Confirm Cosmos DB request units
 
-This Azure Resource Graph (ARG) query analyzes Cosmos DB accounts within your Azure environment to ensure they are configured with the appropriate Request Units (RUs).
+This ARG query analyzes Cosmos DB accounts within your Azure environment to ensure they're configured with the appropriate RUs.
 
-<h4>Description</h4>
+**Description**
 
-This query identifies Cosmos DB accounts with recommendations for optimizing their Request Units (RUs) based on usage patterns. It surfaces recommendations from Azure Advisor to adjust RUs for cost efficiency.
+This query identifies Cosmos DB accounts with recommendations for optimizing their RUs based on usage patterns. It surfaces recommendations from Azure Advisor to adjust RUs for cost efficiency.
 
-<h4>Category</h4>
+**Category**
 
 Optimization
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 advisorresources
@@ -50,22 +52,22 @@ advisorresources
 
 ### Query: Cosmos DB collections that would benefit from switching to another throughput mode
 
-This Azure Resource Graph (ARG) query identifies Cosmos DB collections within your Azure environment that would benefit from switching their throughput mode, based on Azure Advisor recommendations.
+This ARG query identifies Cosmos DB collections within your Azure environment that would benefit from switching their throughput mode, based on Azure Advisor recommendations.
 
-<h4>Description</h4>
+**Description**
 
-This query surfaces Cosmos DB collections that have recommendations to switch their throughput mode (e.g., from manual to autoscale or vice versa) to optimize performance and cost. It leverages Azure Advisor recommendations to highlight potential improvements.
+This query surfaces Cosmos DB collections that have recommendations to switch their throughput mode (for example, from manual to autoscale or vice versa) to optimize performance and cost. It uses Azure Advisor recommendations to highlight potential improvements.
 
-<h4>Category</h4>
+**Category**
 
 Optimization
 
-<h4>Benefits</h4>
+**Benefits**
 
 - **Cost optimization:** Identifies Cosmos DB collections that can save costs by switching to a more appropriate throughput mode based on usage patterns and recommendations.
 - **Performance management:** Ensures that Cosmos DB collections are using the optimal throughput mode, enhancing performance and avoiding over-provisioning or under-provisioning.
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 advisorresources
@@ -87,13 +89,13 @@ advisorresources
 
 ### Query: Cosmos DB backup mode details
 
-This Azure Resource Graph (ARG) query analyzes Cosmos DB accounts that use the 'Periodic' backup policy and do not have multiple write locations enabled.
+This ARG query analyzes Cosmos DB accounts that use the 'Periodic' backup policy and don't have multiple write locations enabled.
 
-<h4>Category</h4>
+**Category**
 
 Optimization
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 resources
@@ -114,15 +116,17 @@ resources
 
 ## SQL Databases
 
+The following sections provide ARG queries for SQL Databases. These queries help you identify SQL databases that might be idle, old, in development, or used for testing purposes. By analyzing these databases, you can optimize costs and improve efficiency by decommissioning or repurposing underutilized resources.
+
 ### Query: SQL DB idle
 
-This Azure Resource Graph (ARG) query identifies SQL databases with names indicating they might be old, in development, or used for testing purposes.
+This ARG query identifies SQL databases with names indicating they might be old, in development, or used for testing purposes.
 
-<h4>Category</h4>
+**Category**
 
 Optimization
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 resources
@@ -136,13 +140,13 @@ resources
 
 ### Query: Unused Elastic Pools analysis
 
-This Azure Resource Graph (ARG) query identifies potentially idle Elastic Pools in your Azure SQL environment by analyzing the number of databases associated with each Elastic Pool.
+This ARG query identifies potentially idle Elastic Pools in your Azure SQL environment by analyzing the number of databases associated with each Elastic Pool.
 
-<h4>Category</h4>
+**Category**
 
 Optimization
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 resources
@@ -196,6 +200,6 @@ Related solutions:
 - [FinOps toolkit Power BI reports](../toolkit/power-bi/reports.md)
 - [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md)
 - [FinOps workbooks](../toolkit/workbooks/finops-workbooks-overview.md)
-- [Optimization engine](../toolkit/optimization-engine/optimization-engine-overview.md)
+- [Optimization engine](../toolkit/optimization-engine/overview.md)
 
 <br>

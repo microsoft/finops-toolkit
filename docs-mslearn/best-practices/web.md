@@ -1,9 +1,9 @@
 ---
 title: FinOps best practices for Web
-description: This article outlines a collection of proven FinOps practices for web services.
+description: This article outlines a collection of proven FinOps practices for web services, focusing on cost optimization, efficiency improvements, and resource insights.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/17/2024
+ms.date: 10/29/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: arclares
@@ -13,21 +13,23 @@ ms.reviewer: arclares
 <!-- markdownlint-disable-next-line MD025 -->
 # FinOps best practices for Web
 
-This article outlines a collection of proven FinOps practices for web services.
+This article outlines a collection of proven FinOps practices for web services. It provides strategies for optimizing costs, improving efficiency, and using Azure Resource Graph (ARG) queries to gain insights into your web resources. By following these practices, you can ensure that your web services are cost-effective and aligned with your organization's financial goals.
 
 <br>
 
 ## App Service
 
+The following sections provide ARG queries for App Service. These queries help you gain insights into your App Service resources and ensure they're configured with the appropriate settings. By analyzing App Service plans and surfacing recommendations from Azure Advisor, you can optimize your App Service resources for cost efficiency.
+
 ### Query: Web Application Status
 
-This Azure Resource Graph (ARG) query retrieves the status and basic information of web applications within your Azure environment.
+This ARG query retrieves the status and basic information of web applications within your Azure environment.
 
-<h4>Category</h4>
+**Category**
 
 Monitoring
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 resources
@@ -46,13 +48,13 @@ resources
 
 ### Query: App Service plan details
 
-This Azure Resource Graph (ARG) query retrieves detailed information about Azure App Service Plans within your Azure environment.
+This ARG query retrieves detailed information about Azure App Service Plans within your Azure environment.
 
-<h4>Category</h4>
+**Category**
 
 Resource management
 
-<h4>Query</h4>
+**Query**
 
 ```kql
 resources
@@ -97,6 +99,6 @@ Related solutions:
 - [FinOps toolkit Power BI reports](../toolkit/power-bi/reports.md)
 - [FinOps hubs](../toolkit/hubs/finops-hubs-overview.md)
 - [FinOps workbooks](../toolkit/workbooks/finops-workbooks-overview.md)
-- [Optimization engine](../toolkit/optimization-engine/optimization-engine-overview.md)
+- [Optimization engine](../toolkit/optimization-engine/overview.md)
 
 <br>

@@ -1,10 +1,10 @@
 ---
 title: Remove-FinOpsHub command
-description: Remove a FinOps hub instance.
+description: Remove a FinOps hub instance using the Remove-FinOpsHub command in the FinOpsToolkit module, with an option to keep the storage account hosting cost data.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/17/2024
-ms.topic: concept-article
+ms.date: 11/01/2024
+ms.topic: reference
 ms.service: finops
 ms.reviewer: micflan
 #customer intent: As a FinOps user, I want to understand how to use the what New-FinOpsHub command in the FinOpsToolkit module.
@@ -15,7 +15,7 @@ ms.reviewer: micflan
 
 The **Remove-FinOpsHub** command removes a FinOps hub instance and optionally keep the storage account hosting cost data.
 
-The comamnd returns a boolean value indicating whether all resources were successfully deleted.
+The command returns a boolean value indicating whether all resources were successfully deleted.
 
 <br>
 
@@ -49,6 +49,8 @@ Remove-FinOpsHub `
 
 ## Examples
 
+The following example demonstrates how to use the Remove-FinOpsHub command to delete a FinOps hub instance.
+
 ### Remove a FinOps hub instance
 
 ```powershell
@@ -66,7 +68,8 @@ Deletes a FinOps Hub named MyHub and deletes all associated resource except the 
 
 Related solutions:
 
-- [FinOps toolkit Power BI reports](../power-bi/reports.md)
-- [FinOps hubs](../hubs/finops-hubs-overview.md)
+- [FinOps toolkit Power BI reports](../../power-bi/reports.md)
+- [FinOps hubs](../../hubs/finops-hubs-overview.md)
+
 
 <br>

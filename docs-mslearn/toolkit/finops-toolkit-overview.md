@@ -3,7 +3,7 @@ title: FinOps toolkit overview
 description: Learn how the FinOps toolkit helps you automate and extend the Microsoft Cloud with starter kits, scripts, and advanced solutions to improve FinOps practices.
 author: bandersmsft
 ms.author: banders
-ms.date: 10/10/2024
+ms.date: 11/01/2024
 ms.topic: concept-article
 ms.service: finops
 ms.reviewer: micflan
@@ -31,7 +31,7 @@ The FinOps toolkit is an ever-evolving collection of tools and resources. The fo
 - [FinOps workbooks](./workbooks/finops-workbooks-overview.md) – Central hub for cost optimization.
   - [Cost optimization workbook](./workbooks/optimization.md) – Central hub for cost optimization.
   - [Governance workbook](./workbooks/governance.md) – Central hub for governance.
-- [Azure Optimization Engine](./optimization-engine/optimization-engine-overview.md) – Extensible solution for custom optimization recommendations.
+- [Azure Optimization Engine](./optimization-engine/overview.md) – Extensible solution for custom optimization recommendations.
 - [PowerShell module](./powershell/powershell-commands.md) – Automate and manage FinOps solutions and capabilities.
 - [Bicep Registry modules](./bicep-registry/modules.md) – Official repository for Bicep modules.
 - [Open data](open-data.md) – Data available for anyone to access, use, and share without restriction.
