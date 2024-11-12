@@ -56,6 +56,19 @@ At this point, you implemented best practices based on cross-company benchmarks 
 
 <br>
 
+## KPIs and metrics
+
+To ensure effective benchmarking of workloads deployed into Azure, these KPIs provide a framework for comparing unit metrics across workloads helping in identifying performance gaps.
+
+| **Category** | **Definition** | **KPI** |
+|--------------|----------------|---------|
+| Metrics definition and alignment | Measures whether the necessary metrics have been defined to align with stakeholder needs. | The number of defined metrics versus the total number of required metrics. |
+| Metrics tracking across workloads | Measures whether all metrics are being tracked across all workloads for comparison. | The percentage of workloads with all metrics tracked versus the total number of workloads. |
+| Transparency of communication  | Measures the transparency of communication of goals and objectives, including all core personas. | The percentage of core personas included in the communication of goals and objectives. |
+| Data ingestion and reporting   | Measures whether data ingestion, reporting, and dashboards have been developed to track metrics, and how many personas are accessing and analyzing them. | The percentage of workloads with dashboards developed to analyze and compare unit metrics. |
+
+<br>
+
 ## Learn more at the FinOps Foundation
 
 This capability is a part of the FinOps Framework by the FinOps Foundation, a non-profit organization dedicated to advancing cloud cost management and optimization. For more information about FinOps, including useful playbooks, training and certification programs, and more, see to the [benchmarking](https://www.finops.org/framework/capabilities/benchmarking) article in the FinOps Framework documentation.
