@@ -3895,7 +3895,6 @@ resource pipeline_ToDataExplorer 'Microsoft.DataFactory/factories/pipelines@2018
   name: '${safeIngestionContainerName}_ETL_dataExplorer'
   parent: dataFactory
   properties: {
-    concurrency: 8 // Sane default for so we don't pay for compute execution time on ingestion jobs queued up in ADX.
     activities: [
       { // Wait
         name: 'Wait'
