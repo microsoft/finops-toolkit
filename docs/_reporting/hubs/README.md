@@ -66,20 +66,17 @@ FinOps hubs will streamline implementing the FinOps Framework, are being designe
 
 ## 🌟 Benefits
 
+- Report on cost and usage across multiple accounts and subscriptions in separate tenants.
+- Run advanced analytical queries and report on year over year cost trends in seconds.
+- Report on negotiated and commitment discount savings for EA billing accounts and MCA billing profiles.
+- Full alignment with the [FinOps Open Cost and Usage Specification (FOCUS)](../../_docs/focus/README.md).
 - Clean up duplicated data in daily Cost Management exports (and save money on storage).
 - Convert exported data to parquet for faster data access.
-- Connect Power BI to subscriptions, resource groups, and other scopes.
-- Connect Power BI to Azure Government and Azure China.
-- Connect Power BI to Microsoft Online Services Agreement (MOSA) subscriptions<sup>1</sup>.
-- Report on multiple subscriptions, resource groups, or billing accounts.
-- Streamlined deployment and management with PowerShell.
-- Full alignment with the [FinOps Open Cost and Usage Specification (FOCUS)](../../_docs/focus/README.md).
-- _Coming soon: Ingest data from subscriptions in multiple tenants into a single storage account<sup>2</sup>._
-- _Coming soon: Ingest data into Azure Data Explorer._
+- Extensible via standard Data Factory and Power BI capabilities to integrate business or other providers cost data.
+- Connect Power BI to Azure Government and Azure China¹.
+- Connect Power BI to Microsoft Online Services Agreement (MOSA) subscriptions¹.
 
-_<sup>1) MOSA (or PAYG) subscriptions are only supported in FinOps hubs 0.1.x. FinOps hubs 0.2 requires FOCUS cost data from Cost Management exports, which are not supported for MOSA subscriptions. Please contact support about transitioning to a Microsoft Customer Agreement account.</sup>_
-
-_<sup>2) EA billing scopes can be exported to any tenant today. Simply sign in to that tenant with an account that has access to the billing scope and target storage account to configure exports. Non-billing scopes (subscriptions, management groups, and resource groups) and all MCA scopes are only supported in the tenant they exist in today but will be supported via a "remote hubs" feature in a future FinOps hubs release.</sup>_
+_<sup>1) Azure Government, Azure China, and MOSA (or PAYG) subscriptions are only supported in FinOps hubs 0.1.1. FinOps hubs 0.2+ requires FOCUS cost data from Cost Management exports, which is not yet available.</sup>_
 
 <br>
 
@@ -129,7 +126,7 @@ To visualize the reports available, simply download the PBIX Power BI report fil
 
 3. **Connect to your data.**
 
-   You can connect to your data from any system that supports Azure storage. For ideas, see [get started with hubs](#-get-started-with-hubs) below. We recommend using pre-built Power BI starter templates to get started quickly.
+   You can connect to your data from any system that supports Azure Data Explorer or Azure storage. For ideas, see [get started with hubs](#-get-started-with-hubs). We recommend using pre-built Power BI starter templates to get started quickly.
 
    [Learn more](../power-bi/README.md#-connect-to-your-data)
 
@@ -165,7 +162,7 @@ After deploying a hub instance, there are several ways for you to get started:
 
 4. Access the cost data from custom tools.
 
-   Cost data is stored in an [Azure Data Lake Storage Gen2](https://learn.microsoft.com/azure/storage/blobs/data-lake-storage-introduction) account. You can use any tool that supports Azure Data Lake Storage Gen2 to access the data. Refer to the [data dictionary](../../_resources/data-dictionary.md) for details about available columns.
+   Cost data is stored in [Azure Data Explorer](https://learn.microsoft.com/azure/data-explorer) and an [Azure Data Lake Storage Gen2](https://learn.microsoft.com/azure/storage/blobs/data-lake-storage-introduction) account. You can use any tool that supports these services to access the data. Refer to the [data dictionary](../../_resources/data-dictionary.md) for details about available columns.
 
 5. Apply cost allocation logic, augment, or manipulate your cost data using Data Factory.
 
