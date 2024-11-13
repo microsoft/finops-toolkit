@@ -101,7 +101,6 @@ In general, we recommend starting with Power BI reports by connecting to the Cos
 | Accessible outside of Power BI                      |                ✅                 |                ✅                 |             ✅                     |              ✅               |
 | Kusto Query Language (KQL) support                        |                ❌                 |                ❌                 |             ✅                     |              ✅               |
 | Native integration with Azure Monitor workbooks |         ❌                 |                ❌                 |             🔜                     |              ❌               |
-| Azure Data Explorer built-in dashboards                    |                ❌                 |                ❌                 |             ✅                     |              ❌               |
 | Learn more                                          |      [Learn more][about-rawexports]    |     [Learn more][about-hubs]     | [Learn more][about-hubs]          | [Learn more][about-hubs]       |
 
 [about-connector]: https://aka.ms/costmgmt/powerbi
