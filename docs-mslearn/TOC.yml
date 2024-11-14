@@ -88,7 +88,7 @@
           href: framework/manage/intersecting-disciplines.md
   - name: FinOps best practices
     items:
-    - name: Best practices library
+    - name: Best practice library
       href: best-practices/library.md
     - name: General services
       href: best-practices/general.md
@@ -126,7 +126,7 @@
   items:
   - name: Overview
     href: toolkit/finops-toolkit-overview.md
-  - name: Hubs
+  - name: FinOps hubs
     items:
     - name: Overview
       href: toolkit/hubs/finops-hubs-overview.md
@@ -194,55 +194,54 @@
     href: toolkit/open-data.md
   - name: PowerShell
     items:
-    - name: PowerShell commands
+    - name: All commands
       href: toolkit/powershell/powershell-commands.md
+    - name: Toolkit
       items:
-      - name: Toolkit
-        items:
-        - name: Toolkit commands
-          href: toolkit/powershell/toolkit/finops-toolkit-commands.md
-        - name: Get-FinOpsToolkitVersion
-          href: toolkit/powershell/toolkit/get-finopstoolkitversion.md
-      - name: Cost Management
-        items:
-        - name: Cost Management commands
-          href: toolkit/powershell/cost/cost-management-commands.md
-        - name: Get-FinOpsCostExport
-          href: toolkit/powershell/cost/get-finopscostexport.md
-        - name: New-FinOpsCostExport
-          href: toolkit/powershell/cost/new-finopscostexport.md
-        - name: Remove-FinOpsCostExport
-          href: toolkit/powershell/cost/remove-finopscostexport.md
-        - name: Start-FinOpsCostExport
-          href: toolkit/powershell/cost/start-finopscostexport.md
-      - name: FinOps hubs
-        items:
-        - name: FinOps hubs automation
-          href: toolkit/powershell/hubs/finops-hubs-commands.md
-        - name: Deploy-FinOpsHub
-          href: toolkit/powershell/hubs/deploy-finopshub.md
-        - name: Initialize-FinOpsHubDeployment
-          href: toolkit/powershell/hubs/initialize-finopshubdeployment.md
-        - name: Register-FinOpsHubProviders
-          href: toolkit/powershell/hubs/register-finopshubproviders.md
-        - name: Remove-FinOpsHub
-          href: toolkit/powershell/hubs/remove-finopshub.md
-        - name: Remove-FinOpsHubScope
-          href: toolkit/powershell/hubs/remove-finopshubscope.md
-        - name: Get-FinOpsHub
-          href: toolkit/powershell/hubs/get-finopshub.md
-      - name: Open data
-        items:
-        - name: Open data commands
-          href: toolkit/powershell/data/open-data-commands.md
-        - name: Get-FinOpsPricingUnit
-          href: toolkit/powershell/data/get-finopspricingunit.md
-        - name: Get-FinOpsRegion
-          href: toolkit/powershell/data/get-finopsregion.md
-        - name: Get-FinOpsResourceType
-          href: toolkit/powershell/data/get-finopsresourcetype.md
-        - name: Get-FinOpsService
-          href: toolkit/powershell/data/get-finopsservice.md
+      - name: Toolkit commands
+        href: toolkit/powershell/toolkit/finops-toolkit-commands.md
+      - name: Get-FinOpsToolkitVersion
+        href: toolkit/powershell/toolkit/get-finopstoolkitversion.md
+    - name: Cost Management
+      items:
+      - name: Cost Management commands
+        href: toolkit/powershell/cost/cost-management-commands.md
+      - name: Get-FinOpsCostExport
+        href: toolkit/powershell/cost/get-finopscostexport.md
+      - name: New-FinOpsCostExport
+        href: toolkit/powershell/cost/new-finopscostexport.md
+      - name: Remove-FinOpsCostExport
+        href: toolkit/powershell/cost/remove-finopscostexport.md
+      - name: Start-FinOpsCostExport
+        href: toolkit/powershell/cost/start-finopscostexport.md
+    - name: FinOps hubs
+      items:
+      - name: FinOps hubs commands
+        href: toolkit/powershell/hubs/finops-hubs-commands.md
+      - name: Deploy-FinOpsHub
+        href: toolkit/powershell/hubs/deploy-finopshub.md
+      - name: Initialize-FinOpsHubDeployment
+        href: toolkit/powershell/hubs/initialize-finopshubdeployment.md
+      - name: Register-FinOpsHubProviders
+        href: toolkit/powershell/hubs/register-finopshubproviders.md
+      - name: Remove-FinOpsHub
+        href: toolkit/powershell/hubs/remove-finopshub.md
+      - name: Remove-FinOpsHubScope
+        href: toolkit/powershell/hubs/remove-finopshubscope.md
+      - name: Get-FinOpsHub
+        href: toolkit/powershell/hubs/get-finopshub.md
+    - name: Open data
+      items:
+      - name: Open data commands
+        href: toolkit/powershell/data/open-data-commands.md
+      - name: Get-FinOpsPricingUnit
+        href: toolkit/powershell/data/get-finopspricingunit.md
+      - name: Get-FinOpsRegion
+        href: toolkit/powershell/data/get-finopsregion.md
+      - name: Get-FinOpsResourceType
+        href: toolkit/powershell/data/get-finopsresourcetype.md
+      - name: Get-FinOpsService
+        href: toolkit/powershell/data/get-finopsservice.md
   - name: Bicep registry
     items:
     - name: Modules
