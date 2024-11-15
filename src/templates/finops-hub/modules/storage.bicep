@@ -67,6 +67,7 @@ var storageAccountSuffix = uniqueSuffix
 var storageAccountName = '${take(safeHubName, 24 - length(storageAccountSuffix))}${storageAccountSuffix}'
 var scriptStorageAccountName = '${take(safeHubName, 16 - length(storageAccountSuffix))}script${storageAccountSuffix}'
 var schemaFiles = {
+  'focuscost_1.0r2': loadTextContent('../schemas/focuscost_1.0r2.json')
   'focuscost_1.0': loadTextContent('../schemas/focuscost_1.0.json')
   'focuscost_1.0-preview(v1)': loadTextContent('../schemas/focuscost_1.0-preview(v1).json')
   'pricesheet_2023-05-01_ea': loadTextContent('../schemas/pricesheet_2023-05-01_ea.json')
@@ -111,6 +112,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     isHnsEnabled: true
     minimumTlsVersion: 'TLS1_2'
     allowBlobPublicAccess: false
+  })
     publicNetworkAccess: 'Enabled'
     networkAcls: {
       bypass: 'AzureServices'
@@ -408,13 +410,13 @@ resource uploadSettings 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
     storageAccountSettings: {
       storageAccountName: scriptStorageAccount.name
       //storageAccountKey: storageAccount.listKeys().keys[0].value
-  }
+    }
     containerSettings: {
       containerGroupName: '${scriptStorageAccount.name}cg'
       subnetIds: [
         {
           id: scriptSubnetId
-}
+        }
       ]
     }
   }

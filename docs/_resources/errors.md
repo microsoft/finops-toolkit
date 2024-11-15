@@ -13,6 +13,7 @@ Sorry to hear you're having a problem. We're here to help!
 <details markdown="1">
    <summary class="fs-2 text-uppercase">On this page</summary>
 
+- [AccountPropertyCannotBeUpdated](#accountpropertycannotbeupdated)
 - [BadHubVersion](#badhubversion)
 - [DataExplorerIngestionFailed](#dataexploreringestionfailed)
 - [DataExplorerIngestionMappingFailed](#dataexploreringestionmappingfailed)
@@ -47,6 +48,8 @@ Sorry to hear you're having a problem. We're here to help!
 - [x\_PricingSubcategory shows the commitment discount ID](#x_pricingsubcategory-shows-the-commitment-discount-id)
 - [Power BI: Reports are missing data for specific dates](#power-bi-reports-are-missing-data-for-specific-dates)
 - [Power BI: Reports are empty (no data)](#power-bi-reports-are-empty-no-data)
+  - [FinOps hubs: Ingestion container is empty](#finops-hubs-ingestion-container-is-empty)
+  - [FinOps hubs: Files available in the ingestion container](#finops-hubs-files-available-in-the-ingestion-container)
 - [Power BI: The remote name could not be resolved: '\<storage-account\>.dfs.core.windows.net'](#power-bi-the-remote-name-could-not-be-resolved-storage-accountdfscorewindowsnet)
 - [Power BI: We cannot convert the value null to type Logical](#power-bi-we-cannot-convert-the-value-null-to-type-logical)
 - [FinOps hubs: We cannot convert the value null to type Table](#finops-hubs-we-cannot-convert-the-value-null-to-type-table)
@@ -59,6 +62,20 @@ Sorry to hear you're having a problem. We're here to help!
 This article describes common FinOps toolkit errors and provides information about solutions. If you get an error when using FinOps toolkit solutions that you don't understand or can't resolve, find the error code below with mitigation steps to resolve the problem.
 
 If the information provided doesn't resolve the issue, try the [Troubleshooting guide](./troubleshooting.md).
+
+<br>
+
+## AccountPropertyCannotBeUpdated
+
+<sup>Severity: Critical</sup>
+
+This error typically occurs when updating a FinOps hub deployment with a different storage account configuration than was originally used during creation. While most properties can be changed, there are a few properties that can only be set once when the storage account is created and cannot change. The one known case of this for FinOps hubs is the "requireInfrastructureEncryption" property. If was enabled or disabled during the first FinOps hub deployment, then it cannot be changed. You will see the following error when this happens:
+
+> The property 'requireInfrastructureEncryption' was specified in the input, but it cannot be updated as it is read-only.
+
+**Mitigation**: If you did not mean to change this setting, confirm whether your storage account is configured to use infrastructure encryption and re-deploy the FinOps hub template with the same value (either on or off). If you want to change the setting, we recommend deploying a new FinOps hub instance, as this will require re-ingesting all data.
+
+You can try to delete the existing storage account and redeploy the template with infrastructure encryption changed; however, we have not thoroughly tested this. While we do not anticipate issues, we cannot confirm if it will cause problems.
 
 <br>
 

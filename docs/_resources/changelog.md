@@ -136,6 +136,10 @@ Legend:
 🏦 FinOps hubs
 {: .fs-5 .fw-500 .mt-4 mb-0 }
 
+> ➕ Added:
+> 
+> 1. Infrastructure encryption - Added an optional enableInfrastructureEncryption template parameter to support storage account infrastructure encryption.
+
 <small>**Breaking change**</small>
 {: .label .label-red .pt-0 .pl-3 .pr-3 .m-0 }
 
@@ -144,8 +148,12 @@ Legend:
 > 1. Option to ingest data into an Azure Data Explorer cluster.
 > 1. Set missing reservation list and contracted prices/cost columns for EA and MCA accounts (Data Explorer only).
 >    - Requires the price sheet export to be configured.
-> 1. Fix EffectiveCost for savings plan purchases to work around a bug in exported data (Data Explorer only).
+> 12. Fix EffectiveCost for savings plan purchases to work around a bug in exported data (Data Explorer only).
 >    - The same fix was applied to Power BI reports for those not using Data Explorer. The underlying data has not changed however.
+> 3. Support for FOCUS 1.0r2 exports.
+>    - The 1.0r2 dataset only differs in date formatting. There are no functional differences compared to 1.0.
+>    - The 1.0r2 dataset is only needed when ingesting data into a system that requires date/time values to include seconds (for example, "2024-01-01T00:00:00Z" where the last "00" is seconds).
+
 >
 > ✏️ Changed:
 >
