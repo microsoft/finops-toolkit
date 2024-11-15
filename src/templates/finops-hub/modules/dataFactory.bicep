@@ -50,6 +50,9 @@ param tags object = {}
 @description('Optional. Tags to apply to resources based on their resource type. Resource type specific tags will be merged with tags for all resources.')
 param tagsByResource object = {}
 
+@description('Optional. Enable public access.')
+param enablePublicAccess bool
+
 //------------------------------------------------------------------------------
 // Variables
 //------------------------------------------------------------------------------
@@ -82,7 +85,7 @@ var safeExportContainerName = replace('${exportContainerName}', '-', '_')
 var safeIngestionContainerName = replace('${ingestionContainerName}', '-', '_')
 var safeConfigContainerName = replace('${configContainerName}', '-', '_')
 var managedVnetName = 'default'
-var managedIntegrationRuntimeName = 'AutoResolveIntegrationRuntime'
+var managedIntegrationRuntimeName = 'ManagedIntegrationRuntime' //'AutoResolveIntegrationRuntime'
 
 // Separator used to separate ingestion ID from file name for ingested files
 var ingestionIdFileNameSeparator = '__'
@@ -142,13 +145,13 @@ module azuretimezones 'azuretimezones.bicep' = {
   }
 }
 
-resource managedVirtualNetwork 'Microsoft.DataFactory/factories/managedVirtualNetworks@2018-06-01' = {
+resource managedVirtualNetwork 'Microsoft.DataFactory/factories/managedVirtualNetworks@2018-06-01' = if (!enablePublicAccess) {
   name: managedVnetName
   parent: dataFactory
   properties: {}
 }
 
-resource managedIntegrationRuntime 'Microsoft.DataFactory/factories/integrationRuntimes@2018-06-01' = {
+resource managedIntegrationRuntime 'Microsoft.DataFactory/factories/integrationRuntimes@2018-06-01' = if (!enablePublicAccess) {
   name: managedIntegrationRuntimeName
   parent: dataFactory
   properties: {
@@ -159,7 +162,23 @@ resource managedIntegrationRuntime 'Microsoft.DataFactory/factories/integrationR
     }
     typeProperties: {
       computeProperties: {
-        location: 'AutoResolve'
+        location: location
+        dataFlowProperties: {
+            computeType: 'General'
+            coreCount: 8
+            timeToLive: 10
+            cleanup: false
+            customProperties: []
+        }
+        copyComputeScaleProperties: {
+            dataIntegrationUnit: 256
+            timeToLive: 30
+        }
+        pipelineExternalComputeScaleProperties: {
+            timeToLive: 30
+            numberOfPipelineNodes: 10
+            numberOfExternalNodes: 10
+        }
       }
     }
   }
@@ -168,7 +187,7 @@ resource managedIntegrationRuntime 'Microsoft.DataFactory/factories/integrationR
   ]
 }
 
-resource storageManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = {
+resource storageManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = if (!enablePublicAccess) {
   name: storageAccount.name
   parent: managedVirtualNetwork
   properties: {
@@ -181,7 +200,7 @@ resource storageManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedV
   }
 }
 
-module getStoragePrivateEndpointConnections 'storageEndpoints.bicep' = {
+module getStoragePrivateEndpointConnections 'storageEndpoints.bicep' = if (!enablePublicAccess) {
   name: 'GetStoragePrivateEndpointConnections'
   dependsOn: [
     storageManagedPrivateEndpoint
@@ -191,7 +210,7 @@ module getStoragePrivateEndpointConnections 'storageEndpoints.bicep' = {
   }
 }
 
-module approveStoragePrivateEndpointConnections 'storageEndpoints.bicep' = {
+module approveStoragePrivateEndpointConnections 'storageEndpoints.bicep' = if (!enablePublicAccess) {
   name: 'ApproveStoragePrivateEndpointConnections'
   dependsOn: [
     getStoragePrivateEndpointConnections
@@ -202,7 +221,7 @@ module approveStoragePrivateEndpointConnections 'storageEndpoints.bicep' = {
   }
 }
 
-resource keyVaultManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = {
+resource keyVaultManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = if (!enablePublicAccess) {
   name: keyVault.name
   parent: managedVirtualNetwork
   properties: {
@@ -215,7 +234,7 @@ resource keyVaultManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managed
   }
 }
 
-module getKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = {
+module getKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = if (!enablePublicAccess) {
   name: 'GetKeyVaultPrivateEndpointConnections'
   dependsOn: [
     keyVaultManagedPrivateEndpoint
@@ -225,7 +244,7 @@ module getKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = {
   }
 }
 
-module approveKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = {
+module approveKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = if (!enablePublicAccess) {
   name: 'ApproveKeyVaultPrivateEndpointConnections'
   dependsOn: [
     getKeyVaultPrivateEndpointConnections
@@ -236,7 +255,7 @@ module approveKeyVaultPrivateEndpointConnections 'keyVaultEndpoints.bicep' = {
   }
 }
 
-resource dataExplorerManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = if (deployDataExplorer) {
+resource dataExplorerManagedPrivateEndpoint 'Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints@2018-06-01' = if (deployDataExplorer && !enablePublicAccess) {
   name: hubDataExplorerName
   parent: managedVirtualNetwork
   properties: {
@@ -249,7 +268,7 @@ resource dataExplorerManagedPrivateEndpoint 'Microsoft.DataFactory/factories/man
   }
 }
 
-module getDataExplorerPrivateEndpointConnections 'dataExplorerEndpoints.bicep' = if (deployDataExplorer) {
+module getDataExplorerPrivateEndpointConnections 'dataExplorerEndpoints.bicep' = if (deployDataExplorer && !enablePublicAccess) {
   name: 'GetDataExplorerPrivateEndpointConnections'
   dependsOn: [
     dataExplorerManagedPrivateEndpoint
@@ -259,7 +278,7 @@ module getDataExplorerPrivateEndpointConnections 'dataExplorerEndpoints.bicep' =
   }
 }
 
-module approveDataExplorerPrivateEndpointConnections 'dataExplorerEndpoints.bicep' = if (deployDataExplorer) {
+module approveDataExplorerPrivateEndpointConnections 'dataExplorerEndpoints.bicep' = if (deployDataExplorer && !enablePublicAccess) {
   name: 'ApproveDataExplorerPrivateEndpointConnections'
   dependsOn: [
     getDataExplorerPrivateEndpointConnections
@@ -395,6 +414,7 @@ resource stopTriggers 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
   name: keyVault.name
   parent: dataFactory
+  dependsOn: enablePublicAccess ? [] : [managedIntegrationRuntime]
   properties: {
     annotations: []
     parameters: {}
@@ -402,8 +422,8 @@ resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@
     typeProperties: {
       baseUrl: reference('Microsoft.KeyVault/vaults/${keyVault.name}', '2023-02-01').vaultUri
     }
-    connectVia: {
-      referenceName: managedIntegrationRuntime.name
+    connectVia: enablePublicAccess ? null : { 
+      referenceName: managedIntegrationRuntimeName
       type: 'IntegrationRuntimeReference'
     }
   }
@@ -412,6 +432,7 @@ resource linkedService_keyVault 'Microsoft.DataFactory/factories/linkedservices@
 resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
   name: storageAccount.name
   parent: dataFactory
+  dependsOn: enablePublicAccess ? [] : [managedIntegrationRuntime]
   properties: {
     annotations: []
     parameters: {}
@@ -419,8 +440,8 @@ resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedser
     typeProperties: {
       url: reference('Microsoft.Storage/storageAccounts/${storageAccount.name}', '2021-08-01').primaryEndpoints.dfs
     }
-    connectVia: {
-      referenceName: managedIntegrationRuntime.name
+    connectVia: enablePublicAccess ? null : { 
+      referenceName: managedIntegrationRuntimeName
       type: 'IntegrationRuntimeReference'
     }
   }
@@ -429,6 +450,7 @@ resource linkedService_storageAccount 'Microsoft.DataFactory/factories/linkedser
 resource linkedService_dataExplorer 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = if (deployDataExplorer) {
   name: hubDataExplorerName
   parent: dataFactory
+  dependsOn: enablePublicAccess ? [] : [managedIntegrationRuntime]
   properties: {
     type: 'AzureDataExplorer'
     parameters: {
@@ -443,8 +465,8 @@ resource linkedService_dataExplorer 'Microsoft.DataFactory/factories/linkedservi
       tenant: dataFactory.identity.tenantId
       servicePrincipalId: dataFactory.identity.principalId
     }
-    connectVia: {
-      referenceName: managedIntegrationRuntime.name
+    connectVia: enablePublicAccess ? null : { 
+      referenceName: managedIntegrationRuntimeName
       type: 'IntegrationRuntimeReference'
     }
   }
@@ -453,6 +475,7 @@ resource linkedService_dataExplorer 'Microsoft.DataFactory/factories/linkedservi
 resource linkedService_remoteHubStorage 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = if (!empty(remoteHubStorageUri)) {
   name: 'remoteHubStorage'
   parent: dataFactory
+  dependsOn: enablePublicAccess ? [] : [managedIntegrationRuntime]
   properties: {
     annotations: []
     parameters: {}
@@ -468,8 +491,8 @@ resource linkedService_remoteHubStorage 'Microsoft.DataFactory/factories/linkeds
         secretName: '${toLower(hubName)}-storage-key'
       }
     }
-    connectVia: {
-      referenceName: managedIntegrationRuntime.name
+    connectVia: enablePublicAccess ? null : { 
+      referenceName: managedIntegrationRuntimeName
       type: 'IntegrationRuntimeReference'
     }
   }
@@ -478,6 +501,7 @@ resource linkedService_remoteHubStorage 'Microsoft.DataFactory/factories/linkeds
 resource linkedService_ftkRepo 'Microsoft.DataFactory/factories/linkedservices@2018-06-01' = {
   name: 'ftkRepo'
   parent: dataFactory
+  dependsOn: enablePublicAccess ? [] : [managedIntegrationRuntime]
   properties: {
     parameters: {
       filePath: {
@@ -491,8 +515,8 @@ resource linkedService_ftkRepo 'Microsoft.DataFactory/factories/linkedservices@2
       enableServerCertificateValidation: true
       authenticationType: 'Anonymous'
     }
-    connectVia: {
-      referenceName: managedIntegrationRuntime.name
+    connectVia: enablePublicAccess ? null : { 
+      referenceName: managedIntegrationRuntimeName
       type: 'IntegrationRuntimeReference'
     }
   }
@@ -710,7 +734,8 @@ resource dataset_dataExplorer 'Microsoft.DataFactory/factories/datasets@2018-06-
   name: hubDataExplorerName
   parent: dataFactory
   dependsOn: [
-    approveDataExplorerPrivateEndpointConnections
+    linkedService_dataExplorer
+    //approveDataExplorerPrivateEndpointConnections
   ]
   properties: {
     type: 'AzureDataExplorerTable'

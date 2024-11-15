@@ -120,7 +120,7 @@ param virtualNetworkId string
 @description('Required. Resource ID of the subnet for private endpoints.')
 param privateEndpointSubnetId string
 
-@description('Optional. Enable public access to the data lake.  Default: false.')
+@description('Optional. Enable public access.')
 param enablePublicAccess bool
 
 //------------------------------------------------------------------------------

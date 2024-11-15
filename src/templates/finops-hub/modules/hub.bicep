@@ -324,6 +324,7 @@ module dataFactoryResources 'dataFactory.bicep' = {
     dataExplorerId: safeDataExplorerId
     keyVaultName: keyVault.outputs.name
     remoteHubStorageUri: remoteHubStorageUri
+    enablePublicAccess: enablePublicAccess
   }
 }
 
