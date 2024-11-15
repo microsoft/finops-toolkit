@@ -564,10 +564,13 @@ Costs_transform_v1_0()
 {
     // TODO: Add ServiceModel
     // TODO: Add CommitmentDiscountSpend/UsageEligibility
+    // TODO: Commitment discount purchases are missing x_PricingCurrency, x_BillingExchangeRate, x_BillingExchangeRateDate
     // TODO: Consider fixing PricingQuantity and ContractedCost with bad values due to the wrong PricingQuantity scale
     // TODO: Consider fixing "Other" ServiceCategory values
     // TODO: Consider replacing "Microsoft Corporation" PublisherName values
+    // TODO: Consider setting x_SkuMeterCategory and x_SkuServiceFamily for savings plan purchases
     // TODO: Fix FOCUS conformance gaps
+    // TODO: Reservation purchases use the global RegionId/Name. Update them to use the clean version of x_SkuRegion.
     // TODO: ContractedCost/UnitPrice are 0 for commitment discount purchases
     // TODO: Savings plan purchases show a ChargeFrequency of "Usage-Based" but should be "One-Time" or "Recurring"
     // TODO: Savings plan purchases do not have a ServiceName
@@ -623,16 +626,23 @@ Costs_transform_v1_0()
     // ))
     //
     // Identify data quality issues
-    | extend x_SourceChanges = replace_regex(strcat(
-        iff((isempty(ContractedCost)      or ContractedCost == 0)      and EffectiveCost != 0 ,                                     'MissingContractedCost,',            ''),
-        iff((isempty(ContractedUnitPrice) or ContractedUnitPrice == 0) and x_EffectiveUnitPrice != 0 ,                              'MissingContractedUnitPrice,',       ''),
+    | extend x_SourceChanges = trim_end(',', strcat(
+        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and ChargeFrequency == 'Usage-Based',                 'InvalidChargeFrequency,',           ''),
+        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and EffectiveCost > 0,                                'InvalidEffectiveCost,',             ''),
+        iff((isempty(ContractedCost)      or ContractedCost == 0)      and EffectiveCost != 0,                                      'MissingContractedCost,',            ''),
+        iff((isempty(ContractedUnitPrice) or ContractedUnitPrice == 0) and x_EffectiveUnitPrice != 0,                               'MissingContractedUnitPrice,',       ''),
         iff((isempty(ListCost)            or ListCost == 0)            and (ContractedCost != 0      or EffectiveCost != 0),        'MissingListCost,',                  ''),
         iff((isempty(ListUnitPrice)       or ListUnitPrice == 0)       and (ContractedUnitPrice != 0 or x_EffectiveUnitPrice != 0), 'MissingListUnitPrice,',             ''),
         iff(isempty(ProviderName),                                                                                                  'MissingProviderName,',              ''),
-        iff(isempty(PublisherName),                                                                                                 'MissingPublisherName,',              ''),
+        iff(isempty(PublisherName),                                                                                                 'MissingPublisherName,',             ''),
+        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and isempty(ResourceId),                              'MissingResourceId,',                ''),
+        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and isempty(ResourceName),                            'MissingResourceName,',              ''),
+        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and isempty(ResourceType),                            'MissingResourceType,',              ''),
+        iff(BilledCost > 0 and x_BilledUnitPrice == 0,                                                                              'MissingXBilledUnitPrice,',          ''),
+        iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and isempty(x_ResourceType),                          'MissingXResourceType,',             ''),
         iff(PricingCategory == 'Standard' and isnotempty(CommitmentDiscountId) and ChargeCategory == 'Usage',                       'PricingCategoryShouldBeCommitted,', ''),
         iff(x_SkuTerm == '1Year' or x_SkuTerm == '3Years' or x_SkuTerm == '5Years',                                                 'SkuTermShouldBeAnInteger,',         '')
-    ), ',$', '')
+    ))
     //
     // Fix columns needed in other changes
     | extend ProviderName = case(
@@ -653,13 +663,11 @@ Costs_transform_v1_0()
         ''
     ))
     // Append version check error code
-    | extend x_SourceChanges = strcat(x_SourceChanges, iff(isempty(x_SourceChanges), '', ','), case(
-        x_SourceVersion == '1.0', '',
-        x_SourceVersion == '', 'UnknownFocusVersion',
-        'LegacyFocusVersion'
-    ))
+    | extend x_SourceChanges = iff(x_SourceVersion == '1.0', x_SourceChanges,
+        strcat(x_SourceChanges, iff(isempty(x_SourceChanges), '', ','), iff(x_SourceVersion == '', 'UnknownFocusVersion', 'LegacyFocusVersion'))
+    )
     //
-    // Backfill missing prices -- mapping to on-demand prices requires meter ID and offer ID
+    // Populate missing prices -- mapping to on-demand prices requires meter ID and offer ID
     | extend tmp_MissingPrices = ProviderName == 'Microsoft'
         and (ListUnitPrice == 0 or ContractedUnitPrice == 0)
         and x_EffectiveUnitPrice != 0
@@ -714,6 +722,34 @@ Costs_transform_v1_0()
     | extend ConsumedQuantity = iff(ChargeCategory == 'Usage', coalesce(ConsumedQuantity, UsageQuantity, UsageAmount), todecimal(''))
     | extend ConsumedUnit = iff(ChargeCategory == 'Usage' and isnotempty(ConsumedQuantity), coalesce(ConsumedUnit, UsageUnit, 'Units'), '')
     //
+    // Convert IDs to lowercase for consistency
+    | extend CommitmentDiscountId = tolower(CommitmentDiscountId)
+    //
+    // BUG: Remove EffectiveCost for commitment discount purchases
+    | extend EffectiveCost = iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId), decimal(0), EffectiveCost)
+    | extend x_EffectiveCostInUsd = iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId), decimal(0), x_EffectiveCostInUsd)
+    //
+    // Clean up resource columns
+    | extend ResourceId = case(
+        isnotempty(ResourceId), ResourceId,
+        ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId), CommitmentDiscountId,
+        ResourceId)
+    | extend tmp_ResourceDetails = parse_resourceid(ResourceId)
+    | extend ResourceName = tolower(case(
+        isnotempty(ResourceName), ResourceName,
+        ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountName), CommitmentDiscountName,
+        isnotempty(ResourceId), tmp_ResourceDetails.ResourceName,
+        ResourceName))
+    | extend ResourceType = case(
+        isnotempty(ResourceType), ResourceType,
+        isnotempty(ResourceId) and isnotempty(tmp_ResourceDetails.ResourceType), tmp_ResourceDetails.ResourceType,
+        ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountType), CommitmentDiscountType,
+        ResourceType)
+    | extend x_ResourceType = case(
+        isnotempty(x_ResourceType), x_ResourceType,
+        isnotempty(ResourceId) and isnotempty(tmp_ResourceDetails.x_ResourceType), tmp_ResourceDetails.x_ResourceType,
+        x_ResourceType)
+    //
     // Sort columns and apply final transforms
     | project
         AvailabilityZone,
@@ -732,7 +768,8 @@ Costs_transform_v1_0()
         ),
         ChargeClass = case(ChargeSubcategory == 'Refund', 'Correction', ChargeClass),
         ChargeDescription,
-        ChargeFrequency,
+        // BUG: ChargeFrequency shows "Usage-Based" for monthly recurring savings plan purchases
+        ChargeFrequency = iff(ChargeCategory == 'Purchase' and isnotempty(CommitmentDiscountId) and ChargeFrequency == 'Usage-Based' and ProviderName == 'Microsoft' and x_SourceVersion startswith '1.0', 'Recurring', ChargeFrequency),
         ChargePeriodEnd,
         ChargePeriodStart,
         CommitmentDiscountCategory,
@@ -763,12 +800,12 @@ Costs_transform_v1_0()
         PricingUnit,
         ProviderName,
         // Handle missing PublisherName values
-        PublisherName = case(isnotempty(PublisherName), PublisherName, x_PublisherCategory == 'Cloud Provider', ProviderName, ''),
+        PublisherName = case(PublisherName == 'Microsoft Corporation', 'Microsoft', isnotempty(PublisherName), PublisherName, x_PublisherCategory == 'Cloud Provider', ProviderName, ''),
         // Handle FOCUS 1.0-preview Region column
         RegionId = coalesce(RegionId, iff(ProviderName == 'Microsoft', replace_string(tolower(Region), ' ', ''), Region)),
         RegionName = coalesce(RegionName, Region),
         ResourceId,
-        ResourceName = tolower(ResourceName),
+        ResourceName,
         ResourceType,
         ServiceCategory,
         ServiceName,
@@ -828,7 +865,10 @@ Costs_transform_v1_0()
         x_ResellerId,                // Azure 1.0-preview(v1)+
         x_ResellerName,              // Azure 1.0-preview(v1)+
         x_ResourceGroupName = tolower(x_ResourceGroupName),  // Azure 1.0-preview(v1)+
-        x_ResourceType,              // Azure 1.0-preview(v1)+
+        x_ResourceType = tolower(case(
+            isnotempty(ResourceType), ResourceType,
+            ChargeCategory == 'Purchase' and CommitmentDiscountType == 'Reservation', '',
+            ResourceType)),          // Azure 1.0-preview(v1)+
         x_ServiceCode,               // AWS 1.0
         x_ServiceId,                 // GCP Jan 2024
         x_ServicePeriodEnd,          // Azure 1.0-preview(v1)+

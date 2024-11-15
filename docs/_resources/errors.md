@@ -20,12 +20,13 @@ Sorry to hear you're having a problem. We're here to help!
 - [DataExplorerIngestionTimeout](#dataexploreringestiontimeout)
 - [DataExplorerPostIngestionDropFailed](#dataexplorerpostingestiondropfailed)
 - [DataExplorerPreIngestionDropFailed](#dataexplorerpreingestiondropfailed)
+- [HubDataNotFound](#hubdatanotfound)
+- [InvalidEffectiveCost](#invalideffectivecost)
 - [InvalidExportContainer](#invalidexportcontainer)
 - [InvalidExportVersion](#invalidexportversion)
 - [InvalidHubVersion](#invalidhubversion)
 - [InvalidScopeId](#invalidscopeid)
 - [ExportDataNotFound](#exportdatanotfound)
-- [HubDataNotFound](#hubdatanotfound)
 - [LegacyFocusVersion](#legacyfocusversion)
 - [MissingContractedCost](#missingcontractedcost)
 - [MissingContractedUnitPrice](#missingcontractedunitprice)
@@ -138,6 +139,34 @@ Data Explorer pre-ingestion cleanup (drop extents from the raw table) failed. In
 
 <br>
 
+## HubDataNotFound
+
+<sup>Severity: Critical</sup>
+
+FinOps hub data was not found in the specified storage account.
+
+**Mitigation**: This error assumes you are connecting to a FinOps hub deployment. If using raw exports, please correct the storage path to not reference the `ingestion` container. Confirm the following:
+
+1. The storage URL should match the `StorageUrlForPowerBI` output on the FinOps hub deployment.
+2. Cost Management exports should be configured to point to the same storage account using the `msexports` container.
+3. Cost Management exports should show a successful export in the run history.
+4. FinOps hub data factory triggers should all be started.
+5. FinOps hub data factory pipelines should be successful.
+
+For more details and debugging steps, see [Validate your FinOps hub deployment](./troubleshooting.md#-validate-your-finops-hub-deployment).
+
+<br>
+
+## InvalidEffectiveCost
+
+<sup>Severity: Major</sup>
+
+As of November 2024, Cost Management has a known bug where savings plan purchases are internally tracked as both actual and amortized costs. Because of this, FOCUS includes savings plan purchases in the calculation for `EffectiveCost`, which leads to inaccurate numbers in FinOps toolkit reports.
+
+**Mitigation**: File a support request with the Microsoft Cost Management team with details about the issue to fix the underlying data. As of November 2024, the team is aware of the issue, but the fix has not yet been prioritized. In the interim, update to FinOps toolkit 0.7, which includes a workaround for FinOps hubs and storage-based Power BI reports.
+
+<br>
+
 ## InvalidExportContainer
 
 <sup>Severity: Critical</sup>
@@ -185,24 +214,6 @@ The export path is not a valid scope ID. FinOps hubs expects the export path to 
 Exports were not found in the specified storage path.
 
 **Mitigation**: Confirm that a [Cost Management export](https://aka.ms/exportsv2) was created and configured with the correct storage account, container, and storage path. After created, select 'Run now' to start the export process. Exports can take 15-30 minutes to complete depending on the size of the account. If you intended to use FinOps hubs, please correct the storage URL to point to the 'ingestion' container. Refer to the `storageUrlForPowerBI` output from the FinOps hub deployment for the full URL.
-
-<br>
-
-## HubDataNotFound
-
-<sup>Severity: Critical</sup>
-
-FinOps hub data was not found in the specified storage account.
-
-**Mitigation**: This error assumes you are connecting to a FinOps hub deployment. If using raw exports, please correct the storage path to not reference the `ingestion` container. Confirm the following:
-
-1. The storage URL should match the `StorageUrlForPowerBI` output on the FinOps hub deployment.
-2. Cost Management exports should be configured to point to the same storage account using the `msexports` container.
-3. Cost Management exports should show a successful export in the run history.
-4. FinOps hub data factory triggers should all be started.
-5. FinOps hub data factory pipelines should be successful.
-
-For more details and debugging steps, see [Validate your FinOps hub deployment](./troubleshooting.md#-validate-your-finops-hub-deployment).
 
 <br>
 
