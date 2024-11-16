@@ -34,14 +34,3 @@ Need help with an issue you're facing with one of the tools in the FinOps toolki
 To learn more about recent changes, check out the [Changelog](../changelog.md).
 
 <br>
-
-## Related content
-
-Related products:
-
-- [Cost Management](/azure/cost-management-billing/costs/)
-
-Related solutions:
-
-- [FinOps toolkit Power BI reports](../power-bi/reports.md)
-- [FinOps hubs](../hubs/finops-hubs-overview.md)
