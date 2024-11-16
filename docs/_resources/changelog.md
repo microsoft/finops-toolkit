@@ -66,11 +66,11 @@ Legend:
 > 3. Retention – Configure how long you want to keep Cost Management exports and normalized data in storage.
 > 4. ETL pipelile – Add support for parquet files created by Cost Management exports.
 > 5. Private endpoints support.
->    - Added private endpoints for storage account & Keyvault.
+>    - Added private endpoints for storage account, Azure Data Explorer & Keyvault.
 >    - Added managed virtual network & storage endpoint for Azure Data Factory Runtime.
 >    - All data processing now happens within a vNet.
->    - Added param to disable external access to data lake
->    - Added param to specify subnet range of vnet - minumum size = /27
+>    - Added param to disable external access to Azure Data Lake and Azure Data Explorer.
+>    - Added param to specify subnet range of vnet - minumum size = /26
 > 6. Infrastructure encryption - Added an optional enableInfrastructureEncryption template parameter to support storage account infrastructure encryption.
 
 📊 Power BI reports
@@ -118,6 +118,7 @@ Legend:
 > - General
 >   1. Added partial support for OneLake URLs.
 >      - This is not fully tested. This is based on feedback about OneLake file paths being different. Additional changes may be needed to fully support Microsoft Fabric.
+>   1. Fix EffectiveCost for savings plan purchases to work around a bug in exported data.
 > - [Cost summary](../_reporting/power-bi/cost-summary.md)
 >   1. Added KQL-based version that connects to FinOps hubs with Azure Data Explorer.
 > - [Rate optimization](../_reporting/power-bi/rate-optimization.md)
@@ -149,9 +150,14 @@ Legend:
 > ➕ Added:
 >
 > 1. Option to ingest data into an Azure Data Explorer cluster.
-> 2. Support for FOCUS 1.0r2 exports.
+> 1. Set missing reservation list and contracted prices/cost columns for EA and MCA accounts (Data Explorer only).
+>    - Requires the price sheet export to be configured.
+> 12. Fix EffectiveCost for savings plan purchases to work around a bug in exported data (Data Explorer only).
+>    - The same fix was applied to Power BI reports for those not using Data Explorer. The underlying data has not changed however.
+> 3. Support for FOCUS 1.0r2 exports.
 >    - The 1.0r2 dataset only differs in date formatting. There are no functional differences compared to 1.0.
 >    - The 1.0r2 dataset is only needed when ingesting data into a system that requires date/time values to include seconds (for example, "2024-01-01T00:00:00Z" where the last "00" is seconds).
+
 >
 > ✏️ Changed:
 >
@@ -164,7 +170,7 @@ Legend:
 >    - For reservation details, use "CommitmentDiscountUsage".
 >    - For reservation recommendations, use "Recommendations".
 >    - For reservation transactions, use "Transactions".
-> 2. Renamed the `msexports_FileAdded` trigger to `msexports_ManifestAdded`.
+> 1. Renamed the `msexports_FileAdded` trigger to `msexports_ManifestAdded`.
 
 📒 Azure Monitor workbooks
 {: .fs-5 .fw-500 .mt-4 mb-0 }
@@ -175,7 +181,7 @@ Legend:
 >   1. On the Storagetab, included the **RSVaultBackup** tag in the list of non-idle disks.
 >
 > 🛠️ Fixed:
-> 
+>
 > - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
 >   1. On the Commitment discounts tab, fixed RI ROWS Limited.
 >   2. On the Compute tab, fixed incorrect VM processor in processors query.
@@ -185,6 +191,29 @@ Legend:
 > - [Optimization workbook](../_optimize/workbooks/optimization/README.md)
 >   1. On the Database tab, removed the idle SQL databases query.
 >      - This query will be re-evaluated and added again in a future release.
+
+🌐 Open data
+{: .fs-5 .fw-500 .mt-4 mb-0 }
+
+> ➕ Added:
+>
+> - [Resource types](../_reporting/data/README.md#-resource-types)
+>   1. Added 50 new Microsoft.AWSConnector resource types.
+>   1. Added 8 new Microsoft.Compute resource types.
+>   1. Added 3 new Microsoft.ContainerInstance resource types.
+>   1. Added 3 new Microsoft.DatabaseFleetManager resource types.
+>   1. Added 4 new Microsoft.Fabric resource types.
+>   1. Added 5 new Microsoft.OpenLogisticsPlatform resource types.
+>   1. Added 3 new Microsoft.Sovereign resource types.
+>   1. Added 14 other new resource types: arizeai.observabilityeval/organizations, lambdatest.hyperexecute/organizations, microsoft.azurestackhci/edgedevices/jobs, microsoft.clouddeviceplatform/delegatedidentities, microsoft.compute/capacityreservationgroupscomputehub, microsoft.compute/galleries/imagescomputehub, microsoft.compute/hostgroupscomputehub, microsoft.hybridcompute/machinessoftwareassurance, microsoft.machinelearning/workspaces, microsoft.resources/deletedresources, microsoft.security/defenderforstoragesettings/malwarescans, microsoft.weightsandbiases/instances, neon.postgres/organizations, pinecone.vectordb/organizations.
+> - [Services](../_reporting/data/README.md#-services)
+>   1. Added 3 resource types to existing services: microsoft.hardwaresecuritymodules/cloudhsmclusters, microsoft.healthdataaiservices/deidservices, microsoft.insights/datacollectionrules.
+>
+> ✏️ Changed:
+>
+> - [Resource types](../_reporting/data/README.md#-resource-types)
+>   1. Updated 17 new Microsoft.ComputeHub resource types.
+>   1. Updated 9 other resource type: microsoft.appsecurity/policies, microsoft.compute/virtualmachines/providers/guestconfigurationassignments, microsoft.dbforpostgresql/flexibleservers, microsoft.deviceregistry/billingcontainers, microsoft.durabletask/namespaces, microsoft.durabletask/namespaces/taskhubs, microsoft.edge/configurations, microsoft.hybridcompute/machines/providers/guestconfigurationassignments, microsoft.securitycopilot/capacities.
 
 <br>
 

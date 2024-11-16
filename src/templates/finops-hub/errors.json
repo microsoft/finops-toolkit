@@ -49,6 +49,12 @@
       "mitigation": "Confirm the storage URL matches the 'StorageUrlForPowerBI' from your FinOps hub deployment, Cost Management exports are pointing to the 'msexports' container and have successfully exported data, and that FinOps hub data factory triggers are started and pipelines are running successfully. Leverage the Data ingestion report and the troubleshooting guide (https://aka.ms/finops/hubs/troubleshoot) to validate your deployment."
     },
     {
+      "code": "InvalidEffectiveCost",
+      "severity": "Major",
+      "message": "This file looks like it may be exported from Cost Management but it is not in the correct container.",
+      "mitigation": "Update your Cost Management export to point to the 'msexports' storage container. The 'ingestion' container is only used for querying ingested cost data."
+    },
+    {
       "code": "InvalidExportContainer",
       "severity": "Critical",
       "message": "This file looks like it may be exported from Cost Management but it is not in the correct container.",

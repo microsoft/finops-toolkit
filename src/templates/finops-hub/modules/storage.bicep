@@ -161,6 +161,18 @@ resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
   properties: {}
 }
 
+resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
+  name: 'privatelink.queue.${environment().suffixes.storage}'
+  location: 'global'
+  properties: {}
+}
+
+resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = {
+  name: 'privatelink.table.${environment().suffixes.storage}'
+  location: 'global'
+  properties: {}
+}
+
 resource blobPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
   parent: blobPrivateDnsZone
   name: '${replace(blobPrivateDnsZone.name, '.', '-')}-link'
@@ -176,6 +188,30 @@ resource blobPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetwor
 resource dfsPrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
   parent: dfsPrivateDnsZone
   name: '${replace(dfsPrivateDnsZone.name, '.', '-')}-link'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: virtualNetworkId
+    }
+  }
+}
+
+resource queuePrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
+  parent: queuePrivateDnsZone
+  name: '${replace(queuePrivateDnsZone.name, '.', '-')}-link'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: virtualNetworkId
+    }
+  }
+}
+
+resource tablePrivateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
+  parent: tablePrivateDnsZone
+  name: '${replace(tablePrivateDnsZone.name, '.', '-')}-link'
   location: 'global'
   properties: {
     registrationEnabled: false
@@ -243,7 +279,7 @@ resource dfsEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = {
 }
 
 resource blobPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = {
-  name: 'blob-endpoint-zone'
+  name: 'storage-endpoint-zone'
   parent: blobEndpoint
   properties: {
     privateDnsZoneConfigs: [
@@ -251,6 +287,24 @@ resource blobPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZ
         name: blobPrivateDnsZone.name
         properties: {
           privateDnsZoneId: blobPrivateDnsZone.id
+        }
+      }
+      {
+        name: dfsPrivateDnsZone.name
+        properties: {
+          privateDnsZoneId: dfsPrivateDnsZone.id
+        }
+      }
+      {
+        name: tablePrivateDnsZone.name
+        properties: {
+          privateDnsZoneId: tablePrivateDnsZone.id
+        }
+      }
+      {
+        name: queuePrivateDnsZone.name
+        properties: {
+          privateDnsZoneId: queuePrivateDnsZone.id
         }
       }
     ]
@@ -266,21 +320,6 @@ resource scriptPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDn
         name: blobPrivateDnsZone.name
         properties: {
           privateDnsZoneId: blobPrivateDnsZone.id
-        }
-      }
-    ]
-  }
-}
-
-resource dfsPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-11-01' = {
-  name: 'dfs-endpoint-zone'
-  parent: dfsEndpoint
-  properties: {
-    privateDnsZoneConfigs: [
-      {
-        name: dfsPrivateDnsZone.name
-        properties: {
-          privateDnsZoneId: dfsPrivateDnsZone.id
         }
       }
     ]
